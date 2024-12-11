@@ -651,6 +651,7 @@
 <a href="#651" id="651">651</a>
 <a href="#652" id="652">652</a>
 <a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::path::PathBuf;
 
 <span class="kw">use crate</span>::{
@@ -1273,6 +1274,7 @@ AND deleted_at IS NULL
                     copy_user_permissions: <span class="bool-val">false</span>,
                     is_joinable_by_code_only: <span class="bool-val">false</span>,
                     join_code: <span class="prelude-val">None</span>,
+                    ask_marketing_consent: <span class="bool-val">false</span>,
                 },
                 user,
                 |<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>| <span class="macro">unimplemented!</span>(),

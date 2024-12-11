@@ -1176,6 +1176,10 @@
 <a href="#1176" id="1176">1176</a>
 <a href="#1177" id="1177">1177</a>
 <a href="#1178" id="1178">1178</a>
+<a href="#1179" id="1179">1179</a>
+<a href="#1180" id="1180">1180</a>
+<a href="#1181" id="1181">1181</a>
+<a href="#1182" id="1182">1182</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>serde_json::Value;
@@ -1228,9 +1232,10 @@ INSERT INTO courses (
     can_add_chatbot,
     is_unlisted,
     is_joinable_by_code_only,
-    join_code
+    join_code,
+    ask_marketing_consent
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
 RETURNING id,
   name,
   created_at,
@@ -1249,7 +1254,8 @@ RETURNING id,
   can_add_chatbot,
   is_unlisted,
   is_joinable_by_code_only,
-  join_code
+  join_code,
+  ask_marketing_consent
     "</span>,
         new_course.name,
         new_course.organization_id,
@@ -1263,7 +1269,8 @@ RETURNING id,
         parent_course.can_add_chatbot,
         new_course.is_unlisted,
         new_course.is_joinable_by_code_only,
-        new_course.join_code
+        new_course.join_code,
+        new_course.ask_marketing_consent
     )
     .fetch_one(<span class="kw-2">&amp;mut *</span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -2350,6 +2357,7 @@ AND deleted_at IS NULL;
                 copy_user_permissions: <span class="bool-val">false</span>,
                 is_joinable_by_code_only: <span class="bool-val">false</span>,
                 join_code: <span class="prelude-val">None</span>,
+                ask_marketing_consent: <span class="bool-val">false</span>,
             }
         }
     }

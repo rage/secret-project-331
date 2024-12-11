@@ -963,6 +963,24 @@
 <a href="#963" id="963">963</a>
 <a href="#964" id="964">964</a>
 <a href="#965" id="965">965</a>
+<a href="#966" id="966">966</a>
+<a href="#967" id="967">967</a>
+<a href="#968" id="968">968</a>
+<a href="#969" id="969">969</a>
+<a href="#970" id="970">970</a>
+<a href="#971" id="971">971</a>
+<a href="#972" id="972">972</a>
+<a href="#973" id="973">973</a>
+<a href="#974" id="974">974</a>
+<a href="#975" id="975">975</a>
+<a href="#976" id="976">976</a>
+<a href="#977" id="977">977</a>
+<a href="#978" id="978">978</a>
+<a href="#979" id="979">979</a>
+<a href="#980" id="980">980</a>
+<a href="#981" id="981">981</a>
+<a href="#982" id="982">982</a>
+<a href="#983" id="983">983</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>headless_lms_utils::{
     file_store::FileStore, language_tag_to_name::LANGUAGE_TAG_TO_NAME, ApplicationConfiguration,
 };
@@ -1013,6 +1031,7 @@
     <span class="kw">pub </span>can_add_chatbot: bool,
     <span class="kw">pub </span>is_joinable_by_code_only: bool,
     <span class="kw">pub </span>join_code: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>ask_marketing_consent: bool,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -1045,6 +1064,7 @@
     </span><span class="kw">pub </span>copy_user_permissions: bool,
     <span class="kw">pub </span>is_joinable_by_code_only: bool,
     <span class="kw">pub </span>join_code: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>ask_marketing_consent: bool,
 }
 
 <span class="kw">pub async fn </span>insert(
@@ -1131,7 +1151,8 @@ SELECT id,
   can_add_chatbot,
   is_unlisted,
   is_joinable_by_code_only,
-  join_code
+  join_code,
+  ask_marketing_consent
 FROM courses
 WHERE deleted_at IS NULL;
 "#
@@ -1166,7 +1187,8 @@ SELECT id,
   base_module_completion_requires_n_submodule_completions,
   can_add_chatbot,
   is_joinable_by_code_only,
-  join_code
+  join_code,
+  ask_marketing_consent
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND id IN (
@@ -1208,7 +1230,8 @@ SELECT id,
   is_unlisted,
   base_module_completion_requires_n_submodule_completions,
   is_joinable_by_code_only,
-  join_code
+  join_code,
+  ask_marketing_consent
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND (
@@ -1262,7 +1285,8 @@ SELECT id,
   can_add_chatbot,
   is_unlisted,
   is_joinable_by_code_only,
-  join_code
+  join_code,
+  ask_marketing_consent
 FROM courses
 WHERE course_language_group_id = $1
 AND deleted_at IS NULL
@@ -1301,7 +1325,8 @@ SELECT
     can_add_chatbot,
     c.is_unlisted,
     c.is_joinable_by_code_only,
-    c.join_code
+    c.join_code,
+  c.ask_marketing_consent
 FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
 WHERE
@@ -1365,7 +1390,8 @@ SELECT id,
   is_unlisted,
   base_module_completion_requires_n_submodule_completions,
   is_joinable_by_code_only,
-  join_code
+  join_code,
+  ask_marketing_consent
 FROM courses
 WHERE id = $1;
     "#</span>,
@@ -1471,7 +1497,8 @@ SELECT courses.id,
   can_add_chatbot,
   courses.is_unlisted,
   courses.is_joinable_by_code_only,
-  courses.join_code
+  courses.join_code,
+  courses.ask_marketing_consent
 FROM courses
 WHERE courses.organization_id = $1
   AND (
@@ -1535,6 +1562,7 @@ WHERE organization_id = $1
     <span class="kw">pub </span>can_add_chatbot: bool,
     <span class="kw">pub </span>is_unlisted: bool,
     <span class="kw">pub </span>is_joinable_by_code_only: bool,
+    <span class="kw">pub </span>ask_marketing_consent: bool,
 }
 
 <span class="kw">pub async fn </span>update_course(
@@ -1552,8 +1580,9 @@ SET name = $1,
   is_test_mode = $4,
   can_add_chatbot = $5,
   is_unlisted = $6,
-  is_joinable_by_code_only = $7
-WHERE id = $8
+  is_joinable_by_code_only = $7,
+  ask_marketing_consent = $8
+WHERE id = $9
 RETURNING id,
   name,
   created_at,
@@ -1572,7 +1601,8 @@ RETURNING id,
   is_unlisted,
   base_module_completion_requires_n_submodule_completions,
   is_joinable_by_code_only,
-  join_code
+  join_code,
+  ask_marketing_consent
     "#</span>,
         course_update.name,
         course_update.description,
@@ -1581,6 +1611,7 @@ RETURNING id,
         course_update.can_add_chatbot,
         course_update.is_unlisted,
         course_update.is_joinable_by_code_only,
+        course_update.ask_marketing_consent,
         course_id
     )
     .fetch_one(conn)
@@ -1633,7 +1664,8 @@ RETURNING id,
   is_unlisted,
   base_module_completion_requires_n_submodule_completions,
   is_joinable_by_code_only,
-  join_code
+  join_code,
+  ask_marketing_consent
     "#</span>,
         course_id
     )
@@ -1664,7 +1696,8 @@ SELECT id,
   is_unlisted,
   base_module_completion_requires_n_submodule_completions,
   is_joinable_by_code_only,
-  join_code
+  join_code,
+  ask_marketing_consent
 FROM courses
 WHERE slug = $1
   AND deleted_at IS NULL
@@ -1754,7 +1787,8 @@ SELECT id,
   is_unlisted,
   base_module_completion_requires_n_submodule_completions,
   is_joinable_by_code_only,
-  join_code
+  join_code,
+  ask_marketing_consent
 FROM courses
 WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
   "</span>,
@@ -1809,7 +1843,8 @@ SELECT id,
   is_unlisted,
   base_module_completion_requires_n_submodule_completions,
   is_joinable_by_code_only,
-  join_code
+  join_code,
+  ask_marketing_consent
 FROM courses
 WHERE join_code = $1
   AND deleted_at IS NULL;
@@ -1924,6 +1959,7 @@ WHERE join_code = $1
                 copy_user_permissions: <span class="bool-val">false</span>,
                 is_joinable_by_code_only: <span class="bool-val">false</span>,
                 join_code: <span class="prelude-val">None</span>,
+                ask_marketing_consent: <span class="bool-val">false</span>,
             }
         }
     }

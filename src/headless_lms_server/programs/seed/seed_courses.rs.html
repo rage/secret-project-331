@@ -4816,6 +4816,11 @@
 <a href="#4816" id="4816">4816</a>
 <a href="#4817" id="4817">4817</a>
 <a href="#4818" id="4818">4818</a>
+<a href="#4819" id="4819">4819</a>
+<a href="#4820" id="4820">4820</a>
+<a href="#4821" id="4821">4821</a>
+<a href="#4822" id="4822">4822</a>
+<a href="#4823" id="4823">4823</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span><span class="kw">crate</span>::domain::models_requests::{<span class="self">self</span>, JwtKey};
@@ -4914,6 +4919,7 @@
         copy_user_permissions: <span class="bool-val">false</span>,
         is_joinable_by_code_only: <span class="bool-val">false</span>,
         join_code: <span class="prelude-val">None</span>,
+        ask_marketing_consent: <span class="bool-val">false</span>,
     };
     <span class="kw">let </span>(course, _front_page, default_instance, default_module) =
         library::content_management::create_new_course(
@@ -6848,6 +6854,7 @@
         copy_user_permissions: <span class="bool-val">false</span>,
         is_joinable_by_code_only: <span class="bool-val">false</span>,
         join_code: <span class="prelude-val">None</span>,
+        ask_marketing_consent: <span class="bool-val">false</span>,
     };
 
     <span class="kw">let </span>(course, _front_page, _default_instance, default_module) =
@@ -6974,6 +6981,7 @@
         copy_user_permissions: <span class="bool-val">false</span>,
         is_joinable_by_code_only: <span class="bool-val">false</span>,
         join_code: <span class="prelude-val">None</span>,
+        ask_marketing_consent: <span class="bool-val">false</span>,
     };
     <span class="kw">let </span>(course, front_page, default_instance, default_module) =
         library::content_management::create_new_course(
@@ -7853,6 +7861,7 @@
         copy_user_permissions: <span class="bool-val">false</span>,
         is_joinable_by_code_only: <span class="bool-val">false</span>,
         join_code: <span class="prelude-val">None</span>,
+        ask_marketing_consent: <span class="bool-val">false</span>,
     };
     <span class="kw">let </span>(course, _front_page, <span class="kw">_</span>, default_module) = library::content_management::create_new_course(
         <span class="kw-2">&amp;mut </span>conn,
@@ -9260,6 +9269,7 @@
         copy_user_permissions: <span class="bool-val">false</span>,
         is_joinable_by_code_only: <span class="bool-val">false</span>,
         join_code: <span class="prelude-val">None</span>,
+        ask_marketing_consent: <span class="bool-val">false</span>,
     };
 
     <span class="kw">let </span>(course, _front_page, <span class="kw">_</span>, default_module) = library::content_management::create_new_course(

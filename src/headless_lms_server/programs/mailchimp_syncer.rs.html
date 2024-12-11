@@ -708,6 +708,26 @@
 <a href="#708" id="708">708</a>
 <a href="#709" id="709">709</a>
 <a href="#710" id="710">710</a>
+<a href="#711" id="711">711</a>
+<a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::setup_tracing;
 <span class="kw">use </span>dotenv::dotenv;
 <span class="kw">use </span>headless_lms_models::marketing_consents::MarketingMailingListAccessToken;
@@ -717,7 +737,10 @@
 <span class="kw">use </span>serde::Deserialize;
 <span class="kw">use </span>serde_json::json;
 <span class="kw">use </span>sqlx::{PgConnection, PgPool};
-<span class="kw">use </span>std::{env, time::Duration};
+<span class="kw">use </span>std::{
+    env,
+    time::{Duration, Instant},
+};
 <span class="kw">use </span>uuid::Uuid;
 
 <span class="attr">#[derive(Debug, Deserialize)]
@@ -784,6 +807,7 @@
 <span class="doccomment">/// These fields are excluded from removing all fields that are not in the schema
 </span><span class="kw">const </span>FIELDS_EXCLUDED_FROM_REMOVING: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>str] = <span class="kw-2">&amp;</span>[<span class="string">"PHONE"</span>, <span class="string">"PACE"</span>, <span class="string">"COUNTRY"</span>, <span class="string">"MMERGE9"</span>];
 <span class="kw">const </span>REMOVE_UNSUPPORTED_FIELDS: bool = <span class="bool-val">false</span>;
+<span class="kw">const </span>PROCESS_UNSUBSCRIBES_INTERVAL_SECS: u64 = <span class="number">10_800</span>;
 
 <span class="kw">const </span>SYNC_INTERVAL_SECS: u64 = <span class="number">10</span>;
 <span class="kw">const </span>PRINT_STILL_RUNNING_MESSAGE_TICKS_THRESHOLD: u32 = <span class="number">60</span>;
@@ -825,6 +849,8 @@
 
     <span class="macro">info!</span>(<span class="string">"Starting mailchimp syncer."</span>);
 
+    <span class="kw">let </span><span class="kw-2">mut </span>last_time_unsubscribes_processed = Instant::now();
+
     <span class="kw">loop </span>{
         interval.tick().<span class="kw">await</span>;
         ticks += <span class="number">1</span>;
@@ -833,7 +859,14 @@
             ticks = <span class="number">0</span>;
             <span class="macro">info!</span>(<span class="string">"Still syncing."</span>);
         }
-        <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = sync_contacts(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>config).<span class="kw">await </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>process_unsubscribes = <span class="bool-val">false</span>;
+        <span class="kw">if </span>last_time_unsubscribes_processed.elapsed().as_secs()
+            &gt;= PROCESS_UNSUBSCRIBES_INTERVAL_SECS
+        {
+            process_unsubscribes = <span class="bool-val">true</span>;
+            last_time_unsubscribes_processed = Instant::now();
+        };
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = sync_contacts(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>config, process_unsubscribes).<span class="kw">await </span>{
             <span class="macro">error!</span>(<span class="string">"Error during synchronization: {:?}"</span>, e);
         }
     }
@@ -1058,7 +1091,12 @@
 }
 
 <span class="doccomment">/// Synchronizes the user contacts with Mailchimp.
-</span><span class="kw">async fn </span>sync_contacts(conn: <span class="kw-2">&amp;mut </span>PgConnection, _config: <span class="kw-2">&amp;</span>SyncerConfig) -&gt; anyhow::Result&lt;()&gt; {
+/// Added a boolean flag to determine whether to process unsubscribes.
+</span><span class="kw">async fn </span>sync_contacts(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    _config: <span class="kw-2">&amp;</span>SyncerConfig,
+    process_unsubscribes: bool,
+) -&gt; anyhow::Result&lt;()&gt; {
     <span class="kw">let </span>access_tokens =
         headless_lms_models::marketing_consents::fetch_all_marketing_mailing_list_access_tokens(
             conn,
@@ -1070,20 +1108,22 @@
     <span class="comment">// Iterate through tokens and fetch and send user details to Mailchimp
     </span><span class="kw">for </span>token <span class="kw">in </span>access_tokens {
         <span class="comment">// Fetch all users from Mailchimp and sync possible changes locally
-        </span><span class="kw">let </span>mailchimp_data = fetch_unsubscribed_users_from_mailchimp_in_chunks(
-            <span class="kw-2">&amp;</span>token.mailchimp_mailing_list_id,
-            <span class="kw-2">&amp;</span>token.server_prefix,
-            <span class="kw-2">&amp;</span>token.access_token,
-            <span class="number">1000</span>,
-        )
-        .<span class="kw">await</span><span class="question-mark">?</span>;
+        </span><span class="kw">if </span>process_unsubscribes {
+            <span class="kw">let </span>mailchimp_data = fetch_unsubscribed_users_from_mailchimp_in_chunks(
+                <span class="kw-2">&amp;</span>token.mailchimp_mailing_list_id,
+                <span class="kw-2">&amp;</span>token.server_prefix,
+                <span class="kw-2">&amp;</span>token.access_token,
+                <span class="number">1000</span>,
+            )
+            .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="macro">info!</span>(
-            <span class="string">"Processing Mailchimp data for list: {}"</span>,
-            token.mailchimp_mailing_list_id
-        );
+            <span class="macro">info!</span>(
+                <span class="string">"Processing Mailchimp data for list: {}"</span>,
+                token.mailchimp_mailing_list_id
+            );
 
-        process_unsubscribed_users_from_mailchimp(conn, mailchimp_data).<span class="kw">await</span><span class="question-mark">?</span>;
+            process_unsubscribed_users_from_mailchimp(conn, mailchimp_data).<span class="kw">await</span><span class="question-mark">?</span>;
+        }
 
         <span class="comment">// Fetch unsynced emails and update them in Mailchimp
         </span><span class="kw">let </span>users_with_unsynced_emails =

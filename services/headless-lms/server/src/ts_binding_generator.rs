@@ -170,6 +170,8 @@ fn models(target: &mut File) {
         library::progressing::UserModuleCompletionStatus,
         library::progressing::UserWithModuleCompletions,
 
+        marketing_consents::UserMarketingConsent,
+
         material_references::MaterialReference,
         material_references::NewMaterialReference,
 

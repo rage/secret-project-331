@@ -164,6 +164,7 @@ async fn insert_data(
                 copy_user_permissions: false,
                 is_joinable_by_code_only: false,
                 join_code: None,
+                ask_marketing_consent: false,
             },
             user_1,
             models_requests::make_spec_fetcher(

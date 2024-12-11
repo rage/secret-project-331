@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n    DISTINCT(c.id),\n    c.name,\n    c.created_at,\n    c.updated_at,\n    c.organization_id,\n    c.deleted_at,\n    c.slug,\n    c.content_search_language::text,\n    c.language_code,\n    c.copied_from,\n    c.course_language_group_id,\n    c.description,\n    c.is_draft,\n    c.is_test_mode,\n    c.base_module_completion_requires_n_submodule_completions,\n    can_add_chatbot,\n    c.is_unlisted,\n    c.is_joinable_by_code_only,\n    c.join_code\nFROM courses as c\n    LEFT JOIN course_instances as ci on c.id = ci.course_id\nWHERE\n    c.organization_id = $1 AND\n    ci.starts_at < NOW() AND ci.ends_at > NOW() AND\n    c.deleted_at IS NULL AND ci.deleted_at IS NULL\n    LIMIT $2 OFFSET $3;\n        ",
+  "query": "\nSELECT courses.id,\n  courses.name,\n  courses.created_at,\n  courses.updated_at,\n  courses.organization_id,\n  courses.deleted_at,\n  courses.slug,\n  courses.content_search_language::text,\n  courses.language_code,\n  courses.copied_from,\n  courses.course_language_group_id,\n  courses.description,\n  courses.is_draft,\n  courses.is_test_mode,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot,\n  courses.is_unlisted,\n  courses.is_joinable_by_code_only,\n  courses.join_code,\n  courses.ask_marketing_consent\nFROM courses\nWHERE courses.organization_id = $1\n  AND (\n    (\n      courses.is_draft IS FALSE\n      AND courses.is_unlisted IS FALSE\n    )\n    OR EXISTS (\n      SELECT id\n      FROM roles\n      WHERE user_id = $2\n        AND (\n          course_id = courses.id\n          OR roles.organization_id = courses.organization_id\n          OR roles.is_global IS TRUE\n        )\n    )\n  )\n  AND courses.deleted_at IS NULL\nORDER BY courses.name\nLIMIT $3 OFFSET $4;\n",
   "describe": {
     "columns": [
       {
@@ -97,10 +97,15 @@
         "ordinal": 18,
         "name": "join_code",
         "type_info": "Varchar"
+      },
+      {
+        "ordinal": 19,
+        "name": "ask_marketing_consent",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
-      "Left": ["Uuid", "Int8", "Int8"]
+      "Left": ["Uuid", "Uuid", "Int8", "Int8"]
     },
     "nullable": [
       false,
@@ -121,8 +126,9 @@
       false,
       false,
       false,
-      true
+      true,
+      false
     ]
   },
-  "hash": "dc6b04142ac276503be3b714a535f56e008e8516a2c38f2f149fbeaa1571c5ed"
+  "hash": "b5da68bc470f028a050fcca492eaf73c18e7f97137ea7f5f4ce1f1322e8c137c"
 }

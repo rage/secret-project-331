@@ -68,6 +68,10 @@ fn main() -> Result<()> {
             name: "chatbot-syncer",
             execute: Box::new(|| tokio_run(programs::chatbot_syncer::main())),
         },
+        Program {
+            name: "mailchimp-syncer",
+            execute: Box::new(|| tokio_run(programs::mailchimp_syncer::main())),
+        },
     ];
 
     let program_name = std::env::args().nth(1).unwrap_or_else(|| {

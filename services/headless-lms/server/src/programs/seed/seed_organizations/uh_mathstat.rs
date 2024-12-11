@@ -88,6 +88,7 @@ pub async fn seed_organization_uh_mathstat(
         copy_user_permissions: false,
         is_joinable_by_code_only: false,
         join_code: None,
+        ask_marketing_consent: false,
     };
     let (
         statistics_course,
@@ -136,6 +137,7 @@ pub async fn seed_organization_uh_mathstat(
         copy_user_permissions: false,
         is_joinable_by_code_only: false,
         join_code: None,
+        ask_marketing_consent: false,
     };
     library::content_management::create_new_course(
         &mut conn,
@@ -166,6 +168,7 @@ pub async fn seed_organization_uh_mathstat(
         join_code: Some(
             "zARvZARjYhESMPVceEgZyJGQZZuUHVVgcUepyzEqzSqCMdbSCDrTaFhkJTxBshWU".to_string(),
         ),
+        ask_marketing_consent: false,
     };
     library::content_management::create_new_course(
         &mut conn,
@@ -216,6 +219,7 @@ pub async fn seed_organization_uh_mathstat(
             copy_user_permissions: false,
             is_joinable_by_code_only: false,
             join_code: None,
+            ask_marketing_consent: false,
         },
         true,
         admin_user_id,

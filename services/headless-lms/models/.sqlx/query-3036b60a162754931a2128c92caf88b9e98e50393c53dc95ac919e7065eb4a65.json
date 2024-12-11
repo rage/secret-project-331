@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      INSERT INTO user_marketing_consents (user_id, course_id, course_language_group_id, consent, email_subscription_in_mailchimp)\n      VALUES ($1, $2, $3, $4, $5)\n      ON CONFLICT (user_id, course_language_group_id)\n      DO UPDATE\n      SET\n        consent = $4,\n        email_subscription_in_mailchimp = $5\n      RETURNING id\n      ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Uuid", "Uuid", "Bool", "Varchar"]
+    },
+    "nullable": [false]
+  },
+  "hash": "3036b60a162754931a2128c92caf88b9e98e50393c53dc95ac919e7065eb4a65"
+}

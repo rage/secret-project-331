@@ -77,9 +77,9 @@ const REQUIRED_FIELDS: &[FieldSchema] = &[
 /// These fields are excluded from removing all fields that are not in the schema
 const FIELDS_EXCLUDED_FROM_REMOVING: &[&str] = &["PHONE", "PACE", "COUNTRY", "MMERGE9"];
 const REMOVE_UNSUPPORTED_FIELDS: bool = false;
+const PROCESS_UNSUBSCRIBES_INTERVAL_SECS: u64 = 10_800;
 
 const SYNC_INTERVAL_SECS: u64 = 10;
-const UNSUBSCRIBE_INTERVAL_SECS: u64 = 10800; // 3 hours in seconds
 const PRINT_STILL_RUNNING_MESSAGE_TICKS_THRESHOLD: u32 = 60;
 
 /// The main function that initializes environment variables, config, and sync process.
@@ -92,7 +92,6 @@ pub async fn main() -> anyhow::Result<()> {
     let mut conn = db_pool.acquire().await?;
 
     let mut interval = tokio::time::interval(Duration::from_secs(SYNC_INTERVAL_SECS));
-
     let mut ticks = 0;
 
     let access_tokens =
@@ -121,6 +120,7 @@ pub async fn main() -> anyhow::Result<()> {
     info!("Starting mailchimp syncer.");
 
     let mut last_time_unsubscribes_processed = Instant::now();
+
     loop {
         interval.tick().await;
         ticks += 1;
@@ -130,7 +130,9 @@ pub async fn main() -> anyhow::Result<()> {
             info!("Still syncing.");
         }
         let mut process_unsubscribes = false;
-        if last_time_unsubscribes_processed.elapsed().as_secs() >= UNSUBSCRIBE_INTERVAL_SECS {
+        if last_time_unsubscribes_processed.elapsed().as_secs()
+            >= PROCESS_UNSUBSCRIBES_INTERVAL_SECS
+        {
             process_unsubscribes = true;
             last_time_unsubscribes_processed = Instant::now();
         };

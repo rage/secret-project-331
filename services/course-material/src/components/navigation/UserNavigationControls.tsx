@@ -26,7 +26,7 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
   currentPagePath,
   courseId,
 }) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
   const [showSettings, setShowSettings] = useState<boolean>(false)
   const returnTo = useCurrentPagePathForReturnTo(currentPagePath)
@@ -46,10 +46,10 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
   }
 
   // eslint-disable-next-line i18next/no-literal-string
-  const loginPathWithReturnTo = `/login?return_to=${encodeURIComponent(returnTo)}`
+  const loginPathWithReturnTo = `/login?return_to=${encodeURIComponent(returnTo)}&lang=${i18n.language}`
 
   // eslint-disable-next-line i18next/no-literal-string
-  const signUpPathWithReturnTo = `/signup?return_to=${encodeURIComponent(returnTo)}`
+  const signUpPathWithReturnTo = `/signup?return_to=${encodeURIComponent(returnTo)}&lang=${i18n.language}`
 
   return loginStateContext.signedIn ? (
     <>

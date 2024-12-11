@@ -41,7 +41,8 @@ spec:
             - |
               echo Waiting for postgres to be available
               timeout 120 ./wait-for-db.sh
-              ./wait-for-db-migrations.sh
+              # Need to also wait for marketing_mailing_list_access_tokens because migrations can take a moment to run, and the syncer depends on this table
+              ./wait-for-db-migrations.sh marketing_mailing_list_access_tokens
           resources:
             requests:
               memory: 100Mi

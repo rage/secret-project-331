@@ -7,7 +7,7 @@ import { getValueFromCookieString } from "../utils/cookies"
 const LANGUAGE_QUERY_KEY = "lang"
 const IS_SERVER = typeof window === "undefined"
 
-const SUPPORTED_LANGUAGES = ["en", "fi"]
+const SUPPORTED_LANGUAGES = ["en", "fi", "uk"]
 const DEFAULT_LANGUAGE = "en"
 
 const CAN_ACCESS_COOKIES = detectAccessToCookies()

@@ -7,7 +7,10 @@ use headless_lms_utils::http::REQWEST_CLIENT;
 use serde::Deserialize;
 use serde_json::json;
 use sqlx::{PgConnection, PgPool};
-use std::{env, time::Duration};
+use std::{
+    env,
+    time::{Duration, Instant},
+};
 use uuid::Uuid;
 
 #[derive(Debug, Deserialize)]
@@ -74,6 +77,7 @@ const REQUIRED_FIELDS: &[FieldSchema] = &[
 /// These fields are excluded from removing all fields that are not in the schema
 const FIELDS_EXCLUDED_FROM_REMOVING: &[&str] = &["PHONE", "PACE", "COUNTRY", "MMERGE9"];
 const REMOVE_UNSUPPORTED_FIELDS: bool = false;
+const PROCESS_UNSUBSCRIBES_INTERVAL_SECS: u64 = 10_800;
 
 const SYNC_INTERVAL_SECS: u64 = 10;
 const PRINT_STILL_RUNNING_MESSAGE_TICKS_THRESHOLD: u32 = 60;
@@ -115,6 +119,8 @@ pub async fn main() -> anyhow::Result<()> {
 
     info!("Starting mailchimp syncer.");
 
+    let mut last_time_unsubscribes_processed = Instant::now();
+
     loop {
         interval.tick().await;
         ticks += 1;
@@ -123,7 +129,14 @@ pub async fn main() -> anyhow::Result<()> {
             ticks = 0;
             info!("Still syncing.");
         }
-        if let Err(e) = sync_contacts(&mut conn, &config).await {
+        let mut process_unsubscribes = false;
+        if last_time_unsubscribes_processed.elapsed().as_secs()
+            >= PROCESS_UNSUBSCRIBES_INTERVAL_SECS
+        {
+            process_unsubscribes = true;
+            last_time_unsubscribes_processed = Instant::now();
+        };
+        if let Err(e) = sync_contacts(&mut conn, &config, process_unsubscribes).await {
             error!("Error during synchronization: {:?}", e);
         }
     }
@@ -348,7 +361,12 @@ async fn remove_field_from_mailchimp(
 }
 
 /// Synchronizes the user contacts with Mailchimp.
-async fn sync_contacts(conn: &mut PgConnection, _config: &SyncerConfig) -> anyhow::Result<()> {
+/// Added a boolean flag to determine whether to process unsubscribes.
+async fn sync_contacts(
+    conn: &mut PgConnection,
+    _config: &SyncerConfig,
+    process_unsubscribes: bool,
+) -> anyhow::Result<()> {
     let access_tokens =
         headless_lms_models::marketing_consents::fetch_all_marketing_mailing_list_access_tokens(
             conn,
@@ -360,20 +378,22 @@ async fn sync_contacts(conn: &mut PgConnection, _config: &SyncerConfig) -> anyho
     // Iterate through tokens and fetch and send user details to Mailchimp
     for token in access_tokens {
         // Fetch all users from Mailchimp and sync possible changes locally
-        let mailchimp_data = fetch_unsubscribed_users_from_mailchimp_in_chunks(
-            &token.mailchimp_mailing_list_id,
-            &token.server_prefix,
-            &token.access_token,
-            1000,
-        )
-        .await?;
+        if process_unsubscribes {
+            let mailchimp_data = fetch_unsubscribed_users_from_mailchimp_in_chunks(
+                &token.mailchimp_mailing_list_id,
+                &token.server_prefix,
+                &token.access_token,
+                1000,
+            )
+            .await?;
 
-        info!(
-            "Processing Mailchimp data for list: {}",
-            token.mailchimp_mailing_list_id
-        );
+            info!(
+                "Processing Mailchimp data for list: {}",
+                token.mailchimp_mailing_list_id
+            );
 
-        process_unsubscribed_users_from_mailchimp(conn, mailchimp_data).await?;
+            process_unsubscribed_users_from_mailchimp(conn, mailchimp_data).await?;
+        }
 
         // Fetch unsynced emails and update them in Mailchimp
         let users_with_unsynced_emails =

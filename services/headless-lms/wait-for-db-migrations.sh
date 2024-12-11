@@ -17,3 +17,15 @@ done
 echo ""
 
 echo "Database is available: courses table found."
+
+# The script can also wait for additional tables by passing them as arguments
+for table in "$@"; do
+  echo "Waiting until I find the $table table in postgres..."
+  until test "$(psql "$DATABASE_URL" -c '\d' --csv | grep -c ",$table,table,")" -eq 1 2> /dev/null; do
+    echo -n "."
+    sleep 1
+  done
+  # Clear line because echo -n above wont print line breaks
+  echo ""
+  echo "Database is available: $table table found."
+done

@@ -57,7 +57,16 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
   await page.getByText("Choose your preferred language").first().waitFor()
 
   await page.getByText("Default").first().click()
-  await page.getByRole("button", { name: "Continue" }).click()
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(200)
+  await page.getByTestId("select-course-instance-continue-button").click()
+  try {
+    await page.getByTestId("select-course-instance-continue-button").waitFor({ state: "hidden" })
+  } catch (_e) {
+    await page.getByTestId("select-course-instance-continue-button").click()
+    await page.getByTestId("select-course-instance-continue-button").waitFor({ state: "hidden" })
+  }
+
   await page.getByRole("heading", { name: "Course overview" }).waitFor()
 
   await expect(page).toHaveURL(

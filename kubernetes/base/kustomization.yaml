@@ -18,3 +18,4 @@ resources:
   - headless-lms/peer-review-updater.yml
   - headless-lms/sync-tmc-users.yml
   - headless-lms/chatbot-syncer.yml
+  - headless-lms/mailchimp-syncer.yml

@@ -998,7 +998,7 @@ async fn get_privacy_link(
 ) -> ControllerResult<web::Json<Vec<PrivacyLink>>> {
     let mut conn = pool.acquire().await?;
     let user_id = Some(user.id);
-    let token = authorize_access_to_course_material(&mut conn, user_id, *course_id).await?;
+    let token = skip_authorize();
 
     let privacy_link = models::privacy_link::get_privacy_link(&mut conn, *course_id).await?;
 

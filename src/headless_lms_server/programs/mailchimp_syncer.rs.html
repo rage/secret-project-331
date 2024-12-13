@@ -1223,8 +1223,8 @@
                     <span class="string">"email_address"</span>: user.email,
                     <span class="string">"status"</span>: user.email_subscription_in_mailchimp,
                     <span class="string">"merge_fields"</span>: {
-                        <span class="string">"FNAME"</span>: user.first_name,
-                        <span class="string">"LNAME"</span>: user.last_name,
+                        <span class="string">"FNAME"</span>: user.first_name.clone().unwrap_or(<span class="string">""</span>.to_string()),
+                        <span class="string">"LNAME"</span>: user.last_name.clone().unwrap_or(<span class="string">""</span>.to_string()),
                         <span class="string">"MARKETING"</span>: <span class="kw">if </span>user.consent { <span class="string">"allowed" </span>} <span class="kw">else </span>{ <span class="string">"disallowed" </span>},
                         <span class="string">"LOCALE"</span>: user.locale,
                         <span class="comment">// If the course is not completed, we pass an empty string to mailchimp to remove the value

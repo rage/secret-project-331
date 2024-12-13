@@ -123,7 +123,7 @@ const SelectCourseInstanceForm: React.FC<
         backgroundQuestionAnswers: additionalQuestionAnswers,
       })
     }
-    if (getCourse.isSuccess) {
+    if (getCourse.isSuccess && getCourse.data?.ask_marketing_consent) {
       await updateMarketingConsent(
         getCourse.data.id,
         getCourse.data.course_language_group_id,

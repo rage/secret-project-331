@@ -492,8 +492,8 @@ pub async fn send_users_to_mailchimp(
                     "email_address": user.email,
                     "status": user.email_subscription_in_mailchimp,
                     "merge_fields": {
-                        "FNAME": user.first_name,
-                        "LNAME": user.last_name,
+                        "FNAME": user.first_name.clone().unwrap_or("".to_string()),
+                        "LNAME": user.last_name.clone().unwrap_or("".to_string()),
                         "MARKETING": if user.consent { "allowed" } else { "disallowed" },
                         "LOCALE": user.locale,
                         // If the course is not completed, we pass an empty string to mailchimp to remove the value

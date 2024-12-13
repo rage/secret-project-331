@@ -185,7 +185,7 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
             </div>
             <div className="answers">
               <span className="metric">
-                {chapterProgress.givenScore}/{chapterProgress.maxScore}
+                {chapterProgress.givenScore ?? 0}/{chapterProgress.maxScore ?? 0}
               </span>
               <span className="description">{t("points-label")}</span>
             </div>

@@ -29,7 +29,7 @@
   "default-toast-success-title": "Успіх",
   "dropdown-menu": "Спадне меню",
   "editable": "Можна редагувати",
-  "email": "Електронна пошта",
+  "email": "Електронна адреса",
   "email-templates": "Шаблони електронних листів",
   "error-cannot-render-dynamic-content-missing-url": "Неможливо відобразити динамічний вміст: відсутня URL-адреса",
   "error-part-of-page-has-crashed-error": "Частина сторінки аварійно завершила роботу: {{error}}",

@@ -239,18 +239,18 @@ export interface CodeGiveaway {
   name: string
 }
 
+export type CodeGiveawayStatus =
+  | { tag: "Disabled" }
+  | { tag: "NotEligible" }
+  | { tag: "Eligible"; codes_left: boolean }
+  | { tag: "AlreadyGottenCode"; given_code: string }
+
 export interface NewCodeGiveaway {
   course_id: string
   name: string
   course_module_id: string | null
   require_course_specific_consent_form_question_id: string | null
 }
-
-export type CodeGiveawayStatus =
-  | { tag: "Disabled" }
-  | { tag: "NotEligible" }
-  | { tag: "Eligible"; codes_left: boolean }
-  | { tag: "AlreadyGottenCode"; given_code: string }
 
 export interface CourseBackgroundQuestionAnswer {
   id: string
@@ -283,6 +283,16 @@ export type CourseBackgroundQuestionType = "Checkbox" | "Text"
 export interface CourseBackgroundQuestionsAndAnswers {
   background_questions: Array<CourseBackgroundQuestion>
   answers: Array<CourseBackgroundQuestionAnswer>
+}
+
+export interface CourseCustomPrivacyPolicyCheckboxText {
+  id: string
+  course_id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  text_html: string
+  text_slug: string
 }
 
 export interface CourseInstanceEnrollment {
@@ -1451,6 +1461,20 @@ export interface SearchRequest {
   query: string
 }
 
+export interface PartnerBlockNew {
+  course_id: string
+  content: unknown | null
+}
+
+export interface PartnersBlock {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  content: unknown
+  course_id: string
+}
+
 export interface CmsPeerOrSelfReviewConfig {
   id: string
   course_id: string
@@ -1604,6 +1628,16 @@ export interface PlaygroundExampleData {
   url: string
   width: number
   data: unknown
+}
+
+export interface PrivacyLink {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  title: string
+  url: string
+  course_id: string
 }
 
 export type BlockProposal =
@@ -1945,30 +1979,6 @@ export interface User {
   deleted_at: string | null
   upstream_id: number | null
   email_domain: string | null
-}
-
-export interface PrivacyLink {
-  id: string
-  created_at: string
-  updated_at: string
-  deleted_at: string | null
-  title: string
-  url: string
-  course_id: string
-}
-
-export interface PartnersBlock {
-  id: string
-  created_at: string
-  updated_at: string
-  deleted_at: string | null
-  content: unknown
-  course_id: string
-}
-
-export interface PartnerBlockNew {
-  course_id: string
-  content: unknown | null
 }
 
 export interface UploadResult {

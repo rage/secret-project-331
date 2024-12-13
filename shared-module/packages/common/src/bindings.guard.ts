@@ -50,6 +50,7 @@ import {
   CourseBackgroundQuestionType,
   CourseBreadcrumbInfo,
   CourseCount,
+  CourseCustomPrivacyPolicyCheckboxText,
   CourseExam,
   CourseInstance,
   CourseInstanceCompletionSummary,
@@ -636,18 +637,6 @@ export function isCodeGiveaway(obj: unknown): obj is CodeGiveaway {
   )
 }
 
-export function isNewCodeGiveaway(obj: unknown): obj is NewCodeGiveaway {
-  const typedObj = obj as NewCodeGiveaway
-  return (
-    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typeof typedObj["course_id"] === "string" &&
-    typeof typedObj["name"] === "string" &&
-    (typedObj["course_module_id"] === null || typeof typedObj["course_module_id"] === "string") &&
-    (typedObj["require_course_specific_consent_form_question_id"] === null ||
-      typeof typedObj["require_course_specific_consent_form_question_id"] === "string")
-  )
-}
-
 export function isCodeGiveawayStatus(obj: unknown): obj is CodeGiveawayStatus {
   const typedObj = obj as CodeGiveawayStatus
   return (
@@ -661,6 +650,18 @@ export function isCodeGiveawayStatus(obj: unknown): obj is CodeGiveawayStatus {
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["tag"] === "AlreadyGottenCode" &&
       typeof typedObj["given_code"] === "string")
+  )
+}
+
+export function isNewCodeGiveaway(obj: unknown): obj is NewCodeGiveaway {
+  const typedObj = obj as NewCodeGiveaway
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["name"] === "string" &&
+    (typedObj["course_module_id"] === null || typeof typedObj["course_module_id"] === "string") &&
+    (typedObj["require_course_specific_consent_form_question_id"] === null ||
+      typeof typedObj["require_course_specific_consent_form_question_id"] === "string")
   )
 }
 
@@ -722,6 +723,22 @@ export function isCourseBackgroundQuestionsAndAnswers(
     typedObj["background_questions"].every((e: any) => isCourseBackgroundQuestion(e) as boolean) &&
     Array.isArray(typedObj["answers"]) &&
     typedObj["answers"].every((e: any) => isCourseBackgroundQuestionAnswer(e) as boolean)
+  )
+}
+
+export function isCourseCustomPrivacyPolicyCheckboxText(
+  obj: unknown,
+): obj is CourseCustomPrivacyPolicyCheckboxText {
+  const typedObj = obj as CourseCustomPrivacyPolicyCheckboxText
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["created_at"] === "string" &&
+    typeof typedObj["updated_at"] === "string" &&
+    (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
+    typeof typedObj["text_html"] === "string" &&
+    typeof typedObj["text_slug"] === "string"
   )
 }
 
@@ -2652,6 +2669,26 @@ export function isSearchRequest(obj: unknown): obj is SearchRequest {
   )
 }
 
+export function isPartnerBlockNew(obj: unknown): obj is PartnerBlockNew {
+  const typedObj = obj as PartnerBlockNew
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["course_id"] === "string"
+  )
+}
+
+export function isPartnersBlock(obj: unknown): obj is PartnersBlock {
+  const typedObj = obj as PartnersBlock
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["created_at"] === "string" &&
+    typeof typedObj["updated_at"] === "string" &&
+    (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
+    typeof typedObj["course_id"] === "string"
+  )
+}
+
 export function isCmsPeerOrSelfReviewConfig(obj: unknown): obj is CmsPeerOrSelfReviewConfig {
   const typedObj = obj as CmsPeerOrSelfReviewConfig
   return (
@@ -2888,6 +2925,20 @@ export function isPlaygroundExampleData(obj: unknown): obj is PlaygroundExampleD
     typeof typedObj["name"] === "string" &&
     typeof typedObj["url"] === "string" &&
     typeof typedObj["width"] === "number"
+  )
+}
+
+export function isPrivacyLink(obj: unknown): obj is PrivacyLink {
+  const typedObj = obj as PrivacyLink
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["created_at"] === "string" &&
+    typeof typedObj["updated_at"] === "string" &&
+    (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
+    typeof typedObj["title"] === "string" &&
+    typeof typedObj["url"] === "string" &&
+    typeof typedObj["course_id"] === "string"
   )
 }
 
@@ -3439,40 +3490,6 @@ export function isUser(obj: unknown): obj is User {
     (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
     (typedObj["upstream_id"] === null || typeof typedObj["upstream_id"] === "number") &&
     (typedObj["email_domain"] === null || typeof typedObj["email_domain"] === "string")
-  )
-}
-
-export function isPrivacyLink(obj: unknown): obj is PrivacyLink {
-  const typedObj = obj as PrivacyLink
-  return (
-    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typeof typedObj["id"] === "string" &&
-    typeof typedObj["created_at"] === "string" &&
-    typeof typedObj["updated_at"] === "string" &&
-    (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
-    typeof typedObj["title"] === "string" &&
-    typeof typedObj["url"] === "string" &&
-    typeof typedObj["course_id"] === "string"
-  )
-}
-
-export function isPartnersBlock(obj: unknown): obj is PartnersBlock {
-  const typedObj = obj as PartnersBlock
-  return (
-    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typeof typedObj["id"] === "string" &&
-    typeof typedObj["created_at"] === "string" &&
-    typeof typedObj["updated_at"] === "string" &&
-    (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
-    typeof typedObj["course_id"] === "string"
-  )
-}
-
-export function isPartnerBlockNew(obj: unknown): obj is PartnerBlockNew {
-  const typedObj = obj as PartnerBlockNew
-  return (
-    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typeof typedObj["course_id"] === "string"
   )
 }
 

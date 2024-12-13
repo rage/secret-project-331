@@ -32,10 +32,15 @@ const TableBlock: React.FC<
   const head = data.attributes.head
   const foot = data.attributes.foot
 
-  const hasManyColumns = useMemo(
-    () => body.length > 0 && body[0].cells && body[0].cells.length > 5,
-    [body],
-  )
+  const hasManyColumns = useMemo(() => {
+    for (const row of body) {
+      if (row.cells && row.cells.length > 5) {
+        return true
+      }
+    }
+
+    return false
+  }, [body])
   const shouldUseSmallerFont = hasManyColumns && dontAllowBlockToBeWiderThanContainerWidth
 
   const { terms } = useContext(GlossaryContext)

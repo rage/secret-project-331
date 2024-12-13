@@ -1098,6 +1098,34 @@
 <a href="#1098" id="1098">1098</a>
 <a href="#1099" id="1099">1099</a>
 <a href="#1100" id="1100">1100</a>
+<a href="#1101" id="1101">1101</a>
+<a href="#1102" id="1102">1102</a>
+<a href="#1103" id="1103">1103</a>
+<a href="#1104" id="1104">1104</a>
+<a href="#1105" id="1105">1105</a>
+<a href="#1106" id="1106">1106</a>
+<a href="#1107" id="1107">1107</a>
+<a href="#1108" id="1108">1108</a>
+<a href="#1109" id="1109">1109</a>
+<a href="#1110" id="1110">1110</a>
+<a href="#1111" id="1111">1111</a>
+<a href="#1112" id="1112">1112</a>
+<a href="#1113" id="1113">1113</a>
+<a href="#1114" id="1114">1114</a>
+<a href="#1115" id="1115">1115</a>
+<a href="#1116" id="1116">1116</a>
+<a href="#1117" id="1117">1117</a>
+<a href="#1118" id="1118">1118</a>
+<a href="#1119" id="1119">1119</a>
+<a href="#1120" id="1120">1120</a>
+<a href="#1121" id="1121">1121</a>
+<a href="#1122" id="1122">1122</a>
+<a href="#1123" id="1123">1123</a>
+<a href="#1124" id="1124">1124</a>
+<a href="#1125" id="1125">1125</a>
+<a href="#1126" id="1126">1126</a>
+<a href="#1127" id="1127">1127</a>
+<a href="#1128" id="1128">1128</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/courses`.
 
 </span><span class="kw">use </span>std::{collections::HashMap, net::IpAddr, path::Path};
@@ -1106,7 +1134,10 @@
 <span class="kw">use </span>actix_web::web::Json;
 <span class="kw">use </span>chrono::Utc;
 <span class="kw">use </span>futures::{future::OptionFuture, FutureExt};
-<span class="kw">use </span>headless_lms_models::marketing_consents::UserMarketingConsent;
+<span class="kw">use </span>headless_lms_models::{
+    course_custom_privacy_policy_checkbox_texts::CourseCustomPrivacyPolicyCheckboxText,
+    marketing_consents::UserMarketingConsent,
+};
 <span class="kw">use </span>headless_lms_models::{partner_block::PartnersBlock, privacy_link::PrivacyLink};
 <span class="kw">use </span>headless_lms_utils::ip_to_country::IpToCountryMapper;
 <span class="kw">use </span>isbot::Bots;
@@ -2103,6 +2134,27 @@ GET /courses/:course_id/privacy_link - Gets a privacy link related to a course
 }
 
 <span class="doccomment">/**
+GET /courses/:course_id/custom-privacy-policy-checkbox-texts - Used to get customized checkbox texts for courses that use a different privacy policy than all our other courses (e.g. the Elements of AI course). These texts are shown in the course settings dialog.
+*/
+</span><span class="attr">#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_custom_privacy_policy_checkbox_texts(
+    course_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser, <span class="comment">// Ensure the user is authenticated
+</span>) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;CourseCustomPrivacyPolicyCheckboxText&gt;&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>token = authorize_access_to_course_material(<span class="kw-2">&amp;mut </span>conn, <span class="prelude-val">Some</span>(user.id), <span class="kw-2">*</span>course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>texts = models::course_custom_privacy_policy_checkbox_texts::get_all_by_course_id(
+        <span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    token.authorized_ok(web::Json(texts))
+}
+
+<span class="doccomment">/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -2196,6 +2248,10 @@ We add the routes by calling the route method instead of using the route annotat
         .route(
             <span class="string">"/{course_id}/fetch-user-marketing-consent"</span>,
             web::get().to(fetch_user_marketing_consent),
+        )
+        .route(
+            <span class="string">"/{course_id}/custom-privacy-policy-checkbox-texts"</span>,
+            web::get().to(get_custom_privacy_policy_checkbox_texts),
         );
 }
 </code></pre></div></section></main></body></html>

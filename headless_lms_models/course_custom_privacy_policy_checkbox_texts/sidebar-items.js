@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["get_all_by_course_id"],"struct":["CourseCustomPrivacyPolicyCheckboxText"]};

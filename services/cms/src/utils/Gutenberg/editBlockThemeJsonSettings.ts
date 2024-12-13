@@ -1,8 +1,8 @@
 export default function editBlockThemeJsonSettings(
   settingValue: unknown,
-  _settingName: string,
+  settingName: string,
   _clientId: string,
-  _blockName: string,
+  blockName: string,
 ): unknown {
   // Here we can turn on theme.json settings for the block editor
 

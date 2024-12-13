@@ -6,7 +6,10 @@ use actix_http::header::{self, X_FORWARDED_FOR};
 use actix_web::web::Json;
 use chrono::Utc;
 use futures::{future::OptionFuture, FutureExt};
-use headless_lms_models::marketing_consents::UserMarketingConsent;
+use headless_lms_models::{
+    course_custom_privacy_policy_checkbox_texts::CourseCustomPrivacyPolicyCheckboxText,
+    marketing_consents::UserMarketingConsent,
+};
 use headless_lms_models::{partner_block::PartnersBlock, privacy_link::PrivacyLink};
 use headless_lms_utils::ip_to_country::IpToCountryMapper;
 use isbot::Bots;
@@ -1003,6 +1006,27 @@ async fn get_privacy_link(
 }
 
 /**
+GET /courses/:course_id/custom-privacy-policy-checkbox-texts - Used to get customized checkbox texts for courses that use a different privacy policy than all our other courses (e.g. the Elements of AI course). These texts are shown in the course settings dialog.
+*/
+#[instrument(skip(pool))]
+async fn get_custom_privacy_policy_checkbox_texts(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser, // Ensure the user is authenticated
+) -> ControllerResult<web::Json<Vec<CourseCustomPrivacyPolicyCheckboxText>>> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize_access_to_course_material(&mut conn, Some(user.id), *course_id).await?;
+
+    let texts = models::course_custom_privacy_policy_checkbox_texts::get_all_by_course_id(
+        &mut conn, *course_id,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(texts))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -1096,5 +1120,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/fetch-user-marketing-consent",
             web::get().to(fetch_user_marketing_consent),
+        )
+        .route(
+            "/{course_id}/custom-privacy-policy-checkbox-texts",
+            web::get().to(get_custom_privacy_policy_checkbox_texts),
         );
 }

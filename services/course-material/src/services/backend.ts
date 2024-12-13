@@ -11,6 +11,7 @@ import {
   CodeGiveawayStatus,
   Course,
   CourseBackgroundQuestionsAndAnswers,
+  CourseCustomPrivacyPolicyCheckboxText,
   CourseInstance,
   CourseMaterialExercise,
   CourseMaterialPeerOrSelfReviewDataWithToken,
@@ -61,6 +62,7 @@ import {
   isCodeGiveawayStatus,
   isCourse,
   isCourseBackgroundQuestionsAndAnswers,
+  isCourseCustomPrivacyPolicyCheckboxText,
   isCourseInstance,
   isCourseMaterialExercise,
   isCourseMaterialPeerOrSelfReviewDataWithToken,
@@ -785,4 +787,14 @@ export const fetchPartnersBlock = async (courseId: string): Promise<PartnersBloc
 export const fetchPrivacyLink = async (courseId: string): Promise<PrivacyLink[]> => {
   const response = await courseMaterialClient.get(`/courses/${courseId}/privacy-link`)
   return validateResponse(response, isArray(isPrivacyLink))
+}
+
+export const fetchCustomPrivacyPolicyCheckboxTexts = async (
+  courseId: string,
+): Promise<CourseCustomPrivacyPolicyCheckboxText[]> => {
+  const response = await courseMaterialClient.get(
+    `/courses/${courseId}/custom-privacy-policy-checkbox-texts`,
+    { responseType: "json" },
+  )
+  return validateResponse(response, isArray(isCourseCustomPrivacyPolicyCheckboxText))
 }

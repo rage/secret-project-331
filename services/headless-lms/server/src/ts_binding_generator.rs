@@ -60,13 +60,14 @@ fn models(target: &mut File) {
         chatbot_conversations::ChatbotConversationInfo,
         code_giveaway_codes::CodeGiveawayCode,
         code_giveaways::CodeGiveaway,
-        code_giveaways::NewCodeGiveaway,
         code_giveaways::CodeGiveawayStatus,
+        code_giveaways::NewCodeGiveaway,
         course_background_question_answers::CourseBackgroundQuestionAnswer,
         course_background_question_answers::NewCourseBackgroundQuestionAnswer,
         course_background_questions::CourseBackgroundQuestion,
         course_background_questions::CourseBackgroundQuestionType,
         course_background_questions::CourseBackgroundQuestionsAndAnswers,
+        course_custom_privacy_policy_checkbox_texts::CourseCustomPrivacyPolicyCheckboxText,
         course_instance_enrollments::CourseInstanceEnrollment,
         course_instance_enrollments::CourseInstanceEnrollmentsInfo,
         course_instances::ChapterScore,
@@ -171,7 +172,6 @@ fn models(target: &mut File) {
         library::progressing::UserWithModuleCompletions,
 
         marketing_consents::UserMarketingConsent,
-
         material_references::MaterialReference,
         material_references::NewMaterialReference,
 
@@ -203,6 +203,8 @@ fn models(target: &mut File) {
         pages::PageSearchResult,
         pages::PageWithExercises,
         pages::SearchRequest,
+        partner_block::PartnerBlockNew,
+        partner_block::PartnersBlock,
         peer_or_self_review_configs::CmsPeerOrSelfReviewConfig,
         peer_or_self_review_configs::CmsPeerOrSelfReviewConfiguration,
         peer_or_self_review_configs::CourseMaterialPeerOrSelfReviewConfig,
@@ -220,6 +222,7 @@ fn models(target: &mut File) {
         pending_roles::PendingRole,
         playground_examples::PlaygroundExample,
         playground_examples::PlaygroundExampleData,
+        privacy_link::PrivacyLink,
         proposed_block_edits::BlockProposal,
         proposed_block_edits::BlockProposalAction,
         proposed_block_edits::BlockProposalInfo,
@@ -267,9 +270,6 @@ fn models(target: &mut File) {
         user_exercise_states::UserExerciseState,
         user_research_consents::UserResearchConsent,
         users::User,
-        privacy_link::PrivacyLink,
-        partner_block::PartnersBlock,
-        partner_block::PartnerBlockNew,
     };
 }
 

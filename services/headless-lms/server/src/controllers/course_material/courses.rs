@@ -976,14 +976,12 @@ GET /courses/:course_id/partners_blocks - Gets a partners block related to a cou
 #[instrument(skip(pool))]
 async fn get_partners_block(
     path: web::Path<Uuid>,
-    user: AuthUser,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<PartnersBlock>> {
     let course_id = path.into_inner();
     let mut conn = pool.acquire().await?;
-    let token = skip_authorize();
     let partner_block = models::partner_block::get_partner_block(&mut conn, course_id).await?;
-
+    let token = skip_authorize();
     token.authorized_ok(web::Json(partner_block))
 }
 
@@ -993,15 +991,11 @@ GET /courses/:course_id/privacy_link - Gets a privacy link related to a course
 #[instrument(skip(pool))]
 async fn get_privacy_link(
     course_id: web::Path<Uuid>,
-    user: AuthUser,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<Vec<PrivacyLink>>> {
     let mut conn = pool.acquire().await?;
-    let user_id = Some(user.id);
-    let token = skip_authorize();
-
     let privacy_link = models::privacy_link::get_privacy_link(&mut conn, *course_id).await?;
-
+    let token = skip_authorize();
     token.authorized_ok(web::Json(privacy_link))
 }
 

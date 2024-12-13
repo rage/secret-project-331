@@ -37,7 +37,7 @@ pub struct UserMarketingConsentWithDetails {
     pub email: String,
     pub course_name: String,
     pub locale: Option<String>,
-    pub completed_course: Option<bool>,
+    pub completed_course_at: Option<DateTime<Utc>>,
     pub research_consent: Option<bool>,
 }
 
@@ -141,7 +141,7 @@ pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_group
         u.email AS email,
         c.name AS course_name,
         c.language_code AS locale,
-        CASE WHEN cmc.passed IS NOT NULL THEN cmc.passed ELSE NULL END AS completed_course,
+        CASE WHEN cmc.passed IS NOT NULL THEN cmc.completion_date ELSE NULL END AS completed_course_at,
         COALESCE(csfa.research_consent, urc.research_consent) AS research_consent
     FROM user_marketing_consents AS umc
     JOIN user_details AS u ON u.user_id = umc.user_id

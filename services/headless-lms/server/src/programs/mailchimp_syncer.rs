@@ -496,7 +496,8 @@ pub async fn send_users_to_mailchimp(
                         "LNAME": user.last_name,
                         "MARKETING": if user.consent { "allowed" } else { "disallowed" },
                         "LOCALE": user.locale,
-                        "GRADUATED": if user.completed_course.unwrap_or(false) { "passed" } else { "not passed" },
+                        // If the course is not completed, we pass an empty string to mailchimp to remove the value
+                        "GRADUATED": user.completed_course_at.map(|cca| cca.to_rfc3339()).unwrap_or("".to_string()),
                         "USERID": user.user_id,
                         "COURSEID": user.course_id,
                         "LANGGRPID": user.course_language_group_id,

@@ -10,6 +10,7 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
 
 interface SelectMarketingConsentFormProps {
   courseId: string
@@ -34,6 +35,7 @@ const SelectMarketingConsentForm: React.FC<SelectMarketingConsentFormProps> = ({
   const customPrivacyPolicyCheckboxTextsQuery = useQuery({
     queryKey: ["customPrivacyPolicyCheckboxTexts", courseId],
     queryFn: () => fetchCustomPrivacyPolicyCheckboxTexts(courseId),
+    enabled: courseId !== undefined,
   })
 
   const handleEmailSubscriptionConsentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,9 +52,9 @@ const SelectMarketingConsentForm: React.FC<SelectMarketingConsentFormProps> = ({
 
   useEffect(() => {
     if (initialMarketingConsentQuery.isSuccess) {
-      setMarketingConsent(initialMarketingConsentQuery.data.consent)
+      setMarketingConsent(initialMarketingConsentQuery.data?.consent ?? false)
       const emailSub =
-        initialMarketingConsentQuery.data.email_subscription_in_mailchimp === "subscribed"
+        initialMarketingConsentQuery.data?.email_subscription_in_mailchimp === "subscribed"
       setEmailSubscriptionConsent(emailSub)
     }
   }, [initialMarketingConsentQuery.data, initialMarketingConsentQuery.isSuccess])
@@ -63,7 +65,7 @@ const SelectMarketingConsentForm: React.FC<SelectMarketingConsentFormProps> = ({
         (text) => text.text_slug === "marketing-consent",
       )
       if (customText) {
-        return customText.text_html
+        return sanitizeCourseMaterialHtml(customText.text_html)
       }
     }
     return t("marketing-consent-checkbox-text")
@@ -75,7 +77,7 @@ const SelectMarketingConsentForm: React.FC<SelectMarketingConsentFormProps> = ({
         (text) => text.text_slug === "privacy-policy",
       )
       if (customText) {
-        return customText.text_html
+        return sanitizeCourseMaterialHtml(customText.text_html)
       }
     }
     return t("marketing-consent-privacy-policy-checkbox-text")

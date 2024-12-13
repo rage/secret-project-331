@@ -774,9 +774,9 @@ export const updateMarketingConsent = async (
 
 export const fetchUserMarketingConsent = async (
   courseId: string,
-): Promise<UserMarketingConsent> => {
+): Promise<UserMarketingConsent | null> => {
   const res = await courseMaterialClient.get(`/courses/${courseId}/fetch-user-marketing-consent`)
-  return validateResponse(res, isUserMarketingConsent)
+  return validateResponse(res, isUnion(isUserMarketingConsent, isNull))
 }
 
 export const fetchPartnersBlock = async (courseId: string): Promise<PartnersBlock> => {

@@ -728,6 +728,7 @@
 <a href="#728" id="728">728</a>
 <a href="#729" id="729">729</a>
 <a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::setup_tracing;
 <span class="kw">use </span>dotenv::dotenv;
 <span class="kw">use </span>headless_lms_models::marketing_consents::MarketingMailingListAccessToken;
@@ -1226,7 +1227,8 @@
                         <span class="string">"LNAME"</span>: user.last_name,
                         <span class="string">"MARKETING"</span>: <span class="kw">if </span>user.consent { <span class="string">"allowed" </span>} <span class="kw">else </span>{ <span class="string">"disallowed" </span>},
                         <span class="string">"LOCALE"</span>: user.locale,
-                        <span class="string">"GRADUATED"</span>: <span class="kw">if </span>user.completed_course.unwrap_or(<span class="bool-val">false</span>) { <span class="string">"passed" </span>} <span class="kw">else </span>{ <span class="string">"not passed" </span>},
+                        <span class="comment">// If the course is not completed, we pass an empty string to mailchimp to remove the value
+                        </span><span class="string">"GRADUATED"</span>: user.completed_course_at.map(|cca| cca.to_rfc3339()).unwrap_or(<span class="string">""</span>.to_string()),
                         <span class="string">"USERID"</span>: user.user_id,
                         <span class="string">"COURSEID"</span>: user.course_id,
                         <span class="string">"LANGGRPID"</span>: user.course_language_group_id,

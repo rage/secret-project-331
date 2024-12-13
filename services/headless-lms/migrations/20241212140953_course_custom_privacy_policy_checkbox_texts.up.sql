@@ -5,7 +5,8 @@ CREATE TABLE course_custom_privacy_policy_checkbox_texts (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMP WITH TIME ZONE,
   text_html TEXT NOT NULL,
-  text_slug TEXT NOT NULL
+  text_slug TEXT NOT NULL,
+  UNIQUE NULLS NOT DISTINCT (course_id, text_slug, deleted_at)
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON course_custom_privacy_policy_checkbox_texts FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
@@ -17,3 +18,6 @@ COMMENT ON COLUMN course_custom_privacy_policy_checkbox_texts.deleted_at IS 'Tim
 COMMENT ON COLUMN course_custom_privacy_policy_checkbox_texts.text_html IS 'The HTML content of the text.';
 COMMENT ON COLUMN course_custom_privacy_policy_checkbox_texts.text_slug IS 'An identifier for the text, used to reference it in the course settings dialog.';
 COMMENT ON COLUMN course_custom_privacy_policy_checkbox_texts.course_id IS 'The course in which the text is shown.';
+
+CREATE INDEX course_custom_privacy_policy_checkbox_texts_course_id_idx ON course_custom_privacy_policy_checkbox_texts (course_id)
+WHERE deleted_at IS NULL;

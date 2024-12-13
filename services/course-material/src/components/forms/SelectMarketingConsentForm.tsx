@@ -6,6 +6,7 @@ import {
   fetchCustomPrivacyPolicyCheckboxTexts,
   fetchUserMarketingConsent,
 } from "@/services/backend"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
@@ -82,6 +83,14 @@ const SelectMarketingConsentForm: React.FC<SelectMarketingConsentFormProps> = ({
 
   if (initialMarketingConsentQuery.isLoading || customPrivacyPolicyCheckboxTextsQuery.isLoading) {
     return <Spinner variant="small" />
+  }
+  if (initialMarketingConsentQuery.isError || customPrivacyPolicyCheckboxTextsQuery.isError) {
+    return (
+      <ErrorBanner
+        variant="readOnly"
+        error={initialMarketingConsentQuery.error ?? customPrivacyPolicyCheckboxTextsQuery.error}
+      />
+    )
   }
 
   return (

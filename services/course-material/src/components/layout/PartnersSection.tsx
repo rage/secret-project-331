@@ -78,10 +78,10 @@ const PartnersSectionBlock: React.FC<PartnersBlockProps> = ({ courseId }) => {
                   )}
                 </a>
               ) : isSvgUrl ? (
-                <DynamicSvg src={url} key={url} />
+                <DynamicSvg src={url} key={`partner-svg-${block.clientId}-${url}`} />
               ) : (
                 <figure>
-                  <img src={url} alt={alt} key={url} />
+                  <img src={url} alt={alt} key={`partner-img-${block.clientId}-${url}`} />
                 </figure>
               )
             }

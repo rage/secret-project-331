@@ -41,6 +41,13 @@ const CardContentWrapper = styled.div`
     margin-top: 5px;
     font-size: clamp(26px, 2.2vw, 30px);
     opacity: 0.9;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    /* For multi-line truncation: */
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Limit to 3 lines */
+    -webkit-box-orient: vertical;
   }
 `
 
@@ -74,14 +81,14 @@ const IllustrationCard: React.FC<React.PropsWithChildren<React.PropsWithChildren
         <div
           className={css`
             width: 100%;
-            height: 370.6px;
+            height: 23.163rem;
             transition: transform 0.2s;
             ${backgroundImage &&
             `background-image: url(${backgroundImage});
               background-repeat: no-repeat;
               background-color: ${bg};
               background-position: center center;
-              background-size: contain;
+              background-size: cover;
               `}
 
             &:hover {
@@ -97,7 +104,7 @@ const IllustrationCard: React.FC<React.PropsWithChildren<React.PropsWithChildren
             background: #fff;
 
             ${respondToOrLarger.md} {
-              padding: 2rem 2rem;
+              padding: 1.25rem 1.25rem;
             }
           `}
         >

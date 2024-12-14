@@ -104,7 +104,7 @@ const IllustrationCard: React.FC<React.PropsWithChildren<React.PropsWithChildren
             background: #fff;
 
             ${respondToOrLarger.md} {
-              padding: 1.25rem 1.25rem;
+              padding: 1.6rem 1.25rem;
             }
           `}
         >

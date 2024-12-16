@@ -14,6 +14,7 @@ const PartnersSectionBlock: React.FC<PartnersBlockProps> = ({ courseId }) => {
   const getPartnersBlock = useQuery({
     queryKey: ["partners-block", courseId],
     queryFn: () => fetchPartnersBlock(courseId as NonNullable<string>),
+    enabled: !!courseId,
   })
 
   const content =
@@ -77,10 +78,10 @@ const PartnersSectionBlock: React.FC<PartnersBlockProps> = ({ courseId }) => {
                   )}
                 </a>
               ) : isSvgUrl ? (
-                <DynamicSvg src={url} />
+                <DynamicSvg src={url} key={`partner-svg-${block.clientId}-${url}`} />
               ) : (
                 <figure>
-                  <img src={url} alt={alt} />
+                  <img src={url} alt={alt} key={`partner-img-${block.clientId}-${url}`} />
                 </figure>
               )
             }

@@ -84,9 +84,10 @@ const AsideWithImageBlock: React.FC<
             line-height: 100%;
             font-weight: 400;
           `}
-        >
-          {props.data.attributes.content}
-        </p>
+          dangerouslySetInnerHTML={{
+            __html: parseText(props.data.attributes.content, terms).parsedText,
+          }}
+        />
       </div>
     </div>
   )

@@ -60,10 +60,10 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
   const [changeLanguageToThisCourseId, setChangeLanguageToThisCourseId] = useState<string | null>(
     null,
   )
-
   const getPrivacyLink = useQuery({
     queryKey: ["privacy-link", courseId],
     queryFn: () => fetchPrivacyLink(courseId as NonNullable<string>),
+    enabled: !!courseId,
   })
 
   const customPrivacyLinks =
@@ -199,7 +199,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
         `}
       >
         <DynamicToaster />
-        <PartnersSectionBlock courseId={courseId} />
+        {courseId && <PartnersSectionBlock courseId={courseId} />}
         <Footer privacyLinks={customPrivacyLinks} />
       </div>
     </>

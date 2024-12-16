@@ -267,7 +267,7 @@ async fn get_partners_block(
 ) -> ControllerResult<web::Json<PartnersBlock>> {
     let course_id = path.into_inner();
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+    let token = skip_authorize();
 
     // Check if the course exists in the partners_blocks table
     let course_exists = models::partner_block::check_if_course_exists(&mut conn, course_id).await?;

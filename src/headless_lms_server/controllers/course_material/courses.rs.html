@@ -1120,12 +1120,6 @@
 <a href="#1120" id="1120">1120</a>
 <a href="#1121" id="1121">1121</a>
 <a href="#1122" id="1122">1122</a>
-<a href="#1123" id="1123">1123</a>
-<a href="#1124" id="1124">1124</a>
-<a href="#1125" id="1125">1125</a>
-<a href="#1126" id="1126">1126</a>
-<a href="#1127" id="1127">1127</a>
-<a href="#1128" id="1128">1128</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/courses`.
 
 </span><span class="kw">use </span>std::{collections::HashMap, net::IpAddr, path::Path};
@@ -2104,14 +2098,12 @@ GET /courses/:course_id/partners_blocks - Gets a partners block related to a cou
 </span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_partners_block(
     path: web::Path&lt;Uuid&gt;,
-    user: AuthUser,
     pool: web::Data&lt;PgPool&gt;,
 ) -&gt; ControllerResult&lt;web::Json&lt;PartnersBlock&gt;&gt; {
     <span class="kw">let </span>course_id = path.into_inner();
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = skip_authorize();
     <span class="kw">let </span>partner_block = models::partner_block::get_partner_block(<span class="kw-2">&amp;mut </span>conn, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
-
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(partner_block))
 }
 
@@ -2121,15 +2113,11 @@ GET /courses/:course_id/privacy_link - Gets a privacy link related to a course
 </span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_privacy_link(
     course_id: web::Path&lt;Uuid&gt;,
-    user: AuthUser,
     pool: web::Data&lt;PgPool&gt;,
 ) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;PrivacyLink&gt;&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>user_id = <span class="prelude-val">Some</span>(user.id);
-    <span class="kw">let </span>token = authorize_access_to_course_material(<span class="kw-2">&amp;mut </span>conn, user_id, <span class="kw-2">*</span>course_id).<span class="kw">await</span><span class="question-mark">?</span>;
-
     <span class="kw">let </span>privacy_link = models::privacy_link::get_privacy_link(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id).<span class="kw">await</span><span class="question-mark">?</span>;
-
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(privacy_link))
 }
 

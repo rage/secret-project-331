@@ -627,7 +627,7 @@ GET /courses/:course_id/partners_blocks - Gets a partners block related to a cou
 ) -&gt; ControllerResult&lt;web::Json&lt;PartnersBlock&gt;&gt; {
     <span class="kw">let </span>course_id = path.into_inner();
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::Course(course_id)).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
 
     <span class="comment">// Check if the course exists in the partners_blocks table
     </span><span class="kw">let </span>course_exists = models::partner_block::check_if_course_exists(<span class="kw-2">&amp;mut </span>conn, course_id).<span class="kw">await</span><span class="question-mark">?</span>;

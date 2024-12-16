@@ -1,12 +1,12 @@
-import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { Eye, Pencil } from "@vectopus/atlas-icons-react"
-import React, { useState } from "react"
+import React, { Ref, useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ParsedText from "../../../../ParsedText"
 
 import Button from "@/shared-module/common/components/Button"
+import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 
 const DisplayContainer = styled.div`
@@ -27,16 +27,17 @@ const ParsedTextContainer = styled.div`
   height: 68px;
 `
 
-const LATEX_TAGS = /\[\/?latex\]/g
-const MARKDOWN_TAGS = /\[\/?markdown\]/g
-
-/**
- * Checks if there exists tags such as [latex][/latex] or [markdown][/markdown]
- * @param text Text to parse from
- */
-const containsTags = (text: string) => {
-  return [...text.matchAll(LATEX_TAGS), ...text.matchAll(MARKDOWN_TAGS)].length > 0
-}
+const StyledButton = styled(Button)`
+  display: flex !important;
+  align-items: center;
+  border: 1px solid #dae6e5 !important;
+  margin: 2px 0px 4px 0px !important;
+  height: 24px;
+  cursor: pointer;
+  :hover {
+    border: 1px solid #bcd1d0;
+  }
+`
 
 interface ParsedTextFieldProps {
   label: string
@@ -46,64 +47,54 @@ interface ParsedTextFieldProps {
 
 const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChange }) => {
   const [preview, setPreview] = useState(false)
-  const [text, setText] = useState("")
-
-  const hasTags = containsTags(text)
+  const [text, setText] = useState(value ?? "")
+  const cursorPosition = useRef<number | null>(null)
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null)
 
   const { t } = useTranslation()
 
-  const PreviewButton = preview ? (
-    <>
-      <Button
-        className={css`
-          display: flex !important;
-          align-items: center;
-          border: 1px solid #dae6e5 !important;
-          margin: 2px 0px 4px 0px !important;
-          height: 24px;
-          cursor: pointer;
-          :hover {
-            border: 1px solid #bcd1d0;
-          }
-        `}
-        variant="icon"
-        size="small"
-        onClick={() => {
-          setPreview(!preview)
-        }}
-      >
-        <Pencil size={16} />
-      </Button>
+  const containsMarkdown = useMemo(
+    () => text.includes("[markdown]") && text.includes("[/markdown]"),
+    [text],
+  )
 
-      <p> {t("edit-text")} </p>
-    </>
-  ) : (
+  const prevContainsMarkdown = useRef<boolean>(containsMarkdown)
+
+  const containsLatex = useMemo(() => text.includes("[latex]") && text.includes("[/latex]"), [text])
+
+  const hasTags = useMemo(
+    () => containsMarkdown || containsLatex,
+    [containsMarkdown, containsLatex],
+  )
+
+  /**
+   * Handles focus and cursor position restoration when the `containsMarkdown` state changes.
+   */
+  useEffect(() => {
+    if (
+      (!prevContainsMarkdown.current && containsMarkdown) ||
+      (prevContainsMarkdown.current && !containsMarkdown)
+    ) {
+      if (inputRef.current) {
+        inputRef.current.focus()
+        inputRef.current.setSelectionRange(cursorPosition.current, cursorPosition.current)
+      }
+    }
+
+    prevContainsMarkdown.current = containsMarkdown
+  }, [containsMarkdown])
+
+  const PreviewButton = (
     <>
-      <Button
-        className={css`
-          display: flex !important;
-          align-items: center;
-          border: 1px solid #dae6e5 !important;
-          margin: 2px 0px 4px 0px !important;
-          height: 24px;
-          cursor: pointer;
-          :hover {
-            border: 1px solid #bcd1d0;
-          }
-        `}
-        variant="icon"
-        size="small"
-        onClick={() => {
-          setPreview(!preview)
-        }}
-      >
-        <Eye size={18} />
-      </Button>
-      <p> {t("preview-rendered-text")} </p>
+      <StyledButton variant="icon" size="small" onClick={() => setPreview(!preview)}>
+        {preview ? <Pencil size={16} /> : <Eye size={18} />}
+      </StyledButton>
+      <p> {preview ? t("edit-text") : t("preview-rendered-text")} </p>
     </>
   )
 
   const handleOnChange = (value: string) => {
+    cursorPosition.current = inputRef.current?.selectionStart ?? null
     onChange(value)
     setText(value)
   }
@@ -114,9 +105,18 @@ const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChang
         <ParsedTextContainer>
           <ParsedText text={value} parseMarkdown parseLatex inline />
         </ParsedTextContainer>
+      ) : containsMarkdown ? (
+        <TextAreaField
+          ref={inputRef as Ref<HTMLTextAreaElement>}
+          autoResize
+          value={value ?? ""}
+          onChangeByValue={(value) => handleOnChange(value)}
+          label={label}
+        />
       ) : (
         <TextField
-          value={value ?? undefined}
+          ref={inputRef as Ref<HTMLInputElement>}
+          value={value ?? ""}
           onChangeByValue={(value) => handleOnChange(value)}
           label={label}
         />

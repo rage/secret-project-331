@@ -19,6 +19,7 @@ import {
   MessageToIframe,
   NonGenericGradingRequest,
   NonGenericGradingResult,
+  OpenLinkMessage,
   SetLanguageMessage,
   SetStateMessage,
   UploadResultMessage,
@@ -51,6 +52,15 @@ export function isHeightChangedMessage(obj: unknown): obj is HeightChangedMessag
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typedObj["message"] === "height-changed" &&
     typeof typedObj["data"] === "number"
+  )
+}
+
+export function isOpenLinkMessage(obj: unknown): obj is OpenLinkMessage {
+  const typedObj = obj as OpenLinkMessage
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typedObj["message"] === "open-link" &&
+    typeof typedObj["data"] === "string"
   )
 }
 

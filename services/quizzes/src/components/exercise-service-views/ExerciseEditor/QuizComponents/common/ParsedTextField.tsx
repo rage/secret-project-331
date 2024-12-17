@@ -1,13 +1,15 @@
 import styled from "@emotion/styled"
-import { Eye, Pencil } from "@vectopus/atlas-icons-react"
-import React, { Ref, useEffect, useMemo, useRef, useState } from "react"
+import { Eye, InfoCircle, Pencil } from "@vectopus/atlas-icons-react"
+import React, { Ref, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ParsedText from "../../../../ParsedText"
 
+import MessagePortContext from "@/contexts/MessagePortContext"
 import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { OpenLinkMessage } from "@/shared-module/common/exercise-service-protocol-types"
 
 const DisplayContainer = styled.div`
   display: flex;
@@ -39,6 +41,22 @@ const StyledButton = styled(Button)`
   }
 `
 
+const TextfieldWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 7px;
+  align-items: center;
+`
+
+const Grow = styled.div`
+  flex-grow: 1;
+`
+
+const InfoLink = styled.a`
+  position: relative;
+  top: 13px;
+`
+
 interface ParsedTextFieldProps {
   label: string
   value: string | null
@@ -50,6 +68,7 @@ const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChang
   const [text, setText] = useState(value ?? "")
   const cursorPosition = useRef<number | null>(null)
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null)
+  const messagePort = useContext(MessagePortContext)
 
   const { t } = useTranslation()
 
@@ -101,26 +120,50 @@ const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChang
 
   return (
     <TextfieldContainer>
-      {preview ? (
-        <ParsedTextContainer>
-          <ParsedText text={value} parseMarkdown parseLatex inline />
-        </ParsedTextContainer>
-      ) : containsMarkdown ? (
-        <TextAreaField
-          ref={inputRef as Ref<HTMLTextAreaElement>}
-          autoResize
-          value={value ?? ""}
-          onChangeByValue={(value) => handleOnChange(value)}
-          label={label}
-        />
-      ) : (
-        <TextField
-          ref={inputRef as Ref<HTMLInputElement>}
-          value={value ?? ""}
-          onChangeByValue={(value) => handleOnChange(value)}
-          label={label}
-        />
-      )}
+      <TextfieldWrapper>
+        <Grow>
+          {preview ? (
+            <ParsedTextContainer>
+              <ParsedText text={value} parseMarkdown parseLatex inline />
+            </ParsedTextContainer>
+          ) : containsMarkdown ? (
+            <TextAreaField
+              ref={inputRef as Ref<HTMLTextAreaElement>}
+              autoResize
+              value={value ?? ""}
+              onChangeByValue={(value) => handleOnChange(value)}
+              label={label}
+            />
+          ) : (
+            <TextField
+              ref={inputRef as Ref<HTMLInputElement>}
+              value={value ?? ""}
+              onChangeByValue={(value) => handleOnChange(value)}
+              label={label}
+            />
+          )}
+        </Grow>
+        <InfoLink
+          href="https://github.com/rage/secret-project-331/wiki/Add-new-exercise#formatting-feedback-messages"
+          // eslint-disable-next-line i18next/no-literal-string
+          target="_blank"
+          // eslint-disable-next-line i18next/no-literal-string
+          rel="noopener noreferrer"
+          onClick={(e) => {
+            if (messagePort) {
+              const target = e.target as HTMLAnchorElement
+              messagePort.postMessage({
+                message: "open-link",
+                data:
+                  (target as HTMLAnchorElement).href ||
+                  (target.parentElement as HTMLAnchorElement)?.href,
+              } satisfies OpenLinkMessage)
+            }
+          }}
+        >
+          <InfoCircle />
+        </InfoLink>
+      </TextfieldWrapper>
       <DisplayContainer>{hasTags && PreviewButton}</DisplayContainer>
     </TextfieldContainer>
   )

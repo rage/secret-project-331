@@ -12,6 +12,7 @@ import {
 import {
   isHeightChangedMessage,
   isMessageFromIframe,
+  isOpenLinkMessage,
 } from "../exercise-service-protocol-types.guard"
 import useMessageChannel from "../hooks/useMessageChannel"
 
@@ -75,6 +76,10 @@ const MessageChannelIFrame: React.FC<
         console.info("Updating height")
         // eslint-disable-next-line i18next/no-literal-string
         iframeRef.current.height = Number(data.data).toString() + "px"
+      } else if (isOpenLinkMessage(data)) {
+        console.info(`The iframe wants to open a link: ${data.data}`)
+        // eslint-disable-next-line i18next/no-literal-string
+        window.open(data.data, "_blank", "noopener,noreferrer")
       } else if (isMessageFromIframe(data)) {
         try {
           onMessageFromIframe(data, messageChannel.port1)

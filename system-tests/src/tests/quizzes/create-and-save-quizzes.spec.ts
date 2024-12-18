@@ -236,23 +236,21 @@ const createChooseN = async (frame: Locator) => {
     await frame.getByRole("button", { name: "Add option" }).click()
     await frame.getByLabel("Choices (N)", { exact: true }).click()
     await frame.getByLabel("Choices (N)", { exact: true }).fill("2")
-    await frame
-      .getByRole("group")
-      .filter({ hasText: "Advanced options Feedback message Success message Failure message" })
-      .locator("summary")
-      .click()
-    await frame
-      .getByRole("group")
-      .filter({ hasText: "Advanced options Feedback message Success message Failure message" })
-      .getByLabel("Success message", { exact: true })
-      .click()
-    await frame
-      .getByRole("group")
-      .filter({ hasText: "Advanced options Feedback message Success message Failure message" })
+
+    const advancedOptionsAccordion = frame
+      .locator("details")
+      .filter({ hasText: "Advanced options" })
+      .first()
+    await advancedOptionsAccordion.locator("summary").click()
+    await scrollElementInsideIframeToView(advancedOptionsAccordion)
+    await advancedOptionsAccordion.getByLabel("Success message", { exact: true }).click()
+    await advancedOptionsAccordion
       .getByLabel("Success message", { exact: true })
       .fill("Success message for feedback")
-    await frame.getByLabel("Failure message", { exact: true }).click()
-    await frame.getByLabel("Failure message", { exact: true }).fill("Failure message for feedback")
+    await advancedOptionsAccordion.getByLabel("Failure message", { exact: true }).click()
+    await advancedOptionsAccordion
+      .getByLabel("Failure message", { exact: true })
+      .fill("Failure message for feedback")
   })
 }
 

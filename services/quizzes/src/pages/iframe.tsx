@@ -21,6 +21,7 @@ import { migratePrivateSpecQuiz } from "../util/migration/privateSpecQuiz"
 import migratePublicSpecQuiz from "../util/migration/publicSpecQuiz"
 import migrateQuizAnswer from "../util/migration/userAnswerSpec"
 
+import MessagePortContext from "@/contexts/MessagePortContext"
 import { StudentExerciseTaskSubmissionResult } from "@/shared-module/common/bindings"
 import HeightTrackingContainer from "@/shared-module/common/components/HeightTrackingContainer"
 import {
@@ -209,9 +210,11 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
 
   return (
     <HeightTrackingContainer port={port}>
-      <div>
-        <Renderer port={port} setState={setState} state={state} />
-      </div>
+      <MessagePortContext.Provider value={port}>
+        <div>
+          <Renderer port={port} setState={setState} state={state} />
+        </div>
+      </MessagePortContext.Provider>
     </HeightTrackingContainer>
   )
 }

@@ -555,6 +555,7 @@
   "reference-added-succesfully": "Reference added succesfully",
   "reference-deleted-succesfully": "Reference deleted succesfully",
   "reference-parsing-error": "Error: This format is not supported or recognized",
+  "reference-parsing-error-label-change": "The label {{original}} will be changed {{safe}} because it contains unsafe characters.",
   "reference-updated-succesfully": "Reference updated succesfully",
   "references": "References",
   "register-completion": "Register completion",

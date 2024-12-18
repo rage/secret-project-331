@@ -1,8 +1,14 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { useState } from "react"
+import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
+
+import {
+  areCitationsValid,
+  safeParseReferences,
+  useCitataionLabelsThatWillChange,
+} from "./NewReferenceForm"
 
 import { MaterialReference, NewMaterialReference } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
@@ -25,7 +31,6 @@ interface EditReferenceFields {
   reference: string
 }
 
-const EMPTY_STRING = ""
 const ErrorText = styled.p`
   color: red;
 `
@@ -42,33 +47,30 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<EditReferenceFields>()
+    watch,
+  } = useForm<EditReferenceFields>({ defaultValues: { reference: reference.reference } })
 
-  const [errorMessage, setErrorMessage] = useState("")
+  const watchedReference = watch("reference")
+
+  const citationLabelsThatWillChange = useCitataionLabelsThatWillChange(watchedReference)
+
+  const isValidReference = React.useMemo(() => {
+    return areCitationsValid(watchedReference)
+  }, [watchedReference])
 
   const onEditReferenceWrapper = handleSubmit((data) => {
     try {
-      const cite = new Cite(data.reference)
-      const editedReference = cite.data[0]
+      const cite = safeParseReferences(data.reference)
+      const referenceData = cite.data[0]
+      const editedReference = new Cite(referenceData)
       onEdit(courseId, reference.id, {
-        reference: data.reference,
-        citation_key: editedReference.id,
+        reference: editedReference.get({ type: "string", style: "bibtex", lang: "en-US" }),
+        citation_key: referenceData.id,
       })
     } catch (error: unknown) {
-      setErrorMessage(t("reference-parsing-error"))
-      setTimeout(() => {
-        setErrorMessage(EMPTY_STRING)
-      }, 5000)
+      console.error(error)
     }
   })
-
-  let defaultValueReference: string = reference.reference
-  try {
-    const cite = new Cite(reference.reference)
-    defaultValueReference = cite.get({ type: "string", style: "bibtex", lang: "en-US" })
-  } catch (error: unknown) {
-    console.warn(error)
-  }
 
   return (
     <form
@@ -83,16 +85,20 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
         error={errors["reference"]}
         placeholder={REFERENCE}
         {...register("reference", { required: true })}
-        defaultValue={defaultValueReference}
         rows={5}
         className={css`
           width: 100%;
           margin-bottom: 0.5rem;
-          height: 150px;
         `}
+        autoResize
       />
       <br />
-      {errorMessage && <ErrorText> {errorMessage} </ErrorText>}
+      {!isValidReference && <ErrorText> {t("reference-parsing-error")} </ErrorText>}
+      {citationLabelsThatWillChange.map((c) => (
+        <ErrorText key={c.original}>
+          {t("reference-parsing-error-label-change", { original: c.original, safe: c.safe })}
+        </ErrorText>
+      ))}
       <Button variant="primary" size="medium" type="submit">
         {t("save")}
       </Button>
@@ -104,7 +110,13 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
       >
         {t("delete")}
       </Button>
-      <Button variant="secondary" size="medium" type="button" onClick={onCancel}>
+      <Button
+        variant="secondary"
+        size="medium"
+        type="button"
+        onClick={onCancel}
+        disabled={!isValidReference}
+      >
         {t("close")}
       </Button>
     </form>

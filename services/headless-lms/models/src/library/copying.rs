@@ -208,6 +208,7 @@ WHERE id = $2;
     .await?;
 
     copy_peer_or_self_review_configs(&mut tx, copied_course.id, course_id).await?;
+    copy_peer_or_self_review_questions(&mut tx, copied_course.id, course_id).await?;
 
     copy_material_references(&mut tx, copied_course.id, course_id).await?;
 
@@ -768,7 +769,6 @@ async fn copy_peer_or_self_review_configs(
     namespace_id: Uuid,
     parent_id: Uuid,
 ) -> ModelResult<()> {
-    // Copy exercise tasks
     sqlx::query!(
         "
 INSERT INTO peer_or_self_review_configs (
@@ -789,6 +789,41 @@ SELECT uuid_generate_v5($1, id::text),
   accepting_threshold
 FROM peer_or_self_review_configs
 WHERE course_id = $2
+AND deleted_at IS NULL;
+    ",
+        namespace_id,
+        parent_id,
+    )
+    .execute(&mut *tx)
+    .await?;
+    Ok(())
+}
+
+async fn copy_peer_or_self_review_questions(
+    tx: &mut PgConnection,
+    namespace_id: Uuid,
+    parent_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+INSERT INTO peer_or_self_review_questions (
+    id,
+    peer_or_self_review_config_id,
+    order_number,
+    question,
+    question_type,
+    answer_required,
+    weight
+  )
+SELECT uuid_generate_v5($1, id::text),
+    uuid_generate_v5($1, peer_or_self_review_config_id::text),
+    order_number,
+    question,
+    question_type,
+    answer_required,
+    weight
+FROM peer_or_self_review_questions
+WHERE peer_or_self_review_config_id = $2
 AND deleted_at IS NULL;
     ",
         namespace_id,

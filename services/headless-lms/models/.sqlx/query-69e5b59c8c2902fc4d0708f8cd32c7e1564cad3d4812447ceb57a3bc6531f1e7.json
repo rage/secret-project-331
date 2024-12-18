@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO peer_or_self_review_questions (\n    id,\n    peer_or_self_review_config_id,\n    order_number,\n    question,\n    question_type,\n    answer_required,\n    weight\n  )\nSELECT uuid_generate_v5($1, id::text),\n    uuid_generate_v5($1, peer_or_self_review_config_id::text),\n    order_number,\n    question,\n    question_type,\n    answer_required,\n    weight\nFROM peer_or_self_review_questions\nWHERE peer_or_self_review_config_id = $2\nAND deleted_at IS NULL;\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Uuid", "Uuid"]
+    },
+    "nullable": []
+  },
+  "hash": "69e5b59c8c2902fc4d0708f8cd32c7e1564cad3d4812447ceb57a3bc6531f1e7"
+}

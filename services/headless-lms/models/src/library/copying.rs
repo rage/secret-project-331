@@ -780,16 +780,18 @@ INSERT INTO peer_or_self_review_configs (
     processing_strategy,
     accepting_threshold
   )
-SELECT uuid_generate_v5($1, id::text),
+SELECT uuid_generate_v5($1, posrc.id::text),
   $1,
-  uuid_generate_v5($1, exercise_id::text),
-  peer_reviews_to_give,
-  peer_reviews_to_receive,
-  processing_strategy,
-  accepting_threshold
-FROM peer_or_self_review_configs
-WHERE course_id = $2
-AND deleted_at IS NULL;
+  uuid_generate_v5($1, posrc.exercise_id::text),
+  posrc.peer_reviews_to_give,
+  posrc.peer_reviews_to_receive,
+  posrc.processing_strategy,
+  posrc.accepting_threshold
+FROM peer_or_self_review_configs posrc
+LEFT JOIN exercises e ON (e.id = posrc.exercise_id)
+WHERE posrc.course_id = $2
+AND posrc.deleted_at IS NULL
+AND e.deleted_at IS NULL;
     ",
         namespace_id,
         parent_id,
@@ -815,16 +817,20 @@ INSERT INTO peer_or_self_review_questions (
     answer_required,
     weight
   )
-SELECT uuid_generate_v5($1, id::text),
-    uuid_generate_v5($1, peer_or_self_review_config_id::text),
-    order_number,
-    question,
-    question_type,
-    answer_required,
-    weight
-FROM peer_or_self_review_questions
+SELECT uuid_generate_v5($1, q.id::text),
+    uuid_generate_v5($1, q.peer_or_self_review_config_id::text),
+    q.order_number,
+    q.question,
+    q.question_type,
+    q.answer_required,
+    q.weight
+FROM peer_or_self_review_questions q
+JOIN peer_or_self_review_configs posrc ON (posrc.id = q.peer_or_self_review_config_id)
+JOIN exercises e ON (e.id = posrc.exercise_id)
 WHERE peer_or_self_review_config_id = $2
-AND deleted_at IS NULL;
+AND q.deleted_at IS NULL
+AND e.deleted_at IS NULL
+AND posrc.deleted_at IS NULL;
     ",
         namespace_id,
         parent_id,

@@ -88,7 +88,6 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
         className={css`
           width: 100%;
           margin-bottom: 0.5rem;
-          height: 150px;
         `}
       />
       <br />

@@ -103,19 +103,29 @@ const Congratulations: React.FC<React.PropsWithChildren<CongratulationsProps>> =
       someModuleCompleted &&
       module.completed,
   )
+  const anyCompletedModuleHasCertificatesEnabled = modules.some(
+    (module) => module.certification_enabled && module.completed,
+  )
+
+  const getSubtitleText = () => {
+    if (anyCompletedModuleHasCertificatesEnabled) {
+      return anyCompletedModuleAllowsRegisteringCompletion
+        ? t("you-have-completed-the-course-to-receive-credits-or-certificate-use-following-links")
+        : t("you-have-completed-the-course-to-receive-certificate-use-following-links")
+    } else {
+      return anyCompletedModuleAllowsRegisteringCompletion
+        ? t("you-have-completed-the-course-to-receive-credits-use-following-links")
+        : t("you-have-completed-the-course")
+    }
+  }
+
   return (
     <Wrapper>
       <StyledBackground />
       <Content>
         <StyledSVG />
         <h1 className="heading">{t("congratulations")}!</h1>
-        <span className="subtitle">
-          {anyCompletedModuleAllowsRegisteringCompletion
-            ? t(
-                "you-have-completed-the-course-to-receive-credits-or-certificate-use-following-links",
-              )
-            : t("you-have-completed-the-course-to-receive-certificate-use-following-links")}
-        </span>
+        <span className="subtitle">{getSubtitleText()}</span>
 
         <ModuleWrapper>
           {modules

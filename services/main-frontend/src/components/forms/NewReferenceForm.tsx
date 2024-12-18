@@ -34,17 +34,22 @@ const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>>
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<NewReferenceFields>()
+
+  const references = watch("references")
 
   const [errorMessage, setErrorMessage] = useState("")
   const onCreateNewReferenceWrapper = handleSubmit((data) => {
     try {
-      const cite = new Cite(data.references)
-      const references = cite.data.map((c: { id: string }) => {
+      const rawCite = new Cite(data.references)
+      const cite = new Cite(rawCite.get({ type: "string", style: "bibtex", lang: "en-US" }))
+      const references = cite.data.map((c: { id: string; "citation-key": string }) => {
         const ci = new Cite(c)
+
         return {
-          citation_key: c.id,
+          citation_key: c["citation-key"],
           reference: ci.get({ type: "string", style: "bibtex", lang: "en-US" }),
         }
       })
@@ -56,6 +61,8 @@ const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>>
       }, 5000)
     }
   })
+
+  const citationLabelsThatWillChange = useCitataionLabelsThatWillChange(references)
 
   return (
     <form
@@ -74,10 +81,15 @@ const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>>
         className={css`
           width: 100%;
           margin-bottom: 0.5rem;
-          height: 150px;
         `}
+        autoResize
       />
       {errorMessage && <ErrorText> {errorMessage} </ErrorText>}
+      {citationLabelsThatWillChange.map((c) => (
+        <ErrorText key={c.original}>
+          {t("reference-parsing-error-label-change", { original: c.original, safe: c.safe })}
+        </ErrorText>
+      ))}
       <br />
       <Button variant="primary" size="medium" type="submit" value={t("button-text-submit")}>
         {t("button-text-submit")}
@@ -87,6 +99,37 @@ const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>>
       </Button>
     </form>
   )
+}
+/// Have to construct the citation twice because the library changes the label if it contains any non-safe characters, and we want to persist the safe version of the label
+export function safeParseReferences(references: string): typeof Cite {
+  const rawCite = new Cite(references)
+  const cite = new Cite(rawCite.get({ type: "string", style: "bibtex", lang: "en-US" }))
+  return cite
+}
+
+/// Can be used to detect if citation.js will change the citation key to a safe version
+export function useCitataionLabelsThatWillChange(
+  references: string,
+): { original: string; safe: string }[] {
+  const safeCite = safeParseReferences(references)
+  const unsafeCite = new Cite(references)
+  const keys = safeCite.data
+    .map((c: { "citation-key": string }, i: number) => ({
+      original: unsafeCite.data[i]["citation-key"],
+      safe: c["citation-key"],
+    }))
+    .filter((c: { original: string; safe: string }) => c.original !== c.safe)
+  return keys
+}
+
+export function areCitationsValid(references: string): boolean {
+  try {
+    const cite = new Cite(references)
+    cite.get({ type: "string", style: "bibtex", lang: "en-US" })
+    return true
+  } catch (error: unknown) {
+    return false
+  }
 }
 
 export default NewReferenceForm

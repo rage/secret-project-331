@@ -21,6 +21,11 @@ export interface HeightChangedMessage {
   data: number
 }
 
+export interface OpenLinkMessage {
+  message: "open-link"
+  data: string
+}
+
 export interface FileUploadMessage {
   message: "file-upload"
   files: Map<string, string | Blob>

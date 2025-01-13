@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE exercise_slide_submissions\n        SET flag_count = flag_count + 1,\n            updated_at = NOW()\n        WHERE id = $1\n        RETURNING flag_count\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "flag_count",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false]
+  },
+  "hash": "373b37e6ff5d338ba1f1693bf807a3e396753077888a809c81f137f020ba88bb"
+}

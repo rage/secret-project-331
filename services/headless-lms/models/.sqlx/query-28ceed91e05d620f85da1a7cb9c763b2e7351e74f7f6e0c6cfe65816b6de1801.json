@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  exercise_slide_id,\n  course_id,\n  course_instance_id,\n  exam_id,\n  exercise_id,\n  user_id,\n  user_points_update_strategy AS \"user_points_update_strategy: _\"\nFROM exercise_slide_submissions\nWHERE user_id = $1\n  AND (course_instance_id = $2 OR exam_id = $3)\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT DISTINCT ON (user_id)\n  id,\n  created_at,\n  updated_at,\n  deleted_at,\n  exercise_slide_id,\n  course_id,\n  course_instance_id,\n  exam_id,\n  exercise_id,\n  user_id,\n  user_points_update_strategy AS \"user_points_update_strategy: _\",\n  flag_count\nFROM exercise_slide_submissions\nWHERE exercise_id = $1\n  AND id <> ALL($2)\n  AND user_id <> $3\n  AND deleted_at IS NULL\nORDER BY user_id, created_at DESC\n        ",
   "describe": {
     "columns": [
       {
@@ -67,12 +67,17 @@
             }
           }
         }
+      },
+      {
+        "ordinal": 11,
+        "name": "flag_count",
+        "type_info": "Int4"
       }
     ],
     "parameters": {
-      "Left": ["Uuid", "Uuid", "Uuid"]
+      "Left": ["Uuid", "UuidArray", "Uuid"]
     },
-    "nullable": [false, false, false, true, false, true, true, true, false, false, false]
+    "nullable": [false, false, false, true, false, true, true, true, false, false, false, false]
   },
-  "hash": "1e761fd73899779b83115d13a060ac4076bddc50b1698eb41d3791c82d22ed5b"
+  "hash": "28ceed91e05d620f85da1a7cb9c763b2e7351e74f7f6e0c6cfe65816b6de1801"
 }

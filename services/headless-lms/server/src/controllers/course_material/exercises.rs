@@ -1,5 +1,6 @@
 //! Controllers for requests starting with `/api/v0/course-material/exercises`.
 
+use crate::controllers::course_material::exercises::user_exercise_states::ReviewingStage;
 use crate::{
     domain::{
         authorization::skip_authorize,
@@ -7,6 +8,9 @@ use crate::{
     },
     prelude::*,
 };
+use headless_lms_models::courses;
+use headless_lms_models::exercise_slide_submissions::{self, NewFlaggedAnswer};
+use headless_lms_models::user_exercise_states::CourseInstanceOrExamId;
 use models::{
     exercise_task_submissions::PeerOrSelfReviewsReceived,
     exercises::CourseMaterialExercise,
@@ -363,6 +367,113 @@ async fn submit_peer_or_self_review(
 }
 
 /**
+ * POST `/api/v0/course-material/exercises/:exercise_id/flag-peer-review-answer - Post a report of an answer in peer review made by a student
+ */
+#[instrument(skip(pool))]
+async fn post_flag_answer_in_peer_review(
+    pool: web::Data<PgPool>,
+    payload: web::Json<NewFlaggedAnswer>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+
+    let flagged_submission_data =
+        exercise_slide_submissions::get_by_id(&mut conn, payload.submission_id).await?;
+
+    if flagged_submission_data.course_id.is_none() {
+        return Err(ControllerError::new(
+            ControllerErrorType::NotFound,
+            "Submission not found.".to_string(),
+            None,
+        ));
+    }
+
+    let flagged_user = flagged_submission_data.user_id;
+
+    let course_id = match flagged_submission_data.course_id {
+        Some(id) => id,
+        None => {
+            return Err(ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "Course ID not found for the submission.".to_string(),
+                None,
+            ));
+        }
+    };
+
+    let new_flagged_answer = NewFlaggedAnswer {
+        submission_id: payload.submission_id,
+        flagged_user: Some(flagged_user),
+        flagged_by: Some(user.id),
+        reason: payload.reason.clone(),
+        description: payload.description.clone(),
+    };
+
+    let insert_result =
+        exercise_slide_submissions::insert_flagged_answer(&mut conn, new_flagged_answer).await;
+
+    //If the flagging was successful, increment the answers flag count and check if it needs to be moved to manual grading
+    if insert_result.is_err() {
+        return Err(ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            "Failed to report answer".to_string(),
+            None,
+        ));
+    } else {
+        let increment_flag_count =
+            exercise_slide_submissions::increment_flag_count(&mut conn, payload.submission_id)
+                .await;
+
+        if let Ok(updated_flag_count) = increment_flag_count {
+            let course = courses::get_course(&mut conn, course_id).await?;
+
+            if let Some(flagged_answers_threshold) = course.flagged_answers_threshold {
+                if updated_flag_count >= flagged_answers_threshold {
+                    let course_instance_or_exam_id = if let Some(course_instance_id) =
+                        flagged_submission_data.course_instance_id
+                    {
+                        CourseInstanceOrExamId::Instance(course_instance_id)
+                    } else if let Some(exam_id) = flagged_submission_data.exam_id {
+                        CourseInstanceOrExamId::Exam(exam_id)
+                    } else {
+                        return Err(ControllerError::new(
+                            ControllerErrorType::InternalServerError,
+                            "No course instance or exam ID found for the submission.".to_string(),
+                            None,
+                        ));
+                    };
+
+                    let update_result = user_exercise_states::update_reviewing_stage(
+                        &mut conn,
+                        flagged_user,
+                        course_instance_or_exam_id,
+                        flagged_submission_data.exercise_id,
+                        ReviewingStage::WaitingForManualGrading,
+                    )
+                    .await;
+
+                    if update_result.is_err() {
+                        return Err(ControllerError::new(
+                            ControllerErrorType::InternalServerError,
+                            "Failed to update the reviewing stage.".to_string(),
+                            None,
+                        ));
+                    }
+                }
+            }
+        } else {
+            return Err(ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                "Failed to increment the flag count.".to_string(),
+                None,
+            ));
+        }
+    }
+    let token = skip_authorize();
+    token.authorized_ok(web::Json(true))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -390,5 +501,8 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{exercise_id}/submissions",
             web::post().to(post_submission),
+        ).route(
+            "/{exercise_id}/flag-peer-review-answer",
+            web::post().to(post_flag_answer_in_peer_review),
         );
 }

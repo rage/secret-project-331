@@ -59,6 +59,7 @@ pub struct ExerciseSlideSubmission {
     pub exercise_id: Uuid,
     pub user_id: Uuid,
     pub user_points_update_strategy: UserPointsUpdateStrategy,
+    pub flag_count: Option<i32>,
 }
 
 impl ExerciseSlideSubmission {
@@ -132,6 +133,115 @@ pub struct ExerciseSlideSubmissionAndUserExerciseStateList {
     pub total_pages: u32,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct FlaggedAnswer {
+    pub id: Uuid,
+    pub submission_id: Uuid,
+    pub flagged_user: Uuid,
+    pub flagged_by: Uuid,
+    pub reason: String,
+    pub description: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct NewFlaggedAnswer {
+    pub submission_id: Uuid,
+    pub flagged_user: Option<Uuid>,
+    pub flagged_by: Option<Uuid>,
+    pub reason: String,
+    pub description: Option<String>,
+}
+
+pub async fn insert_flagged_answer(
+    conn: &mut PgConnection,
+    flagged_answer: NewFlaggedAnswer,
+) -> ModelResult<FlaggedAnswer> {
+    let res = sqlx::query_as!(
+        FlaggedAnswer,
+        r#"
+INSERT INTO flagged_answers (
+    submission_id,
+    flagged_user,
+    flagged_by,
+    reason,
+    description
+)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id,
+  submission_id,
+  flagged_user,
+  flagged_by,
+  reason,
+  description,
+  created_at,
+  updated_at,
+  deleted_at
+        "#,
+        flagged_answer.submission_id,
+        flagged_answer.flagged_user,
+        flagged_answer.flagged_by,
+        flagged_answer.reason,
+        flagged_answer.description,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn increment_flag_count(
+    conn: &mut PgConnection,
+    submission_id: Uuid,
+) -> ModelResult<i32> {
+    let result = sqlx::query!(
+        r#"
+        UPDATE exercise_slide_submissions
+        SET flag_count = flag_count + 1,
+            updated_at = NOW()
+        WHERE id = $1
+        RETURNING flag_count
+        "#,
+        submission_id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(result.flag_count)
+}
+
+pub async fn get_flagged_answers_by_submission_id(
+    conn: &mut PgConnection,
+    exercise_slide_submission_id: Uuid,
+) -> ModelResult<Vec<FlaggedAnswer>> {
+    let results = sqlx::query_as!(
+        FlaggedAnswer,
+        r#"
+        SELECT
+            id,
+            submission_id,
+            flagged_user,
+            flagged_by,
+            reason,
+            description,
+            created_at,
+            updated_at,
+            deleted_at
+        FROM flagged_answers
+        WHERE submission_id = $1
+          AND deleted_at IS NULL
+        "#,
+        exercise_slide_submission_id
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(results)
+}
+
 pub async fn insert_exercise_slide_submission(
     conn: &mut PgConnection,
     exercise_slide_submission: NewExerciseSlideSubmission,
@@ -159,7 +269,8 @@ RETURNING id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _"
+  user_points_update_strategy AS "user_points_update_strategy: _",
+  flag_count
         "#,
         exercise_slide_submission.exercise_slide_id,
         exercise_slide_submission.course_id,
@@ -203,7 +314,8 @@ RETURNING id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _"
+  user_points_update_strategy AS "user_points_update_strategy: _",
+  flag_count
         "#,
         id,
         exercise_slide_submission.exercise_slide_id,
@@ -233,7 +345,8 @@ course_instance_id,
 exam_id,
 exercise_id,
 user_id,
-user_points_update_strategy AS "user_points_update_strategy: _"
+user_points_update_strategy AS "user_points_update_strategy: _",
+flag_count
 FROM exercise_slide_submissions
 WHERE id = $1
   AND deleted_at IS NULL;
@@ -268,7 +381,8 @@ SELECT DISTINCT ON (user_id)
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _"
+  user_points_update_strategy AS "user_points_update_strategy: _",
+  flag_count
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
   AND id <> ALL($2)
@@ -306,7 +420,8 @@ SELECT id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _"
+  user_points_update_strategy AS "user_points_update_strategy: _",
+  flag_count
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
   AND deleted_at IS NULL
@@ -340,7 +455,8 @@ SELECT id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _"
+  user_points_update_strategy AS "user_points_update_strategy: _",
+  flag_count
 FROM exercise_slide_submissions
 WHERE user_id = $1
   AND (course_instance_id = $2 OR exam_id = $3)
@@ -373,7 +489,8 @@ SELECT id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _"
+  user_points_update_strategy AS "user_points_update_strategy: _",
+  flag_count
 FROM exercise_slide_submissions
 WHERE exercise_slide_id = $1
   AND user_id = $2
@@ -454,7 +571,8 @@ SELECT id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _"
+  user_points_update_strategy AS "user_points_update_strategy: _",
+  flag_count
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
   AND deleted_at IS NULL
@@ -525,7 +643,8 @@ pub async fn get_latest_exercise_slide_submissions_and_user_exercise_state_list_
         exam_id,
         exercise_id,
         user_id,
-        user_points_update_strategy AS "user_points_update_strategy: _"
+        user_points_update_strategy AS "user_points_update_strategy: _",
+  flag_count
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
       AND deleted_at IS NULL
@@ -735,7 +854,8 @@ SELECT id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _"
+  user_points_update_strategy AS "user_points_update_strategy: _",
+  flag_count
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
   AND deleted_at IS NULL

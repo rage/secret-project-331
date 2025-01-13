@@ -125,6 +125,7 @@ import {
   Feedback,
   FeedbackBlock,
   FeedbackCount,
+  FlaggedAnswer,
   GeneratedCertificate,
   GetEditProposalsQuery,
   GetFeedbackQuery,
@@ -149,6 +150,7 @@ import {
   NewExam,
   NewExerciseRepository,
   NewFeedback,
+  NewFlaggedAnswer,
   NewMaterialReference,
   NewModule,
   NewPage,
@@ -1046,7 +1048,9 @@ export function isCourse(obj: unknown): obj is Course {
     typeof typedObj["can_add_chatbot"] === "boolean" &&
     typeof typedObj["is_joinable_by_code_only"] === "boolean" &&
     (typedObj["join_code"] === null || typeof typedObj["join_code"] === "string") &&
-    typeof typedObj["ask_marketing_consent"] === "boolean"
+    typeof typedObj["ask_marketing_consent"] === "boolean" &&
+    (typedObj["flagged_answers_threshold"] === null ||
+      typeof typedObj["flagged_answers_threshold"] === "number")
   )
 }
 
@@ -1095,7 +1099,8 @@ export function isCourseUpdate(obj: unknown): obj is CourseUpdate {
     typeof typedObj["can_add_chatbot"] === "boolean" &&
     typeof typedObj["is_unlisted"] === "boolean" &&
     typeof typedObj["is_joinable_by_code_only"] === "boolean" &&
-    typeof typedObj["ask_marketing_consent"] === "boolean"
+    typeof typedObj["ask_marketing_consent"] === "boolean" &&
+    typeof typedObj["flagged_answers_threshold"] === "number"
   )
 }
 
@@ -1116,7 +1121,9 @@ export function isNewCourse(obj: unknown): obj is NewCourse {
     typeof typedObj["copy_user_permissions"] === "boolean" &&
     typeof typedObj["is_joinable_by_code_only"] === "boolean" &&
     (typedObj["join_code"] === null || typeof typedObj["join_code"] === "string") &&
-    typeof typedObj["ask_marketing_consent"] === "boolean"
+    typeof typedObj["ask_marketing_consent"] === "boolean" &&
+    (typedObj["flagged_answers_threshold"] === null ||
+      typeof typedObj["flagged_answers_threshold"] === "number")
   )
 }
 
@@ -1375,7 +1382,8 @@ export function isExerciseSlideSubmission(obj: unknown): obj is ExerciseSlideSub
     (typedObj["exam_id"] === null || typeof typedObj["exam_id"] === "string") &&
     typeof typedObj["exercise_id"] === "string" &&
     typeof typedObj["user_id"] === "string" &&
-    (isUserPointsUpdateStrategy(typedObj["user_points_update_strategy"]) as boolean)
+    (isUserPointsUpdateStrategy(typedObj["user_points_update_strategy"]) as boolean) &&
+    (typedObj["flag_count"] === null || typeof typedObj["flag_count"] === "number")
   )
 }
 
@@ -1561,6 +1569,34 @@ export function isPeerOrSelfReviewsReceived(obj: unknown): obj is PeerOrSelfRevi
     typedObj["peer_or_self_review_submissions"].every(
       (e: any) => isPeerOrSelfReviewSubmission(e) as boolean,
     )
+  )
+}
+
+export function isFlaggedAnswer(obj: unknown): obj is FlaggedAnswer {
+  const typedObj = obj as FlaggedAnswer
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["submission_id"] === "string" &&
+    typeof typedObj["flagged_user"] === "string" &&
+    typeof typedObj["flagged_by"] === "string" &&
+    typeof typedObj["reason"] === "string" &&
+    (typedObj["description"] === null || typeof typedObj["description"] === "string") &&
+    typeof typedObj["created_at"] === "string" &&
+    typeof typedObj["updated_at"] === "string" &&
+    (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string")
+  )
+}
+
+export function isNewFlaggedAnswer(obj: unknown): obj is NewFlaggedAnswer {
+  const typedObj = obj as NewFlaggedAnswer
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["submission_id"] === "string" &&
+    (typedObj["flagged_user"] === null || typeof typedObj["flagged_user"] === "string") &&
+    (typedObj["flagged_by"] === null || typeof typedObj["flagged_by"] === "string") &&
+    typeof typedObj["reason"] === "string" &&
+    (typedObj["description"] === null || typeof typedObj["description"] === "string")
   )
 }
 
@@ -1952,7 +1988,9 @@ export function isAnswerRequiringAttentionWithTasks(
     Array.isArray(typedObj["received_peer_or_self_reviews"]) &&
     typedObj["received_peer_or_self_reviews"].every(
       (e: any) => isPeerReviewWithQuestionsAndAnswers(e) as boolean,
-    )
+    ) &&
+    Array.isArray(typedObj["reveived_peer_flagging_reports"]) &&
+    typedObj["reveived_peer_flagging_reports"].every((e: any) => isFlaggedAnswer(e) as boolean)
   )
 }
 

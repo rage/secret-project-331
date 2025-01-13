@@ -486,6 +486,7 @@ export interface Course {
   is_joinable_by_code_only: boolean
   join_code: string | null
   ask_marketing_consent: boolean
+  flagged_answers_threshold: number | null
 }
 
 export interface CourseBreadcrumbInfo {
@@ -516,6 +517,7 @@ export interface CourseUpdate {
   is_unlisted: boolean
   is_joinable_by_code_only: boolean
   ask_marketing_consent: boolean
+  flagged_answers_threshold: number
 }
 
 export interface NewCourse {
@@ -533,6 +535,7 @@ export interface NewCourse {
   is_joinable_by_code_only: boolean
   join_code: string | null
   ask_marketing_consent: boolean
+  flagged_answers_threshold: number | null
 }
 
 export interface EmailTemplate {
@@ -707,6 +710,7 @@ export interface ExerciseSlideSubmission {
   exercise_id: string
   user_id: string
   user_points_update_strategy: UserPointsUpdateStrategy
+  flag_count: number | null
 }
 
 export interface ExerciseSlideSubmissionAndUserExerciseState {
@@ -810,6 +814,26 @@ export interface PeerOrSelfReviewsReceived {
   peer_or_self_review_questions: Array<PeerOrSelfReviewQuestion>
   peer_or_self_review_question_submissions: Array<PeerOrSelfReviewQuestionSubmission>
   peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmission>
+}
+
+export interface FlaggedAnswer {
+  id: string
+  submission_id: string
+  flagged_user: string
+  flagged_by: string
+  reason: string
+  description: string | null
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+}
+
+export interface NewFlaggedAnswer {
+  submission_id: string
+  flagged_user: string | null
+  flagged_by: string | null
+  reason: string
+  description: string | null
 }
 
 export interface CourseMaterialExerciseTask {
@@ -1034,6 +1058,7 @@ export interface AnswerRequiringAttentionWithTasks {
   tasks: Array<CourseMaterialExerciseTask>
   given_peer_reviews: Array<PeerReviewWithQuestionsAndAnswers>
   received_peer_or_self_reviews: Array<PeerReviewWithQuestionsAndAnswers>
+  reveived_peer_flagging_reports: Array<FlaggedAnswer>
 }
 
 export interface AnswersRequiringAttention {

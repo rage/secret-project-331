@@ -1,5 +1,6 @@
 import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { ExclamationMessage } from "@vectopus/atlas-icons-react"
 import React, { useContext, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -8,15 +9,18 @@ import ContentRenderer from "../../.."
 import {
   Block,
   fetchPeerOrSelfReviewDataByExerciseId,
+  postFlagAnswerInPeerReview,
   postPeerOrSelfReviewSubmission,
 } from "../../../../../services/backend"
 import ExerciseTaskIframe from "../ExerciseTaskIframe"
 
 import PeerOrSelfReviewQuestion from "./PeerOrSelfReviewQuestion"
+import MarkAsSpamDialog from "./PeerRevireMarkingSpam/MarkAsSpamDialog"
 
 import { getPeerReviewBeginningScrollingId, PeerOrSelfReviewViewProps } from "."
 
 import { CourseMaterialPeerOrSelfReviewQuestionAnswer } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import PeerReviewProgress from "@/shared-module/common/components/PeerReview/PeerReviewProgress"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -37,6 +41,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
   const [answers, setAnswers] = useState<Map<string, CourseMaterialPeerOrSelfReviewQuestionAnswer>>(
     new Map(),
   )
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false)
 
   const query = useQuery({
     queryKey: [`exercise-${exerciseId}-peer-or-self-review`],
@@ -125,6 +130,27 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
       },
     },
   )
+
+  const reportMutation = useToastMutation(
+    async ({ reason, description }: { reason: string; description: string }) => {
+      if (!peerOrSelfReviewData || !peerOrSelfReviewData.answer_to_review) {
+        return
+      }
+      return await postFlagAnswerInPeerReview(exerciseId, {
+        submission_id: peerOrSelfReviewData.answer_to_review.exercise_slide_submission_id,
+        reason,
+        description,
+        flagged_user: null,
+        flagged_by: null,
+      })
+    },
+    { notify: true, method: "POST" },
+    {},
+  )
+
+  const handleReportSubmit = (reason: string, description: string) => {
+    reportMutation.mutate({ reason, description })
+  }
 
   if (query.isError) {
     return <ErrorBanner variant={"readOnly"} error={query.error} />
@@ -306,6 +332,25 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
       >
         {t("submit-button")}
       </button>
+      <Button
+        className={css`
+          display: flex !important;
+          align-items: center;
+          gap: 6px;
+        `}
+        variant={"icon"}
+        transform="capitalize"
+        size={"small"}
+        onClick={() => setIsReportDialogOpen(true)}
+      >
+        <ExclamationMessage /> {t("button-text-report")}
+      </Button>
+
+      <MarkAsSpamDialog
+        isOpen={isReportDialogOpen}
+        onClose={() => setIsReportDialogOpen(false)}
+        onSubmit={handleReportSubmit}
+      />
     </div>
   )
 }

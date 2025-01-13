@@ -124,6 +124,8 @@ fn models(target: &mut File) {
         exercise_task_gradings::UserPointsUpdateStrategy,
         exercise_task_submissions::ExerciseTaskSubmission,
         exercise_task_submissions::PeerOrSelfReviewsReceived,
+        exercise_slide_submissions::FlaggedAnswer,
+        exercise_slide_submissions::NewFlaggedAnswer,
         exercise_tasks::CourseMaterialExerciseTask,
         exercise_tasks::ExerciseTask,
         exercises::ActivityProgress,

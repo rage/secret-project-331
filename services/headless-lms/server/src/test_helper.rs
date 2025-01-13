@@ -190,6 +190,7 @@ macro_rules! insert_data {
                 is_joinable_by_code_only: false,
                 join_code: None,
                 ask_marketing_consent:false,
+                flagged_answers_threshold: Some(5),
             },
             $user,
             |_, _, _| unimplemented!(),

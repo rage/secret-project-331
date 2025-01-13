@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO exercise_slide_submissions (\n    exercise_slide_id,\n    course_id,\n    course_instance_id,\n    exam_id,\n    exercise_id,\n    user_id,\n    user_points_update_strategy\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  exercise_slide_id,\n  course_id,\n  course_instance_id,\n  exam_id,\n  exercise_id,\n  user_id,\n  user_points_update_strategy AS \"user_points_update_strategy: _\"\n        ",
+  "query": "\n    SELECT DISTINCT ON (user_id)\n        id,\n        created_at,\n        updated_at,\n        deleted_at,\n        exercise_slide_id,\n        course_id,\n        course_instance_id,\n        exam_id,\n        exercise_id,\n        user_id,\n        user_points_update_strategy AS \"user_points_update_strategy: _\",\n  flag_count\nFROM exercise_slide_submissions\nWHERE exercise_id = $1\n      AND deleted_at IS NULL\nORDER BY user_id, created_at DESC\nLIMIT $2 OFFSET $3\n        ",
   "describe": {
     "columns": [
       {
@@ -67,30 +67,17 @@
             }
           }
         }
+      },
+      {
+        "ordinal": 11,
+        "name": "flag_count",
+        "type_info": "Int4"
       }
     ],
     "parameters": {
-      "Left": [
-        "Uuid",
-        "Uuid",
-        "Uuid",
-        "Uuid",
-        "Uuid",
-        "Uuid",
-        {
-          "Custom": {
-            "name": "user_points_update_strategy",
-            "kind": {
-              "Enum": [
-                "can-add-points-but-cannot-remove-points",
-                "can-add-points-and-can-remove-points"
-              ]
-            }
-          }
-        }
-      ]
+      "Left": ["Uuid", "Int8", "Int8"]
     },
-    "nullable": [false, false, false, true, false, true, true, true, false, false, false]
+    "nullable": [false, false, false, true, false, true, true, true, false, false, false, false]
   },
-  "hash": "a80adc88f16d5ce7df3ab0724d59ba485ee56323fef9d6e89cde588994a2ee63"
+  "hash": "42f0e5ed7fe9d9edd3ec6b40c9c1a72d176753e127aec5795e6c4bd8a14b0b8f"
 }

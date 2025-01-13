@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\ncreated_at,\nupdated_at,\ndeleted_at,\nexercise_slide_id,\ncourse_id,\ncourse_instance_id,\nexam_id,\nexercise_id,\nuser_id,\nuser_points_update_strategy AS \"user_points_update_strategy: _\"\nFROM exercise_slide_submissions\nWHERE id = $1\n  AND deleted_at IS NULL;\n        ",
+  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  exercise_slide_id,\n  course_id,\n  course_instance_id,\n  exam_id,\n  exercise_id,\n  user_id,\n  user_points_update_strategy AS \"user_points_update_strategy: _\",\n  flag_count\nFROM exercise_slide_submissions\nWHERE exercise_id = $1\n  AND deleted_at IS NULL\nLIMIT $2 OFFSET $3;\n        ",
   "describe": {
     "columns": [
       {
@@ -67,12 +67,17 @@
             }
           }
         }
+      },
+      {
+        "ordinal": 11,
+        "name": "flag_count",
+        "type_info": "Int4"
       }
     ],
     "parameters": {
-      "Left": ["Uuid"]
+      "Left": ["Uuid", "Int8", "Int8"]
     },
-    "nullable": [false, false, false, true, false, true, true, true, false, false, false]
+    "nullable": [false, false, false, true, false, true, true, true, false, false, false, false]
   },
-  "hash": "20fc12ac7e010520d3a0fc268c01c6fd85802b41adc867ed79edb32b74bcbc17"
+  "hash": "17bf0f2c956a3aa06506ba05c18e1b15b8423cb99f8f7b3d7ffa1e3ef81945c5"
 }

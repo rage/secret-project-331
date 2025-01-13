@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT DISTINCT ON (user_id)\n  id,\n  created_at,\n  updated_at,\n  deleted_at,\n  exercise_slide_id,\n  course_id,\n  course_instance_id,\n  exam_id,\n  exercise_id,\n  user_id,\n  user_points_update_strategy AS \"user_points_update_strategy: _\"\nFROM exercise_slide_submissions\nWHERE exercise_id = $1\n  AND id <> ALL($2)\n  AND user_id <> $3\n  AND deleted_at IS NULL\nORDER BY user_id, created_at DESC\n        ",
+  "query": "\nINSERT INTO exercise_slide_submissions (\n    exercise_slide_id,\n    course_id,\n    course_instance_id,\n    exam_id,\n    exercise_id,\n    user_id,\n    user_points_update_strategy\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  exercise_slide_id,\n  course_id,\n  course_instance_id,\n  exam_id,\n  exercise_id,\n  user_id,\n  user_points_update_strategy AS \"user_points_update_strategy: _\",\n  flag_count\n        ",
   "describe": {
     "columns": [
       {
@@ -67,12 +67,35 @@
             }
           }
         }
+      },
+      {
+        "ordinal": 11,
+        "name": "flag_count",
+        "type_info": "Int4"
       }
     ],
     "parameters": {
-      "Left": ["Uuid", "UuidArray", "Uuid"]
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        {
+          "Custom": {
+            "name": "user_points_update_strategy",
+            "kind": {
+              "Enum": [
+                "can-add-points-but-cannot-remove-points",
+                "can-add-points-and-can-remove-points"
+              ]
+            }
+          }
+        }
+      ]
     },
-    "nullable": [false, false, false, true, false, true, true, true, false, false, false]
+    "nullable": [false, false, false, true, false, true, true, true, false, false, false, false]
   },
-  "hash": "512ac25a3bacaac7233a1134eed215abc920b98f2d41c096ede6cbf015009f7e"
+  "hash": "136d766e505e02ad02623be6ee9a3bba4f1bbc94ecfddacc7d3e2438c31278fd"
 }

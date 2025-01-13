@@ -25,6 +25,7 @@ import {
   IsChapterFrontPage,
   MaterialReference,
   NewFeedback,
+  NewFlaggedAnswer,
   NewMaterialReference,
   NewProposedPageEdits,
   NewResearchFormQuestionAnswer,
@@ -409,6 +410,16 @@ export const postPeerOrSelfReviewSubmission = async (
     {
       responseType: "json",
     },
+  )
+}
+
+export const postFlagAnswerInPeerReview = async (
+  exerciseId: string,
+  newFlaggedAnswer: NewFlaggedAnswer,
+): Promise<void> => {
+  await courseMaterialClient.post(
+    `/exercises/${exerciseId}/flag-peer-review-answer`,
+    newFlaggedAnswer,
   )
 }
 

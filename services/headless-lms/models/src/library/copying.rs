@@ -818,19 +818,24 @@ INSERT INTO peer_or_self_review_questions (
     weight
   )
 SELECT uuid_generate_v5($1, q.id::text),
-    uuid_generate_v5($1, q.peer_or_self_review_config_id::text),
-    q.order_number,
-    q.question,
-    q.question_type,
-    q.answer_required,
-    q.weight
+  uuid_generate_v5($1, q.peer_or_self_review_config_id::text),
+  q.order_number,
+  q.question,
+  q.question_type,
+  q.answer_required,
+  q.weight
 FROM peer_or_self_review_questions q
-JOIN peer_or_self_review_configs posrc ON (posrc.id = q.peer_or_self_review_config_id)
-JOIN exercises e ON (e.id = posrc.exercise_id)
-WHERE peer_or_self_review_config_id = $2
-AND q.deleted_at IS NULL
-AND e.deleted_at IS NULL
-AND posrc.deleted_at IS NULL;
+  JOIN peer_or_self_review_configs posrc ON (posrc.id = q.peer_or_self_review_config_id)
+  JOIN exercises e ON (e.id = posrc.exercise_id)
+WHERE peer_or_self_review_config_id IN (
+    SELECT id
+    FROM peer_or_self_review_configs
+    WHERE course_id = $2
+      AND deleted_at IS NULL
+  )
+  AND q.deleted_at IS NULL
+  AND e.deleted_at IS NULL
+  AND posrc.deleted_at IS NULL;
     ",
         namespace_id,
         parent_id,

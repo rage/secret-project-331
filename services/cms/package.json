@@ -41,6 +41,7 @@
     "@wordpress/keycodes": "^4.15.1",
     "axios": "^1.7.9",
     "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
     "express": "^4.21.2",
     "http-proxy-middleware": "^3.0.3",
     "i18next": "^24.2.1",

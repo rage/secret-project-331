@@ -26,6 +26,7 @@
     "@vectopus/atlas-icons-react": "github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b",
     "axios": "^1.7.9",
     "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
     "express": "^4.21.2",
     "form-data": "^4.0.1",
     "http-proxy-middleware": "^3.0.3",

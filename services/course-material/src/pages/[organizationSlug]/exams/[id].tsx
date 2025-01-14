@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { addMinutes, differenceInSeconds, isPast, min, parseISO } from "date-fns"
+import { addMinutes, differenceInSeconds, format, isPast, min, parseISO } from "date-fns"
 import React, { useCallback, useContext, useEffect, useReducer } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -27,6 +27,7 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import { humanReadableDateTime } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface ExamProps {
@@ -238,7 +239,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     return (
       <>
         {examInfo}
-        <div>{t("exam-time-up", { "ends-at": exam.data.ends_at.toLocaleString() })}</div>
+        <div>{t("exam-time-up", { "ends-at": humanReadableDateTime(exam.data.ends_at) })}</div>
       </>
     )
   }

@@ -308,7 +308,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
             endsAt={endsAt}
             secondsLeft={secondsLeft}
           />
-          {secondsLeft < 10 * 60 && (
+          {secondsLeft < 10 * 60 && secondsLeft >= 0 && (
             <div
               className={css`
                 background-color: ${baseTheme.colors.yellow[100]};

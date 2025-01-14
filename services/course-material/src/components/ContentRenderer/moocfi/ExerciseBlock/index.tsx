@@ -711,7 +711,7 @@ const ExerciseBlock: React.FC<
             {inSubmissionView &&
               (reviewingStage === "NotStarted" || reviewingStage === undefined) && (
                 <div>
-                  {isExam && (
+                  {isExam && !pageContext.exam?.ended && (
                     <div
                       className={css`
                         background-color: ${baseTheme.colors.green[100]};
@@ -743,7 +743,7 @@ const ExerciseBlock: React.FC<
                       }
                     `}
                   >
-                    {!ranOutOfTries && (
+                    {!ranOutOfTries && !(isExam && pageContext.exam?.ended) && (
                       <button
                         className={cx(exerciseButtonStyles)}
                         onClick={() => {

@@ -369,7 +369,7 @@ const ExerciseBlock: React.FC<
                   font-size: ${exerciseNameIsLong ? "1.4rem" : "1.7rem"};
                   font-weight: 500;
                   font-family: ${headingFont} !important;
-                  word-break: break-word;
+                  overflow-wrap: anywhere;
                   overflow: hidden;
                   margin-top: -2px;
                 `}

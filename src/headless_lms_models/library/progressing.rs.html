@@ -1296,6 +1296,10 @@
 <a href="#1296" id="1296">1296</a>
 <a href="#1297" id="1297">1297</a>
 <a href="#1298" id="1298">1298</a>
+<a href="#1299" id="1299">1299</a>
+<a href="#1300" id="1300">1300</a>
+<a href="#1301" id="1301">1301</a>
+<a href="#1302" id="1302">1302</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>chrono::{DateTime, Utc};
 <span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>std::collections::HashMap;
@@ -1441,6 +1445,10 @@
         <span class="kw">if </span>eligible {
             <span class="kw">let </span>course = courses::get_course(conn, course_module.course_id).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="kw">let </span>user = users::get_by_id(conn, user_id).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">if </span>user.deleted_at.is_some() {
+                <span class="macro">warn!</span>(<span class="string">"Cannot create a completion for a deleted user"</span>);
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
+            }
             <span class="kw">let </span>user_details =
                 <span class="kw">crate</span>::user_details::get_user_details_by_user_id(conn, user.id).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="kw">let </span>completion = course_module_completions::insert(

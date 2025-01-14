@@ -143,6 +143,10 @@ async fn create_automatic_course_module_completion_if_eligible(
         if eligible {
             let course = courses::get_course(conn, course_module.course_id).await?;
             let user = users::get_by_id(conn, user_id).await?;
+            if user.deleted_at.is_some() {
+                warn!("Cannot create a completion for a deleted user");
+                return Ok(None);
+            }
             let user_details =
                 crate::user_details::get_user_details_by_user_id(conn, user.id).await?;
             let completion = course_module_completions::insert(

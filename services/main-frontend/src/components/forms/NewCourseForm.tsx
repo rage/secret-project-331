@@ -7,6 +7,7 @@ import { normalizePath } from "../../utils/normalizePath"
 
 import { Course, NewCourse } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
@@ -169,7 +170,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
       `}
     >
       <div>
-        {error && <pre>{error}</pre>}
+        {error && <ErrorBanner error={error} variant="readOnly" />}
         <FieldContainer>
           <TextField
             required

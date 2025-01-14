@@ -560,6 +560,7 @@
   "reference-added-succesfully": "Lähdeviite lisätty",
   "reference-deleted-succesfully": "Lähdeviite poistettu",
   "reference-parsing-error": "Virhe: Tätä muotoa ei tueta tai tunnisteta",
+  "reference-parsing-error-label-change": "Tunniste {{original}} muutetaan {{safe}}, koska se sisältää turvattomia merkkejä.",
   "reference-updated-succesfully": "Lähdeviite päivitetty",
   "references": "Lähteet",
   "register-completion": "Suorituksen kirjaaminen",

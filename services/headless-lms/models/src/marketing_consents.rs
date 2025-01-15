@@ -158,6 +158,7 @@ pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_group
         OR umc.synced_to_mailchimp_at < umc.updated_at
         OR csfa.updated_at > umc.synced_to_mailchimp_at
         OR urc.updated_at > umc.synced_to_mailchimp_at
+        OR cmc.updated_at > umc.synced_to_mailchimp_at
 )
     ",
         course_language_group_id

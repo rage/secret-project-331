@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { addMinutes, differenceInSeconds, format, min, parseISO } from "date-fns"
+import { addMinutes, differenceInSeconds, min, parseISO } from "date-fns"
 import React, { useCallback, useContext, useEffect, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 

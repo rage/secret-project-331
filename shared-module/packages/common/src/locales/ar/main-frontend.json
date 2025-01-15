@@ -555,6 +555,7 @@
   "reference-added-succesfully": "تمت إضافة المرجع بنجاح",
   "reference-deleted-succesfully": "تم حذف المرجع بنجاح",
   "reference-parsing-error": "خطأ: هذا التنسيق غير مدعوم أو غير معترف به",
+  "reference-parsing-error-label-change": "سيتم تغيير التسمية {{original}} إلى {{safe}} لأنها تحتوي على أحرف غير آمنة.",
   "reference-updated-succesfully": "تم تحديث المرجع بنجاح",
   "references": "المراجع",
   "register-completion": "تسجيل الإكمال",

@@ -218,8 +218,10 @@
   "warning-chatbots-can-make-mistakes": "Чатботи можуть помилятися. Завжди перевіряйте їхні твердження.",
   "write-your-feedback-here": "Напишіть свій відгук тут",
   "written-feedback": "Письмовий відгук",
+  "you-have-completed-the-course": "Ви успішно завершили курс!",
   "you-have-completed-the-course-to-receive-certificate-use-following-links": "Ви успішно пройшли курс! Ви можете скористатися наведеними нижче посиланнями, щоб створити свій сертифікат.",
   "you-have-completed-the-course-to-receive-credits-or-certificate-use-following-links": "Ви успішно пройшли курс! Щоб отримати кредити ECTS за завершення, ви можете скористатися наступними посиланнями, щоб зареєструвати своє завершення та отримати сертифікат.",
+  "you-have-completed-the-course-to-receive-credits-use-following-links": "Ви успішно завершили курс! Щоб отримати кредити ECTS за ваше завершення, ви можете скористатися наступними посиланнями для реєстрації вашого завершення.",
   "your-code-code": "Ваш код: {{code}}",
   "youve-made-changes": "Ви внесли зміни",
   "youve-selected-material-for-editing": "Ви вибрали матеріал для редагування"

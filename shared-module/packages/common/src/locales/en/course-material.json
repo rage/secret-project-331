@@ -213,8 +213,10 @@
   "warning-chatbots-can-make-mistakes": "Chatbots can make mistakes. Always double-check its claims.",
   "write-your-feedback-here": "Write your feedback here",
   "written-feedback": "Written feedback",
+  "you-have-completed-the-course": "You have successfully completed the course!",
   "you-have-completed-the-course-to-receive-certificate-use-following-links": "You have successfully completed the course! You can use the following links to generate your certificate.",
   "you-have-completed-the-course-to-receive-credits-or-certificate-use-following-links": "You have successfully completed the course! To receive ECTS credits for your completions, you can use the following links to register your completion and receive a certificate.",
+  "you-have-completed-the-course-to-receive-credits-use-following-links": "You have successfully completed the course! To receive ECTS credits for your completions, you can use the following links to register your completion.",
   "your-code-code": "Your code is: {{code}}",
   "youve-made-changes": "You've made changes",
   "youve-selected-material-for-editing": "You've selected material for editing"

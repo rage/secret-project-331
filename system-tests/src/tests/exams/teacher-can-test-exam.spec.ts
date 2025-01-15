@@ -76,6 +76,7 @@ test("Testing exam works", async ({ page }) => {
     .getByRole("button", { name: "Correct answer" })
     .click()
   await page.getByRole("button", { name: "Submit" }).click()
+  await page.getByText("Your submission has been saved.").waitFor()
 
   //Show exercise answers
   await page.getByLabel("show answers").check()

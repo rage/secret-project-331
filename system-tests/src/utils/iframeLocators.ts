@@ -4,7 +4,7 @@ import { Locator, Page } from "playwright"
  * Helper function to help interacting with exercise service iframes in the tests.
  * @param page Current page in the test
  * @param exerciseServiceSlug the exercise service slug, used to filter the iframes. E.g. "example-exercise" or "quizzes".
- * @param n Nth match to get selected
+ * @param n Nth match to get selected. Starts from 1.
  * @returns Locator that can be used to find stuff inside iframes and also can be used to take a screenshot of the whole iframe.
  */
 export async function getLocatorForNthExerciseServiceIframe(

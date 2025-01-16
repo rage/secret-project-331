@@ -32,11 +32,11 @@ test("Testing exam works", async ({ page }) => {
 
   await page.getByLabel("Edit").click()
   await page.getByRole("button", { name: "Quizzes" }).click()
-  const quizzesEditor = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 0)
+  const quizzesEditor = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
   await quizzesEditor.getByRole("button", { name: "Multiple choice Choose" }).click()
   await quizzesEditor.getByLabel("Title", { exact: true }).fill("Multiple choice")
   await quizzesEditor.getByLabel("Option title", { exact: true }).fill("Correct answer")
-  await page.frameLocator('iframe[title="IFRAME EDITOR"]').getByLabel("Correct").check()
+  await quizzesEditor.getByLabel("Correct").check()
   await quizzesEditor.getByRole("button", { name: "Add option" }).click()
   await quizzesEditor.getByLabel("Option title", { exact: true }).fill("Wrong answer")
   await quizzesEditor.getByRole("button", { name: "Add option" }).click()
@@ -56,7 +56,7 @@ test("Testing exam works", async ({ page }) => {
   page.on("dialog", (dialog) => dialog.accept())
   await page.locator(`button:text("Start the exam!")`).click()
 
-  const quizzesIframe = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 0)
+  const quizzesIframe = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
   await quizzesIframe.getByRole("button", { name: "Correct answer" }).click()
   await page.getByRole("button", { name: "Submit" }).click()
   await page.getByText("Your submission has been saved.").waitFor()

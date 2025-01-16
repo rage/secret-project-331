@@ -1,8 +1,8 @@
 import { BlockInstance } from "@wordpress/blocks"
 
-import { removeNonBreakingSpaces } from "../../src/utils/Gutenberg/modifyBlocks"
+import { removeUncommonSpacesFromBlocks } from "../../src/utils/Gutenberg/modifyBlocks"
 
-describe("removeNonBreakingSpaces", () => {
+describe("removeUncommonSpacesFromBlocks", () => {
   it("should replace non-breaking spaces with regular spaces in paragraph blocks", () => {
     const blocks: BlockInstance[] = [
       {
@@ -16,7 +16,7 @@ describe("removeNonBreakingSpaces", () => {
       },
     ]
 
-    const result = removeNonBreakingSpaces(blocks)
+    const result = removeUncommonSpacesFromBlocks(blocks)
 
     // Check that the result has the correct content
     expect(result[0].attributes.content).toBe("Hello World More Text")
@@ -45,7 +45,7 @@ describe("removeNonBreakingSpaces", () => {
       },
     ]
 
-    const result = removeNonBreakingSpaces(blocks)
+    const result = removeUncommonSpacesFromBlocks(blocks)
 
     // Check that the nested content was modified in the result
     expect(result[0].innerBlocks[0].attributes.content).toBe("Nested Content")
@@ -66,7 +66,7 @@ describe("removeNonBreakingSpaces", () => {
       },
     ]
 
-    const result = removeNonBreakingSpaces(blocks)
+    const result = removeUncommonSpacesFromBlocks(blocks)
 
     expect(result[0].attributes.content).toBe("Header\u00A0Text")
     // Verify original wasn't modified
@@ -75,7 +75,7 @@ describe("removeNonBreakingSpaces", () => {
 
   it("should handle empty blocks array", () => {
     const blocks: BlockInstance[] = []
-    const result = removeNonBreakingSpaces(blocks)
+    const result = removeUncommonSpacesFromBlocks(blocks)
     expect(result).toEqual([])
   })
 })

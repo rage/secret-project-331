@@ -37,7 +37,7 @@ export const modifyBlocks = (
  * @param blocks - Array of Gutenberg block instances to process
  * @returns A new array of blocks with uncommon spaces replaced
  */
-export const removeNonBreakingSpaces = (blocks: BlockInstance[]): BlockInstance[] => {
+export const removeUncommonSpacesFromBlocks = (blocks: BlockInstance[]): BlockInstance[] => {
   return blocks.map((block) => {
     const newBlock = { ...block }
 
@@ -52,7 +52,7 @@ export const removeNonBreakingSpaces = (blocks: BlockInstance[]): BlockInstance[
     }
 
     if (block.innerBlocks && block.innerBlocks.length > 0) {
-      newBlock.innerBlocks = removeNonBreakingSpaces(block.innerBlocks)
+      newBlock.innerBlocks = removeUncommonSpacesFromBlocks(block.innerBlocks)
     }
 
     return newBlock

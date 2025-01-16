@@ -71,6 +71,7 @@
   "error-submission-failed": "Submission failed",
   "error-title": "Error",
   "exam-can-be-started-after": "The exam can be started after {{ starts-at }}",
+  "exam-ended-see-points-below": "This exam has ended. See your points below.",
   "exam-has-not-started-yet": "The exam has not started yet",
   "exam-no-end-time": "No end time set",
   "exam-no-start-time": "No start time set",

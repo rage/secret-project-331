@@ -7,32 +7,37 @@
   "author": "Henrik Nygren <nygrenh@gmail.com>",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@chromatic-com/storybook": "^1.4.0",
-    "@storybook/addon-essentials": "^8.1.1",
-    "@storybook/addon-interactions": "^8.1.1",
-    "@storybook/addon-links": "^8.1.1",
-    "@storybook/addon-onboarding": "^8.1.1",
-    "@storybook/blocks": "^8.1.1",
-    "@storybook/react": "^8.1.1",
-    "@storybook/react-vite": "^8.1.1",
-    "@storybook/test": "^8.1.1",
-    "@vitejs/plugin-react": "^4.2.1",
+    "@chromatic-com/storybook": "^3.2.3",
+    "@storybook/addon-essentials": "^8.4.7",
+    "@storybook/addon-interactions": "^8.4.7",
+    "@storybook/addon-links": "^8.4.7",
+    "@storybook/addon-onboarding": "^8.4.7",
+    "@storybook/blocks": "^8.4.7",
+    "@storybook/react": "^8.4.7",
+    "@storybook/react-vite": "^8.4.7",
+    "@storybook/test": "^8.4.7",
+    "@vitejs/plugin-react": "^4.3.4",
     "prop-types": "^15.8.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "storybook": "^8.1.1",
-    "vite": "^5.2.11"
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "storybook": "^8.4.7",
+    "vite": "^6.0.7"
   },
   "scripts": {
     "storybook": "storybook dev -p 6006 --docs",
     "build-storybook": "storybook build --docs"
   },
   "dependencies": {
-    "@emotion/css": "^11.11.2",
-    "@emotion/styled": "^11.11.5",
+    "@emotion/css": "^11.13.5",
+    "@emotion/styled": "^11.14.0",
     "@vectopus/atlas-icons-react": "github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b",
     "date-fns": "^4.1.0",
-    "i18next": "^23.11.4",
-    "react-i18next": "^14.1.1"
+    "date-fns-tz": "^3.2.0",
+    "i18next": "^24.2.1",
+    "react-i18next": "^15.4.0"
+  },
+  "overrides": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   }
 }

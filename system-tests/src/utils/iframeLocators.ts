@@ -4,7 +4,7 @@ import { Locator, Page } from "playwright"
  * Helper function to help interacting with exercise service iframes in the tests.
  * @param page Current page in the test
  * @param exerciseServiceSlug the exercise service slug, used to filter the iframes. E.g. "example-exercise" or "quizzes".
- * @param n Nth match to get selected
+ * @param n Nth match to get selected. Starts from 1.
  * @returns Locator that can be used to find stuff inside iframes and also can be used to take a screenshot of the whole iframe.
  */
 export async function getLocatorForNthExerciseServiceIframe(
@@ -74,4 +74,17 @@ export async function scrollElementInsideIframeToView(locator: Locator) {
     const viewPortHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
     window.scrollTo(0, window.scrollY + y - viewPortHeight / 2)
   }, elementHandleBoundingBox.y)
+}
+
+/**
+ * Waits for an exercise service IFrame to show a specific view type.
+ *
+ * @param locator - A locator that points to an exercise service IFrame. Please use the `getLocatorForNthExerciseServiceIframe` function to get the locator.
+ * @param viewType - The type of view to wait for. Can be one of "answer-exercise", "view-submission", or "exercise-editor".
+ */
+export async function waitForViewType(
+  locator: Locator,
+  viewType: "answer-exercise" | "view-submission" | "exercise-editor",
+) {
+  await locator.locator(`[data-view-type="${viewType}"]`).waitFor()
 }

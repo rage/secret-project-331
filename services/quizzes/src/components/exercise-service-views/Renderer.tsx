@@ -42,7 +42,7 @@ const Renderer: React.FC<React.PropsWithChildren<RendererProps>> = ({ state, por
 
   if (state.viewType === "answer-exercise") {
     return (
-      <div id={EXERCISE_SERVICE_CONTENT_ID}>
+      <div id={EXERCISE_SERVICE_CONTENT_ID} data-view-type="answer-exercise">
         <AnswerExercise
           port={port}
           publicSpec={state.publicSpec}
@@ -53,7 +53,7 @@ const Renderer: React.FC<React.PropsWithChildren<RendererProps>> = ({ state, por
     )
   } else if (state.viewType === "view-submission") {
     return (
-      <div id={EXERCISE_SERVICE_CONTENT_ID}>
+      <div id={EXERCISE_SERVICE_CONTENT_ID} data-view-type="view-submission">
         <ViewSubmission
           publicAlternatives={state.publicSpec}
           modelSolutions={state.modelSolutions}
@@ -65,7 +65,7 @@ const Renderer: React.FC<React.PropsWithChildren<RendererProps>> = ({ state, por
     )
   } else if (state.viewType === "exercise-editor") {
     return (
-      <div id={EXERCISE_SERVICE_CONTENT_ID}>
+      <div id={EXERCISE_SERVICE_CONTENT_ID} data-view-type="exercise-editor">
         <ExerciseEditor port={port} privateSpec={state.privateSpec} />
       </div>
     )

@@ -37,6 +37,7 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import { humanReadableDateTime } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface ExamProps {
@@ -280,7 +281,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     return (
       <>
         {examInfo}
-        <div>{t("exam-time-up", { "ends-at": exam.data.ends_at.toLocaleString() })}</div>
+        <div>{t("exam-time-up", { "ends-at": humanReadableDateTime(exam.data.ends_at) })}</div>
       </>
     )
   }
@@ -307,7 +308,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
             endsAt={endsAt}
             secondsLeft={secondsLeft}
           />
-          {secondsLeft < 10 * 60 && (
+          {secondsLeft < 10 * 60 && secondsLeft >= 0 && (
             <div
               className={css`
                 background-color: ${baseTheme.colors.yellow[100]};

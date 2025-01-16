@@ -72,6 +72,7 @@
   "error-submission-failed": "Submission failed",
   "error-title": "Virhe",
   "exam-can-be-started-after": "Kokeen voi aloittaa aikaisintaan {{ starts-at }}",
+  "exam-ended-see-points-below": "Tämä koe on päättynyt. Katso pisteesi alta.",
   "exam-has-not-started-yet": "Koe ei ole vielä alkanut",
   "exam-no-end-time": "Loppumisaikaa ei ole asetettu",
   "exam-no-start-time": "Aloitusaikaa ei ole asetettu",

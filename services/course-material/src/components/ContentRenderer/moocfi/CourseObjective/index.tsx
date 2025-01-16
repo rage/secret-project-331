@@ -32,7 +32,7 @@ const Wrapper = styled.div<WrapperProps>`
 
   h2 {
     z-index: 20;
-    width: ${({ length }) => length > 6 && "800px"};
+    ${({ length }) => length > 6 && "max-width: 800px;"}
     font-size: clamp(30px, 3.5vw, 48px);
     font-style: normal;
     font-weight: 700;

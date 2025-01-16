@@ -47,6 +47,7 @@
   "grading-strategy": "استراتيجية التقييم",
   "grant-only-when-fully-correct": "إعطاء النقاط فقط عند الإجابة الكاملة الصحيحة",
   "grant-whenever-possible": "إعطاء النقاط كلما كان ذلك ممكنًا",
+  "hide-markdown-preview": "إخفاء معاينة التنسيق",
   "horizontal": "أفقي",
   "incorrect-option": "غير صحيح",
   "input-header": "الإدخال:",

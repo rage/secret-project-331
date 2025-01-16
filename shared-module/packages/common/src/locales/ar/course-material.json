@@ -71,6 +71,7 @@
   "error-submission-failed": "فشل الإرسال",
   "error-title": "خطأ",
   "exam-can-be-started-after": "يمكن بدء الامتحان بعد {{ starts-at }}",
+  "exam-ended-see-points-below": "لقد انتهى هذا الامتحان. انظر نقاطك أدناه.",
   "exam-has-not-started-yet": "لم يبدأ الامتحان بعد",
   "exam-no-end-time": "لم يتم تحديد وقت الانتهاء",
   "exam-no-start-time": "لم يتم تحديد وقت البدء",

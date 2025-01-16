@@ -72,6 +72,7 @@
   "error-submission-failed": "Відправлення не вдалося",
   "error-title": "Помилка",
   "exam-can-be-started-after": "Іспит можна розпочати після {{ starts-at }}",
+  "exam-ended-see-points-below": "Цей іспит завершено. Дивіться свої бали нижче.",
   "exam-has-not-started-yet": "Іспит ще не почався",
   "exam-no-end-time": "Час завершення не встановлено",
   "exam-no-start-time": "Час початку не встановлено",

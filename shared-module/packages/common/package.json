@@ -37,6 +37,7 @@
     "axios": "^1.6.5",
     "citation-js": "^0.7.5",
     "date-fns": "^3.2.0",
+    "date-fns-tz": "^3.2.0",
     "diff": "^5.1.0",
     "echarts": "^5.4.3",
     "echarts-for-react": "^3.0.2",

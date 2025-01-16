@@ -47,6 +47,7 @@
   "grading-strategy": "Стратегія оцінювання",
   "grant-only-when-fully-correct": "Надавати лише тоді, коли все правильно",
   "grant-whenever-possible": "Надавати, коли це можливо",
+  "hide-markdown-preview": "Приховати попередній перегляд markdown",
   "horizontal": "Горизонтальний",
   "incorrect-option": "Неправильно",
   "input-header": "Вхід:",

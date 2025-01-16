@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tokio-macros-2.4.0/src/entry.rs`."><title>entry.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tokio_macros" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tokio-macros-2.5.0/src/entry.rs`."><title>entry.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tokio_macros" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -685,8 +685,6 @@
 <a href="#685" id="685">685</a>
 <a href="#686" id="686">686</a>
 <a href="#687" id="687">687</a>
-<a href="#688" id="688">688</a>
-<a href="#689" id="689">689</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>proc_macro2::{Span, TokenStream, TokenTree};
 <span class="kw">use </span>quote::{quote, quote_spanned, ToTokens};
 <span class="kw">use </span>syn::parse::{Parse, ParseStream, Parser};
@@ -709,7 +707,7 @@
             <span class="string">"single_thread" </span>=&gt; <span class="prelude-val">Err</span>(<span class="string">"The single threaded runtime flavor is called `current_thread`."</span>.to_string()),
             <span class="string">"basic_scheduler" </span>=&gt; <span class="prelude-val">Err</span>(<span class="string">"The `basic_scheduler` runtime flavor has been renamed to `current_thread`."</span>.to_string()),
             <span class="string">"threaded_scheduler" </span>=&gt; <span class="prelude-val">Err</span>(<span class="string">"The `threaded_scheduler` runtime flavor has been renamed to `multi_thread`."</span>.to_string()),
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">"No such runtime flavor `{}`. The runtime flavors are `current_thread` and `multi_thread`."</span>, s)),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">"No such runtime flavor `{s}`. The runtime flavors are `current_thread` and `multi_thread`."</span>)),
         }
     }
 }
@@ -725,7 +723,7 @@
         <span class="kw">match </span>s {
             <span class="string">"ignore" </span>=&gt; <span class="prelude-val">Ok</span>(UnhandledPanic::Ignore),
             <span class="string">"shutdown_runtime" </span>=&gt; <span class="prelude-val">Ok</span>(UnhandledPanic::ShutdownRuntime),
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">"No such unhandled panic behavior `{}`. The unhandled panic behaviors are `ignore` and `shutdown_runtime`."</span>, s)),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">"No such unhandled panic behavior `{s}`. The unhandled panic behaviors are `ignore` and `shutdown_runtime`."</span>)),
         }
     }
 
@@ -928,12 +926,12 @@
             <span class="prelude-val">Ok</span>(value) =&gt; <span class="prelude-val">Ok</span>(value),
             <span class="prelude-val">Err</span>(e) =&gt; <span class="prelude-val">Err</span>(syn::Error::new(
                 span,
-                <span class="macro">format!</span>(<span class="string">"Failed to parse value of `{}` as integer: {}"</span>, field, e),
+                <span class="macro">format!</span>(<span class="string">"Failed to parse value of `{field}` as integer: {e}"</span>),
             )),
         },
         <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(syn::Error::new(
             span,
-            <span class="macro">format!</span>(<span class="string">"Failed to parse value of `{}` as integer."</span>, field),
+            <span class="macro">format!</span>(<span class="string">"Failed to parse value of `{field}` as integer."</span>),
         )),
     }
 }
@@ -944,7 +942,7 @@
         syn::Lit::Verbatim(s) =&gt; <span class="prelude-val">Ok</span>(s.to_string()),
         <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(syn::Error::new(
             span,
-            <span class="macro">format!</span>(<span class="string">"Failed to parse value of `{}` as string."</span>, field),
+            <span class="macro">format!</span>(<span class="string">"Failed to parse value of `{field}` as string."</span>),
         )),
     }
 }
@@ -964,7 +962,7 @@
         }
         <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(syn::Error::new(
             span,
-            <span class="macro">format!</span>(<span class="string">"Failed to parse value of `{}` as path."</span>, field),
+            <span class="macro">format!</span>(<span class="string">"Failed to parse value of `{field}` as path."</span>),
         )),
     }
 }
@@ -974,7 +972,7 @@
         syn::Lit::Bool(b) =&gt; <span class="prelude-val">Ok</span>(b.value),
         <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(syn::Error::new(
             span,
-            <span class="macro">format!</span>(<span class="string">"Failed to parse value of `{}` as bool."</span>, field),
+            <span class="macro">format!</span>(<span class="string">"Failed to parse value of `{field}` as bool."</span>),
         )),
     }
 }
@@ -1031,8 +1029,7 @@
                     }
                     name =&gt; {
                         <span class="kw">let </span>msg = <span class="macro">format!</span>(
-                            <span class="string">"Unknown attribute {} is specified; expected one of: `flavor`, `worker_threads`, `start_paused`, `crate`, `unhandled_panic`"</span>,
-                            name,
+                            <span class="string">"Unknown attribute {name} is specified; expected one of: `flavor`, `worker_threads`, `start_paused`, `crate`, `unhandled_panic`"</span>,
                         );
                         <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(namevalue, msg));
                     }
@@ -1047,21 +1044,19 @@
                 <span class="kw">let </span>msg = <span class="kw">match </span>name.as_str() {
                     <span class="string">"threaded_scheduler" </span>| <span class="string">"multi_thread" </span>=&gt; {
                         <span class="macro">format!</span>(
-                            <span class="string">"Set the runtime flavor with #[{}(flavor = \"multi_thread\")]."</span>,
-                            macro_name
-                        )
+                            <span class="string">"Set the runtime flavor with #[{macro_name}(flavor = \"multi_thread\")]."
+                        </span>)
                     }
                     <span class="string">"basic_scheduler" </span>| <span class="string">"current_thread" </span>| <span class="string">"single_threaded" </span>=&gt; {
                         <span class="macro">format!</span>(
-                            <span class="string">"Set the runtime flavor with #[{}(flavor = \"current_thread\")]."</span>,
-                            macro_name
-                        )
+                            <span class="string">"Set the runtime flavor with #[{macro_name}(flavor = \"current_thread\")]."
+                        </span>)
                     }
                     <span class="string">"flavor" </span>| <span class="string">"worker_threads" </span>| <span class="string">"start_paused" </span>| <span class="string">"crate" </span>| <span class="string">"unhandled_panic" </span>=&gt; {
-                        <span class="macro">format!</span>(<span class="string">"The `{}` attribute requires an argument."</span>, name)
+                        <span class="macro">format!</span>(<span class="string">"The `{name}` attribute requires an argument."</span>)
                     }
                     name =&gt; {
-                        <span class="macro">format!</span>(<span class="string">"Unknown attribute {} is specified; expected one of: `flavor`, `worker_threads`, `start_paused`, `crate`, `unhandled_panic`."</span>, name)
+                        <span class="macro">format!</span>(<span class="string">"Unknown attribute {name} is specified; expected one of: `flavor`, `worker_threads`, `start_paused`, `crate`, `unhandled_panic`."</span>)
                     }
                 };
                 <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(path, msg));
@@ -1127,8 +1122,9 @@
     };
 
     <span class="kw">let </span>body_ident = <span class="macro">quote!</span> { body };
-    <span class="kw">let </span>last_block = <span class="macro">quote_spanned!</span> {last_stmt_end_span=&gt;
-        <span class="attr">#[allow(clippy::expect_used, clippy::diverging_sub_expression)]
+    <span class="comment">// This explicit `return` is intentional. See tokio-rs/tokio#4636
+    </span><span class="kw">let </span>last_block = <span class="macro">quote_spanned!</span> {last_stmt_end_span=&gt;
+        <span class="attr">#[allow(clippy::expect_used, clippy::diverging_sub_expression, clippy::needless_return)]
         </span>{
             <span class="kw">return </span>#rt
                 .enable_all()

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/filter/layer_filters/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.19/src/filter/layer_filters/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1317,6 +1317,20 @@
 <a href="#1317" id="1317">1317</a>
 <a href="#1318" id="1318">1318</a>
 <a href="#1319" id="1319">1319</a>
+<a href="#1320" id="1320">1320</a>
+<a href="#1321" id="1321">1321</a>
+<a href="#1322" id="1322">1322</a>
+<a href="#1323" id="1323">1323</a>
+<a href="#1324" id="1324">1324</a>
+<a href="#1325" id="1325">1325</a>
+<a href="#1326" id="1326">1326</a>
+<a href="#1327" id="1327">1327</a>
+<a href="#1328" id="1328">1328</a>
+<a href="#1329" id="1329">1329</a>
+<a href="#1330" id="1330">1330</a>
+<a href="#1331" id="1331">1331</a>
+<a href="#1332" id="1332">1332</a>
+<a href="#1333" id="1333">1333</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! ## Per-Layer Filtering
 //!
 //! Per-layer filters permit individual `Layer`s to have their own filter
@@ -1418,12 +1432,18 @@
 ///
 /// [`Registry`]: crate::Registry
 /// [`Filter`]: crate::layer::Filter
-</span><span class="attr">#[derive(Default, Copy, Clone, Eq, PartialEq)]
+</span><span class="attr">#[derive(Copy, Clone, Eq, PartialEq)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>FilterMap {
     bits: u64,
 }
 
-<span class="doccomment">/// The current state of `enabled` calls to per-layer filters on this
+<span class="kw">impl </span>FilterMap {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ bits: <span class="number">0 </span>}
+    }
+}
+
+<span class="doccomment">/// The current state of `enabled` calls to per-subscriber filters on this
 /// thread.
 ///
 /// When `Filtered::enabled` is called, the filter will set the bit
@@ -1464,7 +1484,7 @@
 
 <span class="doccomment">/// Extra counters added to `FilterState` used only to make debug assertions.
 </span><span class="attr">#[cfg(debug_assertions)]
-#[derive(Debug, Default)]
+#[derive(Debug)]
 </span><span class="kw">struct </span>DebugCounters {
     <span class="doccomment">/// How many per-layer filters have participated in the current `enabled`
     /// call?
@@ -1475,8 +1495,18 @@
     </span>in_interest_pass: Cell&lt;usize&gt;,
 }
 
+<span class="attr">#[cfg(debug_assertions)]
+</span><span class="kw">impl </span>DebugCounters {
+    <span class="kw">const fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            in_filter_pass: Cell::new(<span class="number">0</span>),
+            in_interest_pass: Cell::new(<span class="number">0</span>),
+        }
+    }
+}
+
 <span class="macro">thread_local!</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">static </span>FILTERING: FilterState = FilterState::new();
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">static </span>FILTERING: FilterState = <span class="kw">const </span>{ FilterState::new() };
 }
 
 <span class="doccomment">/// Extension trait adding [combinators] for combining [`Filter`].
@@ -2040,7 +2070,7 @@
     //
     // it would be cool if there was some wild rust reflection way of checking
     // if a trait impl has the default impl of a trait method or not, but that's
-    // almsot certainly impossible...right?
+    // almost certainly impossible...right?
 
     </span><span class="kw">fn </span>register_callsite(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;) -&gt; Interest {
         <span class="kw">let </span>interest = <span class="self">self</span>.filter.callsite_enabled(metadata);
@@ -2205,7 +2235,7 @@
 
 </span><span class="kw">impl </span>FilterId {
     <span class="kw">const fn </span>disabled() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(std::u64::MAX)
+        <span class="self">Self</span>(u64::MAX)
     }
 
     <span class="doccomment">/// Returns a `FilterId` that will consider _all_ spans enabled.
@@ -2348,7 +2378,7 @@
 
 </span><span class="kw">impl </span>FilterMap {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>set(<span class="self">self</span>, FilterId(mask): FilterId, enabled: bool) -&gt; <span class="self">Self </span>{
-        <span class="kw">if </span>mask == std::u64::MAX {
+        <span class="kw">if </span>mask == u64::MAX {
             <span class="kw">return </span><span class="self">self</span>;
         }
 
@@ -2370,7 +2400,7 @@
 
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>any_enabled(<span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.bits != std::u64::MAX
+        <span class="self">self</span>.bits != u64::MAX
     }
 }
 
@@ -2399,13 +2429,13 @@
 <span class="comment">// === impl FilterState ===
 
 </span><span class="kw">impl </span>FilterState {
-    <span class="kw">fn </span>new() -&gt; <span class="self">Self </span>{
+    <span class="kw">const fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            enabled: Cell::new(FilterMap::default()),
+            enabled: Cell::new(FilterMap::new()),
             interest: RefCell::new(<span class="prelude-val">None</span>),
 
             <span class="attr">#[cfg(debug_assertions)]
-            </span>counters: DebugCounters::default(),
+            </span>counters: DebugCounters::new(),
         }
     }
 
@@ -2414,7 +2444,7 @@
         </span>{
             <span class="kw">let </span>in_current_pass = <span class="self">self</span>.counters.in_filter_pass.get();
             <span class="kw">if </span>in_current_pass == <span class="number">0 </span>{
-                <span class="macro">debug_assert_eq!</span>(<span class="self">self</span>.enabled.get(), FilterMap::default());
+                <span class="macro">debug_assert_eq!</span>(<span class="self">self</span>.enabled.get(), FilterMap::new());
             }
             <span class="self">self</span>.counters.in_filter_pass.set(in_current_pass + <span class="number">1</span>);
             <span class="macro">debug_assert_eq!</span>(
@@ -2459,7 +2489,7 @@
                 <span class="attr">#[cfg(debug_assertions)]
                 </span>{
                     <span class="kw">if </span>this.counters.in_filter_pass.get() == <span class="number">0 </span>{
-                        <span class="macro">debug_assert_eq!</span>(this.enabled.get(), FilterMap::default());
+                        <span class="macro">debug_assert_eq!</span>(this.enabled.get(), FilterMap::new());
                     }
 
                     <span class="comment">// Nothing enabled this event, we won't tick back down the
@@ -2496,7 +2526,7 @@
         </span>{
             <span class="kw">let </span>in_current_pass = <span class="self">self</span>.counters.in_filter_pass.get();
             <span class="kw">if </span>in_current_pass &lt;= <span class="number">1 </span>{
-                <span class="macro">debug_assert_eq!</span>(<span class="self">self</span>.enabled.get(), FilterMap::default());
+                <span class="macro">debug_assert_eq!</span>(<span class="self">self</span>.enabled.get(), FilterMap::new());
             }
             <span class="self">self</span>.counters
                 .in_filter_pass
@@ -2526,7 +2556,7 @@
         // a panic and the thread-local has been torn down, that's fine, just
         // ignore it ratehr than panicking.
         </span><span class="kw">let _ </span>= FILTERING.try_with(|filtering| {
-            filtering.enabled.set(FilterMap::default());
+            filtering.enabled.set(FilterMap::new());
 
             <span class="attr">#[cfg(debug_assertions)]
             </span>filtering.counters.in_filter_pass.set(<span class="number">0</span>);
@@ -2551,10 +2581,8 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>filter_map(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; FilterMap {
         <span class="kw">let </span>map = <span class="self">self</span>.enabled.get();
         <span class="attr">#[cfg(debug_assertions)]
-        </span>{
-            <span class="kw">if </span><span class="self">self</span>.counters.in_filter_pass.get() == <span class="number">0 </span>{
-                <span class="macro">debug_assert_eq!</span>(map, FilterMap::default());
-            }
+        </span><span class="kw">if </span><span class="self">self</span>.counters.in_filter_pass.get() == <span class="number">0 </span>{
+            <span class="macro">debug_assert_eq!</span>(map, FilterMap::new());
         }
 
         map

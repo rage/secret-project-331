@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.8.2/src/connection/describe.rs`."><title>describe.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.8.3/src/connection/describe.rs`."><title>describe.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -660,6 +660,25 @@
 <a href="#660" id="660">660</a>
 <a href="#661" id="661">661</a>
 <a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::error::Error;
 <span class="kw">use </span><span class="kw">crate</span>::ext::ustr::UStr;
 <span class="kw">use </span><span class="kw">crate</span>::io::StatementId;
@@ -672,7 +691,6 @@
 <span class="kw">use </span><span class="kw">crate</span>::types::Oid;
 <span class="kw">use </span><span class="kw">crate</span>::HashMap;
 <span class="kw">use crate</span>::{PgColumn, PgConnection, PgTypeInfo};
-<span class="kw">use </span>futures_core::future::BoxFuture;
 <span class="kw">use </span>smallvec::SmallVec;
 <span class="kw">use </span>sqlx_core::query_builder::QueryBuilder;
 <span class="kw">use </span>std::sync::Arc;
@@ -825,18 +843,20 @@
         }
 
         <span class="comment">// next we check a local cache for user-defined type names &lt;-&gt; object id
-        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(info) = <span class="self">self</span>.cache_type_info.get(<span class="kw-2">&amp;</span>oid) {
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(info) = <span class="self">self</span>.inner.cache_type_info.get(<span class="kw-2">&amp;</span>oid) {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(info.clone());
         }
 
         <span class="comment">// fallback to asking the database directly for a type name
         </span><span class="kw">if </span>should_fetch {
-            <span class="kw">let </span>info = <span class="self">self</span>.fetch_type_by_oid(oid).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="comment">// we're boxing this future here so we can use async recursion
+            </span><span class="kw">let </span>info = Box::pin(<span class="kw">async </span>{ <span class="self">self</span>.fetch_type_by_oid(oid).<span class="kw">await </span>}).<span class="kw">await</span><span class="question-mark">?</span>;
 
             <span class="comment">// cache the type name &lt;-&gt; oid relationship in a paired hashmap
             // so we don't come down this road again
-            </span><span class="self">self</span>.cache_type_info.insert(oid, info.clone());
-            <span class="self">self</span>.cache_type_oid
+            </span><span class="self">self</span>.inner.cache_type_info.insert(oid, info.clone());
+            <span class="self">self</span>.inner
+                .cache_type_oid
                 .insert(info.<span class="number">0</span>.name().to_string().into(), oid);
 
             <span class="prelude-val">Ok</span>(info)
@@ -851,19 +871,18 @@
         }
     }
 
-    <span class="kw">fn </span>fetch_type_by_oid(<span class="kw-2">&amp;mut </span><span class="self">self</span>, oid: Oid) -&gt; BoxFuture&lt;<span class="lifetime">'_</span>, <span class="prelude-ty">Result</span>&lt;PgTypeInfo, Error&gt;&gt; {
-        Box::pin(<span class="kw">async move </span>{
-            <span class="kw">let </span>(name, typ_type, category, relation_id, element, base_type): (
-                String,
-                i8,
-                i8,
-                Oid,
-                Oid,
-                Oid,
-            ) = query_as(
-                <span class="comment">// Converting the OID to `regtype` and then `text` will give us the name that
-                // the type will need to be found at by search_path.
-                </span><span class="string">"SELECT oid::regtype::text, \
+    <span class="kw">async fn </span>fetch_type_by_oid(<span class="kw-2">&amp;mut </span><span class="self">self</span>, oid: Oid) -&gt; <span class="prelude-ty">Result</span>&lt;PgTypeInfo, Error&gt; {
+        <span class="kw">let </span>(name, typ_type, category, relation_id, element, base_type): (
+            String,
+            i8,
+            i8,
+            Oid,
+            Oid,
+            Oid,
+        ) = query_as(
+            <span class="comment">// Converting the OID to `regtype` and then `text` will give us the name that
+            // the type will need to be found at by search_path.
+            </span><span class="string">"SELECT oid::regtype::text, \
                      typtype, \
                      typcategory, \
                      typrelid, \
@@ -871,54 +890,51 @@
                      typbasetype \
                      FROM pg_catalog.pg_type \
                      WHERE oid = $1"</span>,
-            )
-            .bind(oid)
-            .fetch_one(<span class="kw-2">&amp;mut *</span><span class="self">self</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>;
+        )
+        .bind(oid)
+        .fetch_one(<span class="kw-2">&amp;mut *</span><span class="self">self</span>)
+        .<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="kw">let </span>typ_type = TypType::try_from(typ_type);
-            <span class="kw">let </span>category = TypCategory::try_from(category);
+        <span class="kw">let </span>typ_type = TypType::try_from(typ_type);
+        <span class="kw">let </span>category = TypCategory::try_from(category);
 
-            <span class="kw">match </span>(typ_type, category) {
-                (<span class="prelude-val">Ok</span>(TypType::Domain), <span class="kw">_</span>) =&gt; <span class="self">self</span>.fetch_domain_by_oid(oid, base_type, name).<span class="kw">await</span>,
+        <span class="kw">match </span>(typ_type, category) {
+            (<span class="prelude-val">Ok</span>(TypType::Domain), <span class="kw">_</span>) =&gt; <span class="self">self</span>.fetch_domain_by_oid(oid, base_type, name).<span class="kw">await</span>,
 
-                (<span class="prelude-val">Ok</span>(TypType::Base), <span class="prelude-val">Ok</span>(TypCategory::Array)) =&gt; {
-                    <span class="prelude-val">Ok</span>(PgTypeInfo(PgType::Custom(Arc::new(PgCustomType {
-                        kind: PgTypeKind::Array(
-                            <span class="self">self</span>.maybe_fetch_type_info_by_oid(element, <span class="bool-val">true</span>).<span class="kw">await</span><span class="question-mark">?</span>,
-                        ),
-                        name: name.into(),
-                        oid,
-                    }))))
-                }
-
-                (<span class="prelude-val">Ok</span>(TypType::Pseudo), <span class="prelude-val">Ok</span>(TypCategory::Pseudo)) =&gt; {
-                    <span class="prelude-val">Ok</span>(PgTypeInfo(PgType::Custom(Arc::new(PgCustomType {
-                        kind: PgTypeKind::Pseudo,
-                        name: name.into(),
-                        oid,
-                    }))))
-                }
-
-                (<span class="prelude-val">Ok</span>(TypType::Range), <span class="prelude-val">Ok</span>(TypCategory::Range)) =&gt; {
-                    <span class="self">self</span>.fetch_range_by_oid(oid, name).<span class="kw">await
-                </span>}
-
-                (<span class="prelude-val">Ok</span>(TypType::Enum), <span class="prelude-val">Ok</span>(TypCategory::Enum)) =&gt; {
-                    <span class="self">self</span>.fetch_enum_by_oid(oid, name).<span class="kw">await
-                </span>}
-
-                (<span class="prelude-val">Ok</span>(TypType::Composite), <span class="prelude-val">Ok</span>(TypCategory::Composite)) =&gt; {
-                    <span class="self">self</span>.fetch_composite_by_oid(oid, relation_id, name).<span class="kw">await
-                </span>}
-
-                <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(PgTypeInfo(PgType::Custom(Arc::new(PgCustomType {
-                    kind: PgTypeKind::Simple,
+            (<span class="prelude-val">Ok</span>(TypType::Base), <span class="prelude-val">Ok</span>(TypCategory::Array)) =&gt; {
+                <span class="prelude-val">Ok</span>(PgTypeInfo(PgType::Custom(Arc::new(PgCustomType {
+                    kind: PgTypeKind::Array(
+                        <span class="self">self</span>.maybe_fetch_type_info_by_oid(element, <span class="bool-val">true</span>).<span class="kw">await</span><span class="question-mark">?</span>,
+                    ),
                     name: name.into(),
                     oid,
-                })))),
+                }))))
             }
-        })
+
+            (<span class="prelude-val">Ok</span>(TypType::Pseudo), <span class="prelude-val">Ok</span>(TypCategory::Pseudo)) =&gt; {
+                <span class="prelude-val">Ok</span>(PgTypeInfo(PgType::Custom(Arc::new(PgCustomType {
+                    kind: PgTypeKind::Pseudo,
+                    name: name.into(),
+                    oid,
+                }))))
+            }
+
+            (<span class="prelude-val">Ok</span>(TypType::Range), <span class="prelude-val">Ok</span>(TypCategory::Range)) =&gt; {
+                <span class="self">self</span>.fetch_range_by_oid(oid, name).<span class="kw">await
+            </span>}
+
+            (<span class="prelude-val">Ok</span>(TypType::Enum), <span class="prelude-val">Ok</span>(TypCategory::Enum)) =&gt; <span class="self">self</span>.fetch_enum_by_oid(oid, name).<span class="kw">await</span>,
+
+            (<span class="prelude-val">Ok</span>(TypType::Composite), <span class="prelude-val">Ok</span>(TypCategory::Composite)) =&gt; {
+                <span class="self">self</span>.fetch_composite_by_oid(oid, relation_id, name).<span class="kw">await
+            </span>}
+
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(PgTypeInfo(PgType::Custom(Arc::new(PgCustomType {
+                kind: PgTypeKind::Simple,
+                name: name.into(),
+                oid,
+            })))),
+        }
     }
 
     <span class="kw">async fn </span>fetch_enum_by_oid(<span class="kw-2">&amp;mut </span><span class="self">self</span>, oid: Oid, name: String) -&gt; <span class="prelude-ty">Result</span>&lt;PgTypeInfo, Error&gt; {
@@ -941,15 +957,14 @@ ORDER BY enumsortorder
         }))))
     }
 
-    <span class="kw">fn </span>fetch_composite_by_oid(
+    <span class="kw">async fn </span>fetch_composite_by_oid(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         oid: Oid,
         relation_id: Oid,
         name: String,
-    ) -&gt; BoxFuture&lt;<span class="lifetime">'_</span>, <span class="prelude-ty">Result</span>&lt;PgTypeInfo, Error&gt;&gt; {
-        Box::pin(<span class="kw">async move </span>{
-            <span class="kw">let </span>raw_fields: Vec&lt;(String, Oid)&gt; = query_as(
-                <span class="string">r#"
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;PgTypeInfo, Error&gt; {
+        <span class="kw">let </span>raw_fields: Vec&lt;(String, Oid)&gt; = query_as(
+            <span class="string">r#"
 SELECT attname, atttypid
 FROM pg_catalog.pg_attribute
 WHERE attrelid = $1
@@ -957,69 +972,60 @@ AND NOT attisdropped
 AND attnum &gt; 0
 ORDER BY attnum
                 "#</span>,
-            )
-            .bind(relation_id)
-            .fetch_all(<span class="kw-2">&amp;mut *</span><span class="self">self</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>;
+        )
+        .bind(relation_id)
+        .fetch_all(<span class="kw-2">&amp;mut *</span><span class="self">self</span>)
+        .<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="kw">let </span><span class="kw-2">mut </span>fields = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>fields = Vec::new();
 
-            <span class="kw">for </span>(field_name, field_oid) <span class="kw">in </span>raw_fields.into_iter() {
-                <span class="kw">let </span>field_type = <span class="self">self</span>.maybe_fetch_type_info_by_oid(field_oid, <span class="bool-val">true</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">for </span>(field_name, field_oid) <span class="kw">in </span>raw_fields.into_iter() {
+            <span class="kw">let </span>field_type = <span class="self">self</span>.maybe_fetch_type_info_by_oid(field_oid, <span class="bool-val">true</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-                fields.push((field_name, field_type));
-            }
+            fields.push((field_name, field_type));
+        }
 
-            <span class="prelude-val">Ok</span>(PgTypeInfo(PgType::Custom(Arc::new(PgCustomType {
-                oid,
-                name: name.into(),
-                kind: PgTypeKind::Composite(Arc::from(fields)),
-            }))))
-        })
+        <span class="prelude-val">Ok</span>(PgTypeInfo(PgType::Custom(Arc::new(PgCustomType {
+            oid,
+            name: name.into(),
+            kind: PgTypeKind::Composite(Arc::from(fields)),
+        }))))
     }
 
-    <span class="kw">fn </span>fetch_domain_by_oid(
+    <span class="kw">async fn </span>fetch_domain_by_oid(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         oid: Oid,
         base_type: Oid,
         name: String,
-    ) -&gt; BoxFuture&lt;<span class="lifetime">'_</span>, <span class="prelude-ty">Result</span>&lt;PgTypeInfo, Error&gt;&gt; {
-        Box::pin(<span class="kw">async move </span>{
-            <span class="kw">let </span>base_type = <span class="self">self</span>.maybe_fetch_type_info_by_oid(base_type, <span class="bool-val">true</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;PgTypeInfo, Error&gt; {
+        <span class="kw">let </span>base_type = <span class="self">self</span>.maybe_fetch_type_info_by_oid(base_type, <span class="bool-val">true</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="prelude-val">Ok</span>(PgTypeInfo(PgType::Custom(Arc::new(PgCustomType {
-                oid,
-                name: name.into(),
-                kind: PgTypeKind::Domain(base_type),
-            }))))
-        })
+        <span class="prelude-val">Ok</span>(PgTypeInfo(PgType::Custom(Arc::new(PgCustomType {
+            oid,
+            name: name.into(),
+            kind: PgTypeKind::Domain(base_type),
+        }))))
     }
 
-    <span class="kw">fn </span>fetch_range_by_oid(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        oid: Oid,
-        name: String,
-    ) -&gt; BoxFuture&lt;<span class="lifetime">'_</span>, <span class="prelude-ty">Result</span>&lt;PgTypeInfo, Error&gt;&gt; {
-        Box::pin(<span class="kw">async move </span>{
-            <span class="kw">let </span>element_oid: Oid = query_scalar(
-                <span class="string">r#"
+    <span class="kw">async fn </span>fetch_range_by_oid(<span class="kw-2">&amp;mut </span><span class="self">self</span>, oid: Oid, name: String) -&gt; <span class="prelude-ty">Result</span>&lt;PgTypeInfo, Error&gt; {
+        <span class="kw">let </span>element_oid: Oid = query_scalar(
+            <span class="string">r#"
 SELECT rngsubtype
 FROM pg_catalog.pg_range
 WHERE rngtypid = $1
                 "#</span>,
-            )
-            .bind(oid)
-            .fetch_one(<span class="kw-2">&amp;mut *</span><span class="self">self</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>;
+        )
+        .bind(oid)
+        .fetch_one(<span class="kw-2">&amp;mut *</span><span class="self">self</span>)
+        .<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="kw">let </span>element = <span class="self">self</span>.maybe_fetch_type_info_by_oid(element_oid, <span class="bool-val">true</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>element = <span class="self">self</span>.maybe_fetch_type_info_by_oid(element_oid, <span class="bool-val">true</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="prelude-val">Ok</span>(PgTypeInfo(PgType::Custom(Arc::new(PgCustomType {
-                kind: PgTypeKind::Range(element),
-                name: name.into(),
-                oid,
-            }))))
-        })
+        <span class="prelude-val">Ok</span>(PgTypeInfo(PgType::Custom(Arc::new(PgCustomType {
+            kind: PgTypeKind::Range(element),
+            name: name.into(),
+            oid,
+        }))))
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async fn </span>resolve_type_id(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ty: <span class="kw-2">&amp;</span>PgType) -&gt; <span class="prelude-ty">Result</span>&lt;Oid, Error&gt; {
@@ -1036,7 +1042,7 @@ WHERE rngtypid = $1
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async fn </span>fetch_type_id_by_name(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Oid, Error&gt; {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(oid) = <span class="self">self</span>.cache_type_oid.get(name) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(oid) = <span class="self">self</span>.inner.cache_type_oid.get(name) {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="kw-2">*</span>oid);
         }
 
@@ -1049,15 +1055,18 @@ WHERE rngtypid = $1
                 type_name: name.into(),
             })<span class="question-mark">?</span>;
 
-        <span class="self">self</span>.cache_type_oid.insert(name.to_string().into(), oid);
+        <span class="self">self</span>.inner
+            .cache_type_oid
+            .insert(name.to_string().into(), oid);
         <span class="prelude-val">Ok</span>(oid)
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async fn </span>fetch_array_type_id(<span class="kw-2">&amp;mut </span><span class="self">self</span>, array: <span class="kw-2">&amp;</span>PgArrayOf) -&gt; <span class="prelude-ty">Result</span>&lt;Oid, Error&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(oid) = <span class="self">self
-            </span>.cache_type_oid
+            </span>.inner
+            .cache_type_oid
             .get(<span class="kw-2">&amp;</span>array.elem_name)
-            .and_then(|elem_oid| <span class="self">self</span>.cache_elem_type_to_array.get(elem_oid))
+            .and_then(|elem_oid| <span class="self">self</span>.inner.cache_elem_type_to_array.get(elem_oid))
         {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="kw-2">*</span>oid);
         }
@@ -1073,12 +1082,24 @@ WHERE rngtypid = $1
                 })<span class="question-mark">?</span>;
 
         <span class="comment">// Avoids copying `elem_name` until necessary
-        </span><span class="self">self</span>.cache_type_oid
+        </span><span class="self">self</span>.inner
+            .cache_type_oid
             .entry_ref(<span class="kw-2">&amp;</span>array.elem_name)
             .insert(elem_oid);
-        <span class="self">self</span>.cache_elem_type_to_array.insert(elem_oid, array_oid);
+        <span class="self">self</span>.inner
+            .cache_elem_type_to_array
+            .insert(elem_oid, array_oid);
 
         <span class="prelude-val">Ok</span>(array_oid)
+    }
+
+    <span class="doccomment">/// Check whether EXPLAIN statements are supported by the current connection
+    </span><span class="kw">fn </span>is_explain_available(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">let </span>parameter_statuses = <span class="kw-2">&amp;</span><span class="self">self</span>.inner.stream.parameter_statuses;
+        <span class="kw">let </span>is_cockroachdb = parameter_statuses.contains_key(<span class="string">"crdb_version"</span>);
+        <span class="kw">let </span>is_materialize = parameter_statuses.contains_key(<span class="string">"mz_version"</span>);
+        <span class="kw">let </span>is_questdb = parameter_statuses.contains_key(<span class="string">"questdb_version"</span>);
+        !is_cockroachdb &amp;&amp; !is_materialize &amp;&amp; !is_questdb
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async fn </span>get_nullable_for_columns(
@@ -1103,26 +1124,45 @@ WHERE rngtypid = $1
         // This will include columns that don't have a `relation_id` (are not from a table);
         // assuming those are a minority of columns, it's less code to _not_ work around it
         // and just let Postgres return `NULL`.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>nullable_query = QueryBuilder::new(<span class="string">"SELECT NOT pg_attribute.attnotnull FROM ( "</span>);
+        //
+        // Use `UNION ALL` syntax instead of `VALUES` due to frequent lack of
+        // support for `VALUES` in pgwire supported databases.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>nullable_query = QueryBuilder::new(<span class="string">"SELECT NOT attnotnull FROM ( "</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>separated = nullable_query.separated(<span class="string">"UNION ALL "</span>);
 
-        nullable_query.push_values(meta.columns.iter().zip(<span class="number">0i32</span>..), |<span class="kw-2">mut </span>tuple, (column, i)| {
-            <span class="comment">// ({i}::int4, {column.relation_id}::int4, {column.relation_attribute_no}::int2)
-            </span>tuple.push_bind(i).push_unseparated(<span class="string">"::int4"</span>);
-            tuple
-                .push_bind(column.relation_id)
-                .push_unseparated(<span class="string">"::int4"</span>);
-            tuple
-                .push_bind(column.relation_attribute_no)
-                .push_unseparated(<span class="string">"::int2"</span>);
-        });
+        <span class="kw">let </span><span class="kw-2">mut </span>column_iter = meta.columns.iter().zip(<span class="number">0i32</span>..);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((column, i)) = column_iter.next() {
+            separated.push(<span class="string">"( SELECT "</span>);
+            separated
+                .push_bind_unseparated(i)
+                .push_unseparated(<span class="string">"::int4 AS idx, "</span>);
+            separated
+                .push_bind_unseparated(column.relation_id)
+                .push_unseparated(<span class="string">"::int4 AS table_id, "</span>);
+            separated
+                .push_bind_unseparated(column.relation_attribute_no)
+                .push_unseparated(<span class="string">"::int2 AS col_idx ) "</span>);
+        }
+
+        <span class="kw">for </span>(column, i) <span class="kw">in </span>column_iter {
+            separated.push(<span class="string">"( SELECT "</span>);
+            separated
+                .push_bind_unseparated(i)
+                .push_unseparated(<span class="string">"::int4, "</span>);
+            separated
+                .push_bind_unseparated(column.relation_id)
+                .push_unseparated(<span class="string">"::int4, "</span>);
+            separated
+                .push_bind_unseparated(column.relation_attribute_no)
+                .push_unseparated(<span class="string">"::int2 ) "</span>);
+        }
 
         nullable_query.push(
-            <span class="string">") as col(idx, table_id, col_idx) \
-            LEFT JOIN pg_catalog.pg_attribute \
+            <span class="string">") AS col LEFT JOIN pg_catalog.pg_attribute \
                 ON table_id IS NOT NULL \
                AND attrelid = table_id \
                AND attnum = col_idx \
-            ORDER BY col.idx"</span>,
+            ORDER BY idx"</span>,
         );
 
         <span class="kw">let </span><span class="kw-2">mut </span>nullables: Vec&lt;<span class="prelude-ty">Option</span>&lt;bool&gt;&gt; = nullable_query
@@ -1136,10 +1176,8 @@ WHERE rngtypid = $1
                 )
             })<span class="question-mark">?</span>;
 
-        <span class="comment">// If the server is CockroachDB or Materialize, skip this step (#1248).
-        </span><span class="kw">if </span>!<span class="self">self</span>.stream.parameter_statuses.contains_key(<span class="string">"crdb_version"</span>)
-            &amp;&amp; !<span class="self">self</span>.stream.parameter_statuses.contains_key(<span class="string">"mz_version"</span>)
-        {
+        <span class="comment">// If the server doesn't support EXPLAIN statements, skip this step (#1248).
+        </span><span class="kw">if </span><span class="self">self</span>.is_explain_available() {
             <span class="comment">// patch up our null inference with data from EXPLAIN
             </span><span class="kw">let </span>nullable_patch = <span class="self">self
                 </span>.nullables_from_explain(stmt_id, meta.parameters.len())

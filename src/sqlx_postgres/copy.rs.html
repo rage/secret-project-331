@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.8.2/src/copy.rs`."><title>copy.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.8.3/src/copy.rs`."><title>copy.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -340,6 +340,8 @@
 <a href="#340" id="340">340</a>
 <a href="#341" id="341">341</a>
 <a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::borrow::Cow;
 <span class="kw">use </span>std::ops::{Deref, DerefMut};
 
@@ -487,12 +489,12 @@
 <span class="kw">impl</span>&lt;C: DerefMut&lt;Target = PgConnection&gt;&gt; PgCopyIn&lt;C&gt; {
     <span class="kw">async fn </span>begin(<span class="kw-2">mut </span>conn: C, statement: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         conn.wait_until_ready().<span class="kw">await</span><span class="question-mark">?</span>;
-        conn.stream.send(Query(statement)).<span class="kw">await</span><span class="question-mark">?</span>;
+        conn.inner.stream.send(Query(statement)).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let </span>response = <span class="kw">match </span>conn.stream.recv_expect::&lt;CopyInResponse&gt;().<span class="kw">await </span>{
+        <span class="kw">let </span>response = <span class="kw">match </span>conn.inner.stream.recv_expect::&lt;CopyInResponse&gt;().<span class="kw">await </span>{
             <span class="prelude-val">Ok</span>(res) =&gt; res.<span class="number">0</span>,
             <span class="prelude-val">Err</span>(e) =&gt; {
-                conn.stream.recv().<span class="kw">await</span><span class="question-mark">?</span>;
+                conn.inner.stream.recv().<span class="kw">await</span><span class="question-mark">?</span>;
                 <span class="kw">return </span><span class="prelude-val">Err</span>(e);
             }
         };
@@ -533,6 +535,7 @@
         <span class="self">self</span>.conn
             .as_deref_mut()
             .expect(<span class="string">"send_data: conn taken"</span>)
+            .inner
             .stream
             .send(CopyData(data))
             .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -557,7 +560,7 @@
     </span><span class="kw">pub async fn </span>read_from(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>source: <span class="kw">impl </span>AsyncRead + Unpin) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt; {
         <span class="kw">let </span>conn: <span class="kw-2">&amp;mut </span>PgConnection = <span class="self">self</span>.conn.as_deref_mut().expect(<span class="string">"copy_from: conn taken"</span>);
         <span class="kw">loop </span>{
-            <span class="kw">let </span>buf = conn.stream.write_buffer_mut();
+            <span class="kw">let </span>buf = conn.inner.stream.write_buffer_mut();
 
             <span class="comment">// Write the CopyData format code and reserve space for the length.
             // This may end up sending an empty `CopyData` packet if, after this point,
@@ -576,7 +579,7 @@
 
             (<span class="kw-2">&amp;mut </span>buf.get_mut()[<span class="number">1</span>..]).put_u32(read32 + <span class="number">4</span>);
 
-            conn.stream.flush().<span class="kw">await</span><span class="question-mark">?</span>;
+            conn.inner.stream.flush().<span class="kw">await</span><span class="question-mark">?</span>;
         }
 
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
@@ -593,9 +596,9 @@
             .take()
             .expect(<span class="string">"PgCopyIn::fail_with: conn taken illegally"</span>);
 
-        conn.stream.send(CopyFail::new(msg)).<span class="kw">await</span><span class="question-mark">?</span>;
+        conn.inner.stream.send(CopyFail::new(msg)).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">match </span>conn.stream.recv().<span class="kw">await </span>{
+        <span class="kw">match </span>conn.inner.stream.recv().<span class="kw">await </span>{
             <span class="prelude-val">Ok</span>(msg) =&gt; <span class="prelude-val">Err</span>(<span class="macro">err_protocol!</span>(
                 <span class="string">"fail_with: expected ErrorResponse, got: {:?}"</span>,
                 msg.format
@@ -604,7 +607,7 @@
                 <span class="kw">match </span>e.code() {
                     <span class="prelude-val">Some</span>(Cow::Borrowed(<span class="string">"57014"</span>)) =&gt; {
                         <span class="comment">// postgres abort received error code
-                        </span>conn.stream.recv_expect::&lt;ReadyForQuery&gt;().<span class="kw">await</span><span class="question-mark">?</span>;
+                        </span>conn.inner.stream.recv_expect::&lt;ReadyForQuery&gt;().<span class="kw">await</span><span class="question-mark">?</span>;
                         <span class="prelude-val">Ok</span>(())
                     }
                     <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::Database(e)),
@@ -623,16 +626,16 @@
             .take()
             .expect(<span class="string">"CopyWriter::finish: conn taken illegally"</span>);
 
-        conn.stream.send(CopyDone).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let </span>cc: CommandComplete = <span class="kw">match </span>conn.stream.recv_expect().<span class="kw">await </span>{
+        conn.inner.stream.send(CopyDone).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>cc: CommandComplete = <span class="kw">match </span>conn.inner.stream.recv_expect().<span class="kw">await </span>{
             <span class="prelude-val">Ok</span>(cc) =&gt; cc,
             <span class="prelude-val">Err</span>(e) =&gt; {
-                conn.stream.recv().<span class="kw">await</span><span class="question-mark">?</span>;
+                conn.inner.stream.recv().<span class="kw">await</span><span class="question-mark">?</span>;
                 <span class="kw">return </span><span class="prelude-val">Err</span>(e);
             }
         };
 
-        conn.stream.recv_expect::&lt;ReadyForQuery&gt;().<span class="kw">await</span><span class="question-mark">?</span>;
+        conn.inner.stream.recv_expect::&lt;ReadyForQuery&gt;().<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(cc.rows_affected())
     }
@@ -641,7 +644,8 @@
 <span class="kw">impl</span>&lt;C: DerefMut&lt;Target = PgConnection&gt;&gt; Drop <span class="kw">for </span>PgCopyIn&lt;C&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>conn) = <span class="self">self</span>.conn.take() {
-            conn.stream
+            conn.inner
+                .stream
                 .write_msg(CopyFail::new(
                     <span class="string">"PgCopyIn dropped without calling finish() or fail()"</span>,
                 ))
@@ -655,23 +659,23 @@
     statement: <span class="kw-2">&amp;</span>str,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;BoxStream&lt;<span class="lifetime">'c</span>, <span class="prelude-ty">Result</span>&lt;Bytes&gt;&gt;&gt; {
     conn.wait_until_ready().<span class="kw">await</span><span class="question-mark">?</span>;
-    conn.stream.send(Query(statement)).<span class="kw">await</span><span class="question-mark">?</span>;
+    conn.inner.stream.send(Query(statement)).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let _</span>: CopyOutResponse = conn.stream.recv_expect().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let _</span>: CopyOutResponse = conn.inner.stream.recv_expect().<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let </span>stream: TryAsyncStream&lt;<span class="lifetime">'c</span>, Bytes&gt; = <span class="macro">try_stream!</span> {
         <span class="kw">loop </span>{
-            <span class="kw">match </span>conn.stream.recv().<span class="kw">await </span>{
+            <span class="kw">match </span>conn.inner.stream.recv().<span class="kw">await </span>{
                 <span class="prelude-val">Err</span>(e) =&gt; {
-                    conn.stream.recv_expect::&lt;ReadyForQuery&gt;().<span class="kw">await</span><span class="question-mark">?</span>;
+                    conn.inner.stream.recv_expect::&lt;ReadyForQuery&gt;().<span class="kw">await</span><span class="question-mark">?</span>;
                     <span class="kw">return </span><span class="prelude-val">Err</span>(e);
                 },
                 <span class="prelude-val">Ok</span>(msg) =&gt; <span class="kw">match </span>msg.format {
                     BackendMessageFormat::CopyData =&gt; <span class="macro">r#yield!</span>(msg.decode::&lt;CopyData&lt;Bytes&gt;&gt;()<span class="question-mark">?</span>.<span class="number">0</span>),
                     BackendMessageFormat::CopyDone =&gt; {
                         <span class="kw">let _ </span>= msg.decode::&lt;CopyDone&gt;()<span class="question-mark">?</span>;
-                        conn.stream.recv_expect::&lt;CommandComplete&gt;().<span class="kw">await</span><span class="question-mark">?</span>;
-                        conn.stream.recv_expect::&lt;ReadyForQuery&gt;().<span class="kw">await</span><span class="question-mark">?</span>;
+                        conn.inner.stream.recv_expect::&lt;CommandComplete&gt;().<span class="kw">await</span><span class="question-mark">?</span>;
+                        conn.inner.stream.recv_expect::&lt;ReadyForQuery&gt;().<span class="kw">await</span><span class="question-mark">?</span>;
                         <span class="kw">return </span><span class="prelude-val">Ok</span>(())
                     },
                     <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">err_protocol!</span>(<span class="string">"unexpected message format during copy out: {:?}"</span>, msg.format))

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/libm-0.2.8/src/math/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="libm" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/libm-0.2.11/src/math/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="libm" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -360,14 +360,6 @@
 <a href="#360" id="360">360</a>
 <a href="#361" id="361">361</a>
 <a href="#362" id="362">362</a>
-<a href="#363" id="363">363</a>
-<a href="#364" id="364">364</a>
-<a href="#365" id="365">365</a>
-<a href="#366" id="366">366</a>
-<a href="#367" id="367">367</a>
-<a href="#368" id="368">368</a>
-<a href="#369" id="369">369</a>
-<a href="#370" id="370">370</a>
 </pre></div><pre class="rust"><code><span class="macro">macro_rules!</span> force_eval {
     (<span class="macro-nonterminal">$e</span>:expr) =&gt; {
         <span class="kw">unsafe </span>{ ::core::ptr::read_volatile(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$e</span>) }
@@ -446,7 +438,7 @@
 
 <span class="macro">macro_rules!</span> llvm_intrinsically_optimized {
     (<span class="attr">#[cfg($(<span class="macro-nonterminal">$clause</span>:tt)<span class="kw-2">*</span>)] </span><span class="macro-nonterminal">$e</span>:expr) =&gt; {
-        <span class="attr">#[cfg(all(feature = <span class="string">"unstable"</span>, $(<span class="macro-nonterminal">$clause</span>)<span class="kw-2">*</span>))]
+        <span class="attr">#[cfg(all(feature = <span class="string">"unstable"</span>, not(feature = <span class="string">"force-soft-floats"</span>), $(<span class="macro-nonterminal">$clause</span>)<span class="kw-2">*</span>))]
         </span>{
             <span class="kw">if </span><span class="bool-val">true </span>{ <span class="comment">// thwart the dead code lint
                 </span><span class="macro-nonterminal">$e
@@ -588,15 +580,13 @@
 <span class="kw">pub use </span><span class="self">self</span>::cosf::cosf;
 <span class="kw">pub use </span><span class="self">self</span>::cosh::cosh;
 <span class="kw">pub use </span><span class="self">self</span>::coshf::coshf;
-<span class="kw">pub use </span><span class="self">self</span>::erf::erf;
-<span class="kw">pub use </span><span class="self">self</span>::erf::erfc;
-<span class="kw">pub use </span><span class="self">self</span>::erff::erfcf;
-<span class="kw">pub use </span><span class="self">self</span>::erff::erff;
+<span class="kw">pub use </span><span class="self">self</span>::erf::{erf, erfc};
+<span class="kw">pub use </span><span class="self">self</span>::erff::{erfcf, erff};
 <span class="kw">pub use </span><span class="self">self</span>::exp::exp;
-<span class="kw">pub use </span><span class="self">self</span>::exp10::exp10;
-<span class="kw">pub use </span><span class="self">self</span>::exp10f::exp10f;
 <span class="kw">pub use </span><span class="self">self</span>::exp2::exp2;
 <span class="kw">pub use </span><span class="self">self</span>::exp2f::exp2f;
+<span class="kw">pub use </span><span class="self">self</span>::exp10::exp10;
+<span class="kw">pub use </span><span class="self">self</span>::exp10f::exp10f;
 <span class="kw">pub use </span><span class="self">self</span>::expf::expf;
 <span class="kw">pub use </span><span class="self">self</span>::expm1::expm1;
 <span class="kw">pub use </span><span class="self">self</span>::expm1f::expm1f;
@@ -620,18 +610,12 @@
 <span class="kw">pub use </span><span class="self">self</span>::hypotf::hypotf;
 <span class="kw">pub use </span><span class="self">self</span>::ilogb::ilogb;
 <span class="kw">pub use </span><span class="self">self</span>::ilogbf::ilogbf;
-<span class="kw">pub use </span><span class="self">self</span>::j0::j0;
-<span class="kw">pub use </span><span class="self">self</span>::j0::y0;
-<span class="kw">pub use </span><span class="self">self</span>::j0f::j0f;
-<span class="kw">pub use </span><span class="self">self</span>::j0f::y0f;
-<span class="kw">pub use </span><span class="self">self</span>::j1::j1;
-<span class="kw">pub use </span><span class="self">self</span>::j1::y1;
-<span class="kw">pub use </span><span class="self">self</span>::j1f::j1f;
-<span class="kw">pub use </span><span class="self">self</span>::j1f::y1f;
-<span class="kw">pub use </span><span class="self">self</span>::jn::jn;
-<span class="kw">pub use </span><span class="self">self</span>::jn::yn;
-<span class="kw">pub use </span><span class="self">self</span>::jnf::jnf;
-<span class="kw">pub use </span><span class="self">self</span>::jnf::ynf;
+<span class="kw">pub use </span><span class="self">self</span>::j0::{j0, y0};
+<span class="kw">pub use </span><span class="self">self</span>::j0f::{j0f, y0f};
+<span class="kw">pub use </span><span class="self">self</span>::j1::{j1, y1};
+<span class="kw">pub use </span><span class="self">self</span>::j1f::{j1f, y1f};
+<span class="kw">pub use </span><span class="self">self</span>::jn::{jn, yn};
+<span class="kw">pub use </span><span class="self">self</span>::jnf::{jnf, ynf};
 <span class="kw">pub use </span><span class="self">self</span>::ldexp::ldexp;
 <span class="kw">pub use </span><span class="self">self</span>::ldexpf::ldexpf;
 <span class="kw">pub use </span><span class="self">self</span>::lgamma::lgamma;
@@ -639,12 +623,12 @@
 <span class="kw">pub use </span><span class="self">self</span>::lgammaf::lgammaf;
 <span class="kw">pub use </span><span class="self">self</span>::lgammaf_r::lgammaf_r;
 <span class="kw">pub use </span><span class="self">self</span>::log::log;
-<span class="kw">pub use </span><span class="self">self</span>::log10::log10;
-<span class="kw">pub use </span><span class="self">self</span>::log10f::log10f;
 <span class="kw">pub use </span><span class="self">self</span>::log1p::log1p;
 <span class="kw">pub use </span><span class="self">self</span>::log1pf::log1pf;
 <span class="kw">pub use </span><span class="self">self</span>::log2::log2;
 <span class="kw">pub use </span><span class="self">self</span>::log2f::log2f;
+<span class="kw">pub use </span><span class="self">self</span>::log10::log10;
+<span class="kw">pub use </span><span class="self">self</span>::log10f::log10f;
 <span class="kw">pub use </span><span class="self">self</span>::logf::logf;
 <span class="kw">pub use </span><span class="self">self</span>::modf::modf;
 <span class="kw">pub use </span><span class="self">self</span>::modff::modff;

@@ -183,7 +183,7 @@ to the most recent call will be scheduled to receive a wakeup.</p>
 <h5 id="examples-4"><a class="doc-anchor" href="#examples-4">§</a>Examples</h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>tokio::sync::oneshot;
 
-<span class="kw">use </span>futures::future::poll_fn;
+<span class="kw">use </span>std::future::poll_fn;
 
 <span class="attr">#[tokio::main]
 </span><span class="kw">async fn </span>main() {

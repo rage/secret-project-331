@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/reqwest-0.12.9/src/connect.rs`."><title>connect.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="reqwest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/reqwest-0.12.12/src/connect.rs`."><title>connect.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="reqwest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1440,6 +1440,133 @@
 <a href="#1440" id="1440">1440</a>
 <a href="#1441" id="1441">1441</a>
 <a href="#1442" id="1442">1442</a>
+<a href="#1443" id="1443">1443</a>
+<a href="#1444" id="1444">1444</a>
+<a href="#1445" id="1445">1445</a>
+<a href="#1446" id="1446">1446</a>
+<a href="#1447" id="1447">1447</a>
+<a href="#1448" id="1448">1448</a>
+<a href="#1449" id="1449">1449</a>
+<a href="#1450" id="1450">1450</a>
+<a href="#1451" id="1451">1451</a>
+<a href="#1452" id="1452">1452</a>
+<a href="#1453" id="1453">1453</a>
+<a href="#1454" id="1454">1454</a>
+<a href="#1455" id="1455">1455</a>
+<a href="#1456" id="1456">1456</a>
+<a href="#1457" id="1457">1457</a>
+<a href="#1458" id="1458">1458</a>
+<a href="#1459" id="1459">1459</a>
+<a href="#1460" id="1460">1460</a>
+<a href="#1461" id="1461">1461</a>
+<a href="#1462" id="1462">1462</a>
+<a href="#1463" id="1463">1463</a>
+<a href="#1464" id="1464">1464</a>
+<a href="#1465" id="1465">1465</a>
+<a href="#1466" id="1466">1466</a>
+<a href="#1467" id="1467">1467</a>
+<a href="#1468" id="1468">1468</a>
+<a href="#1469" id="1469">1469</a>
+<a href="#1470" id="1470">1470</a>
+<a href="#1471" id="1471">1471</a>
+<a href="#1472" id="1472">1472</a>
+<a href="#1473" id="1473">1473</a>
+<a href="#1474" id="1474">1474</a>
+<a href="#1475" id="1475">1475</a>
+<a href="#1476" id="1476">1476</a>
+<a href="#1477" id="1477">1477</a>
+<a href="#1478" id="1478">1478</a>
+<a href="#1479" id="1479">1479</a>
+<a href="#1480" id="1480">1480</a>
+<a href="#1481" id="1481">1481</a>
+<a href="#1482" id="1482">1482</a>
+<a href="#1483" id="1483">1483</a>
+<a href="#1484" id="1484">1484</a>
+<a href="#1485" id="1485">1485</a>
+<a href="#1486" id="1486">1486</a>
+<a href="#1487" id="1487">1487</a>
+<a href="#1488" id="1488">1488</a>
+<a href="#1489" id="1489">1489</a>
+<a href="#1490" id="1490">1490</a>
+<a href="#1491" id="1491">1491</a>
+<a href="#1492" id="1492">1492</a>
+<a href="#1493" id="1493">1493</a>
+<a href="#1494" id="1494">1494</a>
+<a href="#1495" id="1495">1495</a>
+<a href="#1496" id="1496">1496</a>
+<a href="#1497" id="1497">1497</a>
+<a href="#1498" id="1498">1498</a>
+<a href="#1499" id="1499">1499</a>
+<a href="#1500" id="1500">1500</a>
+<a href="#1501" id="1501">1501</a>
+<a href="#1502" id="1502">1502</a>
+<a href="#1503" id="1503">1503</a>
+<a href="#1504" id="1504">1504</a>
+<a href="#1505" id="1505">1505</a>
+<a href="#1506" id="1506">1506</a>
+<a href="#1507" id="1507">1507</a>
+<a href="#1508" id="1508">1508</a>
+<a href="#1509" id="1509">1509</a>
+<a href="#1510" id="1510">1510</a>
+<a href="#1511" id="1511">1511</a>
+<a href="#1512" id="1512">1512</a>
+<a href="#1513" id="1513">1513</a>
+<a href="#1514" id="1514">1514</a>
+<a href="#1515" id="1515">1515</a>
+<a href="#1516" id="1516">1516</a>
+<a href="#1517" id="1517">1517</a>
+<a href="#1518" id="1518">1518</a>
+<a href="#1519" id="1519">1519</a>
+<a href="#1520" id="1520">1520</a>
+<a href="#1521" id="1521">1521</a>
+<a href="#1522" id="1522">1522</a>
+<a href="#1523" id="1523">1523</a>
+<a href="#1524" id="1524">1524</a>
+<a href="#1525" id="1525">1525</a>
+<a href="#1526" id="1526">1526</a>
+<a href="#1527" id="1527">1527</a>
+<a href="#1528" id="1528">1528</a>
+<a href="#1529" id="1529">1529</a>
+<a href="#1530" id="1530">1530</a>
+<a href="#1531" id="1531">1531</a>
+<a href="#1532" id="1532">1532</a>
+<a href="#1533" id="1533">1533</a>
+<a href="#1534" id="1534">1534</a>
+<a href="#1535" id="1535">1535</a>
+<a href="#1536" id="1536">1536</a>
+<a href="#1537" id="1537">1537</a>
+<a href="#1538" id="1538">1538</a>
+<a href="#1539" id="1539">1539</a>
+<a href="#1540" id="1540">1540</a>
+<a href="#1541" id="1541">1541</a>
+<a href="#1542" id="1542">1542</a>
+<a href="#1543" id="1543">1543</a>
+<a href="#1544" id="1544">1544</a>
+<a href="#1545" id="1545">1545</a>
+<a href="#1546" id="1546">1546</a>
+<a href="#1547" id="1547">1547</a>
+<a href="#1548" id="1548">1548</a>
+<a href="#1549" id="1549">1549</a>
+<a href="#1550" id="1550">1550</a>
+<a href="#1551" id="1551">1551</a>
+<a href="#1552" id="1552">1552</a>
+<a href="#1553" id="1553">1553</a>
+<a href="#1554" id="1554">1554</a>
+<a href="#1555" id="1555">1555</a>
+<a href="#1556" id="1556">1556</a>
+<a href="#1557" id="1557">1557</a>
+<a href="#1558" id="1558">1558</a>
+<a href="#1559" id="1559">1559</a>
+<a href="#1560" id="1560">1560</a>
+<a href="#1561" id="1561">1561</a>
+<a href="#1562" id="1562">1562</a>
+<a href="#1563" id="1563">1563</a>
+<a href="#1564" id="1564">1564</a>
+<a href="#1565" id="1565">1565</a>
+<a href="#1566" id="1566">1566</a>
+<a href="#1567" id="1567">1567</a>
+<a href="#1568" id="1568">1568</a>
+<a href="#1569" id="1569">1569</a>
 </pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
 </span><span class="kw">use </span>http::header::HeaderValue;
 <span class="kw">use </span>http::uri::{Authority, Scheme};
@@ -1450,9 +1577,11 @@
 </span><span class="kw">use </span>hyper_util::rt::TokioIo;
 <span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
 </span><span class="kw">use </span>native_tls_crate::{TlsConnector, TlsConnectorBuilder};
+<span class="kw">use </span>pin_project_lite::pin_project;
+<span class="kw">use </span>tower::util::{BoxCloneSyncServiceLayer, MapRequestLayer};
+<span class="kw">use </span>tower::{timeout::TimeoutLayer, util::BoxCloneSyncService, ServiceBuilder};
 <span class="kw">use </span>tower_service::Service;
 
-<span class="kw">use </span>pin_project_lite::pin_project;
 <span class="kw">use </span>std::future::Future;
 <span class="kw">use </span>std::io::{<span class="self">self</span>, IoSlice};
 <span class="kw">use </span>std::net::IpAddr;
@@ -1466,13 +1595,47 @@
 <span class="attr">#[cfg(feature = <span class="string">"__rustls"</span>)]
 </span><span class="kw">use </span><span class="self">self</span>::rustls_tls_conn::RustlsTlsConn;
 <span class="kw">use </span><span class="kw">crate</span>::dns::DynResolver;
-<span class="kw">use </span><span class="kw">crate</span>::error::BoxError;
+<span class="kw">use </span><span class="kw">crate</span>::error::{cast_to_internal_error, BoxError};
 <span class="kw">use </span><span class="kw">crate</span>::proxy::{Proxy, ProxyScheme};
+<span class="kw">use </span>sealed::{Conn, Unnameable};
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type </span>HttpConnector = hyper_util::client::legacy::connect::HttpConnector&lt;DynResolver&gt;;
 
 <span class="attr">#[derive(Clone)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Connector {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>Connector {
+    <span class="comment">// base service, with or without an embedded timeout
+    </span>Simple(ConnectorService),
+    <span class="comment">// at least one custom layer along with maybe an outer timeout layer
+    // from `builder.connect_timeout()`
+    </span>WithLayers(BoxCloneSyncService&lt;Unnameable, Conn, BoxError&gt;),
+}
+
+<span class="kw">impl </span>Service&lt;Uri&gt; <span class="kw">for </span>Connector {
+    <span class="kw">type </span>Response = Conn;
+    <span class="kw">type </span>Error = BoxError;
+    <span class="kw">type </span>Future = Connecting;
+
+    <span class="kw">fn </span>poll_ready(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            Connector::Simple(service) =&gt; service.poll_ready(cx),
+            Connector::WithLayers(service) =&gt; service.poll_ready(cx),
+        }
+    }
+
+    <span class="kw">fn </span>call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dst: Uri) -&gt; <span class="self">Self</span>::Future {
+        <span class="kw">match </span><span class="self">self </span>{
+            Connector::Simple(service) =&gt; service.call(dst),
+            Connector::WithLayers(service) =&gt; service.call(Unnameable(dst)),
+        }
+    }
+}
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type </span>BoxedConnectorService = BoxCloneSyncService&lt;Unnameable, Conn, BoxError&gt;;
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type </span>BoxedConnectorLayer =
+    BoxCloneSyncServiceLayer&lt;BoxedConnectorService, Unnameable, Conn, BoxError&gt;;
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ConnectorBuilder {
     inner: Inner,
     proxies: Arc&lt;Vec&lt;Proxy&gt;&gt;,
     verbose: verbose::Wrapper,
@@ -1485,21 +1648,70 @@
     </span>user_agent: <span class="prelude-ty">Option</span>&lt;HeaderValue&gt;,
 }
 
-<span class="attr">#[derive(Clone)]
-</span><span class="kw">enum </span>Inner {
-    <span class="attr">#[cfg(not(feature = <span class="string">"__tls"</span>))]
-    </span>Http(HttpConnector),
-    <span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
-    </span>DefaultTls(HttpConnector, TlsConnector),
-    <span class="attr">#[cfg(feature = <span class="string">"__rustls"</span>)]
-    </span>RustlsTls {
-        http: HttpConnector,
-        tls: Arc&lt;rustls::ClientConfig&gt;,
-        tls_proxy: Arc&lt;rustls::ClientConfig&gt;,
-    },
-}
+<span class="kw">impl </span>ConnectorBuilder {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>build(<span class="self">self</span>, layers: Vec&lt;BoxedConnectorLayer&gt;) -&gt; Connector
+<span class="kw">where </span>{
+        <span class="comment">// construct the inner tower service
+        </span><span class="kw">let </span><span class="kw-2">mut </span>base_service = ConnectorService {
+            inner: <span class="self">self</span>.inner,
+            proxies: <span class="self">self</span>.proxies,
+            verbose: <span class="self">self</span>.verbose,
+            <span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
+            </span>nodelay: <span class="self">self</span>.nodelay,
+            <span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
+            </span>tls_info: <span class="self">self</span>.tls_info,
+            <span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
+            </span>user_agent: <span class="self">self</span>.user_agent,
+            simple_timeout: <span class="prelude-val">None</span>,
+        };
 
-<span class="kw">impl </span>Connector {
+        <span class="kw">if </span>layers.is_empty() {
+            <span class="comment">// we have no user-provided layers, only use concrete types
+            </span>base_service.simple_timeout = <span class="self">self</span>.timeout;
+            <span class="kw">return </span>Connector::Simple(base_service);
+        }
+
+        <span class="comment">// otherwise we have user provided layers
+        // so we need type erasure all the way through
+        // as well as mapping the unnameable type of the layers back to Uri for the inner service
+        </span><span class="kw">let </span>unnameable_service = ServiceBuilder::new()
+            .layer(MapRequestLayer::new(|request: Unnameable| request.<span class="number">0</span>))
+            .service(base_service);
+        <span class="kw">let </span><span class="kw-2">mut </span>service = BoxCloneSyncService::new(unnameable_service);
+
+        <span class="kw">for </span>layer <span class="kw">in </span>layers {
+            service = ServiceBuilder::new().layer(layer).service(service);
+        }
+
+        <span class="comment">// now we handle the concrete stuff - any `connect_timeout`,
+        // plus a final map_err layer we can use to cast default tower layer
+        // errors to internal errors
+        </span><span class="kw">match </span><span class="self">self</span>.timeout {
+            <span class="prelude-val">Some</span>(timeout) =&gt; {
+                <span class="kw">let </span>service = ServiceBuilder::new()
+                    .layer(TimeoutLayer::new(timeout))
+                    .service(service);
+                <span class="kw">let </span>service = ServiceBuilder::new()
+                    .map_err(|error: BoxError| cast_to_internal_error(error))
+                    .service(service);
+                <span class="kw">let </span>service = BoxCloneSyncService::new(service);
+
+                Connector::WithLayers(service)
+            }
+            <span class="prelude-val">None </span>=&gt; {
+                <span class="comment">// no timeout, but still map err
+                // no named timeout layer but we still map errors since
+                // we might have user-provided timeout layer
+                </span><span class="kw">let </span>service = ServiceBuilder::new().service(service);
+                <span class="kw">let </span>service = ServiceBuilder::new()
+                    .map_err(|error: BoxError| cast_to_internal_error(error))
+                    .service(service);
+                <span class="kw">let </span>service = BoxCloneSyncService::new(service);
+                Connector::WithLayers(service)
+            }
+        }
+    }
+
     <span class="attr">#[cfg(not(feature = <span class="string">"__tls"</span>))]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new&lt;T&gt;(
         <span class="kw-2">mut </span>http: HttpConnector,
@@ -1508,7 +1720,7 @@
         <span class="attr">#[cfg(any(target_os = <span class="string">"android"</span>, target_os = <span class="string">"fuchsia"</span>, target_os = <span class="string">"linux"</span>))]
         </span>interface: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
         nodelay: bool,
-    ) -&gt; Connector
+    ) -&gt; ConnectorBuilder
     <span class="kw">where
         </span>T: Into&lt;<span class="prelude-ty">Option</span>&lt;IpAddr&gt;&gt;,
     {
@@ -1519,10 +1731,10 @@
         }
         http.set_nodelay(nodelay);
 
-        Connector {
+        ConnectorBuilder {
             inner: Inner::Http(http),
-            verbose: verbose::OFF,
             proxies,
+            verbose: verbose::OFF,
             timeout: <span class="prelude-val">None</span>,
         }
     }
@@ -1538,7 +1750,7 @@
         </span>interface: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
         nodelay: bool,
         tls_info: bool,
-    ) -&gt; <span class="kw">crate</span>::Result&lt;Connector&gt;
+    ) -&gt; <span class="kw">crate</span>::Result&lt;ConnectorBuilder&gt;
     <span class="kw">where
         </span>T: Into&lt;<span class="prelude-ty">Option</span>&lt;IpAddr&gt;&gt;,
     {
@@ -1567,7 +1779,7 @@
         </span>interface: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
         nodelay: bool,
         tls_info: bool,
-    ) -&gt; Connector
+    ) -&gt; ConnectorBuilder
     <span class="kw">where
         </span>T: Into&lt;<span class="prelude-ty">Option</span>&lt;IpAddr&gt;&gt;,
     {
@@ -1579,14 +1791,14 @@
         http.set_nodelay(nodelay);
         http.enforce_http(<span class="bool-val">false</span>);
 
-        Connector {
+        ConnectorBuilder {
             inner: Inner::DefaultTls(http, tls),
             proxies,
             verbose: verbose::OFF,
-            timeout: <span class="prelude-val">None</span>,
             nodelay,
             tls_info,
             user_agent,
+            timeout: <span class="prelude-val">None</span>,
         }
     }
 
@@ -1601,7 +1813,7 @@
         </span>interface: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
         nodelay: bool,
         tls_info: bool,
-    ) -&gt; Connector
+    ) -&gt; ConnectorBuilder
     <span class="kw">where
         </span>T: Into&lt;<span class="prelude-ty">Option</span>&lt;IpAddr&gt;&gt;,
     {
@@ -1622,7 +1834,7 @@
             (Arc::new(tls), Arc::new(tls_proxy))
         };
 
-        Connector {
+        ConnectorBuilder {
             inner: Inner::RustlsTls {
                 http,
                 tls,
@@ -1630,10 +1842,10 @@
             },
             proxies,
             verbose: verbose::OFF,
-            timeout: <span class="prelude-val">None</span>,
             nodelay,
             tls_info,
             user_agent,
+            timeout: <span class="prelude-val">None</span>,
         }
     }
 
@@ -1645,6 +1857,52 @@
         <span class="self">self</span>.verbose.<span class="number">0 </span>= enabled;
     }
 
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>set_keepalive(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dur: <span class="prelude-ty">Option</span>&lt;Duration&gt;) {
+        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.inner {
+            <span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
+            </span>Inner::DefaultTls(http, _tls) =&gt; http.set_keepalive(dur),
+            <span class="attr">#[cfg(feature = <span class="string">"__rustls"</span>)]
+            </span>Inner::RustlsTls { http, .. } =&gt; http.set_keepalive(dur),
+            <span class="attr">#[cfg(not(feature = <span class="string">"__tls"</span>))]
+            </span>Inner::Http(http) =&gt; http.set_keepalive(dur),
+        }
+    }
+}
+
+<span class="attr">#[allow(missing_debug_implementations)]
+#[derive(Clone)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ConnectorService {
+    inner: Inner,
+    proxies: Arc&lt;Vec&lt;Proxy&gt;&gt;,
+    verbose: verbose::Wrapper,
+    <span class="doccomment">/// When there is a single timeout layer and no other layers,
+    /// we embed it directly inside our base Service::call().
+    /// This lets us avoid an extra `Box::pin` indirection layer
+    /// since `tokio::time::Timeout` is `Unpin`
+    </span>simple_timeout: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
+    <span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
+    </span>nodelay: bool,
+    <span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
+    </span>tls_info: bool,
+    <span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
+    </span>user_agent: <span class="prelude-ty">Option</span>&lt;HeaderValue&gt;,
+}
+
+<span class="attr">#[derive(Clone)]
+</span><span class="kw">enum </span>Inner {
+    <span class="attr">#[cfg(not(feature = <span class="string">"__tls"</span>))]
+    </span>Http(HttpConnector),
+    <span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
+    </span>DefaultTls(HttpConnector, TlsConnector),
+    <span class="attr">#[cfg(feature = <span class="string">"__rustls"</span>)]
+    </span>RustlsTls {
+        http: HttpConnector,
+        tls: Arc&lt;rustls::ClientConfig&gt;,
+        tls_proxy: Arc&lt;rustls::ClientConfig&gt;,
+    },
+}
+
+<span class="kw">impl </span>ConnectorService {
     <span class="attr">#[cfg(feature = <span class="string">"socks"</span>)]
     </span><span class="kw">async fn </span>connect_socks(<span class="kw-2">&amp;</span><span class="self">self</span>, dst: Uri, proxy: ProxyScheme) -&gt; <span class="prelude-ty">Result</span>&lt;Conn, BoxError&gt; {
         <span class="kw">let </span>dns = <span class="kw">match </span>proxy {
@@ -1891,17 +2149,6 @@
 
         <span class="self">self</span>.connect_with_maybe_proxy(proxy_dst, <span class="bool-val">true</span>).<span class="kw">await
     </span>}
-
-    <span class="kw">pub fn </span>set_keepalive(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dur: <span class="prelude-ty">Option</span>&lt;Duration&gt;) {
-        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.inner {
-            <span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
-            </span>Inner::DefaultTls(http, _tls) =&gt; http.set_keepalive(dur),
-            <span class="attr">#[cfg(feature = <span class="string">"__rustls"</span>)]
-            </span>Inner::RustlsTls { http, .. } =&gt; http.set_keepalive(dur),
-            <span class="attr">#[cfg(not(feature = <span class="string">"__tls"</span>))]
-            </span>Inner::Http(http) =&gt; http.set_keepalive(dur),
-        }
-    }
 }
 
 <span class="kw">fn </span>into_uri(scheme: Scheme, host: Authority) -&gt; Uri {
@@ -1929,7 +2176,7 @@
     </span>}
 }
 
-<span class="kw">impl </span>Service&lt;Uri&gt; <span class="kw">for </span>Connector {
+<span class="kw">impl </span>Service&lt;Uri&gt; <span class="kw">for </span>ConnectorService {
     <span class="kw">type </span>Response = Conn;
     <span class="kw">type </span>Error = BoxError;
     <span class="kw">type </span>Future = Connecting;
@@ -1940,7 +2187,7 @@
 
     <span class="kw">fn </span>call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dst: Uri) -&gt; <span class="self">Self</span>::Future {
         <span class="macro">log::debug!</span>(<span class="string">"starting new connection: {dst:?}"</span>);
-        <span class="kw">let </span>timeout = <span class="self">self</span>.timeout;
+        <span class="kw">let </span>timeout = <span class="self">self</span>.simple_timeout;
         <span class="kw">for </span>prox <span class="kw">in </span><span class="self">self</span>.proxies.iter() {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(proxy_scheme) = prox.intercept(<span class="kw-2">&amp;</span>dst) {
                 <span class="kw">return </span>Box::pin(with_timeout(
@@ -2075,80 +2322,87 @@
 
 <span class="kw">type </span>BoxConn = Box&lt;<span class="kw">dyn </span>AsyncConnWithInfo&gt;;
 
-<span class="macro">pin_project!</span> {
-    <span class="doccomment">/// Note: the `is_proxy` member means *is plain text HTTP proxy*.
-    /// This tells hyper whether the URI should be written in
-    /// * origin-form (`GET /just/a/path HTTP/1.1`), when `is_proxy == false`, or
-    /// * absolute-form (`GET http://foo.bar/and/a/path HTTP/1.1`), otherwise.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Conn {
-        <span class="attr">#[pin]
-        </span>inner: BoxConn,
-        is_proxy: bool,
-        <span class="comment">// Only needed for __tls, but #[cfg()] on fields breaks pin_project!
-        </span>tls_info: bool,
-    }
-}
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>sealed {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="attr">#[derive(Debug)]
+    </span><span class="kw">pub struct </span>Unnameable(<span class="kw">pub</span>(<span class="kw">super</span>) Uri);
 
-<span class="kw">impl </span>Connection <span class="kw">for </span>Conn {
-    <span class="kw">fn </span>connected(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Connected {
-        <span class="kw">let </span>connected = <span class="self">self</span>.inner.connected().proxy(<span class="self">self</span>.is_proxy);
-        <span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
-        </span><span class="kw">if </span><span class="self">self</span>.tls_info {
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(tls_info) = <span class="self">self</span>.inner.tls_info() {
-                connected.extra(tls_info)
+    <span class="macro">pin_project!</span> {
+        <span class="doccomment">/// Note: the `is_proxy` member means *is plain text HTTP proxy*.
+        /// This tells hyper whether the URI should be written in
+        /// * origin-form (`GET /just/a/path HTTP/1.1`), when `is_proxy == false`, or
+        /// * absolute-form (`GET http://foo.bar/and/a/path HTTP/1.1`), otherwise.
+        </span><span class="attr">#[allow(missing_debug_implementations)]
+        </span><span class="kw">pub struct </span>Conn {
+            <span class="attr">#[pin]
+            </span><span class="kw">pub</span>(<span class="kw">super</span>)inner: BoxConn,
+            <span class="kw">pub</span>(<span class="kw">super</span>) is_proxy: bool,
+            <span class="comment">// Only needed for __tls, but #[cfg()] on fields breaks pin_project!
+            </span><span class="kw">pub</span>(<span class="kw">super</span>) tls_info: bool,
+        }
+    }
+
+    <span class="kw">impl </span>Connection <span class="kw">for </span>Conn {
+        <span class="kw">fn </span>connected(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Connected {
+            <span class="kw">let </span>connected = <span class="self">self</span>.inner.connected().proxy(<span class="self">self</span>.is_proxy);
+            <span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
+            </span><span class="kw">if </span><span class="self">self</span>.tls_info {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(tls_info) = <span class="self">self</span>.inner.tls_info() {
+                    connected.extra(tls_info)
+                } <span class="kw">else </span>{
+                    connected
+                }
             } <span class="kw">else </span>{
                 connected
             }
-        } <span class="kw">else </span>{
-            connected
+            <span class="attr">#[cfg(not(feature = <span class="string">"__tls"</span>))]
+            </span>connected
         }
-        <span class="attr">#[cfg(not(feature = <span class="string">"__tls"</span>))]
-        </span>connected
-    }
-}
-
-<span class="kw">impl </span>Read <span class="kw">for </span>Conn {
-    <span class="kw">fn </span>poll_read(
-        <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
-        cx: <span class="kw-2">&amp;mut </span>Context,
-        buf: ReadBufCursor&lt;<span class="lifetime">'_</span>&gt;,
-    ) -&gt; Poll&lt;io::Result&lt;()&gt;&gt; {
-        <span class="kw">let </span>this = <span class="self">self</span>.project();
-        Read::poll_read(this.inner, cx, buf)
-    }
-}
-
-<span class="kw">impl </span>Write <span class="kw">for </span>Conn {
-    <span class="kw">fn </span>poll_write(
-        <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
-        cx: <span class="kw-2">&amp;mut </span>Context,
-        buf: <span class="kw-2">&amp;</span>[u8],
-    ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;usize, io::Error&gt;&gt; {
-        <span class="kw">let </span>this = <span class="self">self</span>.project();
-        Write::poll_write(this.inner, cx, buf)
     }
 
-    <span class="kw">fn </span>poll_write_vectored(
-        <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
-        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
-        bufs: <span class="kw-2">&amp;</span>[IoSlice&lt;<span class="lifetime">'_</span>&gt;],
-    ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;usize, io::Error&gt;&gt; {
-        <span class="kw">let </span>this = <span class="self">self</span>.project();
-        Write::poll_write_vectored(this.inner, cx, bufs)
+    <span class="kw">impl </span>Read <span class="kw">for </span>Conn {
+        <span class="kw">fn </span>poll_read(
+            <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+            cx: <span class="kw-2">&amp;mut </span>Context,
+            buf: ReadBufCursor&lt;<span class="lifetime">'_</span>&gt;,
+        ) -&gt; Poll&lt;io::Result&lt;()&gt;&gt; {
+            <span class="kw">let </span>this = <span class="self">self</span>.project();
+            Read::poll_read(this.inner, cx, buf)
+        }
     }
 
-    <span class="kw">fn </span>is_write_vectored(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.inner.is_write_vectored()
-    }
+    <span class="kw">impl </span>Write <span class="kw">for </span>Conn {
+        <span class="kw">fn </span>poll_write(
+            <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+            cx: <span class="kw-2">&amp;mut </span>Context,
+            buf: <span class="kw-2">&amp;</span>[u8],
+        ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;usize, io::Error&gt;&gt; {
+            <span class="kw">let </span>this = <span class="self">self</span>.project();
+            Write::poll_write(this.inner, cx, buf)
+        }
 
-    <span class="kw">fn </span>poll_flush(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), io::Error&gt;&gt; {
-        <span class="kw">let </span>this = <span class="self">self</span>.project();
-        Write::poll_flush(this.inner, cx)
-    }
+        <span class="kw">fn </span>poll_write_vectored(
+            <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+            cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
+            bufs: <span class="kw-2">&amp;</span>[IoSlice&lt;<span class="lifetime">'_</span>&gt;],
+        ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;usize, io::Error&gt;&gt; {
+            <span class="kw">let </span>this = <span class="self">self</span>.project();
+            Write::poll_write_vectored(this.inner, cx, bufs)
+        }
 
-    <span class="kw">fn </span>poll_shutdown(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), io::Error&gt;&gt; {
-        <span class="kw">let </span>this = <span class="self">self</span>.project();
-        Write::poll_shutdown(this.inner, cx)
+        <span class="kw">fn </span>is_write_vectored(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+            <span class="self">self</span>.inner.is_write_vectored()
+        }
+
+        <span class="kw">fn </span>poll_flush(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), io::Error&gt;&gt; {
+            <span class="kw">let </span>this = <span class="self">self</span>.project();
+            Write::poll_flush(this.inner, cx)
+        }
+
+        <span class="kw">fn </span>poll_shutdown(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), io::Error&gt;&gt; {
+            <span class="kw">let </span>this = <span class="self">self</span>.project();
+            Write::poll_shutdown(this.inner, cx)
+        }
     }
 }
 

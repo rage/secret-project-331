@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/png-0.17.14/src/decoder/stream.rs`."><title>stream.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="png" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/png-0.17.16/src/decoder/stream.rs`."><title>stream.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="png" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2210,6 +2210,712 @@
 <a href="#2210" id="2210">2210</a>
 <a href="#2211" id="2211">2211</a>
 <a href="#2212" id="2212">2212</a>
+<a href="#2213" id="2213">2213</a>
+<a href="#2214" id="2214">2214</a>
+<a href="#2215" id="2215">2215</a>
+<a href="#2216" id="2216">2216</a>
+<a href="#2217" id="2217">2217</a>
+<a href="#2218" id="2218">2218</a>
+<a href="#2219" id="2219">2219</a>
+<a href="#2220" id="2220">2220</a>
+<a href="#2221" id="2221">2221</a>
+<a href="#2222" id="2222">2222</a>
+<a href="#2223" id="2223">2223</a>
+<a href="#2224" id="2224">2224</a>
+<a href="#2225" id="2225">2225</a>
+<a href="#2226" id="2226">2226</a>
+<a href="#2227" id="2227">2227</a>
+<a href="#2228" id="2228">2228</a>
+<a href="#2229" id="2229">2229</a>
+<a href="#2230" id="2230">2230</a>
+<a href="#2231" id="2231">2231</a>
+<a href="#2232" id="2232">2232</a>
+<a href="#2233" id="2233">2233</a>
+<a href="#2234" id="2234">2234</a>
+<a href="#2235" id="2235">2235</a>
+<a href="#2236" id="2236">2236</a>
+<a href="#2237" id="2237">2237</a>
+<a href="#2238" id="2238">2238</a>
+<a href="#2239" id="2239">2239</a>
+<a href="#2240" id="2240">2240</a>
+<a href="#2241" id="2241">2241</a>
+<a href="#2242" id="2242">2242</a>
+<a href="#2243" id="2243">2243</a>
+<a href="#2244" id="2244">2244</a>
+<a href="#2245" id="2245">2245</a>
+<a href="#2246" id="2246">2246</a>
+<a href="#2247" id="2247">2247</a>
+<a href="#2248" id="2248">2248</a>
+<a href="#2249" id="2249">2249</a>
+<a href="#2250" id="2250">2250</a>
+<a href="#2251" id="2251">2251</a>
+<a href="#2252" id="2252">2252</a>
+<a href="#2253" id="2253">2253</a>
+<a href="#2254" id="2254">2254</a>
+<a href="#2255" id="2255">2255</a>
+<a href="#2256" id="2256">2256</a>
+<a href="#2257" id="2257">2257</a>
+<a href="#2258" id="2258">2258</a>
+<a href="#2259" id="2259">2259</a>
+<a href="#2260" id="2260">2260</a>
+<a href="#2261" id="2261">2261</a>
+<a href="#2262" id="2262">2262</a>
+<a href="#2263" id="2263">2263</a>
+<a href="#2264" id="2264">2264</a>
+<a href="#2265" id="2265">2265</a>
+<a href="#2266" id="2266">2266</a>
+<a href="#2267" id="2267">2267</a>
+<a href="#2268" id="2268">2268</a>
+<a href="#2269" id="2269">2269</a>
+<a href="#2270" id="2270">2270</a>
+<a href="#2271" id="2271">2271</a>
+<a href="#2272" id="2272">2272</a>
+<a href="#2273" id="2273">2273</a>
+<a href="#2274" id="2274">2274</a>
+<a href="#2275" id="2275">2275</a>
+<a href="#2276" id="2276">2276</a>
+<a href="#2277" id="2277">2277</a>
+<a href="#2278" id="2278">2278</a>
+<a href="#2279" id="2279">2279</a>
+<a href="#2280" id="2280">2280</a>
+<a href="#2281" id="2281">2281</a>
+<a href="#2282" id="2282">2282</a>
+<a href="#2283" id="2283">2283</a>
+<a href="#2284" id="2284">2284</a>
+<a href="#2285" id="2285">2285</a>
+<a href="#2286" id="2286">2286</a>
+<a href="#2287" id="2287">2287</a>
+<a href="#2288" id="2288">2288</a>
+<a href="#2289" id="2289">2289</a>
+<a href="#2290" id="2290">2290</a>
+<a href="#2291" id="2291">2291</a>
+<a href="#2292" id="2292">2292</a>
+<a href="#2293" id="2293">2293</a>
+<a href="#2294" id="2294">2294</a>
+<a href="#2295" id="2295">2295</a>
+<a href="#2296" id="2296">2296</a>
+<a href="#2297" id="2297">2297</a>
+<a href="#2298" id="2298">2298</a>
+<a href="#2299" id="2299">2299</a>
+<a href="#2300" id="2300">2300</a>
+<a href="#2301" id="2301">2301</a>
+<a href="#2302" id="2302">2302</a>
+<a href="#2303" id="2303">2303</a>
+<a href="#2304" id="2304">2304</a>
+<a href="#2305" id="2305">2305</a>
+<a href="#2306" id="2306">2306</a>
+<a href="#2307" id="2307">2307</a>
+<a href="#2308" id="2308">2308</a>
+<a href="#2309" id="2309">2309</a>
+<a href="#2310" id="2310">2310</a>
+<a href="#2311" id="2311">2311</a>
+<a href="#2312" id="2312">2312</a>
+<a href="#2313" id="2313">2313</a>
+<a href="#2314" id="2314">2314</a>
+<a href="#2315" id="2315">2315</a>
+<a href="#2316" id="2316">2316</a>
+<a href="#2317" id="2317">2317</a>
+<a href="#2318" id="2318">2318</a>
+<a href="#2319" id="2319">2319</a>
+<a href="#2320" id="2320">2320</a>
+<a href="#2321" id="2321">2321</a>
+<a href="#2322" id="2322">2322</a>
+<a href="#2323" id="2323">2323</a>
+<a href="#2324" id="2324">2324</a>
+<a href="#2325" id="2325">2325</a>
+<a href="#2326" id="2326">2326</a>
+<a href="#2327" id="2327">2327</a>
+<a href="#2328" id="2328">2328</a>
+<a href="#2329" id="2329">2329</a>
+<a href="#2330" id="2330">2330</a>
+<a href="#2331" id="2331">2331</a>
+<a href="#2332" id="2332">2332</a>
+<a href="#2333" id="2333">2333</a>
+<a href="#2334" id="2334">2334</a>
+<a href="#2335" id="2335">2335</a>
+<a href="#2336" id="2336">2336</a>
+<a href="#2337" id="2337">2337</a>
+<a href="#2338" id="2338">2338</a>
+<a href="#2339" id="2339">2339</a>
+<a href="#2340" id="2340">2340</a>
+<a href="#2341" id="2341">2341</a>
+<a href="#2342" id="2342">2342</a>
+<a href="#2343" id="2343">2343</a>
+<a href="#2344" id="2344">2344</a>
+<a href="#2345" id="2345">2345</a>
+<a href="#2346" id="2346">2346</a>
+<a href="#2347" id="2347">2347</a>
+<a href="#2348" id="2348">2348</a>
+<a href="#2349" id="2349">2349</a>
+<a href="#2350" id="2350">2350</a>
+<a href="#2351" id="2351">2351</a>
+<a href="#2352" id="2352">2352</a>
+<a href="#2353" id="2353">2353</a>
+<a href="#2354" id="2354">2354</a>
+<a href="#2355" id="2355">2355</a>
+<a href="#2356" id="2356">2356</a>
+<a href="#2357" id="2357">2357</a>
+<a href="#2358" id="2358">2358</a>
+<a href="#2359" id="2359">2359</a>
+<a href="#2360" id="2360">2360</a>
+<a href="#2361" id="2361">2361</a>
+<a href="#2362" id="2362">2362</a>
+<a href="#2363" id="2363">2363</a>
+<a href="#2364" id="2364">2364</a>
+<a href="#2365" id="2365">2365</a>
+<a href="#2366" id="2366">2366</a>
+<a href="#2367" id="2367">2367</a>
+<a href="#2368" id="2368">2368</a>
+<a href="#2369" id="2369">2369</a>
+<a href="#2370" id="2370">2370</a>
+<a href="#2371" id="2371">2371</a>
+<a href="#2372" id="2372">2372</a>
+<a href="#2373" id="2373">2373</a>
+<a href="#2374" id="2374">2374</a>
+<a href="#2375" id="2375">2375</a>
+<a href="#2376" id="2376">2376</a>
+<a href="#2377" id="2377">2377</a>
+<a href="#2378" id="2378">2378</a>
+<a href="#2379" id="2379">2379</a>
+<a href="#2380" id="2380">2380</a>
+<a href="#2381" id="2381">2381</a>
+<a href="#2382" id="2382">2382</a>
+<a href="#2383" id="2383">2383</a>
+<a href="#2384" id="2384">2384</a>
+<a href="#2385" id="2385">2385</a>
+<a href="#2386" id="2386">2386</a>
+<a href="#2387" id="2387">2387</a>
+<a href="#2388" id="2388">2388</a>
+<a href="#2389" id="2389">2389</a>
+<a href="#2390" id="2390">2390</a>
+<a href="#2391" id="2391">2391</a>
+<a href="#2392" id="2392">2392</a>
+<a href="#2393" id="2393">2393</a>
+<a href="#2394" id="2394">2394</a>
+<a href="#2395" id="2395">2395</a>
+<a href="#2396" id="2396">2396</a>
+<a href="#2397" id="2397">2397</a>
+<a href="#2398" id="2398">2398</a>
+<a href="#2399" id="2399">2399</a>
+<a href="#2400" id="2400">2400</a>
+<a href="#2401" id="2401">2401</a>
+<a href="#2402" id="2402">2402</a>
+<a href="#2403" id="2403">2403</a>
+<a href="#2404" id="2404">2404</a>
+<a href="#2405" id="2405">2405</a>
+<a href="#2406" id="2406">2406</a>
+<a href="#2407" id="2407">2407</a>
+<a href="#2408" id="2408">2408</a>
+<a href="#2409" id="2409">2409</a>
+<a href="#2410" id="2410">2410</a>
+<a href="#2411" id="2411">2411</a>
+<a href="#2412" id="2412">2412</a>
+<a href="#2413" id="2413">2413</a>
+<a href="#2414" id="2414">2414</a>
+<a href="#2415" id="2415">2415</a>
+<a href="#2416" id="2416">2416</a>
+<a href="#2417" id="2417">2417</a>
+<a href="#2418" id="2418">2418</a>
+<a href="#2419" id="2419">2419</a>
+<a href="#2420" id="2420">2420</a>
+<a href="#2421" id="2421">2421</a>
+<a href="#2422" id="2422">2422</a>
+<a href="#2423" id="2423">2423</a>
+<a href="#2424" id="2424">2424</a>
+<a href="#2425" id="2425">2425</a>
+<a href="#2426" id="2426">2426</a>
+<a href="#2427" id="2427">2427</a>
+<a href="#2428" id="2428">2428</a>
+<a href="#2429" id="2429">2429</a>
+<a href="#2430" id="2430">2430</a>
+<a href="#2431" id="2431">2431</a>
+<a href="#2432" id="2432">2432</a>
+<a href="#2433" id="2433">2433</a>
+<a href="#2434" id="2434">2434</a>
+<a href="#2435" id="2435">2435</a>
+<a href="#2436" id="2436">2436</a>
+<a href="#2437" id="2437">2437</a>
+<a href="#2438" id="2438">2438</a>
+<a href="#2439" id="2439">2439</a>
+<a href="#2440" id="2440">2440</a>
+<a href="#2441" id="2441">2441</a>
+<a href="#2442" id="2442">2442</a>
+<a href="#2443" id="2443">2443</a>
+<a href="#2444" id="2444">2444</a>
+<a href="#2445" id="2445">2445</a>
+<a href="#2446" id="2446">2446</a>
+<a href="#2447" id="2447">2447</a>
+<a href="#2448" id="2448">2448</a>
+<a href="#2449" id="2449">2449</a>
+<a href="#2450" id="2450">2450</a>
+<a href="#2451" id="2451">2451</a>
+<a href="#2452" id="2452">2452</a>
+<a href="#2453" id="2453">2453</a>
+<a href="#2454" id="2454">2454</a>
+<a href="#2455" id="2455">2455</a>
+<a href="#2456" id="2456">2456</a>
+<a href="#2457" id="2457">2457</a>
+<a href="#2458" id="2458">2458</a>
+<a href="#2459" id="2459">2459</a>
+<a href="#2460" id="2460">2460</a>
+<a href="#2461" id="2461">2461</a>
+<a href="#2462" id="2462">2462</a>
+<a href="#2463" id="2463">2463</a>
+<a href="#2464" id="2464">2464</a>
+<a href="#2465" id="2465">2465</a>
+<a href="#2466" id="2466">2466</a>
+<a href="#2467" id="2467">2467</a>
+<a href="#2468" id="2468">2468</a>
+<a href="#2469" id="2469">2469</a>
+<a href="#2470" id="2470">2470</a>
+<a href="#2471" id="2471">2471</a>
+<a href="#2472" id="2472">2472</a>
+<a href="#2473" id="2473">2473</a>
+<a href="#2474" id="2474">2474</a>
+<a href="#2475" id="2475">2475</a>
+<a href="#2476" id="2476">2476</a>
+<a href="#2477" id="2477">2477</a>
+<a href="#2478" id="2478">2478</a>
+<a href="#2479" id="2479">2479</a>
+<a href="#2480" id="2480">2480</a>
+<a href="#2481" id="2481">2481</a>
+<a href="#2482" id="2482">2482</a>
+<a href="#2483" id="2483">2483</a>
+<a href="#2484" id="2484">2484</a>
+<a href="#2485" id="2485">2485</a>
+<a href="#2486" id="2486">2486</a>
+<a href="#2487" id="2487">2487</a>
+<a href="#2488" id="2488">2488</a>
+<a href="#2489" id="2489">2489</a>
+<a href="#2490" id="2490">2490</a>
+<a href="#2491" id="2491">2491</a>
+<a href="#2492" id="2492">2492</a>
+<a href="#2493" id="2493">2493</a>
+<a href="#2494" id="2494">2494</a>
+<a href="#2495" id="2495">2495</a>
+<a href="#2496" id="2496">2496</a>
+<a href="#2497" id="2497">2497</a>
+<a href="#2498" id="2498">2498</a>
+<a href="#2499" id="2499">2499</a>
+<a href="#2500" id="2500">2500</a>
+<a href="#2501" id="2501">2501</a>
+<a href="#2502" id="2502">2502</a>
+<a href="#2503" id="2503">2503</a>
+<a href="#2504" id="2504">2504</a>
+<a href="#2505" id="2505">2505</a>
+<a href="#2506" id="2506">2506</a>
+<a href="#2507" id="2507">2507</a>
+<a href="#2508" id="2508">2508</a>
+<a href="#2509" id="2509">2509</a>
+<a href="#2510" id="2510">2510</a>
+<a href="#2511" id="2511">2511</a>
+<a href="#2512" id="2512">2512</a>
+<a href="#2513" id="2513">2513</a>
+<a href="#2514" id="2514">2514</a>
+<a href="#2515" id="2515">2515</a>
+<a href="#2516" id="2516">2516</a>
+<a href="#2517" id="2517">2517</a>
+<a href="#2518" id="2518">2518</a>
+<a href="#2519" id="2519">2519</a>
+<a href="#2520" id="2520">2520</a>
+<a href="#2521" id="2521">2521</a>
+<a href="#2522" id="2522">2522</a>
+<a href="#2523" id="2523">2523</a>
+<a href="#2524" id="2524">2524</a>
+<a href="#2525" id="2525">2525</a>
+<a href="#2526" id="2526">2526</a>
+<a href="#2527" id="2527">2527</a>
+<a href="#2528" id="2528">2528</a>
+<a href="#2529" id="2529">2529</a>
+<a href="#2530" id="2530">2530</a>
+<a href="#2531" id="2531">2531</a>
+<a href="#2532" id="2532">2532</a>
+<a href="#2533" id="2533">2533</a>
+<a href="#2534" id="2534">2534</a>
+<a href="#2535" id="2535">2535</a>
+<a href="#2536" id="2536">2536</a>
+<a href="#2537" id="2537">2537</a>
+<a href="#2538" id="2538">2538</a>
+<a href="#2539" id="2539">2539</a>
+<a href="#2540" id="2540">2540</a>
+<a href="#2541" id="2541">2541</a>
+<a href="#2542" id="2542">2542</a>
+<a href="#2543" id="2543">2543</a>
+<a href="#2544" id="2544">2544</a>
+<a href="#2545" id="2545">2545</a>
+<a href="#2546" id="2546">2546</a>
+<a href="#2547" id="2547">2547</a>
+<a href="#2548" id="2548">2548</a>
+<a href="#2549" id="2549">2549</a>
+<a href="#2550" id="2550">2550</a>
+<a href="#2551" id="2551">2551</a>
+<a href="#2552" id="2552">2552</a>
+<a href="#2553" id="2553">2553</a>
+<a href="#2554" id="2554">2554</a>
+<a href="#2555" id="2555">2555</a>
+<a href="#2556" id="2556">2556</a>
+<a href="#2557" id="2557">2557</a>
+<a href="#2558" id="2558">2558</a>
+<a href="#2559" id="2559">2559</a>
+<a href="#2560" id="2560">2560</a>
+<a href="#2561" id="2561">2561</a>
+<a href="#2562" id="2562">2562</a>
+<a href="#2563" id="2563">2563</a>
+<a href="#2564" id="2564">2564</a>
+<a href="#2565" id="2565">2565</a>
+<a href="#2566" id="2566">2566</a>
+<a href="#2567" id="2567">2567</a>
+<a href="#2568" id="2568">2568</a>
+<a href="#2569" id="2569">2569</a>
+<a href="#2570" id="2570">2570</a>
+<a href="#2571" id="2571">2571</a>
+<a href="#2572" id="2572">2572</a>
+<a href="#2573" id="2573">2573</a>
+<a href="#2574" id="2574">2574</a>
+<a href="#2575" id="2575">2575</a>
+<a href="#2576" id="2576">2576</a>
+<a href="#2577" id="2577">2577</a>
+<a href="#2578" id="2578">2578</a>
+<a href="#2579" id="2579">2579</a>
+<a href="#2580" id="2580">2580</a>
+<a href="#2581" id="2581">2581</a>
+<a href="#2582" id="2582">2582</a>
+<a href="#2583" id="2583">2583</a>
+<a href="#2584" id="2584">2584</a>
+<a href="#2585" id="2585">2585</a>
+<a href="#2586" id="2586">2586</a>
+<a href="#2587" id="2587">2587</a>
+<a href="#2588" id="2588">2588</a>
+<a href="#2589" id="2589">2589</a>
+<a href="#2590" id="2590">2590</a>
+<a href="#2591" id="2591">2591</a>
+<a href="#2592" id="2592">2592</a>
+<a href="#2593" id="2593">2593</a>
+<a href="#2594" id="2594">2594</a>
+<a href="#2595" id="2595">2595</a>
+<a href="#2596" id="2596">2596</a>
+<a href="#2597" id="2597">2597</a>
+<a href="#2598" id="2598">2598</a>
+<a href="#2599" id="2599">2599</a>
+<a href="#2600" id="2600">2600</a>
+<a href="#2601" id="2601">2601</a>
+<a href="#2602" id="2602">2602</a>
+<a href="#2603" id="2603">2603</a>
+<a href="#2604" id="2604">2604</a>
+<a href="#2605" id="2605">2605</a>
+<a href="#2606" id="2606">2606</a>
+<a href="#2607" id="2607">2607</a>
+<a href="#2608" id="2608">2608</a>
+<a href="#2609" id="2609">2609</a>
+<a href="#2610" id="2610">2610</a>
+<a href="#2611" id="2611">2611</a>
+<a href="#2612" id="2612">2612</a>
+<a href="#2613" id="2613">2613</a>
+<a href="#2614" id="2614">2614</a>
+<a href="#2615" id="2615">2615</a>
+<a href="#2616" id="2616">2616</a>
+<a href="#2617" id="2617">2617</a>
+<a href="#2618" id="2618">2618</a>
+<a href="#2619" id="2619">2619</a>
+<a href="#2620" id="2620">2620</a>
+<a href="#2621" id="2621">2621</a>
+<a href="#2622" id="2622">2622</a>
+<a href="#2623" id="2623">2623</a>
+<a href="#2624" id="2624">2624</a>
+<a href="#2625" id="2625">2625</a>
+<a href="#2626" id="2626">2626</a>
+<a href="#2627" id="2627">2627</a>
+<a href="#2628" id="2628">2628</a>
+<a href="#2629" id="2629">2629</a>
+<a href="#2630" id="2630">2630</a>
+<a href="#2631" id="2631">2631</a>
+<a href="#2632" id="2632">2632</a>
+<a href="#2633" id="2633">2633</a>
+<a href="#2634" id="2634">2634</a>
+<a href="#2635" id="2635">2635</a>
+<a href="#2636" id="2636">2636</a>
+<a href="#2637" id="2637">2637</a>
+<a href="#2638" id="2638">2638</a>
+<a href="#2639" id="2639">2639</a>
+<a href="#2640" id="2640">2640</a>
+<a href="#2641" id="2641">2641</a>
+<a href="#2642" id="2642">2642</a>
+<a href="#2643" id="2643">2643</a>
+<a href="#2644" id="2644">2644</a>
+<a href="#2645" id="2645">2645</a>
+<a href="#2646" id="2646">2646</a>
+<a href="#2647" id="2647">2647</a>
+<a href="#2648" id="2648">2648</a>
+<a href="#2649" id="2649">2649</a>
+<a href="#2650" id="2650">2650</a>
+<a href="#2651" id="2651">2651</a>
+<a href="#2652" id="2652">2652</a>
+<a href="#2653" id="2653">2653</a>
+<a href="#2654" id="2654">2654</a>
+<a href="#2655" id="2655">2655</a>
+<a href="#2656" id="2656">2656</a>
+<a href="#2657" id="2657">2657</a>
+<a href="#2658" id="2658">2658</a>
+<a href="#2659" id="2659">2659</a>
+<a href="#2660" id="2660">2660</a>
+<a href="#2661" id="2661">2661</a>
+<a href="#2662" id="2662">2662</a>
+<a href="#2663" id="2663">2663</a>
+<a href="#2664" id="2664">2664</a>
+<a href="#2665" id="2665">2665</a>
+<a href="#2666" id="2666">2666</a>
+<a href="#2667" id="2667">2667</a>
+<a href="#2668" id="2668">2668</a>
+<a href="#2669" id="2669">2669</a>
+<a href="#2670" id="2670">2670</a>
+<a href="#2671" id="2671">2671</a>
+<a href="#2672" id="2672">2672</a>
+<a href="#2673" id="2673">2673</a>
+<a href="#2674" id="2674">2674</a>
+<a href="#2675" id="2675">2675</a>
+<a href="#2676" id="2676">2676</a>
+<a href="#2677" id="2677">2677</a>
+<a href="#2678" id="2678">2678</a>
+<a href="#2679" id="2679">2679</a>
+<a href="#2680" id="2680">2680</a>
+<a href="#2681" id="2681">2681</a>
+<a href="#2682" id="2682">2682</a>
+<a href="#2683" id="2683">2683</a>
+<a href="#2684" id="2684">2684</a>
+<a href="#2685" id="2685">2685</a>
+<a href="#2686" id="2686">2686</a>
+<a href="#2687" id="2687">2687</a>
+<a href="#2688" id="2688">2688</a>
+<a href="#2689" id="2689">2689</a>
+<a href="#2690" id="2690">2690</a>
+<a href="#2691" id="2691">2691</a>
+<a href="#2692" id="2692">2692</a>
+<a href="#2693" id="2693">2693</a>
+<a href="#2694" id="2694">2694</a>
+<a href="#2695" id="2695">2695</a>
+<a href="#2696" id="2696">2696</a>
+<a href="#2697" id="2697">2697</a>
+<a href="#2698" id="2698">2698</a>
+<a href="#2699" id="2699">2699</a>
+<a href="#2700" id="2700">2700</a>
+<a href="#2701" id="2701">2701</a>
+<a href="#2702" id="2702">2702</a>
+<a href="#2703" id="2703">2703</a>
+<a href="#2704" id="2704">2704</a>
+<a href="#2705" id="2705">2705</a>
+<a href="#2706" id="2706">2706</a>
+<a href="#2707" id="2707">2707</a>
+<a href="#2708" id="2708">2708</a>
+<a href="#2709" id="2709">2709</a>
+<a href="#2710" id="2710">2710</a>
+<a href="#2711" id="2711">2711</a>
+<a href="#2712" id="2712">2712</a>
+<a href="#2713" id="2713">2713</a>
+<a href="#2714" id="2714">2714</a>
+<a href="#2715" id="2715">2715</a>
+<a href="#2716" id="2716">2716</a>
+<a href="#2717" id="2717">2717</a>
+<a href="#2718" id="2718">2718</a>
+<a href="#2719" id="2719">2719</a>
+<a href="#2720" id="2720">2720</a>
+<a href="#2721" id="2721">2721</a>
+<a href="#2722" id="2722">2722</a>
+<a href="#2723" id="2723">2723</a>
+<a href="#2724" id="2724">2724</a>
+<a href="#2725" id="2725">2725</a>
+<a href="#2726" id="2726">2726</a>
+<a href="#2727" id="2727">2727</a>
+<a href="#2728" id="2728">2728</a>
+<a href="#2729" id="2729">2729</a>
+<a href="#2730" id="2730">2730</a>
+<a href="#2731" id="2731">2731</a>
+<a href="#2732" id="2732">2732</a>
+<a href="#2733" id="2733">2733</a>
+<a href="#2734" id="2734">2734</a>
+<a href="#2735" id="2735">2735</a>
+<a href="#2736" id="2736">2736</a>
+<a href="#2737" id="2737">2737</a>
+<a href="#2738" id="2738">2738</a>
+<a href="#2739" id="2739">2739</a>
+<a href="#2740" id="2740">2740</a>
+<a href="#2741" id="2741">2741</a>
+<a href="#2742" id="2742">2742</a>
+<a href="#2743" id="2743">2743</a>
+<a href="#2744" id="2744">2744</a>
+<a href="#2745" id="2745">2745</a>
+<a href="#2746" id="2746">2746</a>
+<a href="#2747" id="2747">2747</a>
+<a href="#2748" id="2748">2748</a>
+<a href="#2749" id="2749">2749</a>
+<a href="#2750" id="2750">2750</a>
+<a href="#2751" id="2751">2751</a>
+<a href="#2752" id="2752">2752</a>
+<a href="#2753" id="2753">2753</a>
+<a href="#2754" id="2754">2754</a>
+<a href="#2755" id="2755">2755</a>
+<a href="#2756" id="2756">2756</a>
+<a href="#2757" id="2757">2757</a>
+<a href="#2758" id="2758">2758</a>
+<a href="#2759" id="2759">2759</a>
+<a href="#2760" id="2760">2760</a>
+<a href="#2761" id="2761">2761</a>
+<a href="#2762" id="2762">2762</a>
+<a href="#2763" id="2763">2763</a>
+<a href="#2764" id="2764">2764</a>
+<a href="#2765" id="2765">2765</a>
+<a href="#2766" id="2766">2766</a>
+<a href="#2767" id="2767">2767</a>
+<a href="#2768" id="2768">2768</a>
+<a href="#2769" id="2769">2769</a>
+<a href="#2770" id="2770">2770</a>
+<a href="#2771" id="2771">2771</a>
+<a href="#2772" id="2772">2772</a>
+<a href="#2773" id="2773">2773</a>
+<a href="#2774" id="2774">2774</a>
+<a href="#2775" id="2775">2775</a>
+<a href="#2776" id="2776">2776</a>
+<a href="#2777" id="2777">2777</a>
+<a href="#2778" id="2778">2778</a>
+<a href="#2779" id="2779">2779</a>
+<a href="#2780" id="2780">2780</a>
+<a href="#2781" id="2781">2781</a>
+<a href="#2782" id="2782">2782</a>
+<a href="#2783" id="2783">2783</a>
+<a href="#2784" id="2784">2784</a>
+<a href="#2785" id="2785">2785</a>
+<a href="#2786" id="2786">2786</a>
+<a href="#2787" id="2787">2787</a>
+<a href="#2788" id="2788">2788</a>
+<a href="#2789" id="2789">2789</a>
+<a href="#2790" id="2790">2790</a>
+<a href="#2791" id="2791">2791</a>
+<a href="#2792" id="2792">2792</a>
+<a href="#2793" id="2793">2793</a>
+<a href="#2794" id="2794">2794</a>
+<a href="#2795" id="2795">2795</a>
+<a href="#2796" id="2796">2796</a>
+<a href="#2797" id="2797">2797</a>
+<a href="#2798" id="2798">2798</a>
+<a href="#2799" id="2799">2799</a>
+<a href="#2800" id="2800">2800</a>
+<a href="#2801" id="2801">2801</a>
+<a href="#2802" id="2802">2802</a>
+<a href="#2803" id="2803">2803</a>
+<a href="#2804" id="2804">2804</a>
+<a href="#2805" id="2805">2805</a>
+<a href="#2806" id="2806">2806</a>
+<a href="#2807" id="2807">2807</a>
+<a href="#2808" id="2808">2808</a>
+<a href="#2809" id="2809">2809</a>
+<a href="#2810" id="2810">2810</a>
+<a href="#2811" id="2811">2811</a>
+<a href="#2812" id="2812">2812</a>
+<a href="#2813" id="2813">2813</a>
+<a href="#2814" id="2814">2814</a>
+<a href="#2815" id="2815">2815</a>
+<a href="#2816" id="2816">2816</a>
+<a href="#2817" id="2817">2817</a>
+<a href="#2818" id="2818">2818</a>
+<a href="#2819" id="2819">2819</a>
+<a href="#2820" id="2820">2820</a>
+<a href="#2821" id="2821">2821</a>
+<a href="#2822" id="2822">2822</a>
+<a href="#2823" id="2823">2823</a>
+<a href="#2824" id="2824">2824</a>
+<a href="#2825" id="2825">2825</a>
+<a href="#2826" id="2826">2826</a>
+<a href="#2827" id="2827">2827</a>
+<a href="#2828" id="2828">2828</a>
+<a href="#2829" id="2829">2829</a>
+<a href="#2830" id="2830">2830</a>
+<a href="#2831" id="2831">2831</a>
+<a href="#2832" id="2832">2832</a>
+<a href="#2833" id="2833">2833</a>
+<a href="#2834" id="2834">2834</a>
+<a href="#2835" id="2835">2835</a>
+<a href="#2836" id="2836">2836</a>
+<a href="#2837" id="2837">2837</a>
+<a href="#2838" id="2838">2838</a>
+<a href="#2839" id="2839">2839</a>
+<a href="#2840" id="2840">2840</a>
+<a href="#2841" id="2841">2841</a>
+<a href="#2842" id="2842">2842</a>
+<a href="#2843" id="2843">2843</a>
+<a href="#2844" id="2844">2844</a>
+<a href="#2845" id="2845">2845</a>
+<a href="#2846" id="2846">2846</a>
+<a href="#2847" id="2847">2847</a>
+<a href="#2848" id="2848">2848</a>
+<a href="#2849" id="2849">2849</a>
+<a href="#2850" id="2850">2850</a>
+<a href="#2851" id="2851">2851</a>
+<a href="#2852" id="2852">2852</a>
+<a href="#2853" id="2853">2853</a>
+<a href="#2854" id="2854">2854</a>
+<a href="#2855" id="2855">2855</a>
+<a href="#2856" id="2856">2856</a>
+<a href="#2857" id="2857">2857</a>
+<a href="#2858" id="2858">2858</a>
+<a href="#2859" id="2859">2859</a>
+<a href="#2860" id="2860">2860</a>
+<a href="#2861" id="2861">2861</a>
+<a href="#2862" id="2862">2862</a>
+<a href="#2863" id="2863">2863</a>
+<a href="#2864" id="2864">2864</a>
+<a href="#2865" id="2865">2865</a>
+<a href="#2866" id="2866">2866</a>
+<a href="#2867" id="2867">2867</a>
+<a href="#2868" id="2868">2868</a>
+<a href="#2869" id="2869">2869</a>
+<a href="#2870" id="2870">2870</a>
+<a href="#2871" id="2871">2871</a>
+<a href="#2872" id="2872">2872</a>
+<a href="#2873" id="2873">2873</a>
+<a href="#2874" id="2874">2874</a>
+<a href="#2875" id="2875">2875</a>
+<a href="#2876" id="2876">2876</a>
+<a href="#2877" id="2877">2877</a>
+<a href="#2878" id="2878">2878</a>
+<a href="#2879" id="2879">2879</a>
+<a href="#2880" id="2880">2880</a>
+<a href="#2881" id="2881">2881</a>
+<a href="#2882" id="2882">2882</a>
+<a href="#2883" id="2883">2883</a>
+<a href="#2884" id="2884">2884</a>
+<a href="#2885" id="2885">2885</a>
+<a href="#2886" id="2886">2886</a>
+<a href="#2887" id="2887">2887</a>
+<a href="#2888" id="2888">2888</a>
+<a href="#2889" id="2889">2889</a>
+<a href="#2890" id="2890">2890</a>
+<a href="#2891" id="2891">2891</a>
+<a href="#2892" id="2892">2892</a>
+<a href="#2893" id="2893">2893</a>
+<a href="#2894" id="2894">2894</a>
+<a href="#2895" id="2895">2895</a>
+<a href="#2896" id="2896">2896</a>
+<a href="#2897" id="2897">2897</a>
+<a href="#2898" id="2898">2898</a>
+<a href="#2899" id="2899">2899</a>
+<a href="#2900" id="2900">2900</a>
+<a href="#2901" id="2901">2901</a>
+<a href="#2902" id="2902">2902</a>
+<a href="#2903" id="2903">2903</a>
+<a href="#2904" id="2904">2904</a>
+<a href="#2905" id="2905">2905</a>
+<a href="#2906" id="2906">2906</a>
+<a href="#2907" id="2907">2907</a>
+<a href="#2908" id="2908">2908</a>
+<a href="#2909" id="2909">2909</a>
+<a href="#2910" id="2910">2910</a>
+<a href="#2911" id="2911">2911</a>
+<a href="#2912" id="2912">2912</a>
+<a href="#2913" id="2913">2913</a>
+<a href="#2914" id="2914">2914</a>
+<a href="#2915" id="2915">2915</a>
+<a href="#2916" id="2916">2916</a>
+<a href="#2917" id="2917">2917</a>
+<a href="#2918" id="2918">2918</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::convert::TryInto;
 <span class="kw">use </span>std::error;
 <span class="kw">use </span>std::fmt;
@@ -2221,12 +2927,13 @@
 <span class="kw">use </span><span class="kw">super</span>::zlib::ZlibStream;
 <span class="kw">use </span><span class="kw">crate</span>::chunk::{<span class="self">self</span>, ChunkType, IDAT, IEND, IHDR};
 <span class="kw">use </span><span class="kw">crate</span>::common::{
-    AnimationControl, BitDepth, BlendOp, ColorType, DisposeOp, FrameControl, Info, ParameterError,
-    PixelDimensions, ScaledFloat, SourceChromaticities, Unit,
+    AnimationControl, BitDepth, BlendOp, ColorType, ContentLightLevelInfo, DisposeOp, FrameControl,
+    Info, MasteringDisplayColorVolume, ParameterError, ParameterErrorKind, PixelDimensions,
+    ScaledFloat, SourceChromaticities, Unit,
 };
 <span class="kw">use </span><span class="kw">crate</span>::text_metadata::{ITXtChunk, TEXtChunk, TextDecodingError, ZTXtChunk};
 <span class="kw">use </span><span class="kw">crate</span>::traits::ReadBytesExt;
-<span class="kw">use </span><span class="kw">crate</span>::Limits;
+<span class="kw">use crate</span>::{CodingIndependentCodePoints, Limits};
 
 <span class="doccomment">/// TODO check if these size are reasonable
 </span><span class="kw">pub const </span>CHUNK_BUFFER_SIZE: usize = <span class="number">32 </span>* <span class="number">1024</span>;
@@ -2378,9 +3085,7 @@
     <span class="doccomment">/// Not a PNG, the magic signature is missing.
     </span>InvalidSignature,
     <span class="comment">// Errors of chunk level ordering, missing etc.
-    </span><span class="doccomment">/// Ihdr must occur.
-    </span>MissingIhdr,
-    <span class="doccomment">/// Fctl must occur if an animated chunk occurs.
+    </span><span class="doccomment">/// Fctl must occur if an animated chunk occurs.
     </span>MissingFctl,
     <span class="doccomment">/// Image data that was indicated in IHDR or acTL is missing.
     </span>MissingImageData,
@@ -2390,6 +3095,10 @@
     },
     <span class="doccomment">/// 4.3., some chunks must be before IDAT.
     </span>AfterIdat {
+        kind: ChunkType,
+    },
+    <span class="comment">// 4.3., Some chunks must be after PLTE.
+    </span>BeforePlte {
         kind: ChunkType,
     },
     <span class="doccomment">/// 4.3., some chunks must be before PLTE.
@@ -2416,6 +3125,16 @@
     </span>ShortPalette {
         expected: usize,
         len: usize,
+    },
+    <span class="doccomment">/// sBIT chunk size based on color type.
+    </span>InvalidSbitChunkSize {
+        color_type: ColorType,
+        expected: usize,
+        len: usize,
+    },
+    InvalidSbit {
+        sample_depth: BitDepth,
+        sbit: u8,
     },
     <span class="doccomment">/// A palletized image did not have a palette.
     </span>PaletteRequired,
@@ -2503,11 +3222,11 @@
                 <span class="string">"CRC error: expected 0x{:x} have 0x{:x} while decoding {:?} chunk."</span>,
                 crc_val, crc_sum, chunk
             ),
-            MissingIhdr =&gt; <span class="macro">write!</span>(fmt, <span class="string">"IHDR chunk missing"</span>),
             MissingFctl =&gt; <span class="macro">write!</span>(fmt, <span class="string">"fcTL chunk missing before fdAT chunk."</span>),
             MissingImageData =&gt; <span class="macro">write!</span>(fmt, <span class="string">"IDAT or fdAT chunk is missing."</span>),
             ChunkBeforeIhdr { kind } =&gt; <span class="macro">write!</span>(fmt, <span class="string">"{:?} chunk appeared before IHDR chunk"</span>, kind),
             AfterIdat { kind } =&gt; <span class="macro">write!</span>(fmt, <span class="string">"Chunk {:?} is invalid after IDAT chunk."</span>, kind),
+            BeforePlte { kind } =&gt; <span class="macro">write!</span>(fmt, <span class="string">"Chunk {:?} is invalid before PLTE chunk."</span>, kind),
             AfterPlte { kind } =&gt; <span class="macro">write!</span>(fmt, <span class="string">"Chunk {:?} is invalid after PLTE chunk."</span>, kind),
             OutsidePlteIdat { kind } =&gt; <span class="macro">write!</span>(
                 fmt,
@@ -2524,6 +3243,16 @@
                 fmt,
                 <span class="string">"Not enough palette entries, expect {} got {}."</span>,
                 expected, len
+            ),
+            InvalidSbitChunkSize {color_type, expected, len} =&gt; <span class="macro">write!</span>(
+                fmt,
+                <span class="string">"The size of the sBIT chunk should be {} byte(s), but {} byte(s) were provided for the {:?} color type."</span>,
+                expected, len, color_type
+            ),
+            InvalidSbit {sample_depth, sbit} =&gt; <span class="macro">write!</span>(
+                fmt,
+                <span class="string">"Invalid sBIT value {}. It must be greater than zero and less than the sample depth {:?}."</span>,
+                sbit, sample_depth
             ),
             PaletteRequired =&gt; <span class="macro">write!</span>(fmt, <span class="string">"Missing palette of indexed image."</span>),
             InvalidDimensions =&gt; <span class="macro">write!</span>(fmt, <span class="string">"Invalid image dimensions"</span>),
@@ -2839,15 +3568,24 @@
         <span class="kw-2">mut </span>buf: <span class="kw-2">&amp;</span>[u8],
         image_data: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(usize, Decoded), DecodingError&gt; {
+        <span class="kw">if </span><span class="self">self</span>.state.is_none() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::Parameter(
+                ParameterErrorKind::PolledAfterFatalError.into(),
+            ));
+        }
+
         <span class="kw">let </span>len = buf.len();
-        <span class="kw">while </span>!buf.is_empty() &amp;&amp; <span class="self">self</span>.state.is_some() {
+        <span class="kw">while </span>!buf.is_empty() {
             <span class="kw">match </span><span class="self">self</span>.next_state(buf, image_data) {
                 <span class="prelude-val">Ok</span>((bytes, Decoded::Nothing)) =&gt; buf = <span class="kw-2">&amp;</span>buf[bytes..],
                 <span class="prelude-val">Ok</span>((bytes, result)) =&gt; {
                     buf = <span class="kw-2">&amp;</span>buf[bytes..];
                     <span class="kw">return </span><span class="prelude-val">Ok</span>((len - buf.len(), result));
                 }
-                <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(err),
+                <span class="prelude-val">Err</span>(err) =&gt; {
+                    <span class="macro">debug_assert!</span>(<span class="self">self</span>.state.is_none());
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(err);
+                }
             }
         }
         <span class="prelude-val">Ok</span>((len - buf.len(), Decoded::Nothing))
@@ -3078,10 +3816,11 @@
                 };
 
                 <span class="kw">if </span>val == sum || CHECKSUM_DISABLED {
-                    <span class="self">self</span>.state = <span class="prelude-val">Some</span>(State::new_u32(U32ValueKind::Length));
                     <span class="kw">if </span>type_str == IEND {
+                        <span class="macro">debug_assert!</span>(<span class="self">self</span>.state.is_none());
                         <span class="prelude-val">Ok</span>(Decoded::ImageEnd)
                     } <span class="kw">else </span>{
+                        <span class="self">self</span>.state = <span class="prelude-val">Some</span>(State::new_u32(U32ValueKind::Length));
                         <span class="prelude-val">Ok</span>(Decoded::ChunkComplete(val, type_str))
                     }
                 } <span class="kw">else if </span><span class="self">self</span>.decode_options.skip_ancillary_crc_failures
@@ -3155,6 +3894,7 @@
         <span class="self">self</span>.state = <span class="prelude-val">Some</span>(State::new_u32(U32ValueKind::Crc(type_str)));
         <span class="kw">let </span>parse_result = <span class="kw">match </span>type_str {
             IHDR =&gt; <span class="self">self</span>.parse_ihdr(),
+            chunk::sBIT =&gt; <span class="self">self</span>.parse_sbit(),
             chunk::PLTE =&gt; <span class="self">self</span>.parse_plte(),
             chunk::tRNS =&gt; <span class="self">self</span>.parse_trns(),
             chunk::pHYs =&gt; <span class="self">self</span>.parse_phys(),
@@ -3163,6 +3903,10 @@
             chunk::fcTL =&gt; <span class="self">self</span>.parse_fctl(),
             chunk::cHRM =&gt; <span class="self">self</span>.parse_chrm(),
             chunk::sRGB =&gt; <span class="self">self</span>.parse_srgb(),
+            chunk::cICP =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.parse_cicp()),
+            chunk::mDCV =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.parse_mdcv()),
+            chunk::cLLI =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.parse_clli()),
+            chunk::bKGD =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.parse_bkgd()),
             chunk::iCCP <span class="kw">if </span>!<span class="self">self</span>.decode_options.ignore_iccp_chunk =&gt; <span class="self">self</span>.parse_iccp(),
             chunk::tEXt <span class="kw">if </span>!<span class="self">self</span>.decode_options.ignore_text_chunk =&gt; <span class="self">self</span>.parse_text(),
             chunk::zTXt <span class="kw">if </span>!<span class="self">self</span>.decode_options.ignore_text_chunk =&gt; <span class="self">self</span>.parse_ztxt(),
@@ -3170,7 +3914,7 @@
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(Decoded::PartialChunk(type_str)),
         };
 
-        <span class="kw">let </span>parse_result = parse_result.map_err(|e| {
+        parse_result.map_err(|e| {
             <span class="self">self</span>.state = <span class="prelude-val">None</span>;
             <span class="kw">match </span>e {
                 <span class="comment">// `parse_chunk` is invoked after gathering **all** bytes of a chunk, so
@@ -3184,9 +3928,7 @@
                 }
                 e =&gt; e,
             }
-        });
-
-        parse_result
+        })
     }
 
     <span class="kw">fn </span>parse_fctl(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Decoded, DecodingError&gt; {
@@ -3286,6 +4028,78 @@
         }
     }
 
+    <span class="kw">fn </span>parse_sbit(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Decoded, DecodingError&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>parse = || {
+            <span class="kw">let </span>info = <span class="self">self</span>.info.as_mut().unwrap();
+            <span class="kw">if </span>info.palette.is_some() {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::Format(
+                    FormatErrorInner::AfterPlte { kind: chunk::sBIT }.into(),
+                ));
+            }
+
+            <span class="kw">if </span><span class="self">self</span>.have_idat {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::Format(
+                    FormatErrorInner::AfterIdat { kind: chunk::sBIT }.into(),
+                ));
+            }
+
+            <span class="kw">if </span>info.sbit.is_some() {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::Format(
+                    FormatErrorInner::DuplicateChunk { kind: chunk::sBIT }.into(),
+                ));
+            }
+
+            <span class="kw">let </span>(color_type, bit_depth) = { (info.color_type, info.bit_depth) };
+            <span class="comment">// The sample depth for color type 3 is fixed at eight bits.
+            </span><span class="kw">let </span>sample_depth = <span class="kw">if </span>color_type == ColorType::Indexed {
+                BitDepth::Eight
+            } <span class="kw">else </span>{
+                bit_depth
+            };
+            <span class="self">self</span>.limits
+                .reserve_bytes(<span class="self">self</span>.current_chunk.raw_bytes.len())<span class="question-mark">?</span>;
+            <span class="kw">let </span>vec = <span class="self">self</span>.current_chunk.raw_bytes.clone();
+            <span class="kw">let </span>len = vec.len();
+
+            <span class="comment">// expected lenth of the chunk
+            </span><span class="kw">let </span>expected = <span class="kw">match </span>color_type {
+                ColorType::Grayscale =&gt; <span class="number">1</span>,
+                ColorType::Rgb | ColorType::Indexed =&gt; <span class="number">3</span>,
+                ColorType::GrayscaleAlpha =&gt; <span class="number">2</span>,
+                ColorType::Rgba =&gt; <span class="number">4</span>,
+            };
+
+            <span class="comment">// Check if the sbit chunk size is valid.
+            </span><span class="kw">if </span>expected != len {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::Format(
+                    FormatErrorInner::InvalidSbitChunkSize {
+                        color_type,
+                        expected,
+                        len,
+                    }
+                    .into(),
+                ));
+            }
+
+            <span class="kw">for </span>sbit <span class="kw">in </span><span class="kw-2">&amp;</span>vec {
+                <span class="kw">if </span><span class="kw-2">*</span>sbit &lt; <span class="number">1 </span>|| <span class="kw-2">*</span>sbit &gt; sample_depth <span class="kw">as </span>u8 {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::Format(
+                        FormatErrorInner::InvalidSbit {
+                            sample_depth,
+                            sbit: <span class="kw-2">*</span>sbit,
+                        }
+                        .into(),
+                    ));
+                }
+            }
+            info.sbit = <span class="prelude-val">Some</span>(Cow::Owned(vec));
+            <span class="prelude-val">Ok</span>(Decoded::Nothing)
+        };
+
+        parse().ok();
+        <span class="prelude-val">Ok</span>(Decoded::Nothing)
+    }
+
     <span class="kw">fn </span>parse_trns(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Decoded, DecodingError&gt; {
         <span class="kw">let </span>info = <span class="self">self</span>.info.as_mut().unwrap();
         <span class="kw">if </span>info.trns.is_some() {
@@ -3332,7 +4146,7 @@
                 // before the data chunk.
                 </span><span class="kw">if </span>info.palette.is_none() {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::Format(
-                        FormatErrorInner::AfterPlte { kind: chunk::tRNS }.into(),
+                        FormatErrorInner::BeforePlte { kind: chunk::tRNS }.into(),
                     ));
                 } <span class="kw">else if </span><span class="self">self</span>.have_idat {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::Format(
@@ -3478,6 +4292,130 @@
         }
     }
 
+    <span class="comment">// NOTE: This function cannot return `DecodingError` and handles parsing
+    // errors or spec violations as-if the chunk was missing.  See
+    // https://github.com/image-rs/image-png/issues/525 for more discussion.
+    </span><span class="kw">fn </span>parse_cicp(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Decoded {
+        <span class="kw">fn </span>parse(<span class="kw-2">mut </span>buf: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;CodingIndependentCodePoints, std::io::Error&gt; {
+            <span class="kw">let </span>color_primaries: u8 = buf.read_be()<span class="question-mark">?</span>;
+            <span class="kw">let </span>transfer_function: u8 = buf.read_be()<span class="question-mark">?</span>;
+            <span class="kw">let </span>matrix_coefficients: u8 = buf.read_be()<span class="question-mark">?</span>;
+            <span class="kw">let </span>is_video_full_range_image = {
+                <span class="kw">let </span>flag: u8 = buf.read_be()<span class="question-mark">?</span>;
+                <span class="kw">match </span>flag {
+                    <span class="number">0 </span>=&gt; <span class="bool-val">false</span>,
+                    <span class="number">1 </span>=&gt; <span class="bool-val">true</span>,
+                    <span class="kw">_ </span>=&gt; {
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(std::io::ErrorKind::InvalidData.into());
+                    }
+                }
+            };
+
+            <span class="comment">// RGB is currently the only supported color model in PNG, and as
+            // such Matrix Coefficients shall be set to 0.
+            </span><span class="kw">if </span>matrix_coefficients != <span class="number">0 </span>{
+                <span class="kw">return </span><span class="prelude-val">Err</span>(std::io::ErrorKind::InvalidData.into());
+            }
+
+            <span class="kw">if </span>!buf.is_empty() {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(std::io::ErrorKind::InvalidData.into());
+            }
+
+            <span class="prelude-val">Ok</span>(CodingIndependentCodePoints {
+                color_primaries,
+                transfer_function,
+                matrix_coefficients,
+                is_video_full_range_image,
+            })
+        }
+
+        <span class="comment">// The spec requires that the cICP chunk MUST come before the PLTE and IDAT chunks.
+        // Additionally, we ignore a second, duplicated cICP chunk (if any).
+        </span><span class="kw">let </span>info = <span class="self">self</span>.info.as_mut().unwrap();
+        <span class="kw">let </span>is_before_plte_and_idat = !<span class="self">self</span>.have_idat &amp;&amp; info.palette.is_none();
+        <span class="kw">if </span>is_before_plte_and_idat &amp;&amp; info.coding_independent_code_points.is_none() {
+            info.coding_independent_code_points = parse(<span class="kw-2">&amp;</span><span class="self">self</span>.current_chunk.raw_bytes[..]).ok();
+        }
+
+        Decoded::Nothing
+    }
+
+    <span class="comment">// NOTE: This function cannot return `DecodingError` and handles parsing
+    // errors or spec violations as-if the chunk was missing.  See
+    // https://github.com/image-rs/image-png/issues/525 for more discussion.
+    </span><span class="kw">fn </span>parse_mdcv(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Decoded {
+        <span class="kw">fn </span>parse(<span class="kw-2">mut </span>buf: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;MasteringDisplayColorVolume, std::io::Error&gt; {
+            <span class="kw">let </span>red_x: u16 = buf.read_be()<span class="question-mark">?</span>;
+            <span class="kw">let </span>red_y: u16 = buf.read_be()<span class="question-mark">?</span>;
+            <span class="kw">let </span>green_x: u16 = buf.read_be()<span class="question-mark">?</span>;
+            <span class="kw">let </span>green_y: u16 = buf.read_be()<span class="question-mark">?</span>;
+            <span class="kw">let </span>blue_x: u16 = buf.read_be()<span class="question-mark">?</span>;
+            <span class="kw">let </span>blue_y: u16 = buf.read_be()<span class="question-mark">?</span>;
+            <span class="kw">let </span>white_x: u16 = buf.read_be()<span class="question-mark">?</span>;
+            <span class="kw">let </span>white_y: u16 = buf.read_be()<span class="question-mark">?</span>;
+            <span class="kw">fn </span>scale(chunk: u16) -&gt; ScaledFloat {
+                <span class="comment">// `ScaledFloat::SCALING` is hardcoded to 100_000, which works
+                // well for the `cHRM` chunk where the spec says that "a value
+                // of 0.3127 would be stored as the integer 31270".  In the
+                // `mDCV` chunk the spec says that "0.708, 0.292)" is stored as
+                // "{ 35400, 14600 }", using a scaling factor of 50_000, so we
+                // multiply by 2 before converting.
+                </span>ScaledFloat::from_scaled((chunk <span class="kw">as </span>u32) * <span class="number">2</span>)
+            }
+            <span class="kw">let </span>chromaticities = SourceChromaticities {
+                white: (scale(white_x), scale(white_y)),
+                red: (scale(red_x), scale(red_y)),
+                green: (scale(green_x), scale(green_y)),
+                blue: (scale(blue_x), scale(blue_y)),
+            };
+            <span class="kw">let </span>max_luminance: u32 = buf.read_be()<span class="question-mark">?</span>;
+            <span class="kw">let </span>min_luminance: u32 = buf.read_be()<span class="question-mark">?</span>;
+            <span class="kw">if </span>!buf.is_empty() {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(std::io::ErrorKind::InvalidData.into());
+            }
+            <span class="prelude-val">Ok</span>(MasteringDisplayColorVolume {
+                chromaticities,
+                max_luminance,
+                min_luminance,
+            })
+        }
+
+        <span class="comment">// The spec requires that the mDCV chunk MUST come before the PLTE and IDAT chunks.
+        // Additionally, we ignore a second, duplicated mDCV chunk (if any).
+        </span><span class="kw">let </span>info = <span class="self">self</span>.info.as_mut().unwrap();
+        <span class="kw">let </span>is_before_plte_and_idat = !<span class="self">self</span>.have_idat &amp;&amp; info.palette.is_none();
+        <span class="kw">if </span>is_before_plte_and_idat &amp;&amp; info.mastering_display_color_volume.is_none() {
+            info.mastering_display_color_volume = parse(<span class="kw-2">&amp;</span><span class="self">self</span>.current_chunk.raw_bytes[..]).ok();
+        }
+
+        Decoded::Nothing
+    }
+
+    <span class="comment">// NOTE: This function cannot return `DecodingError` and handles parsing
+    // errors or spec violations as-if the chunk was missing.  See
+    // https://github.com/image-rs/image-png/issues/525 for more discussion.
+    </span><span class="kw">fn </span>parse_clli(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Decoded {
+        <span class="kw">fn </span>parse(<span class="kw-2">mut </span>buf: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;ContentLightLevelInfo, std::io::Error&gt; {
+            <span class="kw">let </span>max_content_light_level: u32 = buf.read_be()<span class="question-mark">?</span>;
+            <span class="kw">let </span>max_frame_average_light_level: u32 = buf.read_be()<span class="question-mark">?</span>;
+            <span class="kw">if </span>!buf.is_empty() {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(std::io::ErrorKind::InvalidData.into());
+            }
+            <span class="prelude-val">Ok</span>(ContentLightLevelInfo {
+                max_content_light_level,
+                max_frame_average_light_level,
+            })
+        }
+
+        <span class="comment">// We ignore a second, duplicated cLLI chunk (if any).
+        </span><span class="kw">let </span>info = <span class="self">self</span>.info.as_mut().unwrap();
+        <span class="kw">if </span>info.content_light_level.is_none() {
+            info.content_light_level = parse(<span class="kw-2">&amp;</span><span class="self">self</span>.current_chunk.raw_bytes[..]).ok();
+        }
+
+        Decoded::Nothing
+    }
+
     <span class="kw">fn </span>parse_iccp(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Decoded, DecodingError&gt; {
         <span class="kw">if </span><span class="self">self</span>.have_idat {
             <span class="prelude-val">Err</span>(DecodingError::Format(
@@ -3508,9 +4446,11 @@
         <span class="kw">let </span><span class="kw-2">mut </span>buf = <span class="kw-2">&amp;</span><span class="self">self</span>.current_chunk.raw_bytes[..];
 
         <span class="comment">// read profile name
-        </span><span class="kw">let _</span>: u8 = buf.read_be()<span class="question-mark">?</span>;
-        <span class="kw">for _ in </span><span class="number">1</span>..<span class="number">80 </span>{
+        </span><span class="kw">for </span>len <span class="kw">in </span><span class="number">0</span>..=<span class="number">80 </span>{
             <span class="kw">let </span>raw: u8 = buf.read_be()<span class="question-mark">?</span>;
+            <span class="kw">if </span>(raw == <span class="number">0 </span>&amp;&amp; len == <span class="number">0</span>) || (raw != <span class="number">0 </span>&amp;&amp; len == <span class="number">80</span>) {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::from(TextDecodingError::InvalidKeywordSize));
+            }
             <span class="kw">if </span>raw == <span class="number">0 </span>{
                 <span class="kw">break</span>;
             }
@@ -3735,6 +4675,32 @@
 
         <span class="prelude-val">Ok</span>(Decoded::Nothing)
     }
+
+    <span class="comment">// NOTE: This function cannot return `DecodingError` and handles parsing
+    // errors or spec violations as-if the chunk was missing.  See
+    // https://github.com/image-rs/image-png/issues/525 for more discussion.
+    </span><span class="kw">fn </span>parse_bkgd(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Decoded {
+        <span class="kw">let </span>info = <span class="self">self</span>.info.as_mut().unwrap();
+        <span class="kw">if </span>info.bkgd.is_none() &amp;&amp; !<span class="self">self</span>.have_idat {
+            <span class="kw">let </span>expected = <span class="kw">match </span>info.color_type {
+                ColorType::Indexed =&gt; {
+                    <span class="kw">if </span>info.palette.is_none() {
+                        <span class="kw">return </span>Decoded::Nothing;
+                    };
+                    <span class="number">1
+                </span>}
+                ColorType::Grayscale | ColorType::GrayscaleAlpha =&gt; <span class="number">2</span>,
+                ColorType::Rgb | ColorType::Rgba =&gt; <span class="number">6</span>,
+            };
+            <span class="kw">let </span>vec = <span class="self">self</span>.current_chunk.raw_bytes.clone();
+            <span class="kw">let </span>len = vec.len();
+            <span class="kw">if </span>len == expected {
+                info.bkgd = <span class="prelude-val">Some</span>(Cow::Owned(vec));
+            }
+        }
+
+        Decoded::Nothing
+    }
 }
 
 <span class="kw">impl </span>Info&lt;<span class="lifetime">'_</span>&gt; {
@@ -3784,8 +4750,11 @@
     <span class="kw">use </span><span class="kw">super</span>::SourceChromaticities;
     <span class="kw">use </span><span class="kw">crate</span>::test_utils::<span class="kw-2">*</span>;
     <span class="kw">use crate</span>::{Decoder, DecodingError, Reader};
+    <span class="kw">use </span>approx::assert_relative_eq;
     <span class="kw">use </span>byteorder::WriteBytesExt;
+    <span class="kw">use </span>std::borrow::Cow;
     <span class="kw">use </span>std::cell::RefCell;
+    <span class="kw">use </span>std::collections::VecDeque;
     <span class="kw">use </span>std::fs::File;
     <span class="kw">use </span>std::io::{ErrorKind, Read, Write};
     <span class="kw">use </span>std::rc::Rc;
@@ -4018,6 +4987,28 @@
         <span class="prelude-val">Ok</span>(())
     }
 
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>image_source_sbit() {
+        <span class="kw">fn </span>trial(path: <span class="kw-2">&amp;</span>str, expected: <span class="prelude-ty">Option</span>&lt;Cow&lt;[u8]&gt;&gt;) {
+            <span class="kw">let </span>decoder = <span class="kw">crate</span>::Decoder::new(File::open(path).unwrap());
+            <span class="kw">let </span>reader = decoder.read_info().unwrap();
+            <span class="kw">let </span>actual: <span class="prelude-ty">Option</span>&lt;Cow&lt;[u8]&gt;&gt; = reader.info().sbit.clone();
+            <span class="macro">assert!</span>(actual == expected);
+        }
+
+        trial(<span class="string">"tests/sbit/g.png"</span>, <span class="prelude-val">Some</span>(Cow::Owned(<span class="macro">vec!</span>[<span class="number">5u8</span>])));
+        trial(<span class="string">"tests/sbit/ga.png"</span>, <span class="prelude-val">Some</span>(Cow::Owned(<span class="macro">vec!</span>[<span class="number">5u8</span>, <span class="number">3u8</span>])));
+        trial(
+            <span class="string">"tests/sbit/indexed.png"</span>,
+            <span class="prelude-val">Some</span>(Cow::Owned(<span class="macro">vec!</span>[<span class="number">5u8</span>, <span class="number">6u8</span>, <span class="number">5u8</span>])),
+        );
+        trial(<span class="string">"tests/sbit/rgb.png"</span>, <span class="prelude-val">Some</span>(Cow::Owned(<span class="macro">vec!</span>[<span class="number">5u8</span>, <span class="number">6u8</span>, <span class="number">5u8</span>])));
+        trial(
+            <span class="string">"tests/sbit/rgba.png"</span>,
+            <span class="prelude-val">Some</span>(Cow::Owned(<span class="macro">vec!</span>[<span class="number">5u8</span>, <span class="number">6u8</span>, <span class="number">5u8</span>, <span class="number">8u8</span>])),
+        );
+    }
+
     <span class="doccomment">/// Test handling of a PNG file that contains *two* iCCP chunks.
     /// This is a regression test for https://github.com/image-rs/image/issues/1825.
     </span><span class="attr">#[test]
@@ -4038,12 +5029,76 @@
     }
 
     <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_iccp_roundtrip() {
+        <span class="kw">let </span>dummy_icc = <span class="string">b"I'm a profile"</span>;
+
+        <span class="kw">let </span><span class="kw-2">mut </span>info = <span class="kw">crate</span>::Info::with_size(<span class="number">1</span>, <span class="number">1</span>);
+        info.icc_profile = <span class="prelude-val">Some</span>(dummy_icc.into());
+        <span class="kw">let </span><span class="kw-2">mut </span>encoded_image = Vec::new();
+        <span class="kw">let </span>enc = <span class="kw">crate</span>::Encoder::with_info(<span class="kw-2">&amp;mut </span>encoded_image, info).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>enc = enc.write_header().unwrap();
+        enc.write_image_data(<span class="kw-2">&amp;</span>[<span class="number">0</span>]).unwrap();
+        enc.finish().unwrap();
+
+        <span class="kw">let </span>dec = <span class="kw">crate</span>::Decoder::new(encoded_image.as_slice());
+        <span class="kw">let </span>dec = dec.read_info().unwrap();
+        <span class="macro">assert_eq!</span>(dummy_icc, <span class="kw-2">&amp;**</span>dec.info().icc_profile.as_ref().unwrap());
+    }
+
+    <span class="attr">#[test]
     </span><span class="kw">fn </span>test_png_with_broken_iccp() {
         <span class="kw">let </span>decoder = <span class="kw">crate</span>::Decoder::new(File::open(<span class="string">"tests/iccp/broken_iccp.png"</span>).unwrap());
         <span class="macro">assert!</span>(decoder.read_info().is_ok());
         <span class="kw">let </span><span class="kw-2">mut </span>decoder = <span class="kw">crate</span>::Decoder::new(File::open(<span class="string">"tests/iccp/broken_iccp.png"</span>).unwrap());
         decoder.set_ignore_iccp_chunk(<span class="bool-val">true</span>);
         <span class="macro">assert!</span>(decoder.read_info().is_ok());
+    }
+
+    <span class="doccomment">/// Test handling of `mDCV` and `cLLI` chunks.`
+    </span><span class="attr">#[test]
+    </span><span class="kw">fn </span>test_mdcv_and_clli_chunks() {
+        <span class="kw">let </span>decoder = <span class="kw">crate</span>::Decoder::new(File::open(<span class="string">"tests/bugfixes/cicp_pq.png"</span>).unwrap());
+        <span class="kw">let </span>reader = decoder.read_info().unwrap();
+        <span class="kw">let </span>info = reader.info();
+
+        <span class="kw">let </span>cicp = info.coding_independent_code_points.unwrap();
+        <span class="macro">assert_eq!</span>(cicp.color_primaries, <span class="number">9</span>);
+        <span class="macro">assert_eq!</span>(cicp.transfer_function, <span class="number">16</span>);
+        <span class="macro">assert_eq!</span>(cicp.matrix_coefficients, <span class="number">0</span>);
+        <span class="macro">assert!</span>(cicp.is_video_full_range_image);
+
+        <span class="kw">let </span>mdcv = info.mastering_display_color_volume.unwrap();
+        <span class="macro">assert_relative_eq!</span>(mdcv.chromaticities.red.<span class="number">0</span>.into_value(), <span class="number">0.680</span>);
+        <span class="macro">assert_relative_eq!</span>(mdcv.chromaticities.red.<span class="number">1</span>.into_value(), <span class="number">0.320</span>);
+        <span class="macro">assert_relative_eq!</span>(mdcv.chromaticities.green.<span class="number">0</span>.into_value(), <span class="number">0.265</span>);
+        <span class="macro">assert_relative_eq!</span>(mdcv.chromaticities.green.<span class="number">1</span>.into_value(), <span class="number">0.690</span>);
+        <span class="macro">assert_relative_eq!</span>(mdcv.chromaticities.blue.<span class="number">0</span>.into_value(), <span class="number">0.150</span>);
+        <span class="macro">assert_relative_eq!</span>(mdcv.chromaticities.blue.<span class="number">1</span>.into_value(), <span class="number">0.060</span>);
+        <span class="macro">assert_relative_eq!</span>(mdcv.chromaticities.white.<span class="number">0</span>.into_value(), <span class="number">0.3127</span>);
+        <span class="macro">assert_relative_eq!</span>(mdcv.chromaticities.white.<span class="number">1</span>.into_value(), <span class="number">0.3290</span>);
+        <span class="macro">assert_relative_eq!</span>(mdcv.min_luminance <span class="kw">as </span>f32 / <span class="number">10_000.0</span>, <span class="number">0.01</span>);
+        <span class="macro">assert_relative_eq!</span>(mdcv.max_luminance <span class="kw">as </span>f32 / <span class="number">10_000.0</span>, <span class="number">5000.0</span>);
+
+        <span class="kw">let </span>clli = info.content_light_level.unwrap();
+        <span class="macro">assert_relative_eq!</span>(clli.max_content_light_level <span class="kw">as </span>f32 / <span class="number">10_000.0</span>, <span class="number">4000.0</span>);
+        <span class="macro">assert_relative_eq!</span>(clli.max_frame_average_light_level <span class="kw">as </span>f32 / <span class="number">10_000.0</span>, <span class="number">2627.0</span>);
+    }
+
+    <span class="doccomment">/// Tests what happens then [`Reader.finish`] is called twice.
+    </span><span class="attr">#[test]
+    </span><span class="kw">fn </span>test_finishing_twice() {
+        <span class="kw">let </span><span class="kw-2">mut </span>png = Vec::new();
+        write_noncompressed_png(<span class="kw-2">&amp;mut </span>png, <span class="number">16</span>, <span class="number">1024</span>);
+        <span class="kw">let </span>decoder = Decoder::new(png.as_slice());
+        <span class="kw">let </span><span class="kw-2">mut </span>reader = decoder.read_info().unwrap();
+
+        <span class="comment">// First call to `finish` - expecting success.
+        </span>reader.finish().unwrap();
+
+        <span class="comment">// Second call to `finish` - expecting an error.
+        </span><span class="kw">let </span>err = reader.finish().unwrap_err();
+        <span class="macro">assert!</span>(<span class="macro">matches!</span>(<span class="kw-2">&amp;</span>err, DecodingError::Parameter(<span class="kw">_</span>)));
+        <span class="macro">assert_eq!</span>(<span class="string">"End of image has been reached"</span>, <span class="macro">format!</span>(<span class="string">"{err}"</span>));
     }
 
     <span class="doccomment">/// Writes an acTL chunk.
@@ -4130,8 +5185,18 @@
         <span class="comment">// 0-length fdAT should result in an error.
         </span><span class="kw">let </span>err = reader.next_frame(<span class="kw-2">&amp;mut </span>buf).unwrap_err();
         <span class="macro">assert!</span>(<span class="macro">matches!</span>(<span class="kw-2">&amp;</span>err, DecodingError::Format(<span class="kw">_</span>)));
-        <span class="kw">let </span>msg = <span class="macro">format!</span>(<span class="string">"{err}"</span>);
-        <span class="macro">assert_eq!</span>(<span class="string">"fdAT chunk shorter than 4 bytes"</span>, msg);
+        <span class="macro">assert_eq!</span>(<span class="string">"fdAT chunk shorter than 4 bytes"</span>, <span class="macro">format!</span>(<span class="string">"{err}"</span>));
+
+        <span class="comment">// Calling `next_frame` again should return an error.  Same error as above would be nice,
+        // but it is probably unnecessary and infeasible (`DecodingError` can't derive `Clone`
+        // because `std::io::Error` doesn't implement `Clone`)..  But it definitely shouldn't enter
+        // an infinite loop.
+        </span><span class="kw">let </span>err2 = reader.next_frame(<span class="kw-2">&amp;mut </span>buf).unwrap_err();
+        <span class="macro">assert!</span>(<span class="macro">matches!</span>(<span class="kw-2">&amp;</span>err2, DecodingError::Parameter(<span class="kw">_</span>)));
+        <span class="macro">assert_eq!</span>(
+            <span class="string">"A fatal decoding error has been encounted earlier"</span>,
+            <span class="macro">format!</span>(<span class="string">"{err2}"</span>)
+        );
     }
 
     <span class="attr">#[test]
@@ -4148,8 +5213,7 @@
         <span class="comment">// 3-bytes-long fdAT should result in an error.
         </span><span class="kw">let </span>err = reader.next_frame(<span class="kw-2">&amp;mut </span>buf).unwrap_err();
         <span class="macro">assert!</span>(<span class="macro">matches!</span>(<span class="kw-2">&amp;</span>err, DecodingError::Format(<span class="kw">_</span>)));
-        <span class="kw">let </span>msg = <span class="macro">format!</span>(<span class="string">"{err}"</span>);
-        <span class="macro">assert_eq!</span>(<span class="string">"fdAT chunk shorter than 4 bytes"</span>, msg);
+        <span class="macro">assert_eq!</span>(<span class="string">"fdAT chunk shorter than 4 bytes"</span>, <span class="macro">format!</span>(<span class="string">"{err}"</span>));
     }
 
     <span class="attr">#[test]
@@ -4252,7 +5316,31 @@
         <span class="macro">assert_eq!</span>(<span class="number">3093270825</span>, crc32fast::hash(<span class="kw-2">&amp;</span>buf));
     }
 
-    <span class="doccomment">/// `StremingInput` can be used by tests to simulate a streaming input
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_only_idat_chunk_in_input_stream() {
+        <span class="kw">let </span>png = {
+            <span class="kw">let </span><span class="kw-2">mut </span>png = Vec::new();
+            write_png_sig(<span class="kw-2">&amp;mut </span>png);
+            write_chunk(<span class="kw-2">&amp;mut </span>png, <span class="string">b"IDAT"</span>, <span class="kw-2">&amp;</span>[]);
+            png
+        };
+        <span class="kw">let </span>decoder = Decoder::new(png.as_slice());
+        <span class="kw">let </span><span class="prelude-val">Err</span>(err) = decoder.read_info() <span class="kw">else </span>{
+            <span class="macro">panic!</span>(<span class="string">"Expected an error"</span>)
+        };
+        <span class="macro">assert!</span>(<span class="macro">matches!</span>(<span class="kw-2">&amp;</span>err, DecodingError::Format(<span class="kw">_</span>)));
+        <span class="macro">assert_eq!</span>(
+            <span class="string">"ChunkType { type: IDAT, \
+                         critical: true, \
+                         private: false, \
+                         reserved: false, \
+                         safecopy: false \
+             } chunk appeared before IHDR chunk"</span>,
+            <span class="macro">format!</span>(<span class="string">"{err}"</span>),
+        );
+    }
+
+    <span class="doccomment">/// `StreamingInput` can be used by tests to simulate a streaming input
     /// (e.g. a slow http response, where all bytes are not immediately available).
     </span><span class="attr">#[derive(Clone)]
     </span><span class="kw">struct </span>StreamingInput(Rc&lt;RefCell&lt;StreamingInputState&gt;&gt;);
@@ -4419,6 +5507,330 @@
         <span class="macro">assert_eq!</span>(
             info_from_whole_input.interlaced,
             info_from_streaming_input.interlaced
+        );
+    }
+
+    <span class="doccomment">/// Creates a ready-to-test [`Reader`] which decodes a PNG that contains:
+    /// IHDR, IDAT, IEND.
+    </span><span class="kw">fn </span>create_reader_of_ihdr_idat() -&gt; Reader&lt;VecDeque&lt;u8&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>png = VecDeque::new();
+        write_noncompressed_png(<span class="kw-2">&amp;mut </span>png, <span class="comment">/* width = */ </span><span class="number">16</span>, <span class="comment">/* idat_size = */ </span><span class="number">1024</span>);
+        Decoder::new(png).read_info().unwrap()
+    }
+
+    <span class="doccomment">/// Creates a ready-to-test [`Reader`] which decodes an animated PNG that contains:
+    /// IHDR, acTL, fcTL, IDAT, fcTL, fdAT, IEND.  (i.e. IDAT is part of the animation)
+    </span><span class="kw">fn </span>create_reader_of_ihdr_actl_fctl_idat_fctl_fdat() -&gt; Reader&lt;VecDeque&lt;u8&gt;&gt; {
+        <span class="kw">let </span>idat_width = <span class="number">16</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>fctl = <span class="kw">crate</span>::FrameControl {
+            width: idat_width,
+            height: idat_width, <span class="comment">// same height and width
+            </span>..Default::default()
+        };
+
+        <span class="kw">let </span><span class="kw-2">mut </span>png = VecDeque::new();
+        write_png_sig(<span class="kw-2">&amp;mut </span>png);
+        write_rgba8_ihdr_with_width(<span class="kw-2">&amp;mut </span>png, idat_width);
+        write_actl(
+            <span class="kw-2">&amp;mut </span>png,
+            <span class="kw-2">&amp;</span><span class="kw">crate</span>::AnimationControl {
+                num_frames: <span class="number">2</span>,
+                num_plays: <span class="number">0</span>,
+            },
+        );
+        fctl.sequence_number = <span class="number">0</span>;
+        write_fctl(<span class="kw-2">&amp;mut </span>png, <span class="kw-2">&amp;</span>fctl);
+        <span class="comment">// Using `fctl.height + 1` means that the `IDAT` will have "left-over" data after
+        // processing.  This helps to verify that `Reader.read_until_image_data` discards the
+        // left-over data when resetting `UnfilteredRowsBuffer`.
+        </span><span class="kw">let </span>idat_data = generate_rgba8_with_width_and_height(fctl.width, fctl.height + <span class="number">1</span>);
+        write_chunk(<span class="kw-2">&amp;mut </span>png, <span class="string">b"IDAT"</span>, <span class="kw-2">&amp;</span>idat_data);
+
+        <span class="kw">let </span>fdat_width = <span class="number">10</span>;
+        fctl.sequence_number = <span class="number">1</span>;
+        <span class="comment">// Using different width in `IDAT` and `fDAT` frames helps to catch problems that
+        // may arise when `Reader.read_until_image_data` doesn't properly reset
+        // `UnfilteredRowsBuffer`.
+        </span>fctl.width = fdat_width;
+        write_fctl(<span class="kw-2">&amp;mut </span>png, <span class="kw-2">&amp;</span>fctl);
+        <span class="kw">let </span>fdat_data = generate_rgba8_with_width_and_height(fctl.width, fctl.height);
+        write_fdat(<span class="kw-2">&amp;mut </span>png, <span class="number">2</span>, <span class="kw-2">&amp;</span>fdat_data);
+        write_iend(<span class="kw-2">&amp;mut </span>png);
+
+        Decoder::new(png).read_info().unwrap()
+    }
+
+    <span class="doccomment">/// Creates a ready-to-test [`Reader`] which decodes an animated PNG that contains: IHDR, acTL,
+    /// IDAT, fcTL, fdAT, fcTL, fdAT, IEND.  (i.e. IDAT is *not* part of the animation)
+    </span><span class="kw">fn </span>create_reader_of_ihdr_actl_idat_fctl_fdat_fctl_fdat() -&gt; Reader&lt;VecDeque&lt;u8&gt;&gt; {
+        <span class="kw">let </span>width = <span class="number">16</span>;
+        <span class="kw">let </span>frame_data = generate_rgba8_with_width_and_height(width, width);
+        <span class="kw">let </span><span class="kw-2">mut </span>fctl = <span class="kw">crate</span>::FrameControl {
+            width,
+            height: width,
+            ..Default::default()
+        };
+
+        <span class="kw">let </span><span class="kw-2">mut </span>png = VecDeque::new();
+        write_png_sig(<span class="kw-2">&amp;mut </span>png);
+        write_rgba8_ihdr_with_width(<span class="kw-2">&amp;mut </span>png, width);
+        write_actl(
+            <span class="kw-2">&amp;mut </span>png,
+            <span class="kw-2">&amp;</span><span class="kw">crate</span>::AnimationControl {
+                num_frames: <span class="number">2</span>,
+                num_plays: <span class="number">0</span>,
+            },
+        );
+        write_chunk(<span class="kw-2">&amp;mut </span>png, <span class="string">b"IDAT"</span>, <span class="kw-2">&amp;</span>frame_data);
+        fctl.sequence_number = <span class="number">0</span>;
+        write_fctl(<span class="kw-2">&amp;mut </span>png, <span class="kw-2">&amp;</span>fctl);
+        write_fdat(<span class="kw-2">&amp;mut </span>png, <span class="number">1</span>, <span class="kw-2">&amp;</span>frame_data);
+        fctl.sequence_number = <span class="number">2</span>;
+        write_fctl(<span class="kw-2">&amp;mut </span>png, <span class="kw-2">&amp;</span>fctl);
+        write_fdat(<span class="kw-2">&amp;mut </span>png, <span class="number">3</span>, <span class="kw-2">&amp;</span>frame_data);
+        write_iend(<span class="kw-2">&amp;mut </span>png);
+
+        Decoder::new(png).read_info().unwrap()
+    }
+
+    <span class="kw">fn </span>get_fctl_sequence_number(reader: <span class="kw-2">&amp;</span>Reader&lt;<span class="kw">impl </span>Read&gt;) -&gt; u32 {
+        reader
+            .info()
+            .frame_control
+            .as_ref()
+            .unwrap()
+            .sequence_number
+    }
+
+    <span class="doccomment">/// Tests that [`Reader.next_frame`] will report a `PolledAfterEndOfImage` error when called
+    /// after already decoding a single frame in a non-animated PNG.
+    </span><span class="attr">#[test]
+    </span><span class="kw">fn </span>test_next_frame_polling_after_end_non_animated() {
+        <span class="kw">let </span><span class="kw-2">mut </span>reader = create_reader_of_ihdr_idat();
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = <span class="macro">vec!</span>[<span class="number">0</span>; reader.output_buffer_size()];
+        reader
+            .next_frame(<span class="kw-2">&amp;mut </span>buf)
+            .expect(<span class="string">"Expecting no error for IDAT frame"</span>);
+
+        <span class="kw">let </span>err = reader
+            .next_frame(<span class="kw-2">&amp;mut </span>buf)
+            .expect_err(<span class="string">"Main test - expecting error"</span>);
+        <span class="macro">assert!</span>(
+            <span class="macro">matches!</span>(<span class="kw-2">&amp;</span>err, DecodingError::Parameter(<span class="kw">_</span>)),
+            <span class="string">"Unexpected kind of error: {:?}"</span>,
+            <span class="kw-2">&amp;</span>err,
+        );
+    }
+
+    <span class="doccomment">/// Tests that [`Reader.next_frame_info`] will report a `PolledAfterEndOfImage` error when
+    /// called when decoding a PNG that only contains a single frame.
+    </span><span class="attr">#[test]
+    </span><span class="kw">fn </span>test_next_frame_info_polling_after_end_non_animated() {
+        <span class="kw">let </span><span class="kw-2">mut </span>reader = create_reader_of_ihdr_idat();
+
+        <span class="kw">let </span>err = reader
+            .next_frame_info()
+            .expect_err(<span class="string">"Main test - expecting error"</span>);
+        <span class="macro">assert!</span>(
+            <span class="macro">matches!</span>(<span class="kw-2">&amp;</span>err, DecodingError::Parameter(<span class="kw">_</span>)),
+            <span class="string">"Unexpected kind of error: {:?}"</span>,
+            <span class="kw-2">&amp;</span>err,
+        );
+    }
+
+    <span class="doccomment">/// Tests that [`Reader.next_frame`] will report a `PolledAfterEndOfImage` error when called
+    /// after already decoding a single frame in an animated PNG where IDAT is part of the
+    /// animation.
+    </span><span class="attr">#[test]
+    </span><span class="kw">fn </span>test_next_frame_polling_after_end_idat_part_of_animation() {
+        <span class="kw">let </span><span class="kw-2">mut </span>reader = create_reader_of_ihdr_actl_fctl_idat_fctl_fdat();
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = <span class="macro">vec!</span>[<span class="number">0</span>; reader.output_buffer_size()];
+
+        <span class="macro">assert_eq!</span>(get_fctl_sequence_number(<span class="kw-2">&amp;</span>reader), <span class="number">0</span>);
+        reader
+            .next_frame(<span class="kw-2">&amp;mut </span>buf)
+            .expect(<span class="string">"Expecting no error for IDAT frame"</span>);
+
+        <span class="comment">// `next_frame` doesn't advance to the next `fcTL`.
+        </span><span class="macro">assert_eq!</span>(get_fctl_sequence_number(<span class="kw-2">&amp;</span>reader), <span class="number">0</span>);
+
+        reader
+            .next_frame(<span class="kw-2">&amp;mut </span>buf)
+            .expect(<span class="string">"Expecting no error for fdAT frame"</span>);
+        <span class="macro">assert_eq!</span>(get_fctl_sequence_number(<span class="kw-2">&amp;</span>reader), <span class="number">1</span>);
+
+        <span class="kw">let </span>err = reader
+            .next_frame(<span class="kw-2">&amp;mut </span>buf)
+            .expect_err(<span class="string">"Main test - expecting error"</span>);
+        <span class="macro">assert!</span>(
+            <span class="macro">matches!</span>(<span class="kw-2">&amp;</span>err, DecodingError::Parameter(<span class="kw">_</span>)),
+            <span class="string">"Unexpected kind of error: {:?}"</span>,
+            <span class="kw-2">&amp;</span>err,
+        );
+    }
+
+    <span class="doccomment">/// Tests that [`Reader.next_frame`] will report a `PolledAfterEndOfImage` error when called
+    /// after already decoding a single frame in an animated PNG where IDAT is *not* part of the
+    /// animation.
+    </span><span class="attr">#[test]
+    </span><span class="kw">fn </span>test_next_frame_polling_after_end_idat_not_part_of_animation() {
+        <span class="kw">let </span><span class="kw-2">mut </span>reader = create_reader_of_ihdr_actl_idat_fctl_fdat_fctl_fdat();
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = <span class="macro">vec!</span>[<span class="number">0</span>; reader.output_buffer_size()];
+
+        <span class="macro">assert!</span>(reader.info().frame_control.is_none());
+        reader
+            .next_frame(<span class="kw-2">&amp;mut </span>buf)
+            .expect(<span class="string">"Expecting no error for IDAT frame"</span>);
+
+        <span class="comment">// `next_frame` doesn't advance to the next `fcTL`.
+        </span><span class="macro">assert!</span>(reader.info().frame_control.is_none());
+
+        reader
+            .next_frame(<span class="kw-2">&amp;mut </span>buf)
+            .expect(<span class="string">"Expecting no error for 1st fdAT frame"</span>);
+        <span class="macro">assert_eq!</span>(get_fctl_sequence_number(<span class="kw-2">&amp;</span>reader), <span class="number">0</span>);
+
+        reader
+            .next_frame(<span class="kw-2">&amp;mut </span>buf)
+            .expect(<span class="string">"Expecting no error for 2nd fdAT frame"</span>);
+        <span class="macro">assert_eq!</span>(get_fctl_sequence_number(<span class="kw-2">&amp;</span>reader), <span class="number">2</span>);
+
+        <span class="kw">let </span>err = reader
+            .next_frame(<span class="kw-2">&amp;mut </span>buf)
+            .expect_err(<span class="string">"Main test - expecting error"</span>);
+        <span class="macro">assert!</span>(
+            <span class="macro">matches!</span>(<span class="kw-2">&amp;</span>err, DecodingError::Parameter(<span class="kw">_</span>)),
+            <span class="string">"Unexpected kind of error: {:?}"</span>,
+            <span class="kw-2">&amp;</span>err,
+        );
+    }
+
+    <span class="doccomment">/// Tests that after decoding a whole frame via [`Reader.next_row`] the call to
+    /// [`Reader.next_frame`] will decode the **next** frame.
+    </span><span class="attr">#[test]
+    </span><span class="kw">fn </span>test_row_by_row_then_next_frame() {
+        <span class="kw">let </span><span class="kw-2">mut </span>reader = create_reader_of_ihdr_actl_fctl_idat_fctl_fdat();
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = <span class="macro">vec!</span>[<span class="number">0</span>; reader.output_buffer_size()];
+
+        <span class="macro">assert_eq!</span>(get_fctl_sequence_number(<span class="kw-2">&amp;</span>reader), <span class="number">0</span>);
+        <span class="kw">while let </span><span class="prelude-val">Some</span>(<span class="kw">_</span>) = reader.next_row().unwrap() {}
+        <span class="macro">assert_eq!</span>(get_fctl_sequence_number(<span class="kw-2">&amp;</span>reader), <span class="number">0</span>);
+
+        buf.fill(<span class="number">0x0f</span>);
+        reader
+            .next_frame(<span class="kw-2">&amp;mut </span>buf)
+            .expect(<span class="string">"Expecting no error from next_frame call"</span>);
+
+        <span class="comment">// Verify if we have read the next `fcTL` chunk + repopulated `buf`:
+        </span><span class="macro">assert_eq!</span>(get_fctl_sequence_number(<span class="kw-2">&amp;</span>reader), <span class="number">1</span>);
+        <span class="macro">assert!</span>(buf.iter().any(|byte| <span class="kw-2">*</span>byte != <span class="number">0x0f</span>));
+    }
+
+    <span class="doccomment">/// Tests that after decoding a whole frame via [`Reader.next_row`] it is possible
+    /// to use [`Reader.next_row`] to decode the next frame (by using the `next_frame_info` API to
+    /// advance to the next frame when `next_row` returns `None`).
+    </span><span class="attr">#[test]
+    </span><span class="kw">fn </span>test_row_by_row_of_two_frames() {
+        <span class="kw">let </span><span class="kw-2">mut </span>reader = create_reader_of_ihdr_actl_fctl_idat_fctl_fdat();
+
+        <span class="kw">let </span><span class="kw-2">mut </span>rows_of_frame1 = <span class="number">0</span>;
+        <span class="macro">assert_eq!</span>(get_fctl_sequence_number(<span class="kw-2">&amp;</span>reader), <span class="number">0</span>);
+        <span class="kw">while let </span><span class="prelude-val">Some</span>(<span class="kw">_</span>) = reader.next_row().unwrap() {
+            rows_of_frame1 += <span class="number">1</span>;
+        }
+        <span class="macro">assert_eq!</span>(rows_of_frame1, <span class="number">16</span>);
+        <span class="macro">assert_eq!</span>(get_fctl_sequence_number(<span class="kw-2">&amp;</span>reader), <span class="number">0</span>);
+
+        <span class="kw">let </span><span class="kw-2">mut </span>rows_of_frame2 = <span class="number">0</span>;
+        <span class="macro">assert_eq!</span>(reader.next_frame_info().unwrap().sequence_number, <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(get_fctl_sequence_number(<span class="kw-2">&amp;</span>reader), <span class="number">1</span>);
+        <span class="kw">while let </span><span class="prelude-val">Some</span>(<span class="kw">_</span>) = reader.next_row().unwrap() {
+            rows_of_frame2 += <span class="number">1</span>;
+        }
+        <span class="macro">assert_eq!</span>(rows_of_frame2, <span class="number">16</span>);
+        <span class="macro">assert_eq!</span>(get_fctl_sequence_number(<span class="kw-2">&amp;</span>reader), <span class="number">1</span>);
+
+        <span class="kw">let </span>err = reader
+            .next_frame_info()
+            .expect_err(<span class="string">"No more frames - expecting error"</span>);
+        <span class="macro">assert!</span>(
+            <span class="macro">matches!</span>(<span class="kw-2">&amp;</span>err, DecodingError::Parameter(<span class="kw">_</span>)),
+            <span class="string">"Unexpected kind of error: {:?}"</span>,
+            <span class="kw-2">&amp;</span>err,
+        );
+    }
+
+    <span class="doccomment">/// This test is similar to `test_next_frame_polling_after_end_idat_part_of_animation`, but it
+    /// uses `next_frame_info` calls to read to the next `fcTL` earlier - before the next call to
+    /// `next_frame` (knowing `fcTL` before calling `next_frame` may be helpful to determine the
+    /// size of the output buffer and/or to prepare the buffer based on the `DisposeOp` of the
+    /// previous frames).
+    </span><span class="attr">#[test]
+    </span><span class="kw">fn </span>test_next_frame_info_after_next_frame() {
+        <span class="kw">let </span><span class="kw-2">mut </span>reader = create_reader_of_ihdr_actl_fctl_idat_fctl_fdat();
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = <span class="macro">vec!</span>[<span class="number">0</span>; reader.output_buffer_size()];
+
+        <span class="macro">assert_eq!</span>(get_fctl_sequence_number(<span class="kw-2">&amp;</span>reader), <span class="number">0</span>);
+        reader
+            .next_frame(<span class="kw-2">&amp;mut </span>buf)
+            .expect(<span class="string">"Expecting no error for IDAT frame"</span>);
+
+        <span class="comment">// `next_frame` doesn't advance to the next `fcTL`.
+        </span><span class="macro">assert_eq!</span>(get_fctl_sequence_number(<span class="kw-2">&amp;</span>reader), <span class="number">0</span>);
+
+        <span class="comment">// But `next_frame_info` can be used to go to the next `fcTL`.
+        </span><span class="macro">assert_eq!</span>(reader.next_frame_info().unwrap().sequence_number, <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(get_fctl_sequence_number(<span class="kw-2">&amp;</span>reader), <span class="number">1</span>);
+
+        reader
+            .next_frame(<span class="kw-2">&amp;mut </span>buf)
+            .expect(<span class="string">"Expecting no error for fdAT frame"</span>);
+        <span class="macro">assert_eq!</span>(get_fctl_sequence_number(<span class="kw-2">&amp;</span>reader), <span class="number">1</span>);
+
+        <span class="kw">let </span>err = reader
+            .next_frame_info()
+            .expect_err(<span class="string">"Main test - expecting error"</span>);
+        <span class="macro">assert!</span>(
+            <span class="macro">matches!</span>(<span class="kw-2">&amp;</span>err, DecodingError::Parameter(<span class="kw">_</span>)),
+            <span class="string">"Unexpected kind of error: {:?}"</span>,
+            <span class="kw-2">&amp;</span>err,
+        );
+    }
+
+    <span class="doccomment">/// This test is similar to `test_next_frame_polling_after_end_idat_not_part_of_animation`, but
+    /// it uses `next_frame_info` to skip the `IDAT` frame entirely + to move between frames.
+    </span><span class="attr">#[test]
+    </span><span class="kw">fn </span>test_next_frame_info_to_skip_first_frame() {
+        <span class="kw">let </span><span class="kw-2">mut </span>reader = create_reader_of_ihdr_actl_idat_fctl_fdat_fctl_fdat();
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = <span class="macro">vec!</span>[<span class="number">0</span>; reader.output_buffer_size()];
+
+        <span class="comment">// First (IDAT) frame doesn't have frame control info, which means
+        // that it is not part of the animation.
+        </span><span class="macro">assert!</span>(reader.info().frame_control.is_none());
+
+        <span class="comment">// `next_frame_info` can be used to skip the IDAT frame (without first having to separately
+        // discard the image data - e.g. by also calling `next_frame` first).
+        </span><span class="macro">assert_eq!</span>(reader.next_frame_info().unwrap().sequence_number, <span class="number">0</span>);
+        <span class="macro">assert_eq!</span>(get_fctl_sequence_number(<span class="kw-2">&amp;</span>reader), <span class="number">0</span>);
+        reader
+            .next_frame(<span class="kw-2">&amp;mut </span>buf)
+            .expect(<span class="string">"Expecting no error for 1st fdAT frame"</span>);
+        <span class="macro">assert_eq!</span>(get_fctl_sequence_number(<span class="kw-2">&amp;</span>reader), <span class="number">0</span>);
+
+        <span class="comment">// Get the `fcTL` for the 2nd frame.
+        </span><span class="macro">assert_eq!</span>(reader.next_frame_info().unwrap().sequence_number, <span class="number">2</span>);
+        reader
+            .next_frame(<span class="kw-2">&amp;mut </span>buf)
+            .expect(<span class="string">"Expecting no error for 2nd fdAT frame"</span>);
+        <span class="macro">assert_eq!</span>(get_fctl_sequence_number(<span class="kw-2">&amp;</span>reader), <span class="number">2</span>);
+
+        <span class="kw">let </span>err = reader
+            .next_frame_info()
+            .expect_err(<span class="string">"Main test - expecting error"</span>);
+        <span class="macro">assert!</span>(
+            <span class="macro">matches!</span>(<span class="kw-2">&amp;</span>err, DecodingError::Parameter(<span class="kw">_</span>)),
+            <span class="string">"Unexpected kind of error: {:?}"</span>,
+            <span class="kw-2">&amp;</span>err,
         );
     }
 }

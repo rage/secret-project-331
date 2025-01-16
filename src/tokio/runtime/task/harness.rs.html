@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tokio-1.40.0/src/runtime/task/harness.rs`."><title>harness.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="tokio" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tokio-1.43.0/src/runtime/task/harness.rs`."><title>harness.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="tokio" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -530,6 +530,38 @@
 <a href="#530" id="530">530</a>
 <a href="#531" id="531">531</a>
 <a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
+<a href="#543" id="543">543</a>
+<a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::future::Future;
 <span class="kw">use </span><span class="kw">crate</span>::runtime::task::core::{Cell, Core, Header, Trailer};
 <span class="kw">use </span><span class="kw">crate</span>::runtime::task::state::{Snapshot, State};
@@ -816,9 +848,11 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>drop_join_handle_slow(<span class="self">self</span>) {
-        <span class="comment">// Try to unset `JOIN_INTEREST`. This must be done as a first step in
+        <span class="comment">// Try to unset `JOIN_INTEREST` and `JOIN_WAKER`. This must be done as a first step in
         // case the task concurrently completed.
-        </span><span class="kw">if </span><span class="self">self</span>.state().unset_join_interested().is_err() {
+        </span><span class="kw">let </span>transition = <span class="self">self</span>.state().transition_to_join_handle_dropped();
+
+        <span class="kw">if </span>transition.drop_output {
             <span class="comment">// It is our responsibility to drop the output. This is critical as
             // the task output may not be `Send` and as such must remain with
             // the scheduler or `JoinHandle`. i.e. if the output remains in the
@@ -833,6 +867,23 @@
             }));
         }
 
+        <span class="kw">if </span>transition.drop_waker {
+            <span class="comment">// If the JOIN_WAKER flag is unset at this point, the task is either
+            // already terminal or not complete so the `JoinHandle` is responsible
+            // for dropping the waker.
+            // Safety:
+            // If the JOIN_WAKER bit is not set the join handle has exclusive
+            // access to the waker as per rule 2 in task/mod.rs.
+            // This can only be the case at this point in two scenarios:
+            // 1. The task completed and the runtime unset `JOIN_WAKER` flag
+            //    after accessing the waker during task completion. So the
+            //    `JoinHandle` is the only one to access the  join waker here.
+            // 2. The task is not completed so the `JoinHandle` was able to unset
+            //    `JOIN_WAKER` bit itself to get mutable access to the waker.
+            //    The runtime will not access the waker when this flag is unset.
+            </span><span class="kw">unsafe </span>{ <span class="self">self</span>.trailer().set_waker(<span class="prelude-val">None</span>) };
+        }
+
         <span class="comment">// Drop the `JoinHandle` reference, possibly deallocating the task
         </span><span class="self">self</span>.drop_reference();
     }
@@ -843,7 +894,6 @@
     </span><span class="kw">fn </span>complete(<span class="self">self</span>) {
         <span class="comment">// The future has completed and its output has been written to the task
         // stage. We transition from running to complete.
-
         </span><span class="kw">let </span>snapshot = <span class="self">self</span>.state().transition_to_complete();
 
         <span class="comment">// We catch panics here in case dropping the future or waking the
@@ -852,13 +902,28 @@
             <span class="kw">if </span>!snapshot.is_join_interested() {
                 <span class="comment">// The `JoinHandle` is not interested in the output of
                 // this task. It is our responsibility to drop the
-                // output.
+                // output. The join waker was already dropped by the
+                // `JoinHandle` before.
                 </span><span class="self">self</span>.core().drop_future_or_output();
             } <span class="kw">else if </span>snapshot.is_join_waker_set() {
                 <span class="comment">// Notify the waker. Reading the waker field is safe per rule 4
                 // in task/mod.rs, since the JOIN_WAKER bit is set and the call
                 // to transition_to_complete() above set the COMPLETE bit.
                 </span><span class="self">self</span>.trailer().wake_join();
+
+                <span class="comment">// Inform the `JoinHandle` that we are done waking the waker by
+                // unsetting the `JOIN_WAKER` bit. If the `JoinHandle` has
+                // already been dropped and `JOIN_INTEREST` is unset, then we must
+                // drop the waker ourselves.
+                </span><span class="kw">if </span>!<span class="self">self
+                    </span>.state()
+                    .unset_waker_after_complete()
+                    .is_join_interested()
+                {
+                    <span class="comment">// SAFETY: We have COMPLETE=1 and JOIN_INTEREST=0, so
+                    // we have exclusive access to the waker.
+                    </span><span class="kw">unsafe </span>{ <span class="self">self</span>.trailer().set_waker(<span class="prelude-val">None</span>) };
+                }
             }
         }));
 
@@ -869,8 +934,7 @@
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(f) = <span class="self">self</span>.trailer().hooks.task_terminate_callback.as_ref() {
             <span class="kw">let _ </span>= panic::catch_unwind(panic::AssertUnwindSafe(|| {
                 f(<span class="kw-2">&amp;</span>TaskMeta {
-                    <span class="attr">#[cfg(tokio_unstable)]
-                    </span>id: <span class="self">self</span>.core().task_id,
+                    id: <span class="self">self</span>.core().task_id,
                     _phantom: Default::default(),
                 })
             }));

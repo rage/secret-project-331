@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/reqwest-0.12.9/src/async_impl/client.rs`."><title>client.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="reqwest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/reqwest-0.12.12/src/async_impl/client.rs`."><title>client.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="reqwest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2867,29 +2867,70 @@
 <a href="#2867" id="2867">2867</a>
 <a href="#2868" id="2868">2868</a>
 <a href="#2869" id="2869">2869</a>
+<a href="#2870" id="2870">2870</a>
+<a href="#2871" id="2871">2871</a>
+<a href="#2872" id="2872">2872</a>
+<a href="#2873" id="2873">2873</a>
+<a href="#2874" id="2874">2874</a>
+<a href="#2875" id="2875">2875</a>
+<a href="#2876" id="2876">2876</a>
+<a href="#2877" id="2877">2877</a>
+<a href="#2878" id="2878">2878</a>
+<a href="#2879" id="2879">2879</a>
+<a href="#2880" id="2880">2880</a>
+<a href="#2881" id="2881">2881</a>
+<a href="#2882" id="2882">2882</a>
+<a href="#2883" id="2883">2883</a>
+<a href="#2884" id="2884">2884</a>
+<a href="#2885" id="2885">2885</a>
+<a href="#2886" id="2886">2886</a>
+<a href="#2887" id="2887">2887</a>
+<a href="#2888" id="2888">2888</a>
+<a href="#2889" id="2889">2889</a>
+<a href="#2890" id="2890">2890</a>
+<a href="#2891" id="2891">2891</a>
+<a href="#2892" id="2892">2892</a>
+<a href="#2893" id="2893">2893</a>
+<a href="#2894" id="2894">2894</a>
+<a href="#2895" id="2895">2895</a>
+<a href="#2896" id="2896">2896</a>
+<a href="#2897" id="2897">2897</a>
+<a href="#2898" id="2898">2898</a>
+<a href="#2899" id="2899">2899</a>
+<a href="#2900" id="2900">2900</a>
+<a href="#2901" id="2901">2901</a>
+<a href="#2902" id="2902">2902</a>
+<a href="#2903" id="2903">2903</a>
+<a href="#2904" id="2904">2904</a>
+<a href="#2905" id="2905">2905</a>
+<a href="#2906" id="2906">2906</a>
+<a href="#2907" id="2907">2907</a>
+<a href="#2908" id="2908">2908</a>
+<a href="#2909" id="2909">2909</a>
+<a href="#2910" id="2910">2910</a>
+<a href="#2911" id="2911">2911</a>
+<a href="#2912" id="2912">2912</a>
+<a href="#2913" id="2913">2913</a>
+<a href="#2914" id="2914">2914</a>
+<a href="#2915" id="2915">2915</a>
+<a href="#2916" id="2916">2916</a>
+<a href="#2917" id="2917">2917</a>
+<a href="#2918" id="2918">2918</a>
+<a href="#2919" id="2919">2919</a>
+<a href="#2920" id="2920">2920</a>
+<a href="#2921" id="2921">2921</a>
+<a href="#2922" id="2922">2922</a>
+<a href="#2923" id="2923">2923</a>
 </pre></div><pre class="rust"><code><span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"__rustls"</span>,))]
 </span><span class="kw">use </span>std::any::Any;
+<span class="kw">use </span>std::future::Future;
 <span class="kw">use </span>std::net::IpAddr;
+<span class="kw">use </span>std::pin::Pin;
 <span class="kw">use </span>std::sync::Arc;
+<span class="kw">use </span>std::task::{Context, Poll};
 <span class="kw">use </span>std::time::Duration;
 <span class="kw">use </span>std::{collections::HashMap, convert::TryInto, net::SocketAddr};
 <span class="kw">use </span>std::{fmt, str};
-
-<span class="kw">use </span>bytes::Bytes;
-<span class="kw">use </span>http::header::{
-    Entry, HeaderMap, HeaderValue, ACCEPT, ACCEPT_ENCODING, CONTENT_ENCODING, CONTENT_LENGTH,
-    CONTENT_TYPE, LOCATION, PROXY_AUTHORIZATION, RANGE, REFERER, TRANSFER_ENCODING, USER_AGENT,
-};
-<span class="kw">use </span>http::uri::Scheme;
-<span class="kw">use </span>http::Uri;
-<span class="kw">use </span>hyper_util::client::legacy::connect::HttpConnector;
-<span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
-</span><span class="kw">use </span>native_tls_crate::TlsConnector;
-<span class="kw">use </span>pin_project_lite::pin_project;
-<span class="kw">use </span>std::future::Future;
-<span class="kw">use </span>std::pin::Pin;
-<span class="kw">use </span>std::task::{Context, Poll};
-<span class="kw">use </span>tokio::time::Sleep;
 
 <span class="kw">use </span><span class="kw">super</span>::decoder::Accepts;
 <span class="kw">use </span><span class="kw">super</span>::request::{Request, RequestBuilder};
@@ -2899,13 +2940,16 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::async_impl::h3_client::connect::H3Connector;
 <span class="attr">#[cfg(feature = <span class="string">"http3"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::async_impl::h3_client::{H3Client, H3ResponseFuture};
-<span class="kw">use </span><span class="kw">crate</span>::connect::Connector;
+<span class="kw">use </span><span class="kw">crate</span>::connect::{
+    sealed::{Conn, Unnameable},
+    BoxedConnectorLayer, BoxedConnectorService, Connector, ConnectorBuilder,
+};
 <span class="attr">#[cfg(feature = <span class="string">"cookies"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::cookie;
 <span class="attr">#[cfg(feature = <span class="string">"hickory-dns"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::dns::hickory::HickoryDnsResolver;
 <span class="kw">use </span><span class="kw">crate</span>::dns::{gai::GaiResolver, DnsResolverWithOverrides, DynResolver, Resolve};
-<span class="kw">use </span><span class="kw">crate</span>::error;
+<span class="kw">use </span><span class="kw">crate</span>::error::{<span class="self">self</span>, BoxError};
 <span class="kw">use </span><span class="kw">crate</span>::into_url::try_uri;
 <span class="kw">use </span><span class="kw">crate</span>::redirect::{<span class="self">self</span>, remove_sensitive_headers};
 <span class="attr">#[cfg(feature = <span class="string">"__rustls"</span>)]
@@ -2917,11 +2961,25 @@
 <span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"__rustls"</span>))]
 </span><span class="kw">use </span><span class="kw">crate</span>::Identity;
 <span class="kw">use crate</span>::{IntoUrl, Method, Proxy, StatusCode, Url};
+<span class="kw">use </span>bytes::Bytes;
+<span class="kw">use </span>http::header::{
+    Entry, HeaderMap, HeaderValue, ACCEPT, ACCEPT_ENCODING, CONTENT_ENCODING, CONTENT_LENGTH,
+    CONTENT_TYPE, LOCATION, PROXY_AUTHORIZATION, RANGE, REFERER, TRANSFER_ENCODING, USER_AGENT,
+};
+<span class="kw">use </span>http::uri::Scheme;
+<span class="kw">use </span>http::Uri;
+<span class="kw">use </span>hyper_util::client::legacy::connect::HttpConnector;
 <span class="kw">use </span>log::debug;
+<span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
+</span><span class="kw">use </span>native_tls_crate::TlsConnector;
+<span class="kw">use </span>pin_project_lite::pin_project;
 <span class="attr">#[cfg(feature = <span class="string">"http3"</span>)]
 </span><span class="kw">use </span>quinn::TransportConfig;
 <span class="attr">#[cfg(feature = <span class="string">"http3"</span>)]
 </span><span class="kw">use </span>quinn::VarInt;
+<span class="kw">use </span>tokio::time::Sleep;
+<span class="kw">use </span>tower::util::BoxCloneSyncServiceLayer;
+<span class="kw">use </span>tower::{Layer, Service};
 
 <span class="kw">type </span>HyperResponseFuture = hyper_util::client::legacy::ResponseFuture;
 
@@ -2999,6 +3057,7 @@
     </span>tls_info: bool,
     <span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
     </span>tls: TlsBackend,
+    connector_layers: Vec&lt;BoxedConnectorLayer&gt;,
     http_version_pref: HttpVersionPref,
     http09_responses: bool,
     http1_title_case_headers: bool,
@@ -3013,6 +3072,8 @@
     </span>http2_adaptive_window: bool,
     <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
     </span>http2_max_frame_size: <span class="prelude-ty">Option</span>&lt;u32&gt;,
+    <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+    </span>http2_max_header_list_size: <span class="prelude-ty">Option</span>&lt;u32&gt;,
     <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
     </span>http2_keep_alive_interval: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
     <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
@@ -3052,7 +3113,7 @@
     <span class="doccomment">/// Constructs a new `ClientBuilder`.
     ///
     /// This is the same as `Client::builder()`.
-    </span><span class="kw">pub fn </span>new() -&gt; ClientBuilder {
+    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>headers: HeaderMap&lt;HeaderValue&gt; = HeaderMap::with_capacity(<span class="number">2</span>);
         headers.insert(ACCEPT, HeaderValue::from_static(<span class="string">"*/*"</span>));
 
@@ -3070,7 +3131,7 @@
                 connect_timeout: <span class="prelude-val">None</span>,
                 connection_verbose: <span class="bool-val">false</span>,
                 pool_idle_timeout: <span class="prelude-val">Some</span>(Duration::from_secs(<span class="number">90</span>)),
-                pool_max_idle_per_host: std::usize::MAX,
+                pool_max_idle_per_host: usize::MAX,
                 <span class="comment">// TODO: Re-enable default duration once hyper's HttpConnector is fixed
                 // to no longer error when an option fails.
                 </span>tcp_keepalive: <span class="prelude-val">None</span>, <span class="comment">//Some(Duration::from_secs(60)),
@@ -3100,6 +3161,7 @@
                 </span>tls_info: <span class="bool-val">false</span>,
                 <span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
                 </span>tls: TlsBackend::default(),
+                connector_layers: Vec::new(),
                 http_version_pref: HttpVersionPref::All,
                 http09_responses: <span class="bool-val">false</span>,
                 http1_title_case_headers: <span class="bool-val">false</span>,
@@ -3114,6 +3176,8 @@
                 </span>http2_adaptive_window: <span class="bool-val">false</span>,
                 <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
                 </span>http2_max_frame_size: <span class="prelude-val">None</span>,
+                <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+                </span>http2_max_header_list_size: <span class="prelude-val">None</span>,
                 <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
                 </span>http2_keep_alive_interval: <span class="prelude-val">None</span>,
                 <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
@@ -3143,7 +3207,9 @@
             },
         }
     }
+}
 
+<span class="kw">impl </span>ClientBuilder {
     <span class="doccomment">/// Returns a `Client` that uses this `ClientBuilder` configuration.
     ///
     /// # Errors
@@ -3167,7 +3233,7 @@
         #[cfg(feature = <span class="string">"http3"</span>)]
         </span><span class="kw">let </span><span class="kw-2">mut </span>h3_connector = <span class="prelude-val">None</span>;
 
-        <span class="kw">let </span><span class="kw-2">mut </span>connector = {
+        <span class="kw">let </span><span class="kw-2">mut </span>connector_builder = {
             <span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
             </span><span class="kw">fn </span>user_agent(headers: <span class="kw-2">&amp;</span>HeaderMap) -&gt; <span class="prelude-ty">Option</span>&lt;HeaderValue&gt; {
                 headers.get(USER_AGENT).cloned()
@@ -3310,7 +3376,7 @@
                         tls.max_protocol_version(<span class="prelude-val">Some</span>(protocol));
                     }
 
-                    Connector::new_default_tls(
+                    ConnectorBuilder::new_default_tls(
                         http,
                         tls,
                         proxies.clone(),
@@ -3327,7 +3393,7 @@
                     )<span class="question-mark">?
                 </span>}
                 <span class="attr">#[cfg(feature = <span class="string">"native-tls"</span>)]
-                </span>TlsBackend::BuiltNativeTls(conn) =&gt; Connector::from_built_default_tls(
+                </span>TlsBackend::BuiltNativeTls(conn) =&gt; ConnectorBuilder::from_built_default_tls(
                     http,
                     conn,
                     proxies.clone(),
@@ -3354,7 +3420,7 @@
                         )<span class="question-mark">?</span>;
                     }
 
-                    Connector::new_rustls_tls(
+                    ConnectorBuilder::new_rustls_tls(
                         http,
                         conn,
                         proxies.clone(),
@@ -3549,7 +3615,7 @@
                         )<span class="question-mark">?</span>;
                     }
 
-                    Connector::new_rustls_tls(
+                    ConnectorBuilder::new_rustls_tls(
                         http,
                         tls,
                         proxies.clone(),
@@ -3574,7 +3640,7 @@
             }
 
             <span class="attr">#[cfg(not(feature = <span class="string">"__tls"</span>))]
-            </span>Connector::new(
+            </span>ConnectorBuilder::new(
                 http,
                 proxies.clone(),
                 config.local_address,
@@ -3584,8 +3650,9 @@
             )
         };
 
-        connector.set_timeout(config.connect_timeout);
-        connector.set_verbose(config.connection_verbose);
+        connector_builder.set_timeout(config.connect_timeout);
+        connector_builder.set_verbose(config.connection_verbose);
+        connector_builder.set_keepalive(config.tcp_keepalive);
 
         <span class="kw">let </span><span class="kw-2">mut </span>builder =
             hyper_util::client::legacy::Client::builder(hyper_util::rt::TokioExecutor::new());
@@ -3610,6 +3677,9 @@
             <span class="kw">if let </span><span class="prelude-val">Some</span>(http2_max_frame_size) = config.http2_max_frame_size {
                 builder.http2_max_frame_size(http2_max_frame_size);
             }
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(http2_max_header_list_size) = config.http2_max_header_list_size {
+                builder.http2_max_header_list_size(http2_max_header_list_size);
+            }
             <span class="kw">if let </span><span class="prelude-val">Some</span>(http2_keep_alive_interval) = config.http2_keep_alive_interval {
                 builder.http2_keep_alive_interval(http2_keep_alive_interval);
             }
@@ -3625,7 +3695,6 @@
         builder.pool_timer(hyper_util::rt::TokioTimer::new());
         builder.pool_idle_timeout(config.pool_idle_timeout);
         builder.pool_max_idle_per_host(config.pool_max_idle_per_host);
-        connector.set_keepalive(config.tcp_keepalive);
 
         <span class="kw">if </span>config.http09_responses {
             builder.http09_responses(<span class="bool-val">true</span>);
@@ -3654,7 +3723,7 @@
                 accepts: config.accepts,
                 <span class="attr">#[cfg(feature = <span class="string">"cookies"</span>)]
                 </span>cookie_store: config.cookie_store,
-                <span class="comment">// Use match instead of map since config is partially moved
+                <span class="comment">// Use match instead of map since config is partially moved,
                 // and it cannot be used in closure
                 </span><span class="attr">#[cfg(feature = <span class="string">"http3"</span>)]
                 </span>h3_client: <span class="kw">match </span>h3_connector {
@@ -3663,7 +3732,7 @@
                     }
                     <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
                 },
-                hyper: builder.build(connector),
+                hyper: builder.build(connector_builder.build(config.connector_layers)),
                 headers: config.headers,
                 redirect_policy: config.redirect_policy,
                 referer: config.referer,
@@ -4177,6 +4246,16 @@
         <span class="self">self
     </span>}
 
+    <span class="doccomment">/// Sets the maximum size of received header frames for HTTP2.
+    ///
+    /// Default is currently 16KB, but can change.
+    </span><span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"http2"</span>)))]
+    </span><span class="kw">pub fn </span>http2_max_header_list_size(<span class="kw-2">mut </span><span class="self">self</span>, max_header_size_bytes: u32) -&gt; ClientBuilder {
+        <span class="self">self</span>.config.http2_max_header_list_size = <span class="prelude-val">Some</span>(max_header_size_bytes);
+        <span class="self">self
+    </span>}
+
     <span class="doccomment">/// Sets an interval for HTTP2 Ping frames should be sent to keep a connection alive.
     ///
     /// Pass `None` to disable HTTP2 keep-alive.
@@ -4491,7 +4570,7 @@
 
     <span class="doccomment">/// Set the minimum required TLS version for connections.
     ///
-    /// By default the TLS backend's own default is used.
+    /// By default, the TLS backend's own default is used.
     ///
     /// # Errors
     ///
@@ -4520,7 +4599,7 @@
 
     <span class="doccomment">/// Set the maximum allowed TLS version for connections.
     ///
-    /// By default there's no maximum.
+    /// By default, there's no maximum.
     ///
     /// # Errors
     ///
@@ -4710,24 +4789,16 @@
 
     <span class="doccomment">/// Override DNS resolution for specific domains to a particular IP address.
     ///
-    /// Warning
-    ///
-    /// Since the DNS protocol has no notion of ports, if you wish to send
-    /// traffic to a particular port you must include this port in the URL
-    /// itself, any port in the overridden addr will be ignored and traffic sent
-    /// to the conventional port for the given scheme (e.g. 80 for http).
+    /// Set the port to `0` to use the conventional port for the given scheme (e.g. 80 for http).
+    /// Ports in the URL itself will always be used instead of the port in the overridden addr.
     </span><span class="kw">pub fn </span>resolve(<span class="self">self</span>, domain: <span class="kw-2">&amp;</span>str, addr: SocketAddr) -&gt; ClientBuilder {
         <span class="self">self</span>.resolve_to_addrs(domain, <span class="kw-2">&amp;</span>[addr])
     }
 
     <span class="doccomment">/// Override DNS resolution for specific domains to particular IP addresses.
     ///
-    /// Warning
-    ///
-    /// Since the DNS protocol has no notion of ports, if you wish to send
-    /// traffic to a particular port you must include this port in the URL
-    /// itself, any port in the overridden addresses will be ignored and traffic sent
-    /// to the conventional port for the given scheme (e.g. 80 for http).
+    /// Set the port to `0` to use the conventional port for the given scheme (e.g. 80 for http).
+    /// Ports in the URL itself will always be used instead of the port in the overridden addr.
     </span><span class="kw">pub fn </span>resolve_to_addrs(<span class="kw-2">mut </span><span class="self">self</span>, domain: <span class="kw-2">&amp;</span>str, addrs: <span class="kw-2">&amp;</span>[SocketAddr]) -&gt; ClientBuilder {
         <span class="self">self</span>.config
             .dns_overrides
@@ -4811,6 +4882,43 @@
     #[cfg_attr(docsrs, doc(cfg(all(reqwest_unstable, feature = <span class="string">"http3"</span>,))))]
     </span><span class="kw">pub fn </span>http3_send_window(<span class="kw-2">mut </span><span class="self">self</span>, value: u64) -&gt; ClientBuilder {
         <span class="self">self</span>.config.quic_send_window = <span class="prelude-val">Some</span>(value);
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Adds a new Tower [`Layer`](https://docs.rs/tower/latest/tower/trait.Layer.html) to the
+    /// base connector [`Service`](https://docs.rs/tower/latest/tower/trait.Service.html) which
+    /// is responsible for connection establishment.
+    ///
+    /// Each subsequent invocation of this function will wrap previous layers.
+    ///
+    /// If configured, the `connect_timeout` will be the outermost layer.
+    ///
+    /// Example usage:
+    /// ```
+    /// use std::time::Duration;
+    ///
+    /// # #[cfg(not(feature = "rustls-tls-no-provider"))]
+    /// let client = reqwest::Client::builder()
+    ///                      // resolved to outermost layer, meaning while we are waiting on concurrency limit
+    ///                      .connect_timeout(Duration::from_millis(200))
+    ///                      // underneath the concurrency check, so only after concurrency limit lets us through
+    ///                      .connector_layer(tower::timeout::TimeoutLayer::new(Duration::from_millis(50)))
+    ///                      .connector_layer(tower::limit::concurrency::ConcurrencyLimitLayer::new(2))
+    ///                      .build()
+    ///                      .unwrap();
+    /// ```
+    ///
+    </span><span class="kw">pub fn </span>connector_layer&lt;L&gt;(<span class="kw-2">mut </span><span class="self">self</span>, layer: L) -&gt; ClientBuilder
+    <span class="kw">where
+        </span>L: Layer&lt;BoxedConnectorService&gt; + Clone + Send + Sync + <span class="lifetime">'static</span>,
+        L::Service:
+            Service&lt;Unnameable, Response = Conn, Error = BoxError&gt; + Clone + Send + Sync + <span class="lifetime">'static</span>,
+        &lt;L::Service <span class="kw">as </span>Service&lt;Unnameable&gt;&gt;::Future: Send + <span class="lifetime">'static</span>,
+    {
+        <span class="kw">let </span>layer = BoxCloneSyncServiceLayer::new(layer);
+
+        <span class="self">self</span>.config.connector_layers.push(layer);
+
         <span class="self">self
     </span>}
 }
@@ -5554,7 +5662,7 @@
             <span class="kw">if </span>should_redirect {
                 <span class="kw">let </span>loc = res.headers().get(LOCATION).and_then(|val| {
                     <span class="kw">let </span>loc = (|| -&gt; <span class="prelude-ty">Option</span>&lt;Url&gt; {
-                        <span class="comment">// Some sites may send a utf-8 Location header,
+                        <span class="comment">// Some sites may send a UTF-8 Location header,
                         // even though we're supposed to treat those bytes
                         // as opaque, we'll check specifically for utf8.
                         </span><span class="self">self</span>.url.join(str::from_utf8(val.as_bytes()).ok()<span class="question-mark">?</span>).ok()

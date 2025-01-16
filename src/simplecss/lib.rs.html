@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/simplecss-0.2.1/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="simplecss" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/simplecss-0.2.2/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="simplecss" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -514,7 +514,55 @@
 <a href="#514" id="514">514</a>
 <a href="#515" id="515">515</a>
 <a href="#516" id="516">516</a>
-</pre></div><pre class="rust"><code><span class="doccomment">/*!
+<a href="#517" id="517">517</a>
+<a href="#518" id="518">518</a>
+<a href="#519" id="519">519</a>
+<a href="#520" id="520">520</a>
+<a href="#521" id="521">521</a>
+<a href="#522" id="522">522</a>
+<a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
+<a href="#527" id="527">527</a>
+<a href="#528" id="528">528</a>
+<a href="#529" id="529">529</a>
+<a href="#530" id="530">530</a>
+<a href="#531" id="531">531</a>
+<a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
+<a href="#543" id="543">543</a>
+<a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+</pre></div><pre class="rust"><code><span class="comment">// Copyright 2016 the SimpleCSS Authors
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
+</span><span class="doccomment">/*!
 A simple [CSS 2.1](https://www.w3.org/TR/CSS21/) parser and selector.
 
 This is not a browser-grade CSS parser. If you need one,
@@ -537,17 +585,40 @@ Since it's very simple we will start with limitations:
 
 - Selector matching support.
 - The rules are sorted by specificity.
-- `!import` parsing support.
+- `!important` parsing support.
 - Has a high-level parsers and low-level, zero-allocation tokenizers.
 - No unsafe.
 */
 
-</span><span class="attr">#![doc(html_root_url = <span class="string">"https://docs.rs/simplecss/0.2.1"</span>)]
+</span><span class="comment">// LINEBENDER LINT SET - lib.rs - v2
+// See https://linebender.org/wiki/canonical-lints/
+// These lints aren't included in Cargo.toml because they
+// shouldn't apply to examples and tests
+</span><span class="attr">#![warn(unused_crate_dependencies)]
+#![warn(clippy::print_stdout, clippy::print_stderr)]
+</span><span class="comment">// Targeting e.g. 32-bit means structs containing usize can give false positives for 64-bit.
+</span><span class="attr">#![cfg_attr(target_pointer_width = <span class="string">"64"</span>, warn(clippy::trivially_copy_pass_by_ref))]
+</span><span class="comment">// END LINEBENDER LINT SET
+</span><span class="attr">#![cfg_attr(docsrs, feature(doc_auto_cfg))]
+#![cfg_attr(all(not(feature = <span class="string">"std"</span>), not(test)), no_std)]
+</span><span class="comment">// The following lints are part of the Linebender standard set,
+// but resolving them has been deferred for now.
+// Feel free to send a PR that solves one or more of these.
+</span><span class="attr">#![allow(
+    missing_debug_implementations,
+    unreachable_pub,
+    clippy::use_self,
+    clippy::missing_assert_message,
+    clippy::missing_panics_doc,
+    clippy::exhaustive_enums,
+    clippy::unseparated_literal_suffix
+)]
+#![cfg_attr(test, allow(unused_crate_dependencies))] </span><span class="comment">// Some dev dependencies are only used in tests
 
-#![forbid(unsafe_code)]
-#![warn(missing_docs)]
+</span><span class="kw">extern crate </span>alloc;
 
-</span><span class="kw">use </span>std::fmt;
+<span class="kw">use </span>alloc::vec::Vec;
+<span class="kw">use </span>core::fmt;
 
 <span class="kw">use </span>log::warn;
 
@@ -556,7 +627,6 @@ Since it's very simple we will start with limitations:
 
 <span class="kw">pub use </span>selector::<span class="kw-2">*</span>;
 <span class="kw">use </span>stream::Stream;
-
 
 <span class="doccomment">/// A list of possible errors.
 </span><span class="attr">#[derive(Clone, Copy, PartialEq, Debug)]
@@ -577,7 +647,11 @@ Since it's very simple we will start with limitations:
 
     <span class="doccomment">/// An invalid byte.
     </span><span class="attr">#[allow(missing_docs)]
-    </span>InvalidByte { expected: u8, actual: u8, pos: TextPos },
+    </span>InvalidByte {
+        expected: u8,
+        actual: u8,
+        pos: TextPos,
+    },
 
     <span class="doccomment">/// A missing selector.
     </span>SelectorMissing,
@@ -596,7 +670,7 @@ Since it's very simple we will start with limitations:
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Error {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             Error::UnexpectedEndOfStream =&gt; {
                 <span class="macro">write!</span>(f, <span class="string">"unexpected end of stream"</span>)
@@ -610,9 +684,16 @@ Since it's very simple we will start with limitations:
             Error::InvalidValue(pos) =&gt; {
                 <span class="macro">write!</span>(f, <span class="string">"invalid value at {}"</span>, pos)
             }
-            Error::InvalidByte { expected, actual, pos } =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">"expected '{}' not '{}' at {}"</span>,
-                       expected <span class="kw">as </span>char, actual <span class="kw">as </span>char, pos)
+            Error::InvalidByte {
+                expected,
+                actual,
+                pos,
+            } =&gt; {
+                <span class="macro">write!</span>(
+                    f,
+                    <span class="string">"expected '{}' not '{}' at {}"</span>,
+                    expected <span class="kw">as </span>char, actual <span class="kw">as </span>char, pos
+                )
             }
             Error::SelectorMissing =&gt; {
                 <span class="macro">write!</span>(f, <span class="string">"selector missing"</span>)
@@ -633,8 +714,8 @@ Since it's very simple we will start with limitations:
     }
 }
 
-<span class="kw">impl </span>std::error::Error <span class="kw">for </span>Error {}
-
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">impl </span>std::error::Error <span class="kw">for </span>Error {}
 
 <span class="doccomment">/// A position in text.
 ///
@@ -656,11 +737,10 @@ Since it's very simple we will start with limitations:
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>TextPos {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="macro">write!</span>(f, <span class="string">"{}:{}"</span>, <span class="self">self</span>.row, <span class="self">self</span>.col)
     }
 }
-
 
 <span class="doccomment">/// A declaration.
 </span><span class="attr">#[derive(Clone, Copy, PartialEq, Debug)]
@@ -732,12 +812,13 @@ Since it's very simple we will start with limitations:
         </span><span class="self">self</span>.rules.retain(|rule| !rule.declarations.is_empty());
 
         <span class="comment">// Sort the rules by specificity.
-        </span><span class="self">self</span>.rules.sort_by_cached_key(|rule| rule.selector.specificity());
+        </span><span class="self">self</span>.rules
+            .sort_by_cached_key(|rule| rule.selector.specificity());
     }
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>StyleSheet&lt;<span class="lifetime">'_</span>&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">for </span>(i, rule) <span class="kw">in </span><span class="self">self</span>.rules.iter().enumerate() {
             <span class="macro">write!</span>(f, <span class="string">"{} {{ "</span>, rule.selector)<span class="question-mark">?</span>;
             <span class="kw">for </span>dec <span class="kw">in </span><span class="kw-2">&amp;</span>rule.declarations {
@@ -758,6 +839,12 @@ Since it's very simple we will start with limitations:
     }
 }
 
+<span class="kw">impl </span>Default <span class="kw">for </span>StyleSheet&lt;<span class="lifetime">'_</span>&gt; {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new()
+    }
+}
+
 <span class="kw">fn </span>consume_statement&lt;<span class="lifetime">'a</span>&gt;(s: <span class="kw-2">&amp;mut </span>Stream&lt;<span class="lifetime">'a</span>&gt;, rules: <span class="kw-2">&amp;mut </span>Vec&lt;Rule&lt;<span class="lifetime">'a</span>&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
     <span class="kw">if </span>s.curr_byte() == <span class="prelude-val">Ok</span>(<span class="string">b'@'</span>) {
         s.advance(<span class="number">1</span>);
@@ -767,7 +854,7 @@ Since it's very simple we will start with limitations:
     }
 }
 
-<span class="kw">fn </span>consume_at_rule(s: <span class="kw-2">&amp;mut </span>Stream) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+<span class="kw">fn </span>consume_at_rule(s: <span class="kw-2">&amp;mut </span>Stream&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
     <span class="kw">let </span>ident = s.consume_ident()<span class="question-mark">?</span>;
     <span class="macro">warn!</span>(<span class="string">"The @{} rule is not supported. Skipped."</span>, ident);
 
@@ -790,12 +877,15 @@ Since it's very simple we will start with limitations:
             s.advance(<span class="number">1</span>);
         }
 
-        <span class="kw">let </span>(selector, offset) = <span class="kw">crate</span>::selector::parse(s.slice_tail());
+        <span class="kw">let </span>(selector, offset) = parse(s.slice_tail());
         s.advance(offset);
         s.skip_spaces();
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(selector) = selector {
-            rules.push(Rule { selector, declarations: Vec::new() });
+            rules.push(Rule {
+                selector,
+                declarations: Vec::new(),
+            });
         }
 
         <span class="kw">match </span>s.curr_byte()<span class="question-mark">? </span>{
@@ -811,8 +901,8 @@ Since it's very simple we will start with limitations:
     s.try_consume_byte(<span class="string">b'{'</span>);
 
     <span class="kw">let </span>declarations = consume_declarations(s)<span class="question-mark">?</span>;
-    <span class="kw">for </span>i <span class="kw">in </span>start_rule_idx..rules.len() {
-        rules[i].declarations = declarations.clone();
+    <span class="kw">for </span>rule <span class="kw">in </span>rules.iter_mut().skip(start_rule_idx) {
+        rule.declarations = declarations.clone();
     }
 
     s.try_consume_byte(<span class="string">b'}'</span>);
@@ -820,12 +910,12 @@ Since it's very simple we will start with limitations:
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">fn </span>consume_block(s: <span class="kw-2">&amp;mut </span>Stream) {
+<span class="kw">fn </span>consume_block(s: <span class="kw-2">&amp;mut </span>Stream&lt;<span class="lifetime">'_</span>&gt;) {
     s.try_consume_byte(<span class="string">b'{'</span>);
     consume_until_block_end(s);
 }
 
-<span class="kw">fn </span>consume_until_block_end(s: <span class="kw-2">&amp;mut </span>Stream) {
+<span class="kw">fn </span>consume_until_block_end(s: <span class="kw-2">&amp;mut </span>Stream&lt;<span class="lifetime">'_</span>&gt;) {
     <span class="comment">// Block can have nested blocks, so we have to check for matching braces.
     // We simply counting the number of opening braces, which is incorrect,
     // since `{` can be inside a string, but it's fine for majority of the cases.
@@ -867,7 +957,6 @@ Since it's very simple we will start with limitations:
 
     <span class="prelude-val">Ok</span>(declarations)
 }
-
 
 <span class="doccomment">/// A declaration tokenizer.
 ///
@@ -965,16 +1054,17 @@ Since it's very simple we will start with limitations:
         <span class="kw">return </span><span class="prelude-val">Err</span>(Error::InvalidValue(s.gen_text_pos_from(start)));
     }
 
-    <span class="prelude-val">Ok</span>(Declaration { name, value, important })
+    <span class="prelude-val">Ok</span>(Declaration {
+        name,
+        value,
+        important,
+    })
 }
 
-<span class="kw">fn </span>consume_term(s: <span class="kw-2">&amp;mut </span>Stream) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-    <span class="kw">fn </span>consume_digits(s: <span class="kw-2">&amp;mut </span>Stream) {
-        <span class="kw">while let </span><span class="prelude-val">Ok</span>(c) = s.curr_byte() {
-            <span class="kw">match </span>c {
-                <span class="string">b'0'</span>..=<span class="string">b'9' </span>=&gt; s.advance(<span class="number">1</span>),
-                <span class="kw">_ </span>=&gt; <span class="kw">break</span>,
-            }
+<span class="kw">fn </span>consume_term(s: <span class="kw-2">&amp;mut </span>Stream&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    <span class="kw">fn </span>consume_digits(s: <span class="kw-2">&amp;mut </span>Stream&lt;<span class="lifetime">'_</span>&gt;) {
+        <span class="kw">while let </span><span class="prelude-val">Ok</span>(<span class="string">b'0'</span>..=<span class="string">b'9'</span>) = s.curr_byte() {
+            s.advance(<span class="number">1</span>);
         }
     }
 

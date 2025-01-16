@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/libgit2-sys-0.17.0+1.8.1/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="libgit2_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/libgit2-sys-0.18.0+1.9.0/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="libgit2_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -4346,7 +4346,26 @@
 <a href="#4346" id="4346">4346</a>
 <a href="#4347" id="4347">4347</a>
 <a href="#4348" id="4348">4348</a>
-</pre></div><pre class="rust"><code><span class="attr">#![doc(html_root_url = <span class="string">"https://docs.rs/libgit2-sys/0.17"</span>)]
+<a href="#4349" id="4349">4349</a>
+<a href="#4350" id="4350">4350</a>
+<a href="#4351" id="4351">4351</a>
+<a href="#4352" id="4352">4352</a>
+<a href="#4353" id="4353">4353</a>
+<a href="#4354" id="4354">4354</a>
+<a href="#4355" id="4355">4355</a>
+<a href="#4356" id="4356">4356</a>
+<a href="#4357" id="4357">4357</a>
+<a href="#4358" id="4358">4358</a>
+<a href="#4359" id="4359">4359</a>
+<a href="#4360" id="4360">4360</a>
+<a href="#4361" id="4361">4361</a>
+<a href="#4362" id="4362">4362</a>
+<a href="#4363" id="4363">4363</a>
+<a href="#4364" id="4364">4364</a>
+<a href="#4365" id="4365">4365</a>
+<a href="#4366" id="4366">4366</a>
+<a href="#4367" id="4367">4367</a>
+</pre></div><pre class="rust"><code><span class="attr">#![doc(html_root_url = <span class="string">"https://docs.rs/libgit2-sys/0.18"</span>)]
 #![allow(non_camel_case_types, unused_extern_crates)]
 
 </span><span class="comment">// This is required to link libz when libssh2-sys is not included.
@@ -4743,6 +4762,15 @@
     <span class="kw">pub </span>remote_ready: git_remote_ready_cb,
     <span class="kw">pub </span>payload: <span class="kw-2">*mut </span>c_void,
     <span class="kw">pub </span>resolve_url: git_url_resolve_cb,
+    <span class="kw">pub </span>update_refs: <span class="prelude-ty">Option</span>&lt;
+        <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
+            <span class="kw-2">*const </span>c_char,
+            <span class="kw-2">*const </span>git_oid,
+            <span class="kw-2">*const </span>git_oid,
+            <span class="kw-2">*mut </span>git_refspec,
+            <span class="kw-2">*mut </span>c_void,
+        ) -&gt; c_int,
+    &gt;,
 }
 
 <span class="attr">#[repr(C)]
@@ -5016,8 +5044,7 @@
 
 <span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_checkout_strategy_t {
-        GIT_CHECKOUT_NONE = <span class="number">0</span>,
-        GIT_CHECKOUT_SAFE = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
+        GIT_CHECKOUT_SAFE = <span class="number">0</span>,
         GIT_CHECKOUT_FORCE = <span class="number">1 </span>&lt;&lt; <span class="number">1</span>,
         GIT_CHECKOUT_RECREATE_MISSING = <span class="number">1 </span>&lt;&lt; <span class="number">2</span>,
         GIT_CHECKOUT_ALLOW_CONFLICTS = <span class="number">1 </span>&lt;&lt; <span class="number">4</span>,
@@ -5034,6 +5061,7 @@
         GIT_CHECKOUT_DONT_OVERWRITE_IGNORED = <span class="number">1 </span>&lt;&lt; <span class="number">19</span>,
         GIT_CHECKOUT_CONFLICT_STYLE_MERGE = <span class="number">1 </span>&lt;&lt; <span class="number">20</span>,
         GIT_CHECKOUT_CONFLICT_STYLE_DIFF3 = <span class="number">1 </span>&lt;&lt; <span class="number">21</span>,
+        GIT_CHECKOUT_NONE = <span class="number">1 </span>&lt;&lt; <span class="number">30</span>,
 
         GIT_CHECKOUT_UPDATE_SUBMODULES = <span class="number">1 </span>&lt;&lt; <span class="number">16</span>,
         GIT_CHECKOUT_UPDATE_SUBMODULES_IF_CHANGED = <span class="number">1 </span>&lt;&lt; <span class="number">17</span>,
@@ -5090,7 +5118,7 @@
 }
 
 <span class="kw">pub type </span>git_treewalk_cb =
-    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*const </span>c_char, <span class="kw-2">*const </span>git_tree_entry, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+    <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*const </span>c_char, <span class="kw-2">*const </span>git_tree_entry, <span class="kw-2">*mut </span>c_void) -&gt; c_int;
 <span class="kw">pub type </span>git_treebuilder_filter_cb =
     <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*const </span>git_tree_entry, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 
@@ -5156,10 +5184,13 @@
     <span class="kw">pub </span>final_commit_id: git_oid,
     <span class="kw">pub </span>final_start_line_number: usize,
     <span class="kw">pub </span>final_signature: <span class="kw-2">*mut </span>git_signature,
+    <span class="kw">pub </span>final_committer: <span class="kw-2">*mut </span>git_signature,
     <span class="kw">pub </span>orig_commit_id: git_oid,
     <span class="kw">pub </span>orig_path: <span class="kw-2">*const </span>c_char,
     <span class="kw">pub </span>orig_start_line_number: usize,
     <span class="kw">pub </span>orig_signature: <span class="kw-2">*mut </span>git_signature,
+    <span class="kw">pub </span>orig_committer: <span class="kw-2">*mut </span>git_signature,
+    <span class="kw">pub </span>summary: <span class="kw-2">*const </span>c_char,
     <span class="kw">pub </span>boundary: c_char,
 }
 
@@ -5218,7 +5249,6 @@
     <span class="kw">pub </span>origin_path: <span class="kw-2">*const </span>c_char,
     <span class="kw">pub </span>include_depth: c_uint,
     <span class="kw">pub </span>level: git_config_level_t,
-    <span class="kw">pub </span>free: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_config_entry)&gt;,
 }
 
 <span class="macro">git_enum!</span> {
@@ -6496,6 +6526,7 @@
     <span class="kw">pub fn </span>git_repository_is_empty(repo: <span class="kw-2">*mut </span>git_repository) -&gt; c_int;
     <span class="kw">pub fn </span>git_repository_is_shallow(repo: <span class="kw-2">*mut </span>git_repository) -&gt; c_int;
     <span class="kw">pub fn </span>git_repository_path(repo: <span class="kw-2">*const </span>git_repository) -&gt; <span class="kw-2">*const </span>c_char;
+    <span class="kw">pub fn </span>git_repository_commondir(repo: <span class="kw-2">*const </span>git_repository) -&gt; <span class="kw-2">*const </span>c_char;
     <span class="kw">pub fn </span>git_repository_state(repo: <span class="kw-2">*mut </span>git_repository) -&gt; c_int;
     <span class="kw">pub fn </span>git_repository_workdir(repo: <span class="kw-2">*const </span>git_repository) -&gt; <span class="kw-2">*const </span>c_char;
     <span class="kw">pub fn </span>git_repository_set_workdir(
@@ -7253,7 +7284,7 @@
         message: <span class="kw-2">*const </span>c_char,
         tree: <span class="kw-2">*const </span>git_tree,
         parent_count: size_t,
-        parents: <span class="kw-2">*const *mut </span>git_commit,
+        parents: <span class="kw-2">*mut *const </span>git_commit,
     ) -&gt; c_int;
     <span class="kw">pub fn </span>git_commit_create_buffer(
         out: <span class="kw-2">*mut </span>git_buf,
@@ -7264,7 +7295,7 @@
         message: <span class="kw-2">*const </span>c_char,
         tree: <span class="kw-2">*const </span>git_tree,
         parent_count: size_t,
-        parents: <span class="kw-2">*const *mut </span>git_commit,
+        parents: <span class="kw-2">*mut *const </span>git_commit,
     ) -&gt; c_int;
     <span class="kw">pub fn </span>git_commit_header_field(
         out: <span class="kw-2">*mut </span>git_buf,
@@ -7847,6 +7878,13 @@
     ) -&gt; c_int;
 
     <span class="kw">pub fn </span>git_merge_base_many(
+        out: <span class="kw-2">*mut </span>git_oid,
+        repo: <span class="kw-2">*mut </span>git_repository,
+        length: size_t,
+        input_array: <span class="kw-2">*const </span>git_oid,
+    ) -&gt; c_int;
+
+    <span class="kw">pub fn </span>git_merge_base_octopus(
         out: <span class="kw-2">*mut </span>git_oid,
         repo: <span class="kw-2">*mut </span>git_repository,
         length: size_t,

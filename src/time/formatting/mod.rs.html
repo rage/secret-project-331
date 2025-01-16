@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/time-0.3.36/src/formatting/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="time" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="icon" href="https://avatars0.githubusercontent.com/u/55999857"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/time-0.3.37/src/formatting/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="time" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="icon" href="https://avatars0.githubusercontent.com/u/55999857"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -486,10 +486,25 @@
 <a href="#486" id="486">486</a>
 <a href="#487" id="487">487</a>
 <a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
+<a href="#490" id="490">490</a>
+<a href="#491" id="491">491</a>
+<a href="#492" id="492">492</a>
+<a href="#493" id="493">493</a>
+<a href="#494" id="494">494</a>
+<a href="#495" id="495">495</a>
+<a href="#496" id="496">496</a>
+<a href="#497" id="497">497</a>
+<a href="#498" id="498">498</a>
+<a href="#499" id="499">499</a>
+<a href="#500" id="500">500</a>
+<a href="#501" id="501">501</a>
+<a href="#502" id="502">502</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Formatting for various types.
 
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>formattable;
 <span class="kw">mod </span>iso8601;
+
 <span class="kw">use </span>core::num::NonZeroU8;
 <span class="kw">use </span>std::io;
 
@@ -536,7 +551,11 @@
 
 <span class="doccomment">/// If `pred` is true, write all bytes to the output, returning the number of bytes written.
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>write_if(output: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>io::Write, pred: bool, bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;usize&gt; {
-    <span class="kw">if </span>pred { write(output, bytes) } <span class="kw">else </span>{ <span class="prelude-val">Ok</span>(<span class="number">0</span>) }
+    <span class="kw">if </span>pred {
+        write(output, bytes)
+    } <span class="kw">else </span>{
+        <span class="prelude-val">Ok</span>(<span class="number">0</span>)
+    }
 }
 
 <span class="doccomment">/// If `pred` is true, write `true_bytes` to the output. Otherwise, write `false_bytes`.
@@ -561,6 +580,10 @@
 ) -&gt; io::Result&lt;usize&gt; {
     <span class="kw">match </span>digits_after_decimal {
         <span class="prelude-val">Some</span>(digits_after_decimal) =&gt; {
+            <span class="comment">// Truncate the decimal points up to the precision
+            </span><span class="kw">let </span>trunc_num = <span class="number">10_f64</span>.powi(digits_after_decimal.get().cast_signed().extend());
+            <span class="kw">let </span>value = f64::trunc(value * trunc_num) / trunc_num;
+
             <span class="kw">let </span>digits_after_decimal = digits_after_decimal.get().extend();
             <span class="kw">let </span>width = digits_before_decimal.extend::&lt;usize&gt;() + <span class="number">1 </span>+ digits_after_decimal;
             <span class="macro">write!</span>(output, <span class="string">"{value:0&gt;width$.digits_after_decimal$}"</span>)<span class="question-mark">?</span>;
@@ -787,6 +810,7 @@
     };
     <span class="kw">let </span>value = <span class="kw">match </span>repr {
         modifier::YearRepr::Full =&gt; full_year,
+        modifier::YearRepr::Century =&gt; full_year / <span class="number">100</span>,
         modifier::YearRepr::LastTwo =&gt; (full_year % <span class="number">100</span>).abs(),
     };
     <span class="kw">let </span>format_number = <span class="kw">match </span>repr {
@@ -795,7 +819,11 @@
         <span class="attr">#[cfg(feature = <span class="string">"large-dates"</span>)]
         </span>modifier::YearRepr::Full <span class="kw">if </span>value.abs() &gt;= <span class="number">10_000 </span>=&gt; format_number::&lt;<span class="number">5</span>&gt;,
         modifier::YearRepr::Full =&gt; format_number::&lt;<span class="number">4</span>&gt;,
-        modifier::YearRepr::LastTwo =&gt; format_number::&lt;<span class="number">2</span>&gt;,
+        <span class="attr">#[cfg(feature = <span class="string">"large-dates"</span>)]
+        </span>modifier::YearRepr::Century <span class="kw">if </span>value.abs() &gt;= <span class="number">1_000 </span>=&gt; format_number::&lt;<span class="number">4</span>&gt;,
+        <span class="attr">#[cfg(feature = <span class="string">"large-dates"</span>)]
+        </span>modifier::YearRepr::Century <span class="kw">if </span>value.abs() &gt;= <span class="number">100 </span>=&gt; format_number::&lt;<span class="number">3</span>&gt;,
+        modifier::YearRepr::Century | modifier::YearRepr::LastTwo =&gt; format_number::&lt;<span class="number">2</span>&gt;,
     };
     <span class="kw">let </span><span class="kw-2">mut </span>bytes = <span class="number">0</span>;
     <span class="kw">if </span>repr != modifier::YearRepr::LastTwo {

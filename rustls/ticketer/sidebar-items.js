@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["TicketSwitcher"]};
+window.SIDEBAR_ITEMS = {"struct":["TicketRotator","TicketSwitcher"]};

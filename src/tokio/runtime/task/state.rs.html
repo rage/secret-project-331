@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tokio-1.40.0/src/runtime/task/state.rs`."><title>state.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="tokio" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tokio-1.43.0/src/runtime/task/state.rs`."><title>state.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="tokio" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -612,6 +612,48 @@
 <a href="#612" id="612">612</a>
 <a href="#613" id="613">613</a>
 <a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::loom::sync::atomic::AtomicUsize;
 
 <span class="kw">use </span>std::fmt;
@@ -701,6 +743,12 @@
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>TransitionToNotifiedByRef {
     DoNothing,
     Submit,
+}
+
+<span class="attr">#[must_use]
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct </span>TransitionToJoinHandleDrop {
+    <span class="kw">pub</span>(<span class="kw">super</span>) drop_waker: bool,
+    <span class="kw">pub</span>(<span class="kw">super</span>) drop_output: bool,
 }
 
 <span class="doccomment">/// All transitions are performed via RMW operations. This establishes an
@@ -985,22 +1033,45 @@
             .map_err(|<span class="kw">_</span>| ())
     }
 
-    <span class="doccomment">/// Tries to unset the `JOIN_INTEREST` flag.
-    ///
-    /// Returns `Ok` if the operation happens before the task transitions to a
-    /// completed state, `Err` otherwise.
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>unset_join_interested(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; UpdateResult {
-        <span class="self">self</span>.fetch_update(|curr| {
-            <span class="macro">assert!</span>(curr.is_join_interested());
+    <span class="doccomment">/// Unsets the `JOIN_INTEREST` flag. If `COMPLETE` is not set, the `JOIN_WAKER`
+    /// flag is also unset.
+    /// The returned `TransitionToJoinHandleDrop` indicates whether the `JoinHandle` should drop
+    /// the output of the future or the join waker after the transition.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>transition_to_join_handle_dropped(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TransitionToJoinHandleDrop {
+        <span class="self">self</span>.fetch_update_action(|<span class="kw-2">mut </span>snapshot| {
+            <span class="macro">assert!</span>(snapshot.is_join_interested());
 
-            <span class="kw">if </span>curr.is_complete() {
-                <span class="kw">return </span><span class="prelude-val">None</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>transition = TransitionToJoinHandleDrop {
+                drop_waker: <span class="bool-val">false</span>,
+                drop_output: <span class="bool-val">false</span>,
+            };
+
+            snapshot.unset_join_interested();
+
+            <span class="kw">if </span>!snapshot.is_complete() {
+                <span class="comment">// If `COMPLETE` is unset we also unset `JOIN_WAKER` to give the
+                // `JoinHandle` exclusive access to the waker following rule 6 in task/mod.rs.
+                // The `JoinHandle` will drop the waker if it has exclusive access
+                // to drop it.
+                </span>snapshot.unset_join_waker();
+            } <span class="kw">else </span>{
+                <span class="comment">// If `COMPLETE` is set the task is completed so the `JoinHandle` is responsible
+                // for dropping the output.
+                </span>transition.drop_output = <span class="bool-val">true</span>;
             }
 
-            <span class="kw">let </span><span class="kw-2">mut </span>next = curr;
-            next.unset_join_interested();
+            <span class="kw">if </span>!snapshot.is_join_waker_set() {
+                <span class="comment">// If the `JOIN_WAKER` bit is unset and the `JOIN_HANDLE` has exclusive access to
+                // the join waker and should drop it following this transition.
+                // This might happen in two situations:
+                //  1. The task is not completed and we just unset the `JOIN_WAKer` above in this
+                //     function.
+                //  2. The task is completed. In that case the `JOIN_WAKER` bit was already unset
+                //     by the runtime during completion.
+                </span>transition.drop_waker = <span class="bool-val">true</span>;
+            }
 
-            <span class="prelude-val">Some</span>(next)
+            (transition, <span class="prelude-val">Some</span>(snapshot))
         })
     }
 
@@ -1031,17 +1102,30 @@
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>unset_waker(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; UpdateResult {
         <span class="self">self</span>.fetch_update(|curr| {
             <span class="macro">assert!</span>(curr.is_join_interested());
-            <span class="macro">assert!</span>(curr.is_join_waker_set());
 
             <span class="kw">if </span>curr.is_complete() {
                 <span class="kw">return </span><span class="prelude-val">None</span>;
             }
+
+            <span class="comment">// If the task is completed, this bit may have been unset by
+            // `unset_waker_after_complete`.
+            </span><span class="macro">assert!</span>(curr.is_join_waker_set());
 
             <span class="kw">let </span><span class="kw-2">mut </span>next = curr;
             next.unset_join_waker();
 
             <span class="prelude-val">Some</span>(next)
         })
+    }
+
+    <span class="doccomment">/// Unsets the `JOIN_WAKER` bit unconditionally after task completion.
+    ///
+    /// This operation requires the task to be completed.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>unset_waker_after_complete(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Snapshot {
+        <span class="kw">let </span>prev = Snapshot(<span class="self">self</span>.val.fetch_and(!JOIN_WAKER, AcqRel));
+        <span class="macro">assert!</span>(prev.is_complete());
+        <span class="macro">assert!</span>(prev.is_join_waker_set());
+        Snapshot(prev.<span class="number">0 </span>&amp; !JOIN_WAKER)
     }
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>ref_inc(<span class="kw-2">&amp;</span><span class="self">self</span>) {

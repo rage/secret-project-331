@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/itertools-0.13.0/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="itertools" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/itertools-0.14.0/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="itertools" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -4363,9 +4363,358 @@
 <a href="#4363" id="4363">4363</a>
 <a href="#4364" id="4364">4364</a>
 <a href="#4365" id="4365">4365</a>
+<a href="#4366" id="4366">4366</a>
+<a href="#4367" id="4367">4367</a>
+<a href="#4368" id="4368">4368</a>
+<a href="#4369" id="4369">4369</a>
+<a href="#4370" id="4370">4370</a>
+<a href="#4371" id="4371">4371</a>
+<a href="#4372" id="4372">4372</a>
+<a href="#4373" id="4373">4373</a>
+<a href="#4374" id="4374">4374</a>
+<a href="#4375" id="4375">4375</a>
+<a href="#4376" id="4376">4376</a>
+<a href="#4377" id="4377">4377</a>
+<a href="#4378" id="4378">4378</a>
+<a href="#4379" id="4379">4379</a>
+<a href="#4380" id="4380">4380</a>
+<a href="#4381" id="4381">4381</a>
+<a href="#4382" id="4382">4382</a>
+<a href="#4383" id="4383">4383</a>
+<a href="#4384" id="4384">4384</a>
+<a href="#4385" id="4385">4385</a>
+<a href="#4386" id="4386">4386</a>
+<a href="#4387" id="4387">4387</a>
+<a href="#4388" id="4388">4388</a>
+<a href="#4389" id="4389">4389</a>
+<a href="#4390" id="4390">4390</a>
+<a href="#4391" id="4391">4391</a>
+<a href="#4392" id="4392">4392</a>
+<a href="#4393" id="4393">4393</a>
+<a href="#4394" id="4394">4394</a>
+<a href="#4395" id="4395">4395</a>
+<a href="#4396" id="4396">4396</a>
+<a href="#4397" id="4397">4397</a>
+<a href="#4398" id="4398">4398</a>
+<a href="#4399" id="4399">4399</a>
+<a href="#4400" id="4400">4400</a>
+<a href="#4401" id="4401">4401</a>
+<a href="#4402" id="4402">4402</a>
+<a href="#4403" id="4403">4403</a>
+<a href="#4404" id="4404">4404</a>
+<a href="#4405" id="4405">4405</a>
+<a href="#4406" id="4406">4406</a>
+<a href="#4407" id="4407">4407</a>
+<a href="#4408" id="4408">4408</a>
+<a href="#4409" id="4409">4409</a>
+<a href="#4410" id="4410">4410</a>
+<a href="#4411" id="4411">4411</a>
+<a href="#4412" id="4412">4412</a>
+<a href="#4413" id="4413">4413</a>
+<a href="#4414" id="4414">4414</a>
+<a href="#4415" id="4415">4415</a>
+<a href="#4416" id="4416">4416</a>
+<a href="#4417" id="4417">4417</a>
+<a href="#4418" id="4418">4418</a>
+<a href="#4419" id="4419">4419</a>
+<a href="#4420" id="4420">4420</a>
+<a href="#4421" id="4421">4421</a>
+<a href="#4422" id="4422">4422</a>
+<a href="#4423" id="4423">4423</a>
+<a href="#4424" id="4424">4424</a>
+<a href="#4425" id="4425">4425</a>
+<a href="#4426" id="4426">4426</a>
+<a href="#4427" id="4427">4427</a>
+<a href="#4428" id="4428">4428</a>
+<a href="#4429" id="4429">4429</a>
+<a href="#4430" id="4430">4430</a>
+<a href="#4431" id="4431">4431</a>
+<a href="#4432" id="4432">4432</a>
+<a href="#4433" id="4433">4433</a>
+<a href="#4434" id="4434">4434</a>
+<a href="#4435" id="4435">4435</a>
+<a href="#4436" id="4436">4436</a>
+<a href="#4437" id="4437">4437</a>
+<a href="#4438" id="4438">4438</a>
+<a href="#4439" id="4439">4439</a>
+<a href="#4440" id="4440">4440</a>
+<a href="#4441" id="4441">4441</a>
+<a href="#4442" id="4442">4442</a>
+<a href="#4443" id="4443">4443</a>
+<a href="#4444" id="4444">4444</a>
+<a href="#4445" id="4445">4445</a>
+<a href="#4446" id="4446">4446</a>
+<a href="#4447" id="4447">4447</a>
+<a href="#4448" id="4448">4448</a>
+<a href="#4449" id="4449">4449</a>
+<a href="#4450" id="4450">4450</a>
+<a href="#4451" id="4451">4451</a>
+<a href="#4452" id="4452">4452</a>
+<a href="#4453" id="4453">4453</a>
+<a href="#4454" id="4454">4454</a>
+<a href="#4455" id="4455">4455</a>
+<a href="#4456" id="4456">4456</a>
+<a href="#4457" id="4457">4457</a>
+<a href="#4458" id="4458">4458</a>
+<a href="#4459" id="4459">4459</a>
+<a href="#4460" id="4460">4460</a>
+<a href="#4461" id="4461">4461</a>
+<a href="#4462" id="4462">4462</a>
+<a href="#4463" id="4463">4463</a>
+<a href="#4464" id="4464">4464</a>
+<a href="#4465" id="4465">4465</a>
+<a href="#4466" id="4466">4466</a>
+<a href="#4467" id="4467">4467</a>
+<a href="#4468" id="4468">4468</a>
+<a href="#4469" id="4469">4469</a>
+<a href="#4470" id="4470">4470</a>
+<a href="#4471" id="4471">4471</a>
+<a href="#4472" id="4472">4472</a>
+<a href="#4473" id="4473">4473</a>
+<a href="#4474" id="4474">4474</a>
+<a href="#4475" id="4475">4475</a>
+<a href="#4476" id="4476">4476</a>
+<a href="#4477" id="4477">4477</a>
+<a href="#4478" id="4478">4478</a>
+<a href="#4479" id="4479">4479</a>
+<a href="#4480" id="4480">4480</a>
+<a href="#4481" id="4481">4481</a>
+<a href="#4482" id="4482">4482</a>
+<a href="#4483" id="4483">4483</a>
+<a href="#4484" id="4484">4484</a>
+<a href="#4485" id="4485">4485</a>
+<a href="#4486" id="4486">4486</a>
+<a href="#4487" id="4487">4487</a>
+<a href="#4488" id="4488">4488</a>
+<a href="#4489" id="4489">4489</a>
+<a href="#4490" id="4490">4490</a>
+<a href="#4491" id="4491">4491</a>
+<a href="#4492" id="4492">4492</a>
+<a href="#4493" id="4493">4493</a>
+<a href="#4494" id="4494">4494</a>
+<a href="#4495" id="4495">4495</a>
+<a href="#4496" id="4496">4496</a>
+<a href="#4497" id="4497">4497</a>
+<a href="#4498" id="4498">4498</a>
+<a href="#4499" id="4499">4499</a>
+<a href="#4500" id="4500">4500</a>
+<a href="#4501" id="4501">4501</a>
+<a href="#4502" id="4502">4502</a>
+<a href="#4503" id="4503">4503</a>
+<a href="#4504" id="4504">4504</a>
+<a href="#4505" id="4505">4505</a>
+<a href="#4506" id="4506">4506</a>
+<a href="#4507" id="4507">4507</a>
+<a href="#4508" id="4508">4508</a>
+<a href="#4509" id="4509">4509</a>
+<a href="#4510" id="4510">4510</a>
+<a href="#4511" id="4511">4511</a>
+<a href="#4512" id="4512">4512</a>
+<a href="#4513" id="4513">4513</a>
+<a href="#4514" id="4514">4514</a>
+<a href="#4515" id="4515">4515</a>
+<a href="#4516" id="4516">4516</a>
+<a href="#4517" id="4517">4517</a>
+<a href="#4518" id="4518">4518</a>
+<a href="#4519" id="4519">4519</a>
+<a href="#4520" id="4520">4520</a>
+<a href="#4521" id="4521">4521</a>
+<a href="#4522" id="4522">4522</a>
+<a href="#4523" id="4523">4523</a>
+<a href="#4524" id="4524">4524</a>
+<a href="#4525" id="4525">4525</a>
+<a href="#4526" id="4526">4526</a>
+<a href="#4527" id="4527">4527</a>
+<a href="#4528" id="4528">4528</a>
+<a href="#4529" id="4529">4529</a>
+<a href="#4530" id="4530">4530</a>
+<a href="#4531" id="4531">4531</a>
+<a href="#4532" id="4532">4532</a>
+<a href="#4533" id="4533">4533</a>
+<a href="#4534" id="4534">4534</a>
+<a href="#4535" id="4535">4535</a>
+<a href="#4536" id="4536">4536</a>
+<a href="#4537" id="4537">4537</a>
+<a href="#4538" id="4538">4538</a>
+<a href="#4539" id="4539">4539</a>
+<a href="#4540" id="4540">4540</a>
+<a href="#4541" id="4541">4541</a>
+<a href="#4542" id="4542">4542</a>
+<a href="#4543" id="4543">4543</a>
+<a href="#4544" id="4544">4544</a>
+<a href="#4545" id="4545">4545</a>
+<a href="#4546" id="4546">4546</a>
+<a href="#4547" id="4547">4547</a>
+<a href="#4548" id="4548">4548</a>
+<a href="#4549" id="4549">4549</a>
+<a href="#4550" id="4550">4550</a>
+<a href="#4551" id="4551">4551</a>
+<a href="#4552" id="4552">4552</a>
+<a href="#4553" id="4553">4553</a>
+<a href="#4554" id="4554">4554</a>
+<a href="#4555" id="4555">4555</a>
+<a href="#4556" id="4556">4556</a>
+<a href="#4557" id="4557">4557</a>
+<a href="#4558" id="4558">4558</a>
+<a href="#4559" id="4559">4559</a>
+<a href="#4560" id="4560">4560</a>
+<a href="#4561" id="4561">4561</a>
+<a href="#4562" id="4562">4562</a>
+<a href="#4563" id="4563">4563</a>
+<a href="#4564" id="4564">4564</a>
+<a href="#4565" id="4565">4565</a>
+<a href="#4566" id="4566">4566</a>
+<a href="#4567" id="4567">4567</a>
+<a href="#4568" id="4568">4568</a>
+<a href="#4569" id="4569">4569</a>
+<a href="#4570" id="4570">4570</a>
+<a href="#4571" id="4571">4571</a>
+<a href="#4572" id="4572">4572</a>
+<a href="#4573" id="4573">4573</a>
+<a href="#4574" id="4574">4574</a>
+<a href="#4575" id="4575">4575</a>
+<a href="#4576" id="4576">4576</a>
+<a href="#4577" id="4577">4577</a>
+<a href="#4578" id="4578">4578</a>
+<a href="#4579" id="4579">4579</a>
+<a href="#4580" id="4580">4580</a>
+<a href="#4581" id="4581">4581</a>
+<a href="#4582" id="4582">4582</a>
+<a href="#4583" id="4583">4583</a>
+<a href="#4584" id="4584">4584</a>
+<a href="#4585" id="4585">4585</a>
+<a href="#4586" id="4586">4586</a>
+<a href="#4587" id="4587">4587</a>
+<a href="#4588" id="4588">4588</a>
+<a href="#4589" id="4589">4589</a>
+<a href="#4590" id="4590">4590</a>
+<a href="#4591" id="4591">4591</a>
+<a href="#4592" id="4592">4592</a>
+<a href="#4593" id="4593">4593</a>
+<a href="#4594" id="4594">4594</a>
+<a href="#4595" id="4595">4595</a>
+<a href="#4596" id="4596">4596</a>
+<a href="#4597" id="4597">4597</a>
+<a href="#4598" id="4598">4598</a>
+<a href="#4599" id="4599">4599</a>
+<a href="#4600" id="4600">4600</a>
+<a href="#4601" id="4601">4601</a>
+<a href="#4602" id="4602">4602</a>
+<a href="#4603" id="4603">4603</a>
+<a href="#4604" id="4604">4604</a>
+<a href="#4605" id="4605">4605</a>
+<a href="#4606" id="4606">4606</a>
+<a href="#4607" id="4607">4607</a>
+<a href="#4608" id="4608">4608</a>
+<a href="#4609" id="4609">4609</a>
+<a href="#4610" id="4610">4610</a>
+<a href="#4611" id="4611">4611</a>
+<a href="#4612" id="4612">4612</a>
+<a href="#4613" id="4613">4613</a>
+<a href="#4614" id="4614">4614</a>
+<a href="#4615" id="4615">4615</a>
+<a href="#4616" id="4616">4616</a>
+<a href="#4617" id="4617">4617</a>
+<a href="#4618" id="4618">4618</a>
+<a href="#4619" id="4619">4619</a>
+<a href="#4620" id="4620">4620</a>
+<a href="#4621" id="4621">4621</a>
+<a href="#4622" id="4622">4622</a>
+<a href="#4623" id="4623">4623</a>
+<a href="#4624" id="4624">4624</a>
+<a href="#4625" id="4625">4625</a>
+<a href="#4626" id="4626">4626</a>
+<a href="#4627" id="4627">4627</a>
+<a href="#4628" id="4628">4628</a>
+<a href="#4629" id="4629">4629</a>
+<a href="#4630" id="4630">4630</a>
+<a href="#4631" id="4631">4631</a>
+<a href="#4632" id="4632">4632</a>
+<a href="#4633" id="4633">4633</a>
+<a href="#4634" id="4634">4634</a>
+<a href="#4635" id="4635">4635</a>
+<a href="#4636" id="4636">4636</a>
+<a href="#4637" id="4637">4637</a>
+<a href="#4638" id="4638">4638</a>
+<a href="#4639" id="4639">4639</a>
+<a href="#4640" id="4640">4640</a>
+<a href="#4641" id="4641">4641</a>
+<a href="#4642" id="4642">4642</a>
+<a href="#4643" id="4643">4643</a>
+<a href="#4644" id="4644">4644</a>
+<a href="#4645" id="4645">4645</a>
+<a href="#4646" id="4646">4646</a>
+<a href="#4647" id="4647">4647</a>
+<a href="#4648" id="4648">4648</a>
+<a href="#4649" id="4649">4649</a>
+<a href="#4650" id="4650">4650</a>
+<a href="#4651" id="4651">4651</a>
+<a href="#4652" id="4652">4652</a>
+<a href="#4653" id="4653">4653</a>
+<a href="#4654" id="4654">4654</a>
+<a href="#4655" id="4655">4655</a>
+<a href="#4656" id="4656">4656</a>
+<a href="#4657" id="4657">4657</a>
+<a href="#4658" id="4658">4658</a>
+<a href="#4659" id="4659">4659</a>
+<a href="#4660" id="4660">4660</a>
+<a href="#4661" id="4661">4661</a>
+<a href="#4662" id="4662">4662</a>
+<a href="#4663" id="4663">4663</a>
+<a href="#4664" id="4664">4664</a>
+<a href="#4665" id="4665">4665</a>
+<a href="#4666" id="4666">4666</a>
+<a href="#4667" id="4667">4667</a>
+<a href="#4668" id="4668">4668</a>
+<a href="#4669" id="4669">4669</a>
+<a href="#4670" id="4670">4670</a>
+<a href="#4671" id="4671">4671</a>
+<a href="#4672" id="4672">4672</a>
+<a href="#4673" id="4673">4673</a>
+<a href="#4674" id="4674">4674</a>
+<a href="#4675" id="4675">4675</a>
+<a href="#4676" id="4676">4676</a>
+<a href="#4677" id="4677">4677</a>
+<a href="#4678" id="4678">4678</a>
+<a href="#4679" id="4679">4679</a>
+<a href="#4680" id="4680">4680</a>
+<a href="#4681" id="4681">4681</a>
+<a href="#4682" id="4682">4682</a>
+<a href="#4683" id="4683">4683</a>
+<a href="#4684" id="4684">4684</a>
+<a href="#4685" id="4685">4685</a>
+<a href="#4686" id="4686">4686</a>
+<a href="#4687" id="4687">4687</a>
+<a href="#4688" id="4688">4688</a>
+<a href="#4689" id="4689">4689</a>
+<a href="#4690" id="4690">4690</a>
+<a href="#4691" id="4691">4691</a>
+<a href="#4692" id="4692">4692</a>
+<a href="#4693" id="4693">4693</a>
+<a href="#4694" id="4694">4694</a>
+<a href="#4695" id="4695">4695</a>
+<a href="#4696" id="4696">4696</a>
+<a href="#4697" id="4697">4697</a>
+<a href="#4698" id="4698">4698</a>
+<a href="#4699" id="4699">4699</a>
+<a href="#4700" id="4700">4700</a>
+<a href="#4701" id="4701">4701</a>
+<a href="#4702" id="4702">4702</a>
+<a href="#4703" id="4703">4703</a>
+<a href="#4704" id="4704">4704</a>
+<a href="#4705" id="4705">4705</a>
+<a href="#4706" id="4706">4706</a>
+<a href="#4707" id="4707">4707</a>
+<a href="#4708" id="4708">4708</a>
+<a href="#4709" id="4709">4709</a>
+<a href="#4710" id="4710">4710</a>
+<a href="#4711" id="4711">4711</a>
+<a href="#4712" id="4712">4712</a>
+<a href="#4713" id="4713">4713</a>
 </pre></div><pre class="rust"><code><span class="attr">#![warn(missing_docs, clippy::default_numeric_fallback)]
 #![crate_name = <span class="string">"itertools"</span>]
 #![cfg_attr(not(feature = <span class="string">"use_std"</span>), no_std)]
+#![doc(test(attr(deny(warnings), allow(deprecated, unstable_name_collisions))))]
 
 </span><span class="doccomment">//! Extra iterator adaptors, functions and macros.
 //!
@@ -4373,6 +4722,7 @@
 //! the [`Itertools`] trait:
 //!
 //! ```
+//! # #[allow(unused_imports)]
 //! use itertools::Itertools;
 //! ```
 //!
@@ -4394,6 +4744,7 @@
 //!
 //! for elt in interleave(&amp;[1, 2, 3], &amp;[2, 3, 4]) {
 //!     /* loop body */
+//!     # let _ = elt;
 //! }
 //! ```
 //!
@@ -4411,7 +4762,7 @@
 //!
 //! ## Rust Version
 //!
-//! This version of itertools requires Rust 1.43.1 or later.
+//! This version of itertools requires Rust 1.63.0 or later.
 
 </span><span class="attr">#[cfg(not(feature = <span class="string">"use_std"</span>))]
 </span><span class="kw">extern crate </span>core <span class="kw">as </span>std;
@@ -4459,7 +4810,7 @@
         TakeWhileRef, TupleCombinations, Update, WhileSome,
     };
     <span class="attr">#[cfg(feature = <span class="string">"use_alloc"</span>)]
-    </span><span class="kw">pub use </span><span class="kw">crate</span>::combinations::Combinations;
+    </span><span class="kw">pub use </span><span class="kw">crate</span>::combinations::{ArrayCombinations, Combinations};
     <span class="attr">#[cfg(feature = <span class="string">"use_alloc"</span>)]
     </span><span class="kw">pub use </span><span class="kw">crate</span>::combinations_with_replacement::CombinationsWithReplacement;
     <span class="kw">pub use </span><span class="kw">crate</span>::cons_tuples_impl::ConsTuples;
@@ -4571,6 +4922,7 @@
 <span class="kw">mod </span>minmax;
 <span class="attr">#[cfg(feature = <span class="string">"use_alloc"</span>)]
 </span><span class="kw">mod </span>multipeek_impl;
+<span class="kw">mod </span>next_array;
 <span class="kw">mod </span>pad_tail;
 <span class="attr">#[cfg(feature = <span class="string">"use_alloc"</span>)]
 </span><span class="kw">mod </span>peek_nth;
@@ -4613,6 +4965,7 @@
 /// // from (0, 0, 0), (0, 0, 1), .., (0, 1, 0), (0, 1, 1), .. etc until (3, 3, 3)
 /// for (i, j, k) in iproduct!(0..4, 0..4, 0..4) {
 ///    // ..
+///    # let _ = (i, j, k);
 /// }
 /// # }
 /// ```
@@ -4627,7 +4980,10 @@
         <span class="macro-nonterminal">$crate::__std_iter::once</span>(())
     );
     (<span class="macro-nonterminal">$I</span>:expr $(,)<span class="question-mark">?</span>) =&gt; (
-        <span class="macro-nonterminal">$crate::__std_iter::IntoIterator::into_iter</span>(<span class="macro-nonterminal">$I</span>).map(|elt| (elt,))
+        <span class="macro-nonterminal">$crate::__std_iter::Iterator::map</span>(
+            <span class="macro-nonterminal">$crate::__std_iter::IntoIterator::into_iter</span>(<span class="macro-nonterminal">$I</span>),
+            |elt| (elt,)
+        )
     );
     (<span class="macro-nonterminal">$I</span>:expr, <span class="macro-nonterminal">$J</span>:expr $(,)<span class="question-mark">?</span>) =&gt; (
         <span class="macro-nonterminal">$crate::Itertools::cartesian_product</span>(
@@ -4695,19 +5051,24 @@
 
     <span class="comment">// binary
     </span>(<span class="macro-nonterminal">$first</span>:expr, <span class="macro-nonterminal">$second</span>:expr $(,)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro-nonterminal">$</span><span class="macro">crate::izip!</span>(<span class="macro-nonterminal">$first</span>)
-            .zip(<span class="macro-nonterminal">$second</span>)
+        <span class="macro-nonterminal">$crate::__std_iter::Iterator::zip</span>(
+            <span class="macro-nonterminal">$crate::__std_iter::IntoIterator::into_iter</span>(<span class="macro-nonterminal">$first</span>),
+            <span class="macro-nonterminal">$second</span>,
+        )
     };
 
     <span class="comment">// n-ary where n &gt; 2
     </span>( <span class="macro-nonterminal">$first</span>:expr $( , <span class="macro-nonterminal">$rest</span>:expr )* $(,)* ) =&gt; {
-        <span class="macro-nonterminal">$</span><span class="macro">crate::izip!</span>(<span class="macro-nonterminal">$first</span>)
+        {
+            <span class="kw">let </span>iter = <span class="macro-nonterminal">$crate::__std_iter::IntoIterator::into_iter</span>(<span class="macro-nonterminal">$first</span>);
             $(
-                .zip(<span class="macro-nonterminal">$rest</span>)
+                <span class="kw">let </span>iter = <span class="macro-nonterminal">$crate::__std_iter::Iterator::zip</span>(iter, <span class="macro-nonterminal">$rest</span>);
             )*
-            .map(
+            <span class="macro-nonterminal">$crate::__std_iter::Iterator::map</span>(
+                iter,
                 <span class="macro-nonterminal">$</span><span class="macro">crate::izip!</span>(@<span class="macro-nonterminal">closure </span>a =&gt; (a) $( , <span class="macro-nonterminal">$rest </span>)<span class="kw-2">*</span>)
             )
+        }
     };
 }
 
@@ -4732,16 +5093,16 @@
 ///
 /// Invocations of `chain!` with one argument expand to [`arg.into_iter()`](IntoIterator):
 /// ```
-/// use std::{ops::Range, slice};
+/// use std::ops::Range;
 /// use itertools::chain;
-/// let _: &lt;Range&lt;_&gt; as IntoIterator&gt;::IntoIter = chain!((2..6),); // trailing comma optional!
+/// let _: &lt;Range&lt;_&gt; as IntoIterator&gt;::IntoIter = chain!(2..6,); // trailing comma optional!
 /// let _:     &lt;&amp;[_] as IntoIterator&gt;::IntoIter = chain!(&amp;[2, 3, 4]);
 /// ```
 ///
 /// Invocations of `chain!` with multiple arguments [`.into_iter()`](IntoIterator) each
 /// argument, and then [`chain`] them together:
 /// ```
-/// use std::{iter::*, ops::Range, slice};
+/// use std::{iter::*, slice};
 /// use itertools::{assert_equal, chain};
 ///
 /// // e.g., this:
@@ -4758,16 +5119,16 @@
 /// ```
 </span><span class="macro">macro_rules!</span> chain {
     () =&gt; {
-        core::iter::empty()
+        <span class="macro-nonterminal">$crate::__std_iter::empty</span>()
     };
     (<span class="macro-nonterminal">$first</span>:expr $(, <span class="macro-nonterminal">$rest</span>:expr )* $(,)<span class="question-mark">?</span>) =&gt; {
         {
-            <span class="kw">let </span>iter = core::iter::IntoIterator::into_iter(<span class="macro-nonterminal">$first</span>);
+            <span class="kw">let </span>iter = <span class="macro-nonterminal">$crate::__std_iter::IntoIterator::into_iter</span>(<span class="macro-nonterminal">$first</span>);
             $(
                 <span class="kw">let </span>iter =
-                    core::iter::Iterator::chain(
+                    <span class="macro-nonterminal">$crate::__std_iter::Iterator::chain</span>(
                         iter,
-                        core::iter::IntoIterator::into_iter(<span class="macro-nonterminal">$rest</span>));
+                        <span class="macro-nonterminal">$crate::__std_iter::IntoIterator::into_iter</span>(<span class="macro-nonterminal">$rest</span>));
             )*
             iter
         }
@@ -4780,13 +5141,13 @@
 /// This trait defines a number of methods. They are divided into two groups:
 ///
 /// * *Adaptors* take an iterator and parameter as input, and return
-/// a new iterator value. These are listed first in the trait. An example
-/// of an adaptor is [`.interleave()`](Itertools::interleave)
+///   a new iterator value. These are listed first in the trait. An example
+///   of an adaptor is [`.interleave()`](Itertools::interleave)
 ///
 /// * *Regular methods* are those that don't return iterators and instead
-/// return a regular value of some other kind.
-/// [`.next_tuple()`](Itertools::next_tuple) is an example and the first regular
-/// method in the list.
+///   return a regular value of some other kind.
+///   [`.next_tuple()`](Itertools::next_tuple) is an example and the first regular
+///   method in the list.
 </span><span class="kw">pub trait </span>Itertools: Iterator {
     <span class="comment">// adaptors
 
@@ -5408,7 +5769,6 @@
     /// let it = a.merge_by(b, |x, y| x.1 &lt;= y.1);
     /// itertools::assert_equal(it, vec![(0, 'a'), (0, 'b'), (1, 'c'), (1, 'd')]);
     /// ```
-
     </span><span class="kw">fn </span>merge_by&lt;J, F&gt;(<span class="self">self</span>, other: J, is_first: F) -&gt; MergeBy&lt;<span class="self">Self</span>, J::IntoIter, F&gt;
     <span class="kw">where
         </span><span class="self">Self</span>: Sized,
@@ -5444,7 +5804,9 @@
     /// let b = (0..10).step_by(3);
     ///
     /// itertools::assert_equal(
-    ///     a.merge_join_by(b, |i, j| i.cmp(j)),
+    ///     // This performs a diff in the style of the Unix command comm(1),
+    ///     // generalized to arbitrary types rather than text.
+    ///     a.merge_join_by(b, Ord::cmp),
     ///     vec![Both(0, 0), Left(2), Right(3), Left(4), Both(6, 6), Left(1), Right(9)]
     /// );
     /// ```
@@ -5476,6 +5838,7 @@
     /// );
     /// ```
     </span><span class="attr">#[inline]
+    #[doc(alias = <span class="string">"comm"</span>)]
     </span><span class="kw">fn </span>merge_join_by&lt;J, F, T&gt;(<span class="self">self</span>, other: J, cmp_fn: F) -&gt; MergeJoinBy&lt;<span class="self">Self</span>, J::IntoIter, F&gt;
     <span class="kw">where
         </span>J: IntoIterator,
@@ -5947,6 +6310,7 @@
     ///     .collect();
     /// let expected: Vec&lt;_&gt; = vec![1, 2, 3].into_iter().map(NoCloneImpl).collect();
     /// assert_eq!(filtered, expected);
+    </span><span class="attr">#[doc(alias = <span class="string">"take_until"</span>)]
     </span><span class="kw">fn </span>take_while_inclusive&lt;F&gt;(<span class="self">self</span>, accept: F) -&gt; TakeWhileInclusive&lt;<span class="self">Self</span>, F&gt;
     <span class="kw">where
         </span><span class="self">Self</span>: Sized,
@@ -6021,6 +6385,53 @@
         T: adaptors::HasCombination&lt;<span class="self">Self</span>&gt;,
     {
         adaptors::tuple_combinations(<span class="self">self</span>)
+    }
+
+    <span class="doccomment">/// Return an iterator adaptor that iterates over the combinations of the
+    /// elements from an iterator.
+    ///
+    /// Iterator element type is [Self::Item; K]. The iterator produces a new
+    /// array per iteration, and clones the iterator elements.
+    ///
+    /// # Guarantees
+    ///
+    /// If the adapted iterator is deterministic,
+    /// this iterator adapter yields items in a reliable order.
+    ///
+    /// ```
+    /// use itertools::Itertools;
+    ///
+    /// let mut v = Vec::new();
+    /// for [a, b] in (1..5).array_combinations() {
+    ///     v.push([a, b]);
+    /// }
+    /// assert_eq!(v, vec![[1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]);
+    ///
+    /// let mut it = (1..5).array_combinations();
+    /// assert_eq!(Some([1, 2, 3]), it.next());
+    /// assert_eq!(Some([1, 2, 4]), it.next());
+    /// assert_eq!(Some([1, 3, 4]), it.next());
+    /// assert_eq!(Some([2, 3, 4]), it.next());
+    /// assert_eq!(None, it.next());
+    ///
+    /// // this requires a type hint
+    /// let it = (1..5).array_combinations::&lt;3&gt;();
+    /// itertools::assert_equal(it, vec![[1, 2, 3], [1, 2, 4], [1, 3, 4], [2, 3, 4]]);
+    ///
+    /// // you can also specify the complete type
+    /// use itertools::ArrayCombinations;
+    /// use std::ops::Range;
+    ///
+    /// let it: ArrayCombinations&lt;Range&lt;u32&gt;, 3&gt; = (1..5).array_combinations();
+    /// itertools::assert_equal(it, vec![[1, 2, 3], [1, 2, 4], [1, 3, 4], [2, 3, 4]]);
+    /// ```
+    </span><span class="attr">#[cfg(feature = <span class="string">"use_alloc"</span>)]
+    </span><span class="kw">fn </span>array_combinations&lt;<span class="kw">const </span>K: usize&gt;(<span class="self">self</span>) -&gt; ArrayCombinations&lt;<span class="self">Self</span>, K&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized + Clone,
+        <span class="self">Self</span>::Item: Clone,
+    {
+        combinations::array_combinations(<span class="self">self</span>)
     }
 
     <span class="doccomment">/// Return an iterator adaptor that iterates over the `k`-length combinations of
@@ -6259,7 +6670,7 @@
     /// use itertools::Itertools;
     ///
     /// let input = vec![vec![1], vec![3, 2, 1]];
-    /// let it = input.into_iter().update(|mut v| v.push(0));
+    /// let it = input.into_iter().update(|v| v.push(0));
     /// itertools::assert_equal(it, vec![vec![1, 0], vec![3, 2, 1, 0]]);
     /// ```
     </span><span class="kw">fn </span>update&lt;F&gt;(<span class="self">self</span>, updater: F) -&gt; Update&lt;<span class="self">Self</span>, F&gt;
@@ -6271,7 +6682,51 @@
     }
 
     <span class="comment">// non-adaptor methods
-    </span><span class="doccomment">/// Advances the iterator and returns the next items grouped in a tuple of
+    </span><span class="doccomment">/// Advances the iterator and returns the next items grouped in an array of
+    /// a specific size.
+    ///
+    /// If there are enough elements to be grouped in an array, then the array
+    /// is returned inside `Some`, otherwise `None` is returned.
+    ///
+    /// ```
+    /// use itertools::Itertools;
+    ///
+    /// let mut iter = 1..5;
+    ///
+    /// assert_eq!(Some([1, 2]), iter.next_array());
+    /// ```
+    </span><span class="kw">fn </span>next_array&lt;<span class="kw">const </span>N: usize&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;[<span class="self">Self</span>::Item; N]&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+    {
+        next_array::next_array(<span class="self">self</span>)
+    }
+
+    <span class="doccomment">/// Collects all items from the iterator into an array of a specific size.
+    ///
+    /// If the number of elements inside the iterator is **exactly** equal to
+    /// the array size, then the array is returned inside `Some`, otherwise
+    /// `None` is returned.
+    ///
+    /// ```
+    /// use itertools::Itertools;
+    ///
+    /// let iter = 1..3;
+    ///
+    /// if let Some([x, y]) = iter.collect_array() {
+    ///     assert_eq!([x, y], [1, 2])
+    /// } else {
+    ///     panic!("Expected two elements")
+    /// }
+    /// ```
+    </span><span class="kw">fn </span>collect_array&lt;<span class="kw">const </span>N: usize&gt;(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;[<span class="self">Self</span>::Item; N]&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+    {
+        <span class="self">self</span>.next_array().filter(|<span class="kw">_</span>| <span class="self">self</span>.next().is_none())
+    }
+
+    <span class="doccomment">/// Advances the iterator and returns the next items grouped in a tuple of
     /// a specific size (up to 12).
     ///
     /// If there are enough elements to be grouped in a tuple, then the tuple is
@@ -6351,6 +6806,15 @@
     /// assert_eq!(numbers.iter().find_or_last(|&amp;&amp;x| x &gt; 5), Some(&amp;4));
     /// assert_eq!(numbers.iter().find_or_last(|&amp;&amp;x| x &gt; 2), Some(&amp;3));
     /// assert_eq!(std::iter::empty::&lt;i32&gt;().find_or_last(|&amp;x| x &gt; 5), None);
+    ///
+    /// // An iterator of Results can return the first Ok or the last Err:
+    /// let input = vec![Err(()), Ok(11), Err(()), Ok(22)];
+    /// assert_eq!(input.into_iter().find_or_last(Result::is_ok), Some(Ok(11)));
+    ///
+    /// let input: Vec&lt;Result&lt;(), i32&gt;&gt; = vec![Err(11), Err(22)];
+    /// assert_eq!(input.into_iter().find_or_last(Result::is_ok), Some(Err(22)));
+    ///
+    /// assert_eq!(std::iter::empty::&lt;Result&lt;(), i32&gt;&gt;().find_or_last(Result::is_ok), None);
     /// ```
     </span><span class="kw">fn </span>find_or_last&lt;P&gt;(<span class="kw-2">mut </span><span class="self">self</span>, <span class="kw-2">mut </span>predicate: P) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;
     <span class="kw">where
@@ -6379,6 +6843,15 @@
     /// assert_eq!(numbers.iter().find_or_first(|&amp;&amp;x| x &gt; 5), Some(&amp;1));
     /// assert_eq!(numbers.iter().find_or_first(|&amp;&amp;x| x &gt; 2), Some(&amp;3));
     /// assert_eq!(std::iter::empty::&lt;i32&gt;().find_or_first(|&amp;x| x &gt; 5), None);
+    ///
+    /// // An iterator of Results can return the first Ok or the first Err:
+    /// let input = vec![Err(()), Ok(11), Err(()), Ok(22)];
+    /// assert_eq!(input.into_iter().find_or_first(Result::is_ok), Some(Ok(11)));
+    ///
+    /// let input: Vec&lt;Result&lt;(), i32&gt;&gt; = vec![Err(11), Err(22)];
+    /// assert_eq!(input.into_iter().find_or_first(Result::is_ok), Some(Err(11)));
+    ///
+    /// assert_eq!(std::iter::empty::&lt;Result&lt;(), i32&gt;&gt;().find_or_first(Result::is_ok), None);
     /// ```
     </span><span class="kw">fn </span>find_or_first&lt;P&gt;(<span class="kw-2">mut </span><span class="self">self</span>, <span class="kw-2">mut </span>predicate: P) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;
     <span class="kw">where
@@ -6421,7 +6894,7 @@
     <span class="kw">where
         </span><span class="self">Self</span>: Sized,
         <span class="self">Self</span>::Item: Borrow&lt;Q&gt;,
-        Q: PartialEq,
+        Q: PartialEq + <span class="question-mark">?</span>Sized,
     {
         <span class="self">self</span>.any(|x| x.borrow() == query)
     }
@@ -6519,7 +6992,7 @@
     /// ```
     /// use itertools::Itertools;
     ///
-    /// let mut iter = "αβγ".chars().dropping(2);
+    /// let iter = "αβγ".chars().dropping(2);
     /// itertools::assert_equal(iter, "γ".chars());
     /// ```
     ///
@@ -6603,14 +7076,17 @@
     ///
     /// fn process_dir_entries(entries: &amp;[fs::DirEntry]) {
     ///     // ...
+    ///     # let _ = entries;
     /// }
     ///
-    /// fn do_stuff() -&gt; std::io::Result&lt;()&gt; {
+    /// fn do_stuff() -&gt; io::Result&lt;()&gt; {
     ///     let entries: Vec&lt;_&gt; = fs::read_dir(".")?.try_collect()?;
     ///     process_dir_entries(&amp;entries);
     ///
     ///     Ok(())
     /// }
+    ///
+    /// # let _ = do_stuff;
     /// ```
     </span><span class="kw">fn </span>try_collect&lt;T, U, E&gt;(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;U, E&gt;
     <span class="kw">where
@@ -6761,6 +7237,7 @@
     /// accum = f(accum, 1);
     /// accum = f(accum, 2);
     /// accum = f(accum, 3);
+    /// # let _ = accum;
     /// ```
     ///
     /// With a `start` value of 0 and an addition as folding function,
@@ -6885,34 +7362,64 @@
     ///
     /// If `f` is associative you should also decide carefully:
     ///
-    /// - if `f` is a trivial operation like `u32::wrapping_add`, prefer the normal
-    /// [`Iterator::reduce`] instead since it will most likely result in the generation of simpler
-    /// code because the compiler is able to optimize it
-    /// - otherwise if `f` is non-trivial like `format!`, you should use `tree_reduce` since it
-    /// reduces the number of operations from `O(n)` to `O(ln(n))`
+    /// For an iterator producing `n` elements, both [`Iterator::reduce`] and `tree_reduce` will
+    /// call `f` `n - 1` times. However, `tree_reduce` will call `f` on earlier intermediate
+    /// results, which is beneficial for `f` that allocate and produce longer results for longer
+    /// arguments. For example if `f` combines arguments using `format!`, then `tree_reduce` will
+    /// operate on average on shorter arguments resulting in less bytes being allocated overall.
     ///
-    /// Here "non-trivial" means:
+    /// Moreover, the output of `tree_reduce` is preferable to that of [`Iterator::reduce`] in
+    /// certain cases. For example, building a binary search tree using `tree_reduce` will result in
+    /// a balanced tree with height `O(ln(n))`, while [`Iterator::reduce`] will output a tree with
+    /// height `O(n)`, essentially a linked list.
     ///
-    /// - any allocating operation
-    /// - any function that is a composition of many operations
+    /// If `f` does not benefit from such a reordering, like `u32::wrapping_add`, prefer the
+    /// normal [`Iterator::reduce`] instead since it will most likely result in the generation of
+    /// simpler code because the compiler is able to optimize it.
     ///
     /// ```
     /// use itertools::Itertools;
     ///
-    /// // The same tree as above
-    /// let num_strings = (1..8).map(|x| x.to_string());
-    /// assert_eq!(num_strings.tree_reduce(|x, y| format!("f({}, {})", x, y)),
-    ///     Some(String::from("f(f(f(1, 2), f(3, 4)), f(f(5, 6), 7))")));
+    /// let f = |a: String, b: String| {
+    ///     format!("f({a}, {b})")
+    /// };
     ///
-    /// // Like fold1, an empty iterator produces None
+    /// // The same tree as above
+    /// assert_eq!((1..8).map(|x| x.to_string()).tree_reduce(f),
+    ///            Some(String::from("f(f(f(1, 2), f(3, 4)), f(f(5, 6), 7))")));
+    ///
+    /// // Like reduce, an empty iterator produces None
     /// assert_eq!((0..0).tree_reduce(|x, y| x * y), None);
     ///
-    /// // tree_reduce matches fold1 for associative operations...
+    /// // tree_reduce matches reduce for associative operations...
     /// assert_eq!((0..10).tree_reduce(|x, y| x + y),
-    ///     (0..10).fold1(|x, y| x + y));
+    ///     (0..10).reduce(|x, y| x + y));
+    ///
     /// // ...but not for non-associative ones
     /// assert_ne!((0..10).tree_reduce(|x, y| x - y),
-    ///     (0..10).fold1(|x, y| x - y));
+    ///     (0..10).reduce(|x, y| x - y));
+    ///
+    /// let mut total_len_reduce = 0;
+    /// let reduce_res = (1..100).map(|x| x.to_string())
+    ///     .reduce(|a, b| {
+    ///         let r = f(a, b);
+    ///         total_len_reduce += r.len();
+    ///         r
+    ///     })
+    ///     .unwrap();
+    ///
+    /// let mut total_len_tree_reduce = 0;
+    /// let tree_reduce_res = (1..100).map(|x| x.to_string())
+    ///     .tree_reduce(|a, b| {
+    ///         let r = f(a, b);
+    ///         total_len_tree_reduce += r.len();
+    ///         r
+    ///     })
+    ///     .unwrap();
+    ///
+    /// assert_eq!(total_len_reduce, 33299);
+    /// assert_eq!(total_len_tree_reduce, 4228);
+    /// assert_eq!(reduce_res.len(), tree_reduce_res.len());
     /// ```
     </span><span class="kw">fn </span>tree_reduce&lt;F&gt;(<span class="kw-2">mut </span><span class="self">self</span>, <span class="kw-2">mut </span>f: F) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;
     <span class="kw">where
@@ -7480,6 +7987,105 @@
         <span class="self">self</span>.k_smallest_by(k, k_smallest::key_to_cmp(key))
     }
 
+    <span class="doccomment">/// Sort the k smallest elements into a new iterator, in ascending order, relaxing the amount of memory required.
+    ///
+    /// **Note:** This consumes the entire iterator, and returns the result
+    /// as a new iterator that owns its elements.  If the input contains
+    /// less than k elements, the result is equivalent to `self.sorted()`.
+    ///
+    /// This is guaranteed to use `2 * k * sizeof(Self::Item) + O(1)` memory
+    /// and `O(n + k log k)` time, with `n` the number of elements in the input,
+    /// meaning it uses more memory than the minimum obtained by [`k_smallest`](Itertools::k_smallest)
+    /// but achieves linear time in the number of elements.
+    ///
+    /// The sorted iterator, if directly collected to a `Vec`, is converted
+    /// without any extra copying or allocation cost.
+    ///
+    /// **Note:** This is functionally-equivalent to `self.sorted().take(k)`
+    /// but much more efficient.
+    ///
+    /// ```
+    /// use itertools::Itertools;
+    ///
+    /// // A random permutation of 0..15
+    /// let numbers = vec![6, 9, 1, 14, 0, 4, 8, 7, 11, 2, 10, 3, 13, 12, 5];
+    ///
+    /// let five_smallest = numbers
+    ///     .into_iter()
+    ///     .k_smallest_relaxed(5);
+    ///
+    /// itertools::assert_equal(five_smallest, 0..5);
+    /// ```
+    </span><span class="attr">#[cfg(feature = <span class="string">"use_alloc"</span>)]
+    </span><span class="kw">fn </span>k_smallest_relaxed(<span class="self">self</span>, k: usize) -&gt; VecIntoIter&lt;<span class="self">Self</span>::Item&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+        <span class="self">Self</span>::Item: Ord,
+    {
+        <span class="self">self</span>.k_smallest_relaxed_by(k, Ord::cmp)
+    }
+
+    <span class="doccomment">/// Sort the k smallest elements into a new iterator using the provided comparison, relaxing the amount of memory required.
+    ///
+    /// The sorted iterator, if directly collected to a `Vec`, is converted
+    /// without any extra copying or allocation cost.
+    ///
+    /// This corresponds to `self.sorted_by(cmp).take(k)` in the same way that
+    /// [`k_smallest_relaxed`](Itertools::k_smallest_relaxed) corresponds to `self.sorted().take(k)`,
+    /// in both semantics and complexity.
+    ///
+    /// ```
+    /// use itertools::Itertools;
+    ///
+    /// // A random permutation of 0..15
+    /// let numbers = vec![6, 9, 1, 14, 0, 4, 8, 7, 11, 2, 10, 3, 13, 12, 5];
+    ///
+    /// let five_smallest = numbers
+    ///     .into_iter()
+    ///     .k_smallest_relaxed_by(5, |a, b| (a % 7).cmp(&amp;(b % 7)).then(a.cmp(b)));
+    ///
+    /// itertools::assert_equal(five_smallest, vec![0, 7, 14, 1, 8]);
+    /// ```
+    </span><span class="attr">#[cfg(feature = <span class="string">"use_alloc"</span>)]
+    </span><span class="kw">fn </span>k_smallest_relaxed_by&lt;F&gt;(<span class="self">self</span>, k: usize, cmp: F) -&gt; VecIntoIter&lt;<span class="self">Self</span>::Item&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+        F: FnMut(<span class="kw-2">&amp;</span><span class="self">Self</span>::Item, <span class="kw-2">&amp;</span><span class="self">Self</span>::Item) -&gt; Ordering,
+    {
+        k_smallest::k_smallest_relaxed_general(<span class="self">self</span>, k, cmp).into_iter()
+    }
+
+    <span class="doccomment">/// Return the elements producing the k smallest outputs of the provided function, relaxing the amount of memory required.
+    ///
+    /// The sorted iterator, if directly collected to a `Vec`, is converted
+    /// without any extra copying or allocation cost.
+    ///
+    /// This corresponds to `self.sorted_by_key(key).take(k)` in the same way that
+    /// [`k_smallest_relaxed`](Itertools::k_smallest_relaxed) corresponds to `self.sorted().take(k)`,
+    /// in both semantics and complexity.
+    ///
+    /// ```
+    /// use itertools::Itertools;
+    ///
+    /// // A random permutation of 0..15
+    /// let numbers = vec![6, 9, 1, 14, 0, 4, 8, 7, 11, 2, 10, 3, 13, 12, 5];
+    ///
+    /// let five_smallest = numbers
+    ///     .into_iter()
+    ///     .k_smallest_relaxed_by_key(5, |n| (n % 7, *n));
+    ///
+    /// itertools::assert_equal(five_smallest, vec![0, 7, 14, 1, 8]);
+    /// ```
+    </span><span class="attr">#[cfg(feature = <span class="string">"use_alloc"</span>)]
+    </span><span class="kw">fn </span>k_smallest_relaxed_by_key&lt;F, K&gt;(<span class="self">self</span>, k: usize, key: F) -&gt; VecIntoIter&lt;<span class="self">Self</span>::Item&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+        F: FnMut(<span class="kw-2">&amp;</span><span class="self">Self</span>::Item) -&gt; K,
+        K: Ord,
+    {
+        <span class="self">self</span>.k_smallest_relaxed_by(k, k_smallest::key_to_cmp(key))
+    }
+
     <span class="doccomment">/// Sort the k largest elements into a new iterator, in descending order.
     ///
     /// The sorted iterator, if directly collected to a `Vec`, is converted
@@ -7568,6 +8174,94 @@
         K: Ord,
     {
         <span class="self">self</span>.k_largest_by(k, k_smallest::key_to_cmp(key))
+    }
+
+    <span class="doccomment">/// Sort the k largest elements into a new iterator, in descending order, relaxing the amount of memory required.
+    ///
+    /// The sorted iterator, if directly collected to a `Vec`, is converted
+    /// without any extra copying or allocation cost.
+    ///
+    /// It is semantically equivalent to [`k_smallest_relaxed`](Itertools::k_smallest_relaxed)
+    /// with a reversed `Ord`.
+    ///
+    /// ```
+    /// use itertools::Itertools;
+    ///
+    /// // A random permutation of 0..15
+    /// let numbers = vec![6, 9, 1, 14, 0, 4, 8, 7, 11, 2, 10, 3, 13, 12, 5];
+    ///
+    /// let five_largest = numbers
+    ///     .into_iter()
+    ///     .k_largest_relaxed(5);
+    ///
+    /// itertools::assert_equal(five_largest, vec![14, 13, 12, 11, 10]);
+    /// ```
+    </span><span class="attr">#[cfg(feature = <span class="string">"use_alloc"</span>)]
+    </span><span class="kw">fn </span>k_largest_relaxed(<span class="self">self</span>, k: usize) -&gt; VecIntoIter&lt;<span class="self">Self</span>::Item&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+        <span class="self">Self</span>::Item: Ord,
+    {
+        <span class="self">self</span>.k_largest_relaxed_by(k, <span class="self">Self</span>::Item::cmp)
+    }
+
+    <span class="doccomment">/// Sort the k largest elements into a new iterator using the provided comparison, relaxing the amount of memory required.
+    ///
+    /// The sorted iterator, if directly collected to a `Vec`, is converted
+    /// without any extra copying or allocation cost.
+    ///
+    /// Functionally equivalent to [`k_smallest_relaxed_by`](Itertools::k_smallest_relaxed_by)
+    /// with a reversed `Ord`.
+    ///
+    /// ```
+    /// use itertools::Itertools;
+    ///
+    /// // A random permutation of 0..15
+    /// let numbers = vec![6, 9, 1, 14, 0, 4, 8, 7, 11, 2, 10, 3, 13, 12, 5];
+    ///
+    /// let five_largest = numbers
+    ///     .into_iter()
+    ///     .k_largest_relaxed_by(5, |a, b| (a % 7).cmp(&amp;(b % 7)).then(a.cmp(b)));
+    ///
+    /// itertools::assert_equal(five_largest, vec![13, 6, 12, 5, 11]);
+    /// ```
+    </span><span class="attr">#[cfg(feature = <span class="string">"use_alloc"</span>)]
+    </span><span class="kw">fn </span>k_largest_relaxed_by&lt;F&gt;(<span class="self">self</span>, k: usize, <span class="kw-2">mut </span>cmp: F) -&gt; VecIntoIter&lt;<span class="self">Self</span>::Item&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+        F: FnMut(<span class="kw-2">&amp;</span><span class="self">Self</span>::Item, <span class="kw-2">&amp;</span><span class="self">Self</span>::Item) -&gt; Ordering,
+    {
+        <span class="self">self</span>.k_smallest_relaxed_by(k, <span class="kw">move </span>|a, b| cmp(b, a))
+    }
+
+    <span class="doccomment">/// Return the elements producing the k largest outputs of the provided function, relaxing the amount of memory required.
+    ///
+    /// The sorted iterator, if directly collected to a `Vec`, is converted
+    /// without any extra copying or allocation cost.
+    ///
+    /// Functionally equivalent to [`k_smallest_relaxed_by_key`](Itertools::k_smallest_relaxed_by_key)
+    /// with a reversed `Ord`.
+    ///
+    /// ```
+    /// use itertools::Itertools;
+    ///
+    /// // A random permutation of 0..15
+    /// let numbers = vec![6, 9, 1, 14, 0, 4, 8, 7, 11, 2, 10, 3, 13, 12, 5];
+    ///
+    /// let five_largest = numbers
+    ///     .into_iter()
+    ///     .k_largest_relaxed_by_key(5, |n| (n % 7, *n));
+    ///
+    /// itertools::assert_equal(five_largest, vec![13, 6, 12, 5, 11]);
+    /// ```
+    </span><span class="attr">#[cfg(feature = <span class="string">"use_alloc"</span>)]
+    </span><span class="kw">fn </span>k_largest_relaxed_by_key&lt;F, K&gt;(<span class="self">self</span>, k: usize, key: F) -&gt; VecIntoIter&lt;<span class="self">Self</span>::Item&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+        F: FnMut(<span class="kw-2">&amp;</span><span class="self">Self</span>::Item) -&gt; K,
+        K: Ord,
+    {
+        <span class="self">self</span>.k_largest_relaxed_by(k, k_smallest::key_to_cmp(key))
     }
 
     <span class="doccomment">/// Consumes the iterator and return an iterator of the last `n` elements.
@@ -7722,8 +8416,8 @@
         group_map::into_group_map(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Return an `Iterator` on a `HashMap`. Keys mapped to `Vec`s of values. The key is specified
-    /// in the closure.
+    <span class="doccomment">/// Return a `HashMap` of keys mapped to `Vec`s of values. The key is specified
+    /// in the closure. The values are taken from the input iterator.
     ///
     /// Essentially a shorthand for `.into_grouping_map_by(f).collect::&lt;Vec&lt;_&gt;&gt;()`.
     ///
@@ -7735,7 +8429,7 @@
     /// let lookup: HashMap&lt;u32,Vec&lt;(u32, u32)&gt;&gt; =
     ///     data.clone().into_iter().into_group_map_by(|a| a.0);
     ///
-    /// assert_eq!(lookup[&amp;0], vec![(0,10),(0,20)]);
+    /// assert_eq!(lookup[&amp;0], vec![(0,10), (0,20)]);
     /// assert_eq!(lookup.get(&amp;1), None);
     /// assert_eq!(lookup[&amp;2], vec![(2,12), (2,42)]);
     /// assert_eq!(lookup[&amp;3], vec![(3,13), (3,33)]);
@@ -8490,7 +9184,7 @@
     /// # Examples
     /// ```
     /// # use itertools::Itertools;
-    /// let counts = [1, 1, 1, 3, 3, 5].into_iter().counts();
+    /// let counts = [1, 1, 1, 3, 3, 5].iter().counts();
     /// assert_eq!(counts[&amp;1], 3);
     /// assert_eq!(counts[&amp;3], 2);
     /// assert_eq!(counts[&amp;5], 1);
@@ -8516,6 +9210,7 @@
     /// # use itertools::Itertools;
     /// struct Character {
     ///   first_name: &amp;'static str,
+    ///   # #[allow(dead_code)]
     ///   last_name:  &amp;'static str,
     /// }
     ///
@@ -8633,6 +9328,7 @@
 /// assert_equal("exceed".split('c'), "excess".split('c'));
 /// // ^PANIC: panicked at 'Failed assertion Some("eed") == Some("ess") for iteration 1'.
 /// ```
+</span><span class="attr">#[track_caller]
 </span><span class="kw">pub fn </span>assert_equal&lt;I, J&gt;(a: I, b: J)
 <span class="kw">where
     </span>I: IntoIterator,

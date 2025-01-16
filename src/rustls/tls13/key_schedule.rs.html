@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.14/src/tls13/key_schedule.rs`."><title>key_schedule.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.21/src/tls13/key_schedule.rs`."><title>key_schedule.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1108,11 +1108,37 @@
 <a href="#1108" id="1108">1108</a>
 <a href="#1109" id="1109">1109</a>
 <a href="#1110" id="1110">1110</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
+<a href="#1111" id="1111">1111</a>
+<a href="#1112" id="1112">1112</a>
+<a href="#1113" id="1113">1113</a>
+<a href="#1114" id="1114">1114</a>
+<a href="#1115" id="1115">1115</a>
+<a href="#1116" id="1116">1116</a>
+<a href="#1117" id="1117">1117</a>
+<a href="#1118" id="1118">1118</a>
+<a href="#1119" id="1119">1119</a>
+<a href="#1120" id="1120">1120</a>
+<a href="#1121" id="1121">1121</a>
+<a href="#1122" id="1122">1122</a>
+<a href="#1123" id="1123">1123</a>
+<a href="#1124" id="1124">1124</a>
+<a href="#1125" id="1125">1125</a>
+<a href="#1126" id="1126">1126</a>
+<a href="#1127" id="1127">1127</a>
+<a href="#1128" id="1128">1128</a>
+<a href="#1129" id="1129">1129</a>
+<a href="#1130" id="1130">1130</a>
+<a href="#1131" id="1131">1131</a>
+<a href="#1132" id="1132">1132</a>
+<a href="#1133" id="1133">1133</a>
+<a href="#1134" id="1134">1134</a>
+</pre></div><pre class="rust"><code><span class="doccomment">//! Key schedule maintenance for TLS1.3
+
+</span><span class="kw">use </span>alloc::boxed::Box;
 <span class="kw">use </span>alloc::string::ToString;
 
 <span class="kw">use </span><span class="kw">crate</span>::common_state::{CommonState, Side};
-<span class="kw">use </span><span class="kw">crate</span>::crypto::cipher::{AeadKey, Iv, MessageDecrypter};
+<span class="kw">use </span><span class="kw">crate</span>::crypto::cipher::{AeadKey, Iv, MessageDecrypter, Tls13AeadAlgorithm};
 <span class="kw">use </span><span class="kw">crate</span>::crypto::tls13::{expand, Hkdf, HkdfExpander, OkmBlock, OutputLengthError};
 <span class="kw">use </span><span class="kw">crate</span>::crypto::{hash, hmac, SharedSecret};
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
@@ -1120,9 +1146,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::suites::PartiallyExtractedSecrets;
 <span class="kw">use crate</span>::{quic, KeyLog, Tls13CipherSuite};
 
-<span class="doccomment">/// Key schedule maintenance for TLS1.3
-
-/// The kinds of secret we can extract from `KeySchedule`.
+<span class="doccomment">/// The kinds of secret we can extract from `KeySchedule`.
 </span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq)]
 </span><span class="kw">enum </span>SecretKind {
     ResumptionPskBinderKey,
@@ -1634,18 +1658,6 @@
         secret
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>resumption_master_secret_and_derive_ticket_psk(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        hs_hash: <span class="kw-2">&amp;</span>hash::Output,
-        nonce: <span class="kw-2">&amp;</span>[u8],
-    ) -&gt; OkmBlock {
-        <span class="kw">let </span>resumption_master_secret = <span class="self">self
-            </span>.ks
-            .derive(SecretKind::ResumptionMasterSecret, hs_hash.as_ref());
-        <span class="self">self</span>.ks
-            .derive_ticket_psk(<span class="kw-2">&amp;</span>resumption_master_secret, nonce)
-    }
-
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>export_keying_material(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         out: <span class="kw-2">&amp;mut </span>[u8],
@@ -1699,6 +1711,28 @@
     }
 }
 
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ResumptionSecret&lt;<span class="lifetime">'a</span>&gt; {
+    kst: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>KeyScheduleTraffic,
+    resumption_master_secret: OkmBlock,
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ResumptionSecret&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(kst: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>KeyScheduleTraffic, hs_hash: <span class="kw-2">&amp;</span>hash::Output) -&gt; <span class="self">Self </span>{
+        ResumptionSecret {
+            kst,
+            resumption_master_secret: kst
+                .ks
+                .derive(SecretKind::ResumptionMasterSecret, hs_hash.as_ref()),
+        }
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>derive_ticket_psk(<span class="kw-2">&amp;</span><span class="self">self</span>, nonce: <span class="kw-2">&amp;</span>[u8]) -&gt; OkmBlock {
+        <span class="self">self</span>.kst
+            .ks
+            .derive_ticket_psk(<span class="kw-2">&amp;</span><span class="self">self</span>.resumption_master_secret, nonce)
+    }
+}
+
 <span class="kw">impl </span>KeySchedule {
     <span class="kw">fn </span>new(suite: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Tls13CipherSuite, secret: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
@@ -1714,7 +1748,7 @@
             </span>.suite
             .hkdf_provider
             .expander_for_okm(secret);
-        <span class="kw">let </span>key = derive_traffic_key(expander.as_ref(), <span class="self">self</span>.suite.aead_alg.key_len());
+        <span class="kw">let </span>key = derive_traffic_key(expander.as_ref(), <span class="self">self</span>.suite.aead_alg);
         <span class="kw">let </span>iv = derive_traffic_iv(expander.as_ref());
 
         common
@@ -1736,7 +1770,7 @@
             </span>.suite
             .hkdf_provider
             .expander_for_okm(secret);
-        <span class="kw">let </span>key = derive_traffic_key(expander.as_ref(), <span class="self">self</span>.suite.aead_alg.key_len());
+        <span class="kw">let </span>key = derive_traffic_key(expander.as_ref(), <span class="self">self</span>.suite.aead_alg);
         <span class="kw">let </span>iv = derive_traffic_iv(expander.as_ref());
         <span class="self">self</span>.suite.aead_alg.decrypter(key, iv)
     }
@@ -1880,6 +1914,23 @@
     }
 }
 
+<span class="doccomment">/// [HKDF-Expand-Label] where the output is an AEAD key.
+///
+/// [HKDF-Expand-Label]: &lt;https://www.rfc-editor.org/rfc/rfc8446#section-7.1&gt;
+</span><span class="kw">pub fn </span>derive_traffic_key(
+    expander: <span class="kw-2">&amp;</span><span class="kw">dyn </span>HkdfExpander,
+    aead_alg: <span class="kw-2">&amp;</span><span class="kw">dyn </span>Tls13AeadAlgorithm,
+) -&gt; AeadKey {
+    hkdf_expand_label_aead_key(expander, aead_alg.key_len(), <span class="string">b"key"</span>, <span class="kw-2">&amp;</span>[])
+}
+
+<span class="doccomment">/// [HKDF-Expand-Label] where the output is an IV.
+///
+/// [HKDF-Expand-Label]: &lt;https://www.rfc-editor.org/rfc/rfc8446#section-7.1&gt;
+</span><span class="kw">pub fn </span>derive_traffic_iv(expander: <span class="kw-2">&amp;</span><span class="kw">dyn </span>HkdfExpander) -&gt; Iv {
+    hkdf_expand_label(expander, <span class="string">b"iv"</span>, <span class="kw-2">&amp;</span>[])
+}
+
 <span class="doccomment">/// [HKDF-Expand-Label] where the output length is a compile-time constant, and therefore
 /// it is infallible.
 ///
@@ -1953,14 +2004,6 @@
     )
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>derive_traffic_key(expander: <span class="kw-2">&amp;</span><span class="kw">dyn </span>HkdfExpander, aead_key_len: usize) -&gt; AeadKey {
-    hkdf_expand_label_aead_key(expander, aead_key_len, <span class="string">b"key"</span>, <span class="kw-2">&amp;</span>[])
-}
-
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>derive_traffic_iv(expander: <span class="kw-2">&amp;</span><span class="kw">dyn </span>HkdfExpander) -&gt; Iv {
-    hkdf_expand_label(expander, <span class="string">b"iv"</span>, <span class="kw-2">&amp;</span>[])
-}
-
 <span class="kw">fn </span>hkdf_expand_label_inner&lt;F, T&gt;(
     expander: <span class="kw-2">&amp;</span><span class="kw">dyn </span>HkdfExpander,
     label: <span class="kw-2">&amp;</span>[u8],
@@ -1989,16 +2032,18 @@
     f(expander, info)
 }
 
-<span class="macro">test_for_each_provider!</span> {
+<span class="attr">#[cfg(test)]
+#[macro_rules_attribute::apply(test_for_each_provider)]
+</span><span class="kw">mod </span>tests {
     <span class="kw">use </span>core::fmt::Debug;
-    <span class="kw">use </span>std::vec;
     <span class="kw">use </span>std::prelude::v1::<span class="kw-2">*</span>;
+    <span class="kw">use </span>std::vec;
 
-    <span class="kw">use super</span>::{derive_traffic_iv, derive_traffic_key, KeySchedule, SecretKind};
-    <span class="kw">use </span>provider::ring_like::aead;
-    <span class="kw">use </span>provider::tls13::{
+    <span class="kw">use </span><span class="kw">super</span>::provider::ring_like::aead;
+    <span class="kw">use </span><span class="kw">super</span>::provider::tls13::{
         TLS13_AES_128_GCM_SHA256_INTERNAL, TLS13_CHACHA20_POLY1305_SHA256_INTERNAL,
     };
+    <span class="kw">use super</span>::{derive_traffic_iv, derive_traffic_key, KeySchedule, SecretKind};
     <span class="kw">use </span><span class="kw">crate</span>::KeyLog;
 
     <span class="attr">#[test]
@@ -2147,7 +2192,10 @@
         <span class="kw">let </span>expander = TLS13_AES_128_GCM_SHA256_INTERNAL
             .hkdf_provider
             .expander_for_okm(<span class="kw-2">&amp;</span>traffic_secret);
-        <span class="kw">let </span>key = derive_traffic_key(expander.as_ref(), aead_alg.key_len());
+        <span class="kw">let </span>key = derive_traffic_key(
+            expander.as_ref(),
+            TLS13_AES_128_GCM_SHA256_INTERNAL.aead_alg,
+        );
         <span class="kw">let </span>key = aead::UnboundKey::new(aead_alg, key.as_ref()).unwrap();
         <span class="kw">let </span>seal_output = seal_zeroes(key);
         <span class="kw">let </span>expected_key = aead::UnboundKey::new(aead_alg, expected_key).unwrap();
@@ -2172,13 +2220,15 @@
     }
 }
 
-<span class="macro">bench_for_each_provider!</span> {
+<span class="attr">#[cfg(all(test, bench))]
+#[macro_rules_attribute::apply(bench_for_each_provider)]
+</span><span class="kw">mod </span>benchmarks {
     <span class="attr">#[bench]
     </span><span class="kw">fn </span>bench_sha256(b: <span class="kw-2">&amp;mut </span>test::Bencher) {
         <span class="kw">use </span>core::fmt::Debug;
 
+        <span class="kw">use </span><span class="kw">super</span>::provider::tls13::TLS13_CHACHA20_POLY1305_SHA256_INTERNAL;
         <span class="kw">use super</span>::{derive_traffic_iv, derive_traffic_key, KeySchedule, SecretKind};
-        <span class="kw">use </span>provider::tls13::TLS13_CHACHA20_POLY1305_SHA256_INTERNAL;
         <span class="kw">use </span><span class="kw">crate</span>::KeyLog;
 
         <span class="kw">fn </span>extract_traffic_secret(ks: <span class="kw-2">&amp;</span>KeySchedule, kind: SecretKind) {
@@ -2196,9 +2246,7 @@
                 .expander_for_okm(<span class="kw-2">&amp;</span>traffic_secret);
             test::black_box(derive_traffic_key(
                 traffic_secret_expander.as_ref(),
-                TLS13_CHACHA20_POLY1305_SHA256_INTERNAL
-                    .aead_alg
-                    .key_len(),
+                TLS13_CHACHA20_POLY1305_SHA256_INTERNAL.aead_alg,
             ));
             test::black_box(derive_traffic_iv(traffic_secret_expander.as_ref()));
         }

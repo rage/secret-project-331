@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.14/src/crypto/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.21/src/crypto/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -666,6 +666,94 @@
 <a href="#666" id="666">666</a>
 <a href="#667" id="667">667</a>
 <a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
+<a href="#690" id="690">690</a>
+<a href="#691" id="691">691</a>
+<a href="#692" id="692">692</a>
+<a href="#693" id="693">693</a>
+<a href="#694" id="694">694</a>
+<a href="#695" id="695">695</a>
+<a href="#696" id="696">696</a>
+<a href="#697" id="697">697</a>
+<a href="#698" id="698">698</a>
+<a href="#699" id="699">699</a>
+<a href="#700" id="700">700</a>
+<a href="#701" id="701">701</a>
+<a href="#702" id="702">702</a>
+<a href="#703" id="703">703</a>
+<a href="#704" id="704">704</a>
+<a href="#705" id="705">705</a>
+<a href="#706" id="706">706</a>
+<a href="#707" id="707">707</a>
+<a href="#708" id="708">708</a>
+<a href="#709" id="709">709</a>
+<a href="#710" id="710">710</a>
+<a href="#711" id="711">711</a>
+<a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
 <span class="kw">use </span>alloc::sync::Arc;
 <span class="kw">use </span>alloc::vec::Vec;
@@ -677,7 +765,8 @@
 <span class="kw">use </span><span class="kw">crate</span>::msgs::ffdhe_groups::FfdheGroup;
 <span class="kw">use </span><span class="kw">crate</span>::sign::SigningKey;
 <span class="kw">pub use </span><span class="kw">crate</span>::webpki::{
-    verify_tls12_signature, verify_tls13_signature, WebPkiSupportedAlgorithms,
+    verify_tls12_signature, verify_tls13_signature, verify_tls13_signature_with_raw_key,
+    WebPkiSupportedAlgorithms,
 };
 <span class="attr">#[cfg(all(doc, feature = <span class="string">"tls12"</span>))]
 </span><span class="kw">use </span><span class="kw">crate</span>::Tls12CipherSuite;
@@ -1151,6 +1240,87 @@
         <span class="prelude-val">Ok</span>(complete_res)
     }
 
+    <span class="doccomment">/// For hybrid key exchanges, returns the [`NamedGroup`] and key share
+    /// for the classical half of this key exchange.
+    ///
+    /// There is no requirement for a hybrid scheme (or any other!) to implement
+    /// `hybrid_component()`. It only enables an optimization; described below.
+    ///
+    /// "Hybrid" means a key exchange algorithm which is constructed from two
+    /// (or more) independent component algorithms. Usually one is post-quantum-secure,
+    /// and the other is "classical".  See
+    /// &lt;https://datatracker.ietf.org/doc/draft-ietf-tls-hybrid-design/11/&gt;
+    ///
+    /// # Background
+    /// Rustls always sends a presumptive key share in its `ClientHello`, using
+    /// (absent any other information) the first item in [`CryptoProvider::kx_groups`].
+    /// If the server accepts the client's selection, it can complete the handshake
+    /// using that key share.  If not, the server sends a `HelloRetryRequest` instructing
+    /// the client to send a different key share instead.
+    ///
+    /// This request costs an extra round trip, and wastes the key exchange computation
+    /// (in [`SupportedKxGroup::start()`]) the client already did.  We would
+    /// like to avoid those wastes if possible.
+    ///
+    /// It is early days for post-quantum-secure hybrid key exchange deployment.
+    /// This means (commonly) continuing to offer both the hybrid and classical
+    /// key exchanges, so the handshake can be completed without a `HelloRetryRequest`
+    /// for servers that support the offered hybrid or classical schemes.
+    ///
+    /// Implementing `hybrid_component()` enables two optimizations:
+    ///
+    /// 1. Sending both the hybrid and classical key shares in the `ClientHello`.
+    ///
+    /// 2. Performing the classical key exchange setup only once.  This is important
+    ///    because the classical key exchange setup is relatively expensive.
+    ///    This optimization is permitted and described in
+    ///    &lt;https://www.ietf.org/archive/id/draft-ietf-tls-hybrid-design-11.html#section-3.2&gt;
+    ///
+    /// Both of these only happen if the classical algorithm appears separately in
+    /// the client's [`CryptoProvider::kx_groups`], and if the hybrid algorithm appears
+    /// first in that list.
+    ///
+    /// # How it works
+    /// This function is only called by rustls for clients.  It is called when
+    /// constructing the initial `ClientHello`.  rustls follows these steps:
+    ///
+    /// 1. If the return value is `None`, nothing further happens.
+    /// 2. If the given [`NamedGroup`] does not appear in
+    ///    [`CryptoProvider::kx_groups`], nothing further happens.
+    /// 3. The given key share is added to the `ClientHello`, after the hybrid entry.
+    ///
+    /// Then, one of three things may happen when the server replies to the `ClientHello`:
+    ///
+    /// 1. The server sends a `HelloRetryRequest`.  Everything is thrown away and
+    ///    we start again.
+    /// 2. The server agrees to our hybrid key exchange: rustls calls
+    ///    [`ActiveKeyExchange::complete()`] consuming `self`.
+    /// 3. The server agrees to our classical key exchange: rustls calls
+    ///    [`ActiveKeyExchange::complete_hybrid_component()`] which
+    ///    discards the hybrid key data, and completes just the classical key exchange.
+    </span><span class="kw">fn </span>hybrid_component(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(NamedGroup, <span class="kw-2">&amp;</span>[u8])&gt; {
+        <span class="prelude-val">None
+    </span>}
+
+    <span class="doccomment">/// Completes the classical component of the key exchange, given the peer's public key.
+    ///
+    /// This is only called if `hybrid_component` returns `Some(_)`.
+    ///
+    /// This method must return an error if `peer_pub_key` is invalid: either
+    /// mis-encoded, or an invalid public key (such as, but not limited to, being
+    /// in a small order subgroup).
+    ///
+    /// The shared secret is returned as a [`SharedSecret`] which can be constructed
+    /// from a `&amp;[u8]`.
+    ///
+    /// See the documentation on [`Self::hybrid_component()`] for explanation.
+    </span><span class="kw">fn </span>complete_hybrid_component(
+        <span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;,
+        _peer_pub_key: <span class="kw-2">&amp;</span>[u8],
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;SharedSecret, Error&gt; {
+        <span class="macro">unreachable!</span>(<span class="string">"only called if `hybrid_component()` implemented"</span>)
+    }
+
     <span class="doccomment">/// Return the public key being used.
     ///
     /// For ECDHE, the encoding required is defined in
@@ -1191,7 +1361,7 @@
     </span><span class="kw">pub </span>secret: SharedSecret,
 }
 
-<span class="doccomment">/// The result from [`ActiveKeyExchange::complete`].
+<span class="doccomment">/// The result from [`ActiveKeyExchange::complete`] or [`ActiveKeyExchange::complete_hybrid_component`].
 </span><span class="kw">pub struct </span>SharedSecret {
     buf: Vec&lt;u8&gt;,
     offset: usize,
@@ -1230,6 +1400,12 @@
             buf: source.to_vec(),
             offset: <span class="number">0</span>,
         }
+    }
+}
+
+<span class="kw">impl </span>From&lt;Vec&lt;u8&gt;&gt; <span class="kw">for </span>SharedSecret {
+    <span class="kw">fn </span>from(buf: Vec&lt;u8&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ buf, offset: <span class="number">0 </span>}
     }
 }
 
@@ -1276,11 +1452,11 @@
     <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
     </span><span class="kw">use </span>alloc::boxed::Box;
     <span class="kw">use </span>alloc::sync::Arc;
+    <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+    </span><span class="kw">use </span>std::sync::OnceLock;
 
     <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
     </span><span class="kw">use </span>once_cell::race::OnceBox;
-    <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-    </span><span class="kw">use </span>once_cell::sync::OnceCell;
 
     <span class="kw">use </span><span class="kw">super</span>::CryptoProvider;
 
@@ -1305,7 +1481,7 @@
     }
 
     <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-    </span><span class="kw">static </span>PROCESS_DEFAULT_PROVIDER: OnceCell&lt;Arc&lt;CryptoProvider&gt;&gt; = OnceCell::new();
+    </span><span class="kw">static </span>PROCESS_DEFAULT_PROVIDER: OnceLock&lt;Arc&lt;CryptoProvider&gt;&gt; = OnceLock::new();
     <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
     </span><span class="kw">static </span>PROCESS_DEFAULT_PROVIDER: OnceBox&lt;Arc&lt;CryptoProvider&gt;&gt; = OnceBox::new();
 }

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.14/src/server/server_conn.rs`."><title>server_conn.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.21/src/server/server_conn.rs`."><title>server_conn.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1158,6 +1158,37 @@
 <a href="#1158" id="1158">1158</a>
 <a href="#1159" id="1159">1159</a>
 <a href="#1160" id="1160">1160</a>
+<a href="#1161" id="1161">1161</a>
+<a href="#1162" id="1162">1162</a>
+<a href="#1163" id="1163">1163</a>
+<a href="#1164" id="1164">1164</a>
+<a href="#1165" id="1165">1165</a>
+<a href="#1166" id="1166">1166</a>
+<a href="#1167" id="1167">1167</a>
+<a href="#1168" id="1168">1168</a>
+<a href="#1169" id="1169">1169</a>
+<a href="#1170" id="1170">1170</a>
+<a href="#1171" id="1171">1171</a>
+<a href="#1172" id="1172">1172</a>
+<a href="#1173" id="1173">1173</a>
+<a href="#1174" id="1174">1174</a>
+<a href="#1175" id="1175">1175</a>
+<a href="#1176" id="1176">1176</a>
+<a href="#1177" id="1177">1177</a>
+<a href="#1178" id="1178">1178</a>
+<a href="#1179" id="1179">1179</a>
+<a href="#1180" id="1180">1180</a>
+<a href="#1181" id="1181">1181</a>
+<a href="#1182" id="1182">1182</a>
+<a href="#1183" id="1183">1183</a>
+<a href="#1184" id="1184">1184</a>
+<a href="#1185" id="1185">1185</a>
+<a href="#1186" id="1186">1186</a>
+<a href="#1187" id="1187">1187</a>
+<a href="#1188" id="1188">1188</a>
+<a href="#1189" id="1189">1189</a>
+<a href="#1190" id="1190">1190</a>
+<a href="#1191" id="1191">1191</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
 <span class="kw">use </span>alloc::sync::Arc;
 <span class="kw">use </span>alloc::vec::Vec;
@@ -1183,6 +1214,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
 <span class="kw">use </span><span class="kw">crate</span>::log::trace;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::base::Payload;
+<span class="kw">use </span><span class="kw">crate</span>::msgs::enums::CertificateType;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::{ClientHelloPayload, ProtocolName, ServerExtension};
 <span class="kw">use </span><span class="kw">crate</span>::msgs::message::Message;
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
@@ -1191,11 +1223,15 @@
 <span class="kw">use </span><span class="kw">crate</span>::vecbuf::ChunkVecBuffer;
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::WantsVerifier;
-<span class="kw">use crate</span>::{compress, sign, verify, versions, KeyLog, WantsVersions};
+<span class="kw">use crate</span>::{compress, sign, verify, versions, DistinguishedName, KeyLog, WantsVersions};
 
 <span class="doccomment">/// A trait for the ability to store server session data.
 ///
 /// The keys and values are opaque.
+///
+/// Inserted keys are randomly chosen by the library and have
+/// no internal structure (in other words, you may rely on all
+/// bits being uniformly random).  Queried keys are untrusted data.
 ///
 /// Both the keys and values should be treated as
 /// **highly sensitive data**, containing enough key material
@@ -1279,37 +1315,29 @@
     ///
     /// Return `None` to abort the handshake.
     </span><span class="kw">fn </span>resolve(<span class="kw-2">&amp;</span><span class="self">self</span>, client_hello: ClientHello&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;Arc&lt;sign::CertifiedKey&gt;&gt;;
+
+    <span class="doccomment">/// Return true when the server only supports raw public keys.
+    </span><span class="kw">fn </span>only_raw_public_keys(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="bool-val">false
+    </span>}
 }
 
 <span class="doccomment">/// A struct representing the received Client Hello
+</span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>ClientHello&lt;<span class="lifetime">'a</span>&gt; {
-    server_name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="prelude-ty">Option</span>&lt;DnsName&lt;<span class="lifetime">'a</span>&gt;&gt;,
-    signature_schemes: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[SignatureScheme],
-    alpn: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Vec&lt;ProtocolName&gt;&gt;,
-    cipher_suites: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[CipherSuite],
+    <span class="kw">pub</span>(<span class="kw">super</span>) server_name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="prelude-ty">Option</span>&lt;DnsName&lt;<span class="lifetime">'a</span>&gt;&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) signature_schemes: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[SignatureScheme],
+    <span class="kw">pub</span>(<span class="kw">super</span>) alpn: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Vec&lt;ProtocolName&gt;&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) server_cert_types: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[CertificateType]&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) client_cert_types: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[CertificateType]&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) cipher_suites: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[CipherSuite],
+    <span class="doccomment">/// The [certificate_authorities] extension, if it was sent by the client.
+    ///
+    /// [certificate_authorities]: https://datatracker.ietf.org/doc/html/rfc8446#section-4.2.4
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) certificate_authorities: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[DistinguishedName]&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ClientHello&lt;<span class="lifetime">'a</span>&gt; {
-    <span class="doccomment">/// Creates a new ClientHello
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new(
-        server_name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="prelude-ty">Option</span>&lt;DnsName&lt;<span class="lifetime">'_</span>&gt;&gt;,
-        signature_schemes: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[SignatureScheme],
-        alpn: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Vec&lt;ProtocolName&gt;&gt;,
-        cipher_suites: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[CipherSuite],
-    ) -&gt; <span class="self">Self </span>{
-        <span class="macro">trace!</span>(<span class="string">"sni {:?}"</span>, server_name);
-        <span class="macro">trace!</span>(<span class="string">"sig schemes {:?}"</span>, signature_schemes);
-        <span class="macro">trace!</span>(<span class="string">"alpn protocols {:?}"</span>, alpn);
-        <span class="macro">trace!</span>(<span class="string">"cipher suites {:?}"</span>, cipher_suites);
-
-        ClientHello {
-            server_name,
-            signature_schemes,
-            alpn,
-            cipher_suites,
-        }
-    }
-
     <span class="doccomment">/// Get the server name indicator.
     ///
     /// Returns `None` if the client did not supply a SNI.
@@ -1355,6 +1383,29 @@
     </span><span class="kw">pub fn </span>cipher_suites(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[CipherSuite] {
         <span class="self">self</span>.cipher_suites
     }
+
+    <span class="doccomment">/// Get the server certificate types offered in the ClientHello.
+    ///
+    /// Returns `None` if the client did not include a certificate type extension.
+    </span><span class="kw">pub fn </span>server_cert_types(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[CertificateType]&gt; {
+        <span class="self">self</span>.server_cert_types
+    }
+
+    <span class="doccomment">/// Get the client certificate types offered in the ClientHello.
+    ///
+    /// Returns `None` if the client did not include a certificate type extension.
+    </span><span class="kw">pub fn </span>client_cert_types(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[CertificateType]&gt; {
+        <span class="self">self</span>.client_cert_types
+    }
+
+    <span class="doccomment">/// Get the [certificate_authorities] extension sent by the client.
+    ///
+    /// Returns `None` if the client did not send this extension.
+    ///
+    /// [certificate_authorities]: https://datatracker.ietf.org/doc/html/rfc8446#section-4.2.4
+    </span><span class="kw">pub fn </span>certificate_authorities(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[DistinguishedName]&gt; {
+        <span class="self">self</span>.certificate_authorities
+    }
 }
 
 <span class="doccomment">/// Common configuration for a set of server sessions.
@@ -1376,7 +1427,7 @@
 ///   implementation.
 /// * [`ServerConfig::alpn_protocols`]: the default is empty -- no ALPN protocol is negotiated.
 /// * [`ServerConfig::key_log`]: key material is not logged.
-/// * [`ServerConfig::send_tls13_tickets`]: 4 tickets are sent.
+/// * [`ServerConfig::send_tls13_tickets`]: 2 tickets are sent.
 /// * [`ServerConfig::cert_compressors`]: depends on the crate features, see [`compress::default_cert_compressors()`].
 /// * [`ServerConfig::cert_compression_cache`]: caches the most recently used 4 compressions
 /// * [`ServerConfig::cert_decompressors`]: depends on the crate features, see [`compress::default_cert_decompressors()`].
@@ -1476,7 +1527,7 @@
     /// Because TLS1.3 tickets are single-use, this allows
     /// a client to perform multiple resumptions.
     ///
-    /// The default is 4.
+    /// The default is 2.
     ///
     /// If this is 0, no tickets are sent and clients will not be able to
     /// do any resumption.
@@ -1582,10 +1633,9 @@
         provider: Arc&lt;CryptoProvider&gt;,
     ) -&gt; ConfigBuilder&lt;<span class="self">Self</span>, WantsVersions&gt; {
         ConfigBuilder {
-            state: WantsVersions {
-                provider,
-                time_provider: Arc::new(DefaultTimeProvider),
-            },
+            state: WantsVersions {},
+            provider,
+            time_provider: Arc::new(DefaultTimeProvider),
             side: PhantomData,
         }
     }
@@ -1609,10 +1659,9 @@
         time_provider: Arc&lt;<span class="kw">dyn </span>TimeProvider&gt;,
     ) -&gt; ConfigBuilder&lt;<span class="self">Self</span>, WantsVersions&gt; {
         ConfigBuilder {
-            state: WantsVersions {
-                provider,
-                time_provider,
-            },
+            state: WantsVersions {},
+            provider,
+            time_provider,
             side: PhantomData,
         }
     }
@@ -1700,7 +1749,7 @@
         }
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; io::Read <span class="kw">for </span>ReadEarlyData&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">impl </span>io::Read <span class="kw">for </span>ReadEarlyData&lt;<span class="lifetime">'_</span>&gt; {
         <span class="kw">fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>[u8]) -&gt; io::Result&lt;usize&gt; {
             <span class="self">self</span>.early_data.read(buf)
         }
@@ -1802,6 +1851,15 @@
             </span>}
         }
 
+        <span class="doccomment">/// Return true if the connection was made with a `ServerConfig` that is FIPS compatible.
+        ///
+        /// This is different from [`crate::crypto::CryptoProvider::fips()`]:
+        /// it is concerned only with cryptography, whereas this _also_ covers TLS-level
+        /// configuration that NIST recommends, as well as ECH HPKE suites if applicable.
+        </span><span class="kw">pub fn </span>fips(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+            <span class="self">self</span>.inner.core.common_state.fips
+        }
+
         <span class="doccomment">/// Extract secrets, so they can be used when configuring kTLS, for example.
         /// Should be used with care as it exposes secret key material.
         </span><span class="kw">pub fn </span>dangerous_extract_secrets(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ExtractedSecrets, Error&gt; {
@@ -1876,7 +1934,7 @@
     ///     let conn = accepted
     ///         .into_connection(config)
     ///         .unwrap();
-
+    ///
     ///     // Proceed with handling the ServerConnection.
     /// }
     /// # }
@@ -1931,14 +1989,11 @@
         /// application should call `alert.write()` to send the alert to the client. It should
         /// not call `accept()` again.
         </span><span class="kw">pub fn </span>accept(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Accepted&gt;, (Error, AcceptedAlert)&gt; {
-            <span class="kw">let </span><span class="kw-2">mut </span>connection = <span class="kw">match </span><span class="self">self</span>.inner.take() {
-                <span class="prelude-val">Some</span>(conn) =&gt; conn,
-                <span class="prelude-val">None </span>=&gt; {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>((
-                        Error::General(<span class="string">"Acceptor polled after completion"</span>.into()),
-                        AcceptedAlert::empty(),
-                    ));
-                }
+            <span class="kw">let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>connection) = <span class="self">self</span>.inner.take() <span class="kw">else </span>{
+                <span class="kw">return </span><span class="prelude-val">Err</span>((
+                    Error::General(<span class="string">"Acceptor polled after completion"</span>.into()),
+                    AcceptedAlert::empty(),
+                ));
             };
 
             <span class="kw">let </span>message = <span class="kw">match </span>connection.first_handshake_message() {
@@ -2062,12 +2117,18 @@
     <span class="doccomment">/// Get the [`ClientHello`] for this connection.
     </span><span class="kw">pub fn </span>client_hello(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ClientHello&lt;<span class="lifetime">'_</span>&gt; {
         <span class="kw">let </span>payload = <span class="self">Self</span>::client_hello_payload(<span class="kw-2">&amp;</span><span class="self">self</span>.message);
-        ClientHello::new(
-            <span class="kw-2">&amp;</span><span class="self">self</span>.connection.core.data.sni,
-            <span class="kw-2">&amp;</span><span class="self">self</span>.sig_schemes,
-            payload.alpn_extension(),
-            <span class="kw-2">&amp;</span>payload.cipher_suites,
-        )
+        <span class="kw">let </span>ch = ClientHello {
+            server_name: <span class="kw-2">&amp;</span><span class="self">self</span>.connection.core.data.sni,
+            signature_schemes: <span class="kw-2">&amp;</span><span class="self">self</span>.sig_schemes,
+            alpn: payload.alpn_extension(),
+            server_cert_types: payload.server_certificate_extension(),
+            client_cert_types: payload.client_certificate_extension(),
+            cipher_suites: <span class="kw-2">&amp;</span>payload.cipher_suites,
+            certificate_authorities: payload.certificate_authorities_extension(),
+        };
+
+        <span class="macro">trace!</span>(<span class="string">"Accepted::client_hello(): {ch:#?}"</span>);
+        ch
     }
 
     <span class="doccomment">/// Convert the [`Accepted`] into a [`ServerConnection`].
@@ -2249,6 +2310,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>common = CommonState::new(Side::Server);
         common.set_max_fragment_size(config.max_fragment_size)<span class="question-mark">?</span>;
         common.enable_secret_extraction = config.enable_secret_extraction;
+        common.fips = config.fips();
         <span class="prelude-val">Ok</span>(<span class="self">Self</span>::new(
             Box::new(hs::ExpectClientHello::new(config, extra_exts)),
             ServerConnectionData::default(),

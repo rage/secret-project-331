@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/filter/env/builder.rs`."><title>builder.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.19/src/filter/env/builder.rs`."><title>builder.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -536,15 +536,15 @@
         }
 
         <span class="kw">if </span>!disabled.is_empty() {
-            <span class="attr">#[cfg(feature = <span class="string">"nu_ansi_term"</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"nu-ansi-term"</span>)]
             </span><span class="kw">use </span>nu_ansi_term::{Color, Style};
             <span class="comment">// NOTE: We can't use a configured `MakeWriter` because the EnvFilter
             // has no knowledge of any underlying subscriber or subscriber, which
             // may or may not use a `MakeWriter`.
             </span><span class="kw">let </span>warn = |msg: <span class="kw-2">&amp;</span>str| {
-                <span class="attr">#[cfg(not(feature = <span class="string">"nu_ansi_term"</span>))]
+                <span class="attr">#[cfg(not(feature = <span class="string">"nu-ansi-term"</span>))]
                 </span><span class="kw">let </span>msg = <span class="macro">format!</span>(<span class="string">"warning: {}"</span>, msg);
-                <span class="attr">#[cfg(feature = <span class="string">"nu_ansi_term"</span>)]
+                <span class="attr">#[cfg(feature = <span class="string">"nu-ansi-term"</span>)]
                 </span><span class="kw">let </span>msg = {
                     <span class="kw">let </span>bold = Style::new().bold();
                     <span class="kw">let </span><span class="kw-2">mut </span>warning = Color::Yellow.paint(<span class="string">"warning"</span>);
@@ -554,9 +554,9 @@
                 <span class="macro">eprintln!</span>(<span class="string">"{}"</span>, msg);
             };
             <span class="kw">let </span>ctx_prefixed = |prefix: <span class="kw-2">&amp;</span>str, msg: <span class="kw-2">&amp;</span>str| {
-                <span class="attr">#[cfg(not(feature = <span class="string">"nu_ansi_term"</span>))]
+                <span class="attr">#[cfg(not(feature = <span class="string">"nu-ansi-term"</span>))]
                 </span><span class="kw">let </span>msg = <span class="macro">format!</span>(<span class="string">"{} {}"</span>, prefix, msg);
-                <span class="attr">#[cfg(feature = <span class="string">"nu_ansi_term"</span>)]
+                <span class="attr">#[cfg(feature = <span class="string">"nu-ansi-term"</span>)]
                 </span><span class="kw">let </span>msg = {
                     <span class="kw">let </span><span class="kw-2">mut </span>equal = Color::Fixed(<span class="number">21</span>).paint(<span class="string">"="</span>); <span class="comment">// dark blue
                     </span>equal.style_ref_mut().is_bold = <span class="bool-val">true</span>;
@@ -567,9 +567,9 @@
             <span class="kw">let </span>ctx_help = |msg| ctx_prefixed(<span class="string">"help:"</span>, msg);
             <span class="kw">let </span>ctx_note = |msg| ctx_prefixed(<span class="string">"note:"</span>, msg);
             <span class="kw">let </span>ctx = |msg: <span class="kw-2">&amp;</span>str| {
-                <span class="attr">#[cfg(not(feature = <span class="string">"nu_ansi_term"</span>))]
+                <span class="attr">#[cfg(not(feature = <span class="string">"nu-ansi-term"</span>))]
                 </span><span class="kw">let </span>msg = <span class="macro">format!</span>(<span class="string">"note: {}"</span>, msg);
-                <span class="attr">#[cfg(feature = <span class="string">"nu_ansi_term"</span>)]
+                <span class="attr">#[cfg(feature = <span class="string">"nu-ansi-term"</span>)]
                 </span><span class="kw">let </span>msg = {
                     <span class="kw">let </span><span class="kw-2">mut </span>pipe = Color::Fixed(<span class="number">21</span>).paint(<span class="string">"|"</span>);
                     pipe.style_ref_mut().is_bold = <span class="bool-val">true</span>;

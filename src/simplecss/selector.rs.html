@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/simplecss-0.2.1/src/selector.rs`."><title>selector.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="simplecss" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/simplecss-0.2.2/src/selector.rs`."><title>selector.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="simplecss" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -638,23 +638,16 @@
 <a href="#638" id="638">638</a>
 <a href="#639" id="639">639</a>
 <a href="#640" id="640">640</a>
-<a href="#641" id="641">641</a>
-<a href="#642" id="642">642</a>
-<a href="#643" id="643">643</a>
-<a href="#644" id="644">644</a>
-<a href="#645" id="645">645</a>
-<a href="#646" id="646">646</a>
-<a href="#647" id="647">647</a>
-<a href="#648" id="648">648</a>
-<a href="#649" id="649">649</a>
-<a href="#650" id="650">650</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt;
+</pre></div><pre class="rust"><code><span class="comment">// Copyright 2019 the SimpleCSS Authors
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
+</span><span class="kw">use </span>alloc::{vec, vec::Vec};
+<span class="kw">use </span>core::fmt;
 
 <span class="kw">use </span>log::warn;
 
 <span class="kw">use </span><span class="kw">crate</span>::stream::Stream;
 <span class="kw">use </span><span class="kw">crate</span>::Error;
-
 
 <span class="doccomment">/// An attribute selector operator.
 </span><span class="attr">#[derive(Clone, Copy, PartialEq, Debug)]
@@ -669,25 +662,19 @@
     </span>StartsWith(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str),
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; AttributeOperator&lt;<span class="lifetime">'a</span>&gt; {
+<span class="kw">impl </span>AttributeOperator&lt;<span class="lifetime">'_</span>&gt; {
     <span class="doccomment">/// Checks that value is matching the operator.
     </span><span class="kw">pub fn </span>matches(<span class="kw-2">&amp;</span><span class="self">self</span>, value: <span class="kw-2">&amp;</span>str) -&gt; bool {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            AttributeOperator::Exists =&gt; {
-                <span class="bool-val">true
-            </span>}
-            AttributeOperator::Matches(v) =&gt; {
-                value == v
-            }
-            AttributeOperator::Contains(v) =&gt; {
-                value.split(<span class="string">' '</span>).any(|s| s == v)
-            }
+            AttributeOperator::Exists =&gt; <span class="bool-val">true</span>,
+            AttributeOperator::Matches(v) =&gt; value == v,
+            AttributeOperator::Contains(v) =&gt; value.split(<span class="string">' '</span>).any(|s| s == v),
             AttributeOperator::StartsWith(v) =&gt; {
                 <span class="comment">// exactly `v` or beginning with `v` immediately followed by `-`
                 </span><span class="kw">if </span>value == v {
                     <span class="bool-val">true
                 </span>} <span class="kw">else if </span>value.starts_with(v) {
-                    value.get(v.len()..v.len()+<span class="number">1</span>) == <span class="prelude-val">Some</span>(<span class="string">"-"</span>)
+                    value.get(v.len()..v.len() + <span class="number">1</span>) == <span class="prelude-val">Some</span>(<span class="string">"-"</span>)
                 } <span class="kw">else </span>{
                     <span class="bool-val">false
                 </span>}
@@ -695,7 +682,6 @@
         }
     }
 }
-
 
 <span class="doccomment">/// A pseudo-class.
 </span><span class="attr">#[derive(Clone, Copy, PartialEq, Debug)]
@@ -711,7 +697,7 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>PseudoClass&lt;<span class="lifetime">'_</span>&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
             PseudoClass::FirstChild =&gt; <span class="macro">write!</span>(f, <span class="string">"first-child"</span>),
             PseudoClass::Link =&gt; <span class="macro">write!</span>(f, <span class="string">"link"</span>),
@@ -723,7 +709,6 @@
         }
     }
 }
-
 
 <span class="doccomment">/// A trait to query an element node metadata.
 </span><span class="kw">pub trait </span>Element: Sized {
@@ -737,12 +722,11 @@
     </span><span class="kw">fn </span>has_local_name(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; bool;
 
     <span class="doccomment">/// Checks that the element has a specified attribute.
-    </span><span class="kw">fn </span>attribute_matches(<span class="kw-2">&amp;</span><span class="self">self</span>, local_name: <span class="kw-2">&amp;</span>str, operator: AttributeOperator) -&gt; bool;
+    </span><span class="kw">fn </span>attribute_matches(<span class="kw-2">&amp;</span><span class="self">self</span>, local_name: <span class="kw-2">&amp;</span>str, operator: AttributeOperator&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool;
 
     <span class="doccomment">/// Checks that the element matches a specified pseudo-class.
-    </span><span class="kw">fn </span>pseudo_class_matches(<span class="kw-2">&amp;</span><span class="self">self</span>, class: PseudoClass) -&gt; bool;
+    </span><span class="kw">fn </span>pseudo_class_matches(<span class="kw-2">&amp;</span><span class="self">self</span>, class: PseudoClass&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool;
 }
-
 
 <span class="attr">#[derive(Clone, Copy, PartialEq, Debug)]
 </span><span class="kw">enum </span>SimpleSelectorType&lt;<span class="lifetime">'a</span>&gt; {
@@ -750,20 +734,17 @@
     Universal,
 }
 
-
 <span class="attr">#[derive(Clone, Copy, PartialEq, Debug)]
 </span><span class="kw">enum </span>SubSelector&lt;<span class="lifetime">'a</span>&gt; {
     Attribute(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, AttributeOperator&lt;<span class="lifetime">'a</span>&gt;),
     PseudoClass(PseudoClass&lt;<span class="lifetime">'a</span>&gt;),
 }
 
-
 <span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">struct </span>SimpleSelector&lt;<span class="lifetime">'a</span>&gt; {
     kind: SimpleSelectorType&lt;<span class="lifetime">'a</span>&gt;,
     subselectors: Vec&lt;SubSelector&lt;<span class="lifetime">'a</span>&gt;&gt;,
 }
-
 
 <span class="attr">#[derive(Clone, Copy, PartialEq, Debug)]
 </span><span class="kw">enum </span>Combinator {
@@ -773,7 +754,6 @@
     AdjacentSibling,
 }
 
-
 <span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">struct </span>Component&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// A combinator that precede the selector.
@@ -781,11 +761,10 @@
     selector: SimpleSelector&lt;<span class="lifetime">'a</span>&gt;,
 }
 
-
 <span class="doccomment">/// A selector.
 </span><span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>Selector&lt;<span class="lifetime">'a</span>&gt; {
-    components: Vec&lt;Component&lt;<span class="lifetime">'a</span>&gt;&gt;
+    components: Vec&lt;Component&lt;<span class="lifetime">'a</span>&gt;&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Selector&lt;<span class="lifetime">'a</span>&gt; {
@@ -800,7 +779,7 @@
 
     <span class="doccomment">/// Compute the selector's specificity.
     ///
-    /// Cf. https://www.w3.org/TR/selectors/#specificity.
+    /// Cf. &lt;https://www.w3.org/TR/selectors/#specificity&gt;.
     </span><span class="kw">pub fn </span>specificity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [u8; <span class="number">3</span>] {
         <span class="kw">let </span><span class="kw-2">mut </span>spec = [<span class="number">0u8</span>; <span class="number">3</span>];
 
@@ -823,14 +802,17 @@
     <span class="doccomment">/// Checks that the provided element matches the current selector.
     </span><span class="kw">pub fn </span>matches&lt;E: Element&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, element: <span class="kw-2">&amp;</span>E) -&gt; bool {
         <span class="macro">assert!</span>(!<span class="self">self</span>.components.is_empty(), <span class="string">"selector must not be empty"</span>);
-        <span class="macro">assert_eq!</span>(<span class="self">self</span>.components[<span class="number">0</span>].combinator, Combinator::None,
-                   <span class="string">"the first component must not have a combinator"</span>);
+        <span class="macro">assert_eq!</span>(
+            <span class="self">self</span>.components[<span class="number">0</span>].combinator,
+            Combinator::None,
+            <span class="string">"the first component must not have a combinator"
+        </span>);
 
         <span class="self">self</span>.matches_impl(<span class="self">self</span>.components.len() - <span class="number">1</span>, element)
     }
 
     <span class="kw">fn </span>matches_impl&lt;E: Element&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, idx: usize, element: <span class="kw-2">&amp;</span>E) -&gt; bool {
-        <span class="kw">let </span><span class="kw-2">ref </span>component = <span class="self">self</span>.components[idx];
+        <span class="kw">let </span>component = <span class="kw-2">&amp;</span><span class="self">self</span>.components[idx];
 
         <span class="kw">if </span>!match_selector(<span class="kw-2">&amp;</span>component.selector, element) {
             <span class="kw">return </span><span class="bool-val">false</span>;
@@ -867,14 +849,12 @@
 
                 <span class="bool-val">false
             </span>}
-            Combinator::None =&gt; {
-                <span class="bool-val">true
-            </span>}
+            Combinator::None =&gt; <span class="bool-val">true</span>,
         }
     }
 }
 
-<span class="kw">fn </span>match_selector&lt;E: Element&gt;(selector: <span class="kw-2">&amp;</span>SimpleSelector, element: <span class="kw-2">&amp;</span>E) -&gt; bool {
+<span class="kw">fn </span>match_selector&lt;E: Element&gt;(selector: <span class="kw-2">&amp;</span>SimpleSelector&lt;<span class="lifetime">'_</span>&gt;, element: <span class="kw-2">&amp;</span>E) -&gt; bool {
     <span class="kw">if let </span>SimpleSelectorType::Type(ident) = selector.kind {
         <span class="kw">if </span>!element.has_local_name(ident) {
             <span class="kw">return </span><span class="bool-val">false</span>;
@@ -899,8 +879,8 @@
     <span class="bool-val">true
 </span>}
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>parse(text: <span class="kw-2">&amp;</span>str) -&gt; (<span class="prelude-ty">Option</span>&lt;Selector&gt;, usize) {
-    <span class="kw">let </span><span class="kw-2">mut </span>components: Vec&lt;Component&gt; = Vec::new();
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>parse(text: <span class="kw-2">&amp;</span>str) -&gt; (<span class="prelude-ty">Option</span>&lt;Selector&lt;<span class="lifetime">'_</span>&gt;&gt;, usize) {
+    <span class="kw">let </span><span class="kw-2">mut </span>components: Vec&lt;Component&lt;<span class="lifetime">'_</span>&gt;&gt; = Vec::new();
     <span class="kw">let </span><span class="kw-2">mut </span>combinator = Combinator::None;
 
     <span class="kw">let </span><span class="kw-2">mut </span>tokenizer = SelectorTokenizer::from(text);
@@ -955,7 +935,10 @@
                 combinator = Combinator::None;
             }
             SelectorToken::ClassSelector(ident) =&gt; {
-                add_sub(SubSelector::Attribute(<span class="string">"class"</span>, AttributeOperator::Contains(ident)));
+                add_sub(SubSelector::Attribute(
+                    <span class="string">"class"</span>,
+                    AttributeOperator::Contains(ident),
+                ));
             }
             SelectorToken::IdSelector(id) =&gt; {
                 add_sub(SubSelector::Attribute(<span class="string">"id"</span>, AttributeOperator::Matches(id)));
@@ -1000,8 +983,11 @@
     <span class="kw">if </span>components.is_empty() {
         (<span class="prelude-val">None</span>, tokenizer.stream.pos())
     } <span class="kw">else if </span>components[<span class="number">0</span>].combinator != Combinator::None {
-        <span class="macro">debug_assert_eq!</span>(components[<span class="number">0</span>].combinator, Combinator::None,
-                         <span class="string">"the first component must not have a combinator"</span>);
+        <span class="macro">debug_assert_eq!</span>(
+            components[<span class="number">0</span>].combinator,
+            Combinator::None,
+            <span class="string">"the first component must not have a combinator"
+        </span>);
 
         (<span class="prelude-val">None</span>, tokenizer.stream.pos())
     } <span class="kw">else </span>{
@@ -1009,8 +995,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; fmt::Display <span class="kw">for </span>Selector&lt;<span class="lifetime">'a</span>&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Selector&lt;<span class="lifetime">'_</span>&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">for </span>component <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.components {
             <span class="kw">match </span>component.combinator {
                 Combinator::Descendant =&gt; <span class="macro">write!</span>(f, <span class="string">" "</span>)<span class="question-mark">?</span>,
@@ -1051,7 +1037,6 @@
     }
 }
 
-
 <span class="doccomment">/// A selector token.
 </span><span class="attr">#[derive(Clone, Copy, PartialEq, Debug)]
 </span><span class="kw">pub enum </span>SelectorToken&lt;<span class="lifetime">'a</span>&gt; {
@@ -1085,7 +1070,6 @@
     <span class="doccomment">/// `a + b`
     </span>AdjacentCombinator,
 }
-
 
 <span class="doccomment">/// A selector tokenizer.
 ///
@@ -1171,9 +1155,7 @@
                 <span class="kw">let </span>ident = <span class="macro">try2!</span>(<span class="self">self</span>.stream.consume_ident());
 
                 <span class="kw">let </span>op = <span class="kw">match </span><span class="macro">try2!</span>(<span class="self">self</span>.stream.curr_byte()) {
-                    <span class="string">b']' </span>=&gt; {
-                        AttributeOperator::Exists
-                    }
+                    <span class="string">b']' </span>=&gt; AttributeOperator::Exists,
                     <span class="string">b'=' </span>=&gt; {
                         <span class="self">self</span>.stream.advance(<span class="number">1</span>);
                         <span class="kw">let </span>value = <span class="macro">try2!</span>(<span class="self">self</span>.stream.consume_string());
@@ -1256,9 +1238,7 @@
                 }
 
                 <span class="kw">match </span><span class="self">self</span>.stream.curr_byte() {
-                    <span class="prelude-val">Ok</span>(<span class="string">b'&gt;'</span>) | <span class="prelude-val">Ok</span>(<span class="string">b'+'</span>) | <span class="prelude-val">Ok</span>(<span class="string">b','</span>) | <span class="prelude-val">Ok</span>(<span class="string">b'{'</span>) | <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
-                        <span class="self">self</span>.next()
-                    }
+                    <span class="prelude-val">Ok</span>(<span class="string">b'&gt;'</span>) | <span class="prelude-val">Ok</span>(<span class="string">b'+'</span>) | <span class="prelude-val">Ok</span>(<span class="string">b','</span>) | <span class="prelude-val">Ok</span>(<span class="string">b'{'</span>) | <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="self">self</span>.next(),
                     <span class="kw">_ </span>=&gt; {
                         <span class="kw">if </span><span class="self">self</span>.after_combinator {
                             <span class="self">self</span>.after_combinator = <span class="bool-val">false</span>;

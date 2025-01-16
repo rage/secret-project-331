@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/unicode-bidi-0.3.17/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="unicode_bidi" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/unicode-bidi-0.3.18/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="unicode_bidi" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2309,6 +2309,25 @@
 <a href="#2309" id="2309">2309</a>
 <a href="#2310" id="2310">2310</a>
 <a href="#2311" id="2311">2311</a>
+<a href="#2312" id="2312">2312</a>
+<a href="#2313" id="2313">2313</a>
+<a href="#2314" id="2314">2314</a>
+<a href="#2315" id="2315">2315</a>
+<a href="#2316" id="2316">2316</a>
+<a href="#2317" id="2317">2317</a>
+<a href="#2318" id="2318">2318</a>
+<a href="#2319" id="2319">2319</a>
+<a href="#2320" id="2320">2320</a>
+<a href="#2321" id="2321">2321</a>
+<a href="#2322" id="2322">2322</a>
+<a href="#2323" id="2323">2323</a>
+<a href="#2324" id="2324">2324</a>
+<a href="#2325" id="2325">2325</a>
+<a href="#2326" id="2326">2326</a>
+<a href="#2327" id="2327">2327</a>
+<a href="#2328" id="2328">2328</a>
+<a href="#2329" id="2329">2329</a>
+<a href="#2330" id="2330">2330</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright 2015 The Servo Project Developers. See the
 // COPYRIGHT file at the top-level directory of this distribution.
 //
@@ -3465,7 +3484,7 @@
     </span><span class="kw">let </span><span class="kw-2">mut </span>reset_from: <span class="prelude-ty">Option</span>&lt;usize&gt; = <span class="prelude-val">Some</span>(<span class="number">0</span>);
     <span class="kw">let </span><span class="kw-2">mut </span>reset_to: <span class="prelude-ty">Option</span>&lt;usize&gt; = <span class="prelude-val">None</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>prev_level = para_level;
-    <span class="kw">for </span>(i, c) <span class="kw">in </span>line_text.char_indices() {
+    <span class="kw">for </span>((i, c), (<span class="kw">_</span>, length)) <span class="kw">in </span>line_text.char_indices().zip(line_text.indices_lengths()) {
         <span class="kw">match </span>line_classes[i] {
             <span class="comment">// Segment separator, Paragraph separator
             </span>B | S =&gt; {
@@ -3488,7 +3507,9 @@
                     reset_from = <span class="prelude-val">Some</span>(i);
                 }
                 <span class="comment">// also set the level to previous
-                </span>line_levels[i] = prev_level;
+                </span><span class="kw">for </span>level <span class="kw">in </span><span class="kw-2">&amp;mut </span>line_levels[i..i + length] {
+                    <span class="kw-2">*</span>level = prev_level;
+                }
             }
             <span class="kw">_ </span>=&gt; {
                 reset_from = <span class="prelude-val">None</span>;
@@ -4348,6 +4369,23 @@
             .iter()
             .map(|para| bidi_info.reordered_levels_per_char(para, para.range.clone()))
             .collect()
+    }
+
+    <span class="attr">#[test]
+    #[cfg(feature = <span class="string">"hardcoded-data"</span>)]
+    </span><span class="comment">// See issue #138
+    </span><span class="kw">fn </span>test_reordered_levels_range() {
+        <span class="comment">//                |---------------|
+        </span><span class="kw">let </span>s = <span class="string">"\u{202a}A\u{202c}\u{202a}A\u{202c}"</span>;
+        <span class="kw">let </span>range = <span class="number">4</span>..<span class="number">11</span>;
+        <span class="macro">assert!</span>(s.get(range.clone()).is_some());
+
+        <span class="kw">let </span>bidi = BidiInfo::new(s, <span class="prelude-val">None</span>);
+        <span class="kw">let </span>(<span class="kw">_</span>, runs) = bidi.visual_runs(<span class="kw-2">&amp;</span>bidi.paragraphs[<span class="number">0</span>], range);
+
+        <span class="kw">for </span>run <span class="kw">in </span>runs {
+            <span class="kw">let _ </span>= <span class="kw-2">&amp;</span>s[run]; <span class="comment">// should be valid slice of s
+        </span>}
     }
 
     <span class="attr">#[test]

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.14/src/common_state.rs`."><title>common_state.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.21/src/common_state.rs`."><title>common_state.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1019,6 +1019,48 @@
 <a href="#1019" id="1019">1019</a>
 <a href="#1020" id="1020">1020</a>
 <a href="#1021" id="1021">1021</a>
+<a href="#1022" id="1022">1022</a>
+<a href="#1023" id="1023">1023</a>
+<a href="#1024" id="1024">1024</a>
+<a href="#1025" id="1025">1025</a>
+<a href="#1026" id="1026">1026</a>
+<a href="#1027" id="1027">1027</a>
+<a href="#1028" id="1028">1028</a>
+<a href="#1029" id="1029">1029</a>
+<a href="#1030" id="1030">1030</a>
+<a href="#1031" id="1031">1031</a>
+<a href="#1032" id="1032">1032</a>
+<a href="#1033" id="1033">1033</a>
+<a href="#1034" id="1034">1034</a>
+<a href="#1035" id="1035">1035</a>
+<a href="#1036" id="1036">1036</a>
+<a href="#1037" id="1037">1037</a>
+<a href="#1038" id="1038">1038</a>
+<a href="#1039" id="1039">1039</a>
+<a href="#1040" id="1040">1040</a>
+<a href="#1041" id="1041">1041</a>
+<a href="#1042" id="1042">1042</a>
+<a href="#1043" id="1043">1043</a>
+<a href="#1044" id="1044">1044</a>
+<a href="#1045" id="1045">1045</a>
+<a href="#1046" id="1046">1046</a>
+<a href="#1047" id="1047">1047</a>
+<a href="#1048" id="1048">1048</a>
+<a href="#1049" id="1049">1049</a>
+<a href="#1050" id="1050">1050</a>
+<a href="#1051" id="1051">1051</a>
+<a href="#1052" id="1052">1052</a>
+<a href="#1053" id="1053">1053</a>
+<a href="#1054" id="1054">1054</a>
+<a href="#1055" id="1055">1055</a>
+<a href="#1056" id="1056">1056</a>
+<a href="#1057" id="1057">1057</a>
+<a href="#1058" id="1058">1058</a>
+<a href="#1059" id="1059">1059</a>
+<a href="#1060" id="1060">1060</a>
+<a href="#1061" id="1061">1061</a>
+<a href="#1062" id="1062">1062</a>
+<a href="#1063" id="1063">1063</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
 <span class="kw">use </span>alloc::vec::Vec;
 
@@ -1032,7 +1074,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::msgs::alert::AlertMessagePayload;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::base::Payload;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::codec::Codec;
-<span class="kw">use </span><span class="kw">crate</span>::msgs::enums::{AlertLevel, KeyUpdateRequest};
+<span class="kw">use </span><span class="kw">crate</span>::msgs::enums::{AlertLevel, ExtensionType, KeyUpdateRequest};
 <span class="kw">use </span><span class="kw">crate</span>::msgs::fragmenter::MessageFragmenter;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::{CertificateChain, HandshakeMessagePayload};
 <span class="kw">use </span><span class="kw">crate</span>::msgs::message::{
@@ -1045,7 +1087,7 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::tls12::ConnectionSecrets;
 <span class="kw">use </span><span class="kw">crate</span>::unbuffered::{EncryptError, InsufficientSizeError};
 <span class="kw">use </span><span class="kw">crate</span>::vecbuf::ChunkVecBuffer;
-<span class="kw">use crate</span>::{quic, record_layer};
+<span class="kw">use crate</span>::{quic, record_layer, PeerIncompatible};
 
 <span class="doccomment">/// Connection state common to both client and server connections.
 </span><span class="kw">pub struct </span>CommonState {
@@ -1077,6 +1119,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) enable_secret_extraction: bool,
     temper_counters: TemperCounters,
     <span class="kw">pub</span>(<span class="kw">crate</span>) refresh_traffic_keys_pending: bool,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) fips: bool,
 }
 
 <span class="kw">impl </span>CommonState {
@@ -1107,6 +1150,7 @@
             enable_secret_extraction: <span class="bool-val">false</span>,
             temper_counters: TemperCounters::default(),
             refresh_traffic_keys_pending: <span class="bool-val">false</span>,
+            fips: <span class="bool-val">false</span>,
         }
     }
 
@@ -1128,21 +1172,27 @@
         !(<span class="self">self</span>.may_send_application_data &amp;&amp; <span class="self">self</span>.may_receive_application_data)
     }
 
-    <span class="doccomment">/// Retrieves the certificate chain used by the peer to authenticate.
+    <span class="doccomment">/// Retrieves the certificate chain or the raw public key used by the peer to authenticate.
     ///
     /// The order of the certificate chain is as it appears in the TLS
     /// protocol: the first certificate relates to the peer, the
     /// second certifies the first, the third certifies the second, and
     /// so on.
     ///
+    /// When using raw public keys, the first and only element is the raw public key.
+    ///
     /// This is made available for both full and resumed handshakes.
     ///
-    /// For clients, this is the certificate chain of the server.
+    /// For clients, this is the certificate chain or the raw public key of the server.
     ///
-    /// For servers, this is the certificate chain of the client,
+    /// For servers, this is the certificate chain or the raw public key of the client,
     /// if client authentication was completed.
     ///
     /// The return value is None until this value is available.
+    ///
+    /// Note: the return type of the 'certificate', when using raw public keys is `CertificateDer&lt;'static&gt;`
+    /// even though this should technically be a `SubjectPublicKeyInfoDer&lt;'static&gt;`.
+    /// This choice simplifies the API and ensures backwards compatibility.
     </span><span class="kw">pub fn </span>peer_certificates(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[CertificateDer&lt;<span class="lifetime">'static</span>&gt;]&gt; {
         <span class="self">self</span>.peer_certificates.as_deref()
     }
@@ -1536,10 +1586,15 @@
                 .received_warning_alert()<span class="question-mark">?</span>;
             <span class="kw">if </span><span class="self">self</span>.is_tls13() &amp;&amp; alert.description != AlertDescription::UserCanceled {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="self">self</span>.send_fatal_alert(AlertDescription::DecodeError, err));
-            } <span class="kw">else </span>{
-                <span class="macro">warn!</span>(<span class="string">"TLS alert warning received: {:?}"</span>, alert);
-                <span class="kw">return </span><span class="prelude-val">Ok</span>(());
             }
+
+            <span class="comment">// Some implementations send pointless `user_canceled` alerts, don't log them
+            // in release mode (https://bugs.openjdk.org/browse/JDK-8323517).
+            </span><span class="kw">if </span>alert.description != AlertDescription::UserCanceled || <span class="macro">cfg!</span>(debug_assertions) {
+                <span class="macro">warn!</span>(<span class="string">"TLS alert warning received: {alert:?}"</span>);
+            }
+
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(());
         }
 
         <span class="prelude-val">Err</span>(err)
@@ -1906,6 +1961,35 @@
     <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span>Yes,
     No,
+}
+
+<span class="attr">#[derive(Debug)]
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct </span>RawKeyNegotiationParams {
+    <span class="kw">pub</span>(<span class="kw">super</span>) peer_supports_raw_key: bool,
+    <span class="kw">pub</span>(<span class="kw">super</span>) local_expects_raw_key: bool,
+    <span class="kw">pub</span>(<span class="kw">super</span>) extension_type: ExtensionType,
+}
+
+<span class="kw">impl </span>RawKeyNegotiationParams {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>validate_raw_key_negotiation(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RawKeyNegotationResult {
+        <span class="kw">match </span>(<span class="self">self</span>.local_expects_raw_key, <span class="self">self</span>.peer_supports_raw_key) {
+            (<span class="bool-val">true</span>, <span class="bool-val">true</span>) =&gt; RawKeyNegotationResult::Negotiated(<span class="self">self</span>.extension_type),
+            (<span class="bool-val">false</span>, <span class="bool-val">false</span>) =&gt; RawKeyNegotationResult::NotNegotiated,
+            (<span class="bool-val">true</span>, <span class="bool-val">false</span>) =&gt; RawKeyNegotationResult::Err(Error::PeerIncompatible(
+                PeerIncompatible::IncorrectCertificateTypeExtension,
+            )),
+            (<span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; RawKeyNegotationResult::Err(Error::PeerIncompatible(
+                PeerIncompatible::UnsolicitedCertificateTypeExtension,
+            )),
+        }
+    }
+}
+
+<span class="attr">#[derive(Debug)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>RawKeyNegotationResult {
+    Negotiated(ExtensionType),
+    NotNegotiated,
+    <span class="prelude-val">Err</span>(Error),
 }
 
 <span class="doccomment">/// Tracking technically-allowed protocol actions

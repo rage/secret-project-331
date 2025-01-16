@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/postcard-1.0.10/src/ser/serializer.rs`."><title>serializer.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="postcard" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/postcard-1.1.1/src/ser/serializer.rs`."><title>serializer.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="postcard" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -575,7 +575,7 @@
 ///
 /// See the docs for [`SerFlavor`] for more information about "flavors" of serialization
 ///
-/// [`SerFlavor`]: trait.SerFlavor.html
+/// [`SerFlavor`]: crate::ser_flavors::Flavor
 </span><span class="kw">pub struct </span>Serializer&lt;F&gt;
 <span class="kw">where
     </span>F: Flavor,
@@ -627,7 +627,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, F&gt; ser::Serializer <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Serializer&lt;F&gt;
+<span class="kw">impl</span>&lt;F&gt; ser::Serializer <span class="kw">for </span><span class="kw-2">&amp;mut </span>Serializer&lt;F&gt;
 <span class="kw">where
     </span>F: Flavor,
 {
@@ -911,7 +911,7 @@
         }
         <span class="kw">impl </span>Write <span class="kw">for </span>CountWriter {
             <span class="kw">fn </span>write_str(<span class="kw-2">&amp;mut </span><span class="self">self</span>, s: <span class="kw-2">&amp;</span>str) -&gt; core::result::Result&lt;(), core::fmt::Error&gt; {
-                <span class="self">self</span>.ct += s.as_bytes().len();
+                <span class="self">self</span>.ct += s.len();
                 <span class="prelude-val">Ok</span>(())
             }
         }
@@ -920,7 +920,7 @@
 
         <span class="comment">// This is the first pass through, where we just count the length of the
         // data that we are given
-        </span><span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>ctr, <span class="string">"{}"</span>, value).map_err(|<span class="kw">_</span>| Error::CollectStrError)<span class="question-mark">?</span>;
+        </span><span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>ctr, <span class="string">"{value}"</span>).map_err(|<span class="kw">_</span>| Error::CollectStrError)<span class="question-mark">?</span>;
         <span class="kw">let </span>len = ctr.ct;
         <span class="self">self</span>.try_push_varint_usize(len)
             .map_err(|<span class="kw">_</span>| Error::SerializeBufferFull)<span class="question-mark">?</span>;
@@ -931,7 +931,7 @@
         {
             output: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>IF,
         }
-        <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, IF&gt; Write <span class="kw">for </span>FmtWriter&lt;<span class="lifetime">'a</span>, IF&gt;
+        <span class="kw">impl</span>&lt;IF&gt; Write <span class="kw">for </span>FmtWriter&lt;<span class="lifetime">'_</span>, IF&gt;
         <span class="kw">where
             </span>IF: Flavor,
         {
@@ -946,13 +946,13 @@
         </span><span class="kw">let </span><span class="kw-2">mut </span>fw = FmtWriter {
             output: <span class="kw-2">&amp;mut </span><span class="self">self</span>.output,
         };
-        <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>fw, <span class="string">"{}"</span>, value).map_err(|<span class="kw">_</span>| Error::CollectStrError)<span class="question-mark">?</span>;
+        <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>fw, <span class="string">"{value}"</span>).map_err(|<span class="kw">_</span>| Error::CollectStrError)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, F&gt; ser::SerializeSeq <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Serializer&lt;F&gt;
+<span class="kw">impl</span>&lt;F&gt; ser::SerializeSeq <span class="kw">for </span><span class="kw-2">&amp;mut </span>Serializer&lt;F&gt;
 <span class="kw">where
     </span>F: Flavor,
 {
@@ -977,7 +977,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, F&gt; ser::SerializeTuple <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Serializer&lt;F&gt;
+<span class="kw">impl</span>&lt;F&gt; ser::SerializeTuple <span class="kw">for </span><span class="kw-2">&amp;mut </span>Serializer&lt;F&gt;
 <span class="kw">where
     </span>F: Flavor,
 {
@@ -998,7 +998,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, F&gt; ser::SerializeTupleStruct <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Serializer&lt;F&gt;
+<span class="kw">impl</span>&lt;F&gt; ser::SerializeTupleStruct <span class="kw">for </span><span class="kw-2">&amp;mut </span>Serializer&lt;F&gt;
 <span class="kw">where
     </span>F: Flavor,
 {
@@ -1019,7 +1019,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, F&gt; ser::SerializeTupleVariant <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Serializer&lt;F&gt;
+<span class="kw">impl</span>&lt;F&gt; ser::SerializeTupleVariant <span class="kw">for </span><span class="kw-2">&amp;mut </span>Serializer&lt;F&gt;
 <span class="kw">where
     </span>F: Flavor,
 {
@@ -1040,7 +1040,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, F&gt; ser::SerializeMap <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Serializer&lt;F&gt;
+<span class="kw">impl</span>&lt;F&gt; ser::SerializeMap <span class="kw">for </span><span class="kw-2">&amp;mut </span>Serializer&lt;F&gt;
 <span class="kw">where
     </span>F: Flavor,
 {
@@ -1069,7 +1069,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, F&gt; ser::SerializeStruct <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Serializer&lt;F&gt;
+<span class="kw">impl</span>&lt;F&gt; ser::SerializeStruct <span class="kw">for </span><span class="kw-2">&amp;mut </span>Serializer&lt;F&gt;
 <span class="kw">where
     </span>F: Flavor,
 {
@@ -1090,7 +1090,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, F&gt; ser::SerializeStructVariant <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Serializer&lt;F&gt;
+<span class="kw">impl</span>&lt;F&gt; ser::SerializeStructVariant <span class="kw">for </span><span class="kw-2">&amp;mut </span>Serializer&lt;F&gt;
 <span class="kw">where
     </span>F: Flavor,
 {

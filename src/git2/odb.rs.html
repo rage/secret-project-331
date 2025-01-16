@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.19.0/src/odb.rs`."><title>odb.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.20.0/src/odb.rs`."><title>odb.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -727,6 +727,47 @@
 <a href="#727" id="727">727</a>
 <a href="#728" id="728">728</a>
 <a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::io;
 <span class="kw">use </span>std::marker;
 <span class="kw">use </span>std::ptr;
@@ -1093,7 +1134,7 @@
             <span class="kw">if </span>res &lt; <span class="number">0 </span>{
                 <span class="prelude-val">Err</span>(io::Error::new(io::ErrorKind::Other, <span class="string">"Read error"</span>))
             } <span class="kw">else </span>{
-                <span class="prelude-val">Ok</span>(len)
+                <span class="prelude-val">Ok</span>(res <span class="kw">as _</span>)
             }
         }
     }
@@ -1187,7 +1228,7 @@
             };
 
             <span class="kw">if </span>res &lt; <span class="number">0 </span>{
-                <span class="prelude-val">Err</span>(Error::last_error(res).unwrap())
+                <span class="prelude-val">Err</span>(Error::last_error(res))
             } <span class="kw">else </span>{
                 <span class="prelude-val">Ok</span>(res)
             }
@@ -1454,6 +1495,47 @@
         packwriter.commit().unwrap();
         <span class="macro">t!</span>(repo.reset(commit1.as_object(), ResetType::Hard, <span class="prelude-val">None</span>));
         <span class="macro">assert!</span>(foo_file.exists());
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>stream_read() {
+        <span class="comment">// Test for read impl of OdbReader.
+        </span><span class="kw">const </span>FOO_TEXT: <span class="kw-2">&amp;</span>[u8] = <span class="string">b"this is a test"</span>;
+        <span class="kw">let </span>(_td, repo) = <span class="kw">crate</span>::test::repo_init();
+        <span class="kw">let </span>p = repo.path().parent().unwrap().join(<span class="string">"foo"</span>);
+        std::fs::write(<span class="kw-2">&amp;</span>p, FOO_TEXT).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>index = repo.index().unwrap();
+        index.add_path(std::path::Path::new(<span class="string">"foo"</span>)).unwrap();
+        <span class="kw">let </span>tree_id = index.write_tree().unwrap();
+        <span class="kw">let </span>tree = repo.find_tree(tree_id).unwrap();
+        <span class="kw">let </span>sig = repo.signature().unwrap();
+        <span class="kw">let </span>head_id = repo.refname_to_id(<span class="string">"HEAD"</span>).unwrap();
+        <span class="kw">let </span>parent = repo.find_commit(head_id).unwrap();
+        <span class="kw">let </span>_commit = repo
+            .commit(<span class="prelude-val">Some</span>(<span class="string">"HEAD"</span>), <span class="kw-2">&amp;</span>sig, <span class="kw-2">&amp;</span>sig, <span class="string">"commit"</span>, <span class="kw-2">&amp;</span>tree, <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>parent])
+            .unwrap();
+
+        <span class="comment">// Try reading from a commit object.
+        </span><span class="kw">let </span>odb = repo.odb().unwrap();
+        <span class="kw">let </span>oid = repo.refname_to_id(<span class="string">"HEAD"</span>).unwrap();
+        <span class="kw">let </span>(<span class="kw-2">mut </span>reader, size, ty) = odb.reader(oid).unwrap();
+        <span class="macro">assert!</span>(ty == ObjectType::Commit);
+        <span class="kw">let </span><span class="kw-2">mut </span>x = [<span class="number">0</span>; <span class="number">10000</span>];
+        <span class="kw">let </span>r = reader.read(<span class="kw-2">&amp;mut </span>x).unwrap();
+        <span class="macro">assert!</span>(r == size);
+
+        <span class="comment">// Try reading from a blob. This assumes it is a loose object (packed
+        // objects can't read).
+        </span><span class="kw">let </span>commit = repo.find_commit(oid).unwrap();
+        <span class="kw">let </span>tree = commit.tree().unwrap();
+        <span class="kw">let </span>entry = tree.get_name(<span class="string">"foo"</span>).unwrap();
+        <span class="kw">let </span>(<span class="kw-2">mut </span>reader, size, ty) = odb.reader(entry.id()).unwrap();
+        <span class="macro">assert_eq!</span>(size, FOO_TEXT.len());
+        <span class="macro">assert!</span>(ty == ObjectType::Blob);
+        <span class="kw">let </span><span class="kw-2">mut </span>x = [<span class="number">0</span>; <span class="number">10000</span>];
+        <span class="kw">let </span>r = reader.read(<span class="kw-2">&amp;mut </span>x).unwrap();
+        <span class="macro">assert_eq!</span>(r, <span class="number">14</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>x[..FOO_TEXT.len()], FOO_TEXT);
     }
 }
 </code></pre></div></section></main></body></html>

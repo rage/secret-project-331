@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.14/src/enums.rs`."><title>enums.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.21/src/enums.rs`."><title>enums.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -616,6 +616,8 @@
 <a href="#616" id="616">616</a>
 <a href="#617" id="617">617</a>
 <a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(non_camel_case_types)]
 #![allow(missing_docs)]
 </span><span class="kw">use </span><span class="kw">crate</span>::msgs::codec::{Codec, Reader};
@@ -624,8 +626,8 @@
     <span class="doccomment">/// The `AlertDescription` TLS protocol enum.  Values in this enum are taken
     /// from the various RFCs covering TLS, and are listed by IANA.
     /// The `Unknown` item is used when processing unrecognised ordinals.
-    </span>@U8
-    <span class="kw">pub enum </span>AlertDescription {
+    </span><span class="attr">#[repr(u8)]
+    </span><span class="kw">pub enum </span>AlertDescription {
         CloseNotify =&gt; <span class="number">0x00</span>,
         UnexpectedMessage =&gt; <span class="number">0x0a</span>,
         BadRecordMac =&gt; <span class="number">0x14</span>,
@@ -668,8 +670,8 @@
     <span class="doccomment">/// The `HandshakeType` TLS protocol enum.  Values in this enum are taken
     /// from the various RFCs covering TLS, and are listed by IANA.
     /// The `Unknown` item is used when processing unrecognised ordinals.
-    </span>@U8
-    <span class="kw">pub enum </span>HandshakeType {
+    </span><span class="attr">#[repr(u8)]
+    </span><span class="kw">pub enum </span>HandshakeType {
         HelloRequest =&gt; <span class="number">0x00</span>,
         ClientHello =&gt; <span class="number">0x01</span>,
         ServerHello =&gt; <span class="number">0x02</span>,
@@ -697,8 +699,8 @@
     <span class="doccomment">/// The `ContentType` TLS protocol enum.  Values in this enum are taken
     /// from the various RFCs covering TLS, and are listed by IANA.
     /// The `Unknown` item is used when processing unrecognised ordinals.
-    </span>@U8
-    <span class="kw">pub enum </span>ContentType {
+    </span><span class="attr">#[repr(u8)]
+    </span><span class="kw">pub enum </span>ContentType {
         ChangeCipherSpec =&gt; <span class="number">0x14</span>,
         Alert =&gt; <span class="number">0x15</span>,
         Handshake =&gt; <span class="number">0x16</span>,
@@ -711,8 +713,8 @@
     <span class="doccomment">/// The `ProtocolVersion` TLS protocol enum.  Values in this enum are taken
     /// from the various RFCs covering TLS, and are listed by IANA.
     /// The `Unknown` item is used when processing unrecognised ordinals.
-    </span>@U16
-    <span class="kw">pub enum </span>ProtocolVersion {
+    </span><span class="attr">#[repr(u16)]
+    </span><span class="kw">pub enum </span>ProtocolVersion {
         SSLv2 =&gt; <span class="number">0x0200</span>,
         SSLv3 =&gt; <span class="number">0x0300</span>,
         TLSv1_0 =&gt; <span class="number">0x0301</span>,
@@ -729,9 +731,33 @@
     <span class="doccomment">/// The `CipherSuite` TLS protocol enum.  Values in this enum are taken
     /// from the various RFCs covering TLS, and are listed by IANA.
     /// The `Unknown` item is used when processing unrecognised ordinals.
-    </span>@U16
-    <span class="kw">pub enum </span>CipherSuite {
+    </span><span class="attr">#[repr(u16)]
+    </span><span class="kw">pub enum </span>CipherSuite {
         TLS_NULL_WITH_NULL_NULL =&gt; <span class="number">0x0000</span>,
+        TLS_PSK_WITH_AES_128_GCM_SHA256 =&gt; <span class="number">0x00a8</span>,
+        TLS_PSK_WITH_AES_256_GCM_SHA384 =&gt; <span class="number">0x00a9</span>,
+        TLS_EMPTY_RENEGOTIATION_INFO_SCSV =&gt; <span class="number">0x00ff</span>,
+        TLS13_AES_128_GCM_SHA256 =&gt; <span class="number">0x1301</span>,
+        TLS13_AES_256_GCM_SHA384 =&gt; <span class="number">0x1302</span>,
+        TLS13_CHACHA20_POLY1305_SHA256 =&gt; <span class="number">0x1303</span>,
+        TLS13_AES_128_CCM_SHA256 =&gt; <span class="number">0x1304</span>,
+        TLS13_AES_128_CCM_8_SHA256 =&gt; <span class="number">0x1305</span>,
+        TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA =&gt; <span class="number">0xc009</span>,
+        TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA =&gt; <span class="number">0xc00a</span>,
+        TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA =&gt; <span class="number">0xc013</span>,
+        TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA =&gt; <span class="number">0xc014</span>,
+        TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256 =&gt; <span class="number">0xc023</span>,
+        TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384 =&gt; <span class="number">0xc024</span>,
+        TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256 =&gt; <span class="number">0xc027</span>,
+        TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384 =&gt; <span class="number">0xc028</span>,
+        TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 =&gt; <span class="number">0xc02b</span>,
+        TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 =&gt; <span class="number">0xc02c</span>,
+        TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 =&gt; <span class="number">0xc02f</span>,
+        TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 =&gt; <span class="number">0xc030</span>,
+        TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256 =&gt; <span class="number">0xcca8</span>,
+        TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256 =&gt; <span class="number">0xcca9</span>,
+
+    !Debug:
         TLS_RSA_WITH_NULL_MD5 =&gt; <span class="number">0x0001</span>,
         TLS_RSA_WITH_NULL_SHA =&gt; <span class="number">0x0002</span>,
         TLS_RSA_EXPORT_WITH_RC4_40_MD5 =&gt; <span class="number">0x0003</span>,
@@ -887,8 +913,6 @@
         TLS_DH_DSS_WITH_AES_256_GCM_SHA384 =&gt; <span class="number">0x00a5</span>,
         TLS_DH_anon_WITH_AES_128_GCM_SHA256 =&gt; <span class="number">0x00a6</span>,
         TLS_DH_anon_WITH_AES_256_GCM_SHA384 =&gt; <span class="number">0x00a7</span>,
-        TLS_PSK_WITH_AES_128_GCM_SHA256 =&gt; <span class="number">0x00a8</span>,
-        TLS_PSK_WITH_AES_256_GCM_SHA384 =&gt; <span class="number">0x00a9</span>,
         TLS_DHE_PSK_WITH_AES_128_GCM_SHA256 =&gt; <span class="number">0x00aa</span>,
         TLS_DHE_PSK_WITH_AES_256_GCM_SHA384 =&gt; <span class="number">0x00ab</span>,
         TLS_RSA_PSK_WITH_AES_128_GCM_SHA256 =&gt; <span class="number">0x00ac</span>,
@@ -917,12 +941,6 @@
         TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA256 =&gt; <span class="number">0x00c3</span>,
         TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA256 =&gt; <span class="number">0x00c4</span>,
         TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA256 =&gt; <span class="number">0x00c5</span>,
-        TLS_EMPTY_RENEGOTIATION_INFO_SCSV =&gt; <span class="number">0x00ff</span>,
-        TLS13_AES_128_GCM_SHA256 =&gt; <span class="number">0x1301</span>,
-        TLS13_AES_256_GCM_SHA384 =&gt; <span class="number">0x1302</span>,
-        TLS13_CHACHA20_POLY1305_SHA256 =&gt; <span class="number">0x1303</span>,
-        TLS13_AES_128_CCM_SHA256 =&gt; <span class="number">0x1304</span>,
-        TLS13_AES_128_CCM_8_SHA256 =&gt; <span class="number">0x1305</span>,
         TLS_ECDH_ECDSA_WITH_NULL_SHA =&gt; <span class="number">0xc001</span>,
         TLS_ECDH_ECDSA_WITH_RC4_128_SHA =&gt; <span class="number">0xc002</span>,
         TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA =&gt; <span class="number">0xc003</span>,
@@ -931,8 +949,6 @@
         TLS_ECDHE_ECDSA_WITH_NULL_SHA =&gt; <span class="number">0xc006</span>,
         TLS_ECDHE_ECDSA_WITH_RC4_128_SHA =&gt; <span class="number">0xc007</span>,
         TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA =&gt; <span class="number">0xc008</span>,
-        TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA =&gt; <span class="number">0xc009</span>,
-        TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA =&gt; <span class="number">0xc00a</span>,
         TLS_ECDH_RSA_WITH_NULL_SHA =&gt; <span class="number">0xc00b</span>,
         TLS_ECDH_RSA_WITH_RC4_128_SHA =&gt; <span class="number">0xc00c</span>,
         TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA =&gt; <span class="number">0xc00d</span>,
@@ -941,8 +957,6 @@
         TLS_ECDHE_RSA_WITH_NULL_SHA =&gt; <span class="number">0xc010</span>,
         TLS_ECDHE_RSA_WITH_RC4_128_SHA =&gt; <span class="number">0xc011</span>,
         TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA =&gt; <span class="number">0xc012</span>,
-        TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA =&gt; <span class="number">0xc013</span>,
-        TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA =&gt; <span class="number">0xc014</span>,
         TLS_ECDH_anon_WITH_NULL_SHA =&gt; <span class="number">0xc015</span>,
         TLS_ECDH_anon_WITH_RC4_128_SHA =&gt; <span class="number">0xc016</span>,
         TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA =&gt; <span class="number">0xc017</span>,
@@ -957,20 +971,12 @@
         TLS_SRP_SHA_WITH_AES_256_CBC_SHA =&gt; <span class="number">0xc020</span>,
         TLS_SRP_SHA_RSA_WITH_AES_256_CBC_SHA =&gt; <span class="number">0xc021</span>,
         TLS_SRP_SHA_DSS_WITH_AES_256_CBC_SHA =&gt; <span class="number">0xc022</span>,
-        TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256 =&gt; <span class="number">0xc023</span>,
-        TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384 =&gt; <span class="number">0xc024</span>,
         TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256 =&gt; <span class="number">0xc025</span>,
         TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384 =&gt; <span class="number">0xc026</span>,
-        TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256 =&gt; <span class="number">0xc027</span>,
-        TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384 =&gt; <span class="number">0xc028</span>,
         TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256 =&gt; <span class="number">0xc029</span>,
         TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384 =&gt; <span class="number">0xc02a</span>,
-        TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 =&gt; <span class="number">0xc02b</span>,
-        TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 =&gt; <span class="number">0xc02c</span>,
         TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256 =&gt; <span class="number">0xc02d</span>,
         TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384 =&gt; <span class="number">0xc02e</span>,
-        TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 =&gt; <span class="number">0xc02f</span>,
-        TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 =&gt; <span class="number">0xc030</span>,
         TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256 =&gt; <span class="number">0xc031</span>,
         TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384 =&gt; <span class="number">0xc032</span>,
         TLS_ECDHE_PSK_WITH_RC4_128_SHA =&gt; <span class="number">0xc033</span>,
@@ -1098,8 +1104,6 @@
         TLS_ECDHE_ECDSA_WITH_AES_256_CCM =&gt; <span class="number">0xc0ad</span>,
         TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8 =&gt; <span class="number">0xc0ae</span>,
         TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8 =&gt; <span class="number">0xc0af</span>,
-        TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256 =&gt; <span class="number">0xcca8</span>,
-        TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256 =&gt; <span class="number">0xcca9</span>,
         TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256 =&gt; <span class="number">0xccaa</span>,
         TLS_PSK_WITH_CHACHA20_POLY1305_SHA256 =&gt; <span class="number">0xccab</span>,
         TLS_ECDHE_PSK_WITH_CHACHA20_POLY1305_SHA256 =&gt; <span class="number">0xccac</span>,
@@ -1114,8 +1118,8 @@
     <span class="doccomment">/// The `SignatureScheme` TLS protocol enum.  Values in this enum are taken
     /// from the various RFCs covering TLS, and are listed by IANA.
     /// The `Unknown` item is used when processing unrecognised ordinals.
-    </span>@U16
-    <span class="kw">pub enum </span>SignatureScheme {
+    </span><span class="attr">#[repr(u16)]
+    </span><span class="kw">pub enum </span>SignatureScheme {
         RSA_PKCS1_SHA1 =&gt; <span class="number">0x0201</span>,
         ECDSA_SHA1_Legacy =&gt; <span class="number">0x0203</span>,
         RSA_PKCS1_SHA256 =&gt; <span class="number">0x0401</span>,
@@ -1177,8 +1181,8 @@
     <span class="doccomment">/// The `SignatureAlgorithm` TLS protocol enum.  Values in this enum are taken
     /// from the various RFCs covering TLS, and are listed by IANA.
     /// The `Unknown` item is used when processing unrecognised ordinals.
-    </span>@U8
-    <span class="kw">pub enum </span>SignatureAlgorithm {
+    </span><span class="attr">#[repr(u8)]
+    </span><span class="kw">pub enum </span>SignatureAlgorithm {
         Anonymous =&gt; <span class="number">0x00</span>,
         RSA =&gt; <span class="number">0x01</span>,
         DSA =&gt; <span class="number">0x02</span>,
@@ -1193,8 +1197,8 @@
     /// Values in this enum are taken from [RFC8879].
     ///
     /// [RFC8879]: https://www.rfc-editor.org/rfc/rfc8879.html#section-7.3
-    </span>@U16
-    <span class="kw">pub enum </span>CertificateCompressionAlgorithm {
+    </span><span class="attr">#[repr(u16)]
+    </span><span class="kw">pub enum </span>CertificateCompressionAlgorithm {
         Zlib =&gt; <span class="number">1</span>,
         Brotli =&gt; <span class="number">2</span>,
         Zstd =&gt; <span class="number">3</span>,
@@ -1207,8 +1211,8 @@
     /// Specified in [draft-ietf-tls-esni Section 5].
     ///
     /// [draft-ietf-tls-esni Section 5]: &lt;https://www.ietf.org/archive/id/draft-ietf-tls-esni-18.html#section-5&gt;
-    </span>@U8
-    <span class="kw">pub enum </span>EchClientHelloType {
+    </span><span class="attr">#[repr(u8)]
+    </span><span class="kw">pub enum </span>EchClientHelloType {
         ClientHelloOuter =&gt; <span class="number">0</span>,
         ClientHelloInner =&gt; <span class="number">1
     </span>}

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.14/src/msgs/handshake.rs`."><title>handshake.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.21/src/msgs/handshake.rs`."><title>handshake.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -3137,6 +3137,76 @@
 <a href="#3137" id="3137">3137</a>
 <a href="#3138" id="3138">3138</a>
 <a href="#3139" id="3139">3139</a>
+<a href="#3140" id="3140">3140</a>
+<a href="#3141" id="3141">3141</a>
+<a href="#3142" id="3142">3142</a>
+<a href="#3143" id="3143">3143</a>
+<a href="#3144" id="3144">3144</a>
+<a href="#3145" id="3145">3145</a>
+<a href="#3146" id="3146">3146</a>
+<a href="#3147" id="3147">3147</a>
+<a href="#3148" id="3148">3148</a>
+<a href="#3149" id="3149">3149</a>
+<a href="#3150" id="3150">3150</a>
+<a href="#3151" id="3151">3151</a>
+<a href="#3152" id="3152">3152</a>
+<a href="#3153" id="3153">3153</a>
+<a href="#3154" id="3154">3154</a>
+<a href="#3155" id="3155">3155</a>
+<a href="#3156" id="3156">3156</a>
+<a href="#3157" id="3157">3157</a>
+<a href="#3158" id="3158">3158</a>
+<a href="#3159" id="3159">3159</a>
+<a href="#3160" id="3160">3160</a>
+<a href="#3161" id="3161">3161</a>
+<a href="#3162" id="3162">3162</a>
+<a href="#3163" id="3163">3163</a>
+<a href="#3164" id="3164">3164</a>
+<a href="#3165" id="3165">3165</a>
+<a href="#3166" id="3166">3166</a>
+<a href="#3167" id="3167">3167</a>
+<a href="#3168" id="3168">3168</a>
+<a href="#3169" id="3169">3169</a>
+<a href="#3170" id="3170">3170</a>
+<a href="#3171" id="3171">3171</a>
+<a href="#3172" id="3172">3172</a>
+<a href="#3173" id="3173">3173</a>
+<a href="#3174" id="3174">3174</a>
+<a href="#3175" id="3175">3175</a>
+<a href="#3176" id="3176">3176</a>
+<a href="#3177" id="3177">3177</a>
+<a href="#3178" id="3178">3178</a>
+<a href="#3179" id="3179">3179</a>
+<a href="#3180" id="3180">3180</a>
+<a href="#3181" id="3181">3181</a>
+<a href="#3182" id="3182">3182</a>
+<a href="#3183" id="3183">3183</a>
+<a href="#3184" id="3184">3184</a>
+<a href="#3185" id="3185">3185</a>
+<a href="#3186" id="3186">3186</a>
+<a href="#3187" id="3187">3187</a>
+<a href="#3188" id="3188">3188</a>
+<a href="#3189" id="3189">3189</a>
+<a href="#3190" id="3190">3190</a>
+<a href="#3191" id="3191">3191</a>
+<a href="#3192" id="3192">3192</a>
+<a href="#3193" id="3193">3193</a>
+<a href="#3194" id="3194">3194</a>
+<a href="#3195" id="3195">3195</a>
+<a href="#3196" id="3196">3196</a>
+<a href="#3197" id="3197">3197</a>
+<a href="#3198" id="3198">3198</a>
+<a href="#3199" id="3199">3199</a>
+<a href="#3200" id="3200">3200</a>
+<a href="#3201" id="3201">3201</a>
+<a href="#3202" id="3202">3202</a>
+<a href="#3203" id="3203">3203</a>
+<a href="#3204" id="3204">3204</a>
+<a href="#3205" id="3205">3205</a>
+<a href="#3206" id="3206">3206</a>
+<a href="#3207" id="3207">3207</a>
+<a href="#3208" id="3208">3208</a>
+<a href="#3209" id="3209">3209</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::collections::BTreeSet;
 <span class="attr">#[cfg(feature = <span class="string">"logging"</span>)]
 </span><span class="kw">use </span>alloc::string::String;
@@ -3162,9 +3232,9 @@
 <span class="kw">use </span><span class="kw">crate</span>::msgs::base::{Payload, PayloadU16, PayloadU24, PayloadU8};
 <span class="kw">use </span><span class="kw">crate</span>::msgs::codec::{<span class="self">self</span>, Codec, LengthPrefixedBuffer, ListLength, Reader, TlsListElement};
 <span class="kw">use </span><span class="kw">crate</span>::msgs::enums::{
-    CertificateStatusType, ClientCertificateType, Compression, ECCurveType, ECPointFormat,
-    EchVersion, ExtensionType, HpkeAead, HpkeKdf, HpkeKem, KeyUpdateRequest, NamedGroup,
-    PSKKeyExchangeMode, ServerNameType,
+    CertificateStatusType, CertificateType, ClientCertificateType, Compression, ECCurveType,
+    ECPointFormat, EchVersion, ExtensionType, HpkeAead, HpkeKdf, HpkeKem, KeyUpdateRequest,
+    NamedGroup, PSKKeyExchangeMode, ServerNameType,
 };
 <span class="kw">use </span><span class="kw">crate</span>::rand;
 <span class="kw">use </span><span class="kw">crate</span>::verify::DigitallySignedStruct;
@@ -3227,9 +3297,8 @@
     }
 
     <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, InvalidMessage&gt; {
-        <span class="kw">let </span>bytes = <span class="kw">match </span>r.take(<span class="number">32</span>) {
-            <span class="prelude-val">Some</span>(bytes) =&gt; bytes,
-            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(InvalidMessage::MissingData(<span class="string">"Random"</span>)),
+        <span class="kw">let </span><span class="prelude-val">Some</span>(bytes) = r.take(<span class="number">32</span>) <span class="kw">else </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(InvalidMessage::MissingData(<span class="string">"Random"</span>));
         };
 
         <span class="kw">let </span><span class="kw-2">mut </span>opaque = [<span class="number">0</span>; <span class="number">32</span>];
@@ -3284,7 +3353,7 @@
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.len &lt;= <span class="number">32</span>);
         bytes.push(<span class="self">self</span>.len <span class="kw">as </span>u8);
-        bytes.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">self</span>.data[..<span class="self">self</span>.len]);
+        bytes.extend_from_slice(<span class="self">self</span>.as_ref());
     }
 
     <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, InvalidMessage&gt; {
@@ -3293,9 +3362,8 @@
             <span class="kw">return </span><span class="prelude-val">Err</span>(InvalidMessage::TrailingData(<span class="string">"SessionID"</span>));
         }
 
-        <span class="kw">let </span>bytes = <span class="kw">match </span>r.take(len) {
-            <span class="prelude-val">Some</span>(bytes) =&gt; bytes,
-            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(InvalidMessage::MissingData(<span class="string">"SessionID"</span>)),
+        <span class="kw">let </span><span class="prelude-val">Some</span>(bytes) = r.take(len) <span class="kw">else </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(InvalidMessage::MissingData(<span class="string">"SessionID"</span>));
         };
 
         <span class="kw">let </span><span class="kw-2">mut </span>out = [<span class="number">0u8</span>; <span class="number">32</span>];
@@ -3322,6 +3390,12 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.len == <span class="number">0
     </span>}
+}
+
+<span class="kw">impl </span>AsRef&lt;[u8]&gt; <span class="kw">for </span>SessionId {
+    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.data[..<span class="self">self</span>.len]
+    }
 }
 
 <span class="attr">#[derive(Clone, Debug, PartialEq)]
@@ -3675,6 +3749,10 @@
     <span class="kw">const </span>SIZE_LEN: ListLength = ListLength::U8;
 }
 
+<span class="kw">impl </span>TlsListElement <span class="kw">for </span>CertificateType {
+    <span class="kw">const </span>SIZE_LEN: ListLength = ListLength::U8;
+}
+
 <span class="kw">impl </span>TlsListElement <span class="kw">for </span>CertificateCompressionAlgorithm {
     <span class="kw">const </span>SIZE_LEN: ListLength = ListLength::U8;
 }
@@ -3694,12 +3772,15 @@
     Cookie(PayloadU16),
     ExtendedMasterSecretRequest,
     CertificateStatusRequest(CertificateStatusRequest),
+    ServerCertTypes(Vec&lt;CertificateType&gt;),
+    ClientCertTypes(Vec&lt;CertificateType&gt;),
     TransportParameters(Vec&lt;u8&gt;),
     TransportParametersDraft(Vec&lt;u8&gt;),
     EarlyData,
     CertificateCompressionAlgorithms(Vec&lt;CertificateCompressionAlgorithm&gt;),
     EncryptedClientHello(EncryptedClientHello),
     EncryptedClientHelloOuterExtensions(Vec&lt;ExtensionType&gt;),
+    AuthorityNames(Vec&lt;DistinguishedName&gt;),
     Unknown(UnknownExtension),
 }
 
@@ -3719,6 +3800,8 @@
             <span class="self">Self</span>::Cookie(<span class="kw">_</span>) =&gt; ExtensionType::Cookie,
             <span class="self">Self</span>::ExtendedMasterSecretRequest =&gt; ExtensionType::ExtendedMasterSecret,
             <span class="self">Self</span>::CertificateStatusRequest(<span class="kw">_</span>) =&gt; ExtensionType::StatusRequest,
+            <span class="self">Self</span>::ClientCertTypes(<span class="kw">_</span>) =&gt; ExtensionType::ClientCertificateType,
+            <span class="self">Self</span>::ServerCertTypes(<span class="kw">_</span>) =&gt; ExtensionType::ServerCertificateType,
             <span class="self">Self</span>::TransportParameters(<span class="kw">_</span>) =&gt; ExtensionType::TransportParameters,
             <span class="self">Self</span>::TransportParametersDraft(<span class="kw">_</span>) =&gt; ExtensionType::TransportParametersDraft,
             <span class="self">Self</span>::EarlyData =&gt; ExtensionType::EarlyData,
@@ -3727,6 +3810,7 @@
             <span class="self">Self</span>::EncryptedClientHelloOuterExtensions(<span class="kw">_</span>) =&gt; {
                 ExtensionType::EncryptedClientHelloOuterExtensions
             }
+            <span class="self">Self</span>::AuthorityNames(<span class="kw">_</span>) =&gt; ExtensionType::CertificateAuthorities,
             <span class="self">Self</span>::Unknown(<span class="kw-2">ref </span>r) =&gt; r.typ,
         }
     }
@@ -3753,12 +3837,15 @@
             <span class="self">Self</span>::PresharedKey(<span class="kw-2">ref </span>r) =&gt; r.encode(nested.buf),
             <span class="self">Self</span>::Cookie(<span class="kw-2">ref </span>r) =&gt; r.encode(nested.buf),
             <span class="self">Self</span>::CertificateStatusRequest(<span class="kw-2">ref </span>r) =&gt; r.encode(nested.buf),
+            <span class="self">Self</span>::ClientCertTypes(<span class="kw-2">ref </span>r) =&gt; r.encode(nested.buf),
+            <span class="self">Self</span>::ServerCertTypes(<span class="kw-2">ref </span>r) =&gt; r.encode(nested.buf),
             <span class="self">Self</span>::TransportParameters(<span class="kw-2">ref </span>r) | <span class="self">Self</span>::TransportParametersDraft(<span class="kw-2">ref </span>r) =&gt; {
                 nested.buf.extend_from_slice(r);
             }
             <span class="self">Self</span>::CertificateCompressionAlgorithms(<span class="kw-2">ref </span>r) =&gt; r.encode(nested.buf),
             <span class="self">Self</span>::EncryptedClientHello(<span class="kw-2">ref </span>r) =&gt; r.encode(nested.buf),
             <span class="self">Self</span>::EncryptedClientHelloOuterExtensions(<span class="kw-2">ref </span>r) =&gt; r.encode(nested.buf),
+            <span class="self">Self</span>::AuthorityNames(<span class="kw-2">ref </span>r) =&gt; r.encode(nested.buf),
             <span class="self">Self</span>::Unknown(<span class="kw-2">ref </span>r) =&gt; r.encode(nested.buf),
         }
     }
@@ -3790,6 +3877,8 @@
             ExtensionType::ExtendedMasterSecret <span class="kw">if </span>!sub.any_left() =&gt; {
                 <span class="self">Self</span>::ExtendedMasterSecretRequest
             }
+            ExtensionType::ClientCertificateType =&gt; <span class="self">Self</span>::ClientCertTypes(Vec::read(<span class="kw-2">&amp;mut </span>sub)<span class="question-mark">?</span>),
+            ExtensionType::ServerCertificateType =&gt; <span class="self">Self</span>::ServerCertTypes(Vec::read(<span class="kw-2">&amp;mut </span>sub)<span class="question-mark">?</span>),
             ExtensionType::StatusRequest =&gt; {
                 <span class="kw">let </span>csr = CertificateStatusRequest::read(<span class="kw-2">&amp;mut </span>sub)<span class="question-mark">?</span>;
                 <span class="self">Self</span>::CertificateStatusRequest(csr)
@@ -3805,6 +3894,7 @@
             ExtensionType::EncryptedClientHelloOuterExtensions =&gt; {
                 <span class="self">Self</span>::EncryptedClientHelloOuterExtensions(Vec::read(<span class="kw-2">&amp;mut </span>sub)<span class="question-mark">?</span>)
             }
+            ExtensionType::CertificateAuthorities =&gt; <span class="self">Self</span>::AuthorityNames(Vec::read(<span class="kw-2">&amp;mut </span>sub)<span class="question-mark">?</span>),
             <span class="kw">_ </span>=&gt; <span class="self">Self</span>::Unknown(UnknownExtension::read(typ, <span class="kw-2">&amp;mut </span>sub)),
         };
 
@@ -3857,6 +3947,8 @@
     PresharedKey(u16),
     ExtendedMasterSecretAck,
     CertificateStatusAck,
+    ServerCertType(CertificateType),
+    ClientCertType(CertificateType),
     SupportedVersions(ProtocolVersion),
     TransportParameters(Vec&lt;u8&gt;),
     TransportParametersDraft(Vec&lt;u8&gt;),
@@ -3875,6 +3967,8 @@
             <span class="self">Self</span>::Protocols(<span class="kw">_</span>) =&gt; ExtensionType::ALProtocolNegotiation,
             <span class="self">Self</span>::KeyShare(<span class="kw">_</span>) =&gt; ExtensionType::KeyShare,
             <span class="self">Self</span>::PresharedKey(<span class="kw">_</span>) =&gt; ExtensionType::PreSharedKey,
+            <span class="self">Self</span>::ClientCertType(<span class="kw">_</span>) =&gt; ExtensionType::ClientCertificateType,
+            <span class="self">Self</span>::ServerCertType(<span class="kw">_</span>) =&gt; ExtensionType::ServerCertificateType,
             <span class="self">Self</span>::ExtendedMasterSecretAck =&gt; ExtensionType::ExtendedMasterSecret,
             <span class="self">Self</span>::CertificateStatusAck =&gt; ExtensionType::StatusRequest,
             <span class="self">Self</span>::SupportedVersions(<span class="kw">_</span>) =&gt; ExtensionType::SupportedVersions,
@@ -3903,6 +3997,8 @@
             <span class="self">Self</span>::Protocols(<span class="kw-2">ref </span>r) =&gt; r.encode(nested.buf),
             <span class="self">Self</span>::KeyShare(<span class="kw-2">ref </span>r) =&gt; r.encode(nested.buf),
             <span class="self">Self</span>::PresharedKey(r) =&gt; r.encode(nested.buf),
+            <span class="self">Self</span>::ClientCertType(r) =&gt; r.encode(nested.buf),
+            <span class="self">Self</span>::ServerCertType(r) =&gt; r.encode(nested.buf),
             <span class="self">Self</span>::SupportedVersions(<span class="kw-2">ref </span>r) =&gt; r.encode(nested.buf),
             <span class="self">Self</span>::TransportParameters(<span class="kw-2">ref </span>r) | <span class="self">Self</span>::TransportParametersDraft(<span class="kw-2">ref </span>r) =&gt; {
                 nested.buf.extend_from_slice(r);
@@ -3924,6 +4020,12 @@
             ExtensionType::StatusRequest =&gt; <span class="self">Self</span>::CertificateStatusAck,
             ExtensionType::RenegotiationInfo =&gt; <span class="self">Self</span>::RenegotiationInfo(PayloadU8::read(<span class="kw-2">&amp;mut </span>sub)<span class="question-mark">?</span>),
             ExtensionType::ALProtocolNegotiation =&gt; <span class="self">Self</span>::Protocols(Vec::read(<span class="kw-2">&amp;mut </span>sub)<span class="question-mark">?</span>),
+            ExtensionType::ClientCertificateType =&gt; {
+                <span class="self">Self</span>::ClientCertType(CertificateType::read(<span class="kw-2">&amp;mut </span>sub)<span class="question-mark">?</span>)
+            }
+            ExtensionType::ServerCertificateType =&gt; {
+                <span class="self">Self</span>::ServerCertType(CertificateType::read(<span class="kw-2">&amp;mut </span>sub)<span class="question-mark">?</span>)
+            }
             ExtensionType::KeyShare =&gt; <span class="self">Self</span>::KeyShare(KeyShareEntry::read(<span class="kw-2">&amp;mut </span>sub)<span class="question-mark">?</span>),
             ExtensionType::PreSharedKey =&gt; <span class="self">Self</span>::PresharedKey(u16::read(<span class="kw-2">&amp;mut </span>sub)<span class="question-mark">?</span>),
             ExtensionType::ExtendedMasterSecret =&gt; <span class="self">Self</span>::ExtendedMasterSecretAck,
@@ -4139,6 +4241,22 @@
         }
     }
 
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>server_certificate_extension(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[CertificateType]&gt; {
+        <span class="kw">let </span>ext = <span class="self">self</span>.find_extension(ExtensionType::ServerCertificateType)<span class="question-mark">?</span>;
+        <span class="kw">match </span>ext {
+            ClientExtension::ServerCertTypes(req) =&gt; <span class="prelude-val">Some</span>(req),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+        }
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>client_certificate_extension(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[CertificateType]&gt; {
+        <span class="kw">let </span>ext = <span class="self">self</span>.find_extension(ExtensionType::ClientCertificateType)<span class="question-mark">?</span>;
+        <span class="kw">match </span>ext {
+            ClientExtension::ClientCertTypes(req) =&gt; <span class="prelude-val">Some</span>(req),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+        }
+    }
+
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>alpn_extension(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Vec&lt;ProtocolName&gt;&gt; {
         <span class="kw">let </span>ext = <span class="self">self</span>.find_extension(ExtensionType::ALProtocolNegotiation)<span class="question-mark">?</span>;
         <span class="kw">match </span><span class="kw-2">*</span>ext {
@@ -4202,7 +4320,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>check_psk_ext_is_last(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.extensions
             .last()
-            .map_or(<span class="bool-val">false</span>, |ext| ext.ext_type() == ExtensionType::PreSharedKey)
+            .is_some_and(|ext| ext.ext_type() == ExtensionType::PreSharedKey)
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>psk_modes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[PSKKeyExchangeMode]&gt; {
@@ -4253,6 +4371,13 @@
         } <span class="kw">else </span>{
             <span class="bool-val">false
         </span>}
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>certificate_authorities_extension(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[DistinguishedName]&gt; {
+        <span class="kw">match </span><span class="self">self</span>.find_extension(ExtensionType::CertificateAuthorities)<span class="question-mark">? </span>{
+            ClientExtension::AuthorityNames(ext) =&gt; <span class="prelude-val">Some</span>(ext),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"extension type checked"</span>),
+        }
     }
 }
 
@@ -4442,12 +4567,12 @@
 
 <span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>ServerHelloPayload {
+    <span class="kw">pub </span>extensions: Vec&lt;ServerExtension&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) legacy_version: ProtocolVersion,
     <span class="kw">pub</span>(<span class="kw">crate</span>) random: Random,
     <span class="kw">pub</span>(<span class="kw">crate</span>) session_id: SessionId,
     <span class="kw">pub</span>(<span class="kw">crate</span>) cipher_suite: CipherSuite,
     <span class="kw">pub</span>(<span class="kw">crate</span>) compression_method: Compression,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) extensions: Vec&lt;ServerExtension&gt;,
 }
 
 <span class="kw">impl </span>Codec&lt;<span class="lifetime">'_</span>&gt; <span class="kw">for </span>ServerHelloPayload {
@@ -4603,7 +4728,7 @@
     Unknown(UnknownExtension),
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; CertificateExtension&lt;<span class="lifetime">'a</span>&gt; {
+<span class="kw">impl </span>CertificateExtension&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>ext_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ExtensionType {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             <span class="self">Self</span>::CertificateStatus(<span class="kw">_</span>) =&gt; ExtensionType::StatusRequest,
@@ -4655,7 +4780,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; TlsListElement <span class="kw">for </span>CertificateExtension&lt;<span class="lifetime">'a</span>&gt; {
+<span class="kw">impl </span>TlsListElement <span class="kw">for </span>CertificateExtension&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">const </span>SIZE_LEN: ListLength = ListLength::U16;
 }
 
@@ -4720,7 +4845,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; TlsListElement <span class="kw">for </span>CertificateEntry&lt;<span class="lifetime">'a</span>&gt; {
+<span class="kw">impl </span>TlsListElement <span class="kw">for </span>CertificateEntry&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">const </span>SIZE_LEN: ListLength = ListLength::U24 {
         max: CERTIFICATE_MAX_SIZE_LIMIT,
         error: InvalidMessage::CertificatePayloadTooLarge,
@@ -5006,9 +5131,8 @@
 <span class="kw">impl </span>ServerDhParams {
     <span class="attr">#[cfg(feature = <span class="string">"tls12"</span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(kx: <span class="kw-2">&amp;</span><span class="kw">dyn </span>ActiveKeyExchange) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>params = <span class="kw">match </span>kx.ffdhe_group() {
-            <span class="prelude-val">Some</span>(params) =&gt; params,
-            <span class="prelude-val">None </span>=&gt; <span class="macro">panic!</span>(<span class="string">"invalid NamedGroup for DHE key exchange: {:?}"</span>, kx.group()),
+        <span class="kw">let </span><span class="prelude-val">Some</span>(params) = kx.ffdhe_group() <span class="kw">else </span>{
+            <span class="macro">panic!</span>(<span class="string">"invalid NamedGroup for DHE key exchange: {:?}"</span>, kx.group());
         };
 
         <span class="self">Self </span>{
@@ -5172,6 +5296,22 @@
         <span class="kw">let </span>ext = <span class="self">self</span>.find_extension(ExtensionType::ALProtocolNegotiation)<span class="question-mark">?</span>;
         <span class="kw">match </span><span class="kw-2">*</span>ext {
             ServerExtension::Protocols(<span class="kw-2">ref </span>protos) =&gt; protos.as_single_slice(),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+        }
+    }
+
+    <span class="kw">fn </span>server_cert_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>CertificateType&gt; {
+        <span class="kw">let </span>ext = <span class="self">self</span>.find_extension(ExtensionType::ServerCertificateType)<span class="question-mark">?</span>;
+        <span class="kw">match </span>ext {
+            ServerExtension::ServerCertType(req) =&gt; <span class="prelude-val">Some</span>(req),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+        }
+    }
+
+    <span class="kw">fn </span>client_cert_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>CertificateType&gt; {
+        <span class="kw">let </span>ext = <span class="self">self</span>.find_extension(ExtensionType::ClientCertificateType)<span class="question-mark">?</span>;
+        <span class="kw">match </span>ext {
+            ServerExtension::ClientCertType(req) =&gt; <span class="prelude-val">Some</span>(req),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }

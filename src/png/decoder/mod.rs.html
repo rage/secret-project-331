@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/png-0.17.14/src/decoder/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="png" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/png-0.17.16/src/decoder/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="png" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -664,133 +664,26 @@
 <a href="#664" id="664">664</a>
 <a href="#665" id="665">665</a>
 <a href="#666" id="666">666</a>
-<a href="#667" id="667">667</a>
-<a href="#668" id="668">668</a>
-<a href="#669" id="669">669</a>
-<a href="#670" id="670">670</a>
-<a href="#671" id="671">671</a>
-<a href="#672" id="672">672</a>
-<a href="#673" id="673">673</a>
-<a href="#674" id="674">674</a>
-<a href="#675" id="675">675</a>
-<a href="#676" id="676">676</a>
-<a href="#677" id="677">677</a>
-<a href="#678" id="678">678</a>
-<a href="#679" id="679">679</a>
-<a href="#680" id="680">680</a>
-<a href="#681" id="681">681</a>
-<a href="#682" id="682">682</a>
-<a href="#683" id="683">683</a>
-<a href="#684" id="684">684</a>
-<a href="#685" id="685">685</a>
-<a href="#686" id="686">686</a>
-<a href="#687" id="687">687</a>
-<a href="#688" id="688">688</a>
-<a href="#689" id="689">689</a>
-<a href="#690" id="690">690</a>
-<a href="#691" id="691">691</a>
-<a href="#692" id="692">692</a>
-<a href="#693" id="693">693</a>
-<a href="#694" id="694">694</a>
-<a href="#695" id="695">695</a>
-<a href="#696" id="696">696</a>
-<a href="#697" id="697">697</a>
-<a href="#698" id="698">698</a>
-<a href="#699" id="699">699</a>
-<a href="#700" id="700">700</a>
-<a href="#701" id="701">701</a>
-<a href="#702" id="702">702</a>
-<a href="#703" id="703">703</a>
-<a href="#704" id="704">704</a>
-<a href="#705" id="705">705</a>
-<a href="#706" id="706">706</a>
-<a href="#707" id="707">707</a>
-<a href="#708" id="708">708</a>
-<a href="#709" id="709">709</a>
-<a href="#710" id="710">710</a>
-<a href="#711" id="711">711</a>
-<a href="#712" id="712">712</a>
-<a href="#713" id="713">713</a>
-<a href="#714" id="714">714</a>
-<a href="#715" id="715">715</a>
-<a href="#716" id="716">716</a>
-<a href="#717" id="717">717</a>
-<a href="#718" id="718">718</a>
-<a href="#719" id="719">719</a>
-<a href="#720" id="720">720</a>
-<a href="#721" id="721">721</a>
-<a href="#722" id="722">722</a>
-<a href="#723" id="723">723</a>
-<a href="#724" id="724">724</a>
-<a href="#725" id="725">725</a>
-<a href="#726" id="726">726</a>
-<a href="#727" id="727">727</a>
-<a href="#728" id="728">728</a>
-<a href="#729" id="729">729</a>
-<a href="#730" id="730">730</a>
-<a href="#731" id="731">731</a>
-<a href="#732" id="732">732</a>
-<a href="#733" id="733">733</a>
-<a href="#734" id="734">734</a>
-<a href="#735" id="735">735</a>
-<a href="#736" id="736">736</a>
-<a href="#737" id="737">737</a>
-<a href="#738" id="738">738</a>
-<a href="#739" id="739">739</a>
-<a href="#740" id="740">740</a>
-<a href="#741" id="741">741</a>
-<a href="#742" id="742">742</a>
-<a href="#743" id="743">743</a>
-<a href="#744" id="744">744</a>
-<a href="#745" id="745">745</a>
-<a href="#746" id="746">746</a>
-<a href="#747" id="747">747</a>
-<a href="#748" id="748">748</a>
-<a href="#749" id="749">749</a>
-<a href="#750" id="750">750</a>
-<a href="#751" id="751">751</a>
-<a href="#752" id="752">752</a>
-<a href="#753" id="753">753</a>
-<a href="#754" id="754">754</a>
-<a href="#755" id="755">755</a>
-<a href="#756" id="756">756</a>
-<a href="#757" id="757">757</a>
-<a href="#758" id="758">758</a>
-<a href="#759" id="759">759</a>
-<a href="#760" id="760">760</a>
-<a href="#761" id="761">761</a>
-<a href="#762" id="762">762</a>
-<a href="#763" id="763">763</a>
-<a href="#764" id="764">764</a>
-<a href="#765" id="765">765</a>
-<a href="#766" id="766">766</a>
-<a href="#767" id="767">767</a>
-<a href="#768" id="768">768</a>
-<a href="#769" id="769">769</a>
-<a href="#770" id="770">770</a>
-<a href="#771" id="771">771</a>
-<a href="#772" id="772">772</a>
-<a href="#773" id="773">773</a>
-<a href="#774" id="774">774</a>
-<a href="#775" id="775">775</a>
 </pre></div><pre class="rust"><code><span class="kw">mod </span>interlace_info;
-<span class="kw">mod </span>stream;
+<span class="kw">mod </span>read_decoder;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>stream;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>transform;
+<span class="kw">mod </span>unfiltering_buffer;
 <span class="kw">mod </span>zlib;
 
-<span class="kw">pub use </span><span class="self">self</span>::stream::{DecodeOptions, Decoded, DecodingError, StreamingDecoder};
-<span class="kw">use </span><span class="self">self</span>::stream::{FormatErrorInner, CHUNK_BUFFER_SIZE};
+<span class="kw">use </span><span class="self">self</span>::read_decoder::{ImageDataCompletionStatus, ReadDecoder};
+<span class="kw">use </span><span class="self">self</span>::stream::{DecodeOptions, DecodingError, FormatErrorInner, CHUNK_BUFFER_SIZE};
 <span class="kw">use </span><span class="self">self</span>::transform::{create_transform_fn, TransformFn};
+<span class="kw">use </span><span class="self">self</span>::unfiltering_buffer::UnfilteringBuffer;
 
-<span class="kw">use </span>std::io::{BufRead, BufReader, ErrorKind, Read};
+<span class="kw">use </span>std::io::Read;
 <span class="kw">use </span>std::mem;
 
 <span class="kw">use </span><span class="kw">crate</span>::adam7::{<span class="self">self</span>, Adam7Info};
-<span class="kw">use </span><span class="kw">crate</span>::chunk;
 <span class="kw">use </span><span class="kw">crate</span>::common::{
     BitDepth, BytesPerPixel, ColorType, Info, ParameterErrorKind, Transformations,
 };
-<span class="kw">use </span><span class="kw">crate</span>::filter::{unfilter, FilterType};
+<span class="kw">use </span><span class="kw">crate</span>::FrameControl;
 
 <span class="kw">pub use </span>interlace_info::InterlaceInfo;
 <span class="kw">use </span>interlace_info::InterlaceInfoIter;
@@ -902,30 +795,22 @@ pub enum InterlaceHandling {
 
     <span class="doccomment">/// Create a new decoder configuration with custom limits.
     </span><span class="kw">pub fn </span>new_with_limits(r: R, limits: Limits) -&gt; Decoder&lt;R&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>decoder = StreamingDecoder::new();
-        decoder.limits = limits;
+        <span class="kw">let </span><span class="kw-2">mut </span>read_decoder = ReadDecoder::new(r);
+        read_decoder.set_limits(limits);
 
         Decoder {
-            read_decoder: ReadDecoder {
-                reader: BufReader::with_capacity(CHUNK_BUFFER_SIZE, r),
-                decoder,
-                at_eof: <span class="bool-val">false</span>,
-            },
+            read_decoder,
             transform: Transformations::IDENTITY,
         }
     }
 
     <span class="doccomment">/// Create a new decoder configuration with custom `DecodeOptions`.
     </span><span class="kw">pub fn </span>new_with_options(r: R, decode_options: DecodeOptions) -&gt; Decoder&lt;R&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>decoder = StreamingDecoder::new_with_options(decode_options);
-        decoder.limits = Limits::default();
+        <span class="kw">let </span><span class="kw-2">mut </span>read_decoder = ReadDecoder::with_options(r, decode_options);
+        read_decoder.set_limits(Limits::default());
 
         Decoder {
-            read_decoder: ReadDecoder {
-                reader: BufReader::with_capacity(CHUNK_BUFFER_SIZE, r),
-                decoder,
-                at_eof: <span class="bool-val">false</span>,
-            },
+            read_decoder,
             transform: Transformations::IDENTITY,
         }
     }
@@ -954,7 +839,7 @@ pub enum InterlaceHandling {
     /// assert!(decoder.read_info().is_ok());
     /// ```
     </span><span class="kw">pub fn </span>set_limits(<span class="kw-2">&amp;mut </span><span class="self">self</span>, limits: Limits) {
-        <span class="self">self</span>.read_decoder.decoder.limits = limits;
+        <span class="self">self</span>.read_decoder.set_limits(limits);
     }
 
     <span class="doccomment">/// Read the PNG header and return the information contained within.
@@ -962,14 +847,7 @@ pub enum InterlaceHandling {
     /// Most image metadata will not be read until `read_info` is called, so those fields will be
     /// None or empty.
     </span><span class="kw">pub fn </span>read_header_info(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>Info&lt;<span class="lifetime">'static</span>&gt;, DecodingError&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>buf = Vec::new();
-        <span class="kw">while </span><span class="self">self</span>.read_decoder.info().is_none() {
-            buf.clear();
-            <span class="kw">if </span><span class="self">self</span>.read_decoder.decode_next(<span class="kw-2">&amp;mut </span>buf)<span class="question-mark">?</span>.is_none() {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::IoError(ErrorKind::UnexpectedEof.into()));
-            }
-        }
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.read_decoder.info().unwrap())
+        <span class="self">self</span>.read_decoder.read_header_info()
     }
 
     <span class="doccomment">/// Reads all meta data until the first IDAT chunk
@@ -980,14 +858,12 @@ pub enum InterlaceHandling {
             decoder: <span class="self">self</span>.read_decoder,
             bpp: BytesPerPixel::One,
             subframe: SubframeInfo::not_yet_init(),
-            fctl_read: <span class="number">0</span>,
-            next_frame: SubframeIdx::Initial,
-            data_stream: Vec::new(),
-            prev_start: <span class="number">0</span>,
-            current_start: <span class="number">0</span>,
+            remaining_frames: <span class="number">0</span>, <span class="comment">// Temporary value - fixed below after reading `acTL` and `fcTL`.
+            </span>unfiltering_buffer: UnfilteringBuffer::new(),
             transform: <span class="self">self</span>.transform,
             transform_fn: <span class="prelude-val">None</span>,
             scratch_buffer: Vec::new(),
+            finished: <span class="bool-val">false</span>,
         };
 
         <span class="comment">// Check if the decoding buffer of a single raw line has a valid size.
@@ -1009,6 +885,19 @@ pub enum InterlaceHandling {
         }
 
         reader.read_until_image_data()<span class="question-mark">?</span>;
+
+        reader.remaining_frames = <span class="kw">match </span>reader.info().animation_control.as_ref() {
+            <span class="prelude-val">None </span>=&gt; <span class="number">1</span>, <span class="comment">// No `acTL` =&gt; only expecting `IDAT` frame.
+            </span><span class="prelude-val">Some</span>(animation) =&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>num_frames = animation.num_frames <span class="kw">as </span>usize;
+                <span class="kw">if </span>reader.info().frame_control.is_none() {
+                    <span class="comment">// No `fcTL` before `IDAT` =&gt; `IDAT` is not part of the animation, but
+                    // represents an *extra*, default frame for non-APNG-aware decoders.
+                    </span>num_frames += <span class="number">1</span>;
+                }
+                num_frames
+            }
+        };
         <span class="prelude-val">Ok</span>(reader)
     }
 
@@ -1031,9 +920,7 @@ pub enum InterlaceHandling {
     /// assert!(decoder.read_info().is_ok());
     /// ```
     </span><span class="kw">pub fn </span>set_ignore_text_chunk(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ignore_text_chunk: bool) {
-        <span class="self">self</span>.read_decoder
-            .decoder
-            .set_ignore_text_chunk(ignore_text_chunk);
+        <span class="self">self</span>.read_decoder.set_ignore_text_chunk(ignore_text_chunk);
     }
 
     <span class="doccomment">/// Set the decoder to ignore iccp chunks while parsing.
@@ -1047,73 +934,13 @@ pub enum InterlaceHandling {
     /// assert!(decoder.read_info().is_ok());
     /// ```
     </span><span class="kw">pub fn </span>set_ignore_iccp_chunk(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ignore_iccp_chunk: bool) {
-        <span class="self">self</span>.read_decoder
-            .decoder
-            .set_ignore_iccp_chunk(ignore_iccp_chunk);
+        <span class="self">self</span>.read_decoder.set_ignore_iccp_chunk(ignore_iccp_chunk);
     }
 
     <span class="doccomment">/// Set the decoder to ignore and not verify the Adler-32 checksum
     /// and CRC code.
     </span><span class="kw">pub fn </span>ignore_checksums(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ignore_checksums: bool) {
-        <span class="self">self</span>.read_decoder
-            .decoder
-            .set_ignore_adler32(ignore_checksums);
-        <span class="self">self</span>.read_decoder.decoder.set_ignore_crc(ignore_checksums);
-    }
-}
-
-<span class="kw">struct </span>ReadDecoder&lt;R: Read&gt; {
-    reader: BufReader&lt;R&gt;,
-    decoder: StreamingDecoder,
-    at_eof: bool,
-}
-
-<span class="kw">impl</span>&lt;R: Read&gt; ReadDecoder&lt;R&gt; {
-    <span class="doccomment">/// Returns the next decoded chunk. If the chunk is an ImageData chunk, its contents are written
-    /// into image_data.
-    </span><span class="kw">fn </span>decode_next(<span class="kw-2">&amp;mut </span><span class="self">self</span>, image_data: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Decoded&gt;, DecodingError&gt; {
-        <span class="kw">while </span>!<span class="self">self</span>.at_eof {
-            <span class="kw">let </span>(consumed, result) = {
-                <span class="kw">let </span>buf = <span class="self">self</span>.reader.fill_buf()<span class="question-mark">?</span>;
-                <span class="kw">if </span>buf.is_empty() {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::IoError(ErrorKind::UnexpectedEof.into()));
-                }
-                <span class="self">self</span>.decoder.update(buf, image_data)<span class="question-mark">?
-            </span>};
-            <span class="self">self</span>.reader.consume(consumed);
-            <span class="kw">match </span>result {
-                Decoded::Nothing =&gt; (),
-                Decoded::ImageEnd =&gt; <span class="self">self</span>.at_eof = <span class="bool-val">true</span>,
-                result =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(result)),
-            }
-        }
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
-    }
-
-    <span class="kw">fn </span>finish_decoding(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), DecodingError&gt; {
-        <span class="kw">while </span>!<span class="self">self</span>.at_eof {
-            <span class="kw">let </span>buf = <span class="self">self</span>.reader.fill_buf()<span class="question-mark">?</span>;
-            <span class="kw">if </span>buf.is_empty() {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::IoError(ErrorKind::UnexpectedEof.into()));
-            }
-            <span class="kw">let </span>(consumed, event) = <span class="self">self</span>.decoder.update(buf, <span class="kw-2">&amp;mut </span><span class="macro">vec!</span>[])<span class="question-mark">?</span>;
-            <span class="self">self</span>.reader.consume(consumed);
-            <span class="kw">match </span>event {
-                Decoded::Nothing =&gt; (),
-                Decoded::ImageEnd =&gt; <span class="self">self</span>.at_eof = <span class="bool-val">true</span>,
-                <span class="comment">// ignore more data
-                </span>Decoded::ChunkComplete(<span class="kw">_</span>, <span class="kw">_</span>) | Decoded::ChunkBegin(<span class="kw">_</span>, <span class="kw">_</span>) | Decoded::ImageData =&gt; {}
-                Decoded::ImageDataFlushed =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(()),
-                Decoded::PartialChunk(<span class="kw">_</span>) =&gt; {}
-                new =&gt; <span class="macro">unreachable!</span>(<span class="string">"{:?}"</span>, new),
-            }
-        }
-
-        <span class="prelude-val">Err</span>(DecodingError::IoError(ErrorKind::UnexpectedEof.into()))
-    }
-
-    <span class="kw">fn </span>info(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Info&lt;<span class="lifetime">'static</span>&gt;&gt; {
-        <span class="self">self</span>.decoder.info.as_ref()
+        <span class="self">self</span>.read_decoder.ignore_checksums(ignore_checksums);
     }
 }
 
@@ -1124,17 +951,10 @@ pub enum InterlaceHandling {
     decoder: ReadDecoder&lt;R&gt;,
     bpp: BytesPerPixel,
     subframe: SubframeInfo,
-    <span class="doccomment">/// Number of frame control chunks read.
-    /// By the APNG specification the total number must equal the count specified in the animation
-    /// control chunk. The IDAT image _may_ have such a chunk applying to it.
-    </span>fctl_read: u32,
-    next_frame: SubframeIdx,
-    <span class="doccomment">/// Vec containing the uncompressed image data currently being processed.
-    </span>data_stream: Vec&lt;u8&gt;,
-    <span class="doccomment">/// Index in `data_stream` where the previous row starts.
-    </span>prev_start: usize,
-    <span class="doccomment">/// Index in `data_stream` where the current row starts.
-    </span>current_start: usize,
+    <span class="doccomment">/// How many frames remain to be decoded.  Decremented after each `IDAT` or `fdAT` sequence.
+    </span>remaining_frames: usize,
+    <span class="doccomment">/// Buffer with not-yet-`unfilter`-ed image rows
+    </span>unfiltering_buffer: UnfilteringBuffer,
     <span class="doccomment">/// Output transformations
     </span>transform: Transformations,
     <span class="doccomment">/// Function that can transform decompressed, unfiltered rows into final output.
@@ -1144,6 +964,8 @@ pub enum InterlaceHandling {
     /// to a byte slice. In a future version of this library, this buffer will be removed and
     /// `next_row` and `next_interlaced_row` will write directly into a user provided output buffer.
     </span>scratch_buffer: Vec&lt;u8&gt;,
+    <span class="doccomment">/// Whether `ImageEnd` was already reached by `fn finish`.
+    </span>finished: bool,
 }
 
 <span class="doccomment">/// The subframe specific information.
@@ -1161,68 +983,51 @@ pub enum InterlaceHandling {
     consumed_and_flushed: bool,
 }
 
-<span class="doccomment">/// Denote a frame as given by sequence numbers.
-</span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
-</span><span class="kw">enum </span>SubframeIdx {
-    <span class="doccomment">/// The initial frame in an IDAT chunk without fcTL chunk applying to it.
-    /// Note that this variant precedes `Some` as IDAT frames precede fdAT frames and all fdAT
-    /// frames must have a fcTL applying to it.
-    </span>Initial,
-    <span class="doccomment">/// An IDAT frame with fcTL or an fdAT frame.
-    </span><span class="prelude-val">Some</span>(u32),
-    <span class="doccomment">/// The past-the-end index.
-    </span>End,
-}
-
 <span class="kw">impl</span>&lt;R: Read&gt; Reader&lt;R&gt; {
+    <span class="doccomment">/// Advances to the start of the next animation frame and
+    /// returns a reference to the `FrameControl` info that describes it.
+    /// Skips and discards the image data of the previous frame if necessary.
+    ///
+    /// Returns a [`ParameterError`] when there are no more animation frames.
+    /// To avoid this the caller can check if [`Info::animation_control`] exists
+    /// and consult [`AnimationControl::num_frames`].
+    </span><span class="kw">pub fn </span>next_frame_info(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>FrameControl, DecodingError&gt; {
+        <span class="kw">let </span>remaining_frames = <span class="kw">if </span><span class="self">self</span>.subframe.consumed_and_flushed {
+            <span class="self">self</span>.remaining_frames
+        } <span class="kw">else </span>{
+            <span class="comment">// One remaining frame will be consumed by the `finish_decoding` call below.
+            </span><span class="self">self</span>.remaining_frames - <span class="number">1
+        </span>};
+        <span class="kw">if </span>remaining_frames == <span class="number">0 </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::Parameter(
+                ParameterErrorKind::PolledAfterEndOfImage.into(),
+            ));
+        }
+
+        <span class="kw">if </span>!<span class="self">self</span>.subframe.consumed_and_flushed {
+            <span class="self">self</span>.subframe.current_interlace_info = <span class="prelude-val">None</span>;
+            <span class="self">self</span>.finish_decoding()<span class="question-mark">?</span>;
+        }
+        <span class="self">self</span>.read_until_image_data()<span class="question-mark">?</span>;
+
+        <span class="comment">// The PNG standard (and `StreamingDecoder `) guarantes that there is an `fcTL` chunk
+        // before the start of image data in a sequence of `fdAT` chunks.  Therefore `unwrap`
+        // below is guaranteed to not panic.
+        </span><span class="prelude-val">Ok</span>(<span class="self">self</span>.info().frame_control.as_ref().unwrap())
+    }
+
     <span class="doccomment">/// Reads all meta data until the next frame data starts.
     /// Requires IHDR before the IDAT and fcTL before fdAT.
     </span><span class="kw">fn </span>read_until_image_data(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), DecodingError&gt; {
-        <span class="kw">loop </span>{
-            <span class="comment">// This is somewhat ugly. The API requires us to pass a buffer to decode_next but we
-            // know that we will stop before reading any image data from the stream. Thus pass an
-            // empty buffer and assert that remains empty.
-            </span><span class="kw">let </span><span class="kw-2">mut </span>buf = Vec::new();
-            <span class="kw">let </span>state = <span class="self">self</span>.decoder.decode_next(<span class="kw-2">&amp;mut </span>buf)<span class="question-mark">?</span>;
-            <span class="macro">assert!</span>(buf.is_empty());
+        <span class="self">self</span>.decoder.read_until_image_data()<span class="question-mark">?</span>;
 
-            <span class="kw">match </span>state {
-                <span class="prelude-val">Some</span>(Decoded::ChunkBegin(<span class="kw">_</span>, chunk::IDAT))
-                | <span class="prelude-val">Some</span>(Decoded::ChunkBegin(<span class="kw">_</span>, chunk::fdAT)) =&gt; <span class="kw">break</span>,
-                <span class="prelude-val">Some</span>(Decoded::FrameControl(<span class="kw">_</span>)) =&gt; {
-                    <span class="comment">// The next frame is the one to which this chunk applies.
-                    </span><span class="self">self</span>.next_frame = SubframeIdx::Some(<span class="self">self</span>.fctl_read);
-                    <span class="comment">// TODO: what about overflow here? That would imply there are more fctl chunks
-                    // than can be specified in the animation control but also that we have read
-                    // several gigabytes of data.
-                    </span><span class="self">self</span>.fctl_read += <span class="number">1</span>;
-                }
-                <span class="prelude-val">None </span>=&gt; {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::Format(
-                        FormatErrorInner::MissingImageData.into(),
-                    ))
-                }
-                <span class="comment">// Ignore all other chunk events. Any other chunk may be between IDAT chunks, fdAT
-                // chunks and their control chunks.
-                </span><span class="kw">_ </span>=&gt; {}
-            }
-        }
-
-        <span class="kw">let </span>info = <span class="self">self
-            </span>.decoder
-            .info()
-            .ok_or(DecodingError::Format(FormatErrorInner::MissingIhdr.into()))<span class="question-mark">?</span>;
-        <span class="self">self</span>.bpp = info.bpp_in_prediction();
-        <span class="self">self</span>.subframe = SubframeInfo::new(info);
-        <span class="self">self</span>.data_stream.clear();
-        <span class="self">self</span>.current_start = <span class="number">0</span>;
-        <span class="self">self</span>.prev_start = <span class="number">0</span>;
+        <span class="self">self</span>.subframe = SubframeInfo::new(<span class="self">self</span>.info());
+        <span class="self">self</span>.bpp = <span class="self">self</span>.info().bpp_in_prediction();
+        <span class="self">self</span>.unfiltering_buffer = UnfilteringBuffer::new();
 
         <span class="comment">// Allocate output buffer.
         </span><span class="kw">let </span>buflen = <span class="self">self</span>.output_line_size(<span class="self">self</span>.subframe.width);
-        <span class="self">self</span>.decoder.decoder.limits.reserve_bytes(buflen)<span class="question-mark">?</span>;
-
-        <span class="self">self</span>.prev_start = <span class="self">self</span>.current_start;
+        <span class="self">self</span>.decoder.reserve_bytes(buflen)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
     }
@@ -1248,7 +1053,7 @@ pub enum InterlaceHandling {
     /// Output lines will be written in row-major, packed matrix with width and height of the read
     /// frame (or subframe), all samples are in big endian byte order where this matters.
     </span><span class="kw">pub fn </span>next_frame(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;OutputInfo, DecodingError&gt; {
-        <span class="kw">if </span><span class="self">self</span>.next_frame == SubframeIdx::End {
+        <span class="kw">if </span><span class="self">self</span>.remaining_frames == <span class="number">0 </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::Parameter(
                 ParameterErrorKind::PolledAfterEndOfImage.into(),
             ));
@@ -1307,30 +1112,32 @@ pub enum InterlaceHandling {
         }
 
         <span class="comment">// Advance over the rest of data for this (sub-)frame.
-        </span><span class="kw">if </span>!<span class="self">self</span>.subframe.consumed_and_flushed {
-            <span class="self">self</span>.decoder.finish_decoding()<span class="question-mark">?</span>;
-            <span class="self">self</span>.subframe.consumed_and_flushed = <span class="bool-val">true</span>;
-        }
-
-        <span class="comment">// Advance our state to expect the next frame.
-        </span><span class="kw">let </span>past_end_subframe = <span class="self">self
-            </span>.info()
-            .animation_control()
-            .map(|ac| ac.num_frames)
-            .unwrap_or(<span class="number">0</span>);
-        <span class="self">self</span>.next_frame = <span class="kw">match </span><span class="self">self</span>.next_frame {
-            SubframeIdx::End =&gt; <span class="macro">unreachable!</span>(<span class="string">"Next frame called when already at image end"</span>),
-            <span class="comment">// Reached the end of non-animated image.
-            </span>SubframeIdx::Initial <span class="kw">if </span>past_end_subframe == <span class="number">0 </span>=&gt; SubframeIdx::End,
-            <span class="comment">// An animated image, expecting first subframe.
-            </span>SubframeIdx::Initial =&gt; SubframeIdx::Some(<span class="number">0</span>),
-            <span class="comment">// This was the last subframe, slightly fuzzy condition in case of programmer error.
-            </span>SubframeIdx::Some(idx) <span class="kw">if </span>past_end_subframe &lt;= idx + <span class="number">1 </span>=&gt; SubframeIdx::End,
-            <span class="comment">// Expecting next subframe.
-            </span>SubframeIdx::Some(idx) =&gt; SubframeIdx::Some(idx + <span class="number">1</span>),
-        };
+        </span><span class="self">self</span>.finish_decoding()<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(output_info)
+    }
+
+    <span class="kw">fn </span>mark_subframe_as_consumed_and_flushed(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="macro">assert!</span>(<span class="self">self</span>.remaining_frames &gt; <span class="number">0</span>);
+        <span class="self">self</span>.remaining_frames -= <span class="number">1</span>;
+
+        <span class="self">self</span>.subframe.consumed_and_flushed = <span class="bool-val">true</span>;
+    }
+
+    <span class="doccomment">/// Advance over the rest of data for this (sub-)frame.
+    /// Called after decoding the last row of a frame.
+    </span><span class="kw">fn </span>finish_decoding(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), DecodingError&gt; {
+        <span class="comment">// Double-check that all rows of this frame have been decoded (i.e. that the potential
+        // `finish_decoding` call below won't be discarding any data).
+        </span><span class="macro">assert!</span>(<span class="self">self</span>.subframe.current_interlace_info.is_none());
+
+        <span class="comment">// Discard the remaining data in the current sequence of `IDAT` or `fdAT` chunks.
+        </span><span class="kw">if </span>!<span class="self">self</span>.subframe.consumed_and_flushed {
+            <span class="self">self</span>.decoder.finish_decoding_image_data()<span class="question-mark">?</span>;
+            <span class="self">self</span>.mark_subframe_as_consumed_and_flushed();
+        }
+
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Returns the next processed row of the image
@@ -1342,11 +1149,14 @@ pub enum InterlaceHandling {
     <span class="doccomment">/// Returns the next processed row of the image
     </span><span class="kw">pub fn </span>next_interlaced_row(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;InterlacedRow&gt;, DecodingError&gt; {
         <span class="kw">let </span>interlace = <span class="kw">match </span><span class="self">self</span>.subframe.current_interlace_info.as_ref() {
-            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+            <span class="prelude-val">None </span>=&gt; {
+                <span class="self">self</span>.finish_decoding()<span class="question-mark">?</span>;
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
+            }
             <span class="prelude-val">Some</span>(interlace) =&gt; <span class="kw-2">*</span>interlace,
         };
         <span class="kw">if </span>interlace.line_number() == <span class="number">0 </span>{
-            <span class="self">self</span>.prev_start = <span class="self">self</span>.current_start;
+            <span class="self">self</span>.unfiltering_buffer.reset_prev_row();
         }
         <span class="kw">let </span>rowlen = <span class="kw">match </span>interlace {
             InterlaceInfo::Null(<span class="kw">_</span>) =&gt; <span class="self">self</span>.subframe.rowlen,
@@ -1377,19 +1187,17 @@ pub enum InterlaceHandling {
     <span class="doccomment">/// Read the rest of the image and chunks and finish up, including text chunks or others
     /// This will discard the rest of the image if the image is not read already with [`Reader::next_frame`], [`Reader::next_row`] or [`Reader::next_interlaced_row`]
     </span><span class="kw">pub fn </span>finish(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), DecodingError&gt; {
-        <span class="self">self</span>.next_frame = SubframeIdx::End;
-        <span class="self">self</span>.data_stream.clear();
-        <span class="self">self</span>.current_start = <span class="number">0</span>;
-        <span class="self">self</span>.prev_start = <span class="number">0</span>;
-        <span class="kw">loop </span>{
-            <span class="kw">let </span><span class="kw-2">mut </span>buf = Vec::new();
-            <span class="kw">let </span>state = <span class="self">self</span>.decoder.decode_next(<span class="kw-2">&amp;mut </span>buf)<span class="question-mark">?</span>;
-
-            <span class="kw">if </span>state.is_none() {
-                <span class="kw">break</span>;
-            }
+        <span class="kw">if </span><span class="self">self</span>.finished {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::Parameter(
+                ParameterErrorKind::PolledAfterEndOfImage.into(),
+            ));
         }
 
+        <span class="self">self</span>.remaining_frames = <span class="number">0</span>;
+        <span class="self">self</span>.unfiltering_buffer = UnfilteringBuffer::new();
+        <span class="self">self</span>.decoder.read_until_end_of_input()<span class="question-mark">?</span>;
+
+        <span class="self">self</span>.finished = <span class="bool-val">true</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
@@ -1400,8 +1208,8 @@ pub enum InterlaceHandling {
         output_buffer: <span class="kw-2">&amp;mut </span>[u8],
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), DecodingError&gt; {
         <span class="self">self</span>.next_raw_interlaced_row(rowlen)<span class="question-mark">?</span>;
-        <span class="macro">assert_eq!</span>(<span class="self">self</span>.current_start - <span class="self">self</span>.prev_start, rowlen - <span class="number">1</span>);
-        <span class="kw">let </span>row = <span class="kw-2">&amp;</span><span class="self">self</span>.data_stream[<span class="self">self</span>.prev_start..<span class="self">self</span>.current_start];
+        <span class="kw">let </span>row = <span class="self">self</span>.unfiltering_buffer.prev_row();
+        <span class="macro">assert_eq!</span>(row.len(), rowlen - <span class="number">1</span>);
 
         <span class="comment">// Apply transformations and write resulting data to buffer.
         </span><span class="kw">let </span>transform_fn = {
@@ -1466,52 +1274,26 @@ pub enum InterlaceHandling {
         color.raw_row_length_from_width(depth, width) - <span class="number">1
     </span>}
 
-    <span class="doccomment">/// Write the next raw interlaced row into `self.prev`.
-    ///
-    /// The scanline is filtered against the previous scanline according to the specification.
+    <span class="doccomment">/// Unfilter the next raw interlaced row into `self.unfiltering_buffer`.
     </span><span class="kw">fn </span>next_raw_interlaced_row(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rowlen: usize) -&gt; <span class="prelude-ty">Result</span>&lt;(), DecodingError&gt; {
         <span class="comment">// Read image data until we have at least one full row (but possibly more than one).
-        </span><span class="kw">while </span><span class="self">self</span>.data_stream.len() - <span class="self">self</span>.current_start &lt; rowlen {
+        </span><span class="kw">while </span><span class="self">self</span>.unfiltering_buffer.curr_row_len() &lt; rowlen {
             <span class="kw">if </span><span class="self">self</span>.subframe.consumed_and_flushed {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::Format(
                     FormatErrorInner::NoMoreImageData.into(),
                 ));
             }
 
-            <span class="comment">// Clear the current buffer before appending more data.
-            </span><span class="kw">if </span><span class="self">self</span>.prev_start &gt; <span class="number">0 </span>{
-                <span class="self">self</span>.data_stream.copy_within(<span class="self">self</span>.prev_start.., <span class="number">0</span>);
-                <span class="self">self</span>.data_stream
-                    .truncate(<span class="self">self</span>.data_stream.len() - <span class="self">self</span>.prev_start);
-                <span class="self">self</span>.current_start -= <span class="self">self</span>.prev_start;
-                <span class="self">self</span>.prev_start = <span class="number">0</span>;
-            }
-
-            <span class="kw">match </span><span class="self">self</span>.decoder.decode_next(<span class="kw-2">&amp;mut </span><span class="self">self</span>.data_stream)<span class="question-mark">? </span>{
-                <span class="prelude-val">Some</span>(Decoded::ImageData) =&gt; (),
-                <span class="prelude-val">Some</span>(Decoded::ImageDataFlushed) =&gt; <span class="self">self</span>.subframe.consumed_and_flushed = <span class="bool-val">true</span>,
-                <span class="kw">_ </span>=&gt; (),
+            <span class="kw">match </span><span class="self">self
+                </span>.decoder
+                .decode_image_data(<span class="self">self</span>.unfiltering_buffer.as_mut_vec())<span class="question-mark">?
+            </span>{
+                ImageDataCompletionStatus::ExpectingMoreData =&gt; (),
+                ImageDataCompletionStatus::Done =&gt; <span class="self">self</span>.mark_subframe_as_consumed_and_flushed(),
             }
         }
 
-        <span class="comment">// Get a reference to the current row and point scan_start to the next one.
-        </span><span class="kw">let </span>(prev, row) = <span class="self">self</span>.data_stream.split_at_mut(<span class="self">self</span>.current_start);
-
-        <span class="comment">// Unfilter the row.
-        </span><span class="kw">let </span>filter = FilterType::from_u8(row[<span class="number">0</span>]).ok_or(DecodingError::Format(
-            FormatErrorInner::UnknownFilterMethod(row[<span class="number">0</span>]).into(),
-        ))<span class="question-mark">?</span>;
-        unfilter(
-            filter,
-            <span class="self">self</span>.bpp,
-            <span class="kw-2">&amp;</span>prev[<span class="self">self</span>.prev_start..],
-            <span class="kw-2">&amp;mut </span>row[<span class="number">1</span>..rowlen],
-        );
-
-        <span class="self">self</span>.prev_start = <span class="self">self</span>.current_start + <span class="number">1</span>;
-        <span class="self">self</span>.current_start += rowlen;
-
-        <span class="prelude-val">Ok</span>(())
+        <span class="self">self</span>.unfiltering_buffer.unfilter_curr_row(rowlen, <span class="self">self</span>.bpp)
     }
 }
 

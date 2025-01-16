@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tokio-1.40.0/src/runtime/task/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="tokio" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tokio-1.43.0/src/runtime/task/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="tokio" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -544,6 +544,19 @@
 <a href="#544" id="544">544</a>
 <a href="#545" id="545">545</a>
 <a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! The task module.
 //!
 //! The task module contains the code that manages spawned tasks and provides a
@@ -640,16 +653,30 @@
 //!       `JoinHandle` needs to (i) successfully set `JOIN_WAKER` to zero if it is
 //!       not already zero to gain exclusive access to the waker field per rule
 //!       2, (ii) write a waker, and (iii) successfully set `JOIN_WAKER` to one.
+//!       If the `JoinHandle` unsets `JOIN_WAKER` in the process of being dropped
+//!       to clear the waker field, only steps (i) and (ii) are relevant.
 //!
 //!    6. The `JoinHandle` can change `JOIN_WAKER` only if COMPLETE is zero (i.e.
-//!       the task hasn't yet completed).
+//!       the task hasn't yet completed). The runtime can change `JOIN_WAKER` only
+//!       if COMPLETE is one.
+//!
+//!    7. If `JOIN_INTEREST` is zero and COMPLETE is one, then the runtime has
+//!       exclusive (mutable) access to the waker field. This might happen if the
+//!       `JoinHandle` gets dropped right after the task completes and the runtime
+//!       sets the `COMPLETE` bit. In this case the runtime needs the mutable access
+//!       to the waker field to drop it.
 //!
 //!    Rule 6 implies that the steps (i) or (iii) of rule 5 may fail due to a
 //!    race. If step (i) fails, then the attempt to write a waker is aborted. If
 //!    step (iii) fails because COMPLETE is set to one by another thread after
 //!    step (i), then the waker field is cleared. Once COMPLETE is one (i.e.
 //!    task has completed), the `JoinHandle` will not modify `JOIN_WAKER`. After the
-//!    runtime sets COMPLETE to one, it invokes the waker if there is one.
+//!    runtime sets COMPLETE to one, it invokes the waker if there is one so in this
+//!    case when a task completes the `JOIN_WAKER` bit implicates to the runtime
+//!    whether it should invoke the waker or not. After the runtime is done with
+//!    using the waker during task completion, it unsets the `JOIN_WAKER` bit to give
+//!    the `JoinHandle` exclusive access again so that it is able to drop the waker
+//!    at a later point.
 //!
 //! All other fields are immutable and can be accessed immutably without
 //! synchronization by anyone.
@@ -937,7 +964,6 @@
         ///
         /// [task ID]: crate::task::Id
         </span><span class="attr">#[cfg(tokio_unstable)]
-        #[cfg_attr(docsrs, doc(cfg(tokio_unstable)))]
         </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::task::Id {
             <span class="comment">// Safety: The header pointer is valid.
             </span><span class="kw">unsafe </span>{ Header::get_id(<span class="self">self</span>.raw.header_ptr()) }

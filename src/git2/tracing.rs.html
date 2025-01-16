@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.19.0/src/tracing.rs`."><title>tracing.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.20.0/src/tracing.rs`."><title>tracing.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -83,11 +83,69 @@
 <a href="#83" id="83">83</a>
 <a href="#84" id="84">84</a>
 <a href="#85" id="85">85</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::atomic::{AtomicUsize, Ordering};
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::{
+    ffi::CStr,
+    sync::atomic::{AtomicPtr, Ordering},
+};
 
-<span class="kw">use </span>libc::c_char;
+<span class="kw">use </span>libc::{c_char, c_int};
 
-<span class="kw">use crate</span>::{panic, raw, util::Binding};
+<span class="kw">use crate</span>::{panic, raw, util::Binding, Error};
 
 <span class="doccomment">/// Available tracing levels.  When tracing is set to a particular level,
 /// callers will be provided tracing at the given level and all lower levels.
@@ -142,30 +200,82 @@
     }
 }
 
-<span class="comment">//TODO: pass raw &amp;[u8] and leave conversion to consumer (breaking API)
-</span><span class="doccomment">/// Callback type used to pass tracing events to the subscriber.
+<span class="doccomment">/// Callback type used to pass tracing events to the subscriber.
 /// see `trace_set` to register a subscriber.
-</span><span class="kw">pub type </span>TracingCb = <span class="kw">fn</span>(TraceLevel, <span class="kw-2">&amp;</span>str);
+</span><span class="kw">pub type </span>TracingCb = <span class="kw">fn</span>(TraceLevel, <span class="kw-2">&amp;</span>[u8]);
 
-<span class="kw">static </span>CALLBACK: AtomicUsize = AtomicUsize::new(<span class="number">0</span>);
+<span class="doccomment">/// Use an atomic pointer to store the global tracing subscriber function.
+</span><span class="kw">static </span>CALLBACK: AtomicPtr&lt;()&gt; = AtomicPtr::new(std::ptr::null_mut());
 
-<span class="doccomment">///
-</span><span class="kw">pub fn </span>trace_set(level: TraceLevel, cb: TracingCb) -&gt; bool {
-    CALLBACK.store(cb <span class="kw">as </span>usize, Ordering::SeqCst);
+<span class="doccomment">/// Set the global subscriber called when libgit2 produces a tracing message.
+</span><span class="kw">pub fn </span>trace_set(level: TraceLevel, cb: TracingCb) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    <span class="comment">// Store the callback in the global atomic.
+    </span>CALLBACK.store(cb <span class="kw">as </span><span class="kw-2">*mut </span>(), Ordering::SeqCst);
 
-    <span class="kw">unsafe </span>{
-        raw::git_trace_set(level.raw(), <span class="prelude-val">Some</span>(tracing_cb_c));
+    <span class="comment">// git_trace_set returns 0 if there was no error.
+    </span><span class="kw">let </span>return_code: c_int = <span class="kw">unsafe </span>{ raw::git_trace_set(level.raw(), <span class="prelude-val">Some</span>(tracing_cb_c)) };
+
+    <span class="kw">if </span>return_code != <span class="number">0 </span>{
+        <span class="prelude-val">Err</span>(Error::last_error(return_code))
+    } <span class="kw">else </span>{
+        <span class="prelude-val">Ok</span>(())
     }
-
-    <span class="kw">return </span><span class="bool-val">true</span>;
 }
 
-<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>tracing_cb_c(level: raw::git_trace_level_t, msg: <span class="kw-2">*const </span>c_char) {
-    <span class="kw">let </span>cb = CALLBACK.load(Ordering::SeqCst);
-    panic::wrap(|| <span class="kw">unsafe </span>{
-        <span class="kw">let </span>cb: TracingCb = std::mem::transmute(cb);
-        <span class="kw">let </span>msg = std::ffi::CStr::from_ptr(msg).to_string_lossy();
-        cb(Binding::from_raw(level), msg.as_ref());
+<span class="doccomment">/// The tracing callback we pass to libgit2 (C ABI compatible).
+</span><span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>tracing_cb_c(level: raw::git_trace_level_t, msg: <span class="kw-2">*const </span>c_char) {
+    <span class="comment">// Load the callback function pointer from the global atomic.
+    </span><span class="kw">let </span>cb: <span class="kw-2">*mut </span>() = CALLBACK.load(Ordering::SeqCst);
+
+    <span class="comment">// Transmute the callback pointer into the function pointer we know it to be.
+    //
+    // SAFETY: We only ever set the callback pointer with something cast from a TracingCb
+    // so transmuting back to a TracingCb is safe. This is notably not an integer-to-pointer
+    // transmute as described in the mem::transmute documentation and is in-line with the
+    // example in that documentation for casing between *const () to fn pointers.
+    </span><span class="kw">let </span>cb: TracingCb = <span class="kw">unsafe </span>{ std::mem::transmute(cb) };
+
+    <span class="comment">// If libgit2 passes us a message that is null, drop it and do not pass it to the callback.
+    // This is to avoid ever exposing rust code to a null ref, which would be Undefined Behavior.
+    </span><span class="kw">if </span>msg.is_null() {
+        <span class="kw">return</span>;
+    }
+
+    <span class="comment">// Convert the message from a *const c_char to a &amp;[u8] and pass it to the callback.
+    //
+    // SAFETY: We've just checked that the pointer is not null. The other safety requirements are left to
+    // libgit2 to enforce -- namely that it gives us a valid, nul-terminated, C string, that that string exists
+    // entirely in one allocation, that the string will not be mutated once passed to us, and that the nul-terminator is
+    // within isize::MAX bytes from the given pointers data address.
+    </span><span class="kw">let </span>msg: <span class="kw-2">&amp;</span>CStr = <span class="kw">unsafe </span>{ CStr::from_ptr(msg) };
+
+    <span class="comment">// Convert from a CStr to &amp;[u8] to pass to the rust code callback.
+    </span><span class="kw">let </span>msg: <span class="kw-2">&amp;</span>[u8] = CStr::to_bytes(msg);
+
+    <span class="comment">// Do the remaining part of this function in a panic wrapper, to catch any panics it produces.
+    </span>panic::wrap(|| {
+        <span class="comment">// Convert the raw trace level into a type we can pass to the rust callback fn.
+        //
+        // SAFETY: Currently the implementation of this function (above) may panic, but is only marked as unsafe to match
+        // the trait definition, thus we can consider this call safe.
+        </span><span class="kw">let </span>level: TraceLevel = <span class="kw">unsafe </span>{ Binding::from_raw(level) };
+
+        <span class="comment">// Call the user-supplied callback (which may panic).
+        </span>(cb)(level, msg);
     });
+}
+
+<span class="attr">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span><span class="kw">super</span>::TraceLevel;
+
+    <span class="comment">// Test that using the above function to set a tracing callback doesn't panic.
+    </span><span class="attr">#[test]
+    </span><span class="kw">fn </span>smoke() {
+        <span class="kw">super</span>::trace_set(TraceLevel::Trace, |level, msg| {
+            <span class="macro">dbg!</span>(level, msg);
+        })
+        .expect(<span class="string">"libgit2 can set global trace callback"</span>);
+    }
 }
 </code></pre></div></section></main></body></html>

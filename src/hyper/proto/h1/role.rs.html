@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-1.5.0/src/proto/h1/role.rs`."><title>role.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="hyper" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-1.5.2/src/proto/h1/role.rs`."><title>role.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="hyper" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -3083,6 +3083,20 @@
 <a href="#3083" id="3083">3083</a>
 <a href="#3084" id="3084">3084</a>
 <a href="#3085" id="3085">3085</a>
+<a href="#3086" id="3086">3086</a>
+<a href="#3087" id="3087">3087</a>
+<a href="#3088" id="3088">3088</a>
+<a href="#3089" id="3089">3089</a>
+<a href="#3090" id="3090">3090</a>
+<a href="#3091" id="3091">3091</a>
+<a href="#3092" id="3092">3092</a>
+<a href="#3093" id="3093">3093</a>
+<a href="#3094" id="3094">3094</a>
+<a href="#3095" id="3095">3095</a>
+<a href="#3096" id="3096">3096</a>
+<a href="#3097" id="3097">3097</a>
+<a href="#3098" id="3098">3098</a>
+<a href="#3099" id="3099">3099</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::mem::MaybeUninit;
 
 <span class="attr">#[cfg(feature = <span class="string">"client"</span>)]
@@ -3185,10 +3199,8 @@
             <span class="kw">if </span>bytes[i + <span class="number">1</span>..].chunks(<span class="number">3</span>).next() == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b"\n\r\n"</span>[..]) {
                 <span class="kw">return </span><span class="bool-val">true</span>;
             }
-        } <span class="kw">else if </span>b == <span class="string">b'\n' </span>{
-            <span class="kw">if </span>bytes.get(i + <span class="number">1</span>) == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b'\n'</span>) {
-                <span class="kw">return </span><span class="bool-val">true</span>;
-            }
+        } <span class="kw">else if </span>b == <span class="string">b'\n' </span>&amp;&amp; bytes.get(i + <span class="number">1</span>) == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b'\n'</span>) {
+            <span class="kw">return </span><span class="bool-val">true</span>;
         }
     }
 
@@ -3787,12 +3799,14 @@
                             </span><span class="attr">#[cfg(debug_assertions)]
                             </span>{
                                 <span class="kw">if let </span><span class="prelude-val">Some</span>(len) = headers::content_length_parse(<span class="kw-2">&amp;</span>value) {
-                                    <span class="macro">assert!</span>(
+                                    <span class="kw">if </span>msg.req_method != <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(Method::HEAD) || known_len != <span class="number">0 </span>{
+                                        <span class="macro">assert!</span>(
                                         len == known_len,
                                         <span class="string">"payload claims content-length of {}, custom content-length header claims {}"</span>,
                                         known_len,
                                         len,
                                     );
+                                    }
                                 }
                             }
 
@@ -4705,7 +4719,7 @@
 </span><span class="kw">struct </span>FastWrite&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Vec&lt;u8&gt;);
 
 <span class="attr">#[cfg(feature = <span class="string">"client"</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; fmt::Write <span class="kw">for </span>FastWrite&lt;<span class="lifetime">'a</span>&gt; {
+</span><span class="kw">impl </span>fmt::Write <span class="kw">for </span>FastWrite&lt;<span class="lifetime">'_</span>&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>write_str(<span class="kw-2">&amp;mut </span><span class="self">self</span>, s: <span class="kw-2">&amp;</span>str) -&gt; fmt::Result {
         extend(<span class="self">self</span>.<span class="number">0</span>, s.as_bytes());
@@ -4729,7 +4743,8 @@
 
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attr">#[test]
+    <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
+    #[test]
     </span><span class="kw">fn </span>test_parse_request() {
         <span class="kw">let _ </span>= pretty_env_logger::try_init();
         <span class="kw">let </span><span class="kw-2">mut </span>raw = BytesMut::from(<span class="string">"GET /echo HTTP/1.1\r\nHost: hyper.rs\r\n\r\n"</span>);
@@ -4784,7 +4799,8 @@
         <span class="macro">assert_eq!</span>(msg.head.headers[<span class="string">"Content-Length"</span>], <span class="string">"0"</span>);
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
+    #[test]
     </span><span class="kw">fn </span>test_parse_request_errors() {
         <span class="kw">let </span><span class="kw-2">mut </span>raw = BytesMut::from(<span class="string">"GET htt:p// HTTP/1.1\r\nHost: hyper.rs\r\n\r\n"</span>);
         <span class="kw">let </span>ctx = ParseContext {
@@ -4802,7 +4818,7 @@
         Server::parse(<span class="kw-2">&amp;mut </span>raw, ctx).unwrap_err();
     }
 
-    <span class="kw">const </span>H09_RESPONSE: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"Baguettes are super delicious, don't you agree?"</span>;
+    <span class="kw">const </span>H09_RESPONSE: <span class="kw-2">&amp;</span>str = <span class="string">"Baguettes are super delicious, don't you agree?"</span>;
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_response_h09_allowed() {
@@ -4847,7 +4863,7 @@
         <span class="macro">assert_eq!</span>(raw, H09_RESPONSE);
     }
 
-    <span class="kw">const </span>RESPONSE_WITH_WHITESPACE_BETWEEN_HEADER_NAME_AND_COLON: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str =
+    <span class="kw">const </span>RESPONSE_WITH_WHITESPACE_BETWEEN_HEADER_NAME_AND_COLON: <span class="kw-2">&amp;</span>str =
         <span class="string">"HTTP/1.1 200 OK\r\nAccess-Control-Allow-Credentials : true\r\n\r\n"</span>;
 
     <span class="attr">#[test]
@@ -4897,7 +4913,8 @@
         Client::parse(<span class="kw-2">&amp;mut </span>raw, ctx).unwrap_err();
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
+    #[test]
     </span><span class="kw">fn </span>test_parse_preserve_header_case_in_request() {
         <span class="kw">let </span><span class="kw-2">mut </span>raw =
             BytesMut::from(<span class="string">"GET / HTTP/1.1\r\nHost: hyper.rs\r\nX-BREAD: baguette\r\n\r\n"</span>);
@@ -4922,20 +4939,19 @@
         <span class="macro">assert_eq!</span>(
             orig_headers
                 .get_all_internal(<span class="kw-2">&amp;</span>HeaderName::from_static(<span class="string">"host"</span>))
-                .into_iter()
                 .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
             <span class="macro">vec!</span>[<span class="kw-2">&amp;</span>Bytes::from(<span class="string">"Host"</span>)]
         );
         <span class="macro">assert_eq!</span>(
             orig_headers
                 .get_all_internal(<span class="kw-2">&amp;</span>HeaderName::from_static(<span class="string">"x-bread"</span>))
-                .into_iter()
                 .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
             <span class="macro">vec!</span>[<span class="kw-2">&amp;</span>Bytes::from(<span class="string">"X-BREAD"</span>)]
         );
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
+    #[test]
     </span><span class="kw">fn </span>test_decoder_request() {
         <span class="kw">fn </span>parse(s: <span class="kw-2">&amp;</span>str) -&gt; ParsedMessage&lt;RequestLine&gt; {
             <span class="kw">let </span><span class="kw-2">mut </span>bytes = BytesMut::from(s);
@@ -5545,10 +5561,12 @@
             Encode {
                 head: <span class="kw-2">&amp;mut </span>head,
                 body: <span class="prelude-val">Some</span>(BodyLength::Known(<span class="number">10</span>)),
-                keep_alive: <span class="bool-val">true</span>,
+                <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
+                </span>keep_alive: <span class="bool-val">true</span>,
                 req_method: <span class="kw-2">&amp;mut </span><span class="prelude-val">None</span>,
                 title_case_headers: <span class="bool-val">true</span>,
-                date_header: <span class="bool-val">true</span>,
+                <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
+                </span>date_header: <span class="bool-val">true</span>,
             },
             <span class="kw-2">&amp;mut </span>vec,
         )
@@ -5577,10 +5595,12 @@
             Encode {
                 head: <span class="kw-2">&amp;mut </span>head,
                 body: <span class="prelude-val">Some</span>(BodyLength::Known(<span class="number">10</span>)),
-                keep_alive: <span class="bool-val">true</span>,
+                <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
+                </span>keep_alive: <span class="bool-val">true</span>,
                 req_method: <span class="kw-2">&amp;mut </span><span class="prelude-val">None</span>,
                 title_case_headers: <span class="bool-val">false</span>,
-                date_header: <span class="bool-val">true</span>,
+                <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
+                </span>date_header: <span class="bool-val">true</span>,
             },
             <span class="kw-2">&amp;mut </span>vec,
         )
@@ -5612,10 +5632,12 @@
             Encode {
                 head: <span class="kw-2">&amp;mut </span>head,
                 body: <span class="prelude-val">Some</span>(BodyLength::Known(<span class="number">10</span>)),
-                keep_alive: <span class="bool-val">true</span>,
+                <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
+                </span>keep_alive: <span class="bool-val">true</span>,
                 req_method: <span class="kw-2">&amp;mut </span><span class="prelude-val">None</span>,
                 title_case_headers: <span class="bool-val">true</span>,
-                date_header: <span class="bool-val">true</span>,
+                <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
+                </span>date_header: <span class="bool-val">true</span>,
             },
             <span class="kw-2">&amp;mut </span>vec,
         )
@@ -5628,7 +5650,8 @@
         );
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
+    #[test]
     </span><span class="kw">fn </span>test_server_encode_connect_method() {
         <span class="kw">let </span><span class="kw-2">mut </span>head = MessageHead::default();
 
@@ -5649,7 +5672,8 @@
         <span class="macro">assert!</span>(encoder.is_last());
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
+    #[test]
     </span><span class="kw">fn </span>test_server_response_encode_title_case() {
         <span class="kw">use </span><span class="kw">crate</span>::proto::BodyLength;
         <span class="kw">use </span>http::header::HeaderValue;
@@ -5682,7 +5706,8 @@
         <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>vec[..expected_response.len()], <span class="kw-2">&amp;</span>expected_response[..]);
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
+    #[test]
     </span><span class="kw">fn </span>test_server_response_encode_orig_case() {
         <span class="kw">use </span><span class="kw">crate</span>::proto::BodyLength;
         <span class="kw">use </span>http::header::{HeaderValue, CONTENT_LENGTH};
@@ -5717,7 +5742,8 @@
         <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>vec[..expected_response.len()], <span class="kw-2">&amp;</span>expected_response[..]);
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
+    #[test]
     </span><span class="kw">fn </span>test_server_response_encode_orig_and_title_case() {
         <span class="kw">use </span><span class="kw">crate</span>::proto::BodyLength;
         <span class="kw">use </span>http::header::{HeaderValue, CONTENT_LENGTH};
@@ -5753,7 +5779,8 @@
         <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>vec[..expected_response.len()], <span class="kw-2">&amp;</span>expected_response[..]);
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
+    #[test]
     </span><span class="kw">fn </span>test_disabled_date_header() {
         <span class="kw">use </span><span class="kw">crate</span>::proto::BodyLength;
         <span class="kw">use </span>http::header::{HeaderValue, CONTENT_LENGTH};
@@ -5812,7 +5839,8 @@
         <span class="macro">assert_eq!</span>(parsed.head.headers[<span class="string">"server"</span>], <span class="string">"hello\tworld"</span>);
     }
 
-    <span class="attr">#[test]
+    <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
+    #[test]
     </span><span class="kw">fn </span>parse_too_large_headers() {
         <span class="kw">fn </span>gen_req_with_headers(num: usize) -&gt; String {
             <span class="kw">let </span><span class="kw-2">mut </span>req = String::from(<span class="string">"GET / HTTP/1.1\r\n"</span>);

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_json-1.0.132/src/raw.rs`."><title>raw.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="serde_json" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_json-1.0.135/src/raw.rs`."><title>raw.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="serde_json" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -775,6 +775,13 @@
 <a href="#775" id="775">775</a>
 <a href="#776" id="776">776</a>
 <a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::error::Error;
 <span class="kw">use </span>alloc::borrow::ToOwned;
 <span class="kw">use </span>alloc::boxed::Box;
@@ -896,7 +903,7 @@
 }
 
 <span class="kw">impl </span>RawValue {
-    <span class="kw">fn </span>from_borrowed(json: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw-2">&amp;</span><span class="self">Self </span>{
+    <span class="kw">const fn </span>from_borrowed(json: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw-2">&amp;</span><span class="self">Self </span>{
         <span class="kw">unsafe </span>{ mem::transmute::&lt;<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>RawValue&gt;(json) }
     }
 
@@ -925,7 +932,7 @@
 
 <span class="kw">impl </span>Default <span class="kw">for </span>Box&lt;RawValue&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-        RawValue::from_borrowed(<span class="string">"null"</span>).to_owned()
+        RawValue::NULL.to_owned()
     }
 }
 
@@ -945,6 +952,13 @@
 }
 
 <span class="kw">impl </span>RawValue {
+    <span class="doccomment">/// A constant RawValue with the JSON value `null`.
+    </span><span class="kw">pub const </span>NULL: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>RawValue = RawValue::from_borrowed(<span class="string">"null"</span>);
+    <span class="doccomment">/// A constant RawValue with the JSON value `true`.
+    </span><span class="kw">pub const </span>TRUE: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>RawValue = RawValue::from_borrowed(<span class="string">"true"</span>);
+    <span class="doccomment">/// A constant RawValue with the JSON value `false`.
+    </span><span class="kw">pub const </span>FALSE: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>RawValue = RawValue::from_borrowed(<span class="string">"false"</span>);
+
     <span class="doccomment">/// Convert an owned `String` of JSON data to an owned `RawValue`.
     ///
     /// This function is equivalent to `serde_json::from_str::&lt;Box&lt;RawValue&gt;&gt;`

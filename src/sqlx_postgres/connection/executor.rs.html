@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.8.2/src/connection/executor.rs`."><title>executor.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.8.3/src/connection/executor.rs`."><title>executor.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -475,6 +475,11 @@
 <a href="#475" id="475">475</a>
 <a href="#476" id="476">476</a>
 <a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::describe::Describe;
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
 <span class="kw">use </span><span class="kw">crate</span>::executor::{Execute, Executor};
@@ -503,8 +508,8 @@
     parameters: <span class="kw-2">&amp;</span>[PgTypeInfo],
     metadata: <span class="prelude-ty">Option</span>&lt;Arc&lt;PgStatementMetadata&gt;&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(StatementId, Arc&lt;PgStatementMetadata&gt;), Error&gt; {
-    <span class="kw">let </span>id = conn.next_statement_id;
-    conn.next_statement_id = id.next();
+    <span class="kw">let </span>id = conn.inner.next_statement_id;
+    conn.inner.next_statement_id = id.next();
 
     <span class="comment">// build a list of type OIDs to send to the database in the PARSE command
     // we have not yet started the query sequence, so we are *safe* to cleanly make
@@ -520,7 +525,7 @@
     </span>conn.wait_until_ready().<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// next we send the PARSE command to the server
-    </span>conn.stream.write_msg(Parse {
+    </span>conn.inner.stream.write_msg(Parse {
         param_types: <span class="kw-2">&amp;</span>param_types,
         query: sql,
         statement: id,
@@ -528,15 +533,17 @@
 
     <span class="kw">if </span>metadata.is_none() {
         <span class="comment">// get the statement columns and parameters
-        </span>conn.stream.write_msg(message::Describe::Statement(id))<span class="question-mark">?</span>;
+        </span>conn.inner
+            .stream
+            .write_msg(message::Describe::Statement(id))<span class="question-mark">?</span>;
     }
 
     <span class="comment">// we ask for the server to immediately send us the result of the PARSE command
     </span>conn.write_sync();
-    conn.stream.flush().<span class="kw">await</span><span class="question-mark">?</span>;
+    conn.inner.stream.flush().<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// indicates that the SQL query string is now successfully parsed and has semantic validity
-    </span>conn.stream.recv_expect::&lt;ParseComplete&gt;().<span class="kw">await</span><span class="question-mark">?</span>;
+    </span>conn.inner.stream.recv_expect::&lt;ParseComplete&gt;().<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let </span>metadata = <span class="kw">if let </span><span class="prelude-val">Some</span>(metadata) = metadata {
         <span class="comment">// each SYNC produces one READY FOR QUERY
@@ -571,11 +578,11 @@
 }
 
 <span class="kw">async fn </span>recv_desc_params(conn: <span class="kw-2">&amp;mut </span>PgConnection) -&gt; <span class="prelude-ty">Result</span>&lt;ParameterDescription, Error&gt; {
-    conn.stream.recv_expect().<span class="kw">await
+    conn.inner.stream.recv_expect().<span class="kw">await
 </span>}
 
 <span class="kw">async fn </span>recv_desc_rows(conn: <span class="kw-2">&amp;mut </span>PgConnection) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;RowDescription&gt;, Error&gt; {
-    <span class="kw">let </span>rows: <span class="prelude-ty">Option</span>&lt;RowDescription&gt; = <span class="kw">match </span>conn.stream.recv().<span class="kw">await</span><span class="question-mark">? </span>{
+    <span class="kw">let </span>rows: <span class="prelude-ty">Option</span>&lt;RowDescription&gt; = <span class="kw">match </span>conn.inner.stream.recv().<span class="kw">await</span><span class="question-mark">? </span>{
         <span class="comment">// describes the rows that will be returned when the statement is eventually executed
         </span>message <span class="kw">if </span>message.format == BackendMessageFormat::RowDescription =&gt; {
             <span class="prelude-val">Some</span>(message.decode()<span class="question-mark">?</span>)
@@ -600,7 +607,7 @@
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async fn </span>wait_for_close_complete(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>count: usize) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="comment">// we need to wait for the [CloseComplete] to be returned from the server
         </span><span class="kw">while </span>count &gt; <span class="number">0 </span>{
-            <span class="kw">match </span><span class="self">self</span>.stream.recv().<span class="kw">await</span><span class="question-mark">? </span>{
+            <span class="kw">match </span><span class="self">self</span>.inner.stream.recv().<span class="kw">await</span><span class="question-mark">? </span>{
                 message <span class="kw">if </span>message.format == BackendMessageFormat::PortalSuspended =&gt; {
                     <span class="comment">// there was an open portal
                     // this can happen if the last time a statement was used it was not fully executed
@@ -625,12 +632,13 @@
 
     <span class="attr">#[inline(always)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>write_sync(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="self">self</span>.stream
+        <span class="self">self</span>.inner
+            .stream
             .write_msg(message::Sync)
             .expect(<span class="string">"BUG: Sync should not be too big for protocol"</span>);
 
         <span class="comment">// all SYNC messages will return a ReadyForQuery
-        </span><span class="self">self</span>.pending_ready_for_query_count += <span class="number">1</span>;
+        </span><span class="self">self</span>.inner.pending_ready_for_query_count += <span class="number">1</span>;
     }
 
     <span class="kw">async fn </span>get_or_prepare&lt;<span class="lifetime">'a</span>&gt;(
@@ -643,18 +651,18 @@
         // a statement object
         </span>metadata: <span class="prelude-ty">Option</span>&lt;Arc&lt;PgStatementMetadata&gt;&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(StatementId, Arc&lt;PgStatementMetadata&gt;), Error&gt; {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(statement) = <span class="self">self</span>.cache_statement.get_mut(sql) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(statement) = <span class="self">self</span>.inner.cache_statement.get_mut(sql) {
             <span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="kw-2">*</span>statement).clone());
         }
 
         <span class="kw">let </span>statement = prepare(<span class="self">self</span>, sql, parameters, metadata).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">if </span>store_to_cache &amp;&amp; <span class="self">self</span>.cache_statement.is_enabled() {
-            <span class="kw">if let </span><span class="prelude-val">Some</span>((id, <span class="kw">_</span>)) = <span class="self">self</span>.cache_statement.insert(sql, statement.clone()) {
-                <span class="self">self</span>.stream.write_msg(Close::Statement(id))<span class="question-mark">?</span>;
+        <span class="kw">if </span>store_to_cache &amp;&amp; <span class="self">self</span>.inner.cache_statement.is_enabled() {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>((id, <span class="kw">_</span>)) = <span class="self">self</span>.inner.cache_statement.insert(sql, statement.clone()) {
+                <span class="self">self</span>.inner.stream.write_msg(Close::Statement(id))<span class="question-mark">?</span>;
                 <span class="self">self</span>.write_sync();
 
-                <span class="self">self</span>.stream.flush().<span class="kw">await</span><span class="question-mark">?</span>;
+                <span class="self">self</span>.inner.stream.flush().<span class="kw">await</span><span class="question-mark">?</span>;
 
                 <span class="self">self</span>.wait_for_close_complete(<span class="number">1</span>).<span class="kw">await</span><span class="question-mark">?</span>;
                 <span class="self">self</span>.recv_ready_for_query().<span class="kw">await</span><span class="question-mark">?</span>;
@@ -672,7 +680,7 @@
         persistent: bool,
         metadata_opt: <span class="prelude-ty">Option</span>&lt;Arc&lt;PgStatementMetadata&gt;&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Either&lt;PgQueryResult, PgRow&gt;, Error&gt;&gt; + <span class="lifetime">'e</span>, Error&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>logger = QueryLogger::new(query, <span class="self">self</span>.log_settings.clone());
+        <span class="kw">let </span><span class="kw-2">mut </span>logger = QueryLogger::new(query, <span class="self">self</span>.inner.log_settings.clone());
 
         <span class="comment">// before we continue, wait until we are "ready" to accept more queries
         </span><span class="self">self</span>.wait_until_ready().<span class="kw">await</span><span class="question-mark">?</span>;
@@ -708,7 +716,7 @@
             </span><span class="self">self</span>.wait_until_ready().<span class="kw">await</span><span class="question-mark">?</span>;
 
             <span class="comment">// bind to attach the arguments to the statement and create a portal
-            </span><span class="self">self</span>.stream.write_msg(Bind {
+            </span><span class="self">self</span>.inner.stream.write_msg(Bind {
                 portal: PortalId::UNNAMED,
                 statement,
                 formats: <span class="kw-2">&amp;</span>[PgValueFormat::Binary],
@@ -719,7 +727,7 @@
 
             <span class="comment">// executes the portal up to the passed limit
             // the protocol-level limit acts nearly identically to the `LIMIT` in SQL
-            </span><span class="self">self</span>.stream.write_msg(message::Execute {
+            </span><span class="self">self</span>.inner.stream.write_msg(message::Execute {
                 portal: PortalId::UNNAMED,
                 limit: limit.into(),
             })<span class="question-mark">?</span>;
@@ -732,7 +740,9 @@
 
             // we ask the database server to close the unnamed portal and free the associated resources
             // earlier - after the execution of the current query.
-            </span><span class="self">self</span>.stream.write_msg(Close::Portal(PortalId::UNNAMED))<span class="question-mark">?</span>;
+            </span><span class="self">self</span>.inner
+                .stream
+                .write_msg(Close::Portal(PortalId::UNNAMED))<span class="question-mark">?</span>;
 
             <span class="comment">// finally, [Sync] asks postgres to process the messages that we sent and respond with
             // a [ReadyForQuery] message when it's completely done. Theoretically, we could send
@@ -745,8 +755,8 @@
             </span>PgValueFormat::Binary
         } <span class="kw">else </span>{
             <span class="comment">// Query will trigger a ReadyForQuery
-            </span><span class="self">self</span>.stream.write_msg(Query(query))<span class="question-mark">?</span>;
-            <span class="self">self</span>.pending_ready_for_query_count += <span class="number">1</span>;
+            </span><span class="self">self</span>.inner.stream.write_msg(Query(query))<span class="question-mark">?</span>;
+            <span class="self">self</span>.inner.pending_ready_for_query_count += <span class="number">1</span>;
 
             <span class="comment">// metadata starts out as "nothing"
             </span>metadata = Arc::new(PgStatementMetadata::default());
@@ -755,11 +765,11 @@
             </span>PgValueFormat::Text
         };
 
-        <span class="self">self</span>.stream.flush().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="self">self</span>.inner.stream.flush().<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="macro">try_stream!</span> {
             <span class="kw">loop </span>{
-                <span class="kw">let </span>message = <span class="self">self</span>.stream.recv().<span class="kw">await</span><span class="question-mark">?</span>;
+                <span class="kw">let </span>message = <span class="self">self</span>.inner.stream.recv().<span class="kw">await</span><span class="question-mark">?</span>;
 
                 <span class="kw">match </span>message.format {
                     BackendMessageFormat::BindComplete

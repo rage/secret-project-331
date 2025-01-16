@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/reqwest-0.12.9/src/async_impl/decoder.rs`."><title>decoder.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="reqwest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/reqwest-0.12.12/src/async_impl/decoder.rs`."><title>decoder.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="reqwest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -672,6 +672,78 @@
 <a href="#672" id="672">672</a>
 <a href="#673" id="673">673</a>
 <a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
+<a href="#690" id="690">690</a>
+<a href="#691" id="691">691</a>
+<a href="#692" id="692">692</a>
+<a href="#693" id="693">693</a>
+<a href="#694" id="694">694</a>
+<a href="#695" id="695">695</a>
+<a href="#696" id="696">696</a>
+<a href="#697" id="697">697</a>
+<a href="#698" id="698">698</a>
+<a href="#699" id="699">699</a>
+<a href="#700" id="700">700</a>
+<a href="#701" id="701">701</a>
+<a href="#702" id="702">702</a>
+<a href="#703" id="703">703</a>
+<a href="#704" id="704">704</a>
+<a href="#705" id="705">705</a>
+<a href="#706" id="706">706</a>
+<a href="#707" id="707">707</a>
+<a href="#708" id="708">708</a>
+<a href="#709" id="709">709</a>
+<a href="#710" id="710">710</a>
+<a href="#711" id="711">711</a>
+<a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt;
 <span class="attr">#[cfg(any(
     feature = <span class="string">"gzip"</span>,
@@ -682,6 +754,14 @@
 </span><span class="kw">use </span>std::future::Future;
 <span class="kw">use </span>std::pin::Pin;
 <span class="kw">use </span>std::task::{Context, Poll};
+
+<span class="attr">#[cfg(any(
+    feature = <span class="string">"gzip"</span>,
+    feature = <span class="string">"zstd"</span>,
+    feature = <span class="string">"brotli"</span>,
+    feature = <span class="string">"deflate"
+</span>))]
+</span><span class="kw">use </span>futures_util::stream::Fuse;
 
 <span class="attr">#[cfg(feature = <span class="string">"gzip"</span>)]
 </span><span class="kw">use </span>async_compression::tokio::bufread::GzipDecoder;
@@ -782,19 +862,19 @@
 
     <span class="doccomment">/// A `Gzip` decoder will uncompress the gzipped response content before returning it.
     </span><span class="attr">#[cfg(feature = <span class="string">"gzip"</span>)]
-    </span>Gzip(Pin&lt;Box&lt;FramedRead&lt;GzipDecoder&lt;PeekableIoStreamReader&gt;, BytesCodec&gt;&gt;&gt;),
+    </span>Gzip(Pin&lt;Box&lt;Fuse&lt;FramedRead&lt;GzipDecoder&lt;PeekableIoStreamReader&gt;, BytesCodec&gt;&gt;&gt;&gt;),
 
     <span class="doccomment">/// A `Brotli` decoder will uncompress the brotlied response content before returning it.
     </span><span class="attr">#[cfg(feature = <span class="string">"brotli"</span>)]
-    </span>Brotli(Pin&lt;Box&lt;FramedRead&lt;BrotliDecoder&lt;PeekableIoStreamReader&gt;, BytesCodec&gt;&gt;&gt;),
+    </span>Brotli(Pin&lt;Box&lt;Fuse&lt;FramedRead&lt;BrotliDecoder&lt;PeekableIoStreamReader&gt;, BytesCodec&gt;&gt;&gt;&gt;),
 
     <span class="doccomment">/// A `Zstd` decoder will uncompress the zstd compressed response content before returning it.
     </span><span class="attr">#[cfg(feature = <span class="string">"zstd"</span>)]
-    </span>Zstd(Pin&lt;Box&lt;FramedRead&lt;ZstdDecoder&lt;PeekableIoStreamReader&gt;, BytesCodec&gt;&gt;&gt;),
+    </span>Zstd(Pin&lt;Box&lt;Fuse&lt;FramedRead&lt;ZstdDecoder&lt;PeekableIoStreamReader&gt;, BytesCodec&gt;&gt;&gt;&gt;),
 
     <span class="doccomment">/// A `Deflate` decoder will uncompress the deflated response content before returning it.
     </span><span class="attr">#[cfg(feature = <span class="string">"deflate"</span>)]
-    </span>Deflate(Pin&lt;Box&lt;FramedRead&lt;ZlibDecoder&lt;PeekableIoStreamReader&gt;, BytesCodec&gt;&gt;&gt;),
+    </span>Deflate(Pin&lt;Box&lt;Fuse&lt;FramedRead&lt;ZlibDecoder&lt;PeekableIoStreamReader&gt;, BytesCodec&gt;&gt;&gt;&gt;),
 
     <span class="doccomment">/// A decoder that doesn't have a value yet.
     </span><span class="attr">#[cfg(any(
@@ -1039,34 +1119,58 @@
             }
             <span class="attr">#[cfg(feature = <span class="string">"gzip"</span>)]
             </span>Inner::Gzip(<span class="kw-2">ref mut </span>decoder) =&gt; {
-                <span class="kw">match </span><span class="macro">futures_core::ready!</span>(Pin::new(decoder).poll_next(cx)) {
+                <span class="kw">match </span><span class="macro">futures_core::ready!</span>(Pin::new(<span class="kw-2">&amp;mut *</span>decoder).poll_next(cx)) {
                     <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(bytes)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(Frame::data(bytes.freeze())))),
                     <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::decode_io(err)))),
-                    <span class="prelude-val">None </span>=&gt; Poll::Ready(<span class="prelude-val">None</span>),
+                    <span class="prelude-val">None </span>=&gt; {
+                        <span class="comment">// poll inner connection until EOF after gzip stream is finished
+                        </span>poll_inner_should_be_empty(
+                            decoder.get_mut().get_mut().get_mut().get_mut(),
+                            cx,
+                        )
+                    }
                 }
             }
             <span class="attr">#[cfg(feature = <span class="string">"brotli"</span>)]
             </span>Inner::Brotli(<span class="kw-2">ref mut </span>decoder) =&gt; {
-                <span class="kw">match </span><span class="macro">futures_core::ready!</span>(Pin::new(decoder).poll_next(cx)) {
+                <span class="kw">match </span><span class="macro">futures_core::ready!</span>(Pin::new(<span class="kw-2">&amp;mut *</span>decoder).poll_next(cx)) {
                     <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(bytes)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(Frame::data(bytes.freeze())))),
                     <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::decode_io(err)))),
-                    <span class="prelude-val">None </span>=&gt; Poll::Ready(<span class="prelude-val">None</span>),
+                    <span class="prelude-val">None </span>=&gt; {
+                        <span class="comment">// poll inner connection until EOF after brotli stream is finished
+                        </span>poll_inner_should_be_empty(
+                            decoder.get_mut().get_mut().get_mut().get_mut(),
+                            cx,
+                        )
+                    }
                 }
             }
             <span class="attr">#[cfg(feature = <span class="string">"zstd"</span>)]
             </span>Inner::Zstd(<span class="kw-2">ref mut </span>decoder) =&gt; {
-                <span class="kw">match </span><span class="macro">futures_core::ready!</span>(Pin::new(decoder).poll_next(cx)) {
+                <span class="kw">match </span><span class="macro">futures_core::ready!</span>(Pin::new(<span class="kw-2">&amp;mut *</span>decoder).poll_next(cx)) {
                     <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(bytes)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(Frame::data(bytes.freeze())))),
                     <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::decode_io(err)))),
-                    <span class="prelude-val">None </span>=&gt; Poll::Ready(<span class="prelude-val">None</span>),
+                    <span class="prelude-val">None </span>=&gt; {
+                        <span class="comment">// poll inner connection until EOF after zstd stream is finished
+                        </span>poll_inner_should_be_empty(
+                            decoder.get_mut().get_mut().get_mut().get_mut(),
+                            cx,
+                        )
+                    }
                 }
             }
             <span class="attr">#[cfg(feature = <span class="string">"deflate"</span>)]
             </span>Inner::Deflate(<span class="kw-2">ref mut </span>decoder) =&gt; {
-                <span class="kw">match </span><span class="macro">futures_core::ready!</span>(Pin::new(decoder).poll_next(cx)) {
+                <span class="kw">match </span><span class="macro">futures_core::ready!</span>(Pin::new(<span class="kw-2">&amp;mut *</span>decoder).poll_next(cx)) {
                     <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(bytes)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(Frame::data(bytes.freeze())))),
                     <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::decode_io(err)))),
-                    <span class="prelude-val">None </span>=&gt; Poll::Ready(<span class="prelude-val">None</span>),
+                    <span class="prelude-val">None </span>=&gt; {
+                        <span class="comment">// poll inner connection until EOF after deflate stream is finished
+                        </span>poll_inner_should_be_empty(
+                            decoder.get_mut().get_mut().get_mut().get_mut(),
+                            cx,
+                        )
+                    }
                 }
             }
         }
@@ -1083,6 +1187,34 @@
                 feature = <span class="string">"deflate"
             </span>))]
             </span><span class="kw">_ </span>=&gt; http_body::SizeHint::default(),
+        }
+    }
+}
+
+<span class="attr">#[cfg(any(
+    feature = <span class="string">"gzip"</span>,
+    feature = <span class="string">"zstd"</span>,
+    feature = <span class="string">"brotli"</span>,
+    feature = <span class="string">"deflate"
+</span>))]
+</span><span class="kw">fn </span>poll_inner_should_be_empty(
+    inner: <span class="kw-2">&amp;mut </span>PeekableIoStream,
+    cx: <span class="kw-2">&amp;mut </span>Context,
+) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Frame&lt;Bytes&gt;, <span class="kw">crate</span>::Error&gt;&gt;&gt; {
+    <span class="comment">// poll inner connection until EOF after deflate stream is finished
+    // loop in case of empty frames
+    </span><span class="kw">let </span><span class="kw-2">mut </span>inner = Pin::new(inner);
+    <span class="kw">loop </span>{
+        <span class="kw">match </span><span class="macro">futures_core::ready!</span>(inner.as_mut().poll_next(cx)) {
+            <span class="comment">// ignore any empty frames
+            </span><span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(bytes)) <span class="kw">if </span>bytes.is_empty() =&gt; <span class="kw">continue</span>,
+            <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="kw">_</span>)) =&gt; {
+                <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::decode(
+                    <span class="string">"there are extra bytes after body has been decompressed"</span>,
+                ))))
+            }
+            <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err)) =&gt; <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::decode_io(err)))),
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span>Poll::Ready(<span class="prelude-val">None</span>),
         }
     }
 }
@@ -1130,25 +1262,37 @@
 
         <span class="kw">match </span><span class="self">self</span>.<span class="number">1 </span>{
             <span class="attr">#[cfg(feature = <span class="string">"brotli"</span>)]
-            </span>DecoderType::Brotli =&gt; Poll::Ready(<span class="prelude-val">Ok</span>(Inner::Brotli(Box::pin(FramedRead::new(
-                BrotliDecoder::new(StreamReader::new(_body)),
-                BytesCodec::new(),
-            ))))),
+            </span>DecoderType::Brotli =&gt; Poll::Ready(<span class="prelude-val">Ok</span>(Inner::Brotli(Box::pin(
+                FramedRead::new(
+                    BrotliDecoder::new(StreamReader::new(_body)),
+                    BytesCodec::new(),
+                )
+                .fuse(),
+            )))),
             <span class="attr">#[cfg(feature = <span class="string">"zstd"</span>)]
-            </span>DecoderType::Zstd =&gt; Poll::Ready(<span class="prelude-val">Ok</span>(Inner::Zstd(Box::pin(FramedRead::new(
-                ZstdDecoder::new(StreamReader::new(_body)),
-                BytesCodec::new(),
-            ))))),
+            </span>DecoderType::Zstd =&gt; Poll::Ready(<span class="prelude-val">Ok</span>(Inner::Zstd(Box::pin(
+                FramedRead::new(
+                    ZstdDecoder::new(StreamReader::new(_body)),
+                    BytesCodec::new(),
+                )
+                .fuse(),
+            )))),
             <span class="attr">#[cfg(feature = <span class="string">"gzip"</span>)]
-            </span>DecoderType::Gzip =&gt; Poll::Ready(<span class="prelude-val">Ok</span>(Inner::Gzip(Box::pin(FramedRead::new(
-                GzipDecoder::new(StreamReader::new(_body)),
-                BytesCodec::new(),
-            ))))),
+            </span>DecoderType::Gzip =&gt; Poll::Ready(<span class="prelude-val">Ok</span>(Inner::Gzip(Box::pin(
+                FramedRead::new(
+                    GzipDecoder::new(StreamReader::new(_body)),
+                    BytesCodec::new(),
+                )
+                .fuse(),
+            )))),
             <span class="attr">#[cfg(feature = <span class="string">"deflate"</span>)]
-            </span>DecoderType::Deflate =&gt; Poll::Ready(<span class="prelude-val">Ok</span>(Inner::Deflate(Box::pin(FramedRead::new(
-                ZlibDecoder::new(StreamReader::new(_body)),
-                BytesCodec::new(),
-            ))))),
+            </span>DecoderType::Deflate =&gt; Poll::Ready(<span class="prelude-val">Ok</span>(Inner::Deflate(Box::pin(
+                FramedRead::new(
+                    ZlibDecoder::new(StreamReader::new(_body)),
+                    BytesCodec::new(),
+                )
+                .fuse(),
+            )))),
         }
     }
 }

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Indent","QueryParams"],"fn":["format"],"struct":["FormatOptions"]};

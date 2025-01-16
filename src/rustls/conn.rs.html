@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.14/src/conn.rs`."><title>conn.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.21/src/conn.rs`."><title>conn.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1192,9 +1192,6 @@
 <a href="#1192" id="1192">1192</a>
 <a href="#1193" id="1193">1193</a>
 <a href="#1194" id="1194">1194</a>
-<a href="#1195" id="1195">1195</a>
-<a href="#1196" id="1196">1196</a>
-<a href="#1197" id="1197">1197</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
 <span class="kw">use </span>core::fmt::Debug;
 <span class="kw">use </span>core::mem;
@@ -1370,7 +1367,7 @@
         <span class="kw">pub</span>(<span class="kw">super</span>) has_seen_eof: bool,
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Reader&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">impl </span>Reader&lt;<span class="lifetime">'_</span>&gt; {
         <span class="doccomment">/// Check the connection's state if no bytes are available for reading.
         </span><span class="kw">fn </span>check_no_bytes_state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
             <span class="kw">match </span>(<span class="self">self</span>.has_received_close_notify, <span class="self">self</span>.has_seen_eof) {
@@ -1388,7 +1385,7 @@
         }
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; io::Read <span class="kw">for </span>Reader&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">impl </span>io::Read <span class="kw">for </span>Reader&lt;<span class="lifetime">'_</span>&gt; {
         <span class="doccomment">/// Obtain plaintext data received from the peer over this TLS connection.
         ///
         /// If the peer closes the TLS session cleanly, this returns `Ok(0)`  once all
@@ -1473,7 +1470,7 @@ https://docs.rs/rustls/latest/rustls/manual/_03_howto/index.html#unexpected-eof"
         }
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; io::Write <span class="kw">for </span>Writer&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">impl </span>io::Write <span class="kw">for </span>Writer&lt;<span class="lifetime">'_</span>&gt; {
         <span class="doccomment">/// Send the plaintext `buf` to the peer, encrypting
         /// and authenticating it.  Once this function succeeds
         /// you should call [`Connection::write_tls`] which will output the
@@ -1851,7 +1848,7 @@ https://docs.rs/rustls/latest/rustls/manual/_03_howto/index.html#unexpected-eof"
     /// This is a shortcut to the `process_new_packets()` -&gt; `process_msg()` -&gt;
     /// `process_handshake_messages()` path, specialized for the first handshake message.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>first_handshake_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Message&lt;<span class="lifetime">'static</span>&gt;&gt;, Error&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>buffer_progress = BufferProgress::default();
+        <span class="kw">let </span><span class="kw-2">mut </span>buffer_progress = <span class="self">self</span>.core.hs_deframer.progress();
 
         <span class="kw">let </span>res = <span class="self">self
             </span>.core
@@ -2024,8 +2021,7 @@ https://docs.rs/rustls/latest/rustls/manual/_03_howto/index.html#unexpected-eof"
             }
         };
 
-        <span class="kw">let </span><span class="kw-2">mut </span>buffer_progress = BufferProgress::default();
-        buffer_progress.add_processed(deframer_buffer.processed);
+        <span class="kw">let </span><span class="kw-2">mut </span>buffer_progress = <span class="self">self</span>.hs_deframer.progress();
 
         <span class="kw">loop </span>{
             <span class="kw">let </span>res = <span class="self">self</span>.deframe(
@@ -2043,9 +2039,8 @@ https://docs.rs/rustls/latest/rustls/manual/_03_howto/index.html#unexpected-eof"
                 }
             };
 
-            <span class="kw">let </span>msg = <span class="kw">match </span>opt_msg {
-                <span class="prelude-val">Some</span>(msg) =&gt; msg,
-                <span class="prelude-val">None </span>=&gt; <span class="kw">break</span>,
+            <span class="kw">let </span><span class="prelude-val">Some</span>(msg) = opt_msg <span class="kw">else </span>{
+                <span class="kw">break</span>;
             };
 
             <span class="kw">match </span><span class="self">self</span>.process_msg(msg, state, <span class="prelude-val">Some</span>(sendable_plaintext)) {
@@ -2071,7 +2066,6 @@ https://docs.rs/rustls/latest/rustls/manual/_03_howto/index.html#unexpected-eof"
             deframer_buffer.discard(buffer_progress.take_discard());
         }
 
-        deframer_buffer.processed = buffer_progress.processed();
         deframer_buffer.discard(buffer_progress.take_discard());
         <span class="self">self</span>.state = <span class="prelude-val">Ok</span>(state);
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.common_state.current_io_state())

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-util-0.1.9/src/client/legacy/connect/http.rs`."><title>http.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="hyper_util" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-util-0.1.10/src/client/legacy/connect/http.rs`."><title>http.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="hyper_util" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1266,6 +1266,30 @@
 <a href="#1266" id="1266">1266</a>
 <a href="#1267" id="1267">1267</a>
 <a href="#1268" id="1268">1268</a>
+<a href="#1269" id="1269">1269</a>
+<a href="#1270" id="1270">1270</a>
+<a href="#1271" id="1271">1271</a>
+<a href="#1272" id="1272">1272</a>
+<a href="#1273" id="1273">1273</a>
+<a href="#1274" id="1274">1274</a>
+<a href="#1275" id="1275">1275</a>
+<a href="#1276" id="1276">1276</a>
+<a href="#1277" id="1277">1277</a>
+<a href="#1278" id="1278">1278</a>
+<a href="#1279" id="1279">1279</a>
+<a href="#1280" id="1280">1280</a>
+<a href="#1281" id="1281">1281</a>
+<a href="#1282" id="1282">1282</a>
+<a href="#1283" id="1283">1283</a>
+<a href="#1284" id="1284">1284</a>
+<a href="#1285" id="1285">1285</a>
+<a href="#1286" id="1286">1286</a>
+<a href="#1287" id="1287">1287</a>
+<a href="#1288" id="1288">1288</a>
+<a href="#1289" id="1289">1289</a>
+<a href="#1290" id="1290">1290</a>
+<a href="#1291" id="1291">1291</a>
+<a href="#1292" id="1292">1292</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::error::Error <span class="kw">as </span>StdError;
 <span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::future::Future;
@@ -1346,6 +1370,8 @@
     recv_buffer_size: <span class="prelude-ty">Option</span>&lt;usize&gt;,
     <span class="attr">#[cfg(any(target_os = <span class="string">"android"</span>, target_os = <span class="string">"fuchsia"</span>, target_os = <span class="string">"linux"</span>))]
     </span>interface: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="attr">#[cfg(any(target_os = <span class="string">"android"</span>, target_os = <span class="string">"fuchsia"</span>, target_os = <span class="string">"linux"</span>))]
+    </span>tcp_user_timeout: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
 }
 
 <span class="attr">#[derive(Default, Debug, Clone, Copy)]
@@ -1450,6 +1476,8 @@
                 recv_buffer_size: <span class="prelude-val">None</span>,
                 <span class="attr">#[cfg(any(target_os = <span class="string">"android"</span>, target_os = <span class="string">"fuchsia"</span>, target_os = <span class="string">"linux"</span>))]
                 </span>interface: <span class="prelude-val">None</span>,
+                <span class="attr">#[cfg(any(target_os = <span class="string">"android"</span>, target_os = <span class="string">"fuchsia"</span>, target_os = <span class="string">"linux"</span>))]
+                </span>tcp_user_timeout: <span class="prelude-val">None</span>,
             }),
             resolver,
         }
@@ -1591,6 +1619,13 @@
         <span class="self">self</span>.config_mut().interface = <span class="prelude-val">Some</span>(interface.into());
         <span class="self">self
     </span>}
+
+    <span class="doccomment">/// Sets the value of the TCP_USER_TIMEOUT option on the socket.
+    </span><span class="attr">#[cfg(any(target_os = <span class="string">"android"</span>, target_os = <span class="string">"fuchsia"</span>, target_os = <span class="string">"linux"</span>))]
+    #[inline]
+    </span><span class="kw">pub fn </span>set_tcp_user_timeout(<span class="kw-2">&amp;mut </span><span class="self">self</span>, time: <span class="prelude-ty">Option</span>&lt;Duration&gt;) {
+        <span class="self">self</span>.config_mut().tcp_user_timeout = time;
+    }
 
     <span class="comment">// private
 
@@ -1994,6 +2029,13 @@
         socket
             .bind_device(<span class="prelude-val">Some</span>(interface.as_bytes()))
             .map_err(ConnectError::m(<span class="string">"tcp bind interface error"</span>))<span class="question-mark">?</span>;
+    }
+
+    <span class="attr">#[cfg(any(target_os = <span class="string">"android"</span>, target_os = <span class="string">"fuchsia"</span>, target_os = <span class="string">"linux"</span>))]
+    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(tcp_user_timeout) = <span class="kw-2">&amp;</span>config.tcp_user_timeout {
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = socket.set_tcp_user_timeout(<span class="prelude-val">Some</span>(<span class="kw-2">*</span>tcp_user_timeout)) {
+            <span class="macro">warn!</span>(<span class="string">"tcp set_tcp_user_timeout error: {}"</span>, e);
+        }
     }
 
     bind_local_address(
@@ -2406,6 +2448,12 @@
                             target_os = <span class="string">"linux"
                         </span>))]
                         </span>interface: <span class="prelude-val">None</span>,
+                        <span class="attr">#[cfg(any(
+                            target_os = <span class="string">"android"</span>,
+                            target_os = <span class="string">"fuchsia"</span>,
+                            target_os = <span class="string">"linux"
+                        </span>))]
+                        </span>tcp_user_timeout: <span class="prelude-val">None</span>,
                     };
                     <span class="kw">let </span>connecting_tcp = ConnectingTcp::new(dns::SocketAddrs::new(addrs), <span class="kw-2">&amp;</span>cfg);
                     <span class="kw">let </span>start = Instant::now();

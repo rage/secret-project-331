@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.8.2/src/listener.rs`."><title>listener.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.8.3/src/listener.rs`."><title>listener.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -458,6 +458,62 @@
 <a href="#458" id="458">458</a>
 <a href="#459" id="459">459</a>
 <a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
+<a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
+<a href="#490" id="490">490</a>
+<a href="#491" id="491">491</a>
+<a href="#492" id="492">492</a>
+<a href="#493" id="493">493</a>
+<a href="#494" id="494">494</a>
+<a href="#495" id="495">495</a>
+<a href="#496" id="496">496</a>
+<a href="#497" id="497">497</a>
+<a href="#498" id="498">498</a>
+<a href="#499" id="499">499</a>
+<a href="#500" id="500">500</a>
+<a href="#501" id="501">501</a>
+<a href="#502" id="502">502</a>
+<a href="#503" id="503">503</a>
+<a href="#504" id="504">504</a>
+<a href="#505" id="505">505</a>
+<a href="#506" id="506">506</a>
+<a href="#507" id="507">507</a>
+<a href="#508" id="508">508</a>
+<a href="#509" id="509">509</a>
+<a href="#510" id="510">510</a>
+<a href="#511" id="511">511</a>
+<a href="#512" id="512">512</a>
+<a href="#513" id="513">513</a>
+<a href="#514" id="514">514</a>
+<a href="#515" id="515">515</a>
+<a href="#516" id="516">516</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt::{<span class="self">self</span>, Debug};
 <span class="kw">use </span>std::io;
 <span class="kw">use </span>std::str::from_utf8;
@@ -465,7 +521,9 @@
 <span class="kw">use </span>futures_channel::mpsc;
 <span class="kw">use </span>futures_core::future::BoxFuture;
 <span class="kw">use </span>futures_core::stream::{BoxStream, Stream};
-<span class="kw">use </span>futures_util::{FutureExt, StreamExt, TryStreamExt};
+<span class="kw">use </span>futures_util::{FutureExt, StreamExt, TryFutureExt, TryStreamExt};
+<span class="kw">use </span>sqlx_core::acquire::Acquire;
+<span class="kw">use </span>sqlx_core::transaction::Transaction;
 <span class="kw">use </span>sqlx_core::Either;
 
 <span class="kw">use </span><span class="kw">crate</span>::describe::Describe;
@@ -489,6 +547,7 @@
     buffer_tx: <span class="prelude-ty">Option</span>&lt;mpsc::UnboundedSender&lt;Notification&gt;&gt;,
     channels: Vec&lt;String&gt;,
     ignore_close_event: bool,
+    eager_reconnect: bool,
 }
 
 <span class="doccomment">/// An asynchronous notification from Postgres.
@@ -518,7 +577,7 @@
 
         <span class="comment">// Setup a notification buffer
         </span><span class="kw">let </span>(sender, receiver) = mpsc::unbounded();
-        connection.stream.notifications = <span class="prelude-val">Some</span>(sender);
+        connection.inner.stream.notifications = <span class="prelude-val">Some</span>(sender);
 
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
             pool: pool.clone(),
@@ -527,6 +586,7 @@
             buffer_tx: <span class="prelude-val">None</span>,
             channels: Vec::new(),
             ignore_close_event: <span class="bool-val">false</span>,
+            eager_reconnect: <span class="bool-val">true</span>,
         })
     }
 
@@ -551,6 +611,19 @@
     /// internal pool just for the new instance of `PgListener` which cannot be closed manually.
     </span><span class="kw">pub fn </span>ignore_pool_close_event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: bool) {
         <span class="self">self</span>.ignore_close_event = val;
+    }
+
+    <span class="doccomment">/// Set whether a lost connection in `try_recv()` should be re-established before it returns
+    /// `Ok(None)`, or on the next call to `try_recv()`.
+    ///
+    /// By default, this is `true` and the connection is re-established before returning `Ok(None)`.
+    ///
+    /// If this is set to `false` then notifications will continue to be lost until the next call
+    /// to `try_recv()`. If your recovery logic uses a different database connection then
+    /// notifications that occur after it completes may be lost without any way to tell that they
+    /// have been.
+    </span><span class="kw">pub fn </span>eager_reconnect(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: bool) {
+        <span class="self">self</span>.eager_reconnect = val;
     }
 
     <span class="doccomment">/// Starts listening for notifications on a channel.
@@ -615,7 +688,7 @@
     </span><span class="kw">async fn </span>connect_if_needed(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">if </span><span class="self">self</span>.connection.is_none() {
             <span class="kw">let </span><span class="kw-2">mut </span>connection = <span class="self">self</span>.pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-            connection.stream.notifications = <span class="self">self</span>.buffer_tx.take();
+            connection.inner.stream.notifications = <span class="self">self</span>.buffer_tx.take();
 
             connection
                 .execute(<span class="kw-2">&amp;*</span>build_listen_all_query(<span class="kw-2">&amp;</span><span class="self">self</span>.channels))
@@ -672,7 +745,8 @@
     <span class="doccomment">/// Receives the next notification available from any of the subscribed channels.
     ///
     /// If the connection to PostgreSQL is lost, `None` is returned, and the connection is
-    /// reconnected on the next call to `try_recv()`.
+    /// reconnected either immediately, or on the next call to `try_recv()`, depending on
+    /// the value of [`eager_reconnect`].
     ///
     /// # Example
     ///
@@ -692,18 +766,20 @@
     /// # Result::&lt;(), sqlx::Error&gt;::Ok(())
     /// # }).unwrap();
     /// ```
+    ///
+    /// [`eager_reconnect`]: PgListener::eager_reconnect
     </span><span class="kw">pub async fn </span>try_recv(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;PgNotification&gt;, Error&gt; {
         <span class="comment">// Flush the buffer first, if anything
         // This would only fill up if this listener is used as a connection
-        </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(notification)) = <span class="self">self</span>.buffer_rx.try_next() {
-            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(PgNotification(notification)));
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(notification) = <span class="self">self</span>.next_buffered() {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(notification));
         }
 
         <span class="comment">// Fetch our `CloseEvent` listener, if applicable.
         </span><span class="kw">let </span><span class="kw-2">mut </span>close_event = (!<span class="self">self</span>.ignore_close_event).then(|| <span class="self">self</span>.pool.close_event());
 
         <span class="kw">loop </span>{
-            <span class="kw">let </span>next_message = <span class="self">self</span>.connection().<span class="kw">await</span><span class="question-mark">?</span>.stream.recv_unchecked();
+            <span class="kw">let </span>next_message = <span class="self">self</span>.connection().<span class="kw">await</span><span class="question-mark">?</span>.inner.stream.recv_unchecked();
 
             <span class="kw">let </span>res = <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>close_event) = close_event {
                 <span class="comment">// cancels the wait and returns `Err(PoolClosed)` if the pool is closed
@@ -719,13 +795,23 @@
                 <span class="comment">// The connection is dead, ensure that it is dropped,
                 // update self state, and loop to try again.
                 </span><span class="prelude-val">Err</span>(Error::Io(err))
-                    <span class="kw">if </span>(err.kind() == io::ErrorKind::ConnectionAborted
-                        || err.kind() == io::ErrorKind::UnexpectedEof) =&gt;
+                    <span class="kw">if </span><span class="macro">matches!</span>(
+                        err.kind(),
+                        io::ErrorKind::ConnectionAborted |
+                        io::ErrorKind::UnexpectedEof |
+                        <span class="comment">// see ERRORS section in tcp(7) man page (https://man7.org/linux/man-pages/man7/tcp.7.html)
+                        </span>io::ErrorKind::TimedOut |
+                        io::ErrorKind::BrokenPipe
+                    ) =&gt;
                 {
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>conn) = <span class="self">self</span>.connection.take() {
-                        <span class="self">self</span>.buffer_tx = conn.stream.notifications.take();
+                        <span class="self">self</span>.buffer_tx = conn.inner.stream.notifications.take();
                         <span class="comment">// Close the connection in a background task, so we can continue.
                         </span>conn.close_on_drop();
+                    }
+
+                    <span class="kw">if </span><span class="self">self</span>.eager_reconnect {
+                        <span class="self">self</span>.connect_if_needed().<span class="kw">await</span><span class="question-mark">?</span>;
                     }
 
                     <span class="comment">// lost connection
@@ -746,13 +832,26 @@
 
                 <span class="comment">// Mark the connection as ready for another query
                 </span>BackendMessageFormat::ReadyForQuery =&gt; {
-                    <span class="self">self</span>.connection().<span class="kw">await</span><span class="question-mark">?</span>.pending_ready_for_query_count -= <span class="number">1</span>;
+                    <span class="self">self</span>.connection().<span class="kw">await</span><span class="question-mark">?</span>.inner.pending_ready_for_query_count -= <span class="number">1</span>;
                 }
 
                 <span class="comment">// Ignore unexpected messages
                 </span><span class="kw">_ </span>=&gt; {}
             }
         }
+    }
+
+    <span class="doccomment">/// Receives the next notification that already exists in the connection buffer, if any.
+    ///
+    /// This is similar to `try_recv`, except it will not wait if the connection has not yet received a notification.
+    ///
+    /// This is helpful if you want to retrieve all buffered notifications and process them in batches.
+    </span><span class="kw">pub fn </span>next_buffered(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;PgNotification&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(notification)) = <span class="self">self</span>.buffer_rx.try_next() {
+            <span class="prelude-val">Some</span>(PgNotification(notification))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
     }
 
     <span class="doccomment">/// Consume this listener, returning a `Stream` of notifications.
@@ -785,6 +884,19 @@
             <span class="comment">// Unregister any listeners before returning the connection to the pool.
             </span><span class="kw">crate</span>::rt::spawn(fut);
         }
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">'c</span>&gt; Acquire&lt;<span class="lifetime">'c</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'c </span><span class="kw-2">mut </span>PgListener {
+    <span class="kw">type </span>Database = Postgres;
+    <span class="kw">type </span>Connection = <span class="kw-2">&amp;</span><span class="lifetime">'c </span><span class="kw-2">mut </span>PgConnection;
+
+    <span class="kw">fn </span>acquire(<span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">'c</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Connection, Error&gt;&gt; {
+        <span class="self">self</span>.connection().boxed()
+    }
+
+    <span class="kw">fn </span>begin(<span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">'c</span>, <span class="prelude-ty">Result</span>&lt;Transaction&lt;<span class="lifetime">'c</span>, <span class="self">Self</span>::Database&gt;, Error&gt;&gt; {
+        <span class="self">self</span>.connection().and_then(|c| c.begin()).boxed()
     }
 }
 

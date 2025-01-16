@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/webpki-roots-0.26.6/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="webpki_roots" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/webpki-roots-0.26.7/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="webpki_roots" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -5593,141 +5593,13 @@
 <a href="#5593" id="5593">5593</a>
 <a href="#5594" id="5594">5594</a>
 <a href="#5595" id="5595">5595</a>
-<a href="#5596" id="5596">5596</a>
-<a href="#5597" id="5597">5597</a>
-<a href="#5598" id="5598">5598</a>
-<a href="#5599" id="5599">5599</a>
-<a href="#5600" id="5600">5600</a>
-<a href="#5601" id="5601">5601</a>
-<a href="#5602" id="5602">5602</a>
-<a href="#5603" id="5603">5603</a>
-<a href="#5604" id="5604">5604</a>
-<a href="#5605" id="5605">5605</a>
-<a href="#5606" id="5606">5606</a>
-<a href="#5607" id="5607">5607</a>
-<a href="#5608" id="5608">5608</a>
-<a href="#5609" id="5609">5609</a>
-<a href="#5610" id="5610">5610</a>
-<a href="#5611" id="5611">5611</a>
-<a href="#5612" id="5612">5612</a>
-<a href="#5613" id="5613">5613</a>
-<a href="#5614" id="5614">5614</a>
-<a href="#5615" id="5615">5615</a>
-<a href="#5616" id="5616">5616</a>
-<a href="#5617" id="5617">5617</a>
-<a href="#5618" id="5618">5618</a>
-<a href="#5619" id="5619">5619</a>
-<a href="#5620" id="5620">5620</a>
-<a href="#5621" id="5621">5621</a>
-<a href="#5622" id="5622">5622</a>
-<a href="#5623" id="5623">5623</a>
-<a href="#5624" id="5624">5624</a>
-<a href="#5625" id="5625">5625</a>
-<a href="#5626" id="5626">5626</a>
-<a href="#5627" id="5627">5627</a>
-<a href="#5628" id="5628">5628</a>
-<a href="#5629" id="5629">5629</a>
-<a href="#5630" id="5630">5630</a>
-<a href="#5631" id="5631">5631</a>
-<a href="#5632" id="5632">5632</a>
-<a href="#5633" id="5633">5633</a>
-<a href="#5634" id="5634">5634</a>
-<a href="#5635" id="5635">5635</a>
-<a href="#5636" id="5636">5636</a>
-<a href="#5637" id="5637">5637</a>
-<a href="#5638" id="5638">5638</a>
-<a href="#5639" id="5639">5639</a>
-<a href="#5640" id="5640">5640</a>
-<a href="#5641" id="5641">5641</a>
-<a href="#5642" id="5642">5642</a>
-<a href="#5643" id="5643">5643</a>
-<a href="#5644" id="5644">5644</a>
-<a href="#5645" id="5645">5645</a>
-<a href="#5646" id="5646">5646</a>
-<a href="#5647" id="5647">5647</a>
-<a href="#5648" id="5648">5648</a>
-<a href="#5649" id="5649">5649</a>
-<a href="#5650" id="5650">5650</a>
-<a href="#5651" id="5651">5651</a>
-<a href="#5652" id="5652">5652</a>
-<a href="#5653" id="5653">5653</a>
-<a href="#5654" id="5654">5654</a>
-<a href="#5655" id="5655">5655</a>
-<a href="#5656" id="5656">5656</a>
-<a href="#5657" id="5657">5657</a>
-<a href="#5658" id="5658">5658</a>
-<a href="#5659" id="5659">5659</a>
-<a href="#5660" id="5660">5660</a>
-<a href="#5661" id="5661">5661</a>
-<a href="#5662" id="5662">5662</a>
-<a href="#5663" id="5663">5663</a>
-<a href="#5664" id="5664">5664</a>
-<a href="#5665" id="5665">5665</a>
-<a href="#5666" id="5666">5666</a>
-<a href="#5667" id="5667">5667</a>
-<a href="#5668" id="5668">5668</a>
-<a href="#5669" id="5669">5669</a>
-<a href="#5670" id="5670">5670</a>
-<a href="#5671" id="5671">5671</a>
-<a href="#5672" id="5672">5672</a>
-<a href="#5673" id="5673">5673</a>
-<a href="#5674" id="5674">5674</a>
-<a href="#5675" id="5675">5675</a>
-<a href="#5676" id="5676">5676</a>
-<a href="#5677" id="5677">5677</a>
-<a href="#5678" id="5678">5678</a>
-<a href="#5679" id="5679">5679</a>
-<a href="#5680" id="5680">5680</a>
-<a href="#5681" id="5681">5681</a>
-<a href="#5682" id="5682">5682</a>
-<a href="#5683" id="5683">5683</a>
-<a href="#5684" id="5684">5684</a>
-<a href="#5685" id="5685">5685</a>
-<a href="#5686" id="5686">5686</a>
-<a href="#5687" id="5687">5687</a>
-<a href="#5688" id="5688">5688</a>
-<a href="#5689" id="5689">5689</a>
-<a href="#5690" id="5690">5690</a>
-<a href="#5691" id="5691">5691</a>
-<a href="#5692" id="5692">5692</a>
-<a href="#5693" id="5693">5693</a>
-<a href="#5694" id="5694">5694</a>
-<a href="#5695" id="5695">5695</a>
-<a href="#5696" id="5696">5696</a>
-<a href="#5697" id="5697">5697</a>
-<a href="#5698" id="5698">5698</a>
-<a href="#5699" id="5699">5699</a>
-<a href="#5700" id="5700">5700</a>
-<a href="#5701" id="5701">5701</a>
-<a href="#5702" id="5702">5702</a>
-<a href="#5703" id="5703">5703</a>
-<a href="#5704" id="5704">5704</a>
-<a href="#5705" id="5705">5705</a>
-<a href="#5706" id="5706">5706</a>
-<a href="#5707" id="5707">5707</a>
-<a href="#5708" id="5708">5708</a>
-<a href="#5709" id="5709">5709</a>
-<a href="#5710" id="5710">5710</a>
-<a href="#5711" id="5711">5711</a>
-<a href="#5712" id="5712">5712</a>
-<a href="#5713" id="5713">5713</a>
-<a href="#5714" id="5714">5714</a>
-<a href="#5715" id="5715">5715</a>
-<a href="#5716" id="5716">5716</a>
-<a href="#5717" id="5717">5717</a>
-<a href="#5718" id="5718">5718</a>
-<a href="#5719" id="5719">5719</a>
-<a href="#5720" id="5720">5720</a>
-<a href="#5721" id="5721">5721</a>
-<a href="#5722" id="5722">5722</a>
-<a href="#5723" id="5723">5723</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! A compiled-in copy of the root certificates trusted by Mozilla.
 //!
 //! To use this library with rustls 0.22:
 //!
 //! ```rust
 //! let root_store = rustls::RootCertStore {
-//!   roots: webpki_roots::TLS_SERVER_ROOTS.iter().cloned().collect(),
+//!   roots: webpki_roots::TLS_SERVER_ROOTS.to_vec(),
 //! };
 //! ```
 //!
@@ -6375,51 +6247,6 @@
   </span>TrustAnchor {
     subject: Der::from_slice(<span class="string">b"1\x0b0\t\x06\x03U\x04\x06\x13\x02FI1\x1a0\x18\x06\x03U\x04\n\x0c\x11Telia Finland Oyj1\x190\x17\x06\x03U\x04\x03\x0c\x10Telia Root CA v2"</span>),
     subject_public_key_info: Der::from_slice(<span class="string">b"0\r\x06\t*\x86H\x86\xf7\r\x01\x01\x01\x05\x00\x03\x82\x02\x0f\x000\x82\x02\n\x02\x82\x02\x01\x00\xb2\xd0?\x07\xbc\xe2{\xd0k\x99\xf8\xe2wi\xe7\xce\x9d\xa4\x03\xbc\x82m\xa1\xfe\x81e\x1fL\'\xac\x8e\x00\xba\x16{\xeb0j\x00\xc0\xb3th~\xb2\xaf\xc7\xd5b\xb3z?P\xca\x8c6D$c\xd26\xe9\x0c\x85\xf6Cv\xd5L\xa1`rg\xe2(3\xa5\xcb1\xb8:\"#4\xb8}\xbdV\"@\x9d\xea\xf4{\x03\xadh\xfc\xb2\x81O\x98\xd0t\xea\x8d\xe5}\xcdc\xc3\xa3\xf6\xde\x92\xc2X\x19\xe0\x96\xbb\xc5\xc4\xa9=\xa5t\x96\xfe\xaf\xf9\x89\xaa\xbd\x95\x17T\xd8xD\xf1\x0cw\x15\x92\xe0\x98B\xa7\xa4\xd6\xaa \x92\xcd\xc1\xa0\xb3\x96\xb2:\x84B\x8d}\xd5\x95\xe4\xd6\xdb\xe9b\xc4X\xb3y\xc5\x8c\xd353\x83\x9fu\xa1R\'a8\xf1Y=\x8eP\xe0\xbdy&lt;\xe7l\x96\xfe^\xd9\x02e\xb4\x8e\\\xd0\x114\xdf]\xbfR\xa7\x81\x00\xc3\x7f\x99E\x99\x15\xd5\x17\xc8\nS\xecc\xf3\x99}\xcci\x12\x86\xc2\x17\xf0\x01\x9e\xbf\x84\xbc\xd1R\xcb\x1b\x92f\xce\xa4S\xe5\xa1\xbf\xc4\xdb\t\xd6\xe6\x89V+\xc8\xe3|\xde\xe3\xff\x89\xe55n(\xe8l\x0b#Q\xa9%\x05\xebH\xf8\xdd\xb1\xca\xfal\x08Q\xef\xb7\x18lD\xca&amp;\xe1s\xc6\x89\x06\x81\xe5\x8a\xac\xb0\xe2)\xc6\xb9$\xb3kD\x11\xf4\xa5C\xc2LC\xe5p6\x8c\xb63Wz\x95.\x82\xa0\xf4\\\x10\xb3a\x83\xf6\x02\x05\x86.|-l\xdc\x03Fn5\x93\xd5z\x95/\xde \xd8[~\x94\x90\x04j\xbaY=\x04\x05u\x9d7\xa2\x0e.=\xeb\xc1\xa4R\x83\xfe\xd0k\xd4f\x8e\xdc\xc6\xe9\x12N\x1d*W\xaa\x10\xbc|^\x82}\xa6\xa6\xc9\xf2-\xb9\xf5\x17\'\xad\xd1\x0e\x89T+\x95\xfa\xc0\xad\x1d\x98\x14x3B\x86\n\xa9s\xb5\xfbt\r\xb7\x1b0\x19\xc4Z\x0e\x1c\'\xb7\xda\x18\xd0\xff\x8a\xc8\x05\xba\xf1\xaa\x1c\xa27\xb7\xe6H\xa4F,\x94\xea\xa8vbG\x8b\x10S\x07HWl\xe2\x92M\xb6\xae\x05\xcb\xdc\xc1J^\x8f\xac=\x19N\xc2\xed`u+\xdb\xc1\xcaB\xd5\x02\x03\x01\x00\x01"</span>),
-    name_constraints: <span class="prelude-val">None
-  </span>},
-
-  <span class="comment">/*
-   * Issuer: CN=Security Communication RootCA3 O=SECOM Trust Systems CO.,LTD.
-   * Subject: CN=Security Communication RootCA3 O=SECOM Trust Systems CO.,LTD.
-   * Label: "Security Communication RootCA3"
-   * Serial: 16247922307909811815
-   * SHA256 Fingerprint: 24:a5:5c:2a:b0:51:44:2d:06:17:76:65:41:23:9a:4a:d0:32:d7:c5:51:75:aa:34:ff:de:2f:bc:4f:5c:52:94
-   * -----BEGIN CERTIFICATE-----
-   * MIIFfzCCA2egAwIBAgIJAOF8N0D9G/5nMA0GCSqGSIb3DQEBDAUAMF0xCzAJBgNV
-   * BAYTAkpQMSUwIwYDVQQKExxTRUNPTSBUcnVzdCBTeXN0ZW1zIENPLixMVEQuMScw
-   * JQYDVQQDEx5TZWN1cml0eSBDb21tdW5pY2F0aW9uIFJvb3RDQTMwHhcNMTYwNjE2
-   * MDYxNzE2WhcNMzgwMTE4MDYxNzE2WjBdMQswCQYDVQQGEwJKUDElMCMGA1UEChMc
-   * U0VDT00gVHJ1c3QgU3lzdGVtcyBDTy4sTFRELjEnMCUGA1UEAxMeU2VjdXJpdHkg
-   * Q29tbXVuaWNhdGlvbiBSb290Q0EzMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIIC
-   * CgKCAgEA48lySfcw3gl8qUCBWNO0Ot26YQ+TUG5pPDXC7ltzkBtnTCHsXzW7OT4r
-   * CmDvu20rhvtxosis5FaU+cmvsXLUIKx00rgVrVH+hXShuRD+BYD5UpOzQD11EKzA
-   * lrenfna84xtSGc4RHwsENPXY9Wk8d/Nk9A2qhd7gCVAEF5aEt8iKvE1y/By7z/MG
-   * TfmfZPd+pmaGNXHIEYBMwXFAWB6+oHP2/D5Q4eAvJj1+XCO1eXDe+uDRpdYMQXF7
-   * 9+qMHIjH7Iv10S9VlkZ8WjtYO/u62C21Jdp6Ts9EriGmnpjKIG58u4iFW/vAEGK7
-   * 8vknR+/RiTlDxN/e4UG/VHMgly1s2vPUB6PmudhvrvyMGS7TZ2crldtYXLVqAvO4
-   * g160a75BflcJdURQVc1aEWEhCmHCqYj9E7wtiS/NYeCVvsq1e+F7NGcLH7YMx3we
-   * GVPKp7FKFSBWFHA9K4IsD50VHUeAR/94mQ4xr28+j+2GaR57GIgUssL8gjMunEst
-   * +3A7caoreyYn8xrC3PsXuKHqy6C0rtOUfnrQq8PsOC0RLoi/1D+tEjtCrI8Cbn3M
-   * 0V9hvqG8OmpI6iZVIhZdXw3/JzOfGAN0iltSIEdrRU0id4xVJ/CvHozJgyJUt5rQ
-   * T9nO/NkuHJYosQLTA70lUhw0Zk8jq/R3gpYd0VcwCBEF/VfR2ccCAwEAAaNCMEAw
-   * HQYDVR0OBBYEFGQUfPxYchamCik0FW8qy7z8r6irMA4GA1UdDwEB/wQEAwIBBjAP
-   * BgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBDAUAA4ICAQDcAiMI4u8hOscNtybS
-   * YpOnpSNyByCCYN8Y11StaSWSntkUz5m5UoHPrmyKO1o5yGwBQ8IibQLwYs1OY0PA
-   * FNr0Y/Dq9HHuTofjcan0yVflLl8cebsjqodEV+m9NU1Bu0soo5iyG9kLFwfl9+qd
-   * 9XbXv8S2gVj/yP9kaWJ5rW4OH3/uHWnlt3Jxs/6lATWUVCvAUm2PVcTJ0rjLyjQI
-   * UYWg9by0F1jqClx6vWPGOi//lkkZhOpn2ASxYfQAW0q3nHE3GYV5v4GwxxMOdnE+
-   * OoAGrgYWp421wsTL/0ClXI2lyTrtcoHKXJg80jQDdwj98ClZXSEIx2C/pHF7uNke
-   * gr4Jr2VvKKu/S7XuPghHJ6APbw+LP6yVGPO5DtxnVW5inkYO0QR4ynKudtml+LLf
-   * iAlhi+8kTtFZP1rUPcmTPCtk9YENFpb3ksP+MW/oKjJ0DvRMmEoYDjBU1cXrvMUV
-   * nuiZIesnKwkK2/HmcBhWuwzkvvnoEKQTkrgc4NtnHVMDpCKn3F2SEDzq//wbEBrD
-   * 2NCcnWXL0CsnMQMeNuE9dnUM/0Umud1RvCPHX9jYhxBAEg09ODfnRDwYwFMJZI//
-   * 1ZqmfHAuc1Uh6N//g7kdPjIe1qZ9LPFm6Vwdp6POXiUyK+OVrCoHzrQoeIY8Laad
-   * TdJ0MN1kURXbg4NR16/9M51NZg==
-   * -----END CERTIFICATE-----
-   */
-  </span>TrustAnchor {
-    subject: Der::from_slice(<span class="string">b"1\x0b0\t\x06\x03U\x04\x06\x13\x02JP1%0#\x06\x03U\x04\n\x13\x1cSECOM Trust Systems CO.,LTD.1\'0%\x06\x03U\x04\x03\x13\x1eSecurity Communication RootCA3"</span>),
-    subject_public_key_info: Der::from_slice(<span class="string">b"0\r\x06\t*\x86H\x86\xf7\r\x01\x01\x01\x05\x00\x03\x82\x02\x0f\x000\x82\x02\n\x02\x82\x02\x01\x00\xe3\xc9rI\xf70\xde\t|\xa9@\x81X\xd3\xb4:\xdd\xbaa\x0f\x93Pni&lt;5\xc2\xee[s\x90\x1bgL!\xec_5\xbb9&gt;+\n`\xef\xbbm+\x86\xfbq\xa2\xc8\xac\xe4V\x94\xf9\xc9\xaf\xb1r\xd4 \xact\xd2\xb8\x15\xadQ\xfe\x85t\xa1\xb9\x10\xfe\x05\x80\xf9R\x93\xb3@=u\x10\xac\xc0\x96\xb7\xa7~v\xbc\xe3\x1bR\x19\xce\x11\x1f\x0b\x044\xf5\xd8\xf5i&lt;w\xf3d\xf4\r\xaa\x85\xde\xe0\tP\x04\x17\x96\x84\xb7\xc8\x8a\xbcMr\xfc\x1c\xbb\xcf\xf3\x06M\xf9\x9fd\xf7~\xa6f\x865q\xc8\x11\x80L\xc1q@X\x1e\xbe\xa0s\xf6\xfc&gt;P\xe1\xe0/&amp;=~\\#\xb5yp\xde\xfa\xe0\xd1\xa5\xd6\x0cAq{\xf7\xea\x8c\x1c\x88\xc7\xec\x8b\xf5\xd1/U\x96F|Z;X;\xfb\xba\xd8-\xb5%\xdazN\xcfD\xae!\xa6\x9e\x98\xca n|\xbb\x88\x85[\xfb\xc0\x10b\xbb\xf2\xf9\'G\xef\xd1\x899C\xc4\xdf\xde\xe1A\xbfTs \x97-l\xda\xf3\xd4\x07\xa3\xe6\xb9\xd8o\xae\xfc\x8c\x19.\xd3gg+\x95\xdbX\\\xb5j\x02\xf3\xb8\x83^\xb4k\xbeA~W\tuDPU\xcdZ\x11a!\na\xc2\xa9\x88\xfd\x13\xbc-\x89/\xcda\xe0\x95\xbe\xca\xb5{\xe1{4g\x0b\x1f\xb6\x0c\xc7|\x1e\x19S\xca\xa7\xb1J\x15 V\x14p=+\x82,\x0f\x9d\x15\x1dG\x80G\xffx\x99\x0e1\xafo&gt;\x8f\xed\x86i\x1e{\x18\x88\x14\xb2\xc2\xfc\x823.\x9cK-\xfbp;q\xaa+{&amp;\'\xf3\x1a\xc2\xdc\xfb\x17\xb8\xa1\xea\xcb\xa0\xb4\xae\xd3\x94~z\xd0\xab\xc3\xec8-\x11.\x88\xbf\xd4?\xad\x12;B\xac\x8f\x02n}\xcc\xd1_a\xbe\xa1\xbc:jH\xea&amp;U\"\x16]_\r\xff\'3\x9f\x18\x03t\x8a[R GkEM\"w\x8cU\'\xf0\xaf\x1e\x8c\xc9\x83\"T\xb7\x9a\xd0O\xd9\xce\xfc\xd9.\x1c\x96(\xb1\x02\xd3\x03\xbd%R\x1c4fO#\xab\xf4w\x82\x96\x1d\xd1W0\x08\x11\x05\xfdW\xd1\xd9\xc7\x02\x03\x01\x00\x01"</span>),
     name_constraints: <span class="prelude-val">None
   </span>},
 
@@ -9848,40 +9675,6 @@
   </span>},
 
   <span class="comment">/*
-   * Issuer: CN=SecureSign RootCA11 O=Japan Certification Services, Inc.
-   * Subject: CN=SecureSign RootCA11 O=Japan Certification Services, Inc.
-   * Label: "SecureSign RootCA11"
-   * Serial: 1
-   * SHA256 Fingerprint: bf:0f:ee:fb:9e:3a:58:1a:d5:f9:e9:db:75:89:98:57:43:d2:61:08:5c:4d:31:4f:6f:5d:72:59:aa:42:16:12
-   * -----BEGIN CERTIFICATE-----
-   * MIIDbTCCAlWgAwIBAgIBATANBgkqhkiG9w0BAQUFADBYMQswCQYDVQQGEwJKUDEr
-   * MCkGA1UEChMiSmFwYW4gQ2VydGlmaWNhdGlvbiBTZXJ2aWNlcywgSW5jLjEcMBoG
-   * A1UEAxMTU2VjdXJlU2lnbiBSb290Q0ExMTAeFw0wOTA0MDgwNDU2NDdaFw0yOTA0
-   * MDgwNDU2NDdaMFgxCzAJBgNVBAYTAkpQMSswKQYDVQQKEyJKYXBhbiBDZXJ0aWZp
-   * Y2F0aW9uIFNlcnZpY2VzLCBJbmMuMRwwGgYDVQQDExNTZWN1cmVTaWduIFJvb3RD
-   * QTExMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA/XeqpRyQBTvLTJsz
-   * i1oURaTnkBbR31fSIRCkF/3frNYfp+TbfPfs37gD2pRY/V1yfIw/XwFndBWW4wI8
-   * h9uuywGOwvNmxoVF9ALGOrVisq/6nL+k5tSAMJjzDbaTj6nU2DbysPyKyiyhFTOV
-   * MdrAG/LuYpmGYz+/3ZMqg6h2uRMft85OQoWPIucuGvKVCbIFtUROd6EgvanyTgp9
-   * UK31BQ1FT0Zx/Sg+U/sE2C3XZR1KG/rPO7AxmjVuyIsG0wCR8pQIZUyxNAYAeoni
-   * 8McDWc/V1uinMrPmmECGxc0nEovMe863ETxiYAcjPitAbpSACW22s293bzUIUPsC
-   * h8U+iQIDAQABo0IwQDAdBgNVHQ4EFgQUW/hNT7KlhtQ60vFjmqC+CfZXt94wDgYD
-   * VR0PAQH/BAQDAgEGMA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQEFBQADggEB
-   * AKChOBZmLqdWHyGcBvod7bkixTgm2E5P7KN/ed5GIaGHd48HCJqypMWvDzKYC3xm
-   * KbabfSVSSUOrTC4rbnpwrxYO4wJs+0LmGJ1F2FXI6Dvd5+H0LgscNFxsWEr7jIhQ
-   * X5Ucv+2rIrVls4W6ng+4reV6G4pQOh29Dbx7VFALuUKvVaAYga1lme++5Jy/xIWr
-   * QbJUb9wlze144o4MjQlJ3WN7WmmWAiGovVJZ6X01y8hSyn+B/tlr0/cR7SXf+Of5
-   * pPpyl4RTDaXQMhhRdlkUbA/r7F+AjHVDg8OFmP9Mni0N5HeDk061lgeLKBObjBmN
-   * QSdJQO7e5iNEOdyhIta6A/I=
-   * -----END CERTIFICATE-----
-   */
-  </span>TrustAnchor {
-    subject: Der::from_slice(<span class="string">b"1\x0b0\t\x06\x03U\x04\x06\x13\x02JP1+0)\x06\x03U\x04\n\x13\"Japan Certification Services, Inc.1\x1c0\x1a\x06\x03U\x04\x03\x13\x13SecureSign RootCA11"</span>),
-    subject_public_key_info: Der::from_slice(<span class="string">b"0\r\x06\t*\x86H\x86\xf7\r\x01\x01\x01\x05\x00\x03\x82\x01\x0f\x000\x82\x01\n\x02\x82\x01\x01\x00\xfdw\xaa\xa5\x1c\x90\x05;\xcbL\x9b3\x8bZ\x14E\xa4\xe7\x90\x16\xd1\xdfW\xd2!\x10\xa4\x17\xfd\xdf\xac\xd6\x1f\xa7\xe4\xdb|\xf7\xec\xdf\xb8\x03\xda\x94X\xfd]r|\x8c?_\x01gt\x15\x96\xe3\x02&lt;\x87\xdb\xae\xcb\x01\x8e\xc2\xf3f\xc6\x85E\xf4\x02\xc6:\xb5b\xb2\xaf\xfa\x9c\xbf\xa4\xe6\xd4\x800\x98\xf3\r\xb6\x93\x8f\xa9\xd4\xd86\xf2\xb0\xfc\x8a\xca,\xa1\x153\x951\xda\xc0\x1b\xf2\xeeb\x99\x86c?\xbf\xdd\x93*\x83\xa8v\xb9\x13\x1f\xb7\xceNB\x85\x8f\"\xe7.\x1a\xf2\x95\t\xb2\x05\xb5DNw\xa1 \xbd\xa9\xf2N\n}P\xad\xf5\x05\rEOFq\xfd(&gt;S\xfb\x04\xd8-\xd7e\x1dJ\x1b\xfa\xcf;\xb01\x9a5n\xc8\x8b\x06\xd3\x00\x91\xf2\x94\x08eL\xb14\x06\x00z\x89\xe2\xf0\xc7\x03Y\xcf\xd5\xd6\xe8\xa72\xb3\xe6\x98@\x86\xc5\xcd\'\x12\x8b\xcc{\xce\xb7\x11&lt;b`\x07#&gt;+@n\x94\x80\tm\xb6\xb3owo5\x08P\xfb\x02\x87\xc5&gt;\x89\x02\x03\x01\x00\x01"</span>),
-    name_constraints: <span class="prelude-val">None
-  </span>},
-
-  <span class="comment">/*
    * Issuer: CN=TWCA Root Certification Authority O=TAIWAN-CA OU=Root CA
    * Subject: CN=TWCA Root Certification Authority O=TAIWAN-CA OU=Root CA
    * Label: "TWCA Root Certification Authority"
@@ -10494,55 +10287,6 @@
   </span>TrustAnchor {
     subject: Der::from_slice(<span class="string">b"1\x0b0\t\x06\x03U\x04\x06\x13\x02GR1705\x06\x03U\x04\n\x0c.Hellenic Academic and Research Institutions CA1$0\"\x06\x03U\x04\x03\x0c\x1bHARICA TLS RSA Root CA 2021"</span>),
     subject_public_key_info: Der::from_slice(<span class="string">b"0\r\x06\t*\x86H\x86\xf7\r\x01\x01\x01\x05\x00\x03\x82\x02\x0f\x000\x82\x02\n\x02\x82\x02\x01\x00\x8b\xc2\xe7\xafe\x9b\x05g\x96\xc9\r$\xb9\xd0\x0ed\xfc\xce\xe2$\x18,\x84\x7fwQ\xcb\x04\x116\xb8^\xediq\xa7\x9e\xe4%\t\x97g\xc1G\xc2\xcf\x91\x166b=8\x04\xe1Q\x82\xff\xac\xd2\xb4i\xdd.\xec\x11\xa3E\xeekk;L\xbf\x8c\x8d\xa4\x1e\x9d\x11\xb9\xe98\xf9z\x0e\x0c\x98\xe2#\x1d\xd1Nc\xd4\xe7\xb8AD\xfbk\xafk\xda\x1f\xd3\xc5\x91\x88[\xa4\x89\x92\xd1\x81\xe6\x8c9X\xa0\xd6iC\xa9\xad\x98RXn\xdb\n\xfbk\xcfh\xfa\xe3\xa4^:Es\x98\x07\xea_\x02r\xde\x0c\xa5\xb3\x9f\xae\xa9\x1d\xb7\x1d\xb3\xfc\x8aY\xe7nre\xad\xf50\x94#\x07\xf3\x82\x16K5\x98\x9cS\xbb/\xca\xe4Z\xd9\xc7\x8d\x1d\xfc\x98\x99\xfb,\xa4\x82k\xf0*\x1f\x8e\x0b_q\\\\\xaeB{)\x89\x81\xcb\x03\xa3\x99\xca\x88\x9e\x0b@\tA3\xdb\xe6Xz\xfd\xae\x99p\xc0Z\x0f\xd6\x13\x86q/vi\xfc\x90\xdd\xdb-n\xd1\xf2\x9b\xf5\x1ak\x9eo\x15\x8cz\xf0K(\xa0\"8\x80$l6\xa4;\xf20\x91\xf3x\x13\xcf\xc1?5\xab\xf1\x1d\x11#\xb5C\"\x9e\x01\x92\xb7\x18\x02\xe5\x11\xd1\x82\xdb\x15\x00\xcca7\xc1*|\x9a\xe1\xd0\xba\xb3PF\xee\x82\xac\x9d1\xf8\xfb#\xe2\x03\x00Hp\xa3\t&amp;y\x15S`\xf38\\\xad8\xea\x81\x00c\x14\xb93^\xdd\x0b\xdb\xa0E\x07\x1a3\t\xf8M\xb4\xa7\x02\xa6i\xf4\xc2Y\x05\x88e\x85V\xaeK\xcb\xe0\xde&lt;}-\x1a\xc8\xe9\xfb\x1f\xa3aJ\xd6*\x13\xadwL\x1a\x18\x9b\x91\x0fX\xd8\x06T\xc5\x97\xf8\xaa? \x8a\xa6\x85\xa6w\xf6\xa6\xfc\x1c\xe2\xeen\x943*\x83P\x84\n\xe5O\x86\xf8PEx\x00\x81\xeb[h\xe3&amp;\x8d\xcc{\\Q\xf4\x14,@\xbe\x1a`\x1dzra\x1d\x1fc-\x88\xaa\xce\xa2E\x90\x08\xfck\xbe\xb3P*Z\xfd\xa8H\x18F\xd6\x90@\x92\x90\n\x84^h1\xf8\xeb\xed\r\xd3\x1d\xc6}\x99\x18UV\'e.\x8dE\xc5$\xec\xce\xe3\x02\x03\x01\x00\x01"</span>),
-    name_constraints: <span class="prelude-val">None
-  </span>},
-
-  <span class="comment">/*
-   * Issuer: CN=Entrust Root Certification Authority - G4 O=Entrust, Inc. OU=See www.entrust.net/legal-terms/(c) 2015 Entrust, Inc. - for authorized use only
-   * Subject: CN=Entrust Root Certification Authority - G4 O=Entrust, Inc. OU=See www.entrust.net/legal-terms/(c) 2015 Entrust, Inc. - for authorized use only
-   * Label: "Entrust Root Certification Authority - G4"
-   * Serial: 289383649854506086828220374796556676440
-   * SHA256 Fingerprint: db:35:17:d1:f6:73:2a:2d:5a:b9:7c:53:3e:c7:07:79:ee:32:70:a6:2f:b4:ac:42:38:37:24:60:e6:f0:1e:88
-   * -----BEGIN CERTIFICATE-----
-   * MIIGSzCCBDOgAwIBAgIRANm1Q3+vqTkPAAAAAFVlrVgwDQYJKoZIhvcNAQELBQAw
-   * gb4xCzAJBgNVBAYTAlVTMRYwFAYDVQQKEw1FbnRydXN0LCBJbmMuMSgwJgYDVQQL
-   * Ex9TZWUgd3d3LmVudHJ1c3QubmV0L2xlZ2FsLXRlcm1zMTkwNwYDVQQLEzAoYykg
-   * MjAxNSBFbnRydXN0LCBJbmMuIC0gZm9yIGF1dGhvcml6ZWQgdXNlIG9ubHkxMjAw
-   * BgNVBAMTKUVudHJ1c3QgUm9vdCBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eSAtIEc0
-   * MB4XDTE1MDUyNzExMTExNloXDTM3MTIyNzExNDExNlowgb4xCzAJBgNVBAYTAlVT
-   * MRYwFAYDVQQKEw1FbnRydXN0LCBJbmMuMSgwJgYDVQQLEx9TZWUgd3d3LmVudHJ1
-   * c3QubmV0L2xlZ2FsLXRlcm1zMTkwNwYDVQQLEzAoYykgMjAxNSBFbnRydXN0LCBJ
-   * bmMuIC0gZm9yIGF1dGhvcml6ZWQgdXNlIG9ubHkxMjAwBgNVBAMTKUVudHJ1c3Qg
-   * Um9vdCBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eSAtIEc0MIICIjANBgkqhkiG9w0B
-   * AQEFAAOCAg8AMIICCgKCAgEAsewsQu7i0TD/pZJH4i3DumSXbcr3DbVZwbPLqGgZ
-   * 2K+EbTBwXX7zLtJTmeH+H17ZSK9dE43b/2MzTdMAArzE+NEGCJR5WIoV3imz/f3E
-   * T+iq4qA7ec2/a0My3dl0ELn39GjUu9CH1apLiipvKgS1sqbHoHrmSKvS0VnM1n4j
-   * 5pds8ELl3FFLFUHtSUrJ3hCX1nbB76W1NhSXNdh4IjVS70O92yfbYVaCNNzLiGAM
-   * C1rlLAHGVK/XqsEQe9IFWrhAnoanw5CGAlZSCXqc0ieCU0plUmr1POeo8pyvi73T
-   * DtTUXm6Hnmo9RR3RXRv06QqsYJn7ibT/mCzPfB3pAqoEmh643IhuJbNsZvc8kPNX
-   * wbMv9W3y+8qh+CmdRouzavbmZwe+LGcKKh9asj5XxNMhIWNlUpEbsZmOeX7m640A
-   * 2Vqq6nPopIICR5b+W45UYaPrL0swsIsjdXJ8ITzI9vF01Bx7owVV7rtNOzK+mndm
-   * nqxpkCIHH2E6lr7lmk/MBTwoWdPBDFSoWWG9yHJM6Nyfh3+9nEg2XpWjDrk4JFX8
-   * dWbrAuMINClKxuMrLzOg2qOGpRKX/YAr2hRC45K9PvJdXmd0LhyIRyk0X+IyqJwl
-   * N4y6mACXi0mWHv0liqzc2thddG5msP9E36EYxr5ILzeUePiVSj9/E15dWf10hkNj
-   * c0kCAwEAAaNCMEAwDwYDVR0TAQH/BAUwAwEB/zAOBgNVHQ8BAf8EBAMCAQYwHQYD
-   * VR0OBBYEFJ84xFYjwznooHFs6FRM5Og6sb9nMA0GCSqGSIb3DQEBCwUAA4ICAQAS
-   * 5UKme4sPDORGpbZgQIeMJX6tuGguW8ZAdjwD+MlZ9POrYs4QjbRaZIxowLByQzTS
-   * Gwv2LFPSypBLhmb8qoMi9IsabyZIrHZ3CL/FmFz0Jomee8O5ZDIBf9PD3Vht7LGr
-   * hFV0d4QEJ1JrhkzO3bll/9bGXp+aEJlLdWr+aumXIOTkdnrG0CSqkM0gkLpHZPt/
-   * B7NTeLUKYvJzQ85BK4FqLoUWlFPUa19yIqtRLULVAJyZv967lDtX/Zr1hstWO1uI
-   * AeV8KEsD+UmDfLJ/fOPtjqF/YFOOVZ1QNBIPt5d7bIdKROf1beyAN/BYGW5KaHbw
-   * H5Lk6rWS02FREAutp9lfx1/cH6NcjKF+m7ee01ZvZl4HliDtC3T7Zk6LERXpgUl+
-   * b7DUUH8i119lAg2m9IUe2K4GS0qn0jFmwvjO5QimpAKWRGhXxNUzzxkvFMSUHHuk
-   * 2fCfDrGA4tGeEWSpiBE6doLlYsKA2KSD7ZPvfC+QsDJMlhVoSFLUmQjAJOgc47Ol
-   * IQ6SwJAfzyBfyjs4x7dtOvPmRLgOMWuIjnDrnBdSqEGULoe256YSxXXfW8AKbnuk
-   * 5F6G+TaU33fD6Q3AOfF5u0aOq0NZJ7cguyPpVkAh7DE9ZapD8j3fcEThuk0mEDuY
-   * n/PIjhs4ViFqUZPTkcpG2om3PVODLAgfi49T3f+sHw==
-   * -----END CERTIFICATE-----
-   */
-  </span>TrustAnchor {
-    subject: Der::from_slice(<span class="string">b"1\x0b0\t\x06\x03U\x04\x06\x13\x02US1\x160\x14\x06\x03U\x04\n\x13\rEntrust, Inc.1(0&amp;\x06\x03U\x04\x0b\x13\x1fSee www.entrust.net/legal-terms1907\x06\x03U\x04\x0b\x130(c) 2015 Entrust, Inc. - for authorized use only1200\x06\x03U\x04\x03\x13)Entrust Root Certification Authority - G4"</span>),
-    subject_public_key_info: Der::from_slice(<span class="string">b"0\r\x06\t*\x86H\x86\xf7\r\x01\x01\x01\x05\x00\x03\x82\x02\x0f\x000\x82\x02\n\x02\x82\x02\x01\x00\xb1\xec,B\xee\xe2\xd10\xff\xa5\x92G\xe2-\xc3\xbad\x97m\xca\xf7\r\xb5Y\xc1\xb3\xcb\xa8h\x19\xd8\xaf\x84m0p]~\xf3.\xd2S\x99\xe1\xfe\x1f^\xd9H\xaf]\x13\x8d\xdb\xffc3M\xd3\x00\x02\xbc\xc4\xf8\xd1\x06\x08\x94yX\x8a\x15\xde)\xb3\xfd\xfd\xc4O\xe8\xaa\xe2\xa0;y\xcd\xbfkC2\xdd\xd9t\x10\xb9\xf7\xf4h\xd4\xbb\xd0\x87\xd5\xaaK\x8a*o*\x04\xb5\xb2\xa6\xc7\xa0z\xe6H\xab\xd2\xd1Y\xcc\xd6~#\xe6\x97l\xf0B\xe5\xdcQK\x15A\xedIJ\xc9\xde\x10\x97\xd6v\xc1\xef\xa5\xb56\x14\x975\xd8x\"5R\xefC\xbd\xdb\'\xdbaV\x824\xdc\xcb\x88`\x0c\x0bZ\xe5,\x01\xc6T\xaf\xd7\xaa\xc1\x10{\xd2\x05Z\xb8@\x9e\x86\xa7\xc3\x90\x86\x02VR\tz\x9c\xd2\'\x82SJeRj\xf5&lt;\xe7\xa8\xf2\x9c\xaf\x8b\xbd\xd3\x0e\xd4\xd4^n\x87\x9ej=E\x1d\xd1]\x1b\xf4\xe9\n\xac`\x99\xfb\x89\xb4\xff\x98,\xcf|\x1d\xe9\x02\xaa\x04\x9a\x1e\xb8\xdc\x88n%\xb3lf\xf7&lt;\x90\xf3W\xc1\xb3/\xf5m\xf2\xfb\xca\xa1\xf8)\x9dF\x8b\xb3j\xf6\xe6g\x07\xbe,g\n*\x1fZ\xb2&gt;W\xc4\xd3!!ceR\x91\x1b\xb1\x99\x8ey~\xe6\xeb\x8d\x00\xd9Z\xaa\xeas\xe8\xa4\x82\x02G\x96\xfe[\x8eTa\xa3\xeb/K0\xb0\x8b#ur|!&lt;\xc8\xf6\xf1t\xd4\x1c{\xa3\x05U\xee\xbbM;2\xbe\x9awf\x9e\xaci\x90\"\x07\x1fa:\x96\xbe\xe5\x9aO\xcc\x05&lt;(Y\xd3\xc1\x0cT\xa8Ya\xbd\xc8rL\xe8\xdc\x9f\x87\x7f\xbd\x9cH6^\x95\xa3\x0e\xb98$U\xfcuf\xeb\x02\xe3\x084)J\xc6\xe3+/3\xa0\xda\xa3\x86\xa5\x12\x97\xfd\x80+\xda\x14B\xe3\x92\xbd&gt;\xf2]^gt.\x1c\x88G)4_\xe22\xa8\x9c%7\x8c\xba\x98\x00\x97\x8bI\x96\x1e\xfd%\x8a\xac\xdc\xda\xd8]tnf\xb0\xffD\xdf\xa1\x18\xc6\xbeH/7\x94x\xf8\x95J?\x7f\x13^]Y\xfdt\x86CcsI\x02\x03\x01\x00\x01"</span>),
     name_constraints: <span class="prelude-val">None
   </span>},
 

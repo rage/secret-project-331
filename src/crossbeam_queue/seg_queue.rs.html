@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crossbeam-queue-0.3.11/src/seg_queue.rs`."><title>seg_queue.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="crossbeam_queue" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crossbeam-queue-0.3.12/src/seg_queue.rs`."><title>seg_queue.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="crossbeam_queue" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -547,7 +547,25 @@
 <a href="#547" id="547">547</a>
 <a href="#548" id="548">548</a>
 <a href="#549" id="549">549</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>alloc::alloc::{alloc_zeroed, handle_alloc_error, Layout};
+<span class="kw">use </span>alloc::boxed::Box;
 <span class="kw">use </span>core::cell::UnsafeCell;
 <span class="kw">use </span>core::fmt;
 <span class="kw">use </span>core::marker::PhantomData;
@@ -585,11 +603,6 @@
 }
 
 <span class="kw">impl</span>&lt;T&gt; Slot&lt;T&gt; {
-    <span class="kw">const </span>UNINIT: <span class="self">Self </span>= <span class="self">Self </span>{
-        value: UnsafeCell::new(MaybeUninit::uninit()),
-        state: AtomicUsize::new(<span class="number">0</span>),
-    };
-
     <span class="doccomment">/// Waits until a value is written into the slot.
     </span><span class="kw">fn </span>wait_write(<span class="kw-2">&amp;</span><span class="self">self</span>) {
         <span class="kw">let </span>backoff = Backoff::new();
@@ -611,12 +624,31 @@
 }
 
 <span class="kw">impl</span>&lt;T&gt; Block&lt;T&gt; {
-    <span class="doccomment">/// Creates an empty block that starts at `start_index`.
-    </span><span class="kw">fn </span>new() -&gt; Block&lt;T&gt; {
-        <span class="self">Self </span>{
-            next: AtomicPtr::new(ptr::null_mut()),
-            slots: [Slot::UNINIT; BLOCK_CAP],
+    <span class="kw">const </span>LAYOUT: Layout = {
+        <span class="kw">let </span>layout = Layout::new::&lt;<span class="self">Self</span>&gt;();
+        <span class="macro">assert!</span>(
+            layout.size() != <span class="number">0</span>,
+            <span class="string">"Block should never be zero-sized, as it has an AtomicPtr field"
+        </span>);
+        layout
+    };
+
+    <span class="doccomment">/// Creates an empty block.
+    </span><span class="kw">fn </span>new() -&gt; Box&lt;<span class="self">Self</span>&gt; {
+        <span class="comment">// SAFETY: layout is not zero-sized
+        </span><span class="kw">let </span>ptr = <span class="kw">unsafe </span>{ alloc_zeroed(<span class="self">Self</span>::LAYOUT) };
+        <span class="comment">// Handle allocation failure
+        </span><span class="kw">if </span>ptr.is_null() {
+            handle_alloc_error(<span class="self">Self</span>::LAYOUT)
         }
+        <span class="comment">// SAFETY: This is safe because:
+        //  [1] `Block::next` (AtomicPtr) may be safely zero initialized.
+        //  [2] `Block::slots` (Array) may be safely zero initialized because of [3, 4].
+        //  [3] `Slot::value` (UnsafeCell) may be safely zero initialized because it
+        //       holds a MaybeUninit.
+        //  [4] `Slot::state` (AtomicUsize) may be safely zero initialized.
+        // TODO: unsafe { Box::new_zeroed().assume_init() }
+        </span><span class="kw">unsafe </span>{ Box::from_raw(ptr.cast()) }
     }
 
     <span class="doccomment">/// Waits until the next pointer is set.
@@ -725,7 +757,7 @@
         }
     }
 
-    <span class="doccomment">/// Pushes an element into the queue.
+    <span class="doccomment">/// Pushes back an element to the tail.
     ///
     /// # Examples
     ///
@@ -758,12 +790,12 @@
             <span class="comment">// If we're going to have to install the next block, allocate it in advance in order to
             // make the wait for other threads as short as possible.
             </span><span class="kw">if </span>offset + <span class="number">1 </span>== BLOCK_CAP &amp;&amp; next_block.is_none() {
-                next_block = <span class="prelude-val">Some</span>(Box::new(Block::&lt;T&gt;::new()));
+                next_block = <span class="prelude-val">Some</span>(Block::&lt;T&gt;::new());
             }
 
             <span class="comment">// If this is the first push operation, we need to allocate the first block.
             </span><span class="kw">if </span>block.is_null() {
-                <span class="kw">let </span>new = Box::into_raw(Box::new(Block::&lt;T&gt;::new()));
+                <span class="kw">let </span>new = Box::into_raw(Block::&lt;T&gt;::new());
 
                 <span class="kw">if </span><span class="self">self
                     </span>.tail
@@ -817,7 +849,7 @@
         }
     }
 
-    <span class="doccomment">/// Pops an element from the queue.
+    <span class="doccomment">/// Pops the head element from the queue.
     ///
     /// If the queue is empty, `None` is returned.
     ///
@@ -829,7 +861,9 @@
     /// let q = SegQueue::new();
     ///
     /// q.push(10);
+    /// q.push(20);
     /// assert_eq!(q.pop(), Some(10));
+    /// assert_eq!(q.pop(), Some(20));
     /// assert!(q.pop().is_none());
     /// ```
     </span><span class="kw">pub fn </span>pop(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt; {

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.19.0/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.20.0/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1749,7 +1749,7 @@
 //! source `Repository`, to ensure that they do not outlive the repository
 //! itself.
 
-</span><span class="attr">#![doc(html_root_url = <span class="string">"https://docs.rs/git2/0.19"</span>)]
+</span><span class="attr">#![doc(html_root_url = <span class="string">"https://docs.rs/git2/0.20"</span>)]
 #![allow(trivial_numeric_casts, trivial_casts)]
 #![deny(missing_docs)]
 #![warn(rust_2018_idioms)]
@@ -2103,7 +2103,7 @@
 
 <span class="macro">bitflags!</span> {
     <span class="doccomment">/// Orderings that may be specified for Revwalk iteration.
-    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
     </span><span class="kw">pub struct </span>Sort: u32 {
         <span class="doccomment">/// Sort the repository contents in no particular ordering.
         ///
@@ -2138,7 +2138,7 @@
 
 <span class="macro">bitflags!</span> {
     <span class="doccomment">/// Types of credentials that can be requested by a credential callback.
-    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
     </span><span class="kw">pub struct </span>CredentialType: u32 {
         <span class="attr">#[allow(missing_docs)]
         </span><span class="kw">const </span>USER_PASS_PLAINTEXT = raw::GIT_CREDTYPE_USERPASS_PLAINTEXT <span class="kw">as </span>u32;
@@ -2175,7 +2175,7 @@
 
 <span class="macro">bitflags!</span> {
     <span class="doccomment">/// Flags for the `flags` field of an IndexEntry.
-    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
     </span><span class="kw">pub struct </span>IndexEntryFlag: u16 {
         <span class="doccomment">/// Set when the `extended_flags` field is valid.
         </span><span class="kw">const </span>EXTENDED = raw::GIT_INDEX_ENTRY_EXTENDED <span class="kw">as </span>u16;
@@ -2191,7 +2191,7 @@
 
 <span class="macro">bitflags!</span> {
     <span class="doccomment">/// Flags for the `extended_flags` field of an IndexEntry.
-    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
     </span><span class="kw">pub struct </span>IndexEntryExtendedFlag: u16 {
         <span class="doccomment">/// An "intent to add" entry from "git add -N"
         </span><span class="kw">const </span>INTENT_TO_ADD = raw::GIT_INDEX_ENTRY_INTENT_TO_ADD <span class="kw">as </span>u16;
@@ -2211,7 +2211,7 @@
 
 <span class="macro">bitflags!</span> {
     <span class="doccomment">/// Flags for APIs that add files matching pathspec
-    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
     </span><span class="kw">pub struct </span>IndexAddOption: u32 {
         <span class="attr">#[allow(missing_docs)]
         </span><span class="kw">const </span>DEFAULT = raw::GIT_INDEX_ADD_DEFAULT <span class="kw">as </span>u32;
@@ -2243,7 +2243,7 @@
 
 <span class="macro">bitflags!</span> {
     <span class="doccomment">/// Flags for `Repository::open_ext`
-    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
     </span><span class="kw">pub struct </span>RepositoryOpenFlags: u32 {
         <span class="doccomment">/// Only open the specified path; don't walk upward searching.
         </span><span class="kw">const </span>NO_SEARCH = raw::GIT_REPOSITORY_OPEN_NO_SEARCH <span class="kw">as </span>u32;
@@ -2268,7 +2268,7 @@
 
 <span class="macro">bitflags!</span> {
     <span class="doccomment">/// Flags for the return value of `Repository::revparse`
-    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
     </span><span class="kw">pub struct </span>RevparseMode: u32 {
         <span class="doccomment">/// The spec targeted a single object
         </span><span class="kw">const </span>SINGLE = raw::GIT_REVPARSE_SINGLE <span class="kw">as </span>u32;
@@ -2287,7 +2287,7 @@
 
 <span class="macro">bitflags!</span> {
     <span class="doccomment">/// The results of `merge_analysis` indicating the merge opportunities.
-    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
     </span><span class="kw">pub struct </span>MergeAnalysis: u32 {
         <span class="doccomment">/// No merge is possible.
         </span><span class="kw">const </span>ANALYSIS_NONE = raw::GIT_MERGE_ANALYSIS_NONE <span class="kw">as </span>u32;
@@ -2318,7 +2318,7 @@
 
 <span class="macro">bitflags!</span> {
     <span class="doccomment">/// The user's stated preference for merges.
-    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
     </span><span class="kw">pub struct </span>MergePreference: u32 {
         <span class="doccomment">/// No configuration was found that suggests a preferred behavior for
         /// merge.
@@ -2340,7 +2340,7 @@
 
 <span class="macro">bitflags!</span> {
     <span class="doccomment">/// Flags controlling the behavior of ODB lookup operations
-    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
     </span><span class="kw">pub struct </span>OdbLookupFlags: u32 {
         <span class="doccomment">/// Don't call `git_odb_refresh` if the lookup fails. Useful when doing
         /// a batch of lookup operations for objects that may legitimately not
@@ -2352,7 +2352,7 @@
 
 <span class="macro">bitflags!</span> {
     <span class="doccomment">/// How to handle reference updates.
-    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
     </span><span class="kw">pub struct </span>RemoteUpdateFlags: u32 {
        <span class="doccomment">/// Write the fetch results to FETCH_HEAD.
        </span><span class="kw">const </span>UPDATE_FETCHHEAD = raw::GIT_REMOTE_UPDATE_FETCHHEAD <span class="kw">as </span>u32;
@@ -2707,7 +2707,7 @@
     /// represents the status of file in the index relative to the HEAD, and the
     /// `STATUS_WT_*` set of flags represent the status of the file in the
     /// working directory relative to the index.
-    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
     </span><span class="kw">pub struct </span>Status: u32 {
         <span class="attr">#[allow(missing_docs)]
         </span><span class="kw">const </span>CURRENT = raw::GIT_STATUS_CURRENT <span class="kw">as </span>u32;
@@ -2758,7 +2758,7 @@
 
 <span class="macro">bitflags!</span> {
     <span class="doccomment">/// Mode options for RepositoryInitOptions
-    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
     </span><span class="kw">pub struct </span>RepositoryInitMode: u32 {
         <span class="doccomment">/// Use permissions configured by umask - the default
         </span><span class="kw">const </span>SHARED_UMASK = raw::GIT_REPOSITORY_INIT_SHARED_UMASK <span class="kw">as </span>u32;
@@ -2891,7 +2891,7 @@
     /// Lastly, the following will only be returned for ignore "NONE".
     ///
     /// * WD_UNTRACKED      - workdir contains untracked files
-    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
     </span><span class="kw">pub struct </span>SubmoduleStatus: u32 {
         <span class="attr">#[allow(missing_docs)]
         </span><span class="kw">const </span>IN_HEAD = raw::GIT_SUBMODULE_STATUS_IN_HEAD <span class="kw">as </span>u32;
@@ -2988,7 +2988,7 @@
 
 <span class="macro">bitflags!</span> {
     <span class="doccomment">/// ...
-    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
     </span><span class="kw">pub struct </span>PathspecFlags: u32 {
         <span class="doccomment">/// Use the default pathspec matching configuration.
         </span><span class="kw">const </span>DEFAULT = raw::GIT_PATHSPEC_DEFAULT <span class="kw">as </span>u32;
@@ -3034,7 +3034,7 @@
 
 <span class="macro">bitflags!</span> {
     <span class="doccomment">/// Types of notifications emitted from checkouts.
-    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
     </span><span class="kw">pub struct </span>CheckoutNotificationType: u32 {
         <span class="doccomment">/// Notification about a conflict.
         </span><span class="kw">const </span>CONFLICT = raw::GIT_CHECKOUT_NOTIFY_CONFLICT <span class="kw">as </span>u32;
@@ -3076,7 +3076,7 @@
 
 <span class="macro">bitflags!</span> {
     <span class="doccomment">/// Formatting options for diff stats
-    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
     </span><span class="kw">pub struct </span>DiffStatsFormat: raw::git_diff_stats_format_t {
         <span class="doccomment">/// Don't generate any stats
         </span><span class="kw">const </span>NONE = raw::GIT_DIFF_STATS_NONE;
@@ -3147,7 +3147,7 @@
 
 <span class="macro">bitflags!</span> {
     <span class="attr">#[allow(missing_docs)]
-    #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+    #[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
     </span><span class="kw">pub struct </span>StashApplyFlags: u32 {
         <span class="attr">#[allow(missing_docs)]
         </span><span class="kw">const </span>DEFAULT = raw::GIT_STASH_APPLY_DEFAULT <span class="kw">as </span>u32;
@@ -3170,7 +3170,7 @@
 
 <span class="macro">bitflags!</span> {
     <span class="attr">#[allow(missing_docs)]
-    #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+    #[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
     </span><span class="kw">pub struct </span>StashFlags: u32 {
         <span class="attr">#[allow(missing_docs)]
         </span><span class="kw">const </span>DEFAULT = raw::GIT_STASH_DEFAULT <span class="kw">as </span>u32;
@@ -3203,7 +3203,7 @@
 
 <span class="macro">bitflags!</span> {
     <span class="attr">#[allow(missing_docs)]
-    #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+    #[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
     </span><span class="kw">pub struct </span>AttrCheckFlags: u32 {
         <span class="doccomment">/// Check the working directory, then the index.
         </span><span class="kw">const </span>FILE_THEN_INDEX = raw::GIT_ATTR_CHECK_FILE_THEN_INDEX <span class="kw">as </span>u32;
@@ -3224,7 +3224,7 @@
 
 <span class="macro">bitflags!</span> {
     <span class="attr">#[allow(missing_docs)]
-    #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+    #[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
     </span><span class="kw">pub struct </span>DiffFlags: u32 {
         <span class="doccomment">/// File(s) treated as binary data.
         </span><span class="kw">const </span>BINARY = raw::GIT_DIFF_FLAG_BINARY <span class="kw">as </span>u32;
@@ -3246,7 +3246,7 @@
 
 <span class="macro">bitflags!</span> {
     <span class="doccomment">/// Options for [`Reference::normalize_name`].
-    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
     </span><span class="kw">pub struct </span>ReferenceFormat: u32 {
         <span class="doccomment">/// No particular normalization.
         </span><span class="kw">const </span>NORMAL = raw::GIT_REFERENCE_FORMAT_NORMAL <span class="kw">as </span>u32;

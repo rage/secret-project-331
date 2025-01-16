@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.9/src/transport/smtp/authentication.rs`."><title>authentication.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.11/src/transport/smtp/authentication.rs`."><title>authentication.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -179,6 +179,36 @@
 <a href="#179" id="179">179</a>
 <a href="#180" id="180">180</a>
 <a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Provides limited SASL authentication mechanisms
 
 </span><span class="kw">use </span>std::fmt::{<span class="self">self</span>, Debug, Display, Formatter};
@@ -279,13 +309,17 @@
                 <span class="kw">let </span>decoded_challenge = challenge
                     .ok_or_else(|| error::client(<span class="string">"This mechanism does expect a challenge"</span>))<span class="question-mark">?</span>;
 
-                <span class="kw">if </span>[<span class="string">"User Name"</span>, <span class="string">"Username:"</span>, <span class="string">"Username"</span>, <span class="string">"User Name\0"</span>]
-                    .contains(<span class="kw-2">&amp;</span>decoded_challenge)
-                {
+                <span class="kw">if </span>contains_ignore_ascii_case(
+                    decoded_challenge,
+                    [<span class="string">"User Name"</span>, <span class="string">"Username:"</span>, <span class="string">"Username"</span>, <span class="string">"User Name\0"</span>],
+                ) {
                     <span class="kw">return </span><span class="prelude-val">Ok</span>(credentials.authentication_identity.clone());
                 }
 
-                <span class="kw">if </span>[<span class="string">"Password"</span>, <span class="string">"Password:"</span>, <span class="string">"Password\0"</span>].contains(<span class="kw-2">&amp;</span>decoded_challenge) {
+                <span class="kw">if </span>contains_ignore_ascii_case(
+                    decoded_challenge,
+                    [<span class="string">"Password"</span>, <span class="string">"Password:"</span>, <span class="string">"Password\0"</span>],
+                ) {
                     <span class="kw">return </span><span class="prelude-val">Ok</span>(credentials.secret.clone());
                 }
 
@@ -300,6 +334,15 @@
             },
         }
     }
+}
+
+<span class="kw">fn </span>contains_ignore_ascii_case&lt;<span class="lifetime">'a</span>&gt;(
+    haystack: <span class="kw-2">&amp;</span>str,
+    needles: <span class="kw">impl </span>IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt;,
+) -&gt; bool {
+    needles
+        .into_iter()
+        .any(|item| item.eq_ignore_ascii_case(haystack))
 }
 
 <span class="attr">#[cfg(test)]
@@ -331,6 +374,23 @@
         </span>);
         <span class="macro">assert_eq!</span>(
             mechanism.response(<span class="kw-2">&amp;</span>credentials, <span class="prelude-val">Some</span>(<span class="string">"Password"</span>)).unwrap(),
+            <span class="string">"wonderland"
+        </span>);
+        <span class="macro">assert!</span>(mechanism.response(<span class="kw-2">&amp;</span>credentials, <span class="prelude-val">None</span>).is_err());
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_login_case_insensitive() {
+        <span class="kw">let </span>mechanism = Mechanism::Login;
+
+        <span class="kw">let </span>credentials = Credentials::new(<span class="string">"alice"</span>.to_owned(), <span class="string">"wonderland"</span>.to_owned());
+
+        <span class="macro">assert_eq!</span>(
+            mechanism.response(<span class="kw-2">&amp;</span>credentials, <span class="prelude-val">Some</span>(<span class="string">"username"</span>)).unwrap(),
+            <span class="string">"alice"
+        </span>);
+        <span class="macro">assert_eq!</span>(
+            mechanism.response(<span class="kw-2">&amp;</span>credentials, <span class="prelude-val">Some</span>(<span class="string">"password"</span>)).unwrap(),
             <span class="string">"wonderland"
         </span>);
         <span class="macro">assert!</span>(mechanism.response(<span class="kw-2">&amp;</span>credentials, <span class="prelude-val">None</span>).is_err());

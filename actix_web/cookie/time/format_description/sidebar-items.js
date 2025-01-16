@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["BorrowedFormatItem","Component","FormatItem","OwnedFormatItem"],"fn":["parse","parse_borrowed","parse_owned"],"mod":["modifier","well_known"]};
+window.SIDEBAR_ITEMS = {"enum":["BorrowedFormatItem","Component","FormatItem","OwnedFormatItem"],"fn":["parse","parse_borrowed","parse_owned","parse_strftime_borrowed","parse_strftime_owned"],"mod":["modifier","well_known"]};

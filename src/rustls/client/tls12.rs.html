@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.14/src/client/tls12.rs`."><title>tls12.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.21/src/client/tls12.rs`."><title>tls12.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1333,13 +1333,6 @@
 <a href="#1333" id="1333">1333</a>
 <a href="#1334" id="1334">1334</a>
 <a href="#1335" id="1335">1335</a>
-<a href="#1336" id="1336">1336</a>
-<a href="#1337" id="1337">1337</a>
-<a href="#1338" id="1338">1338</a>
-<a href="#1339" id="1339">1339</a>
-<a href="#1340" id="1340">1340</a>
-<a href="#1341" id="1341">1341</a>
-<a href="#1342" id="1342">1342</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::borrow::ToOwned;
 <span class="kw">use </span>alloc::boxed::Box;
 <span class="kw">use </span>alloc::sync::Arc;
@@ -2179,17 +2172,16 @@
         <span class="kw">let </span>suite = st.suite;
 
         <span class="comment">// 1. Verify the cert chain.
-        // 2. Verify any SCTs provided with the certificate.
-        // 3. Verify that the top certificate signed their kx.
-        // 4. If doing client auth, send our Certificate.
-        // 5. Complete the key exchange:
+        // 2. Verify that the top certificate signed their kx.
+        // 3. If doing client auth, send our Certificate.
+        // 4. Complete the key exchange:
         //    a) generate our kx pair
         //    b) emit a ClientKeyExchange containing it
         //    c) if doing client auth, emit a CertificateVerify
         //    d) derive the shared keys
         //    e) emit a CCS
         //    f) use the derived keys to start encryption
-        // 6. emit a Finished, our first encrypted message under the new keys.
+        // 5. emit a Finished, our first encrypted message under the new keys.
 
         // 1.
         </span><span class="kw">let </span>(end_entity, intermediates) = st
@@ -2215,7 +2207,7 @@
                     .send_cert_verify_error_alert(err)
             })<span class="question-mark">?</span>;
 
-        <span class="comment">// 3.
+        <span class="comment">// 2.
         // Build up the contents of the signed message.
         // It's ClientHello.random || ServerHello.random || ServerKeyExchange.params
         </span><span class="kw">let </span>sig_verified = {
@@ -2247,7 +2239,7 @@
         </span>};
         cx.common.peer_certificates = <span class="prelude-val">Some</span>(st.server_cert.cert_chain.into_owned());
 
-        <span class="comment">// 4.
+        <span class="comment">// 3.
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(client_auth) = <span class="kw-2">&amp;</span>st.client_auth {
             <span class="kw">let </span>certs = <span class="kw">match </span>client_auth {
                 ClientAuthDetails::Empty { .. } =&gt; CertificateChain::default(),
@@ -2256,7 +2248,7 @@
             emit_certificate(<span class="kw-2">&amp;mut </span>st.transcript, certs, cx.common);
         }
 
-        <span class="comment">// 5a.
+        <span class="comment">// 4a.
         </span><span class="kw">let </span>kx_params = tls12::decode_kx_params::&lt;ServerKeyExchangeParams&gt;(
             st.suite.kx,
             cx.common,
@@ -2277,19 +2269,16 @@
                     .copied()
             }
         };
-        <span class="kw">let </span>skxg = <span class="kw">match </span>maybe_skxg {
-            <span class="prelude-val">Some</span>(skxg) =&gt; skxg,
-            <span class="prelude-val">None </span>=&gt; {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(cx.common.send_fatal_alert(
-                    AlertDescription::IllegalParameter,
-                    PeerMisbehaved::SelectedUnofferedKxGroup,
-                ));
-            }
+        <span class="kw">let </span><span class="prelude-val">Some</span>(skxg) = maybe_skxg <span class="kw">else </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(cx.common.send_fatal_alert(
+                AlertDescription::IllegalParameter,
+                PeerMisbehaved::SelectedUnofferedKxGroup,
+            ));
         };
         cx.common.kx_state = KxState::Start(skxg);
         <span class="kw">let </span>kx = skxg.start()<span class="question-mark">?</span>;
 
-        <span class="comment">// 5b.
+        <span class="comment">// 4b.
         </span><span class="kw">let </span><span class="kw-2">mut </span>transcript = st.transcript;
         emit_client_kx(<span class="kw-2">&amp;mut </span>transcript, st.suite.kx, cx.common, kx.pub_key());
         <span class="comment">// Note: EMS handshake hash only runs up to ClientKeyExchange.
@@ -2297,12 +2286,12 @@
             .using_ems
             .then(|| transcript.current_hash());
 
-        <span class="comment">// 5c.
+        <span class="comment">// 4c.
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(ClientAuthDetails::Verify { signer, .. }) = <span class="kw-2">&amp;</span>st.client_auth {
             emit_certverify(<span class="kw-2">&amp;mut </span>transcript, signer.as_ref(), cx.common)<span class="question-mark">?</span>;
         }
 
-        <span class="comment">// 5d. Derive secrets.
+        <span class="comment">// 4d. Derive secrets.
         // An alert at this point will be sent in plaintext.  That must happen
         // prior to the CCS, or else the peer will try to decrypt it.
         </span><span class="kw">let </span>secrets = ConnectionSecrets::from_key_exchange(
@@ -2318,10 +2307,10 @@
         })<span class="question-mark">?</span>;
         cx.common.kx_state.complete();
 
-        <span class="comment">// 5e. CCS. We are definitely going to switch on encryption.
+        <span class="comment">// 4e. CCS. We are definitely going to switch on encryption.
         </span>emit_ccs(cx.common);
 
-        <span class="comment">// 5f. Now commit secrets.
+        <span class="comment">// 4f. Now commit secrets.
         </span>st.config.key_log.log(
             <span class="string">"CLIENT_RANDOM"</span>,
             <span class="kw-2">&amp;</span>secrets.randoms.client,
@@ -2333,7 +2322,7 @@
             .record_layer
             .start_encrypting();
 
-        <span class="comment">// 6.
+        <span class="comment">// 5.
         </span>emit_finished(<span class="kw-2">&amp;</span>secrets, <span class="kw-2">&amp;mut </span>transcript, cx.common);
 
         <span class="kw">if </span>st.must_issue_new_ticket {
@@ -2531,12 +2520,9 @@
             <span class="kw">return</span>;
         }
 
-        <span class="kw">let </span>now = <span class="kw">match </span><span class="self">self</span>.config.current_time() {
-            <span class="prelude-val">Ok</span>(now) =&gt; now,
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
-                <span class="macro">debug!</span>(<span class="string">"Could not get current time"</span>);
-                <span class="kw">return</span>;
-            }
+        <span class="kw">let </span><span class="prelude-val">Ok</span>(now) = <span class="self">self</span>.config.current_time() <span class="kw">else </span>{
+            <span class="macro">debug!</span>(<span class="string">"Could not get current time"</span>);
+            <span class="kw">return</span>;
         };
 
         <span class="kw">let </span>session_value = persist::Tls12ClientSessionValue::new(

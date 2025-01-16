@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/itertools-0.13.0/src/combinations.rs`."><title>combinations.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="itertools" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/itertools-0.14.0/src/combinations.rs`."><title>combinations.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="itertools" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -241,7 +241,74 @@
 <a href="#241" id="241">241</a>
 <a href="#242" id="242">242</a>
 <a href="#243" id="243">243</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt;
+<a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>core::array;
+<span class="kw">use </span>core::borrow::BorrowMut;
+<span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::iter::FusedIterator;
 
 <span class="kw">use </span><span class="kw">super</span>::lazy_buffer::LazyBuffer;
@@ -249,45 +316,101 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::adaptors::checked_binomial;
 
+<span class="doccomment">/// Iterator for `Vec` valued combinations returned by [`.combinations()`](crate::Itertools::combinations)
+</span><span class="kw">pub type </span>Combinations&lt;I&gt; = CombinationsGeneric&lt;I, Vec&lt;usize&gt;&gt;;
+<span class="doccomment">/// Iterator for const generic combinations returned by [`.array_combinations()`](crate::Itertools::array_combinations)
+</span><span class="kw">pub type </span>ArrayCombinations&lt;I, <span class="kw">const </span>K: usize&gt; = CombinationsGeneric&lt;I, [usize; K]&gt;;
+
+<span class="doccomment">/// Create a new `Combinations` from a clonable iterator.
+</span><span class="kw">pub fn </span>combinations&lt;I: Iterator&gt;(iter: I, k: usize) -&gt; Combinations&lt;I&gt;
+<span class="kw">where
+    </span>I::Item: Clone,
+{
+    Combinations::new(iter, (<span class="number">0</span>..k).collect())
+}
+
+<span class="doccomment">/// Create a new `ArrayCombinations` from a clonable iterator.
+</span><span class="kw">pub fn </span>array_combinations&lt;I: Iterator, <span class="kw">const </span>K: usize&gt;(iter: I) -&gt; ArrayCombinations&lt;I, K&gt;
+<span class="kw">where
+    </span>I::Item: Clone,
+{
+    ArrayCombinations::new(iter, array::from_fn(|i| i))
+}
+
 <span class="doccomment">/// An iterator to iterate through all the `k`-length combinations in an iterator.
 ///
-/// See [`.combinations()`](crate::Itertools::combinations) for more information.
+/// See [`.combinations()`](crate::Itertools::combinations) and [`.array_combinations()`](crate::Itertools::array_combinations) for more information.
 </span><span class="attr">#[must_use = <span class="string">"iterator adaptors are lazy and do nothing unless consumed"</span>]
-</span><span class="kw">pub struct </span>Combinations&lt;I: Iterator&gt; {
-    indices: Vec&lt;usize&gt;,
+</span><span class="kw">pub struct </span>CombinationsGeneric&lt;I: Iterator, Idx&gt; {
+    indices: Idx,
     pool: LazyBuffer&lt;I&gt;,
     first: bool,
 }
 
-<span class="kw">impl</span>&lt;I&gt; Clone <span class="kw">for </span>Combinations&lt;I&gt;
+<span class="doccomment">/// A type holding indices of elements in a pool or buffer of items from an inner iterator
+/// and used to pick out different combinations in a generic way.
+</span><span class="kw">pub trait </span>PoolIndex&lt;T&gt;: BorrowMut&lt;[usize]&gt; {
+    <span class="kw">type </span>Item;
+
+    <span class="kw">fn </span>extract_item&lt;I: Iterator&lt;Item = T&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, pool: <span class="kw-2">&amp;</span>LazyBuffer&lt;I&gt;) -&gt; <span class="self">Self</span>::Item
+    <span class="kw">where
+        </span>T: Clone;
+
+    <span class="kw">fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.borrow().len()
+    }
+}
+
+<span class="kw">impl</span>&lt;T&gt; PoolIndex&lt;T&gt; <span class="kw">for </span>Vec&lt;usize&gt; {
+    <span class="kw">type </span>Item = Vec&lt;T&gt;;
+
+    <span class="kw">fn </span>extract_item&lt;I: Iterator&lt;Item = T&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, pool: <span class="kw-2">&amp;</span>LazyBuffer&lt;I&gt;) -&gt; Vec&lt;T&gt;
+    <span class="kw">where
+        </span>T: Clone,
+    {
+        pool.get_at(<span class="self">self</span>)
+    }
+}
+
+<span class="kw">impl</span>&lt;T, <span class="kw">const </span>K: usize&gt; PoolIndex&lt;T&gt; <span class="kw">for </span>[usize; K] {
+    <span class="kw">type </span>Item = [T; K];
+
+    <span class="kw">fn </span>extract_item&lt;I: Iterator&lt;Item = T&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, pool: <span class="kw-2">&amp;</span>LazyBuffer&lt;I&gt;) -&gt; [T; K]
+    <span class="kw">where
+        </span>T: Clone,
+    {
+        pool.get_array(<span class="kw-2">*</span><span class="self">self</span>)
+    }
+}
+
+<span class="kw">impl</span>&lt;I, Idx&gt; Clone <span class="kw">for </span>CombinationsGeneric&lt;I, Idx&gt;
 <span class="kw">where
-    </span>I: Clone + Iterator,
+    </span>I: Iterator + Clone,
     I::Item: Clone,
+    Idx: Clone,
 {
     <span class="macro">clone_fields!</span>(indices, pool, first);
 }
 
-<span class="kw">impl</span>&lt;I&gt; fmt::Debug <span class="kw">for </span>Combinations&lt;I&gt;
+<span class="kw">impl</span>&lt;I, Idx&gt; fmt::Debug <span class="kw">for </span>CombinationsGeneric&lt;I, Idx&gt;
 <span class="kw">where
     </span>I: Iterator + fmt::Debug,
     I::Item: fmt::Debug,
+    Idx: fmt::Debug,
 {
     <span class="macro">debug_fmt_fields!</span>(Combinations, indices, pool, first);
 }
 
-<span class="doccomment">/// Create a new `Combinations` from a clonable iterator.
-</span><span class="kw">pub fn </span>combinations&lt;I&gt;(iter: I, k: usize) -&gt; Combinations&lt;I&gt;
-<span class="kw">where
-    </span>I: Iterator,
-{
-    Combinations {
-        indices: (<span class="number">0</span>..k).collect(),
-        pool: LazyBuffer::new(iter),
-        first: <span class="bool-val">true</span>,
+<span class="kw">impl</span>&lt;I: Iterator, Idx: PoolIndex&lt;I::Item&gt;&gt; CombinationsGeneric&lt;I, Idx&gt; {
+    <span class="doccomment">/// Constructor with arguments the inner iterator and the initial state for the indices.
+    </span><span class="kw">fn </span>new(iter: I, indices: Idx) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            indices,
+            pool: LazyBuffer::new(iter),
+            first: <span class="bool-val">true</span>,
+        }
     }
-}
 
-<span class="kw">impl</span>&lt;I: Iterator&gt; Combinations&lt;I&gt; {
     <span class="doccomment">/// Returns the length of a combination produced by this iterator.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>k(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
@@ -307,35 +430,15 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.pool
     }
 
-    <span class="doccomment">/// Resets this `Combinations` back to an initial state for combinations of length
-    /// `k` over the same pool data source. If `k` is larger than the current length
-    /// of the data pool an attempt is made to prefill the pool so that it holds `k`
-    /// elements.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, k: usize) {
-        <span class="self">self</span>.first = <span class="bool-val">true</span>;
-
-        <span class="kw">if </span>k &lt; <span class="self">self</span>.indices.len() {
-            <span class="self">self</span>.indices.truncate(k);
-            <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..k {
-                <span class="self">self</span>.indices[i] = i;
-            }
-        } <span class="kw">else </span>{
-            <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="self">self</span>.indices.len() {
-                <span class="self">self</span>.indices[i] = i;
-            }
-            <span class="self">self</span>.indices.extend(<span class="self">self</span>.indices.len()..k);
-            <span class="self">self</span>.pool.prefill(k);
-        }
-    }
-
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>n_and_count(<span class="self">self</span>) -&gt; (usize, usize) {
+    <span class="doccomment">/// Return the length of the inner iterator and the count of remaining combinations.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>n_and_count(<span class="self">self</span>) -&gt; (usize, usize) {
         <span class="kw">let </span><span class="self">Self </span>{
             indices,
             pool,
             first,
         } = <span class="self">self</span>;
         <span class="kw">let </span>n = pool.count();
-        (n, remaining_for(n, first, <span class="kw-2">&amp;</span>indices).unwrap())
+        (n, remaining_for(n, first, indices.borrow()).unwrap())
     }
 
     <span class="doccomment">/// Initialises the iterator by filling a buffer with elements from the
@@ -356,19 +459,21 @@
     ///
     /// Returns true if we've run out of combinations, false otherwise.
     </span><span class="kw">fn </span>increment_indices(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {
-        <span class="kw">if </span><span class="self">self</span>.indices.is_empty() {
+        <span class="comment">// Borrow once instead of noise each time it's indexed
+        </span><span class="kw">let </span>indices = <span class="self">self</span>.indices.borrow_mut();
+
+        <span class="kw">if </span>indices.is_empty() {
             <span class="kw">return </span><span class="bool-val">true</span>; <span class="comment">// Done
         </span>}
-
         <span class="comment">// Scan from the end, looking for an index to increment
-        </span><span class="kw">let </span><span class="kw-2">mut </span>i: usize = <span class="self">self</span>.indices.len() - <span class="number">1</span>;
+        </span><span class="kw">let </span><span class="kw-2">mut </span>i: usize = indices.len() - <span class="number">1</span>;
 
         <span class="comment">// Check if we need to consume more from the iterator
-        </span><span class="kw">if </span><span class="self">self</span>.indices[i] == <span class="self">self</span>.pool.len() - <span class="number">1 </span>{
+        </span><span class="kw">if </span>indices[i] == <span class="self">self</span>.pool.len() - <span class="number">1 </span>{
             <span class="self">self</span>.pool.get_next(); <span class="comment">// may change pool size
         </span>}
 
-        <span class="kw">while </span><span class="self">self</span>.indices[i] == i + <span class="self">self</span>.pool.len() - <span class="self">self</span>.indices.len() {
+        <span class="kw">while </span>indices[i] == i + <span class="self">self</span>.pool.len() - indices.len() {
             <span class="kw">if </span>i &gt; <span class="number">0 </span>{
                 i -= <span class="number">1</span>;
             } <span class="kw">else </span>{
@@ -378,11 +483,10 @@
         }
 
         <span class="comment">// Increment index, and reset the ones to its right
-        </span><span class="self">self</span>.indices[i] += <span class="number">1</span>;
-        <span class="kw">for </span>j <span class="kw">in </span>i + <span class="number">1</span>..<span class="self">self</span>.indices.len() {
-            <span class="self">self</span>.indices[j] = <span class="self">self</span>.indices[j - <span class="number">1</span>] + <span class="number">1</span>;
+        </span>indices[i] += <span class="number">1</span>;
+        <span class="kw">for </span>j <span class="kw">in </span>i + <span class="number">1</span>..indices.len() {
+            indices[j] = indices[j - <span class="number">1</span>] + <span class="number">1</span>;
         }
-
         <span class="comment">// If we've made it this far, we haven't run out of combos
         </span><span class="bool-val">false
     </span>}
@@ -390,7 +494,8 @@
     <span class="doccomment">/// Returns the n-th item or the number of successful steps.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>try_nth(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n: usize) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;<span class="self">Self </span><span class="kw">as </span>Iterator&gt;::Item, usize&gt;
     <span class="kw">where
-        </span>I::Item: Clone,
+        </span>I: Iterator,
+        I::Item: Clone,
     {
         <span class="kw">let </span>done = <span class="kw">if </span><span class="self">self</span>.first {
             <span class="self">self</span>.init()
@@ -405,16 +510,17 @@
                 <span class="kw">return </span><span class="prelude-val">Err</span>(i + <span class="number">1</span>);
             }
         }
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.pool.get_at(<span class="kw-2">&amp;</span><span class="self">self</span>.indices))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.indices.extract_item(<span class="kw-2">&amp;</span><span class="self">self</span>.pool))
     }
 }
 
-<span class="kw">impl</span>&lt;I&gt; Iterator <span class="kw">for </span>Combinations&lt;I&gt;
+<span class="kw">impl</span>&lt;I, Idx&gt; Iterator <span class="kw">for </span>CombinationsGeneric&lt;I, Idx&gt;
 <span class="kw">where
     </span>I: Iterator,
     I::Item: Clone,
+    Idx: PoolIndex&lt;I::Item&gt;,
 {
-    <span class="kw">type </span>Item = Vec&lt;I::Item&gt;;
+    <span class="kw">type </span>Item = Idx::Item;
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
         <span class="kw">let </span>done = <span class="kw">if </span><span class="self">self</span>.first {
             <span class="self">self</span>.init()
@@ -426,7 +532,7 @@
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
-        <span class="prelude-val">Some</span>(<span class="self">self</span>.pool.get_at(<span class="kw-2">&amp;</span><span class="self">self</span>.indices))
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.indices.extract_item(<span class="kw-2">&amp;</span><span class="self">self</span>.pool))
     }
 
     <span class="kw">fn </span>nth(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
@@ -435,8 +541,8 @@
 
     <span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {
         <span class="kw">let </span>(<span class="kw-2">mut </span>low, <span class="kw-2">mut </span>upp) = <span class="self">self</span>.pool.size_hint();
-        low = remaining_for(low, <span class="self">self</span>.first, <span class="kw-2">&amp;</span><span class="self">self</span>.indices).unwrap_or(usize::MAX);
-        upp = upp.and_then(|upp| remaining_for(upp, <span class="self">self</span>.first, <span class="kw-2">&amp;</span><span class="self">self</span>.indices));
+        low = remaining_for(low, <span class="self">self</span>.first, <span class="self">self</span>.indices.borrow()).unwrap_or(usize::MAX);
+        upp = upp.and_then(|upp| remaining_for(upp, <span class="self">self</span>.first, <span class="self">self</span>.indices.borrow()));
         (low, upp)
     }
 
@@ -446,11 +552,35 @@
     </span>}
 }
 
-<span class="kw">impl</span>&lt;I&gt; FusedIterator <span class="kw">for </span>Combinations&lt;I&gt;
+<span class="kw">impl</span>&lt;I, Idx&gt; FusedIterator <span class="kw">for </span>CombinationsGeneric&lt;I, Idx&gt;
 <span class="kw">where
     </span>I: Iterator,
     I::Item: Clone,
+    Idx: PoolIndex&lt;I::Item&gt;,
 {
+}
+
+<span class="kw">impl</span>&lt;I: Iterator&gt; Combinations&lt;I&gt; {
+    <span class="doccomment">/// Resets this `Combinations` back to an initial state for combinations of length
+    /// `k` over the same pool data source. If `k` is larger than the current length
+    /// of the data pool an attempt is made to prefill the pool so that it holds `k`
+    /// elements.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, k: usize) {
+        <span class="self">self</span>.first = <span class="bool-val">true</span>;
+
+        <span class="kw">if </span>k &lt; <span class="self">self</span>.indices.len() {
+            <span class="self">self</span>.indices.truncate(k);
+            <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..k {
+                <span class="self">self</span>.indices[i] = i;
+            }
+        } <span class="kw">else </span>{
+            <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="self">self</span>.indices.len() {
+                <span class="self">self</span>.indices[i] = i;
+            }
+            <span class="self">self</span>.indices.extend(<span class="self">self</span>.indices.len()..k);
+            <span class="self">self</span>.pool.prefill(k);
+        }
+    }
 }
 
 <span class="doccomment">/// For a given size `n`, return the count of remaining combinations or None if it would overflow.

@@ -54,7 +54,7 @@ zero duration if that instant is later than this one.</p>
     <span class="macro">println!</span>(<span class="string">"{:?}"</span>, now.saturating_duration_since(new_now)); <span class="comment">// 0ns
 </span>}</code></pre></div>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.elapsed" class="method"><a class="src rightside" href="../../src/tokio/time/instant.rs.html#134">source</a><h4 class="code-header">pub fn <a href="#method.elapsed" class="fn">elapsed</a>(&amp;self) -&gt; <a class="struct" href="https://doc.rust-lang.org/1.82.0/core/time/struct.Duration.html" title="struct core::time::Duration">Duration</a></h4></section></summary><div class="docblock"><p>Returns the amount of time elapsed since this instant was created,
-or zero duration if that this instant is in the future.</p>
+or zero duration if this instant is in the future.</p>
 <h5 id="examples-3"><a class="doc-anchor" href="#examples-3">§</a>Examples</h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>tokio::time::{Duration, Instant, sleep};
 

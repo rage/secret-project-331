@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/src/stmt.rs`."><title>stmt.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="syn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.96/src/stmt.rs`."><title>stmt.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="syn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -480,6 +480,8 @@
 <a href="#480" id="480">480</a>
 <a href="#481" id="481">481</a>
 <a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::attr::Attribute;
 <span class="kw">use </span><span class="kw">crate</span>::expr::Expr;
 <span class="kw">use </span><span class="kw">crate</span>::item::Item;
@@ -690,7 +692,8 @@
                 <span class="kw">if </span>ahead.peek2(Ident) || ahead.peek2(<span class="macro">Token!</span>[<span class="kw">try</span>]) {
                     is_item_macro = <span class="bool-val">true</span>;
                 } <span class="kw">else if </span>ahead.peek2(token::Brace)
-                    &amp;&amp; !(ahead.peek3(<span class="macro">Token!</span>[.]) || ahead.peek3(<span class="macro">Token!</span>[<span class="question-mark">?</span>]))
+                    &amp;&amp; !(ahead.peek3(<span class="macro">Token!</span>[.]) &amp;&amp; !ahead.peek3(<span class="macro">Token!</span>[..])
+                        || ahead.peek3(<span class="macro">Token!</span>[<span class="question-mark">?</span>]))
                 {
                     input.advance_to(<span class="kw-2">&amp;</span>ahead);
                     <span class="kw">return </span>stmt_mac(input, attrs, path).map(Stmt::Macro);
@@ -934,11 +937,12 @@
             <span class="self">self</span>.pat.to_tokens(tokens);
             <span class="kw">if let </span><span class="prelude-val">Some</span>(init) = <span class="kw-2">&amp;</span><span class="self">self</span>.init {
                 init.eq_token.to_tokens(tokens);
-                <span class="kw">if </span>init.diverge.is_some() &amp;&amp; classify::expr_trailing_brace(<span class="kw-2">&amp;</span>init.expr) {
-                    token::Paren::default().surround(tokens, |tokens| init.expr.to_tokens(tokens));
-                } <span class="kw">else </span>{
-                    init.expr.to_tokens(tokens);
-                }
+                expr::printing::print_subexpression(
+                    <span class="kw-2">&amp;</span>init.expr,
+                    init.diverge.is_some() &amp;&amp; classify::expr_trailing_brace(<span class="kw-2">&amp;</span>init.expr),
+                    tokens,
+                    FixupContext::NONE,
+                );
                 <span class="kw">if let </span><span class="prelude-val">Some</span>((else_token, diverge)) = <span class="kw-2">&amp;</span>init.diverge {
                     else_token.to_tokens(tokens);
                     <span class="kw">match </span><span class="kw-2">&amp;**</span>diverge {

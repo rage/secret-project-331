@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/png-0.17.14/src/filter.rs`."><title>filter.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="png" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/png-0.17.16/src/filter.rs`."><title>filter.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="png" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1188,15 +1188,6 @@
 <a href="#1188" id="1188">1188</a>
 <a href="#1189" id="1189">1189</a>
 <a href="#1190" id="1190">1190</a>
-<a href="#1191" id="1191">1191</a>
-<a href="#1192" id="1192">1192</a>
-<a href="#1193" id="1193">1193</a>
-<a href="#1194" id="1194">1194</a>
-<a href="#1195" id="1195">1195</a>
-<a href="#1196" id="1196">1196</a>
-<a href="#1197" id="1197">1197</a>
-<a href="#1198" id="1198">1198</a>
-<a href="#1199" id="1199">1199</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::convert::TryInto;
 
 <span class="kw">use </span><span class="kw">crate</span>::common::BytesPerPixel;
@@ -1206,23 +1197,27 @@
 /// TODO(https://github.com/rust-lang/rust/issues/86656): Stop gating this module behind the
 /// "unstable" feature of the `png` crate.  This should be possible once the "portable_simd"
 /// feature of Rust gets stabilized.
-</span><span class="attr">#[cfg(feature = <span class="string">"unstable"</span>)]
+///
+/// This is only known to help on x86, with no change measured on most benchmarks on ARM,
+/// and even severely regressing some of them.
+/// So despite the code being portable, we only enable this for x86.
+/// We can add more platforms once this code is proven to be beneficial for them.
+</span><span class="attr">#[cfg(all(feature = <span class="string">"unstable"</span>, target_arch = <span class="string">"x86_64"</span>))]
 </span><span class="kw">mod </span>simd {
-    <span class="kw">use </span>std::simd::cmp::{SimdOrd, SimdPartialEq, SimdPartialOrd};
     <span class="kw">use </span>std::simd::num::{SimdInt, SimdUint};
     <span class="kw">use </span>std::simd::{u8x4, u8x8, LaneCount, Simd, SimdElement, SupportedLaneCount};
 
-    <span class="doccomment">/// This is an equivalent of the `PaethPredictor` function from
-    /// [the spec](http://www.libpng.org/pub/png/spec/1.2/PNG-Filters.html#Filter-type-4-Paeth)
-    /// except that it simultaneously calculates the predictor for all SIMD lanes.
-    /// Mapping between parameter names and pixel positions can be found in
-    /// [a diagram here](https://www.w3.org/TR/png/#filter-byte-positions).
+    <span class="doccomment">/// Scalar Paeth function wrapped in SIMD scaffolding.
     ///
-    /// Examples of how different pixel types may be represented as multiple SIMD lanes:
-    /// - RGBA =&gt; 4 lanes of `i16x4` contain R, G, B, A
-    /// - RGB  =&gt; 4 lanes of `i16x4` contain R, G, B, and a ignored 4th value
+    /// This is needed because simply running the function on the inputs
+    /// makes the compiler think our inputs are too short
+    /// to benefit from vectorization.
+    /// Putting it in SIMD scaffolding fixes that.
+    /// https://github.com/image-rs/image-png/issues/511
     ///
-    /// The SIMD algorithm below is based on [`libpng`](https://github.com/glennrp/libpng/blob/f8e5fa92b0e37ab597616f554bee254157998227/intel/filter_sse2_intrinsics.c#L261-L280).
+    /// Funnily, the autovectorizer does a better job here
+    /// than a handwritten algorithm using std::simd!
+    /// We used to have a handwritten one but this is just faster.
     </span><span class="kw">fn </span>paeth_predictor&lt;<span class="kw">const </span>N: usize&gt;(
         a: Simd&lt;i16, N&gt;,
         b: Simd&lt;i16, N&gt;,
@@ -1231,28 +1226,14 @@
     <span class="kw">where
         </span>LaneCount&lt;N&gt;: SupportedLaneCount,
     {
-        <span class="kw">let </span>pa = b - c; <span class="comment">// (p-a) == (a+b-c - a) == (b-c)
-        </span><span class="kw">let </span>pb = a - c; <span class="comment">// (p-b) == (a+b-c - b) == (a-c)
-        </span><span class="kw">let </span>pc = pa + pb; <span class="comment">// (p-c) == (a+b-c - c) == (a+b-c-c) == (b-c)+(a-c)
-
-        </span><span class="kw">let </span>pa = pa.abs();
-        <span class="kw">let </span>pb = pb.abs();
-        <span class="kw">let </span>pc = pc.abs();
-
-        <span class="kw">let </span>smallest = pc.simd_min(pa.simd_min(pb));
-
-        <span class="comment">// Paeth algorithm breaks ties favoring a over b over c, so we execute the following
-        // lane-wise selection:
-        //
-        //     if smalest == pa
-        //         then select a
-        //         else select (if smallest == pb then select b else select c)
-        </span>smallest
-            .simd_eq(pa)
-            .select(a, smallest.simd_eq(pb).select(b, c))
+        <span class="kw">let </span><span class="kw-2">mut </span>out = [<span class="number">0</span>; N];
+        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..N {
+            out[i] = <span class="kw">super</span>::filter_paeth_stbi_i16(a[i].into(), b[i].into(), c[i].into());
+        }
+        out.into()
     }
 
-    <span class="doccomment">/// Equivalent to `simd::paeth_predictor` but does not temporarily convert
+    <span class="doccomment">/// Functionally equivalent to `simd::paeth_predictor` but does not temporarily convert
     /// the SIMD elements to `i16`.
     </span><span class="kw">fn </span>paeth_predictor_u8&lt;<span class="kw">const </span>N: usize&gt;(
         a: Simd&lt;u8, N&gt;,
@@ -1262,44 +1243,11 @@
     <span class="kw">where
         </span>LaneCount&lt;N&gt;: SupportedLaneCount,
     {
-        <span class="comment">// Calculates the absolute difference between `a` and `b`.
-        </span><span class="kw">fn </span>abs_diff_simd&lt;<span class="kw">const </span>N: usize&gt;(a: Simd&lt;u8, N&gt;, b: Simd&lt;u8, N&gt;) -&gt; Simd&lt;u8, N&gt;
-        <span class="kw">where
-            </span>LaneCount&lt;N&gt;: SupportedLaneCount,
-        {
-            a.simd_max(b) - b.simd_min(a)
+        <span class="kw">let </span><span class="kw-2">mut </span>out = [<span class="number">0</span>; N];
+        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..N {
+            out[i] = <span class="kw">super</span>::filter_paeth_stbi(a[i].into(), b[i].into(), c[i].into());
         }
-
-        <span class="comment">// Uses logic from `filter::filter_paeth` to calculate absolute values
-        // entirely in `Simd&lt;u8, N&gt;`. This method avoids unpacking and packing
-        // penalties resulting from conversion to and from `Simd&lt;i16, N&gt;`.
-        // ```
-        //     let pa = b.max(c) - c.min(b);
-        //     let pb = a.max(c) - c.min(a);
-        //     let pc = if (a &lt; c) == (c &lt; b) {
-        //         pa.max(pb) - pa.min(pb)
-        //     } else {
-        //         255
-        //     };
-        // ```
-        </span><span class="kw">let </span>pa = abs_diff_simd(b, c);
-        <span class="kw">let </span>pb = abs_diff_simd(a, c);
-        <span class="kw">let </span>pc = a
-            .simd_lt(c)
-            .simd_eq(c.simd_lt(b))
-            .select(abs_diff_simd(pa, pb), Simd::splat(<span class="number">255</span>));
-
-        <span class="kw">let </span>smallest = pc.simd_min(pa.simd_min(pb));
-
-        <span class="comment">// Paeth algorithm breaks ties favoring a over b over c, so we execute the following
-        // lane-wise selection:
-        //
-        //     if smalest == pa
-        //         then select a
-        //         else select (if smallest == pb then select b else select c)
-        </span>smallest
-            .simd_eq(pa)
-            .select(a, smallest.simd_eq(pb).select(b, c))
+        out.into()
     }
 
     <span class="doccomment">/// Memory of previous pixels (as needed to unfilter `FilterType::Paeth`).
@@ -1519,8 +1467,10 @@
     }
 }
 
-<span class="kw">fn </span>filter_paeth_decode(a: u8, b: u8, c: u8) -&gt; u8 {
-    <span class="comment">// Decoding seems to optimize better with this algorithm
+<span class="kw">fn </span>filter_paeth(a: u8, b: u8, c: u8) -&gt; u8 {
+    <span class="comment">// On ARM this algorithm performs much better than the one above adapted from stb,
+    // and this is the better-studied algorithm we've always used here,
+    // so we default to it on all non-x86 platforms.
     </span><span class="kw">let </span>pa = (i16::from(b) - i16::from(c)).abs();
     <span class="kw">let </span>pb = (i16::from(a) - i16::from(c)).abs();
     <span class="kw">let </span>pc = ((i16::from(a) - i16::from(c)) + (i16::from(b) - i16::from(c))).abs();
@@ -1539,7 +1489,36 @@
     out
 }
 
-<span class="kw">fn </span>filter_paeth(a: u8, b: u8, c: u8) -&gt; u8 {
+<span class="kw">fn </span>filter_paeth_stbi(a: u8, b: u8, c: u8) -&gt; u8 {
+    <span class="comment">// Decoding optimizes better with this algorithm than with `filter_paeth`
+    //
+    // This formulation looks very different from the reference in the PNG spec, but is
+    // actually equivalent and has favorable data dependencies and admits straightforward
+    // generation of branch-free code, which helps performance significantly.
+    //
+    // Adapted from public domain PNG implementation:
+    // https://github.com/nothings/stb/blob/5c205738c191bcb0abc65c4febfa9bd25ff35234/stb_image.h#L4657-L4668
+    </span><span class="kw">let </span>thresh = i16::from(c) * <span class="number">3 </span>- (i16::from(a) + i16::from(b));
+    <span class="kw">let </span>lo = a.min(b);
+    <span class="kw">let </span>hi = a.max(b);
+    <span class="kw">let </span>t0 = <span class="kw">if </span>hi <span class="kw">as </span>i16 &lt;= thresh { lo } <span class="kw">else </span>{ c };
+    <span class="kw">let </span>t1 = <span class="kw">if </span>thresh &lt;= lo <span class="kw">as </span>i16 { hi } <span class="kw">else </span>{ t0 };
+    <span class="kw">return </span>t1;
+}
+
+<span class="attr">#[cfg(any(test, all(feature = <span class="string">"unstable"</span>, target_arch = <span class="string">"x86_64"</span>)))]
+</span><span class="kw">fn </span>filter_paeth_stbi_i16(a: i16, b: i16, c: i16) -&gt; i16 {
+    <span class="comment">// Like `filter_paeth_stbi` but vectorizes better when wrapped in SIMD types.
+    // Used for bpp=3 and bpp=6
+    </span><span class="kw">let </span>thresh = c * <span class="number">3 </span>- (a + b);
+    <span class="kw">let </span>lo = a.min(b);
+    <span class="kw">let </span>hi = a.max(b);
+    <span class="kw">let </span>t0 = <span class="kw">if </span>hi &lt;= thresh { lo } <span class="kw">else </span>{ c };
+    <span class="kw">let </span>t1 = <span class="kw">if </span>thresh &lt;= lo { hi } <span class="kw">else </span>{ t0 };
+    <span class="kw">return </span>t1;
+}
+
+<span class="kw">fn </span>filter_paeth_fpnge(a: u8, b: u8, c: u8) -&gt; u8 {
     <span class="comment">// This is an optimized version of the paeth filter from the PNG specification, proposed by
     // Luca Versari for [FPNGE](https://www.lucaversari.it/FJXL_and_FPNGE.pdf). It operates
     // entirely on unsigned 8-bit quantities, making it more conducive to vectorization.
@@ -1915,7 +1894,15 @@
                 }
             }
         },
-        Paeth =&gt; {
+        <span class="attr">#[allow(unreachable_code)]
+        </span>Paeth =&gt; {
+            <span class="comment">// Select the fastest Paeth filter implementation based on the target architecture.
+            </span><span class="kw">let </span>filter_paeth_decode = <span class="kw">if </span><span class="macro">cfg!</span>(target_arch = <span class="string">"x86_64"</span>) {
+                filter_paeth_stbi
+            } <span class="kw">else </span>{
+                filter_paeth
+            };
+
             <span class="comment">// Paeth filter pixels:
             // C B D
             // A X
@@ -1949,142 +1936,118 @@
                     }
                 }
                 BytesPerPixel::Three =&gt; {
-                    <span class="attr">#[cfg(feature = <span class="string">"unstable"</span>)]
-                    </span>simd::unfilter_paeth3(previous, current);
-
-                    <span class="attr">#[cfg(not(feature = <span class="string">"unstable"</span>))]
+                    <span class="comment">// Do not enable this algorithm on ARM, that would be a big performance hit
+                    </span><span class="attr">#[cfg(all(feature = <span class="string">"unstable"</span>, target_arch = <span class="string">"x86_64"</span>))]
                     </span>{
-                        <span class="kw">let </span><span class="kw-2">mut </span>a_bpp = [<span class="number">0</span>; <span class="number">3</span>];
-                        <span class="kw">let </span><span class="kw-2">mut </span>c_bpp = [<span class="number">0</span>; <span class="number">3</span>];
-                        <span class="kw">for </span>(chunk, b_bpp) <span class="kw">in
-                            </span>current.chunks_exact_mut(<span class="number">3</span>).zip(previous.chunks_exact(<span class="number">3</span>))
-                        {
-                            <span class="kw">let </span>new_chunk = [
-                                chunk[<span class="number">0</span>].wrapping_add(filter_paeth_decode(
-                                    a_bpp[<span class="number">0</span>], b_bpp[<span class="number">0</span>], c_bpp[<span class="number">0</span>],
-                                )),
-                                chunk[<span class="number">1</span>].wrapping_add(filter_paeth_decode(
-                                    a_bpp[<span class="number">1</span>], b_bpp[<span class="number">1</span>], c_bpp[<span class="number">1</span>],
-                                )),
-                                chunk[<span class="number">2</span>].wrapping_add(filter_paeth_decode(
-                                    a_bpp[<span class="number">2</span>], b_bpp[<span class="number">2</span>], c_bpp[<span class="number">2</span>],
-                                )),
-                            ];
-                            <span class="kw-2">*</span>TryInto::&lt;<span class="kw-2">&amp;mut </span>[u8; <span class="number">3</span>]&gt;::try_into(chunk).unwrap() = new_chunk;
-                            a_bpp = new_chunk;
-                            c_bpp = b_bpp.try_into().unwrap();
-                        }
+                        simd::unfilter_paeth3(previous, current);
+                        <span class="kw">return</span>;
+                    }
+
+                    <span class="kw">let </span><span class="kw-2">mut </span>a_bpp = [<span class="number">0</span>; <span class="number">3</span>];
+                    <span class="kw">let </span><span class="kw-2">mut </span>c_bpp = [<span class="number">0</span>; <span class="number">3</span>];
+                    <span class="kw">for </span>(chunk, b_bpp) <span class="kw">in </span>current.chunks_exact_mut(<span class="number">3</span>).zip(previous.chunks_exact(<span class="number">3</span>))
+                    {
+                        <span class="kw">let </span>new_chunk = [
+                            chunk[<span class="number">0</span>]
+                                .wrapping_add(filter_paeth_decode(a_bpp[<span class="number">0</span>], b_bpp[<span class="number">0</span>], c_bpp[<span class="number">0</span>])),
+                            chunk[<span class="number">1</span>]
+                                .wrapping_add(filter_paeth_decode(a_bpp[<span class="number">1</span>], b_bpp[<span class="number">1</span>], c_bpp[<span class="number">1</span>])),
+                            chunk[<span class="number">2</span>]
+                                .wrapping_add(filter_paeth_decode(a_bpp[<span class="number">2</span>], b_bpp[<span class="number">2</span>], c_bpp[<span class="number">2</span>])),
+                        ];
+                        <span class="kw-2">*</span>TryInto::&lt;<span class="kw-2">&amp;mut </span>[u8; <span class="number">3</span>]&gt;::try_into(chunk).unwrap() = new_chunk;
+                        a_bpp = new_chunk;
+                        c_bpp = b_bpp.try_into().unwrap();
                     }
                 }
                 BytesPerPixel::Four =&gt; {
-                    <span class="attr">#[cfg(feature = <span class="string">"unstable"</span>)]
-                    </span>simd::unfilter_paeth_u8::&lt;<span class="number">4</span>&gt;(previous, current);
-
-                    <span class="attr">#[cfg(not(feature = <span class="string">"unstable"</span>))]
+                    <span class="attr">#[cfg(all(feature = <span class="string">"unstable"</span>, target_arch = <span class="string">"x86_64"</span>))]
                     </span>{
-                        <span class="kw">let </span><span class="kw-2">mut </span>a_bpp = [<span class="number">0</span>; <span class="number">4</span>];
-                        <span class="kw">let </span><span class="kw-2">mut </span>c_bpp = [<span class="number">0</span>; <span class="number">4</span>];
-                        <span class="kw">for </span>(chunk, b_bpp) <span class="kw">in
-                            </span>current.chunks_exact_mut(<span class="number">4</span>).zip(previous.chunks_exact(<span class="number">4</span>))
-                        {
-                            <span class="kw">let </span>new_chunk = [
-                                chunk[<span class="number">0</span>].wrapping_add(filter_paeth_decode(
-                                    a_bpp[<span class="number">0</span>], b_bpp[<span class="number">0</span>], c_bpp[<span class="number">0</span>],
-                                )),
-                                chunk[<span class="number">1</span>].wrapping_add(filter_paeth_decode(
-                                    a_bpp[<span class="number">1</span>], b_bpp[<span class="number">1</span>], c_bpp[<span class="number">1</span>],
-                                )),
-                                chunk[<span class="number">2</span>].wrapping_add(filter_paeth_decode(
-                                    a_bpp[<span class="number">2</span>], b_bpp[<span class="number">2</span>], c_bpp[<span class="number">2</span>],
-                                )),
-                                chunk[<span class="number">3</span>].wrapping_add(filter_paeth_decode(
-                                    a_bpp[<span class="number">3</span>], b_bpp[<span class="number">3</span>], c_bpp[<span class="number">3</span>],
-                                )),
-                            ];
-                            <span class="kw-2">*</span>TryInto::&lt;<span class="kw-2">&amp;mut </span>[u8; <span class="number">4</span>]&gt;::try_into(chunk).unwrap() = new_chunk;
-                            a_bpp = new_chunk;
-                            c_bpp = b_bpp.try_into().unwrap();
-                        }
+                        simd::unfilter_paeth_u8::&lt;<span class="number">4</span>&gt;(previous, current);
+                        <span class="kw">return</span>;
+                    }
+
+                    <span class="kw">let </span><span class="kw-2">mut </span>a_bpp = [<span class="number">0</span>; <span class="number">4</span>];
+                    <span class="kw">let </span><span class="kw-2">mut </span>c_bpp = [<span class="number">0</span>; <span class="number">4</span>];
+                    <span class="kw">for </span>(chunk, b_bpp) <span class="kw">in </span>current.chunks_exact_mut(<span class="number">4</span>).zip(previous.chunks_exact(<span class="number">4</span>))
+                    {
+                        <span class="kw">let </span>new_chunk = [
+                            chunk[<span class="number">0</span>]
+                                .wrapping_add(filter_paeth_decode(a_bpp[<span class="number">0</span>], b_bpp[<span class="number">0</span>], c_bpp[<span class="number">0</span>])),
+                            chunk[<span class="number">1</span>]
+                                .wrapping_add(filter_paeth_decode(a_bpp[<span class="number">1</span>], b_bpp[<span class="number">1</span>], c_bpp[<span class="number">1</span>])),
+                            chunk[<span class="number">2</span>]
+                                .wrapping_add(filter_paeth_decode(a_bpp[<span class="number">2</span>], b_bpp[<span class="number">2</span>], c_bpp[<span class="number">2</span>])),
+                            chunk[<span class="number">3</span>]
+                                .wrapping_add(filter_paeth_decode(a_bpp[<span class="number">3</span>], b_bpp[<span class="number">3</span>], c_bpp[<span class="number">3</span>])),
+                        ];
+                        <span class="kw-2">*</span>TryInto::&lt;<span class="kw-2">&amp;mut </span>[u8; <span class="number">4</span>]&gt;::try_into(chunk).unwrap() = new_chunk;
+                        a_bpp = new_chunk;
+                        c_bpp = b_bpp.try_into().unwrap();
                     }
                 }
                 BytesPerPixel::Six =&gt; {
-                    <span class="attr">#[cfg(feature = <span class="string">"unstable"</span>)]
-                    </span>simd::unfilter_paeth6(previous, current);
-
-                    <span class="attr">#[cfg(not(feature = <span class="string">"unstable"</span>))]
+                    <span class="attr">#[cfg(all(feature = <span class="string">"unstable"</span>, target_arch = <span class="string">"x86_64"</span>))]
                     </span>{
-                        <span class="kw">let </span><span class="kw-2">mut </span>a_bpp = [<span class="number">0</span>; <span class="number">6</span>];
-                        <span class="kw">let </span><span class="kw-2">mut </span>c_bpp = [<span class="number">0</span>; <span class="number">6</span>];
-                        <span class="kw">for </span>(chunk, b_bpp) <span class="kw">in
-                            </span>current.chunks_exact_mut(<span class="number">6</span>).zip(previous.chunks_exact(<span class="number">6</span>))
-                        {
-                            <span class="kw">let </span>new_chunk = [
-                                chunk[<span class="number">0</span>].wrapping_add(filter_paeth_decode(
-                                    a_bpp[<span class="number">0</span>], b_bpp[<span class="number">0</span>], c_bpp[<span class="number">0</span>],
-                                )),
-                                chunk[<span class="number">1</span>].wrapping_add(filter_paeth_decode(
-                                    a_bpp[<span class="number">1</span>], b_bpp[<span class="number">1</span>], c_bpp[<span class="number">1</span>],
-                                )),
-                                chunk[<span class="number">2</span>].wrapping_add(filter_paeth_decode(
-                                    a_bpp[<span class="number">2</span>], b_bpp[<span class="number">2</span>], c_bpp[<span class="number">2</span>],
-                                )),
-                                chunk[<span class="number">3</span>].wrapping_add(filter_paeth_decode(
-                                    a_bpp[<span class="number">3</span>], b_bpp[<span class="number">3</span>], c_bpp[<span class="number">3</span>],
-                                )),
-                                chunk[<span class="number">4</span>].wrapping_add(filter_paeth_decode(
-                                    a_bpp[<span class="number">4</span>], b_bpp[<span class="number">4</span>], c_bpp[<span class="number">4</span>],
-                                )),
-                                chunk[<span class="number">5</span>].wrapping_add(filter_paeth_decode(
-                                    a_bpp[<span class="number">5</span>], b_bpp[<span class="number">5</span>], c_bpp[<span class="number">5</span>],
-                                )),
-                            ];
-                            <span class="kw-2">*</span>TryInto::&lt;<span class="kw-2">&amp;mut </span>[u8; <span class="number">6</span>]&gt;::try_into(chunk).unwrap() = new_chunk;
-                            a_bpp = new_chunk;
-                            c_bpp = b_bpp.try_into().unwrap();
-                        }
+                        simd::unfilter_paeth6(previous, current);
+                        <span class="kw">return</span>;
+                    }
+
+                    <span class="kw">let </span><span class="kw-2">mut </span>a_bpp = [<span class="number">0</span>; <span class="number">6</span>];
+                    <span class="kw">let </span><span class="kw-2">mut </span>c_bpp = [<span class="number">0</span>; <span class="number">6</span>];
+                    <span class="kw">for </span>(chunk, b_bpp) <span class="kw">in </span>current.chunks_exact_mut(<span class="number">6</span>).zip(previous.chunks_exact(<span class="number">6</span>))
+                    {
+                        <span class="kw">let </span>new_chunk = [
+                            chunk[<span class="number">0</span>]
+                                .wrapping_add(filter_paeth_decode(a_bpp[<span class="number">0</span>], b_bpp[<span class="number">0</span>], c_bpp[<span class="number">0</span>])),
+                            chunk[<span class="number">1</span>]
+                                .wrapping_add(filter_paeth_decode(a_bpp[<span class="number">1</span>], b_bpp[<span class="number">1</span>], c_bpp[<span class="number">1</span>])),
+                            chunk[<span class="number">2</span>]
+                                .wrapping_add(filter_paeth_decode(a_bpp[<span class="number">2</span>], b_bpp[<span class="number">2</span>], c_bpp[<span class="number">2</span>])),
+                            chunk[<span class="number">3</span>]
+                                .wrapping_add(filter_paeth_decode(a_bpp[<span class="number">3</span>], b_bpp[<span class="number">3</span>], c_bpp[<span class="number">3</span>])),
+                            chunk[<span class="number">4</span>]
+                                .wrapping_add(filter_paeth_decode(a_bpp[<span class="number">4</span>], b_bpp[<span class="number">4</span>], c_bpp[<span class="number">4</span>])),
+                            chunk[<span class="number">5</span>]
+                                .wrapping_add(filter_paeth_decode(a_bpp[<span class="number">5</span>], b_bpp[<span class="number">5</span>], c_bpp[<span class="number">5</span>])),
+                        ];
+                        <span class="kw-2">*</span>TryInto::&lt;<span class="kw-2">&amp;mut </span>[u8; <span class="number">6</span>]&gt;::try_into(chunk).unwrap() = new_chunk;
+                        a_bpp = new_chunk;
+                        c_bpp = b_bpp.try_into().unwrap();
                     }
                 }
                 BytesPerPixel::Eight =&gt; {
-                    <span class="attr">#[cfg(feature = <span class="string">"unstable"</span>)]
-                    </span>simd::unfilter_paeth_u8::&lt;<span class="number">8</span>&gt;(previous, current);
-
-                    <span class="attr">#[cfg(not(feature = <span class="string">"unstable"</span>))]
+                    <span class="attr">#[cfg(all(feature = <span class="string">"unstable"</span>, target_arch = <span class="string">"x86_64"</span>))]
                     </span>{
-                        <span class="kw">let </span><span class="kw-2">mut </span>a_bpp = [<span class="number">0</span>; <span class="number">8</span>];
-                        <span class="kw">let </span><span class="kw-2">mut </span>c_bpp = [<span class="number">0</span>; <span class="number">8</span>];
-                        <span class="kw">for </span>(chunk, b_bpp) <span class="kw">in
-                            </span>current.chunks_exact_mut(<span class="number">8</span>).zip(previous.chunks_exact(<span class="number">8</span>))
-                        {
-                            <span class="kw">let </span>new_chunk = [
-                                chunk[<span class="number">0</span>].wrapping_add(filter_paeth_decode(
-                                    a_bpp[<span class="number">0</span>], b_bpp[<span class="number">0</span>], c_bpp[<span class="number">0</span>],
-                                )),
-                                chunk[<span class="number">1</span>].wrapping_add(filter_paeth_decode(
-                                    a_bpp[<span class="number">1</span>], b_bpp[<span class="number">1</span>], c_bpp[<span class="number">1</span>],
-                                )),
-                                chunk[<span class="number">2</span>].wrapping_add(filter_paeth_decode(
-                                    a_bpp[<span class="number">2</span>], b_bpp[<span class="number">2</span>], c_bpp[<span class="number">2</span>],
-                                )),
-                                chunk[<span class="number">3</span>].wrapping_add(filter_paeth_decode(
-                                    a_bpp[<span class="number">3</span>], b_bpp[<span class="number">3</span>], c_bpp[<span class="number">3</span>],
-                                )),
-                                chunk[<span class="number">4</span>].wrapping_add(filter_paeth_decode(
-                                    a_bpp[<span class="number">4</span>], b_bpp[<span class="number">4</span>], c_bpp[<span class="number">4</span>],
-                                )),
-                                chunk[<span class="number">5</span>].wrapping_add(filter_paeth_decode(
-                                    a_bpp[<span class="number">5</span>], b_bpp[<span class="number">5</span>], c_bpp[<span class="number">5</span>],
-                                )),
-                                chunk[<span class="number">6</span>].wrapping_add(filter_paeth_decode(
-                                    a_bpp[<span class="number">6</span>], b_bpp[<span class="number">6</span>], c_bpp[<span class="number">6</span>],
-                                )),
-                                chunk[<span class="number">7</span>].wrapping_add(filter_paeth_decode(
-                                    a_bpp[<span class="number">7</span>], b_bpp[<span class="number">7</span>], c_bpp[<span class="number">7</span>],
-                                )),
-                            ];
-                            <span class="kw-2">*</span>TryInto::&lt;<span class="kw-2">&amp;mut </span>[u8; <span class="number">8</span>]&gt;::try_into(chunk).unwrap() = new_chunk;
-                            a_bpp = new_chunk;
-                            c_bpp = b_bpp.try_into().unwrap();
-                        }
+                        simd::unfilter_paeth_u8::&lt;<span class="number">8</span>&gt;(previous, current);
+                        <span class="kw">return</span>;
+                    }
+
+                    <span class="kw">let </span><span class="kw-2">mut </span>a_bpp = [<span class="number">0</span>; <span class="number">8</span>];
+                    <span class="kw">let </span><span class="kw-2">mut </span>c_bpp = [<span class="number">0</span>; <span class="number">8</span>];
+                    <span class="kw">for </span>(chunk, b_bpp) <span class="kw">in </span>current.chunks_exact_mut(<span class="number">8</span>).zip(previous.chunks_exact(<span class="number">8</span>))
+                    {
+                        <span class="kw">let </span>new_chunk = [
+                            chunk[<span class="number">0</span>]
+                                .wrapping_add(filter_paeth_decode(a_bpp[<span class="number">0</span>], b_bpp[<span class="number">0</span>], c_bpp[<span class="number">0</span>])),
+                            chunk[<span class="number">1</span>]
+                                .wrapping_add(filter_paeth_decode(a_bpp[<span class="number">1</span>], b_bpp[<span class="number">1</span>], c_bpp[<span class="number">1</span>])),
+                            chunk[<span class="number">2</span>]
+                                .wrapping_add(filter_paeth_decode(a_bpp[<span class="number">2</span>], b_bpp[<span class="number">2</span>], c_bpp[<span class="number">2</span>])),
+                            chunk[<span class="number">3</span>]
+                                .wrapping_add(filter_paeth_decode(a_bpp[<span class="number">3</span>], b_bpp[<span class="number">3</span>], c_bpp[<span class="number">3</span>])),
+                            chunk[<span class="number">4</span>]
+                                .wrapping_add(filter_paeth_decode(a_bpp[<span class="number">4</span>], b_bpp[<span class="number">4</span>], c_bpp[<span class="number">4</span>])),
+                            chunk[<span class="number">5</span>]
+                                .wrapping_add(filter_paeth_decode(a_bpp[<span class="number">5</span>], b_bpp[<span class="number">5</span>], c_bpp[<span class="number">5</span>])),
+                            chunk[<span class="number">6</span>]
+                                .wrapping_add(filter_paeth_decode(a_bpp[<span class="number">6</span>], b_bpp[<span class="number">6</span>], c_bpp[<span class="number">6</span>])),
+                            chunk[<span class="number">7</span>]
+                                .wrapping_add(filter_paeth_decode(a_bpp[<span class="number">7</span>], b_bpp[<span class="number">7</span>], c_bpp[<span class="number">7</span>])),
+                        ];
+                        <span class="kw-2">*</span>TryInto::&lt;<span class="kw-2">&amp;mut </span>[u8; <span class="number">8</span>]&gt;::try_into(chunk).unwrap() = new_chunk;
+                        a_bpp = new_chunk;
+                        c_bpp = b_bpp.try_into().unwrap();
                     }
                 }
             }
@@ -2208,7 +2171,7 @@
                 .zip(<span class="kw-2">&amp;mut </span>c_chunks)
             {
                 <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..CHUNK_SIZE {
-                    out[i] = cur[i].wrapping_sub(filter_paeth(a[i], b[i], c[i]));
+                    out[i] = cur[i].wrapping_sub(filter_paeth_fpnge(a[i], b[i], c[i]));
                 }
             }
 
@@ -2220,11 +2183,11 @@
                 .zip(b_chunks.remainder())
                 .zip(c_chunks.remainder())
             {
-                <span class="kw-2">*</span>out = cur.wrapping_sub(filter_paeth(a, b, c));
+                <span class="kw-2">*</span>out = cur.wrapping_sub(filter_paeth_fpnge(a, b, c));
             }
 
             <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..bpp {
-                output[i] = current[i].wrapping_sub(filter_paeth(<span class="number">0</span>, previous[i], <span class="number">0</span>));
+                output[i] = current[i].wrapping_sub(filter_paeth_fpnge(<span class="number">0</span>, previous[i], <span class="number">0</span>));
             }
             Paeth
         }
@@ -2293,7 +2256,7 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>test {
-    <span class="kw">use super</span>::{filter, unfilter, AdaptiveFilterType, BytesPerPixel, FilterType};
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span>core::iter;
 
     <span class="attr">#[test]
@@ -2336,6 +2299,25 @@
         <span class="kw">for </span><span class="kw-2">&amp;</span>filter <span class="kw">in </span>filters.iter() {
             <span class="kw">for </span><span class="kw-2">&amp;</span>bpp <span class="kw">in </span>bpps.iter() {
                 roundtrip(filter, bpp);
+            }
+        }
+    }
+
+    <span class="attr">#[test]
+    #[ignore] </span><span class="comment">// takes ~20s without optimizations
+    </span><span class="kw">fn </span>paeth_impls_are_equivalent() {
+        <span class="kw">for </span>a <span class="kw">in </span><span class="number">0</span>..=<span class="number">255 </span>{
+            <span class="kw">for </span>b <span class="kw">in </span><span class="number">0</span>..=<span class="number">255 </span>{
+                <span class="kw">for </span>c <span class="kw">in </span><span class="number">0</span>..=<span class="number">255 </span>{
+                    <span class="kw">let </span>baseline = filter_paeth(a, b, c);
+                    <span class="kw">let </span>fpnge = filter_paeth_fpnge(a, b, c);
+                    <span class="kw">let </span>stbi = filter_paeth_stbi(a, b, c);
+                    <span class="kw">let </span>stbi_i16 = filter_paeth_stbi_i16(a <span class="kw">as </span>i16, b <span class="kw">as </span>i16, c <span class="kw">as </span>i16);
+
+                    <span class="macro">assert_eq!</span>(baseline, fpnge);
+                    <span class="macro">assert_eq!</span>(baseline, stbi);
+                    <span class="macro">assert_eq!</span>(baseline <span class="kw">as </span>i16, stbi_i16);
+                }
             }
         }
     }

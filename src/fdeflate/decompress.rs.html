@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fdeflate-0.3.5/src/decompress.rs`."><title>decompress.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fdeflate" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fdeflate-0.3.7/src/decompress.rs`."><title>decompress.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fdeflate" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1332,11 +1332,23 @@
 <a href="#1332" id="1332">1332</a>
 <a href="#1333" id="1333">1333</a>
 <a href="#1334" id="1334">1334</a>
+<a href="#1335" id="1335">1335</a>
+<a href="#1336" id="1336">1336</a>
+<a href="#1337" id="1337">1337</a>
+<a href="#1338" id="1338">1338</a>
+<a href="#1339" id="1339">1339</a>
+<a href="#1340" id="1340">1340</a>
+<a href="#1341" id="1341">1341</a>
+<a href="#1342" id="1342">1342</a>
+<a href="#1343" id="1343">1343</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>simd_adler32::Adler32;
 
-<span class="kw">use </span><span class="kw">crate</span>::tables::{
-    <span class="self">self</span>, CLCL_ORDER, DIST_SYM_TO_DIST_BASE, DIST_SYM_TO_DIST_EXTRA, FDEFLATE_DIST_DECODE_TABLE,
-    FDEFLATE_LITLEN_DECODE_TABLE, FIXED_CODE_LENGTHS, LEN_SYM_TO_LEN_BASE, LEN_SYM_TO_LEN_EXTRA,
+<span class="kw">use crate</span>::{
+    huffman::{<span class="self">self</span>, build_table},
+    tables::{
+        <span class="self">self</span>, CLCL_ORDER, DIST_SYM_TO_DIST_BASE, DIST_SYM_TO_DIST_EXTRA, FIXED_DIST_TABLE,
+        FIXED_LITLEN_TABLE, LEN_SYM_TO_LEN_BASE, LEN_SYM_TO_LEN_EXTRA, LITLEN_TABLE_ENTRIES,
+    },
 };
 
 <span class="doccomment">/// An error encountered while decompressing a deflate stream.
@@ -1384,64 +1396,27 @@
     num_lengths_read: usize,
 
     <span class="doccomment">/// Low 3-bits are code length code length, high 5-bits are code length code.
-    </span>table: [u8; <span class="number">128</span>],
+    </span>table: [u32; <span class="number">128</span>],
     code_lengths: [u8; <span class="number">320</span>],
 }
 
-<span class="kw">const </span>LITERAL_ENTRY: u32 = <span class="number">0x8000</span>;
-<span class="kw">const </span>EXCEPTIONAL_ENTRY: u32 = <span class="number">0x4000</span>;
-<span class="kw">const </span>SECONDARY_TABLE_ENTRY: u32 = <span class="number">0x2000</span>;
+<span class="kw">pub const </span>LITERAL_ENTRY: u32 = <span class="number">0x8000</span>;
+<span class="kw">pub const </span>EXCEPTIONAL_ENTRY: u32 = <span class="number">0x4000</span>;
+<span class="kw">pub const </span>SECONDARY_TABLE_ENTRY: u32 = <span class="number">0x2000</span>;
 
 <span class="doccomment">/// The Decompressor state for a compressed block.
-///
-/// The main litlen_table uses a 12-bit input to lookup the meaning of the symbol. The table is
-/// split into 4 sections:
-///
-///   aaaaaaaa_bbbbbbbb_1000yyyy_0000xxxx  x = input_advance_bits, y = output_advance_bytes (literal)
-///   0000000z_zzzzzzzz_00000yyy_0000xxxx  x = input_advance_bits, y = extra_bits, z = distance_base (length)
-///   00000000_00000000_01000000_0000xxxx  x = input_advance_bits (EOF)
-///   0000xxxx_xxxxxxxx_01100000_00000000  x = secondary_table_index
-///   00000000_00000000_01000000_00000000  invalid code
-///
-/// The distance table is a 512-entry table that maps 9 bits of distance symbols to their meaning.
-///
-///   00000000_00000000_00000000_00000000     symbol is more than 9 bits
-///   zzzzzzzz_zzzzzzzz_0000yyyy_0000xxxx     x = input_advance_bits, y = extra_bits, z = distance_base
-</span><span class="attr">#[repr(align(<span class="number">64</span>))]
-#[derive(Eq, PartialEq, Debug)]
+</span><span class="attr">#[derive(Eq, PartialEq, Debug)]
 </span><span class="kw">struct </span>CompressedBlock {
-    litlen_table: [u32; <span class="number">4096</span>],
-    dist_table: [u32; <span class="number">512</span>],
-
-    dist_symbol_lengths: [u8; <span class="number">30</span>],
-    dist_symbol_masks: [u16; <span class="number">30</span>],
-    dist_symbol_codes: [u16; <span class="number">30</span>],
-
+    litlen_table: Box&lt;[u32; <span class="number">4096</span>]&gt;,
     secondary_table: Vec&lt;u16&gt;,
+
+    dist_table: Box&lt;[u32; <span class="number">512</span>]&gt;,
+    dist_secondary_table: Vec&lt;u16&gt;,
+
     eof_code: u16,
     eof_mask: u16,
     eof_bits: u8,
 }
-
-<span class="kw">const </span>FDEFLATE_COMPRESSED_BLOCK: CompressedBlock = CompressedBlock {
-    litlen_table: FDEFLATE_LITLEN_DECODE_TABLE,
-    dist_table: FDEFLATE_DIST_DECODE_TABLE,
-    dist_symbol_lengths: [
-        <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    ],
-    dist_symbol_masks: [
-        <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    ],
-    dist_symbol_codes: [
-        <span class="number">0</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>,
-        <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>,
-        <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>,
-    ],
-    secondary_table: Vec::new(),
-    eof_code: <span class="number">0x8ff</span>,
-    eof_mask: <span class="number">0xfff</span>,
-    eof_bits: <span class="number">0xc</span>,
-};
 
 <span class="attr">#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 </span><span class="kw">enum </span>State {
@@ -1470,6 +1445,7 @@
     queued_rle: <span class="prelude-ty">Option</span>&lt;(u8, usize)&gt;,
     queued_backref: <span class="prelude-ty">Option</span>&lt;(usize, usize)&gt;,
     last_block: bool,
+    fixed_table: bool,
 
     state: State,
     checksum: Adler32,
@@ -1489,12 +1465,10 @@
             buffer: <span class="number">0</span>,
             nbits: <span class="number">0</span>,
             compression: CompressedBlock {
-                litlen_table: [<span class="number">0</span>; <span class="number">4096</span>],
-                dist_table: [<span class="number">0</span>; <span class="number">512</span>],
+                litlen_table: Box::new([<span class="number">0</span>; <span class="number">4096</span>]),
+                dist_table: Box::new([<span class="number">0</span>; <span class="number">512</span>]),
                 secondary_table: Vec::new(),
-                dist_symbol_lengths: [<span class="number">0</span>; <span class="number">30</span>],
-                dist_symbol_masks: [<span class="number">0</span>; <span class="number">30</span>],
-                dist_symbol_codes: [<span class="number">0xffff</span>; <span class="number">30</span>],
+                dist_secondary_table: Vec::new(),
                 eof_code: <span class="number">0</span>,
                 eof_mask: <span class="number">0</span>,
                 eof_bits: <span class="number">0</span>,
@@ -1514,6 +1488,7 @@
             state: State::ZlibHeader,
             last_block: <span class="bool-val">false</span>,
             ignore_adler32: <span class="bool-val">false</span>,
+            fixed_table: <span class="bool-val">false</span>,
         }
     }
 
@@ -1551,7 +1526,7 @@
 
     <span class="kw">fn </span>read_block_header(<span class="kw-2">&amp;mut </span><span class="self">self</span>, remaining_input: <span class="kw-2">&amp;mut &amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), DecompressionError&gt; {
         <span class="self">self</span>.fill_buffer(remaining_input);
-        <span class="kw">if </span><span class="self">self</span>.nbits &lt; <span class="number">3 </span>{
+        <span class="kw">if </span><span class="self">self</span>.nbits &lt; <span class="number">10 </span>{
             <span class="kw">return </span><span class="prelude-val">Ok</span>(());
         }
 
@@ -1578,8 +1553,43 @@
             }
             <span class="number">0b01 </span>=&gt; {
                 <span class="self">self</span>.consume_bits(<span class="number">3</span>);
-                <span class="comment">// TODO: Do this statically rather than every time.
-                </span><span class="self">Self</span>::build_tables(<span class="number">288</span>, <span class="kw-2">&amp;</span>FIXED_CODE_LENGTHS, <span class="kw-2">&amp;mut </span><span class="self">self</span>.compression, <span class="number">6</span>)<span class="question-mark">?</span>;
+
+                <span class="comment">// Check for an entirely empty blocks which can happen if there are "partial
+                // flushes" in the deflate stream. With fixed huffman codes, the EOF symbol is
+                // 7-bits of zeros so we peak ahead and see if the next 7-bits are all zero.
+                </span><span class="kw">if </span><span class="self">self</span>.peak_bits(<span class="number">7</span>) == <span class="number">0 </span>{
+                    <span class="self">self</span>.consume_bits(<span class="number">7</span>);
+                    <span class="kw">if </span><span class="self">self</span>.last_block {
+                        <span class="self">self</span>.state = State::Checksum;
+                        <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+                    }
+
+                    <span class="comment">// At this point we've consumed the entire block and need to read the next block
+                    // header. If tail call optimization were guaranteed, we could just recurse
+                    // here. But without it, a long sequence of empty fixed-blocks might cause a
+                    // stack overflow. Instead, we consume all empty blocks in a loop and then
+                    // recurse. This is the only recursive call this function, and thus is safe.
+                    </span><span class="kw">while </span><span class="self">self</span>.nbits &gt;= <span class="number">10 </span>&amp;&amp; <span class="self">self</span>.peak_bits(<span class="number">10</span>) == <span class="number">0b010 </span>{
+                        <span class="self">self</span>.consume_bits(<span class="number">10</span>);
+                        <span class="self">self</span>.fill_buffer(remaining_input);
+                    }
+                    <span class="kw">return </span><span class="self">self</span>.read_block_header(remaining_input);
+                }
+
+                <span class="comment">// Build decoding tables if the previous block wasn't also a fixed block.
+                </span><span class="kw">if </span>!<span class="self">self</span>.fixed_table {
+                    <span class="self">self</span>.fixed_table = <span class="bool-val">true</span>;
+                    <span class="kw">for </span>chunk <span class="kw">in </span><span class="self">self</span>.compression.litlen_table.chunks_exact_mut(<span class="number">512</span>) {
+                        chunk.copy_from_slice(<span class="kw-2">&amp;</span>FIXED_LITLEN_TABLE);
+                    }
+                    <span class="kw">for </span>chunk <span class="kw">in </span><span class="self">self</span>.compression.dist_table.chunks_exact_mut(<span class="number">32</span>) {
+                        chunk.copy_from_slice(<span class="kw-2">&amp;</span>FIXED_DIST_TABLE);
+                    }
+                    <span class="self">self</span>.compression.eof_bits = <span class="number">7</span>;
+                    <span class="self">self</span>.compression.eof_code = <span class="number">0</span>;
+                    <span class="self">self</span>.compression.eof_mask = <span class="number">0x7f</span>;
+                }
+
                 <span class="self">self</span>.state = State::CompressedData;
                 <span class="prelude-val">Ok</span>(())
             }
@@ -1600,6 +1610,7 @@
 
                 <span class="self">self</span>.consume_bits(<span class="number">17</span>);
                 <span class="self">self</span>.state = State::CodeLengthCodes;
+                <span class="self">self</span>.fixed_table = <span class="bool-val">false</span>;
                 <span class="prelude-val">Ok</span>(())
             }
             <span class="number">0b11 </span>=&gt; <span class="prelude-val">Err</span>(DecompressionError::InvalidBlockType),
@@ -1627,19 +1638,18 @@
                 <span class="self">self</span>.fill_buffer(remaining_input);
             }
         }
-        <span class="kw">let </span>code_length_codes: [u16; <span class="number">19</span>] = <span class="kw">crate</span>::compute_codes(<span class="kw-2">&amp;</span>code_length_lengths)
-            .ok_or(DecompressionError::BadCodeLengthHuffmanTree)<span class="question-mark">?</span>;
 
-        <span class="self">self</span>.header.table = [<span class="number">255</span>; <span class="number">128</span>];
-        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">19 </span>{
-            <span class="kw">let </span>length = code_length_lengths[i];
-            <span class="kw">if </span>length &gt; <span class="number">0 </span>{
-                <span class="kw">let </span><span class="kw-2">mut </span>j = code_length_codes[i];
-                <span class="kw">while </span>j &lt; <span class="number">128 </span>{
-                    <span class="self">self</span>.header.table[j <span class="kw">as </span>usize] = ((i <span class="kw">as </span>u8) &lt;&lt; <span class="number">3</span>) | length;
-                    j += <span class="number">1 </span>&lt;&lt; length;
-                }
-            }
+        <span class="kw">let </span><span class="kw-2">mut </span>codes = [<span class="number">0</span>; <span class="number">19</span>];
+        <span class="kw">if </span>!build_table(
+            <span class="kw-2">&amp;</span>code_length_lengths,
+            <span class="kw-2">&amp;</span>[],
+            <span class="kw-2">&amp;mut </span>codes,
+            <span class="kw-2">&amp;mut </span><span class="self">self</span>.header.table,
+            <span class="kw-2">&amp;mut </span>Vec::new(),
+            <span class="bool-val">false</span>,
+            <span class="bool-val">false</span>,
+        ) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(DecompressionError::BadCodeLengthHuffmanTree);
         }
 
         <span class="self">self</span>.state = State::CodeLengths;
@@ -1657,8 +1667,8 @@
 
             <span class="kw">let </span>code = <span class="self">self</span>.peak_bits(<span class="number">7</span>);
             <span class="kw">let </span>entry = <span class="self">self</span>.header.table[code <span class="kw">as </span>usize];
-            <span class="kw">let </span>length = entry &amp; <span class="number">0x7</span>;
-            <span class="kw">let </span>symbol = entry &gt;&gt; <span class="number">3</span>;
+            <span class="kw">let </span>length = (entry &amp; <span class="number">0x7</span>) <span class="kw">as </span>u8;
+            <span class="kw">let </span>symbol = (entry &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u8;
 
             <span class="macro">debug_assert!</span>(length != <span class="number">0</span>);
             <span class="kw">match </span>symbol {
@@ -1719,19 +1729,11 @@
             <span class="self">self</span>.header.code_lengths[i] = <span class="number">0</span>;
         }
 
-        <span class="kw">if </span><span class="self">self</span>.header.hdist == <span class="number">1
-            </span>&amp;&amp; <span class="self">self</span>.header.code_lengths[..<span class="number">286</span>] == tables::HUFFMAN_LENGTHS
-            &amp;&amp; <span class="self">self</span>.header.code_lengths[<span class="number">288</span>] == <span class="number">1
-        </span>{
-            <span class="self">self</span>.compression = FDEFLATE_COMPRESSED_BLOCK;
-        } <span class="kw">else </span>{
-            <span class="self">Self</span>::build_tables(
-                <span class="self">self</span>.header.hlit,
-                <span class="kw-2">&amp;</span><span class="self">self</span>.header.code_lengths,
-                <span class="kw-2">&amp;mut </span><span class="self">self</span>.compression,
-                <span class="number">6</span>,
-            )<span class="question-mark">?</span>;
-        }
+        <span class="self">Self</span>::build_tables(
+            <span class="self">self</span>.header.hlit,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.header.code_lengths,
+            <span class="kw-2">&amp;mut </span><span class="self">self</span>.compression,
+        )<span class="question-mark">?</span>;
         <span class="self">self</span>.state = State::CompressedData;
         <span class="prelude-val">Ok</span>(())
     }
@@ -1740,7 +1742,6 @@
         hlit: usize,
         code_lengths: <span class="kw-2">&amp;</span>[u8],
         compression: <span class="kw-2">&amp;mut </span>CompressedBlock,
-        max_search_bits: u8,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), DecompressionError&gt; {
         <span class="comment">// If there is no code assigned for the EOF symbol then the bitstream is invalid.
         </span><span class="kw">if </span>code_lengths[<span class="number">256</span>] == <span class="number">0 </span>{
@@ -1748,161 +1749,40 @@
             </span><span class="kw">return </span><span class="prelude-val">Err</span>(DecompressionError::BadLiteralLengthHuffmanTree);
         }
 
-        <span class="comment">// Build the literal/length code table.
-        </span><span class="kw">let </span>lengths = <span class="kw-2">&amp;</span>code_lengths[..<span class="number">288</span>];
-        <span class="kw">let </span>codes: [u16; <span class="number">288</span>] = <span class="kw">crate</span>::compute_codes(<span class="kw-2">&amp;</span>lengths.try_into().unwrap())
-            .ok_or(DecompressionError::BadLiteralLengthHuffmanTree)<span class="question-mark">?</span>;
-
-        <span class="kw">let </span>table_bits = lengths.iter().cloned().max().unwrap().min(<span class="number">12</span>).max(<span class="number">6</span>);
-        <span class="kw">let </span>table_size = <span class="number">1 </span>&lt;&lt; table_bits;
-
-        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">256 </span>{
-            <span class="kw">let </span>code = codes[i];
-            <span class="kw">let </span>length = lengths[i];
-            <span class="kw">let </span><span class="kw-2">mut </span>j = code;
-
-            <span class="kw">while </span>j &lt; table_size &amp;&amp; length != <span class="number">0 </span>&amp;&amp; length &lt;= <span class="number">12 </span>{
-                compression.litlen_table[j <span class="kw">as </span>usize] =
-                    ((i <span class="kw">as </span>u32) &lt;&lt; <span class="number">16</span>) | LITERAL_ENTRY | (<span class="number">1 </span>&lt;&lt; <span class="number">8</span>) | length <span class="kw">as </span>u32;
-                j += <span class="number">1 </span>&lt;&lt; length;
-            }
-
-            <span class="kw">if </span>length &gt; <span class="number">0 </span>&amp;&amp; length &lt;= max_search_bits {
-                <span class="kw">for </span>ii <span class="kw">in </span><span class="number">0</span>..<span class="number">256 </span>{
-                    <span class="kw">let </span>code2 = codes[ii];
-                    <span class="kw">let </span>length2 = lengths[ii];
-                    <span class="kw">if </span>length2 != <span class="number">0 </span>&amp;&amp; length + length2 &lt;= table_bits {
-                        <span class="kw">let </span><span class="kw-2">mut </span>j = code | (code2 &lt;&lt; length);
-
-                        <span class="kw">while </span>j &lt; table_size {
-                            compression.litlen_table[j <span class="kw">as </span>usize] = (ii <span class="kw">as </span>u32) &lt;&lt; <span class="number">24
-                                </span>| (i <span class="kw">as </span>u32) &lt;&lt; <span class="number">16
-                                </span>| LITERAL_ENTRY
-                                | (<span class="number">2 </span>&lt;&lt; <span class="number">8</span>)
-                                | ((length + length2) <span class="kw">as </span>u32);
-                            j += <span class="number">1 </span>&lt;&lt; (length + length2);
-                        }
-                    }
-                }
-            }
-        }
-
-        <span class="kw">if </span>lengths[<span class="number">256</span>] != <span class="number">0 </span>&amp;&amp; lengths[<span class="number">256</span>] &lt;= <span class="number">12 </span>{
-            <span class="kw">let </span><span class="kw-2">mut </span>j = codes[<span class="number">256</span>];
-            <span class="kw">while </span>j &lt; table_size {
-                compression.litlen_table[j <span class="kw">as </span>usize] = EXCEPTIONAL_ENTRY | lengths[<span class="number">256</span>] <span class="kw">as </span>u32;
-                j += <span class="number">1 </span>&lt;&lt; lengths[<span class="number">256</span>];
-            }
-        }
-
-        <span class="kw">let </span>table_size = table_size <span class="kw">as </span>usize;
-        <span class="kw">for </span>i <span class="kw">in </span>(table_size..<span class="number">4096</span>).step_by(table_size) {
-            compression.litlen_table.copy_within(<span class="number">0</span>..table_size, i);
+        <span class="kw">let </span><span class="kw-2">mut </span>codes = [<span class="number">0</span>; <span class="number">288</span>];
+        compression.secondary_table.clear();
+        <span class="kw">if </span>!huffman::build_table(
+            <span class="kw-2">&amp;</span>code_lengths[..hlit],
+            <span class="kw-2">&amp;</span>LITLEN_TABLE_ENTRIES,
+            <span class="kw-2">&amp;mut </span>codes[..hlit],
+            <span class="kw-2">&amp;mut *</span>compression.litlen_table,
+            <span class="kw-2">&amp;mut </span>compression.secondary_table,
+            <span class="bool-val">false</span>,
+            <span class="bool-val">true</span>,
+        ) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(DecompressionError::BadCodeLengthHuffmanTree);
         }
 
         compression.eof_code = codes[<span class="number">256</span>];
-        compression.eof_mask = (<span class="number">1 </span>&lt;&lt; lengths[<span class="number">256</span>]) - <span class="number">1</span>;
-        compression.eof_bits = lengths[<span class="number">256</span>];
-
-        <span class="kw">for </span>i <span class="kw">in </span><span class="number">257</span>..hlit {
-            <span class="kw">let </span>code = codes[i];
-            <span class="kw">let </span>length = lengths[i];
-            <span class="kw">if </span>length != <span class="number">0 </span>&amp;&amp; length &lt;= <span class="number">12 </span>{
-                <span class="kw">let </span><span class="kw-2">mut </span>j = code;
-                <span class="kw">while </span>j &lt; <span class="number">4096 </span>{
-                    compression.litlen_table[j <span class="kw">as </span>usize] = <span class="kw">if </span>i &lt; <span class="number">286 </span>{
-                        (LEN_SYM_TO_LEN_BASE[i - <span class="number">257</span>] <span class="kw">as </span>u32) &lt;&lt; <span class="number">16
-                            </span>| (LEN_SYM_TO_LEN_EXTRA[i - <span class="number">257</span>] <span class="kw">as </span>u32) &lt;&lt; <span class="number">8
-                            </span>| length <span class="kw">as </span>u32
-                    } <span class="kw">else </span>{
-                        EXCEPTIONAL_ENTRY
-                    };
-                    j += <span class="number">1 </span>&lt;&lt; length;
-                }
-            }
-        }
-
-        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..hlit {
-            <span class="kw">if </span>lengths[i] &gt; <span class="number">12 </span>{
-                compression.litlen_table[(codes[i] &amp; <span class="number">0xfff</span>) <span class="kw">as </span>usize] = u32::MAX;
-            }
-        }
-
-        <span class="kw">let </span><span class="kw-2">mut </span>secondary_table_len = <span class="number">0</span>;
-        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..hlit {
-            <span class="kw">if </span>lengths[i] &gt; <span class="number">12 </span>{
-                <span class="kw">let </span>j = (codes[i] &amp; <span class="number">0xfff</span>) <span class="kw">as </span>usize;
-                <span class="kw">if </span>compression.litlen_table[j] == u32::MAX {
-                    compression.litlen_table[j] =
-                        (secondary_table_len &lt;&lt; <span class="number">16</span>) | EXCEPTIONAL_ENTRY | SECONDARY_TABLE_ENTRY;
-                    secondary_table_len += <span class="number">8</span>;
-                }
-            }
-        }
-        <span class="macro">assert!</span>(secondary_table_len &lt;= <span class="number">0x7ff</span>);
-        compression.secondary_table = <span class="macro">vec!</span>[<span class="number">0</span>; secondary_table_len <span class="kw">as </span>usize];
-        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..hlit {
-            <span class="kw">let </span>code = codes[i];
-            <span class="kw">let </span>length = lengths[i];
-            <span class="kw">if </span>length &gt; <span class="number">12 </span>{
-                <span class="kw">let </span>j = (codes[i] &amp; <span class="number">0xfff</span>) <span class="kw">as </span>usize;
-                <span class="kw">let </span>k = (compression.litlen_table[j] &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>usize;
-
-                <span class="kw">let </span><span class="kw-2">mut </span>s = code &gt;&gt; <span class="number">12</span>;
-                <span class="kw">while </span>s &lt; <span class="number">8 </span>{
-                    <span class="macro">debug_assert_eq!</span>(compression.secondary_table[k + s <span class="kw">as </span>usize], <span class="number">0</span>);
-                    compression.secondary_table[k + s <span class="kw">as </span>usize] =
-                        ((i <span class="kw">as </span>u16) &lt;&lt; <span class="number">4</span>) | (length <span class="kw">as </span>u16);
-                    s += <span class="number">1 </span>&lt;&lt; (length - <span class="number">12</span>);
-                }
-            }
-        }
-        <span class="macro">debug_assert!</span>(compression
-            .secondary_table
-            .iter()
-            .all(|<span class="kw-2">&amp;</span>x| x != <span class="number">0 </span>&amp;&amp; (x &amp; <span class="number">0xf</span>) &gt; <span class="number">12</span>));
+        compression.eof_mask = (<span class="number">1 </span>&lt;&lt; code_lengths[<span class="number">256</span>]) - <span class="number">1</span>;
+        compression.eof_bits = code_lengths[<span class="number">256</span>];
 
         <span class="comment">// Build the distance code table.
         </span><span class="kw">let </span>lengths = <span class="kw-2">&amp;</span>code_lengths[<span class="number">288</span>..<span class="number">320</span>];
         <span class="kw">if </span>lengths == [<span class="number">0</span>; <span class="number">32</span>] {
-            compression.dist_symbol_masks = [<span class="number">0</span>; <span class="number">30</span>];
-            compression.dist_symbol_codes = [<span class="number">0xffff</span>; <span class="number">30</span>];
             compression.dist_table.fill(<span class="number">0</span>);
         } <span class="kw">else </span>{
-            <span class="kw">let </span>codes: [u16; <span class="number">32</span>] = <span class="kw">match </span><span class="kw">crate</span>::compute_codes(<span class="kw-2">&amp;</span>lengths.try_into().unwrap()) {
-                <span class="prelude-val">Some</span>(codes) =&gt; codes,
-                <span class="prelude-val">None </span>=&gt; {
-                    <span class="kw">if </span>lengths.iter().filter(|&amp;&amp;l| l != <span class="number">0</span>).count() != <span class="number">1 </span>{
-                        <span class="kw">return </span><span class="prelude-val">Err</span>(DecompressionError::BadDistanceHuffmanTree);
-                    }
-                    [<span class="number">0</span>; <span class="number">32</span>]
-                }
-            };
-
-            compression.dist_symbol_codes.copy_from_slice(<span class="kw-2">&amp;</span>codes[..<span class="number">30</span>]);
-            compression
-                .dist_symbol_lengths
-                .copy_from_slice(<span class="kw-2">&amp;</span>lengths[..<span class="number">30</span>]);
-            compression.dist_table.fill(<span class="number">0</span>);
-            <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">30 </span>{
-                <span class="kw">let </span>length = lengths[i];
-                <span class="kw">let </span>code = codes[i];
-                <span class="kw">if </span>length == <span class="number">0 </span>{
-                    compression.dist_symbol_masks[i] = <span class="number">0</span>;
-                    compression.dist_symbol_codes[i] = <span class="number">0xffff</span>;
-                } <span class="kw">else </span>{
-                    compression.dist_symbol_masks[i] = (<span class="number">1 </span>&lt;&lt; lengths[i]) - <span class="number">1</span>;
-                    <span class="kw">if </span>lengths[i] &lt;= <span class="number">9 </span>{
-                        <span class="kw">let </span><span class="kw-2">mut </span>j = code;
-                        <span class="kw">while </span>j &lt; <span class="number">512 </span>{
-                            compression.dist_table[j <span class="kw">as </span>usize] = (DIST_SYM_TO_DIST_BASE[i] <span class="kw">as </span>u32)
-                                &lt;&lt; <span class="number">16
-                                </span>| (DIST_SYM_TO_DIST_EXTRA[i] <span class="kw">as </span>u32) &lt;&lt; <span class="number">8
-                                </span>| length <span class="kw">as </span>u32;
-                            j += <span class="number">1 </span>&lt;&lt; lengths[i];
-                        }
-                    }
-                }
+            <span class="kw">let </span><span class="kw-2">mut </span>dist_codes = [<span class="number">0</span>; <span class="number">32</span>];
+            <span class="kw">if </span>!huffman::build_table(
+                lengths,
+                <span class="kw-2">&amp;</span>tables::DISTANCE_TABLE_ENTRIES,
+                <span class="kw-2">&amp;mut </span>dist_codes,
+                <span class="kw-2">&amp;mut *</span>compression.dist_table,
+                <span class="kw-2">&amp;mut </span>compression.dist_secondary_table,
+                <span class="bool-val">true</span>,
+                <span class="bool-val">false</span>,
+            ) {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(DecompressionError::BadDistanceHuffmanTree);
             }
         }
 
@@ -1915,7 +1795,220 @@
         output: <span class="kw-2">&amp;mut </span>[u8],
         <span class="kw-2">mut </span>output_index: usize,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, DecompressionError&gt; {
-        <span class="kw">while let </span>State::CompressedData = <span class="self">self</span>.state {
+        <span class="comment">// Fast decoding loop.
+        //
+        // This loop is optimized for speed and is the main decoding loop for the decompressor,
+        // which is used when there are at least 8 bytes of input and output data available. It
+        // assumes that the bitbuffer is full (nbits &gt;= 56) and that litlen_entry has been loaded.
+        //
+        // These assumptions enable a few optimizations:
+        // - Nearly all checks for nbits are avoided.
+        // - Checking the input size is optimized out in the refill function call.
+        // - The litlen_entry for the next loop iteration can be loaded in parallel with refilling
+        //   the bit buffer. This is because when the input is non-empty, the bit buffer actually
+        //   has 64-bits of valid data (even though nbits will be in 56..=63).
+        </span><span class="self">self</span>.fill_buffer(remaining_input);
+        <span class="kw">let </span><span class="kw-2">mut </span>litlen_entry = <span class="self">self</span>.compression.litlen_table[(<span class="self">self</span>.buffer &amp; <span class="number">0xfff</span>) <span class="kw">as </span>usize];
+        <span class="kw">while </span><span class="self">self</span>.state == State::CompressedData
+            &amp;&amp; output_index + <span class="number">8 </span>&lt;= output.len()
+            &amp;&amp; remaining_input.len() &gt;= <span class="number">8
+        </span>{
+            <span class="comment">// First check whether the next symbol is a literal. This code does up to 2 additional
+            // table lookups to decode more literals.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>bits;
+            <span class="kw">let </span><span class="kw-2">mut </span>litlen_code_bits = litlen_entry <span class="kw">as </span>u8;
+            <span class="kw">if </span>litlen_entry &amp; LITERAL_ENTRY != <span class="number">0 </span>{
+                <span class="kw">let </span>litlen_entry2 = <span class="self">self</span>.compression.litlen_table
+                    [(<span class="self">self</span>.buffer &gt;&gt; litlen_code_bits &amp; <span class="number">0xfff</span>) <span class="kw">as </span>usize];
+                <span class="kw">let </span>litlen_code_bits2 = litlen_entry2 <span class="kw">as </span>u8;
+                <span class="kw">let </span>litlen_entry3 = <span class="self">self</span>.compression.litlen_table
+                    [(<span class="self">self</span>.buffer &gt;&gt; (litlen_code_bits + litlen_code_bits2) &amp; <span class="number">0xfff</span>) <span class="kw">as </span>usize];
+                <span class="kw">let </span>litlen_code_bits3 = litlen_entry3 <span class="kw">as </span>u8;
+                <span class="kw">let </span>litlen_entry4 = <span class="self">self</span>.compression.litlen_table[(<span class="self">self</span>.buffer
+                    &gt;&gt; (litlen_code_bits + litlen_code_bits2 + litlen_code_bits3)
+                    &amp; <span class="number">0xfff</span>)
+                    <span class="kw">as </span>usize];
+
+                <span class="kw">let </span>advance_output_bytes = ((litlen_entry &amp; <span class="number">0xf00</span>) &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>usize;
+                output[output_index] = (litlen_entry &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u8;
+                output[output_index + <span class="number">1</span>] = (litlen_entry &gt;&gt; <span class="number">24</span>) <span class="kw">as </span>u8;
+                output_index += advance_output_bytes;
+
+                <span class="kw">if </span>litlen_entry2 &amp; LITERAL_ENTRY != <span class="number">0 </span>{
+                    <span class="kw">let </span>advance_output_bytes2 = ((litlen_entry2 &amp; <span class="number">0xf00</span>) &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>usize;
+                    output[output_index] = (litlen_entry2 &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u8;
+                    output[output_index + <span class="number">1</span>] = (litlen_entry2 &gt;&gt; <span class="number">24</span>) <span class="kw">as </span>u8;
+                    output_index += advance_output_bytes2;
+
+                    <span class="kw">if </span>litlen_entry3 &amp; LITERAL_ENTRY != <span class="number">0 </span>{
+                        <span class="kw">let </span>advance_output_bytes3 = ((litlen_entry3 &amp; <span class="number">0xf00</span>) &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>usize;
+                        output[output_index] = (litlen_entry3 &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u8;
+                        output[output_index + <span class="number">1</span>] = (litlen_entry3 &gt;&gt; <span class="number">24</span>) <span class="kw">as </span>u8;
+                        output_index += advance_output_bytes3;
+
+                        litlen_entry = litlen_entry4;
+                        <span class="self">self</span>.consume_bits(litlen_code_bits + litlen_code_bits2 + litlen_code_bits3);
+                        <span class="self">self</span>.fill_buffer(remaining_input);
+                        <span class="kw">continue</span>;
+                    } <span class="kw">else </span>{
+                        <span class="self">self</span>.consume_bits(litlen_code_bits + litlen_code_bits2);
+                        litlen_entry = litlen_entry3;
+                        litlen_code_bits = litlen_code_bits3;
+                        <span class="self">self</span>.fill_buffer(remaining_input);
+                        bits = <span class="self">self</span>.buffer;
+                    }
+                } <span class="kw">else </span>{
+                    <span class="self">self</span>.consume_bits(litlen_code_bits);
+                    bits = <span class="self">self</span>.buffer;
+                    litlen_entry = litlen_entry2;
+                    litlen_code_bits = litlen_code_bits2;
+                    <span class="kw">if </span><span class="self">self</span>.nbits &lt; <span class="number">48 </span>{
+                        <span class="self">self</span>.fill_buffer(remaining_input);
+                    }
+                }
+            } <span class="kw">else </span>{
+                bits = <span class="self">self</span>.buffer;
+            }
+
+            <span class="comment">// The next symbol is either a 13+ bit literal, back-reference, or an EOF symbol.
+            </span><span class="kw">let </span>(length_base, length_extra_bits, litlen_code_bits) =
+                <span class="kw">if </span>litlen_entry &amp; EXCEPTIONAL_ENTRY == <span class="number">0 </span>{
+                    (
+                        litlen_entry &gt;&gt; <span class="number">16</span>,
+                        (litlen_entry &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8,
+                        litlen_code_bits,
+                    )
+                } <span class="kw">else if </span>litlen_entry &amp; SECONDARY_TABLE_ENTRY != <span class="number">0 </span>{
+                    <span class="kw">let </span>secondary_table_index =
+                        (litlen_entry &gt;&gt; <span class="number">16</span>) + ((bits &gt;&gt; <span class="number">12</span>) <span class="kw">as </span>u32 &amp; (litlen_entry &amp; <span class="number">0xff</span>));
+                    <span class="kw">let </span>secondary_entry =
+                        <span class="self">self</span>.compression.secondary_table[secondary_table_index <span class="kw">as </span>usize];
+                    <span class="kw">let </span>litlen_symbol = secondary_entry &gt;&gt; <span class="number">4</span>;
+                    <span class="kw">let </span>litlen_code_bits = (secondary_entry &amp; <span class="number">0xf</span>) <span class="kw">as </span>u8;
+
+                    <span class="kw">match </span>litlen_symbol {
+                        <span class="number">0</span>..=<span class="number">255 </span>=&gt; {
+                            <span class="self">self</span>.consume_bits(litlen_code_bits);
+                            litlen_entry =
+                                <span class="self">self</span>.compression.litlen_table[(<span class="self">self</span>.buffer &amp; <span class="number">0xfff</span>) <span class="kw">as </span>usize];
+                            <span class="self">self</span>.fill_buffer(remaining_input);
+                            output[output_index] = litlen_symbol <span class="kw">as </span>u8;
+                            output_index += <span class="number">1</span>;
+                            <span class="kw">continue</span>;
+                        }
+                        <span class="number">256 </span>=&gt; {
+                            <span class="self">self</span>.consume_bits(litlen_code_bits);
+                            <span class="self">self</span>.state = <span class="kw">match </span><span class="self">self</span>.last_block {
+                                <span class="bool-val">true </span>=&gt; State::Checksum,
+                                <span class="bool-val">false </span>=&gt; State::BlockHeader,
+                            };
+                            <span class="kw">break</span>;
+                        }
+                        <span class="kw">_ </span>=&gt; (
+                            LEN_SYM_TO_LEN_BASE[litlen_symbol <span class="kw">as </span>usize - <span class="number">257</span>] <span class="kw">as </span>u32,
+                            LEN_SYM_TO_LEN_EXTRA[litlen_symbol <span class="kw">as </span>usize - <span class="number">257</span>],
+                            litlen_code_bits,
+                        ),
+                    }
+                } <span class="kw">else if </span>litlen_code_bits == <span class="number">0 </span>{
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(DecompressionError::InvalidLiteralLengthCode);
+                } <span class="kw">else </span>{
+                    <span class="self">self</span>.consume_bits(litlen_code_bits);
+                    <span class="self">self</span>.state = <span class="kw">match </span><span class="self">self</span>.last_block {
+                        <span class="bool-val">true </span>=&gt; State::Checksum,
+                        <span class="bool-val">false </span>=&gt; State::BlockHeader,
+                    };
+                    <span class="kw">break</span>;
+                };
+            bits &gt;&gt;= litlen_code_bits;
+
+            <span class="kw">let </span>length_extra_mask = (<span class="number">1 </span>&lt;&lt; length_extra_bits) - <span class="number">1</span>;
+            <span class="kw">let </span>length = length_base <span class="kw">as </span>usize + (bits &amp; length_extra_mask) <span class="kw">as </span>usize;
+            bits &gt;&gt;= length_extra_bits;
+
+            <span class="kw">let </span>dist_entry = <span class="self">self</span>.compression.dist_table[(bits &amp; <span class="number">0x1ff</span>) <span class="kw">as </span>usize];
+            <span class="kw">let </span>(dist_base, dist_extra_bits, dist_code_bits) = <span class="kw">if </span>dist_entry &amp; LITERAL_ENTRY != <span class="number">0 </span>{
+                (
+                    (dist_entry &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u16,
+                    (dist_entry &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8 &amp; <span class="number">0xf</span>,
+                    dist_entry <span class="kw">as </span>u8,
+                )
+            } <span class="kw">else if </span>dist_entry &gt;&gt; <span class="number">8 </span>== <span class="number">0 </span>{
+                <span class="kw">return </span><span class="prelude-val">Err</span>(DecompressionError::InvalidDistanceCode);
+            } <span class="kw">else </span>{
+                <span class="kw">let </span>secondary_table_index =
+                    (dist_entry &gt;&gt; <span class="number">16</span>) + ((bits &gt;&gt; <span class="number">9</span>) <span class="kw">as </span>u32 &amp; (dist_entry &amp; <span class="number">0xff</span>));
+                <span class="kw">let </span>secondary_entry =
+                    <span class="self">self</span>.compression.dist_secondary_table[secondary_table_index <span class="kw">as </span>usize];
+                <span class="kw">let </span>dist_symbol = (secondary_entry &gt;&gt; <span class="number">4</span>) <span class="kw">as </span>usize;
+                <span class="kw">if </span>dist_symbol &gt;= <span class="number">30 </span>{
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(DecompressionError::InvalidDistanceCode);
+                }
+
+                (
+                    DIST_SYM_TO_DIST_BASE[dist_symbol],
+                    DIST_SYM_TO_DIST_EXTRA[dist_symbol],
+                    (secondary_entry &amp; <span class="number">0xf</span>) <span class="kw">as </span>u8,
+                )
+            };
+            bits &gt;&gt;= dist_code_bits;
+
+            <span class="kw">let </span>dist = dist_base <span class="kw">as </span>usize + (bits &amp; ((<span class="number">1 </span>&lt;&lt; dist_extra_bits) - <span class="number">1</span>)) <span class="kw">as </span>usize;
+            <span class="kw">if </span>dist &gt; output_index {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(DecompressionError::DistanceTooFarBack);
+            }
+
+            <span class="self">self</span>.consume_bits(
+                litlen_code_bits + length_extra_bits + dist_code_bits + dist_extra_bits,
+            );
+            <span class="self">self</span>.fill_buffer(remaining_input);
+            litlen_entry = <span class="self">self</span>.compression.litlen_table[(<span class="self">self</span>.buffer &amp; <span class="number">0xfff</span>) <span class="kw">as </span>usize];
+
+            <span class="kw">let </span>copy_length = length.min(output.len() - output_index);
+            <span class="kw">if </span>dist == <span class="number">1 </span>{
+                <span class="kw">let </span>last = output[output_index - <span class="number">1</span>];
+                output[output_index..][..copy_length].fill(last);
+
+                <span class="kw">if </span>copy_length &lt; length {
+                    <span class="self">self</span>.queued_rle = <span class="prelude-val">Some</span>((last, length - copy_length));
+                    output_index = output.len();
+                    <span class="kw">break</span>;
+                }
+            } <span class="kw">else if </span>output_index + length + <span class="number">15 </span>&lt;= output.len() {
+                <span class="kw">let </span>start = output_index - dist;
+                output.copy_within(start..start + <span class="number">16</span>, output_index);
+
+                <span class="kw">if </span>length &gt; <span class="number">16 </span>|| dist &lt; <span class="number">16 </span>{
+                    <span class="kw">for </span>i <span class="kw">in </span>(<span class="number">0</span>..length).step_by(dist.min(<span class="number">16</span>)).skip(<span class="number">1</span>) {
+                        output.copy_within(start + i..start + i + <span class="number">16</span>, output_index + i);
+                    }
+                }
+            } <span class="kw">else </span>{
+                <span class="kw">if </span>dist &lt; copy_length {
+                    <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..copy_length {
+                        output[output_index + i] = output[output_index + i - dist];
+                    }
+                } <span class="kw">else </span>{
+                    output.copy_within(
+                        output_index - dist..output_index + copy_length - dist,
+                        output_index,
+                    )
+                }
+
+                <span class="kw">if </span>copy_length &lt; length {
+                    <span class="self">self</span>.queued_backref = <span class="prelude-val">Some</span>((dist, length - copy_length));
+                    output_index = output.len();
+                    <span class="kw">break</span>;
+                }
+            }
+            output_index += copy_length;
+        }
+
+        <span class="comment">// Careful decoding loop.
+        //
+        // This loop processes the remaining input when we're too close to the end of the input or
+        // output to use the fast loop.
+        </span><span class="kw">while let </span>State::CompressedData = <span class="self">self</span>.state {
             <span class="self">self</span>.fill_buffer(remaining_input);
             <span class="kw">if </span>output_index == output.len() {
                 <span class="kw">break</span>;
@@ -1926,75 +2019,11 @@
             <span class="kw">let </span>litlen_code_bits = litlen_entry <span class="kw">as </span>u8;
 
             <span class="kw">if </span>litlen_entry &amp; LITERAL_ENTRY != <span class="number">0 </span>{
-                <span class="comment">// Ultra-fast path: do 3 more consecutive table lookups and bail if any of them need the slow path.
-                </span><span class="kw">if </span><span class="self">self</span>.nbits &gt;= <span class="number">48 </span>{
-                    <span class="kw">let </span>litlen_entry2 =
-                        <span class="self">self</span>.compression.litlen_table[(bits &gt;&gt; litlen_code_bits &amp; <span class="number">0xfff</span>) <span class="kw">as </span>usize];
-                    <span class="kw">let </span>litlen_code_bits2 = litlen_entry2 <span class="kw">as </span>u8;
-                    <span class="kw">let </span>litlen_entry3 = <span class="self">self</span>.compression.litlen_table
-                        [(bits &gt;&gt; (litlen_code_bits + litlen_code_bits2) &amp; <span class="number">0xfff</span>) <span class="kw">as </span>usize];
-                    <span class="kw">let </span>litlen_code_bits3 = litlen_entry3 <span class="kw">as </span>u8;
-                    <span class="kw">let </span>litlen_entry4 = <span class="self">self</span>.compression.litlen_table[(bits
-                        &gt;&gt; (litlen_code_bits + litlen_code_bits2 + litlen_code_bits3)
-                        &amp; <span class="number">0xfff</span>)
-                        <span class="kw">as </span>usize];
-                    <span class="kw">let </span>litlen_code_bits4 = litlen_entry4 <span class="kw">as </span>u8;
-                    <span class="kw">if </span>litlen_entry2 &amp; litlen_entry3 &amp; litlen_entry4 &amp; LITERAL_ENTRY != <span class="number">0 </span>{
-                        <span class="kw">let </span>advance_output_bytes = ((litlen_entry &amp; <span class="number">0xf00</span>) &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>usize;
-                        <span class="kw">let </span>advance_output_bytes2 = ((litlen_entry2 &amp; <span class="number">0xf00</span>) &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>usize;
-                        <span class="kw">let </span>advance_output_bytes3 = ((litlen_entry3 &amp; <span class="number">0xf00</span>) &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>usize;
-                        <span class="kw">let </span>advance_output_bytes4 = ((litlen_entry4 &amp; <span class="number">0xf00</span>) &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>usize;
-                        <span class="kw">if </span>output_index
-                            + advance_output_bytes
-                            + advance_output_bytes2
-                            + advance_output_bytes3
-                            + advance_output_bytes4
-                            &lt; output.len()
-                        {
-                            <span class="self">self</span>.consume_bits(
-                                litlen_code_bits
-                                    + litlen_code_bits2
-                                    + litlen_code_bits3
-                                    + litlen_code_bits4,
-                            );
-
-                            output[output_index] = (litlen_entry &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u8;
-                            output[output_index + <span class="number">1</span>] = (litlen_entry &gt;&gt; <span class="number">24</span>) <span class="kw">as </span>u8;
-                            output_index += advance_output_bytes;
-                            output[output_index] = (litlen_entry2 &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u8;
-                            output[output_index + <span class="number">1</span>] = (litlen_entry2 &gt;&gt; <span class="number">24</span>) <span class="kw">as </span>u8;
-                            output_index += advance_output_bytes2;
-                            output[output_index] = (litlen_entry3 &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u8;
-                            output[output_index + <span class="number">1</span>] = (litlen_entry3 &gt;&gt; <span class="number">24</span>) <span class="kw">as </span>u8;
-                            output_index += advance_output_bytes3;
-                            output[output_index] = (litlen_entry4 &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u8;
-                            output[output_index + <span class="number">1</span>] = (litlen_entry4 &gt;&gt; <span class="number">24</span>) <span class="kw">as </span>u8;
-                            output_index += advance_output_bytes4;
-                            <span class="kw">continue</span>;
-                        }
-                    }
-                }
-
                 <span class="comment">// Fast path: the next symbol is &lt;= 12 bits and a literal, the table specifies the
                 // output bytes and we can directly write them to the output buffer.
                 </span><span class="kw">let </span>advance_output_bytes = ((litlen_entry &amp; <span class="number">0xf00</span>) &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>usize;
 
-                <span class="comment">// match advance_output_bytes {
-                //     1 =&gt; println!("[{output_index}] LIT1 {}", litlen_entry &gt;&gt; 16),
-                //     2 =&gt; println!(
-                //         "[{output_index}] LIT2 {} {} {}",
-                //         (litlen_entry &gt;&gt; 16) as u8,
-                //         litlen_entry &gt;&gt; 24,
-                //         bits &amp; 0xfff
-                //     ),
-                //     n =&gt; println!(
-                //         "[{output_index}] LIT{n} {} {}",
-                //         (litlen_entry &gt;&gt; 16) as u8,
-                //         litlen_entry &gt;&gt; 24,
-                //     ),
-                // }
-
-                </span><span class="kw">if </span><span class="self">self</span>.nbits &lt; litlen_code_bits {
+                <span class="kw">if </span><span class="self">self</span>.nbits &lt; litlen_code_bits {
                     <span class="kw">break</span>;
                 } <span class="kw">else if </span>output_index + <span class="number">1 </span>&lt; output.len() {
                     output[output_index] = (litlen_entry &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u8;
@@ -2026,24 +2055,22 @@
                         litlen_code_bits,
                     )
                 } <span class="kw">else if </span>litlen_entry &amp; SECONDARY_TABLE_ENTRY != <span class="number">0 </span>{
-                    <span class="kw">let </span>secondary_index = litlen_entry &gt;&gt; <span class="number">16</span>;
-                    <span class="kw">let </span>secondary_entry = <span class="self">self</span>.compression.secondary_table
-                        [secondary_index <span class="kw">as </span>usize + ((bits &gt;&gt; <span class="number">12</span>) &amp; <span class="number">0x7</span>) <span class="kw">as </span>usize];
+                    <span class="kw">let </span>secondary_table_index =
+                        (litlen_entry &gt;&gt; <span class="number">16</span>) + ((bits &gt;&gt; <span class="number">12</span>) <span class="kw">as </span>u32 &amp; (litlen_entry &amp; <span class="number">0xff</span>));
+                    <span class="kw">let </span>secondary_entry =
+                        <span class="self">self</span>.compression.secondary_table[secondary_table_index <span class="kw">as </span>usize];
                     <span class="kw">let </span>litlen_symbol = secondary_entry &gt;&gt; <span class="number">4</span>;
                     <span class="kw">let </span>litlen_code_bits = (secondary_entry &amp; <span class="number">0xf</span>) <span class="kw">as </span>u8;
 
                     <span class="kw">if </span><span class="self">self</span>.nbits &lt; litlen_code_bits {
                         <span class="kw">break</span>;
                     } <span class="kw">else if </span>litlen_symbol &lt; <span class="number">256 </span>{
-                        <span class="comment">// println!("[{output_index}] LIT1b {} (val={:04x})", litlen_symbol, self.peak_bits(15));
-
-                        </span><span class="self">self</span>.consume_bits(litlen_code_bits);
+                        <span class="self">self</span>.consume_bits(litlen_code_bits);
                         output[output_index] = litlen_symbol <span class="kw">as </span>u8;
                         output_index += <span class="number">1</span>;
                         <span class="kw">continue</span>;
                     } <span class="kw">else if </span>litlen_symbol == <span class="number">256 </span>{
-                        <span class="comment">// println!("[{output_index}] EOF");
-                        </span><span class="self">self</span>.consume_bits(litlen_code_bits);
+                        <span class="self">self</span>.consume_bits(litlen_code_bits);
                         <span class="self">self</span>.state = <span class="kw">match </span><span class="self">self</span>.last_block {
                             <span class="bool-val">true </span>=&gt; State::Checksum,
                             <span class="bool-val">false </span>=&gt; State::BlockHeader,
@@ -2062,8 +2089,7 @@
                     <span class="kw">if </span><span class="self">self</span>.nbits &lt; litlen_code_bits {
                         <span class="kw">break</span>;
                     }
-                    <span class="comment">// println!("[{output_index}] EOF");
-                    </span><span class="self">self</span>.consume_bits(litlen_code_bits);
+                    <span class="self">self</span>.consume_bits(litlen_code_bits);
                     <span class="self">self</span>.state = <span class="kw">match </span><span class="self">self</span>.last_block {
                         <span class="bool-val">true </span>=&gt; State::Checksum,
                         <span class="bool-val">false </span>=&gt; State::BlockHeader,
@@ -2077,30 +2103,31 @@
             bits &gt;&gt;= length_extra_bits;
 
             <span class="kw">let </span>dist_entry = <span class="self">self</span>.compression.dist_table[(bits &amp; <span class="number">0x1ff</span>) <span class="kw">as </span>usize];
-            <span class="kw">let </span>(dist_base, dist_extra_bits, dist_code_bits) = <span class="kw">if </span>dist_entry != <span class="number">0 </span>{
+            <span class="kw">let </span>(dist_base, dist_extra_bits, dist_code_bits) = <span class="kw">if </span>dist_entry &amp; LITERAL_ENTRY != <span class="number">0 </span>{
                 (
                     (dist_entry &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u16,
-                    (dist_entry &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8,
+                    (dist_entry &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8 &amp; <span class="number">0xf</span>,
                     dist_entry <span class="kw">as </span>u8,
                 )
             } <span class="kw">else if </span><span class="self">self</span>.nbits &gt; litlen_code_bits + length_extra_bits + <span class="number">9 </span>{
-                <span class="kw">let </span><span class="kw-2">mut </span>dist_extra_bits = <span class="number">0</span>;
-                <span class="kw">let </span><span class="kw-2">mut </span>dist_base = <span class="number">0</span>;
-                <span class="kw">let </span><span class="kw-2">mut </span>dist_advance_bits = <span class="number">0</span>;
-                <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="self">self</span>.compression.dist_symbol_lengths.len() {
-                    <span class="kw">if </span>bits <span class="kw">as </span>u16 &amp; <span class="self">self</span>.compression.dist_symbol_masks[i]
-                        == <span class="self">self</span>.compression.dist_symbol_codes[i]
-                    {
-                        dist_extra_bits = DIST_SYM_TO_DIST_EXTRA[i];
-                        dist_base = DIST_SYM_TO_DIST_BASE[i];
-                        dist_advance_bits = <span class="self">self</span>.compression.dist_symbol_lengths[i];
-                        <span class="kw">break</span>;
-                    }
-                }
-                <span class="kw">if </span>dist_advance_bits == <span class="number">0 </span>{
+                <span class="kw">if </span>dist_entry &gt;&gt; <span class="number">8 </span>== <span class="number">0 </span>{
                     <span class="kw">return </span><span class="prelude-val">Err</span>(DecompressionError::InvalidDistanceCode);
                 }
-                (dist_base, dist_extra_bits, dist_advance_bits)
+
+                <span class="kw">let </span>secondary_table_index =
+                    (dist_entry &gt;&gt; <span class="number">16</span>) + ((bits &gt;&gt; <span class="number">9</span>) <span class="kw">as </span>u32 &amp; (dist_entry &amp; <span class="number">0xff</span>));
+                <span class="kw">let </span>secondary_entry =
+                    <span class="self">self</span>.compression.dist_secondary_table[secondary_table_index <span class="kw">as </span>usize];
+                <span class="kw">let </span>dist_symbol = (secondary_entry &gt;&gt; <span class="number">4</span>) <span class="kw">as </span>usize;
+                <span class="kw">if </span>dist_symbol &gt;= <span class="number">30 </span>{
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(DecompressionError::InvalidDistanceCode);
+                }
+
+                (
+                    DIST_SYM_TO_DIST_BASE[dist_symbol],
+                    DIST_SYM_TO_DIST_EXTRA[dist_symbol],
+                    (secondary_entry &amp; <span class="number">0xf</span>) <span class="kw">as </span>u8,
+                )
             } <span class="kw">else </span>{
                 <span class="kw">break</span>;
             };
@@ -2116,8 +2143,7 @@
                 <span class="kw">return </span><span class="prelude-val">Err</span>(DecompressionError::DistanceTooFarBack);
             }
 
-            <span class="comment">// println!("[{output_index}] BACKREF len={} dist={} {:x}", length, dist, dist_entry);
-            </span><span class="self">self</span>.consume_bits(total_bits);
+            <span class="self">self</span>.consume_bits(total_bits);
 
             <span class="kw">let </span>copy_length = length.min(output.len() - output_index);
             <span class="kw">if </span>dist == <span class="number">1 </span>{
@@ -2479,29 +2505,20 @@
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>fdeflate_table() {
+    </span><span class="kw">fn </span>fixed_tables() {
         <span class="kw">let </span><span class="kw-2">mut </span>compression = CompressedBlock {
-            litlen_table: [<span class="number">0</span>; <span class="number">4096</span>],
-            dist_table: [<span class="number">0</span>; <span class="number">512</span>],
-            dist_symbol_lengths: [<span class="number">0</span>; <span class="number">30</span>],
-            dist_symbol_masks: [<span class="number">0</span>; <span class="number">30</span>],
-            dist_symbol_codes: [<span class="number">0</span>; <span class="number">30</span>],
+            litlen_table: Box::new([<span class="number">0</span>; <span class="number">4096</span>]),
+            dist_table: Box::new([<span class="number">0</span>; <span class="number">512</span>]),
             secondary_table: Vec::new(),
+            dist_secondary_table: Vec::new(),
             eof_code: <span class="number">0</span>,
             eof_mask: <span class="number">0</span>,
             eof_bits: <span class="number">0</span>,
         };
-        <span class="kw">let </span><span class="kw-2">mut </span>lengths = tables::HUFFMAN_LENGTHS.to_vec();
-        lengths.resize(<span class="number">288</span>, <span class="number">0</span>);
-        lengths.push(<span class="number">1</span>);
-        lengths.resize(<span class="number">320</span>, <span class="number">0</span>);
-        Decompressor::build_tables(<span class="number">286</span>, <span class="kw-2">&amp;</span>lengths, <span class="kw-2">&amp;mut </span>compression, <span class="number">11</span>).unwrap();
+        Decompressor::build_tables(<span class="number">288</span>, <span class="kw-2">&amp;</span>FIXED_CODE_LENGTHS, <span class="kw-2">&amp;mut </span>compression).unwrap();
 
-        <span class="macro">assert_eq!</span>(
-            compression, FDEFLATE_COMPRESSED_BLOCK,
-            <span class="string">"{:#x?}"</span>,
-            compression
-        );
+        <span class="macro">assert_eq!</span>(compression.litlen_table[..<span class="number">512</span>], FIXED_LITLEN_TABLE);
+        <span class="macro">assert_eq!</span>(compression.dist_table[..<span class="number">32</span>], FIXED_DIST_TABLE);
     }
 
     <span class="attr">#[test]
@@ -2609,6 +2626,7 @@
     }
 
     <span class="kw">mod </span>test_utils;
+    <span class="kw">use </span>tables::FIXED_CODE_LENGTHS;
     <span class="kw">use </span>test_utils::{decompress_by_chunks, TestDecompressionError};
 
     <span class="kw">fn </span>verify_no_sensitivity_to_input_chunking(

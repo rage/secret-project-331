@@ -10,7 +10,7 @@
 <span class="kw">use </span>tokio_stream <span class="kw">as </span>stream;
 <span class="kw">use </span>tokio::io::Result;
 <span class="kw">use </span>tokio_util::io::{StreamReader, poll_read_buf};
-<span class="kw">use </span>futures::future::poll_fn;
+<span class="kw">use </span>std::future::poll_fn;
 <span class="kw">use </span>std::pin::Pin;
 
 <span class="comment">// Create a reader from an iterator. This particular reader will always be

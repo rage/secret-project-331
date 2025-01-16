@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/itertools-0.13.0/src/free.rs`."><title>free.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="itertools" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/itertools-0.14.0/src/free.rs`."><title>free.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="itertools" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -315,6 +315,8 @@
 <a href="#315" id="315">315</a>
 <a href="#316" id="316">316</a>
 <a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Free functions that create iterator adaptors or call iterator methods.
 //!
 //! The benefit of free functions is that they accept any [`IntoIterator`] as
@@ -353,7 +355,7 @@
 /// ```
 /// use itertools::intersperse;
 ///
-/// itertools::assert_equal(intersperse((0..3), 8), vec![0, 8, 1, 8, 2]);
+/// itertools::assert_equal(intersperse(0..3, 8), vec![0, 8, 1, 8, 2]);
 /// ```
 </span><span class="kw">pub fn </span>intersperse&lt;I&gt;(iterable: I, element: I::Item) -&gt; Intersperse&lt;I::IntoIter&gt;
 <span class="kw">where
@@ -372,7 +374,7 @@
 /// use itertools::intersperse_with;
 ///
 /// let mut i = 10;
-/// itertools::assert_equal(intersperse_with((0..3), || { i -= 1; i }), vec![0, 9, 1, 8, 2]);
+/// itertools::assert_equal(intersperse_with(0..3, || { i -= 1; i }), vec![0, 9, 1, 8, 2]);
 /// assert_eq!(i, 8);
 /// ```
 </span><span class="kw">pub fn </span>intersperse_with&lt;I, F&gt;(iterable: I, element: F) -&gt; IntersperseWith&lt;I::IntoIter, F&gt;
@@ -392,6 +394,7 @@
 ///
 /// for (i, elt) in enumerate(&amp;[1, 2, 3]) {
 ///     /* loop body */
+///     # let _ = (i, elt);
 /// }
 /// ```
 </span><span class="kw">pub fn </span>enumerate&lt;I&gt;(iterable: I) -&gt; iter::Enumerate&lt;I::IntoIter&gt;
@@ -410,6 +413,7 @@
 ///
 /// for elt in rev(&amp;[1, 2, 3]) {
 ///     /* loop body */
+///     # let _ = elt;
 /// }
 /// ```
 </span><span class="kw">pub fn </span>rev&lt;I&gt;(iterable: I) -&gt; iter::Rev&lt;I::IntoIter&gt;

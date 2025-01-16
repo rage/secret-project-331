@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/postcard-1.0.10/src/de/flavors.rs`."><title>flavors.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="postcard" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/postcard-1.1.1/src/de/flavors.rs`."><title>flavors.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="postcard" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -517,6 +517,12 @@
 <a href="#517" id="517">517</a>
 <a href="#518" id="518">518</a>
 <a href="#519" id="519">519</a>
+<a href="#520" id="520">520</a>
+<a href="#521" id="521">521</a>
+<a href="#522" id="522">522</a>
+<a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! # Deserialization Flavors
 //!
 //! "Flavors" in `postcard` are used as modifiers to the serialization or deserialization
@@ -708,7 +714,7 @@
     }
 }
 
-<span class="doccomment">/// Support for [std::io] or `embedded-io` traits
+<span class="doccomment">/// Support for [`std::io`] or `embedded-io` traits
 </span><span class="attr">#[cfg(any(
     feature = <span class="string">"embedded-io-04"</span>,
     feature = <span class="string">"embedded-io-06"</span>,
@@ -767,7 +773,7 @@
         <span class="kw">use </span><span class="kw">super</span>::SlidingBuffer;
         <span class="kw">use crate</span>::{Error, <span class="prelude-ty">Result</span>};
 
-        <span class="doccomment">/// Wrapper over a [`embedded_io`](crate::eio::embedded_io)::[`Read`](crate::eio::Read) and a sliding buffer to implement the [Flavor] trait
+        <span class="doccomment">/// Wrapper over a [`embedded_io`](crate::eio::embedded_io)::[`Read`](crate::eio::Read) and a sliding buffer to implement the [`Flavor`] trait
         </span><span class="kw">pub struct </span>EIOReader&lt;<span class="lifetime">'de</span>, T&gt;
         <span class="kw">where
             </span>T: <span class="kw">crate</span>::eio::Read,
@@ -780,7 +786,10 @@
         <span class="kw">where
             </span>T: <span class="kw">crate</span>::eio::Read,
         {
-            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(reader: T, buff: <span class="kw-2">&amp;</span><span class="lifetime">'de </span><span class="kw-2">mut </span>[u8]) -&gt; <span class="self">Self </span>{
+            <span class="doccomment">/// Create a new [`EIOReader`] from a reader and a buffer.
+            ///
+            /// `buff` must have enough space to hold all data read during the deserialisation.
+            </span><span class="kw">pub fn </span>new(reader: T, buff: <span class="kw-2">&amp;</span><span class="lifetime">'de </span><span class="kw-2">mut </span>[u8]) -&gt; <span class="self">Self </span>{
                 <span class="self">Self </span>{
                     reader,
                     buff: SlidingBuffer::new(buff),
@@ -826,7 +835,7 @@
         }
     }
 
-    <span class="doccomment">/// Support for [std::io] traits
+    <span class="doccomment">/// Support for [`std::io`] traits
     </span><span class="attr">#[allow(clippy::module_inception)]
     #[cfg(feature = <span class="string">"use-std"</span>)]
     </span><span class="kw">pub mod </span>io {
@@ -834,7 +843,7 @@
         <span class="kw">use </span><span class="kw">super</span>::SlidingBuffer;
         <span class="kw">use crate</span>::{Error, <span class="prelude-ty">Result</span>};
 
-        <span class="doccomment">/// Wrapper over a [std::io::Read] and a sliding buffer to implement the [Flavor] trait
+        <span class="doccomment">/// Wrapper over a [`std::io::Read`] and a sliding buffer to implement the [Flavor] trait
         </span><span class="kw">pub struct </span>IOReader&lt;<span class="lifetime">'de</span>, T&gt;
         <span class="kw">where
             </span>T: std::io::Read,
@@ -847,7 +856,10 @@
         <span class="kw">where
             </span>T: std::io::Read,
         {
-            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(reader: T, buff: <span class="kw-2">&amp;</span><span class="lifetime">'de </span><span class="kw-2">mut </span>[u8]) -&gt; <span class="self">Self </span>{
+            <span class="doccomment">/// Create a new [`IOReader`] from a reader and a buffer.
+            ///
+            /// `buff` must have enough space to hold all data read during the deserialisation.
+            </span><span class="kw">pub fn </span>new(reader: T, buff: <span class="kw-2">&amp;</span><span class="lifetime">'de </span><span class="kw-2">mut </span>[u8]) -&gt; <span class="self">Self </span>{
                 <span class="self">Self </span>{
                     reader,
                     buff: SlidingBuffer::new(buff),
@@ -899,11 +911,11 @@
 ////////////////////////////////////////
 
 </span><span class="doccomment">/// This Cyclic Redundancy Check flavor applies [the CRC crate's `Algorithm`](https://docs.rs/crc/latest/crc/struct.Algorithm.html) struct on
-/// the serialized data. The flavor will check the CRC assuming that it has been appended to the bytes.
+/// the serialized data.
 ///
+/// The flavor will check the CRC assuming that it has been appended to the bytes.
 /// CRCs are used for error detection when reading data back.
-///
-/// The `crc` feature requires enabling to use this module.
+/// Requires the `crc` feature.
 ///
 /// More on CRCs: &lt;https://en.wikipedia.org/wiki/Cyclic_redundancy_check&gt;.
 </span><span class="attr">#[cfg(feature = <span class="string">"use-crc"</span>)]

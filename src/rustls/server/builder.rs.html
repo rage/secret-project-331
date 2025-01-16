@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.14/src/server/builder.rs`."><title>builder.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.21/src/server/builder.rs`."><title>builder.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -147,12 +147,6 @@
 <a href="#147" id="147">147</a>
 <a href="#148" id="148">148</a>
 <a href="#149" id="149">149</a>
-<a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
-<a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
-<a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::sync::Arc;
 <span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::marker::PhantomData;
@@ -160,11 +154,9 @@
 <span class="kw">use </span>pki_types::{CertificateDer, PrivateKeyDer};
 
 <span class="kw">use </span><span class="kw">crate</span>::builder::{ConfigBuilder, WantsVerifier};
-<span class="kw">use </span><span class="kw">crate</span>::crypto::CryptoProvider;
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
 <span class="kw">use </span><span class="kw">crate</span>::server::{handy, ResolvesServerCert, ServerConfig};
 <span class="kw">use </span><span class="kw">crate</span>::sign::CertifiedKey;
-<span class="kw">use </span><span class="kw">crate</span>::time_provider::TimeProvider;
 <span class="kw">use </span><span class="kw">crate</span>::verify::{ClientCertVerifier, NoClientAuth};
 <span class="kw">use crate</span>::{compress, versions, InconsistentKeys, NoKeyLog};
 
@@ -176,11 +168,11 @@
     ) -&gt; ConfigBuilder&lt;ServerConfig, WantsServerCert&gt; {
         ConfigBuilder {
             state: WantsServerCert {
-                provider: <span class="self">self</span>.state.provider,
                 versions: <span class="self">self</span>.state.versions,
                 verifier: client_cert_verifier,
-                time_provider: <span class="self">self</span>.state.time_provider,
             },
+            provider: <span class="self">self</span>.provider,
+            time_provider: <span class="self">self</span>.time_provider,
             side: PhantomData,
         }
     }
@@ -197,10 +189,8 @@
 /// For more information, see the [`ConfigBuilder`] documentation.
 </span><span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>WantsServerCert {
-    provider: Arc&lt;CryptoProvider&gt;,
     versions: versions::EnabledVersions,
     verifier: Arc&lt;<span class="kw">dyn </span>ClientCertVerifier&gt;,
-    time_provider: Arc&lt;<span class="kw">dyn </span>TimeProvider&gt;,
 }
 
 <span class="kw">impl </span>ConfigBuilder&lt;ServerConfig, WantsServerCert&gt; {
@@ -215,8 +205,8 @@
     ///
     /// `cert_chain` is a vector of DER-encoded certificates.
     /// `key_der` is a DER-encoded private key as PKCS#1, PKCS#8, or SEC1. The
-    /// `aws-lc-rs` and `ring` [`CryptoProvider`]s support all three encodings,
-    /// but other `CryptoProviders` may not.
+    /// `aws-lc-rs` and `ring` [`CryptoProvider`][crate::CryptoProvider]s support
+    /// all three encodings, but other `CryptoProviders` may not.
     ///
     /// This function fails if `key_der` is invalid, or if the
     /// `SubjectPublicKeyInfo` from the private key does not match the public
@@ -227,8 +217,7 @@
         key_der: PrivateKeyDer&lt;<span class="lifetime">'static</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;ServerConfig, Error&gt; {
         <span class="kw">let </span>private_key = <span class="self">self
-            </span>.state
-            .provider
+            </span>.provider
             .key_provider
             .load_private_key(key_der)<span class="question-mark">?</span>;
 
@@ -249,8 +238,8 @@
     ///
     /// `cert_chain` is a vector of DER-encoded certificates.
     /// `key_der` is a DER-encoded private key as PKCS#1, PKCS#8, or SEC1. The
-    /// `aws-lc-rs` and `ring` [`CryptoProvider`]s support all three encodings,
-    /// but other `CryptoProviders` may not.
+    /// `aws-lc-rs` and `ring` [`CryptoProvider`][crate::CryptoProvider]s support
+    /// all three encodings, but other `CryptoProviders` may not.
     /// `ocsp` is a DER-encoded OCSP response.  Ignored if zero length.
     ///
     /// This function fails if `key_der` is invalid, or if the
@@ -263,8 +252,7 @@
         ocsp: Vec&lt;u8&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;ServerConfig, Error&gt; {
         <span class="kw">let </span>private_key = <span class="self">self
-            </span>.state
-            .provider
+            </span>.provider
             .key_provider
             .load_private_key(key_der)<span class="question-mark">?</span>;
 
@@ -282,7 +270,7 @@
     <span class="doccomment">/// Sets a custom [`ResolvesServerCert`].
     </span><span class="kw">pub fn </span>with_cert_resolver(<span class="self">self</span>, cert_resolver: Arc&lt;<span class="kw">dyn </span>ResolvesServerCert&gt;) -&gt; ServerConfig {
         ServerConfig {
-            provider: <span class="self">self</span>.state.provider,
+            provider: <span class="self">self</span>.provider,
             verifier: <span class="self">self</span>.state.verifier,
             cert_resolver,
             ignore_client_order: <span class="bool-val">false</span>,
@@ -298,10 +286,10 @@
             enable_secret_extraction: <span class="bool-val">false</span>,
             max_early_data_size: <span class="number">0</span>,
             send_half_rtt_data: <span class="bool-val">false</span>,
-            send_tls13_tickets: <span class="number">4</span>,
+            send_tls13_tickets: <span class="number">2</span>,
             <span class="attr">#[cfg(feature = <span class="string">"tls12"</span>)]
             </span>require_ems: <span class="macro">cfg!</span>(feature = <span class="string">"fips"</span>),
-            time_provider: <span class="self">self</span>.state.time_provider,
+            time_provider: <span class="self">self</span>.time_provider,
             cert_compressors: compress::default_cert_compressors().to_vec(),
             cert_compression_cache: Arc::new(compress::CompressionCache::default()),
             cert_decompressors: compress::default_cert_decompressors().to_vec(),

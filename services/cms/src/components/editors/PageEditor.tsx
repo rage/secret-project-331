@@ -18,7 +18,7 @@ import { EditorContentDispatch, editorContentReducer } from "../../contexts/Edit
 import usePageInfo from "../../hooks/usePageInfo"
 import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
 import { fetchNextPageRoutingData } from "../../services/backend/pages"
-import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
+import { modifyBlocks, removeNonBreakingSpaces } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import { denormalizeDocument, normalizeDocument } from "../../utils/documentSchemaProcessor"
 import { makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray } from "../../utils/peerOrSelfReviewConfig"
@@ -89,7 +89,7 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
     setCurrentlySaving(true)
     const dataToSave = normalizeDocument({
       chapterId: data.chapter_id,
-      content: removeUnsupportedBlockType(content),
+      content: removeNonBreakingSpaces(removeUnsupportedBlockType(content)),
       title,
       urlPath: data.url_path,
     })

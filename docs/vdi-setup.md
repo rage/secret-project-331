@@ -12,11 +12,11 @@ This document details the setup process for the VDI environment specifically req
 4. For the WBS number, please ask **redande** or **hn** in the MOOC Center Slack channel.
 5. To receive sufficient resources and an external disk necessary for development, contact the university's helpdesk. The MOOC Center has an ongoing email thread for these requests; ask **redande** or **hn** to add your request to this thread.
 
-## Install and Set Up VMware Horizon Client
+## Install and Set Up Omnissa Horizon Client
 
-1. If VMware Horizon Client is not already installed, download it from [VMware Horizon Client Downloads](https://customerconnect.vmware.com/en/downloads/info/slug/desktop_end_user_computing/vmware_horizon_clients/horizon_8).
+1. If Omnissa Horizon Client is not already installed, download it from [VMware Horizon Client Downloads](https://customerconnect.omnissa.com/downloads/info/slug/desktop_end_user_computing/omnissa_horizon_clients/8).
 2. Install the client software on your machine.
-3. Open VMware Horizon Client and select **New Server**.
+3. Open Omnissa Horizon Client and select **New Server**.
 4. Enter `vdi.helsinki.fi` as the **Connection Server**.
 5. Sign in with your university credentials. Make sure the dropdown below the credentials field is set to **ATKK**.
 6. Select your virtual desktop, which should appear as `vdi-<your university username>`.

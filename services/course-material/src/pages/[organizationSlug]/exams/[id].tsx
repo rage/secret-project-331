@@ -27,6 +27,7 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import { humanReadableDateTime } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface ExamProps {
@@ -238,7 +239,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     return (
       <>
         {examInfo}
-        <div>{t("exam-time-up", { "ends-at": exam.data.ends_at.toLocaleString() })}</div>
+        <div>{t("exam-time-up", { "ends-at": humanReadableDateTime(exam.data.ends_at) })}</div>
       </>
     )
   }
@@ -316,7 +317,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
           endsAt={endsAt}
           secondsLeft={secondsLeft}
         />
-        {secondsLeft < 10 * 60 && (
+        {secondsLeft < 10 * 60 && secondsLeft >= 0 && (
           <div
             className={css`
               background-color: ${baseTheme.colors.yellow[100]};
@@ -329,19 +330,34 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
             <div>{t("exam-time-running-out-soon-help-text")}</div>
           </div>
         )}
+        {exam.data.ended && (
+          <div
+            className={css`
+              background-color: ${baseTheme.colors.yellow[100]};
+              color: black;
+              padding: 0.7rem 1rem;
+              margin: 1rem 0;
+              border: 1px solid ${baseTheme.colors.yellow[300]};
+            `}
+          >
+            <div>{t("exam-ended-see-points-below")}</div>
+          </div>
+        )}
         <Page onRefresh={handleRefresh} organizationSlug={query.organizationSlug} />
-        <Button
-          variant={"primary"}
-          size={"small"}
-          onClick={() => {
-            const confirmation = confirm(t("message-do-you-want-to-end-the-exam"))
-            if (confirmation) {
-              handleEndExam()
-            }
-          }}
-        >
-          {t("button-end-exam")}
-        </Button>
+        {!exam.data.ended && (
+          <Button
+            variant={"primary"}
+            size={"small"}
+            onClick={() => {
+              const confirmation = confirm(t("message-do-you-want-to-end-the-exam"))
+              if (confirmation) {
+                handleEndExam()
+              }
+            }}
+          >
+            {t("button-end-exam")}
+          </Button>
+        )}
       </PageContext.Provider>
     </CoursePageDispatch.Provider>
   )

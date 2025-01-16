@@ -47,6 +47,7 @@
   "grading-strategy": "Arvostelumenetelmä",
   "grant-only-when-fully-correct": "Myönnä vain kun kokonaan oikein",
   "grant-whenever-possible": "Myönnä heti kun mahdollista",
+  "hide-markdown-preview": "Piilota markdown-esikatselu",
   "horizontal": "Vaakasuora",
   "incorrect-option": "Väärä vaihtoehto",
   "input-header": "Syötepohjaiset:",

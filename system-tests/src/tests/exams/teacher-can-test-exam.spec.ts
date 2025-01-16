@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test"
 
+import { getLocatorForNthExerciseServiceIframe, waitForViewType } from "@/utils/iframeLocators"
+
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
@@ -30,31 +32,14 @@ test("Testing exam works", async ({ page }) => {
 
   await page.getByLabel("Edit").click()
   await page.getByRole("button", { name: "Quizzes" }).click()
-  await page
-    .frameLocator('iframe[title="IFRAME EDITOR"]')
-    .getByRole("button", { name: "Multiple choice Choose" })
-    .click()
-  await page
-    .frameLocator('iframe[title="IFRAME EDITOR"]')
-    .getByLabel("Title", { exact: true })
-    .fill("Multiple choice")
-  await page
-    .frameLocator('iframe[title="IFRAME EDITOR"]')
-    .getByLabel("Option title", { exact: true })
-    .fill("Correct answer")
+  const quizzesEditor = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 0)
+  await quizzesEditor.getByRole("button", { name: "Multiple choice Choose" }).click()
+  await quizzesEditor.getByLabel("Title", { exact: true }).fill("Multiple choice")
+  await quizzesEditor.getByLabel("Option title", { exact: true }).fill("Correct answer")
   await page.frameLocator('iframe[title="IFRAME EDITOR"]').getByLabel("Correct").check()
-  await page
-    .frameLocator('iframe[title="IFRAME EDITOR"]')
-    .getByRole("button", { name: "Add option" })
-    .click()
-  await page
-    .frameLocator('iframe[title="IFRAME EDITOR"]')
-    .getByLabel("Option title", { exact: true })
-    .fill("Wrong answer")
-  await page
-    .frameLocator('iframe[title="IFRAME EDITOR"]')
-    .getByRole("button", { name: "Add option" })
-    .click()
+  await quizzesEditor.getByRole("button", { name: "Add option" }).click()
+  await quizzesEditor.getByLabel("Option title", { exact: true }).fill("Wrong answer")
+  await quizzesEditor.getByRole("button", { name: "Add option" }).click()
   await page.getByRole("button", { name: "Save", exact: true }).click()
   await page.getByText("Success", { exact: true }).click()
 
@@ -71,10 +56,8 @@ test("Testing exam works", async ({ page }) => {
   page.on("dialog", (dialog) => dialog.accept())
   await page.locator(`button:text("Start the exam!")`).click()
 
-  await page
-    .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-    .getByRole("button", { name: "Correct answer" })
-    .click()
+  const quizzesIframe = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 0)
+  await quizzesIframe.getByRole("button", { name: "Correct answer" }).click()
   await page.getByRole("button", { name: "Submit" }).click()
   await page.getByText("Your submission has been saved.").waitFor()
 
@@ -82,11 +65,7 @@ test("Testing exam works", async ({ page }) => {
   await page.getByLabel("show answers").check()
   // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100)
-  await expect(
-    page
-      .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-      .getByText("Your answer was correct."),
-  ).toBeVisible()
+  await expect(quizzesIframe.getByText("Your answer was correct.")).toBeVisible()
   // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100)
 
@@ -94,39 +73,26 @@ test("Testing exam works", async ({ page }) => {
   await page.getByLabel("show answers").uncheck()
   // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100)
-  await page
-    .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+  await quizzesIframe
     .locator("div")
     .filter({ hasText: /^Correct answer$/ })
     .first()
     .waitFor()
-  await expect(
-    page
-      .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-      .getByText("Your answer was correct."),
-  ).toBeHidden()
+  await expect(quizzesIframe.getByText("Your answer was correct.")).toBeHidden()
 
   //Reset exam progress
   await page.getByRole("button", { name: "Reset exam progress" }).click()
   await page.getByText("Operation successful!").waitFor()
   // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100)
-  await page
-    .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-    .getByRole("button", { name: "Correct answer" })
-    .waitFor()
+  await waitForViewType(quizzesIframe, "answer-exercise")
+  await quizzesIframe.getByRole("button", { name: "Correct answer" }).waitFor()
   await page.getByRole("button", { name: "Submit" }).isDisabled()
 
-  await page
-    .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-    .getByRole("button", { name: "Correct answer" })
-    .click()
+  await quizzesIframe.getByRole("button", { name: "Correct answer" }).click()
   await page.getByRole("button", { name: "Submit" }).click()
-  await page.getByText("Your submission has been").isVisible()
+  await waitForViewType(quizzesIframe, "view-submission")
+  await page.getByText("Your submission has been saved.").isVisible()
   await page.getByText("Show answers").click()
-  await expect(
-    page
-      .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-      .getByText("Your answer was correct."),
-  ).toBeVisible()
+  await expect(quizzesIframe.getByText("Your answer was correct.")).toBeVisible()
 })

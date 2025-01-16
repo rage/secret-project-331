@@ -75,3 +75,16 @@ export async function scrollElementInsideIframeToView(locator: Locator) {
     window.scrollTo(0, window.scrollY + y - viewPortHeight / 2)
   }, elementHandleBoundingBox.y)
 }
+
+/**
+ * Waits for an exercise service IFrame to show a specific view type.
+ *
+ * @param locator - A locator that points to an exercise service IFrame. Please use the `getLocatorForNthExerciseServiceIframe` function to get the locator.
+ * @param viewType - The type of view to wait for. Can be one of "answer-exercise", "view-submission", or "exercise-editor".
+ */
+export async function waitForViewType(
+  locator: Locator,
+  viewType: "answer-exercise" | "view-submission" | "exercise-editor",
+) {
+  await locator.locator(`[data-view-type="${viewType}"]`).waitFor()
+}

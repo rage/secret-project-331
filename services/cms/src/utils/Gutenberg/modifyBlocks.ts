@@ -1,6 +1,8 @@
 /* eslint-disable i18next/no-literal-string */
 import { BlockInstance } from "@wordpress/blocks"
 
+const UNCOMMON_SPACES_REGEX = /[\u00A0\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]/g
+
 export const modifyBlocks = (
   blocks: BlockInstance[],
   supportedBlocks: string[],
@@ -22,6 +24,18 @@ export const modifyBlocks = (
 }
 
 /**
+ * Internal helper function used by removeUncommonSpacesFromBlocks.
+ * Replaces various Unicode space characters (like non-breaking spaces,
+ * mathematical spaces, etc.) with standard spaces.
+ *
+ * @param text - The text to process
+ * @returns Text with standardized spaces
+ */
+const replaceUncommonSpaces = (text: string): string => {
+  return text.replace(UNCOMMON_SPACES_REGEX, " ")
+}
+
+/**
  * Recursively removes uncommon space characters from paragraph blocks and returns a new array with the changes.
  * This function creates deep copies and does not modify the original blocks.
  *
@@ -40,16 +54,28 @@ export const modifyBlocks = (
 export const removeUncommonSpacesFromBlocks = (blocks: BlockInstance[]): BlockInstance[] => {
   return blocks.map((block) => {
     const newBlock = { ...block }
+    const attributes = { ...block.attributes }
 
-    if (block.name === "core/paragraph" && block.attributes.content) {
-      newBlock.attributes = {
-        ...block.attributes,
-        content: block.attributes.content.replace(
-          /[\u00A0\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]/g,
-          " ",
-        ),
-      }
+    // Handle different block types
+    switch (block.name) {
+      case "core/paragraph":
+      case "core/heading":
+        if (attributes.content) {
+          attributes.content = replaceUncommonSpaces(attributes.content)
+        }
+        break
+
+      case "moocfi/hero-section":
+        if (attributes.title) {
+          attributes.title = replaceUncommonSpaces(attributes.title)
+        }
+        if (attributes.subtitle) {
+          attributes.subtitle = replaceUncommonSpaces(attributes.subtitle)
+        }
+        break
     }
+
+    newBlock.attributes = attributes
 
     if (block.innerBlocks && block.innerBlocks.length > 0) {
       newBlock.innerBlocks = removeUncommonSpacesFromBlocks(block.innerBlocks)

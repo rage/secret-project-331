@@ -18,10 +18,50 @@ describe("removeUncommonSpacesFromBlocks", () => {
 
     const result = removeUncommonSpacesFromBlocks(blocks)
 
-    // Check that the result has the correct content
     expect(result[0].attributes.content).toBe("Hello World More Text")
-    // Verify original wasn't modified
     expect(blocks[0].attributes.content).toBe("Hello\u00A0World\u2003More\u3000Text")
+  })
+
+  it("should replace non-breaking spaces in heading blocks", () => {
+    const blocks: BlockInstance[] = [
+      {
+        name: "core/heading",
+        attributes: {
+          content: "Header\u00A0Text\u2003Here",
+          level: 2,
+        },
+        clientId: "1",
+        isValid: true,
+        innerBlocks: [],
+      },
+    ]
+
+    const result = removeUncommonSpacesFromBlocks(blocks)
+
+    expect(result[0].attributes.content).toBe("Header Text Here")
+    expect(blocks[0].attributes.content).toBe("Header\u00A0Text\u2003Here")
+  })
+
+  it("should replace non-breaking spaces in hero-section blocks", () => {
+    const blocks: BlockInstance[] = [
+      {
+        name: "moocfi/hero-section",
+        attributes: {
+          title: "Main\u00A0Title\u2003Here",
+          subtitle: "Sub\u00A0Title\u2003Text",
+        },
+        clientId: "1",
+        isValid: true,
+        innerBlocks: [],
+      },
+    ]
+
+    const result = removeUncommonSpacesFromBlocks(blocks)
+
+    expect(result[0].attributes.title).toBe("Main Title Here")
+    expect(result[0].attributes.subtitle).toBe("Sub Title Text")
+    expect(blocks[0].attributes.title).toBe("Main\u00A0Title\u2003Here")
+    expect(blocks[0].attributes.subtitle).toBe("Sub\u00A0Title\u2003Text")
   })
 
   it("should handle nested blocks", () => {
@@ -47,18 +87,16 @@ describe("removeUncommonSpacesFromBlocks", () => {
 
     const result = removeUncommonSpacesFromBlocks(blocks)
 
-    // Check that the nested content was modified in the result
     expect(result[0].innerBlocks[0].attributes.content).toBe("Nested Content")
-    // Verify original wasn't modified
     expect(blocks[0].innerBlocks[0].attributes.content).toBe("Nested\u00A0Content")
   })
 
-  it("should ignore non-paragraph blocks", () => {
+  it("should ignore unsupported block types", () => {
     const blocks: BlockInstance[] = [
       {
-        name: "core/heading",
+        name: "core/image",
         attributes: {
-          content: "Header\u00A0Text",
+          caption: "Image\u00A0Caption",
         },
         clientId: "1",
         isValid: true,
@@ -68,9 +106,8 @@ describe("removeUncommonSpacesFromBlocks", () => {
 
     const result = removeUncommonSpacesFromBlocks(blocks)
 
-    expect(result[0].attributes.content).toBe("Header\u00A0Text")
-    // Verify original wasn't modified
-    expect(blocks[0].attributes.content).toBe("Header\u00A0Text")
+    expect(result[0].attributes.caption).toBe("Image\u00A0Caption")
+    expect(blocks[0].attributes.caption).toBe("Image\u00A0Caption")
   })
 
   it("should handle empty blocks array", () => {

@@ -109,18 +109,7 @@ const ImageBlock: React.FC<
             ${align && "display: inline-block;"}
           `}
         >
-          {disableInteractivity ? (
-            renderImage()
-          ) : (
-            <a
-              href={href}
-              target={linkTarget}
-              rel={ENSURE_REL_NO_OPENER_IF_TARGET_BLANK}
-              className={linkClass}
-            >
-              {renderImage()}
-            </a>
-          )}
+          {disableInteractivity ? renderImage() : <>{renderImage()}</>}
         </div>
       </figure>
       <figcaption
@@ -138,20 +127,7 @@ const ImageBlock: React.FC<
     </div>
   )
 
-  return disableInteractivity ? (
-    imageContent
-  ) : (
-    <Zoom>
-      <a
-        href={href}
-        target={linkTarget}
-        rel={ENSURE_REL_NO_OPENER_IF_TARGET_BLANK}
-        className={linkClass}
-      >
-        {imageContent}
-      </a>
-    </Zoom>
-  )
+  return disableInteractivity ? imageContent : <Zoom>{imageContent}</Zoom>
 }
 
 export default withErrorBoundary(ImageBlock)

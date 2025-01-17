@@ -3,6 +3,7 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ContentRenderer, { BlockRendererProps } from "../.."
+import { ImageInteractivityContext } from "../../core/common/Image/ImageInteractivityContext"
 
 import { Block } from "@/services/backend"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -28,6 +29,7 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
   const size = sizeStringToSizepx(props.data)
   const currentIsImage = isBlockImage(frontCard)
   const [isFlipped, setIsFlipped] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
 
   return (
     <div
@@ -41,6 +43,8 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
         cursor: pointer;
       `}
       onClick={() => setIsFlipped(!isFlipped)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           setIsFlipped(!isFlipped)
@@ -49,74 +53,83 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
       role="button"
       tabIndex={0}
     >
-      <div
-        className={`inner ${css`
-          position: relative;
-          width: 100%;
-          height: 100%;
-          text-align: center;
-          transition: transform 0.8s;
-          transform-style: preserve-3d;
-          transform: ${isFlipped ? "rotateY(180deg)" : "rotateY(0)"};
-        `}`}
-      >
+      {/* Disable all image interactivity (zoom and links) inside flip cards */}
+      <ImageInteractivityContext.Provider value={{ disableInteractivity: true }}>
         <div
-          className={css`
-            position: absolute;
+          className={`inner ${css`
+            position: relative;
             width: 100%;
             height: 100%;
-            margin: 0px !important;
-            padding: 0px !important;
-            background-color: #f4f4f6;
-            border-radius: 10px;
-            overflow: hidden;
-            backface-visibility: hidden;
-
-            ${!currentIsImage && "border: 3px solid #bfbec6;"}
-
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-
-            /** https://bugzilla.mozilla.org/show_bug.cgi?id=1201471 */
-            transform: rotateX(0deg);
-          `}
+            text-align: center;
+            transition: transform 0.4s ease-out;
+            transform-style: preserve-3d;
+            transform: ${isFlipped
+              ? isHovered
+                ? "rotateY(180deg)"
+                : "rotateY(180deg)"
+              : isHovered
+                ? "rotateY(10deg)"
+                : "rotateY(0)"};
+          `}`}
         >
-          <ContentRenderer
-            data={[frontCard]}
-            editing={false}
-            selectedBlockId={null}
-            setEdits={function (): void {}}
-            isExam={false}
-          />
-        </div>
-        <div
-          className={css`
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            margin: 0px !important;
-            background-color: #f4f4f6;
-            border-radius: 10px;
-            overflow: hidden;
-            backface-visibility: hidden;
+          <div
+            className={css`
+              position: absolute;
+              width: 100%;
+              height: 100%;
+              margin: 0px !important;
+              padding: 0px !important;
+              background-color: #f4f4f6;
+              border-radius: 10px;
+              overflow: hidden;
+              backface-visibility: hidden;
 
-            transform: rotateY(180deg);
+              ${!currentIsImage && "border: 3px solid #bfbec6;"}
 
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-          `}
-        >
-          <ContentRenderer
-            data={[backCard]}
-            editing={false}
-            selectedBlockId={null}
-            setEdits={function (): void {}}
-            isExam={false}
-          />
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+
+              /** https://bugzilla.mozilla.org/show_bug.cgi?id=1201471 */
+              transform: rotateX(0deg);
+            `}
+          >
+            <ContentRenderer
+              data={[frontCard]}
+              editing={false}
+              selectedBlockId={null}
+              setEdits={function (): void {}}
+              isExam={false}
+            />
+          </div>
+          <div
+            className={css`
+              position: absolute;
+              width: 100%;
+              height: 100%;
+              margin: 0px !important;
+              background-color: #f4f4f6;
+              border-radius: 10px;
+              overflow: hidden;
+              backface-visibility: hidden;
+
+              transform: rotateY(180deg);
+
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+            `}
+          >
+            <ContentRenderer
+              data={[backCard]}
+              editing={false}
+              selectedBlockId={null}
+              setEdits={function (): void {}}
+              isExam={false}
+            />
+          </div>
         </div>
-      </div>
+      </ImageInteractivityContext.Provider>
     </div>
   )
 }

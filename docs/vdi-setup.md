@@ -87,10 +87,10 @@ Git should already be installed on the VDI. Confirm this by running `git --versi
 
    > **Note**: If this command does not work, try running it in a Bash shell instead of Fish. Enter Bash by typing `bash`, run the command, then exit Bash with `Ctrl+D`.
 
-4. Install the latest version of Node.js:
+4. Install the projects version of Node.js (run in secret-project-331 root):
 
    ```bash
-   nvm install lts
+   nvm install
    ```
 
 5. Apply Docker group permissions:

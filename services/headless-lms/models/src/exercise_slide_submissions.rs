@@ -242,6 +242,38 @@ pub async fn get_flagged_answers_by_submission_id(
     Ok(results)
 }
 
+pub async fn get_flagged_answers_submission_ids_by_flaggers_id(
+    conn: &mut PgConnection,
+    flagged_by: Uuid,
+) -> ModelResult<Vec<Uuid>> {
+    let flagged_submissions = sqlx::query_as!(
+        FlaggedAnswer,
+        r#"
+        SELECT
+            id,
+            submission_id,
+            flagged_user,
+            flagged_by,
+            reason,
+            description,
+            created_at,
+            updated_at,
+            deleted_at
+        FROM flagged_answers
+        WHERE flagged_by = $1
+          AND deleted_at IS NULL
+        "#,
+        flagged_by
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(flagged_submissions
+        .into_iter()
+        .map(|row| row.submission_id)
+        .collect())
+}
+
 pub async fn insert_exercise_slide_submission(
     conn: &mut PgConnection,
     exercise_slide_submission: NewExerciseSlideSubmission,

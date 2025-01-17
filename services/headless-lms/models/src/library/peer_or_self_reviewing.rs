@@ -412,7 +412,7 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
         return Ok(data)
     }
 
-    let excluded_exercise_slide_submission_ids =
+    let mut excluded_exercise_slide_submission_ids =
         peer_or_self_review_submissions::get_users_submission_ids_for_exercise_and_course_instance(
             conn,
             reviewer_user_exercise_state.user_id,
@@ -420,6 +420,14 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
             course_instance_id,
         )
         .await?;
+    let reported_submissions =
+        crate::exercise_slide_submissions::get_flagged_answers_submission_ids_by_flaggers_id(
+            conn,
+            reviewer_user_exercise_state.user_id,
+        )
+        .await?;
+    excluded_exercise_slide_submission_ids.extend(reported_submissions);
+
     let candidate_submission_id = try_to_select_peer_review_candidate_from_queue(
         conn,
         reviewer_user_exercise_state.exercise_id,

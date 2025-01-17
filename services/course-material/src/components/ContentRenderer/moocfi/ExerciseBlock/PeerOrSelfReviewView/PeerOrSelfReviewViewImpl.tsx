@@ -149,7 +149,15 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
   )
 
   const handleReportSubmit = (reason: string, description: string) => {
-    reportMutation.mutate({ reason, description })
+    reportMutation.mutate(
+      { reason, description },
+      {
+        onSuccess: () => {
+          setAnswers(new Map())
+          query.refetch()
+        },
+      },
+    )
   }
 
   if (query.isError) {

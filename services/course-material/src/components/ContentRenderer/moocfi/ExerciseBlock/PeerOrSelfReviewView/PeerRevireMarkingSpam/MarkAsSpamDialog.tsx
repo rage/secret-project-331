@@ -60,7 +60,8 @@ const MarkAsSpamDialog: React.FC<{
         <FieldContainer>
           <RadioButton
             label={t("flagging-reason-ai-generated")}
-            value={t("flagging-reason-ai-generated")} // eslint-disable-next-line i18next/no-literal-string
+            value={t("flagging-reason-ai-generated")}
+            // eslint-disable-next-line i18next/no-literal-string
             name={"reason"}
             onChange={(e) => setSelectedReason(e.target.value)}
           ></RadioButton>

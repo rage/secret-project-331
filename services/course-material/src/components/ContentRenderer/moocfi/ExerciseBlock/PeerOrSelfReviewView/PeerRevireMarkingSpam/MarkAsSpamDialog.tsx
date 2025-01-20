@@ -75,6 +75,7 @@ const MarkAsSpamDialog: React.FC<{
           width: 100%;
           height: 5rem;
           margin-bottom: 1rem;
+          padding: 10px 12px;
         `}
       />
       <Button variant="primary" onClick={handleSubmit} disabled={!selectedReason} size={"small"}>

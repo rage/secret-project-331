@@ -300,7 +300,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
           margin-top: 3rem;
           margin-bottom: 2rem;
           background-color: #e0e0e0;
-          height: 6px;
+          height: 5px;
           border: none;
         `}
       />
@@ -333,8 +333,14 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
             }}
           />
         ))}
+
       <button
-        className={cx(exerciseButtonStyles)}
+        className={cx(
+          css`
+            margin-top: 2.5rem !important;
+          `,
+          exerciseButtonStyles,
+        )}
         disabled={!isValid || !peerOrSelfReviewData || submitPeerOrSelfReviewMutation.isPending}
         onClick={() => submitPeerOrSelfReviewMutation.mutate()}
       >

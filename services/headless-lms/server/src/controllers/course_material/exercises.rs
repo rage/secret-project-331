@@ -8,9 +8,9 @@ use crate::{
     },
     prelude::*,
 };
-use headless_lms_models::courses;
 use headless_lms_models::exercise_slide_submissions::{self, NewFlaggedAnswer};
 use headless_lms_models::user_exercise_states::CourseInstanceOrExamId;
+use headless_lms_models::{courses, peer_review_queue_entries};
 use models::{
     exercise_task_submissions::PeerOrSelfReviewsReceived,
     exercises::CourseMaterialExercise,
@@ -412,63 +412,82 @@ async fn post_flag_answer_in_peer_review(
     let insert_result =
         exercise_slide_submissions::insert_flagged_answer(&mut conn, new_flagged_answer).await;
 
-    //If the flagging was successful, increment the answers flag count and check if it needs to be moved to manual grading
-    if insert_result.is_err() {
+    if let Err(_) = insert_result {
         return Err(ControllerError::new(
             ControllerErrorType::InternalServerError,
             "Failed to report answer".to_string(),
             None,
         ));
-    } else {
-        let increment_flag_count =
-            exercise_slide_submissions::increment_flag_count(&mut conn, payload.submission_id)
-                .await;
+    }
 
-        if let Ok(updated_flag_count) = increment_flag_count {
-            let course = courses::get_course(&mut conn, course_id).await?;
+    // Increment the flag count
+    let updated_flag_count =
+        exercise_slide_submissions::increment_flag_count(&mut conn, payload.submission_id)
+            .await
+            .map_err(|_| {
+                ControllerError::new(
+                    ControllerErrorType::InternalServerError,
+                    "Failed to increment the flag count.".to_string(),
+                    None,
+                )
+            })?;
 
-            if let Some(flagged_answers_threshold) = course.flagged_answers_threshold {
-                if updated_flag_count >= flagged_answers_threshold {
-                    let course_instance_or_exam_id = if let Some(course_instance_id) =
-                        flagged_submission_data.course_instance_id
-                    {
-                        CourseInstanceOrExamId::Instance(course_instance_id)
-                    } else if let Some(exam_id) = flagged_submission_data.exam_id {
-                        CourseInstanceOrExamId::Exam(exam_id)
-                    } else {
-                        return Err(ControllerError::new(
-                            ControllerErrorType::InternalServerError,
-                            "No course instance or exam ID found for the submission.".to_string(),
-                            None,
-                        ));
-                    };
+    let course = courses::get_course(&mut conn, course_id).await?;
 
-                    let update_result = user_exercise_states::update_reviewing_stage(
-                        &mut conn,
-                        flagged_user,
-                        course_instance_or_exam_id,
-                        flagged_submission_data.exercise_id,
-                        ReviewingStage::WaitingForManualGrading,
-                    )
-                    .await;
+    // Check if the flag count exceeds the courses flagged answers threshold.
+    // If it does the move to manual review and remove from the peer review queue.
+    if let Some(flagged_answers_threshold) = course.flagged_answers_threshold {
+        if updated_flag_count < flagged_answers_threshold {
+            let token = skip_authorize();
+            return token.authorized_ok(web::Json(true));
+        }
 
-                    if update_result.is_err() {
-                        return Err(ControllerError::new(
-                            ControllerErrorType::InternalServerError,
-                            "Failed to update the reviewing stage.".to_string(),
-                            None,
-                        ));
-                    }
-                }
-            }
+        let course_instance_id = flagged_submission_data
+            .course_instance_id
+            .map(CourseInstanceOrExamId::Instance)
+            .ok_or_else(|| {
+                ControllerError::new(
+                    ControllerErrorType::InternalServerError,
+                    "No course instance found for the submission.".to_string(),
+                    None,
+                )
+            })?;
+
+        // Move the answer to manual review
+        let update_result = user_exercise_states::update_reviewing_stage(
+            &mut conn,
+            flagged_user,
+            course_instance_id,
+            flagged_submission_data.exercise_id,
+            ReviewingStage::WaitingForManualGrading,
+        )
+        .await?;
+
+        // Remove from peer review queue so other students can't review an answers that is already in manual review
+        if let Some(instance_id) = update_result.course_instance_id {
+            peer_review_queue_entries::remove_queue_entries_for_unusual_reason(
+                &mut conn,
+                flagged_user,
+                flagged_submission_data.exercise_id,
+                instance_id,
+            )
+            .await
+            .map_err(|_| {
+                ControllerError::new(
+                    ControllerErrorType::InternalServerError,
+                    "Failed to remove from the review queue.".to_string(),
+                    None,
+                )
+            })?;
         } else {
             return Err(ControllerError::new(
                 ControllerErrorType::InternalServerError,
-                "Failed to increment the flag count.".to_string(),
+                "Failed to update the reviewing stage.".to_string(),
                 None,
             ));
         }
     }
+
     let token = skip_authorize();
     token.authorized_ok(web::Json(true))
 }

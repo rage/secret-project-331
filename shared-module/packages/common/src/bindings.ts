@@ -1058,7 +1058,7 @@ export interface AnswerRequiringAttentionWithTasks {
   tasks: Array<CourseMaterialExerciseTask>
   given_peer_reviews: Array<PeerReviewWithQuestionsAndAnswers>
   received_peer_or_self_reviews: Array<PeerReviewWithQuestionsAndAnswers>
-  reveived_peer_flagging_reports: Array<FlaggedAnswer>
+  received_peer_review_flagging_reports: Array<FlaggedAnswer>
 }
 
 export interface AnswersRequiringAttention {

@@ -97,7 +97,7 @@ pub async fn seed_sample_course(
         is_joinable_by_code_only: false,
         join_code: None,
         ask_marketing_consent: false,
-        flagged_answers_threshold: Some(5),
+        flagged_answers_threshold: Some(3),
     };
     let (course, _front_page, default_instance, default_module) =
         library::content_management::create_new_course(
@@ -2033,7 +2033,7 @@ pub async fn create_glossary_course(
         is_joinable_by_code_only: false,
         join_code: None,
         ask_marketing_consent: false,
-        flagged_answers_threshold: Some(5),
+        flagged_answers_threshold: Some(3),
     };
 
     let (course, _front_page, _default_instance, default_module) =
@@ -2161,7 +2161,7 @@ pub async fn seed_cs_course_material(
         is_joinable_by_code_only: false,
         join_code: None,
         ask_marketing_consent: false,
-        flagged_answers_threshold: Some(5),
+        flagged_answers_threshold: Some(3),
     };
     let (course, front_page, default_instance, default_module) =
         library::content_management::create_new_course(
@@ -3042,7 +3042,7 @@ pub async fn seed_course_without_submissions(
         is_joinable_by_code_only: false,
         join_code: None,
         ask_marketing_consent: false,
-        flagged_answers_threshold: Some(5),
+        flagged_answers_threshold: Some(3),
     };
     let (course, _front_page, _, default_module) = library::content_management::create_new_course(
         &mut conn,
@@ -4451,7 +4451,7 @@ pub async fn seed_peer_review_course_without_submissions(
         is_joinable_by_code_only: false,
         join_code: None,
         ask_marketing_consent: false,
-        flagged_answers_threshold: Some(5),
+        flagged_answers_threshold: Some(3),
     };
 
     let (course, _front_page, _, default_module) = library::content_management::create_new_course(

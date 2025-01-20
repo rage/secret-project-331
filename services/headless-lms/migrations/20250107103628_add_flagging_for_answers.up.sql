@@ -30,6 +30,6 @@ ADD COLUMN flag_count INTEGER NOT NULL DEFAULT 0;
 COMMENT ON COLUMN exercise_slide_submissions.flag_count IS 'The number of times the submission has been flagged.';
 
 ALTER TABLE courses
-ADD COLUMN flagged_answers_threshold INTEGER NOT NULL DEFAULT 5;
+ADD COLUMN flagged_answers_threshold INTEGER NOT NULL DEFAULT 3 CHECK (flagged_answers_threshold > 0);
 
 COMMENT ON COLUMN courses.flagged_answers_threshold IS 'The amount of flags required to trigger a teacher review for an answer.';

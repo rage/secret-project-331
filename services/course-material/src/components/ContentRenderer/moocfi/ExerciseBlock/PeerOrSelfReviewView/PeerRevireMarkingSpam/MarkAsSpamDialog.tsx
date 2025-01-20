@@ -30,7 +30,7 @@ const MarkAsSpamDialog: React.FC<{
   }
 
   return (
-    <Dialog open={isOpen} onClose={onClose}>
+    <Dialog open={isOpen} onClose={onClose} aria-labelledby="report-dialog-title">
       <h1> {t("title-report-dialog")}</h1>
 
       <div
@@ -78,7 +78,13 @@ const MarkAsSpamDialog: React.FC<{
           padding: 10px 12px;
         `}
       />
-      <Button variant="primary" onClick={handleSubmit} disabled={!selectedReason} size={"small"}>
+      <Button
+        variant="primary"
+        onClick={handleSubmit}
+        disabled={!selectedReason}
+        size={"small"}
+        aria-label={t("submit-button")}
+      >
         {t("submit-button")}
       </Button>
     </Dialog>

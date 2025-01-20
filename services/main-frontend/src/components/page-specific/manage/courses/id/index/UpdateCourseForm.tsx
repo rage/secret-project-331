@@ -33,7 +33,7 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
   const [testStatus, setTestStatus] = useState(course.is_test_mode)
   const [isUnlisted, setIsUnlisted] = useState(course.is_unlisted)
   const [peerReviewFlaggingThreshold, setPeerReviewFlaggingThreshold] = useState(
-    course.flagged_answers_threshold ?? 5,
+    course.flagged_answers_threshold ?? 3,
   )
   const [joinableByCodeOnlyStatus, setjoinableByCodeOnlyStatus] = useState(
     course.is_joinable_by_code_only,

@@ -440,7 +440,7 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
         />
 
         <FlaggedPeerReviewAccordion
-          reports={answerRequiringAttention.reveived_peer_flagging_reports}
+          reports={answerRequiringAttention.received_peer_review_flagging_reports}
           title={t("label-received-reports")}
         />
       </div>

@@ -1989,8 +1989,10 @@ export function isAnswerRequiringAttentionWithTasks(
     typedObj["received_peer_or_self_reviews"].every(
       (e: any) => isPeerReviewWithQuestionsAndAnswers(e) as boolean,
     ) &&
-    Array.isArray(typedObj["reveived_peer_flagging_reports"]) &&
-    typedObj["reveived_peer_flagging_reports"].every((e: any) => isFlaggedAnswer(e) as boolean)
+    Array.isArray(typedObj["received_peer_review_flagging_reports"]) &&
+    typedObj["received_peer_review_flagging_reports"].every(
+      (e: any) => isFlaggedAnswer(e) as boolean,
+    )
   )
 }
 

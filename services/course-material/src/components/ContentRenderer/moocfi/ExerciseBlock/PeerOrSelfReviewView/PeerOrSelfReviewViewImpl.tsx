@@ -145,19 +145,17 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
       })
     },
     { notify: true, method: "POST" },
-    {},
+    {
+      onSuccess: () => {
+        setIsReportDialogOpen(false)
+        setAnswers(new Map())
+        query.refetch()
+      },
+    },
   )
 
   const handleReportSubmit = (reason: string, description: string) => {
-    reportMutation.mutate(
-      { reason, description },
-      {
-        onSuccess: () => {
-          setAnswers(new Map())
-          query.refetch()
-        },
-      },
-    )
+    reportMutation.mutate({ reason, description })
   }
 
   if (query.isError) {

@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import React from "react"
+import React, { useId } from "react"
 import { useTranslation } from "react-i18next"
 
 import { typography } from "../styles"
@@ -17,6 +17,7 @@ interface StandardDialogProps {
   width?: "normal" | "wide"
   noPadding?: boolean
   className?: string
+  backgroundColor?: string
 }
 
 const CLOSE_SYMBOL = "×"
@@ -31,8 +32,10 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
   width = "normal",
   noPadding = false,
   className,
+  backgroundColor,
 }) => {
   const { t } = useTranslation()
+  const titleId = useId()
 
   return (
     <Dialog
@@ -42,7 +45,7 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
       noPadding={true}
       className={className}
       role="dialog"
-      aria-labelledby="dialog-title"
+      aria-labelledby={titleId}
     >
       <div
         className={css`
@@ -50,6 +53,7 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
           flex-direction: column;
           height: 100%;
           position: relative;
+          ${backgroundColor && `background-color: ${backgroundColor};`}
         `}
       >
         {showCloseButton && onClose && (
@@ -101,7 +105,7 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
           `}
         >
           <h2
-            id="dialog-title"
+            id={titleId}
             className={css`
               font-size: ${typography.h5};
               margin: 0;
@@ -115,7 +119,7 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
         <div
           className={css`
             flex: 1;
-            ${!noPadding && `padding: 2rem; padding-top: 1rem;`}
+            ${!noPadding && `padding: 1rem 2rem;`}
             overflow-y: auto;
           `}
         >
@@ -126,14 +130,14 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
           <div
             className={css`
               padding: 1rem 2rem;
-              border-top: 1px solid #eaeaea;
+              padding-top: 0;
               display: flex;
               justify-content: flex-end;
               gap: 1rem;
             `}
           >
             {buttons.map((button, index) => (
-              <Button key={index} {...button} size="medium" />
+              <Button key={index} fullWidth {...button} size="medium" />
             ))}
           </div>
         )}

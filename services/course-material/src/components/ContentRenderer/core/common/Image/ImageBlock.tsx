@@ -28,10 +28,7 @@ const ImageBlock: React.FC<
     align,
     caption,
     height,
-    href,
-    linkClass,
     linkTarget,
-    rel,
     // sizeSlug,
     title,
     url,
@@ -41,13 +38,6 @@ const ImageBlock: React.FC<
   } = data.attributes
 
   const { terms } = useContext(GlossaryContext)
-
-  const ENSURE_REL_NO_OPENER_IF_TARGET_BLANK =
-    linkTarget && linkTarget.includes("_blank")
-      ? rel && !rel.includes("noopener")
-        ? rel.split(" ").join(" ").concat(" noopener")
-        : "noopener"
-      : rel
 
   const renderImage = () => (
     <>

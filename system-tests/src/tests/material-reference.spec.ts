@@ -35,7 +35,7 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "add-new-material-reference-dialog",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Submit"), page.locator("text=Close")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Submit")],
   })
 
   await page.locator('textarea[name="references"]').click()

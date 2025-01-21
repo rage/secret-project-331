@@ -9,7 +9,6 @@ import NewOrEditPageForm from "../NewOrEditPageForm"
 import PageAudioWidget from "./PageAudioWidget"
 
 import { Chapter, Page } from "@/shared-module/common/bindings"
-import Dialog from "@/shared-module/common/components/Dialog"
 import DropdownMenu from "@/shared-module/common/components/DropdownMenu"
 import { baseTheme } from "@/shared-module/common/styles"
 
@@ -66,26 +65,19 @@ const PageListItem: React.FC<React.PropsWithChildren<PageListItemProps>> = ({
       {showDialog && (
         <PageAudioWidget id={page.id} open={showDialog} onClose={() => setShowDialog(false)} />
       )}
-      {showEditPageDetailsForm && (
-        <Dialog
-          open={showEditPageDetailsForm}
-          onClose={() => {
-            setShowEditDetailsPageForm(false)
-          }}
-        >
-          <NewOrEditPageForm
-            courseId={page.course_id ?? ""}
-            onSubmitForm={() => {
-              setShowEditDetailsPageForm(false)
-              reload()
-            }}
-            isUpdate={true}
-            savedPage={page}
-            // eslint-disable-next-line i18next/no-literal-string
-            prefix={chapter && `/chapter-${chapter.chapter_number}/`}
-          />
-        </Dialog>
-      )}
+      <NewOrEditPageForm
+        courseId={page.course_id ?? ""}
+        onSubmitForm={() => {
+          setShowEditDetailsPageForm(false)
+          reload()
+        }}
+        isUpdate={true}
+        savedPage={page}
+        // eslint-disable-next-line i18next/no-literal-string
+        prefix={chapter && `/chapter-${chapter.chapter_number}/`}
+        open={showEditPageDetailsForm}
+        onClose={() => setShowEditDetailsPageForm(false)}
+      />
       <tr
         className={css`
           border: 1px solid ${baseTheme.colors.clear[300]};

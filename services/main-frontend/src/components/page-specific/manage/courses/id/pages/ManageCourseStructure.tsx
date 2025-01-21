@@ -15,8 +15,8 @@ import {
 } from "../../../../../../services/backend/courses"
 import BottomPanel from "../../../../../BottomPanel"
 
+import ChapterFormDialog from "./ChapterFormDialog"
 import ChapterImageWidget from "./ChapterImageWidget"
-import NewChapterForm from "./NewChapterForm"
 import FrontPage from "./PageList/FrontPage"
 import PageList from "./PageList/PageList"
 import {
@@ -108,7 +108,7 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
   }, [courseStructure])
 
   const handleCreateChapter = async () => {
-    setShowEditChapterForm(!showEditChapterForm)
+    setShowEditChapterForm(false)
     setChapterBeingEdited(null)
     await refetch()
   }
@@ -291,36 +291,18 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
           {t("button-text-new-chapter")}
         </Button>
 
-        <Dialog
-          open={!!showEditChapterForm}
+        <ChapterFormDialog
+          open={showEditChapterForm}
           onClose={() => {
             setChapterBeingEdited(null)
+            setShowEditChapterForm(false)
           }}
-        >
-          <div
-            className={css`
-              margin: 1rem;
-            `}
-          >
-            <Button
-              variant="primary"
-              size="medium"
-              onClick={() => {
-                setChapterBeingEdited(null)
-                setShowEditChapterForm(false)
-              }}
-            >
-              {t("button-text-close")}
-            </Button>
-            <NewChapterForm
-              courseId={courseStructure.course.id}
-              onSubmitForm={handleCreateChapter}
-              chapterNumber={chapterBeingEdited?.chapter_number ?? (maxPart ?? 0) + 1}
-              initialData={chapterBeingEdited}
-              newRecord={!chapterBeingEdited}
-            />
-          </div>
-        </Dialog>
+          courseId={courseStructure.course.id}
+          onSubmitForm={handleCreateChapter}
+          chapterNumber={chapterBeingEdited?.chapter_number ?? (maxPart ?? 0) + 1}
+          initialData={chapterBeingEdited}
+          newRecord={!chapterBeingEdited}
+        />
 
         <Dialog
           open={!!showEditImageModal}

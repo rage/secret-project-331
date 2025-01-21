@@ -103,21 +103,12 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
         {t("save")}
       </Button>
       <Button
-        variant="primary"
+        variant="secondary"
         size="medium"
         type="button"
         onClick={() => onDelete(courseId, reference.id)}
       >
         {t("delete")}
-      </Button>
-      <Button
-        variant="secondary"
-        size="medium"
-        type="button"
-        onClick={onCancel}
-        disabled={!isValidReference}
-      >
-        {t("close")}
       </Button>
     </form>
   )

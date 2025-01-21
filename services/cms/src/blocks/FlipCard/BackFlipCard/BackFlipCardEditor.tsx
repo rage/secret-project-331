@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
 import React from "react"
@@ -16,7 +17,11 @@ const BackFlipCardEditor: React.FC<BlockEditProps<Record<string, never>>> = ({ c
       title={t("back-card")}
       explanation={t("back-card-explanation")}
     >
-      <div>
+      <div
+        className={css`
+          width: 100%;
+        `}
+      >
         <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} templateLock={false} />
       </div>
     </BlockPlaceholderWrapper>

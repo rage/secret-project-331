@@ -91,11 +91,14 @@ const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>>
         </ErrorText>
       ))}
       <br />
-      <Button variant="primary" size="medium" type="submit" value={t("button-text-submit")}>
+      <Button
+        variant="primary"
+        size="medium"
+        fullWidth
+        type="submit"
+        value={t("button-text-submit")}
+      >
         {t("button-text-submit")}
-      </Button>
-      <Button variant="secondary" size="medium" type="button" onClick={onCancel}>
-        {t("button-text-close")}
       </Button>
     </form>
   )

@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import CloseIcon from "../../../../../../../imgs/close.svg"
 import TrashIcon from "../../../../../../../imgs/trash.svg"
 import {
   postPageAudioFile,
@@ -11,13 +10,12 @@ import {
 } from "../../../../../../../services/backend/page-audio-files"
 import { fetchPageAudioFiles } from "../../../../../../../services/backend/pages"
 
-import Dialog from "@/shared-module/common/components/Dialog"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import StandardDialog from "@/shared-module/common/components/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { runCallbackIfEnterPressed } from "@/shared-module/common/utils/accessibility"
 
 const ACCEPTABLE_MIME_TYPES = [
   "audio/mpeg",
@@ -107,35 +105,19 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
   }
 
   return (
-    <Dialog open={open} onClose={onClose} role="dialog" aria-labelledby="label">
+    <StandardDialog
+      open={open}
+      onClose={onClose}
+      title={t("audio-upload")}
+      width="normal"
+      backgroundColor="#ecf3f2"
+    >
       <div
         className={css`
-          position: relative;
-          padding: 1.2rem;
-          background: #ecf3f2;
           text-align: left;
           font-family: ${primaryFont};
         `}
       >
-        <div
-          role="button"
-          tabIndex={0}
-          onClick={onClose}
-          onKeyDown={(e) => runCallbackIfEnterPressed(e, onClose)}
-          className={css`
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 50px;
-            height: 30px;
-            width: 30px;
-          `}
-        >
-          <CloseIcon />
-        </div>
         {getPageAudioFiles.isPending && (
           <div
             className={css`
@@ -166,14 +148,6 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
               margin-bottom: 1rem;
             `}
           >
-            <h4
-              className={css`
-                padding-bottom: 5px;
-                font-weight: 600;
-              `}
-            >
-              {t("audio-upload")}
-            </h4>
             <span
               className={css`
                 color: #333;
@@ -282,23 +256,8 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
             <input type="submit" value={t("upload")} />
           </form>
         </div>
-        <button
-          className={css`
-            background: #fff;
-            padding: 4px 20px;
-            border: 2px solid #555;
-            color: #555;
-            cursor: pointer;
-            transition: background 0.2s ease-in-out;
-            margin-top: 20px;
-            width: 80px;
-          `}
-          onClick={onClose}
-        >
-          {t("close")}
-        </button>
       </div>
-    </Dialog>
+    </StandardDialog>
   )
 }
 

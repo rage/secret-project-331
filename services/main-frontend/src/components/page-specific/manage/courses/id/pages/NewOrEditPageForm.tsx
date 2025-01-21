@@ -7,8 +7,8 @@ import { postNewPage, updatePageDetails } from "../../../../../../services/backe
 import { normalizePath } from "../../../../../../utils/normalizePath"
 
 import { Page } from "@/shared-module/common/bindings"
-import Button from "@/shared-module/common/components/Button"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import StandardDialog from "@/shared-module/common/components/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 const PathFieldWithPrefixElement = styled.div`
@@ -29,6 +29,8 @@ interface NewOrEditPageFormProps {
   prefix?: string
   isUpdate: boolean
   savedPage?: Page
+  open: boolean
+  onClose: () => void
 }
 
 const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps>> = ({
@@ -38,6 +40,8 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
   prefix = "/",
   isUpdate = false,
   savedPage,
+  open,
+  onClose,
 }) => {
   const { t } = useTranslation()
   const initialPath = useMemo(() => {
@@ -80,62 +84,74 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
     },
   )
 
+  const handleSubmit = () => {
+    saveMutation.mutate()
+  }
+
   return (
-    <div
-      className={css`
-        width: 500px;
-        padding: 1rem 0;
-      `}
+    <StandardDialog
+      open={open}
+      onClose={onClose}
+      title={isUpdate ? t("heading-edit-page") : t("heading-new-page")}
+      buttons={[
+        {
+          disabled: saveMutation.isPending,
+          // eslint-disable-next-line i18next/no-literal-string
+          variant: "primary",
+          onClick: handleSubmit,
+          children: isUpdate ? t("button-text-update") : t("button-text-create"),
+        },
+      ]}
     >
       <div>
-        <FieldContainer>
-          <TextField
-            required
-            label={t("text-field-label-title")}
-            value={title}
-            onChangeByValue={(value) => {
-              setTitle(value)
-              setPath(normalizePath(value))
-            }}
-          />
-        </FieldContainer>
-        <FieldContainer>
-          <PathFieldWithPrefixElement>
-            <span
-              className={css`
-                margin-right: 0.5rem;
-                white-space: nowrap;
-                position: relative;
-                top: 4px;
-              `}
-            >
-              {prefix}
-            </span>
+        <div>
+          <FieldContainer
+            className={css`
+              margin-left: 4px;
+            `}
+          >
             <TextField
               required
-              label={t("text-field-label-path")}
-              value={path}
-              className={css`
-                width: 100%;
-              `}
+              label={t("text-field-label-title")}
+              value={title}
               onChangeByValue={(value) => {
-                setPath(value)
+                setTitle(value)
+                setPath(normalizePath(value))
               }}
             />
-          </PathFieldWithPrefixElement>
-        </FieldContainer>
+          </FieldContainer>
+          <FieldContainer
+            className={css`
+              margin-left: -4px;
+            `}
+          >
+            <PathFieldWithPrefixElement>
+              <span
+                className={css`
+                  margin-right: 0.5rem;
+                  white-space: nowrap;
+                  position: relative;
+                  top: 0px;
+                `}
+              >
+                {prefix}
+              </span>
+              <TextField
+                required
+                label={t("text-field-label-path")}
+                value={path}
+                className={css`
+                  width: 100%;
+                `}
+                onChangeByValue={(value) => {
+                  setPath(value)
+                }}
+              />
+            </PathFieldWithPrefixElement>
+          </FieldContainer>
+        </div>
       </div>
-      <div>
-        <Button
-          disabled={saveMutation.isPending}
-          variant="primary"
-          size="medium"
-          onClick={() => saveMutation.mutate()}
-        >
-          {isUpdate ? t("button-text-update") : t("button-text-create")}
-        </Button>
-      </div>
-    </div>
+    </StandardDialog>
   )
 }
 

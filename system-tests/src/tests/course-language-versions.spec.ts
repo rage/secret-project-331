@@ -38,7 +38,7 @@ test("Creating a new language version works", async ({ page, headless }, testInf
   await page.fill('textarea:below(:text("Description"))', "Course description")
 
   await page.click(`button:text("Create")`)
-  await page.getByText("Operation successful!").waitFor()
+  await page.getByText("Course created successfully").waitFor()
 
   await page.goto("http://project-331.local/org/uh-cs")
 

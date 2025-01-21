@@ -8,6 +8,8 @@ import { ImageAttributes } from "../../../../../../types/GutenbergBlockAttribute
 import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
 import { parseText } from "../../../util/textParsing"
 
+import { useImageInteractivity } from "./ImageInteractivityContext"
+
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface ExtraAttributes {
@@ -18,6 +20,7 @@ const ImageBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ImageAttributes & ExtraAttributes>>
 > = ({ data }) => {
   const { t } = useTranslation()
+  const { disableInteractivity } = useImageInteractivity()
   const {
     alt,
     // blurDataUrl,
@@ -25,10 +28,7 @@ const ImageBlock: React.FC<
     align,
     caption,
     height,
-    href,
-    linkClass,
     linkTarget,
-    rel,
     // sizeSlug,
     title,
     url,
@@ -39,13 +39,29 @@ const ImageBlock: React.FC<
 
   const { terms } = useContext(GlossaryContext)
 
-  const ENSURE_REL_NO_OPENER_IF_TARGET_BLANK =
-    linkTarget && linkTarget.includes("_blank")
-      ? rel && !rel.includes("noopener")
-        ? rel.split(" ").join(" ").concat(" noopener")
-        : "noopener"
-      : rel
-  return (
+  const renderImage = () => (
+    <>
+      <img
+        title={title}
+        height={height}
+        width={width}
+        className={css`
+          max-width: 100%;
+          height: auto;
+          margin: 1rem 0;
+          ${scale && `transform: scale(${scale});`}
+          ${aspectRatio && `aspect-ratio: ${aspectRatio};`}
+        `}
+        src={url}
+        alt={alt}
+      />
+      {linkTarget && linkTarget.includes("_blank") && (
+        <span className="screen-reader-only">{t("screen-reader-opens-in-new-tab")}</span>
+      )}
+    </>
+  )
+
+  const imageContent = (
     <div
       className={css`
         width: fit-content;
@@ -66,51 +82,26 @@ const ImageBlock: React.FC<
         }
       `}
     >
-      <Zoom>
-        <figure
+      <figure
+        className={css`
+          ${align === "center" && `text-align: center;display: table;  margin: 0 auto;`}
+          ${align !== "center" &&
+          `float: ${align};
+        margin-top: 3rem;
+        margin-bottom: 3rem;
+        ${align === "right" && "margin-left: 1rem;"}
+        ${align === "left" && "margin-right: 1rem;"}
+        `}
+        `}
+      >
+        <div
           className={css`
-            ${align === "center" && `text-align: center;display: table;  margin: 0 auto;`}
-            ${align !== "center" &&
-            `float: ${align};
-          margin-top: 3rem;
-          margin-bottom: 3rem;
-          ${align === "right" && "margin-left: 1rem;"}
-          ${align === "left" && "margin-right: 1rem;"}
-          `}
+            ${align && "display: inline-block;"}
           `}
         >
-          <div
-            className={css`
-              ${align && "display: inline-block;"}
-            `}
-          >
-            <a
-              href={href}
-              target={linkTarget}
-              rel={ENSURE_REL_NO_OPENER_IF_TARGET_BLANK}
-              className={linkClass}
-            >
-              <img
-                title={title}
-                height={height}
-                width={width}
-                className={css`
-                  max-width: 100%;
-                  height: auto;
-                  margin: 1rem 0;
-                  ${scale && `transform: scale(${scale});`}
-                  ${aspectRatio && `aspect-ratio: ${aspectRatio};`}
-                `}
-                src={url}
-                alt={alt}
-              />
-              {linkTarget && linkTarget.includes("_blank") && (
-                <span className="screen-reader-only">{t("screen-reader-opens-in-new-tab")}</span>
-              )}
-            </a>
-          </div>
-        </figure>
-      </Zoom>
+          {disableInteractivity ? renderImage() : <>{renderImage()}</>}
+        </div>
+      </figure>
       <figcaption
         className={css`
           caption-side: bottom;
@@ -125,6 +116,8 @@ const ImageBlock: React.FC<
       />
     </div>
   )
+
+  return disableInteractivity ? imageContent : <Zoom>{imageContent}</Zoom>
 }
 
 export default withErrorBoundary(ImageBlock)

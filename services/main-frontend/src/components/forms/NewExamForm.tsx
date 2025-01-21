@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -101,70 +102,79 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
   return (
     <div>
       <form onSubmit={duplicateExam ? onDuplicateExamWrapper : onCreateNewExamWrapper}>
-        <TextField
-          id={"name"}
-          error={errors.name?.message}
-          label={t("label-name")}
-          {...register("name", { required: t("required-field") })}
-        />
-        <DateTimeLocal
-          error={errors.startsAt?.message}
-          defaultValue={
-            initialData?.starts_at ? dateToDateTimeLocalString(initialData?.starts_at) : undefined
-          }
-          label={t("label-starts-at")}
-          {...register("startsAt", { required: t("required-field") })}
-        />
-        <DateTimeLocal
-          error={errors.endsAt?.message}
-          defaultValue={
-            initialData?.ends_at ? dateToDateTimeLocalString(initialData?.ends_at) : undefined
-          }
-          label={t("label-ends-at")}
-          {...register("endsAt", { required: t("required-field") })}
-        />
-        <TextField
-          id={"timeMinutes"}
-          error={errors.timeMinutes?.message}
-          label={t("label-time-minutes")}
-          {...register("timeMinutes", { required: t("required-field") })}
-        />
-        <CheckBox label={t("label-grade-exam-manually")} {...register("manualGradingEnabled")} />
-        <CheckBox
-          label={t("label-related-courses-can-be-completed-automatically")}
-          {...register("automaticCompletionEnabled")}
-        />
-
-        {automaticEnabled && (
+        <div
+          className={css`
+            margin-bottom: 2rem;
+          `}
+        >
           <TextField
-            id={"minimumPointsTreshold"}
+            id={"name"}
+            error={errors.name?.message}
+            label={t("label-name")}
+            {...register("name", { required: t("required-field") })}
+          />
+          <DateTimeLocal
+            error={errors.startsAt?.message}
+            defaultValue={
+              initialData?.starts_at ? dateToDateTimeLocalString(initialData?.starts_at) : undefined
+            }
+            label={t("label-starts-at")}
+            {...register("startsAt", { required: t("required-field") })}
+          />
+          <DateTimeLocal
+            error={errors.endsAt?.message}
+            defaultValue={
+              initialData?.ends_at ? dateToDateTimeLocalString(initialData?.ends_at) : undefined
+            }
+            label={t("label-ends-at")}
+            {...register("endsAt", { required: t("required-field") })}
+          />
+          <TextField
+            id={"timeMinutes"}
             error={errors.timeMinutes?.message}
-            label={t("label-exam-minimum-points")}
-            {...register("minimumPointsTreshold", { required: t("required-field") })}
+            label={t("label-time-minutes")}
+            {...register("timeMinutes", { required: t("required-field") })}
           />
-        )}
-        <br />
-        <CheckBox
-          checked={duplicateExam}
-          label={t("duplicate")}
-          onChange={() => setDuplicateExam(!duplicateExam)}
-        />
-        {duplicateExam && (
-          <SelectField
-            id={"parentId"}
-            onChangeByValue={(value) => handleSetExamToDuplicate(value)}
-            options={exams.map((e) => {
-              return { label: e.name, value: e.id }
-            })}
-            defaultValue={exams[0].id}
+          <CheckBox label={t("label-grade-exam-manually")} {...register("manualGradingEnabled")} />
+          <CheckBox
+            label={t("label-related-courses-can-be-completed-automatically")}
+            {...register("automaticCompletionEnabled")}
           />
-        )}
-        <br />
-        <Button variant="primary" size="medium" type="submit" value={t("button-text-submit")}>
+
+          {automaticEnabled && (
+            <TextField
+              id={"minimumPointsTreshold"}
+              error={errors.timeMinutes?.message}
+              label={t("label-exam-minimum-points")}
+              {...register("minimumPointsTreshold", { required: t("required-field") })}
+            />
+          )}
+
+          <CheckBox
+            checked={duplicateExam}
+            label={t("duplicate")}
+            onChange={() => setDuplicateExam(!duplicateExam)}
+          />
+          {duplicateExam && (
+            <SelectField
+              id={"parentId"}
+              onChangeByValue={(value) => handleSetExamToDuplicate(value)}
+              options={exams.map((e) => {
+                return { label: e.name, value: e.id }
+              })}
+              defaultValue={exams[0].id}
+            />
+          )}
+        </div>
+
+        <Button
+          variant="primary"
+          size="medium"
+          type="submit"
+          value={t("button-text-submit")}
+          fullWidth
+        >
           {t("button-text-submit")}
-        </Button>
-        <Button variant="secondary" size="medium" type="button" onClick={onCancel}>
-          {t("button-text-close")}
         </Button>
       </form>
     </div>

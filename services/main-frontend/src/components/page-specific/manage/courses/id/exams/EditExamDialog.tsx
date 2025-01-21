@@ -1,4 +1,3 @@
-import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -6,8 +5,8 @@ import { EditExam } from "../../../../../../services/backend/exams"
 import EditExamForm from "../../../../../forms/EditExamForm"
 
 import { Exam, NewExam } from "@/shared-module/common/bindings"
-import Dialog from "@/shared-module/common/components/Dialog"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import StandardDialog from "@/shared-module/common/components/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 interface ExamDialogProps {
@@ -46,42 +45,17 @@ const EditExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
   }
 
   return (
-    <div>
-      <Dialog
-        open={open}
-        onClose={onClose}
-        role="dialog"
-        aria-labelledby="label"
-        title={t("edit-exam")}
-        noPadding={true}
-      >
-        <div
-          className={css`
-            padding: 1rem;
-          `}
-        >
-          <div id="edit-exam-dialog">
-            <h1
-              id="label"
-              className={css`
-                font-size: 32px !important;
-              `}
-            >
-              {t("edit-exam")}
-            </h1>
-            {createExamMutation.isError && (
-              <ErrorBanner variant={"readOnly"} error={createExamMutation.error} />
-            )}
-            <EditExamForm
-              initialData={initialData}
-              organizationId={organizationId}
-              onCancel={close}
-              onEditExam={(exam) => createExamMutation.mutate(exam)}
-            />
-          </div>
-        </div>
-      </Dialog>
-    </div>
+    <StandardDialog open={open} onClose={onClose} title={t("edit-exam")}>
+      {createExamMutation.isError && (
+        <ErrorBanner variant={"readOnly"} error={createExamMutation.error} />
+      )}
+      <EditExamForm
+        initialData={initialData}
+        organizationId={organizationId}
+        onCancel={close}
+        onEditExam={(exam) => createExamMutation.mutate(exam)}
+      />
+    </StandardDialog>
   )
 }
 

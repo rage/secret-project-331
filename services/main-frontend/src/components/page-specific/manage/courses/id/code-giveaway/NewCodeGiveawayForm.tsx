@@ -2,9 +2,8 @@ import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { createCodeGiveaway } from "@/services/backend/codeGiveaways"
-import Button from "@/shared-module/common/components/Button"
-import Dialog from "@/shared-module/common/components/Dialog"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import StandardDialog from "@/shared-module/common/components/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 
@@ -59,8 +58,20 @@ const NewCodeGiveawayForm: React.FC<NewCodeGiveawayFormProps> = ({
     return null
   }
   return (
-    <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-      <h1>{t("heading-new-code-giveaway")}</h1>
+    <StandardDialog
+      open={dialogOpen}
+      onClose={() => setDialogOpen(false)}
+      title={t("heading-new-code-giveaway")}
+      buttons={[
+        {
+          // eslint-disable-next-line i18next/no-literal-string
+          variant: "primary",
+          onClick: () => createCodeGiveawayMutation.mutate(),
+          disabled: !valid || createCodeGiveawayMutation.isPending,
+          children: t("button-text-create"),
+        },
+      ]}
+    >
       <TextField label={t("label-name")} value={name} onChange={(e) => setName(e.target.value)} />
       <TextField
         label={t("label-course-module-id")}
@@ -72,22 +83,7 @@ const NewCodeGiveawayForm: React.FC<NewCodeGiveawayFormProps> = ({
         value={requireCourseSpecificConsentFormQuestionId}
         onChange={(e) => setRequireCourseSpecificConsentFormQuestionId(e.target.value)}
       />
-      <div>
-        <Button
-          size="medium"
-          variant="primary"
-          onClick={() => {
-            createCodeGiveawayMutation.mutate()
-          }}
-          disabled={!valid || createCodeGiveawayMutation.isPending}
-        >
-          {t("button-text-create")}
-        </Button>
-        <Button size="medium" variant="secondary" onClick={() => setDialogOpen(false)}>
-          {t("button-text-close")}
-        </Button>
-      </div>
-    </Dialog>
+    </StandardDialog>
   )
 }
 

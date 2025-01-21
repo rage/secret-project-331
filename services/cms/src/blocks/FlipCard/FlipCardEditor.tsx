@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
 import { BlockEditProps, TemplateArray } from "@wordpress/blocks"
 import React from "react"
@@ -31,7 +32,11 @@ const FlipCardEditor: React.FC<React.PropsWithChildren<BlockEditProps<FlipCardAt
       <InspectorControls key="flip-card-settings">
         <FlipBoxSizeCustomizer attributes={attributes} setAttributes={setAttributes} />
       </InspectorControls>
-      <div>
+      <div
+        className={css`
+          width: 100%;
+        `}
+      >
         <InnerBlocks
           allowedBlocks={ALLOWED_NESTED_BLOCKS}
           template={INNER_BLOCKS_TEMPLATE}

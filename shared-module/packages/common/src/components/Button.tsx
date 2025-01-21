@@ -9,11 +9,12 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   variant: "primary" | "secondary" | "reject" | "tertiary" | "outlined" | "blue" | "white" | "icon"
   size: "small" | "medium" | "large"
   transform?: "capitalize" | "uppercase" | "none" | "lowercase"
+  fullWidth?: boolean
   children?: React.ReactNode
 }
 
 // BaseButtonStyles is the primary button
-export const BASE_BUTTON_STYLES = `
+export const BASE_BUTTON_STYLES = (props: ButtonProps) => `
   position: relative;
   display: inline-block;
   padding: ${theme.buttonSizes["large"].padding};
@@ -62,9 +63,16 @@ export const BASE_BUTTON_STYLES = `
     text-decoration: none;
   }
 
-
   ${respondToOrLarger.sm} {
     white-space: nowrap;
+  }
+
+  ${
+    props.fullWidth &&
+    `
+    width: 100%;
+    display: block;
+  `
   }
 `
 
@@ -250,6 +258,7 @@ const WhiteButton = styled.button`
   ${BASE_BUTTON_STYLES}
   ${WhiteButtonStyles}
 `
+
 const IconButton = styled.button`
   ${BASE_BUTTON_STYLES}
   ${IconButtonStyles}

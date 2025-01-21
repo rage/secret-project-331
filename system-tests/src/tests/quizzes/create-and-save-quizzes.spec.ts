@@ -33,7 +33,7 @@ const createPageWithAnExerciseBlock = async (page: Page) => {
 
     await page.click(`button:text("Create"):below(:text("Course language"))`)
 
-    await page.getByText("Operation successful!").waitFor()
+    await page.getByText("Course created successfully").waitFor()
 
     await page.click(`a[aria-label="Manage course 'exercise test'"]`)
 

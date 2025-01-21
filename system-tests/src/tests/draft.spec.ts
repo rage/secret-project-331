@@ -118,7 +118,7 @@ test.describe("Teacher", () => {
     await page.getByLabel("Description").fill("draft")
     await page.locator("label").filter({ hasText: "English" }).click()
     await page.getByRole("dialog").getByRole("button", { name: "Create" }).click()
-    await page.getByText("Operation successful!").waitFor()
+    await page.getByText("Course created successfully").waitFor()
     await page.getByRole("link", { name: "Manage course 'Best draft course'" }).click()
     await page.getByRole("tab", { name: "Permissions" }).click()
     await page.getByPlaceholder("Enter email").click()
@@ -152,7 +152,7 @@ test.describe("Teacher", () => {
     await page.getByLabel("Name  *", { exact: true }).fill("Introduction to localizing copy")
     await page.getByLabel("English").check()
     await page.getByRole("dialog").getByRole("button", { name: "Create" }).click()
-    await page.getByText("Operation successful!").waitFor()
+    await page.getByText("Course created successfully").waitFor()
 
     await page
       .getByRole("link", { name: "Manage course 'Introduction to localizing copy'" })
@@ -184,7 +184,7 @@ test.describe("Teacher", () => {
       .fill("Introduction to localizing copy with permissions")
     await page.getByLabel("English").check()
     await page.getByRole("dialog").getByRole("button", { name: "Create" }).click()
-    await page.getByText("Operation successful!").waitFor()
+    await page.getByText("Course created successfully").waitFor()
 
     await page
       .getByRole("link", {

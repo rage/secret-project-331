@@ -79,9 +79,7 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "material-reference-editor",
-    waitForTheseToBeVisibleAndStable: [
-      page.getByTitle("Edit reference").getByText("Edit reference"),
-    ],
+    waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "Edit reference" })],
   })
 
   // Fill textarea[name="references"]

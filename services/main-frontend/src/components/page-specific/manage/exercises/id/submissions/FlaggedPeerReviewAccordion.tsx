@@ -70,9 +70,6 @@ const FlaggedPeerReviewAccordion: React.FC<FlaggedPeerReviewAccordionProps> = ({
                   <strong>{t("label-flagged-by")}:</strong> {report.flagged_by}
                 </li>
                 <li>
-                  <strong>{t("title-submission-id", report.submission_id)}</strong>
-                </li>
-                <li>
                   <strong>{t("label-created-at")}</strong>{" "}
                   {new Date(report.created_at).toLocaleString()}
                 </li>

@@ -3,7 +3,7 @@ use itertools::Itertools;
 use std::collections::HashMap;
 
 use crate::{
-    course_exams,
+    chapter_completion_requirements, chapters, course_exams,
     course_instance_enrollments::{self, NewCourseInstanceEnrollment},
     course_instances::{self, CourseInstance},
     course_module_completions::{
@@ -11,7 +11,7 @@ use crate::{
         CourseModuleCompletionWithRegistrationInfo, NewCourseModuleCompletion,
     },
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy, CourseModule},
-    courses, exams, open_university_registration_links,
+    courses, exams, exercises, open_university_registration_links,
     prelude::*,
     suspected_cheaters::{self, Threshold},
     user_course_settings,
@@ -19,6 +19,7 @@ use crate::{
     user_exercise_states,
     users::{self, User},
 };
+use headless_lms_utils::numbers::option_f32_to_f32_two_decimals_with_none_as_zero;
 
 /// Checks whether the course module can be completed automatically and creates an entry for completion
 /// if the user meets the criteria. Also re-checks module completion prerequisites if the module is
@@ -111,6 +112,73 @@ pub async fn check_and_insert_suspected_cheaters(
     Ok(())
 }
 
+pub struct TotalScoreInChapter {
+    pub total_score: f32,
+}
+
+pub struct TotalAttemptsInChapter {
+    pub total_attempts: i32,
+}
+
+// Get the total score given to a student in a chapter
+pub async fn get_total_score_in_a_chapter(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+    chapter_id: Uuid,
+) -> ModelResult<TotalScoreInChapter> {
+    let chapter_exercises = exercises::get_exercises_by_chapter_id(conn, chapter_id).await?;
+    let exercise_ids: Vec<Uuid> = chapter_exercises.into_iter().map(|e| e.id).collect();
+
+    // Fetch user exercise progress
+    let user_course_instance_exercise_progress =
+        user_exercise_states::get_user_course_instance_chapter_exercises_progress(
+            conn,
+            course_instance_id,
+            &exercise_ids,
+            user_id,
+        )
+        .await?;
+
+    // Calculate the total score
+    let total_score: f32 = user_course_instance_exercise_progress
+        .into_iter()
+        .map(|i| option_f32_to_f32_two_decimals_with_none_as_zero(i.score_given))
+        .sum();
+
+    // Return the total score
+    Ok(TotalScoreInChapter { total_score })
+}
+
+// Get the total score given to a student in a chapter
+pub async fn get_total_exercise_attempt_in_a_chapter(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+    chapter_id: Uuid,
+) -> ModelResult<TotalAttemptsInChapter> {
+    let chapter_exercises = exercises::get_exercises_by_chapter_id(conn, chapter_id).await?;
+    let exercise_ids: Vec<Uuid> = chapter_exercises.into_iter().map(|e| e.id).collect();
+
+    let user_course_instance_exercises_attempted =
+        user_exercise_states::get_user_course_instance_chapter_exercises_attempts(
+            conn,
+            course_instance_id,
+            &exercise_ids,
+            user_id,
+        )
+        .await?;
+
+    // Calculate the exercise attempts in a chapter
+    let total_attempts: i32 = user_course_instance_exercises_attempted
+        .into_iter()
+        .map(|i| i.exercise_attempts.unwrap_or(0))
+        .sum();
+
+    // Return the total score
+    Ok(TotalAttemptsInChapter { total_attempts })
+}
+
 /// Creates completion for the user if eligible and previous one doesn't exist. Returns an Option containing
 /// the completion if one exists after calling this function.
 #[instrument(skip(conn))]
@@ -186,6 +254,55 @@ async fn user_is_eligible_for_automatic_completion(
 ) -> ModelResult<bool> {
     match &course_module.completion_policy {
         CompletionPolicy::Automatic(requirements) => {
+            // Create a guard here that check is_chapter_requirement is true
+            // and then check if all chapters pass the threshold
+            let is_chapter_requirements = course_module.is_completion_requirement_by_chapter;
+
+            if is_chapter_requirements {
+                let chapters = chapters::course_instance_chapters(conn, course_instance_id).await?;
+
+                for chapter in chapters {
+                    // Get the total score and attempts in a chapter for the user
+                    let total_score =
+                        get_total_score_in_a_chapter(conn, user_id, course_instance_id, chapter.id)
+                            .await?
+                            .total_score;
+
+                    let total_exercise_attempts = get_total_exercise_attempt_in_a_chapter(
+                        conn,
+                        user_id,
+                        course_instance_id,
+                        chapter.id,
+                    )
+                    .await?
+                    .total_attempts;
+
+                    // Get the completion points and attempts threshold for the chapter, default to 0 if None
+                    let chapter_threshold =
+                        chapter_completion_requirements::get_requirements_by_chapter_id(
+                            conn, chapter.id,
+                        )
+                        .await?;
+
+                    let attempts_threshold =
+                        chapter_threshold.completion_points_threshold.unwrap_or(0) as f32;
+
+                    let completion_points_threshold = chapter_threshold
+                        .completion_number_of_exercises_attempted_threshold
+                        .unwrap_or(0) as f32;
+
+                    // Compare total score and attempts with the chapter threshold
+                    if (total_score as f32) < completion_points_threshold
+                        && (total_exercise_attempts as f32) < attempts_threshold
+                    {
+                        return Ok(false);
+                    }
+                }
+
+                // If all chapters pass the threshold, return true
+                return Ok(true);
+            }
+
             let eligible = user_passes_automatic_completion_exercise_tresholds(
                 conn,
                 user_id,

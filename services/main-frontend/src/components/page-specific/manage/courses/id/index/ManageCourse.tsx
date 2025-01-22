@@ -99,6 +99,10 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           margin-bottom: 1rem;
         `}
       >
+        <p>
+          To learn how to use the course editor effectively, click the link below to view the
+          <a href="https://github.com/rage/secret-project-331/wiki"> documentation</a>.
+        </p>
         <h1
           className={css`
             font-size: ${typography.h4};

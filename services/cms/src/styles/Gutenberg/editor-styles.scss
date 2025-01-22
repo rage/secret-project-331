@@ -46,24 +46,36 @@
   }
 
   // This height is same as the headless-lms oembed proxy maxheight=440.
-  iframe[title*="youtube.com"],
+  iframe[title="Embedded content from youtube.com"],
+  iframe[title="Embedded content from www.youtube.com"],
   //For youtube shortlink
-  iframe[title*="youtu.be"] {
+  iframe[title="Embedded content from youtu"] {
     height: 440px;
   }
 
-  iframe[title="Embedded content from spotify.com"] {
+  iframe[title="Embedded content from spotify.com"],
+  iframe[title="Embedded content from www.spotify.com"] {
     height: 335px;
   }
 
   iframe[title="Embedded content from twitter"],
+  iframe[title="Embedded content from www.twitter.com"],
+  iframe[title="Embedded content from x.com"],
+  iframe[title="Embedded content from www.x.com"],
   iframe[title="Embedded content from imgur"],
+  iframe[title="Embedded content from www.imgur.com"],
   iframe[title="Embedded content from reddit.com"],
+  iframe[title="Embedded content from www.reddit.com"],
   iframe[title="Embedded content from slideshare.net"],
+  iframe[title="Embedded content from www.slideshare.net"],
   iframe[title="Embedded content from ted.com"],
+  iframe[title="Embedded content from www.ted.com"],
   iframe[title="Embedded content from tumblr.com"],
+  iframe[title="Embedded content from www.tumblr.com"],
   iframe[title="Embedded content from menti.com"],
-  iframe[title="Embedded content from mentimeter.com"] {
+  iframe[title="Embedded content from www.menti.com"],
+  iframe[title="Embedded content from mentimeter.com"],
+  iframe[title="Embedded content from www.mentimeter.com"] {
     box-sizing: initial;
     border-top-width: 0px;
     border-right-width: 0px;
@@ -72,13 +84,16 @@
   }
 
   iframe[title="Embedded content from menti.com"],
-  iframe[title="Embedded content from mentimeter.com"] {
+  iframe[title="Embedded content from www.menti.com"],
+  iframe[title="Embedded content from mentimeter.com"],
+  iframe[title="Embedded content from www.mentimeter.com"] {
     html {
       overflow: hidden;
     }
   }
 
-  iframe[title="Embedded content from soundcloud"] {
+  iframe[title="Embedded content from soundcloud"],
+  iframe[title="Embedded content from www.soundcloud.com"] {
     box-sizing: initial;
   }
 

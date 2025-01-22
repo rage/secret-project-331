@@ -1,6 +1,7 @@
 /* eslint-disable playwright/no-wait-for-timeout */
 import { expect, test } from "@playwright/test"
 
+import { saveCMSPage } from "../../utils/cmsUtils"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectUrlPathWithRandomUuid from "../../utils/expect"
 import {
@@ -60,10 +61,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   // Fill input[type="text"]
   await page.fill(`label:has-text("Title")`, "New title!")
 
-  await page.click(`button:text-is("Save") >> visible=true`)
-  // TODO: wait for page saved notification
-  await page.getByText("Operation successful!").waitFor()
-  await page.waitForTimeout(100)
+  await saveCMSPage(page)
 
   // Triple click [placeholder="Exercise name"]
   await page.click('[placeholder="Exercise name"]', {
@@ -73,8 +71,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   // Fill [placeholder="Exercise name"]
   await page.fill('[placeholder="Exercise name"]', "New exercise!")
 
-  await page.click(`button:text-is("Save") >> visible=true`)
-  await page.getByText("Operation successful!").waitFor()
+  await saveCMSPage(page)
 
   await page.click('[aria-label="Block: ExerciseTask"] div[role="button"]')
 
@@ -89,7 +86,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   // Check input[type="checkbox"]
   await frame.locator(':nth-match(input[type="checkbox"], 2)').check()
 
-  await page.click(`button:text-is("Save") >> visible=true`)
+  await saveCMSPage(page)
   await page.locator(`button:enabled:text-is("Save") >> visible=true`).waitFor()
   await page.waitForTimeout(100)
 

@@ -1,5 +1,6 @@
 use crate::setup_tracing;
 use dotenv::dotenv;
+use headless_lms_models::error::TryToOptional;
 use headless_lms_models::peer_review_queue_entries;
 use sqlx::{Connection, PgConnection};
 use std::env;
@@ -32,27 +33,32 @@ async fn process_course_instance(
                 headless_lms_models::peer_or_self_review_configs::get_by_exercise_or_course_id(
                     conn, exercise, course_id,
                 )
-                .await?;
+                .await
+                .optional()?;
 
-            let manual_review_cutoff_in_days = exercise_config.manual_review_cutoff_in_days;
-            let timestamp = now - chrono::Duration::days(manual_review_cutoff_in_days.into());
+            if let Some(exercise_config) = exercise_config {
+                let manual_review_cutoff_in_days = exercise_config.manual_review_cutoff_in_days;
+                let timestamp = now - chrono::Duration::days(manual_review_cutoff_in_days.into());
 
-            if timestamp < earliest_manual_review_cutoff {
-                timestamp = earliest_manual_review_cutoff;
-            }
-
-            let should_be_added_to_manual_review = headless_lms_models::peer_review_queue_entries::get_entries_that_need_reviews_and_are_older_than_with_exercise_id(conn, exercise.id, timestamp).await?;
-            if !should_be_added_to_manual_review.is_empty() {
-                info!(exercise.id = ?exercise.id, "Found {:?} answers that have been added to the peer review queue before {:?} and have not received enough peer reviews or have not been reviewed manually. Adding them to be manually reviewed by the teachers.", should_be_added_to_manual_review.len(), timestamp);
-
-                for peer_review_queue_entry in should_be_added_to_manual_review {
-                    peer_review_queue_entries::remove_from_queue_and_add_to_manual_review(
-                        conn,
-                        &peer_review_queue_entry,
-                    )
-                    .await?;
-                    moved_to_manual_review += 1;
+                if timestamp < earliest_manual_review_cutoff {
+                    earliest_manual_review_cutoff = timestamp;
                 }
+
+                let should_be_added_to_manual_review = headless_lms_models::peer_review_queue_entries::get_entries_that_need_reviews_and_are_older_than_with_exercise_id(conn, exercise.id, timestamp).await?;
+                if !should_be_added_to_manual_review.is_empty() {
+                    info!(exercise.id = ?exercise.id, "Found {:?} answers that have been added to the peer review queue before {:?} and have not received enough peer reviews or have not been reviewed manually. Adding them to be manually reviewed by the teachers.", should_be_added_to_manual_review.len(), timestamp);
+
+                    for peer_review_queue_entry in should_be_added_to_manual_review {
+                        peer_review_queue_entries::remove_from_queue_and_add_to_manual_review(
+                            conn,
+                            &peer_review_queue_entry,
+                        )
+                        .await?;
+                        moved_to_manual_review += 1;
+                    }
+                }
+            } else {
+                warn!(exercise.id = ?exercise.id, "No peer review config found for exercise {:?}", exercise.id);
             }
         }
     }
@@ -96,7 +102,7 @@ pub async fn main() -> anyhow::Result<()> {
     );
 
     info!(
-        ?manual_review_cutoff,
+        earliest_manual_review_cutoff = ?now - chrono::Duration::days(7 * 3),
         "Finding answers to move to manual review"
     );
 

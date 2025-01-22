@@ -31,7 +31,7 @@ const Renderer: React.FC<React.PropsWithChildren<RendererProps>> = ({ state, set
 
   if (state.view_type === "answer-exercise") {
     return (
-      <div id={EXERCISE_SERVICE_CONTENT_ID}>
+      <div id={EXERCISE_SERVICE_CONTENT_ID} data-view-type="answer-exercise">
         <AnswerExercise port={port} state={state.public_spec} />
       </div>
     )
@@ -39,7 +39,7 @@ const Renderer: React.FC<React.PropsWithChildren<RendererProps>> = ({ state, set
     const feedbackJson: unknown | null = state.grading?.feedback_json
     const exerciseFeedback = feedbackJson ? (feedbackJson as ExerciseFeedback) : null
     return (
-      <div id={EXERCISE_SERVICE_CONTENT_ID}>
+      <div id={EXERCISE_SERVICE_CONTENT_ID} data-view-type="view-submission">
         <ViewSubmission
           port={port}
           publicSpec={state.public_spec}
@@ -51,7 +51,7 @@ const Renderer: React.FC<React.PropsWithChildren<RendererProps>> = ({ state, set
     )
   } else if (state.view_type === "exercise-editor") {
     return (
-      <div id={EXERCISE_SERVICE_CONTENT_ID}>
+      <div id={EXERCISE_SERVICE_CONTENT_ID} data-view-type="exercise-editor">
         <ExerciseEditor state={state.private_spec} port={port} setState={setState} />
       </div>
     )

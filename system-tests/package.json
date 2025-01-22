@@ -29,19 +29,19 @@
   },
   "keywords": [],
   "devDependencies": {
-    "@playwright/browser-chromium": "^1.48.2",
-    "@playwright/test": "^1.48.2",
-    "@types/node": "^22.8.7",
+    "@playwright/browser-chromium": "^1.49.1",
+    "@playwright/test": "^1.49.1",
+    "@types/node": "^22.10.5",
     "@types/tar-fs": "^2.0.4",
-    "playwright": "^1.48.2",
-    "typescript": "^5.6.3"
+    "playwright": "^1.49.1",
+    "typescript": "^5.7.3"
   },
   "dependencies": {
-    "@axe-core/playwright": "^4.10.0",
+    "@axe-core/playwright": "^4.10.1",
     "@types/which": "^3.0.4",
     "axe-core": "^4.10.2",
     "png-metadata": "^1.0.2",
-    "tar-fs": "^3.0.6",
+    "tar-fs": "^3.0.7",
     "which": "^5.0.0"
   }
 }

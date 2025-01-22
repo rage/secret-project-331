@@ -1,4 +1,3 @@
-import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -6,11 +5,11 @@ import { useTranslation } from "react-i18next"
 import { updateCourse } from "../../../../../../services/backend/courses"
 
 import { Course } from "@/shared-module/common/bindings"
-import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
+import StandardDialog from "@/shared-module/common/components/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 const FieldContainer = styled.div`
@@ -20,11 +19,15 @@ const FieldContainer = styled.div`
 interface UpdateCourseFormProps {
   course: Course
   onSubmitForm: () => void
+  open: boolean
+  onClose: () => void
 }
 
 const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>> = ({
   course,
   onSubmitForm,
+  open,
+  onClose,
 }) => {
   const { t } = useTranslation()
   const [name, setName] = useState(course.name)
@@ -60,15 +63,24 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
         flagged_answers_threshold: peerReviewFlaggingThreshold,
       })
       onSubmitForm()
+      onClose()
     },
     { method: "PUT", notify: true },
   )
 
   return (
-    <div
-      className={css`
-        padding: 1rem 0;
-      `}
+    <StandardDialog
+      open={open}
+      onClose={onClose}
+      title={t("edit-course")}
+      buttons={[
+        {
+          onClick: () => updateCourseMutation.mutate(),
+          children: t("button-text-update"),
+          // eslint-disable-next-line i18next/no-literal-string
+          variant: "primary",
+        },
+      ]}
     >
       <div>
         <FieldContainer>
@@ -164,12 +176,7 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
           />
         </FieldContainer>
       </div>
-      <div>
-        <Button size="medium" variant="primary" onClick={() => updateCourseMutation.mutate()}>
-          {t("button-text-update")}
-        </Button>
-      </div>
-    </div>
+    </StandardDialog>
   )
 }
 

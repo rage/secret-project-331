@@ -412,7 +412,7 @@ async fn post_flag_answer_in_peer_review(
     let insert_result =
         exercise_slide_submissions::insert_flagged_answer(&mut conn, new_flagged_answer).await;
 
-    if let Err(_) = insert_result {
+    if insert_result.is_err() {
         return Err(ControllerError::new(
             ControllerErrorType::InternalServerError,
             "Failed to report answer".to_string(),

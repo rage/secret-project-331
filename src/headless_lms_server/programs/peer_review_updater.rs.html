@@ -106,11 +106,112 @@
 <a href="#106" id="106">106</a>
 <a href="#107" id="107">107</a>
 <a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::setup_tracing;
 <span class="kw">use </span>dotenv::dotenv;
+<span class="kw">use </span>headless_lms_models::error::TryToOptional;
 <span class="kw">use </span>headless_lms_models::peer_review_queue_entries;
 <span class="kw">use </span>sqlx::{Connection, PgConnection};
 <span class="kw">use </span>std::env;
+
+<span class="kw">async fn </span>process_course_instance(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_instance: <span class="kw-2">&amp;</span>headless_lms_models::course_instances::CourseInstance,
+    now: chrono::DateTime&lt;chrono::Utc&gt;,
+) -&gt; anyhow::Result&lt;(i32, i32)&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>moved_to_manual_review = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>given_full_points = <span class="number">0</span>;
+
+    <span class="kw">let </span><span class="kw-2">mut </span>earliest_manual_review_cutoff = now - chrono::Duration::days(<span class="number">7 </span>* <span class="number">3</span>);
+
+    <span class="comment">// Process manual review cases
+    </span><span class="kw">let </span>all_exercises_in_course_instance =
+        headless_lms_models::exercises::get_exercises_by_course_instance_id(
+            conn,
+            course_instance.id,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">for </span>exercise <span class="kw">in </span>all_exercises_in_course_instance.iter() {
+        <span class="kw">if </span>!exercise.needs_peer_review {
+            <span class="kw">continue</span>;
+        }
+        <span class="kw">let </span>course_id = exercise.course_id;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(course_id) = course_id {
+            <span class="kw">let </span>exercise_config =
+                headless_lms_models::peer_or_self_review_configs::get_by_exercise_or_course_id(
+                    conn, exercise, course_id,
+                )
+                .<span class="kw">await
+                </span>.optional()<span class="question-mark">?</span>;
+
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(exercise_config) = exercise_config {
+                <span class="kw">let </span>manual_review_cutoff_in_days = exercise_config.manual_review_cutoff_in_days;
+                <span class="kw">let </span>timestamp = now - chrono::Duration::days(manual_review_cutoff_in_days.into());
+
+                <span class="kw">if </span>timestamp &lt; earliest_manual_review_cutoff {
+                    earliest_manual_review_cutoff = timestamp;
+                }
+
+                <span class="kw">let </span>should_be_added_to_manual_review = headless_lms_models::peer_review_queue_entries::get_entries_that_need_reviews_and_are_older_than_with_exercise_id(conn, exercise.id, timestamp).<span class="kw">await</span><span class="question-mark">?</span>;
+                <span class="kw">if </span>!should_be_added_to_manual_review.is_empty() {
+                    <span class="macro">info!</span>(exercise.id = <span class="question-mark">?</span>exercise.id, <span class="string">"Found {:?} answers that have been added to the peer review queue before {:?} and have not received enough peer reviews or have not been reviewed manually. Adding them to be manually reviewed by the teachers."</span>, should_be_added_to_manual_review.len(), timestamp);
+
+                    <span class="kw">for </span>peer_review_queue_entry <span class="kw">in </span>should_be_added_to_manual_review {
+                        peer_review_queue_entries::remove_from_queue_and_add_to_manual_review(
+                            conn,
+                            <span class="kw-2">&amp;</span>peer_review_queue_entry,
+                        )
+                        .<span class="kw">await</span><span class="question-mark">?</span>;
+                        moved_to_manual_review += <span class="number">1</span>;
+                    }
+                }
+            } <span class="kw">else </span>{
+                <span class="macro">warn!</span>(exercise.id = <span class="question-mark">?</span>exercise.id, <span class="string">"No peer review config found for exercise {:?}"</span>, exercise.id);
+            }
+        }
+    }
+
+    <span class="comment">// After this date, we will assume that the teacher has given up on reviewing answers, so we will consider queue entries older than this to have passed the peer review.
+    </span><span class="kw">let </span>pass_automatically_cutoff = earliest_manual_review_cutoff - chrono::Duration::days(<span class="number">90</span>);
+
+    <span class="comment">// Process automatic pass cases
+    </span><span class="kw">let </span>should_pass = headless_lms_models::peer_review_queue_entries::get_entries_that_need_reviews_and_are_older_than(conn, course_instance.id, pass_automatically_cutoff).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">if </span>!should_pass.is_empty() {
+        <span class="macro">info!</span>(course_instance_id = <span class="question-mark">?</span>course_instance.id, <span class="string">"Found {:?} answers that have been added to the peer review queue before {:?} and have not received enough peer reviews or have not been reviewed manually. Giving them full points."</span>, should_pass.len(), pass_automatically_cutoff);
+        <span class="kw">for </span>peer_review_queue_entry <span class="kw">in </span>should_pass {
+            <span class="kw">let </span>_res = peer_review_queue_entries::remove_from_queue_and_give_full_points(
+                conn,
+                <span class="kw-2">&amp;</span>peer_review_queue_entry,
+            )
+            .<span class="kw">await</span><span class="question-mark">?</span>;
+            given_full_points += <span class="number">1</span>;
+        }
+    }
+
+    <span class="prelude-val">Ok</span>((moved_to_manual_review, given_full_points))
+}
 
 <span class="kw">pub async fn </span>main() -&gt; anyhow::Result&lt;()&gt; {
     env::set_var(<span class="string">"RUST_LOG"</span>, <span class="string">"info,actix_web=info,sqlx=warn"</span>);
@@ -120,9 +221,7 @@
         .unwrap_or_else(|<span class="kw">_</span>| <span class="string">"postgres://localhost/headless_lms_dev"</span>.to_string());
     <span class="kw">let </span><span class="kw-2">mut </span>conn = PgConnection::connect(<span class="kw-2">&amp;</span>db_url).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>now = chrono::offset::Utc::now();
-    <span class="kw">let </span>manual_review_cutoff = now - chrono::Duration::days(<span class="number">7 </span>* <span class="number">3</span>);
-    <span class="comment">// After this date, we will assume that the teacher has given up on reviewing answers, so we will consider queue entries older than this to have passed the peer review.
-    </span><span class="kw">let </span>pass_automatically_cutoff = manual_review_cutoff - chrono::Duration::days(<span class="number">90</span>);
+
     <span class="macro">info!</span>(<span class="string">"Peer review updater started"</span>);
     <span class="comment">// Doing the update in small parts so that we don't end up constructing too heavy queries and so that we can get more frequeent log messages about the progress
     </span><span class="kw">let </span>all_course_instances =
@@ -133,84 +232,29 @@
     );
 
     <span class="macro">info!</span>(
-        <span class="question-mark">?</span>manual_review_cutoff,
+        earliest_manual_review_cutoff = <span class="question-mark">?</span>now - chrono::Duration::days(<span class="number">7 </span>* <span class="number">3</span>),
         <span class="string">"Finding answers to move to manual review"
     </span>);
 
-    <span class="kw">let </span><span class="kw-2">mut </span>moved_to_manual_review = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>total_moved_to_manual_review = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>total_given_full_points = <span class="number">0</span>;
 
     <span class="kw">for </span>course_instance <span class="kw">in </span>all_course_instances.iter() {
-        <span class="kw">let </span>all_exercises_in_course_instance =
-            headless_lms_models::exercises::get_exercises_by_course_instance_id(
-                <span class="kw-2">&amp;mut </span>conn,
-                course_instance.id,
-            )
-            .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="comment">//Go through all exercises in the course instance to check if the exercises have custom manual review cutoff times
-        </span><span class="kw">for </span>exercise <span class="kw">in </span>all_exercises_in_course_instance.iter() {
-            <span class="kw">if </span>!exercise.needs_peer_review {
-                <span class="kw">continue</span>;
-            }
-            <span class="kw">let </span>course_id = exercise.course_id;
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(course_id) = course_id {
-                <span class="kw">let </span>exercise_config =
-                    headless_lms_models::peer_or_self_review_configs::get_by_exercise_or_course_id(
-                        <span class="kw-2">&amp;mut </span>conn, exercise, course_id,
-                    )
-                    .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>(moved_to_manual_review, given_full_points) =
+            process_course_instance(<span class="kw-2">&amp;mut </span>conn, course_instance, now).<span class="kw">await</span><span class="question-mark">?</span>;
 
-                <span class="kw">let </span>manual_review_cutoff_in_days = exercise_config.manual_review_cutoff_in_days;
-
-                <span class="kw">let </span>timestamp = now - chrono::Duration::days(manual_review_cutoff_in_days.into());
-
-                <span class="kw">let </span>should_be_added_to_manual_review = headless_lms_models::peer_review_queue_entries::get_entries_that_need_reviews_and_are_older_than_with_exercise_id(<span class="kw-2">&amp;mut </span>conn, exercise.id, timestamp).<span class="kw">await</span><span class="question-mark">?</span>;
-                <span class="kw">if </span>should_be_added_to_manual_review.is_empty() {
-                    <span class="kw">continue</span>;
-                }
-
-                <span class="macro">info!</span>(exercise.id = <span class="question-mark">?</span>exercise.id, <span class="string">"Found {:?} answers that have been added to the peer review queue before {:?} and have not received enough peer reviews or have not been reviewed manually. Adding them to be manually reviewed by the teachers."</span>, should_be_added_to_manual_review.len(), timestamp);
-
-                <span class="kw">for </span>peer_review_queue_entry <span class="kw">in </span>should_be_added_to_manual_review {
-                    peer_review_queue_entries::remove_from_queue_and_add_to_manual_review(
-                        <span class="kw-2">&amp;mut </span>conn,
-                        <span class="kw-2">&amp;</span>peer_review_queue_entry,
-                    )
-                    .<span class="kw">await</span><span class="question-mark">?</span>;
-                    moved_to_manual_review += <span class="number">1
-                </span>}
-            }
-        }
+        total_moved_to_manual_review += moved_to_manual_review;
+        total_given_full_points += given_full_points;
     }
 
     <span class="macro">info!</span>(
         <span class="string">"Total answers moved to manual review: {:?}"</span>,
-        moved_to_manual_review
+        total_moved_to_manual_review
     );
-
     <span class="macro">info!</span>(
-        <span class="question-mark">?</span>pass_automatically_cutoff,
-        <span class="string">"Finding answers to give full points"
-    </span>);
-
-    <span class="kw">let </span><span class="kw-2">mut </span>given_full_points = <span class="number">0</span>;
-
-    <span class="kw">for </span>course_instance <span class="kw">in </span>all_course_instances.iter() {
-        <span class="kw">let </span>should_pass = headless_lms_models::peer_review_queue_entries::get_entries_that_need_reviews_and_are_older_than(<span class="kw-2">&amp;mut </span>conn, course_instance.id, pass_automatically_cutoff).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">if </span>should_pass.is_empty() {
-            <span class="kw">continue</span>;
-        }
-        <span class="macro">info!</span>(course_instance_id = <span class="question-mark">?</span>course_instance.id, <span class="string">"Found {:?} answers that have been added to the peer review queue before {:?} and have not received enough peer reviews or have not been reviewed manually. Giving them full points."</span>, should_pass.len(), pass_automatically_cutoff);
-        <span class="kw">for </span>peer_review_queue_entry <span class="kw">in </span>should_pass {
-            <span class="kw">let </span>_res = peer_review_queue_entries::remove_from_queue_and_give_full_points(
-                <span class="kw-2">&amp;mut </span>conn,
-                <span class="kw-2">&amp;</span>peer_review_queue_entry,
-            )
-            .<span class="kw">await</span><span class="question-mark">?</span>;
-            given_full_points += <span class="number">1</span>;
-        }
-    }
-
-    <span class="macro">info!</span>(<span class="string">"Total answers given full points: {:?}"</span>, given_full_points);
+        <span class="string">"Total answers given full points: {:?}"</span>,
+        total_given_full_points
+    );
     <span class="macro">info!</span>(<span class="string">"All done!"</span>);
     <span class="prelude-val">Ok</span>(())
 }

@@ -4,8 +4,15 @@ import React, { forwardRef, InputHTMLAttributes } from "react"
 import { baseTheme } from "../../styles"
 import { dateToString } from "../../utils/time"
 
-const error = css`
+const errorStyle = css`
   color: #f76d82;
+  font-size: 14px;
+  display: inline-block;
+  margin-top: -15px;
+`
+
+const warningStyle = css`
+  color: #b3440d;
   font-size: 14px;
   display: inline-block;
   margin-top: -15px;
@@ -15,12 +22,14 @@ export interface TimePickerProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string
   onChangeByValue?: (value: string, name?: string) => void
   error?: string
+  warning?: string
   className?: string
 }
 
 const DateTimeLocal = forwardRef<HTMLInputElement, TimePickerProps>(
   (props: TimePickerProps, ref) => {
-    const { onChangeByValue, onChange, className, defaultValue, value, ...rest } = props
+    const { onChangeByValue, onChange, className, defaultValue, value, warning, error, ...rest } =
+      props
 
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       if (onChangeByValue) {
@@ -83,7 +92,17 @@ const DateTimeLocal = forwardRef<HTMLInputElement, TimePickerProps>(
       >
         <label>
           <span>{rest.label}</span>
-          <input ref={ref} type="datetime-local" step="1" onChange={handleOnChange} {...rest} />
+          <input
+            ref={ref}
+            type="datetime-local"
+            step="1"
+            onChange={handleOnChange}
+            value={value}
+            defaultValue={defaultValue}
+            aria-label={rest.label}
+            aria-invalid={!!error}
+            {...rest}
+          />
         </label>
 
         {effectiveValue && typeof effectiveValue === "string" && (
@@ -97,9 +116,15 @@ const DateTimeLocal = forwardRef<HTMLInputElement, TimePickerProps>(
           </small>
         )}
 
-        {rest.error && (
-          <span className={cx(error)} id={`${rest.label}_error`} role="alert">
-            {rest.error}
+        {error && (
+          <span className={cx(errorStyle)} id={`${rest.label}_error`} role="alert">
+            {error}
+          </span>
+        )}
+
+        {warning && !error && (
+          <span className={cx(warningStyle)} id={`${rest.label}_warning`} role="alert">
+            {warning}
           </span>
         )}
       </div>

@@ -267,6 +267,10 @@ async fn user_has_passed_exam_for_the_course(
     let exam_ids = course_exams::get_exam_ids_by_course_id(conn, course_id).await?;
     for exam_id in exam_ids {
         let exam = exams::get(conn, exam_id).await?;
+        // A minimum points threshold of 0 indicates that the "Related courses can be completed automatically" option has not been enabled by the teacher. If you wish to remove this condition, please first store this information in a separate column in the exams table.
+        if exam.minimum_points_treshold == 0 {
+            continue;
+        }
         if exam.ended_at_or(now, false) {
             let points =
                 user_exercise_states::get_user_total_exam_points(conn, user_id, exam_id).await?;

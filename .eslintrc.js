@@ -234,6 +234,8 @@ module.exports = {
             "JSON.parse",
             "addFilter",
             "removeFilter",
+            "setError",
+            "clearErrors",
           ],
         },
         "object-properties": {

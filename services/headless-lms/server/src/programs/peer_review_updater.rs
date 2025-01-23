@@ -67,9 +67,9 @@ async fn process_course_instance(
     let pass_automatically_cutoff = earliest_manual_review_cutoff - chrono::Duration::days(90);
 
     // Process automatic pass cases
-    let should_pass = headless_lms_models::peer_review_queue_entries::get_entries_that_need_reviews_and_are_older_than(conn, course_instance.id, pass_automatically_cutoff).await?;
+    let should_pass = headless_lms_models::peer_review_queue_entries::get_entries_that_need_teacher_review_and_are_older_than_with_course_instance_id(conn, course_instance.id, pass_automatically_cutoff).await?;
     if !should_pass.is_empty() {
-        info!(course_instance_id = ?course_instance.id, "Found {:?} answers that have been added to the peer review queue before {:?} and have not received enough peer reviews or have not been reviewed manually. Giving them full points.", should_pass.len(), pass_automatically_cutoff);
+        info!(course_instance_id = ?course_instance.id, "Found {:?} answers that have been added to the peer review queue before {:?}. The teacher has not reviewed the answers manually after 3 months. Giving them full points.", should_pass.len(), pass_automatically_cutoff);
         for peer_review_queue_entry in should_pass {
             let _res = peer_review_queue_entries::remove_from_queue_and_give_full_points(
                 conn,

@@ -4,7 +4,10 @@
   "describe": {
     "columns": [],
     "parameters": {
-      "Left": ["UuidArray", "UuidArray"]
+      "Left": [
+        "UuidArray",
+        "UuidArray"
+      ]
     },
     "nullable": []
   },

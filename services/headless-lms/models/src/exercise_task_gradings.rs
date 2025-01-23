@@ -547,7 +547,7 @@ pub async fn get_user_exercise_task_gradings_by_module_and_exercise_type(
     user_id: Uuid,
     exercise_type: &str,
     module_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Vec<CustomViewExerciseTaskGrading>> {
     let res: Vec<CustomViewExerciseTaskGrading> = sqlx::query_as!(
         CustomViewExerciseTaskGrading,
@@ -568,7 +568,7 @@ WHERE etg.deleted_at IS NULL
   AND et.deleted_at IS NULL
   AND et.exercise_type = $2
   AND ess.user_id = $1
-  AND ess.course_instance_id = $4
+  AND ess.course_id = $4
   AND ess.deleted_at IS NULL
   AND e.deleted_at IS NULL
   AND c.deleted_at IS NULL
@@ -577,7 +577,7 @@ WHERE etg.deleted_at IS NULL
         user_id,
         exercise_type,
         module_id,
-        course_instance_id
+        course_id
     )
     .fetch_all(conn)
     .await?;

@@ -60,6 +60,9 @@ ALTER TABLE offered_answers_to_peer_review_temporary
 ALTER COLUMN course_id
 SET NOT NULL;
 ALTER TABLE offered_answers_to_peer_review_temporary DROP COLUMN course_instance_id;
+-- Add unique constraint for user_id and exercise_id
+ALTER TABLE offered_answers_to_peer_review_temporary
+ADD CONSTRAINT offered_answers_to_peer_review_temporary_user_exercise_unique UNIQUE (user_id, exercise_id);
 
 -- Drop the course_instance_id column
 ALTER TABLE user_exercise_states DROP COLUMN course_instance_id;
@@ -94,6 +97,8 @@ ALTER TABLE peer_review_queue_entries
 ALTER COLUMN course_id
 SET NOT NULL;
 ALTER TABLE peer_review_queue_entries DROP COLUMN course_instance_id;
+ALTER TABLE peer_review_queue_entries
+ADD CONSTRAINT peer_review_queue_entries_unique_user_exercise_course UNIQUE NULLS NOT DISTINCT (user_id, exercise_id, course_id, deleted_at);
 
 -- Exercise slide submissions
 ALTER TABLE exercise_slide_submissions DROP COLUMN course_instance_id;
@@ -113,3 +118,16 @@ ALTER TABLE user_course_exercise_service_variables DROP COLUMN course_instance_i
 ALTER TABLE user_course_exercise_service_variables
 ALTER COLUMN course_id
 SET NOT NULL;
+
+-- -- certificate_configuration_to_requirements
+-- ALTER TABLE certificate_configuration_to_requirements
+-- ADD COLUMN course_id uuid REFERENCES courses(id);
+-- UPDATE certificate_configuration_to_requirements
+-- SET course_id = ci.course_id
+-- FROM certificate_configuration_to_requirements cctr
+--   JOIN course_instances ci ON cctr.course_instance_id = ci.id
+-- WHERE cctr.course_instance_id = ci.id;
+-- ALTER TABLE certificate_configuration_to_requirements DROP COLUMN course_instance_id;
+-- ALTER TABLE certificate_configuration_to_requirements
+-- ALTER COLUMN course_id
+-- SET NOT NULL;

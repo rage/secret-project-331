@@ -84,7 +84,18 @@
         }
       ]
     },
-    "nullable": [false, false, false, true, false, true, true, false, false, false]
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false
+    ]
   },
   "hash": "4264ecc4a875bffdda5989d1371f4fa1e3a5105e21aaeb26d08b27cbeaf0ac2e"
 }

@@ -60,9 +60,24 @@
       }
     ],
     "parameters": {
-      "Left": ["Uuid", "Timestamptz"]
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
     },
-    "nullable": [false, false, false, true, false, false, false, false, false, false, false]
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
   },
   "hash": "3ef7da4a691d5fe4f807938f814eb80a949af70f476c2a18b2004d8ac99f3f8c"
 }

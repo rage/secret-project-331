@@ -24,7 +24,9 @@
         "Varchar"
       ]
     },
-    "nullable": [false]
+    "nullable": [
+      false
+    ]
   },
   "hash": "cc2fceb2f75d704b551705f15ffcdae210fce2baf7b9d3612f77b6548a6df68c"
 }

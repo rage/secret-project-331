@@ -51,12 +51,14 @@ async fn get_user_course_module_exercises_by_exercise_type(
 ) -> ControllerResult<web::Json<CustomViewExerciseSubmissions>> {
     let mut conn = pool.acquire().await?;
     let (course_module_id, exercise_type, course_instance_id) = path.into_inner();
+    let course_id =
+        course_instances::get_course_id_by_instance_id(&mut conn, course_instance_id).await?;
     let exercise_tasks = models::exercise_task_submissions::get_user_custom_view_exercise_tasks_by_module_and_exercise_type(
         &mut conn,
         &exercise_type,
         course_module_id,
         user.id,
-    course_instance_id)
+    course_id)
         .await?;
 
     let exercises = models::exercises::get_exercises_by_module_containing_exercise_type(

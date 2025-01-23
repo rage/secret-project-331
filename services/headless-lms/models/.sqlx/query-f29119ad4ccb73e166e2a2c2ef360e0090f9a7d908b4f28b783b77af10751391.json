@@ -45,7 +45,13 @@
           "Custom": {
             "name": "grading_progress",
             "kind": {
-              "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+              "Enum": [
+                "fully-graded",
+                "pending",
+                "pending-manual",
+                "failed",
+                "not-ready"
+              ]
             }
           }
         }
@@ -57,7 +63,13 @@
           "Custom": {
             "name": "activity_progress",
             "kind": {
-              "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
+              "Enum": [
+                "initialized",
+                "started",
+                "in-progress",
+                "submitted",
+                "completed"
+              ]
             }
           }
         }
@@ -88,9 +100,23 @@
       }
     ],
     "parameters": {
-      "Left": ["UuidArray"]
+      "Left": [
+        "UuidArray"
+      ]
     },
-    "nullable": [false, false, false, true, false, false, true, false, false, false, true]
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      true
+    ]
   },
   "hash": "f29119ad4ccb73e166e2a2c2ef360e0090f9a7d908b4f28b783b77af10751391"
 }

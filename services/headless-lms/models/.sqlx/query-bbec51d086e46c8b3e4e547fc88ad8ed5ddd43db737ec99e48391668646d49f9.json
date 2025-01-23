@@ -4,7 +4,12 @@
   "describe": {
     "columns": [],
     "parameters": {
-      "Left": ["UuidArray", "TimestamptzArray", "UuidArray", "TextArray"]
+      "Left": [
+        "UuidArray",
+        "TimestamptzArray",
+        "UuidArray",
+        "TextArray"
+      ]
     },
     "nullable": []
   },

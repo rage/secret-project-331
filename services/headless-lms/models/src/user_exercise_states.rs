@@ -673,7 +673,7 @@ pub async fn get_by_ids(
 SELECT id,
   user_id,
   exercise_id,
-  course_instance_id,
+  course_id,
   exam_id,
   created_at,
   updated_at,

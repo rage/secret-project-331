@@ -72,13 +72,11 @@ INSERT INTO offered_answers_to_peer_review_temporary (
     course_id,
     exercise_id
   )
-VALUES ($1, $2, $3, $4) ON CONFLICT ON CONSTRAINT offered_answers_to_peer_review_temporary_pkey DO
+VALUES ($1, $2, $3, $4) ON CONFLICT (user_id, exercise_id) DO
 UPDATE
 SET exercise_slide_submission_id = $1,
-  user_id = $2,
-  course_id = $3,
-  exercise_id = $4,
-  created_at = now()
+    course_id = $3,
+    created_at = now()
 ",
         exercise_slide_submission_id,
         user_id,

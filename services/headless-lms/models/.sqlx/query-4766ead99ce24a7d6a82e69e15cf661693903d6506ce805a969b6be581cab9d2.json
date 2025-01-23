@@ -30,7 +30,10 @@
           "Custom": {
             "name": "history_change_reason",
             "kind": {
-              "Enum": ["page-saved", "history-restored"]
+              "Enum": [
+                "page-saved",
+                "history-restored"
+              ]
             }
           }
         }
@@ -52,9 +55,20 @@
       }
     ],
     "parameters": {
-      "Left": ["UuidArray"]
+      "Left": [
+        "UuidArray"
+      ]
     },
-    "nullable": [false, false, false, false, false, true, false, false]
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
   },
   "hash": "4766ead99ce24a7d6a82e69e15cf661693903d6506ce805a969b6be581cab9d2"
 }

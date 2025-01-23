@@ -125,6 +125,10 @@ async fn create_automatic_course_module_completion_if_eligible(
         if eligible {
             let course = courses::get_course(conn, course_module.course_id).await?;
             let user = users::get_by_id(conn, user_id).await?;
+            if user.deleted_at.is_some() {
+                warn!("Cannot create a completion for a deleted user");
+                return Ok(None);
+            }
             let user_details =
                 crate::user_details::get_user_details_by_user_id(conn, user.id).await?;
             let completion = course_module_completions::insert(
@@ -243,6 +247,10 @@ async fn user_has_passed_exam_for_the_course(
     let exam_ids = course_exams::get_exam_ids_by_course_id(conn, course_id).await?;
     for exam_id in exam_ids {
         let exam = exams::get(conn, exam_id).await?;
+        // A minimum points threshold of 0 indicates that the "Related courses can be completed automatically" option has not been enabled by the teacher. If you wish to remove this condition, please first store this information in a separate column in the exams table.
+        if exam.minimum_points_treshold == 0 {
+            continue;
+        }
         if exam.ended_at_or(now, false) {
             let points =
                 user_exercise_states::get_user_total_exam_points(conn, user_id, exam_id).await?;

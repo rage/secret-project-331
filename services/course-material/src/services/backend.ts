@@ -11,6 +11,7 @@ import {
   CodeGiveawayStatus,
   Course,
   CourseBackgroundQuestionsAndAnswers,
+  CourseCustomPrivacyPolicyCheckboxText,
   CourseInstance,
   CourseMaterialExercise,
   CourseMaterialPeerOrSelfReviewDataWithToken,
@@ -34,7 +35,9 @@ import {
   PageNavigationInformation,
   PageSearchResult,
   PageWithExercises,
+  PartnersBlock,
   PeerOrSelfReviewsReceived,
+  PrivacyLink,
   ResearchForm,
   ResearchFormQuestion,
   ResearchFormQuestionAnswer,
@@ -49,6 +52,7 @@ import {
   UserCourseInstanceChapterProgress,
   UserCourseInstanceProgress,
   UserCourseSettings,
+  UserMarketingConsent,
   UserModuleCompletionStatus,
 } from "@/shared-module/common/bindings"
 import {
@@ -58,6 +62,7 @@ import {
   isCodeGiveawayStatus,
   isCourse,
   isCourseBackgroundQuestionsAndAnswers,
+  isCourseCustomPrivacyPolicyCheckboxText,
   isCourseInstance,
   isCourseMaterialExercise,
   isCourseMaterialPeerOrSelfReviewDataWithToken,
@@ -75,7 +80,9 @@ import {
   isPageNavigationInformation,
   isPageSearchResult,
   isPageWithExercises,
+  isPartnersBlock,
   isPeerOrSelfReviewsReceived,
+  isPrivacyLink,
   isResearchForm,
   isResearchFormQuestion,
   isResearchFormQuestionAnswer,
@@ -86,6 +93,7 @@ import {
   isUserCourseInstanceChapterProgress,
   isUserCourseInstanceProgress,
   isUserCourseSettings,
+  isUserMarketingConsent,
   isUserModuleCompletionStatus,
 } from "@/shared-module/common/bindings.guard"
 import {
@@ -742,4 +750,51 @@ export const getCodeGiveawayStatus = async (id: string): Promise<CodeGiveawaySta
 export const claimCodeFromCodeGiveaway = async (id: string): Promise<string> => {
   const response = await courseMaterialClient.post(`/code-giveaways/${id}/claim`)
   return validateResponse(response, isString)
+}
+
+export const updateMarketingConsent = async (
+  courseId: string,
+  courseLanguageGroupsId: string,
+  emailSubscription: boolean,
+  marketingConsent: boolean,
+): Promise<string> => {
+  const res = await courseMaterialClient.post(
+    `/courses/${courseId}/user-marketing-consent`,
+    {
+      course_language_groups_id: courseLanguageGroupsId,
+      email_subscription: emailSubscription,
+      marketing_consent: marketingConsent,
+    },
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(res, isString)
+}
+
+export const fetchUserMarketingConsent = async (
+  courseId: string,
+): Promise<UserMarketingConsent | null> => {
+  const res = await courseMaterialClient.get(`/courses/${courseId}/fetch-user-marketing-consent`)
+  return validateResponse(res, isUnion(isUserMarketingConsent, isNull))
+}
+
+export const fetchPartnersBlock = async (courseId: string): Promise<PartnersBlock> => {
+  const response = await courseMaterialClient.get(`/courses/${courseId}/partners-block`)
+  return validateResponse(response, isPartnersBlock)
+}
+
+export const fetchPrivacyLink = async (courseId: string): Promise<PrivacyLink[]> => {
+  const response = await courseMaterialClient.get(`/courses/${courseId}/privacy-link`)
+  return validateResponse(response, isArray(isPrivacyLink))
+}
+
+export const fetchCustomPrivacyPolicyCheckboxTexts = async (
+  courseId: string,
+): Promise<CourseCustomPrivacyPolicyCheckboxText[]> => {
+  const response = await courseMaterialClient.get(
+    `/courses/${courseId}/custom-privacy-policy-checkbox-texts`,
+    { responseType: "json" },
+  )
+  return validateResponse(response, isArray(isCourseCustomPrivacyPolicyCheckboxText))
 }

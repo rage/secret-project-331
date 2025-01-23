@@ -204,7 +204,7 @@ const gradeInPod = async (
   // delete the pod now that we're done
   log(`deleting pod ${podName}`)
   try {
-    await kubeApi.deleteNamespacedPod(podName, "default", "true")
+    await kubeApi.deleteNamespacedPod({ name: podName, namespace: "default", pretty: "true" })
   } catch (e) {
     error("failed to delete pod")
   }
@@ -228,15 +228,15 @@ const gradeInPodInner = async (
 
   // start pod and wait for it to start
   log("starting sandbox image", sandboxImage)
-  await kubeApi.createNamespacedPod("default", pod, "true")
+  await kubeApi.createNamespacedPod({ body: pod, namespace: "default", pretty: "true" })
   let podPhase = null
   while (podPhase !== "Running") {
     // poll once per 500 ms
     const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
     await delay(500)
 
-    const podStatus = await kubeApi.readNamespacedPodStatus(podName, "default")
-    podPhase = podStatus.body.status?.phase
+    const podStatus = await kubeApi.readNamespacedPodStatus({ name: podName, namespace: "default" })
+    podPhase = podStatus.status?.phase
     if (podPhase !== "Pending" && podPhase !== "Running") {
       // may indicate a problem like the pod crashing
       throw new Error(`Unexpected phase ${podPhase}`)

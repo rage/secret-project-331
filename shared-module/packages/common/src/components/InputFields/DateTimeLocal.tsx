@@ -1,11 +1,18 @@
 import { css, cx } from "@emotion/css"
-import React, { forwardRef, InputHTMLAttributes, useState } from "react"
+import React, { forwardRef, InputHTMLAttributes } from "react"
 
 import { baseTheme } from "../../styles"
 import { dateToString } from "../../utils/time"
 
-const error = css`
+const errorStyle = css`
   color: #f76d82;
+  font-size: 14px;
+  display: inline-block;
+  margin-top: -15px;
+`
+
+const warningStyle = css`
+  color: #b3440d;
   font-size: 14px;
   display: inline-block;
   margin-top: -15px;
@@ -15,13 +22,15 @@ export interface TimePickerProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string
   onChangeByValue?: (value: string, name?: string) => void
   error?: string
-  defaultValue?: string
+  warning?: string
   className?: string
 }
 
 const DateTimeLocal = forwardRef<HTMLInputElement, TimePickerProps>(
-  ({ onChangeByValue, onChange, className, defaultValue, ...rest }: TimePickerProps, ref) => {
-    const [value, setValue] = useState<string>(defaultValue ?? "")
+  (props: TimePickerProps, ref) => {
+    const { onChangeByValue, onChange, className, defaultValue, value, warning, error, ...rest } =
+      props
+
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       if (onChangeByValue) {
         const {
@@ -32,8 +41,10 @@ const DateTimeLocal = forwardRef<HTMLInputElement, TimePickerProps>(
       if (onChange) {
         onChange(event)
       }
-      setValue(event.target.value)
     }
+
+    const effectiveValue = value ?? defaultValue
+
     return (
       <div
         className={cx(
@@ -85,26 +96,35 @@ const DateTimeLocal = forwardRef<HTMLInputElement, TimePickerProps>(
             ref={ref}
             type="datetime-local"
             step="1"
-            {...rest}
             onChange={handleOnChange}
             value={value}
+            defaultValue={defaultValue}
+            aria-label={rest.label}
+            aria-invalid={!!error}
+            {...rest}
           />
         </label>
 
-        {value && (
+        {effectiveValue && typeof effectiveValue === "string" && (
           <small
             className={css`
               display: block;
               height: 18px;
             `}
           >
-            {dateToString(new Date(value))}
+            {dateToString(effectiveValue)}
           </small>
         )}
 
-        {rest.error && (
-          <span className={cx(error)} id={`${rest.label}_error`} role="alert">
-            {rest.error}
+        {error && (
+          <span className={cx(errorStyle)} id={`${rest.label}_error`} role="alert">
+            {error}
+          </span>
+        )}
+
+        {warning && !error && (
+          <span className={cx(warningStyle)} id={`${rest.label}_warning`} role="alert">
+            {warning}
           </span>
         )}
       </div>

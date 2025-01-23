@@ -96,6 +96,7 @@ pub async fn seed_sample_course(
         copy_user_permissions: false,
         is_joinable_by_code_only: false,
         join_code: None,
+        ask_marketing_consent: false,
     };
     let (course, _front_page, default_instance, default_module) =
         library::content_management::create_new_course(
@@ -147,7 +148,7 @@ pub async fn seed_sample_course(
         name: "The Basics".to_string(),
         color: None,
         opens_at: None,
-        deadline: Some(Utc.with_ymd_and_hms(2025, 1, 1, 23, 59, 59).unwrap()),
+        deadline: Some(Utc.with_ymd_and_hms(2225, 1, 1, 23, 59, 59).unwrap()),
         course_module_id: Some(default_module.id),
     };
     let (chapter_1, _front_page_1) = library::content_management::create_new_chapter(
@@ -573,7 +574,7 @@ pub async fn seed_sample_course(
             "points": 2,
             "section": 0,
             "courseId": "1dbd4a71-5f4c-49c9-b8a0-2e65fb8c4e0c",
-            "deadline": "2025-12-17T07:15:33.479Z",
+            "deadline": "3125-12-17T07:15:33.479Z",
             "createdAt": "2021-12-17T07:15:33.479Z",
             "updatedAt": "2021-12-17T07:15:33.479Z",
             "autoReject": false,
@@ -2030,6 +2031,7 @@ pub async fn create_glossary_course(
         copy_user_permissions: false,
         is_joinable_by_code_only: false,
         join_code: None,
+        ask_marketing_consent: false,
     };
 
     let (course, _front_page, _default_instance, default_module) =
@@ -2081,7 +2083,7 @@ pub async fn create_glossary_course(
         name: "Glossary".to_string(),
         color: None,
         opens_at: None,
-        deadline: Some(Utc.with_ymd_and_hms(2025, 1, 1, 23, 59, 59).unwrap()),
+        deadline: Some(Utc.with_ymd_and_hms(2225, 1, 1, 23, 59, 59).unwrap()),
         course_module_id: Some(default_module.id),
     };
     let (chapter, _front_page) = library::content_management::create_new_chapter(
@@ -2156,6 +2158,7 @@ pub async fn seed_cs_course_material(
         copy_user_permissions: false,
         is_joinable_by_code_only: false,
         join_code: None,
+        ask_marketing_consent: false,
     };
     let (course, front_page, default_instance, default_module) =
         library::content_management::create_new_course(
@@ -3035,6 +3038,7 @@ pub async fn seed_course_without_submissions(
         copy_user_permissions: false,
         is_joinable_by_code_only: false,
         join_code: None,
+        ask_marketing_consent: false,
     };
     let (course, _front_page, _, default_module) = library::content_management::create_new_course(
         &mut conn,
@@ -3080,7 +3084,7 @@ pub async fn seed_course_without_submissions(
         name: "The Basics".to_string(),
         color: None,
         opens_at: None,
-        deadline: Some(Utc.with_ymd_and_hms(2025, 1, 1, 23, 59, 59).unwrap()),
+        deadline: Some(Utc.with_ymd_and_hms(2225, 1, 1, 23, 59, 59).unwrap()),
 
         course_module_id: Some(default_module.id),
     };
@@ -3542,7 +3546,7 @@ pub async fn seed_course_without_submissions(
             "points": 2,
             "section": 0,
             "courseId": "1dbd4a71-5f4c-49c9-b8a0-2e65fb8c4e0c",
-            "deadline": "2025-12-17T07:15:33.479Z",
+            "deadline": "3125-12-17T07:15:33.479Z",
             "createdAt": "2021-12-17T07:15:33.479Z",
             "updatedAt": "2021-12-17T07:15:33.479Z",
             "autoReject": false,
@@ -4442,6 +4446,7 @@ pub async fn seed_peer_review_course_without_submissions(
         copy_user_permissions: false,
         is_joinable_by_code_only: false,
         join_code: None,
+        ask_marketing_consent: false,
     };
 
     let (course, _front_page, _, default_module) = library::content_management::create_new_course(
@@ -4488,7 +4493,7 @@ pub async fn seed_peer_review_course_without_submissions(
         name: "The Basics".to_string(),
         color: None,
         opens_at: None,
-        deadline: Some(Utc.with_ymd_and_hms(2025, 1, 1, 23, 59, 59).unwrap()),
+        deadline: Some(Utc.with_ymd_and_hms(2225, 1, 1, 23, 59, 59).unwrap()),
 
         course_module_id: Some(default_module.id),
     };

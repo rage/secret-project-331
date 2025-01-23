@@ -16,7 +16,6 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 const AUTOMATIC = "automatic"
 const MANUAL = "manual"

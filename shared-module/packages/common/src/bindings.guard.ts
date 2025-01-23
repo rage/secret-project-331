@@ -50,6 +50,7 @@ import {
   CourseBackgroundQuestionType,
   CourseBreadcrumbInfo,
   CourseCount,
+  CourseCustomPrivacyPolicyCheckboxText,
   CourseExam,
   CourseInstance,
   CourseInstanceCompletionSummary,
@@ -179,6 +180,8 @@ import {
   PageWithExercises,
   Pagination,
   PaperSize,
+  PartnerBlockNew,
+  PartnersBlock,
   PeerOrSelfReviewAnswer,
   PeerOrSelfReviewConfig,
   PeerOrSelfReviewQuestion,
@@ -196,6 +199,7 @@ import {
   PlaygroundViewsMessage,
   PointMap,
   Points,
+  PrivacyLink,
   ProposalCount,
   ProposalStatus,
   Regrading,
@@ -239,6 +243,7 @@ import {
   UserDetail,
   UserExerciseState,
   UserInfo,
+  UserMarketingConsent,
   UserModuleCompletionStatus,
   UserPointsUpdateStrategy,
   UserResearchConsent,
@@ -632,18 +637,6 @@ export function isCodeGiveaway(obj: unknown): obj is CodeGiveaway {
   )
 }
 
-export function isNewCodeGiveaway(obj: unknown): obj is NewCodeGiveaway {
-  const typedObj = obj as NewCodeGiveaway
-  return (
-    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typeof typedObj["course_id"] === "string" &&
-    typeof typedObj["name"] === "string" &&
-    (typedObj["course_module_id"] === null || typeof typedObj["course_module_id"] === "string") &&
-    (typedObj["require_course_specific_consent_form_question_id"] === null ||
-      typeof typedObj["require_course_specific_consent_form_question_id"] === "string")
-  )
-}
-
 export function isCodeGiveawayStatus(obj: unknown): obj is CodeGiveawayStatus {
   const typedObj = obj as CodeGiveawayStatus
   return (
@@ -657,6 +650,18 @@ export function isCodeGiveawayStatus(obj: unknown): obj is CodeGiveawayStatus {
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["tag"] === "AlreadyGottenCode" &&
       typeof typedObj["given_code"] === "string")
+  )
+}
+
+export function isNewCodeGiveaway(obj: unknown): obj is NewCodeGiveaway {
+  const typedObj = obj as NewCodeGiveaway
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["name"] === "string" &&
+    (typedObj["course_module_id"] === null || typeof typedObj["course_module_id"] === "string") &&
+    (typedObj["require_course_specific_consent_form_question_id"] === null ||
+      typeof typedObj["require_course_specific_consent_form_question_id"] === "string")
   )
 }
 
@@ -718,6 +723,22 @@ export function isCourseBackgroundQuestionsAndAnswers(
     typedObj["background_questions"].every((e: any) => isCourseBackgroundQuestion(e) as boolean) &&
     Array.isArray(typedObj["answers"]) &&
     typedObj["answers"].every((e: any) => isCourseBackgroundQuestionAnswer(e) as boolean)
+  )
+}
+
+export function isCourseCustomPrivacyPolicyCheckboxText(
+  obj: unknown,
+): obj is CourseCustomPrivacyPolicyCheckboxText {
+  const typedObj = obj as CourseCustomPrivacyPolicyCheckboxText
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["created_at"] === "string" &&
+    typeof typedObj["updated_at"] === "string" &&
+    (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
+    typeof typedObj["text_html"] === "string" &&
+    typeof typedObj["text_slug"] === "string"
   )
 }
 
@@ -1024,7 +1045,8 @@ export function isCourse(obj: unknown): obj is Course {
     typeof typedObj["base_module_completion_requires_n_submodule_completions"] === "number" &&
     typeof typedObj["can_add_chatbot"] === "boolean" &&
     typeof typedObj["is_joinable_by_code_only"] === "boolean" &&
-    (typedObj["join_code"] === null || typeof typedObj["join_code"] === "string")
+    (typedObj["join_code"] === null || typeof typedObj["join_code"] === "string") &&
+    typeof typedObj["ask_marketing_consent"] === "boolean"
   )
 }
 
@@ -1072,7 +1094,8 @@ export function isCourseUpdate(obj: unknown): obj is CourseUpdate {
     typeof typedObj["is_test_mode"] === "boolean" &&
     typeof typedObj["can_add_chatbot"] === "boolean" &&
     typeof typedObj["is_unlisted"] === "boolean" &&
-    typeof typedObj["is_joinable_by_code_only"] === "boolean"
+    typeof typedObj["is_joinable_by_code_only"] === "boolean" &&
+    typeof typedObj["ask_marketing_consent"] === "boolean"
   )
 }
 
@@ -1092,7 +1115,8 @@ export function isNewCourse(obj: unknown): obj is NewCourse {
     typeof typedObj["is_unlisted"] === "boolean" &&
     typeof typedObj["copy_user_permissions"] === "boolean" &&
     typeof typedObj["is_joinable_by_code_only"] === "boolean" &&
-    (typedObj["join_code"] === null || typeof typedObj["join_code"] === "string")
+    (typedObj["join_code"] === null || typeof typedObj["join_code"] === "string") &&
+    typeof typedObj["ask_marketing_consent"] === "boolean"
   )
 }
 
@@ -2192,6 +2216,26 @@ export function isUserWithModuleCompletions(obj: unknown): obj is UserWithModule
   )
 }
 
+export function isUserMarketingConsent(obj: unknown): obj is UserMarketingConsent {
+  const typedObj = obj as UserMarketingConsent
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["course_language_group_id"] === "string" &&
+    typeof typedObj["user_id"] === "string" &&
+    (typedObj["user_mailchimp_id"] === null || typeof typedObj["user_mailchimp_id"] === "string") &&
+    typeof typedObj["consent"] === "boolean" &&
+    (typedObj["email_subscription_in_mailchimp"] === null ||
+      typeof typedObj["email_subscription_in_mailchimp"] === "string") &&
+    typeof typedObj["created_at"] === "string" &&
+    typeof typedObj["updated_at"] === "string" &&
+    (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
+    (typedObj["synced_to_mailchimp_at"] === null ||
+      typeof typedObj["synced_to_mailchimp_at"] === "string")
+  )
+}
+
 export function isMaterialReference(obj: unknown): obj is MaterialReference {
   const typedObj = obj as MaterialReference
   return (
@@ -2625,6 +2669,26 @@ export function isSearchRequest(obj: unknown): obj is SearchRequest {
   )
 }
 
+export function isPartnerBlockNew(obj: unknown): obj is PartnerBlockNew {
+  const typedObj = obj as PartnerBlockNew
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["course_id"] === "string"
+  )
+}
+
+export function isPartnersBlock(obj: unknown): obj is PartnersBlock {
+  const typedObj = obj as PartnersBlock
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["created_at"] === "string" &&
+    typeof typedObj["updated_at"] === "string" &&
+    (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
+    typeof typedObj["course_id"] === "string"
+  )
+}
+
 export function isCmsPeerOrSelfReviewConfig(obj: unknown): obj is CmsPeerOrSelfReviewConfig {
   const typedObj = obj as CmsPeerOrSelfReviewConfig
   return (
@@ -2861,6 +2925,20 @@ export function isPlaygroundExampleData(obj: unknown): obj is PlaygroundExampleD
     typeof typedObj["name"] === "string" &&
     typeof typedObj["url"] === "string" &&
     typeof typedObj["width"] === "number"
+  )
+}
+
+export function isPrivacyLink(obj: unknown): obj is PrivacyLink {
+  const typedObj = obj as PrivacyLink
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["created_at"] === "string" &&
+    typeof typedObj["updated_at"] === "string" &&
+    (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
+    typeof typedObj["title"] === "string" &&
+    typeof typedObj["url"] === "string" &&
+    typeof typedObj["course_id"] === "string"
   )
 }
 

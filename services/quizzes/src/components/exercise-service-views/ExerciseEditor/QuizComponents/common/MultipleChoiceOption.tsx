@@ -91,7 +91,7 @@ const MessageDialogTitle = styled.div`
 const MessageDialogDescription = styled.div<{ isNull: boolean }>`
   color: #535a66;
   padding: 16px;
-  height: 60px;
+  min-height: 60px;
 `
 const MultipleChoiceMessageDialogContainer = styled.div`
   margin-bottom: 4px;

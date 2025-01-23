@@ -3,16 +3,16 @@ import { BlockConfiguration } from "@wordpress/blocks"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
 
-import SponsorEditor from "./PartnersEditor"
-import SponsorSave from "./PartnersSave"
+import PartnerEditor from "./PartnersEditor"
+import PartnerSave from "./PartnersSave"
 
-const SponsorConfiguration: BlockConfiguration = {
-  title: "Sponsor Section",
-  description: "Sponsor Section",
+const PartnerConfiguration: BlockConfiguration = {
+  title: "Partner Section",
+  description: "Partner Section",
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
-  edit: SponsorEditor,
-  save: SponsorSave,
+  edit: PartnerEditor,
+  save: PartnerSave,
 }
 
-export default SponsorConfiguration
+export default PartnerConfiguration

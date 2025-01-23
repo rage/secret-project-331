@@ -16,7 +16,10 @@ function generateNormalResponseHeaders(options = { requireTrustedTypesFor: false
 
     {
       key: "Permissions-Policy",
-      value: [`fullscreen=(self "https://www.thinglink.com")`, `encrypted-media=*`]
+      value: [
+        `fullscreen=(self "https://www.thinglink.com" "https://*.mooc.fi")`,
+        `encrypted-media=*`,
+      ]
         .filter((o) => !!o)
         .join(", "),
     },

@@ -1,5 +1,6 @@
 import { css, cx } from "@emotion/css"
 import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from "@tanstack/react-query"
+import { BlockProhibited } from "@vectopus/atlas-icons-react"
 import { max } from "lodash"
 import React, { useEffect, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -14,8 +15,8 @@ import {
 } from "../../../../../../services/backend/courses"
 import BottomPanel from "../../../../../BottomPanel"
 
+import ChapterFormDialog from "./ChapterFormDialog"
 import ChapterImageWidget from "./ChapterImageWidget"
-import NewChapterForm from "./NewChapterForm"
 import FrontPage from "./PageList/FrontPage"
 import PageList from "./PageList/PageList"
 import {
@@ -107,12 +108,17 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
   }, [courseStructure])
 
   const handleCreateChapter = async () => {
-    setShowEditChapterForm(!showEditChapterForm)
+    setShowEditChapterForm(false)
     setChapterBeingEdited(null)
     await refetch()
   }
 
   const maxPart = max(courseStructure.chapters.map((p) => p.chapter_number))
+
+  const openEditor = async () => {
+    // eslint-disable-next-line i18next/no-literal-string
+    window.location.assign(`/cms/partners-block/${courseStructure.course.id}/edit`)
+  }
 
   return (
     <>
@@ -170,7 +176,7 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
                 <BreakFromCentered key={chapter.id} sidebar={false}>
                   <div
                     className={css`
-                      padding: 3rem 0;
+                      padding-top: 3rem;
                       background-color: ${n % 2 === 0 ? baseTheme.colors.clear[100] : "white"};
                     `}
                   >
@@ -285,36 +291,18 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
           {t("button-text-new-chapter")}
         </Button>
 
-        <Dialog
-          open={!!showEditChapterForm}
+        <ChapterFormDialog
+          open={showEditChapterForm}
           onClose={() => {
             setChapterBeingEdited(null)
+            setShowEditChapterForm(false)
           }}
-        >
-          <div
-            className={css`
-              margin: 1rem;
-            `}
-          >
-            <Button
-              variant="primary"
-              size="medium"
-              onClick={() => {
-                setChapterBeingEdited(null)
-                setShowEditChapterForm(false)
-              }}
-            >
-              {t("button-text-close")}
-            </Button>
-            <NewChapterForm
-              courseId={courseStructure.course.id}
-              onSubmitForm={handleCreateChapter}
-              chapterNumber={chapterBeingEdited?.chapter_number ?? (maxPart ?? 0) + 1}
-              initialData={chapterBeingEdited}
-              newRecord={!chapterBeingEdited}
-            />
-          </div>
-        </Dialog>
+          courseId={courseStructure.course.id}
+          onSubmitForm={handleCreateChapter}
+          chapterNumber={chapterBeingEdited?.chapter_number ?? (maxPart ?? 0) + 1}
+          initialData={chapterBeingEdited}
+          newRecord={!chapterBeingEdited}
+        />
 
         <Dialog
           open={!!showEditImageModal}
@@ -344,6 +332,49 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
         </Dialog>
       </div>
       <DebugModal data={courseStructure} />
+
+      <div
+        className={css`
+          background: #f7f8f9;
+          width: 100%;
+          padding: 1rem;
+          color: #4c5868;
+          margin-top: 3rem;
+
+          .header {
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 1.25rem;
+
+            svg {
+              margin-right: 0.4rem;
+            }
+          }
+
+          p {
+            margin-bottom: 1rem;
+          }
+        `}
+      >
+        <span className="header">
+          <BlockProhibited size={18} weight="bold" color="#4C5868" />
+          {t("partners-section-heading")}
+        </span>
+        <p>{t("partners-section-text")}</p>
+        <button
+          className={css`
+            background: ${baseTheme.colors.gray[100]};
+            padding: 8px 20px;
+            color: ${baseTheme.colors.gray[700]};
+            cursor: pointer;
+            width: auto;
+            border: none;
+          `}
+          onClick={openEditor}
+        >
+          {t("partners-section-button-text")}
+        </button>
+      </div>
 
       <BottomPanel
         title={t("message-do-you-want-to-save-the-changes-to-the-page-ordering")}

@@ -6,6 +6,11 @@ use actix_http::header::{self, X_FORWARDED_FOR};
 use actix_web::web::Json;
 use chrono::Utc;
 use futures::{future::OptionFuture, FutureExt};
+use headless_lms_models::{
+    course_custom_privacy_policy_checkbox_texts::CourseCustomPrivacyPolicyCheckboxText,
+    marketing_consents::UserMarketingConsent,
+};
+use headless_lms_models::{partner_block::PartnersBlock, privacy_link::PrivacyLink};
 use headless_lms_utils::ip_to_country::IpToCountryMapper;
 use isbot::Bots;
 use models::{
@@ -901,6 +906,120 @@ async fn get_research_form_answers_with_user_id(
     token.authorized_ok(web::Json(res))
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct UserMarketingConsentPayload {
+    pub course_language_groups_id: Uuid,
+    pub email_subscription: bool,
+    pub marketing_consent: bool,
+}
+
+/**
+POST `/api/v0/course-material/courses/:course_id/user-marketing-consent` - Adds or updates user's marketing consent for a specific course.
+*/
+#[instrument(skip(pool, payload))]
+async fn update_marketing_consent(
+    payload: web::Json<UserMarketingConsentPayload>,
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Uuid>> {
+    let mut conn = pool.acquire().await?;
+    let user_id = Some(user.id);
+
+    let token = authorize_access_to_course_material(&mut conn, user_id, *course_id).await?;
+
+    let email_subscription = if payload.email_subscription {
+        "subscribed"
+    } else {
+        "unsubscribed"
+    };
+
+    let result = models::marketing_consents::upsert_marketing_consent(
+        &mut conn,
+        *course_id,
+        payload.course_language_groups_id,
+        &user.id,
+        email_subscription,
+        payload.marketing_consent,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(result))
+}
+
+/**
+GET `/api/v0/course-material/courses/:course_id/fetch-user-marketing-consent`
+*/
+#[instrument(skip(pool))]
+async fn fetch_user_marketing_consent(
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Option<UserMarketingConsent>>> {
+    let mut conn = pool.acquire().await?;
+    let user_id = Some(user.id);
+
+    let token = authorize_access_to_course_material(&mut conn, user_id, *course_id).await?;
+
+    let result =
+        models::marketing_consents::fetch_user_marketing_consent(&mut conn, *course_id, &user.id)
+            .await
+            .ok();
+
+    token.authorized_ok(web::Json(result))
+}
+
+/**
+GET /courses/:course_id/partners_blocks - Gets a partners block related to a course
+*/
+#[instrument(skip(pool))]
+async fn get_partners_block(
+    path: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<PartnersBlock>> {
+    let course_id = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    let partner_block = models::partner_block::get_partner_block(&mut conn, course_id).await?;
+    let token = skip_authorize();
+    token.authorized_ok(web::Json(partner_block))
+}
+
+/**
+GET /courses/:course_id/privacy_link - Gets a privacy link related to a course
+*/
+#[instrument(skip(pool))]
+async fn get_privacy_link(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Vec<PrivacyLink>>> {
+    let mut conn = pool.acquire().await?;
+    let privacy_link = models::privacy_link::get_privacy_link(&mut conn, *course_id).await?;
+    let token = skip_authorize();
+    token.authorized_ok(web::Json(privacy_link))
+}
+
+/**
+GET /courses/:course_id/custom-privacy-policy-checkbox-texts - Used to get customized checkbox texts for courses that use a different privacy policy than all our other courses (e.g. the Elements of AI course). These texts are shown in the course settings dialog.
+*/
+#[instrument(skip(pool))]
+async fn get_custom_privacy_policy_checkbox_texts(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser, // Ensure the user is authenticated
+) -> ControllerResult<web::Json<Vec<CourseCustomPrivacyPolicyCheckboxText>>> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize_access_to_course_material(&mut conn, Some(user.id), *course_id).await?;
+
+    let texts = models::course_custom_privacy_policy_checkbox_texts::get_all_by_course_id(
+        &mut conn, *course_id,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(texts))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -980,7 +1099,24 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_research_form_with_course_id),
         )
         .route(
+            "/{course_id}/partners-block",
+            web::get().to(get_partners_block),
+        )
+        .route("/{course_id}/privacy-link", web::get().to(get_privacy_link))
+        .route(
             "/{course_id}/research-consent-form-questions",
             web::get().to(get_research_form_questions_with_course_id),
+        )
+        .route(
+            "/{course_id}/user-marketing-consent",
+            web::post().to(update_marketing_consent),
+        )
+        .route(
+            "/{course_id}/fetch-user-marketing-consent",
+            web::get().to(fetch_user_marketing_consent),
+        )
+        .route(
+            "/{course_id}/custom-privacy-policy-checkbox-texts",
+            web::get().to(get_custom_privacy_policy_checkbox_texts),
         );
 }

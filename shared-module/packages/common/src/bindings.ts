@@ -239,18 +239,18 @@ export interface CodeGiveaway {
   name: string
 }
 
+export type CodeGiveawayStatus =
+  | { tag: "Disabled" }
+  | { tag: "NotEligible" }
+  | { tag: "Eligible"; codes_left: boolean }
+  | { tag: "AlreadyGottenCode"; given_code: string }
+
 export interface NewCodeGiveaway {
   course_id: string
   name: string
   course_module_id: string | null
   require_course_specific_consent_form_question_id: string | null
 }
-
-export type CodeGiveawayStatus =
-  | { tag: "Disabled" }
-  | { tag: "NotEligible" }
-  | { tag: "Eligible"; codes_left: boolean }
-  | { tag: "AlreadyGottenCode"; given_code: string }
 
 export interface CourseBackgroundQuestionAnswer {
   id: string
@@ -283,6 +283,16 @@ export type CourseBackgroundQuestionType = "Checkbox" | "Text"
 export interface CourseBackgroundQuestionsAndAnswers {
   background_questions: Array<CourseBackgroundQuestion>
   answers: Array<CourseBackgroundQuestionAnswer>
+}
+
+export interface CourseCustomPrivacyPolicyCheckboxText {
+  id: string
+  course_id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  text_html: string
+  text_slug: string
 }
 
 export interface CourseInstanceEnrollment {
@@ -475,6 +485,7 @@ export interface Course {
   can_add_chatbot: boolean
   is_joinable_by_code_only: boolean
   join_code: string | null
+  ask_marketing_consent: boolean
 }
 
 export interface CourseBreadcrumbInfo {
@@ -504,6 +515,7 @@ export interface CourseUpdate {
   can_add_chatbot: boolean
   is_unlisted: boolean
   is_joinable_by_code_only: boolean
+  ask_marketing_consent: boolean
 }
 
 export interface NewCourse {
@@ -520,6 +532,7 @@ export interface NewCourse {
   copy_user_permissions: boolean
   is_joinable_by_code_only: boolean
   join_code: string | null
+  ask_marketing_consent: boolean
 }
 
 export interface EmailTemplate {
@@ -1150,6 +1163,20 @@ export interface UserWithModuleCompletions {
   user_id: string
 }
 
+export interface UserMarketingConsent {
+  id: string
+  course_id: string
+  course_language_group_id: string
+  user_id: string
+  user_mailchimp_id: string | null
+  consent: boolean
+  email_subscription_in_mailchimp: string | null
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  synced_to_mailchimp_at: string | null
+}
+
 export interface MaterialReference {
   id: string
   course_id: string
@@ -1434,6 +1461,20 @@ export interface SearchRequest {
   query: string
 }
 
+export interface PartnerBlockNew {
+  course_id: string
+  content: unknown | null
+}
+
+export interface PartnersBlock {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  content: unknown
+  course_id: string
+}
+
 export interface CmsPeerOrSelfReviewConfig {
   id: string
   course_id: string
@@ -1587,6 +1628,16 @@ export interface PlaygroundExampleData {
   url: string
   width: number
   data: unknown
+}
+
+export interface PrivacyLink {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  title: string
+  url: string
+  course_id: string
 }
 
 export type BlockProposal =

@@ -47,7 +47,12 @@ export async function imageSavedPageYCoordinate(pathToImage: string): Promise<nu
     }
     const coordinate = coordString.split("moocfi-page-y-")[1]
     if (coordinate) {
-      return Number(coordinate)
+      const yCoordinate = Number(coordinate)
+      if (Number.isNaN(yCoordinate)) {
+        console.warn(`Warn: Invalid y-coordinate "${coordinate}" in image metadata, ignoring it.`)
+        return null
+      }
+      return yCoordinate
     }
   } catch (_e) {
     return null
@@ -62,18 +67,12 @@ export async function savePageYCoordinateToImage(
 ): Promise<void> {
   // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(200)
-  let yCoordinate = await page.mainFrame().evaluate(() => {
-    return window.scrollY
-  })
+  const yCoordinate = await observeYCoordinate(
+    page,
+    useCoordinatesFromTheBottomForSavingYCoordinates,
+  )
 
   console.info(`Saving y-coordinate ${yCoordinate} to image "${pathToImage}"`)
-
-  if (useCoordinatesFromTheBottomForSavingYCoordinates) {
-    const pageHeight = await page.evaluate(() => {
-      return document.body.scrollHeight
-    })
-    yCoordinate = yCoordinate - pageHeight
-  }
 
   const contents = await readFile(pathToImage, "binary")
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -87,4 +86,49 @@ export async function savePageYCoordinateToImage(
   listOfPngMetadataChunks.push(iend)
   const newContents = pngMetadata.joinChunk(listOfPngMetadataChunks)
   await writeFile(pathToImage, newContents, "binary")
+}
+
+export async function observeYCoordinate(
+  page: Page,
+  useCoordinatesFromTheBottomForSavingYCoordinates: boolean | undefined,
+): Promise<number> {
+  let previousYCoordinate: number | null = null
+  let tries = 0
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    // eslint-disable-next-line no-await-in-loop, playwright/no-wait-for-timeout
+    await page.waitForTimeout(100)
+    let yCoordinate = await page.mainFrame().evaluate(() => {
+      return window.scrollY
+    })
+
+    if (useCoordinatesFromTheBottomForSavingYCoordinates) {
+      const pageHeight = await page.evaluate(() => {
+        return document.body.scrollHeight
+      })
+      yCoordinate = -(pageHeight - yCoordinate)
+    }
+
+    if (previousYCoordinate === yCoordinate) {
+      return yCoordinate
+    } else {
+      previousYCoordinate = yCoordinate
+    }
+
+    if (tries > 100) {
+      throw new Error(`Could not stabilize y-coordinate after ${tries} tries.`)
+    }
+    tries++
+  }
+}
+
+export async function scrollToObservedYCoordinate(page: Page, yCoordinate: number): Promise<void> {
+  const targetY =
+    yCoordinate < 0
+      ? (await page.evaluate(() => document.body.scrollHeight)) + yCoordinate
+      : yCoordinate
+
+  await page.mainFrame().evaluate((coord) => {
+    window.scrollTo(0, coord)
+  }, targetY)
 }

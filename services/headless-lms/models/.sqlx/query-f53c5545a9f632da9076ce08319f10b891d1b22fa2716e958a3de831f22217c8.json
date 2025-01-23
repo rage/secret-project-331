@@ -1,0 +1,134 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE courses\nSET name = $1,\n  description = $2,\n  is_draft = $3,\n  is_test_mode = $4,\n  can_add_chatbot = $5,\n  is_unlisted = $6,\n  is_joinable_by_code_only = $7,\n  ask_marketing_consent = $8\nWHERE id = $9\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "organization_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "slug",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "content_search_language",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "language_code",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 9,
+        "name": "copied_from",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 10,
+        "name": "course_language_group_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 11,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "is_draft",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 13,
+        "name": "is_test_mode",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 14,
+        "name": "can_add_chatbot",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 15,
+        "name": "is_unlisted",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 16,
+        "name": "base_module_completion_requires_n_submodule_completions",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 17,
+        "name": "is_joinable_by_code_only",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 18,
+        "name": "join_code",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 19,
+        "name": "ask_marketing_consent",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": ["Varchar", "Text", "Bool", "Bool", "Bool", "Bool", "Bool", "Bool", "Uuid"]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      null,
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "f53c5545a9f632da9076ce08319f10b891d1b22fa2716e958a3de831f22217c8"
+}

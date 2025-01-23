@@ -77,7 +77,6 @@ const globalCss = css`
     white-space: nowrap;
   }
   .${linkWithExtraIconClass} {
-    display: inline-flex;
     align-items: center;
     margin-right: 0.1rem;
 

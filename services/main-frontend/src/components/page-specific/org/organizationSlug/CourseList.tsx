@@ -8,13 +8,12 @@ import {
   fetchOrganizationCourseCount,
   fetchOrganizationCourses,
 } from "../../../../services/backend/organizations"
-import NewCourseForm from "../../../forms/NewCourseForm"
 
 import { CourseComponent, CourseGrid } from "./CourseCard"
+import NewCourseDialog from "./NewCourseDialog"
 
 import { NewCourse } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
-import Dialog from "@/shared-module/common/components/Dialog"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import Pagination from "@/shared-module/common/components/Pagination"
@@ -34,6 +33,8 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
 }) => {
   const { t } = useTranslation()
   const paginationInfo = usePaginationInfo()
+  const [newCourseFormOpen, setNewCourseFormOpen] = useState(false)
+  const loginStateContext = useContext(LoginStateContext)
 
   const getOrgCourses = useQuery({
     queryKey: [`organization-courses`, paginationInfo.page, paginationInfo.limit, organizationId],
@@ -41,7 +42,6 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
       if (organizationId) {
         return fetchOrganizationCourses(organizationId, paginationInfo.page, paginationInfo.limit)
       } else {
-        // This should never happen, used for typescript because enabled boolean doesn't do type checking
         return Promise.reject(new Error("Organization ID undefined"))
       }
     },
@@ -54,7 +54,6 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
       if (organizationId) {
         return fetchOrganizationCourseCount(organizationId)
       } else {
-        // This should never happen, used for typescript because enabled boolean doesn't do type checking
         return Promise.reject(new Error("Organization ID undefined"))
       }
     },
@@ -63,27 +62,22 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
 
   const canMangeCourse = useAuthorizeMultiple(
     getOrgCourses.data?.map((course) => {
-      // eslint-disable-next-line i18next/no-literal-string
       return { action: { type: "teach" }, resource: { type: "course", id: course.id } }
     }) ?? [],
   )
-
-  const loginStateContext = useContext(LoginStateContext)
-
-  const [newCourseFormOpen, setNewCourseFormOpen] = useState(false)
 
   const handleSubmitNewCourse = async (newCourse: NewCourse) => {
     await postNewCourse(newCourse)
     await getOrgCourses.refetch()
     await getOrgCourseCount.refetch()
-    setNewCourseFormOpen(!newCourseFormOpen)
+    setNewCourseFormOpen(false)
   }
 
   const handleSubmitDuplicateCourse = async (oldCourseId: string, newCourse: NewCourse) => {
     await postNewCourseDuplicate(oldCourseId, newCourse)
     await getOrgCourses.refetch()
     await getOrgCourseCount.refetch()
-    setNewCourseFormOpen(!newCourseFormOpen)
+    setNewCourseFormOpen(false)
   }
 
   if (getOrgCourses.isError) {
@@ -123,7 +117,6 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
     <div>
       {courseCount <= 0 && <p>{t("no-courses-in-org")}</p>}
       {courseCount > 0 && <CourseGrid>{courses}</CourseGrid>}
-      {/* eslint-disable-next-line i18next/no-literal-string */}
       <div
         className={css`
           display: flex;
@@ -135,46 +128,23 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
           paginationInfo={paginationInfo}
         />
       </div>
-      <div
-        className={css`
-          margin-bottom: 1rem;
-        `}
-      >
-        <Dialog open={newCourseFormOpen} noPadding>
-          <div
-            className={css`
-              margin: 1rem;
-              padding: 1rem;
-            `}
-          >
-            <Button
-              size="medium"
-              variant="secondary"
-              onClick={() => setNewCourseFormOpen(!newCourseFormOpen)}
-            >
-              {t("button-text-close")}
-            </Button>
-            <NewCourseForm
-              organizationId={organizationId}
-              courses={getOrgCourses.data}
-              onSubmitNewCourseForm={handleSubmitNewCourse}
-              onSubmitDuplicateCourseForm={handleSubmitDuplicateCourse}
-              onClose={() => setNewCourseFormOpen(!newCourseFormOpen)}
-            />
-          </div>
-        </Dialog>
-      </div>
+
+      <NewCourseDialog
+        open={newCourseFormOpen}
+        onClose={() => setNewCourseFormOpen(false)}
+        organizationId={organizationId}
+        courses={getOrgCourses.data}
+        onSubmitNewCourse={handleSubmitNewCourse}
+        onSubmitDuplicateCourse={handleSubmitDuplicateCourse}
+      />
+
       <br />
       {loginStateContext.signedIn && (
         <OnlyRenderIfPermissions
           action={{ type: "create_courses_or_exams" }}
           resource={{ id: organizationId, type: "organization" }}
         >
-          <Button
-            size="medium"
-            variant="primary"
-            onClick={() => setNewCourseFormOpen(!newCourseFormOpen)}
-          >
+          <Button size="medium" variant="primary" onClick={() => setNewCourseFormOpen(true)}>
             {t("button-text-create")}
           </Button>
         </OnlyRenderIfPermissions>

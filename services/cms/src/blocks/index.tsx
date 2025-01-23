@@ -35,7 +35,6 @@ import LandingPageCopyText from "./LandingPageCopyText"
 import LandingPageHeroSection from "./LandingPageHeroSection"
 import Latex from "./Latex"
 import LearningObjectives from "./LearningObjectives"
-// import LogoLink from "./LogoLink"
 import Map from "./Map"
 import PagesInChapter from "./PagesInChapter"
 import PartnersBlock from "./Partners"
@@ -78,7 +77,6 @@ export const blockTypeMapForPages = [
   ["moocfi/author-inner-block", AuthorInnerBlock],
   ["moocfi/conditional-block", ConditionalBlock],
   ["moocfi/exercise-custom-view-block", ExerciseCustomView],
-  ["moocfi/partners", PartnersBlock],
   ["moocfi/top-level-pages", TopLevelPage],
   ["moocfi/expandable-content", ExpendableContent],
   ["moocfi/expandable-content-inner-block", ExpendableContentInnerBlock],
@@ -93,6 +91,7 @@ export const blockTypeMapForPages = [
   ["moocfi/code-giveaway", CodeGiveaway],
   ["moocfi/ingress", Ingress],
   ["moocfi/terminology-block", TerminologyBlock],
+  ["moocfi/partners", PartnersBlock],
   // ["moocfi/logo-link", LogoLink],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
@@ -105,7 +104,6 @@ export const blockTypeMapForFrontPages = [
   ["moocfi/glossary", Glossary],
   ["moocfi/landing-page-hero-section", LandingPageHeroSection],
   ["moocfi/latex", Latex],
-  ["moocfi/partners", PartnersBlock],
   ["moocfi/top-level-pages", TopLevelPage],
   ["moocfi/unsupported-block-type", UnsupportedBlock],
   ["moocfi/landing-page-copy-text", LandingPageCopyText],
@@ -114,6 +112,9 @@ export const blockTypeMapForFrontPages = [
   ["moocfi/conditional-block", ConditionalBlock],
   ["moocfi/exercise-custom-view-block", ExerciseCustomView],
   ["moocfi/code-giveaway", CodeGiveaway],
+  ["moocfi/expandable-content", ExpendableContent],
+  ["moocfi/expandable-content-inner-block", ExpendableContentInnerBlock],
+  ["moocfi/partners", PartnersBlock],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 

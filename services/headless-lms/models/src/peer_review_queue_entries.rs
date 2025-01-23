@@ -393,6 +393,36 @@ WHERE course_id = $1
     Ok(res)
 }
 
+/// Returns entries that have been waiting for teacher to review them for more than `timestamp`. The teacher is supposed to review an answer when the `user_exercise_states` `reviewing_stage` is `WaitingForManualGrading`.
+pub async fn get_entries_that_need_teacher_review_and_are_older_than_with_course_instance_id(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+    timestamp: DateTime<Utc>,
+) -> ModelResult<Vec<PeerReviewQueueEntry>> {
+    let res = sqlx::query_as!(
+        PeerReviewQueueEntry,
+        "
+SELECT prqe.*
+FROM peer_review_queue_entries prqe
+  JOIN user_exercise_states ues ON (
+    prqe.user_id = ues.user_id
+    AND prqe.exercise_id = ues.exercise_id
+    AND prqe.course_instance_id = ues.course_instance_id
+  )
+WHERE prqe.course_instance_id = $1
+  AND ues.reviewing_stage = 'waiting_for_manual_grading'
+  AND prqe.created_at < $2
+  AND prqe.deleted_at IS NULL
+  AND ues.deleted_at IS NULL
+    ",
+        course_instance_id,
+        timestamp
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_entries_that_need_reviews_and_are_older_than_with_exercise_id(
     conn: &mut PgConnection,
     exercise_id: Uuid,

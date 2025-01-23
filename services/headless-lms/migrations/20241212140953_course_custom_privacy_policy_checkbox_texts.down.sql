@@ -1,0 +1,1 @@
+DROP TABLE course_custom_privacy_policy_checkbox_texts;

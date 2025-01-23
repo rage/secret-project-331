@@ -4,7 +4,13 @@ import { UseMutationResult, useQuery } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchBackgroundQuestionsAndAnswers } from "../../services/backend"
+import {
+  fetchBackgroundQuestionsAndAnswers,
+  fetchCourseById,
+  updateMarketingConsent,
+} from "../../services/backend"
+
+import SelectMarketingConsentForm from "./SelectMarketingConsentForm"
 
 import { CourseInstance, NewCourseBackgroundQuestionAnswer } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
@@ -40,11 +46,18 @@ interface SelectCourseInstanceFormProps {
   >
   initialSelectedInstanceId?: string
   dialogLanguage: string
+  selectedLangCourseId: string
 }
 
 const SelectCourseInstanceForm: React.FC<
   React.PropsWithChildren<SelectCourseInstanceFormProps>
-> = ({ courseInstances, submitMutation, initialSelectedInstanceId, dialogLanguage }) => {
+> = ({
+  courseInstances,
+  submitMutation,
+  initialSelectedInstanceId,
+  dialogLanguage,
+  selectedLangCourseId,
+}) => {
   const { t } = useTranslation("course-material", { lng: dialogLanguage })
   const [selectedInstanceId, setSelectedInstanceId] = useState(
     figureOutInitialValue(courseInstances, initialSelectedInstanceId),
@@ -52,10 +65,20 @@ const SelectCourseInstanceForm: React.FC<
   const [additionalQuestionAnswers, setAdditionalQuestionAnswers] = useState<
     NewCourseBackgroundQuestionAnswer[]
   >([])
+
+  const [isMarketingConsentChecked, setIsMarketingConsentChecked] = useState(false)
+  const [isEmailSubscriptionConsentChecked, setIsEmailSubscriptionConsentChecked] = useState(false)
+
   const additionalQuestionsQuery = useQuery({
     queryKey: ["additional-questions", selectedInstanceId],
     queryFn: () => fetchBackgroundQuestionsAndAnswers(assertNotNullOrUndefined(selectedInstanceId)),
     enabled: selectedInstanceId !== undefined,
+  })
+
+  const getCourse = useQuery({
+    queryKey: ["courses", selectedLangCourseId],
+    queryFn: () => fetchCourseById(selectedLangCourseId as NonNullable<string>),
+    enabled: selectedLangCourseId !== null,
   })
 
   useEffect(() => {
@@ -99,6 +122,14 @@ const SelectCourseInstanceForm: React.FC<
         instanceId: selectedInstanceId,
         backgroundQuestionAnswers: additionalQuestionAnswers,
       })
+    }
+    if (getCourse.isSuccess && getCourse.data?.ask_marketing_consent) {
+      await updateMarketingConsent(
+        getCourse.data.id,
+        getCourse.data.course_language_group_id,
+        isEmailSubscriptionConsentChecked,
+        isMarketingConsentChecked,
+      )
     }
   }
 
@@ -191,12 +222,25 @@ const SelectCourseInstanceForm: React.FC<
         {additionalQuestionsQuery.error && (
           <ErrorBanner variant="readOnly" error={additionalQuestionsQuery.error} />
         )}
+        {getCourse.data?.ask_marketing_consent && (
+          <div>
+            <SelectMarketingConsentForm
+              courseId={selectedLangCourseId}
+              onEmailSubscriptionConsentChange={setIsEmailSubscriptionConsentChecked}
+              onMarketingConsentChange={setIsMarketingConsentChecked}
+            />
+          </div>
+        )}
         <div>
           <Button
             size="medium"
             variant="primary"
             onClick={enrollOnCourse}
-            disabled={!selectedInstanceId || additionalQuestionsQuery.isPending}
+            disabled={
+              !selectedInstanceId ||
+              additionalQuestionsQuery.isPending ||
+              (getCourse.data?.ask_marketing_consent && !isEmailSubscriptionConsentChecked)
+            }
             data-testid="select-course-instance-continue-button"
           >
             {t("continue")}

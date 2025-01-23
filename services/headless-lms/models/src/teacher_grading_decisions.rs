@@ -246,3 +246,30 @@ pub async fn update_teacher_grading_decision_hidden_field(
     .await?;
     Ok(res)
 }
+
+pub async fn get_by_ids(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+) -> ModelResult<Vec<TeacherGradingDecision>> {
+    let res = sqlx::query_as!(
+        TeacherGradingDecision,
+        r#"
+SELECT id,
+  user_exercise_state_id,
+  created_at,
+  updated_at,
+  deleted_at,
+  score_given,
+  teacher_decision AS "teacher_decision: _",
+  justification,
+  hidden
+FROM teacher_grading_decisions
+WHERE id = ANY($1)
+  AND deleted_at IS NULL
+        "#,
+        ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}

@@ -197,9 +197,9 @@
     </span><span class="kw">let </span>pass_automatically_cutoff = earliest_manual_review_cutoff - chrono::Duration::days(<span class="number">90</span>);
 
     <span class="comment">// Process automatic pass cases
-    </span><span class="kw">let </span>should_pass = headless_lms_models::peer_review_queue_entries::get_entries_that_need_reviews_and_are_older_than(conn, course_instance.id, pass_automatically_cutoff).<span class="kw">await</span><span class="question-mark">?</span>;
+    </span><span class="kw">let </span>should_pass = headless_lms_models::peer_review_queue_entries::get_entries_that_need_teacher_review_and_are_older_than_with_course_instance_id(conn, course_instance.id, pass_automatically_cutoff).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">if </span>!should_pass.is_empty() {
-        <span class="macro">info!</span>(course_instance_id = <span class="question-mark">?</span>course_instance.id, <span class="string">"Found {:?} answers that have been added to the peer review queue before {:?} and have not received enough peer reviews or have not been reviewed manually. Giving them full points."</span>, should_pass.len(), pass_automatically_cutoff);
+        <span class="macro">info!</span>(course_instance_id = <span class="question-mark">?</span>course_instance.id, <span class="string">"Found {:?} answers that have been added to the peer review queue before {:?}. The teacher has not reviewed the answers manually after 3 months. Giving them full points."</span>, should_pass.len(), pass_automatically_cutoff);
         <span class="kw">for </span>peer_review_queue_entry <span class="kw">in </span>should_pass {
             <span class="kw">let </span>_res = peer_review_queue_entries::remove_from_queue_and_give_full_points(
                 conn,

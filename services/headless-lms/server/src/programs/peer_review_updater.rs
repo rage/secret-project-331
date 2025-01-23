@@ -49,11 +49,20 @@ async fn process_course_instance(
                     info!(exercise.id = ?exercise.id, "Found {:?} answers that have been added to the peer review queue before {:?} and have not received enough peer reviews or have not been reviewed manually. Adding them to be manually reviewed by the teachers.", should_be_added_to_manual_review.len(), timestamp);
 
                     for peer_review_queue_entry in should_be_added_to_manual_review {
-                        peer_review_queue_entries::remove_from_queue_and_add_to_manual_review(
-                            conn,
-                            &peer_review_queue_entry,
-                        )
-                        .await?;
+                        if let Err(err) =
+                            peer_review_queue_entries::remove_from_queue_and_add_to_manual_review(
+                                conn,
+                                &peer_review_queue_entry,
+                            )
+                            .await
+                        {
+                            error!(
+                                peer_review_queue_entry = ?peer_review_queue_entry,
+                                "Failed to remove entry from queue and add to manual review: {:?}",
+                                err
+                            );
+                            continue;
+                        }
                         moved_to_manual_review += 1;
                     }
                 }
@@ -71,11 +80,19 @@ async fn process_course_instance(
     if !should_pass.is_empty() {
         info!(course_instance_id = ?course_instance.id, "Found {:?} answers that have been added to the peer review queue before {:?}. The teacher has not reviewed the answers manually after 3 months. Giving them full points.", should_pass.len(), pass_automatically_cutoff);
         for peer_review_queue_entry in should_pass {
-            let _res = peer_review_queue_entries::remove_from_queue_and_give_full_points(
+            if let Err(err) = peer_review_queue_entries::remove_from_queue_and_give_full_points(
                 conn,
                 &peer_review_queue_entry,
             )
-            .await?;
+            .await
+            {
+                error!(
+                    peer_review_queue_entry = ?peer_review_queue_entry,
+                    "Failed to remove entry from queue and give full points: {:?}",
+                    err
+                );
+                continue;
+            }
             given_full_points += 1;
         }
     }

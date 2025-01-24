@@ -865,7 +865,7 @@ mod tests {
         #[tokio::test]
         async fn grants_automatic_completion_but_no_prerequisite_for_default_module() {
             insert_data!(:tx);
-            let (mut tx, user, course, instance, default_module, _submodule_1, _submodule_2) =
+            let (mut tx, user, course, _instance, default_module, _submodule_1, _submodule_2) =
                 create_test_data(tx).await;
             update_automatic_completion_status_and_grant_if_eligible(
                 tx.as_mut(),
@@ -889,7 +889,7 @@ mod tests {
         #[tokio::test]
         async fn grants_automatic_completion_but_no_prerequisite_for_submodule() {
             insert_data!(:tx);
-            let (mut tx, user, course, instance, _default_module, submodule_1, _submodule_2) =
+            let (mut tx, user, course, _instance, _default_module, submodule_1, _submodule_2) =
                 create_test_data(tx).await;
             update_automatic_completion_status_and_grant_if_eligible(
                 tx.as_mut(),
@@ -914,7 +914,7 @@ mod tests {
         async fn grants_automatic_completion_for_eligible_submodule_when_completing_default_module()
         {
             insert_data!(:tx);
-            let (mut tx, user, course, instance, default_module, submodule_1, submodule_2) =
+            let (mut tx, user, course, _instance, default_module, submodule_1, submodule_2) =
                 create_test_data(tx).await;
             update_automatic_completion_status_and_grant_if_eligible(
                 tx.as_mut(),

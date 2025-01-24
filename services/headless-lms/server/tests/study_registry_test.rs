@@ -142,7 +142,7 @@ async fn insert_data(
     )
     .await
     .unwrap();
-    let (course, _, instance, course_module) =
+    let (course, _, _instance, course_module) =
         headless_lms_models::library::content_management::create_new_course(
             conn,
             PKeyPolicy::Fixed(CreateNewCourseFixedIds {

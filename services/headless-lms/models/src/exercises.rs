@@ -20,7 +20,7 @@ use crate::{
     teacher_grading_decisions::{TeacherDecisionType, TeacherGradingDecision},
     user_course_exercise_service_variables::UserCourseExerciseServiceVariable,
     user_course_settings,
-    user_exercise_states::{self, CourseOrExamId, ReviewingStage, UserExerciseState},
+    user_exercise_states::{self, ReviewingStage, UserExerciseState},
 };
 use std::collections::HashMap;
 
@@ -915,7 +915,7 @@ mod test {
             tx.as_mut(),
             user_id,
             exercise_id,
-            CourseOrExamId::Instance(course_instance.id),
+            CourseOrExamId::Course(course_id),
         )
         .await
         .unwrap();
@@ -943,7 +943,7 @@ mod test {
             tx.as_mut(),
             user_id,
             exercise_id,
-            CourseOrExamId::Instance(course_instance.id),
+            CourseOrExamId::Course(course_id),
         )
         .await
         .unwrap();

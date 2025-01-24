@@ -294,7 +294,8 @@ async fn update_module_completion_prerequisite_statuses_for_user(
 ) -> ModelResult<()> {
     let default_course_module = course_modules::get_default_by_course_id(conn, course_id).await?;
     let course_module_completions =
-        course_module_completions::get_all_by_course_and_user_id(conn, course_id, user_id).await?;
+        course_module_completions::get_all_by_course_id_and_user_id(conn, course_id, user_id)
+            .await?;
     let default_module_is_completed = course_module_completions
         .iter()
         .any(|x| x.course_module_id == default_course_module.id);
@@ -720,7 +721,7 @@ pub async fn get_user_module_completion_statuses_for_course(
     let course_modules = course_modules::get_by_course_id(conn, course_id).await?;
     let course_module_ids = course_modules.iter().map(|x| x.id).collect::<Vec<_>>();
     let course_module_completions: HashMap<Uuid, CourseModuleCompletion> =
-        course_module_completions::get_all_by_course_and_user_id(conn, course_id, user_id)
+        course_module_completions::get_all_by_course_id_and_user_id(conn, course_id, user_id)
             .await?
             .into_iter()
             .map(|x| (x.course_module_id, x))

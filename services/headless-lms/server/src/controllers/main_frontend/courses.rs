@@ -1,7 +1,7 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/courses`.
 
 use chrono::Utc;
-use domain::csv_export::user_exericse_states_export::UserExerciseStatesExportOperation;
+use domain::csv_export::user_exercise_states_export::UserExerciseStatesExportOperation;
 use headless_lms_models::{
     partner_block::PartnersBlock,
     suspected_cheaters::{SuspectedCheaters, ThresholdData},

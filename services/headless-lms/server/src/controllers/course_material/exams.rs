@@ -1,7 +1,5 @@
 use chrono::{DateTime, Duration, Utc};
-use headless_lms_models::{
-    exercises::Exercise, user_exercise_states::CourseOrExamId, ModelError, ModelErrorType,
-};
+use headless_lms_models::{exercises::Exercise, CourseOrExamId, ModelError, ModelErrorType};
 use models::{
     exams::{self, ExamEnrollment},
     exercises,
@@ -187,13 +185,12 @@ pub async fn fetch_exam_for_user(
 
             let exam_exercises = exercises::get_exercises_by_exam_id(&mut conn, *exam_id).await?;
 
-            let user_exercise_states =
-                user_exercise_states::get_all_for_user_and_course_instance_or_exam(
-                    &mut conn,
-                    user.id,
-                    CourseOrExamId::Exam(*exam_id),
-                )
-                .await?;
+            let user_exercise_states = user_exercise_states::get_all_for_user_and_course_or_exam(
+                &mut conn,
+                user.id,
+                CourseOrExamId::Exam(*exam_id),
+            )
+            .await?;
 
             let mut grading_decision_and_exercise_list: Vec<(TeacherGradingDecision, Exercise)> =
                 Vec::new();

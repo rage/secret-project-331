@@ -8,7 +8,7 @@ use actix_multipart::form::MultipartForm;
 use headless_lms_utils::file_store::file_utils;
 use models::chapters::DatabaseChapter;
 use models::library::grading::{StudentExerciseSlideSubmission, StudentExerciseTaskSubmission};
-use models::user_exercise_states::CourseOrExamId;
+use models::CourseOrExamId;
 use mooc_langs_api as api;
 use std::collections::HashSet;
 
@@ -67,8 +67,11 @@ async fn get_course_instance_exercises(
         .filter(DatabaseChapter::has_opened)
         .map(|c| c.id)
         .collect::<HashSet<_>>();
+
+    let course_instance =
+        models::course_instances::get_course_instance(&mut conn, *course_instance).await?;
     let open_chapter_exercises =
-        models::exercises::get_exercises_by_course_instance_id(&mut conn, *course_instance)
+        models::exercises::get_exercises_by_course_id(&mut conn, course_instance.course_id)
             .await?
             .into_iter()
             .filter(|e| {
@@ -143,7 +146,7 @@ async fn get_exercise(
     )
     .await?;
     match instance_or_exam_id {
-        Some(CourseOrExamId::Instance(_id)) => {}
+        Some(CourseOrExamId::Course(_id)) => {}
         _ => {
             return Err(ControllerError::new(
                 ControllerErrorType::BadRequest,

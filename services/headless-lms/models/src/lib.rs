@@ -99,8 +99,10 @@ pub mod prelude;
 #[cfg(test)]
 pub mod test_helper;
 
+use exercises::Exercise;
 use futures::future::BoxFuture;
 use url::Url;
+use user_exercise_states::UserExerciseState;
 use uuid::Uuid;
 
 pub use self::error::{ModelError, ModelErrorType, ModelResult};
@@ -254,46 +256,6 @@ impl PKeyPolicy<Uuid> {
     }
 }
 
-/// Many database tables are related to either a course or an exam
-#[derive(Clone, Copy)]
-pub enum CourseOrExamId {
-    Course(Uuid),
-    Exam(Uuid),
-}
-
-impl CourseOrExamId {
-    pub fn from(course_id: Option<Uuid>, exam_id: Option<Uuid>) -> ModelResult<Self> {
-        match (course_id, exam_id) {
-            (Some(course_id), None) => Ok(Self::Course(course_id)),
-            (None, Some(exam_id)) => Ok(Self::Exam(exam_id)),
-            (Some(_), Some(_)) => Err(ModelError::new(
-                ModelErrorType::Generic,
-                "Database row had both a course id and an exam id".to_string(),
-                None,
-            )),
-            (None, None) => Err(ModelError::new(
-                ModelErrorType::Generic,
-                "Database row did not have a course id or an exam id".to_string(),
-                None,
-            )),
-        }
-    }
-
-    pub fn to_course_and_exam_ids(self) -> (Option<Uuid>, Option<Uuid>) {
-        match self {
-            Self::Course(instance_id) => (Some(instance_id), None),
-            Self::Exam(exam_id) => (None, Some(exam_id)),
-        }
-    }
-    pub fn exam_id(self) -> Option<Uuid> {
-        if let CourseOrExamId::Exam(id) = self {
-            Some(id)
-        } else {
-            None
-        }
-    }
-}
-
 /// A "trait alias" so this `for<'a>` ... string doesn't need to be repeated everywhere
 /// Arguments:
 ///   `Url`: The URL that the request is sent to (the exercise service's endpoint)
@@ -316,4 +278,75 @@ impl<
         ) -> BoxFuture<'a, ModelResult<serde_json::Value>>,
     > SpecFetcher for T
 {
+}
+
+/// Either a course or exam id.
+///
+/// Exercises can either be part of courses or exams. Many user-related actions need to differentiate
+/// between two, so `CourseOrExamId` helps when handling these separate scenarios.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
+pub enum CourseOrExamId {
+    Course(Uuid),
+    Exam(Uuid),
+}
+
+impl CourseOrExamId {
+    pub fn from_course_and_exam_ids(
+        course_id: Option<Uuid>,
+        exam_id: Option<Uuid>,
+    ) -> ModelResult<Self> {
+        match (course_id, exam_id) {
+            (None, None) => Err(ModelError::new(
+                ModelErrorType::Generic,
+                "Expected either course or exam id, but neither were provided.",
+                None,
+            )),
+            (Some(course_id), None) => Ok(Self::Course(course_id)),
+            (None, Some(exam_id)) => Ok(Self::Exam(exam_id)),
+            (Some(_), Some(_)) => Err(ModelError::new(
+                ModelErrorType::Generic,
+                "Expected either course or exam id, but both were provided.",
+                None,
+            )),
+        }
+    }
+
+    pub fn to_course_and_exam_ids(&self) -> (Option<Uuid>, Option<Uuid>) {
+        match self {
+            CourseOrExamId::Course(course_id) => (Some(*course_id), None),
+            CourseOrExamId::Exam(exam_id) => (None, Some(*exam_id)),
+        }
+    }
+}
+
+impl TryFrom<UserExerciseState> for CourseOrExamId {
+    type Error = ModelError;
+
+    fn try_from(user_exercise_state: UserExerciseState) -> Result<Self, Self::Error> {
+        Self::from_course_and_exam_ids(user_exercise_state.course_id, user_exercise_state.exam_id)
+    }
+}
+
+impl TryFrom<&UserExerciseState> for CourseOrExamId {
+    type Error = ModelError;
+
+    fn try_from(user_exercise_state: &UserExerciseState) -> Result<Self, Self::Error> {
+        Self::from_course_and_exam_ids(user_exercise_state.course_id, user_exercise_state.exam_id)
+    }
+}
+
+impl TryFrom<Exercise> for CourseOrExamId {
+    type Error = ModelError;
+
+    fn try_from(exercise: Exercise) -> Result<Self, Self::Error> {
+        Self::from_course_and_exam_ids(exercise.course_id, exercise.exam_id)
+    }
+}
+
+impl TryFrom<&Exercise> for CourseOrExamId {
+    type Error = ModelError;
+
+    fn try_from(exercise: &Exercise) -> Result<Self, Self::Error> {
+        Self::from_course_and_exam_ids(exercise.course_id, exercise.exam_id)
+    }
 }

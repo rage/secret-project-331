@@ -29,7 +29,8 @@ async fn new(
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<Uuid>> {
     let mut conn = pool.acquire().await?;
-    let course_or_exam_id = CourseOrExamId::from(repository.course_id, repository.exam_id)?;
+    let course_or_exam_id =
+        CourseOrExamId::from_course_and_exam_ids(repository.course_id, repository.exam_id)?;
     let token = authorize(
         &mut conn,
         Act::Edit,
@@ -129,7 +130,8 @@ async fn delete(
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let repository = models::exercise_repositories::get(&mut conn, *id).await?;
-    let course_or_exam_id = CourseOrExamId::from(repository.course_id, repository.exam_id)?;
+    let course_or_exam_id =
+        CourseOrExamId::from_course_and_exam_ids(repository.course_id, repository.exam_id)?;
     let token = authorize(
         &mut conn,
         Act::Edit,
@@ -158,7 +160,8 @@ async fn update(
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let repository = models::exercise_repositories::get(&mut conn, *id).await?;
-    let course_or_exam_id = CourseOrExamId::from(repository.course_id, repository.exam_id)?;
+    let course_or_exam_id =
+        CourseOrExamId::from_course_and_exam_ids(repository.course_id, repository.exam_id)?;
     let token = authorize(
         &mut conn,
         Act::Edit,

@@ -249,7 +249,7 @@ WHERE settings.current_course_instance_id = $1
 
 /// Gets all module completions for the user on a course. There can be multiple modules
 /// in a single course, so the result is a `Vec`.
-pub async fn get_all_by_course_and_user_id(
+pub async fn get_all_by_course_id_and_user_id(
     conn: &mut PgConnection,
     course_id: Uuid,
     user_id: Uuid,

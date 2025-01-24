@@ -181,7 +181,6 @@ async fn insert_data(
         PKeyPolicy::Generate,
         &NewCourseModuleCompletion {
             course_id: course.id,
-            course_instance_id: instance.id,
             course_module_id: course_module.id,
             user_id: user_1,
             completion_date: Utc.with_ymd_and_hms(2022, 6, 13, 0, 0, 0).unwrap(),
@@ -208,7 +207,6 @@ async fn insert_data(
         PKeyPolicy::Generate,
         &NewCourseModuleCompletion {
             course_id: course.id,
-            course_instance_id: instance.id,
             course_module_id: course_module.id,
             user_id: user_2,
             completion_date: Utc.with_ymd_and_hms(2022, 6, 13, 0, 0, 0).unwrap(),

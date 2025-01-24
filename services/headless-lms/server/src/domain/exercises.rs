@@ -11,7 +11,7 @@ use models::{
     library::grading::{
         GradingPolicy, StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult,
     },
-    user_exercise_states::{CourseOrExamId, ExerciseWithUserState},
+    user_exercise_states::ExerciseWithUserState,
 };
 
 pub async fn process_submission(
@@ -127,9 +127,7 @@ async fn resolve_course_or_exam_id_and_verify_that_user_can_submit(
         .await?;
         if let Some(settings) = settings {
             let token = authorize(conn, Act::View, Some(user_id), Res::Course(course_id)).await?;
-            token.authorized_ok(CourseOrExamId::Instance(
-                settings.current_course_instance_id,
-            ))
+            token.authorized_ok(CourseOrExamId::Course(settings.current_course_id))
         } else {
             Err(ControllerError::new(
                 ControllerErrorType::Unauthorized,

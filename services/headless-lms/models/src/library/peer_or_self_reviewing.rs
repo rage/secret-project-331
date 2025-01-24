@@ -17,7 +17,7 @@ use crate::{
     peer_or_self_review_submissions,
     peer_review_queue_entries::{self, PeerReviewQueueEntry},
     prelude::*,
-    user_exercise_states::{self, CourseOrExamId, ReviewingStage, UserExerciseState},
+    user_exercise_states::{self, ReviewingStage, UserExerciseState},
 };
 
 use super::user_exercise_state_updater::{

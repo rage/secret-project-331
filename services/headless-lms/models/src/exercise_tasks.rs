@@ -13,7 +13,7 @@ use crate::{
     exercise_task_submissions::{self, ExerciseTaskSubmission},
     library::custom_view_exercises::CustomViewExerciseTaskSpec,
     prelude::*,
-    user_exercise_states::{self, CourseOrExamId},
+    user_exercise_states::{self},
 };
 
 /// Information necessary for the frontend to render an exercise task

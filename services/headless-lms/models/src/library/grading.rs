@@ -22,7 +22,7 @@ use crate::{
     regradings,
     user_course_exercise_service_variables::UserCourseExerciseServiceVariable,
     user_exercise_slide_states::{self, UserExerciseSlideState},
-    user_exercise_states::{self, CourseOrExamId, ExerciseWithUserState, UserExerciseState},
+    user_exercise_states::{self, ExerciseWithUserState, UserExerciseState},
     user_exercise_task_states,
 };
 

@@ -54,11 +54,8 @@ pub async fn export_user_exercise_states<W>(
 where
     W: Write + Send + 'static,
 {
-    let course_instance_ids =
-        course_instances::get_course_instance_ids_with_course_id(conn, course_id).await?;
-
     let headers = IntoIterator::into_iter([
-        "course_instance_id".to_string(),
+        "course_id".to_string(),
         "user_id".to_string(),
         "exercise_id".to_string(),
         "created_at".to_string(),
@@ -69,13 +66,14 @@ where
         "score_given".to_string(),
     ]);
 
+    let course_ids = vec![course_id];
     let mut stream =
-        user_exercise_states::stream_user_exercise_states_for_course(conn, &course_instance_ids);
+        user_exercise_states::stream_user_exercise_states_for_course(conn, &course_ids);
 
     let writer = CsvWriter::new_with_initialized_headers(writer, headers).await?;
     while let Some(next) = stream.try_next().await? {
         let csv_row = vec![
-            next.course_instance_id.unwrap_or_default().to_string(),
+            next.course_id.unwrap_or_default().to_string(),
             next.user_id.to_string(),
             next.exercise_id.to_string(),
             next.created_at.to_rfc3339(),

@@ -410,7 +410,10 @@ WHERE id = $1
     )
     .fetch_one(conn)
     .await?;
-    CourseOrExamId::from(res.course_id, res.exam_id)
+    Ok(CourseOrExamId::from_course_and_exam_ids(
+        res.course_id,
+        res.exam_id,
+    )?)
 }
 
 pub enum PageVisibility {

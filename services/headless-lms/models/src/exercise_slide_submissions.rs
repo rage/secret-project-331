@@ -14,7 +14,7 @@ use crate::{
     exercises::{self, Exercise, GradingProgress},
     prelude::*,
     teacher_grading_decisions::{self, TeacherGradingDecision},
-    user_exercise_states::{self, CourseOrExamId, UserExerciseState},
+    user_exercise_states::{self, UserExerciseState},
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]

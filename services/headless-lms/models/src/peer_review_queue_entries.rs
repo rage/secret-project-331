@@ -457,7 +457,7 @@ pub async fn remove_from_queue_and_add_to_manual_review(
     let _ues = user_exercise_states::update_reviewing_stage(
         &mut tx,
         peer_review_queue_entry.user_id,
-        user_exercise_states::CourseOrExamId::Course(peer_review_queue_entry.course_id),
+        CourseOrExamId::Course(peer_review_queue_entry.course_id),
         peer_review_queue_entry.exercise_id,
         ReviewingStage::WaitingForManualGrading,
     )
@@ -477,7 +477,7 @@ pub async fn remove_from_queue_and_give_full_points(
         &mut tx,
         peer_review_queue_entry.user_id,
         peer_review_queue_entry.exercise_id,
-        user_exercise_states::CourseOrExamId::Course(peer_review_queue_entry.course_id),
+        CourseOrExamId::Course(peer_review_queue_entry.course_id),
     )
     .await?;
     if let Some(user_exercise_state) = user_exercise_state {

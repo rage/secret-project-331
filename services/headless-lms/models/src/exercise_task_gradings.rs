@@ -14,7 +14,6 @@ use crate::{
     library::custom_view_exercises::CustomViewExerciseTaskGrading,
     prelude::*,
     user_exercise_states::UserExerciseState,
-    CourseOrExamId,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -238,7 +237,10 @@ where id = $1
     )
     .fetch_one(conn)
     .await?;
-    CourseOrExamId::from(res.course_id, res.exam_id)
+    Ok(CourseOrExamId::from_course_and_exam_ids(
+        res.course_id,
+        res.exam_id,
+    )?)
 }
 
 pub async fn new_grading(

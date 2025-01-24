@@ -23,15 +23,16 @@ async fn get_user_progress_for_course_instance(
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<Vec<UserCourseProgress>>> {
     let mut conn = pool.acquire().await?;
-    let user_course_instance_progress =
-        models::user_exercise_states::get_user_course_instance_progress(
-            &mut conn,
-            *course_instance_id,
-            user.id,
-        )
-        .await?;
+    let course_instance =
+        models::course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
+    let user_course_progress = models::user_exercise_states::get_user_course_progress(
+        &mut conn,
+        course_instance.course_id,
+        user.id,
+    )
+    .await?;
     let token = skip_authorize();
-    token.authorized_ok(web::Json(user_course_instance_progress))
+    token.authorized_ok(web::Json(user_course_progress))
 }
 
 /**
@@ -71,11 +72,12 @@ async fn get_user_progress_for_course_instance_chapter_exercises(
     let chapter_exercises =
         models::exercises::get_exercises_by_chapter_id(&mut conn, chapter_id).await?;
     let exercise_ids: Vec<Uuid> = chapter_exercises.into_iter().map(|e| e.id).collect();
-
+    let course_instance =
+        models::course_instances::get_course_instance(&mut conn, course_instance_id).await?;
     let user_course_instance_exercise_progress =
-        models::user_exercise_states::get_user_course_instance_chapter_exercises_progress(
+        models::user_exercise_states::get_user_course_chapter_exercises_progress(
             &mut conn,
-            course_instance_id,
+            course_instance.course_id,
             &exercise_ids,
             user.id,
         )
@@ -103,11 +105,14 @@ async fn get_module_completions_for_course_instance(
 ) -> ControllerResult<web::Json<Vec<UserModuleCompletionStatus>>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
+
+    let course_instance =
+        models::course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
     let mut module_completion_statuses =
-        models::library::progressing::get_user_module_completion_statuses_for_course_instance(
+        models::library::progressing::get_user_module_completion_statuses_for_course(
             &mut conn,
             user.id,
-            *course_instance_id,
+            course_instance.course_id,
         )
         .await?;
     // Override individual completions in modules with insufficient prerequisites
@@ -169,9 +174,12 @@ async fn get_all_get_all_course_module_completions_for_user_by_course_instance_i
     )
     .await?;
 
-    let res = models::course_module_completions::get_all_by_course_instance_and_user_id(
+    let course_instance =
+        models::course_instances::get_course_instance(&mut conn, course_instance_id).await?;
+
+    let res = models::course_module_completions::get_all_by_course_id_and_user_id(
         &mut conn,
-        course_instance_id,
+        course_instance.course_id,
         user_id,
     )
     .await?;

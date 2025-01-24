@@ -1,10 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{
-    exercise_tasks::ExerciseTask,
-    prelude::*,
-    user_exercise_states::{CourseOrExamId, UserExerciseState},
-};
+use crate::{exercise_tasks::ExerciseTask, prelude::*, user_exercise_states::UserExerciseState};
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]

@@ -323,10 +323,13 @@ pub async fn certificate_configurations(
     )
     .await?;
 
+    let course_instance =
+        models::course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
+
     let certificate_configurations =
-        models::certificate_configurations::get_default_certificate_configurations_and_requirements_by_course_instance(
+        models::certificate_configurations::get_default_certificate_configurations_and_requirements_by_course(
             &mut conn,
-            *course_instance_id,
+            course_instance.course_id,
         )
         .await?;
     token.authorized_ok(web::Json(certificate_configurations))
@@ -352,9 +355,12 @@ async fn get_all_exercise_statuses_by_course_instance_id(
     )
     .await?;
 
-    let res = models::exercises::get_all_exercise_statuses_by_user_id_and_course_instance_id(
+    let course_instance =
+        models::course_instances::get_course_instance(&mut conn, course_instance_id).await?;
+
+    let res = models::exercises::get_all_exercise_statuses_by_user_id_and_course_id(
         &mut conn,
-        course_instance_id,
+        course_instance.course_id,
         user_id,
     )
     .await?;
@@ -382,9 +388,12 @@ async fn get_all_get_all_course_module_completions_for_user_by_course_instance_i
     )
     .await?;
 
-    let res = models::course_module_completions::get_all_by_course_instance_and_user_id(
+    let course_instance =
+        models::course_instances::get_course_instance(&mut conn, course_instance_id).await?;
+
+    let res = models::course_module_completions::get_all_by_course_id_and_user_id(
         &mut conn,
-        course_instance_id,
+        course_instance.course_id,
         user_id,
     )
     .await?;
@@ -411,14 +420,16 @@ async fn get_user_progress_for_course_instance(
     )
     .await?;
 
-    let user_course_instance_progress =
-        models::user_exercise_states::get_user_course_instance_progress(
-            &mut conn,
-            course_instance_id,
-            user_id,
-        )
-        .await?;
-    token.authorized_ok(web::Json(user_course_instance_progress))
+    let course_instance =
+        models::course_instances::get_course_instance(&mut conn, course_instance_id).await?;
+
+    let user_course_progress = models::user_exercise_states::get_user_course_progress(
+        &mut conn,
+        course_instance.course_id,
+        user_id,
+    )
+    .await?;
+    token.authorized_ok(web::Json(user_course_progress))
 }
 
 /**

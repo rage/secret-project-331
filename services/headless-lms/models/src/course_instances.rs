@@ -965,7 +965,7 @@ mod test {
     #[tokio::test]
     async fn gets_course_average_duration_with_empty_database() {
         insert_data!(:tx, :user, :org, :course, :instance);
-        let duration = get_course_average_duration(tx.as_mut(), course.id)
+        let duration = get_course_average_duration(tx.as_mut(), course)
             .await
             .unwrap();
         assert!(duration.is_none())

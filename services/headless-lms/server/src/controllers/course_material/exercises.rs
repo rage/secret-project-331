@@ -318,12 +318,12 @@ async fn submit_peer_or_self_review(
         )
         .await?;
 
-    if let Some(receiver_course_instance_id) = exercise_slide_submission.course_instance_id {
+    if let Some(receiver_course_id) = exercise_slide_submission.course_id {
         let receiver_user_exercise_state = user_exercise_states::get_user_exercise_state_if_exists(
             &mut conn,
             exercise_slide_submission.user_id,
             exercise.id,
-            user_exercise_states::CourseOrExamId::Instance(receiver_course_instance_id),
+            CourseOrExamId::Course(receiver_course_id),
         )
         .await?;
         if let Some(receiver_user_exercise_state) = receiver_user_exercise_state {

@@ -184,7 +184,7 @@ INSERT INTO exercise_slide_submissions (
     user_id,
     user_points_update_strategy
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id,
   created_at,
   updated_at,

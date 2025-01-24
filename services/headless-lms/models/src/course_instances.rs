@@ -366,11 +366,11 @@ SELECT user_id,
   exercise_id,
   score_given
 FROM user_exercise_states
-WHERE course_instance_id = $1
-AND deleted_at IS NULL
+WHERE course_id = $1
+  AND deleted_at IS NULL
 ORDER BY user_id ASC
 ",
-        instance_id,
+        course_instance.course_id,
     )
     .fetch_all(&mut *conn)
     .await?;
@@ -605,7 +605,7 @@ WHERE cie.user_id = $1
 pub async fn reset_progress_on_course_instance_for_user(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<()> {
     let mut tx = conn.begin().await?;
     sqlx::query!(
@@ -613,11 +613,11 @@ pub async fn reset_progress_on_course_instance_for_user(
 UPDATE exercise_slide_submissions
 SET deleted_at = now()
 WHERE user_id = $1
-  AND course_instance_id = $2
+  AND course_id = $2
   AND deleted_at IS NULL
   ",
         user_id,
-        course_instance_id
+        course_id
     )
     .execute(&mut *tx)
     .await?;
@@ -629,12 +629,12 @@ WHERE exercise_slide_submission_id IN (
     SELECT id
     FROM exercise_slide_submissions
     WHERE user_id = $1
-      AND course_instance_id = $2
+      AND course_id = $2
   )
   AND deleted_at IS NULL
 ",
         user_id,
-        course_instance_id
+        course_id
     )
     .execute(&mut *tx)
     .await?;
@@ -643,11 +643,11 @@ WHERE exercise_slide_submission_id IN (
 UPDATE peer_review_queue_entries
 SET deleted_at = now()
 WHERE user_id = $1
-  AND course_instance_id = $2
+  AND course_id = $2
   AND deleted_at IS NULL
 ",
         user_id,
-        course_instance_id
+        course_id
     )
     .execute(&mut *tx)
     .await?;
@@ -656,11 +656,11 @@ WHERE user_id = $1
 UPDATE peer_or_self_review_submissions
 SET deleted_at = now()
 WHERE user_id = $1
-  AND course_instance_id = $2
+  AND course_id = $2
   AND deleted_at IS NULL
 ",
         user_id,
-        course_instance_id
+        course_id
     )
     .execute(&mut *tx)
     .await?;
@@ -672,12 +672,12 @@ WHERE peer_or_self_review_submission_id IN (
     SELECT id
     FROM peer_or_self_review_submissions
     WHERE user_id = $1
-      AND course_instance_id = $2
+      AND course_id = $2
   )
   AND deleted_at IS NULL
 ",
         user_id,
-        course_instance_id
+        course_id
     )
     .execute(&mut *tx)
     .await?;
@@ -692,13 +692,13 @@ WHERE exercise_task_submission_id IN (
         SELECT id
         FROM exercise_slide_submissions
         WHERE user_id = $1
-          AND course_instance_id = $2
+          AND course_id = $2
       )
   )
   AND deleted_at IS NULL
 ",
         user_id,
-        course_instance_id
+        course_id
     )
     .execute(&mut *tx)
     .await?;
@@ -708,11 +708,11 @@ WHERE exercise_task_submission_id IN (
 UPDATE user_exercise_states
 SET deleted_at = now()
 WHERE user_id = $1
-  AND course_instance_id = $2
+  AND course_id = $2
   AND deleted_at IS NULL
 ",
         user_id,
-        course_instance_id
+        course_id
     )
     .execute(&mut *tx)
     .await?;
@@ -727,13 +727,13 @@ WHERE user_exercise_slide_state_id IN (
         SELECT id
         FROM user_exercise_states
         WHERE user_id = $1
-          AND course_instance_id = $2
+          AND course_id = $2
       )
   )
   AND deleted_at IS NULL
 ",
         user_id,
-        course_instance_id
+        course_id
     )
     .execute(&mut *tx)
     .await?;
@@ -745,12 +745,12 @@ WHERE user_exercise_state_id IN (
     SELECT id
     FROM user_exercise_states
     WHERE user_id = $1
-      AND course_instance_id = $2
+      AND course_id = $2
   )
   AND deleted_at IS NULL
 ",
         user_id,
-        course_instance_id
+        course_id
     )
     .execute(&mut *tx)
     .await?;
@@ -762,12 +762,12 @@ WHERE user_exercise_state_id IN (
     SELECT id
     FROM user_exercise_states
     WHERE user_id = $1
-      AND course_instance_id = $2
+      AND course_id = $2
   )
   AND deleted_at IS NULL
 ",
         user_id,
-        course_instance_id
+        course_id
     )
     .execute(&mut *tx)
     .await?;
@@ -776,28 +776,33 @@ WHERE user_exercise_state_id IN (
 UPDATE course_module_completions
 SET deleted_at = now()
 WHERE user_id = $1
-AND course_instance_id = $2
+AND course_id = $2
 AND deleted_at IS NULL
 ",
         user_id,
-        course_instance_id
+        course_id
     )
     .execute(&mut *tx)
     .await?;
     sqlx::query!(
         "
 UPDATE generated_certificates
-SET deleted_at = now()
+SET deleted_at = NOW()
 WHERE user_id = $1
   AND certificate_configuration_id IN (
     SELECT certificate_configuration_id
     FROM certificate_configuration_to_requirements
-    WHERE course_instance_id = $2
+    WHERE course_instance_id IN (
+        SELECT id
+        FROM course_instances
+        WHERE course_id = $2
+      )
       AND deleted_at IS NULL
   )
-  AND deleted_at IS NULL ",
+  AND deleted_at IS NULL
+",
         user_id,
-        course_instance_id
+        course_id
     )
     .execute(&mut *tx)
     .await?;
@@ -808,19 +813,26 @@ WHERE user_id = $1
 
 pub async fn get_course_average_duration(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Option<i64>> {
     let res = sqlx::query!(
         "
-SELECT
-    AVG(EXTRACT(EPOCH FROM cmc.completion_date - ce.created_at))::int8 AS average_duration_seconds
+SELECT AVG(
+    EXTRACT(
+      EPOCH
+      FROM cmc.completion_date - ce.created_at
+    )
+  )::int8 AS average_duration_seconds
 FROM course_instance_enrollments ce
-JOIN course_module_completions cmc ON cmc.course_instance_id = ce.course_instance_id
-WHERE ce.course_instance_id = $1
-    AND ce.deleted_at IS NULL
-    AND cmc.deleted_at IS NULL;
+  JOIN course_module_completions cmc ON (
+    cmc.course_id = ce.course_id
+    AND cmc.user_id = ce.user_id
+  )
+WHERE ce.course_id = $1
+  AND ce.deleted_at IS NULL
+  AND cmc.deleted_at IS NULL;
         ",
-        course_instance_id
+        course_id
     )
     .fetch_optional(conn)
     .await?;
@@ -835,15 +847,22 @@ pub async fn get_student_duration(
 ) -> ModelResult<Option<i64>> {
     let res = sqlx::query!(
         "
-SELECT
-    COALESCE(EXTRACT(EPOCH FROM cmc.completion_date - ce.created_at)::int8, 0) AS student_duration_seconds
+SELECT COALESCE(
+    EXTRACT(
+      EPOCH
+      FROM cmc.completion_date - ce.created_at
+    )::int8,
+    0
+  ) AS student_duration_seconds
 FROM course_instance_enrollments ce
-JOIN course_module_completions cmc ON cmc.course_id = ce.course_id
-AND cmc.user_id = ce.user_id
+  JOIN course_module_completions cmc ON (
+    cmc.course_id = ce.course_id
+    AND cmc.user_id = ce.user_id
+  )
 WHERE ce.course_id = $1
-    AND ce.user_id = $2
-    AND ce.deleted_at IS NULL
-    AND cmc.deleted_at IS NULL;
+  AND ce.user_id = $2
+  AND ce.deleted_at IS NULL
+  AND cmc.deleted_at IS NULL;
         ",
         course_id,
         user_id
@@ -946,7 +965,7 @@ mod test {
     #[tokio::test]
     async fn gets_course_average_duration_with_empty_database() {
         insert_data!(:tx, :user, :org, :course, :instance);
-        let duration = get_course_average_duration(tx.as_mut(), instance.id)
+        let duration = get_course_average_duration(tx.as_mut(), course.id)
             .await
             .unwrap();
         assert!(duration.is_none())

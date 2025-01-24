@@ -1289,7 +1289,7 @@ pub async fn teacher_reset_course_progress_for_themselves(
         models::course_instances::reset_progress_on_course_instance_for_user(
             &mut tx,
             user.id,
-            course_instance.id,
+            course_instance.course_id,
         )
         .await?;
     }
@@ -1356,7 +1356,7 @@ pub async fn teacher_reset_course_progress_for_everyone(
             models::course_instances::reset_progress_on_course_instance_for_user(
                 &mut tx,
                 user_in_course_instance.id,
-                course_instance.id,
+                course_instance.course_id,
             )
             .await?;
         }

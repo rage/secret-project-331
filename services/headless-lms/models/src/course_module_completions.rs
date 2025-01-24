@@ -115,7 +115,7 @@ VALUES (
     $9,
     $10,
     $11,
-    $12,
+    $12
   )
 RETURNING *
         ",
@@ -184,25 +184,6 @@ pub async fn get_by_ids_as_map(
     Ok(res)
 }
 
-pub async fn get_all_by_course_instance_id(
-    conn: &mut PgConnection,
-    course_instance_id: Uuid,
-) -> ModelResult<Vec<CourseModuleCompletion>> {
-    let res = sqlx::query_as!(
-        CourseModuleCompletion,
-        "
-SELECT *
-FROM course_module_completions
-WHERE course_instance_id = $1
-  AND deleted_at IS NULL
-        ",
-        course_instance_id,
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseModuleCompletionWithRegistrationInfo {
@@ -230,6 +211,7 @@ pub struct CourseModuleCompletionWithRegistrationInfo {
 pub async fn get_all_with_registration_information_by_course_instance_id(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Vec<CourseModuleCompletionWithRegistrationInfo>> {
     let res = sqlx::query_as!(
         CourseModuleCompletionWithRegistrationInfo,
@@ -247,11 +229,18 @@ FROM course_module_completions completions
   LEFT JOIN course_module_completion_registered_to_study_registries registered ON (
     completions.id = registered.course_module_completion_id
   )
-WHERE completions.course_instance_id = $1
+  JOIN user_course_settings settings ON (
+    completions.user_id = settings.user_id
+    AND settings.current_course_id = completions.course_id
+  )
+WHERE settings.current_course_instance_id = $1
   AND completions.deleted_at IS NULL
   AND registered.deleted_at IS NULL
+  AND settings.deleted_at IS NULL
+  AND settings.current_course_id = $2
         "#,
         course_instance_id,
+        course_id
     )
     .fetch_all(conn)
     .await?;

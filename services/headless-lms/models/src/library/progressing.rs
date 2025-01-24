@@ -456,6 +456,7 @@ pub async fn get_course_instance_completion_summary(
         course_module_completions::get_all_with_registration_information_by_course_instance_id(
             conn,
             course_instance.id,
+            course_instance.course_id,
         )
         .await?;
     completions.into_iter().for_each(|x| {
@@ -802,17 +803,7 @@ pub async fn get_completion_registration_link_and_save_attempt(
         ));
     }
     let user = users::get_by_id(conn, user_id).await?;
-    let course = courses::get_course(conn, course_module.course_id).await?;
-    let user_settings =
-        user_course_settings::get_user_course_settings_by_course_id(conn, user.id, course.id)
-            .await?
-            .ok_or_else(|| {
-                ModelError::new(
-                    ModelErrorType::Generic,
-                    "Missing settings".to_string(),
-                    None,
-                )
-            })?;
+
     let course_module_completion = course_module_completions::get_latest_by_course_and_user_ids(
         conn,
         course_module.id,
@@ -825,21 +816,22 @@ pub async fn get_completion_registration_link_and_save_attempt(
         Utc::now(),
     )
     .await?;
-    let registration_link = match course_module.completion_registration_link_override.as_ref() {
-        Some(link_override) => link_override.clone(),
-        None => {
-            let uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
-                ModelError::new(
-                    ModelErrorType::PreconditionFailed,
-                    "Course module doesn't have an assossiated University of Helsinki course code."
-                        .to_string(),
-                    None,
-                )
-            })?;
-            open_university_registration_links::get_link_by_course_code(conn, &uh_course_code)
-                .await?
-        }
+    let registration_link = if let Some(link_override) =
+        course_module.completion_registration_link_override.as_ref()
+    {
+        link_override.clone()
+    } else {
+        let uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
+            ModelError::new(
+                ModelErrorType::PreconditionFailed,
+                "Course module doesn't have an assossiated University of Helsinki course code."
+                    .to_string(),
+                None,
+            )
+        })?;
+        open_university_registration_links::get_link_by_course_code(conn, &uh_course_code).await?
     };
+
     Ok(CompletionRegistrationLink {
         url: registration_link,
     })

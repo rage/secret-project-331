@@ -234,11 +234,11 @@ import {
   UploadResult,
   User,
   UserCompletionInformation,
-  UserCourseInstanceChapterExerciseProgress,
+  UserCourseChapterExerciseProgress,
+  UserCourseExerciseServiceVariable,
   UserCourseInstanceChapterProgress,
-  UserCourseInstanceExerciseServiceVariable,
-  UserCourseInstanceProgress,
   UserCourseModuleCompletion,
+  UserCourseProgress,
   UserCourseSettings,
   UserDetail,
   UserExerciseState,
@@ -869,7 +869,6 @@ export function isCourseModuleCompletion(obj: unknown): obj is CourseModuleCompl
     typeof typedObj["updated_at"] === "string" &&
     (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
     typeof typedObj["course_id"] === "string" &&
-    typeof typedObj["course_instance_id"] === "string" &&
     typeof typedObj["course_module_id"] === "string" &&
     typeof typedObj["user_id"] === "string" &&
     typeof typedObj["completion_date"] === "string" &&
@@ -1336,8 +1335,6 @@ export function isAnswerRequiringAttention(obj: unknown): obj is AnswerRequiring
     typeof typedObj["created_at"] === "string" &&
     typeof typedObj["updated_at"] === "string" &&
     (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
-    (typedObj["course_instance_id"] === null ||
-      typeof typedObj["course_instance_id"] === "string") &&
     (isGradingProgress(typedObj["grading_progress"]) as boolean) &&
     (typedObj["score_given"] === null || typeof typedObj["score_given"] === "number") &&
     typeof typedObj["submission_id"] === "string" &&
@@ -1370,8 +1367,6 @@ export function isExerciseSlideSubmission(obj: unknown): obj is ExerciseSlideSub
     (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
     typeof typedObj["exercise_slide_id"] === "string" &&
     (typedObj["course_id"] === null || typeof typedObj["course_id"] === "string") &&
-    (typedObj["course_instance_id"] === null ||
-      typeof typedObj["course_instance_id"] === "string") &&
     (typedObj["exam_id"] === null || typeof typedObj["exam_id"] === "string") &&
     typeof typedObj["exercise_id"] === "string" &&
     typeof typedObj["user_id"] === "string" &&
@@ -1632,7 +1627,7 @@ export function isCourseMaterialExercise(obj: unknown): obj is CourseMaterialExe
       (isExerciseSlideSubmission(typedObj["previous_exercise_slide_submission"]) as boolean)) &&
     Array.isArray(typedObj["user_course_instance_exercise_service_variables"]) &&
     typedObj["user_course_instance_exercise_service_variables"].every(
-      (e: any) => isUserCourseInstanceExerciseServiceVariable(e) as boolean,
+      (e: any) => isUserCourseExerciseServiceVariable(e) as boolean,
     )
   )
 }
@@ -1837,9 +1832,7 @@ export function isCustomViewExerciseSubmissions(
     Array.isArray(typedObj["exercises"]) &&
     typedObj["exercises"].every((e: any) => isExercise(e) as boolean) &&
     Array.isArray(typedObj["user_variables"]) &&
-    typedObj["user_variables"].every(
-      (e: any) => isUserCourseInstanceExerciseServiceVariable(e) as boolean,
-    )
+    typedObj["user_variables"].every((e: any) => isUserCourseExerciseServiceVariable(e) as boolean)
   )
 }
 
@@ -1995,7 +1988,7 @@ export function isStudentExerciseSlideSubmissionResult(
     ) &&
     Array.isArray(typedObj["user_course_instance_exercise_service_variables"]) &&
     typedObj["user_course_instance_exercise_service_variables"].every(
-      (e: any) => isUserCourseInstanceExerciseServiceVariable(e) as boolean,
+      (e: any) => isUserCourseExerciseServiceVariable(e) as boolean,
     )
   )
 }
@@ -2869,7 +2862,7 @@ export function isPeerOrSelfReviewSubmission(obj: unknown): obj is PeerOrSelfRev
     (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
     typeof typedObj["user_id"] === "string" &&
     typeof typedObj["exercise_id"] === "string" &&
-    typeof typedObj["course_instance_id"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
     typeof typedObj["peer_or_self_review_config_id"] === "string" &&
     typeof typedObj["exercise_slide_submission_id"] === "string"
   )
@@ -2885,7 +2878,7 @@ export function isPeerReviewQueueEntry(obj: unknown): obj is PeerReviewQueueEntr
     (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
     typeof typedObj["user_id"] === "string" &&
     typeof typedObj["exercise_id"] === "string" &&
-    typeof typedObj["course_instance_id"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
     typeof typedObj["receiving_peer_reviews_exercise_slide_submission_id"] === "string" &&
     typeof typedObj["received_enough_peer_reviews"] === "boolean" &&
     typeof typedObj["peer_review_priority"] === "number" &&
@@ -3342,10 +3335,10 @@ export function isTeacherGradingDecision(obj: unknown): obj is TeacherGradingDec
   )
 }
 
-export function isUserCourseInstanceExerciseServiceVariable(
+export function isUserCourseExerciseServiceVariable(
   obj: unknown,
-): obj is UserCourseInstanceExerciseServiceVariable {
-  const typedObj = obj as UserCourseInstanceExerciseServiceVariable
+): obj is UserCourseExerciseServiceVariable {
+  const typedObj = obj as UserCourseExerciseServiceVariable
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["id"] === "string" &&
@@ -3354,8 +3347,7 @@ export function isUserCourseInstanceExerciseServiceVariable(
     (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
     typeof typedObj["exercise_service_slug"] === "string" &&
     typeof typedObj["user_id"] === "string" &&
-    (typedObj["course_instance_id"] === null ||
-      typeof typedObj["course_instance_id"] === "string") &&
+    (typedObj["course_id"] === null || typeof typedObj["course_id"] === "string") &&
     (typedObj["exam_id"] === null || typeof typedObj["exam_id"] === "string") &&
     typeof typedObj["variable_key"] === "string"
   )
@@ -3416,10 +3408,10 @@ export function isReviewingStage(obj: unknown): obj is ReviewingStage {
   )
 }
 
-export function isUserCourseInstanceChapterExerciseProgress(
+export function isUserCourseChapterExerciseProgress(
   obj: unknown,
-): obj is UserCourseInstanceChapterExerciseProgress {
-  const typedObj = obj as UserCourseInstanceChapterExerciseProgress
+): obj is UserCourseChapterExerciseProgress {
+  const typedObj = obj as UserCourseChapterExerciseProgress
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["exercise_id"] === "string" &&
@@ -3427,8 +3419,8 @@ export function isUserCourseInstanceChapterExerciseProgress(
   )
 }
 
-export function isUserCourseInstanceProgress(obj: unknown): obj is UserCourseInstanceProgress {
-  const typedObj = obj as UserCourseInstanceProgress
+export function isUserCourseProgress(obj: unknown): obj is UserCourseProgress {
+  const typedObj = obj as UserCourseProgress
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["course_module_id"] === "string" &&
@@ -3452,8 +3444,7 @@ export function isUserExerciseState(obj: unknown): obj is UserExerciseState {
     typeof typedObj["id"] === "string" &&
     typeof typedObj["user_id"] === "string" &&
     typeof typedObj["exercise_id"] === "string" &&
-    (typedObj["course_instance_id"] === null ||
-      typeof typedObj["course_instance_id"] === "string") &&
+    (typedObj["course_id"] === null || typeof typedObj["course_id"] === "string") &&
     (typedObj["exam_id"] === null || typeof typedObj["exam_id"] === "string") &&
     typeof typedObj["created_at"] === "string" &&
     typeof typedObj["updated_at"] === "string" &&

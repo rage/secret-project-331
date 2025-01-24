@@ -2,7 +2,7 @@ use anyhow::Result;
 use bytes::Bytes;
 
 use futures::TryStreamExt;
-use headless_lms_models::{course_instances, user_exercise_states};
+use headless_lms_models::user_exercise_states;
 
 use async_trait::async_trait;
 

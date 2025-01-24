@@ -237,10 +237,7 @@ where id = $1
     )
     .fetch_one(conn)
     .await?;
-    Ok(CourseOrExamId::from_course_and_exam_ids(
-        res.course_id,
-        res.exam_id,
-    )?)
+    CourseOrExamId::from_course_and_exam_ids(res.course_id, res.exam_id)
 }
 
 pub async fn new_grading(

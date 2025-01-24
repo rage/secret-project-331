@@ -221,7 +221,7 @@ WHERE cctr.course_module_id = $1
     ))
 }
 
-/** A default certificate configuration requires only one course module. */
+/** Returns all default certificate configurations for a course, one per course module. A default certificate configuration requires only one course module. */
 pub async fn get_default_certificate_configurations_and_requirements_by_course(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -238,26 +238,31 @@ SELECT cc.id,
   cc.certificate_owner_name_x_pos,
   cc.certificate_owner_name_font_size,
   cc.certificate_owner_name_text_color,
-  cc.certificate_owner_name_text_anchor as "certificate_owner_name_text_anchor: _",
+  cc.certificate_owner_name_text_anchor AS "certificate_owner_name_text_anchor: _",
   cc.certificate_validate_url_y_pos,
   cc.certificate_validate_url_x_pos,
   cc.certificate_validate_url_font_size,
   cc.certificate_validate_url_text_color,
-  cc.certificate_validate_url_text_anchor as "certificate_validate_url_text_anchor: _",
+  cc.certificate_validate_url_text_anchor AS "certificate_validate_url_text_anchor: _",
   cc.certificate_date_y_pos,
   cc.certificate_date_x_pos,
   cc.certificate_date_font_size,
   cc.certificate_date_text_color,
-  cc.certificate_date_text_anchor as "certificate_date_text_anchor: _",
+  cc.certificate_date_text_anchor AS "certificate_date_text_anchor: _",
   cc.certificate_locale,
-  cc.paper_size as "paper_size: _",
+  cc.paper_size AS "paper_size: _",
   cc.background_svg_path,
   cc.background_svg_file_upload_id,
   cc.overlay_svg_path,
   cc.overlay_svg_file_upload_id
 FROM certificate_configurations cc
-JOIN certificate_configuration_to_requirements cctr ON cc.id = cctr.certificate_configuration_id
-WHERE cctr.course_id = $1
+  JOIN certificate_configuration_to_requirements cctr ON cc.id = cctr.certificate_configuration_id
+WHERE cctr.course_module_id IN (
+    SELECT id
+    FROM course_modules
+    WHERE course_id = $1
+      AND deleted_at IS NULL
+  )
   AND cc.deleted_at IS NULL
   AND cctr.deleted_at IS NULL
         "#,

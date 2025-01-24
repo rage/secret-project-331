@@ -7,7 +7,7 @@ use crate::{
 use actix_http::{body::MessageBody, StatusCode};
 use actix_web::{
     error::InternalError,
-    web::{self, Data, ServiceConfig},
+    web::{self, Data, PayloadConfig, ServiceConfig},
     HttpResponse,
 };
 use anyhow::Context;
@@ -52,7 +52,7 @@ impl ServerConfigBuilder {
     }
 
     pub async fn build(self) -> anyhow::Result<ServerConfig> {
-        let json_config = web::JsonConfig::default().limit(1048576).error_handler(
+        let json_config = web::JsonConfig::default().limit(2_097_152).error_handler(
             |err, _req| -> actix_web::Error {
                 info!("Bad request: {}", &err);
                 let body = format!("{{\"title\": \"Bad Request\", \"message\": \"{}\"}}", &err);
@@ -62,6 +62,9 @@ impl ServerConfigBuilder {
             },
         );
         let json_config = Data::new(json_config);
+
+        let payload_config = PayloadConfig::default().limit(2_097_152);
+        let payload_config = Data::new(payload_config);
 
         let db_pool = PgPoolOptions::new()
             .max_connections(15)
@@ -102,6 +105,7 @@ impl ServerConfigBuilder {
             app_conf,
             jwt_key,
             cache,
+            payload_config,
         };
         Ok(config)
     }
@@ -109,6 +113,7 @@ impl ServerConfigBuilder {
 
 #[derive(Clone)]
 pub struct ServerConfig {
+    pub payload_config: Data<PayloadConfig>,
     pub json_config: Data<web::JsonConfig>,
     pub db_pool: Data<PgPool>,
     pub oauth_client: Data<OAuthClient>,
@@ -132,11 +137,13 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         app_conf,
         jwt_key,
         cache,
+        payload_config,
     } = server_config;
     // turns file_store from `dyn FileStore + Send + Sync` to `dyn FileStore` to match controllers
     // Not using Data::new for file_store to avoid double wrapping it in a arc
     let file_store = Data::from(file_store as Arc<dyn FileStore>);
     config
+        .app_data(payload_config)
         .app_data(json_config)
         .app_data(db_pool)
         .app_data(oauth_client)

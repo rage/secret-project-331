@@ -152,6 +152,13 @@
 <a href="#152" id="152">152</a>
 <a href="#153" id="153">153</a>
 <a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Functionality for configuring the server
 
 </span><span class="kw">use crate</span>::{
@@ -161,7 +168,7 @@
 <span class="kw">use </span>actix_http::{body::MessageBody, StatusCode};
 <span class="kw">use </span>actix_web::{
     error::InternalError,
-    web::{<span class="self">self</span>, Data, ServiceConfig},
+    web::{<span class="self">self</span>, Data, PayloadConfig, ServiceConfig},
     HttpResponse,
 };
 <span class="kw">use </span>anyhow::Context;
@@ -206,7 +213,7 @@
     }
 
     <span class="kw">pub async fn </span>build(<span class="self">self</span>) -&gt; anyhow::Result&lt;ServerConfig&gt; {
-        <span class="kw">let </span>json_config = web::JsonConfig::default().limit(<span class="number">1048576</span>).error_handler(
+        <span class="kw">let </span>json_config = web::JsonConfig::default().limit(<span class="number">2_097_152</span>).error_handler(
             |err, _req| -&gt; actix_web::Error {
                 <span class="macro">info!</span>(<span class="string">"Bad request: {}"</span>, <span class="kw-2">&amp;</span>err);
                 <span class="kw">let </span>body = <span class="macro">format!</span>(<span class="string">"{{\"title\": \"Bad Request\", \"message\": \"{}\"}}"</span>, <span class="kw-2">&amp;</span>err);
@@ -216,6 +223,9 @@
             },
         );
         <span class="kw">let </span>json_config = Data::new(json_config);
+
+        <span class="kw">let </span>payload_config = PayloadConfig::default().limit(<span class="number">2_097_152</span>);
+        <span class="kw">let </span>payload_config = Data::new(payload_config);
 
         <span class="kw">let </span>db_pool = PgPoolOptions::new()
             .max_connections(<span class="number">15</span>)
@@ -256,6 +266,7 @@
             app_conf,
             jwt_key,
             cache,
+            payload_config,
         };
         <span class="prelude-val">Ok</span>(config)
     }
@@ -263,6 +274,7 @@
 
 <span class="attr">#[derive(Clone)]
 </span><span class="kw">pub struct </span>ServerConfig {
+    <span class="kw">pub </span>payload_config: Data&lt;PayloadConfig&gt;,
     <span class="kw">pub </span>json_config: Data&lt;web::JsonConfig&gt;,
     <span class="kw">pub </span>db_pool: Data&lt;PgPool&gt;,
     <span class="kw">pub </span>oauth_client: Data&lt;OAuthClient&gt;,
@@ -286,11 +298,13 @@
         app_conf,
         jwt_key,
         cache,
+        payload_config,
     } = server_config;
     <span class="comment">// turns file_store from `dyn FileStore + Send + Sync` to `dyn FileStore` to match controllers
     // Not using Data::new for file_store to avoid double wrapping it in a arc
     </span><span class="kw">let </span>file_store = Data::from(file_store <span class="kw">as </span>Arc&lt;<span class="kw">dyn </span>FileStore&gt;);
     config
+        .app_data(payload_config)
         .app_data(json_config)
         .app_data(db_pool)
         .app_data(oauth_client)

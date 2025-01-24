@@ -148,21 +148,21 @@ const SelectCourseInstanceForm: React.FC<
           // eslint-disable-next-line i18next/no-literal-string
           aria-required="true"
         >
-          {courseInstances.map((x) => (
-            <div key={x.id}>
+          {courseInstances.map((courseInstance) => (
+            <div key={courseInstance.id}>
               <RadioButton
-                key={x.id}
-                {...(x.name === null
+                key={courseInstance.id}
+                {...(courseInstance.name === null
                   ? // eslint-disable-next-line i18next/no-literal-string
                     { "data-testid": "default-course-instance-radiobutton" }
                   : undefined)}
-                label={x.name || t("default-course-instance-name")}
-                onChange={(_event) => setSelectedInstanceId(x.id)}
-                checked={selectedInstanceId === x.id}
+                label={courseInstance.name || t("default-course-instance-name")}
+                onChange={(_event) => setSelectedInstanceId(courseInstance.id)}
+                checked={selectedInstanceId === courseInstance.id}
                 // eslint-disable-next-line i18next/no-literal-string
                 name="select-course-instance"
               />
-              <span>{x.description}</span>
+              <span>{courseInstance.description}</span>
             </div>
           ))}
         </FieldContainer>

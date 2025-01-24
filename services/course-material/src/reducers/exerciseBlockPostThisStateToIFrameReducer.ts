@@ -2,7 +2,7 @@
 import {
   CourseMaterialExercise,
   StudentExerciseSlideSubmissionResult,
-  UserCourseInstanceExerciseServiceVariable,
+  UserCourseExerciseServiceVariable,
 } from "@/shared-module/common/bindings"
 import {
   ExerciseIframeState,
@@ -34,9 +34,7 @@ export type PostThisStateToIFrameAction =
   | SubmissionGradedAction
   | TryAgain
 
-function userVariableListToMap(
-  list: UserCourseInstanceExerciseServiceVariable[],
-): UserVariablesMap {
+function userVariableListToMap(list: UserCourseExerciseServiceVariable[]): UserVariablesMap {
   const res: UserVariablesMap = {}
   list.forEach((item) => (res[item.variable_key] = item.variable_value))
   return res

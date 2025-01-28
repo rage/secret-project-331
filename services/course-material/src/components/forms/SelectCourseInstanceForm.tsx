@@ -162,7 +162,15 @@ const SelectCourseInstanceForm: React.FC<
                 // eslint-disable-next-line i18next/no-literal-string
                 name="select-course-instance"
               />
-              <span>{courseInstance.description}</span>
+              <span
+                className={css`
+                  font-size: 15px;
+                  display: flex;
+                  margin-top: -0.4rem;
+                `}
+              >
+                {courseInstance.description}
+              </span>
             </div>
           ))}
         </FieldContainer>

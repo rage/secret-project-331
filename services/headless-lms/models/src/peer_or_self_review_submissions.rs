@@ -261,15 +261,18 @@ WHERE user_id = $1
 pub async fn count_peer_or_self_review_submissions_for_exercise_slide_submission(
     conn: &mut PgConnection,
     exercise_slide_submission_id: Uuid,
+    exclude_user_ids: &[Uuid],
 ) -> ModelResult<u32> {
     let res = sqlx::query!(
         "
 SELECT COUNT(*) AS count
 FROM peer_or_self_review_submissions
 WHERE exercise_slide_submission_id = $1
+  AND user_id != ALL($2)
   AND deleted_at IS NULL
         ",
-        exercise_slide_submission_id
+        exercise_slide_submission_id,
+        exclude_user_ids
     )
     .fetch_one(conn)
     .await?;

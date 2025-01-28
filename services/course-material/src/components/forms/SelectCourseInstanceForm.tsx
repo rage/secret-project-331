@@ -151,6 +151,11 @@ const SelectCourseInstanceForm: React.FC<
           {courseInstances.map((courseInstance) => (
             <div key={courseInstance.id}>
               <RadioButton
+                className={css`
+                  span {
+                    font-weight: 500;
+                  }
+                `}
                 key={courseInstance.id}
                 {...(courseInstance.name === null
                   ? // eslint-disable-next-line i18next/no-literal-string
@@ -176,7 +181,7 @@ const SelectCourseInstanceForm: React.FC<
         </FieldContainer>
         <div
           className={css`
-            margin-top: -0.5rem;
+            margin-top: 1rem;
             margin-bottom: 1rem;
             color: ${baseTheme.colors.gray[600]};
           `}

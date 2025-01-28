@@ -821,19 +821,31 @@ export interface FlaggedAnswer {
   submission_id: string
   flagged_user: string
   flagged_by: string
-  reason: string
+  reason: ReportReason
   description: string | null
   created_at: string
   updated_at: string
   deleted_at: string | null
 }
 
+export type ReportReason = "Spam" | "HarmfulContent" | "AiGenerated"
+
 export interface NewFlaggedAnswer {
   submission_id: string
   flagged_user: string | null
   flagged_by: string | null
-  reason: string
+  reason: ReportReason
   description: string | null
+}
+
+export interface NewFlaggedAnswerWithToken {
+  submission_id: string
+  flagged_user: string | null
+  flagged_by: string | null
+  reason: ReportReason
+  description: string | null
+  peer_or_self_review_config_id: string
+  token: string
 }
 
 export interface CourseMaterialExerciseTask {

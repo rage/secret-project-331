@@ -1,15 +1,23 @@
+CREATE TYPE report_reason AS ENUM (
+  'flagging-reason-spam',
+  'flagging-reason-harmful-content',
+  'flagging-reason-ai-generated'
+);
+
 CREATE TABLE flagged_answers (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   submission_id UUID NOT NULL REFERENCES exercise_slide_submissions(id),
   flagged_user UUID NOT NULL REFERENCES users(id),
   flagged_by UUID NOT NULL REFERENCES users(id),
-  reason TEXT NOT NULL,
+  reason report_reason NOT NULL,
   description TEXT,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMP WITH TIME ZONE,
   UNIQUE NULLS NOT DISTINCT (submission_id, flagged_by, deleted_at)
 );
+
+CREATE INDEX idx_flagged_answers_submission_id ON flagged_answers(submission_id);
 
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON flagged_answers FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();

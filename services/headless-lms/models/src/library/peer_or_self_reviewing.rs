@@ -421,7 +421,7 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
         )
         .await?;
     let reported_submissions =
-        crate::exercise_slide_submissions::get_flagged_answers_submission_ids_by_flaggers_id(
+        crate::flagged_answers::get_flagged_answers_submission_ids_by_flaggers_id(
             conn,
             reviewer_user_exercise_state.user_id,
         )

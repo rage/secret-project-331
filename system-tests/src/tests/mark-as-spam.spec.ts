@@ -72,7 +72,7 @@ test("Mark answer as spam in peer review", async () => {
     await student2Page.getByText("Spam", { exact: true }).click()
 
     await student2Page.getByPlaceholder("Optional description...").fill("I think this is spam")
-    await student2Page.getByLabel("Submit").click()
+    student2Page.getByLabel("Report Answer").getByRole("button", { name: "Submit" }).click()
     await expect(student2Page.getByText("Success", { exact: true })).toBeVisible()
   })
 

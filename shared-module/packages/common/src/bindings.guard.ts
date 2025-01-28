@@ -151,6 +151,7 @@ import {
   NewExerciseRepository,
   NewFeedback,
   NewFlaggedAnswer,
+  NewFlaggedAnswerWithToken,
   NewMaterialReference,
   NewModule,
   NewPage,
@@ -207,6 +208,7 @@ import {
   Regrading,
   RegradingInfo,
   RegradingSubmissionInfo,
+  ReportReason,
   RepositoryExercise,
   ResearchForm,
   ResearchFormQuestion,
@@ -1580,12 +1582,17 @@ export function isFlaggedAnswer(obj: unknown): obj is FlaggedAnswer {
     typeof typedObj["submission_id"] === "string" &&
     typeof typedObj["flagged_user"] === "string" &&
     typeof typedObj["flagged_by"] === "string" &&
-    typeof typedObj["reason"] === "string" &&
+    (isReportReason(typedObj["reason"]) as boolean) &&
     (typedObj["description"] === null || typeof typedObj["description"] === "string") &&
     typeof typedObj["created_at"] === "string" &&
     typeof typedObj["updated_at"] === "string" &&
     (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string")
   )
+}
+
+export function isReportReason(obj: unknown): obj is ReportReason {
+  const typedObj = obj as ReportReason
+  return typedObj === "Spam" || typedObj === "HarmfulContent" || typedObj === "AiGenerated"
 }
 
 export function isNewFlaggedAnswer(obj: unknown): obj is NewFlaggedAnswer {
@@ -1595,8 +1602,22 @@ export function isNewFlaggedAnswer(obj: unknown): obj is NewFlaggedAnswer {
     typeof typedObj["submission_id"] === "string" &&
     (typedObj["flagged_user"] === null || typeof typedObj["flagged_user"] === "string") &&
     (typedObj["flagged_by"] === null || typeof typedObj["flagged_by"] === "string") &&
-    typeof typedObj["reason"] === "string" &&
+    (isReportReason(typedObj["reason"]) as boolean) &&
     (typedObj["description"] === null || typeof typedObj["description"] === "string")
+  )
+}
+
+export function isNewFlaggedAnswerWithToken(obj: unknown): obj is NewFlaggedAnswerWithToken {
+  const typedObj = obj as NewFlaggedAnswerWithToken
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["submission_id"] === "string" &&
+    (typedObj["flagged_user"] === null || typeof typedObj["flagged_user"] === "string") &&
+    (typedObj["flagged_by"] === null || typeof typedObj["flagged_by"] === "string") &&
+    (isReportReason(typedObj["reason"]) as boolean) &&
+    (typedObj["description"] === null || typeof typedObj["description"] === "string") &&
+    typeof typedObj["peer_or_self_review_config_id"] === "string" &&
+    typeof typedObj["token"] === "string"
   )
 }
 

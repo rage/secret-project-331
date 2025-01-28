@@ -50,7 +50,6 @@ const FlaggedPeerReviewAccordion: React.FC<FlaggedPeerReviewAccordionProps> = ({
         <div
           className={css`
             background: ${baseTheme.colors.clear[100]};
-            margin: 0.5rem 0;
           `}
         >
           {reports.map((report, index) => (
@@ -67,10 +66,11 @@ const FlaggedPeerReviewAccordion: React.FC<FlaggedPeerReviewAccordionProps> = ({
                   {report.description || t("no-description-available")}
                 </li>
                 <li>
-                  <strong>{t("label-flagged-by")}:</strong> {report.flagged_by}
+                  <strong>{t("label-flagged-by")}: </strong>
+                  {report.flagged_by}
                 </li>
                 <li>
-                  <strong>{t("label-created-at")}</strong>{" "}
+                  <strong>{t("label-created-at")}: </strong>
                   {new Date(report.created_at).toLocaleString()}
                 </li>
               </ul>

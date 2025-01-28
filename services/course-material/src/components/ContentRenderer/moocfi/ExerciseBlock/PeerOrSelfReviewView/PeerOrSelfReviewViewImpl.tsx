@@ -19,7 +19,10 @@ import MarkAsSpamDialog from "./PeerRevireMarkingSpam/MarkAsSpamDialog"
 
 import { getPeerReviewBeginningScrollingId, PeerOrSelfReviewViewProps } from "."
 
-import { CourseMaterialPeerOrSelfReviewQuestionAnswer } from "@/shared-module/common/bindings"
+import {
+  CourseMaterialPeerOrSelfReviewQuestionAnswer,
+  ReportReason,
+} from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import PeerReviewProgress from "@/shared-module/common/components/PeerReview/PeerReviewProgress"
@@ -132,8 +135,12 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
   )
 
   const reportMutation = useToastMutation(
-    async ({ reason, description }: { reason: string; description: string }) => {
+    async ({ reason, description }: { reason: ReportReason; description: string }) => {
       if (!peerOrSelfReviewData || !peerOrSelfReviewData.answer_to_review) {
+        return
+      }
+      const token = query.data?.token
+      if (!peerOrSelfReviewData || !peerOrSelfReviewData.answer_to_review || !token) {
         return
       }
       return await postFlagAnswerInPeerReview(exerciseId, {
@@ -142,6 +149,8 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
         description,
         flagged_user: null,
         flagged_by: null,
+        peer_or_self_review_config_id: peerOrSelfReviewData.peer_or_self_review_config.id,
+        token: token,
       })
     },
     { notify: true, method: "POST" },
@@ -154,7 +163,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
     },
   )
 
-  const handleReportSubmit = (reason: string, description: string) => {
+  const handleReportSubmit = (reason: ReportReason, description: string) => {
     reportMutation.mutate({ reason, description })
   }
 

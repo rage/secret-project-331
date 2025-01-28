@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO flagged_answers (\n    submission_id,\n    flagged_user,\n    flagged_by,\n    reason,\n    description\n)\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id,\n  submission_id,\n  flagged_user,\n  flagged_by,\n  reason,\n  description,\n  created_at,\n  updated_at,\n  deleted_at\n        ",
+  "query": "\n        SELECT\n            id,\n            submission_id,\n            flagged_user,\n            flagged_by,\n            reason AS \"reason: _\",\n            description,\n            created_at,\n            updated_at,\n            deleted_at\n        FROM flagged_answers\n        WHERE submission_id = $1\n          AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -25,8 +25,19 @@
       },
       {
         "ordinal": 4,
-        "name": "reason",
-        "type_info": "Text"
+        "name": "reason: _",
+        "type_info": {
+          "Custom": {
+            "name": "report_reason",
+            "kind": {
+              "Enum": [
+                "flagging-reason-spam",
+                "flagging-reason-harmful-content",
+                "flagging-reason-ai-generated"
+              ]
+            }
+          }
+        }
       },
       {
         "ordinal": 5,
@@ -50,9 +61,9 @@
       }
     ],
     "parameters": {
-      "Left": ["Uuid", "Uuid", "Uuid", "Text", "Text"]
+      "Left": ["Uuid"]
     },
     "nullable": [false, false, false, false, false, true, false, false, true]
   },
-  "hash": "caeaf4c59be4dde42812fa54f4e9753a257a787b1ffe8b01497373d5f1778244"
+  "hash": "d6df0b2e56bcd1e7729c474cd06c171babc496a28ce6ceb1f54fc5e2e1933d00"
 }

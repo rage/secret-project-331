@@ -1,6 +1,5 @@
 //! Controllers for requests starting with `/api/v0/course-material/exercises`.
 
-use crate::controllers::course_material::exercises::user_exercise_states::ReviewingStage;
 use crate::{
     domain::{
         authorization::skip_authorize,
@@ -8,12 +7,11 @@ use crate::{
     },
     prelude::*,
 };
-use headless_lms_models::exercise_slide_submissions::{self, NewFlaggedAnswer};
-use headless_lms_models::user_exercise_states::CourseInstanceOrExamId;
-use headless_lms_models::{courses, peer_review_queue_entries};
+use headless_lms_models::flagged_answers::FlaggedAnswer;
 use models::{
     exercise_task_submissions::PeerOrSelfReviewsReceived,
     exercises::CourseMaterialExercise,
+    flagged_answers::NewFlaggedAnswerWithToken,
     library::{
         grading::{StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult},
         peer_or_self_reviewing::{
@@ -372,124 +370,33 @@ async fn submit_peer_or_self_review(
 #[instrument(skip(pool))]
 async fn post_flag_answer_in_peer_review(
     pool: web::Data<PgPool>,
-    payload: web::Json<NewFlaggedAnswer>,
+    payload: web::Json<NewFlaggedAnswerWithToken>,
     user: AuthUser,
-) -> ControllerResult<web::Json<bool>> {
+    jwt_key: web::Data<JwtKey>,
+) -> ControllerResult<web::Json<FlaggedAnswer>> {
     let mut conn = pool.acquire().await?;
 
-    let flagged_submission_data =
-        exercise_slide_submissions::get_by_id(&mut conn, payload.submission_id).await?;
-
-    if flagged_submission_data.course_id.is_none() {
+    let claim = GivePeerReviewClaim::validate(&payload.token, &jwt_key)?;
+    if claim.exercise_slide_submission_id != payload.submission_id
+        || claim.peer_or_self_review_config_id != payload.peer_or_self_review_config_id
+    {
         return Err(ControllerError::new(
-            ControllerErrorType::NotFound,
-            "Submission not found.".to_string(),
+            ControllerErrorType::BadRequest,
+            "You are not allowed to report this answer.".to_string(),
             None,
         ));
     }
-
-    let flagged_user = flagged_submission_data.user_id;
-
-    let course_id = match flagged_submission_data.course_id {
-        Some(id) => id,
-        None => {
-            return Err(ControllerError::new(
-                ControllerErrorType::BadRequest,
-                "Course ID not found for the submission.".to_string(),
-                None,
-            ));
-        }
-    };
-
-    let new_flagged_answer = NewFlaggedAnswer {
-        submission_id: payload.submission_id,
-        flagged_user: Some(flagged_user),
-        flagged_by: Some(user.id),
-        reason: payload.reason.clone(),
-        description: payload.description.clone(),
-    };
 
     let insert_result =
-        exercise_slide_submissions::insert_flagged_answer(&mut conn, new_flagged_answer).await;
-
-    if insert_result.is_err() {
-        return Err(ControllerError::new(
-            ControllerErrorType::InternalServerError,
-            "Failed to report answer".to_string(),
-            None,
-        ));
-    }
-
-    // Increment the flag count
-    let updated_flag_count =
-        exercise_slide_submissions::increment_flag_count(&mut conn, payload.submission_id)
-            .await
-            .map_err(|_| {
-                ControllerError::new(
-                    ControllerErrorType::InternalServerError,
-                    "Failed to increment the flag count.".to_string(),
-                    None,
-                )
-            })?;
-
-    let course = courses::get_course(&mut conn, course_id).await?;
-
-    // Check if the flag count exceeds the courses flagged answers threshold.
-    // If it does the move to manual review and remove from the peer review queue.
-    if let Some(flagged_answers_threshold) = course.flagged_answers_threshold {
-        if updated_flag_count < flagged_answers_threshold {
-            let token = skip_authorize();
-            return token.authorized_ok(web::Json(true));
-        }
-
-        let course_instance_id = flagged_submission_data
-            .course_instance_id
-            .map(CourseInstanceOrExamId::Instance)
-            .ok_or_else(|| {
-                ControllerError::new(
-                    ControllerErrorType::InternalServerError,
-                    "No course instance found for the submission.".to_string(),
-                    None,
-                )
-            })?;
-
-        // Move the answer to manual review
-        let update_result = user_exercise_states::update_reviewing_stage(
+        models::flagged_answers::insert_flagged_answer_and_move_to_manual_review_if_needed(
             &mut conn,
-            flagged_user,
-            course_instance_id,
-            flagged_submission_data.exercise_id,
-            ReviewingStage::WaitingForManualGrading,
+            payload.into_inner(),
+            user.id,
         )
         .await?;
 
-        // Remove from peer review queue so other students can't review an answers that is already in manual review
-        if let Some(instance_id) = update_result.course_instance_id {
-            peer_review_queue_entries::remove_queue_entries_for_unusual_reason(
-                &mut conn,
-                flagged_user,
-                flagged_submission_data.exercise_id,
-                instance_id,
-            )
-            .await
-            .map_err(|_| {
-                ControllerError::new(
-                    ControllerErrorType::InternalServerError,
-                    "Failed to remove from the review queue.".to_string(),
-                    None,
-                )
-            })?;
-        } else {
-            return Err(ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                "Failed to update the reviewing stage.".to_string(),
-                None,
-            ));
-        }
-    }
-
     let token = skip_authorize();
-    token.authorized_ok(web::Json(true))
+    token.authorized_ok(web::Json(insert_result))
 }
 
 /**

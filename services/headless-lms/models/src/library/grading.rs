@@ -6,9 +6,7 @@ use url::Url;
 
 use crate::{
     exercise_service_info::ExerciseServiceInfoApi,
-    exercise_slide_submissions::{
-        self, ExerciseSlideSubmission, FlaggedAnswer, NewExerciseSlideSubmission,
-    },
+    exercise_slide_submissions::{self, ExerciseSlideSubmission, NewExerciseSlideSubmission},
     exercise_task_gradings::{
         self, ExerciseTaskGrading, ExerciseTaskGradingResult, UserPointsUpdateStrategy,
     },
@@ -16,6 +14,7 @@ use crate::{
     exercise_task_submissions::{self, ExerciseTaskSubmission},
     exercise_tasks::{self, CourseMaterialExerciseTask, ExerciseTask},
     exercises::{self, Exercise, ExerciseStatus, GradingProgress},
+    flagged_answers::{self, FlaggedAnswer},
     peer_or_self_review_configs::PeerReviewProcessingStrategy,
     peer_or_self_review_question_submissions::{
         self, PeerOrSelfReviewQuestionSubmission, PeerReviewWithQuestionsAndAnswers,
@@ -575,11 +574,8 @@ pub async fn get_paginated_answers_requiring_attention_for_exercise(
             )
             .await?;
         let received_peer_review_flagging_reports: Vec<FlaggedAnswer> =
-            exercise_slide_submissions::get_flagged_answers_by_submission_id(
-                conn,
-                answer.submission_id,
-            )
-            .await?;
+            flagged_answers::get_flagged_answers_by_submission_id(conn, answer.submission_id)
+                .await?;
         let new_answer = AnswerRequiringAttentionWithTasks {
             id: answer.id,
             user_id: answer.user_id,

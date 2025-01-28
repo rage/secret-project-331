@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT\n            id,\n            submission_id,\n            flagged_user,\n            flagged_by,\n            reason,\n            description,\n            created_at,\n            updated_at,\n            deleted_at\n        FROM flagged_answers\n        WHERE flagged_by = $1\n          AND deleted_at IS NULL\n        ",
+  "query": "\n        SELECT\n            id,\n            submission_id,\n            flagged_user,\n            flagged_by,\n            reason AS \"reason: _\",\n            description,\n            created_at,\n            updated_at,\n            deleted_at\n        FROM flagged_answers\n        WHERE flagged_by = $1\n          AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -25,8 +25,19 @@
       },
       {
         "ordinal": 4,
-        "name": "reason",
-        "type_info": "Text"
+        "name": "reason: _",
+        "type_info": {
+          "Custom": {
+            "name": "report_reason",
+            "kind": {
+              "Enum": [
+                "flagging-reason-spam",
+                "flagging-reason-harmful-content",
+                "flagging-reason-ai-generated"
+              ]
+            }
+          }
+        }
       },
       {
         "ordinal": 5,
@@ -54,5 +65,5 @@
     },
     "nullable": [false, false, false, false, false, true, false, false, true]
   },
-  "hash": "2a2f7d900ec3ce47be59da8b9a874aa1bc7ac567323b25476e766e95d32c7ed1"
+  "hash": "004f2ba525f602651cb8c163c22d4ee79bac42d7246de060c50f044b978bbf68"
 }

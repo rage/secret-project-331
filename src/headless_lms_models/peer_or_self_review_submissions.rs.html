@@ -340,6 +340,9 @@
 <a href="#340" id="340">340</a>
 <a href="#341" id="341">341</a>
 <a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
@@ -603,15 +606,18 @@ WHERE user_id = $1
 <span class="kw">pub async fn </span>count_peer_or_self_review_submissions_for_exercise_slide_submission(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     exercise_slide_submission_id: Uuid,
+    exclude_user_ids: <span class="kw-2">&amp;</span>[Uuid],
 ) -&gt; ModelResult&lt;u32&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">"
 SELECT COUNT(*) AS count
 FROM peer_or_self_review_submissions
 WHERE exercise_slide_submission_id = $1
+  AND user_id != ALL($2)
   AND deleted_at IS NULL
         "</span>,
-        exercise_slide_submission_id
+        exercise_slide_submission_id,
+        exclude_user_ids
     )
     .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;

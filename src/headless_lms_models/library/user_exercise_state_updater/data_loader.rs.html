@@ -466,19 +466,6 @@
 <a href="#466" id="466">466</a>
 <a href="#467" id="467">467</a>
 <a href="#468" id="468">468</a>
-<a href="#469" id="469">469</a>
-<a href="#470" id="470">470</a>
-<a href="#471" id="471">471</a>
-<a href="#472" id="472">472</a>
-<a href="#473" id="473">473</a>
-<a href="#474" id="474">474</a>
-<a href="#475" id="475">475</a>
-<a href="#476" id="476">476</a>
-<a href="#477" id="477">477</a>
-<a href="#478" id="478">478</a>
-<a href="#479" id="479">479</a>
-<a href="#480" id="480">480</a>
-<a href="#481" id="481">481</a>
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{
     exercise_slide_submissions::ExerciseSlideSubmission,
     exercises::Exercise,
@@ -670,7 +657,6 @@
                     conn,
                     peer_review_queue_entry,
                     loaded_latest_exercise_slide_submission.id,
-                    loaded_user_exercise_state,
                 )
                 .<span class="kw">await</span><span class="question-mark">?</span>,
                 peer_or_self_review_config: loaded_peer_or_self_review_config.clone(),
@@ -784,26 +770,14 @@
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     already_loaded_peer_review_queue_entry: <span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Option</span>&lt;PeerReviewQueueEntry&gt;&gt;,
     latest_exercise_submission_id: Uuid,
-    loaded_user_exercise_state: <span class="kw-2">&amp;</span>UserExerciseState,
 ) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;PeerReviewQueueEntry&gt;&gt; {
     <span class="kw">if let </span><span class="prelude-val">Some</span>(prqe) = already_loaded_peer_review_queue_entry {
         <span class="macro">info!</span>(<span class="string">"Using already loaded peer review queue entry"</span>);
         <span class="prelude-val">Ok</span>(prqe)
     } <span class="kw">else </span>{
         <span class="macro">info!</span>(<span class="string">"Loading peer review queue entry"</span>);
-        <span class="kw">let </span>course_instance_id =
-            loaded_user_exercise_state
-                .course_instance_id
-                .ok_or_else(|| {
-                    ModelError::new(
-                        ModelErrorType::InvalidRequest,
-                        <span class="string">"Peer reviews work only on courses (and not, for example, on exams)"
-                            </span>.to_string(),
-                        <span class="prelude-val">None</span>,
-                    )
-                })<span class="question-mark">?</span>;
         <span class="comment">// The result is optinal because not all answers are in the peer review queue yet. For example, we don't place any answers to the queue if their giver has not given enough peer reviews.
-        </span><span class="prelude-val">Ok</span>(<span class="kw">crate</span>::peer_review_queue_entries::try_to_get_by_receiving_submission_and_course_instance_ids(conn, latest_exercise_submission_id, course_instance_id ).<span class="kw">await</span><span class="question-mark">?</span>)
+        </span><span class="prelude-val">Ok</span>(<span class="kw">crate</span>::peer_review_queue_entries::get_by_receiving_peer_reviews_exercise_slide_submission_id(conn, latest_exercise_submission_id ).<span class="kw">await</span>.optional()<span class="question-mark">?</span>)
     }
 }
 

@@ -764,6 +764,9 @@
 <a href="#764" id="764">764</a>
 <a href="#765" id="765">765</a>
 <a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>chrono::Duration;
@@ -979,6 +982,7 @@
         peer_or_self_review_submissions::count_peer_or_self_review_submissions_for_exercise_slide_submission(
             <span class="kw-2">&amp;mut </span>tx,
             users_latest_submission.id,
+            <span class="kw-2">&amp;</span>[giver_exercise_state.user_id],
         )
         .<span class="kw">await</span><span class="question-mark">?
         </span>.try_into()<span class="question-mark">?</span>;
@@ -1004,20 +1008,12 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>receiver_peer_review_queue_entry =
-        peer_review_queue_entries::try_to_get_by_receiving_submission_and_course_instance_ids(
+        peer_review_queue_entries::get_by_receiving_peer_reviews_exercise_slide_submission_id(
             <span class="kw-2">&amp;mut </span>tx,
             exercise_slide_submission.id,
-            exercise_slide_submission
-                .course_instance_id
-                .ok_or_else(|| {
-                    ModelError::new(
-                        ModelErrorType::PreconditionFailed,
-                        <span class="string">"Exercise slide not part of a course instance."</span>.to_string(),
-                        <span class="prelude-val">None</span>,
-                    )
-                })<span class="question-mark">?</span>,
         )
-        .<span class="kw">await</span><span class="question-mark">?</span>;
+        .<span class="kw">await
+        </span>.optional()<span class="question-mark">?</span>;
     <span class="kw">if let </span><span class="prelude-val">Some</span>(entry) = receiver_peer_review_queue_entry {
         <span class="comment">// No need to update the user exercise state again if this is a self review
         </span><span class="kw">if </span>entry.user_id != giver_exercise_state.user_id {
@@ -1081,6 +1077,7 @@
         peer_or_self_review_submissions::count_peer_or_self_review_submissions_for_exercise_slide_submission(
             conn,
             peer_review_queue_entry.receiving_peer_reviews_exercise_slide_submission_id,
+            <span class="kw-2">&amp;</span>[peer_review_queue_entry.user_id],
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">if </span>peer_reviews_received &gt;= peer_review.peer_reviews_to_receive.try_into()<span class="question-mark">? </span>{
@@ -1293,16 +1290,26 @@
                     <span class="kw">continue</span>;
                 };
                 <span class="kw">if </span>ess.deleted_at.is_none() {
-                    <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(ess));
+                    <span class="comment">// Double check that the submission has not been removed from the queue.
+                    </span><span class="kw">let </span>peer_review_queue_entry = peer_review_queue_entries::get_by_receiving_peer_reviews_exercise_slide_submission_id(conn, ess_id).<span class="kw">await</span><span class="question-mark">?</span>;
+                    <span class="kw">if </span>peer_review_queue_entry.deleted_at.is_none()
+                        &amp;&amp; !peer_review_queue_entry.removed_from_queue_for_unusual_reason
+                    {
+                        <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(ess));
+                    } <span class="kw">else </span>{
+                        <span class="macro">warn!</span>(exercise_slide_submission_id = %ess_id, <span class="string">"Selected exercise slide submission that was removed from the peer review queue. Trying again."</span>);
+                        <span class="kw">continue</span>;
+                    }
                 }
-            }
-            <span class="comment">// We found a submission from the peer reveiw queue but the submission was deleted. This is unfortunate since if
-            // the submission was deleted the peer review queue entry should have been deleted too. We can try to fix the situation somehow.
-            </span><span class="macro">warn!</span>(exercise_slide_submission_id = %ess_id, <span class="string">"Selected exercise slide submission that was deleted from the peer review queue. The peer review queue entry should've been deleted too! Deleting it now."</span>);
-            peer_review_queue_entries::delete_by_receiving_peer_reviews_exercise_slide_submission_id(
+            } <span class="kw">else </span>{
+                <span class="comment">// We found a submission from the peer reveiw queue but the submission was deleted. This is unfortunate since if
+                // the submission was deleted the peer review queue entry should have been deleted too. We can try to fix the situation somehow.
+                </span><span class="macro">warn!</span>(exercise_slide_submission_id = %ess_id, <span class="string">"Selected exercise slide submission that was deleted. The peer review queue entry should've been deleted too! Deleting it now."</span>);
+                peer_review_queue_entries::delete_by_receiving_peer_reviews_exercise_slide_submission_id(
                 conn, ess_id,
             ).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="macro">info!</span>(<span class="string">"Deleting done, trying to select a new peer review candidate"</span>);
+                <span class="macro">info!</span>(<span class="string">"Deleting done, trying to select a new peer review candidate"</span>);
+            }
         } <span class="kw">else </span>{
             <span class="comment">// We didn't manage to select a candidate from the queue
             </span><span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
@@ -1331,15 +1338,14 @@
         )),
         <span class="prelude-val">None </span>=&gt; {
             <span class="comment">// Try again for any queue entry.
-            </span><span class="kw">let </span><span class="kw-2">mut </span>candidates =
-                peer_review_queue_entries::get_many_by_exercise_id_and_review_priority(
-                    conn,
-                    exercise_id,
-                    excluded_user_id,
-                    excluded_exercise_slide_submission_ids,
-                    MAX_PEER_REVIEW_CANDIDATES,
-                )
-                .<span class="kw">await</span><span class="question-mark">?</span>;
+            </span><span class="kw">let </span><span class="kw-2">mut </span>candidates = peer_review_queue_entries::get_any_including_not_needing_review(
+                conn,
+                exercise_id,
+                excluded_user_id,
+                excluded_exercise_slide_submission_ids,
+                MAX_PEER_REVIEW_CANDIDATES,
+            )
+            .<span class="kw">await</span><span class="question-mark">?</span>;
             candidates.shuffle(<span class="kw-2">&amp;mut </span>rng);
             <span class="prelude-val">Ok</span>(candidates
                 .into_iter()

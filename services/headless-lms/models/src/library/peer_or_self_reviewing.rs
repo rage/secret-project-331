@@ -569,15 +569,14 @@ async fn try_to_select_peer_review_candidate_from_queue_impl(
         )),
         None => {
             // Try again for any queue entry.
-            let mut candidates =
-                peer_review_queue_entries::get_many_by_exercise_id_and_review_priority(
-                    conn,
-                    exercise_id,
-                    excluded_user_id,
-                    excluded_exercise_slide_submission_ids,
-                    MAX_PEER_REVIEW_CANDIDATES,
-                )
-                .await?;
+            let mut candidates = peer_review_queue_entries::get_any_including_not_needing_review(
+                conn,
+                exercise_id,
+                excluded_user_id,
+                excluded_exercise_slide_submission_ids,
+                MAX_PEER_REVIEW_CANDIDATES,
+            )
+            .await?;
             candidates.shuffle(&mut rng);
             Ok(candidates
                 .into_iter()

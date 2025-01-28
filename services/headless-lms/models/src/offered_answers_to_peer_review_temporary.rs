@@ -10,6 +10,11 @@ pub async fn try_to_restore_previously_given_exercise_slide_submission(
     user_id: Uuid,
     course_instance_id: Uuid,
 ) -> ModelResult<Option<ExerciseSlideSubmission>> {
+    // Sometimes clean up the table to keep the table small and fast
+    if rand::thread_rng().gen_range(0..10) == 0 {
+        delete_expired_records(&mut *conn).await?;
+    }
+
     let res = sqlx::query!(
         "
 SELECT exercise_slide_submission_id
@@ -25,14 +30,11 @@ WHERE exercise_id = $1
     )
     .fetch_optional(&mut *conn)
     .await?;
-    if rand::thread_rng().gen_range(0..10) == 0 {
-        // Sometimes clean up the table
-        delete_expired_records(&mut *conn).await?;
-    }
+
     if let Some(res) = res {
         // In order to return the saved submission, it needs to have a peer review queue entry and the entry must not have received enough peer reviews.
         if let Some(peer_review_queue_entry) = crate::peer_review_queue_entries::get_by_receiving_peer_reviews_exercise_slide_submission_id(&mut *conn, res.exercise_slide_submission_id).await.optional()? {
-          if peer_review_queue_entry.received_enough_peer_reviews || peer_review_queue_entry.removed_from_queue_for_unusual_reason {
+          if peer_review_queue_entry.received_enough_peer_reviews || peer_review_queue_entry.removed_from_queue_for_unusual_reason || peer_review_queue_entry.deleted_at.is_some() {
             return Ok(None);
           }
         } else {
@@ -44,6 +46,10 @@ WHERE exercise_id = $1
             res.exercise_slide_submission_id,
         )
         .await?;
+
+        if ess.deleted_at.is_some() {
+            return Ok(None);
+        }
         return Ok(Some(ess));
     }
     Ok(None)

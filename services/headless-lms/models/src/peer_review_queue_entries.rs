@@ -197,10 +197,10 @@ pub async fn try_to_get_by_user_and_exercise_and_course_instance_ids(
         .optional()
 }
 
-/// Gets multiple records of `PeerReviewQueueEntry` ordered by peer review priority. Also returns entries that don't need peer review.
+/// Gets multiple records of `PeerReviewQueueEntry` ordered by newest queue entries first. Also returns entries that don't need peer review.
 ///
 /// Doesn't differentiate between different course instances.
-pub async fn get_many_by_exercise_id_and_review_priority(
+pub async fn get_any_including_not_needing_review(
     conn: &mut PgConnection,
     exercise_id: Uuid,
     excluded_user_id: Uuid,
@@ -216,7 +216,7 @@ WHERE exercise_id = $1
   AND user_id <> $2
   AND receiving_peer_reviews_exercise_slide_submission_id <> ALL($3)
   AND deleted_at IS NULL
-ORDER BY peer_review_priority DESC
+ORDER BY created_at DESC
 LIMIT $4
             ",
         exercise_id,
@@ -524,6 +524,7 @@ pub async fn get_by_receiving_peer_reviews_exercise_slide_submission_id(
 SELECT *
 FROM peer_review_queue_entries
 WHERE receiving_peer_reviews_exercise_slide_submission_id = $1
+  AND deleted_at IS NULL
 ",
         receiving_peer_reviews_exercise_slide_submission_id
     )

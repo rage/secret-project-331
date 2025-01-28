@@ -1,0 +1,68 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM peer_review_queue_entries\nWHERE receiving_peer_reviews_exercise_slide_submission_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "exercise_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "course_instance_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "receiving_peer_reviews_exercise_slide_submission_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "received_enough_peer_reviews",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 9,
+        "name": "peer_review_priority",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 10,
+        "name": "removed_from_queue_for_unusual_reason",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false, false, false, true, false, false, false, false, false, false, false]
+  },
+  "hash": "2f66d0f8be0a247ab4e6f9eef67205e54c9c238dafec9ab5850e3972318d555f"
+}

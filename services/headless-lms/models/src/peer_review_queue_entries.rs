@@ -161,42 +161,6 @@ WHERE id = $1
     Ok(res)
 }
 
-async fn get_by_receiving_peer_reviews_submission_and_course_instance_ids(
-    conn: &mut PgConnection,
-    receiving_peer_reviews_exercise_slide_submission_id: Uuid,
-    course_instance_id: Uuid,
-) -> ModelResult<PeerReviewQueueEntry> {
-    let res = sqlx::query_as!(
-        PeerReviewQueueEntry,
-        "
-SELECT *
-FROM peer_review_queue_entries
-WHERE receiving_peer_reviews_exercise_slide_submission_id = $1
-  AND course_instance_id = $2
-  AND deleted_at IS NULL
-    ",
-        receiving_peer_reviews_exercise_slide_submission_id,
-        course_instance_id
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res)
-}
-
-pub async fn try_to_get_by_receiving_submission_and_course_instance_ids(
-    conn: &mut PgConnection,
-    receiving_peer_reviews_exercise_slide_submission_id: Uuid,
-    course_instance_id: Uuid,
-) -> ModelResult<Option<PeerReviewQueueEntry>> {
-    get_by_receiving_peer_reviews_submission_and_course_instance_ids(
-        conn,
-        receiving_peer_reviews_exercise_slide_submission_id,
-        course_instance_id,
-    )
-    .await
-    .optional()
-}
-
 pub async fn get_by_user_and_exercise_and_course_instance_ids(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -548,6 +512,24 @@ AND deleted_at is NULL
     .await?;
 
     Ok(())
+}
+
+pub async fn get_by_receiving_peer_reviews_exercise_slide_submission_id(
+    conn: &mut PgConnection,
+    receiving_peer_reviews_exercise_slide_submission_id: Uuid,
+) -> ModelResult<PeerReviewQueueEntry> {
+    let res = sqlx::query_as!(
+        PeerReviewQueueEntry,
+        "
+SELECT *
+FROM peer_review_queue_entries
+WHERE receiving_peer_reviews_exercise_slide_submission_id = $1
+",
+        receiving_peer_reviews_exercise_slide_submission_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
 }
 
 pub async fn get_all_by_user_and_course_instance_ids(

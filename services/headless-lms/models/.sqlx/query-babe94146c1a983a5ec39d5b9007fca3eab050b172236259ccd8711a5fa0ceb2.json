@@ -1,0 +1,68 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT prqe.*\nFROM peer_review_queue_entries prqe\n  JOIN user_exercise_states ues ON (\n    prqe.user_id = ues.user_id\n    AND prqe.exercise_id = ues.exercise_id\n    AND prqe.course_instance_id = ues.course_instance_id\n  )\nWHERE prqe.course_instance_id = $1\n  AND ues.reviewing_stage = 'waiting_for_manual_grading'\n  AND prqe.created_at < $2\n  AND prqe.deleted_at IS NULL\n  AND ues.deleted_at IS NULL\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "exercise_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "course_instance_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "receiving_peer_reviews_exercise_slide_submission_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "received_enough_peer_reviews",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 9,
+        "name": "peer_review_priority",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 10,
+        "name": "removed_from_queue_for_unusual_reason",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Timestamptz"]
+    },
+    "nullable": [false, false, false, true, false, false, false, false, false, false, false]
+  },
+  "hash": "babe94146c1a983a5ec39d5b9007fca3eab050b172236259ccd8711a5fa0ceb2"
+}

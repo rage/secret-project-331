@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM peer_review_queue_entries\nWHERE exercise_id = $1\n  AND user_id <> $2\n  AND receiving_peer_reviews_exercise_slide_submission_id <> ALL($3)\n  AND deleted_at IS NULL\nORDER BY peer_review_priority DESC\nLIMIT $4\n            ",
+  "query": "\nSELECT *\nFROM peer_review_queue_entries\nWHERE receiving_peer_reviews_exercise_slide_submission_id = $1\n  AND deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -61,10 +61,7 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid",
-        "Uuid",
-        "UuidArray",
-        "Int8"
+        "Uuid"
       ]
     },
     "nullable": [
@@ -81,5 +78,5 @@
       false
     ]
   },
-  "hash": "56769774cc71f5cdd7d676f792ec6b2ad296ed3c220fcd65cae452983e2bf326"
+  "hash": "15dcc3a95a0c9b2e128a58f556e80e231f6adfcba585292aa214c0a8ef81ae62"
 }

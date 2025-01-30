@@ -348,6 +348,10 @@
 <a href="#348" id="348">348</a>
 <a href="#349" id="349">349</a>
 <a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>headless_lms_models::{
@@ -439,6 +443,7 @@
         is_joinable_by_code_only: <span class="bool-val">false</span>,
         join_code: <span class="prelude-val">None</span>,
         ask_marketing_consent: <span class="bool-val">false</span>,
+        flagged_answers_threshold: <span class="prelude-val">Some</span>(<span class="number">3</span>),
     };
     <span class="kw">let </span>(
         statistics_course,
@@ -488,6 +493,7 @@
         is_joinable_by_code_only: <span class="bool-val">false</span>,
         join_code: <span class="prelude-val">None</span>,
         ask_marketing_consent: <span class="bool-val">false</span>,
+        flagged_answers_threshold: <span class="prelude-val">Some</span>(<span class="number">3</span>),
     };
     library::content_management::create_new_course(
         <span class="kw-2">&amp;mut </span>conn,
@@ -519,6 +525,7 @@
             <span class="string">"zARvZARjYhESMPVceEgZyJGQZZuUHVVgcUepyzEqzSqCMdbSCDrTaFhkJTxBshWU"</span>.to_string(),
         ),
         ask_marketing_consent: <span class="bool-val">false</span>,
+        flagged_answers_threshold: <span class="prelude-val">Some</span>(<span class="number">3</span>),
     };
     library::content_management::create_new_course(
         <span class="kw-2">&amp;mut </span>conn,
@@ -570,6 +577,7 @@
             is_joinable_by_code_only: <span class="bool-val">false</span>,
             join_code: <span class="prelude-val">None</span>,
             ask_marketing_consent: <span class="bool-val">false</span>,
+            flagged_answers_threshold: <span class="prelude-val">Some</span>(<span class="number">3</span>),
         },
         <span class="bool-val">true</span>,
         admin_user_id,

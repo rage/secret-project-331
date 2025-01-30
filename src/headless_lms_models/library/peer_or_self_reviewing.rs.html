@@ -767,6 +767,14 @@
 <a href="#767" id="767">767</a>
 <a href="#768" id="768">768</a>
 <a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>chrono::Duration;
@@ -1175,7 +1183,7 @@
         <span class="kw">return </span><span class="prelude-val">Ok</span>(data)
     }
 
-    <span class="kw">let </span>excluded_exercise_slide_submission_ids =
+    <span class="kw">let </span><span class="kw-2">mut </span>excluded_exercise_slide_submission_ids =
         peer_or_self_review_submissions::get_users_submission_ids_for_exercise_and_course_instance(
             conn,
             reviewer_user_exercise_state.user_id,
@@ -1183,6 +1191,14 @@
             course_instance_id,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>reported_submissions =
+        <span class="kw">crate</span>::flagged_answers::get_flagged_answers_submission_ids_by_flaggers_id(
+            conn,
+            reviewer_user_exercise_state.user_id,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+    excluded_exercise_slide_submission_ids.extend(reported_submissions);
+
     <span class="kw">let </span>candidate_submission_id = try_to_select_peer_review_candidate_from_queue(
         conn,
         reviewer_user_exercise_state.exercise_id,

@@ -981,6 +981,24 @@
 <a href="#981" id="981">981</a>
 <a href="#982" id="982">982</a>
 <a href="#983" id="983">983</a>
+<a href="#984" id="984">984</a>
+<a href="#985" id="985">985</a>
+<a href="#986" id="986">986</a>
+<a href="#987" id="987">987</a>
+<a href="#988" id="988">988</a>
+<a href="#989" id="989">989</a>
+<a href="#990" id="990">990</a>
+<a href="#991" id="991">991</a>
+<a href="#992" id="992">992</a>
+<a href="#993" id="993">993</a>
+<a href="#994" id="994">994</a>
+<a href="#995" id="995">995</a>
+<a href="#996" id="996">996</a>
+<a href="#997" id="997">997</a>
+<a href="#998" id="998">998</a>
+<a href="#999" id="999">999</a>
+<a href="#1000" id="1000">1000</a>
+<a href="#1001" id="1001">1001</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>headless_lms_utils::{
     file_store::FileStore, language_tag_to_name::LANGUAGE_TAG_TO_NAME, ApplicationConfiguration,
 };
@@ -1032,6 +1050,7 @@
     <span class="kw">pub </span>is_joinable_by_code_only: bool,
     <span class="kw">pub </span>join_code: <span class="prelude-ty">Option</span>&lt;String&gt;,
     <span class="kw">pub </span>ask_marketing_consent: bool,
+    <span class="kw">pub </span>flagged_answers_threshold: <span class="prelude-ty">Option</span>&lt;i32&gt;,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -1065,6 +1084,7 @@
     <span class="kw">pub </span>is_joinable_by_code_only: bool,
     <span class="kw">pub </span>join_code: <span class="prelude-ty">Option</span>&lt;String&gt;,
     <span class="kw">pub </span>ask_marketing_consent: bool,
+    <span class="kw">pub </span>flagged_answers_threshold: <span class="prelude-ty">Option</span>&lt;i32&gt;,
 }
 
 <span class="kw">pub async fn </span>insert(
@@ -1152,7 +1172,8 @@ SELECT id,
   is_unlisted,
   is_joinable_by_code_only,
   join_code,
-  ask_marketing_consent
+  ask_marketing_consent,
+  flagged_answers_threshold
 FROM courses
 WHERE deleted_at IS NULL;
 "#
@@ -1188,7 +1209,8 @@ SELECT id,
   can_add_chatbot,
   is_joinable_by_code_only,
   join_code,
-  ask_marketing_consent
+  ask_marketing_consent,
+  flagged_answers_threshold
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND id IN (
@@ -1231,7 +1253,8 @@ SELECT id,
   base_module_completion_requires_n_submodule_completions,
   is_joinable_by_code_only,
   join_code,
-  ask_marketing_consent
+  ask_marketing_consent,
+  flagged_answers_threshold
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND (
@@ -1286,7 +1309,8 @@ SELECT id,
   is_unlisted,
   is_joinable_by_code_only,
   join_code,
-  ask_marketing_consent
+  ask_marketing_consent,
+  flagged_answers_threshold
 FROM courses
 WHERE course_language_group_id = $1
 AND deleted_at IS NULL
@@ -1326,7 +1350,8 @@ SELECT
     c.is_unlisted,
     c.is_joinable_by_code_only,
     c.join_code,
-  c.ask_marketing_consent
+    c.ask_marketing_consent,
+    c.flagged_answers_threshold
 FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
 WHERE
@@ -1391,7 +1416,8 @@ SELECT id,
   base_module_completion_requires_n_submodule_completions,
   is_joinable_by_code_only,
   join_code,
-  ask_marketing_consent
+  ask_marketing_consent,
+  flagged_answers_threshold
 FROM courses
 WHERE id = $1;
     "#</span>,
@@ -1498,7 +1524,8 @@ SELECT courses.id,
   courses.is_unlisted,
   courses.is_joinable_by_code_only,
   courses.join_code,
-  courses.ask_marketing_consent
+  courses.ask_marketing_consent,
+  courses.flagged_answers_threshold
 FROM courses
 WHERE courses.organization_id = $1
   AND (
@@ -1563,6 +1590,7 @@ WHERE organization_id = $1
     <span class="kw">pub </span>is_unlisted: bool,
     <span class="kw">pub </span>is_joinable_by_code_only: bool,
     <span class="kw">pub </span>ask_marketing_consent: bool,
+    <span class="kw">pub </span>flagged_answers_threshold: i32,
 }
 
 <span class="kw">pub async fn </span>update_course(
@@ -1581,8 +1609,9 @@ SET name = $1,
   can_add_chatbot = $5,
   is_unlisted = $6,
   is_joinable_by_code_only = $7,
-  ask_marketing_consent = $8
-WHERE id = $9
+  ask_marketing_consent = $8,
+  flagged_answers_threshold = $9
+WHERE id = $10
 RETURNING id,
   name,
   created_at,
@@ -1602,7 +1631,8 @@ RETURNING id,
   base_module_completion_requires_n_submodule_completions,
   is_joinable_by_code_only,
   join_code,
-  ask_marketing_consent
+  ask_marketing_consent,
+  flagged_answers_threshold
     "#</span>,
         course_update.name,
         course_update.description,
@@ -1612,6 +1642,7 @@ RETURNING id,
         course_update.is_unlisted,
         course_update.is_joinable_by_code_only,
         course_update.ask_marketing_consent,
+        course_update.flagged_answers_threshold,
         course_id
     )
     .fetch_one(conn)
@@ -1665,7 +1696,8 @@ RETURNING id,
   base_module_completion_requires_n_submodule_completions,
   is_joinable_by_code_only,
   join_code,
-  ask_marketing_consent
+  ask_marketing_consent,
+  flagged_answers_threshold
     "#</span>,
         course_id
     )
@@ -1697,7 +1729,8 @@ SELECT id,
   base_module_completion_requires_n_submodule_completions,
   is_joinable_by_code_only,
   join_code,
-  ask_marketing_consent
+  ask_marketing_consent,
+  flagged_answers_threshold
 FROM courses
 WHERE slug = $1
   AND deleted_at IS NULL
@@ -1788,7 +1821,8 @@ SELECT id,
   base_module_completion_requires_n_submodule_completions,
   is_joinable_by_code_only,
   join_code,
-  ask_marketing_consent
+  ask_marketing_consent,
+  flagged_answers_threshold
 FROM courses
 WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
   "</span>,
@@ -1844,7 +1878,8 @@ SELECT id,
   base_module_completion_requires_n_submodule_completions,
   is_joinable_by_code_only,
   join_code,
-  ask_marketing_consent
+  ask_marketing_consent,
+  flagged_answers_threshold
 FROM courses
 WHERE join_code = $1
   AND deleted_at IS NULL;
@@ -1960,6 +1995,7 @@ WHERE join_code = $1
                 is_joinable_by_code_only: <span class="bool-val">false</span>,
                 join_code: <span class="prelude-val">None</span>,
                 ask_marketing_consent: <span class="bool-val">false</span>,
+                flagged_answers_threshold: <span class="prelude-val">Some</span>(<span class="number">3</span>),
             }
         }
     }

@@ -4821,6 +4821,11 @@
 <a href="#4821" id="4821">4821</a>
 <a href="#4822" id="4822">4822</a>
 <a href="#4823" id="4823">4823</a>
+<a href="#4824" id="4824">4824</a>
+<a href="#4825" id="4825">4825</a>
+<a href="#4826" id="4826">4826</a>
+<a href="#4827" id="4827">4827</a>
+<a href="#4828" id="4828">4828</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span><span class="kw">crate</span>::domain::models_requests::{<span class="self">self</span>, JwtKey};
@@ -4920,6 +4925,7 @@
         is_joinable_by_code_only: <span class="bool-val">false</span>,
         join_code: <span class="prelude-val">None</span>,
         ask_marketing_consent: <span class="bool-val">false</span>,
+        flagged_answers_threshold: <span class="prelude-val">Some</span>(<span class="number">3</span>),
     };
     <span class="kw">let </span>(course, _front_page, default_instance, default_module) =
         library::content_management::create_new_course(
@@ -6855,6 +6861,7 @@
         is_joinable_by_code_only: <span class="bool-val">false</span>,
         join_code: <span class="prelude-val">None</span>,
         ask_marketing_consent: <span class="bool-val">false</span>,
+        flagged_answers_threshold: <span class="prelude-val">Some</span>(<span class="number">3</span>),
     };
 
     <span class="kw">let </span>(course, _front_page, _default_instance, default_module) =
@@ -6982,6 +6989,7 @@
         is_joinable_by_code_only: <span class="bool-val">false</span>,
         join_code: <span class="prelude-val">None</span>,
         ask_marketing_consent: <span class="bool-val">false</span>,
+        flagged_answers_threshold: <span class="prelude-val">Some</span>(<span class="number">3</span>),
     };
     <span class="kw">let </span>(course, front_page, default_instance, default_module) =
         library::content_management::create_new_course(
@@ -7862,6 +7870,7 @@
         is_joinable_by_code_only: <span class="bool-val">false</span>,
         join_code: <span class="prelude-val">None</span>,
         ask_marketing_consent: <span class="bool-val">false</span>,
+        flagged_answers_threshold: <span class="prelude-val">Some</span>(<span class="number">3</span>),
     };
     <span class="kw">let </span>(course, _front_page, <span class="kw">_</span>, default_module) = library::content_management::create_new_course(
         <span class="kw-2">&amp;mut </span>conn,
@@ -9270,6 +9279,7 @@
         is_joinable_by_code_only: <span class="bool-val">false</span>,
         join_code: <span class="prelude-val">None</span>,
         ask_marketing_consent: <span class="bool-val">false</span>,
+        flagged_answers_threshold: <span class="prelude-val">Some</span>(<span class="number">3</span>),
     };
 
     <span class="kw">let </span>(course, _front_page, <span class="kw">_</span>, default_module) = library::content_management::create_new_course(

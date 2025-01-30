@@ -1226,6 +1226,8 @@
 <a href="#1226" id="1226">1226</a>
 <a href="#1227" id="1227">1227</a>
 <a href="#1228" id="1228">1228</a>
+<a href="#1229" id="1229">1229</a>
+<a href="#1230" id="1230">1230</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>serde_json::Value;
@@ -1301,7 +1303,8 @@ RETURNING id,
   is_unlisted,
   is_joinable_by_code_only,
   join_code,
-  ask_marketing_consent
+  ask_marketing_consent,
+  flagged_answers_threshold
     "</span>,
         new_course.name,
         new_course.organization_id,
@@ -2450,6 +2453,7 @@ AND deleted_at IS NULL;
                 is_joinable_by_code_only: <span class="bool-val">false</span>,
                 join_code: <span class="prelude-val">None</span>,
                 ask_marketing_consent: <span class="bool-val">false</span>,
+                flagged_answers_threshold: <span class="prelude-val">Some</span>(<span class="number">3</span>),
             }
         }
     }

@@ -636,6 +636,7 @@
 <a href="#636" id="636">636</a>
 <a href="#637" id="637">637</a>
 <a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>chrono::Duration;
 <span class="kw">use </span>std::collections::HashMap;
 
@@ -736,7 +737,8 @@ SELECT id,
   is_unlisted,
   is_joinable_by_code_only,
   join_code,
-  ask_marketing_consent
+  ask_marketing_consent,
+  flagged_answers_threshold
 FROM courses
   JOIN course_exams ON courses.id = course_exams.course_id
 WHERE course_exams.exam_id = $1

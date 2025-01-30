@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_exercise","get_peer_review_for_exercise","get_peer_reviews_received","post_submission","start_peer_or_self_review","submit_peer_or_self_review"],"struct":["CourseMaterialPeerOrSelfReviewDataWithToken"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_exercise","get_peer_review_for_exercise","get_peer_reviews_received","post_flag_answer_in_peer_review","post_submission","start_peer_or_self_review","submit_peer_or_self_review"],"struct":["CourseMaterialPeerOrSelfReviewDataWithToken"]};

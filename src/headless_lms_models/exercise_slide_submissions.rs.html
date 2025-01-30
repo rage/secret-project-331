@@ -932,6 +932,20 @@
 <a href="#932" id="932">932</a>
 <a href="#933" id="933">933</a>
 <a href="#934" id="934">934</a>
+<a href="#935" id="935">935</a>
+<a href="#936" id="936">936</a>
+<a href="#937" id="937">937</a>
+<a href="#938" id="938">938</a>
+<a href="#939" id="939">939</a>
+<a href="#940" id="940">940</a>
+<a href="#941" id="941">941</a>
+<a href="#942" id="942">942</a>
+<a href="#943" id="943">943</a>
+<a href="#944" id="944">944</a>
+<a href="#945" id="945">945</a>
+<a href="#946" id="946">946</a>
+<a href="#947" id="947">947</a>
+<a href="#948" id="948">948</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>chrono::NaiveDate;
@@ -993,6 +1007,7 @@
     <span class="kw">pub </span>exercise_id: Uuid,
     <span class="kw">pub </span>user_id: Uuid,
     <span class="kw">pub </span>user_points_update_strategy: UserPointsUpdateStrategy,
+    <span class="kw">pub </span>flag_count: <span class="prelude-ty">Option</span>&lt;i32&gt;,
 }
 
 <span class="kw">impl </span>ExerciseSlideSubmission {
@@ -1093,7 +1108,8 @@ RETURNING id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _"
+  user_points_update_strategy AS "user_points_update_strategy: _",
+  flag_count
         "#</span>,
         exercise_slide_submission.exercise_slide_id,
         exercise_slide_submission.course_id,
@@ -1137,7 +1153,8 @@ RETURNING id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _"
+  user_points_update_strategy AS "user_points_update_strategy: _",
+  flag_count
         "#</span>,
         id,
         exercise_slide_submission.exercise_slide_id,
@@ -1167,7 +1184,8 @@ course_instance_id,
 exam_id,
 exercise_id,
 user_id,
-user_points_update_strategy AS "user_points_update_strategy: _"
+user_points_update_strategy AS "user_points_update_strategy: _",
+flag_count
 FROM exercise_slide_submissions
 WHERE id = $1
   AND deleted_at IS NULL;
@@ -1192,23 +1210,27 @@ WHERE id = $1
         ExerciseSlideSubmission,
         <span class="string">r#"
 SELECT DISTINCT ON (user_id)
-  id,
-  created_at,
-  updated_at,
-  deleted_at,
-  exercise_slide_id,
-  course_id,
-  course_instance_id,
-  exam_id,
-  exercise_id,
-  user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _"
-FROM exercise_slide_submissions
-WHERE exercise_id = $1
-  AND id &lt;&gt; ALL($2)
-  AND user_id &lt;&gt; $3
-  AND deleted_at IS NULL
-ORDER BY user_id, created_at DESC
+  ess.id,
+  ess.created_at,
+  ess.updated_at,
+  ess.deleted_at,
+  ess.exercise_slide_id,
+  ess.course_id,
+  ess.course_instance_id,
+  ess.exam_id,
+  ess.exercise_id,
+  ess.user_id,
+  ess.user_points_update_strategy AS "user_points_update_strategy: _",
+  ess.flag_count
+FROM exercise_slide_submissions AS ess
+JOIN courses AS c
+  ON ess.course_id = c.id
+WHERE ess.exercise_id = $1
+  AND ess.id &lt;&gt; ALL($2)
+  AND ess.user_id &lt;&gt; $3
+  AND ess.deleted_at IS NULL
+  AND ess.flag_count &lt; c.flagged_answers_threshold
+ORDER BY ess.user_id, ess.created_at DESC
         "#</span>,
         exercise_id,
         excluded_ids,
@@ -1240,7 +1262,8 @@ SELECT id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _"
+  user_points_update_strategy AS "user_points_update_strategy: _",
+  flag_count
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
   AND deleted_at IS NULL
@@ -1274,7 +1297,8 @@ SELECT id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _"
+  user_points_update_strategy AS "user_points_update_strategy: _",
+  flag_count
 FROM exercise_slide_submissions
 WHERE user_id = $1
   AND (course_instance_id = $2 OR exam_id = $3)
@@ -1307,7 +1331,8 @@ SELECT id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _"
+  user_points_update_strategy AS "user_points_update_strategy: _",
+  flag_count
 FROM exercise_slide_submissions
 WHERE exercise_slide_id = $1
   AND user_id = $2
@@ -1388,7 +1413,8 @@ SELECT id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _"
+  user_points_update_strategy AS "user_points_update_strategy: _",
+  flag_count
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
   AND deleted_at IS NULL
@@ -1459,7 +1485,8 @@ AND deleted_at IS NULL
         exam_id,
         exercise_id,
         user_id,
-        user_points_update_strategy AS "user_points_update_strategy: _"
+        user_points_update_strategy AS "user_points_update_strategy: _",
+  flag_count
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
       AND deleted_at IS NULL
@@ -1669,7 +1696,8 @@ SELECT id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _"
+  user_points_update_strategy AS "user_points_update_strategy: _",
+  flag_count
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
   AND deleted_at IS NULL

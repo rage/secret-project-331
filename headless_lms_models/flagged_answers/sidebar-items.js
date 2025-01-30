@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ReportReason"],"fn":["get_flagged_answers_by_submission_id","get_flagged_answers_submission_ids_by_flaggers_id","increment_flag_count","insert_flagged_answer","insert_flagged_answer_and_move_to_manual_review_if_needed"],"struct":["FlaggedAnswer","NewFlaggedAnswer","NewFlaggedAnswerWithToken"]};

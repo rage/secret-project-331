@@ -35,6 +35,9 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
   const [draftStatus, setDraftStatus] = useState(course.is_draft)
   const [testStatus, setTestStatus] = useState(course.is_test_mode)
   const [isUnlisted, setIsUnlisted] = useState(course.is_unlisted)
+  const [peerReviewFlaggingThreshold, setPeerReviewFlaggingThreshold] = useState(
+    course.flagged_answers_threshold ?? 3,
+  )
   const [joinableByCodeOnlyStatus, setjoinableByCodeOnlyStatus] = useState(
     course.is_joinable_by_code_only,
   )
@@ -57,6 +60,7 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
         can_add_chatbot: canAddChatbot,
         is_joinable_by_code_only: joinableByCodeOnlyStatus,
         ask_marketing_consent: askMarketingConsent,
+        flagged_answers_threshold: peerReviewFlaggingThreshold,
       })
       onSubmitForm()
       onClose()
@@ -158,6 +162,17 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
               setAskMarketingConsent(!askMarketingConsent)
             }}
             checked={askMarketingConsent}
+          />
+        </FieldContainer>
+        <FieldContainer>
+          <TextField
+            type={"number"}
+            min={0}
+            value={peerReviewFlaggingThreshold}
+            label={t("label-threshold-to-move-flagged-answer-to-manual-review")}
+            onChangeByValue={(value) => {
+              setPeerReviewFlaggingThreshold(Number(value))
+            }}
           />
         </FieldContainer>
       </div>

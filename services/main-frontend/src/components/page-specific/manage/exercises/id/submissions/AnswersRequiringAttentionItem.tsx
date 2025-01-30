@@ -9,6 +9,7 @@ import { usePopper } from "react-popper"
 import { updateAnswerRequiringAttention } from "../../../../../../services/backend/answers-requiring-attention"
 import SubmissionIFrame from "../../../../submissions/id/SubmissionIFrame"
 
+import FlaggedPeerReviewAccordion from "./FlaggedPeerReviewAccordion"
 import PeerReviewAccordion from "./PeerOrSelfReviewAccordion"
 
 import {
@@ -432,11 +433,15 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
           peerOrSelfReviews={answerRequiringAttention.received_peer_or_self_reviews}
           title={t("received-reviews")}
         />
-      </div>
-      <div>
+
         <PeerReviewAccordion
           peerOrSelfReviews={answerRequiringAttention.given_peer_reviews}
           title={t("given-peer-reviews-to-other-students")}
+        />
+
+        <FlaggedPeerReviewAccordion
+          reports={answerRequiringAttention.received_peer_review_flagging_reports}
+          title={t("label-received-reports")}
         />
       </div>
     </>

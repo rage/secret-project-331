@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE courses\nSET deleted_at = now()\nWHERE id = $1\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent\n    ",
+  "query": "\nSELECT courses.id,\n  courses.name,\n  courses.created_at,\n  courses.updated_at,\n  courses.organization_id,\n  courses.deleted_at,\n  courses.slug,\n  courses.content_search_language::text,\n  courses.language_code,\n  courses.copied_from,\n  courses.course_language_group_id,\n  courses.description,\n  courses.is_draft,\n  courses.is_test_mode,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot,\n  courses.is_unlisted,\n  courses.is_joinable_by_code_only,\n  courses.join_code,\n  courses.ask_marketing_consent,\n  courses.flagged_answers_threshold\nFROM courses\nWHERE courses.organization_id = $1\n  AND (\n    (\n      courses.is_draft IS FALSE\n      AND courses.is_unlisted IS FALSE\n    )\n    OR EXISTS (\n      SELECT id\n      FROM roles\n      WHERE user_id = $2\n        AND (\n          course_id = courses.id\n          OR roles.organization_id = courses.organization_id\n          OR roles.is_global IS TRUE\n        )\n    )\n  )\n  AND courses.deleted_at IS NULL\nORDER BY courses.name\nLIMIT $3 OFFSET $4;\n",
   "describe": {
     "columns": [
       {
@@ -75,18 +75,18 @@
       },
       {
         "ordinal": 14,
+        "name": "base_module_completion_requires_n_submodule_completions",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 15,
         "name": "can_add_chatbot",
         "type_info": "Bool"
       },
       {
-        "ordinal": 15,
+        "ordinal": 16,
         "name": "is_unlisted",
         "type_info": "Bool"
-      },
-      {
-        "ordinal": 16,
-        "name": "base_module_completion_requires_n_submodule_completions",
-        "type_info": "Int4"
       },
       {
         "ordinal": 17,
@@ -102,10 +102,15 @@
         "ordinal": 19,
         "name": "ask_marketing_consent",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 20,
+        "name": "flagged_answers_threshold",
+        "type_info": "Int4"
       }
     ],
     "parameters": {
-      "Left": ["Uuid"]
+      "Left": ["Uuid", "Uuid", "Int8", "Int8"]
     },
     "nullable": [
       false,
@@ -127,8 +132,9 @@
       false,
       false,
       true,
+      false,
       false
     ]
   },
-  "hash": "9fbc4e80f16e7cab3c8928ed195aa6b786df2e76edf819f9decfa7c441591925"
+  "hash": "dfcbf0ef22c9cc2528c66b7fcd0c8189f6d504f3d81f12075b387a6128fb9d7b"
 }

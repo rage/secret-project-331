@@ -7,9 +7,11 @@ use crate::{
     },
     prelude::*,
 };
+use headless_lms_models::flagged_answers::FlaggedAnswer;
 use models::{
     exercise_task_submissions::PeerOrSelfReviewsReceived,
     exercises::CourseMaterialExercise,
+    flagged_answers::NewFlaggedAnswerWithToken,
     library::{
         grading::{StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult},
         peer_or_self_reviewing::{
@@ -363,6 +365,41 @@ async fn submit_peer_or_self_review(
 }
 
 /**
+ * POST `/api/v0/course-material/exercises/:exercise_id/flag-peer-review-answer - Post a report of an answer in peer review made by a student
+ */
+#[instrument(skip(pool))]
+async fn post_flag_answer_in_peer_review(
+    pool: web::Data<PgPool>,
+    payload: web::Json<NewFlaggedAnswerWithToken>,
+    user: AuthUser,
+    jwt_key: web::Data<JwtKey>,
+) -> ControllerResult<web::Json<FlaggedAnswer>> {
+    let mut conn = pool.acquire().await?;
+
+    let claim = GivePeerReviewClaim::validate(&payload.token, &jwt_key)?;
+    if claim.exercise_slide_submission_id != payload.submission_id
+        || claim.peer_or_self_review_config_id != payload.peer_or_self_review_config_id
+    {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "You are not allowed to report this answer.".to_string(),
+            None,
+        ));
+    }
+
+    let insert_result =
+        models::flagged_answers::insert_flagged_answer_and_move_to_manual_review_if_needed(
+            &mut conn,
+            payload.into_inner(),
+            user.id,
+        )
+        .await?;
+
+    let token = skip_authorize();
+    token.authorized_ok(web::Json(insert_result))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -390,5 +427,8 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{exercise_id}/submissions",
             web::post().to(post_submission),
+        ).route(
+            "/{exercise_id}/flag-peer-review-answer",
+            web::post().to(post_flag_answer_in_peer_review),
         );
 }

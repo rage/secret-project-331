@@ -73,7 +73,8 @@ RETURNING id,
   is_unlisted,
   is_joinable_by_code_only,
   join_code,
-  ask_marketing_consent
+  ask_marketing_consent,
+  flagged_answers_threshold
     ",
         new_course.name,
         new_course.organization_id,
@@ -1222,6 +1223,7 @@ mod tests {
                 is_joinable_by_code_only: false,
                 join_code: None,
                 ask_marketing_consent: false,
+                flagged_answers_threshold: Some(3),
             }
         }
     }

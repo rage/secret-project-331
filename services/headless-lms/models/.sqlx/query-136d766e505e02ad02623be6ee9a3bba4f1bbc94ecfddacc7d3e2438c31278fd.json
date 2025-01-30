@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO exercise_slide_submissions (\n    id,\n    exercise_slide_id,\n    course_id,\n    course_instance_id,\n    exam_id,\n    exercise_id,\n    user_id,\n    user_points_update_strategy\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8)\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  exercise_slide_id,\n  course_id,\n  course_instance_id,\n  exam_id,\n  exercise_id,\n  user_id,\n  user_points_update_strategy AS \"user_points_update_strategy: _\"\n        ",
+  "query": "\nINSERT INTO exercise_slide_submissions (\n    exercise_slide_id,\n    course_id,\n    course_instance_id,\n    exam_id,\n    exercise_id,\n    user_id,\n    user_points_update_strategy\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  exercise_slide_id,\n  course_id,\n  course_instance_id,\n  exam_id,\n  exercise_id,\n  user_id,\n  user_points_update_strategy AS \"user_points_update_strategy: _\",\n  flag_count\n        ",
   "describe": {
     "columns": [
       {
@@ -67,11 +67,15 @@
             }
           }
         }
+      },
+      {
+        "ordinal": 11,
+        "name": "flag_count",
+        "type_info": "Int4"
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid",
         "Uuid",
         "Uuid",
         "Uuid",
@@ -91,7 +95,7 @@
         }
       ]
     },
-    "nullable": [false, false, false, true, false, true, true, true, false, false, false]
+    "nullable": [false, false, false, true, false, true, true, true, false, false, false, false]
   },
-  "hash": "6abae7185ea5e131996a7792bce21e0e1f30b0bce4bae05061259a63cfc92a01"
+  "hash": "136d766e505e02ad02623be6ee9a3bba4f1bbc94ecfddacc7d3e2438c31278fd"
 }

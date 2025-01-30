@@ -14,6 +14,7 @@ use crate::{
     exercise_task_submissions::{self, ExerciseTaskSubmission},
     exercise_tasks::{self, CourseMaterialExerciseTask, ExerciseTask},
     exercises::{self, Exercise, ExerciseStatus, GradingProgress},
+    flagged_answers::{self, FlaggedAnswer},
     peer_or_self_review_configs::PeerReviewProcessingStrategy,
     peer_or_self_review_question_submissions::{
         self, PeerOrSelfReviewQuestionSubmission, PeerReviewWithQuestionsAndAnswers,
@@ -526,6 +527,7 @@ pub struct AnswerRequiringAttentionWithTasks {
     pub tasks: Vec<CourseMaterialExerciseTask>,
     pub given_peer_reviews: Vec<PeerReviewWithQuestionsAndAnswers>,
     pub received_peer_or_self_reviews: Vec<PeerReviewWithQuestionsAndAnswers>,
+    pub received_peer_review_flagging_reports: Vec<FlaggedAnswer>,
 }
 
 /// Gets submissions that require input from the teacher to continue processing.
@@ -571,6 +573,9 @@ pub async fn get_paginated_answers_requiring_attention_for_exercise(
                 answer.submission_id,
             )
             .await?;
+        let received_peer_review_flagging_reports: Vec<FlaggedAnswer> =
+            flagged_answers::get_flagged_answers_by_submission_id(conn, answer.submission_id)
+                .await?;
         let new_answer = AnswerRequiringAttentionWithTasks {
             id: answer.id,
             user_id: answer.user_id,
@@ -585,6 +590,7 @@ pub async fn get_paginated_answers_requiring_attention_for_exercise(
             tasks,
             given_peer_reviews,
             received_peer_or_self_reviews,
+            received_peer_review_flagging_reports,
         };
         answers.push(new_answer);
     }

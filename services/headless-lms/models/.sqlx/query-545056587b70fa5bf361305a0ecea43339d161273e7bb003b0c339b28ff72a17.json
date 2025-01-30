@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE exercise_slide_submissions\n        SET flag_count = COALESCE(flag_count, 0) + 1\n        WHERE id = $1\n        RETURNING flag_count\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "flag_count",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false]
+  },
+  "hash": "545056587b70fa5bf361305a0ecea43339d161273e7bb003b0c339b28ff72a17"
+}

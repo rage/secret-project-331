@@ -1,0 +1,69 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            id,\n            submission_id,\n            flagged_user,\n            flagged_by,\n            reason AS \"reason: _\",\n            description,\n            created_at,\n            updated_at,\n            deleted_at\n        FROM flagged_answers\n        WHERE submission_id = $1\n          AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "submission_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "flagged_user",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "flagged_by",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "reason: _",
+        "type_info": {
+          "Custom": {
+            "name": "report_reason",
+            "kind": {
+              "Enum": [
+                "flagging-reason-spam",
+                "flagging-reason-harmful-content",
+                "flagging-reason-ai-generated"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false, false, false, false, false, true, false, false, true]
+  },
+  "hash": "d6df0b2e56bcd1e7729c474cd06c171babc496a28ce6ceb1f54fc5e2e1933d00"
+}

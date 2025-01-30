@@ -49,6 +49,7 @@ pub struct Course {
     pub is_joinable_by_code_only: bool,
     pub join_code: Option<String>,
     pub ask_marketing_consent: bool,
+    pub flagged_answers_threshold: Option<i32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -82,6 +83,7 @@ pub struct NewCourse {
     pub is_joinable_by_code_only: bool,
     pub join_code: Option<String>,
     pub ask_marketing_consent: bool,
+    pub flagged_answers_threshold: Option<i32>,
 }
 
 pub async fn insert(
@@ -169,7 +171,8 @@ SELECT id,
   is_unlisted,
   is_joinable_by_code_only,
   join_code,
-  ask_marketing_consent
+  ask_marketing_consent,
+  flagged_answers_threshold
 FROM courses
 WHERE deleted_at IS NULL;
 "#
@@ -205,7 +208,8 @@ SELECT id,
   can_add_chatbot,
   is_joinable_by_code_only,
   join_code,
-  ask_marketing_consent
+  ask_marketing_consent,
+  flagged_answers_threshold
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND id IN (
@@ -248,7 +252,8 @@ SELECT id,
   base_module_completion_requires_n_submodule_completions,
   is_joinable_by_code_only,
   join_code,
-  ask_marketing_consent
+  ask_marketing_consent,
+  flagged_answers_threshold
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND (
@@ -303,7 +308,8 @@ SELECT id,
   is_unlisted,
   is_joinable_by_code_only,
   join_code,
-  ask_marketing_consent
+  ask_marketing_consent,
+  flagged_answers_threshold
 FROM courses
 WHERE course_language_group_id = $1
 AND deleted_at IS NULL
@@ -343,7 +349,8 @@ SELECT
     c.is_unlisted,
     c.is_joinable_by_code_only,
     c.join_code,
-  c.ask_marketing_consent
+    c.ask_marketing_consent,
+    c.flagged_answers_threshold
 FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
 WHERE
@@ -408,7 +415,8 @@ SELECT id,
   base_module_completion_requires_n_submodule_completions,
   is_joinable_by_code_only,
   join_code,
-  ask_marketing_consent
+  ask_marketing_consent,
+  flagged_answers_threshold
 FROM courses
 WHERE id = $1;
     "#,
@@ -515,7 +523,8 @@ SELECT courses.id,
   courses.is_unlisted,
   courses.is_joinable_by_code_only,
   courses.join_code,
-  courses.ask_marketing_consent
+  courses.ask_marketing_consent,
+  courses.flagged_answers_threshold
 FROM courses
 WHERE courses.organization_id = $1
   AND (
@@ -580,6 +589,7 @@ pub struct CourseUpdate {
     pub is_unlisted: bool,
     pub is_joinable_by_code_only: bool,
     pub ask_marketing_consent: bool,
+    pub flagged_answers_threshold: i32,
 }
 
 pub async fn update_course(
@@ -598,8 +608,9 @@ SET name = $1,
   can_add_chatbot = $5,
   is_unlisted = $6,
   is_joinable_by_code_only = $7,
-  ask_marketing_consent = $8
-WHERE id = $9
+  ask_marketing_consent = $8,
+  flagged_answers_threshold = $9
+WHERE id = $10
 RETURNING id,
   name,
   created_at,
@@ -619,7 +630,8 @@ RETURNING id,
   base_module_completion_requires_n_submodule_completions,
   is_joinable_by_code_only,
   join_code,
-  ask_marketing_consent
+  ask_marketing_consent,
+  flagged_answers_threshold
     "#,
         course_update.name,
         course_update.description,
@@ -629,6 +641,7 @@ RETURNING id,
         course_update.is_unlisted,
         course_update.is_joinable_by_code_only,
         course_update.ask_marketing_consent,
+        course_update.flagged_answers_threshold,
         course_id
     )
     .fetch_one(conn)
@@ -682,7 +695,8 @@ RETURNING id,
   base_module_completion_requires_n_submodule_completions,
   is_joinable_by_code_only,
   join_code,
-  ask_marketing_consent
+  ask_marketing_consent,
+  flagged_answers_threshold
     "#,
         course_id
     )
@@ -714,7 +728,8 @@ SELECT id,
   base_module_completion_requires_n_submodule_completions,
   is_joinable_by_code_only,
   join_code,
-  ask_marketing_consent
+  ask_marketing_consent,
+  flagged_answers_threshold
 FROM courses
 WHERE slug = $1
   AND deleted_at IS NULL
@@ -805,7 +820,8 @@ SELECT id,
   base_module_completion_requires_n_submodule_completions,
   is_joinable_by_code_only,
   join_code,
-  ask_marketing_consent
+  ask_marketing_consent,
+  flagged_answers_threshold
 FROM courses
 WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
   ",
@@ -861,7 +877,8 @@ SELECT id,
   base_module_completion_requires_n_submodule_completions,
   is_joinable_by_code_only,
   join_code,
-  ask_marketing_consent
+  ask_marketing_consent,
+  flagged_answers_threshold
 FROM courses
 WHERE join_code = $1
   AND deleted_at IS NULL;
@@ -977,6 +994,7 @@ mod test {
                 is_joinable_by_code_only: false,
                 join_code: None,
                 ask_marketing_consent: false,
+                flagged_answers_threshold: Some(3),
             }
         }
     }

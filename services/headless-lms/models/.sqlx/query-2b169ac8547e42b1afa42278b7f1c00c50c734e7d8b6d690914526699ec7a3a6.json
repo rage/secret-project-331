@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  slug,\n  courses.created_at,\n  courses.updated_at,\n  courses.deleted_at,\n  name,\n  description,\n  organization_id,\n  language_code,\n  copied_from,\n  content_search_language::text,\n  course_language_group_id,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot,\n  is_unlisted,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent\nFROM courses\n  JOIN course_exams ON courses.id = course_exams.course_id\nWHERE course_exams.exam_id = $1\n  AND courses.deleted_at IS NULL\n  AND course_exams.deleted_at IS NULL\n",
+  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold\nFROM courses\nWHERE join_code = $1\n  AND deleted_at IS NULL;\n    ",
   "describe": {
     "columns": [
       {
@@ -10,7 +10,7 @@
       },
       {
         "ordinal": 1,
-        "name": "slug",
+        "name": "name",
         "type_info": "Varchar"
       },
       {
@@ -25,23 +25,23 @@
       },
       {
         "ordinal": 4,
+        "name": "organization_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
         "name": "deleted_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 5,
-        "name": "name",
+        "ordinal": 6,
+        "name": "slug",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 6,
-        "name": "description",
-        "type_info": "Text"
-      },
-      {
         "ordinal": 7,
-        "name": "organization_id",
-        "type_info": "Uuid"
+        "name": "content_search_language",
+        "type_info": "Text"
       },
       {
         "ordinal": 8,
@@ -55,13 +55,13 @@
       },
       {
         "ordinal": 10,
-        "name": "content_search_language",
-        "type_info": "Text"
+        "name": "course_language_group_id",
+        "type_info": "Uuid"
       },
       {
         "ordinal": 11,
-        "name": "course_language_group_id",
-        "type_info": "Uuid"
+        "name": "description",
+        "type_info": "Text"
       },
       {
         "ordinal": 12,
@@ -75,18 +75,18 @@
       },
       {
         "ordinal": 14,
-        "name": "base_module_completion_requires_n_submodule_completions",
-        "type_info": "Int4"
-      },
-      {
-        "ordinal": 15,
         "name": "can_add_chatbot",
         "type_info": "Bool"
       },
       {
-        "ordinal": 16,
+        "ordinal": 15,
         "name": "is_unlisted",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 16,
+        "name": "base_module_completion_requires_n_submodule_completions",
+        "type_info": "Int4"
       },
       {
         "ordinal": 17,
@@ -102,24 +102,29 @@
         "ordinal": 19,
         "name": "ask_marketing_consent",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 20,
+        "name": "flagged_answers_threshold",
+        "type_info": "Int4"
       }
     ],
     "parameters": {
-      "Left": ["Uuid"]
+      "Left": ["Text"]
     },
     "nullable": [
       false,
       false,
       false,
       false,
-      true,
       false,
       true,
       false,
-      false,
-      true,
       null,
       false,
+      true,
+      false,
+      true,
       false,
       false,
       false,
@@ -127,8 +132,9 @@
       false,
       false,
       true,
+      false,
       false
     ]
   },
-  "hash": "668b7cb6022b915f1838997679cc60864b00491bb34f1559377a36cee1a6485c"
+  "hash": "2b169ac8547e42b1afa42278b7f1c00c50c734e7d8b6d690914526699ec7a3a6"
 }

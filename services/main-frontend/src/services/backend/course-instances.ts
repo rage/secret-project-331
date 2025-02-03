@@ -14,7 +14,7 @@ import {
   ManualCompletionPreview,
   Points,
   TeacherManualCompletionRequest,
-  UserCourseInstanceProgress,
+  UserCourseProgress,
 } from "@/shared-module/common/bindings"
 import {
   isCertificateConfigurationAndRequirements,
@@ -25,7 +25,7 @@ import {
   isExerciseStatusSummaryForUser,
   isManualCompletionPreview,
   isPoints,
-  isUserCourseInstanceProgress,
+  isUserCourseProgress,
 } from "@/shared-module/common/bindings.guard"
 import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
 
@@ -45,12 +45,8 @@ export const postNewEmailTemplateForCourseInstance = async (
   return validateResponse(response, isEmailTemplate)
 }
 
-export const postReprocessModuleCompletions = async (
-  courseInstanceId: string,
-): Promise<boolean> => {
-  const res = await mainFrontendClient.post(
-    `/course-instances/${courseInstanceId}/reprocess-completions`,
-  )
+export const postReprocessModuleCompletions = async (courseId: string): Promise<boolean> => {
+  const res = await mainFrontendClient.post(`/courses/${courseId}/reprocess-completions`)
   return validateResponse(res, isBoolean)
 }
 
@@ -120,11 +116,11 @@ export const getAllCourseModuleCompletionsForUserAndCourseInstance = async (
 export const getUserProgressForCourseInstance = async (
   courseInstanceId: string,
   userId: string,
-): Promise<UserCourseInstanceProgress[]> => {
+): Promise<UserCourseProgress[]> => {
   const response = await mainFrontendClient.get(
     `/course-instances/${courseInstanceId}/progress/${userId}`,
   )
-  return validateResponse(response, isArray(isUserCourseInstanceProgress))
+  return validateResponse(response, isArray(isUserCourseProgress))
 }
 
 export const editCourseInstance = async (

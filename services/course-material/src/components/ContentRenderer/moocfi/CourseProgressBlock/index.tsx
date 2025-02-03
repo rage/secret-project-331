@@ -43,7 +43,7 @@ const CourseProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<u
       )}
       {getUserCourseProgress.isPending && <Spinner variant={"medium"} />}
       {getUserCourseProgress.isSuccess && (
-        <CourseProgress userCourseInstanceProgress={getUserCourseProgress.data} />
+        <CourseProgress userCourseProgress={getUserCourseProgress.data} />
       )}
     </>
   )

@@ -7,11 +7,11 @@ import ColorsIdentifier from "./ColorsIdentifier"
 import CompletionRequirementsTabulation from "./CompletionRequirementsTabulation"
 import TempAccordionItem from "./TempAccordionItem"
 
-import { UserCourseInstanceProgress } from "@/shared-module/common/bindings"
+import { UserCourseProgress } from "@/shared-module/common/bindings"
 import Progress from "@/shared-module/common/components/CourseProgress"
 
 export interface CourseProgressProps {
-  userCourseInstanceProgress: UserCourseInstanceProgress[]
+  userCourseProgress: UserCourseProgress[]
 }
 
 const Wrapper = styled.div`
@@ -26,7 +26,7 @@ const TotalWrapper = styled.div`
 `
 
 const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = ({
-  userCourseInstanceProgress,
+  userCourseProgress,
 }) => {
   const [openedModule, setOpenedModule] = useState(0)
   const { t } = useTranslation()
@@ -49,7 +49,7 @@ const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = (
       >
         {t("track-your-progress")}
       </h2>
-      {userCourseInstanceProgress
+      {userCourseProgress
         .sort((a, b) => a.course_module_order_number - b.course_module_order_number)
         .map((courseModuleProgress) => (
           <TempAccordionItem

@@ -101,13 +101,13 @@ async fn update_answer_requiring_attention(
         user_exercise_state_updater::update_user_exercise_state(&mut tx, user_exercise_state_id)
             .await?;
 
-    if let Some(course_instance_id) = new_user_exercise_state.course_instance_id {
+    if let Some(course_id) = new_user_exercise_state.course_id {
         // Since the teacher just reviewed the submission we should mark possible peer review queue entries so that they won't be given to others to review. Receiving peer reviews for this answer now would not make much sense.
         models::peer_review_queue_entries::remove_queue_entries_for_unusual_reason(
             &mut tx,
             new_user_exercise_state.user_id,
             new_user_exercise_state.exercise_id,
-            course_instance_id,
+            course_id,
         )
         .await?;
     }

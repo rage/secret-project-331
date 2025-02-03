@@ -8,16 +8,16 @@ import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRende
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 interface ModuleCompletionReprocessButtonProps {
-  courseInstanceId: string
+  courseId: string
 }
 
 const ModuleCompletionReprocessButton: React.FC<
   React.PropsWithChildren<ModuleCompletionReprocessButtonProps>
-> = ({ courseInstanceId }) => {
+> = ({ courseId }) => {
   const { t } = useTranslation()
   const postReprocessCompletionsMutation = useToastMutation(
     async () => {
-      return postReprocessModuleCompletions(courseInstanceId)
+      return postReprocessModuleCompletions(courseId)
     },
     { notify: true, method: "POST" },
     // { onError: setMutationError },

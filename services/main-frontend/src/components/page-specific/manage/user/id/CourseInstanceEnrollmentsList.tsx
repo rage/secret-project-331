@@ -43,7 +43,7 @@ const CourseInstanceEnrollmentsList: React.FC<CourseInstanceEnrollmentsListProps
         )
         const courseModuleCompletions =
           courseInstanceEnrollmentsQuery.data.course_module_completions.filter(
-            (cmc) => cmc.course_instance_id === enrollment.course_instance_id,
+            (cmc) => cmc.course_id === enrollment.course_id,
           )
         const numDistinctModules = new Set(
           courseModuleCompletions.map((cmc) => cmc.course_module_id),

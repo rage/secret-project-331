@@ -70,7 +70,7 @@ where
     let headers = IntoIterator::into_iter(["user_id".to_string()])
         .chain(chapters.into_iter().map(|c| c.chapter_number.to_string()));
 
-    let mut stream = user_exercise_states::stream_course_instance_points(conn, course_instance_id);
+    let mut stream = user_exercise_states::stream_course_points(conn, course_instance.course_id);
 
     let writer = CsvWriter::new_with_initialized_headers(writer, headers).await?;
     while let Some(next) = stream.try_next().await? {

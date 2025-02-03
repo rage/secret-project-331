@@ -28,13 +28,19 @@ use anyhow::Result;
 use headless_lms_utils::file_store::{
     google_cloud_file_store::GoogleCloudFileStore, local_file_store::LocalFileStore, FileStore,
 };
-use oauth2::basic::BasicClient;
+use oauth2::{EndpointNotSet, EndpointSet};
 use std::{env, sync::Arc};
 use tracing_error::ErrorLayer;
 use tracing_log::LogTracer;
 use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
 
-pub type OAuthClient = BasicClient;
+pub type OAuthClient = oauth2::basic::BasicClient<
+    EndpointSet,
+    EndpointNotSet,
+    EndpointNotSet,
+    EndpointNotSet,
+    EndpointSet,
+>;
 
 /**
 Sets up tokio tracing. Also makes sure that log statements from libraries respect the log level

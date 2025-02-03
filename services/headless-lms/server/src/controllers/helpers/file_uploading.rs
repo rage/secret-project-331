@@ -16,7 +16,7 @@ use models::exercise_tasks::ExerciseTask;
 use models::exercises::Exercise;
 use models::organizations::DatabaseOrganization;
 use rand::distr::Alphanumeric;
-use rand::distr::DistString;
+use rand::distr::SampleString;
 use std::{collections::HashMap, path::Path};
 use std::{path::PathBuf, sync::Arc};
 

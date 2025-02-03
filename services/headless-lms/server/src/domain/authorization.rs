@@ -12,12 +12,13 @@ use futures::Future;
 use headless_lms_models::{self as models, roles::UserRole, users::User};
 use models::{roles::Role, CourseOrExamId};
 use oauth2::basic::BasicTokenType;
-use oauth2::reqwest::AsyncHttpClientError;
 use oauth2::EmptyExtraTokenFields;
+use oauth2::HttpClientError;
 use oauth2::ResourceOwnerPassword;
 use oauth2::ResourceOwnerUsername;
 use oauth2::StandardTokenResponse;
 use oauth2::TokenResponse;
+use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sqlx::PgConnection;
@@ -30,6 +31,15 @@ use uuid::Uuid;
 const SESSION_KEY: &str = "user";
 
 const MOOCFI_GRAPHQL_URL: &str = "https://www.mooc.fi/api";
+
+/// Own http client for OAuth2 requests because we want to be sure we use the same one as is used in the oauth2 crate.
+static OAUTH_HTTP_CLIENT: Lazy<oauth2::reqwest::Client> = Lazy::new(|| {
+    oauth2::reqwest::Client::builder()
+        .use_rustls_tls()
+        .https_only(true)
+        .build()
+        .expect("Failed to build Client")
+});
 
 // at least one field should be kept private to prevent initializing the struct outside of this module;
 // this way FromRequest is the only way to create an AuthUser
@@ -726,7 +736,7 @@ pub async fn exchange_password_with_moocfi(
             &ResourceOwnerUsername::new(email),
             &ResourceOwnerPassword::new(password),
         )
-        .request_async(async_http_client_with_headers)
+        .request_async(&async_http_client_with_headers)
         .await?;
     Ok(token)
 }
@@ -946,18 +956,42 @@ pub async fn authenticate_test_token(
  * does not rate limit auth requests from backend
  */
 async fn async_http_client_with_headers(
-    mut request: oauth2::HttpRequest,
-) -> Result<oauth2::HttpResponse, AsyncHttpClientError> {
+    mut oauth_request: oauth2::HttpRequest,
+) -> Result<oauth2::HttpResponse, HttpClientError<reqwest::Error>> {
     let ratelimit_api_key = std::env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
         .expect("RATELIMIT_PROTECTION_SAFE_API_KEY must be defined");
-    request.headers.append(
+
+    oauth_request.headers_mut().append(
         "RATELIMIT-PROTECTION-SAFE-API-KEY",
-        ratelimit_api_key.parse().map_err(|_err| {
-            AsyncHttpClientError::Other("Invalid RATELIMIT API key.".to_string())
-        })?,
+        ratelimit_api_key
+            .parse()
+            .map_err(|_err| HttpClientError::Other("Invalid RATELIMIT API key.".to_string()))?,
     );
-    let result = oauth2::reqwest::async_http_client(request).await?;
-    Ok(result)
+
+    let reqwest_request = oauth_request.try_into().map_err(|_| {
+        HttpClientError::Other("Failed to convert OAuth request to reqwest request".to_string())
+    })?;
+
+    let response = OAUTH_HTTP_CLIENT
+        .execute(reqwest_request)
+        .await
+        .map_err(|e| HttpClientError::Other(format!("Failed to execute request: {}", e)))?;
+
+    let http_response_with_body: oauth2::http::Response<reqwest::Body> =
+        response.try_into().map_err(|_| {
+            HttpClientError::Other(
+                "Failed to convert reqwest response to http response".to_string(),
+            )
+        })?;
+
+    let (parts, body) = http_response_with_body.into_parts();
+    let body_bytes = body
+        .as_bytes()
+        .ok_or_else(|| HttpClientError::Other("Failed to get response body bytes".to_string()))?
+        .to_vec();
+
+    let oauth_response = oauth2::http::Response::from_parts(parts, body_bytes);
+    Ok(oauth_response)
 }
 
 #[cfg(test)]

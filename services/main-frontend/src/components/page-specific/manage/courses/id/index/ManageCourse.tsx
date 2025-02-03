@@ -19,7 +19,7 @@ import { Course } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
+import { baseTheme, headingFont, primaryFont, typography } from "@/shared-module/common/styles"
 import { courseMaterialFrontPageHref } from "@/shared-module/common/utils/cross-routing"
 
 interface Props {
@@ -100,6 +100,20 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           margin-bottom: 1rem;
         `}
       >
+        <p
+          className={css`
+            font-size: 1.2rem;
+            color: ${baseTheme.colors.gray[700]};
+            font-family: ${primaryFont};
+            font-weight: 450;
+            margin-top: 0.4rem;
+            margin-bottom: 0.6rem;
+            display: inline-block;
+          `}
+        >
+          {t("wiki-link-text")}
+          <a href="https://github.com/rage/secret-project-331/wiki"> {t("documentation")}</a>.
+        </p>
         <h1
           className={css`
             font-size: ${typography.h4};

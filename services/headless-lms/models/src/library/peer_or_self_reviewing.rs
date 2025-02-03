@@ -406,7 +406,7 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
         return Ok(data)
     }
 
-    let excluded_exercise_slide_submission_ids =
+    let mut excluded_exercise_slide_submission_ids =
         peer_or_self_review_submissions::get_users_submission_ids_for_exercise_and_course_instance(
             conn,
             reviewer_user_exercise_state.user_id,
@@ -414,6 +414,14 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
             course_id,
         )
         .await?;
+    let reported_submissions =
+        crate::flagged_answers::get_flagged_answers_submission_ids_by_flaggers_id(
+            conn,
+            reviewer_user_exercise_state.user_id,
+        )
+        .await?;
+    excluded_exercise_slide_submission_ids.extend(reported_submissions);
+
     let candidate_submission_id = try_to_select_peer_review_candidate_from_queue(
         conn,
         reviewer_user_exercise_state.exercise_id,
@@ -497,17 +505,21 @@ async fn try_to_select_peer_review_candidate_from_queue(
     excluded_user_id: Uuid,
     excluded_exercise_slide_submission_ids: &[Uuid],
 ) -> ModelResult<Option<ExerciseSlideSubmission>> {
+    const MAX_ATTEMPTS: u32 = 10;
+    let mut attempts = 0;
+
     // Loop until we either find a non deleted submission or we find no submission at all
-    loop {
-        let exercise_slide_submission_id = try_to_select_peer_review_candidate_from_queue_impl(
+    while attempts < MAX_ATTEMPTS {
+        attempts += 1;
+        let maybe_submission = try_to_select_peer_review_candidate_from_queue_impl(
             conn,
             exercise_id,
             excluded_user_id,
             excluded_exercise_slide_submission_ids,
         )
         .await?;
-        // Let's make sure we don't return peer review queue entries for exercise slide submissions that are deleted.
-        if let Some(ess_id) = exercise_slide_submission_id {
+
+        if let Some((ess_id, selected_submission_needs_peer_review)) = maybe_submission {
             let ess = exercise_slide_submissions::get_by_id(conn, ess_id)
                 .await
                 .optional()?;
@@ -520,12 +532,20 @@ async fn try_to_select_peer_review_candidate_from_queue(
                 if ess.deleted_at.is_none() {
                     // Double check that the submission has not been removed from the queue.
                     let peer_review_queue_entry = peer_review_queue_entries::get_by_receiving_peer_reviews_exercise_slide_submission_id(conn, ess_id).await?;
+                    // If we have selected a submission outside of the peer review queue, there is no need for double checking.
+                    if !selected_submission_needs_peer_review {
+                        return Ok(Some(ess));
+                    }
                     if peer_review_queue_entry.deleted_at.is_none()
                         && !peer_review_queue_entry.removed_from_queue_for_unusual_reason
                     {
                         return Ok(Some(ess));
                     } else {
-                        warn!(exercise_slide_submission_id = %ess_id, "Selected exercise slide submission that was removed from the peer review queue. Trying again.");
+                        if attempts == MAX_ATTEMPTS {
+                            warn!(exercise_slide_submission_id = %ess_id, deleted_at = ?peer_review_queue_entry.deleted_at, removed_from_queue = %peer_review_queue_entry.removed_from_queue_for_unusual_reason, "Max attempts reached, returning submission despite being removed from queue");
+                            return Ok(Some(ess));
+                        }
+                        warn!(exercise_slide_submission_id = %ess_id, deleted_at = ?peer_review_queue_entry.deleted_at, removed_from_queue = %peer_review_queue_entry.removed_from_queue_for_unusual_reason, "Selected exercise slide submission that was removed from the peer review queue. Trying again.");
                         continue;
                     }
                 }
@@ -534,8 +554,8 @@ async fn try_to_select_peer_review_candidate_from_queue(
                 // the submission was deleted the peer review queue entry should have been deleted too. We can try to fix the situation somehow.
                 warn!(exercise_slide_submission_id = %ess_id, "Selected exercise slide submission that was deleted. The peer review queue entry should've been deleted too! Deleting it now.");
                 peer_review_queue_entries::delete_by_receiving_peer_reviews_exercise_slide_submission_id(
-                conn, ess_id,
-            ).await?;
+                    conn, ess_id,
+                ).await?;
                 info!("Deleting done, trying to select a new peer review candidate");
             }
         } else {
@@ -543,14 +563,18 @@ async fn try_to_select_peer_review_candidate_from_queue(
             return Ok(None);
         }
     }
+
+    warn!("Maximum attempts ({MAX_ATTEMPTS}) reached without finding a valid submission");
+    Ok(None)
 }
 
+/// Returns a tuple of the exercise slide submission id and a boolean indicating if the submission needs peer review.
 async fn try_to_select_peer_review_candidate_from_queue_impl(
     conn: &mut PgConnection,
     exercise_id: Uuid,
     excluded_user_id: Uuid,
     excluded_exercise_slide_submission_ids: &[Uuid],
-) -> ModelResult<Option<Uuid>> {
+) -> ModelResult<Option<(Uuid, bool)>> {
     let mut rng = thread_rng();
     // Try to get a candidate that needs reviews from queue.
     let mut candidates = peer_review_queue_entries::get_many_that_need_peer_reviews_by_exercise_id_and_review_priority(conn,
@@ -561,9 +585,10 @@ async fn try_to_select_peer_review_candidate_from_queue_impl(
     ).await?;
     candidates.shuffle(&mut rng);
     match candidates.into_iter().next() {
-        Some(candidate) => Ok(Some(
+        Some(candidate) => Ok(Some((
             candidate.receiving_peer_reviews_exercise_slide_submission_id,
-        )),
+            true,
+        ))),
         None => {
             // Try again for any queue entry.
             let mut candidates = peer_review_queue_entries::get_any_including_not_needing_review(
@@ -575,10 +600,12 @@ async fn try_to_select_peer_review_candidate_from_queue_impl(
             )
             .await?;
             candidates.shuffle(&mut rng);
-            Ok(candidates
-                .into_iter()
-                .next()
-                .map(|entry| entry.receiving_peer_reviews_exercise_slide_submission_id))
+            Ok(candidates.into_iter().next().map(|entry| {
+                (
+                    entry.receiving_peer_reviews_exercise_slide_submission_id,
+                    false,
+                )
+            }))
         }
     }
 }

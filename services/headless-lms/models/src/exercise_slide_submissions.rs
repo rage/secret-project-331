@@ -55,6 +55,7 @@ pub struct ExerciseSlideSubmission {
     pub exercise_id: Uuid,
     pub user_id: Uuid,
     pub user_points_update_strategy: UserPointsUpdateStrategy,
+    pub flag_count: Option<i32>,
 }
 
 impl ExerciseSlideSubmission {
@@ -153,7 +154,8 @@ RETURNING id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _"
+  user_points_update_strategy AS "user_points_update_strategy: _",
+  flag_count
         "#,
         exercise_slide_submission.exercise_slide_id,
         exercise_slide_submission.course_id,
@@ -194,7 +196,8 @@ RETURNING id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _"
+  user_points_update_strategy AS "user_points_update_strategy: _",
+  flag_count
         "#,
         id,
         exercise_slide_submission.exercise_slide_id,
@@ -222,7 +225,8 @@ course_id,
 exam_id,
 exercise_id,
 user_id,
-user_points_update_strategy AS "user_points_update_strategy: _"
+user_points_update_strategy AS "user_points_update_strategy: _",
+flag_count
 FROM exercise_slide_submissions
 WHERE id = $1
   AND deleted_at IS NULL;
@@ -247,22 +251,26 @@ pub async fn try_to_get_random_filtered_by_user_and_submissions(
         ExerciseSlideSubmission,
         r#"
 SELECT DISTINCT ON (user_id)
-  id,
-  created_at,
-  updated_at,
-  deleted_at,
-  exercise_slide_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _"
-FROM exercise_slide_submissions
-WHERE exercise_id = $1
-  AND id <> ALL($2)
-  AND user_id <> $3
-  AND deleted_at IS NULL
-ORDER BY user_id, created_at DESC
+  ess.id,
+  ess.created_at,
+  ess.updated_at,
+  ess.deleted_at,
+  ess.exercise_slide_id,
+  ess.course_id,
+  ess.exam_id,
+  ess.exercise_id,
+  ess.user_id,
+  ess.user_points_update_strategy AS "user_points_update_strategy: _",
+  ess.flag_count
+FROM exercise_slide_submissions AS ess
+JOIN courses AS c
+  ON ess.course_id = c.id
+WHERE ess.exercise_id = $1
+  AND ess.id <> ALL($2)
+  AND ess.user_id <> $3
+  AND ess.deleted_at IS NULL
+  AND ess.flag_count < c.flagged_answers_threshold
+ORDER BY ess.user_id, ess.created_at DESC
         "#,
         exercise_id,
         excluded_ids,
@@ -293,7 +301,8 @@ SELECT id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _"
+  user_points_update_strategy AS "user_points_update_strategy: _",
+  flag_count
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
   AND deleted_at IS NULL
@@ -326,7 +335,8 @@ SELECT id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _"
+  user_points_update_strategy AS "user_points_update_strategy: _",
+  flag_count
 FROM exercise_slide_submissions
 WHERE user_id = $1
   AND (course_id = $2 OR exam_id = $3)
@@ -358,7 +368,8 @@ SELECT id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _"
+  user_points_update_strategy AS "user_points_update_strategy: _",
+  flag_count
 FROM exercise_slide_submissions
 WHERE exercise_slide_id = $1
   AND user_id = $2
@@ -438,7 +449,8 @@ SELECT id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _"
+  user_points_update_strategy AS "user_points_update_strategy: _",
+  flag_count
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
   AND deleted_at IS NULL
@@ -508,7 +520,8 @@ pub async fn get_latest_exercise_slide_submissions_and_user_exercise_state_list_
         exam_id,
         exercise_id,
         user_id,
-        user_points_update_strategy AS "user_points_update_strategy: _"
+        user_points_update_strategy AS "user_points_update_strategy: _",
+  flag_count
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
       AND deleted_at IS NULL
@@ -717,7 +730,8 @@ SELECT id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _"
+  user_points_update_strategy AS "user_points_update_strategy: _",
+  flag_count
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
   AND deleted_at IS NULL

@@ -22,9 +22,11 @@ import {
   ExamData,
   ExamEnrollment,
   ExerciseSlideSubmissionAndUserExerciseStateList,
+  FlaggedAnswer,
   IsChapterFrontPage,
   MaterialReference,
   NewFeedback,
+  NewFlaggedAnswerWithToken,
   NewMaterialReference,
   NewProposedPageEdits,
   NewResearchFormQuestionAnswer,
@@ -71,6 +73,7 @@ import {
   isCustomViewExerciseSubmissions,
   isExamData,
   isExerciseSlideSubmissionAndUserExerciseStateList,
+  isFlaggedAnswer,
   isIsChapterFrontPage,
   isMaterialReference,
   isOEmbedResponse,
@@ -410,6 +413,20 @@ export const postPeerOrSelfReviewSubmission = async (
       responseType: "json",
     },
   )
+}
+
+export const postFlagAnswerInPeerReview = async (
+  exerciseId: string,
+  newFlaggedAnswer: NewFlaggedAnswerWithToken,
+): Promise<FlaggedAnswer> => {
+  const response = await courseMaterialClient.post(
+    `/exercises/${exerciseId}/flag-peer-review-answer`,
+    newFlaggedAnswer,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isFlaggedAnswer)
 }
 
 export const postStartPeerOrSelfReview = async (exerciseId: string): Promise<void> => {

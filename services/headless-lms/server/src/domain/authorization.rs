@@ -977,12 +977,7 @@ async fn async_http_client_with_headers(
         .await
         .map_err(|e| HttpClientError::Other(format!("Failed to execute request: {}", e)))?;
 
-    let http_response_with_body: oauth2::http::Response<reqwest::Body> =
-        response.try_into().map_err(|_| {
-            HttpClientError::Other(
-                "Failed to convert reqwest response to http response".to_string(),
-            )
-        })?;
+    let http_response_with_body: oauth2::http::Response<reqwest::Body> = response.into();
 
     let (parts, body) = http_response_with_body.into_parts();
     let body_bytes = body

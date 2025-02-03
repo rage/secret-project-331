@@ -96,7 +96,7 @@ impl<'a> UploadClaim<'a> {
     }
 }
 
-impl<'a> FromRequest for UploadClaim<'a> {
+impl FromRequest for UploadClaim<'_> {
     type Error = ControllerError;
     type Future = Ready<Result<Self, Self::Error>>;
 

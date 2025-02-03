@@ -52,8 +52,8 @@
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",
     "@types/lodash": "^4.17.15",
-    "@types/react": "^19.0.8",
-    "@types/react-dom": "^19.0.3",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "@types/uuid": "^10.0.0",
     "@types/workerpool": "^6.4.7",
     "node-loader": "^2.1.0",

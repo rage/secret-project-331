@@ -844,7 +844,8 @@ WHERE id = $1
     <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub async fn </span>get_by_ids(
+<span class="doccomment">/// Also returns soft deleted completions so that we can make sure the process does not crash if a completion is deleted before we get it back from the study registry.
+</span><span class="kw">pub async fn </span>get_by_ids(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     ids: <span class="kw-2">&amp;</span>[Uuid],
 ) -&gt; ModelResult&lt;Vec&lt;CourseModuleCompletion&gt;&gt; {
@@ -854,7 +855,6 @@ WHERE id = $1
 SELECT *
 FROM course_module_completions
 WHERE id = ANY($1)
-  AND deleted_at IS NULL
         "</span>,
         ids,
     )

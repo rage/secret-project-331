@@ -158,6 +158,7 @@ WHERE id = $1
     Ok(res)
 }
 
+/// Also returns soft deleted completions so that we can make sure the process does not crash if a completion is deleted before we get it back from the study registry.
 pub async fn get_by_ids(
     conn: &mut PgConnection,
     ids: &[Uuid],
@@ -168,7 +169,6 @@ pub async fn get_by_ids(
 SELECT *
 FROM course_module_completions
 WHERE id = ANY($1)
-  AND deleted_at IS NULL
         ",
         ids,
     )

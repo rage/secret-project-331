@@ -77,6 +77,8 @@
   },
   "overrides": {
     "react": "$react",
-    "react-dom": "$react-dom"
+    "react-dom": "$react",
+    "@types/react": "$react",
+    "@types/react-dom": "$react"
   }
 }

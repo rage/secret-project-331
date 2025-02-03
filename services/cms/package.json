@@ -87,7 +87,9 @@
     "typescript": "^5.7.3"
   },
   "overrides": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react": "$react",
+    "react-dom": "$react",
+    "@types/react": "$react",
+    "@types/react-dom": "$react"
   }
 }

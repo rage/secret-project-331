@@ -1486,7 +1486,7 @@ async fn set_join_code_for_course(
     const CHARSET: &[u8] = b"ABCDEFGHJKMNPQRSTUVWXYZ\
                             abcdefghjkmnpqrstuvwxyz";
     const PASSWORD_LEN: usize = 64;
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
 
     let code: String = (0..PASSWORD_LEN)
         .map(|_| {

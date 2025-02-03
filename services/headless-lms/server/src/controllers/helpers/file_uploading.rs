@@ -15,8 +15,8 @@ use models::exercise_slides::ExerciseSlide;
 use models::exercise_tasks::ExerciseTask;
 use models::exercises::Exercise;
 use models::organizations::DatabaseOrganization;
-use rand::distributions::Alphanumeric;
-use rand::distributions::DistString;
+use rand::distr::Alphanumeric;
+use rand::distr::DistString;
 use std::{collections::HashMap, path::Path};
 use std::{path::PathBuf, sync::Arc};
 
@@ -274,7 +274,7 @@ async fn upload_file_to_storage(
 
 fn make_filename_safe(path: &PathBuf) -> PathBuf {
     let mut path_buf = path.to_owned();
-    let random_string = Alphanumeric.sample_string(&mut rand::thread_rng(), 25);
+    let random_string = Alphanumeric.sample_string(&mut rand::rng(), 25);
     path_buf.set_file_name(random_string);
     if let Some(ext) = path.extension() {
         // For convenience, we'll keep the original extension in most cases. We'll just filter out any potentially problematic characters.

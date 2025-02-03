@@ -33,7 +33,7 @@ anyhow = "1.0.95"
 # Date and time library for Rust
 chrono = "0.4.39"
 # A library to generate and parse UUIDs.
-uuid = { version = "1.11.1", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.12.1", features = ["serde", "v4", "v5"] }
 # An implementation of futures and streams featuring zero allocations, composability, and itera…
 futures = "0.3.31"
 # supports loading ICU4X data from a single serialized blob

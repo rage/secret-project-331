@@ -10,12 +10,12 @@ license.workspace = true
 # Date and time library
 chrono = { version = "0.4.39", features = ["serde"] }
 # An extensible, strongly-typed implementation of OAuth2
-oauth2 = "4.4.2"
+oauth2 = "5.0.0"
 # A generic serialization/deserialization framework
 serde = { version = "1.0.217", features = ["derive"] }
 # A JSON serialization file format
-serde_json = "1.0.135"
+serde_json = "1.0.138"
 # derive(Error)
 thiserror = "2.0.11"
 # A library to generate and parse UUIDs.
-uuid = { version = "1.11.1", features = ["serde"] }
+uuid = { version = "1.12.1", features = ["serde"] }

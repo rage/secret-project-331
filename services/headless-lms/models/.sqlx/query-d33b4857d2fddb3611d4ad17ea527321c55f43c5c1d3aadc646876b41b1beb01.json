@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM course_module_completions\nWHERE id = ANY($1)\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT *\nFROM course_module_completions\nWHERE id = ANY($1)\n        ",
   "describe": {
     "columns": [
       {
@@ -118,5 +118,5 @@
       true
     ]
   },
-  "hash": "33f56f379b3a6a63426f90dfec33fe0938212dba397aafd2581193b93c05dcb2"
+  "hash": "d33b4857d2fddb3611d4ad17ea527321c55f43c5c1d3aadc646876b41b1beb01"
 }

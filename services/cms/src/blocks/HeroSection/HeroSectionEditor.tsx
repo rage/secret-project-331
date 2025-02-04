@@ -2,7 +2,7 @@
 import { css } from "@emotion/css"
 import { InspectorControls, RichText } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
-import React, { useContext } from "react"
+import React, { useContext, useEffect } from "react"
 
 import BackgroundAndColorCustomizer from "../../components/blocks/BackgroundAndColorCustomizer"
 import PageContext from "../../contexts/PageContext"
@@ -33,6 +33,14 @@ const HeroSectionEditor: React.FC<
 
   const backgroundVerticalAlignment = alignBottom ? "bottom" : "center"
 
+  const WHITE = "#FFFFFF"
+
+  useEffect(() => {
+    if (!attributes.backgroundColor || !attributes.fontColor) {
+      setAttributes({ backgroundColor: WHITE, fontColor: baseTheme.colors.gray[700] })
+    }
+  }, [attributes.backgroundColor, attributes.fontColor, setAttributes])
+
   return (
     <BlockWrapper id={clientId}>
       <InspectorControls key="settings">
@@ -52,7 +60,7 @@ const HeroSectionEditor: React.FC<
             padding: 7.5em 1em;
             margin-bottom: 3rem;
 
-            background-color: ${attributes.backgroundColor};
+            background-color: ${backgroundColor};
             position: relative;
 
             &::after {

@@ -52,7 +52,7 @@ const HeroSectionEditor: React.FC<
             padding: 7.5em 1em;
             margin-bottom: 3rem;
 
-            background-color: ${backgroundColor ? backgroundColor : baseTheme.colors.green["200"]};
+            background-color: ${attributes.backgroundColor};
             position: relative;
 
             &::after {

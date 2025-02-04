@@ -36,8 +36,11 @@ const HeroSectionEditor: React.FC<
   const WHITE = "#FFFFFF"
 
   useEffect(() => {
-    if (!attributes.backgroundColor || !attributes.fontColor) {
-      setAttributes({ backgroundColor: WHITE, fontColor: baseTheme.colors.gray[700] })
+    if (!attributes.fontColor) {
+      setAttributes({ fontColor: baseTheme.colors.gray[700] })
+    }
+    if (!attributes.backgroundColor) {
+      setAttributes({ backgroundColor: WHITE })
     }
   }, [attributes.backgroundColor, attributes.fontColor, setAttributes])
 

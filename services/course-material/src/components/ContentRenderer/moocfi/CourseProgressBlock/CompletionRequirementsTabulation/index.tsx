@@ -8,6 +8,7 @@ import { baseTheme } from "@/shared-module/common/styles"
 const HighlightContainer = styled.div`
   display: flex;
   flex-direction: row;
+  padding: 1rem 0;
 `
 
 export interface CompletionRequirementsTabulationProps {

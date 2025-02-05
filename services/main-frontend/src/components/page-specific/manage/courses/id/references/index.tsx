@@ -17,7 +17,6 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const Cite = require("citation-js")
 
 const TYPE = "string"

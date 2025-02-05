@@ -90,7 +90,6 @@ const MatrixSubmission: React.FC<
   const { t } = useTranslation()
 
   if (!studentAnswers) {
-    // eslint-disable-next-line i18next/no-literal-string
     throw new Error("No student answers")
   }
 

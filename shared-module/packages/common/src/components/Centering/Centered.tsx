@@ -4,7 +4,6 @@ import React from "react"
 import { narrowContainerWidthRem, normalContainerWidthRem } from "../../styles/constants"
 import { respondToOrLarger } from "../../styles/respond"
 
-// eslint-disable-next-line i18next/no-literal-string
 export const defaultWidthCenteredComponentStyles = css`
   max-width: ${normalContainerWidthRem}rem;
   margin-left: auto;
@@ -16,7 +15,6 @@ export const defaultWidthCenteredComponentStyles = css`
   }
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 export const narrowWidthCenteredComponentStyles = css`
   max-width: ${narrowContainerWidthRem}rem;
   margin-left: auto;

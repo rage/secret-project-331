@@ -3,7 +3,6 @@ import { DetailedHTMLProps, InputHTMLAttributes } from "react"
 
 import { baseTheme, primaryFont } from "../../styles"
 
-// eslint-disable-next-line i18next/no-literal-string
 const labelClass = css`
   /* font-family: system-ui, sans-serif; */
   font-family: ${primaryFont};

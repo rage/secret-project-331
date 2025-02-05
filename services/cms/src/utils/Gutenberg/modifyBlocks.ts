@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { BlockInstance } from "@wordpress/blocks"
 
 const UNCOMMON_SPACES_REGEX = /[\u00A0\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]/g

@@ -2,7 +2,6 @@ import { css, cx } from "@emotion/css"
 
 import { baseTheme } from "../../../styles"
 
-// eslint-disable-next-line i18next/no-literal-string
 const NavLinkStyles = css`
   color: ${baseTheme.colors.gray[700]};
   font-weight: 600;

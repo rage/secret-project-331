@@ -57,9 +57,9 @@ const IFramePlaceHolder: React.FC<IFramePlaceHolderProps> = ({ setUrl, defaultVa
             url = input
           } catch (e) {
             const parser = new DOMParser()
-            // eslint-disable-next-line i18next/no-literal-string
+
             const htmlDoc = parser.parseFromString(input, "text/html")
-            // eslint-disable-next-line i18next/no-literal-string
+
             const iframe = htmlDoc.querySelector("iframe")
             if (iframe) {
               try {

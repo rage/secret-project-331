@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { RawAxiosRequestHeaders } from "axios"
 
 import { cmsClient } from "../cmsClient"

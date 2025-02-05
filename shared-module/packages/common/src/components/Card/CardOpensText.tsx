@@ -9,9 +9,6 @@ interface CardOpensTextProps {
   time: string | undefined
 }
 
-// eslint-disable-next-line i18next/no-literal-string
-
-// eslint-disable-next-line i18next/no-literal-string
 const styledspan = css`
   font-family: ${secondaryFont} !important;
   font-size: 0.9rem;

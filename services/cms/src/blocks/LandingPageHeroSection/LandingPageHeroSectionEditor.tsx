@@ -66,7 +66,6 @@ const LandingPageHeroSectionEditor: React.FC<
               color: ${attributes.fontColor};
               text-align: center;
             `}
-            // eslint-disable-next-line i18next/no-literal-string
             tagName="h1"
             value={title}
             onChange={(value: string) => setAttributes({ title: value })}

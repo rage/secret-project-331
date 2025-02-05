@@ -116,17 +116,14 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
   const uploadStudentCountry = useToastMutation(
     (country: string) => {
       if (!country) {
-        // eslint-disable-next-line i18next/no-literal-string
         throw new Error("Student country undefined")
       }
 
       if (!courseId) {
-        // eslint-disable-next-line i18next/no-literal-string
         throw new Error("Course Id undefined")
       }
 
       if (!courseInstanceId) {
-        // eslint-disable-next-line i18next/no-literal-string
         throw new Error("Course instance id undefined")
       }
 

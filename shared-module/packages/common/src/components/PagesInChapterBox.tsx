@@ -6,14 +6,12 @@ import React from "react"
 import ArrowSVGIcon from "../img/blackArrow.svg"
 import { baseTheme, monospaceFont, primaryFont } from "../styles"
 
-// eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`
   border-radius: 10px;
   position: relative;
   width: 100%;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const PageNumberBox = styled.div`
   position: relative;
   display: inline-block;
@@ -33,7 +31,6 @@ const PageNumberBox = styled.div`
   }
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const ChapterParts = styled.div`
   margin-left: 0em;
   padding: 0.6em 1em;

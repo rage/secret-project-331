@@ -1,6 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-
 import { isOldQuiz } from "../../../src/util/migration/migrationSettings"
 import { migratePrivateSpecQuiz } from "../../../src/util/migration/privateSpecQuiz"
 import { OldQuiz, OldQuizItemTimelineItem, QuizItem } from "../../../types/oldQuizTypes"
@@ -53,7 +50,7 @@ describe("private spec", () => {
     const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
 
     expectPrivateSpecMetadataToMatch(oldQuiz, newQuiz)
-    expect(newQuiz.items.length).toEqual(1)
+    expect(newQuiz.items.length).toBe(1)
 
     const oldQuizItem: QuizItem = oldQuiz.items[0]
     const newQuizItem: PrivateSpecQuizItemMultiplechoice = newQuiz
@@ -70,7 +67,7 @@ describe("private spec", () => {
     const oldQuizItem: QuizItem = oldQuiz.items[0]
     const newQuizItem: PrivateSpecQuizItemCheckbox = newQuiz.items[0] as PrivateSpecQuizItemCheckbox
 
-    expect(newQuizItem.type).toEqual("checkbox")
+    expect(newQuizItem.type).toBe("checkbox")
     expectPrivateSpecMetadataToMatch(oldQuiz, newQuiz)
     comparePrivateSpecQuizItem(newQuizItem, oldQuizItem)
   })
@@ -83,7 +80,7 @@ describe("private spec", () => {
     const oldQuizItem: QuizItem = oldQuiz.items[0]
     const newQuizItem: PrivateSpecQuizItemEssay = newQuiz.items[0] as PrivateSpecQuizItemEssay
 
-    expect(newQuizItem.type).toEqual("essay")
+    expect(newQuizItem.type).toBe("essay")
     expectPrivateSpecMetadataToMatch(oldQuiz, newQuiz)
 
     comparePrivateSpecQuizItem(newQuizItem, oldQuizItem)
@@ -100,7 +97,7 @@ describe("private spec", () => {
     // This will always be defined
     const optionCells: string[][] = oldQuizItem.optionCells ?? []
 
-    expect(newQuizItem.type).toEqual("matrix")
+    expect(newQuizItem.type).toBe("matrix")
     expectPrivateSpecMetadataToMatch(oldQuiz, newQuiz)
     comparePrivateSpecQuizItem(newQuizItem, oldQuizItem)
     expect(newQuizItem.optionCells).toMatchObject(optionCells)
@@ -115,7 +112,7 @@ describe("private spec", () => {
     const newQuizItem: PrivateSpecQuizItemClosedEndedQuestion = newQuiz
       .items[0] as PrivateSpecQuizItemClosedEndedQuestion
 
-    expect(newQuizItem.type).toEqual("closed-ended-question")
+    expect(newQuizItem.type).toBe("closed-ended-question")
     expectPrivateSpecMetadataToMatch(oldQuiz, newQuiz)
     comparePrivateSpecQuizItem(newQuizItem, oldQuizItem)
   })
@@ -128,7 +125,7 @@ describe("private spec", () => {
     const oldQuizItem: QuizItem = oldQuiz.items[0]
     const newQuizItem: PrivateSpecQuizItemScale = newQuiz.items[0] as PrivateSpecQuizItemScale
 
-    expect(newQuizItem.type).toEqual("scale")
+    expect(newQuizItem.type).toBe("scale")
     expectPrivateSpecMetadataToMatch(oldQuiz, newQuiz)
     comparePrivateSpecQuizItem(newQuizItem, oldQuizItem)
   })
@@ -144,7 +141,7 @@ describe("private spec", () => {
     // This will always be defined
     const timelineItems: OldQuizItemTimelineItem[] = oldQuizItem.timelineItems ?? []
 
-    expect(newQuizItem.type).toEqual("timeline")
+    expect(newQuizItem.type).toBe("timeline")
     expectPrivateSpecMetadataToMatch(oldQuiz, newQuiz)
     comparePrivateSpecQuizItem(newQuizItem, oldQuizItem)
     expect(newQuizItem.timelineItems).toMatchObject(timelineItems)
@@ -163,7 +160,7 @@ describe("private spec", () => {
     const oldQuizItem: QuizItem = oldQuiz.items[0]
     const newQuizItem: PrivateSpecQuizItemChooseN = newQuiz.items[0] as PrivateSpecQuizItemChooseN
 
-    expect(newQuizItem.type).toEqual("choose-n")
+    expect(newQuizItem.type).toBe("choose-n")
     expectPrivateSpecMetadataToMatch(oldQuiz, newQuiz)
     comparePrivateSpecQuizItem(newQuizItem, oldQuizItem)
     expect(newQuizItem.options).toMatchObject(oldQuizItem.options)
@@ -199,7 +196,7 @@ describe("private spec", () => {
 
     const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
     expectPrivateSpecMetadataToMatch(oldQuiz, newQuiz)
-    expect(newQuiz.items.length).toEqual(8)
+    expect(newQuiz.items.length).toBe(8)
     expect(newQuiz.items.map((item) => item.type)).toMatchObject([
       "essay",
       "checkbox",

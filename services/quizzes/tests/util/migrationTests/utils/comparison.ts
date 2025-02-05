@@ -1,5 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
-
 import { FlexDirection, sanitizeQuizDirection } from "../../../../src/util/css-sanitization"
 import {
   OldModelSolutionQuiz as OldModelSolutionQuiz,

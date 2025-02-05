@@ -6,7 +6,6 @@ import React from "react"
 import { primaryFont } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 
-// eslint-disable-next-line i18next/no-literal-string
 const Content = styled.div`
   margin: 0 auto;
   max-width: 100%;
@@ -59,7 +58,6 @@ export interface TopLevelPageExtraProps {
 
 export type TopLevelPage = React.HTMLAttributes<HTMLDivElement> & TopLevelPageExtraProps
 
-// eslint-disable-next-line i18next/no-literal-string
 /* const subtitlePlaceholder = "Find answers to frequently asked questions on the FAQ page" */
 
 const TopLevelPage: React.FC<React.PropsWithChildren<React.PropsWithChildren<TopLevelPage>>> = ({

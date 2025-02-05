@@ -1,6 +1,5 @@
 /* eslint-disable import/order */
-/* eslint-disable i18next/no-literal-string */
-/* eslint-disable @typescript-eslint/no-var-requires */
+
 const generateNormalResponseHeaders =
   require("./src/shared-module/common/utils/responseHeaders").generateNormalResponseHeaders
 const svgoConfig = require("./src/shared-module/common/utils/svgoConfig")
@@ -58,7 +57,6 @@ if (process.env.NEXT_PUBLIC_BASE_PATH) {
   config.basePath = process.env.NEXT_PUBLIC_BASE_PATH
 }
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
 })

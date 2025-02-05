@@ -37,14 +37,14 @@ const useExerciseServiceOutputState = <OutputType, SelectorReturnType>(
       if (wrapper) {
         message = {
           data: { [wrapper]: nextState },
-          // eslint-disable-next-line i18next/no-literal-string
+
           message: "current-state",
           valid: validate(nextState),
         }
       } else {
         message = {
           data: nextState,
-          // eslint-disable-next-line i18next/no-literal-string
+
           message: "current-state",
           valid: validate(nextState),
         }

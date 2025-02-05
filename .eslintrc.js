@@ -1,5 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
-
 const DETECT_CSS_REGEX = /:.*;/
 const DETECT_CSS_REGEX_2 = /!important/
 const DETECT_CSS_REGEX_3 = /;.*:/s

@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { useQuery, UseQueryResult } from "@tanstack/react-query"
 
 import { ActionOnResource } from "../bindings"

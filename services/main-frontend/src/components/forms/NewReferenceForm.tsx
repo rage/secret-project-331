@@ -8,7 +8,6 @@ import { NewMaterialReference } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const Cite = require("citation-js")
 
 interface NewReferenceFormProps {

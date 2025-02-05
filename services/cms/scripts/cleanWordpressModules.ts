@@ -1,5 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
-
 /*
  * Certain @wordpress packages include nested node_modules folders and additional @wordpress
  * dependencies, which causes issues by loading multiple copies of @wordpress packages.

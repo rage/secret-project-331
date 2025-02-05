@@ -31,7 +31,6 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
 
   const { terms } = useContext(GlossaryContext)
 
-  /* eslint-disable i18next/no-literal-string */
   const listItemClass = cx(
     css`
       ${fontSize && `font-size: ${mobileFontSizeMapper(fontSize)};`}
@@ -49,7 +48,6 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
     `,
     LIST_BLOCK_CLASS_NAME,
   )
-  /* eslint-enable i18next/no-literal-string */
 
   const usesNewFormat = props.data.innerBlocks && props.data.innerBlocks.length > 0
   let dangerouslySetInnerHTML = undefined

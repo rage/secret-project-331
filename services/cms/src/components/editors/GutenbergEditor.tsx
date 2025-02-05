@@ -213,7 +213,6 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     setNeedToRunMigrationsAndValidations(false)
     onContentChange(updatedContent)
     if (numberOfBlocksMigrated > 0) {
-      // eslint-disable-next-line i18next/no-literal-string
       console.info(`Ran ${numberOfBlocksMigrated} block migrations`)
       toast.custom(
         () => {

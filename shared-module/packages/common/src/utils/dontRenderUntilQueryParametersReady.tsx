@@ -16,7 +16,6 @@ export type SimplifiedUrlQuery<T = unknown> = T extends string
   ? Record<T, string>
   : NodeJS.Dict<string>
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function dontRenderUntilQueryParametersReady<T, P = unknown>(
   WrappedComponent: React.ComponentType<
     React.PropsWithChildren<React.PropsWithChildren<T & ProvidedExtraProps<P>>>
@@ -24,7 +23,7 @@ export function dontRenderUntilQueryParametersReady<T, P = unknown>(
   allowNoQueryParameters = false,
 ) {
   // Name to display in React Dev tools
-  // eslint-disable-next-line i18next/no-literal-string
+
   const displayName = WrappedComponent.displayName || WrappedComponent.name || "Component"
 
   const InnerComponent = (props: T) => {
@@ -55,10 +54,13 @@ export function dontRenderUntilQueryParametersReady<T, P = unknown>(
     return <WrappedComponent {...(props as T)} query={queryParameters as SimplifiedUrlQuery<P>} />
   }
 
-  // eslint-disable-next-line i18next/no-literal-string
   InnerComponent.displayName = `dontRenderUntilQueryParameterReady(${displayName})`
 
   return InnerComponent
+}
+
+export default dontRenderUntilQueryParametersReady
+
 }
 
 export default dontRenderUntilQueryParametersReady

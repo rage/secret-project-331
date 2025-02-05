@@ -49,7 +49,6 @@ export const LoginStateContextProvider: React.FC<React.PropsWithChildren<unknown
 export function withSignedIn<T>(
   Component: ComponentType<React.PropsWithChildren<T>>,
 ): React.FC<React.PropsWithChildren<T>> {
-  // eslint-disable-next-line i18next/no-literal-string
   const displayName = Component.displayName || Component.name || "Component"
 
   const InnerComponent: React.FC<React.PropsWithChildren<T>> = (props) => {
@@ -62,7 +61,7 @@ export function withSignedIn<T>(
 
     if (!loginStateContext.signedIn) {
       const returnTo = encodeURIComponent(window.location.pathname)
-      // eslint-disable-next-line i18next/no-literal-string
+
       window.location.replace(`/login?return_to=${returnTo}`)
       return <div>{t("please-sign-in-to-view-this-page")}</div>
     }
@@ -71,7 +70,12 @@ export function withSignedIn<T>(
     return <Component {...props} />
   }
 
-  // eslint-disable-next-line i18next/no-literal-string
+  InnerComponent.displayName = `withSignedIn(${displayName})`
+  return InnerComponent
+}
+mponent {...props} />
+  }
+
   InnerComponent.displayName = `withSignedIn(${displayName})`
   return InnerComponent
 }

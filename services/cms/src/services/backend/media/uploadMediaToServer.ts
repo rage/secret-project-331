@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { createBlobURL, revokeBlobURL } from "@wordpress/blob"
 
 import { MediaUploadType, uploadFileFromPage } from "."

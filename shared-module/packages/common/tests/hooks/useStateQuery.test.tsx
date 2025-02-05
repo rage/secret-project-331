@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { renderHook, waitFor } from "@testing-library/react"
 
@@ -83,6 +82,6 @@ describe("useStateQuery hook", () => {
       expect(hookResult.result.current.state).toBe("ready")
     })
     expect(hookResult.result.current.state).toBe("ready")
-    expect(hookResult.result.current.data).toBe(null)
+    expect(hookResult.result.current.data).toBeNull()
   })
 })

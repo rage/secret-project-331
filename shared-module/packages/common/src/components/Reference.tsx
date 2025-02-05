@@ -14,7 +14,7 @@ const slideDown = keyframes`
 from { opacity: 0; height: 0; padding: 0;}
 to { opacity: 1; height: 100%; padding: 10px;}
 `
-// eslint-disable-next-line i18next/no-literal-string
+
 const TextWrapper = styled.div`
   padding: 0;
   margin: 0;
@@ -122,7 +122,7 @@ const Reference: React.FC<React.PropsWithChildren<React.PropsWithChildren<Refere
 
   useEffect(() => {
     const arr: Reference[] = []
-    // eslint-disable-next-line i18next/no-literal-string
+
     const referenceEl = Array.from(document.querySelectorAll<HTMLElement>("sup"))
 
     referenceEl.forEach((ref) => {
@@ -136,11 +136,9 @@ const Reference: React.FC<React.PropsWithChildren<React.PropsWithChildren<Refere
   }, [])
 
   useEffect(() => {
-    // eslint-disable-next-line i18next/no-literal-string
     const references = document.querySelectorAll(".reference")
 
     const eventHandler = (evt: Event) => {
-      // eslint-disable-next-line i18next/no-literal-string
       let citation = null
       if (evt.target instanceof Element) {
         citation = evt.target
@@ -153,9 +151,8 @@ const Reference: React.FC<React.PropsWithChildren<React.PropsWithChildren<Refere
       const el = data.find((item) => item.id === citationId)
 
       if (el) {
-        // eslint-disable-next-line i18next/no-literal-string
         const wrapper = document.createElement("div")
-        // eslint-disable-next-line i18next/no-literal-string
+
         wrapper.setAttribute("id", "wrapper")
 
         const wrapperEl = document.getElementById("wrapper")
@@ -165,7 +162,7 @@ const Reference: React.FC<React.PropsWithChildren<React.PropsWithChildren<Refere
           citation.style.cssText = "text-decoration: underline; color: #08457A; cursor: pointer"
           wrapper.style.cssText =
             "opacity: 1; z-index: 2; position: absolute; top: 20px; left: 50%; border-radius: 3px; min-width: 400px; transition: visibility 0s linear 100ms, opacity 100ms; box-shadow: rgba(0, 0, 0, 0.1) 0 2px 10px;"
-          // eslint-disable-next-line i18next/no-literal-string
+
           wrapper.innerHTML = `<div style="color: #313947; border: 1px solid #E2E4E6; border-radius: 3px; font-family: 'Inter', sans-serif; font-size: 14px; background: #F9f9f9; padding: 0 5px;">${el.text}</div`
           wrapperEl && wrapperEl.remove()
           citation?.appendChild(wrapper)
@@ -198,7 +195,7 @@ const Reference: React.FC<React.PropsWithChildren<React.PropsWithChildren<Refere
             evt.preventDefault()
             elementId = elementId.substring(1, elementId.length - 1)
             const details = document.querySelector<HTMLDetailsElement>(ELEMENT_CLASS)
-            // eslint-disable-next-line i18next/no-literal-string
+
             setActive(`ref-${elementId}`)
 
             if (details) {
@@ -230,6 +227,22 @@ const Reference: React.FC<React.PropsWithChildren<React.PropsWithChildren<Refere
               <li
                 key={id}
                 id={`ref-${index + 1}`}
+                className={css`
+                  ${active === `ref-${index + 1}` && `background: #DAE3EB;`}
+                `}
+              >
+                {text}
+              </li>
+            )
+          })}
+        </ul>
+      </details>
+    </TextWrapper>
+  )
+}
+
+export default Reference
++ 1}`}
                 className={css`
                   ${active === `ref-${index + 1}` && `background: #DAE3EB;`}
                 `}

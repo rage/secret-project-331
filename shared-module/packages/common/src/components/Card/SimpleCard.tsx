@@ -28,7 +28,6 @@ const StCardSvg = styled(CardSVG)`
   color: #fff;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const CardContentWrapper = styled.div`
   display: flex;
   height: 100%;

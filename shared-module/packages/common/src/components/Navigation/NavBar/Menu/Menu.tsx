@@ -14,7 +14,6 @@ const NavMenu = css`
   }
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const MenuIcon = css`
   &:focus-visible {
     outline: 2px solid ${baseTheme.colors.green[500]};
@@ -22,7 +21,6 @@ const MenuIcon = css`
   }
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const ToolTip = css`
   background: #fff;
   border-color: #cacaca;
@@ -87,7 +85,6 @@ const Menu: React.FC<React.PropsWithChildren<React.PropsWithChildren<MenuProps>>
   const [clicked, setClicked] = useState(false)
   const { t } = useTranslation()
 
-  // eslint-disable-next-line i18next/no-literal-string
   const buttonId = variant === "bottom" ? "" : "main-navigation-menu"
   const onClickHandler = () => {
     setClicked(!clicked)
@@ -117,6 +114,13 @@ const Menu: React.FC<React.PropsWithChildren<React.PropsWithChildren<MenuProps>>
         }
       >
         {children}
+      </ul>
+    </div>
+  )
+}
+
+export default Menu
+dren}
       </ul>
     </div>
   )

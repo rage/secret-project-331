@@ -212,7 +212,6 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                 return
               }
 
-              // eslint-disable-next-line i18next/no-literal-string
               draft.options = [
                 ...draft.options,
                 {

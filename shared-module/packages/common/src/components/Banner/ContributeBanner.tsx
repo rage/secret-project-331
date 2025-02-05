@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next"
 
 import { baseTheme, headingFont } from "../../styles"
 
-// eslint-disable-next-line i18next/no-literal-string
 const BannerWrapper = styled.div`
   height: 300px;
   position: relative;
@@ -60,7 +59,7 @@ const Text = styled.div`
     opacity: 0.8;
   }
 `
-// eslint-disable-next-line i18next/no-literal-string
+
 const StyledLink = styled.a`
   font-family: ${headingFont};
   font-size: 20px;
@@ -104,6 +103,11 @@ const Contribute: React.FC<
         </StyledLink>
       </Content>
     </BannerWrapper>
+  )
+}
+
+export default Contribute
+   </BannerWrapper>
   )
 }
 

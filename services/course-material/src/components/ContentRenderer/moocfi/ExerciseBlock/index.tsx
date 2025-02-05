@@ -116,7 +116,6 @@ export const makeExerciseButtonMutedStyles = css`
     ${baseTheme.colors.gray[200]} 0 -3px 0 inset !important;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const DeadlineText = styled.div<DeadlineProps>`
   display: flex;
   justify-content: center;
@@ -206,7 +205,6 @@ const ExerciseBlock: React.FC<
     async () => {
       const data = getCourseMaterialExercise.data
       if (!data) {
-        // eslint-disable-next-line i18next/no-literal-string
         throw new Error("No data for the try again view")
       }
       makeSureComponentStaysVisibleAfterChangingView(sectionRef)
@@ -507,7 +505,7 @@ const ExerciseBlock: React.FC<
                     <div className="points">
                       <CheckCircle size={16} weight="bold" color="#394F77" />
                       <span data-testid="exercise-points">
-                        {/* eslint-disable-next-line i18next/no-literal-string */}
+                        {}
                         <sup>{points ?? 0}</sup>
                         {FORWARD_SLASH}
                         <sub>{getCourseMaterialExercise.data.exercise.score_maximum}</sub>
@@ -670,7 +668,6 @@ const ExerciseBlock: React.FC<
                             courseMaterialExerciseQueryKey(id),
                             (old: CourseMaterialExercise | undefined) => {
                               if (!old) {
-                                // eslint-disable-next-line i18next/no-literal-string
                                 throw new Error("No CourseMaterialExercise found")
                               }
                               return produce(old, (draft: CourseMaterialExercise) => {
@@ -691,7 +688,6 @@ const ExerciseBlock: React.FC<
                                     }
                                     // Additional check to make sure we're not accidentally leaking gradings in exams from this endpoint
                                     if (isExam && et_submission_result.grading !== null) {
-                                      // eslint-disable-next-line i18next/no-literal-string
                                       throw new Error("Exams should have hidden gradings")
                                     }
                                   },

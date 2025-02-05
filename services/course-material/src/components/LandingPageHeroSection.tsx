@@ -19,7 +19,6 @@ interface TextBoxProps {
   fontColor?: string
 }
 
-// eslint-disable-next-line i18next/no-literal-string
 //const HeroWrapper = styled.div``
 
 const TextBox = styled.div<TextBoxProps>`
@@ -125,7 +124,6 @@ const LandingPageHeroSection: React.FC<
               CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING,
             )[0]
             if (!firstChapterGrid) {
-              // eslint-disable-next-line i18next/no-literal-string
               console.warn("Cannot find scroll destination")
               return
             }

@@ -10,7 +10,6 @@ const Wrapper = styled.div`
   margin-top: 5px;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const PageBoxRow = styled.div`
   position: relative;
   padding: 0.6em 1em;

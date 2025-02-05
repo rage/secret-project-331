@@ -130,7 +130,7 @@ const PageListItem: React.FC<React.PropsWithChildren<PageListItemProps>> = ({
                 },
                 {
                   label: t("upload-audio-file"),
-                  // eslint-disable-next-line i18next/no-literal-string
+
                   onClick: () => {
                     setShowDialog(true)
                   },
@@ -140,7 +140,6 @@ const PageListItem: React.FC<React.PropsWithChildren<PageListItemProps>> = ({
                       label: t("button-text-move-up"),
                       onClick: () => {
                         pageOrderDispatch({
-                          // eslint-disable-next-line i18next/no-literal-string
                           type: "move",
                           // eslint-disable-next-line i18next/no-literal-string
                           payload: { pageId: page.id, chapterId: page.chapter_id, direction: "up" },
@@ -153,7 +152,6 @@ const PageListItem: React.FC<React.PropsWithChildren<PageListItemProps>> = ({
                       label: t("button-text-move-down"),
                       onClick: () => {
                         pageOrderDispatch({
-                          // eslint-disable-next-line i18next/no-literal-string
                           type: "move",
                           payload: {
                             pageId: page.id,

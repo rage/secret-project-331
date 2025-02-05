@@ -40,7 +40,6 @@ const Wrapper = styled.div`
   padding: 1.5rem 1rem 2rem 1.4rem;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const StyledLink = styled(Link)`
   border: 1px solid ${baseTheme.colors.blue[200]};
   padding: 0.3rem 1rem;

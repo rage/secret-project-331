@@ -46,7 +46,7 @@ const PartnerBox = styled.div`
     align-self: center;
   }
 `
-// eslint-disable-next-line i18next/no-literal-string
+
 const PartnerLogo = styled.div<StyledPartner>`
   width: ${({ width }) => (width ? width : "160px")};
   aspect-ratio: 2 / 1;

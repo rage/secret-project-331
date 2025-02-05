@@ -25,7 +25,6 @@ const getHeadings = (headingElements: HTMLHeadingElement[]) => {
         element: heading,
       })
     } catch (e) {
-      // eslint-disable-next-line i18next/no-literal-string
       console.error(`Could not parse heading`, heading, e)
     }
   })
@@ -34,7 +33,6 @@ const getHeadings = (headingElements: HTMLHeadingElement[]) => {
 }
 
 function updateHeadings(setHeadings: Dispatch<SetStateAction<Heading[]>>) {
-  // eslint-disable-next-line i18next/no-literal-string
   const headingElements = Array.from(
     document.querySelectorAll<HTMLHeadingElement>(
       // eslint-disable-next-line i18next/no-literal-string
@@ -48,7 +46,6 @@ function updateHeadings(setHeadings: Dispatch<SetStateAction<Heading[]>>) {
   )
 
   headingElements.forEach((heading, idx) => {
-    // eslint-disable-next-line i18next/no-literal-string
     heading.dataset.headingsNavigationIndex = idx.toString()
   })
   const result = getHeadings(headingElements)

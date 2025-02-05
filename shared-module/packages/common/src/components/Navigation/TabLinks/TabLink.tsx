@@ -27,7 +27,6 @@ const TabLink: React.FC<React.PropsWithChildren<React.PropsWithChildren<TabLinkP
   const router = useRouter()
 
   if (count?.isError) {
-    // eslint-disable-next-line i18next/no-literal-string
     console.error(`Could not fetch count for ${path}:\n`, count.error)
   }
 
@@ -35,7 +34,7 @@ const TabLink: React.FC<React.PropsWithChildren<React.PropsWithChildren<TabLinkP
     typeof url === "string"
       ? {
           // Ensure that router.route has the [...path] defined, this way it won't become a query parameter in any case.
-          // eslint-disable-next-line i18next/no-literal-string
+
           pathname: path ? router.route : `${router.route}/[...path]`,
           // Support for subpaths with splitting to an array.
           query: { ...router.query, path: url.split("/") },
@@ -92,6 +91,13 @@ const TabLink: React.FC<React.PropsWithChildren<React.PropsWithChildren<TabLinkP
         >
           {count?.data}
         </span>
+      )}
+    </Link>
+  )
+}
+
+export default TabLink
+    </span>
       )}
     </Link>
   )

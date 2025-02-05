@@ -91,13 +91,12 @@ const ErrorMessage = styled.div`
 const ErrorNotification = (props: ErrorNotificationProps) => {
   const { t } = useTranslation()
   return (
-    // eslint-disable-next-line i18next/no-literal-string
     <NotificationWrapper className="toast-notification" data-test-id="error-notification">
       <Content>
         <IconWrapper>
           <BellXmark color={baseTheme.colors.red[700]} />
         </IconWrapper>
-        {/* eslint-disable-next-line i18next/no-literal-string */}
+        {}
         <TextWrapper role="alert" aria-live="assertive">
           <ErrorHeader>{props.header ?? t("default-toast-error-title")}</ErrorHeader>
           <ErrorMessage>{props.message ?? t("default-toast-error-message")}</ErrorMessage>

@@ -128,7 +128,6 @@ const migrateQuizAnswer = (
   quizAnswer.itemAnswers.forEach((answer) => {
     const answerQuizItem = privateSpecQuizItems[answer.quizItemId]
     if (!answerQuizItem) {
-      // eslint-disable-next-line i18next/no-literal-string
       throw new Error(`Couldn't find quiz item id '${answer.quizItemId}' for answer '${answer.id}'`)
     }
     userAnswer.itemAnswers.push(migrateQuizItemAnswer(answer, answerQuizItem))

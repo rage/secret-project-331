@@ -9,7 +9,6 @@ export interface HeadingExtraProps {
 
 export type HeadingProps = React.HTMLAttributes<HTMLHeadingElement> & HeadingExtraProps
 
-// eslint-disable-next-line i18next/no-literal-string
 const StyledTitle = styled.h1`
   font-weight: ${fontWeights.bold};
   color: ${baseTheme.colors.clear[200]};

@@ -26,7 +26,6 @@ const InfoBoxEditor: React.FC<React.PropsWithChildren<BlockEditProps<InfoBoxComp
         <BackgroundColorCustomizer
           attributes={attributes}
           setAttributes={setAttributes}
-          // eslint-disable-next-line i18next/no-literal-string
           defaultBackgroundColor="#faf5f3"
         />
 

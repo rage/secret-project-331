@@ -38,7 +38,7 @@ const TabLinkNavigation: React.FC<
     ) {
       const urlObject = {
         // Ensure that router.route has the [...path] defined
-        // eslint-disable-next-line i18next/no-literal-string
+
         pathname: path ? router.route : `${router.route}/[...path]`,
         query: { ...router.query, path: childElementUrlProps[0].split("/") },
       }
@@ -51,9 +51,8 @@ const TabLinkNavigation: React.FC<
    * @param event User keyboard event
    */
   const tabListOnKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    // eslint-disable-next-line i18next/no-literal-string
     const previousSiblingKey = orientation === "horizontal" ? "ArrowLeft" : "ArrowUp"
-    // eslint-disable-next-line i18next/no-literal-string
+
     const nextSiblingKey = orientation === "horizontal" ? "ArrowRight" : "ArrowDown"
     if (event.key === previousSiblingKey) {
       event.preventDefault()

@@ -6,8 +6,6 @@ module.exports = {
   "*.rs": () => [
     "cargo fmt --manifest-path services/headless-lms/Cargo.toml --all -- --files-with-diff",
   ],
-  "system-tests/src/**/*.{js,jsx,ts,tsx}": () => [
-    `./bin/check-no-test-only-in-system-tests`,
-  ],
+  "system-tests/src/**/*.{js,jsx,ts,tsx}": () => [`./bin/check-no-test-only-in-system-tests`],
   "shared-module/packages/common/src/locales/**/*.json": () => ["./bin/translations-sort"],
 }

@@ -1,7 +1,5 @@
-/* eslint-disable i18next/no-literal-string */
 // Require imports needs to happen in a specific order.
 /* eslint-disable import/order */
-/* eslint-disable @typescript-eslint/no-var-requires */
 
 import { Block } from "@wordpress/blocks"
 import { addFilter } from "@wordpress/hooks"

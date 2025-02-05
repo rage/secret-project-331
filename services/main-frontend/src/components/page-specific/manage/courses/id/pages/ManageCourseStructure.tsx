@@ -73,7 +73,6 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
   const postNewPageOrderingMutation = useToastMutation(
     () => {
       if (!pageOrderState.chapterIdToPages) {
-        // eslint-disable-next-line i18next/no-literal-string
         throw new Error("Page data not loaded")
       }
       const pages = Object.values(pageOrderState.chapterIdToPages).flat()
@@ -89,7 +88,6 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
   const postNewChapterOrderingMutation = useToastMutation(
     () => {
       if (!pageOrderState.chapters) {
-        // eslint-disable-next-line i18next/no-literal-string
         throw new Error("Chapter data not loaded")
       }
       const chapters = Object.values(pageOrderState.chapters).flat()
@@ -103,7 +101,6 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
   )
 
   useEffect(() => {
-    // eslint-disable-next-line i18next/no-literal-string
     pageOrderDispatch({ type: "setData", payload: courseStructure })
   }, [courseStructure])
 
@@ -216,9 +213,8 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
                                     label: t("button-text-move-up"),
                                     onClick: () => {
                                       pageOrderDispatch({
-                                        // eslint-disable-next-line i18next/no-literal-string
                                         type: "move",
-                                        // eslint-disable-next-line i18next/no-literal-string
+
                                         payload: {
                                           pageId: null,
                                           chapterId: chapter.id,
@@ -234,9 +230,8 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
                                     label: t("button-text-move-down"),
                                     onClick: () => {
                                       pageOrderDispatch({
-                                        // eslint-disable-next-line i18next/no-literal-string
                                         type: "move",
-                                        // eslint-disable-next-line i18next/no-literal-string
+
                                         payload: {
                                           pageId: null,
                                           chapterId: chapter.id,
@@ -385,7 +380,6 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
         }}
         rightButtonText={t("button-reset")}
         onClickRight={() => {
-          // eslint-disable-next-line i18next/no-literal-string
           pageOrderDispatch({ type: "setData", payload: courseStructure })
         }}
       />
@@ -398,7 +392,6 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
         }}
         rightButtonText={t("button-reset")}
         onClickRight={() => {
-          // eslint-disable-next-line i18next/no-literal-string
           pageOrderDispatch({ type: "setData", payload: courseStructure })
         }}
       />

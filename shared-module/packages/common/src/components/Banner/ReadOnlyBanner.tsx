@@ -3,7 +3,6 @@ import React from "react"
 
 import { baseTheme } from "../../styles"
 
-// eslint-disable-next-line i18next/no-literal-string
 const BannerWrapper = styled.div`
   background: ${baseTheme.colors.clear[100]};
   width: 100%;

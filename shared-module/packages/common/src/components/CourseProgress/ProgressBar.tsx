@@ -7,7 +7,6 @@ import { respondToOrLarger } from "../../styles/respond"
 
 import { ProgressBarExtraProps } from "."
 
-// eslint-disable-next-line i18next/no-literal-string
 const LinearProgress = styled.div<LinearProgressProps>`
   display: flex;
   background: ${baseTheme.colors.green[100]};
@@ -30,7 +29,7 @@ interface LinearProgressFillProps {
 interface LinearProgressProps {
   height: string
 }
-// eslint-disable-next-line i18next/no-literal-string
+
 const LinearProgressFill = styled.div<LinearProgressFillProps>`
   height: ${({ height }) => (height === "small" ? "16px" : "20px")};
   position: absolute;

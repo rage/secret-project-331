@@ -182,7 +182,6 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
 
   const { selected, updateState } =
     useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemClosedEndedQuestion>((quiz) => {
-      // eslint-disable-next-line i18next/no-literal-string
       return findQuizItem<PrivateSpecQuizItemClosedEndedQuestion>(
         quiz,
         quizItemId,

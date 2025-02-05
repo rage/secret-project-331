@@ -14,7 +14,6 @@ from { opacity: 0; height: 0; padding: 0;}
 to { opacity: 1; height: 100%; padding: 10px;}
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const TextWrapper = styled.div`
   padding: 0;
   margin: 0;

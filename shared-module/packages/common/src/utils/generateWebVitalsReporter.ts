@@ -13,9 +13,9 @@ const generateWebVitalsReporter = (serviceName: string) => {
       }
       const vitals = webVitals
       webVitals = []
-      // eslint-disable-next-line i18next/no-literal-string
+
       console.groupCollapsed(`[${serviceName}] Web vitals`)
-      // eslint-disable-next-line i18next/no-literal-string
+
       console.table(vitals, ["label", "name", "value", "startTime"])
       console.groupEnd()
     }, 10000)

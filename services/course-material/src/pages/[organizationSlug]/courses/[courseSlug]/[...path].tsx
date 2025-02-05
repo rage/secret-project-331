@@ -62,14 +62,11 @@ const PagePage: React.FC = () => {
 
   useEffect(() => {
     if (getCoursePageByPath.isError) {
-      // eslint-disable-next-line i18next/no-literal-string
       pageStateDispatch({ type: "setError", payload: getCoursePageByPath.error })
     } else if (getCoursePageByPath.isPending) {
-      // eslint-disable-next-line i18next/no-literal-string
       pageStateDispatch({ type: "setLoading" })
     } else {
       pageStateDispatch({
-        // eslint-disable-next-line i18next/no-literal-string
         type: "setData",
         payload: {
           pageData: getCoursePageByPath.data.page,
@@ -103,7 +100,7 @@ const PagePage: React.FC = () => {
 
       // Nextjs router adds the base path to the start of the url, so we need to remove it first
       const nextJsAdjustedPath = newPath.substring(basePath().length)
-      // eslint-disable-next-line i18next/no-literal-string
+
       console.info(`Redirecting to ${newPath} (${nextJsAdjustedPath})`)
       router.replace(nextJsAdjustedPath, undefined, {
         shallow: true,
@@ -133,11 +130,7 @@ const PagePage: React.FC = () => {
   return (
     <CoursePageDispatch.Provider value={pageStateDispatch}>
       <PageContext.Provider value={pageState}>
-        <PageMarginOffset
-          marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`}
-          // eslint-disable-next-line i18next/no-literal-string
-          marginBottom={"0rem"}
-        >
+        <PageMarginOffset marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`} marginBottom={"0rem"}>
           <CourseMaterialPageBreadcrumbs currentPagePath={path} page={pageState.pageData} />
           {<CourseTestModeNotification isTestMode={pageState.isTest} />}
         </PageMarginOffset>

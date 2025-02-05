@@ -14,7 +14,6 @@ const PRIVACY_LINK_EN = "https://www.mooc.fi/en/faq/tietosuojaseloste/"
 // To be link in the future
 // const CREATORS_LINK = "https://www.mooc.fi/en/"
 
-// eslint-disable-next-line i18next/no-literal-string
 const Container = styled.div`
   margin-top: 5em;
   padding: 1rem;
@@ -203,7 +202,6 @@ const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<Props>>> 
           >
             <LogoA
               href={useFinnishLinks ? "https://www.mooc.fi" : "https://www.mooc.fi/en"}
-              // eslint-disable-next-line i18next/no-literal-string
               aria-label="MOOC.fi"
             >
               <MOOCfi />
@@ -216,6 +214,13 @@ const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<Props>>> 
             </LogoA>
           </div>
         </Wrapper>
+      </Container>
+    </footer>
+  )
+}
+
+export default Footer
+pper>
       </Container>
     </footer>
   )

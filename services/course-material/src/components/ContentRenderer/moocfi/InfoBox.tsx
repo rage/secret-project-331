@@ -6,6 +6,7 @@ import InnerBlocks from "../util/InnerBlocks"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface InfoBoxBlockAttributes {
@@ -20,8 +21,12 @@ const InfoBoxBlock: React.FC<
     <BreakFromCentered sidebar={false}>
       <div
         className={css`
-          ${!props.data.attributes.noPadding && `padding: 3rem;`}
+          ${!props.data.attributes.noPadding && `          padding: 1rem 0;`}
           background-color: ${props.data.attributes.backgroundColor};
+
+          ${respondToOrLarger.md} {
+            ${!props.data.attributes.noPadding && `          padding: 3rem;`}
+          }
         `}
       >
         <Centered variant="narrow">

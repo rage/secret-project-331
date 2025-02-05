@@ -30,7 +30,7 @@ const CompletionRequirementsTabulation: React.FC<
             highlightText={pointsRequiredForCompletion}
           />
         )}
-        {attemptedExercisesRequiredForCompletion && (
+        {!!attemptedExercisesRequiredForCompletion && (
           <HighlightItem
             highlightColor={baseTheme.colors.gradient["blue"]}
             highlightDescription={t("attempted-exercises-required-for-completion")}

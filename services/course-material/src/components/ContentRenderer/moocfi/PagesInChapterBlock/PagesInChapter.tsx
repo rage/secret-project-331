@@ -9,6 +9,7 @@ import { coursePageRoute } from "../../../../utils/routing"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import PagesInChapterBox from "@/shared-module/common/components/PagesInChapterBox"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "@/shared-module/common/utils/constants"
 
 export interface PagesInChapterProps {
@@ -40,11 +41,15 @@ const PagesInChapter: React.FC<React.PropsWithChildren<PagesInChapterProps>> = (
             className={cx(
               INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS,
               css`
-                font-size: 1.875rem;
+                font-size: 1.5rem;
                 font-weight: 500;
                 text-align: center;
                 color: #1a2333;
                 margin-bottom: 1.6rem;
+
+                ${respondToOrLarger.md} {
+                  font-size: 1.875rem;
+                }
               `,
             )}
           >

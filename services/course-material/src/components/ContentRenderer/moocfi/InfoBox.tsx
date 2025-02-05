@@ -21,7 +21,7 @@ const InfoBoxBlock: React.FC<
     <BreakFromCentered sidebar={false}>
       <div
         className={css`
-          ${!props.data.attributes.noPadding && `          padding: 1rem 0;`}
+          padding: 1rem 0;
           background-color: ${props.data.attributes.backgroundColor};
 
           ${respondToOrLarger.md} {

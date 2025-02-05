@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import Link from "next/link"
 import React from "react"
 
-import { baseTheme, primaryFont } from "../styles"
+import { primaryFont } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 
 // eslint-disable-next-line i18next/no-literal-string

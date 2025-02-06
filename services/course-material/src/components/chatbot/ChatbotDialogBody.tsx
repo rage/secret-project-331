@@ -287,6 +287,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
             message={message.message ?? ""}
             isFromChatbot={message.is_from_chatbot}
             isPending={!message.message_is_complete && newMessageMutation.isPending}
+            hideCitations
           />
         ))}
       </div>

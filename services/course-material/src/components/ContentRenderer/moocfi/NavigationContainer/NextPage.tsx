@@ -62,14 +62,18 @@ const ChapterProgress = styled.div`
   }
 
   .attempted-exercises {
-    margin-right: 1.2rem;
+    margin-right: 1.4rem;
   }
 
   .description {
     opacity: 80%;
     line-height: 100%;
-    align-self: end;
+    align-self: start;
     padding-top: 0.2rem;
+
+    ${respondToOrLarger.md} {
+      align-self: end;
+    }
   }
 
   .answers,

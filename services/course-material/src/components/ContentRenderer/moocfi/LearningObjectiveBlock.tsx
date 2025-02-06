@@ -17,7 +17,11 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 const Wrapper = styled.div`
   margin: 2rem auto;
   background: #f0f5f5;
-  padding: 1.5rem 2.2rem;
+  padding: 0.5rem 1.5rem;
+
+  ${respondToOrLarger.md} {
+    padding: 1.5rem 2.2rem;
+  }
   height: auto;
 `
 const Header = styled.div`

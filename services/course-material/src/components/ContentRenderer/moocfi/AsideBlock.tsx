@@ -4,6 +4,7 @@ import React from "react"
 import { BlockRendererProps } from ".."
 import InnerBlocks from "../util/InnerBlocks"
 
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface AsideBlockProps {
@@ -17,10 +18,14 @@ const AsideBLock: React.FC<React.PropsWithChildren<BlockRendererProps<AsideBlock
   return (
     <div
       className={css`
-        padding: 2rem;
+        padding: 0rem 0.8rem;
         border-top: 0.4rem solid ${props.data.attributes.separatorColor};
         border-bottom: 0.4rem solid ${props.data.attributes.separatorColor};
         background: ${props.data.attributes.backgroundColor};
+
+        ${respondToOrLarger.md} {
+          padding: 1rem 2rem;
+        }
 
         h1,
         h2,

@@ -178,7 +178,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
                     font-family: ${primaryFont};
                     font-style: normal;
                     font-weight: normal;
-                    font-size: 16px;
+                    font-size: 1rem;
                     line-height: 20px;
                     color: #3b4754;
 
@@ -195,7 +195,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
                     font-family: ${primaryFont};
                     font-style: normal;
                     font-weight: normal;
-                    font-size: 13px;
+                    font-size: 0.813rem;
                     line-height: 16px;
                     color: rgba(117, 117, 117, 0.6);
 

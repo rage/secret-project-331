@@ -3,6 +3,8 @@ import styled from "@emotion/styled"
 import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
+import { respondToOrLarger } from "../styles/respond"
+
 const StyledBreadcrumb = styled.div`
   font-size: 1rem;
   margin: 0;
@@ -14,6 +16,11 @@ const StyledBreadcrumb = styled.div`
       display: flex;
       flex-wrap: wrap;
       gap: 0.75rem;
+      padding-left: 0;
+
+      ${respondToOrLarger.md} {
+        padding-left: 2rem;
+      }
     }
 
     .group {

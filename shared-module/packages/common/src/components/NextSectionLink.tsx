@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next"
 
 import ArrowSVGIcon from "../img/arrow.svg"
 import BackArrowIcon from "../img/backarrow.svg"
-import LockIcon from "../img/lock.svg"
 import TopArrowSVGIcon from "../img/up-arrow.svg"
 import { baseTheme, headingFont, typography } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
@@ -214,6 +213,7 @@ const NextSectionLink: React.FC<
                     overflow: hidden;
                     white-space: nowrap;
                     text-overflow: ellipsis;
+                    display: inline-grid;
 
                     .next-page-title {
                       display: block;
@@ -274,7 +274,7 @@ const NextSectionLink: React.FC<
                     }
                   `}
                 >
-                  {url ? (
+                  {url && (
                     <ArrowSVGIcon
                       id="right-svg-icon"
                       role="presentation"
@@ -282,15 +282,6 @@ const NextSectionLink: React.FC<
                       width="30"
                       height="30"
                       viewBox="0 0 39 39"
-                    />
-                  ) : (
-                    <LockIcon
-                      id="svg-icon"
-                      role="presentation"
-                      alt=""
-                      width="24"
-                      height="36"
-                      viewBox="0 0 24 36"
                     />
                   )}
                 </div>

@@ -7,7 +7,7 @@ import i18next from "eslint-plugin-i18next"
 import importPlugin from "eslint-plugin-import"
 import jsxA11y from "eslint-plugin-jsx-a11y"
 import playwright from "eslint-plugin-playwright"
-import prettier from "eslint-plugin-prettier"
+import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended"
 import react from "eslint-plugin-react"
 import reactHooks from "eslint-plugin-react-hooks"
 import globals from "globals"
@@ -33,29 +33,31 @@ export default [
       "**/out/**",
       "**/playwright-report/**",
       "**/storybook-static/**",
-      "**/services/**/shared-module/**",
-      "**/system-tests/shared-module/**",
+      // Ignore copies of shared module
+      "**/shared-module/**",
+      // Don't ignore the shared module in the root
+      "!shared-module/**",
       "**/services/main-frontend/public/monaco-editor/**",
       "**/.venv/**",
     ],
   },
+  eslintPluginPrettierRecommended,
   {
-    files: ["**/*.{js,mjs,cjs,ts,tsx}"],
+    files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"],
     plugins: {
       "@next/next": next,
       "@tanstack/query": tanstackQuery,
-      i18next: i18next,
+      "i18next": i18next,
       "jsx-a11y": jsxA11y,
       "react-hooks": reactHooks,
       react: react,
       "@typescript-eslint": typescriptEslint,
       import: importPlugin,
-      prettier: prettier,
     },
     rules: {
       ...next.configs.recommended.rules,
       ...tanstackQuery.configs.recommended.rules,
-      ...i18next.configs.recommended.rules,
+      ...i18next.configs?.recommended?.rules,
       ...jsxA11y.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
       ...js.configs.recommended.rules,
@@ -64,7 +66,6 @@ export default [
       ...(importPlugin.configs.errors?.rules || {}),
       ...(importPlugin.configs.warnings?.rules || {}),
       ...(importPlugin.configs.typescript?.rules || {}),
-      ...prettier.configs.recommended.rules,
     },
   },
   {

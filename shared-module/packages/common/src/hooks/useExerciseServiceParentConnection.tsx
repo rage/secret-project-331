@@ -37,7 +37,6 @@ function useExerciseServiceParentConnection(
         }
       }
     }
-
     console.info("frame adding event listener")
     addEventListener("message", handler)
     // target origin is *, beacause this is a sandboxed iframe without the
@@ -48,13 +47,6 @@ function useExerciseServiceParentConnection(
     return () => {
       console.info("removing event listener")
       removeEventListener("message", handler)
-    }
-  }, [onMessage])
-  return port
-}
-
-export default useExerciseServiceParentConnection
- removeEventListener("message", handler)
     }
   }, [onMessage])
   return port

@@ -64,6 +64,18 @@ pub struct MarketingMailingListAccessToken {
     pub deleted_at: Option<DateTime<Utc>>,
 }
 
+#[derive(Debug, FromRow)]
+pub struct MailchimpCourseTag {
+    pub id: Uuid,
+    pub marketing_mailing_list_access_token_id: Uuid,
+    pub course_language_group_id: Uuid,
+    pub tag_name: String,
+    pub tag_id: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+}
+
 pub async fn upsert_marketing_consent(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -328,4 +340,32 @@ pub async fn fetch_all_marketing_mailing_list_access_tokens(
     .await?;
 
     Ok(results)
+}
+
+pub async fn fetch_tags_with_course_language_group_id_and_marketing_mailing_list_access_token_id(
+    conn: &mut PgConnection,
+    course_language_group_id: Uuid,
+    marketing_mailing_access_token_id: Uuid,
+) -> sqlx::Result<Vec<(String, String)>> {
+    let results = sqlx::query!(
+        "
+        SELECT
+          tag_name,
+          tag_id
+        FROM mailchimp_course_tags
+        WHERE course_language_group_id = $1
+        AND marketing_mailing_list_access_token_id = $2
+        ",
+        course_language_group_id,
+        marketing_mailing_access_token_id
+    )
+    .fetch_all(conn)
+    .await?;
+
+    let tags: Vec<(String, String)> = results
+        .into_iter()
+        .map(|row| (row.tag_name, row.tag_id))
+        .collect();
+
+    Ok(tags)
 }

@@ -422,6 +422,19 @@ async fn sync_contacts(
             successfully_synced_user_ids.extend(email_synced_user_ids);
         }
 
+        let tags_for_token = headless_lms_models::marketing_consents::fetch_tags_with_course_language_group_id_and_marketing_mailing_list_access_token_id(conn, token.course_language_group_id, token.id).await?;
+
+        let tag_objects: Vec<serde_json::Value> = tags_for_token
+            .into_iter()
+            .map(|(tag_name, tag_id)| {
+                json!({
+                    "name": tag_name,
+                    "id": tag_id,
+                    "status": "active"
+                })
+            })
+            .collect();
+
         // Fetch unsynced user consents and update them in Mailchimp
         let unsynced_users_details =
             headless_lms_models::marketing_consents::fetch_all_unsynced_user_marketing_consents_by_course_language_group_id(
@@ -438,7 +451,7 @@ async fn sync_contacts(
 
         if !unsynced_users_details.is_empty() {
             let consent_synced_user_ids =
-                send_users_to_mailchimp(conn, token, unsynced_users_details).await?;
+                send_users_to_mailchimp(conn, token, unsynced_users_details, tag_objects).await?;
 
             // Store the successfully synced user IDs from syncing user consents
             successfully_synced_user_ids.extend(consent_synced_user_ids);
@@ -477,6 +490,7 @@ pub async fn send_users_to_mailchimp(
     conn: &mut PgConnection,
     token: MarketingMailingListAccessToken,
     users_details: Vec<UserMarketingConsentWithDetails>,
+    tag_objects: Vec<serde_json::Value>,
 ) -> anyhow::Result<Vec<Uuid>> {
     let mut users_data_in_json = vec![];
     let mut user_ids = vec![];
@@ -503,6 +517,7 @@ pub async fn send_users_to_mailchimp(
                         "LANGGRPID": user.course_language_group_id,
                         "RESEARCH" : if user.research_consent.unwrap_or(false) { "allowed" } else { "disallowed" },
                     },
+                    "tags": tag_objects.clone()
                 });
                 users_data_in_json.push(user_details);
                 user_ids.push(user.id);

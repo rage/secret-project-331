@@ -1,0 +1,1 @@
+DROP TABLE mailchimp_course_tags

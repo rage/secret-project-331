@@ -3,7 +3,6 @@ import next from "@next/eslint-plugin-next"
 import tanstackQuery from "@tanstack/eslint-plugin-query"
 import typescriptEslint from "@typescript-eslint/eslint-plugin"
 import tsParser from "@typescript-eslint/parser"
-import { FlatCompat } from '@eslint/eslintrc'
 import i18next from "eslint-plugin-i18next"
 import importPlugin from "eslint-plugin-import"
 import jsxA11y from "eslint-plugin-jsx-a11y"
@@ -25,11 +24,32 @@ const DETECT_COLOR_REGEX = /^#[0-9A-Fa-f]{6}$/
 const cleanGlobals = (globalsObj) =>
   Object.fromEntries(Object.entries(globalsObj).map(([key, value]) => [key.trim(), value]))
 
-const compat = new FlatCompat({
-  baseDirectory: import.meta.dirname,
-})
+const getCircularReplacer = () => {
+  const seen = new WeakSet();
+  return (key, value) => {
+    if (typeof value === "object" && value !== null) {
+      if (seen.has(value)) {
+        return "[Circular]";
+      }
+      seen.add(value);
 
-export default [
+      // For plugins, just show their names
+      if (key === "plugins") {
+        return Object.keys(value).reduce((acc, pluginName) => {
+          acc[pluginName] = "[Plugin Object]";
+          return acc;
+        }, {});
+      }
+    }
+    // For functions, show [Function] instead of the full function
+    if (typeof value === "function") {
+      return "[Function]";
+    }
+    return value;
+  };
+};
+
+const config = [
   {
     ignores: [
       "**/node_modules/**",
@@ -46,17 +66,32 @@ export default [
       "**/.venv/**",
     ],
   },
-  ...compat.config({
-    extends: ['next/core-web-vitals', 'next/typescript'],
-  }),
+  {
+    files: ["**/*.{js,jsx,ts,tsx}"],
+    plugins: {
+      "@next/next": next,
+    },
+    rules: {
+      "@next/next/no-html-link-for-pages": "error",
+      "@next/next/no-img-element": "error",
+      "@next/next/no-sync-scripts": "error",
+      "@next/next/no-script-component-in-head": "error",
+      "@next/next/google-font-display": "error",
+      "@next/next/google-font-preconnect": "error",
+      "@next/next/next-script-for-ga": "error",
+      "@next/next/no-head-element": "error",
+      "@next/next/no-page-custom-font": "error",
+      "@next/next/no-styled-jsx-in-document": "error",
+      "@next/next/no-title-in-document-head": "error",
+      "@next/next/no-typos": "error",
+      "@next/next/no-unwanted-polyfillio": "error",
+    },
+  },
   ...tanstackQuery.configs['flat/recommended'],
   i18next.configs['flat/recommended'],
-  importPlugin.flatConfigs.recommended,
-  importPlugin.flatConfigs.typescript,
   jsxA11y.flatConfigs.recommended,
   react.configs.flat.recommended,
   react.configs.flat['jsx-runtime'],
-  reactHooks.configs['flat/recommended'],
   {
     files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"],
     languageOptions: {
@@ -110,6 +145,7 @@ export default [
     plugins: {
       "@typescript-eslint": typescriptEslint,
       import: importPlugin,
+      "react-hooks": reactHooks,
     },
     rules: {
       ...js.configs.recommended.rules,
@@ -167,6 +203,8 @@ export default [
       "react-hooks/exhaustive-deps": ["warn", {
         "additionalHooks": "(useMyCustomHook|useMyOtherCustomHook)"
       }],
+      ...importPlugin.configs.recommended.rules,
+      ...importPlugin.configs.typescript.rules,
     },
   },
   {
@@ -334,3 +372,15 @@ export default [
   },
   eslintPluginPrettierRecommended,
 ]
+
+console.log("config structure:",
+  JSON.stringify(config.map(item => ({
+    files: item.files,
+    plugins: item.plugins ? Object.keys(item.plugins) : undefined,
+    rules: item.rules ? Object.keys(item.rules) : undefined,
+    languageOptions: item.languageOptions,
+    settings: item.settings,
+  })), getCircularReplacer(), 2)
+);
+
+export default config;

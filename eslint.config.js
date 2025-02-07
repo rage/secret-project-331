@@ -3,6 +3,7 @@ import next from "@next/eslint-plugin-next"
 import tanstackQuery from "@tanstack/eslint-plugin-query"
 import typescriptEslint from "@typescript-eslint/eslint-plugin"
 import tsParser from "@typescript-eslint/parser"
+import { FlatCompat } from '@eslint/eslintrc'
 import i18next from "eslint-plugin-i18next"
 import importPlugin from "eslint-plugin-import"
 import jsxA11y from "eslint-plugin-jsx-a11y"
@@ -24,6 +25,10 @@ const DETECT_COLOR_REGEX = /^#[0-9A-Fa-f]{6}$/
 const cleanGlobals = (globalsObj) =>
   Object.fromEntries(Object.entries(globalsObj).map(([key, value]) => [key.trim(), value]))
 
+const compat = new FlatCompat({
+  baseDirectory: import.meta.dirname,
+})
+
 export default [
   {
     ignores: [
@@ -41,40 +46,32 @@ export default [
       "**/.venv/**",
     ],
   },
-  eslintPluginPrettierRecommended,
+  ...compat.config({
+    extends: ['next/core-web-vitals', 'next/typescript'],
+  }),
+  ...tanstackQuery.configs['flat/recommended'],
+  i18next.configs['flat/recommended'],
+  importPlugin.flatConfigs.recommended,
+  importPlugin.flatConfigs.typescript,
+  jsxA11y.flatConfigs.recommended,
+  react.configs.flat.recommended,
+  react.configs.flat['jsx-runtime'],
+  reactHooks.configs['flat/recommended'],
   {
     files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"],
-    plugins: {
-      "@next/next": next,
-      "@tanstack/query": tanstackQuery,
-      "i18next": i18next,
-      "jsx-a11y": jsxA11y,
-      "react-hooks": reactHooks,
-      react: react,
-      "@typescript-eslint": typescriptEslint,
-      import: importPlugin,
-    },
-    rules: {
-      ...next.configs.recommended.rules,
-      ...tanstackQuery.configs.recommended.rules,
-      ...i18next.configs?.recommended?.rules,
-      ...jsxA11y.configs.recommended.rules,
-      ...reactHooks.configs.recommended.rules,
-      ...js.configs.recommended.rules,
-      ...react.configs.recommended.rules,
-      ...typescriptEslint.configs.recommended.rules,
-      ...(importPlugin.configs.errors?.rules || {}),
-      ...(importPlugin.configs.warnings?.rules || {}),
-      ...(importPlugin.configs.typescript?.rules || {}),
-    },
-  },
-  {
-    files: ["**/*.{js,mjs,cjs,ts,tsx}"],
     languageOptions: {
-      ecmaVersion: 12,
-      sourceType: "module",
       parser: tsParser,
-      parserOptions: { ecmaFeatures: { jsx: true } },
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: "module",
+        ecmaFeatures: {
+          jsx: true
+        },
+        project: true, // Find nearest tsconfig.json for each source file
+        tsconfigRootDir: import.meta.dirname,
+        jsDocParsingMode: 'all',
+        warnOnUnsupportedTypeScriptVersion: true
+      },
       globals: {
         ...cleanGlobals(globals.browser),
         ...cleanGlobals(globals.node),
@@ -84,8 +81,39 @@ export default [
         WindowEventMap: true,
       },
     },
-    settings: { react: { version: "detect" } },
+    settings: {
+      react: {
+        version: "detect",
+        componentWrapperFunctions: [
+          { property: "styled" },
+          { property: "css" },
+          { property: "sx" },
+          "styled",
+        ],
+        formComponents: [],
+        linkComponents: [],
+      },
+      'import/resolver': {
+        typescript: true,
+        node: true
+      },
+      'import/parsers': {
+        '@typescript-eslint/parser': ['.ts', '.tsx']
+      },
+      'import/extensions': ['.js', '.jsx', '.ts', '.tsx'],
+      'jsx-a11y': {
+        components: {
+          Button: 'button',
+        }
+      },
+    },
+    plugins: {
+      "@typescript-eslint": typescriptEslint,
+      import: importPlugin,
+    },
     rules: {
+      ...js.configs.recommended.rules,
+      ...typescriptEslint.configs.recommended.rules,
       "@next/next/no-img-element": "off",
       "react/react-in-jsx-scope": "off",
       "react/prop-types": "off",
@@ -128,10 +156,17 @@ export default [
           "newlines-between": "always",
         },
       ],
-      "import/no-unresolved": "off",
+      "import/no-unresolved": "error",
+      "import/named": "error",
+      "import/namespace": "error",
+      "import/default": "error",
+      "import/export": "error",
       "import/no-named-as-default": "off",
-      "i18next/no-literal-string": "off",
       curly: "error",
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": ["warn", {
+        "additionalHooks": "(useMyCustomHook|useMyOtherCustomHook)"
+      }],
     },
   },
   {
@@ -277,17 +312,18 @@ export default [
   },
   {
     files: ["system-tests/src/**/*", "**/*.test.*"],
-    plugins: { playwright: playwright },
+    ...playwright.configs['flat/recommended'],
     languageOptions: {
       globals: {
-        describe: true,
         test: true,
         expect: true,
+        describe: true,
         it: true,
-      },
+      }
     },
     rules: {
-      ...playwright.configs["playwright-test"].rules,
+      ...playwright.configs['flat/recommended'].rules,
+      // Override specific Playwright rules
       "playwright/no-focused-test": "off",
       "playwright/prefer-strict-equal": "error",
       "playwright/prefer-to-be": "error",
@@ -296,4 +332,5 @@ export default [
       "playwright/no-standalone-expect": "off",
     },
   },
+  eslintPluginPrettierRecommended,
 ]

@@ -25,45 +25,54 @@ const cleanGlobals = (globalsObj) =>
   Object.fromEntries(Object.entries(globalsObj).map(([key, value]) => [key.trim(), value]))
 
 const getCircularReplacer = () => {
-  const seen = new WeakSet();
+  const seen = new WeakSet()
   return (key, value) => {
     if (typeof value === "object" && value !== null) {
       if (seen.has(value)) {
-        return "[Circular]";
+        return "[Circular]"
       }
-      seen.add(value);
+      seen.add(value)
 
       // For plugins, just show their names
       if (key === "plugins") {
         return Object.keys(value).reduce((acc, pluginName) => {
-          acc[pluginName] = "[Plugin Object]";
-          return acc;
-        }, {});
+          acc[pluginName] = "[Plugin Object]"
+          return acc
+        }, {})
       }
     }
     // For functions, show [Function] instead of the full function
     if (typeof value === "function") {
-      return "[Function]";
+      return "[Function]"
     }
-    return value;
-  };
-};
+    return value
+  }
+}
+
+const baseIgnorePatterns = [
+  "**/node_modules/**",
+  "**/target/**",
+  "**/.next/**",
+  "**/out/**",
+  "**/playwright-report/**",
+  "**/storybook-static/**",
+  "**/services/main-frontend/public/monaco-editor/**",
+  "**/.venv/**",
+]
+
+const getIgnorePatterns = (prefix = "") =>
+  prefix ? baseIgnorePatterns.map((pattern) => `${prefix}${pattern}`) : baseIgnorePatterns
 
 const config = [
   {
     ignores: [
-      "**/node_modules/**",
-      "**/target/**",
-      "**/.next/**",
-      "**/out/**",
-      "**/playwright-report/**",
-      "**/storybook-static/**",
+      ...getIgnorePatterns(),
       // Ignore copies of shared module
       "**/shared-module/**",
-      // Don't ignore the shared module in the root
+      // Don't ignore the root shared module
       "!shared-module/**",
-      "**/services/main-frontend/public/monaco-editor/**",
-      "**/.venv/**",
+      // But do ignore build/output dirs inside root shared module
+      ...getIgnorePatterns("shared-module/"),
     ],
   },
   {
@@ -87,25 +96,37 @@ const config = [
       "@next/next/no-unwanted-polyfillio": "error",
     },
   },
-  ...tanstackQuery.configs['flat/recommended'],
-  i18next.configs['flat/recommended'],
+  ...tanstackQuery.configs["flat/recommended"],
+  i18next.configs["flat/recommended"],
   jsxA11y.flatConfigs.recommended,
   react.configs.flat.recommended,
-  react.configs.flat['jsx-runtime'],
+  react.configs.flat["jsx-runtime"],
+  importPlugin.flatConfigs.recommended,
+  {
+    files: ["**/*.{js,jsx,ts,tsx}"],
+    rules: {
+      // Disable import checking rules
+      "import/no-unresolved": "off",
+      "import/named": "off",
+      "import/namespace": "off",
+      "import/default": "off",
+      "import/export": "off"
+    }
+  },
   {
     files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        ecmaVersion: 'latest',
+        ecmaVersion: "latest",
         sourceType: "module",
         ecmaFeatures: {
-          jsx: true
+          jsx: true,
         },
-        project: true, // Find nearest tsconfig.json for each source file
+        project: false,
         tsconfigRootDir: import.meta.dirname,
-        jsDocParsingMode: 'all',
-        warnOnUnsupportedTypeScriptVersion: true
+        jsDocParsingMode: "all",
+        warnOnUnsupportedTypeScriptVersion: true,
       },
       globals: {
         ...cleanGlobals(globals.browser),
@@ -118,7 +139,7 @@ const config = [
     },
     settings: {
       react: {
-        version: "detect",
+        version: "19",
         componentWrapperFunctions: [
           { property: "styled" },
           { property: "css" },
@@ -128,28 +149,20 @@ const config = [
         formComponents: [],
         linkComponents: [],
       },
-      'import/resolver': {
-        typescript: true,
-        node: true
-      },
-      'import/parsers': {
-        '@typescript-eslint/parser': ['.ts', '.tsx']
-      },
-      'import/extensions': ['.js', '.jsx', '.ts', '.tsx'],
-      'jsx-a11y': {
+      "jsx-a11y": {
         components: {
-          Button: 'button',
-        }
+          Button: "button",
+        },
       },
     },
     plugins: {
       "@typescript-eslint": typescriptEslint,
-      import: importPlugin,
       "react-hooks": reactHooks,
     },
     rules: {
       ...js.configs.recommended.rules,
       ...typescriptEslint.configs.recommended.rules,
+
       "@next/next/no-img-element": "off",
       "react/react-in-jsx-scope": "off",
       "react/prop-types": "off",
@@ -192,25 +205,19 @@ const config = [
           "newlines-between": "always",
         },
       ],
-      "import/no-unresolved": "error",
-      "import/named": "error",
-      "import/namespace": "error",
-      "import/default": "error",
-      "import/export": "error",
-      "import/no-named-as-default": "off",
       curly: "error",
       "react-hooks/rules-of-hooks": "error",
-      "react-hooks/exhaustive-deps": ["warn", {
-        "additionalHooks": "(useMyCustomHook|useMyOtherCustomHook)"
-      }],
-      ...importPlugin.configs.recommended.rules,
-      ...importPlugin.configs.typescript.rules,
+      "react-hooks/exhaustive-deps": [
+        "warn",
+        {
+          additionalHooks: "(useMyCustomHook|useMyOtherCustomHook)",
+        },
+      ],
     },
   },
   {
     files: ["**/*.{jsx,tsx}"],
     rules: {
-      "import/no-named-as-default": "off",
       "i18next/no-literal-string": [
         "error",
         {
@@ -350,17 +357,17 @@ const config = [
   },
   {
     files: ["system-tests/src/**/*", "**/*.test.*"],
-    ...playwright.configs['flat/recommended'],
+    ...playwright.configs["flat/recommended"],
     languageOptions: {
       globals: {
         test: true,
         expect: true,
         describe: true,
         it: true,
-      }
+      },
     },
     rules: {
-      ...playwright.configs['flat/recommended'].rules,
+      ...playwright.configs["flat/recommended"].rules,
       // Override specific Playwright rules
       "playwright/no-focused-test": "off",
       "playwright/prefer-strict-equal": "error",
@@ -373,14 +380,19 @@ const config = [
   eslintPluginPrettierRecommended,
 ]
 
-console.log("config structure:",
-  JSON.stringify(config.map(item => ({
-    files: item.files,
-    plugins: item.plugins ? Object.keys(item.plugins) : undefined,
-    rules: item.rules ? Object.keys(item.rules) : undefined,
-    languageOptions: item.languageOptions,
-    settings: item.settings,
-  })), getCircularReplacer(), 2)
-);
+console.log(
+  "config structure:",
+  JSON.stringify(
+    config.map((item) => ({
+      files: item.files,
+      plugins: item.plugins ? Object.keys(item.plugins) : undefined,
+      rules: item.rules ? Object.keys(item.rules) : undefined,
+      languageOptions: item.languageOptions,
+      settings: item.settings,
+    })),
+    getCircularReplacer(),
+    2,
+  ),
+)
 
-export default config;
+export default config

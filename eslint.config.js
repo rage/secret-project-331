@@ -19,6 +19,9 @@ const DETECT_PX_REGEX = /^\d+px$/
 const DETECT_REM_REGEX = /^\d+rem$/
 const DETECT_EM_REGEX = /^\d+em$/
 const DETECT_COLOR_REGEX = /^#[0-9A-Fa-f]{6}$/
+const DETECT_STYLE_PROP = /^(height|width|transform|transition|background|color|margin|padding|border|display|position|top|bottom|left|right|z-index|font-size|font-weight|line-height|cursor|content|clip-path|appearance|gap|grid-template-columns|place-content|box-shadow|border-radius|transition-property|transition-duration|transition-timing-function|fill):/
+const DETECT_BEZIER = /cubic-bezier\([^)]+\)/
+const DETECT_TRANSFORM = /translate(Y|3d)|rotate|scale/
 
 /** Helper function to clean object keys of whitespace */
 const cleanGlobals = (globalsObj) =>
@@ -245,6 +248,7 @@ const config = [
               "navVariant",
               "aria-labelledby",
               "aria-describedby",
+              "aria-live",
               "url",
               "labelId",
               "defaultLanguage",
@@ -264,6 +268,7 @@ const config = [
               "action",
               "tagName",
               "templateLock",
+              /^data-.*/,
             ],
           },
           words: {
@@ -275,6 +280,9 @@ const config = [
               DETECT_REM_REGEX,
               DETECT_EM_REGEX,
               DETECT_COLOR_REGEX,
+              DETECT_STYLE_PROP,
+              DETECT_BEZIER,
+              DETECT_TRANSFORM,
               "[0-9!-/:-@[-`{-~]+",
               "[A-Z_-]+",
               /^\p{Emoji}+$/u,
@@ -311,6 +319,7 @@ const config = [
               "watch",
               "useMediaQuery",
               "log",
+              "groupCollapsed",
               "error",
               "warn",
               "info",
@@ -356,14 +365,23 @@ const config = [
     rules: { "i18next/no-literal-string": "off" },
   },
   {
-    files: ["system-tests/src/**/*", "**/*.test.*"],
+    files: ["system-tests/src/**/*", "**/*.test.*", "**/tests/**/*"],
     ...playwright.configs["flat/recommended"],
     languageOptions: {
       globals: {
+        // Test globals
         test: true,
         expect: true,
         describe: true,
         it: true,
+        jest: true,
+        beforeAll: true,
+        afterAll: true,
+        beforeEach: true,
+        afterEach: true,
+        // Node.js globals
+        Buffer: true,
+        BufferEncoding: true,
       },
     },
     rules: {

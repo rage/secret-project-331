@@ -94,6 +94,7 @@ const DebugModal: React.FC<React.PropsWithChildren<React.PropsWithChildren<Debug
         <MonacoEditor
           height="90vh"
           defaultLanguage="json"
+          // eslint-disable-next-line i18next/no-literal-string
           options={{ wordWrap: "on", readOnly }}
           defaultValue={editedContent || undefined}
           onChange={(value) => value && setEditedContent(value)}

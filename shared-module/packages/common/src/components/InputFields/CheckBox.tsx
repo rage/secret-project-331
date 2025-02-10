@@ -11,6 +11,7 @@ interface LabelExtraProps {
   error?: boolean
 }
 
+// eslint-disable-next-line i18next/no-literal-string
 const Label = styled.label<LabelExtraProps>`
   font-family: ${primaryFont};
   font-size: 1.1rem;

@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { css, injectGlobal } from "@emotion/css"
 
 import { defaultFontSizePx, linkWithExtraIconClass } from "./constants"

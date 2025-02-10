@@ -200,13 +200,3 @@ const StyledBox = styled.div<StyledBoxProps>`
 export const HamburgerSpring: React.FC<
   React.PropsWithChildren<React.PropsWithChildren<ButtonProps>>
 > = (props) => <Button {...props} Lines={StyledLinesSpring} />
-s>`
-  width: ${({ buttonWidth }) => buttonWidth}px;
-  height: ${({ buttonWidth }) => buttonWidth * 0.6}px;
-  display: inline-block;
-  position: relative;
-`
-
-export const HamburgerSpring: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<ButtonProps>>
-> = (props) => <Button {...props} Lines={StyledLinesSpring} />

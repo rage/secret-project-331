@@ -29,7 +29,6 @@ interface LinearProgressFillProps {
 interface LinearProgressProps {
   height: string
 }
-
 const LinearProgressFill = styled.div<LinearProgressFillProps>`
   height: ${({ height }) => (height === "small" ? "16px" : "20px")};
   position: absolute;

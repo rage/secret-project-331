@@ -13,9 +13,7 @@ const generateWebVitalsReporter = (serviceName: string) => {
       }
       const vitals = webVitals
       webVitals = []
-
       console.groupCollapsed(`[${serviceName}] Web vitals`)
-
       console.table(vitals, ["label", "name", "value", "startTime"])
       console.groupEnd()
     }, 10000)

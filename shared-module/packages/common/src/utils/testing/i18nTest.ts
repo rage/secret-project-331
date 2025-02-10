@@ -1,6 +1,8 @@
+/* eslint-disable i18next/no-literal-string */
 import i18n from "i18next"
 import { initReactI18next } from "react-i18next"
 
+// eslint-disable-next-line import/no-named-as-default-member
 i18n.use(initReactI18next).init({
   lng: "en",
   fallbackLng: "en",
@@ -17,12 +19,6 @@ i18n.use(initReactI18next).init({
 
   fallbackNS: "shared-module",
   resources: { en: { translationsNS: {} } },
-})
-
-const i18nTest = i18n
-
-export default i18nTest
-S: {} } },
 })
 
 const i18nTest = i18n

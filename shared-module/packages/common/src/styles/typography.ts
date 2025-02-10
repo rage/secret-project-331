@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 // These fallback variables should not used outside of this file.
 // Fallback fonts are used as a temporary fallback before the browser has
 // loaded the fonts included in the webpage. They also might be used for some

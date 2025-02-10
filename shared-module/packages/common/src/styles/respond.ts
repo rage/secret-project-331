@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 const mediaQuery = (minWidth: number) => `@media (min-width: ${minWidth}rem)`
 
 export const respondToOrLarger = {

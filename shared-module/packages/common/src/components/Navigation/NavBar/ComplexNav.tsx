@@ -125,7 +125,6 @@ const navMenu = css`
     transition: none;
   }
 `
-
 const navLinks = css`
   color: ${baseTheme.colors.gray[700]};
   text-decoration: none;
@@ -222,7 +221,6 @@ const Navigation: React.FC<
   const { t } = useTranslation()
   const [clicked, setClicked] = useState(false)
   const callback = () => setClicked(!clicked)
-
   const buttonId = "main-navigation-menu"
   return (
     <nav role="navigation" className={cx(navbarItems)}>
@@ -262,12 +260,6 @@ const Navigation: React.FC<
           </Button>
         </li>
       </ol>
-    </nav>
-  )
-}
-
-export default Navigation
-     </ol>
     </nav>
   )
 }

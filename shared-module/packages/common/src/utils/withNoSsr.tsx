@@ -4,7 +4,6 @@ import { useEffect, useState } from "react"
 
 function withNoSsr<T>(WrappedComponent: React.ComponentType<T>) {
   // Name to display in React Dev tools
-
   const displayName = WrappedComponent.displayName || WrappedComponent.name || "Component"
 
   const InnerComponent = (props: T) => {
@@ -20,12 +19,6 @@ function withNoSsr<T>(WrappedComponent: React.ComponentType<T>) {
   }
 
   InnerComponent.displayName = `withNoSsr(${displayName})`
-
-  return InnerComponent
-}
-
-export default withNoSsr
-`
 
   return InnerComponent
 }

@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { keyframes } from "@emotion/react"
 import styled from "@emotion/styled"
 

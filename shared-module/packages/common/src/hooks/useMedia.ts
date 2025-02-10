@@ -8,6 +8,7 @@ export default function useMedia(query: string) {
   const [matches, setMatches] = useState(window.matchMedia(query).matches)
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [_, ...queryWithoutMedia] = query.split(" ")
     const media = window.matchMedia(queryWithoutMedia.join(" "))
     if (media.matches !== matches) {

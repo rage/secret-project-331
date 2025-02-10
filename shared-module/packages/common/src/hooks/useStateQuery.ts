@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { useQuery, UseQueryOptions } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 

@@ -16,6 +16,7 @@ export function getDir(language: string) {
   try {
     return dir(language)
   } catch (e) {
+    // eslint-disable-next-line i18next/no-literal-string
     return "ltr"
   }
 }
@@ -40,7 +41,7 @@ export default function useLanguage(): string | null {
 
   if (!IS_SERVER && CAN_ACCESS_COOKIES) {
     // Remember the selected language in a cookie
-
+    // eslint-disable-next-line i18next/no-literal-string
     document.cookie = `${LANGUAGE_COOKIE_KEY}=${selectedLanguage}; path=/; SameSite=Strict; max-age=31536000;`
 
     // Set html lang=lang attribute

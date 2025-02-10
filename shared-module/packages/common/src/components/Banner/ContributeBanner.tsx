@@ -59,7 +59,6 @@ const Text = styled.div`
     opacity: 0.8;
   }
 `
-
 const StyledLink = styled.a`
   font-family: ${headingFont};
   font-size: 20px;
@@ -103,11 +102,6 @@ const Contribute: React.FC<
         </StyledLink>
       </Content>
     </BannerWrapper>
-  )
-}
-
-export default Contribute
-   </BannerWrapper>
   )
 }
 

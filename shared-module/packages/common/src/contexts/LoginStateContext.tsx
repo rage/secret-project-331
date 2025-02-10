@@ -61,19 +61,12 @@ export function withSignedIn<T>(
 
     if (!loginStateContext.signedIn) {
       const returnTo = encodeURIComponent(window.location.pathname)
-
       window.location.replace(`/login?return_to=${returnTo}`)
       return <div>{t("please-sign-in-to-view-this-page")}</div>
     }
 
     // @ts-ignore: Shared module might have a diffrerent react version
     return <Component {...props} />
-  }
-
-  InnerComponent.displayName = `withSignedIn(${displayName})`
-  return InnerComponent
-}
-mponent {...props} />
   }
 
   InnerComponent.displayName = `withSignedIn(${displayName})`

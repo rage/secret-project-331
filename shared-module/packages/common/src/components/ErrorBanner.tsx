@@ -112,7 +112,7 @@ const DetailTag = styled.div`
 
 export interface BannerExtraProps {
   variant: "text" | "link" | "readOnly"
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   error: unknown | string
 }
 
@@ -170,7 +170,6 @@ const ErrorBanner: React.FC<React.PropsWithChildren<React.PropsWithChildren<Bann
       let linkComponent = <></>
       if (isErrorData(errorData)) {
         const url = window.location.href.replace(location.hash, "")
-
         linkComponent = <a href={`${url}#${errorData.block_id}`}>Go to error</a>
       }
 
@@ -307,12 +306,6 @@ const ErrorBanner: React.FC<React.PropsWithChildren<React.PropsWithChildren<Bann
           </details>
         </DetailTag>
       </Content>
-    </BannerWrapper>
-  )
-}
-
-export default ErrorBanner
-tent>
     </BannerWrapper>
   )
 }

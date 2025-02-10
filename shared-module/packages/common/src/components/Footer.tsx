@@ -220,10 +220,3 @@ const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<Props>>> 
 }
 
 export default Footer
-pper>
-      </Container>
-    </footer>
-  )
-}
-
-export default Footer

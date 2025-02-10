@@ -120,10 +120,3 @@ const Menu: React.FC<React.PropsWithChildren<React.PropsWithChildren<MenuProps>>
 }
 
 export default Menu
-dren}
-      </ul>
-    </div>
-  )
-}
-
-export default Menu

@@ -11,7 +11,6 @@ export interface TextFieldProps extends TextareaHTMLAttributes<HTMLTextAreaEleme
 function updateHeight(ref: React.RefObject<HTMLTextAreaElement>) {
   if (ref.current) {
     ref.current.style.height = "20px"
-
     ref.current.style.height = `${ref.current.scrollHeight /* + 5 */}px`
   }
 }
@@ -86,11 +85,6 @@ const EditableComponentTextArea = ({
         />
       </label>
     </div>
-  )
-}
-
-export default EditableComponentTextArea
-  </div>
   )
 }
 

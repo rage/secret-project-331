@@ -1,3 +1,5 @@
+/* eslint-disable i18next/no-literal-string */
+
 import { AxiosResponse } from "axios"
 
 import { ErrorResponse } from "../bindings"

@@ -138,7 +138,3 @@ const FileField = forwardRef<HTMLInputElement, FileFieldProps>(
 )
 FileField.displayName = "FileField"
 export default FileField
-},
-)
-FileField.displayName = "FileField"
-export default FileField

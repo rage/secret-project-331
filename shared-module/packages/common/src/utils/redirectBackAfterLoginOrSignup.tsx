@@ -54,5 +54,3 @@ export function useCurrentPagePathForReturnTo(currentPagePath: string): string {
   }
   return process.env.NEXT_PUBLIC_BASE_PATH + currentPagePath
 }
-urn process.env.NEXT_PUBLIC_BASE_PATH + currentPagePath
-}

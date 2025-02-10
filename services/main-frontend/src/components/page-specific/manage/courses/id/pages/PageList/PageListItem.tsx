@@ -28,7 +28,6 @@ interface PageListItemProps {
   reload: () => void
 }
 
-// eslint-disable-next-line i18next/no-literal-string
 const ActionButton = styled.button`
   color: ${baseTheme.colors.gray[600]};
   background: #ffffff;
@@ -73,7 +72,6 @@ const PageListItem: React.FC<React.PropsWithChildren<PageListItemProps>> = ({
         }}
         isUpdate={true}
         savedPage={page}
-        // eslint-disable-next-line i18next/no-literal-string
         prefix={chapter && `/chapter-${chapter.chapter_number}/`}
         open={showEditPageDetailsForm}
         onClose={() => setShowEditDetailsPageForm(false)}
@@ -125,7 +123,6 @@ const PageListItem: React.FC<React.PropsWithChildren<PageListItemProps>> = ({
                   : null,
                 {
                   label: t("link-history"),
-                  // eslint-disable-next-line i18next/no-literal-string
                   href: `/manage/pages/${page.id}/history`,
                 },
                 {
@@ -141,7 +138,6 @@ const PageListItem: React.FC<React.PropsWithChildren<PageListItemProps>> = ({
                       onClick: () => {
                         pageOrderDispatch({
                           type: "move",
-                          // eslint-disable-next-line i18next/no-literal-string
                           payload: { pageId: page.id, chapterId: page.chapter_id, direction: "up" },
                         })
                       },
@@ -156,7 +152,6 @@ const PageListItem: React.FC<React.PropsWithChildren<PageListItemProps>> = ({
                           payload: {
                             pageId: page.id,
                             chapterId: page.chapter_id,
-                            // eslint-disable-next-line i18next/no-literal-string
                             direction: "down",
                           },
                         })

@@ -9,6 +9,7 @@ interface CardOpensTextProps {
   time: string | undefined
 }
 
+
 const styledspan = css`
   font-family: ${secondaryFont} !important;
   font-size: 0.9rem;

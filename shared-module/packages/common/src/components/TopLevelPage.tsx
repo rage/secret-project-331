@@ -9,7 +9,7 @@ import { respondToOrLarger } from "../styles/respond"
 const Content = styled.div`
   margin: 0 auto;
   max-width: 100%;
-  background: #ecf3f2;
+  background: rgb(242, 245, 247);
   display: flex;
   height: auto;
   align-items: center;
@@ -24,14 +24,14 @@ const Content = styled.div`
   transition: filter 0.2s;
   filter: brightness(100%) contrast(100%);
   &:hover {
-    filter: brightness(92%) contrast(110%);
+    background-color: rgb(235, 239, 242);
   }
 
   h3 {
     font-family: ${primaryFont};
     font-size: 22px;
     font-weight: 400;
-    color: #065853;
+    color: #1a2333;
   }
 
   span {
@@ -78,7 +78,7 @@ const TopLevelPage: React.FC<React.PropsWithChildren<React.PropsWithChildren<Top
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56.957 49" className="right-arrow">
           <path
             d="M32.466,0,29.321,3.146l19.123,19.11H0v4.475H48.444L29.321,45.854,32.466,49l24.49-24.506Z"
-            fill="#44827E"
+            fill="#1a2333"
           />
         </svg>
       </Content>

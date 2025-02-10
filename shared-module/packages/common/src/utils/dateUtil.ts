@@ -31,6 +31,5 @@ export const makeDateStringTimezoneErrorsLessLikely = (dateString: string): stri
     // The date string specifies something other than a date. We won't do anything in this case.
     return input
   }
-
   return `${input}T12:00:00+00:00`
 }

@@ -46,7 +46,6 @@ const PartnerBox = styled.div`
     align-self: center;
   }
 `
-
 const PartnerLogo = styled.div<StyledPartner>`
   width: ${({ width }) => (width ? width : "160px")};
   aspect-ratio: 2 / 1;

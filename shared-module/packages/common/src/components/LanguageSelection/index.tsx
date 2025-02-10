@@ -49,7 +49,6 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
     i18n.changeLanguage(newLanguage)
     setVisible(false)
     const selectedLanguage = newLanguage.split("-")
-
     document.cookie = `${LANGUAGE_COOKIE_KEY}=${selectedLanguage[0]}; path=/; SameSite=Strict; max-age=31536000;`
   }
 

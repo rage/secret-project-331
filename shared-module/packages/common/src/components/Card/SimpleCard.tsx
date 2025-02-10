@@ -45,8 +45,12 @@ const CardContentWrapper = styled.div`
     z-index: 20;
     color: #fff;
     font-weight: 500;
-    line-height: 100%;
-    font-size: clamp(28px, 2.7rem, 46px);
+    line-height: 110%;
+    font-size: 1.875rem;
+
+    ${respondToOrLarger.lg} {
+      font-size: clamp(28px, 2.7rem, 46px);
+    }
   }
 
   span {

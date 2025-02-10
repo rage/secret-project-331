@@ -69,13 +69,10 @@ const MessageChannelIFrame: React.FC<
           console.error("Cannot send data to iframe because reference does not exist.")
           return
         }
-
         console.info("Updating height")
-
         iframeRef.current.height = Number(data.data).toString() + "px"
       } else if (isOpenLinkMessage(data)) {
         console.info(`The iframe wants to open a link: ${data.data}`)
-
         window.open(data.data, "_blank", "noopener,noreferrer")
       } else if (isMessageFromIframe(data)) {
         try {
@@ -141,7 +138,6 @@ const MessageChannelIFrame: React.FC<
       message: "set-language",
       data: language,
     }
-
     console.groupCollapsed(`Parent posting set-language message to iframe (${language})`)
     console.info(JSON.stringify(message, undefined, 2))
     console.groupEnd()
@@ -158,7 +154,6 @@ const MessageChannelIFrame: React.FC<
     }
     const postData: SetStateMessage = {
       ...postThisStateToIFrame,
-
       message: "set-state",
     }
 
@@ -199,29 +194,6 @@ const MessageChannelIFrame: React.FC<
           className={css`
             padding-bottom: 0.5rem;
             font-weight: 600;
-            font-size: 20px;
-          `}
-        >
-          {headingBeforeIframe}
-        </h4>
-      )}
-      <iframe
-        sandbox={disableSandbox ? undefined : "allow-scripts allow-forms allow-downloads"}
-        className={css`
-          overflow: hidden;
-          width: 100%;
-          border: 0;
-        `}
-        title={title}
-        ref={iframeRef}
-        src={url}
-      />
-    </div>
-  )
-}
-
-export default React.memo(MessageChannelIFrame)
-    font-weight: 600;
             font-size: 20px;
           `}
         >

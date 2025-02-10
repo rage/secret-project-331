@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO mailchimp_course_tags (\n          tag_name,\n          tag_id,\n          course_language_group_id,\n          marketing_mailing_list_access_token_id\n        )\n        VALUES ($1, $2, $3, $4)\n        ON CONFLICT (course_language_group_id, tag_name)\n        DO UPDATE\n        SET\n          tag_name = EXCLUDED.tag_name\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Varchar", "Varchar", "Uuid", "Uuid"]
+    },
+    "nullable": []
+  },
+  "hash": "a91f127be9b8f1a8574d76a2a4d98ff07482353302017715e60ccbea373220f6"
+}

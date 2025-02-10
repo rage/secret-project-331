@@ -1,4 +1,3 @@
-
 /**
  * @param {{requireTrustedTypesFor: boolean}} options
  */

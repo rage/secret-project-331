@@ -82,6 +82,6 @@ describe("useStateQuery hook", () => {
       expect(hookResult.result.current.state).toBe("ready")
     })
     expect(hookResult.result.current.state).toBe("ready")
-    expect(hookResult.result.current.data).toBe(null)
+    expect(hookResult.result.current.data).toBeNull()
   })
 })

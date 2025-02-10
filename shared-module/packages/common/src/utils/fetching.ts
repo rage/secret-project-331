@@ -1,4 +1,3 @@
-
 import { AxiosResponse } from "axios"
 
 import { ErrorResponse } from "../bindings"

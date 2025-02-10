@@ -1,6 +1,5 @@
 import {
   MutationFunction,
-  // eslint-disable-next-line no-restricted-imports
   useMutation,
   UseMutationOptions,
   UseMutationResult,

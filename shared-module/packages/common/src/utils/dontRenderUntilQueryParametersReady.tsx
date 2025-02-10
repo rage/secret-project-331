@@ -16,7 +16,6 @@ export type SimplifiedUrlQuery<T = unknown> = T extends string
   ? Record<T, string>
   : NodeJS.Dict<string>
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function dontRenderUntilQueryParametersReady<T, P = unknown>(
   WrappedComponent: React.ComponentType<
     React.PropsWithChildren<React.PropsWithChildren<T & ProvidedExtraProps<P>>>

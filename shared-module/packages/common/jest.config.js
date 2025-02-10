@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-
 const nextJest = require("next/jest")
 
 // Providing the path to your Next.js app which will enable loading next.config.js and .env files

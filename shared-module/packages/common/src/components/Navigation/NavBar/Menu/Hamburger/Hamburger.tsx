@@ -12,7 +12,6 @@ interface HamburgerProps {
   buttonId: string
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 const Hamburger: React.FC<React.PropsWithChildren<React.PropsWithChildren<HamburgerProps>>> = ({
   isActive,
   toggleButton,

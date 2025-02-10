@@ -1,4 +1,5 @@
 use itertools::multiunzip;
+use serde_json::json;
 
 use crate::prelude::*;
 
@@ -164,6 +165,8 @@ pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_group
         ON csfa.course_id = umc.course_id AND csfa.user_id = umc.user_id
     LEFT JOIN user_research_consents AS urc
         ON urc.user_id = umc.user_id
+    LEFT JOIN mailchimp_course_tags AS tags
+        ON tags.course_language_group_id = umc.course_language_group_id
     WHERE umc.course_language_group_id = $1
     AND (
         umc.synced_to_mailchimp_at IS NULL
@@ -171,7 +174,13 @@ pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_group
         OR csfa.updated_at > umc.synced_to_mailchimp_at
         OR urc.updated_at > umc.synced_to_mailchimp_at
         OR cmc.updated_at > umc.synced_to_mailchimp_at
-)
+        OR EXISTS (
+            SELECT 1
+            FROM mailchimp_course_tags
+            WHERE mailchimp_course_tags.course_language_group_id = umc.course_language_group_id
+            AND mailchimp_course_tags.updated_at > umc.synced_to_mailchimp_at
+        )
+    )
     ",
         course_language_group_id
     )
@@ -346,7 +355,7 @@ pub async fn fetch_tags_with_course_language_group_id_and_marketing_mailing_list
     conn: &mut PgConnection,
     course_language_group_id: Uuid,
     marketing_mailing_access_token_id: Uuid,
-) -> sqlx::Result<Vec<(String, String)>> {
+) -> sqlx::Result<Vec<serde_json::Value>> {
     let results = sqlx::query!(
         "
         SELECT
@@ -362,10 +371,23 @@ pub async fn fetch_tags_with_course_language_group_id_and_marketing_mailing_list
     .fetch_all(conn)
     .await?;
 
-    let tags: Vec<(String, String)> = results
+    let tag_objects: Vec<serde_json::Value> = results
         .into_iter()
-        .map(|row| (row.tag_name, row.tag_id))
+        .filter_map(|row| {
+            let tag_name = row.tag_name.trim();
+            let tag_id = row.tag_id.trim();
+
+            if tag_name.is_empty() {
+                return None;
+            }
+
+            Some(json!({
+                "name": tag_name,
+                "id": tag_id,
+                "status": "active"
+            }))
+        })
         .collect();
 
-    Ok(tags)
+    Ok(tag_objects)
 }

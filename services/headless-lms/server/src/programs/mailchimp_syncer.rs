@@ -422,18 +422,7 @@ async fn sync_contacts(
             successfully_synced_user_ids.extend(email_synced_user_ids);
         }
 
-        let tags_for_token = headless_lms_models::marketing_consents::fetch_tags_with_course_language_group_id_and_marketing_mailing_list_access_token_id(conn, token.course_language_group_id, token.id).await?;
-
-        let tag_objects: Vec<serde_json::Value> = tags_for_token
-            .into_iter()
-            .map(|(tag_name, tag_id)| {
-                json!({
-                    "name": tag_name,
-                    "id": tag_id,
-                    "status": "active"
-                })
-            })
-            .collect();
+        let tag_objects = headless_lms_models::marketing_consents::fetch_tags_with_course_language_group_id_and_marketing_mailing_list_access_token_id(conn, token.course_language_group_id, token.id).await?;
 
         // Fetch unsynced user consents and update them in Mailchimp
         let unsynced_users_details =
@@ -517,7 +506,7 @@ pub async fn send_users_to_mailchimp(
                         "LANGGRPID": user.course_language_group_id,
                         "RESEARCH" : if user.research_consent.unwrap_or(false) { "allowed" } else { "disallowed" },
                     },
-                    "tags": tag_objects.clone()
+                   "tags": tag_objects.iter().map(|tag| tag["name"].clone()).collect::<Vec<_>>()
                 });
                 users_data_in_json.push(user_details);
                 user_ids.push(user.id);

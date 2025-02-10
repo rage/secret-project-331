@@ -38,7 +38,7 @@ Object.defineProperty(dom.window, "matchMedia", {
 })
 global.window = dom.window
 global.document = dom.window.document
-// @ts-ignore: Just to prevent a crash, not used
+// @ts-expect-error: Just to prevent a crash, not used
 global.CSS = {}
 global.location = dom.window.location
 
@@ -62,7 +62,7 @@ class FakeMutationObserver {
   }
 }
 
-// @ts-ignore: Just to prevent a crash, not used
+// @ts-expect-error: Just to prevent a crash, not used
 global.MutationObserver = FakeMutationObserver
 
 // The following import order matters and are dependant on above window definition.

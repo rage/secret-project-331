@@ -66,7 +66,7 @@ export async function uploadMedia({
           url: uploadedMedia.url,
         }
       } catch (error: unknown) {
-        // @ts-ignore: null checked
+        // @ts-expect-error: null checked
         const detail = error?.data?.message
         onError(`${file.name}: ${detail || "Upload failed"}`)
       } finally {

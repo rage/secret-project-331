@@ -65,7 +65,7 @@ export function withSignedIn<T>(
       return <div>{t("please-sign-in-to-view-this-page")}</div>
     }
 
-    // @ts-ignore: Shared module might have a diffrerent react version
+    // @ts-expect-error: Shared module might have a diffrerent react version
     return <Component {...props} />
   }
 

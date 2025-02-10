@@ -30,7 +30,7 @@ Object.defineProperty(dom.window, "matchMedia", {
 global.window = dom.window
 global.document = dom.window.document
 global.navigator = dom.window.navigator
-// @ts-ignore: Just to prevent a crash, not used
+// @ts-expect-error: Just to prevent a crash, not used
 global.CSS = {}
 
 // The following import order matters and are dependant on above window definition.

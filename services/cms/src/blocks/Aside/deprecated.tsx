@@ -11,7 +11,7 @@ interface Deprecated1AsideComponentProps {
 
 export const Deprecated1: BlockDeprecation<Deprecated1AsideComponentProps> = {
   attributes: {
-    // @ts-ignore: deprecated
+    // @ts-expect-error: deprecated
     title: {
       type: "string",
       source: "html",
@@ -29,7 +29,7 @@ export const Deprecated1: BlockDeprecation<Deprecated1AsideComponentProps> = {
     return <></>
   },
   isEligible: (attributes) => attributes.title || attributes.bodyText,
-  // @ts-ignore: wat
+  // @ts-expect-error: wat
   migrate: (attributes, innerBlocks) => {
     const newInnerBlocks = [...innerBlocks]
     if (attributes.title && attributes.title.trim() !== "") {

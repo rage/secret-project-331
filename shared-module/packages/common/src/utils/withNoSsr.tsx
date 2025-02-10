@@ -14,7 +14,7 @@ function withNoSsr<T>(WrappedComponent: React.ComponentType<T>) {
     if (!rendered) {
       return null
     }
-    // @ts-ignore: no intrisic attributes
+    // @ts-expect-error: no intrisic attributes
     return <WrappedComponent {...(props as T)} />
   }
 

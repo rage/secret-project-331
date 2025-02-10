@@ -10,7 +10,7 @@ function useStateWithOnChange<S>(
   const enchancedSet = useMemoOne(() => {
     const res: Dispatch<SetStateAction<S>> = (newState) => {
       if (typeof newState === "function") {
-        // @ts-ignore: newState is a function
+        // @ts-expect-error: newState is a function
         const res = newState(prevState)
         set(res)
         onChange(res)

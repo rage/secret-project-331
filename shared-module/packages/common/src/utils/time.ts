@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { format } from "date-fns"
 import { toZonedTime } from "date-fns-tz"
 

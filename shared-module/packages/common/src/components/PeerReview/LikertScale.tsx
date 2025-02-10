@@ -29,7 +29,6 @@ const Likerts = styled.div`
   justify-items: center;
 `
 
-/* eslint-disable i18next/no-literal-string */
 const Likert = styled.div`
   width: 100%;
   display: flex;

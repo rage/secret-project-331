@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 export const baseTheme = {
   space: [0, 2, 4, 8, 16, 32],
   fontSizes: [14, 16, 18, 24, 32],

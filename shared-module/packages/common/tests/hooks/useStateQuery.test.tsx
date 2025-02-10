@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { renderHook, waitFor } from "@testing-library/react"
 

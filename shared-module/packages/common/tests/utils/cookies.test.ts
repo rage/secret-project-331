@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { getValueFromCookieString } from "../../src/utils/cookies"
 
 describe("cookies getValueFromCookieString", () => {

@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 const TEN_MEGABYTES = 10 * 1024 * 1024
 
 /**

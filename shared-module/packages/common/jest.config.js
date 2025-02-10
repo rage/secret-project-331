@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-disable i18next/no-literal-string */
 
 const nextJest = require("next/jest")
 

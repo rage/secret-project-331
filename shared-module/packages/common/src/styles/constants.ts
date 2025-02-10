@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 export const defaultFontSizePx = 16
 export const narrowContainerWidthRem = 48
 export const narrowContainerWidthPx = narrowContainerWidthRem * defaultFontSizePx

@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { roundDown } from "../../src/utils/numbers"
 
 describe("roundDown", () => {

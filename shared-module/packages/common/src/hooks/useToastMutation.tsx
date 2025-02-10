@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import {
   MutationFunction,
   // eslint-disable-next-line no-restricted-imports

@@ -1,6 +1,5 @@
-const generateNormalResponseHeaders =
-  require("./src/shared-module/common/utils/responseHeaders").generateNormalResponseHeaders
-const svgoConfig = require("./src/shared-module/common/utils/svgoConfig")
+import { generateNormalResponseHeaders } from "./src/shared-module/common/utils/responseHeaders"
+import svgoConfig from "./src/shared-module/common/utils/svgoConfig"
 
 const normalResponseHeaders = generateNormalResponseHeaders()
 

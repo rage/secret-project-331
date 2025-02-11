@@ -12,7 +12,7 @@ import {
   modifyImageBlockAttributes,
 } from "../src/utils/Gutenberg/modifyBlockAttributes"
 
-const jsdom = require("jsdom")
+import * as jsdom from "jsdom"
 const { JSDOM } = jsdom
 
 const dom = new JSDOM(`<body>
@@ -36,6 +36,7 @@ Object.defineProperty(dom.window, "matchMedia", {
     }
   },
 })
+// @ts-expect-error: Just to prevent a crash, not used
 global.window = dom.window
 global.document = dom.window.document
 // @ts-expect-error: Just to prevent a crash, not used

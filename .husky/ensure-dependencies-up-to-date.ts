@@ -43,7 +43,7 @@ async function detectChange(
 async function getSavedCommitHash(key: string): Promise<string | null> {
   try {
     return await readFile(`${savedCommitHashesPath}/${key}`, "utf-8")
-  } catch (e) {
+  } catch (_e) {
     // Happens usually when we have not written yet
     return null
   }

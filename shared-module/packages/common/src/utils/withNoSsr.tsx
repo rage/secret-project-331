@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react"
 
+const DEFAULT_DISPLAY_NAME = "Component"
+
 function withNoSsr<T>(WrappedComponent: React.ComponentType<T>) {
   // Name to display in React Dev tools
-  const displayName = WrappedComponent.displayName || WrappedComponent.name || "Component"
+  const displayName = WrappedComponent.displayName || WrappedComponent.name || DEFAULT_DISPLAY_NAME
 
   const InnerComponent = (props: T) => {
     const [rendered, setRendered] = useState(false)

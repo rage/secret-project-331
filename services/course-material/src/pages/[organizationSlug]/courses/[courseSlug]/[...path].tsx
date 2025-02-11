@@ -31,17 +31,20 @@ const PagePage: React.FC = () => {
   const pathQueryParameter = useQueryParameter("path")
   const organizationSlug = useQueryParameter("organizationSlug")
   const path = useMemo(() => `/${pathQueryParameter}`, [pathQueryParameter])
+
   const getCoursePageByPath = useQuery({
     queryKey: [`course-page-${courseSlug}-${path}`],
     queryFn: () => fetchCoursePageByPath(courseSlug, path),
   })
 
+  const { refetch: refetchGetCoursePageByPath } = getCoursePageByPath
+
   const pageStateReducerIntializer = useMemo(
     () =>
       getDefaultPageState(async () => {
-        await getCoursePageByPath.refetch()
+        await refetchGetCoursePageByPath()
       }),
-    [getCoursePageByPath],
+    [refetchGetCoursePageByPath],
   )
   const [pageState, pageStateDispatch] = useReducer(pageStateReducer, pageStateReducerIntializer)
 
@@ -112,8 +115,8 @@ const PagePage: React.FC = () => {
   useScrollToSelector(path)
 
   const handleRefresh = useCallback(async () => {
-    await getCoursePageByPath.refetch()
-  }, [getCoursePageByPath])
+    await refetchGetCoursePageByPath()
+  }, [refetchGetCoursePageByPath])
 
   if (getCoursePageByPath.isError) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

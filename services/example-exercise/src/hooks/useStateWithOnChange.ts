@@ -11,7 +11,7 @@ function useStateWithOnChange<S>(
     const res: Dispatch<SetStateAction<S>> = (newState) => {
       if (typeof newState === "function") {
         // @ts-expect-error: newState is a function
-        const res = newState(prevState)
+        const res = newState(get)
         set(res)
         onChange(res)
         return

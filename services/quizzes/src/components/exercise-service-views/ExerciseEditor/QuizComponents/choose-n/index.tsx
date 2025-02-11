@@ -7,7 +7,7 @@ import { PrivateSpecQuizItemChooseN } from "../../../../../../types/quizTypes/pr
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
-import MultipleChoiceOptionProps from "../common/MultipleChoiceOption"
+import MultipleChoiceOption from "../common/MultipleChoiceOption"
 import ParsedTextField from "../common/ParsedTextField"
 
 import Accordion from "@/shared-module/common/components/Accordion"

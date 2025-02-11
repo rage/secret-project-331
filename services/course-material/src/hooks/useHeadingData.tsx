@@ -35,7 +35,6 @@ const getHeadings = (headingElements: HTMLHeadingElement[]) => {
 function updateHeadings(setHeadings: Dispatch<SetStateAction<Heading[]>>) {
   const headingElements = Array.from(
     document.querySelectorAll<HTMLHeadingElement>(
-      // eslint-disable-next-line i18next/no-literal-string
       `h1.${INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS},
         h2.${INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS},
         h3.${INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS},

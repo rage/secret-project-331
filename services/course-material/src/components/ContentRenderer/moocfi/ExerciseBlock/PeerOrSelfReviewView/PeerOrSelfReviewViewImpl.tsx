@@ -111,7 +111,6 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
           setTimeout(() => {
             document
               .getElementById(getExerciseBlockBeginningScrollingId(exerciseId))
-              // eslint-disable-next-line i18next/no-literal-string
               ?.scrollIntoView({ behavior: "smooth" })
           }, 100)
         }
@@ -124,7 +123,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
           setTimeout(() => {
             document
               .getElementById(getPeerReviewBeginningScrollingId(exerciseId))
-              // eslint-disable-next-line i18next/no-literal-string
+
               ?.scrollIntoView({ behavior: "smooth" })
           }, 100)
         }

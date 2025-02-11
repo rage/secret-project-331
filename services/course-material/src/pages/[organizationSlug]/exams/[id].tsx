@@ -46,6 +46,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   const now = useTime(5000)
 
   const exam = useQuery({ queryKey: [`exam-page-${examId}`], queryFn: () => fetchExam(examId) })
+  const { refetch: refetchExam } = exam
 
   useEffect(() => {
     if (exam.isError) {
@@ -81,8 +82,8 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   }, [layoutContext, query.organizationSlug])
 
   const handleRefresh = useCallback(async () => {
-    await exam.refetch()
-  }, [exam])
+    await refetchExam()
+  }, [refetchExam])
 
   const handleTimeOverModalClose = useCallback(async () => {
     await handleRefresh()

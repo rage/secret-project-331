@@ -1,5 +1,4 @@
 // Require imports needs to happen in a specific order.
-/* eslint-disable import/order */
 
 import { Block } from "@wordpress/blocks"
 import * as jsdom from "jsdom"
@@ -34,7 +33,9 @@ global.navigator = dom.window.navigator
 global.CSS = {}
 
 // The following import order matters and are dependant on above window definition.
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const blockLibrary = require("@wordpress/block-library")
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const blocks = require("@wordpress/blocks")
 
 async function main() {

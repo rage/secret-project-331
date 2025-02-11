@@ -1,5 +1,5 @@
 import { css, cx } from "@emotion/css"
-import React, { RefObject, useCallback, useEffect, useRef, useState } from "react"
+import { RefObject, useCallback, useEffect, useRef, useState } from "react"
 
 // icons
 import FastForward from "../../../../img/audio-player/fast-forward.svg"
@@ -57,7 +57,9 @@ const Controls = ({ audioRef, progressBarRef, duration, setTimeProgress }: Contr
         "--range-progress",
         `${(Number(progressBarRef.current.value) / duration) * 100}%`,
       )
-      currentTime && setTimeProgress(currentTime)
+      if (currentTime) {
+        setTimeProgress(currentTime)
+      }
 
       playAnimationRef.current = requestAnimationFrame(repeat)
     }

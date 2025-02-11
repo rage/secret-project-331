@@ -37,6 +37,7 @@ const baseIgnorePatterns = [
   "**/storybook-static/**",
   "**/services/main-frontend/public/monaco-editor/**",
   "**/.venv/**",
+  "**/generated-docs/**",
 ]
 
 const getIgnorePatterns = (prefix = "") =>
@@ -114,6 +115,7 @@ const config = [
         NodeJS: true,
         JSX: true,
         WindowEventMap: true,
+        RequestInit: true,
       },
     },
     settings: {

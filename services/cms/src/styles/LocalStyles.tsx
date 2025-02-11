@@ -31,6 +31,7 @@ const localCss = css`
   }
 `
 
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 injectGlobal`
 ${localCss}
 `

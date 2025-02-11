@@ -94,6 +94,7 @@ const SelectCourseInstanceForm: React.FC<
         )
         let initialValue = prevAnswer?.answer_value ?? savedAnswer?.answer_value ?? null
         if (question.question_type === "Checkbox" && initialValue === null) {
+          // eslint-disable-next-line i18next/no-literal-string
           initialValue = "f"
         }
         newState.push({
@@ -140,11 +141,7 @@ const SelectCourseInstanceForm: React.FC<
           {t("title-select-course-instance")}
           <GreenText>*</GreenText>
         </h2>
-        <FieldContainer
-          role="radiogroup"
-          aria-label={t("label-course-instance")}
-          aria-required="true"
-        >
+        <FieldContainer role="radiogroup" aria-label={t("label-course-instance")} aria-required>
           {courseInstances.map((courseInstance) => (
             <div key={courseInstance.id}>
               <RadioButton
@@ -155,11 +152,13 @@ const SelectCourseInstanceForm: React.FC<
                 `}
                 key={courseInstance.id}
                 {...(courseInstance.name === null
+                  ? // eslint-disable-next-line i18next/no-literal-string
                     { "data-testid": "default-course-instance-radiobutton" }
                   : undefined)}
                 label={courseInstance.name || t("default-course-instance-name")}
                 onChange={(_event) => setSelectedInstanceId(courseInstance.id)}
                 checked={selectedInstanceId === courseInstance.id}
+                // eslint-disable-next-line i18next/no-literal-string
                 name="select-course-instance"
               />
               <span
@@ -204,6 +203,7 @@ const SelectCourseInstanceForm: React.FC<
                           label={additionalQuestion.question_text}
                           checked={answer?.answer_value === "t"}
                           onChange={(event) => {
+                            // eslint-disable-next-line i18next/no-literal-string
                             const valueAsString = event.target.value ? "t" : "f"
                             setAdditionalQuestionAnswers((prev) => {
                               const newArray = prev.filter(

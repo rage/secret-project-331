@@ -1,6 +1,6 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { RefObject } from "react"
+import { RefObject } from "react"
 
 import { styledRangeInput } from "./RangeComponentStyle"
 

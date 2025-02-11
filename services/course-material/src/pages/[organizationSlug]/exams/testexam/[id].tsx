@@ -63,6 +63,8 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     queryFn: () => fetchExamForTesting(examId),
   })
 
+  const { refetch: refetchExam } = exam
+
   const showAnswersMutation = useToastMutation(
     (showAnswers: boolean) => updateShowExerciseAnswers(examId, showAnswers),
     {
@@ -124,8 +126,8 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   }, [layoutContext, query.organizationSlug])
 
   const handleRefresh = useCallback(async () => {
-    await exam.refetch()
-  }, [exam])
+    await refetchExam()
+  }, [refetchExam])
 
   const handleTimeOverModalClose = useCallback(async () => {
     await handleRefresh()
@@ -247,7 +249,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
           <ExamStartBanner
             onStart={async () => {
               await enrollInExam(examId, true)
-              exam.refetch()
+              await refetchExam()
             }}
             examEnrollmentData={exam.data.enrollment_data}
             examHasStarted={true}

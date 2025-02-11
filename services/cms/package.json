@@ -9,7 +9,9 @@
     "start": "NODE_ENV=production PORT=3000 node server.js",
     "list-gutenberg-block-names": "ts-node -O \"{\\\"module\\\":\\\"commonjs\\\"}\" scripts/listGutenbergBlockNames.ts",
     "test": "jest",
-    "postinstall": "ts-node -O \"{\\\"module\\\":\\\"commonjs\\\"}\" scripts/cleanWordpressModules.ts"
+    "postinstall:clean-wp": "ts-node -O \"{\\\"module\\\":\\\"commonjs\\\"}\" scripts/cleanWordpressModules.ts",
+    "postinstall:remove-extra-eslint-rules": "rm -r node_modules/eslint",
+    "postinstall": "npm run postinstall:clean-wp && npm run postinstall:remove-extra-eslint-rules"
   },
   "dependencies": {
     "@bytedance/tar-wasm": "^0.1.7",

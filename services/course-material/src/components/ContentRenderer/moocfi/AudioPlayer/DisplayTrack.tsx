@@ -8,9 +8,9 @@ import { headingFont } from "@/shared-module/common/styles"
 
 interface DisplayTrackProps {
   tracks: AudioFile[]
-  audioRef: RefObject<HTMLAudioElement> | null
+  audioRef: RefObject<HTMLAudioElement | null>
   setDuration: (T: number) => void
-  progressBarRef: RefObject<HTMLInputElement> | null
+  progressBarRef: RefObject<HTMLInputElement | null>
 }
 
 const DisplayTrack = ({ tracks, audioRef, setDuration, progressBarRef }: DisplayTrackProps) => {

@@ -31,8 +31,8 @@ const styledVolume = css`
 `
 
 interface ControlsProps {
-  audioRef: RefObject<HTMLAudioElement> | null
-  progressBarRef: RefObject<HTMLInputElement> | null
+  audioRef: RefObject<HTMLAudioElement | null>
+  progressBarRef: RefObject<HTMLInputElement | null>
   duration: number
   setTimeProgress: (T: number) => void
 }

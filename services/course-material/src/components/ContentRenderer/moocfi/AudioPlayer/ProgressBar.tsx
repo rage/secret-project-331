@@ -22,8 +22,8 @@ const time = css`
 `
 
 interface ProgressBarProps {
-  progressBarRef: RefObject<HTMLInputElement> | null
-  audioRef: RefObject<HTMLAudioElement> | null
+  progressBarRef: RefObject<HTMLInputElement | null>
+  audioRef: RefObject<HTMLAudioElement | null>
   timeProgress: number
   duration: number
 }

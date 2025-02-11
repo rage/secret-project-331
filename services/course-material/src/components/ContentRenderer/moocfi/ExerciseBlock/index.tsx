@@ -137,7 +137,7 @@ export const getExerciseBlockBeginningScrollingId = (exerciseId: string) => exer
 const ExerciseBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ExerciseBlockAttributes>>
 > = (props) => {
-  const sectionRef = useRef(null)
+  const sectionRef = useRef<HTMLElement>(null)
   const exerciseTitleId = useId()
   const router = useRouter()
   const returnTo = useCurrentPagePathForReturnTo(router.asPath)
@@ -788,8 +788,8 @@ const ExerciseBlock: React.FC<
 /**
  * The previous view might have been a lot taller than the next view, which would cause the browser to jump down as the view changes and the execise block gets a lot shorter. This function makes sure that the exercise block will stay visible upto half a second after the view has changed.
  */
-function makeSureComponentStaysVisibleAfterChangingView(ref: React.RefObject<HTMLElement>) {
-  if (!ref.current) {
+function makeSureComponentStaysVisibleAfterChangingView(ref: React.RefObject<HTMLElement | null>) {
+  if (!ref || !ref.current) {
     return
   }
   function scrollToViewIfNeeded() {

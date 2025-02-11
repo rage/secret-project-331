@@ -11,7 +11,6 @@ interface Deprecated1AsideComponentProps {
 
 export const Deprecated1: BlockDeprecation<Deprecated1AsideComponentProps> = {
   attributes: {
-    // @ts-expect-error: deprecated
     title: {
       type: "string",
       source: "html",

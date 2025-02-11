@@ -364,6 +364,7 @@ const config = [
               "window.location.assign",
               "window.history.pushState",
               "setFormError",
+              "animated"
             ],
           },
           "object-properties": {

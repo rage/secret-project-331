@@ -155,7 +155,7 @@ const StyledButton = styled.div<StyledButtonProps>`
   overflow: visible;
 `
 
-const Button: React.FC<React.PropsWithChildren<React.PropsWithChildren<ButtonProps>>> = (props) => {
+const Button: React.FC<React.PropsWithChildren<ButtonProps>> = (props) => {
   const {
     barColor = "black",
     Box = StyledBox,
@@ -201,5 +201,5 @@ const StyledBox = styled.div<StyledBoxProps>`
 `
 
 export const HamburgerSpring: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<ButtonProps>>
+  React.PropsWithChildren<ButtonProps>
 > = (props) => <Button {...props} Lines={StyledLinesSpring} />

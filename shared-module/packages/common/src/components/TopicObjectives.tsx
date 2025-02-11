@@ -74,7 +74,7 @@ export type TopicObjectiveProps =
   React.HTMLAttributes<HTMLDivElement> /* & TopicObjectivesExtraProps */
 
 const TopicObjectives: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<TopicObjectiveProps>>
+  React.PropsWithChildren<TopicObjectiveProps>
 > = () => {
   const { t } = useTranslation()
   return (

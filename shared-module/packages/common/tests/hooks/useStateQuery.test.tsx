@@ -14,7 +14,7 @@ const testClient = new QueryClient({
   },
 })
 
-const Wrapper: React.FC<React.PropsWithChildren<React.PropsWithChildren<unknown>>> = ({
+const Wrapper: React.FC<React.PropsWithChildren<unknown>> = ({
   children,
 }) => <QueryClientProvider client={testClient}>{children}</QueryClientProvider>
 

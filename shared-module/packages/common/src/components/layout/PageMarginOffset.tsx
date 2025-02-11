@@ -6,7 +6,7 @@ interface PageMarginOffsetProps {
 }
 
 export const PageMarginOffset: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<PageMarginOffsetProps>>
+  React.PropsWithChildren<PageMarginOffsetProps>
 > = ({ marginBottom, marginTop, children }) => {
   return (
     <div

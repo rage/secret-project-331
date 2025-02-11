@@ -18,7 +18,7 @@ export interface AudioFileProps {
 }
 export type AudioPlayerProps = React.HTMLAttributes<HTMLDivElement> & AudioFileProps
 
-const AudioPlayer: React.FC<React.PropsWithChildren<React.PropsWithChildren<AudioPlayerProps>>> = ({
+const AudioPlayer: React.FC<React.PropsWithChildren<AudioPlayerProps>> = ({
   tracks,
   isVisible,
   setIsVisible,

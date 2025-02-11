@@ -80,7 +80,7 @@ export const StyledSVG = (Image: any) => {
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & CardExtraProps
 
-const SimpleCard: React.FC<React.PropsWithChildren<React.PropsWithChildren<CardProps>>> = ({
+const SimpleCard: React.FC<React.PropsWithChildren<CardProps>> = ({
   title,
   chapterNumber,
   open,

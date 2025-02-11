@@ -52,7 +52,7 @@ const CardContentWrapper = styled.div`
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & CardExtraProps
 
-const IllustrationCard: React.FC<React.PropsWithChildren<React.PropsWithChildren<CardProps>>> = ({
+const IllustrationCard: React.FC<React.PropsWithChildren<CardProps>> = ({
   title,
   chapterNumber,
   bg,

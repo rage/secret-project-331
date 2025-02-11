@@ -30,7 +30,7 @@ export interface CenteredProps {
   variant: "default" | "narrow"
 }
 
-const Centered: React.FC<React.PropsWithChildren<React.PropsWithChildren<CenteredProps>>> = ({
+const Centered: React.FC<React.PropsWithChildren<CenteredProps>> = ({
   children,
   variant,
 }) => {

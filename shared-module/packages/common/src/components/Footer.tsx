@@ -139,7 +139,7 @@ export interface Props extends FooterProps {
 
 export type FooterProps = React.HTMLAttributes<HTMLDivElement>
 
-const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<Props>>> = ({
+const Footer: React.FC<React.PropsWithChildren<Props>> = ({
   privacyLinks = null,
 }) => {
   const { t, i18n } = useTranslation()

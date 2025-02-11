@@ -13,7 +13,7 @@ export interface DropdownMenuProps {
 }
 
 const DropdownMenu: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<DropdownMenuProps>>
+  React.PropsWithChildren<DropdownMenuProps>
 > = ({ items }) => {
   const { t } = useTranslation()
   const [expanded, setExpanded] = useState(false)

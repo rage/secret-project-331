@@ -12,7 +12,7 @@ interface ComponentProps {
 }
 
 const OnlyRenderIfPermissions: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<ComponentProps>>
+  React.PropsWithChildren<ComponentProps>
 > = ({ action, resource, children, elseRender }) => {
   const loginState = useContext(LoginStateContext)
   const data = useQuery({

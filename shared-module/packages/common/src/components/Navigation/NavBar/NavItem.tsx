@@ -1,4 +1,4 @@
-const NavItem: React.FC<React.PropsWithChildren<React.PropsWithChildren<unknown>>> = ({
+const NavItem: React.FC<React.PropsWithChildren<unknown>> = ({
   children,
 }) => {
   return <li>{children}</li>

@@ -51,7 +51,7 @@ const PLACEHOLDER_TEXT_ONE = "Reset"
 const PLACEHOLDER_TEXT_TWO = "Your edit has been saved!"
 
 const FloatingErrorBox: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<ErrorProps>>
+  React.PropsWithChildren<ErrorProps>
 > = () => {
   // If URL defined, the chapter is open
 

@@ -216,7 +216,7 @@ const secondaryLink = css`
 `
 
 const Navigation: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<NavigationProps>>
+  React.PropsWithChildren<NavigationProps>
 > = () => {
   const { t } = useTranslation()
   const [clicked, setClicked] = useState(false)

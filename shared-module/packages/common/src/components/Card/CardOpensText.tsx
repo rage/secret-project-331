@@ -17,7 +17,7 @@ const styledspan = css`
 `
 
 const CardOpensText: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<CardOpensTextProps>>
+  React.PropsWithChildren<CardOpensTextProps>
 > = ({ open, date, time }) => {
   const { t } = useTranslation()
   if (date && time) {

@@ -21,7 +21,7 @@ interface DiffFormatterProps {
  * Formats the diff object from the diff npm package. Remember to wrap this inside a container like a div or a p.
  */
 const DiffFormatter: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<DiffFormatterProps>>
+  React.PropsWithChildren<DiffFormatterProps>
 > = ({ changes, dontShowAdded, dontShowRemoved }) => {
   const { t } = useTranslation()
 

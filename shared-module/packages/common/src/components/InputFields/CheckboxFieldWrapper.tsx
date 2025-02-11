@@ -11,7 +11,7 @@ export interface CheckboxFieldWrapperProps extends InputHTMLAttributes<HTMLInput
 }
 
 const CheckboxFieldWrapper: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<CheckboxFieldWrapperProps>>
+  React.PropsWithChildren<CheckboxFieldWrapperProps>
 > = ({ fieldName, className, children, onUncheck, initialChecked }) => {
   const { t } = useTranslation()
   const [checked, setChecked] = useState(initialChecked ?? false)

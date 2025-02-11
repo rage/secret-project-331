@@ -55,7 +55,7 @@ been the industrys standard dummy text ever since the 1500s.`
 export type OptionComponentProps = React.HTMLAttributes<HTMLDivElement>
 
 const Option: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<OptionComponentProps>>
+  React.PropsWithChildren<OptionComponentProps>
 > = () => {
   const { t } = useTranslation()
   return (

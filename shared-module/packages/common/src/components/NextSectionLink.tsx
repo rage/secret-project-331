@@ -78,7 +78,7 @@ const StyledLink = styled(Link)`
 `
 
 const NextSectionLink: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<NextSectionLinkProps>>
+  React.PropsWithChildren<NextSectionLinkProps>
 > = ({ title, subtitle, nextTitle, url, previous, chapterFrontPageURL }) => {
   const { t } = useTranslation()
   return (

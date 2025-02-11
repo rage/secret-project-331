@@ -78,7 +78,7 @@ export interface MenuProps {
   children: ReactNode
 }
 
-const Menu: React.FC<React.PropsWithChildren<React.PropsWithChildren<MenuProps>>> = ({
+const Menu: React.FC<React.PropsWithChildren<MenuProps>> = ({
   children,
   variant,
 }) => {

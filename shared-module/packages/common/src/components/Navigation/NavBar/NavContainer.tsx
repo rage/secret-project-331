@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 
-const NavContainer: React.FC<React.PropsWithChildren<React.PropsWithChildren<unknown>>> = ({
+const NavContainer: React.FC<React.PropsWithChildren<unknown>> = ({
   children,
 }) => {
   return (

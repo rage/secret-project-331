@@ -12,7 +12,7 @@ interface HamburgerProps {
   buttonId: string
 }
 
-const Hamburger: React.FC<React.PropsWithChildren<React.PropsWithChildren<HamburgerProps>>> = ({
+const Hamburger: React.FC<React.PropsWithChildren<HamburgerProps>> = ({
   isActive,
   toggleButton,
   buttonId,

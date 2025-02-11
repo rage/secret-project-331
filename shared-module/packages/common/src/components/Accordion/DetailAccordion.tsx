@@ -109,7 +109,7 @@ publishing software like Aldus PageMaker including versions of Lorem Ipsum`
 export type AccordionProps = React.DetailsHTMLAttributes<HTMLDetailsElement>
 
 const DetailAccordion: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<AccordionProps>>
+  React.PropsWithChildren<AccordionProps>
 > = (props) => {
   if (props.children) {
     return <TextWrapper className={props.className}>{props.children}</TextWrapper>

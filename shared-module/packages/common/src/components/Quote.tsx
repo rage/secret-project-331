@@ -39,7 +39,7 @@ export interface QuoteExtraProps {
 
 export type QuoteProps = React.QuoteHTMLAttributes<HTMLQuoteElement> & QuoteExtraProps
 
-const Quote: React.FC<React.PropsWithChildren<React.PropsWithChildren<QuoteProps>>> = ({
+const Quote: React.FC<React.PropsWithChildren<QuoteProps>> = ({
   content,
 }) => {
   return (

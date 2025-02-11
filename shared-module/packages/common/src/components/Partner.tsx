@@ -84,7 +84,7 @@ interface StyledPartner {
 
 export type PartnerProps = React.HTMLAttributes<HTMLDivElement> & PartnerExtraProps
 
-const Partner: React.FC<React.PropsWithChildren<React.PropsWithChildren<PartnerProps>>> = ({
+const Partner: React.FC<React.PropsWithChildren<PartnerProps>> = ({
   width = "250px",
   logos,
 }) => {

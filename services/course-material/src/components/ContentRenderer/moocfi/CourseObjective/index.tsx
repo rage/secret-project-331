@@ -103,7 +103,7 @@ export interface CourseObjectiveSectionProps {
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & CourseObjectiveSectionProps
 
-const CourseObjective: React.FC<React.PropsWithChildren<React.PropsWithChildren<CardProps>>> = ({
+const CourseObjective: React.FC<React.PropsWithChildren<CardProps>> = ({
   title,
   children,
 }) => {

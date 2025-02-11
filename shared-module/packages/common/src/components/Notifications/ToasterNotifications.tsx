@@ -7,7 +7,7 @@ const TOAST_BOTTOM_LEFT = "bottom-left"
 const TOAST_BOTTOM_CENTER = "bottom-center"
 
 const ToasterNotifications: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<unknown>>
+  React.PropsWithChildren<unknown>
 > = () => {
   const notMobile = useMedia(respondToOrLarger.xs)
   return (

@@ -16,7 +16,7 @@ export interface TabLinkProps {
   countHook?: () => UseQueryResult<number, unknown>
 }
 
-const TabLink: React.FC<React.PropsWithChildren<React.PropsWithChildren<TabLinkProps>>> = ({
+const TabLink: React.FC<React.PropsWithChildren<TabLinkProps>> = ({
   children,
   url,
   isActive,

@@ -67,7 +67,8 @@ export function withSignedIn<T>(
       return <div>{t("please-sign-in-to-view-this-page")}</div>
     }
 
-    // @ts-expect-error: Shared module might have a diffrerent react version
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: Shared module might have a diffrerent react version
     return <Component {...props} />
   }
 

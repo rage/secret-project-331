@@ -69,7 +69,7 @@ interface CountryCountPair {
 
 export type MapProps = React.HTMLAttributes<HTMLDivElement> & MapExtraProps
 
-const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> = () => {
+const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
   let countryCodeCount: CountryCountPair[] = useMemo(() => [], [])
 
   const [map, setMap] = useState<SVGLineElement | null>(null)

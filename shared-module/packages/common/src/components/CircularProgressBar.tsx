@@ -59,7 +59,7 @@ const CircleBox = styled.div`
 // To get the appropriate stroke-dasharray; It is 2 * PI * radius = 131
 
 const CircularProgressBar: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<CircularProgressBarProps>>
+  React.PropsWithChildren<CircularProgressBarProps>
 > = ({ scoreMaximum, userPoints }) => {
   const complete = userPoints / scoreMaximum
   return (

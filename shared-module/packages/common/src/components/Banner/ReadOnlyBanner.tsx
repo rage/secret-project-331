@@ -28,14 +28,7 @@ const Text = styled.div`
   }
 `
 
-export interface BannerExtraProps {
-  variant: "text" | "link" | "read-only"
-  content: string
-}
-
-export type BannerProps = React.HTMLAttributes<HTMLDivElement> & BannerExtraProps
-
-const Quote: React.FC<React.PropsWithChildren<React.PropsWithChildren<BannerProps>>> = (props) => {
+const Quote: React.FC<React.PropsWithChildren> = (props) => {
   return (
     <BannerWrapper {...props}>
       <Content>

@@ -20,7 +20,7 @@ export type SimplifiedUrlQuery<T = unknown> = T extends string
 
 export function dontRenderUntilQueryParametersReady<T, P = unknown>(
   WrappedComponent: React.ComponentType<
-    React.PropsWithChildren<React.PropsWithChildren<T & ProvidedExtraProps<P>>>
+    React.PropsWithChildren<T & ProvidedExtraProps<P>>
   >,
   allowNoQueryParameters = false,
 ) {

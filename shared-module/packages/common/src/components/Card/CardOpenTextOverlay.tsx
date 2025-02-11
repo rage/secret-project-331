@@ -11,7 +11,7 @@ interface CardOpensTextProps {
 }
 
 const CardOpensTextOverlay: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<CardOpensTextProps>>
+  React.PropsWithChildren<CardOpensTextProps>
 > = ({ open, date, time }) => {
   return (
     <div

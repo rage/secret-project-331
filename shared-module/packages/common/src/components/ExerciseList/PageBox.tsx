@@ -39,7 +39,7 @@ export interface PageBoxExtraProps {
 
 export type PageBoxProps = React.HTMLAttributes<HTMLDivElement> & PageBoxExtraProps
 
-const PageBox: React.FC<React.PropsWithChildren<React.PropsWithChildren<PageBoxProps>>> = (
+const PageBox: React.FC<React.PropsWithChildren<PageBoxProps>> = (
   props,
 ) => {
   return (

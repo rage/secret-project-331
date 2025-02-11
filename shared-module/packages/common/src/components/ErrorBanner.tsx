@@ -118,7 +118,7 @@ export interface BannerExtraProps {
 
 export type BannerProps = React.HTMLAttributes<HTMLDivElement> & BannerExtraProps
 
-const ErrorBanner: React.FC<React.PropsWithChildren<React.PropsWithChildren<BannerProps>>> = (
+const ErrorBanner: React.FC<React.PropsWithChildren<BannerProps>> = (
   props,
 ) => {
   const { t } = useTranslation()

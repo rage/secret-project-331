@@ -16,7 +16,7 @@ interface TimeComponentProps {
 }
 
 const TimeComponent: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<TimeComponentProps>>
+  React.PropsWithChildren<TimeComponentProps>
 > = ({ label, date, right, boldLabel }) => {
   const [visible, setVisible] = useState(false)
 

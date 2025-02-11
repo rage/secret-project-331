@@ -91,7 +91,7 @@ export type PagesInChapterBoxProps = React.HTMLAttributes<HTMLDivElement> &
   PagesInChapterBoxExtraProps
 
 const PagesInChapterBox: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<PagesInChapterBoxProps>>
+  React.PropsWithChildren<PagesInChapterBoxProps>
 > = (props) => {
   return (
     <Wrapper>

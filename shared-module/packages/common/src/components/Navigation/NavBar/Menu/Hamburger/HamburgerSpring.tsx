@@ -2,6 +2,7 @@
 
 import styled from "@emotion/styled"
 
+// eslint-disable-next-line i18next/no-literal-string
 const getBarColor = ({ barColor }: { barColor: BarColor }) => `background-color: ${barColor};`
 const getLayerHeight = (buttonWidth: ButtonWidth) => buttonWidth * 0.1
 const getLayerSpacing = (buttonWidth: ButtonWidth) => buttonWidth * 0.15
@@ -37,6 +38,7 @@ const getLinesCommon = ({ buttonWidth }: { buttonWidth: ButtonWidth }) => `
   transition-timing-function: ease;
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const StyledLines = styled.span<LineProps>`
   display: block;
   top: 50%;
@@ -61,6 +63,7 @@ const StyledLines = styled.span<LineProps>`
   }
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const StyledLinesSpring = styled(StyledLines)`
   &::before {
     top: ${({ buttonWidth }) => getLayerHeight(buttonWidth) + getLayerSpacing(buttonWidth)}px;

@@ -46,10 +46,12 @@ export const LoginStateContextProvider: React.FC<React.PropsWithChildren<unknown
   return <LoginStateContext.Provider value={loginState}>{children}</LoginStateContext.Provider>
 }
 
+const DEFAULT_DISPLAY_NAME = "Component"
+
 export function withSignedIn<T>(
   Component: ComponentType<React.PropsWithChildren<T>>,
 ): React.FC<React.PropsWithChildren<T>> {
-  const displayName = Component.displayName || Component.name || "Component"
+  const displayName = Component.displayName || Component.name || DEFAULT_DISPLAY_NAME
 
   const InnerComponent: React.FC<React.PropsWithChildren<T>> = (props) => {
     const { t } = useTranslation()

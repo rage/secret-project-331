@@ -9,7 +9,7 @@ import useClickOutside from "../../hooks/useClickOutside"
 import { LANGUAGE_COOKIE_KEY } from "../../utils/constants"
 
 import LanguageMenu from "./LanguageMenu"
-import LanguageOption from "./LanguageOption"
+import LanguageOptionComponent from "./LanguageOption"
 
 export interface LanguageOption {
   tag: string
@@ -49,6 +49,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
     i18n.changeLanguage(newLanguage)
     setVisible(false)
     const selectedLanguage = newLanguage.split("-")
+    // eslint-disable-next-line i18next/no-literal-string
     document.cookie = `${LANGUAGE_COOKIE_KEY}=${selectedLanguage[0]}; path=/; SameSite=Strict; max-age=31536000;`
   }
 
@@ -101,7 +102,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
               `}
             >
               {(languages ?? DEFAULT_LANGUAGES).map((x) => (
-                <LanguageOption
+                <LanguageOptionComponent
                   key={x.tag}
                   label={x.name}
                   onClick={() => {

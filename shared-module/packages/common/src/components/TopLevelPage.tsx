@@ -56,14 +56,13 @@ export interface TopLevelPageExtraProps {
   index: number
 }
 
-export type TopLevelPage = React.HTMLAttributes<HTMLDivElement> & TopLevelPageExtraProps
+export type TopLevelPageProps = React.HTMLAttributes<HTMLDivElement> & TopLevelPageExtraProps
 
 /* const subtitlePlaceholder = "Find answers to frequently asked questions on the FAQ page" */
 
-const TopLevelPage: React.FC<React.PropsWithChildren<React.PropsWithChildren<TopLevelPage>>> = ({
-  title,
-  url,
-}) => {
+const TopLevelPage: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<TopLevelPageProps>>
+> = ({ title, url }) => {
   return (
     <Link
       href={url}

@@ -112,22 +112,23 @@ const BEHAVIOR = "smooth"
 
 export type ReferenceProps = React.HTMLAttributes<HTMLDivElement> & ReferenceExtraProps
 
-const Reference: React.FC<React.PropsWithChildren<React.PropsWithChildren<ReferenceProps>>> = ({
-  data,
-}) => {
+const ReferenceComponent: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<ReferenceProps>>
+> = ({ data }) => {
   const { t } = useTranslation()
   const [reference, setReference] = useState<Reference[]>([])
   const [active, setActive] = useState<string>()
 
   useEffect(() => {
     const arr: Reference[] = []
+
     const referenceEl = Array.from(document.querySelectorAll<HTMLElement>("sup"))
 
     referenceEl.forEach((ref) => {
       const { innerText: text } = ref
       const { dataset } = ref
       const id = dataset.citationId || ""
-      ref.style
+      void ref.style
       arr.push({ id, text })
     })
     setReference(arr)
@@ -150,6 +151,7 @@ const Reference: React.FC<React.PropsWithChildren<React.PropsWithChildren<Refere
 
       if (el) {
         const wrapper = document.createElement("div")
+
         wrapper.setAttribute("id", "wrapper")
 
         const wrapperEl = document.getElementById("wrapper")
@@ -159,13 +161,14 @@ const Reference: React.FC<React.PropsWithChildren<React.PropsWithChildren<Refere
           citation.style.cssText = "text-decoration: underline; color: #08457A; cursor: pointer"
           wrapper.style.cssText =
             "opacity: 1; z-index: 2; position: absolute; top: 20px; left: 50%; border-radius: 3px; min-width: 400px; transition: visibility 0s linear 100ms, opacity 100ms; box-shadow: rgba(0, 0, 0, 0.1) 0 2px 10px;"
+          // eslint-disable-next-line i18next/no-literal-string
           wrapper.innerHTML = `<div style="color: #313947; border: 1px solid #E2E4E6; border-radius: 3px; font-family: 'Inter', sans-serif; font-size: 14px; background: #F9f9f9; padding: 0 5px;">${el.text}</div`
-          wrapperEl && wrapperEl.remove()
-          citation?.appendChild(wrapper)
+          void (wrapperEl && wrapperEl.remove())
+          void citation?.appendChild(wrapper)
         } else if (evt.type === "mouseout") {
           // @ts-expect-error: Type not aware of the field
           citation.style.cssText = "text-decoration: none; color: #46749B;"
-          wrapperEl && wrapperEl.remove()
+          void (wrapperEl && wrapperEl.remove())
         }
       }
     }
@@ -236,4 +239,4 @@ const Reference: React.FC<React.PropsWithChildren<React.PropsWithChildren<Refere
   )
 }
 
-export default Reference
+export default ReferenceComponent

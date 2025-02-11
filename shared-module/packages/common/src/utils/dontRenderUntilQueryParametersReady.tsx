@@ -5,6 +5,8 @@
 
 import { useRouter } from "next/router"
 
+const DEFAULT_DISPLAY_NAME = "Component"
+
 interface ProvidedExtraProps<T> {
   query: SimplifiedUrlQuery<T>
 }
@@ -23,7 +25,7 @@ export function dontRenderUntilQueryParametersReady<T, P = unknown>(
   allowNoQueryParameters = false,
 ) {
   // Name to display in React Dev tools
-  const displayName = WrappedComponent.displayName || WrappedComponent.name || "Component"
+  const displayName = WrappedComponent.displayName || WrappedComponent.name || DEFAULT_DISPLAY_NAME
 
   const InnerComponent = (props: T) => {
     const queryParameters: NodeJS.Dict<string> = {}

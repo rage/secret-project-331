@@ -70,9 +70,11 @@ const MessageChannelIFrame: React.FC<
           return
         }
         console.info("Updating height")
+        // eslint-disable-next-line i18next/no-literal-string
         iframeRef.current.height = Number(data.data).toString() + "px"
       } else if (isOpenLinkMessage(data)) {
         console.info(`The iframe wants to open a link: ${data.data}`)
+
         window.open(data.data, "_blank", "noopener,noreferrer")
       } else if (isMessageFromIframe(data)) {
         try {

@@ -34,6 +34,7 @@ const TabLink: React.FC<React.PropsWithChildren<React.PropsWithChildren<TabLinkP
     typeof url === "string"
       ? {
           // Ensure that router.route has the [...path] defined, this way it won't become a query parameter in any case.
+          // eslint-disable-next-line i18next/no-literal-string
           pathname: path ? router.route : `${router.route}/[...path]`,
           // Support for subpaths with splitting to an array.
           query: { ...router.query, path: url.split("/") },

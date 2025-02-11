@@ -134,7 +134,7 @@ const RegexTestTable: React.FC<TestTableProps> = ({ quizItem, testStrings }) => 
           format: formatRegExp.test(string),
         }
       })
-    } catch (e) {
+    } catch (_e) {
       /* NOP */
       /* This occurs when there's incomplete regex */
     }

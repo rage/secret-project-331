@@ -55,7 +55,7 @@ export function stringToNumberOrPlaceholder<T>(
   let res: number
   try {
     res = Number(s)
-  } catch (e) {
+  } catch (_e) {
     return missingNumberSubstitute
   }
   if (isNaN(res)) {

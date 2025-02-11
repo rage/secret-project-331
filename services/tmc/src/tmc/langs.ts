@@ -75,7 +75,7 @@ const execute = async (
           console.error("TMC-langs response didn't match expected type")
           console.error(json)
         }
-      } catch (e) {
+      } catch (_e) {
         console.warn("Failed to parse TMC-langs output")
         console.debug(input)
       }

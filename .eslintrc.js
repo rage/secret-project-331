@@ -292,6 +292,7 @@ module.exports = {
         "**.test.ts",
         "storybook/**/*",
         "shared-module/packages/create-exercise-service/**/*",
+        "services/headless-lms/server/generated-docs/**/*",
       ],
       rules: {
         "i18next/no-literal-string": "off",

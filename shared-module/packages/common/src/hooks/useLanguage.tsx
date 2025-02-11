@@ -15,7 +15,7 @@ const CAN_ACCESS_COOKIES = detectAccessToCookies()
 export function getDir(language: string) {
   try {
     return dir(language)
-  } catch (e) {
+  } catch (_e) {
     // eslint-disable-next-line i18next/no-literal-string
     return "ltr"
   }
@@ -112,7 +112,7 @@ function detectAccessToCookies() {
   try {
     const cookie = document.cookie
     return cookie !== "wat"
-  } catch (e) {
+  } catch (_e) {
     return false
   }
 }

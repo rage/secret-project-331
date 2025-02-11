@@ -6,13 +6,16 @@ import { addFilter } from "@wordpress/hooks"
 import fs from "fs"
 import { compile } from "json-schema-to-typescript"
 import { JSONSchema, JSONSchemaTypeName } from "json-schema-to-typescript/dist/src/types/JSONSchema"
+import * as blockLibrary from "@wordpress/block-library"
+import * as blocks from "@wordpress/blocks"
+import * as jsdom from "jsdom"
 
 import {
   modifyEmbedBlockAttributes,
   modifyImageBlockAttributes,
 } from "../src/utils/Gutenberg/modifyBlockAttributes"
+import { supportedCoreBlocks } from "../src/blocks/supportedGutenbergBlocks"
 
-import * as jsdom from "jsdom"
 const { JSDOM } = jsdom
 
 const dom = new JSDOM(`<body>
@@ -66,13 +69,8 @@ class FakeMutationObserver {
 // @ts-expect-error: Just to prevent a crash, not used
 global.MutationObserver = FakeMutationObserver
 
-// The following import order matters and are dependant on above window definition.
-const blockLibrary = require("@wordpress/block-library")
-const blocks = require("@wordpress/blocks")
-
 addFilter("blocks.registerBlockType", "moocfi/modifyImageAttributes", modifyImageBlockAttributes)
 addFilter("blocks.registerBlockType", "moocfi/modifyEmbedAttributes", modifyEmbedBlockAttributes)
-const { supportedCoreBlocks } = require("../src/blocks/supportedGutenbergBlocks")
 
 async function main() {
   blockLibrary.registerCoreBlocks()
@@ -95,7 +93,7 @@ async function main() {
     .map((block) => {
       // Fetch core/table head, foot, body types
       if (block.name === "core/table") {
-        const tableBlockJSON = require("@wordpress/block-library/src/table/block.json")
+        const tableBlockJSON = await import("@wordpress/block-library/src/table/block.json")
         const tableAttributes = fixProperties(tableBlockJSON.attributes)
         return {
           title: sanitizeNames(block.name),

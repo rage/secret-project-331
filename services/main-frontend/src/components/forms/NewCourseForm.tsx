@@ -107,12 +107,9 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
       if (data.courseId) {
         await onSubmitDuplicateCourseForm(data.courseId, newCourse)
       }
-    } catch (e) {
-      if (!(e instanceof Error)) {
-        throw e
-      }
+    } catch (_e) {
       // eslint-disable-next-line i18next/no-literal-string
-      setFormError("root", { message: e.toString() })
+      setFormError("root", { message: _e.toString() })
     }
   }
 
@@ -124,12 +121,9 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
         organization_id: organizationId,
         language_code: normalizedLanguageCode,
       })
-    } catch (e) {
-      if (!(e instanceof Error)) {
-        throw e
-      }
+    } catch (_e) {
       // eslint-disable-next-line i18next/no-literal-string
-      setFormError("root", { message: e.toString() })
+      setFormError("root", { message: _e.toString() })
     }
   }
 

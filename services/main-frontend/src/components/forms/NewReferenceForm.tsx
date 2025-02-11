@@ -1,5 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+// @ts-expect-error: No type definitions
+import Cite from "citation-js"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -7,8 +9,6 @@ import { useTranslation } from "react-i18next"
 import { NewMaterialReference } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
-
-const Cite = require("citation-js")
 
 interface NewReferenceFormProps {
   onCreateNewReference: (form: NewMaterialReference[]) => void
@@ -27,7 +27,7 @@ const EMPTY_STRING = ""
 
 const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>> = ({
   onCreateNewReference,
-  onCancel,
+  onCancel: _onCancel,
 }) => {
   const { t } = useTranslation()
   const {
@@ -54,6 +54,7 @@ const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>>
       })
       onCreateNewReference(references)
     } catch (error: unknown) {
+      console.error(error)
       setErrorMessage(t("reference-parsing-error"))
       setTimeout(() => {
         setErrorMessage(EMPTY_STRING)
@@ -129,7 +130,7 @@ export function areCitationsValid(references: string): boolean {
     const cite = new Cite(references)
     cite.get({ type: "string", style: "bibtex", lang: "en-US" })
     return true
-  } catch (error: unknown) {
+  } catch (_error: unknown) {
     return false
   }
 }

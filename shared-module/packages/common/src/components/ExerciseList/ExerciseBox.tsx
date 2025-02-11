@@ -103,9 +103,9 @@ export interface StyledProps {
   bg?: string
 }
 
-export type ExerciseBox = React.HTMLAttributes<HTMLDivElement> & ExerciseBoxExtraProps
+export type ExerciseBoxProps = React.HTMLAttributes<HTMLDivElement> & ExerciseBoxExtraProps
 
-const ExerciseBox: React.FC<React.PropsWithChildren<React.PropsWithChildren<ExerciseBox>>> = ({
+const ExerciseBox: React.FC<React.PropsWithChildren<React.PropsWithChildren<ExerciseBoxProps>>> = ({
   exerciseIndex,
   exerciseTitle,
   url,

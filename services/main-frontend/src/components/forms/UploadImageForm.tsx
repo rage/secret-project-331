@@ -34,7 +34,6 @@ const UploadImageForm: React.FC<React.PropsWithChildren<UploadImageFormProps>> =
       `}
     >
       <FieldContainer>
-        {/* eslint-disable-next-line i18next/no-literal-string */}
         <LabelButton variant="blue" size="medium" htmlFor="image-upload">
           {t("button-text-select-image")}
         </LabelButton>

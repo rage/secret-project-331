@@ -164,5 +164,8 @@
   "words": "words",
   "your-answer-was-correct": "Your answer was correct.",
   "your-answer-was-not-correct": "Your answer was not correct.",
-  "your-answer-was-partially-correct": "Your answer was partially correct."
+  "your-answer-was-partially-correct": "Your answer was partially correct.",
+  "matrix-cell-aria-label": "row: {{row}}, column: {{column}}",
+  "matrix-answer-and-solution": "Your answer and model solution",
+  "matrix-fully-correct": "Fully correct matrix"
 }

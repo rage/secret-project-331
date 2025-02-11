@@ -1,5 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+// @ts-expect-error: No type definitions
+import Cite from "citation-js"
 import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -13,8 +15,6 @@ import {
 import { MaterialReference, NewMaterialReference } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
-
-const Cite = require("citation-js")
 
 const REFERENCE = "Reference"
 
@@ -37,7 +37,7 @@ const ErrorText = styled.p`
 const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps>> = ({
   onEdit,
   onDelete,
-  onCancel,
+  onCancel: _onCancel,
   reference,
   courseId,
 }) => {

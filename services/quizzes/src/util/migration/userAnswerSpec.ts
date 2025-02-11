@@ -20,7 +20,7 @@ const convertIntDataForScale = (quizItemAnswer: OldQuizItemAnswer) => {
     if (quizItemAnswer.optionAnswers && quizItemAnswer.optionAnswers.length > 0) {
       try {
         return Number.parseInt(quizItemAnswer.optionAnswers[0])
-      } catch (e) {
+      } catch (_e) {
         console.error("Scale does not have int data: ", quizItemAnswer)
       }
     }

@@ -8,6 +8,7 @@ import GlobalStyles from "@/shared-module/common/styles/GlobalStyles"
 import generateWebVitalsReporter from "@/shared-module/common/utils/generateWebVitalsReporter"
 import initI18n from "@/shared-module/common/utils/initI18n"
 
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 injectGlobal`
 html {
   overflow: hidden;

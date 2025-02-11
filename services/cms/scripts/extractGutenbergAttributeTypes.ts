@@ -10,6 +10,8 @@ import * as blockLibrary from "@wordpress/block-library"
 import * as blocks from "@wordpress/blocks"
 import * as jsdom from "jsdom"
 
+import tableBlockJSON from "@wordpress/block-library/src/table/block.json"
+
 import {
   modifyEmbedBlockAttributes,
   modifyImageBlockAttributes,
@@ -93,7 +95,6 @@ async function main() {
     .map((block) => {
       // Fetch core/table head, foot, body types
       if (block.name === "core/table") {
-        const tableBlockJSON = await import("@wordpress/block-library/src/table/block.json")
         const tableAttributes = fixProperties(tableBlockJSON.attributes)
         return {
           title: sanitizeNames(block.name),

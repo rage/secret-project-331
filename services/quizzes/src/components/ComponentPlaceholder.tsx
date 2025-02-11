@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import React, { useContext } from "react"
+import { useContext } from "react"
 
 import Spinner from "@/shared-module/common/components/Spinner"
 import IframeHeightContext from "@/shared-module/common/contexts/IframeHeightContext"

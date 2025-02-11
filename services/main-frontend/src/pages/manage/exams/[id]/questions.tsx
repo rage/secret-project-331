@@ -79,7 +79,8 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
     { notify: true, method: "PUT" },
     {
       onSuccess: () => {
-        getAllSubmissions.refetch(), checkPublishable()
+        getAllSubmissions.refetch()
+        checkPublishable()
       },
     },
   )
@@ -276,7 +277,6 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
                         size={"small"}
                         transform="none"
                         onClick={() => {
-                          // eslint-disable-next-line i18next/no-literal-string
                           location.href = `/manage/exercises/${exercise.id}/exam-submissions/`
                         }}
                       >
@@ -288,7 +288,6 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
                         size={"small"}
                         transform="none"
                         onClick={() => {
-                          // eslint-disable-next-line i18next/no-literal-string
                           location.href = `/manage/exercises/${exercise.id}/exam-submissions/`
                         }}
                       >

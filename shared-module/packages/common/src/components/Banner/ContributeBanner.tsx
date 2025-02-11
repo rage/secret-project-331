@@ -59,6 +59,7 @@ const Text = styled.div`
     opacity: 0.8;
   }
 `
+// eslint-disable-next-line i18next/no-literal-string
 const StyledLink = styled.a`
   font-family: ${headingFont};
   font-size: 20px;
@@ -85,6 +86,8 @@ const StyledLink = styled.a`
 `
 export type ContributeProps = React.HTMLAttributes<HTMLDivElement>
 
+const GITHUB_REPO = "https://github.com/rage/secret-project-331"
+
 const Contribute: React.FC<
   React.PropsWithChildren<React.PropsWithChildren<ContributeProps>>
 > = () => {
@@ -97,7 +100,7 @@ const Contribute: React.FC<
         <Text>
           <div>{t("about-this-project-description")}</div>
         </Text>
-        <StyledLink href="https://github.com/rage/secret-project-331">
+        <StyledLink href={GITHUB_REPO}>
           <span>{t("project-github")}</span>
         </StyledLink>
       </Content>

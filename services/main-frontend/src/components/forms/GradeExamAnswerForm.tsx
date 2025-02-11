@@ -174,7 +174,6 @@ const GradeExamAnswerForm: React.FC<React.PropsWithChildren<GradeExamAnswerProps
             disabled={nextSubmissionId === "lastAnswer"}
             type="submit"
             onClick={() => {
-              // eslint-disable-next-line i18next/no-literal-string
               location.href = `/submissions/${nextSubmissionId}/grading/`
             }}
           >

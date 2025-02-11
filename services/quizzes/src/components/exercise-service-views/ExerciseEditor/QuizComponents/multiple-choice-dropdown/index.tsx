@@ -8,7 +8,7 @@ import { PrivateSpecQuizItemMultiplechoice } from "../../../../../../types/quizT
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
-import MultipleChoiceOption from "../common/MultipleChoiceOption"
+import MultipleChoiceOptionProps from "../common/MultipleChoiceOption"
 import ParsedTextField from "../common/ParsedTextField"
 import ToggleCard from "../common/ToggleCard"
 

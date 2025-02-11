@@ -202,6 +202,7 @@ const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<Props>>> 
           >
             <LogoA
               href={useFinnishLinks ? "https://www.mooc.fi" : "https://www.mooc.fi/en"}
+              // eslint-disable-next-line i18next/no-literal-string
               aria-label="MOOC.fi"
             >
               <MOOCfi />

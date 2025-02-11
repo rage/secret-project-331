@@ -28,31 +28,6 @@ const DETECT_TRANSFORM = /translate(Y|3d)|rotate|scale/
 const cleanGlobals = (globalsObj) =>
   Object.fromEntries(Object.entries(globalsObj).map(([key, value]) => [key.trim(), value]))
 
-const getCircularReplacer = () => {
-  const seen = new WeakSet()
-  return (key, value) => {
-    if (typeof value === "object" && value !== null) {
-      if (seen.has(value)) {
-        return "[Circular]"
-      }
-      seen.add(value)
-
-      // For plugins, just show their names
-      if (key === "plugins") {
-        return Object.keys(value).reduce((acc, pluginName) => {
-          acc[pluginName] = "[Plugin Object]"
-          return acc
-        }, {})
-      }
-    }
-    // For functions, show [Function] instead of the full function
-    if (typeof value === "function") {
-      return "[Function]"
-    }
-    return value
-  }
-}
-
 const baseIgnorePatterns = [
   "**/node_modules/**",
   "**/target/**",
@@ -220,6 +195,12 @@ const config = [
     },
   },
   {
+    files: ["**/*.js"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
+  {
     files: ["**/*.{jsx,tsx}"],
     rules: {
       "i18next/no-literal-string": [
@@ -274,7 +255,6 @@ const config = [
               "htmlFor",
               "src",
               "ref",
-              "aria-label",
               "buttonId",
               "target",
               "rel",
@@ -381,6 +361,7 @@ const config = [
               "window.location.href",
               "window.location.assign",
               "window.history.pushState",
+              "setFormError",
             ],
           },
           "object-properties": {
@@ -404,7 +385,7 @@ const config = [
     rules: { "i18next/no-literal-string": "off" },
   },
   {
-    files: ["system-tests/src/**/*", "**/*.test.*", "**/tests/**/*"],
+    files: ["system-tests/src/**/*"],
     ...playwright.configs["flat/recommended"],
     languageOptions: {
       globals: {
@@ -434,22 +415,27 @@ const config = [
       "playwright/no-standalone-expect": "off",
     },
   },
+  {
+    files: ["**/*.test.*", "**/tests/**/*"],
+    languageOptions: {
+      globals: {
+        // Test globals
+        test: true,
+        expect: true,
+        describe: true,
+        it: true,
+        jest: true,
+        beforeAll: true,
+        afterAll: true,
+        beforeEach: true,
+        afterEach: true,
+        // Node.js globals
+        Buffer: true,
+        BufferEncoding: true,
+      },
+    },
+  },
   eslintPluginPrettierRecommended,
 ]
-
-console.log(
-  "config structure:",
-  JSON.stringify(
-    config.map((item) => ({
-      files: item.files,
-      plugins: item.plugins ? Object.keys(item.plugins) : undefined,
-      rules: item.rules ? Object.keys(item.rules) : undefined,
-      languageOptions: item.languageOptions,
-      settings: item.settings,
-    })),
-    getCircularReplacer(),
-    2,
-  ),
-)
 
 export default config

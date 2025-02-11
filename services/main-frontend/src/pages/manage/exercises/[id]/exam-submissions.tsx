@@ -118,7 +118,6 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
                           size={"small"}
                           transform="none"
                           onClick={() => {
-                            // eslint-disable-next-line i18next/no-literal-string
                             location.href = `/submissions/${submission.exercise_slide_submission.id}/grading/`
                           }}
                         >
@@ -130,7 +129,6 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
                           size={"small"}
                           transform="none"
                           onClick={() => {
-                            // eslint-disable-next-line i18next/no-literal-string
                             location.href = `/submissions/${submission.exercise_slide_submission.id}/grading/`
                           }}
                         >
@@ -143,7 +141,6 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
                         size={"small"}
                         transform="none"
                         onClick={() => {
-                          // eslint-disable-next-line i18next/no-literal-string
                           location.href = `/submissions/${submission.exercise_slide_submission.id}/grading/`
                         }}
                       >

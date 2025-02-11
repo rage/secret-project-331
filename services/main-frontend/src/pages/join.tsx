@@ -34,10 +34,13 @@ const JoinCoursePage: React.FC<React.PropsWithChildren<unknown>> = () => {
 
   useEffect(() => {
     if (courseBreadcrumbs.isSuccess) {
-      // eslint-disable-next-line i18next/no-literal-string
-      location.href = `/org/${courseBreadcrumbs.data.organization_slug}/courses/${courseBreadcrumbs.data?.course_slug}`
+      location.href = `/org/${courseBreadcrumbs.data?.organization_slug}/courses/${courseBreadcrumbs.data?.course_slug}`
     }
-  }, [courseBreadcrumbs])
+  }, [
+    courseBreadcrumbs.data?.course_slug,
+    courseBreadcrumbs.data?.organization_slug,
+    courseBreadcrumbs.isSuccess,
+  ])
 
   const handleRedirectMutation = useToastMutation(
     async (courseId: string) => {

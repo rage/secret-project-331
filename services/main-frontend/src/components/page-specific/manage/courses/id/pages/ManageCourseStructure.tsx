@@ -113,7 +113,6 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
   const maxPart = max(courseStructure.chapters.map((p) => p.chapter_number))
 
   const openEditor = async () => {
-    // eslint-disable-next-line i18next/no-literal-string
     window.location.assign(`/cms/partners-block/${courseStructure.course.id}/edit`)
   }
 
@@ -218,7 +217,7 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
                                         payload: {
                                           pageId: null,
                                           chapterId: chapter.id,
-                                          // eslint-disable-next-line i18next/no-literal-string
+
                                           direction: "up",
                                         },
                                       })
@@ -235,7 +234,7 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
                                         payload: {
                                           pageId: null,
                                           chapterId: chapter.id,
-                                          // eslint-disable-next-line i18next/no-literal-string
+
                                           direction: "down",
                                         },
                                       })

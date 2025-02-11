@@ -145,13 +145,14 @@ const MatrixSubmission: React.FC<
       if (containsNonEmptyString(answer)) {
         column.push(countRows)
         countRows += 1
-        index == 0 &&
+        if (index === 0) {
           answer?.forEach((item) => {
             if (item !== "") {
               row.push(countColumns)
               countColumns += 1
             }
           })
+        }
       }
     })
   }
@@ -166,8 +167,7 @@ const MatrixSubmission: React.FC<
   if (isIncorrect) {
     return (
       <div
-        // eslint-disable-next-line i18next/no-literal-string
-        aria-label="double"
+        aria-label={t("matrix-answer-and-solution")}
         className={css`
           display: flex;
           justify-content: space-evenly;
@@ -215,8 +215,7 @@ const MatrixSubmission: React.FC<
   } else {
     return (
       <MatrixTable
-        // eslint-disable-next-line i18next/no-literal-string
-        aria-label="single"
+        aria-label={t("matrix-fully-correct")}
         rowsCountArray={rowsCountArray}
         columnsCountArray={columnsCountArray}
         findOptionText={findOptionText}

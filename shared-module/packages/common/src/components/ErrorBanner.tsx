@@ -170,7 +170,7 @@ const ErrorBanner: React.FC<React.PropsWithChildren<React.PropsWithChildren<Bann
       let linkComponent = <></>
       if (isErrorData(errorData)) {
         const url = window.location.href.replace(location.hash, "")
-        linkComponent = <a href={`${url}#${errorData.block_id}`}>Go to error</a>
+        linkComponent = <a href={`${url}#${errorData.block_id}`}>{t("go-to-error")}</a>
       }
 
       return (

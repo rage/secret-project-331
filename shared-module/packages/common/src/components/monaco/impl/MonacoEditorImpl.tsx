@@ -1,4 +1,4 @@
-import Editor, { EditorProps } from "@monaco-editor/react"
+import { Editor, EditorProps } from "@monaco-editor/react"
 import React from "react"
 import "./loader"
 

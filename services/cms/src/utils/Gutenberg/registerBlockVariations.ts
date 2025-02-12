@@ -1,6 +1,5 @@
 // @ts-expect-error: no type definition
 import { embedContentIcon } from "@wordpress/block-library/build-module/embed/icons"
-/* @ts-expect-error: type signature incorrect */
 import { registerBlockVariation } from "@wordpress/blocks"
 
 const CORE_EMBED_VARIANT = "core/embed"

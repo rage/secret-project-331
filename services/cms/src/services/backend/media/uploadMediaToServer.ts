@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { createBlobURL, revokeBlobURL } from "@wordpress/blob"
 
 import { MediaUploadType, uploadFileFromPage } from "."
@@ -67,7 +66,7 @@ export async function uploadMedia({
           url: uploadedMedia.url,
         }
       } catch (error: unknown) {
-        // @ts-ignore: null checked
+        // @ts-expect-error: null checked
         const detail = error?.data?.message
         onError(`${file.name}: ${detail || "Upload failed"}`)
       } finally {

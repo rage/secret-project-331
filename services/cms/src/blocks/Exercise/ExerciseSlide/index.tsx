@@ -27,6 +27,8 @@ const ExerciseSlideConfiguration: BlockConfiguration<ExerciseSlideAttributes> = 
   save: ExerciseSlideSave,
 }
 
+const DEFAULT_DISPLAY_NAME = "Component"
+
 /**
  * Wrapper to set attributes.exercise_id before rendering
  * @param WrappedComponent
@@ -35,7 +37,7 @@ function enforceExerciseSlideIdDefined(
   WrappedComponent: ComponentType<React.PropsWithChildren<BlockEditProps<ExerciseSlideAttributes>>>,
 ): ComponentType<React.PropsWithChildren<BlockEditProps<ExerciseSlideAttributes>>> {
   // Name to display in React Dev tools
-  const displayName = WrappedComponent.displayName || WrappedComponent.name || "Component"
+  const displayName = WrappedComponent.displayName || WrappedComponent.name || DEFAULT_DISPLAY_NAME
   const InnerComponent = (props: BlockEditProps<ExerciseSlideAttributes>) => {
     const { attributes, setAttributes } = props
 

@@ -1,6 +1,8 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
+// @ts-expect-error: No type definitions
+import Cite from "citation-js"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -16,9 +18,6 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const Cite = require("citation-js")
 
 const TYPE = "string"
 const STYLE = "vancouver"

@@ -33,7 +33,6 @@ const useReferences = (courseId: string) => {
     }
     let attempt = 0
     const callback = () => {
-      // eslint-disable-next-line i18next/no-literal-string
       const refs = document.querySelectorAll<HTMLElement>("sup.reference")
       const numReferences = refs.length
       if (numReferences === 0 && attempt < 10) {

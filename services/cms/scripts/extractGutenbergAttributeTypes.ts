@@ -1,20 +1,23 @@
-/* eslint-disable i18next/no-literal-string */
 // Require imports needs to happen in a specific order.
 /* eslint-disable import/order */
-/* eslint-disable @typescript-eslint/no-var-requires */
 
 import { Block } from "@wordpress/blocks"
 import { addFilter } from "@wordpress/hooks"
 import fs from "fs"
 import { compile } from "json-schema-to-typescript"
 import { JSONSchema, JSONSchemaTypeName } from "json-schema-to-typescript/dist/src/types/JSONSchema"
+import * as blockLibrary from "@wordpress/block-library"
+import * as blocks from "@wordpress/blocks"
+import * as jsdom from "jsdom"
+
+import tableBlockJSON from "@wordpress/block-library/src/table/block.json"
 
 import {
   modifyEmbedBlockAttributes,
   modifyImageBlockAttributes,
 } from "../src/utils/Gutenberg/modifyBlockAttributes"
+import { supportedCoreBlocks } from "../src/blocks/supportedGutenbergBlocks"
 
-const jsdom = require("jsdom")
 const { JSDOM } = jsdom
 
 const dom = new JSDOM(`<body>
@@ -38,10 +41,10 @@ Object.defineProperty(dom.window, "matchMedia", {
     }
   },
 })
+// @ts-expect-error: Just to prevent a crash, not used
 global.window = dom.window
 global.document = dom.window.document
-global.navigator = dom.window.navigator
-// @ts-ignore: Just to prevent a crash, not used
+// @ts-expect-error: Just to prevent a crash, not used
 global.CSS = {}
 global.location = dom.window.location
 
@@ -65,16 +68,11 @@ class FakeMutationObserver {
   }
 }
 
-// @ts-ignore: Just to prevent a crash, not used
+// @ts-expect-error: Just to prevent a crash, not used
 global.MutationObserver = FakeMutationObserver
-
-// The following import order matters and are dependant on above window definition.
-const blockLibrary = require("@wordpress/block-library")
-const blocks = require("@wordpress/blocks")
 
 addFilter("blocks.registerBlockType", "moocfi/modifyImageAttributes", modifyImageBlockAttributes)
 addFilter("blocks.registerBlockType", "moocfi/modifyEmbedAttributes", modifyEmbedBlockAttributes)
-const { supportedCoreBlocks } = require("../src/blocks/supportedGutenbergBlocks")
 
 async function main() {
   blockLibrary.registerCoreBlocks()
@@ -97,7 +95,6 @@ async function main() {
     .map((block) => {
       // Fetch core/table head, foot, body types
       if (block.name === "core/table") {
-        const tableBlockJSON = require("@wordpress/block-library/src/table/block.json")
         const tableAttributes = fixProperties(tableBlockJSON.attributes)
         return {
           title: sanitizeNames(block.name),

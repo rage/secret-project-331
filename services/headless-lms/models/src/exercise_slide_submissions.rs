@@ -291,7 +291,7 @@ ORDER BY ess.user_id, ess.created_at DESC
     .fetch_all(conn)
     .await?;
     // shuffle the res vec
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
     res.shuffle(&mut rng);
     Ok(res.into_iter().next())
 }

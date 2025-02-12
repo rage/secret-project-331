@@ -97,7 +97,6 @@ const PageList: React.FC<React.PropsWithChildren<Props>> = ({
               key={page.id}
               pageOrderDispatch={pageOrderDispatch}
               onDeletePage={() => handleDeletePage(page.id, page.title)}
-              // eslint-disable-next-line i18next/no-literal-string
               moving={moving}
               reload={() => refetch()}
             />

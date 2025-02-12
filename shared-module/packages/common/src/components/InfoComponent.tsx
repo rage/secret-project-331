@@ -12,9 +12,12 @@ interface TimeComponentProps {
   boldLabel?: boolean
 }
 
-const TimeComponent: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<TimeComponentProps>>
-> = ({ label, text, right, boldLabel }) => {
+const TimeComponent: React.FC<React.PropsWithChildren<TimeComponentProps>> = ({
+  label,
+  text,
+  right,
+  boldLabel,
+}) => {
   const [visible, setVisible] = useState(false)
 
   const speechBubbleRef = useRef<HTMLDivElement>(null)

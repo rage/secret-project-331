@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { formatIETFLanguageTagWithRegion } from "../../src/utils/strings"
 
 describe("formatIETFLanguageTagWithRegion util", () => {

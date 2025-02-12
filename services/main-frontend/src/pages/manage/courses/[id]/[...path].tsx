@@ -73,7 +73,7 @@ function selectPageToRender(path: string): PageToRender {
         subtab,
       }
     }
-  } catch (e) {
+  } catch (_e) {
     // Default to overview
     return {
       type: "page",

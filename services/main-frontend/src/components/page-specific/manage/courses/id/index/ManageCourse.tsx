@@ -40,7 +40,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
     },
     {
       notify: true,
-      // eslint-disable-next-line i18next/no-literal-string
+
       method: "DELETE",
     },
     {
@@ -56,7 +56,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
     },
     {
       notify: true,
-      // eslint-disable-next-line i18next/no-literal-string
+
       method: "DELETE",
     },
   )
@@ -67,7 +67,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
     },
     {
       notify: true,
-      // eslint-disable-next-line i18next/no-literal-string
+
       method: "DELETE",
     },
   )

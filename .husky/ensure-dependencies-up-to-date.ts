@@ -1,7 +1,7 @@
-import path from "path"
 import { exec as execOriginal, spawn } from "child_process"
+import { mkdir, readFile, writeFile } from "fs/promises"
+import path from "path"
 import { promisify } from "util"
-import { readFile, writeFile, mkdir } from "fs/promises"
 
 const exec = promisify(execOriginal)
 
@@ -33,7 +33,9 @@ async function detectChange(
   if (hash === savedHash) {
     return
   }
-  console.log(`Detected a change in '${relativePath}'. (Saved hash: '${savedHash}', New hash: '${hash}')`)
+  console.log(
+    `Detected a change in '${relativePath}'. (Saved hash: '${savedHash}', New hash: '${hash}')`,
+  )
   await onChangeDetected()
   await writeFile(`${savedCommitHashesPath}/${key}`, hash)
 }
@@ -41,7 +43,7 @@ async function detectChange(
 async function getSavedCommitHash(key: string): Promise<string | null> {
   try {
     return await readFile(`${savedCommitHashesPath}/${key}`, "utf-8")
-  } catch (e) {
+  } catch (_e) {
     // Happens usually when we have not written yet
     return null
   }

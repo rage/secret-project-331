@@ -14,7 +14,6 @@ from { opacity: 0; height: 0; padding: 0;}
 to { opacity: 1; height: 100%; padding: 10px;}
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const TextWrapper = styled.div`
   padding: 0;
   margin: 0;
@@ -109,9 +108,7 @@ publishing software like Aldus PageMaker including versions of Lorem Ipsum`
 
 export type AccordionProps = React.DetailsHTMLAttributes<HTMLDetailsElement>
 
-const DetailAccordion: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<AccordionProps>>
-> = (props) => {
+const DetailAccordion: React.FC<React.PropsWithChildren<AccordionProps>> = (props) => {
   if (props.children) {
     return <TextWrapper className={props.className}>{props.children}</TextWrapper>
   }

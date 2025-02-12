@@ -1,4 +1,4 @@
-import Editor from "@monaco-editor/react"
+import { Editor } from "@monaco-editor/react"
 import _ from "lodash"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"

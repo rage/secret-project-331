@@ -46,14 +46,13 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   const now = useTime(5000)
 
   const exam = useQuery({ queryKey: [`exam-page-${examId}`], queryFn: () => fetchExam(examId) })
+  const { refetch: refetchExam } = exam
 
   useEffect(() => {
     if (exam.isError) {
-      // eslint-disable-next-line i18next/no-literal-string
       pageStateDispatch({ type: "setError", payload: exam.error })
     } else if (exam.isSuccess && exam.data.enrollment_data.tag === "EnrolledAndStarted") {
       pageStateDispatch({
-        // eslint-disable-next-line i18next/no-literal-string
         type: "setData",
         payload: {
           pageData: exam.data.enrollment_data.page,
@@ -64,7 +63,6 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
         },
       })
     } else {
-      // eslint-disable-next-line i18next/no-literal-string
       pageStateDispatch({ type: "setLoading" })
     }
   }, [exam.isError, exam.isSuccess, exam.data, exam.error])
@@ -84,8 +82,8 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   }, [layoutContext, query.organizationSlug])
 
   const handleRefresh = useCallback(async () => {
-    await exam.refetch()
-  }, [exam])
+    await refetchExam()
+  }, [refetchExam])
 
   const handleTimeOverModalClose = useCallback(async () => {
     await handleRefresh()

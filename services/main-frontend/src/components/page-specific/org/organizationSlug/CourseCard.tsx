@@ -65,7 +65,6 @@ const CourseContent = styled.div`
   padding: 2rem 1.5rem;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const CourseHeading = styled.div`
   font-family: ${headingFont};
   font-weight: 550;
@@ -75,7 +74,6 @@ const CourseHeading = styled.div`
   margin-bottom: 13px;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const CourseDescription = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
@@ -104,14 +102,12 @@ const CourseLanguageContent = styled.div`
   bottom: 20px;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const LanguageLabel = styled.div`
   font-family: ${primaryFont};
   color: #1a2333;
   font-size: 18px;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const LanguageCode = styled.div`
   font-family: ${primaryFont};
   font-weight: 450;

@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 
@@ -61,6 +62,7 @@ const TableCellContent: React.FC<React.PropsWithChildren<TableCellContentProps>>
   matrixSize,
 }) => {
   const [isActive, setIsActive] = useState(false)
+  const { t } = useTranslation()
   return (
     <>
       <td
@@ -78,8 +80,7 @@ const TableCellContent: React.FC<React.PropsWithChildren<TableCellContentProps>>
         >
           <BorderDiv column={column} row={row} matrixSize={matrixSize}></BorderDiv>
           <CellInputContainer
-            // eslint-disable-next-line i18next/no-literal-string
-            aria-label={`row: ${row}, column: ${column}`}
+            aria-label={t("matrix-cell-aria-label", { row, column })}
             column={column}
             data-testid="matrix-cell"
             row={row}

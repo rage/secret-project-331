@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { RawAxiosRequestHeaders } from "axios"
 import { Dictionary } from "lodash"
 
@@ -180,7 +179,6 @@ export const fetchCoursePageByPath = async (
   // There is no benefit from bypassing this.
   const browserControlledByAutomation = !!navigator.webdriver
   if (!browserControlledByAutomation) {
-    // eslint-disable-next-line i18next/no-literal-string
     headers["totally-not-a-bot"] = "true"
   }
 

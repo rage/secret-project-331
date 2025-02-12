@@ -339,7 +339,7 @@ export async function takeScreenshotAndComparetoSnapshot(
     } else {
       await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
     }
-  } catch (e: unknown) {
+  } catch (_e: unknown) {
     await page.waitForTimeout(100)
     testInfo.config.updateSnapshots = originalUpdateSnapshotsSetting
     await scrollToSavedImageCoordinate(

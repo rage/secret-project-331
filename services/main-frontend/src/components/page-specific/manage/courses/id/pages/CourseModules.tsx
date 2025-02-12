@@ -144,7 +144,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
       if (l.name === null) {
         return -1
       } else if (r.name === null) {
-        1
+        return 1
       }
       // sort according to first chapters, empty modules last
       return (l.firstChapter ?? Infinity) - (r.firstChapter ?? 0)

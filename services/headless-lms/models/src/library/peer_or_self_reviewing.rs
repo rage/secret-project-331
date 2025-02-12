@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use chrono::Duration;
 use futures::future::BoxFuture;
-use rand::{seq::SliceRandom, thread_rng};
+use rand::{rng, seq::SliceRandom};
 use url::Url;
 
 use crate::{
@@ -578,7 +578,7 @@ async fn try_to_select_peer_review_candidate_from_queue_impl(
     excluded_user_id: Uuid,
     excluded_exercise_slide_submission_ids: &[Uuid],
 ) -> ModelResult<Option<(Uuid, bool)>> {
-    let mut rng = thread_rng();
+    let mut rng = rng();
     // Try to get a candidate that needs reviews from queue.
     let mut candidates = peer_review_queue_entries::get_many_that_need_peer_reviews_by_exercise_id_and_review_priority(conn,
         exercise_id,

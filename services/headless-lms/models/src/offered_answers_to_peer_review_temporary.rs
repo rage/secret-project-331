@@ -11,7 +11,7 @@ pub async fn try_to_restore_previously_given_exercise_slide_submission(
     course_instance_id: Uuid,
 ) -> ModelResult<Option<ExerciseSlideSubmission>> {
     // Sometimes clean up the table to keep the table small and fast
-    if rand::thread_rng().gen_range(0..10) == 0 {
+    if rand::rng().random_range(0..10) == 0 {
         delete_expired_records(&mut *conn).await?;
     }
 

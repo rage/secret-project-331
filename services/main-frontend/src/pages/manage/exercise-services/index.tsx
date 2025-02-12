@@ -79,7 +79,7 @@ const ExerciseServicePage: React.FC<React.PropsWithChildren<unknown>> = () => {
           ...exerciseService,
           [key]: Number(value),
         })
-      } catch (e) {
+      } catch (_e) {
         // NOP
       }
     } else {

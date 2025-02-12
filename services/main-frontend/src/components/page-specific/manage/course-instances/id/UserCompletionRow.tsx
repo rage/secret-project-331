@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { times } from "lodash"
-import React from "react"
+import React, { JSX } from "react"
 import { useTranslation } from "react-i18next"
 
 import { FullWidthTableRow } from "../../../../tables/FullWidthTable"

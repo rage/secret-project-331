@@ -64,7 +64,6 @@ const LearningObjectiveSectionEditor: React.FC<
           <InnerBlocks
             template={LEARNING_OBJECTIVE_SECTION_TEMPLATE}
             allowedBlocks={ALLOWED_NESTED_BLOCKS}
-            // eslint-disable-next-line i18next/no-literal-string
             templateLock="all"
           />
         </Wrapper>

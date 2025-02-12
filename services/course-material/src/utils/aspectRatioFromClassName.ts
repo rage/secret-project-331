@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 export default function aspectRatioFromClassName(className?: string): string {
   let aspectRatio = "16 / 9"
   if (className?.indexOf("wp-embed-aspect-21-9") != -1) {

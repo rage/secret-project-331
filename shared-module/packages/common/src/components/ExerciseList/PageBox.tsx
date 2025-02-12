@@ -10,7 +10,6 @@ const Wrapper = styled.div`
   margin-top: 5px;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const PageBoxRow = styled.div`
   position: relative;
   padding: 0.6em 1em;
@@ -40,9 +39,7 @@ export interface PageBoxExtraProps {
 
 export type PageBoxProps = React.HTMLAttributes<HTMLDivElement> & PageBoxExtraProps
 
-const PageBox: React.FC<React.PropsWithChildren<React.PropsWithChildren<PageBoxProps>>> = (
-  props,
-) => {
+const PageBox: React.FC<React.PropsWithChildren<PageBoxProps>> = (props) => {
   return (
     <Wrapper>
       <PageBoxRow>

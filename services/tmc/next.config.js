@@ -1,5 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
-/* eslint-disable @typescript-eslint/no-var-requires */
 const externallyEmbeddableIFrameResponseHeaders =
   require("./src/shared-module/common/utils/responseHeaders").externallyEmbeddableIFrameResponseHeaders
 const svgoConfig = require("./src/shared-module/common/utils/svgoConfig")

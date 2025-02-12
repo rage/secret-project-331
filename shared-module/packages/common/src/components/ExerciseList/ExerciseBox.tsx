@@ -28,7 +28,6 @@ const StyledLink = styled.div`
   }
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const ImageBox = styled.div`
   width: auto;
   height: 40px;
@@ -61,7 +60,6 @@ const ImageBox = styled.div`
   }
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const ExercisePart = styled.div<StyledProps>`
   position: relative;
   margin-left: 0em;
@@ -105,9 +103,9 @@ export interface StyledProps {
   bg?: string
 }
 
-export type ExerciseBox = React.HTMLAttributes<HTMLDivElement> & ExerciseBoxExtraProps
+export type ExerciseBoxProps = React.HTMLAttributes<HTMLDivElement> & ExerciseBoxExtraProps
 
-const ExerciseBox: React.FC<React.PropsWithChildren<React.PropsWithChildren<ExerciseBox>>> = ({
+const ExerciseBox: React.FC<React.PropsWithChildren<ExerciseBoxProps>> = ({
   exerciseIndex,
   exerciseTitle,
   url,

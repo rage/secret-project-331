@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react"
 
+const DEFAULT_DISPLAY_NAME = "Component"
+
 function withNoSsr<T>(WrappedComponent: React.ComponentType<T>) {
   // Name to display in React Dev tools
-  // eslint-disable-next-line i18next/no-literal-string
-  const displayName = WrappedComponent.displayName || WrappedComponent.name || "Component"
+  const displayName = WrappedComponent.displayName || WrappedComponent.name || DEFAULT_DISPLAY_NAME
 
   const InnerComponent = (props: T) => {
     const [rendered, setRendered] = useState(false)
@@ -15,11 +16,10 @@ function withNoSsr<T>(WrappedComponent: React.ComponentType<T>) {
     if (!rendered) {
       return null
     }
-    // @ts-ignore: no intrisic attributes
+    // @ts-expect-error: no intrisic attributes
     return <WrappedComponent {...(props as T)} />
   }
 
-  // eslint-disable-next-line i18next/no-literal-string
   InnerComponent.displayName = `withNoSsr(${displayName})`
 
   return InnerComponent

@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { renderHook, waitFor } from "@testing-library/react"
 
@@ -15,9 +14,9 @@ const testClient = new QueryClient({
   },
 })
 
-const Wrapper: React.FC<React.PropsWithChildren<React.PropsWithChildren<unknown>>> = ({
-  children,
-}) => <QueryClientProvider client={testClient}>{children}</QueryClientProvider>
+const Wrapper: React.FC<React.PropsWithChildren<unknown>> = ({ children }) => (
+  <QueryClientProvider client={testClient}>{children}</QueryClientProvider>
+)
 
 describe("useStateQuery hook", () => {
   test("doesn't execute query if one of the keys is undefined", () => {
@@ -83,6 +82,6 @@ describe("useStateQuery hook", () => {
       expect(hookResult.result.current.state).toBe("ready")
     })
     expect(hookResult.result.current.state).toBe("ready")
-    expect(hookResult.result.current.data).toBe(null)
+    expect(hookResult.result.current.data).toBeNull()
   })
 })

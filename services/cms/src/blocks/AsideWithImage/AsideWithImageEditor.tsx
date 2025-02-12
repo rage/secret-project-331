@@ -39,7 +39,6 @@ const AsideWithImageEditor: React.FC<
               className={css`
                 font-weight: 600;
               `}
-              // eslint-disable-next-line i18next/no-literal-string
               tagName="h4"
               value={title}
               onChange={(value: string) => setAttributes({ title: value })}
@@ -49,7 +48,6 @@ const AsideWithImageEditor: React.FC<
               className={css`
                 text-align: center;
               `}
-              // eslint-disable-next-line i18next/no-literal-string
               tagName="span"
               value={content}
               onChange={(value: string) => setAttributes({ content: value })}

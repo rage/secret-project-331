@@ -1,5 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
-
 import { mainFrontendClient } from "../mainFrontendClient"
 
 import { ExerciseRepository, NewExerciseRepository } from "@/shared-module/common/bindings"

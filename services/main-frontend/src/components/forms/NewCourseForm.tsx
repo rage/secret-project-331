@@ -107,12 +107,8 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
       if (data.courseId) {
         await onSubmitDuplicateCourseForm(data.courseId, newCourse)
       }
-    } catch (e) {
-      if (!(e instanceof Error)) {
-        throw e
-      }
-      // eslint-disable-next-line i18next/no-literal-string
-      setFormError("root", { message: e.toString() })
+    } catch (e: unknown) {
+      setFormError("root", { message: e?.toString() })
     }
   }
 
@@ -124,12 +120,8 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
         organization_id: organizationId,
         language_code: normalizedLanguageCode,
       })
-    } catch (e) {
-      if (!(e instanceof Error)) {
-        throw e
-      }
-      // eslint-disable-next-line i18next/no-literal-string
-      setFormError("root", { message: e.toString() })
+    } catch (e: unknown) {
+      setFormError("root", { message: e?.toString() })
     }
   }
 
@@ -271,7 +263,6 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
           <RadioButton
             key="other"
             label={t("other-language")}
-            // eslint-disable-next-line i18next/no-literal-string
             value="other"
             {...register("language_code")}
             // eslint-disable-next-line i18next/no-literal-string
@@ -293,7 +284,8 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
                   try {
                     normalizeIETFLanguageTag(value)
                     setLanguageCodeValidationError(null)
-                  } catch (e) {
+                  } catch (e: unknown) {
+                    console.error(e)
                     setLanguageCodeValidationError(t("laguage-code-validation-error"))
                   }
                 }}

@@ -304,6 +304,7 @@ pub fn write_ts<T: TS>(path: &str, type_name: &str) {
     std::fs::write(path, contents).unwrap();
 }
 
+#[allow(non_local_definitions)]
 fn controllers() {
     doc!(
         T,

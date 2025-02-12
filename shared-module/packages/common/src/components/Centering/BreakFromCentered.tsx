@@ -39,9 +39,7 @@ export type BreakFromCenteredProps = NoSidebar | WithSidebar
  * @param props - The properties for configuring the BreakFromCentered component.
  * @returns A React component that allows content to break out of the centered container.
  */
-const BreakFromCentered: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<BreakFromCenteredProps>>
-> = (props) => {
+const BreakFromCentered: React.FC<React.PropsWithChildren<BreakFromCenteredProps>> = (props) => {
   const disabled = useContext(BreakFromCenteredDisabledContext)
   if (disabled) {
     return <>{props.children}</>

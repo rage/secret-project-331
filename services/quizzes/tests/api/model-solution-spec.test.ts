@@ -22,7 +22,7 @@ describe("Model solution spec generation", () => {
     }
     const response = await client.post(MODEL_SOLUTION_SPEC_ENDPOINT).send(specRequest)
     // response should be succesful
-    expect(response.status).toEqual(200)
+    expect(response.status).toBe(200)
     const modelSolutionSpec = response.body as ModelSolutionQuiz
     const closedEndedQuestionQuizItemModelSolution = modelSolutionSpec
       .items[0] as ModelSolutionQuizItemClosedEndedQuestion

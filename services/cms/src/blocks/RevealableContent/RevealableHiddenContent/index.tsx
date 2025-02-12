@@ -7,6 +7,7 @@ import { MOOCFI_CATEGORY_SLUG } from "../../../utils/Gutenberg/modifyGutenbergCa
 import RevealableHiddenContentEditor from "./RevealableHiddenContentEditor"
 import RevealableHiddenContentSave from "./RevealableHiddenContentSave"
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ConditionAttributes {}
 
 const RevealableHiddenContentConfiguration: BlockConfiguration<ConditionAttributes> = {

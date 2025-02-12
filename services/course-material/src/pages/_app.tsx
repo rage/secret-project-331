@@ -28,7 +28,7 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
 
   useEffect(() => {
     // Remove the server-side injected CSS.
-    // eslint-disable-next-line i18next/no-literal-string
+
     const jssStyles = document.querySelector("#jss-server-side")
     if (jssStyles) {
       jssStyles.parentElement?.removeChild(jssStyles)
@@ -67,7 +67,6 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
       return
     }
 
-    // eslint-disable-next-line i18next/no-literal-string
     console.info(`Setting language to: ${initialLanguage}`)
     i18n.changeLanguage(initialLanguage)
   }, [initialLanguage])

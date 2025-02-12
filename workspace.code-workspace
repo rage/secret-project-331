@@ -87,6 +87,11 @@
     },
     "eslint.lintTask.enable": true,
     "eslint.format.enable": true,
+    "eslint.workingDirectories": [
+      {
+        "mode": "auto"
+      }
+    ],
     "stylelint.validate": [
       "css",
       "less",
@@ -140,5 +145,15 @@
   "launch": {
     "configurations": [],
     "compounds": []
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "echo",
+        "type": "shell",
+        "command": "echo Hello"
+      }
+    ]
   },
 }

@@ -10,6 +10,7 @@ import BreakFromCentered from "@/shared-module/common/components/Centering/Break
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface RevealableContentProps {}
 
 const RevealableContentBlock: React.FC<

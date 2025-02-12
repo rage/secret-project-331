@@ -94,9 +94,9 @@ export async function observeYCoordinate(
 ): Promise<number> {
   let previousYCoordinate: number | null = null
   let tries = 0
-  // eslint-disable-next-line no-constant-condition
+
   while (true) {
-    // eslint-disable-next-line no-await-in-loop, playwright/no-wait-for-timeout
+    // eslint-disable-next-line playwright/no-wait-for-timeout
     await page.waitForTimeout(100)
     let yCoordinate = await page.mainFrame().evaluate(() => {
       return window.scrollY

@@ -112,17 +112,17 @@ const ViewRegradingPage: React.FC<React.PropsWithChildren<unknown>> = () => {
                 font-size: 13px;
               `}
             >
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {}
               <th>execise_task_submission_id</th>
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {}
               <th>grading_progress</th>
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {}
               <th>grading_started_at</th>
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {}
               <th>grading_completed_at</th>
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {}
               <th>grade_before_regrading</th>
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {}
               <th>regrading_grade</th>
             </tr>
           </thead>

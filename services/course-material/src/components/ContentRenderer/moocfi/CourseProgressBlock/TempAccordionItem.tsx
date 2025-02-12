@@ -6,6 +6,8 @@ import ArrowUp from "@/shared-module/common/img/caret-arrow-up.svg"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { runCallbackIfEnterPressed } from "@/shared-module/common/utils/accessibility"
 
+const AnimatedDiv = animated("div")
+
 // This should be replaced once the issues with the shared module one are resolved.
 // (it seems to only render child components)
 const TempAccordion: React.FC<
@@ -65,7 +67,8 @@ const TempAccordion: React.FC<
           />
         )}
       </div>
-      {open ? <animated.div style={openAnimation}>{children}</animated.div> : null}
+      {/* eslint-disable-next-line react/forbid-component-props */}
+      {open ? <AnimatedDiv style={openAnimation}>{children}</AnimatedDiv> : null}
     </div>
   )
 }

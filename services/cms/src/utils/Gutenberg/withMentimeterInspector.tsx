@@ -70,7 +70,7 @@ const withMentimeterInspector = createHigherOrderComponent((BlockEdit) => {
       </Fragment>
     )
   }
-  // eslint-disable-next-line i18next/no-literal-string
+
   MentiMeterEmbed.displayName = "MentimeterComponent"
   return MentiMeterEmbed
   // eslint-disable-next-line i18next/no-literal-string

@@ -20,7 +20,6 @@ const CENTERED_MARGIN = "0 auto"
 const DEFAULT_MARGIN_MEDIUM_SCREEN = "0 0 0 45%"
 const DEFAULT_MARGIN_LARGE_SCREEN = "0 0 0 35%"
 
-// eslint-disable-next-line i18next/no-literal-string
 const TextBox = styled.div<TextBoxProps>`
   display: flex;
   flex-direction: column;
@@ -85,7 +84,7 @@ export interface HeroSectionProps {
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & HeroSectionProps
 
-const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<CardProps>>> = ({
+const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
   title,
   subtitle,
   backgroundImage,

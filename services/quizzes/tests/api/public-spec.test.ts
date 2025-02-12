@@ -90,7 +90,7 @@ describe("Public spec generation", () => {
       upload_url: null,
     }
     const response = await client.post(MODEL_SOLUTION_SPEC_ENDPOINT).send(specRequest)
-    expect(response.status).toEqual(200)
+    expect(response.status).toBe(200)
     const publicSpec = response.body as PublicSpecQuiz
 
     expectPropertiesHaveBeenRemoved<PrivateSpecQuiz>(publicSpec, ["submitMessage"])
@@ -121,7 +121,7 @@ describe("Public spec generation", () => {
       upload_url: null,
     }
     const response = await client.post(MODEL_SOLUTION_SPEC_ENDPOINT).send(specRequest)
-    expect(response.status).toEqual(200)
+    expect(response.status).toBe(200)
     const publicSpec = response.body as PublicSpecQuiz
 
     expectPropertiesHaveBeenRemoved<PrivateSpecQuiz>(publicSpec, ["submitMessage"])
@@ -144,7 +144,7 @@ describe("Public spec generation", () => {
       upload_url: null,
     }
     const response = await client.post(MODEL_SOLUTION_SPEC_ENDPOINT).send(specRequest)
-    expect(response.status).toEqual(200)
+    expect(response.status).toBe(200)
     const publicSpec = response.body as PublicSpecQuiz
 
     expectPropertiesHaveBeenRemoved<PrivateSpecQuiz>(publicSpec, ["submitMessage"])
@@ -167,7 +167,7 @@ describe("Public spec generation", () => {
       upload_url: null,
     }
     const response = await client.post(MODEL_SOLUTION_SPEC_ENDPOINT).send(specRequest)
-    expect(response.status).toEqual(200)
+    expect(response.status).toBe(200)
     const publicSpec = response.body as PublicSpecQuiz
 
     expectPropertiesHaveBeenRemoved<PrivateSpecQuiz>(publicSpec, ["submitMessage"])
@@ -190,7 +190,7 @@ describe("Public spec generation", () => {
       upload_url: null,
     }
     const response = await client.post(MODEL_SOLUTION_SPEC_ENDPOINT).send(specRequest)
-    expect(response.status).toEqual(200)
+    expect(response.status).toBe(200)
     const publicSpec = response.body as PublicSpecQuiz
 
     expectPropertiesHaveBeenRemoved<PrivateSpecQuiz>(publicSpec, ["submitMessage"])
@@ -214,7 +214,7 @@ describe("Public spec generation", () => {
       upload_url: null,
     }
     const response = await client.post(MODEL_SOLUTION_SPEC_ENDPOINT).send(specRequest)
-    expect(response.status).toEqual(200)
+    expect(response.status).toBe(200)
     const publicSpec = response.body as PublicSpecQuiz
 
     expectPropertiesHaveBeenRemoved<PrivateSpecQuiz>(publicSpec, ["submitMessage"])
@@ -238,7 +238,7 @@ describe("Public spec generation", () => {
       upload_url: null,
     }
     const response = await client.post(MODEL_SOLUTION_SPEC_ENDPOINT).send(specRequest)
-    expect(response.status).toEqual(200)
+    expect(response.status).toBe(200)
     const publicSpec = response.body as PublicSpecQuiz
 
     expectPropertiesHaveBeenRemoved<PrivateSpecQuiz>(publicSpec, ["submitMessage"])
@@ -267,7 +267,7 @@ describe("Public spec generation", () => {
       upload_url: null,
     }
     const response = await client.post(MODEL_SOLUTION_SPEC_ENDPOINT).send(specRequest)
-    expect(response.status).toEqual(200)
+    expect(response.status).toBe(200)
     const publicSpec = response.body as PublicSpecQuiz
 
     expectPropertiesHaveBeenRemoved<PrivateSpecQuiz>(publicSpec, ["submitMessage"])
@@ -297,7 +297,7 @@ describe("Public spec generation", () => {
       upload_url: null,
     }
     const response = await client.post(MODEL_SOLUTION_SPEC_ENDPOINT).send(specRequest)
-    expect(response.status).toEqual(200)
+    expect(response.status).toBe(200)
     const publicSpec = response.body as PublicSpecQuiz
 
     expectPropertiesHaveBeenRemoved<PrivateSpecQuiz>(publicSpec, ["submitMessage"])

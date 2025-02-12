@@ -19,23 +19,23 @@ tokio-stream = "0.1.15"
 # An implementation of future and streams featuring zero allocations, composability, and itera…
 futures = "0.3.31"
 # A library to generate and parse UUIDs.
-uuid = { version = "1.11.1", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.12.1", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
 serde = { version = "1.0.217", features = ["derive"] }
 # Date and time library for Rust
 chrono = { version = "0.4.39", features = ["serde"] }
 # A JSON serialization file format
-serde_json = "1.0.135"
+serde_json = "1.0.138"
 # A crate for uploading files to Google cloud storage, and for generating download urls.
 cloud-storage = { version = "0.11.1", default-features = false, features = ["rustls-tls"] }
 # A library for managing a temporary directory and deleting all contents when it's dropped.
 tempdir = "0.3.7"
 # Type erasure for async trait methods
-async-trait = "0.1.85"
+async-trait = "0.1.86"
 # Types and traits for working with bytes
 bytes = "1.9.0"
 # Random number generators and other randomness functionality.
-rand = "0.8.5"
+rand = "0.9.0"
 # the BLAKE3 hash function
 blake3 = "1.5.5"
 # Recursively walk a directory.
@@ -66,7 +66,7 @@ thiserror = "2.0.11"
 # Percent encoding and decoding
 percent-encoding = "2.3.1"
 # Provides types and useful methods for working with IPv4 and IPv6 network addresses.
-ipnet = "2.10.1"
+ipnet = "2.11.0"
 # Flexible concrete Error type built on std::error::Error
 anyhow = "1.0.95"
 # DEFLATE compression and decompression exposed as Read/BufRead/Write streams.

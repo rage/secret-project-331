@@ -73,18 +73,19 @@ const Text = styled.div`
   grid-column: span 8 / auto;
 `
 
-export interface BannerExtraProps {
+export interface BannerProps {
   variant: "text" | "link" | "readOnly"
   linkHref?: string
   linkText?: string
 }
 
-export type BannerProps = React.HTMLAttributes<HTMLDivElement> & BannerExtraProps
-
-const Banner: React.FC<React.PropsWithChildren<React.PropsWithChildren<BannerProps>>> = (
-  { children, variant, linkHref, linkText },
-  props,
-) => {
+const Banner: React.FC<React.PropsWithChildren<BannerProps>> = ({
+  children,
+  variant,
+  linkHref,
+  linkText,
+  ...props
+}) => {
   if (variant === "readOnly") {
     return <ReadOnlyBanner {...props}>{children}</ReadOnlyBanner>
   }

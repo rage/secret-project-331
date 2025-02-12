@@ -29,7 +29,6 @@ interface FormFields {
   password_confirmation: string
 }
 
-// eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`
   max-width: 1200px;
   position: relative;
@@ -126,7 +125,6 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
 
   const { t, i18n } = useTranslation()
 
-  // eslint-disable-next-line i18next/no-literal-string
   const password = watch("password")
   const passwordConfirmation = watch("password_confirmation")
 

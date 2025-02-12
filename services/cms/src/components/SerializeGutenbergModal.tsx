@@ -21,7 +21,7 @@ const SerializeGutenbergModal: React.FC<React.PropsWithChildren<SerializeGutenbe
       <Button size="medium" variant="primary" onClick={() => setSerialized(serialize(content))}>
         {t("serialize-to-html")}
       </Button>
-      {/* eslint-disable-next-line i18next/no-literal-string */}
+      {}
       <Dialog open={serialized !== null} onClose={() => setSerialized(null)}>
         <MonacoEditor
           height="90vh"

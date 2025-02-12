@@ -29,7 +29,6 @@ const Likerts = styled.div`
   justify-items: center;
 `
 
-/* eslint-disable i18next/no-literal-string */
 const Likert = styled.div`
   width: 100%;
   display: flex;
@@ -79,7 +78,7 @@ interface StyledProps {
   active: boolean
 }
 
-const LikertScale: React.FC<React.PropsWithChildren<React.PropsWithChildren<LikertScaleProps>>> = ({
+const LikertScale: React.FC<React.PropsWithChildren<LikertScaleProps>> = ({
   disabled,
   question,
   answerRequired,
@@ -137,6 +136,5 @@ const LikertScale: React.FC<React.PropsWithChildren<React.PropsWithChildren<Like
     </Wrapper>
   )
 }
-LikertScale.defaultProps = { disabled: false }
 
 export default LikertScale

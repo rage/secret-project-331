@@ -100,7 +100,7 @@ pub async fn main() -> anyhow::Result<()> {
         )
         .await?;
 
-    // Iterate through access tokens and ensure Mailchimp schema and tag are set up and up to date
+    // Iterate through access tokens and ensure Mailchimp schema is set up
     for token in &access_tokens {
         if let Err(e) = ensure_mailchimp_schema(
             &token.mailchimp_mailing_list_id,
@@ -115,29 +115,12 @@ pub async fn main() -> anyhow::Result<()> {
             );
             return Err(e);
         }
-
-        // Check and sync tags for this access token
-        if let Err(e) = sync_tags_from_mailchimp(
-            &mut conn,
-            &token.mailchimp_mailing_list_id,
-            &token.access_token,
-            &token.server_prefix,
-            token.id,
-            token.course_language_group_id,
-        )
-        .await
-        {
-            error!(
-                "Failed to sync tags for list '{}': {:?}",
-                token.mailchimp_mailing_list_id, e
-            );
-            return Err(e);
-        }
     }
 
     info!("Starting mailchimp syncer.");
 
     let mut last_time_unsubscribes_processed = Instant::now();
+    let mut last_time_tags_synced = Instant::now();
 
     loop {
         interval.tick().await;
@@ -154,6 +137,30 @@ pub async fn main() -> anyhow::Result<()> {
             process_unsubscribes = true;
             last_time_unsubscribes_processed = Instant::now();
         };
+
+        // Check and sync tags for this access token once every hour
+        if last_time_tags_synced.elapsed().as_secs() >= 3600 {
+            info!("Syncing tags from Mailchimp...");
+            for token in &access_tokens {
+                if let Err(e) = sync_tags_from_mailchimp(
+                    &mut conn,
+                    &token.mailchimp_mailing_list_id,
+                    &token.access_token,
+                    &token.server_prefix,
+                    token.id,
+                    token.course_language_group_id,
+                )
+                .await
+                {
+                    error!(
+                        "Failed to sync tags for list '{}': {:?}",
+                        token.mailchimp_mailing_list_id, e
+                    );
+                }
+            }
+            last_time_tags_synced = Instant::now();
+        }
+
         if let Err(e) = sync_contacts(&mut conn, &config, process_unsubscribes).await {
             error!("Error during synchronization: {:?}", e);
         }

@@ -179,6 +179,7 @@ pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_group
             FROM mailchimp_course_tags
             WHERE mailchimp_course_tags.course_language_group_id = umc.course_language_group_id
             AND mailchimp_course_tags.updated_at > umc.synced_to_mailchimp_at
+            AND deleted_at IS NULL
         )
     )
     ",
@@ -364,6 +365,7 @@ pub async fn fetch_tags_with_course_language_group_id_and_marketing_mailing_list
         FROM mailchimp_course_tags
         WHERE course_language_group_id = $1
         AND marketing_mailing_list_access_token_id = $2
+        AND deleted_at IS NULL
         ",
         course_language_group_id,
         marketing_mailing_access_token_id

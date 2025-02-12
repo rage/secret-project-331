@@ -13,7 +13,7 @@ CREATE TABLE mailchimp_course_tags (
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON mailchimp_course_tags FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
-COMMENT ON TABLE mailchimp_course_tags IS 'Stores a custom Mailchimp tag related to a course_language_group';
+COMMENT ON TABLE mailchimp_course_tags IS 'Stores a custom Mailchimp tag related to a course_language_group. When a new row is added, the system automatically creates a corresponding tag in Mailchimp. This tag is assigned to all students who have given marketing consent for the associated course.';
 COMMENT ON COLUMN mailchimp_course_tags.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN mailchimp_course_tags.marketing_mailing_list_access_token_id IS 'Id of the mailing list this tag is associated with';
 COMMENT ON COLUMN mailchimp_course_tags.course_language_group_id IS 'The course language group ID that the tag is associated with';

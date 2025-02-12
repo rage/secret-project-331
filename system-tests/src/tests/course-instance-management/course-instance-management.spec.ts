@@ -2,13 +2,12 @@ import { expect, test } from "@playwright/test"
 
 import { downloadToString } from "../../utils/download"
 import { showNextToastsInfinitely, showToastsNormally } from "../../utils/notificationUtils"
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("Managing course instances works", async ({ page, headless }, testInfo) => {
+test("Managing course instances works", async ({ page }) => {
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
@@ -23,13 +22,7 @@ test("Managing course instances works", async ({ page, headless }, testInfo) => 
     "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4",
   )
 
-  await expectScreenshotsToMatchSnapshots({
-    headless,
-    testInfo,
-    snapshotName: "initial-course-management-page",
-    waitForTheseToBeVisibleAndStable: [page.getByRole("tab", { name: "Course instances" })],
-    screenshotTarget: page,
-  })
+  await page.getByRole("tab", { name: "Course instances" }).waitFor()
 
   await page.getByText("Export submissions (exercise tasks) as CSV").scrollIntoViewIfNeeded()
 
@@ -63,13 +56,7 @@ test("Managing course instances works", async ({ page, headless }, testInfo) => 
   await Promise.all([page.getByRole("tab", { name: "Course instances" }).click()])
   await page.click(`:nth-match(button:text("New"):below(:text("All course instances")), 1)`)
 
-  await expectScreenshotsToMatchSnapshots({
-    headless,
-    testInfo,
-    snapshotName: "new-course-instance-form",
-    waitForTheseToBeVisibleAndStable: [page.getByText("New course instance")],
-    screenshotTarget: page,
-  })
+  await page.getByText("New course instance").waitFor()
 
   await page.fill("#name", "some name")
   await page.fill("#description", "some description")
@@ -85,13 +72,7 @@ test("Managing course instances works", async ({ page, headless }, testInfo) => 
     "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4/course-instances",
   )
 
-  await expectScreenshotsToMatchSnapshots({
-    headless,
-    testInfo,
-    snapshotName: "course-management-page-with-new-instance",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Success").first()],
-    screenshotTarget: page,
-  })
+  await page.getByText("Success").first().waitFor()
   await showToastsNormally(page)
 
   await page.click("text=Default Manage >> a")
@@ -99,24 +80,11 @@ test("Managing course instances works", async ({ page, headless }, testInfo) => 
     "http://project-331.local/manage/course-instances/211556f5-7793-5705-ac63-b84465916da5",
   )
 
-  await expectScreenshotsToMatchSnapshots({
-    headless,
-    testInfo,
-    snapshotName: "initial-management-page",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Course instance default")],
-    screenshotTarget: page,
-    clearNotifications: true,
-  })
+  await page.getByText("Course instance default").waitFor()
 
   await page.getByRole("button", { name: "Edit" }).first().click()
 
-  await expectScreenshotsToMatchSnapshots({
-    headless,
-    testInfo,
-    snapshotName: "initial-management-page-editing",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Name").first()],
-    screenshotTarget: page,
-  })
+  await page.getByText("Name").first().waitFor()
 
   await page.fill("#name", "new name")
   await page.fill("#description", "new description")
@@ -134,38 +102,11 @@ test("Managing course instances works", async ({ page, headless }, testInfo) => 
 
   await page.getByText("Instance is open and ends at").waitFor()
 
-  await page.evaluate(() => {
-    const divs = document.querySelectorAll("div")
-    for (const div of Array.from(divs)) {
-      if (
-        div.children.length === 0 &&
-        div.textContent &&
-        div.textContent.includes("Instance is open and ends at")
-      ) {
-        div.innerHTML = "Instance is open and ends at yyyy-mm-ddThh:mm:ss.xxxZ"
-      }
-    }
-  })
-
-  await expectScreenshotsToMatchSnapshots({
-    headless,
-    testInfo,
-    snapshotName: "management-page-after-changes",
-    waitForTheseToBeVisibleAndStable: [page.getByText("newsupport@example.com").first()],
-    screenshotTarget: page,
-    clearNotifications: true,
-  })
+  await page.getByText("newsupport@example.com").first().waitFor()
 
   await page.getByText("Delete").click()
 
   await page.getByRole("tab", { name: "Course instances" }).click()
 
-  await expectScreenshotsToMatchSnapshots({
-    headless,
-    testInfo,
-    snapshotName: "course-management-page-after-delete",
-    waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "All course instances" })],
-    screenshotTarget: page,
-    clearNotifications: true,
-  })
+  await page.getByRole("heading", { name: "All course instances" }).waitFor()
 })

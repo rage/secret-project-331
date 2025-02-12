@@ -67,9 +67,7 @@ const Label = styled.div`
   }
 `
 
-const ProgressBar: React.FC<
-  React.PropsWithChildren<ProgressBarExtraProps>
-> = ({
+const ProgressBar: React.FC<React.PropsWithChildren<ProgressBarExtraProps>> = ({
   showAsPercentage = false,
   exercisesAttempted,
   exercisesTotal,

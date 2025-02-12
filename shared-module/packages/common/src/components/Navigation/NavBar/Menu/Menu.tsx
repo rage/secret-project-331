@@ -78,10 +78,7 @@ export interface MenuProps {
   children: ReactNode
 }
 
-const Menu: React.FC<React.PropsWithChildren<MenuProps>> = ({
-  children,
-  variant,
-}) => {
+const Menu: React.FC<React.PropsWithChildren<MenuProps>> = ({ children, variant }) => {
   const [clicked, setClicked] = useState(false)
   const { t } = useTranslation()
 

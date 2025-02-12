@@ -10,9 +10,13 @@ export interface CheckboxFieldWrapperProps extends InputHTMLAttributes<HTMLInput
   initialChecked?: boolean
 }
 
-const CheckboxFieldWrapper: React.FC<
-  React.PropsWithChildren<CheckboxFieldWrapperProps>
-> = ({ fieldName, className, children, onUncheck, initialChecked }) => {
+const CheckboxFieldWrapper: React.FC<React.PropsWithChildren<CheckboxFieldWrapperProps>> = ({
+  fieldName,
+  className,
+  children,
+  onUncheck,
+  initialChecked,
+}) => {
   const { t } = useTranslation()
   const [checked, setChecked] = useState(initialChecked ?? false)
   return (

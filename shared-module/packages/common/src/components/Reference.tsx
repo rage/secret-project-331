@@ -112,9 +112,7 @@ const BEHAVIOR = "smooth"
 
 export type ReferenceProps = React.HTMLAttributes<HTMLDivElement> & ReferenceExtraProps
 
-const ReferenceComponent: React.FC<
-  React.PropsWithChildren<ReferenceProps>
-> = ({ data }) => {
+const ReferenceComponent: React.FC<React.PropsWithChildren<ReferenceProps>> = ({ data }) => {
   const { t } = useTranslation()
   const [reference, setReference] = useState<Reference[]>([])
   const [active, setActive] = useState<string>()

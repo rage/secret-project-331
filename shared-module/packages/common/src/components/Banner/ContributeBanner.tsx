@@ -88,9 +88,7 @@ export type ContributeProps = React.HTMLAttributes<HTMLDivElement>
 
 const GITHUB_REPO = "https://github.com/rage/secret-project-331"
 
-const Contribute: React.FC<
-  React.PropsWithChildren<ContributeProps>
-> = () => {
+const Contribute: React.FC<React.PropsWithChildren<ContributeProps>> = () => {
   const { t } = useTranslation()
   return (
     <BannerWrapper>

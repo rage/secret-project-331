@@ -42,9 +42,10 @@ const itemInnerStyles = css`
   }
 `
 
-const DropdownMenuItem: React.FC<
-  React.PropsWithChildren<DropdownMenuProps>
-> = ({ item, closeMenu }) => {
+const DropdownMenuItem: React.FC<React.PropsWithChildren<DropdownMenuProps>> = ({
+  item,
+  closeMenu,
+}) => {
   if (item.href) {
     return (
       <li>

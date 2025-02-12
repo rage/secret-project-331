@@ -16,9 +16,10 @@ export interface LoginControlsProps {
   currentPagePath: string
 }
 
-const LoginControls: React.FC<
-  React.PropsWithChildren<LoginControlsProps>
-> = ({ styles, currentPagePath }) => {
+const LoginControls: React.FC<React.PropsWithChildren<LoginControlsProps>> = ({
+  styles,
+  currentPagePath,
+}) => {
   const { t } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
   const returnTo = useCurrentPagePathForReturnTo(currentPagePath)

@@ -14,9 +14,9 @@ const testClient = new QueryClient({
   },
 })
 
-const Wrapper: React.FC<React.PropsWithChildren<unknown>> = ({
-  children,
-}) => <QueryClientProvider client={testClient}>{children}</QueryClientProvider>
+const Wrapper: React.FC<React.PropsWithChildren<unknown>> = ({ children }) => (
+  <QueryClientProvider client={testClient}>{children}</QueryClientProvider>
+)
 
 describe("useStateQuery hook", () => {
   test("doesn't execute query if one of the keys is undefined", () => {

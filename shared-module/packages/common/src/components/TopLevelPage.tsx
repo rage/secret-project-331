@@ -60,9 +60,7 @@ export type TopLevelPageProps = React.HTMLAttributes<HTMLDivElement> & TopLevelP
 
 /* const subtitlePlaceholder = "Find answers to frequently asked questions on the FAQ page" */
 
-const TopLevelPage: React.FC<
-  React.PropsWithChildren<TopLevelPageProps>
-> = ({ title, url }) => {
+const TopLevelPage: React.FC<React.PropsWithChildren<TopLevelPageProps>> = ({ title, url }) => {
   return (
     <Link
       href={url}

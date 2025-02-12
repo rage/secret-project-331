@@ -84,10 +84,7 @@ interface StyledPartner {
 
 export type PartnerProps = React.HTMLAttributes<HTMLDivElement> & PartnerExtraProps
 
-const Partner: React.FC<React.PropsWithChildren<PartnerProps>> = ({
-  width = "250px",
-  logos,
-}) => {
+const Partner: React.FC<React.PropsWithChildren<PartnerProps>> = ({ width = "250px", logos }) => {
   const { t } = useTranslation()
 
   return (

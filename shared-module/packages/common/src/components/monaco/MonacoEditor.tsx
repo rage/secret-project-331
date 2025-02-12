@@ -11,9 +11,7 @@ const MonacoEditorImpl = dynamic(() => import("./impl/MonacoEditorImpl"), {
   loading: () => MonacoLoading,
 })
 
-const MonacoEditor: React.FC<React.PropsWithChildren<EditorProps>> = (
-  props,
-) => {
+const MonacoEditor: React.FC<React.PropsWithChildren<EditorProps>> = (props) => {
   return <MonacoEditorImpl {...props} />
 }
 

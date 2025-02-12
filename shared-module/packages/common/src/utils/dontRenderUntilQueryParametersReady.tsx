@@ -19,9 +19,7 @@ export type SimplifiedUrlQuery<T = unknown> = T extends string
   : NodeJS.Dict<string>
 
 export function dontRenderUntilQueryParametersReady<T, P = unknown>(
-  WrappedComponent: React.ComponentType<
-    React.PropsWithChildren<T & ProvidedExtraProps<P>>
-  >,
+  WrappedComponent: React.ComponentType<React.PropsWithChildren<T & ProvidedExtraProps<P>>>,
   allowNoQueryParameters = false,
 ) {
   // Name to display in React Dev tools

@@ -47,9 +47,7 @@ const NavbarLogo = css`
   }
 `
 
-const Navigation: React.FC<React.PropsWithChildren<NavigationProps>> = ({
-  children,
-}) => {
+const Navigation: React.FC<React.PropsWithChildren<NavigationProps>> = ({ children }) => {
   const { t, i18n } = useTranslation()
 
   const makeTopLeftButtonToTemporarilyGoToMoocfi = true

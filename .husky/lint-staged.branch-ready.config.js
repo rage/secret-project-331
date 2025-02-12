@@ -1,7 +1,7 @@
 // Runs when you run bin/git-run-branch-ready-checks.
 // These checks are slower and more likely to fail than the precommit checks.
 // See lint-staged.precommit.config.js for precommit checks.
-module.exports = {
+export default {
   "*.{js,jsx,ts,tsx}": ["eslint --cache --fix", "stylelint --fix lax"],
   "services/example-exercise/src/**/*.{js,jsx,ts,tsx}": () =>
     "npx tsc -p services/example-exercise/ --noEmit",

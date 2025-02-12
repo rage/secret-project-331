@@ -50,9 +50,7 @@ export type ErrorProps = React.HTMLAttributes<HTMLDivElement> & ErrorExtraProps
 const PLACEHOLDER_TEXT_ONE = "Reset"
 const PLACEHOLDER_TEXT_TWO = "Your edit has been saved!"
 
-const FloatingErrorBox: React.FC<
-  React.PropsWithChildren<ErrorProps>
-> = () => {
+const FloatingErrorBox: React.FC<React.PropsWithChildren<ErrorProps>> = () => {
   // If URL defined, the chapter is open
 
   return (

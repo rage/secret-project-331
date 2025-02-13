@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE mailchimp_course_tags\n        SET deleted_at = now()\n        WHERE tag_id = $1\n        AND course_language_group_id = $2\n        AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Text", "Uuid"]
+    },
+    "nullable": []
+  },
+  "hash": "cea0b9f17c78447ce90831d4d4a07ff5df25048e3d0c8a2b9972d8d6fded908c"
+}

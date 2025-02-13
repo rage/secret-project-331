@@ -1,4 +1,5 @@
 use itertools::multiunzip;
+use serde_json::json;
 
 use crate::prelude::*;
 
@@ -55,10 +56,22 @@ pub struct UserEmailSubscription {
 pub struct MarketingMailingListAccessToken {
     pub id: Uuid,
     pub course_id: Uuid,
+    pub mailchimp_mailing_list_id: String,
     pub course_language_group_id: Uuid,
     pub server_prefix: String,
     pub access_token: String,
-    pub mailchimp_mailing_list_id: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, FromRow)]
+pub struct MailchimpCourseTag {
+    pub id: Uuid,
+    pub marketing_mailing_list_access_token_id: Uuid,
+    pub course_language_group_id: Uuid,
+    pub tag_name: String,
+    pub tag_id: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
@@ -152,6 +165,8 @@ pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_group
         ON csfa.course_id = umc.course_id AND csfa.user_id = umc.user_id
     LEFT JOIN user_research_consents AS urc
         ON urc.user_id = umc.user_id
+    LEFT JOIN mailchimp_course_tags AS tags
+        ON tags.course_language_group_id = umc.course_language_group_id
     WHERE umc.course_language_group_id = $1
     AND (
         umc.synced_to_mailchimp_at IS NULL
@@ -159,7 +174,14 @@ pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_group
         OR csfa.updated_at > umc.synced_to_mailchimp_at
         OR urc.updated_at > umc.synced_to_mailchimp_at
         OR cmc.updated_at > umc.synced_to_mailchimp_at
-)
+        OR EXISTS (
+            SELECT 1
+            FROM mailchimp_course_tags
+            WHERE mailchimp_course_tags.course_language_group_id = umc.course_language_group_id
+            AND mailchimp_course_tags.updated_at > umc.synced_to_mailchimp_at
+            AND deleted_at IS NULL
+        )
+    )
     ",
         course_language_group_id
     )
@@ -328,4 +350,99 @@ pub async fn fetch_all_marketing_mailing_list_access_tokens(
     .await?;
 
     Ok(results)
+}
+
+pub async fn fetch_tags_with_course_language_group_id_and_marketing_mailing_list_access_token_id(
+    conn: &mut PgConnection,
+    course_language_group_id: Uuid,
+    marketing_mailing_access_token_id: Uuid,
+) -> sqlx::Result<Vec<serde_json::Value>> {
+    let results = sqlx::query!(
+        "
+        SELECT
+          tag_name,
+          tag_id
+        FROM mailchimp_course_tags
+        WHERE course_language_group_id = $1
+        AND marketing_mailing_list_access_token_id = $2
+        AND deleted_at IS NULL
+        ",
+        course_language_group_id,
+        marketing_mailing_access_token_id
+    )
+    .fetch_all(conn)
+    .await?;
+
+    let tag_objects: Vec<serde_json::Value> = results
+        .into_iter()
+        .filter_map(|row| {
+            let tag_name = row.tag_name.trim();
+            let tag_id = row.tag_id.trim();
+
+            if tag_name.is_empty() {
+                return None;
+            }
+
+            Some(json!({
+                "name": tag_name,
+                "id": tag_id,
+                "status": "active"
+            }))
+        })
+        .collect();
+
+    Ok(tag_objects)
+}
+
+pub async fn upsert_tag(
+    conn: &mut PgConnection,
+    course_language_group_id: Uuid,
+    marketing_mailing_access_token_id: Uuid,
+    tag_id: String,
+    tag_name: String,
+) -> sqlx::Result<()> {
+    sqlx::query!(
+        "
+        INSERT INTO mailchimp_course_tags (
+          tag_name,
+          tag_id,
+          course_language_group_id,
+          marketing_mailing_list_access_token_id
+        )
+        VALUES ($1, $2, $3, $4)
+        ON CONFLICT (course_language_group_id, tag_name)
+        DO UPDATE
+        SET
+          tag_name = EXCLUDED.tag_name
+        ",
+        tag_name,
+        tag_id,
+        course_language_group_id,
+        marketing_mailing_access_token_id,
+    )
+    .execute(&mut *conn)
+    .await?;
+    Ok(())
+}
+
+pub async fn delete_tag(
+    conn: &mut PgConnection,
+    deleted_tag_id: String,
+    course_language_group_id: Uuid,
+) -> sqlx::Result<()> {
+    sqlx::query!(
+        "
+        UPDATE mailchimp_course_tags
+        SET deleted_at = now()
+        WHERE tag_id = $1
+        AND course_language_group_id = $2
+        AND deleted_at IS NULL
+        ",
+        deleted_tag_id,
+        course_language_group_id
+    )
+    .execute(&mut *conn)
+    .await?;
+
+    Ok(())
 }

@@ -17,5 +17,5 @@ test("Creating an exam works", async ({ page }) => {
   await page.getByLabel("Ends at").fill("2052-03-09T09:08:01")
   await page.getByLabel("Time in minutes", { exact: true }).fill("7")
   await page.getByRole("button", { name: "Submit" }).click()
-  await page.getByText("Exam created succesfully").waitFor()
+  await page.getByText("Exam created successfully").waitFor()
 })

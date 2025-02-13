@@ -42,7 +42,7 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
     {
       notify: true,
       method: "POST",
-      successMessage: t("message-saved-succesfully"),
+      successMessage: t("message-saved-successfully"),
       errorMessage: t("message-saving-failed"),
     },
     {

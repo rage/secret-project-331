@@ -161,6 +161,7 @@
   "disable-sandbox": "Poista hiekkalaatikko käytöstä",
   "do-not-add-duplicate-completions-for-these-users": "Ohita nämä käyttäjät antamatta heille monistuneita suorituksia.",
   "do-you-want-to-join-this-course": "Haluatko liittyä tälle kurssille",
+  "documentation": "MOOC-oppimisympäristön wiki.",
   "draft": "Luonnos",
   "duplicate": "Monista",
   "duration": "Kesto",
@@ -747,6 +748,7 @@
   "weekday-thursday": "Torstai",
   "weekday-tuesday": "Tiistai",
   "weekday-wednesday": "Keskiviikko",
+  "wiki-link-text": "Ohjeita kurssimateriaalien muokkaamiseen löydät",
   "you-are-being-redirected-to-completion-registration-page-if-nothing-happens-click-here": "Sinut ohjataan Avoimen yliopiston suoritusten kirjaamissivulle automaattisesti. Jos mitään ei tapahdu, <2>paina tästä</2>.",
   "your-name": "Nimi"
 }

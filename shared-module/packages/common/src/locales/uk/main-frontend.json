@@ -160,6 +160,7 @@
   "disable-sandbox": "Вимкнути пісочницю",
   "do-not-add-duplicate-completions-for-these-users": "Пропустити цих користувачів без додавання дублікатів завершення.",
   "do-you-want-to-join-this-course": "Ви хочете приєднатися до цього курсу",
+  "documentation": "Вікі-середовище для навчання на MOOC.",
   "draft": "Чернетка",
   "duplicate": "Дублікат",
   "duration": "Тривалість",
@@ -744,6 +745,7 @@
   "weekday-thursday": "четвер",
   "weekday-tuesday": "вівторок",
   "weekday-wednesday": "середа",
+  "wiki-link-text": "Для інструкцій щодо редагування матеріалів курсу, перегляньте",
   "you-are-being-redirected-to-completion-registration-page-if-nothing-happens-click-here": "Вас автоматично буде перенаправлено на сторінку завершення реєстрації Відкритого університету. Якщо нічого не відбувається, будь ласка, <2>click here</2>.",
   "your-name": "Ваше ім'я"
 }

@@ -159,6 +159,7 @@
   "disable-sandbox": "تعطيل صندوق الرمل",
   "do-not-add-duplicate-completions-for-these-users": "تخطي هؤلاء المستخدمين دون إضافة إنجازات مكررة.",
   "do-you-want-to-join-this-course": "هل تريد الانضمام إلى هذه الدورة",
+  "documentation": "بيئة التعلم عبر الإنترنت MOOC.",
   "draft": "مسودة",
   "duplicate": "تكرار",
   "duration": "المدة",
@@ -741,6 +742,7 @@
   "weekday-thursday": "الخميس",
   "weekday-tuesday": "الثلاثاء",
   "weekday-wednesday": "الأربعاء",
+  "wiki-link-text": "للحصول على تعليمات حول كيفية تحرير مواد الدورة التدريبية الخاصة بك، انظر",
   "you-are-being-redirected-to-completion-registration-page-if-nothing-happens-click-here": "يتم توجيهك تلقائيًا إلى صفحة تسجيل إكمال جامعة المفتوحة. إذا لم يحدث شيء، يرجى <2>النقر هنا</2>.",
   "your-name": "اسمك"
 }

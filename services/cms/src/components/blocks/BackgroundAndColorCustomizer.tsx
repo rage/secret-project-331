@@ -20,7 +20,14 @@ const DEFAULT_BACKGROUND_COLORS = [
   { color: baseTheme.colors.blue[100], name: "lightblue" },
 ]
 
+const DEFAULT_FONT_COLORS = [
+  { color: baseTheme.colors.gray[700], name: "gray-1" },
+  { color: baseTheme.colors.gray[600], name: "gray-2" },
+  { color: baseTheme.colors.gray[500], name: "gray-3" },
+]
+
 const WHITE = "#FFFFFF"
+const GRAY = baseTheme.colors.gray[700]
 
 const ALLOWED_MIMETYPES_FOR_UPLOAD = ["image/svg+xml"]
 
@@ -108,10 +115,10 @@ const BackgroundAndColorCustomizer: React.FC<
       >
         <ColorPalette
           disableCustomColors={false}
-          value={attributes.fontColor ?? WHITE}
+          value={attributes.fontColor ?? GRAY}
           onChange={(fontColor) => setAttributes({ fontColor })}
           clearable={false}
-          colors={DEFAULT_BACKGROUND_COLORS}
+          colors={DEFAULT_FONT_COLORS}
         />
       </Placeholder>
       <CheckBox

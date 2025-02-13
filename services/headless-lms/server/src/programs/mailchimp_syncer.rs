@@ -120,6 +120,7 @@ pub async fn main() -> anyhow::Result<()> {
     info!("Starting mailchimp syncer.");
 
     let mut last_time_unsubscribes_processed = Instant::now();
+    let mut last_time_tags_synced = Instant::now();
 
     loop {
         interval.tick().await;
@@ -136,6 +137,30 @@ pub async fn main() -> anyhow::Result<()> {
             process_unsubscribes = true;
             last_time_unsubscribes_processed = Instant::now();
         };
+
+        // Check and sync tags for this access token once every hour
+        if last_time_tags_synced.elapsed().as_secs() >= 3600 {
+            info!("Syncing tags from Mailchimp...");
+            for token in &access_tokens {
+                if let Err(e) = sync_tags_from_mailchimp(
+                    &mut conn,
+                    &token.mailchimp_mailing_list_id,
+                    &token.access_token,
+                    &token.server_prefix,
+                    token.id,
+                    token.course_language_group_id,
+                )
+                .await
+                {
+                    error!(
+                        "Failed to sync tags for list '{}': {:?}",
+                        token.mailchimp_mailing_list_id, e
+                    );
+                }
+            }
+            last_time_tags_synced = Instant::now();
+        }
+
         if let Err(e) = sync_contacts(&mut conn, &config, process_unsubscribes).await {
             error!("Error during synchronization: {:?}", e);
         }
@@ -360,6 +385,111 @@ async fn remove_field_from_mailchimp(
     }
 }
 
+/// Fetch tags from mailchimp and sync the changes to the database
+pub async fn sync_tags_from_mailchimp(
+    conn: &mut PgConnection,
+    list_id: &str,
+    access_token: &str,
+    server_prefix: &str,
+    marketing_mailing_list_access_token_id: Uuid,
+    course_language_group_id: Uuid,
+) -> anyhow::Result<()> {
+    let url = format!(
+        "https://{}.api.mailchimp.com/3.0/lists/{}/tag-search",
+        server_prefix, list_id
+    );
+
+    let response = REQWEST_CLIENT
+        .get(&url)
+        .header("Authorization", format!("apikey {}", access_token))
+        .send()
+        .await?;
+
+    // Extract tags from the response
+    let response_json = response.json::<serde_json::Value>().await?;
+
+    let mailchimp_tags = match response_json.get("tags") {
+        Some(tags) if tags.is_array() => tags
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter_map(|tag| {
+                let name = tag.get("name")?.as_str()?.to_string();
+
+                let id = match tag.get("id") {
+                    Some(serde_json::Value::Number(num)) => num.to_string(),
+                    Some(serde_json::Value::String(str_id)) => str_id.clone(),
+                    _ => return None,
+                };
+
+                Some((id, name))
+            })
+            .collect::<Vec<(String, String)>>(),
+        _ => {
+            warn!("No tags found for list '{}', skipping sync.", list_id);
+            return Ok(());
+        }
+    };
+
+    // Fetch the current tags from the database
+    let db_tags = headless_lms_models::marketing_consents::fetch_tags_with_course_language_group_id_and_marketing_mailing_list_access_token_id(
+            conn,
+            course_language_group_id,
+            marketing_mailing_list_access_token_id,
+        )
+        .await?;
+
+    // Check if any tags from Mailchimp are renamed
+    for (tag_id, tag_name) in &mailchimp_tags {
+        if let Some(db_tag) = db_tags.iter().find(|db_tag| {
+            db_tag.get("id").and_then(|v| v.as_str()).map(|v| v.trim()) == Some(tag_id.trim())
+        }) {
+            let db_tag_name = db_tag
+                .get("tag_name")
+                .and_then(|v| v.as_str())
+                .unwrap_or_default();
+            if db_tag_name != tag_name {
+                headless_lms_models::marketing_consents::upsert_tag(
+                    conn,
+                    course_language_group_id,
+                    marketing_mailing_list_access_token_id,
+                    tag_id.clone(),
+                    tag_name.clone(),
+                )
+                .await?;
+            }
+        }
+    }
+
+    // Check if any tags in the database have been removed via Mailchimp
+    for db_tag in db_tags.iter() {
+        let db_tag_id = db_tag
+            .get("id")
+            .and_then(|v| v.as_str())
+            .map(|v| v.trim().to_string())
+            .unwrap_or_default();
+
+        // Check if this tag exists in the Mailchimp tags
+        if !mailchimp_tags
+            .iter()
+            .any(|(tag_id, _)| tag_id.trim() == db_tag_id.trim())
+        {
+            if db_tag_id.is_empty() {
+                warn!("Skipping tag deletion due to missing ID: {:?}", db_tag);
+                continue;
+            }
+            headless_lms_models::marketing_consents::delete_tag(
+                conn,
+                db_tag_id.clone(),
+                course_language_group_id,
+            )
+            .await?;
+        }
+    }
+
+    Ok(())
+}
+
 /// Synchronizes the user contacts with Mailchimp.
 /// Added a boolean flag to determine whether to process unsubscribes.
 async fn sync_contacts(
@@ -422,6 +552,8 @@ async fn sync_contacts(
             successfully_synced_user_ids.extend(email_synced_user_ids);
         }
 
+        let tag_objects = headless_lms_models::marketing_consents::fetch_tags_with_course_language_group_id_and_marketing_mailing_list_access_token_id(conn, token.course_language_group_id, token.id).await?;
+
         // Fetch unsynced user consents and update them in Mailchimp
         let unsynced_users_details =
             headless_lms_models::marketing_consents::fetch_all_unsynced_user_marketing_consents_by_course_language_group_id(
@@ -438,7 +570,7 @@ async fn sync_contacts(
 
         if !unsynced_users_details.is_empty() {
             let consent_synced_user_ids =
-                send_users_to_mailchimp(conn, token, unsynced_users_details).await?;
+                send_users_to_mailchimp(conn, token, unsynced_users_details, tag_objects).await?;
 
             // Store the successfully synced user IDs from syncing user consents
             successfully_synced_user_ids.extend(consent_synced_user_ids);
@@ -477,6 +609,7 @@ pub async fn send_users_to_mailchimp(
     conn: &mut PgConnection,
     token: MarketingMailingListAccessToken,
     users_details: Vec<UserMarketingConsentWithDetails>,
+    tag_objects: Vec<serde_json::Value>,
 ) -> anyhow::Result<Vec<Uuid>> {
     let mut users_data_in_json = vec![];
     let mut user_ids = vec![];
@@ -503,6 +636,7 @@ pub async fn send_users_to_mailchimp(
                         "LANGGRPID": user.course_language_group_id,
                         "RESEARCH" : if user.research_consent.unwrap_or(false) { "allowed" } else { "disallowed" },
                     },
+                   "tags": tag_objects.iter().map(|tag| tag["name"].clone()).collect::<Vec<_>>()
                 });
                 users_data_in_json.push(user_details);
                 user_ids.push(user.id);

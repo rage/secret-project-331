@@ -1,6 +1,6 @@
 import { css, cx } from "@emotion/css"
 
-import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 const highlightItemStyle = css`
@@ -15,7 +15,7 @@ const highlightItemStyle = css`
 `
 
 const highlightItemLeftBorder = css`
-  border-left: 2px solid ${baseTheme.colors.gray[100]};
+  border-left: 2px solid #e4eaee;
 `
 
 interface HighlightItemProps {

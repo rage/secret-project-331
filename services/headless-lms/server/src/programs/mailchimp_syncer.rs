@@ -439,29 +439,30 @@ pub async fn sync_tags_from_mailchimp(
         )
         .await?;
 
-    // Check if any tags from Mailchimp is not synced in the database
+    // Check if any tags from Mailchimp are renamed
     for (tag_id, tag_name) in &mailchimp_tags {
-        if !db_tags.iter().any(|db_tag| {
-            db_tag.get("tag_name").and_then(|v| v.as_str()) == Some(tag_name.as_str())
+        if let Some(db_tag) = db_tags.iter().find(|db_tag| {
+            db_tag.get("id").and_then(|v| v.as_str()).map(|v| v.trim()) == Some(tag_id.trim())
         }) {
-            headless_lms_models::marketing_consents::upsert_tag(
-                conn,
-                course_language_group_id,
-                marketing_mailing_list_access_token_id,
-                tag_id.clone(),
-                tag_name.clone(),
-            )
-            .await?;
+            let db_tag_name = db_tag
+                .get("tag_name")
+                .and_then(|v| v.as_str())
+                .unwrap_or_default();
+            if db_tag_name != tag_name {
+                headless_lms_models::marketing_consents::upsert_tag(
+                    conn,
+                    course_language_group_id,
+                    marketing_mailing_list_access_token_id,
+                    tag_id.clone(),
+                    tag_name.clone(),
+                )
+                .await?;
+            }
         }
     }
 
     // Check if any tags in the database have been removed via Mailchimp
     for db_tag in db_tags.iter() {
-        let db_tag_name = db_tag
-            .get("name")
-            .and_then(|v| v.as_str())
-            .unwrap_or_default();
-
         let db_tag_id = db_tag
             .get("id")
             .and_then(|v| v.as_str())
@@ -469,9 +470,10 @@ pub async fn sync_tags_from_mailchimp(
             .unwrap_or_default();
 
         // Check if this tag exists in the Mailchimp tags
-        if !mailchimp_tags.iter().any(|(tag_id, tag_name)| {
-            tag_name.trim() == db_tag_name.trim() || tag_id.trim() == db_tag_id.trim()
-        }) {
+        if !mailchimp_tags
+            .iter()
+            .any(|(tag_id, _)| tag_id.trim() == db_tag_id.trim())
+        {
             if db_tag_id.is_empty() {
                 warn!("Skipping tag deletion due to missing ID: {:?}", db_tag);
                 continue;

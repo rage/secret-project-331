@@ -4,8 +4,10 @@ const svgoConfig = require("./src/shared-module/common/utils/svgoConfig")
 
 const normalResponseHeaders = generateNormalResponseHeaders()
 
+/**
+ * @type {import('next').NextConfig}
+ */
 const config = {
-  swcMinify: true,
   eslint: {
     ignoreDuringBuilds: true,
   },

@@ -39,7 +39,6 @@ GET `/api/v0/cms/pages/:page_id/info` - Get a pages's course id, course name, or
 
 Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/info`
 */
-
 async fn get_page_info(
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,

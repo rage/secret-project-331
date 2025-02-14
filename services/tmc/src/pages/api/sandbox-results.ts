@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import axios from "axios"
 import type { NextApiRequest, NextApiResponse } from "next"
 

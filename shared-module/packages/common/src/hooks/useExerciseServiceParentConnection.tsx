@@ -16,15 +16,12 @@ function useExerciseServiceParentConnection(
       }
       const port = message.ports[0]
       if (port) {
-        // eslint-disable-next-line i18next/no-literal-string
         console.info("Frame received a port:", port)
         setPort(port)
         port.onmessage = (message: WindowEventMap["message"]) => {
           if (message.data.message) {
-            // eslint-disable-next-line i18next/no-literal-string
             console.groupCollapsed(`Frame received a ${message.data.message} message from port`)
           } else {
-            // eslint-disable-next-line i18next/no-literal-string
             console.groupCollapsed(`Frame received a message from port`)
           }
 
@@ -33,7 +30,6 @@ function useExerciseServiceParentConnection(
           try {
             onMessage(data, port)
           } catch (e) {
-            // eslint-disable-next-line i18next/no-literal-string
             console.error(`Iframe onMessage handler crashed`, e)
           }
 
@@ -41,7 +37,6 @@ function useExerciseServiceParentConnection(
         }
       }
     }
-    // eslint-disable-next-line i18next/no-literal-string
     console.info("frame adding event listener")
     addEventListener("message", handler)
     // target origin is *, beacause this is a sandboxed iframe without the
@@ -50,7 +45,6 @@ function useExerciseServiceParentConnection(
 
     // cleanup function
     return () => {
-      // eslint-disable-next-line i18next/no-literal-string
       console.info("removing event listener")
       removeEventListener("message", handler)
     }

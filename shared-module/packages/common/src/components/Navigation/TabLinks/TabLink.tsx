@@ -16,7 +16,7 @@ export interface TabLinkProps {
   countHook?: () => UseQueryResult<number, unknown>
 }
 
-const TabLink: React.FC<React.PropsWithChildren<React.PropsWithChildren<TabLinkProps>>> = ({
+const TabLink: React.FC<React.PropsWithChildren<TabLinkProps>> = ({
   children,
   url,
   isActive,
@@ -27,7 +27,6 @@ const TabLink: React.FC<React.PropsWithChildren<React.PropsWithChildren<TabLinkP
   const router = useRouter()
 
   if (count?.isError) {
-    // eslint-disable-next-line i18next/no-literal-string
     console.error(`Could not fetch count for ${path}:\n`, count.error)
   }
 

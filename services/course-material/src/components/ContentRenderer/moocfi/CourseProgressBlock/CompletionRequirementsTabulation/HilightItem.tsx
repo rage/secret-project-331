@@ -14,7 +14,6 @@ const highlightItemStyle = css`
   text-align: center;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const highlightItemLeftBorder = css`
   border-left: 2px solid #e4eaee;
 `

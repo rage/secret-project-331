@@ -39,6 +39,8 @@ const ExerciseTaskConfiguration: BlockConfiguration<ExerciseTaskAttributes> = {
   save: ExerciseTaskSave,
 }
 
+const DEFAULT_DISPLAY_NAME = "Component"
+
 /**
  * Wrapper to set attributes.exercise_id before rendering
  * @param WrappedComponent
@@ -47,7 +49,7 @@ function enforceExerciseTaskIdDefined(
   WrappedComponent: ComponentType<React.PropsWithChildren<BlockEditProps<ExerciseTaskAttributes>>>,
 ): ComponentType<React.PropsWithChildren<BlockEditProps<ExerciseTaskAttributes>>> {
   // Name to display in React Dev tools
-  const displayName = WrappedComponent.displayName || WrappedComponent.name || "Component"
+  const displayName = WrappedComponent.displayName || WrappedComponent.name || DEFAULT_DISPLAY_NAME
   const InnerComponent = (props: BlockEditProps<ExerciseTaskAttributes>) => {
     const { attributes, setAttributes } = props
 

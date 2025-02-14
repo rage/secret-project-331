@@ -8,6 +8,7 @@ import GlobalStyles from "@/shared-module/common/styles/GlobalStyles"
 import generateWebVitalsReporter from "@/shared-module/common/utils/generateWebVitalsReporter"
 import initI18n from "@/shared-module/common/utils/initI18n"
 
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 injectGlobal`
 html {
   overflow: hidden;
@@ -22,7 +23,7 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
   const language = useLanguage()
   useEffect(() => {
     // Remove the server-side injected CSS.
-    // eslint-disable-next-line i18next/no-literal-string
+
     const jssStyles = document.querySelector("#jss-server-side")
     if (jssStyles) {
       jssStyles.parentElement?.removeChild(jssStyles)
@@ -34,7 +35,6 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
       return
     }
 
-    // eslint-disable-next-line i18next/no-literal-string
     console.info(`Setting language to: ${language}`)
     i18n.changeLanguage(language)
   }, [language])

@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import axios from "axios"
 import FormData from "form-data"
 import * as fs from "fs"

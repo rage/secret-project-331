@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-/* eslint-disable i18next/no-literal-string */
 import migrateModelSolutionSpecQuiz from "../../../src/util/migration/modelSolutionSpecQuiz"
 import { OldModelSolutionQuizItem, OldQuizItemTimelineItem } from "../../../types/oldQuizTypes"
 import {
@@ -49,7 +47,7 @@ describe("model solution spec migration of quizzes", () => {
     const newQuizItem: ModelSolutionQuizItemCheckbox = newQuiz
       .items[0] as ModelSolutionQuizItemCheckbox
 
-    expect(newQuizItem.type).toEqual("checkbox")
+    expect(newQuizItem.type).toBe("checkbox")
     expectModelSolutionSpecMetadataToMatch(oldQuiz, newQuiz)
     compareModelSolutionSpecQuizItem(newQuizItem, oldQuizItem)
   })
@@ -62,7 +60,7 @@ describe("model solution spec migration of quizzes", () => {
     const oldQuizItem: OldModelSolutionQuizItem = oldQuiz.items[0]
     const newQuizItem: ModelSolutionQuizItemEssay = newQuiz.items[0] as ModelSolutionQuizItemEssay
 
-    expect(newQuizItem.type).toEqual("essay")
+    expect(newQuizItem.type).toBe("essay")
     expectModelSolutionSpecMetadataToMatch(oldQuiz, newQuiz)
 
     compareModelSolutionSpecQuizItem(newQuizItem, oldQuizItem)
@@ -76,7 +74,7 @@ describe("model solution spec migration of quizzes", () => {
     const oldQuizItem: OldModelSolutionQuizItem = oldQuiz.items[0]
     const newQuizItem: ModelSolutionQuizItemMatrix = newQuiz.items[0] as ModelSolutionQuizItemMatrix
 
-    expect(newQuizItem.type).toEqual("matrix")
+    expect(newQuizItem.type).toBe("matrix")
     expectModelSolutionSpecMetadataToMatch(oldQuiz, newQuiz)
     compareModelSolutionSpecQuizItem(newQuizItem, oldQuizItem)
   })
@@ -91,7 +89,7 @@ describe("model solution spec migration of quizzes", () => {
     const newQuizItem: ModelSolutionQuizItemClosedEndedQuestion = newQuiz
       .items[0] as ModelSolutionQuizItemClosedEndedQuestion
 
-    expect(newQuizItem.type).toEqual("closed-ended-question")
+    expect(newQuizItem.type).toBe("closed-ended-question")
     expectModelSolutionSpecMetadataToMatch(oldQuiz, newQuiz)
     compareModelSolutionSpecQuizItem(newQuizItem, oldQuizItem)
   })
@@ -104,7 +102,7 @@ describe("model solution spec migration of quizzes", () => {
     const oldQuizItem: OldModelSolutionQuizItem = oldQuiz.items[0]
     const newQuizItem: ModelSolutionQuizItemScale = newQuiz.items[0] as ModelSolutionQuizItemScale
 
-    expect(newQuizItem.type).toEqual("scale")
+    expect(newQuizItem.type).toBe("scale")
     expectModelSolutionSpecMetadataToMatch(oldQuiz, newQuiz)
     compareModelSolutionSpecQuizItem(newQuizItem, oldQuizItem)
   })
@@ -122,7 +120,7 @@ describe("model solution spec migration of quizzes", () => {
     // This will always be defined
     const timelineItems: OldQuizItemTimelineItem[] = oldQuizItem.timelineItems ?? []
 
-    expect(newQuizItem.type).toEqual("timeline")
+    expect(newQuizItem.type).toBe("timeline")
     expectModelSolutionSpecMetadataToMatch(oldQuiz, newQuiz)
     compareModelSolutionSpecQuizItem(newQuizItem, oldQuizItem)
     expect(newQuizItem.timelineItems).toMatchObject(timelineItems)
@@ -142,7 +140,7 @@ describe("model solution spec migration of quizzes", () => {
     const newQuizItem: ModelSolutionQuizItemChooseN = newQuiz
       .items[0] as ModelSolutionQuizItemChooseN
 
-    expect(newQuizItem.type).toEqual("choose-n")
+    expect(newQuizItem.type).toBe("choose-n")
     expectModelSolutionSpecMetadataToMatch(oldQuiz, newQuiz)
     compareModelSolutionSpecQuizItem(newQuizItem, oldQuizItem)
     expect(newQuizItem.options).toMatchObject(oldQuizItem.options)
@@ -178,7 +176,7 @@ describe("model solution spec migration of quizzes", () => {
 
     const newQuiz = migrateModelSolutionSpecQuiz(oldQuiz)!
     expectModelSolutionSpecMetadataToMatch(oldQuiz, newQuiz)
-    expect(newQuiz.items.length).toEqual(8)
+    expect(newQuiz.items.length).toBe(8)
     expect(newQuiz.items.map((item) => item.type)).toMatchObject([
       "essay",
       "checkbox",

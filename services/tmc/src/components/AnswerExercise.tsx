@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import _ from "lodash"
 import React from "react"
 
@@ -34,7 +33,6 @@ const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
       />
     )
   } else {
-    // eslint-disable-next-line i18next/no-literal-string
     throw new Error("Unhandled exercise type")
   }
 }

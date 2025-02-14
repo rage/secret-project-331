@@ -18,7 +18,6 @@ const MyCourses: React.FC = () => {
   const allOrganizationsQuery = useAllOrganizationsQuery()
   const canMangeCourse = useAuthorizeMultiple(
     myCoursesQuery.data?.map((course) => {
-      // eslint-disable-next-line i18next/no-literal-string
       return { action: { type: "teach" }, resource: { type: "course", id: course.id } }
     }) ?? [],
   )

@@ -38,7 +38,7 @@ const ChangeRequestsPage: React.FC<React.PropsWithChildren<CourseManagementPages
       >
         {t("title-change-requests")}
       </h3>
-      {/* eslint-disable-next-line i18next/no-literal-string */}
+      {}
       <TabLinkNavigation>
         <TabLink
           url={{ pathname: router.pathname, query: { ...router.query, pending: true } }}

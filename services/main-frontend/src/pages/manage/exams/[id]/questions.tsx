@@ -79,7 +79,8 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
     { notify: true, method: "PUT" },
     {
       onSuccess: () => {
-        getAllSubmissions.refetch(), checkPublishable()
+        getAllSubmissions.refetch()
+        checkPublishable()
       },
     },
   )
@@ -210,11 +211,7 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
   return (
     <div>
       <BreakFromCentered sidebar={false}>
-        <PageMarginOffset
-          marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`}
-          // eslint-disable-next-line i18next/no-literal-string
-          marginBottom={"0rem"}
-        >
+        <PageMarginOffset marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`} marginBottom={"0rem"}>
           <Breadcrumbs pieces={pieces} />
         </PageMarginOffset>
       </BreakFromCentered>
@@ -280,7 +277,6 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
                         size={"small"}
                         transform="none"
                         onClick={() => {
-                          // eslint-disable-next-line i18next/no-literal-string
                           location.href = `/manage/exercises/${exercise.id}/exam-submissions/`
                         }}
                       >
@@ -292,7 +288,6 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
                         size={"small"}
                         transform="none"
                         onClick={() => {
-                          // eslint-disable-next-line i18next/no-literal-string
                           location.href = `/manage/exercises/${exercise.id}/exam-submissions/`
                         }}
                       >

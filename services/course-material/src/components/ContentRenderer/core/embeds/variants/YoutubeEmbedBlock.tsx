@@ -25,7 +25,6 @@ export const YoutubeEmbedBlock: React.FC<
         video = url?.split(".be/")[1]
       }
     } catch (e) {
-      // eslint-disable-next-line i18next/no-literal-string
       console.error(`Could not parse Youtube url: `, e)
     }
   }

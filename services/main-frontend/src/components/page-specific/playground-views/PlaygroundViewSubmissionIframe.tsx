@@ -83,7 +83,6 @@ const PlaygroundViewSubmissionIframe: React.FC<
         onMessageFromIframe={async (msg) => {
           if (isMessageFromIframe(msg)) {
             if (msg.message === "current-state") {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               setCurrentStateReceivedFromIframe(msg)
             }
           }

@@ -1,11 +1,7 @@
 // Require imports needs to happen in a specific order.
-/* eslint-disable import/order */
-/* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-disable i18next/no-literal-string */
 
 import { Block } from "@wordpress/blocks"
-
-const jsdom = require("jsdom")
+import * as jsdom from "jsdom"
 const { JSDOM } = jsdom
 
 const dom = new JSDOM(`<body>
@@ -29,14 +25,17 @@ Object.defineProperty(dom.window, "matchMedia", {
     }
   },
 })
+// @ts-expect-error: Just to prevent a crash, not used
 global.window = dom.window
 global.document = dom.window.document
 global.navigator = dom.window.navigator
-// @ts-ignore: Just to prevent a crash, not used
+// @ts-expect-error: Just to prevent a crash, not used
 global.CSS = {}
 
 // The following import order matters and are dependant on above window definition.
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const blockLibrary = require("@wordpress/block-library")
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const blocks = require("@wordpress/blocks")
 
 async function main() {

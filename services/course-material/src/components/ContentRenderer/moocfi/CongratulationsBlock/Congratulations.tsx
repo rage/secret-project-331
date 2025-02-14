@@ -11,7 +11,6 @@ import { UserModuleCompletionStatus } from "@/shared-module/common/bindings"
 import { headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
-// eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`
   font-family: ${headingFont};
   background: #6ba578;

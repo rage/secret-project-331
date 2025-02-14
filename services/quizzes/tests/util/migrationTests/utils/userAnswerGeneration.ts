@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { OldQuizAnswer, OldQuizItemAnswer } from "../../../../types/oldQuizTypes"
 
 // Quiz answers

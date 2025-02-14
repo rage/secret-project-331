@@ -116,7 +116,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
             }
             try {
               draft.n = parseInt(value)
-            } catch (e) {
+            } catch (_e) {
               /* NOP */
             }
           })
@@ -195,7 +195,6 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                 return
               }
 
-              // eslint-disable-next-line i18next/no-literal-string
               draft.options = [
                 ...draft.options,
                 {

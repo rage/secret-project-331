@@ -4,7 +4,7 @@ import { freemem } from "os"
 function envToNumber(env: string, defaultNumber: number) {
   try {
     return Number(env.trim())
-  } catch (error) {
+  } catch (_error) {
     return defaultNumber
   }
 }

@@ -35,7 +35,6 @@ const IconContainer = styled.div`
   max-width: 1000px;
 `
 
-/* eslint-disable i18next/no-literal-string */
 const Icon = styled.div<StyledProps>`
   width: 130px;
   display: flex;

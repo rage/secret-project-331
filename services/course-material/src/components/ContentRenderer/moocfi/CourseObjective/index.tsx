@@ -103,10 +103,7 @@ export interface CourseObjectiveSectionProps {
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & CourseObjectiveSectionProps
 
-const CourseObjective: React.FC<React.PropsWithChildren<React.PropsWithChildren<CardProps>>> = ({
-  title,
-  children,
-}) => {
+const CourseObjective: React.FC<React.PropsWithChildren<CardProps>> = ({ title, children }) => {
   const data = children && Object.values(children)[0].props.data.innerBlocks
   const titleLength = title.split(" ").length
   return (
@@ -124,7 +121,7 @@ const CourseObjective: React.FC<React.PropsWithChildren<React.PropsWithChildren<
               if (isList) {
                 const values = firstInnerBlock.attributes.values
                 const parser = new DOMParser()
-                // eslint-disable-next-line i18next/no-literal-string
+
                 const listItem = parser.parseFromString(values, "text/html")
                 list = [].slice.call(listItem.body.childNodes).map(({ innerHTML }) => innerHTML)
               }

@@ -28,7 +28,7 @@ const NewExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
     (exam: NewExam) => createExam(organizationId, exam),
     {
       notify: true,
-      successMessage: t("exam-created-succesfully"),
+      successMessage: t("exam-created-successfully"),
       method: "POST",
     },
     {
@@ -43,7 +43,7 @@ const NewExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
     (data: { examId: string; newExam: NewExam }) => createExamDuplicate(data.examId, data.newExam),
     {
       notify: true,
-      successMessage: t("exam-duplicated-succesfully"),
+      successMessage: t("exam-duplicated-successfully"),
       method: "POST",
     },
     {

@@ -9,9 +9,6 @@ interface CardOpensTextProps {
   time: string | undefined
 }
 
-// eslint-disable-next-line i18next/no-literal-string
-
-// eslint-disable-next-line i18next/no-literal-string
 const styledspan = css`
   font-family: ${secondaryFont} !important;
   font-size: 0.9rem;
@@ -19,9 +16,11 @@ const styledspan = css`
   text-transform: uppercase;
 `
 
-const CardOpensText: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<CardOpensTextProps>>
-> = ({ open, date, time }) => {
+const CardOpensText: React.FC<React.PropsWithChildren<CardOpensTextProps>> = ({
+  open,
+  date,
+  time,
+}) => {
   const { t } = useTranslation()
   if (date && time) {
     return (

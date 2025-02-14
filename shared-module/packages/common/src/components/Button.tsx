@@ -299,7 +299,6 @@ const Button = forwardRef((props: ButtonProps, ref?: Ref<HTMLButtonElement>) => 
   }
 })
 
-// eslint-disable-next-line i18next/no-literal-string
 Button.displayName = "Button"
 
 export default Button

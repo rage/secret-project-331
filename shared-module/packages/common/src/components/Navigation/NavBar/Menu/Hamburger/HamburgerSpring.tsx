@@ -12,7 +12,6 @@ const active = `
   background-color: transparent;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const getActiveBefore = (buttonWidth: ButtonWidth) => `
   top: 0;
   transition: top 0.1s 0.15s cubic-bezier(0.33333, 0, 0.66667, 0.33333), transform 0.13s 0.22s cubic-bezier(0.215, 0.61, 0.355, 1);
@@ -21,7 +20,6 @@ const getActiveBefore = (buttonWidth: ButtonWidth) => `
   }px, 0) rotate(45deg);
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const getActiveAfter = (buttonWidth: ButtonWidth) => `
   top: 0;
   transition: top 0.2s cubic-bezier(0.33333, 0, 0.66667, 0.33333), transform 0.13s 0.22s cubic-bezier(0.215, 0.61, 0.355, 1);
@@ -30,7 +28,6 @@ const getActiveAfter = (buttonWidth: ButtonWidth) => `
   }px, 0) rotate(-45deg);
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const getLinesCommon = ({ buttonWidth }: { buttonWidth: ButtonWidth }) => `
   width: ${buttonWidth}px;
   height: ${buttonWidth * 0.1}px;
@@ -142,7 +139,6 @@ type StyledButtonProps = {
   buttonColor: ButtonColor
 }
 
-// eslint-disable-next-line i18next/no-literal-string
 const StyledButton = styled.div<StyledButtonProps>`
   padding: ${({ buttonWidth }) => buttonWidth * 0.375}px;
   display: inline-block;
@@ -159,7 +155,7 @@ const StyledButton = styled.div<StyledButtonProps>`
   overflow: visible;
 `
 
-const Button: React.FC<React.PropsWithChildren<React.PropsWithChildren<ButtonProps>>> = (props) => {
+const Button: React.FC<React.PropsWithChildren<ButtonProps>> = (props) => {
   const {
     barColor = "black",
     Box = StyledBox,
@@ -197,7 +193,6 @@ type StyledBoxProps = {
   buttonWidth: ButtonWidth
 }
 
-// eslint-disable-next-line i18next/no-literal-string
 const StyledBox = styled.div<StyledBoxProps>`
   width: ${({ buttonWidth }) => buttonWidth}px;
   height: ${({ buttonWidth }) => buttonWidth * 0.6}px;
@@ -205,6 +200,6 @@ const StyledBox = styled.div<StyledBoxProps>`
   position: relative;
 `
 
-export const HamburgerSpring: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<ButtonProps>>
-> = (props) => <Button {...props} Lines={StyledLinesSpring} />
+export const HamburgerSpring: React.FC<React.PropsWithChildren<ButtonProps>> = (props) => (
+  <Button {...props} Lines={StyledLinesSpring} />
+)

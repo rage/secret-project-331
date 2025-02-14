@@ -21,13 +21,11 @@ const AsideEditor: React.FC<React.PropsWithChildren<BlockEditProps<AsideComponen
         <BackgroundColorCustomizer
           attributes={attributes}
           setAttributes={setAttributes}
-          // eslint-disable-next-line i18next/no-literal-string
           defaultBackgroundColor="#ebf5fb"
         />
         <BackgroundColorCustomizer
           attributes={attributes}
           setAttributes={setAttributes}
-          // eslint-disable-next-line i18next/no-literal-string
           defaultBackgroundColor="#007acc"
           // eslint-disable-next-line i18next/no-literal-string
           customAttributeName="separatorColor"

@@ -42,7 +42,7 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
     {
       notify: true,
       method: "POST",
-      successMessage: t("message-saved-succesfully"),
+      successMessage: t("message-saved-successfully"),
       errorMessage: t("message-saving-failed"),
     },
     {
@@ -95,7 +95,7 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
 
   const onMessage = (message: unknown, responsePort: MessagePort) => {
     console.info(responsePort)
-    // eslint-disable-next-line i18next/no-literal-string
+
     console.info("received message from iframe", message)
   }
 
@@ -105,7 +105,6 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
       return
     }
     try {
-      // eslint-disable-next-line i18next/no-literal-string
       const newUrl = new URL(exampleUrl)
       setCombinedUrl(newUrl.toString())
       setInvalidUrl(false)
@@ -188,7 +187,7 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
                 margin-top: 0.5rem;
               `}
             >
-              {/* eslint-disable-next-line jsx-a11y/no-onchange */}
+              {}
               <select
                 onChange={handleExampleChange}
                 name="playground-examples"

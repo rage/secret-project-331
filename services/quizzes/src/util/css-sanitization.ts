@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { DisplayDirection } from "../../types/quizTypes/privateSpec"
 
 export type FlexDirection = "column" | "column-reverse" | "row" | "row-reverse"

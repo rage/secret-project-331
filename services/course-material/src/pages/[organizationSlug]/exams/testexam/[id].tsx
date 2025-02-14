@@ -63,6 +63,8 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     queryFn: () => fetchExamForTesting(examId),
   })
 
+  const { refetch: refetchExam } = exam
+
   const showAnswersMutation = useToastMutation(
     (showAnswers: boolean) => updateShowExerciseAnswers(examId, showAnswers),
     {
@@ -91,11 +93,9 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
 
   useEffect(() => {
     if (exam.isError) {
-      // eslint-disable-next-line i18next/no-literal-string
       pageStateDispatch({ type: "setError", payload: exam.error })
     } else if (exam.isSuccess && exam.data.enrollment_data.tag === "EnrolledAndStarted") {
       pageStateDispatch({
-        // eslint-disable-next-line i18next/no-literal-string
         type: "setData",
         payload: {
           pageData: exam.data.enrollment_data.page,
@@ -107,7 +107,6 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
       })
       setShowExamAnswers(exam.data.enrollment_data.enrollment.show_exercise_answers ?? false)
     } else {
-      // eslint-disable-next-line i18next/no-literal-string
       pageStateDispatch({ type: "setLoading" })
     }
   }, [exam.isError, exam.isSuccess, exam.data, exam.error])
@@ -127,8 +126,8 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   }, [layoutContext, query.organizationSlug])
 
   const handleRefresh = useCallback(async () => {
-    await exam.refetch()
-  }, [exam])
+    await refetchExam()
+  }, [refetchExam])
 
   const handleTimeOverModalClose = useCallback(async () => {
     await handleRefresh()
@@ -250,7 +249,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
           <ExamStartBanner
             onStart={async () => {
               await enrollInExam(examId, true)
-              exam.refetch()
+              await refetchExam()
             }}
             examEnrollmentData={exam.data.enrollment_data}
             examHasStarted={true}

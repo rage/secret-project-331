@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 
-// eslint-disable-next-line i18next/no-literal-string
 export const styledRangeInput = css`
   /* Input range - chrome and safari */
 

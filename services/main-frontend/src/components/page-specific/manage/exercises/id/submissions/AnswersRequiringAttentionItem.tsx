@@ -94,7 +94,6 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
     modifiers: [
       { name: ARROW, options: { element: arrowElement, padding: 10 } },
       {
-        // eslint-disable-next-line i18next/no-literal-string
         name: "offset",
         options: {
           offset: [0, 20],
@@ -387,7 +386,6 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
               step={0.1}
               max="exerciseMaxPoints"
               type="number"
-              // eslint-disable-next-line i18next/no-literal-string
               aria-labelledby="input-slider"
             />
           </div>

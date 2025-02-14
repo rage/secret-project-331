@@ -89,7 +89,7 @@
   "exit": "خروج",
   "failed-to-send-message": "فشل في إرسال الرسالة",
   "failed-to-submit": "فشل في الإرسال {{ error }}",
-  "feedback-submitted-succesfully": "تم إرسال الملاحظات بنجاح",
+  "feedback-submitted-successfully": "تم إرسال الملاحظات بنجاح",
   "finnish": "الفنلندية",
   "flagging-reason-ai-generated": "محتوى تم إنشاؤه بواسطة الذكاء الاصطناعي",
   "flagging-reason-harmful-content": "محتوى ضار",

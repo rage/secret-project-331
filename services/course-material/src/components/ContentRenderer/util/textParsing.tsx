@@ -55,7 +55,7 @@ const parseGlossary = (data: string, glossary: Term[]): string => {
 const parseCitation = (data: string) => {
   const converted = data.replace(
     LATEX_CITE_REGEX,
-    // eslint-disable-next-line i18next/no-literal-string
+
     (_, citationId) =>
       // eslint-disable-next-line i18next/no-literal-string
       `<sup class="reference" data-citation-id="${citationId}" style="line-height: 1.5em;">[?]</sup>`,

@@ -145,9 +145,7 @@ const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChang
         </Grow>
         <InfoLink
           href="https://github.com/rage/secret-project-331/wiki/Add-new-exercise#formatting-feedback-messages"
-          // eslint-disable-next-line i18next/no-literal-string
           target="_blank"
-          // eslint-disable-next-line i18next/no-literal-string
           rel="noopener noreferrer"
           onClick={(e) => {
             if (messagePort) {

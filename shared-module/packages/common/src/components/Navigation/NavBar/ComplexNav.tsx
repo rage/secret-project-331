@@ -63,7 +63,6 @@ const navbarItems = css`
   }
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const navbarLogo = css`
   color: ${baseTheme.colors.gray[700]};
   display: flex;
@@ -126,7 +125,6 @@ const navMenu = css`
     transition: none;
   }
 `
-// eslint-disable-next-line i18next/no-literal-string
 const navLinks = css`
   color: ${baseTheme.colors.gray[700]};
   text-decoration: none;
@@ -217,13 +215,10 @@ const secondaryLink = css`
   }
 `
 
-const Navigation: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<NavigationProps>>
-> = () => {
+const Navigation: React.FC<React.PropsWithChildren<NavigationProps>> = () => {
   const { t } = useTranslation()
   const [clicked, setClicked] = useState(false)
   const callback = () => setClicked(!clicked)
-  // eslint-disable-next-line i18next/no-literal-string
   const buttonId = "main-navigation-menu"
   return (
     <nav role="navigation" className={cx(navbarItems)}>

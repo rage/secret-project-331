@@ -7,7 +7,7 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const ReactECharts = dynamic(() => import("echarts-for-react"), {
   ssr: false,
-  // eslint-disable-next-line react/display-name
+
   loading: () => <Spinner variant="medium" />,
 })
 

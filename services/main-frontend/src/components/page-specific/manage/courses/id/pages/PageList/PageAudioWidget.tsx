@@ -69,7 +69,6 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
   const uploadAudioFileMutation = useToastMutation(
     (file: File) => {
       if (!pageId) {
-        // eslint-disable-next-line i18next/no-literal-string
         throw new Error("Page ID undefined")
       }
 

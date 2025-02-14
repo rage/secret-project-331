@@ -112,15 +112,13 @@ const DetailTag = styled.div`
 
 export interface BannerExtraProps {
   variant: "text" | "link" | "readOnly"
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   error: unknown | string
 }
 
 export type BannerProps = React.HTMLAttributes<HTMLDivElement> & BannerExtraProps
 
-const ErrorBanner: React.FC<React.PropsWithChildren<React.PropsWithChildren<BannerProps>>> = (
-  props,
-) => {
+const ErrorBanner: React.FC<React.PropsWithChildren<BannerProps>> = (props) => {
   const { t } = useTranslation()
 
   const { error: unknownError } = props
@@ -170,8 +168,7 @@ const ErrorBanner: React.FC<React.PropsWithChildren<React.PropsWithChildren<Bann
       let linkComponent = <></>
       if (isErrorData(errorData)) {
         const url = window.location.href.replace(location.hash, "")
-        // eslint-disable-next-line i18next/no-literal-string
-        linkComponent = <a href={`${url}#${errorData.block_id}`}>Go to error</a>
+        linkComponent = <a href={`${url}#${errorData.block_id}`}>{t("go-to-error")}</a>
       }
 
       return (

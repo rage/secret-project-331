@@ -90,7 +90,7 @@
   "exit": "Вихід",
   "failed-to-send-message": "Не вдалося надіслати повідомлення",
   "failed-to-submit": "Не вдалося надіслати {{ error }}",
-  "feedback-submitted-succesfully": "Відгук успішно надіслано",
+  "feedback-submitted-successfully": "Відгук успішно надіслано",
   "finnish": "Фінська",
   "flagging-reason-ai-generated": "Контент, створений ШІ",
   "flagging-reason-harmful-content": "Шкідливий контент",

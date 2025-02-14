@@ -50,7 +50,6 @@ const TableEditor: React.FC<React.PropsWithChildren<BlockEditProps<TableBoxAttri
         <InnerBlocks
           allowedBlocks={ALLOWED_NESTED_BLOCKS}
           template={TABLE_TEMPLATE}
-          // eslint-disable-next-line i18next/no-literal-string
           templateLock="all"
         />
       </div>

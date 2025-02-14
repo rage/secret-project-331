@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 module.exports = {
   contextSeparator: "_",
   // old catalogs are in version control

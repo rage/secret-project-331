@@ -26,7 +26,7 @@ const NewReferenceDialog: React.FC<React.PropsWithChildren<NewReferenceModalProp
     (references: NewMaterialReference[]) => postNewReferences(courseId, references),
     {
       notify: true,
-      successMessage: t("reference-added-succesfully"),
+      successMessage: t("reference-added-successfully"),
       method: "POST",
     },
     {

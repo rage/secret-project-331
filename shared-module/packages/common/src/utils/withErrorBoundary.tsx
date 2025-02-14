@@ -7,7 +7,7 @@ interface ErrorBoundaryState {
 }
 
 export default function withErrorBoundary<T>(
-  Component: ComponentType<React.PropsWithChildren<React.PropsWithChildren<T>>>,
+  Component: ComponentType<React.PropsWithChildren<T>>,
 ): ComponentClass<T> {
   class ErrorBoundary extends React.Component<T, ErrorBoundaryState> {
     constructor(props: T) {

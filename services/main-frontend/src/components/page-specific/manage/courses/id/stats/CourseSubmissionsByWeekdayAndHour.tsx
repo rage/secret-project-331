@@ -127,7 +127,7 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<
           singleAxis: dataByWeekDayOrdered.map(([_weekdayNumber, _entries], i) => {
             return {
               left: 150,
-              // eslint-disable-next-line i18next/no-literal-string
+
               type: "category",
               boundaryGap: false,
               data: hours,
@@ -143,7 +143,7 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<
               singleAxisIndex: i,
               // eslint-disable-next-line i18next/no-literal-string
               coordinateSystem: "singleAxis",
-              // eslint-disable-next-line i18next/no-literal-string
+
               type: "scatter",
               // eslint-disable-next-line
                 data: entries.map((o) => [o.hour ?? -1, o.count ?? -1]),

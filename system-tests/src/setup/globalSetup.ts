@@ -27,7 +27,8 @@ async function makeSureNecessaryProgramsAreInstalled(config: FullConfig) {
 async function makeSureNpmCiHasBeenRan() {
   // Make sure the user has ran npm ci after Playwright has been updated.
   // Using an older vesion might not work or might generate sligtly wrong screenshots.
-  const requiredPlaywrightVersion = systemTestsPackageLockJson.dependencies.playwright.version
+  const requiredPlaywrightVersion =
+    systemTestsPackageLockJson.packages["node_modules/playwright"].version
   const installedPlaywrightVersion = playWrightPackageJson.version
   if (installedPlaywrightVersion !== requiredPlaywrightVersion) {
     throw new Error(

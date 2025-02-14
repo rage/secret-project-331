@@ -1,7 +1,7 @@
 /* eslint-disable i18next/no-literal-string */
 import styled from "@emotion/styled"
 import React from "react"
-import Particles from "react-tsparticles"
+import { Particles } from "react-tsparticles"
 
 import Tick from "../img/tick.svg"
 

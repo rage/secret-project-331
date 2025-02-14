@@ -11,7 +11,7 @@ export interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElemen
   resize?: "none" | "both" | "horizontal" | "vertical" | "block" | "inline"
 }
 
-function updateHeight(ref: React.RefObject<HTMLTextAreaElement>) {
+function updateHeight(ref: React.RefObject<HTMLTextAreaElement | null>) {
   if (ref.current) {
     // eslint-disable-next-line i18next/no-literal-string
     ref.current.style.height = "auto"

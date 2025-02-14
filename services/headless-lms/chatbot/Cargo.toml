@@ -19,7 +19,7 @@ futures-util = "0.3.31"
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
 tokio.workspace = true
 # Utilities for working with Tokio.
-tokio-util = "0.7.11"
+tokio-util = "0.7.13"
 # higher level HTTP client library
 reqwest = { version = "0.12.12", features = [
   "brotli",
@@ -32,11 +32,11 @@ reqwest = { version = "0.12.12", features = [
 # A generic serialization/deserialization framework
 serde = { version = "1.0.217", features = ["derive"] }
 # A JSON serialization file format
-serde_json = "1.0.135"
+serde_json = "1.0.138"
 # Application-level tracing for Rust.
 tracing = "0.1.41"
 # A library to generate and parse UUIDs.
-uuid = { version = "1.11.1", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.13.1", features = ["serde", "v4", "v5"] }
 # Flexible concrete Error type built on std::error::Error
 anyhow = "1.0.95"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
@@ -44,7 +44,7 @@ sqlx.workspace = true
 # Asynchronous streams using async & await notation
 async-stream = "0.3.6"
 # Types and traits for working with bytes
-bytes = "1.9.0"
+bytes = "1.10.0"
 # Azure Storage crate from the Azure SDK for Rust
 azure_storage = "0.21.0"
 # Azure Blob Storage crate from the Azure SDK for Rust
@@ -54,4 +54,4 @@ azure_core = "0.21.0"
 # URL library for Rust, based on the WHATWG URL Standard
 url = "2.5.4"
 # A crate for safe and ergonomic pin-projection.
-pin-project = "1.1.8"
+pin-project = "1.1.9"

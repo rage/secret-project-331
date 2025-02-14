@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { fileMatchesType, validateFile } from "../../src/utils/files"
 
 describe("fileMatchesType util", () => {

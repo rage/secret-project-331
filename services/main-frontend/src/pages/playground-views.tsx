@@ -57,7 +57,6 @@ const Area = styled.div`
 const FULL_WIDTH = "100vw"
 const HALF_WIDTH = "50vw"
 
-// eslint-disable-next-line i18next/no-literal-string
 const StyledPre = styled.pre<{ fullWidth: boolean }>`
   background-color: rgba(218, 230, 229, 0.4);
   border-radius: 6px;
@@ -74,7 +73,6 @@ const StyledPre = styled.pre<{ fullWidth: boolean }>`
   }
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const GridContainer = styled.div`
   padding: 2rem;
   max-width: 1800px;
@@ -172,7 +170,6 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
     // eslint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
-      // eslint-disable-next-line i18next/no-literal-string
       url: localStorage.getItem("service-info-url") ?? DEFAULT_SERVICE_INFO_URL,
       // eslint-disable-next-line i18next/no-literal-string
       private_spec: "null",
@@ -196,7 +193,6 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
     const parsedUrl = new URL(url)
     exerciseServiceHost = `${parsedUrl.protocol}//${parsedUrl.host}`
   } catch {
-    // eslint-disable-next-line i18next/no-literal-string
     console.warn("Could not parse URL")
   }
 
@@ -207,7 +203,6 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
     privateSpecParsed = JSON.parse(privateSpec)
     privateSpecValidJson = true
   } catch (e) {
-    // eslint-disable-next-line i18next/no-literal-string
     console.warn("Private spec was invalid JSON", e)
   }
 
@@ -223,7 +218,6 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
 
   useEffect(() => {
     if (isValidServiceInfo) {
-      // eslint-disable-next-line i18next/no-literal-string
       localStorage.setItem("service-info-url", url)
     }
   }, [isValidServiceInfo, url])
@@ -345,7 +339,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
       const payload: SpecRequest = {
         request_id: v4(),
         private_spec: privateSpecParsed,
-        // eslint-disable-next-line i18next/no-literal-string
+
         upload_url: `${PUBLIC_ADDRESS}/api/v0/files/playground`,
       }
       const res = await axios.post(
@@ -699,7 +693,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                       // eslint-disable-next-line i18next/no-literal-string
                       repository_url: "https://github.com/testmycode/tmc-testcourse",
                       checksum: [5, 6, 7, 8],
-                      // eslint-disable-next-line i18next/no-literal-string
+
                       download_url:
                         // eslint-disable-next-line i18next/no-literal-string
                         `${PUBLIC_ADDRESS}/api/v0/files/playground-views/repository-exercise-2.tar.zst`,

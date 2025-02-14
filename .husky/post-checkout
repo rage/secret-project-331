@@ -1,2 +1,2 @@
 #!/bin/sh
-npx ts-node .husky/ensure-dependencies-up-to-date.ts
+npx tsx .husky/ensure-dependencies-up-to-date.ts

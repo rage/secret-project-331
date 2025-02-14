@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import * as k8s from "@kubernetes/client-node"
 import axios from "axios"
 import { createReadStream, createWriteStream, promises as fs } from "fs"
@@ -143,12 +142,12 @@ const processGrading = async (
         await axios.post(grading_update_url, errorGradingResult, {
           headers,
         })
-      } catch (err) {
+      } catch (_err) {
         error("Failed to send failed grading update")
       }
     }
-  } catch (err) {
-    return internalServerError(res, "Error while processing grading", err)
+  } catch (e) {
+    return internalServerError(res, "Error while processing grading", e)
   }
 }
 
@@ -205,7 +204,7 @@ const gradeInPod = async (
   log(`deleting pod ${podName}`)
   try {
     await kubeApi.deleteNamespacedPod({ name: podName, namespace: "default", pretty: "true" })
-  } catch (e) {
+  } catch (_e) {
     error("failed to delete pod")
   }
 

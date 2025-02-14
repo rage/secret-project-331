@@ -1,5 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
-
 import { css } from "@emotion/css"
 
 import { colorMap } from "./colorMapper"

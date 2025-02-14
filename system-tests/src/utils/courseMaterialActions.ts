@@ -4,7 +4,6 @@ import { test } from "@playwright/test"
 import { Page } from "playwright"
 
 const isCourseSettingsModalOpen = async (page: Page) => {
-  // eslint-disable-next-line playwright/no-element-handle
   const courseVariantSelector = page.getByTestId("select-course-instance-heading")
   return courseVariantSelector.filter().isVisible()
 }

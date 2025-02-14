@@ -55,6 +55,5 @@ const SpeechBalloon = React.forwardRef<HTMLDivElement, SpeechBalloonProps>(
   },
 )
 
-// eslint-disable-next-line i18next/no-literal-string
 SpeechBalloon.displayName = "SpeechBalloon"
 export default SpeechBalloon

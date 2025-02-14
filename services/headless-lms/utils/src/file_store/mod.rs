@@ -12,7 +12,7 @@ use std::{
 use async_trait::async_trait;
 use bytes::Bytes;
 use futures::Stream;
-use rand::distributions::DistString;
+use rand::distr::SampleString;
 
 use uuid::Uuid;
 
@@ -74,8 +74,7 @@ pub trait FileStore {
             }
         }
 
-        let random_filename =
-            rand::distributions::Alphanumeric.sample_string(&mut rand::thread_rng(), 32);
+        let random_filename = rand::distr::Alphanumeric.sample_string(&mut rand::rng(), 32);
         let temp_path = cache_folder.join(random_filename.as_str());
 
         let file_content = self.download(file_path).await?;

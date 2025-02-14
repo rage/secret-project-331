@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"

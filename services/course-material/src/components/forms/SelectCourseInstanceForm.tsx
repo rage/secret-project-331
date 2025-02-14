@@ -24,7 +24,6 @@ const FieldContainer = styled.div`
   margin-bottom: 1.5rem;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const GreenText = styled.span`
   color: ${baseTheme.colors.green[700]};
 `
@@ -142,12 +141,7 @@ const SelectCourseInstanceForm: React.FC<
           {t("title-select-course-instance")}
           <GreenText>*</GreenText>
         </h2>
-        <FieldContainer
-          role="radiogroup"
-          aria-label={t("label-course-instance")}
-          // eslint-disable-next-line i18next/no-literal-string
-          aria-required="true"
-        >
+        <FieldContainer role="radiogroup" aria-label={t("label-course-instance")} aria-required>
           {courseInstances.map((courseInstance) => (
             <div key={courseInstance.id}>
               <RadioButton

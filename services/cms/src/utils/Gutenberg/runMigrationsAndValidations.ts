@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { BlockInstance, getBlockType } from "@wordpress/blocks"
 import { produce } from "immer"
 

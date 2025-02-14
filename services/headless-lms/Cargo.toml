@@ -39,7 +39,7 @@ opt-level = 3
 debug = 1
 
 [workspace.dependencies]
-tokio = { version = "1.38.1", features = [
+tokio = { version = "1.43.0", features = [
   "fs",
   "io-util",
   "sync",

@@ -19,7 +19,7 @@ futures-util = "0.3.31"
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
 tokio.workspace = true
 # Utilities for working with Tokio.
-tokio-util = "0.7.11"
+tokio-util = "0.7.13"
 # higher level HTTP client library
 reqwest = { version = "0.12.12", features = [
   "brotli",

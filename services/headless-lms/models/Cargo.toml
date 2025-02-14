@@ -29,7 +29,7 @@ chrono = { version = "0.4.39", features = ["serde"] }
 # A JSON serialization file format
 serde_json = "1.0.138"
 # Adds #[derive(x)] macros for more traits
-derive_more = "0.99.19"
+derive_more = "2.0.1"
 # Extra iterator adaptors, iterator methods, free functions, and macros.
 itertools = "0.14.0"
 # URL library for Rust, based on the WHATWG URL Standard
@@ -51,7 +51,7 @@ ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "94bf3c040ece6627b69f
   "uuid-impl",
 ], optional = true }
 # Email client
-lettre = "0.11.1"
+lettre = "0.11.12"
 # Random number generators and other randomness functionality.
 rand = "0.9.0"
 # Flexible concrete Error type built on std::error::Error
@@ -67,7 +67,7 @@ tracing-error = "0.2.1"
 # Utilities for implementing and composing `tracing` subscribers.
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 # HTTP mocking for Rust.
-mockito = "1.1.1"
+mockito = "1.6.1"
 
 [features]
 ts_rs = ["ts-rs", "headless-lms-utils/ts_rs"]

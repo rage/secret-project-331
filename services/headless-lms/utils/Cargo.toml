@@ -13,9 +13,9 @@ license.workspace = true
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
 tokio.workspace = true
 # Additional utilities for working with Tokio.
-tokio-util = { version = "0.7.11", features = ["io"] }
+tokio-util = { version = "0.7.13", features = ["io"] }
 # Utilities to work with `Stream` and `tokio`.
-tokio-stream = "0.1.15"
+tokio-stream = "0.1.17"
 # An implementation of future and streams featuring zero allocations, composability, and itera…
 futures = "0.3.31"
 # A library to generate and parse UUIDs.
@@ -74,7 +74,7 @@ flate2 = "1.0.35"
 # higher level HTTP client library
 reqwest = { version = "0.12.12", features = ["brotli", "gzip", "json", "http2", "rustls-tls", "stream"] }
 # Redis driver for Rust.
-redis = { version = "0.26.1", features = ["aio", "tokio-comp"] }
+redis = { version = "0.28.2", features = ["aio", "tokio-comp"] }
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.

@@ -18,4 +18,4 @@ serde_json = "1.0.138"
 # derive(Error)
 thiserror = "2.0.11"
 # A library to generate and parse UUIDs.
-uuid = { version = "1.12.1", features = ["serde"] }
+uuid = { version = "1.13.1", features = ["serde"] }

@@ -21,7 +21,7 @@ dotenv = "0.15.0"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
 sqlx.workspace = true
 # A library to generate and parse UUIDs.
-uuid = { version = "1.12.1", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.13.1", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
 serde = { version = "1.0.217", features = ["derive"] }
 # Date and time library for Rust
@@ -29,7 +29,7 @@ chrono = { version = "0.4.39", features = ["serde"] }
 # A JSON serialization file format
 serde_json = "1.0.138"
 # Adds #[derive(x)] macros for more traits
-derive_more = "0.99.18"
+derive_more = "0.99.19"
 # Extra iterator adaptors, iterator methods, free functions, and macros.
 itertools = "0.14.0"
 # URL library for Rust, based on the WHATWG URL Standard

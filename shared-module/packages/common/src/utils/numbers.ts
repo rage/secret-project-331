@@ -6,7 +6,6 @@
 export function roundDown(n: number, maxDecimals?: number): string {
   const actualMaxDecimals = maxDecimals || 0
   if (actualMaxDecimals > 20) {
-    // eslint-disable-next-line
     throw "maxDecimals cannot be higher than 20"
   }
   const fixed = n.toFixed(20).toString()
@@ -56,7 +55,7 @@ export function stringToNumberOrPlaceholder<T>(
   let res: number
   try {
     res = Number(s)
-  } catch (e) {
+  } catch (_e) {
     return missingNumberSubstitute
   }
   if (isNaN(res)) {

@@ -34,27 +34,27 @@ pub type ControllerResult<T, E = ControllerError> = std::result::Result<Authoriz
 #[derive(Debug, Display, Serialize, Deserialize)]
 pub enum ControllerErrorType {
     /// HTTP status code 500.
-    #[display(fmt = "Internal server error")]
+    #[display("Internal server error")]
     InternalServerError,
 
     /// HTTP status code 400.
-    #[display(fmt = "Bad request")]
+    #[display("Bad request")]
     BadRequest,
 
     /// HTTP status code 400.
-    #[display(fmt = "Bad request")]
+    #[display("Bad request")]
     BadRequestWithData(ErrorData),
 
     /// HTTP status code 404.
-    #[display(fmt = "Not found")]
+    #[display("Not found")]
     NotFound,
 
     /// HTTP status code 401. Needs to log in.
-    #[display(fmt = "Unauthorized")]
+    #[display("Unauthorized")]
     Unauthorized,
 
     /// HTTP status code 403. Is logged in but is not allowed to access the resource.
-    #[display(fmt = "Forbidden")]
+    #[display("Forbidden")]
     Forbidden,
 }
 

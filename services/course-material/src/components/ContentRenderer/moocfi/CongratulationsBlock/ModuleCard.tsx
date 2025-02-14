@@ -12,7 +12,6 @@ import CongratulationsLinks from "./CongratulationsLinks"
 import { UserModuleCompletionStatus } from "@/shared-module/common/bindings"
 import { baseTheme, headingFont, monospaceFont, typography } from "@/shared-module/common/styles"
 
-// eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`
   font-family: ${headingFont};
   max-width: 480px;
@@ -44,7 +43,6 @@ const Wrapper = styled.div`
   }
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const BadgeWrapper = styled.div`
   position: absolute;
   top: 14px;

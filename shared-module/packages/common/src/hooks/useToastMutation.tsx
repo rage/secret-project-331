@@ -1,13 +1,11 @@
-/* eslint-disable i18next/no-literal-string */
 import {
   MutationFunction,
-  // eslint-disable-next-line no-restricted-imports
   useMutation,
   UseMutationOptions,
   UseMutationResult,
 } from "@tanstack/react-query"
 import { AxiosError } from "axios"
-import toast, { ToastOptions } from "react-hot-toast"
+import toast, { Toast, ToastOptions } from "react-hot-toast"
 
 import DeleteNotification from "../components/Notifications/Delete"
 import ErrorNotification from "../components/Notifications/Error"
@@ -48,7 +46,7 @@ export default function useToastMutation<
   let toastId = ""
   const displaySuccessNotification = (notificationOptions: EnableNotifications) => {
     toast.custom(
-      (toast) => {
+      (toast: Toast) => {
         return (
           <SuccessNotification
             header={notificationOptions.successHeader}
@@ -136,7 +134,7 @@ export default function useToastMutation<
           errorMessage = (error as Error).message
         }
         toast.custom(
-          (toast) => {
+          (toast: Toast) => {
             return (
               <ErrorNotification
                 header={notificationOptions.errorHeader}

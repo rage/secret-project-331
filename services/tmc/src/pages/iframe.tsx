@@ -97,7 +97,6 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
               modelSolutionSpec: messageData.data.model_solution_spec as ModelSolutionSpec,
             })
           } else {
-            // eslint-disable-next-line i18next/no-literal-string
             error(iframeId, "Unknown view type received from parent")
           }
         })
@@ -127,11 +126,9 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
           error(iframeId, "Failed to upload:", messageData.error)
         }
       } else {
-        // eslint-disable-next-line i18next/no-literal-string
         error(iframeId, "Unexpected message from parent")
       }
     } else {
-      // eslint-disable-next-line i18next/no-literal-string
       error(iframeId, "Frame received an unknown message from message port")
     }
   })
@@ -161,7 +158,6 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
 }
 
 const sendSpecToParent = (port: MessagePort, data: CurrentStateMessageData) => {
-  // eslint-disable-next-line i18next/no-literal-string
   console.info("Posting message to parent")
 
   const currentStateMessage: MessageToParent = {

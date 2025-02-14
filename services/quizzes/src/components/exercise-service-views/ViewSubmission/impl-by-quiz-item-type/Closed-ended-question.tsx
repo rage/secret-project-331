@@ -22,14 +22,12 @@ const FEEDBACK_STYLES = `
   border-radius: 5px;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const correctAnswer = css`
   ${FEEDBACK_STYLES}
   background-color: ${quizTheme.successItemBackgroundColor};
   color: ${quizTheme.successItemForegroundColor};
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const incorrectAnswer = css`
   ${FEEDBACK_STYLES}
   background-color: ${quizTheme.errorItemBackgroundColor};

@@ -2,7 +2,7 @@ import { createContext } from "react"
 
 import { PageState } from "../reducers/pageStateReducer"
 
-interface LayoutContext {
+interface LayoutContextType {
   title: string | null
   setTitle: (title: string | null) => void
   organizationSlug: string | null
@@ -14,7 +14,7 @@ interface LayoutContext {
   setPageState: (pageState: PageState) => void
 }
 
-const LayoutContext = createContext<LayoutContext>({
+const LayoutContext = createContext<LayoutContextType>({
   title: null,
   setTitle: () => {
     throw new Error("setTitle called outside provider.")

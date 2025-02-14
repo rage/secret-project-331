@@ -3,7 +3,6 @@ import React from "react"
 
 import { baseTheme } from "../../styles"
 
-// eslint-disable-next-line i18next/no-literal-string
 const BannerWrapper = styled.div`
   background: ${baseTheme.colors.clear[100]};
   width: 100%;
@@ -29,14 +28,7 @@ const Text = styled.div`
   }
 `
 
-export interface BannerExtraProps {
-  variant: "text" | "link" | "read-only"
-  content: string
-}
-
-export type BannerProps = React.HTMLAttributes<HTMLDivElement> & BannerExtraProps
-
-const Quote: React.FC<React.PropsWithChildren<React.PropsWithChildren<BannerProps>>> = (props) => {
+const Quote: React.FC<React.PropsWithChildren> = (props) => {
   return (
     <BannerWrapper {...props}>
       <Content>

@@ -25,7 +25,6 @@ const headerContainerStyle = css`
   border-radius: 10px 10px 0px 0px;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const iconStyle = css`
   background-color: ${baseTheme.colors.clear[200]};
   color: ${baseTheme.colors.gray[400]};

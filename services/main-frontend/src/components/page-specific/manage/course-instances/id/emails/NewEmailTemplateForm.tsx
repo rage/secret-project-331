@@ -17,11 +17,11 @@ const FieldContainer = styled.div`
   margin-bottom: 1rem;
 `
 
-interface NewEmailTemplateForm {
+interface NewEmailTemplateFormProps {
   onSubmitForm: (newName: string) => void
 }
 
-const NewEmailTemplateForm: React.FC<React.PropsWithChildren<NewEmailTemplateForm>> = ({
+const NewEmailTemplateForm: React.FC<React.PropsWithChildren<NewEmailTemplateFormProps>> = ({
   onSubmitForm,
 }) => {
   const { t } = useTranslation()

@@ -55,10 +55,11 @@ update_node_deps "$RELATIVE_PATH/services/main-frontend" "main-frontend"
 update_node_deps "$RELATIVE_PATH/services/quizzes" "quizzes"
 update_node_deps "$RELATIVE_PATH/services/tmc" "tmc"
 update_node_deps "$RELATIVE_PATH/shared-module" "shared-module"
+update_node_deps "$RELATIVE_PATH/shared-module/packages/common" "shared-module/common"
 
 # Update rust deps
 run_command cd services/headless-lms
-run_command cargo upgrade --incompatible allow --pinned allow --recursive true
+run_command cargo upgrade --incompatible allow --pinned allow --recursive true --ignore-rust-version
 if [[ $(git status --porcelain) ]]; then
   git add .
   git commit -m "Cargo upgrade" --no-verify

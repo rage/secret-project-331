@@ -28,7 +28,6 @@ const StCardSvg = styled(CardSVG)`
   color: #fff;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const CardContentWrapper = styled.div`
   display: flex;
   height: 100%;
@@ -81,7 +80,7 @@ export const StyledSVG = (Image: any) => {
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & CardExtraProps
 
-const SimpleCard: React.FC<React.PropsWithChildren<React.PropsWithChildren<CardProps>>> = ({
+const SimpleCard: React.FC<React.PropsWithChildren<CardProps>> = ({
   title,
   chapterNumber,
   open,

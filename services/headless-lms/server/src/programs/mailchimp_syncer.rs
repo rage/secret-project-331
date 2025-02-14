@@ -855,7 +855,7 @@ async fn process_unsubscribed_users_from_mailchimp(
         {
             error!(
                 "Error while processing chunk {}/{}: ",
-                (total_records + BATCH_SIZE - 1) / BATCH_SIZE,
+                total_records.div_ceil(BATCH_SIZE),
                 e
             );
         }

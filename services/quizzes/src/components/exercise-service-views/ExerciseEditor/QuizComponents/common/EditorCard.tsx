@@ -53,7 +53,6 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
 }) => {
   const { selected, updateState } = useQuizzesExerciseServiceOutputState<PrivateSpecQuiz>(
     (quiz) => {
-      // eslint-disable-next-line i18next/no-literal-string
       return quiz as PrivateSpecQuiz
     },
   )

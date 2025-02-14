@@ -19,7 +19,7 @@ authors = [
   "Henrik Nygren <nygrenh@gmail.com>",
 ]
 edition = "2021"
-rust-version = "1.66.0" # minimum required Rust version, update if you use a new API
+rust-version = "1.84.1" # minimum required Rust version, update if you use a new API
 license = "Apache-2.0"
 
 [profile.dev]
@@ -39,7 +39,7 @@ opt-level = 3
 debug = 1
 
 [workspace.dependencies]
-tokio = { version = "1.38.1", features = [
+tokio = { version = "1.43.0", features = [
   "fs",
   "io-util",
   "sync",

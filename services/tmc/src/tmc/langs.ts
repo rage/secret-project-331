@@ -1,5 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
-
 import * as cp from "child_process"
 import * as readline from "readline"
 import kill from "tree-kill"
@@ -77,7 +75,7 @@ const execute = async (
           console.error("TMC-langs response didn't match expected type")
           console.error(json)
         }
-      } catch (e) {
+      } catch (_e) {
         console.warn("Failed to parse TMC-langs output")
         console.debug(input)
       }

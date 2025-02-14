@@ -34,7 +34,7 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({
     {
       notify: true,
       method: "POST",
-      successMessage: t("feedback-submitted-succesfully"),
+      successMessage: t("feedback-submitted-successfully"),
     },
     {
       onSuccess: () => {

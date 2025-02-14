@@ -51,7 +51,6 @@ const ExamDetails = styled.div`
   color: ${baseTheme.colors.gray[500]};
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const Detail = styled.div`
   display: flex;
   flex-direction: column;
@@ -66,7 +65,6 @@ const Detail = styled.div`
   }
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const ManageLink = styled.div`
   margin-top: 0.5rem;
 

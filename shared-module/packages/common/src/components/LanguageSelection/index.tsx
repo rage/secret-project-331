@@ -9,7 +9,7 @@ import useClickOutside from "../../hooks/useClickOutside"
 import { LANGUAGE_COOKIE_KEY } from "../../utils/constants"
 
 import LanguageMenu from "./LanguageMenu"
-import LanguageOption from "./LanguageOption"
+import LanguageOptionComponent from "./LanguageOption"
 
 export interface LanguageOption {
   tag: string
@@ -102,7 +102,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
               `}
             >
               {(languages ?? DEFAULT_LANGUAGES).map((x) => (
-                <LanguageOption
+                <LanguageOptionComponent
                   key={x.tag}
                   label={x.name}
                   onClick={() => {

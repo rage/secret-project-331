@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { DotsHorizontal } from "@vectopus/atlas-icons-react"
 import { TFunction } from "i18next"
-import React, { useCallback, useMemo } from "react"
+import React, { JSX, useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { PaginationInfo } from "../hooks/usePaginationInfo"
@@ -98,7 +98,7 @@ const CircleText = styled.div`
   top: -1px;
 `
 
-const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<PaginationProps>>> = ({
+const Pagination: React.FC<React.PropsWithChildren<PaginationProps>> = ({
   paginationInfo,
   totalPages,
   disableItemsPerPage = false,

@@ -114,9 +114,8 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
       return
     }
     setTimeout(() => {
-      // eslint-disable-next-line i18next/no-literal-string
       htmlElement.setAttribute("lang", currentLanguageCode)
-      // eslint-disable-next-line i18next/no-literal-string
+
       htmlElement.setAttribute("dir", getDir(currentLanguageCode))
     }, 100)
   }, [currentLanguageCode, i18n])

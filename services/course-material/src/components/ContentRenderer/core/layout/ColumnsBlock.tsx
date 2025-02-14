@@ -62,7 +62,6 @@ const ColumnsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnsA
             editing={false}
             selectedBlockId={null}
             setEdits={function (_value: SetStateAction<Map<string, NewProposedBlockEdit>>): void {
-              // eslint-disable-next-line i18next/no-literal-string
               throw new Error("Function not implemented.")
             }}
             id={block.clientId}

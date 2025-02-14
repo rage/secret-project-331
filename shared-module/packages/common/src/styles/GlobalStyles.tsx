@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { css, injectGlobal } from "@emotion/css"
 
 import { defaultFontSizePx, linkWithExtraIconClass } from "./constants"
@@ -88,10 +87,11 @@ const globalCss = css`
   }
 `
 
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 injectGlobal`
 ${globalCss}
 `
 
-const GlobalStyles: React.FC<React.PropsWithChildren<React.PropsWithChildren<unknown>>> = () => null
+const GlobalStyles: React.FC<React.PropsWithChildren<unknown>> = () => null
 
 export default GlobalStyles

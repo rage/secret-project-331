@@ -27,7 +27,6 @@ const ScaleEditor: React.FC<ScaleEditorProps> = ({ quizItemId }) => {
 
   const { selected, updateState } = useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemScale>(
     (quiz) => {
-      // eslint-disable-next-line i18next/no-literal-string
       return findQuizItem<PrivateSpecQuizItemScale>(quiz, quizItemId, "scale")
     },
   )

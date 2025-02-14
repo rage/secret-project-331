@@ -90,7 +90,7 @@
   "exit": "Poistu",
   "failed-to-send-message": "Viestin lähettäminen epäonnistui",
   "failed-to-submit": "Lähettäminen epäonnistui {{ error }}",
-  "feedback-submitted-succesfully": "Palaute lisätty onnistuneesti",
+  "feedback-submitted-successfully": "Palaute lisätty onnistuneesti",
   "finnish": "Suomi",
   "flagging-reason-ai-generated": "Tekoälyn tuottama sisältö",
   "flagging-reason-harmful-content": "Haitallinen sisältö",

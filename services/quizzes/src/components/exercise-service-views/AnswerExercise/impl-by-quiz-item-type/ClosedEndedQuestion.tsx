@@ -105,7 +105,7 @@ const answerFormatIsValidAgainstRegex = (
     return false
   }
   const cleanedInput = stripNonPrintableCharacters(answer)
-  // eslint-disable-next-line i18next/no-literal-string
+
   const validator = new RegExp(validatorRegex.trim())
   return validator.test(cleanedInput)
 }

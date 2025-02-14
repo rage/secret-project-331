@@ -14,7 +14,6 @@ const PRIVACY_LINK_EN = "https://www.mooc.fi/en/faq/tietosuojaseloste/"
 // To be link in the future
 // const CREATORS_LINK = "https://www.mooc.fi/en/"
 
-// eslint-disable-next-line i18next/no-literal-string
 const Container = styled.div`
   margin-top: 5em;
   padding: 1rem;
@@ -140,9 +139,7 @@ export interface Props extends FooterProps {
 
 export type FooterProps = React.HTMLAttributes<HTMLDivElement>
 
-const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<Props>>> = ({
-  privacyLinks = null,
-}) => {
+const Footer: React.FC<React.PropsWithChildren<Props>> = ({ privacyLinks = null }) => {
   const { t, i18n } = useTranslation()
   const useFinnishLinks = i18n.language === "fi" || i18n.language === "fi-FI"
   const defaultLink = useFinnishLinks ? PRIVACY_LINK_FI : PRIVACY_LINK_EN

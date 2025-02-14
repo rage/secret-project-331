@@ -161,7 +161,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     // Unregister unwanted block variations
     if (allowedBlockVariations) {
       for (const [blockName, allowedVariations] of Object.entries(allowedBlockVariations)) {
-        /* @ts-ignore: type signature incorrect */
+        /* @ts-expect-error: type signature incorrect */
         getBlockType(blockName)?.variations?.forEach((variation) => {
           if (allowedVariations.indexOf(variation.name) === -1) {
             unregisterBlockVariation(blockName, variation.name)
@@ -213,7 +213,6 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     setNeedToRunMigrationsAndValidations(false)
     onContentChange(updatedContent)
     if (numberOfBlocksMigrated > 0) {
-      // eslint-disable-next-line i18next/no-literal-string
       console.info(`Ran ${numberOfBlocksMigrated} block migrations`)
       toast.custom(
         () => {
@@ -361,7 +360,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
             <div className="editor__content">
               <BlockTools __unstableContentRef={localRef}>
                 <div className="editor-styles-wrapper">
-                  {/* @ts-ignore: type signature incorrect */}
+                  {/* @ts-expect-error: type signature incorrect */}
                   <BlockEditorKeyboardShortcuts.Register />
                   <CommonKeyboardShortcuts />
                   <WritingFlow

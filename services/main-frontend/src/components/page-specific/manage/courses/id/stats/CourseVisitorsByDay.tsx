@@ -106,7 +106,6 @@ const CourseVisitorsByDay: React.FC<React.PropsWithChildren<CourseVisitorsByDayP
             }),
             series: Object.entries(data).map(([_year, visitCounts], i) => {
               return {
-                // eslint-disable-next-line i18next/no-literal-string
                 type: "heatmap",
                 // eslint-disable-next-line i18next/no-literal-string
                 coordinateSystem: "calendar",

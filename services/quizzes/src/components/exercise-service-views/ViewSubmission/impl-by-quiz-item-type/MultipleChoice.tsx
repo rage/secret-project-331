@@ -31,19 +31,16 @@ const gradingOption = css`
   border: 0.125rem solid #d8d8d8;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const gradingOptionWrongAndSelected = css`
   background: #fbeef0;
   border: 0.125rem solid #f5d0d3;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const gradingOptionSelected = css`
   background: #f4f4f4;
   border: 0.125rem solid #d8d8d8;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const gradingOptionCorrectAndSelected = css`
   background: ${quizTheme.gradingCorrectItemBackground};
   border: 0.125rem solid #69af8a;

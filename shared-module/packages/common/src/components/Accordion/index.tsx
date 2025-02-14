@@ -16,7 +16,6 @@ from { opacity: 0; height: 0; padding: 0;}
 to { opacity: 1; height: 100%; padding: 10px;}
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const TextWrapper = styled.div`
   padding: 0;
   margin: 0;
@@ -100,9 +99,7 @@ export interface AccordionExtraProps {
 
 export type AccordionProps = React.DetailsHTMLAttributes<HTMLDetailsElement> & AccordionExtraProps
 
-const Accordion: React.FC<React.PropsWithChildren<React.PropsWithChildren<AccordionProps>>> = (
-  props,
-) => {
+const Accordion: React.FC<React.PropsWithChildren<AccordionProps>> = (props) => {
   if (props.variant === "detail") {
     return <DetailAccordion {...props}></DetailAccordion>
   }

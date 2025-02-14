@@ -44,9 +44,13 @@ const makeDefaultValues = (module: ModuleView, chapters: number[]): EditCourseMo
     uh_course_code: module.uh_course_code ?? "",
     automatic_completion: module.automatic_completion ?? false,
     automatic_completion_number_of_points_treshold:
-      Number(module.automatic_completion_number_of_points_treshold) ?? null,
+      module.automatic_completion_number_of_points_treshold
+        ? Number(module.automatic_completion_number_of_points_treshold)
+        : null,
     automatic_completion_number_of_exercises_attempted_treshold:
-      Number(module.automatic_completion_number_of_exercises_attempted_treshold) ?? null,
+      module.automatic_completion_number_of_exercises_attempted_treshold
+        ? Number(module.automatic_completion_number_of_exercises_attempted_treshold)
+        : null,
     automatic_completion_requires_exam: module.automatic_completion_requires_exam,
     override_completion_link: module.completion_registration_link_override !== null,
     completion_registration_link_override: module.completion_registration_link_override ?? "",

@@ -18,7 +18,7 @@ export interface AudioFileProps {
 }
 export type AudioPlayerProps = React.HTMLAttributes<HTMLDivElement> & AudioFileProps
 
-const AudioPlayer: React.FC<React.PropsWithChildren<React.PropsWithChildren<AudioPlayerProps>>> = ({
+const AudioPlayer: React.FC<React.PropsWithChildren<AudioPlayerProps>> = ({
   tracks,
   isVisible,
   setIsVisible,
@@ -27,8 +27,8 @@ const AudioPlayer: React.FC<React.PropsWithChildren<React.PropsWithChildren<Audi
   const [duration, setDuration] = useState<number>(0)
 
   // reference
-  const audioRef = useRef<HTMLAudioElement>(null)
-  const progressBarRef = useRef<HTMLInputElement>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const progressBarRef = useRef<HTMLInputElement | null>(null)
 
   return (
     <>

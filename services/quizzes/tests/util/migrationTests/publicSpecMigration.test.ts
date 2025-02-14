@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-/* eslint-disable i18next/no-literal-string */
 import migratePublicSpecQuiz from "../../../src/util/migration/publicSpecQuiz"
 import { OldPublicQuizItem, OldPublicTimelineItem } from "../../../types/oldQuizTypes"
 import {
@@ -52,7 +50,7 @@ describe("public spec migration of quizzes", () => {
     const oldQuizItem: OldPublicQuizItem = oldQuiz.items[0]
     const newQuizItem: PublicSpecQuizItemCheckbox = newQuiz.items[0] as PublicSpecQuizItemCheckbox
 
-    expect(newQuizItem.type).toEqual("checkbox")
+    expect(newQuizItem.type).toBe("checkbox")
     expectPublicSpecMetadataToMatch(oldQuiz, newQuiz)
     comparePublicSpecQuizItem(newQuizItem, oldQuizItem)
   })
@@ -65,7 +63,7 @@ describe("public spec migration of quizzes", () => {
     const oldQuizItem: OldPublicQuizItem = oldQuiz.items[0]
     const newQuizItem: PublicSpecQuizItemEssay = newQuiz.items[0] as PublicSpecQuizItemEssay
 
-    expect(newQuizItem.type).toEqual("essay")
+    expect(newQuizItem.type).toBe("essay")
     expectPublicSpecMetadataToMatch(oldQuiz, newQuiz)
 
     comparePublicSpecQuizItem(newQuizItem, oldQuizItem)
@@ -79,7 +77,7 @@ describe("public spec migration of quizzes", () => {
     const oldQuizItem: OldPublicQuizItem = oldQuiz.items[0]
     const newQuizItem: PublicSpecQuizItemMatrix = newQuiz.items[0] as PublicSpecQuizItemMatrix
 
-    expect(newQuizItem.type).toEqual("matrix")
+    expect(newQuizItem.type).toBe("matrix")
     expectPublicSpecMetadataToMatch(oldQuiz, newQuiz)
     comparePublicSpecQuizItem(newQuizItem, oldQuizItem)
   })
@@ -93,7 +91,7 @@ describe("public spec migration of quizzes", () => {
     const newQuizItem: PublicSpecQuizItemClosedEndedQuestion = newQuiz
       .items[0] as PublicSpecQuizItemClosedEndedQuestion
 
-    expect(newQuizItem.type).toEqual("closed-ended-question")
+    expect(newQuizItem.type).toBe("closed-ended-question")
     expectPublicSpecMetadataToMatch(oldQuiz, newQuiz)
     comparePublicSpecQuizItem(newQuizItem, oldQuizItem)
   })
@@ -106,7 +104,7 @@ describe("public spec migration of quizzes", () => {
     const oldQuizItem: OldPublicQuizItem = oldQuiz.items[0]
     const newQuizItem: PublicSpecQuizItemScale = newQuiz.items[0] as PublicSpecQuizItemScale
 
-    expect(newQuizItem.type).toEqual("scale")
+    expect(newQuizItem.type).toBe("scale")
     expectPublicSpecMetadataToMatch(oldQuiz, newQuiz)
     comparePublicSpecQuizItem(newQuizItem, oldQuizItem)
   })
@@ -122,7 +120,7 @@ describe("public spec migration of quizzes", () => {
     // This will always be defined
     const timelineItems: OldPublicTimelineItem[] = oldQuizItem.timelineItems ?? []
 
-    expect(newQuizItem.type).toEqual("timeline")
+    expect(newQuizItem.type).toBe("timeline")
     expectPublicSpecMetadataToMatch(oldQuiz, newQuiz)
     comparePublicSpecQuizItem(newQuizItem, oldQuizItem)
     expect(newQuizItem.timelineItems).toMatchObject(
@@ -146,7 +144,7 @@ describe("public spec migration of quizzes", () => {
     const oldQuizItem: OldPublicQuizItem = oldQuiz.items[0]
     const newQuizItem: PublicSpecQuizItemChooseN = newQuiz.items[0] as PublicSpecQuizItemChooseN
 
-    expect(newQuizItem.type).toEqual("choose-n")
+    expect(newQuizItem.type).toBe("choose-n")
     expectPublicSpecMetadataToMatch(oldQuiz, newQuiz)
     comparePublicSpecQuizItem(newQuizItem, oldQuizItem)
     expect(newQuizItem.options).toMatchObject(
@@ -188,7 +186,7 @@ describe("public spec migration of quizzes", () => {
 
     const newQuiz = migratePublicSpecQuiz(oldQuiz)!
     expectPublicSpecMetadataToMatch(oldQuiz, newQuiz)
-    expect(newQuiz.items.length).toEqual(8)
+    expect(newQuiz.items.length).toBe(8)
     expect(newQuiz.items.map((item) => item.type)).toMatchObject([
       "essay",
       "checkbox",

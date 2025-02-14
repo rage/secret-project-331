@@ -17,11 +17,10 @@ const Exercise: React.FC<React.PropsWithChildren<Props>> = ({ port, state }) => 
   const setSelectedId: typeof _setSelectedId = (value) => {
     const res = _setSelectedId(value)
     if (!port) {
-      // eslint-disable-next-line i18next/no-literal-string
       console.error("Cannot send current state to parent because I don't have a port")
       return
     }
-    // eslint-disable-next-line i18next/no-literal-string
+
     console.info("Posting current state to parent")
     // the type should be the same one that is received as the initial selected id
     const data: Answer = { selectedOptionId: value ? value.toString() : "" }

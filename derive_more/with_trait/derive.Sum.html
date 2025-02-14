@@ -1,0 +1,41 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Using `#[derive(Sum)]`"><title>Sum in derive_more::with_trait - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="derive_more" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc derive"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../derive_more/index.html">derive_<wbr>more</a><span class="version">2.0.1</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Sum</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#using-derivesum" title="Using `#[derive(Sum)]`">Using <code>#[derive(Sum)]</code></a><ul><li><a href="#example-usage" title="Example usage">Example usage</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In derive_<wbr>more::<wbr>with_<wbr>trait</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><span class="rustdoc-breadcrumbs"><a href="../index.html">derive_more</a>::<wbr><a href="index.html">with_trait</a></span><h1>Derive Macro <span class="derive">Sum</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><pre class="rust item-decl"><code>#[derive(Sum)]</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="using-derivesum"><a class="doc-anchor" href="#using-derivesum">§</a>Using <code>#[derive(Sum)]</code></h2>
+<p>The derived <code>Sum</code> implementation will allow an iterator of your type to be
+summed together into a new instance of the type with all the fields added
+together. Apart from the original types requiring an implementation of <code>Sum</code>, it
+is also required that your type to implements <code>Add</code>. So normally you want to
+derive that one as well.</p>
+<p>All this is also true for the <code>Product</code>, except that then all the fields are
+multiplied and an implementation of <code>Mul</code> is required. This is usually the
+easiest to implement by adding <code>#[derive(MulSelf)]</code>.</p>
+<h3 id="example-usage"><a class="doc-anchor" href="#example-usage">§</a>Example usage</h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Add, Sum, PartialEq)]
+</span><span class="kw">struct </span>MyInts(i32, i64);
+
+<span class="kw">let </span>int_vec = <span class="macro">vec!</span>[MyInts(<span class="number">2</span>, <span class="number">3</span>), MyInts(<span class="number">4</span>, <span class="number">5</span>), MyInts(<span class="number">6</span>, <span class="number">7</span>)];
+<span class="macro">assert!</span>(MyInts(<span class="number">12</span>, <span class="number">15</span>) == int_vec.into_iter().sum());</code></pre></div>
+<h3 id="structs"><a class="doc-anchor" href="#structs">§</a>Structs</h3>
+<p>When deriving <code>Sum</code> for a struct with two fields its like this:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Add, Sum)]
+</span><span class="kw">struct </span>MyInts(i32, i64);</code></pre></div>
+<p>Code like this will be generated for the <code>Sum</code> implementation:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl </span>derive_more::core::iter::Sum <span class="kw">for </span>MyInts {
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>sum&lt;I: Iterator&lt;Item = <span class="self">Self</span>&gt;&gt;(iter: I) -&gt; <span class="self">Self </span>{
+        iter.fold(
+            MyInts(
+                derive_more::core::iter::empty::&lt;i32&gt;().sum(),
+                derive_more::core::iter::empty::&lt;i64&gt;().sum(),
+            ),
+            derive_more::core::ops::Add::add,
+        )
+    }
+}</code></pre></div>
+<p>The trick here is that we get the identity struct by calling sum on empty
+iterators.
+This way we can get the identity for sum (i.e. <code>0</code>) and the identity for product
+(i.e. <code>1</code>).</p>
+<h3 id="enums"><a class="doc-anchor" href="#enums">§</a>Enums</h3>
+<p>Deriving <code>Sum</code> for enums is not supported.</p>
+</div></details></section></div></main></body></html>

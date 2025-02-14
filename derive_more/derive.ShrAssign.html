@@ -1,0 +1,60 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="What `#[derive(MulAssign)]` generates"><title>ShrAssign in derive_more - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="derive_more" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../static.files/storage-59e33391.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc derive"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../derive_more/index.html">derive_<wbr>more</a><span class="version">2.0.1</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">ShrAssign</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#what-derivemulassign-generates" title="What `#[derive(MulAssign)]` generates">What <code>#[derive(MulAssign)]</code> generates</a><ul><li><a href="#tuple-structs" title="Tuple structs">Tuple structs</a></li><li><a href="#regular-structs" title="Regular structs">Regular structs</a></li><li><a href="#enums" title="Enums">Enums</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="index.html">In crate derive_<wbr>more</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><span class="rustdoc-breadcrumbs"><a href="index.html">derive_more</a></span><h1>Derive Macro <span class="derive">ShrAssign</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><pre class="rust item-decl"><code>#[derive(ShrAssign)]
+{
+    <span class="comment">// Attributes available to this derive:</span>
+    #[shr_assign]
+}
+</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="what-derivemulassign-generates"><a class="doc-anchor" href="#what-derivemulassign-generates">§</a>What <code>#[derive(MulAssign)]</code> generates</h2>
+<p>This code is very similar to the code that is generated for <code>#[derive(Mul)]</code>.
+The difference is that it mutates the existing instance instead of creating a
+new one.</p>
+<p>You can add the <code>#[mul_assign(forward)]</code> attribute if you don’t want the same
+semantics as <code>Mul</code>.
+This will instead generate a <code>MulAssign</code> implementation with the same semantics
+as <code>AddAssign</code>.</p>
+<h3 id="tuple-structs"><a class="doc-anchor" href="#tuple-structs">§</a>Tuple structs</h3>
+<p>When deriving <code>MulAssign</code> for a tuple struct with two fields like this:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(MulAssign)]
+</span><span class="kw">struct </span>MyInts(i32, i32);</code></pre></div>
+<p>Code like this will be generated:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl</span>&lt;__RhsT: Copy&gt; derive_more::core::ops::MulAssign&lt;__RhsT&gt; <span class="kw">for </span>MyInts
+    <span class="kw">where </span>i32: derive_more::core::ops::MulAssign&lt;__RhsT&gt;
+{
+    <span class="kw">fn </span>mul_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: __RhsT) {
+        <span class="self">self</span>.<span class="number">0</span>.mul_assign(rhs);
+        <span class="self">self</span>.<span class="number">1</span>.mul_assign(rhs);
+    }
+}</code></pre></div>
+<p>The behaviour is similar with more or less fields, except for the fact that
+<code>__RhsT</code> does not need to implement <code>Copy</code> when only a single field is present.</p>
+<h3 id="regular-structs"><a class="doc-anchor" href="#regular-structs">§</a>Regular structs</h3>
+<p>When deriving <code>MulAssign</code> for a regular struct with two fields like this:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(MulAssign)]
+</span><span class="kw">struct </span>Point2D {
+    x: i32,
+    y: i32,
+}</code></pre></div>
+<p>Code like this will be generated:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl</span>&lt;__RhsT: Copy&gt; derive_more::core::ops::MulAssign&lt;__RhsT&gt; <span class="kw">for </span>Point2D
+    <span class="kw">where </span>i32: derive_more::core::ops::MulAssign&lt;__RhsT&gt;
+{
+    <span class="kw">fn </span>mul_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: __RhsT) {
+        <span class="self">self</span>.x.mul_assign(rhs);
+        <span class="self">self</span>.y.mul_assign(rhs);
+    }
+}</code></pre></div>
+<p>The behaviour is again similar with more or less fields, except that <code>Copy</code>
+doesn’t have to be implemented for <code>__Rhst</code> when the struct has only a single
+field.</p>
+<h3 id="enums"><a class="doc-anchor" href="#enums">§</a>Enums</h3>
+<p>Deriving <code>MulAssign</code> for enums is not (yet) supported.
+This has two reason, the first being that deriving <code>Mul</code> is also not implemented
+for enums yet.
+The second reason is the same as for <code>AddAssign</code>.
+Even if it would be deriving <code>Mul</code> was implemented it would likely return a
+<code>Result&lt;EnumType&gt;</code> instead of an <code>EnumType</code>.
+Handling the case where it errors would be hard and maybe impossible.</p>
+</div></details></section></div></main></body></html>

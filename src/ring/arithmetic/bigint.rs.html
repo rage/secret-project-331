@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.8/src/arithmetic/bigint.rs`."><title>bigint.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.9/src/arithmetic/bigint.rs`."><title>bigint.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ring/arithmetic/</div>bigint.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -880,7 +881,191 @@
 <a href="#880" id="880">880</a>
 <a href="#881" id="881">881</a>
 <a href="#882" id="882">882</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright 2015-2023 Brian Smith.
+<a href="#883" id="883">883</a>
+<a href="#884" id="884">884</a>
+<a href="#885" id="885">885</a>
+<a href="#886" id="886">886</a>
+<a href="#887" id="887">887</a>
+<a href="#888" id="888">888</a>
+<a href="#889" id="889">889</a>
+<a href="#890" id="890">890</a>
+<a href="#891" id="891">891</a>
+<a href="#892" id="892">892</a>
+<a href="#893" id="893">893</a>
+<a href="#894" id="894">894</a>
+<a href="#895" id="895">895</a>
+<a href="#896" id="896">896</a>
+<a href="#897" id="897">897</a>
+<a href="#898" id="898">898</a>
+<a href="#899" id="899">899</a>
+<a href="#900" id="900">900</a>
+<a href="#901" id="901">901</a>
+<a href="#902" id="902">902</a>
+<a href="#903" id="903">903</a>
+<a href="#904" id="904">904</a>
+<a href="#905" id="905">905</a>
+<a href="#906" id="906">906</a>
+<a href="#907" id="907">907</a>
+<a href="#908" id="908">908</a>
+<a href="#909" id="909">909</a>
+<a href="#910" id="910">910</a>
+<a href="#911" id="911">911</a>
+<a href="#912" id="912">912</a>
+<a href="#913" id="913">913</a>
+<a href="#914" id="914">914</a>
+<a href="#915" id="915">915</a>
+<a href="#916" id="916">916</a>
+<a href="#917" id="917">917</a>
+<a href="#918" id="918">918</a>
+<a href="#919" id="919">919</a>
+<a href="#920" id="920">920</a>
+<a href="#921" id="921">921</a>
+<a href="#922" id="922">922</a>
+<a href="#923" id="923">923</a>
+<a href="#924" id="924">924</a>
+<a href="#925" id="925">925</a>
+<a href="#926" id="926">926</a>
+<a href="#927" id="927">927</a>
+<a href="#928" id="928">928</a>
+<a href="#929" id="929">929</a>
+<a href="#930" id="930">930</a>
+<a href="#931" id="931">931</a>
+<a href="#932" id="932">932</a>
+<a href="#933" id="933">933</a>
+<a href="#934" id="934">934</a>
+<a href="#935" id="935">935</a>
+<a href="#936" id="936">936</a>
+<a href="#937" id="937">937</a>
+<a href="#938" id="938">938</a>
+<a href="#939" id="939">939</a>
+<a href="#940" id="940">940</a>
+<a href="#941" id="941">941</a>
+<a href="#942" id="942">942</a>
+<a href="#943" id="943">943</a>
+<a href="#944" id="944">944</a>
+<a href="#945" id="945">945</a>
+<a href="#946" id="946">946</a>
+<a href="#947" id="947">947</a>
+<a href="#948" id="948">948</a>
+<a href="#949" id="949">949</a>
+<a href="#950" id="950">950</a>
+<a href="#951" id="951">951</a>
+<a href="#952" id="952">952</a>
+<a href="#953" id="953">953</a>
+<a href="#954" id="954">954</a>
+<a href="#955" id="955">955</a>
+<a href="#956" id="956">956</a>
+<a href="#957" id="957">957</a>
+<a href="#958" id="958">958</a>
+<a href="#959" id="959">959</a>
+<a href="#960" id="960">960</a>
+<a href="#961" id="961">961</a>
+<a href="#962" id="962">962</a>
+<a href="#963" id="963">963</a>
+<a href="#964" id="964">964</a>
+<a href="#965" id="965">965</a>
+<a href="#966" id="966">966</a>
+<a href="#967" id="967">967</a>
+<a href="#968" id="968">968</a>
+<a href="#969" id="969">969</a>
+<a href="#970" id="970">970</a>
+<a href="#971" id="971">971</a>
+<a href="#972" id="972">972</a>
+<a href="#973" id="973">973</a>
+<a href="#974" id="974">974</a>
+<a href="#975" id="975">975</a>
+<a href="#976" id="976">976</a>
+<a href="#977" id="977">977</a>
+<a href="#978" id="978">978</a>
+<a href="#979" id="979">979</a>
+<a href="#980" id="980">980</a>
+<a href="#981" id="981">981</a>
+<a href="#982" id="982">982</a>
+<a href="#983" id="983">983</a>
+<a href="#984" id="984">984</a>
+<a href="#985" id="985">985</a>
+<a href="#986" id="986">986</a>
+<a href="#987" id="987">987</a>
+<a href="#988" id="988">988</a>
+<a href="#989" id="989">989</a>
+<a href="#990" id="990">990</a>
+<a href="#991" id="991">991</a>
+<a href="#992" id="992">992</a>
+<a href="#993" id="993">993</a>
+<a href="#994" id="994">994</a>
+<a href="#995" id="995">995</a>
+<a href="#996" id="996">996</a>
+<a href="#997" id="997">997</a>
+<a href="#998" id="998">998</a>
+<a href="#999" id="999">999</a>
+<a href="#1000" id="1000">1000</a>
+<a href="#1001" id="1001">1001</a>
+<a href="#1002" id="1002">1002</a>
+<a href="#1003" id="1003">1003</a>
+<a href="#1004" id="1004">1004</a>
+<a href="#1005" id="1005">1005</a>
+<a href="#1006" id="1006">1006</a>
+<a href="#1007" id="1007">1007</a>
+<a href="#1008" id="1008">1008</a>
+<a href="#1009" id="1009">1009</a>
+<a href="#1010" id="1010">1010</a>
+<a href="#1011" id="1011">1011</a>
+<a href="#1012" id="1012">1012</a>
+<a href="#1013" id="1013">1013</a>
+<a href="#1014" id="1014">1014</a>
+<a href="#1015" id="1015">1015</a>
+<a href="#1016" id="1016">1016</a>
+<a href="#1017" id="1017">1017</a>
+<a href="#1018" id="1018">1018</a>
+<a href="#1019" id="1019">1019</a>
+<a href="#1020" id="1020">1020</a>
+<a href="#1021" id="1021">1021</a>
+<a href="#1022" id="1022">1022</a>
+<a href="#1023" id="1023">1023</a>
+<a href="#1024" id="1024">1024</a>
+<a href="#1025" id="1025">1025</a>
+<a href="#1026" id="1026">1026</a>
+<a href="#1027" id="1027">1027</a>
+<a href="#1028" id="1028">1028</a>
+<a href="#1029" id="1029">1029</a>
+<a href="#1030" id="1030">1030</a>
+<a href="#1031" id="1031">1031</a>
+<a href="#1032" id="1032">1032</a>
+<a href="#1033" id="1033">1033</a>
+<a href="#1034" id="1034">1034</a>
+<a href="#1035" id="1035">1035</a>
+<a href="#1036" id="1036">1036</a>
+<a href="#1037" id="1037">1037</a>
+<a href="#1038" id="1038">1038</a>
+<a href="#1039" id="1039">1039</a>
+<a href="#1040" id="1040">1040</a>
+<a href="#1041" id="1041">1041</a>
+<a href="#1042" id="1042">1042</a>
+<a href="#1043" id="1043">1043</a>
+<a href="#1044" id="1044">1044</a>
+<a href="#1045" id="1045">1045</a>
+<a href="#1046" id="1046">1046</a>
+<a href="#1047" id="1047">1047</a>
+<a href="#1048" id="1048">1048</a>
+<a href="#1049" id="1049">1049</a>
+<a href="#1050" id="1050">1050</a>
+<a href="#1051" id="1051">1051</a>
+<a href="#1052" id="1052">1052</a>
+<a href="#1053" id="1053">1053</a>
+<a href="#1054" id="1054">1054</a>
+<a href="#1055" id="1055">1055</a>
+<a href="#1056" id="1056">1056</a>
+<a href="#1057" id="1057">1057</a>
+<a href="#1058" id="1058">1058</a>
+<a href="#1059" id="1059">1059</a>
+<a href="#1060" id="1060">1060</a>
+<a href="#1061" id="1061">1061</a>
+<a href="#1062" id="1062">1062</a>
+<a href="#1063" id="1063">1063</a>
+<a href="#1064" id="1064">1064</a>
+<a href="#1065" id="1065">1065</a>
+<a href="#1066" id="1066">1066</a>
+<a href="#1067" id="1067">1067</a></pre></div><pre class="rust"><code><span class="comment">// Copyright 2015-2023 Brian Smith.
 //
 // Permission to use, copy, modify, and/or distribute this software for any
 // purpose with or without fee is hereby granted, provided that the above
@@ -920,23 +1105,42 @@
 
 </span><span class="kw">use </span><span class="self">self</span>::boxed_limbs::BoxedLimbs;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="self">self</span>::{
-    modulus::{Modulus, OwnedModulus, MODULUS_MAX_LIMBS},
+    modulus::{Modulus, OwnedModulus},
+    modulusvalue::OwnedModulusValue,
     private_exponent::PrivateExponent,
 };
+<span class="kw">use super</span>::{inout::AliasingSlices3, limbs512, montgomery::<span class="kw-2">*</span>, LimbSliceError, MAX_LIMBS};
 <span class="kw">use crate</span>::{
-    arithmetic::montgomery::<span class="kw-2">*</span>,
     bits::BitLength,
-    c, error,
-    limb::{<span class="self">self</span>, Limb, LimbMask, LIMB_BITS},
+    c,
+    error::{<span class="self">self</span>, LenMismatchError},
+    limb::{<span class="self">self</span>, Limb, LIMB_BITS},
+    polyfill::slice::{<span class="self">self</span>, AsChunks},
 };
-<span class="kw">use </span>alloc::vec;
-<span class="kw">use </span>core::{marker::PhantomData, num::NonZeroU64};
+<span class="kw">use </span>core::{
+    marker::PhantomData,
+    num::{NonZeroU64, NonZeroUsize},
+};
 
 <span class="kw">mod </span>boxed_limbs;
 <span class="kw">mod </span>modulus;
+<span class="kw">mod </span>modulusvalue;
 <span class="kw">mod </span>private_exponent;
 
 <span class="kw">pub trait </span>PublicModulus {}
+
+<span class="comment">// When we need to create a new `Elem`, first we create a `Storage` and then
+// move its `limbs` into the new element. When we want to recylce an `Elem`'s
+// memory allocation, we convert it back into a `Storage`.
+</span><span class="kw">pub struct </span>Storage&lt;M&gt; {
+    limbs: BoxedLimbs&lt;M&gt;,
+}
+
+<span class="kw">impl</span>&lt;M, E&gt; From&lt;Elem&lt;M, E&gt;&gt; <span class="kw">for </span>Storage&lt;M&gt; {
+    <span class="kw">fn </span>from(elem: Elem&lt;M, E&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ limbs: elem.limbs }
+    }
+}
 
 <span class="doccomment">/// Elements of ℤ/mℤ for some modulus *m*.
 </span><span class="comment">//
@@ -951,12 +1155,11 @@
     </span>encoding: PhantomData&lt;E&gt;,
 }
 
-<span class="comment">// TODO: `derive(Clone)` after https://github.com/rust-lang/rust/issues/26925
-// is resolved or restrict `M: Clone` and `E: Clone`.
-</span><span class="kw">impl</span>&lt;M, E&gt; Clone <span class="kw">for </span>Elem&lt;M, E&gt; {
-    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;M, E&gt; Elem&lt;M, E&gt; {
+    <span class="kw">pub fn </span>clone_into(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>out: Storage&lt;M&gt;) -&gt; <span class="self">Self </span>{
+        out.limbs.copy_from_slice(<span class="kw-2">&amp;</span><span class="self">self</span>.limbs);
         <span class="self">Self </span>{
-            limbs: <span class="self">self</span>.limbs.clone(),
+            limbs: out.limbs,
             encoding: <span class="self">self</span>.encoding,
         }
     }
@@ -965,23 +1168,28 @@
 <span class="kw">impl</span>&lt;M, E&gt; Elem&lt;M, E&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">pub fn </span>is_zero(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.limbs.is_zero()
+        limb::limbs_are_zero_constant_time(<span class="kw-2">&amp;</span><span class="self">self</span>.limbs).leak()
     }
 }
 
 <span class="doccomment">/// Does a Montgomery reduction on `limbs` assuming they are Montgomery-encoded ('R') and assuming
 /// they are the same size as `m`, but perhaps not reduced mod `m`. The result will be
 /// fully reduced mod `m`.
-</span><span class="kw">fn </span>from_montgomery_amm&lt;M&gt;(limbs: BoxedLimbs&lt;M&gt;, m: <span class="kw-2">&amp;</span>Modulus&lt;M&gt;) -&gt; Elem&lt;M, Unencoded&gt; {
-    <span class="macro">debug_assert_eq!</span>(limbs.len(), m.limbs().len());
-
-    <span class="kw">let </span><span class="kw-2">mut </span>limbs = limbs;
-    <span class="kw">let </span><span class="kw-2">mut </span>one = [<span class="number">0</span>; MODULUS_MAX_LIMBS];
+///
+/// WARNING: Takes a `Storage` as an in/out value.
+</span><span class="kw">fn </span>from_montgomery_amm&lt;M&gt;(<span class="kw-2">mut </span>in_out: Storage&lt;M&gt;, m: <span class="kw-2">&amp;</span>Modulus&lt;M&gt;) -&gt; Elem&lt;M, Unencoded&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>one = [<span class="number">0</span>; MAX_LIMBS];
     one[<span class="number">0</span>] = <span class="number">1</span>;
     <span class="kw">let </span>one = <span class="kw-2">&amp;</span>one[..m.limbs().len()];
-    limbs_mont_mul(<span class="kw-2">&amp;mut </span>limbs, one, m.limbs(), m.n0(), m.cpu_features());
+    limbs_mul_mont(
+        (<span class="kw-2">&amp;mut </span>in_out.limbs[..], one),
+        m.limbs(),
+        m.n0(),
+        m.cpu_features(),
+    )
+    .unwrap_or_else(unwrap_impossible_limb_slice_error);
     Elem {
-        limbs,
+        limbs: in_out.limbs,
         encoding: PhantomData,
     }
 }
@@ -990,7 +1198,7 @@
 </span><span class="kw">impl</span>&lt;M&gt; Elem&lt;M, R&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">pub fn </span>into_unencoded(<span class="self">self</span>, m: <span class="kw-2">&amp;</span>Modulus&lt;M&gt;) -&gt; Elem&lt;M, Unencoded&gt; {
-        from_montgomery_amm(<span class="self">self</span>.limbs, m)
+        from_montgomery_amm(Storage::from(<span class="self">self</span>), m)
     }
 }
 
@@ -1010,9 +1218,27 @@
         <span class="comment">// See Falko Strenzke, "Manger's Attack revisited", ICICS 2010.
         </span>limb::big_endian_from_limbs(<span class="kw-2">&amp;</span><span class="self">self</span>.limbs, out)
     }
+}
 
-    <span class="kw">fn </span>is_one(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        limb::limbs_equal_limb_constant_time(<span class="kw-2">&amp;</span><span class="self">self</span>.limbs, <span class="number">1</span>) == LimbMask::True
+<span class="kw">pub fn </span>elem_mul_into&lt;M, AF, BF&gt;(
+    <span class="kw-2">mut </span>out: Storage&lt;M&gt;,
+    a: <span class="kw-2">&amp;</span>Elem&lt;M, AF&gt;,
+    b: <span class="kw-2">&amp;</span>Elem&lt;M, BF&gt;,
+    m: <span class="kw-2">&amp;</span>Modulus&lt;M&gt;,
+) -&gt; Elem&lt;M, &lt;(AF, BF) <span class="kw">as </span>ProductEncoding&gt;::Output&gt;
+<span class="kw">where
+    </span>(AF, BF): ProductEncoding,
+{
+    limbs_mul_mont(
+        (out.limbs.as_mut(), b.limbs.as_ref(), a.limbs.as_ref()),
+        m.limbs(),
+        m.n0(),
+        m.cpu_features(),
+    )
+    .unwrap_or_else(unwrap_impossible_limb_slice_error);
+    Elem {
+        limbs: out.limbs,
+        encoding: PhantomData,
     }
 }
 
@@ -1024,7 +1250,13 @@
 <span class="kw">where
     </span>(AF, BF): ProductEncoding,
 {
-    limbs_mont_mul(<span class="kw-2">&amp;mut </span>b.limbs, <span class="kw-2">&amp;</span>a.limbs, m.limbs(), m.n0(), m.cpu_features());
+    limbs_mul_mont(
+        (<span class="kw-2">&amp;mut </span>b.limbs[..], <span class="kw-2">&amp;</span>a.limbs[..]),
+        m.limbs(),
+        m.n0(),
+        m.cpu_features(),
+    )
+    .unwrap_or_else(unwrap_impossible_limb_slice_error);
     Elem {
         limbs: b.limbs,
         encoding: PhantomData,
@@ -1034,6 +1266,7 @@
 <span class="comment">// r *= 2.
 </span><span class="kw">fn </span>elem_double&lt;M, AF&gt;(r: <span class="kw-2">&amp;mut </span>Elem&lt;M, AF&gt;, m: <span class="kw-2">&amp;</span>Modulus&lt;M&gt;) {
     limb::limbs_double_mod(<span class="kw-2">&amp;mut </span>r.limbs, m.limbs())
+        .unwrap_or_else(unwrap_impossible_len_mismatch_error)
 }
 
 <span class="comment">// TODO: This is currently unused, but we intend to eventually use this to
@@ -1041,22 +1274,24 @@
 // should update the testing so it is reflective of that usage, instead of
 // the old usage.
 </span><span class="kw">pub fn </span>elem_reduced_once&lt;A, M&gt;(
+    <span class="kw-2">mut </span>r: Storage&lt;M&gt;,
     a: <span class="kw-2">&amp;</span>Elem&lt;A, Unencoded&gt;,
     m: <span class="kw-2">&amp;</span>Modulus&lt;M&gt;,
     other_modulus_len_bits: BitLength,
 ) -&gt; Elem&lt;M, Unencoded&gt; {
     <span class="macro">assert_eq!</span>(m.len_bits(), other_modulus_len_bits);
-
-    <span class="kw">let </span><span class="kw-2">mut </span>r = a.limbs.clone();
-    limb::limbs_reduce_once_constant_time(<span class="kw-2">&amp;mut </span>r, m.limbs());
+    r.limbs.copy_from_slice(<span class="kw-2">&amp;</span>a.limbs);
+    limb::limbs_reduce_once_constant_time(<span class="kw-2">&amp;mut </span>r.limbs, m.limbs())
+        .unwrap_or_else(unwrap_impossible_len_mismatch_error);
     Elem {
-        limbs: BoxedLimbs::new_unchecked(r.into_limbs()),
+        limbs: r.limbs,
         encoding: PhantomData,
     }
 }
 
 <span class="attr">#[inline]
 </span><span class="kw">pub fn </span>elem_reduced&lt;Larger, Smaller&gt;(
+    <span class="kw-2">mut </span>r: Storage&lt;Smaller&gt;,
     a: <span class="kw-2">&amp;</span>Elem&lt;Larger, Unencoded&gt;,
     m: <span class="kw-2">&amp;</span>Modulus&lt;Smaller&gt;,
     other_prime_len_bits: BitLength,
@@ -1069,23 +1304,27 @@
     <span class="comment">// `limbs_from_mont_in_place` requires this.
     </span><span class="macro">assert_eq!</span>(a.limbs.len(), m.limbs().len() * <span class="number">2</span>);
 
-    <span class="kw">let </span><span class="kw-2">mut </span>tmp = [<span class="number">0</span>; MODULUS_MAX_LIMBS];
+    <span class="kw">let </span><span class="kw-2">mut </span>tmp = [<span class="number">0</span>; MAX_LIMBS];
     <span class="kw">let </span>tmp = <span class="kw-2">&amp;mut </span>tmp[..a.limbs.len()];
     tmp.copy_from_slice(<span class="kw-2">&amp;</span>a.limbs);
 
-    <span class="kw">let </span><span class="kw-2">mut </span>r = m.zero();
     limbs_from_mont_in_place(<span class="kw-2">&amp;mut </span>r.limbs, tmp, m.limbs(), m.n0());
-    r
+    Elem {
+        limbs: r.limbs,
+        encoding: PhantomData,
+    }
 }
 
-<span class="kw">fn </span>elem_squared&lt;M, E&gt;(
+<span class="attr">#[inline]
+</span><span class="kw">fn </span>elem_squared&lt;M, E&gt;(
     <span class="kw-2">mut </span>a: Elem&lt;M, E&gt;,
     m: <span class="kw-2">&amp;</span>Modulus&lt;M&gt;,
 ) -&gt; Elem&lt;M, &lt;(E, E) <span class="kw">as </span>ProductEncoding&gt;::Output&gt;
 <span class="kw">where
     </span>(E, E): ProductEncoding,
 {
-    limbs_mont_square(<span class="kw-2">&amp;mut </span>a.limbs, m.limbs(), m.n0(), m.cpu_features());
+    limbs_square_mont(<span class="kw-2">&amp;mut </span>a.limbs, m.limbs(), m.n0(), m.cpu_features())
+        .unwrap_or_else(unwrap_impossible_limb_slice_error);
     Elem {
         limbs: a.limbs,
         encoding: PhantomData,
@@ -1093,6 +1332,7 @@
 }
 
 <span class="kw">pub fn </span>elem_widen&lt;Larger, Smaller&gt;(
+    <span class="kw-2">mut </span>r: Storage&lt;Larger&gt;,
     a: Elem&lt;Smaller, Unencoded&gt;,
     m: <span class="kw-2">&amp;</span>Modulus&lt;Larger&gt;,
     smaller_modulus_bits: BitLength,
@@ -1100,14 +1340,19 @@
     <span class="kw">if </span>smaller_modulus_bits &gt;= m.len_bits() {
         <span class="kw">return </span><span class="prelude-val">Err</span>(error::Unspecified);
     }
-    <span class="kw">let </span><span class="kw-2">mut </span>r = m.zero();
-    r.limbs[..a.limbs.len()].copy_from_slice(<span class="kw-2">&amp;</span>a.limbs);
-    <span class="prelude-val">Ok</span>(r)
+    <span class="kw">let </span>(to_copy, to_zero) = r.limbs.split_at_mut(a.limbs.len());
+    to_copy.copy_from_slice(<span class="kw-2">&amp;</span>a.limbs);
+    to_zero.fill(<span class="number">0</span>);
+    <span class="prelude-val">Ok</span>(Elem {
+        limbs: r.limbs,
+        encoding: PhantomData,
+    })
 }
 
 <span class="comment">// TODO: Document why this works for all Montgomery factors.
 </span><span class="kw">pub fn </span>elem_add&lt;M, E&gt;(<span class="kw-2">mut </span>a: Elem&lt;M, E&gt;, b: Elem&lt;M, E&gt;, m: <span class="kw-2">&amp;</span>Modulus&lt;M&gt;) -&gt; Elem&lt;M, E&gt; {
-    limb::limbs_add_assign_mod(<span class="kw-2">&amp;mut </span>a.limbs, <span class="kw-2">&amp;</span>b.limbs, m.limbs());
+    limb::limbs_add_assign_mod(<span class="kw-2">&amp;mut </span>a.limbs, <span class="kw-2">&amp;</span>b.limbs, m.limbs())
+        .unwrap_or_else(unwrap_impossible_len_mismatch_error);
     a
 }
 
@@ -1120,18 +1365,16 @@
             a: <span class="kw-2">*const </span>Limb,
             b: <span class="kw-2">*const </span>Limb,
             m: <span class="kw-2">*const </span>Limb,
-            num_limbs: c::size_t,
+            num_limbs: c::NonZero_size_t,
         );
     }
-    <span class="kw">unsafe </span>{
-        LIMBS_sub_mod(
-            a.limbs.as_mut_ptr(),
-            a.limbs.as_ptr(),
-            b.limbs.as_ptr(),
-            m.limbs().as_ptr(),
-            m.limbs().len(),
-        );
-    }
+    <span class="kw">let </span>num_limbs = NonZeroUsize::new(m.limbs().len()).unwrap();
+    (a.limbs.as_mut(), b.limbs.as_ref())
+        .with_non_dangling_non_null_pointers_rab(num_limbs, |r, a, b| {
+            <span class="kw">let </span>m = m.limbs().as_ptr(); <span class="comment">// Also non-dangling because num_limbs is non-zero.
+            </span><span class="kw">unsafe </span>{ LIMBS_sub_mod(r, a, b, m, num_limbs) }
+        })
+        .unwrap_or_else(unwrap_impossible_len_mismatch_error);
     a
 }
 
@@ -1146,15 +1389,18 @@
     // values, using `LIMB_BITS` here, rather than `N0::LIMBS_USED * LIMB_BITS`,
     // is correct because R**2 will still be a multiple of the latter as
     // `N0::LIMBS_USED` is either one or two.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>newRR(m: <span class="kw-2">&amp;</span>Modulus&lt;M&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>newRR(<span class="kw-2">mut </span>out: Storage&lt;M&gt;, m: <span class="kw-2">&amp;</span>Modulus&lt;M&gt;) -&gt; <span class="self">Self </span>{
         <span class="comment">// The number of limbs in the numbers involved.
         </span><span class="kw">let </span>w = m.limbs().len();
 
         <span class="comment">// The length of the numbers involved, in bits. R = 2**r.
         </span><span class="kw">let </span>r = w * LIMB_BITS;
 
-        <span class="kw">let </span><span class="kw-2">mut </span>acc: Elem&lt;M, R&gt; = m.zero();
-        m.oneR(<span class="kw-2">&amp;mut </span>acc.limbs);
+        m.oneR(<span class="kw-2">&amp;mut </span>out.limbs);
+        <span class="kw">let </span><span class="kw-2">mut </span>acc: Elem&lt;M, R&gt; = Elem {
+            limbs: out.limbs,
+            encoding: PhantomData,
+        };
 
         <span class="comment">// 2**t * R can be calculated by t doublings starting with R.
         //
@@ -1230,9 +1476,9 @@
     </span>}
 }
 
-<span class="kw">impl</span>&lt;M: PublicModulus, E&gt; Clone <span class="kw">for </span>One&lt;M, E&gt; {
-    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(<span class="self">self</span>.<span class="number">0</span>.clone())
+<span class="kw">impl</span>&lt;M: PublicModulus, E&gt; One&lt;M, E&gt; {
+    <span class="kw">pub fn </span>clone_into(<span class="kw-2">&amp;</span><span class="self">self</span>, out: Storage&lt;M&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(<span class="self">self</span>.<span class="number">0</span>.clone_into(out))
     }
 }
 
@@ -1246,6 +1492,7 @@
 </span><span class="comment">// TODO: The test coverage needs to be expanded, e.g. test with the largest
 // accepted exponent and with the most common values of 65537 and 3.
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>elem_exp_vartime&lt;M&gt;(
+    out: Storage&lt;M&gt;,
     base: Elem&lt;M, R&gt;,
     exponent: NonZeroU64,
     m: <span class="kw-2">&amp;</span>Modulus&lt;M&gt;,
@@ -1268,7 +1515,7 @@
     // [Knuth]: The Art of Computer Programming, Volume 2: Seminumerical
     //          Algorithms (3rd Edition), Section 4.6.3.
     </span><span class="kw">let </span>exponent = exponent.get();
-    <span class="kw">let </span><span class="kw-2">mut </span>acc = base.clone();
+    <span class="kw">let </span><span class="kw-2">mut </span>acc = base.clone_into(out);
     <span class="kw">let </span><span class="kw-2">mut </span>bit = <span class="number">1 </span>&lt;&lt; (<span class="number">64 </span>- <span class="number">1 </span>- exponent.leading_zeros());
     <span class="macro">debug_assert!</span>((exponent &amp; bit) != <span class="number">0</span>);
     <span class="kw">while </span>bit &gt; <span class="number">1 </span>{
@@ -1281,20 +1528,70 @@
     acc
 }
 
+<span class="kw">pub fn </span>elem_exp_consttime&lt;N, P&gt;(
+    out: Storage&lt;P&gt;,
+    base: <span class="kw-2">&amp;</span>Elem&lt;N&gt;,
+    oneRRR: <span class="kw-2">&amp;</span>One&lt;P, RRR&gt;,
+    exponent: <span class="kw-2">&amp;</span>PrivateExponent,
+    p: <span class="kw-2">&amp;</span>Modulus&lt;P&gt;,
+    other_prime_len_bits: BitLength,
+) -&gt; <span class="prelude-ty">Result</span>&lt;Elem&lt;P, Unencoded&gt;, LimbSliceError&gt; {
+    <span class="comment">// `elem_exp_consttime_inner` is parameterized on `STORAGE_LIMBS` only so
+    // we can run tests with larger-than-supported-in-operation test vectors.
+    </span>elem_exp_consttime_inner::&lt;N, P, { ELEM_EXP_CONSTTIME_MAX_MODULUS_LIMBS * STORAGE_ENTRIES }&gt;(
+        out,
+        base,
+        oneRRR,
+        exponent,
+        p,
+        other_prime_len_bits,
+    )
+}
+
+<span class="comment">// The maximum modulus size supported for `elem_exp_consttime` in normal
+// operation.
+</span><span class="kw">const </span>ELEM_EXP_CONSTTIME_MAX_MODULUS_LIMBS: usize = <span class="number">2048 </span>/ LIMB_BITS;
+<span class="kw">const </span>_LIMBS_PER_CHUNK_DIVIDES_ELEM_EXP_CONSTTIME_MAX_MODULUS_LIMBS: () =
+    <span class="macro">assert!</span>(ELEM_EXP_CONSTTIME_MAX_MODULUS_LIMBS % limbs512::LIMBS_PER_CHUNK == <span class="number">0</span>);
+<span class="kw">const </span>WINDOW_BITS: u32 = <span class="number">5</span>;
+<span class="kw">const </span>TABLE_ENTRIES: usize = <span class="number">1 </span>&lt;&lt; WINDOW_BITS;
+<span class="kw">const </span>STORAGE_ENTRIES: usize = TABLE_ENTRIES + <span class="kw">if </span><span class="macro">cfg!</span>(target_arch = <span class="string">"x86_64"</span>) { <span class="number">3 </span>} <span class="kw">else </span>{ <span class="number">0 </span>};
+
 <span class="attr">#[cfg(not(target_arch = <span class="string">"x86_64"</span>))]
-</span><span class="kw">pub fn </span>elem_exp_consttime&lt;M&gt;(
-    base: Elem&lt;M, R&gt;,
+</span><span class="kw">fn </span>elem_exp_consttime_inner&lt;N, M, <span class="kw">const </span>STORAGE_LIMBS: usize&gt;(
+    out: Storage&lt;M&gt;,
+    base_mod_n: <span class="kw-2">&amp;</span>Elem&lt;N&gt;,
+    oneRRR: <span class="kw-2">&amp;</span>One&lt;M, RRR&gt;,
     exponent: <span class="kw-2">&amp;</span>PrivateExponent,
     m: <span class="kw-2">&amp;</span>Modulus&lt;M&gt;,
-) -&gt; <span class="prelude-ty">Result</span>&lt;Elem&lt;M, Unencoded&gt;, error::Unspecified&gt; {
+    other_prime_len_bits: BitLength,
+) -&gt; <span class="prelude-ty">Result</span>&lt;Elem&lt;M, Unencoded&gt;, LimbSliceError&gt; {
     <span class="kw">use crate</span>::{bssl, limb::Window};
 
-    <span class="kw">const </span>WINDOW_BITS: usize = <span class="number">5</span>;
-    <span class="kw">const </span>TABLE_ENTRIES: usize = <span class="number">1 </span>&lt;&lt; WINDOW_BITS;
+    <span class="kw">let </span>base_rinverse: Elem&lt;M, RInverse&gt; = elem_reduced(out, base_mod_n, m, other_prime_len_bits);
 
     <span class="kw">let </span>num_limbs = m.limbs().len();
+    <span class="kw">let </span>m_chunked: AsChunks&lt;Limb, { limbs512::LIMBS_PER_CHUNK }&gt; = <span class="kw">match </span>slice::as_chunks(m.limbs())
+    {
+        (m, []) =&gt; m,
+        <span class="kw">_ </span>=&gt; {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(LimbSliceError::len_mismatch(LenMismatchError::new(
+                num_limbs,
+            )))
+        }
+    };
+    <span class="kw">let </span>cpe = m_chunked.len(); <span class="comment">// 512-bit chunks per entry.
 
-    <span class="kw">let </span><span class="kw-2">mut </span>table = <span class="macro">vec!</span>[<span class="number">0</span>; TABLE_ENTRIES * num_limbs];
+    // This code doesn't have the strict alignment requirements that the x86_64
+    // version does, but uses the same aligned storage for convenience.
+    </span><span class="macro">assert!</span>(STORAGE_LIMBS % (STORAGE_ENTRIES * limbs512::LIMBS_PER_CHUNK) == <span class="number">0</span>); <span class="comment">// TODO: `const`
+    </span><span class="kw">let </span><span class="kw-2">mut </span>table = limbs512::AlignedStorage::&lt;STORAGE_LIMBS&gt;::zeroed();
+    <span class="kw">let </span><span class="kw-2">mut </span>table = table
+        .aligned_chunks_mut(TABLE_ENTRIES, cpe)
+        .map_err(LimbSliceError::len_mismatch)<span class="question-mark">?</span>;
+
+    <span class="comment">// TODO: Rewrite the below in terms of `AsChunks`.
+    </span><span class="kw">let </span>table = table.as_flattened_mut();
 
     <span class="kw">fn </span>gather&lt;M&gt;(table: <span class="kw-2">&amp;</span>[Limb], acc: <span class="kw-2">&amp;mut </span>Elem&lt;M, R&gt;, i: Window) {
         <span class="macro">prefixed_extern!</span> {
@@ -1334,9 +1631,19 @@
     }
 
     <span class="comment">// table[0] = base**0 (i.e. 1).
-    </span>m.oneR(entry_mut(<span class="kw-2">&amp;mut </span>table, <span class="number">0</span>, num_limbs));
+    </span>m.oneR(entry_mut(table, <span class="number">0</span>, num_limbs));
 
-    entry_mut(<span class="kw-2">&amp;mut </span>table, <span class="number">1</span>, num_limbs).copy_from_slice(<span class="kw-2">&amp;</span>base.limbs);
+    <span class="comment">// table[1] = base*R == (base/R * RRR)/R
+    </span>limbs_mul_mont(
+        (
+            entry_mut(table, <span class="number">1</span>, num_limbs),
+            base_rinverse.limbs.as_ref(),
+            oneRRR.as_ref().limbs.as_ref(),
+        ),
+        m.limbs(),
+        m.n0(),
+        m.cpu_features(),
+    )<span class="question-mark">?</span>;
     <span class="kw">for </span>i <span class="kw">in </span><span class="number">2</span>..TABLE_ENTRIES {
         <span class="kw">let </span>(src1, src2) = <span class="kw">if </span>i % <span class="number">2 </span>== <span class="number">0 </span>{
             (i / <span class="number">2</span>, i / <span class="number">2</span>)
@@ -1347,12 +1654,16 @@
         <span class="kw">let </span>src1 = entry(previous, src1, num_limbs);
         <span class="kw">let </span>src2 = entry(previous, src2, num_limbs);
         <span class="kw">let </span>dst = entry_mut(rest, <span class="number">0</span>, num_limbs);
-        limbs_mont_product(dst, src1, src2, m.limbs(), m.n0(), m.cpu_features());
+        limbs_mul_mont((dst, src1, src2), m.limbs(), m.n0(), m.cpu_features())<span class="question-mark">?</span>;
     }
 
-    <span class="kw">let </span>tmp = m.zero();
     <span class="kw">let </span><span class="kw-2">mut </span>acc = Elem {
-        limbs: base.limbs,
+        limbs: base_rinverse.limbs,
+        encoding: PhantomData,
+    };
+    <span class="kw">let </span>tmp = m.alloc_zero();
+    <span class="kw">let </span>tmp = Elem {
+        limbs: tmp.limbs,
         encoding: PhantomData,
     };
     <span class="kw">let </span>(acc, <span class="kw">_</span>) = limb::fold_5_bit_windows(
@@ -1368,194 +1679,183 @@
 }
 
 <span class="attr">#[cfg(target_arch = <span class="string">"x86_64"</span>)]
-</span><span class="kw">pub fn </span>elem_exp_consttime&lt;M&gt;(
-    base: Elem&lt;M, R&gt;,
+</span><span class="kw">fn </span>elem_exp_consttime_inner&lt;N, M, <span class="kw">const </span>STORAGE_LIMBS: usize&gt;(
+    out: Storage&lt;M&gt;,
+    base_mod_n: <span class="kw-2">&amp;</span>Elem&lt;N&gt;,
+    oneRRR: <span class="kw-2">&amp;</span>One&lt;M, RRR&gt;,
     exponent: <span class="kw-2">&amp;</span>PrivateExponent,
     m: <span class="kw-2">&amp;</span>Modulus&lt;M&gt;,
-) -&gt; <span class="prelude-ty">Result</span>&lt;Elem&lt;M, Unencoded&gt;, error::Unspecified&gt; {
-    <span class="kw">use crate</span>::{cpu, limb::LIMB_BYTES};
-
-    <span class="comment">// Pretty much all the math here requires CPU feature detection to have
-    // been done. `cpu_features` isn't threaded through all the internal
-    // functions, so just make it clear that it has been done at this point.
-    </span><span class="kw">let </span>cpu_features = m.cpu_features();
-
-    <span class="comment">// The x86_64 assembly was written under the assumption that the input data
-    // is aligned to `MOD_EXP_CTIME_ALIGN` bytes, which was/is 64 in OpenSSL.
-    // Similarly, OpenSSL uses the x86_64 assembly functions by giving it only
-    // inputs `tmp`, `am`, and `np` that immediately follow the table. All the
-    // awkwardness here stems from trying to use the assembly code like OpenSSL
-    // does.
-
-    </span><span class="kw">use </span><span class="kw">crate</span>::limb::Window;
-
-    <span class="kw">const </span>WINDOW_BITS: usize = <span class="number">5</span>;
-    <span class="kw">const </span>TABLE_ENTRIES: usize = <span class="number">1 </span>&lt;&lt; WINDOW_BITS;
-
-    <span class="kw">let </span>num_limbs = m.limbs().len();
-
-    <span class="kw">const </span>ALIGNMENT: usize = <span class="number">64</span>;
-    <span class="macro">assert_eq!</span>(ALIGNMENT % LIMB_BYTES, <span class="number">0</span>);
-    <span class="kw">let </span><span class="kw-2">mut </span>table = <span class="macro">vec!</span>[<span class="number">0</span>; ((TABLE_ENTRIES + <span class="number">3</span>) * num_limbs) + ALIGNMENT];
-    <span class="kw">let </span>(table, state) = {
-        <span class="kw">let </span>misalignment = (table.as_ptr() <span class="kw">as </span>usize) % ALIGNMENT;
-        <span class="kw">let </span>table = <span class="kw-2">&amp;mut </span>table[((ALIGNMENT - misalignment) / LIMB_BYTES)..];
-        <span class="macro">assert_eq!</span>((table.as_ptr() <span class="kw">as </span>usize) % ALIGNMENT, <span class="number">0</span>);
-        table.split_at_mut(TABLE_ENTRIES * num_limbs)
+    other_prime_len_bits: BitLength,
+) -&gt; <span class="prelude-ty">Result</span>&lt;Elem&lt;M, Unencoded&gt;, LimbSliceError&gt; {
+    <span class="kw">use </span><span class="kw">super</span>::x86_64_mont::{
+        gather5, mul_mont5, mul_mont_gather5_amm, power5_amm, scatter5, sqr_mont5,
     };
-
-    <span class="kw">fn </span>scatter(table: <span class="kw-2">&amp;mut </span>[Limb], acc: <span class="kw-2">&amp;</span>[Limb], i: Window, num_limbs: usize) {
-        <span class="macro">prefixed_extern!</span> {
-            <span class="kw">fn </span>bn_scatter5(a: <span class="kw-2">*const </span>Limb, a_len: c::size_t, table: <span class="kw-2">*mut </span>Limb, i: Window);
-        }
-        <span class="kw">unsafe </span>{ bn_scatter5(acc.as_ptr(), num_limbs, table.as_mut_ptr(), i) }
-    }
-
-    <span class="kw">fn </span>gather(table: <span class="kw-2">&amp;</span>[Limb], acc: <span class="kw-2">&amp;mut </span>[Limb], i: Window, num_limbs: usize) {
-        <span class="macro">prefixed_extern!</span> {
-            <span class="kw">fn </span>bn_gather5(r: <span class="kw-2">*mut </span>Limb, a_len: c::size_t, table: <span class="kw-2">*const </span>Limb, i: Window);
-        }
-        <span class="kw">unsafe </span>{ bn_gather5(acc.as_mut_ptr(), num_limbs, table.as_ptr(), i) }
-    }
-
-    <span class="kw">fn </span>limbs_mul_mont_gather5_amm(
-        table: <span class="kw-2">&amp;</span>[Limb],
-        acc: <span class="kw-2">&amp;mut </span>[Limb],
-        base: <span class="kw-2">&amp;</span>[Limb],
-        m: <span class="kw-2">&amp;</span>[Limb],
-        n0: <span class="kw-2">&amp;</span>N0,
-        i: Window,
-        num_limbs: usize,
-    ) {
-        <span class="macro">prefixed_extern!</span> {
-            <span class="kw">fn </span>bn_mul_mont_gather5(
-                rp: <span class="kw-2">*mut </span>Limb,
-                ap: <span class="kw-2">*const </span>Limb,
-                table: <span class="kw-2">*const </span>Limb,
-                np: <span class="kw-2">*const </span>Limb,
-                n0: <span class="kw-2">&amp;</span>N0,
-                num: c::size_t,
-                power: Window,
-            );
-        }
-        <span class="kw">unsafe </span>{
-            bn_mul_mont_gather5(
-                acc.as_mut_ptr(),
-                base.as_ptr(),
-                table.as_ptr(),
-                m.as_ptr(),
-                n0,
-                num_limbs,
-                i,
-            );
-        }
-    }
-
-    <span class="kw">fn </span>power_amm(
-        table: <span class="kw-2">&amp;</span>[Limb],
-        acc: <span class="kw-2">&amp;mut </span>[Limb],
-        m_cached: <span class="kw-2">&amp;</span>[Limb],
-        n0: <span class="kw-2">&amp;</span>N0,
-        i: Window,
-        num_limbs: usize,
-    ) {
-        <span class="macro">prefixed_extern!</span> {
-            <span class="kw">fn </span>bn_power5(
-                r: <span class="kw-2">*mut </span>Limb,
-                a: <span class="kw-2">*const </span>Limb,
-                table: <span class="kw-2">*const </span>Limb,
-                n: <span class="kw-2">*const </span>Limb,
-                n0: <span class="kw-2">&amp;</span>N0,
-                num: c::size_t,
-                i: Window,
-            );
-        }
-        <span class="kw">unsafe </span>{
-            bn_power5(
-                acc.as_mut_ptr(),
-                acc.as_ptr(),
-                table.as_ptr(),
-                m_cached.as_ptr(),
-                n0,
-                num_limbs,
-                i,
-            );
-        }
-    }
-
-    <span class="comment">// These are named `(tmp, am, np)` in BoringSSL.
-    </span><span class="kw">let </span>(acc, base_cached, m_cached): (<span class="kw-2">&amp;mut </span>[Limb], <span class="kw-2">&amp;</span>[Limb], <span class="kw-2">&amp;</span>[Limb]) = {
-        <span class="kw">let </span>(acc, rest) = state.split_at_mut(num_limbs);
-        <span class="kw">let </span>(base_cached, rest) = rest.split_at_mut(num_limbs);
-
-        <span class="comment">// Upstream, the input `base` is not Montgomery-encoded, so they compute a
-        // Montgomery-encoded copy and store it here.
-        </span>base_cached.copy_from_slice(<span class="kw-2">&amp;</span>base.limbs);
-
-        <span class="kw">let </span>m_cached = <span class="kw-2">&amp;mut </span>rest[..num_limbs];
-        <span class="comment">// "To improve cache locality" according to upstream.
-        </span>m_cached.copy_from_slice(m.limbs());
-
-        (acc, base_cached, m_cached)
+    <span class="kw">use crate</span>::{
+        cpu::{
+            intel::{Adx, Bmi2},
+            GetFeature <span class="kw">as _</span>,
+        },
+        limb::{LeakyWindow, Window},
+        polyfill::slice::AsChunksMut,
     };
 
     <span class="kw">let </span>n0 = m.n0();
 
-    <span class="comment">// Fill in all the powers of 2 of `acc` into the table using only squaring and without any
+    <span class="kw">let </span>cpu2 = m.cpu_features().get_feature();
+    <span class="kw">let </span>cpu3 = m.cpu_features().get_feature();
+
+    <span class="kw">if </span>base_mod_n.limbs.len() != m.limbs().len() * <span class="number">2 </span>{
+        <span class="kw">return </span><span class="prelude-val">Err</span>(LimbSliceError::len_mismatch(LenMismatchError::new(
+            base_mod_n.limbs.len(),
+        )));
+    }
+
+    <span class="kw">let </span>m_original: AsChunks&lt;Limb, <span class="number">8</span>&gt; = <span class="kw">match </span>slice::as_chunks(m.limbs()) {
+        (m, []) =&gt; m,
+        <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(LimbSliceError::len_mismatch(LenMismatchError::new(<span class="number">8</span>))),
+    };
+    <span class="kw">let </span>cpe = m_original.len(); <span class="comment">// 512-bit chunks per entry
+
+    </span><span class="kw">let </span>oneRRR = <span class="kw-2">&amp;</span>oneRRR.as_ref().limbs;
+    <span class="kw">let </span>oneRRR = <span class="kw">match </span>slice::as_chunks(oneRRR) {
+        (c, []) =&gt; c,
+        <span class="kw">_ </span>=&gt; {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(LimbSliceError::len_mismatch(LenMismatchError::new(
+                oneRRR.len(),
+            )))
+        }
+    };
+
+    <span class="comment">// The x86_64 assembly was written under the assumption that the input data
+    // is aligned to `MOD_EXP_CTIME_ALIGN` bytes, which was/is 64 in OpenSSL.
+    // Subsequently, it was changed such that, according to BoringSSL, they
+    // only require 16 byte alignment. We enforce the old, stronger, alignment
+    // unless/until we can see a benefit to reducing it.
+    //
+    // Similarly, OpenSSL uses the x86_64 assembly functions by giving it only
+    // inputs `tmp`, `am`, and `np` that immediately follow the table.
+    // According to BoringSSL, in older versions of the OpenSSL code, this
+    // extra space was required for memory safety because the assembly code
+    // would over-read the table; according to BoringSSL, this is no longer the
+    // case. Regardless, the upstream code also contained comments implying
+    // that this was also important for performance. For now, we do as OpenSSL
+    // did/does.
+    </span><span class="kw">const </span>MOD_EXP_CTIME_ALIGN: usize = <span class="number">64</span>;
+    <span class="comment">// Required by
+    </span><span class="kw">const </span>_TABLE_ENTRIES_IS_32: () = <span class="macro">assert!</span>(TABLE_ENTRIES == <span class="number">32</span>);
+    <span class="kw">const </span>_STORAGE_ENTRIES_HAS_3_EXTRA: () = <span class="macro">assert!</span>(STORAGE_ENTRIES == TABLE_ENTRIES + <span class="number">3</span>);
+
+    <span class="macro">assert!</span>(STORAGE_LIMBS % (STORAGE_ENTRIES * limbs512::LIMBS_PER_CHUNK) == <span class="number">0</span>); <span class="comment">// TODO: `const`
+    </span><span class="kw">let </span><span class="kw-2">mut </span>table = limbs512::AlignedStorage::&lt;STORAGE_LIMBS&gt;::zeroed();
+    <span class="kw">let </span><span class="kw-2">mut </span>table = table
+        .aligned_chunks_mut(STORAGE_ENTRIES, cpe)
+        .map_err(LimbSliceError::len_mismatch)<span class="question-mark">?</span>;
+    <span class="kw">let </span>(<span class="kw-2">mut </span>table, <span class="kw-2">mut </span>state) = table.split_at_mut(TABLE_ENTRIES * cpe);
+    <span class="macro">assert_eq!</span>((table.as_ptr() <span class="kw">as </span>usize) % MOD_EXP_CTIME_ALIGN, <span class="number">0</span>);
+
+    <span class="comment">// These are named `(tmp, am, np)` in BoringSSL.
+    </span><span class="kw">let </span>(<span class="kw-2">mut </span>acc, <span class="kw-2">mut </span>rest) = state.split_at_mut(cpe);
+    <span class="kw">let </span>(<span class="kw-2">mut </span>base_cached, <span class="kw-2">mut </span>m_cached) = rest.split_at_mut(cpe);
+
+    <span class="comment">// "To improve cache locality" according to upstream.
+    </span>m_cached
+        .as_flattened_mut()
+        .copy_from_slice(m_original.as_flattened());
+    <span class="kw">let </span>m_cached = m_cached.as_ref();
+
+    <span class="kw">let </span>out: Elem&lt;M, RInverse&gt; = elem_reduced(out, base_mod_n, m, other_prime_len_bits);
+    <span class="kw">let </span>base_rinverse = <span class="kw">match </span>slice::as_chunks(<span class="kw-2">&amp;</span>out.limbs) {
+        (c, []) =&gt; c,
+        <span class="kw">_ </span>=&gt; {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(LimbSliceError::len_mismatch(LenMismatchError::new(
+                out.limbs.len(),
+            )))
+        }
+    };
+
+    <span class="comment">// base_cached = base*R == (base/R * RRR)/R
+    </span>mul_mont5(
+        base_cached.as_mut(),
+        base_rinverse,
+        oneRRR,
+        m_cached,
+        n0,
+        cpu2,
+    )<span class="question-mark">?</span>;
+    <span class="kw">let </span>base_cached = base_cached.as_ref();
+    <span class="kw">let </span><span class="kw-2">mut </span>out = Storage::from(out); <span class="comment">// recycle.
+
+    // Fill in all the powers of 2 of `acc` into the table using only squaring and without any
     // gathering, storing the last calculated power into `acc`.
     </span><span class="kw">fn </span>scatter_powers_of_2(
-        table: <span class="kw-2">&amp;mut </span>[Limb],
-        acc: <span class="kw-2">&amp;mut </span>[Limb],
-        m_cached: <span class="kw-2">&amp;</span>[Limb],
+        <span class="kw-2">mut </span>table: AsChunksMut&lt;Limb, <span class="number">8</span>&gt;,
+        <span class="kw-2">mut </span>acc: AsChunksMut&lt;Limb, <span class="number">8</span>&gt;,
+        m_cached: AsChunks&lt;Limb, <span class="number">8</span>&gt;,
         n0: <span class="kw-2">&amp;</span>N0,
-        <span class="kw-2">mut </span>i: Window,
-        num_limbs: usize,
-        cpu_features: cpu::Features,
-    ) {
+        <span class="kw-2">mut </span>i: LeakyWindow,
+        cpu: <span class="prelude-ty">Option</span>&lt;(Adx, Bmi2)&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), LimbSliceError&gt; {
         <span class="kw">loop </span>{
-            scatter(table, acc, i, num_limbs);
+            scatter5(acc.as_ref(), table.as_mut(), i)<span class="question-mark">?</span>;
             i <span class="kw-2">*</span>= <span class="number">2</span>;
-            <span class="kw">if </span>i &gt;= (TABLE_ENTRIES <span class="kw">as </span>Window) {
+            <span class="kw">if </span>i &gt;= TABLE_ENTRIES <span class="kw">as </span>LeakyWindow {
                 <span class="kw">break</span>;
             }
-            limbs_mont_square(acc, m_cached, n0, cpu_features);
+            sqr_mont5(acc.as_mut(), m_cached, n0, cpu)<span class="question-mark">?</span>;
         }
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="comment">// All entries in `table` will be Montgomery encoded.
 
     // acc = table[0] = base**0 (i.e. 1).
-    </span>m.oneR(acc);
-    scatter(table, acc, <span class="number">0</span>, num_limbs);
+    </span>m.oneR(acc.as_flattened_mut());
+    scatter5(acc.as_ref(), table.as_mut(), <span class="number">0</span>)<span class="question-mark">?</span>;
 
     <span class="comment">// acc = base**1 (i.e. base).
-    </span>acc.copy_from_slice(base_cached);
+    </span>acc.as_flattened_mut()
+        .copy_from_slice(base_cached.as_flattened());
 
     <span class="comment">// Fill in entries 1, 2, 4, 8, 16.
-    </span>scatter_powers_of_2(table, acc, m_cached, n0, <span class="number">1</span>, num_limbs, cpu_features);
+    </span>scatter_powers_of_2(table.as_mut(), acc.as_mut(), m_cached, n0, <span class="number">1</span>, cpu2)<span class="question-mark">?</span>;
     <span class="comment">// Fill in entries 3, 6, 12, 24; 5, 10, 20, 30; 7, 14, 28; 9, 18; 11, 22; 13, 26; 15, 30;
     // 17; 19; 21; 23; 25; 27; 29; 31.
-    </span><span class="kw">for </span>i <span class="kw">in </span>(<span class="number">3</span>..(TABLE_ENTRIES <span class="kw">as </span>Window)).step_by(<span class="number">2</span>) {
-        limbs_mul_mont_gather5_amm(table, acc, base_cached, m_cached, n0, i - <span class="number">1</span>, num_limbs);
-        scatter_powers_of_2(table, acc, m_cached, n0, i, num_limbs, cpu_features);
+    </span><span class="kw">for </span>i <span class="kw">in </span>(<span class="number">3</span>..(TABLE_ENTRIES <span class="kw">as </span>LeakyWindow)).step_by(<span class="number">2</span>) {
+        <span class="kw">let </span>power = Window::from(i - <span class="number">1</span>);
+        <span class="macro">assert!</span>(power &lt; <span class="number">32</span>); <span class="comment">// Not secret,
+        </span><span class="kw">unsafe </span>{
+            mul_mont_gather5_amm(
+                acc.as_mut(),
+                base_cached,
+                table.as_ref(),
+                m_cached,
+                n0,
+                power,
+                cpu3,
+            )
+        }<span class="question-mark">?</span>;
+        scatter_powers_of_2(table.as_mut(), acc.as_mut(), m_cached, n0, i, cpu2)<span class="question-mark">?</span>;
     }
+
+    <span class="kw">let </span>table = table.as_ref();
 
     <span class="kw">let </span>acc = limb::fold_5_bit_windows(
         exponent.limbs(),
         |initial_window| {
-            gather(table, acc, initial_window, num_limbs);
+            <span class="kw">unsafe </span>{ gather5(acc.as_mut(), table, initial_window) }
+                .unwrap_or_else(unwrap_impossible_limb_slice_error);
             acc
         },
-        |acc, window| {
-            power_amm(table, acc, m_cached, n0, window, num_limbs);
+        |<span class="kw-2">mut </span>acc, window| {
+            <span class="kw">unsafe </span>{ power5_amm(acc.as_mut(), table, m_cached, n0, window, cpu3) }
+                .unwrap_or_else(unwrap_impossible_limb_slice_error);
             acc
         },
     );
 
-    <span class="kw">let </span><span class="kw-2">mut </span>r_amm = base.limbs;
-    r_amm.copy_from_slice(acc);
-
-    <span class="prelude-val">Ok</span>(from_montgomery_amm(r_amm, m))
+    <span class="comment">// Reuse `base_rinverse`'s limbs to save an allocation.
+    </span>out.limbs.copy_from_slice(acc.as_flattened());
+    <span class="prelude-val">Ok</span>(from_montgomery_amm(out, m))
 }
 
 <span class="doccomment">/// Verified a == b**-1 (mod m), i.e. a**-1 == b (mod m).
@@ -1564,11 +1864,8 @@
     b: Elem&lt;M, Unencoded&gt;,
     m: <span class="kw-2">&amp;</span>Modulus&lt;M&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), error::Unspecified&gt; {
-    <span class="kw">if </span>elem_mul(a, b, m).is_one() {
-        <span class="prelude-val">Ok</span>(())
-    } <span class="kw">else </span>{
-        <span class="prelude-val">Err</span>(error::Unspecified)
-    }
+    <span class="kw">let </span>r = elem_mul(a, b, m);
+    limb::verify_limbs_equal_1_leak_bit(<span class="kw-2">&amp;</span>r.limbs)
 }
 
 <span class="attr">#[inline]
@@ -1576,10 +1873,27 @@
     a: <span class="kw-2">&amp;</span>Elem&lt;M, E&gt;,
     b: <span class="kw-2">&amp;</span>Elem&lt;M, E&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), error::Unspecified&gt; {
-    <span class="kw">if </span>limb::limbs_equal_limbs_consttime(<span class="kw-2">&amp;</span>a.limbs, <span class="kw-2">&amp;</span>b.limbs) == LimbMask::True {
-        <span class="prelude-val">Ok</span>(())
-    } <span class="kw">else </span>{
-        <span class="prelude-val">Err</span>(error::Unspecified)
+    <span class="kw">let </span>equal = limb::limbs_equal_limbs_consttime(<span class="kw-2">&amp;</span>a.limbs, <span class="kw-2">&amp;</span>b.limbs)
+        .unwrap_or_else(unwrap_impossible_len_mismatch_error);
+    <span class="kw">if </span>!equal.leak() {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(error::Unspecified);
+    }
+    <span class="prelude-val">Ok</span>(())
+}
+
+<span class="attr">#[cold]
+#[inline(never)]
+</span><span class="kw">fn </span>unwrap_impossible_len_mismatch_error&lt;T&gt;(LenMismatchError { .. }: LenMismatchError) -&gt; T {
+    <span class="macro">unreachable!</span>()
+}
+
+<span class="attr">#[cold]
+#[inline(never)]
+</span><span class="kw">fn </span>unwrap_impossible_limb_slice_error(err: LimbSliceError) {
+    <span class="kw">match </span>err {
+        LimbSliceError::LenMismatch(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+        LimbSliceError::TooShort(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+        LimbSliceError::TooLong(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
     }
 }
 
@@ -1610,9 +1924,62 @@
                     PrivateExponent::from_be_bytes_for_test_only(untrusted::Input::from(<span class="kw-2">&amp;</span>bytes), <span class="kw-2">&amp;</span>m)
                         .expect(<span class="string">"valid exponent"</span>)
                 };
-                <span class="kw">let </span>base = into_encoded(base, <span class="kw-2">&amp;</span>m);
-                <span class="kw">let </span>actual_result = elem_exp_consttime(base, <span class="kw-2">&amp;</span>e, <span class="kw-2">&amp;</span>m).unwrap();
-                assert_elem_eq(<span class="kw-2">&amp;</span>actual_result, <span class="kw-2">&amp;</span>expected_result);
+
+                <span class="kw">let </span>oneRR = One::newRR(m.alloc_zero(), <span class="kw-2">&amp;</span>m);
+                <span class="kw">let </span>oneRRR = One::newRRR(oneRR, <span class="kw-2">&amp;</span>m);
+
+                <span class="comment">// `base` in the test vectors is reduced (mod M) already but
+                // the API expects the bsae to be (mod N) where N = M * P for
+                // some other prime of the same length. Fake that here.
+                // Pretend there's another prime of equal length.
+                </span><span class="kw">struct </span>N {}
+                <span class="kw">let </span>other_modulus_len_bits = m.len_bits();
+                <span class="kw">let </span>base: Elem&lt;N&gt; = {
+                    <span class="kw">let </span><span class="kw-2">mut </span>limbs = BoxedLimbs::zero(base.limbs.len() * <span class="number">2</span>);
+                    limbs[..base.limbs.len()].copy_from_slice(<span class="kw-2">&amp;</span>base.limbs);
+                    Elem {
+                        limbs,
+                        encoding: PhantomData,
+                    }
+                };
+
+                <span class="kw">let </span>too_big = m.limbs().len() &gt; ELEM_EXP_CONSTTIME_MAX_MODULUS_LIMBS;
+                <span class="kw">let </span>actual_result = <span class="kw">if </span>!too_big {
+                    elem_exp_consttime(
+                        m.alloc_zero(),
+                        <span class="kw-2">&amp;</span>base,
+                        <span class="kw-2">&amp;</span>oneRRR,
+                        <span class="kw-2">&amp;</span>e,
+                        <span class="kw-2">&amp;</span>m,
+                        other_modulus_len_bits,
+                    )
+                } <span class="kw">else </span>{
+                    <span class="kw">let </span>actual_result = elem_exp_consttime(
+                        m.alloc_zero(),
+                        <span class="kw-2">&amp;</span>base,
+                        <span class="kw-2">&amp;</span>oneRRR,
+                        <span class="kw-2">&amp;</span>e,
+                        <span class="kw-2">&amp;</span>m,
+                        other_modulus_len_bits,
+                    );
+                    <span class="comment">// TODO: Be more specific with which error we expect?
+                    </span><span class="macro">assert!</span>(actual_result.is_err());
+                    <span class="comment">// Try again with a larger-than-normally-supported limit
+                    </span>elem_exp_consttime_inner::&lt;<span class="kw">_</span>, <span class="kw">_</span>, { (<span class="number">4096 </span>/ LIMB_BITS) * STORAGE_ENTRIES }&gt;(
+                        m.alloc_zero(),
+                        <span class="kw-2">&amp;</span>base,
+                        <span class="kw-2">&amp;</span>oneRRR,
+                        <span class="kw-2">&amp;</span>e,
+                        <span class="kw-2">&amp;</span>m,
+                        other_modulus_len_bits,
+                    )
+                };
+                <span class="kw">match </span>actual_result {
+                    <span class="prelude-val">Ok</span>(r) =&gt; assert_elem_eq(<span class="kw-2">&amp;</span>r, <span class="kw-2">&amp;</span>expected_result),
+                    <span class="prelude-val">Err</span>(LimbSliceError::LenMismatch { .. }) =&gt; <span class="macro">panic!</span>(),
+                    <span class="prelude-val">Err</span>(LimbSliceError::TooLong { .. }) =&gt; <span class="macro">panic!</span>(),
+                    <span class="prelude-val">Err</span>(LimbSliceError::TooShort { .. }) =&gt; <span class="macro">panic!</span>(),
+                };
 
                 <span class="prelude-val">Ok</span>(())
             },
@@ -1637,8 +2004,8 @@
                 <span class="kw">let </span>a = consume_elem(test_case, <span class="string">"A"</span>, <span class="kw-2">&amp;</span>m);
                 <span class="kw">let </span>b = consume_elem(test_case, <span class="string">"B"</span>, <span class="kw-2">&amp;</span>m);
 
-                <span class="kw">let </span>b = into_encoded(b, <span class="kw-2">&amp;</span>m);
-                <span class="kw">let </span>a = into_encoded(a, <span class="kw-2">&amp;</span>m);
+                <span class="kw">let </span>b = into_encoded(m.alloc_zero(), b, <span class="kw-2">&amp;</span>m);
+                <span class="kw">let </span>a = into_encoded(m.alloc_zero(), a, <span class="kw-2">&amp;</span>m);
                 <span class="kw">let </span>actual_result = elem_mul(<span class="kw-2">&amp;</span>a, b, <span class="kw-2">&amp;</span>m);
                 <span class="kw">let </span>actual_result = actual_result.into_unencoded(<span class="kw-2">&amp;</span>m);
                 assert_elem_eq(<span class="kw-2">&amp;</span>actual_result, <span class="kw-2">&amp;</span>expected_result);
@@ -1661,7 +2028,7 @@
                 <span class="kw">let </span>expected_result = consume_elem(test_case, <span class="string">"ModSquare"</span>, <span class="kw-2">&amp;</span>m);
                 <span class="kw">let </span>a = consume_elem(test_case, <span class="string">"A"</span>, <span class="kw-2">&amp;</span>m);
 
-                <span class="kw">let </span>a = into_encoded(a, <span class="kw-2">&amp;</span>m);
+                <span class="kw">let </span>a = into_encoded(m.alloc_zero(), a, <span class="kw-2">&amp;</span>m);
                 <span class="kw">let </span>actual_result = elem_squared(a, <span class="kw-2">&amp;</span>m);
                 <span class="kw">let </span>actual_result = actual_result.into_unencoded(<span class="kw-2">&amp;</span>m);
                 assert_elem_eq(<span class="kw-2">&amp;</span>actual_result, <span class="kw-2">&amp;</span>expected_result);
@@ -1688,8 +2055,8 @@
                     consume_elem_unchecked::&lt;M&gt;(test_case, <span class="string">"A"</span>, expected_result.limbs.len() * <span class="number">2</span>);
                 <span class="kw">let </span>other_modulus_len_bits = m_.len_bits();
 
-                <span class="kw">let </span>actual_result = elem_reduced(<span class="kw-2">&amp;</span>a, <span class="kw-2">&amp;</span>m, other_modulus_len_bits);
-                <span class="kw">let </span>oneRR = One::newRR(<span class="kw-2">&amp;</span>m);
+                <span class="kw">let </span>actual_result = elem_reduced(m.alloc_zero(), <span class="kw-2">&amp;</span>a, <span class="kw-2">&amp;</span>m, other_modulus_len_bits);
+                <span class="kw">let </span>oneRR = One::newRR(m.alloc_zero(), <span class="kw-2">&amp;</span>m);
                 <span class="kw">let </span>actual_result = elem_mul(oneRR.as_ref(), actual_result, <span class="kw-2">&amp;</span>m);
                 assert_elem_eq(<span class="kw-2">&amp;</span>actual_result, <span class="kw-2">&amp;</span>expected_result);
 
@@ -1714,7 +2081,8 @@
                 <span class="kw">let </span>expected_result = consume_elem::&lt;M&gt;(test_case, <span class="string">"r"</span>, <span class="kw-2">&amp;</span>m);
                 <span class="kw">let </span>other_modulus_len_bits = m.len_bits();
 
-                <span class="kw">let </span>actual_result = elem_reduced_once(<span class="kw-2">&amp;</span>a, <span class="kw-2">&amp;</span>m, other_modulus_len_bits);
+                <span class="kw">let </span>actual_result =
+                    elem_reduced_once(m.alloc_zero(), <span class="kw-2">&amp;</span>a, <span class="kw-2">&amp;</span>m, other_modulus_len_bits);
                 assert_elem_eq(<span class="kw-2">&amp;</span>actual_result, <span class="kw-2">&amp;</span>expected_result);
 
                 <span class="prelude-val">Ok</span>(())
@@ -1748,7 +2116,9 @@
 
     <span class="kw">fn </span>consume_modulus&lt;M&gt;(test_case: <span class="kw-2">&amp;mut </span>test::TestCase, name: <span class="kw-2">&amp;</span>str) -&gt; OwnedModulus&lt;M&gt; {
         <span class="kw">let </span>value = test_case.consume_bytes(name);
-        OwnedModulus::from_be_bytes(untrusted::Input::from(<span class="kw-2">&amp;</span>value)).unwrap()
+        OwnedModulus::from(
+            OwnedModulusValue::from_be_bytes(untrusted::Input::from(<span class="kw-2">&amp;</span>value)).unwrap(),
+        )
     }
 
     <span class="kw">fn </span>assert_elem_eq&lt;M, E&gt;(a: <span class="kw-2">&amp;</span>Elem&lt;M, E&gt;, b: <span class="kw-2">&amp;</span>Elem&lt;M, E&gt;) {
@@ -1757,8 +2127,8 @@
         }
     }
 
-    <span class="kw">fn </span>into_encoded&lt;M&gt;(a: Elem&lt;M, Unencoded&gt;, m: <span class="kw-2">&amp;</span>Modulus&lt;M&gt;) -&gt; Elem&lt;M, R&gt; {
-        <span class="kw">let </span>oneRR = One::newRR(m);
+    <span class="kw">fn </span>into_encoded&lt;M&gt;(out: Storage&lt;M&gt;, a: Elem&lt;M, Unencoded&gt;, m: <span class="kw-2">&amp;</span>Modulus&lt;M&gt;) -&gt; Elem&lt;M, R&gt; {
+        <span class="kw">let </span>oneRR = One::newRR(out, m);
         elem_mul(oneRR.as_ref(), a, m)
     }
 }

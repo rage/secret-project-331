@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.8/src/hmac.rs`."><title>hmac.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.9/src/hmac.rs`."><title>hmac.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ring/</div>hmac.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -367,7 +368,81 @@
 <a href="#367" id="367">367</a>
 <a href="#368" id="368">368</a>
 <a href="#369" id="369">369</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright 2015-2016 Brian Smith.
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a></pre></div><pre class="rust"><code><span class="comment">// Copyright 2015-2016 Brian Smith.
 //
 // Permission to use, copy, modify, and/or distribute this software for any
 // purpose with or without fee is hereby granted, provided that the above
@@ -478,7 +553,13 @@
 //! [code for `ring::hkdf`]:
 //!     https://github.com/briansmith/ring/blob/main/src/hkdf.rs
 
-</span><span class="kw">use crate</span>::{constant_time, digest, error, hkdf, rand};
+</span><span class="kw">use crate</span>::{
+    constant_time, cpu,
+    digest::{<span class="self">self</span>, Digest, FinishError},
+    error, hkdf, rand,
+};
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="kw">crate</span>::digest::InputTooLongError;
 
 <span class="doccomment">/// An HMAC algorithm.
 </span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -508,7 +589,7 @@
 ///
 /// For a given tag `t`, use `t.as_ref()` to get the tag value as a byte slice.
 </span><span class="attr">#[derive(Clone, Copy, Debug)]
-</span><span class="kw">pub struct </span>Tag(digest::Digest);
+</span><span class="kw">pub struct </span>Tag(Digest);
 
 <span class="kw">impl </span>AsRef&lt;[u8]&gt; <span class="kw">for </span>Tag {
     <span class="attr">#[inline]
@@ -544,17 +625,21 @@
         algorithm: Algorithm,
         rng: <span class="kw-2">&amp;</span><span class="kw">dyn </span>rand::SecureRandom,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, error::Unspecified&gt; {
-        <span class="self">Self</span>::construct(algorithm, |buf| rng.fill(buf))
+        <span class="self">Self</span>::construct(algorithm, |buf| rng.fill(buf), cpu::features())
     }
 
-    <span class="kw">fn </span>construct&lt;F&gt;(algorithm: Algorithm, fill: F) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, error::Unspecified&gt;
+    <span class="kw">fn </span>construct&lt;F&gt;(
+        algorithm: Algorithm,
+        fill: F,
+        cpu: cpu::Features,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, error::Unspecified&gt;
     <span class="kw">where
         </span>F: FnOnce(<span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), error::Unspecified&gt;,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>key_bytes = [<span class="number">0</span>; digest::MAX_OUTPUT_LEN];
         <span class="kw">let </span>key_bytes = <span class="kw-2">&amp;mut </span>key_bytes[..algorithm.<span class="number">0</span>.output_len()];
         fill(key_bytes)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span>::new(algorithm, key_bytes))
+        <span class="self">Self</span>::try_new(algorithm, key_bytes, cpu).map_err(error::erase::&lt;InputTooLongError&gt;)
     }
 
     <span class="doccomment">/// Construct an HMAC signing key using the given digest algorithm and key
@@ -577,6 +662,16 @@
     /// `digest_alg.output_len * 8` bits. Support for such keys is likely to be
     /// removed in a future version of *ring*.
     </span><span class="kw">pub fn </span>new(algorithm: Algorithm, key_value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::try_new(algorithm, key_value, cpu::features())
+            .map_err(error::erase::&lt;InputTooLongError&gt;)
+            .unwrap()
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>try_new(
+        algorithm: Algorithm,
+        key_value: <span class="kw-2">&amp;</span>[u8],
+        cpu_features: cpu::Features,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, InputTooLongError&gt; {
         <span class="kw">let </span>digest_alg = algorithm.<span class="number">0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>key = <span class="self">Self </span>{
             inner: digest::BlockContext::new(digest_alg),
@@ -589,7 +684,7 @@
         <span class="kw">let </span>key_value = <span class="kw">if </span>key_value.len() &lt;= block_len {
             key_value
         } <span class="kw">else </span>{
-            key_hash = digest::digest(digest_alg, key_value);
+            key_hash = Digest::compute_from(digest_alg, key_value, cpu_features)<span class="question-mark">?</span>;
             key_hash.as_ref()
         };
 
@@ -601,27 +696,40 @@
         <span class="comment">// If the key is shorter than one block then we're supposed to act like
         // it is padded with zero bytes up to the block length. `x ^ 0 == x` so
         // we can just leave the trailing bytes of `padded_key` untouched.
-        </span><span class="kw">for </span>(padded_key, key_value) <span class="kw">in </span>padded_key.iter_mut().zip(key_value.iter()) {
-            <span class="kw-2">*</span>padded_key ^= <span class="kw-2">*</span>key_value;
-        }
-        key.inner.update(padded_key);
+        </span>constant_time::xor_assign_at_start(<span class="kw-2">&amp;mut </span>padded_key[..], key_value);
+
+        <span class="kw">let </span>leftover = key.inner.update(padded_key, cpu_features);
+        <span class="macro">debug_assert_eq!</span>(leftover.len(), <span class="number">0</span>);
 
         <span class="kw">const </span>OPAD: u8 = <span class="number">0x5C</span>;
 
         <span class="comment">// Remove the `IPAD` masking, leaving the unmasked padded key, then
         // mask with `OPAD`, all in one step.
-        </span><span class="kw">for </span>b <span class="kw">in </span>padded_key.iter_mut() {
-            <span class="kw-2">*</span>b ^= IPAD ^ OPAD;
-        }
-        key.outer.update(padded_key);
+        </span>constant_time::xor_assign(<span class="kw-2">&amp;mut </span>padded_key[..], IPAD ^ OPAD);
+        <span class="kw">let </span>leftover = key.outer.update(padded_key, cpu_features);
+        <span class="macro">debug_assert_eq!</span>(leftover.len(), <span class="number">0</span>);
 
-        key
+        <span class="prelude-val">Ok</span>(key)
     }
 
     <span class="doccomment">/// The digest algorithm for the key.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>algorithm(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Algorithm {
         Algorithm(<span class="self">self</span>.inner.algorithm)
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>sign(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <span class="kw-2">&amp;</span>[u8], cpu: cpu::Features) -&gt; <span class="prelude-ty">Result</span>&lt;Tag, InputTooLongError&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>ctx = Context::with_key(<span class="self">self</span>);
+        ctx.update(data);
+        ctx.try_sign(cpu)
+    }
+
+    <span class="kw">fn </span>verify(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <span class="kw-2">&amp;</span>[u8], tag: <span class="kw-2">&amp;</span>[u8], cpu: cpu::Features) -&gt; <span class="prelude-ty">Result</span>&lt;(), VerifyError&gt; {
+        <span class="kw">let </span>computed = <span class="self">self
+            </span>.sign(data, cpu)
+            .map_err(VerifyError::InputTooLongError)<span class="question-mark">?</span>;
+        constant_time::verify_slices_are_equal(computed.as_ref(), tag)
+            .map_err(|<span class="kw">_</span>: error::Unspecified| VerifyError::Mismatch)
     }
 }
 
@@ -633,7 +741,7 @@
 
 <span class="kw">impl </span>From&lt;hkdf::Okm&lt;<span class="lifetime">'_</span>, Algorithm&gt;&gt; <span class="kw">for </span>Key {
     <span class="kw">fn </span>from(okm: hkdf::Okm&lt;Algorithm&gt;) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::construct(<span class="kw-2">*</span>okm.len(), |buf| okm.fill(buf)).unwrap()
+        <span class="self">Self</span>::construct(<span class="kw-2">*</span>okm.len(), |buf| okm.fill(buf), cpu::features()).unwrap()
     }
 }
 
@@ -678,12 +786,41 @@
     /// the return value of `sign` to a tag. Use `verify` for verification
     /// instead.
     </span><span class="kw">pub fn </span>sign(<span class="self">self</span>) -&gt; Tag {
-        <span class="kw">let </span>algorithm = <span class="self">self</span>.inner.algorithm();
-        <span class="kw">let </span><span class="kw-2">mut </span>pending = [<span class="number">0u8</span>; digest::MAX_BLOCK_LEN];
-        <span class="kw">let </span>pending = <span class="kw-2">&amp;mut </span>pending[..algorithm.block_len()];
-        <span class="kw">let </span>num_pending = algorithm.output_len();
-        pending[..num_pending].copy_from_slice(<span class="self">self</span>.inner.finish().as_ref());
-        Tag(<span class="self">self</span>.outer.finish(pending, num_pending))
+        <span class="self">self</span>.try_sign(cpu::features())
+            .map_err(error::erase::&lt;InputTooLongError&gt;)
+            .unwrap()
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>try_sign(<span class="self">self</span>, cpu_features: cpu::Features) -&gt; <span class="prelude-ty">Result</span>&lt;Tag, InputTooLongError&gt; {
+        <span class="comment">// Consequently, `num_pending` is valid.
+        </span><span class="macro">debug_assert_eq!</span>(<span class="self">self</span>.inner.algorithm(), <span class="self">self</span>.outer.algorithm);
+        <span class="macro">debug_assert!</span>(<span class="self">self</span>.inner.algorithm().output_len() &lt; <span class="self">self</span>.outer.algorithm.block_len());
+
+        <span class="kw">let </span>inner = <span class="self">self</span>.inner.try_finish(cpu_features)<span class="question-mark">?</span>;
+        <span class="kw">let </span>inner = inner.as_ref();
+        <span class="kw">let </span>num_pending = inner.len();
+        <span class="kw">let </span>buffer = <span class="kw-2">&amp;mut </span>[<span class="number">0u8</span>; digest::MAX_BLOCK_LEN];
+        <span class="kw">const </span>_BUFFER_IS_LARGE_ENOUGH_TO_HOLD_INNER: () =
+            <span class="macro">assert!</span>(digest::MAX_OUTPUT_LEN &lt; digest::MAX_BLOCK_LEN);
+        buffer[..num_pending].copy_from_slice(inner);
+
+        <span class="self">self</span>.outer
+            .try_finish(buffer, num_pending, cpu_features)
+            .map(Tag)
+            .map_err(|err| <span class="kw">match </span>err {
+                FinishError::InputTooLong(i) =&gt; {
+                    <span class="comment">// Unreachable, as we gave the inner context exactly the
+                    // same input we gave the outer context, and
+                    // `inner.try_finish` already succeeded. However, it is
+                    // quite difficult to prove this, and we already return
+                    // `InputTooLongError`, so just forward it along.
+                    </span>i
+                }
+                FinishError::PendingNotAPartialBlock(<span class="kw">_</span>) =&gt; {
+                    <span class="comment">// Follows from the assertions above.
+                    </span><span class="macro">unreachable!</span>()
+                }
+            })
     }
 }
 
@@ -694,9 +831,9 @@
 /// It is generally not safe to implement HMAC verification by comparing the
 /// return value of `sign` to a tag. Use `verify` for verification instead.
 </span><span class="kw">pub fn </span>sign(key: <span class="kw-2">&amp;</span>Key, data: <span class="kw-2">&amp;</span>[u8]) -&gt; Tag {
-    <span class="kw">let </span><span class="kw-2">mut </span>ctx = Context::with_key(key);
-    ctx.update(data);
-    ctx.sign()
+    key.sign(data, cpu::features())
+        .map_err(error::erase::&lt;InputTooLongError&gt;)
+        .unwrap()
 }
 
 <span class="doccomment">/// Calculates the HMAC of `data` using the signing key `key`, and verifies
@@ -707,7 +844,20 @@
 ///
 /// The verification will be done in constant time to prevent timing attacks.
 </span><span class="kw">pub fn </span>verify(key: <span class="kw-2">&amp;</span>Key, data: <span class="kw-2">&amp;</span>[u8], tag: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), error::Unspecified&gt; {
-    constant_time::verify_slices_are_equal(sign(key, data).as_ref(), tag)
+    key.verify(data, tag, cpu::features())
+        .map_err(|<span class="kw">_</span>: VerifyError| error::Unspecified)
+}
+
+<span class="kw">enum </span>VerifyError {
+    <span class="comment">// Theoretically somebody could have calculated a valid tag with a gigantic
+    // input that we do not support. If we were to support every theoretically
+    // valid input length, for *every* digest algorithm, then we could argue
+    // that hitting the input length limit implies a mismatch since nobody
+    // could have calculated such a tag with the given input.
+    </span><span class="attr">#[allow(dead_code)]
+    </span>InputTooLongError(InputTooLongError),
+
+    Mismatch,
 }
 
 <span class="attr">#[cfg(test)]

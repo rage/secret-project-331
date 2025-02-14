@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["DeviceCodeErrorResponseType"],"struct":["DeviceAuthorizationResponse","EmptyExtraDeviceAuthorizationFields"],"trait":["ExtraDeviceAuthorizationFields"],"type":["DeviceCodeErrorResponse","StandardDeviceAuthorizationResponse"]};

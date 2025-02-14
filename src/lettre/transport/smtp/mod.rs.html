@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.11/src/transport/smtp/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.12/src/transport/smtp/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">lettre/transport/smtp/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -211,7 +212,65 @@
 <a href="#211" id="211">211</a>
 <a href="#212" id="212">212</a>
 <a href="#213" id="213">213</a>
-</pre></div><pre class="rust"><code><span class="doccomment">//! The SMTP transport sends emails using the SMTP protocol.
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
+<a href="#240" id="240">240</a>
+<a href="#241" id="241">241</a>
+<a href="#242" id="242">242</a>
+<a href="#243" id="243">243</a>
+<a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a></pre></div><pre class="rust"><code><span class="doccomment">//! The SMTP transport sends emails using the SMTP protocol.
 //!
 //! This SMTP client follows [RFC
 //! 5321](https://tools.ietf.org/html/rfc5321), and is designed to efficiently send emails from an
@@ -239,43 +298,17 @@
 //!
 //! The relay server can be the local email server, a specific host or a third-party service.
 //!
-//! #### Simple example
+//! #### Simple example with authentication
 //!
-//! This is the most basic example of usage:
-//!
-//! ```rust,no_run
-//! # #[cfg(all(feature = "builder", any(feature = "native-tls", feature = "rustls-tls")))]
-//! # fn test() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
-//! use lettre::{Message, SmtpTransport, Transport};
-//!
-//! let email = Message::builder()
-//!     .from("NoBody &lt;nobody@domain.tld&gt;".parse()?)
-//!     .reply_to("Yuin &lt;yuin@domain.tld&gt;".parse()?)
-//!     .to("Hei &lt;hei@domain.tld&gt;".parse()?)
-//!     .subject("Happy new year")
-//!     .body(String::from("Be happy!"))?;
-//!
-//! // Create TLS transport on port 465
-//! let sender = SmtpTransport::relay("smtp.example.com")?.build();
-//! // Send the email via remote relay
-//! let result = sender.send(&amp;email);
-//! assert!(result.is_ok());
-//! # Ok(())
-//! # }
-//! ```
-//!
-//! #### Authentication
-//!
-//! Example with authentication and connection pool:
+//! A good starting point for sending emails via SMTP relay is to
+//! do the following:
 //!
 //! ```rust,no_run
 //! # #[cfg(all(feature = "builder", any(feature = "native-tls", feature = "rustls-tls")))]
 //! # fn test() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
 //! use lettre::{
-//!     transport::smtp::{
-//!         authentication::{Credentials, Mechanism},
-//!         PoolConfig,
-//!     },
+//!     message::header::ContentType,
+//!     transport::smtp::authentication::{Credentials, Mechanism},
 //!     Message, SmtpTransport, Transport,
 //! };
 //!
@@ -284,35 +317,39 @@
 //!     .reply_to("Yuin &lt;yuin@domain.tld&gt;".parse()?)
 //!     .to("Hei &lt;hei@domain.tld&gt;".parse()?)
 //!     .subject("Happy new year")
+//!     .header(ContentType::TEXT_PLAIN)
 //!     .body(String::from("Be happy!"))?;
 //!
-//! // Create TLS transport on port 587 with STARTTLS
-//! let sender = SmtpTransport::starttls_relay("smtp.example.com")?
+//! // Create the SMTPS transport
+//! let sender = SmtpTransport::relay("smtp.example.com")?
 //!     // Add credentials for authentication
 //!     .credentials(Credentials::new(
 //!         "username".to_owned(),
 //!         "password".to_owned(),
 //!     ))
-//!     // Configure expected authentication mechanism
+//!     // Optionally configure expected authentication mechanism
 //!     .authentication(vec![Mechanism::Plain])
-//!     // Connection pool settings
-//!     .pool_config(PoolConfig::new().max_size(20))
 //!     .build();
 //!
 //! // Send the email via remote relay
-//! let result = sender.send(&amp;email);
-//! assert!(result.is_ok());
+//! sender.send(&amp;email)?;
 //! # Ok(())
 //! # }
 //! ```
 //!
-//! You can specify custom TLS settings:
+//! #### Shortening configuration
+//!
+//! It can be very repetitive to ask the user for every SMTP connection parameter.
+//! In some cases this can be simplified by using a connection URI instead.
+//!
+//! For more information take a look at [`SmtpTransport::from_url`] or [`AsyncSmtpTransport::from_url`].
 //!
 //! ```rust,no_run
 //! # #[cfg(all(feature = "builder", any(feature = "native-tls", feature = "rustls-tls")))]
 //! # fn test() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
 //! use lettre::{
-//!     transport::smtp::client::{Tls, TlsParameters},
+//!     message::header::ContentType,
+//!     transport::smtp::authentication::{Credentials, Mechanism},
 //!     Message, SmtpTransport, Transport,
 //! };
 //!
@@ -321,23 +358,104 @@
 //!     .reply_to("Yuin &lt;yuin@domain.tld&gt;".parse()?)
 //!     .to("Hei &lt;hei@domain.tld&gt;".parse()?)
 //!     .subject("Happy new year")
+//!     .header(ContentType::TEXT_PLAIN)
 //!     .body(String::from("Be happy!"))?;
 //!
-//! // Custom TLS configuration
-//! let tls = TlsParameters::builder("smtp.example.com".to_owned())
-//!     .dangerous_accept_invalid_certs(true)
+//! // Create the SMTPS transport
+//! let sender = SmtpTransport::from_url("smtps://username:password@smtp.example.com")?.build();
+//!
+//! // Send the email via remote relay
+//! sender.send(&amp;email)?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! #### Advanced configuration with custom TLS settings
+//!
+//! ```rust,no_run
+//! # #[cfg(all(feature = "builder", any(feature = "native-tls", feature = "rustls-tls")))]
+//! # fn test() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+//! use std::fs;
+//!
+//! use lettre::{
+//!     message::header::ContentType,
+//!     transport::smtp::client::{Certificate, Tls, TlsParameters},
+//!     Message, SmtpTransport, Transport,
+//! };
+//!
+//! let email = Message::builder()
+//!     .from("NoBody &lt;nobody@domain.tld&gt;".parse()?)
+//!     .reply_to("Yuin &lt;yuin@domain.tld&gt;".parse()?)
+//!     .to("Hei &lt;hei@domain.tld&gt;".parse()?)
+//!     .subject("Happy new year")
+//!     .header(ContentType::TEXT_PLAIN)
+//!     .body(String::from("Be happy!"))?;
+//!
+//! // Custom TLS configuration - Use a self signed certificate
+//! let cert = fs::read("self-signed.crt")?;
+//! let cert = Certificate::from_pem(&amp;cert)?;
+//! let tls = TlsParameters::builder(/* TLS SNI value */ "smtp.example.com".to_owned())
+//!     .add_root_certificate(cert)
 //!     .build()?;
 //!
-//! // Create TLS transport on port 465
+//! // Create the SMTPS transport
 //! let sender = SmtpTransport::relay("smtp.example.com")?
-//!     // Custom TLS configuration
-//!     .tls(Tls::Required(tls))
+//!     .tls(Tls::Wrapper(tls))
 //!     .build();
 //!
 //! // Send the email via remote relay
-//! let result = sender.send(&amp;email);
-//! assert!(result.is_ok());
+//! sender.send(&amp;email)?;
 //! # Ok(())
+//! # }
+//! ```
+//!
+//! #### Connection pooling
+//!
+//! [`SmtpTransport`] and [`AsyncSmtpTransport`] store connections in
+//! a connection pool by default. This avoids connecting and disconnecting
+//! from the relay server for every message the application tries to send. For the connection pool
+//! to work the instance of the transport **must** be reused.
+//! In a webserver context it may go about this:
+//!
+//! ```rust,no_run
+//! # #[cfg(all(feature = "builder", any(feature = "native-tls", feature = "rustls-tls")))]
+//! # fn test() {
+//! use lettre::{
+//!     message::header::ContentType,
+//!     transport::smtp::{authentication::Credentials, PoolConfig},
+//!     Message, SmtpTransport, Transport,
+//! };
+//! #
+//! # type Result&lt;T&gt; = std::result::Result&lt;T, Box&lt;dyn std::error::Error&gt;&gt;;
+//!
+//! /// The global application state
+//! #[derive(Debug)]
+//! struct AppState {
+//!     smtp: SmtpTransport,
+//!     // ... other global application parameters
+//! }
+//!
+//! impl AppState {
+//!     pub fn new(smtp_url: &amp;str) -&gt; Result&lt;Self&gt; {
+//!         let smtp = SmtpTransport::from_url(smtp_url)?.build();
+//!         Ok(Self { smtp })
+//!     }
+//! }
+//!
+//! fn handle_request(app_state: &amp;AppState) -&gt; Result&lt;String&gt; {
+//!     let email = Message::builder()
+//!         .from("NoBody &lt;nobody@domain.tld&gt;".parse()?)
+//!         .reply_to("Yuin &lt;yuin@domain.tld&gt;".parse()?)
+//!         .to("Hei &lt;hei@domain.tld&gt;".parse()?)
+//!         .subject("Happy new year")
+//!         .header(ContentType::TEXT_PLAIN)
+//!         .body(String::from("Be happy!"))?;
+//!
+//!     // Send the email via remote relay
+//!     app_state.smtp.send(&amp;email)?;
+//!
+//!     Ok("The email has successfully been sent!".to_owned())
+//! }
 //! # }
 //! ```
 

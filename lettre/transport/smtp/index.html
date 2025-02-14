@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="The SMTP transport sends emails using the SMTP protocol."><title>lettre::transport::smtp - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button><a class="logo-container" href="../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt=""></a></nav><nav class="sidebar"><div class="sidebar-crate"><a class="logo-container" href="../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><h2><a href="../../../lettre/index.html">lettre</a><span class="version">0.11.11</span></h2></div><h2 class="location"><a href="#">Module smtp</a></h2><div class="sidebar-elems"><section><ul class="block"><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#constants">Constants</a></li></ul></section><h2><a href="../index.html">In lettre::<wbr>transport</a></h2></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Module <a href="../../index.html">lettre</a>::<wbr><a href="../index.html">transport</a>::<wbr><a class="mod" href="#">smtp</a><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><span class="out-of-band"><a class="src" href="../../../src/lettre/transport/smtp/mod.rs.html#1-213">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>The SMTP transport sends emails using the SMTP protocol.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="The SMTP transport sends emails using the SMTP protocol."><title>lettre::transport::smtp - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button><a class="logo-container" href="../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt=""></a></nav><nav class="sidebar"><div class="sidebar-crate"><a class="logo-container" href="../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><h2><a href="../../../lettre/index.html">lettre</a><span class="version">0.11.12</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module smtp</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#smtp-transport" title="SMTP Transport">SMTP Transport</a></li><li><a href="#simple-example-with-authentication" title="Simple example with authentication">Simple example with authentication</a></li><li><a href="#shortening-configuration" title="Shortening configuration">Shortening configuration</a></li><li><a href="#advanced-configuration-with-custom-tls-settings" title="Advanced configuration with custom TLS settings">Advanced configuration with custom TLS settings</a></li><li><a href="#connection-pooling" title="Connection pooling">Connection pooling</a></li></ul><h3><a href="#modules">Module Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#constants" title="Constants">Constants</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In lettre::<wbr>transport</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><span class="rustdoc-breadcrumbs"><a href="../../index.html">lettre</a>::<wbr><a href="../index.html">transport</a></span><h1>Module <span>smtp</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/lettre/transport/smtp/mod.rs.html#1-272">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>The SMTP transport sends emails using the SMTP protocol.</p>
 <p>This SMTP client follows <a href="https://tools.ietf.org/html/rfc5321">RFC
 5321</a>, and is designed to efficiently send emails from an
 application to a relay email server, as it relies as much as possible on the relay server
@@ -20,31 +20,13 @@ for sanity and RFC compliance checks.</p>
 <p>This client is designed to send emails to a relay server, and should <em>not</em> be used to send
 emails directly to the destination server.</p>
 <p>The relay server can be the local email server, a specific host or a third-party service.</p>
-<h5 id="simple-example"><a class="doc-anchor" href="#simple-example">§</a>Simple example</h5>
-<p>This is the most basic example of usage:</p>
-
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>lettre::{Message, SmtpTransport, Transport};
-
-<span class="kw">let </span>email = Message::builder()
-    .from(<span class="string">"NoBody &lt;nobody@domain.tld&gt;"</span>.parse()<span class="question-mark">?</span>)
-    .reply_to(<span class="string">"Yuin &lt;yuin@domain.tld&gt;"</span>.parse()<span class="question-mark">?</span>)
-    .to(<span class="string">"Hei &lt;hei@domain.tld&gt;"</span>.parse()<span class="question-mark">?</span>)
-    .subject(<span class="string">"Happy new year"</span>)
-    .body(String::from(<span class="string">"Be happy!"</span>))<span class="question-mark">?</span>;
-
-<span class="comment">// Create TLS transport on port 465
-</span><span class="kw">let </span>sender = SmtpTransport::relay(<span class="string">"smtp.example.com"</span>)<span class="question-mark">?</span>.build();
-<span class="comment">// Send the email via remote relay
-</span><span class="kw">let </span>result = sender.send(<span class="kw-2">&amp;</span>email);
-<span class="macro">assert!</span>(result.is_ok());</code></pre></div>
-<h5 id="authentication"><a class="doc-anchor" href="#authentication">§</a>Authentication</h5>
-<p>Example with authentication and connection pool:</p>
+<h5 id="simple-example-with-authentication"><a class="doc-anchor" href="#simple-example-with-authentication">§</a>Simple example with authentication</h5>
+<p>A good starting point for sending emails via SMTP relay is to
+do the following:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>lettre::{
-    transport::smtp::{
-        authentication::{Credentials, Mechanism},
-        PoolConfig,
-    },
+    message::header::ContentType,
+    transport::smtp::authentication::{Credentials, Mechanism},
     Message, SmtpTransport, Transport,
 };
 
@@ -53,28 +35,30 @@ emails directly to the destination server.</p>
     .reply_to(<span class="string">"Yuin &lt;yuin@domain.tld&gt;"</span>.parse()<span class="question-mark">?</span>)
     .to(<span class="string">"Hei &lt;hei@domain.tld&gt;"</span>.parse()<span class="question-mark">?</span>)
     .subject(<span class="string">"Happy new year"</span>)
+    .header(ContentType::TEXT_PLAIN)
     .body(String::from(<span class="string">"Be happy!"</span>))<span class="question-mark">?</span>;
 
-<span class="comment">// Create TLS transport on port 587 with STARTTLS
-</span><span class="kw">let </span>sender = SmtpTransport::starttls_relay(<span class="string">"smtp.example.com"</span>)<span class="question-mark">?
+<span class="comment">// Create the SMTPS transport
+</span><span class="kw">let </span>sender = SmtpTransport::relay(<span class="string">"smtp.example.com"</span>)<span class="question-mark">?
     </span><span class="comment">// Add credentials for authentication
     </span>.credentials(Credentials::new(
         <span class="string">"username"</span>.to_owned(),
         <span class="string">"password"</span>.to_owned(),
     ))
-    <span class="comment">// Configure expected authentication mechanism
+    <span class="comment">// Optionally configure expected authentication mechanism
     </span>.authentication(<span class="macro">vec!</span>[Mechanism::Plain])
-    <span class="comment">// Connection pool settings
-    </span>.pool_config(PoolConfig::new().max_size(<span class="number">20</span>))
     .build();
 
 <span class="comment">// Send the email via remote relay
-</span><span class="kw">let </span>result = sender.send(<span class="kw-2">&amp;</span>email);
-<span class="macro">assert!</span>(result.is_ok());</code></pre></div>
-<p>You can specify custom TLS settings:</p>
+</span>sender.send(<span class="kw-2">&amp;</span>email)<span class="question-mark">?</span>;</code></pre></div>
+<h5 id="shortening-configuration"><a class="doc-anchor" href="#shortening-configuration">§</a>Shortening configuration</h5>
+<p>It can be very repetitive to ask the user for every SMTP connection parameter.
+In some cases this can be simplified by using a connection URI instead.</p>
+<p>For more information take a look at <a href="struct.SmtpTransport.html#method.from_url" title="associated function lettre::transport::smtp::SmtpTransport::from_url"><code>SmtpTransport::from_url</code></a> or [<code>AsyncSmtpTransport::from_url</code>].</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>lettre::{
-    transport::smtp::client::{Tls, TlsParameters},
+    message::header::ContentType,
+    transport::smtp::authentication::{Credentials, Mechanism},
     Message, SmtpTransport, Transport,
 };
 
@@ -83,22 +67,86 @@ emails directly to the destination server.</p>
     .reply_to(<span class="string">"Yuin &lt;yuin@domain.tld&gt;"</span>.parse()<span class="question-mark">?</span>)
     .to(<span class="string">"Hei &lt;hei@domain.tld&gt;"</span>.parse()<span class="question-mark">?</span>)
     .subject(<span class="string">"Happy new year"</span>)
+    .header(ContentType::TEXT_PLAIN)
     .body(String::from(<span class="string">"Be happy!"</span>))<span class="question-mark">?</span>;
 
-<span class="comment">// Custom TLS configuration
-</span><span class="kw">let </span>tls = TlsParameters::builder(<span class="string">"smtp.example.com"</span>.to_owned())
-    .dangerous_accept_invalid_certs(<span class="bool-val">true</span>)
+<span class="comment">// Create the SMTPS transport
+</span><span class="kw">let </span>sender = SmtpTransport::from_url(<span class="string">"smtps://username:password@smtp.example.com"</span>)<span class="question-mark">?</span>.build();
+
+<span class="comment">// Send the email via remote relay
+</span>sender.send(<span class="kw-2">&amp;</span>email)<span class="question-mark">?</span>;</code></pre></div>
+<h5 id="advanced-configuration-with-custom-tls-settings"><a class="doc-anchor" href="#advanced-configuration-with-custom-tls-settings">§</a>Advanced configuration with custom TLS settings</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::fs;
+
+<span class="kw">use </span>lettre::{
+    message::header::ContentType,
+    transport::smtp::client::{Certificate, Tls, TlsParameters},
+    Message, SmtpTransport, Transport,
+};
+
+<span class="kw">let </span>email = Message::builder()
+    .from(<span class="string">"NoBody &lt;nobody@domain.tld&gt;"</span>.parse()<span class="question-mark">?</span>)
+    .reply_to(<span class="string">"Yuin &lt;yuin@domain.tld&gt;"</span>.parse()<span class="question-mark">?</span>)
+    .to(<span class="string">"Hei &lt;hei@domain.tld&gt;"</span>.parse()<span class="question-mark">?</span>)
+    .subject(<span class="string">"Happy new year"</span>)
+    .header(ContentType::TEXT_PLAIN)
+    .body(String::from(<span class="string">"Be happy!"</span>))<span class="question-mark">?</span>;
+
+<span class="comment">// Custom TLS configuration - Use a self signed certificate
+</span><span class="kw">let </span>cert = fs::read(<span class="string">"self-signed.crt"</span>)<span class="question-mark">?</span>;
+<span class="kw">let </span>cert = Certificate::from_pem(<span class="kw-2">&amp;</span>cert)<span class="question-mark">?</span>;
+<span class="kw">let </span>tls = TlsParameters::builder(<span class="comment">/* TLS SNI value */ </span><span class="string">"smtp.example.com"</span>.to_owned())
+    .add_root_certificate(cert)
     .build()<span class="question-mark">?</span>;
 
-<span class="comment">// Create TLS transport on port 465
+<span class="comment">// Create the SMTPS transport
 </span><span class="kw">let </span>sender = SmtpTransport::relay(<span class="string">"smtp.example.com"</span>)<span class="question-mark">?
-    </span><span class="comment">// Custom TLS configuration
-    </span>.tls(Tls::Required(tls))
+    </span>.tls(Tls::Wrapper(tls))
     .build();
 
 <span class="comment">// Send the email via remote relay
-</span><span class="kw">let </span>result = sender.send(<span class="kw-2">&amp;</span>email);
-<span class="macro">assert!</span>(result.is_ok());</code></pre></div>
+</span>sender.send(<span class="kw-2">&amp;</span>email)<span class="question-mark">?</span>;</code></pre></div>
+<h5 id="connection-pooling"><a class="doc-anchor" href="#connection-pooling">§</a>Connection pooling</h5>
+<p><a href="struct.SmtpTransport.html" title="struct lettre::transport::smtp::SmtpTransport"><code>SmtpTransport</code></a> and [<code>AsyncSmtpTransport</code>] store connections in
+a connection pool by default. This avoids connecting and disconnecting
+from the relay server for every message the application tries to send. For the connection pool
+to work the instance of the transport <strong>must</strong> be reused.
+In a webserver context it may go about this:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>lettre::{
+    message::header::ContentType,
+    transport::smtp::{authentication::Credentials, PoolConfig},
+    Message, SmtpTransport, Transport,
+};
+
+<span class="doccomment">/// The global application state
+</span><span class="attr">#[derive(Debug)]
+</span><span class="kw">struct </span>AppState {
+    smtp: SmtpTransport,
+    <span class="comment">// ... other global application parameters
+</span>}
+
+<span class="kw">impl </span>AppState {
+    <span class="kw">pub fn </span>new(smtp_url: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>smtp = SmtpTransport::from_url(smtp_url)<span class="question-mark">?</span>.build();
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ smtp })
+    }
+}
+
+<span class="kw">fn </span>handle_request(app_state: <span class="kw-2">&amp;</span>AppState) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+    <span class="kw">let </span>email = Message::builder()
+        .from(<span class="string">"NoBody &lt;nobody@domain.tld&gt;"</span>.parse()<span class="question-mark">?</span>)
+        .reply_to(<span class="string">"Yuin &lt;yuin@domain.tld&gt;"</span>.parse()<span class="question-mark">?</span>)
+        .to(<span class="string">"Hei &lt;hei@domain.tld&gt;"</span>.parse()<span class="question-mark">?</span>)
+        .subject(<span class="string">"Happy new year"</span>)
+        .header(ContentType::TEXT_PLAIN)
+        .body(String::from(<span class="string">"Be happy!"</span>))<span class="question-mark">?</span>;
+
+    <span class="comment">// Send the email via remote relay
+    </span>app_state.smtp.send(<span class="kw-2">&amp;</span>email)<span class="question-mark">?</span>;
+
+    <span class="prelude-val">Ok</span>(<span class="string">"The email has successfully been sent!"</span>.to_owned())
+}</code></pre></div>
 </div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="mod" href="authentication/index.html" title="mod lettre::transport::smtp::authentication">authentication</a></div><div class="desc docblock-short">Provides limited SASL authentication mechanisms</div></li><li><div class="item-name"><a class="mod" href="client/index.html" title="mod lettre::transport::smtp::client">client</a></div><div class="desc docblock-short">SMTP client</div></li><li><div class="item-name"><a class="mod" href="commands/index.html" title="mod lettre::transport::smtp::commands">commands</a></div><div class="desc docblock-short">SMTP commands</div></li><li><div class="item-name"><a class="mod" href="extension/index.html" title="mod lettre::transport::smtp::extension">extension</a></div><div class="desc docblock-short">ESMTP features</div></li><li><div class="item-name"><a class="mod" href="response/index.html" title="mod lettre::transport::smtp::response">response</a></div><div class="desc docblock-short">SMTP response, containing a mandatory return code and an optional text
-message</div></li></ul><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="struct" href="struct.Error.html" title="struct lettre::transport::smtp::Error">Error</a></div><div class="desc docblock-short">The Errors that may occur when sending an email over SMTP</div></li><li><div class="item-name"><a class="struct" href="struct.PoolConfig.html" title="struct lettre::transport::smtp::PoolConfig">Pool<wbr>Config</a></div><div class="desc docblock-short">Configuration for a connection pool</div></li><li><div class="item-name"><a class="struct" href="struct.SmtpTransport.html" title="struct lettre::transport::smtp::SmtpTransport">Smtp<wbr>Transport</a></div><div class="desc docblock-short">Sends emails using the SMTP protocol</div></li><li><div class="item-name"><a class="struct" href="struct.SmtpTransportBuilder.html" title="struct lettre::transport::smtp::SmtpTransportBuilder">Smtp<wbr>Transport<wbr>Builder</a></div><div class="desc docblock-short">Contains client configuration.
-Instances of this struct can be created using functions of <a href="struct.SmtpTransport.html" title="struct lettre::transport::smtp::SmtpTransport"><code>SmtpTransport</code></a>.</div></li></ul><h2 id="constants" class="section-header">Constants<a href="#constants" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="constant" href="constant.SMTP_PORT.html" title="constant lettre::transport::smtp::SMTP_PORT">SMTP_<wbr>PORT</a></div><div class="desc docblock-short">Default smtp port</div></li><li><div class="item-name"><a class="constant" href="constant.SUBMISSIONS_PORT.html" title="constant lettre::transport::smtp::SUBMISSIONS_PORT">SUBMISSION<wbr>S_<wbr>PORT</a></div><div class="desc docblock-short">Default submission over TLS port</div></li><li><div class="item-name"><a class="constant" href="constant.SUBMISSION_PORT.html" title="constant lettre::transport::smtp::SUBMISSION_PORT">SUBMISSIO<wbr>N_<wbr>PORT</a></div><div class="desc docblock-short">Default submission port</div></li></ul></section></div></main></body></html>
+message</div></li></ul><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="struct" href="struct.Error.html" title="struct lettre::transport::smtp::Error">Error</a></div><div class="desc docblock-short">The Errors that may occur when sending an email over SMTP</div></li><li><div class="item-name"><a class="struct" href="struct.PoolConfig.html" title="struct lettre::transport::smtp::PoolConfig">Pool<wbr>Config</a></div><div class="desc docblock-short">Configuration for a connection pool</div></li><li><div class="item-name"><a class="struct" href="struct.SmtpTransport.html" title="struct lettre::transport::smtp::SmtpTransport">Smtp<wbr>Transport</a></div><div class="desc docblock-short">Synchronously send emails using the SMTP protocol</div></li><li><div class="item-name"><a class="struct" href="struct.SmtpTransportBuilder.html" title="struct lettre::transport::smtp::SmtpTransportBuilder">Smtp<wbr>Transport<wbr>Builder</a></div><div class="desc docblock-short">Contains client configuration.
+Instances of this struct can be created using functions of <a href="struct.SmtpTransport.html" title="struct lettre::transport::smtp::SmtpTransport"><code>SmtpTransport</code></a>.</div></li></ul><h2 id="constants" class="section-header">Constants<a href="#constants" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="constant" href="constant.SMTP_PORT.html" title="constant lettre::transport::smtp::SMTP_PORT">SMTP_<wbr>PORT</a></div><div class="desc docblock-short">Default smtp port</div></li><li><div class="item-name"><a class="constant" href="constant.SUBMISSIONS_PORT.html" title="constant lettre::transport::smtp::SUBMISSIONS_PORT">SUBMISSIONS_<wbr>PORT</a></div><div class="desc docblock-short">Default submission over TLS port</div></li><li><div class="item-name"><a class="constant" href="constant.SUBMISSION_PORT.html" title="constant lettre::transport::smtp::SUBMISSION_PORT">SUBMISSION_<wbr>PORT</a></div><div class="desc docblock-short">Default submission port</div></li></ul></section></div></main></body></html>

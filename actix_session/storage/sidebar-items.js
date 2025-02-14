@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["LoadError","SaveError","UpdateError"],"struct":["CookieSessionStore","SessionKey"],"trait":["SessionStore"]};
+window.SIDEBAR_ITEMS = {"enum":["LoadError","SaveError","UpdateError"],"fn":["generate_session_key"],"struct":["CookieSessionStore","SessionKey"],"trait":["SessionStore"]};

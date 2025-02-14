@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/derive_more-0.99.18/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="derive_more" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/derive_more-2.0.1/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="derive_more" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">derive_more/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -421,427 +422,506 @@
 <a href="#421" id="421">421</a>
 <a href="#422" id="422">422</a>
 <a href="#423" id="423">423</a>
-</pre></div><pre class="rust"><code><span class="doccomment">//! # `derive_more`
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a></pre></div><pre class="rust"><code><span class="comment">// These links overwrite the ones in `README.md`
+// to become proper intra-doc links in Rust docs.
+</span><span class="doccomment">//! [`From`]: macro@crate::From
+//! [`Into`]: macro@crate::Into
+//! [`FromStr`]: macro@crate::FromStr
+//! [`TryFrom`]: macro@crate::TryFrom
+//! [`TryInto`]: macro@crate::TryInto
+//! [`IntoIterator`]: macro@crate::IntoIterator
+//! [`AsRef`]: macro@crate::AsRef
 //!
-//! [![Build Status](https://github.com/JelteF/derive_more/workflows/CI/badge.svg)](https://github.com/JelteF/derive_more/actions)
-//! [![Latest Version](https://img.shields.io/crates/v/derive_more.svg)](https://crates.io/crates/derive_more)
-//! [![Rust Documentation](https://img.shields.io/badge/api-rustdoc-blue.svg)](https://jeltef.github.io/derive_more/derive_more/)
-//! [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/JelteF/derive_more/master/LICENSE)
-//! [![Rust 1.65+](https://img.shields.io/badge/rustc-1.65+-lightgray.svg)](https://blog.rust-lang.org/2022/11/03/Rust-1.65.0.html)
+//! [`Debug`]: macro@crate::Debug
+//! [`Display`-like]: macro@crate::Display
 //!
-//! Rust has lots of builtin traits that are implemented for its basic types, such
-//! as `Add`, `Not`, `From` or `Display`.
-//! However, when wrapping these types inside your own structs or enums you lose the
-//! implementations of these traits and are required to recreate them.
-//! This is especially annoying when your own structures are very simple, such as
-//! when using the commonly advised newtype pattern (e.g. `MyInt(i32)`).
+//! [`Error`]: macro@crate::Error
 //!
-//! This library tries to remove these annoyances and the corresponding boilerplate code.
-//! It does this by allowing you to derive lots of commonly used traits for both structs and enums.
+//! [`Index`]: macro@crate::Index
+//! [`Deref`]: macro@crate::Deref
+//! [`Not`-like]: macro@crate::Not
+//! [`Add`-like]: macro@crate::Add
+//! [`Mul`-like]: macro@crate::Mul
+//! [`Sum`-like]: macro@crate::Sum
+//! [`IndexMut`]: macro@crate::IndexMut
+//! [`DerefMut`]: macro@crate::DerefMut
+//! [`AddAssign`-like]: macro@crate::AddAssign
+//! [`MulAssign`-like]: macro@crate::MulAssign
 //!
-//! ## Example code
-//!
-//! By using this library the following code just works:
-//!
-//! ```rust
-//! extern crate derive_more;
-//! use derive_more::{Add, Display, From, Into};
-//!
-//! #[derive(PartialEq, From, Add)]
-//! struct MyInt(i32);
-//!
-//! #[derive(PartialEq, From, Into)]
-//! struct Point2D {
-//!     x: i32,
-//!     y: i32,
-//! }
-//!
-//! #[derive(PartialEq, From, Add, Display)]
-//! enum MyEnum {
-//!     #[display(fmt = "int: {}", _0)]
-//!     Int(i32),
-//!     Uint(u32),
-//!     #[display(fmt = "nothing")]
-//!     Nothing,
-//! }
-//!
-//! assert!(MyInt(11) == MyInt(5) + 6.into());
-//! assert!((5, 6) == Point2D { x: 5, y: 6 }.into());
-//! assert!(MyEnum::Int(15) == (MyEnum::Int(8) + 7.into()).unwrap());
-//! assert!(MyEnum::Int(15).to_string() == "int: 15");
-//! assert!(MyEnum::Uint(42).to_string() == "42");
-//! assert!(MyEnum::Nothing.to_string() == "nothing");
-//! ```
-//!
-//! ## The derivable traits
-//!
-//! Below are all the traits that you can derive using this library.
-//! Some trait derivations are so similar that the further documentation will only show a single one
-//! of them.
-//! You can recognize these by the "-like" suffix in their name.
-//! The trait name before that will be the only one that is used throughout the further
-//! documentation.
-//!
-//! It is important to understand what code gets generated when using one of the
-//! derives from this crate.
-//! That is why the links below explain what code gets generated for a trait for
-//! each group from before.
-//!
-//! You can use the [`cargo-expand`] utility to see the exact code that is generated
-//! for your specific type.
-//! This will show you your code with all macros and derives expanded.
-//!
-//! **NOTE**: You still have to derive each trait separately. So `#[derive(Mul)]` doesn't
-//! automatically derive `Div` as well. To derive both you should do `#[derive(Mul, Div)]`
-//!
-//! ### Conversion traits
-//!
-//! These are traits that are used to convert automatically between types.
-//!
-//! 1. [`From`]
-//! 2. [`Into`]
-//! 3. [`FromStr`]
-//! 4. [`TryInto`]
-//! 5. [`IntoIterator`]
-//! 6. [`AsRef`]
-//! 7. [`AsMut`]
-//!
-//! ### Formatting traits
-//!
-//! These traits are used for converting a struct to a string in different ways.
-//!
-//! 1. [`Display`-like], contains `Display`, `Binary`, `Octal`, `LowerHex`,
-//!    `UpperHex`, `LowerExp`, `UpperExp`, `Pointer`
-//!
-//! ### Error-handling traits
-//! These traits are used to define error-types.
-//!
-//! 1. [`Error`]
-//!
-//! ### Operators
-//!
-//! These are traits that can be used for operator overloading.
-//!
-//! 1. [`Index`]
-//! 2. [`Deref`]
-//! 3. [`Not`-like], contains `Not` and `Neg`
-//! 4. [`Add`-like], contains `Add`, `Sub`, `BitAnd`, `BitOr`, `BitXor`
-//! 5. [`Mul`-like], contains `Mul`, `Div`, `Rem`, `Shr` and `Shl`
-//! 3. [`Sum`-like], contains `Sum` and `Product`
-//! 6. [`IndexMut`]
-//! 7. [`DerefMut`]
-//! 8. [`AddAssign`-like], contains `AddAssign`, `SubAssign`, `BitAndAssign`,
-//!    `BitOrAssign` and `BitXorAssign`
-//! 9. [`MulAssign`-like], contains `MulAssign`, `DivAssign`, `RemAssign`,
-//!    `ShrAssign` and `ShlAssign`
-//!
-//! ### Static methods
-//!
-//! These don't derive traits, but derive static methods instead.
-//!
-//! 1. [`Constructor`], this derives a `new` method that can be used as a constructor.
-//!    This is very basic if you need more customization for your constructor, check
-//!    out the [`derive-new`] crate.
-//! 2. [`IsVariant`], for each variant `foo` of an enum type, derives a `is_foo` method.
-//! 3. [`Unwrap`], for each variant `foo` of an enum type, derives an `unwrap_foo` method.
-//!
-//! ## Generated code
-//!
-//! ## Installation
-//!
-//! This library requires Rust 1.65 or higher and it supports `no_std` out of the box.
-//! Then add the following to `Cargo.toml`:
-//!
-//! ```toml
-//! [dependencies]
-//! derive_more = "0.99.0"
-//! # You can specifiy the types of derives that you need for less time spent
-//! # compiling. For the full list of features see this crate its Cargo.toml.
-//! default-features = false
-//! features = ["from", "add", "iterator"]
-//! ```
-//!
-//! And this to the top of your Rust file for Rust 2018:
-//!
-//! ```rust
-//! extern crate derive_more;
-//! // use the derives that you want in the file
-//! use derive_more::{Add, Display, From};
-//! ```
-//! If you're still using Rust 2015 you should add this instead:
-//! ```rust
-//! extern crate core;
-//! #[macro_use]
-//! extern crate derive_more;
-//! # fn main(){}
-//! ```
-//!
-//! [`cargo-expand`]: https://github.com/dtolnay/cargo-expand
-//! [`derive-new`]: https://github.com/nrc/derive-new
-//!
-//! [`From`]: https://jeltef.github.io/derive_more/derive_more/from.html
-//! [`Into`]: https://jeltef.github.io/derive_more/derive_more/into.html
-//! [`FromStr`]: https://jeltef.github.io/derive_more/derive_more/from_str.html
-//! [`TryInto`]: https://jeltef.github.io/derive_more/derive_more/try_into.html
-//! [`IntoIterator`]: https://jeltef.github.io/derive_more/derive_more/into_iterator.html
-//! [`AsRef`]: https://jeltef.github.io/derive_more/derive_more/as_ref.html
-//! [`AsMut`]: https://jeltef.github.io/derive_more/derive_more/as_mut.html
-//!
-//! [`Display`-like]: https://jeltef.github.io/derive_more/derive_more/display.html
-//!
-//! [`Error`]: https://jeltef.github.io/derive_more/derive_more/error.html
-//!
-//! [`Index`]: https://jeltef.github.io/derive_more/derive_more/index_op.html
-//! [`Deref`]: https://jeltef.github.io/derive_more/derive_more/deref.html
-//! [`Not`-like]: https://jeltef.github.io/derive_more/derive_more/not.html
-//! [`Add`-like]: https://jeltef.github.io/derive_more/derive_more/add.html
-//! [`Mul`-like]: https://jeltef.github.io/derive_more/derive_more/mul.html
-//! [`Sum`-like]: https://jeltef.github.io/derive_more/derive_more/sum.html
-//! [`IndexMut`]: https://jeltef.github.io/derive_more/derive_more/index_mut.html
-//! [`DerefMut`]: https://jeltef.github.io/derive_more/derive_more/deref_mut.html
-//! [`AddAssign`-like]: https://jeltef.github.io/derive_more/derive_more/add_assign.html
-//! [`MulAssign`-like]: https://jeltef.github.io/derive_more/derive_more/mul_assign.html
-//!
-//! [`Constructor`]: https://jeltef.github.io/derive_more/derive_more/constructor.html
-//! [`IsVariant`]: https://jeltef.github.io/derive_more/derive_more/is_variant.html
-//! [`Unwrap`]: https://jeltef.github.io/derive_more/derive_more/unwrap.html
+//! [`Constructor`]: macro@crate::Constructor
+//! [`IsVariant`]: macro@crate::IsVariant
+//! [`Unwrap`]: macro@crate::Unwrap
+//! [`TryUnwrap`]: macro@crate::TryUnwrap
 
-</span><span class="attr">#![recursion_limit = <span class="string">"128"</span>]
+</span><span class="comment">// The README includes doctests requiring these features. To make sure that
+// tests pass when not all features are provided we exclude it when the
+// required features are not available.
+</span><span class="attr">#![cfg_attr(
+    all(
+        feature = <span class="string">"add"</span>,
+        feature = <span class="string">"display"</span>,
+        feature = <span class="string">"from"</span>,
+        feature = <span class="string">"into"
+    </span>),
+    doc = <span class="macro">include_str!</span>(<span class="string">"../README.md"</span>)
+)]
+#![cfg_attr(not(feature = <span class="string">"std"</span>), no_std)]
+#![cfg_attr(docsrs, feature(doc_auto_cfg))]
+#![cfg_attr(any(not(docsrs), ci), deny(rustdoc::all))]
+#![forbid(non_ascii_idents, unsafe_code)]
+#![warn(clippy::nonstandard_macro_braces)]
 
-</span><span class="kw">extern crate </span>proc_macro;
+</span><span class="comment">// For macro expansion internals only.
+// Ensures better hygiene in case a local crate `core` is present in workspace of the user code,
+// or some other crate is renamed as `core`.
+</span><span class="attr">#[doc(hidden)]
+</span><span class="kw">pub use </span>core;
 
-<span class="kw">use </span>proc_macro::TokenStream;
-<span class="kw">use </span>syn::parse::Error <span class="kw">as </span>ParseError;
+<span class="comment">// Not public, but exported API. For macro expansion internals only.
+</span><span class="attr">#[doc(hidden)]
+</span><span class="kw">pub mod </span>__private {
+    <span class="attr">#[cfg(feature = <span class="string">"as_ref"</span>)]
+    </span><span class="kw">pub use crate</span>::r#as::{Conv, ExtractRef};
 
-<span class="kw">mod </span>syn_compat;
-<span class="kw">mod </span>utils;
+    <span class="attr">#[cfg(feature = <span class="string">"debug"</span>)]
+    </span><span class="kw">pub use </span><span class="kw">crate</span>::fmt::{debug_tuple, DebugTuple};
 
-<span class="attr">#[cfg(any(feature = <span class="string">"add_assign"</span>, feature = <span class="string">"mul_assign"</span>))]
-</span><span class="kw">mod </span>add_assign_like;
-<span class="attr">#[cfg(any(
+    <span class="attr">#[cfg(feature = <span class="string">"error"</span>)]
+    </span><span class="kw">pub use </span><span class="kw">crate</span>::vendor::thiserror::aserror::AsDynError;
+}
+
+<span class="comment">// The modules containing error types and other helpers.
+
+</span><span class="attr">#[cfg(feature = <span class="string">"add"</span>)]
+</span><span class="kw">mod </span>add;
+<span class="attr">#[cfg(feature = <span class="string">"add"</span>)]
+</span><span class="kw">pub use </span><span class="kw">crate</span>::add::{BinaryError, WrongVariantError};
+
+<span class="attr">#[cfg(any(feature = <span class="string">"add"</span>, feature = <span class="string">"not"</span>))]
+</span><span class="kw">mod </span>ops;
+<span class="attr">#[cfg(any(feature = <span class="string">"add"</span>, feature = <span class="string">"not"</span>))]
+</span><span class="kw">pub use </span><span class="kw">crate</span>::ops::UnitError;
+
+<span class="attr">#[cfg(feature = <span class="string">"as_ref"</span>)]
+</span><span class="kw">mod </span>r#as;
+
+<span class="attr">#[cfg(feature = <span class="string">"debug"</span>)]
+</span><span class="kw">mod </span>fmt;
+
+<span class="attr">#[cfg(feature = <span class="string">"error"</span>)]
+</span><span class="kw">mod </span>vendor;
+
+<span class="attr">#[cfg(feature = <span class="string">"from_str"</span>)]
+</span><span class="kw">mod </span>r#str;
+<span class="attr">#[cfg(feature = <span class="string">"from_str"</span>)]
+#[doc(inline)]
+</span><span class="kw">pub use crate</span>::r#str::FromStrError;
+
+<span class="attr">#[cfg(any(feature = <span class="string">"try_into"</span>, feature = <span class="string">"try_from"</span>))]
+</span><span class="kw">mod </span>convert;
+<span class="attr">#[cfg(feature = <span class="string">"try_from"</span>)]
+#[doc(inline)]
+</span><span class="kw">pub use </span><span class="kw">crate</span>::convert::TryFromReprError;
+<span class="attr">#[cfg(feature = <span class="string">"try_into"</span>)]
+#[doc(inline)]
+</span><span class="kw">pub use </span><span class="kw">crate</span>::convert::TryIntoError;
+
+<span class="attr">#[cfg(feature = <span class="string">"try_unwrap"</span>)]
+</span><span class="kw">mod </span>try_unwrap;
+<span class="attr">#[cfg(feature = <span class="string">"try_unwrap"</span>)]
+#[doc(inline)]
+</span><span class="kw">pub use </span><span class="kw">crate</span>::try_unwrap::TryUnwrapError;
+
+<span class="comment">// This can be unused if no feature is enabled. We already error in that case, but this warning
+// distracts from that error. So we suppress the warning.
+</span><span class="attr">#[allow(unused_imports)]
+#[doc(inline)]
+</span><span class="kw">pub use </span>derive_more_impl::<span class="kw-2">*</span>;
+
+<span class="doccomment">/// Module containing derive definitions only, without their corresponding traits.
+///
+/// Use it in your import paths, if you don't want to import traits, but only macros.
+</span><span class="kw">pub mod </span>derive {
+    <span class="comment">// This can be unused if no feature is enabled. We already error in that case, but this warning
+    // distracts from that error. So we suppress the warning.
+    </span><span class="attr">#[allow(unused_imports)]
+    #[doc(inline)]
+    </span><span class="kw">pub use </span>derive_more_impl::<span class="kw-2">*</span>;
+}
+
+<span class="doccomment">/// Module containing derive definitions with their corresponding traits along.
+///
+/// Use it in your import paths, if you do want to import derives along with their traits.
+</span><span class="kw">pub mod </span>with_trait {
+    <span class="comment">// When re-exporting traits from `std` we need to do a pretty crazy trick, because we ONLY want
+    // to re-export the traits and not derives that are called the same in the `std` module, because
+    // those would conflict with our own ones. The way we do this is by first importing both the
+    // trait and possible derive into a separate module and re-export them. Then, we wildcard-import
+    // all the things from that module into the main module, but we also import our own derive by
+    // its exact name. Due to the way wildcard imports work in Rust, that results in our own derive
+    // taking precedence over any derive from `std`. For some reason the named re-export of our own
+    // derive cannot be in this (or really any) macro too. It will somehow still consider it a
+    // wildcard then and will result in this warning `ambiguous_glob_reexports`, and not actually
+    // exporting of our derive.
+    </span><span class="macro">macro_rules!</span> re_export_traits((
+        <span class="macro-nonterminal">$feature</span>:literal, <span class="macro-nonterminal">$new_module_name</span>:ident, <span class="macro-nonterminal">$module</span>:path $(, <span class="macro-nonterminal">$traits</span>:ident)* $(,)<span class="question-mark">?</span>) =&gt; {
+            <span class="attr">#[cfg(all(feature = <span class="macro-nonterminal">$feature</span>, any(not(docsrs), ci)))]
+            </span><span class="kw">mod </span><span class="macro-nonterminal">$new_module_name </span>{
+                <span class="attr">#[doc(hidden)]
+                </span><span class="kw">pub use </span><span class="macro-nonterminal">$module</span>::{$(<span class="macro-nonterminal">$traits</span>),<span class="kw-2">*</span>};
+            }
+
+            <span class="attr">#[cfg(all(feature = <span class="macro-nonterminal">$feature</span>, any(not(docsrs), ci)))]
+            #[doc(hidden)]
+            </span><span class="kw">pub use </span><span class="kw">crate</span>::with_trait::all_traits_and_derives::<span class="macro-nonterminal">$new_module_name</span>::<span class="kw-2">*</span>;
+        }
+    );
+
+    <span class="kw">mod </span>all_traits_and_derives {
+        <span class="macro">re_export_traits!</span>(
+            <span class="string">"add"</span>,
+            add_traits,
+            core::ops,
+            Add,
+            BitAnd,
+            BitOr,
+            BitXor,
+            Sub,
+        );
+        <span class="macro">re_export_traits!</span>(
+            <span class="string">"add_assign"</span>,
+            add_assign_traits,
+            core::ops,
+            AddAssign,
+            BitAndAssign,
+            BitOrAssign,
+            BitXorAssign,
+            SubAssign,
+        );
+        <span class="macro">re_export_traits!</span>(<span class="string">"as_ref"</span>, as_ref_traits, core::convert, AsMut, AsRef);
+        <span class="macro">re_export_traits!</span>(<span class="string">"debug"</span>, debug_traits, core::fmt, Debug);
+        <span class="macro">re_export_traits!</span>(<span class="string">"deref"</span>, deref_traits, core::ops, Deref);
+        <span class="macro">re_export_traits!</span>(<span class="string">"deref_mut"</span>, deref_mut_traits, core::ops, DerefMut);
+        <span class="macro">re_export_traits!</span>(
+            <span class="string">"display"</span>,
+            display_traits,
+            core::fmt,
+            Binary,
+            Display,
+            LowerExp,
+            LowerHex,
+            Octal,
+            Pointer,
+            UpperExp,
+            UpperHex,
+        );
+
+        <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
+        </span><span class="macro">re_export_traits!</span>(<span class="string">"error"</span>, error_traits, core::error, Error);
+        <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+        </span><span class="macro">re_export_traits!</span>(<span class="string">"error"</span>, error_traits, std::error, Error);
+
+        <span class="macro">re_export_traits!</span>(<span class="string">"from"</span>, from_traits, core::convert, From);
+
+        <span class="macro">re_export_traits!</span>(<span class="string">"from_str"</span>, from_str_traits, core::str, FromStr);
+
+        <span class="macro">re_export_traits!</span>(<span class="string">"index"</span>, index_traits, core::ops, Index);
+
+        <span class="macro">re_export_traits!</span>(<span class="string">"index_mut"</span>, index_mut_traits, core::ops, IndexMut);
+
+        <span class="macro">re_export_traits!</span>(<span class="string">"into"</span>, into_traits, core::convert, Into);
+
+        <span class="macro">re_export_traits!</span>(
+            <span class="string">"into_iterator"</span>,
+            into_iterator_traits,
+            core::iter,
+            IntoIterator,
+        );
+
+        <span class="macro">re_export_traits!</span>(<span class="string">"mul"</span>, mul_traits, core::ops, Div, Mul, Rem, Shl, Shr);
+
+        <span class="attr">#[cfg(feature = <span class="string">"mul_assign"</span>)]
+        </span><span class="macro">re_export_traits!</span>(
+            <span class="string">"mul_assign"</span>,
+            mul_assign_traits,
+            core::ops,
+            DivAssign,
+            MulAssign,
+            RemAssign,
+            ShlAssign,
+            ShrAssign,
+        );
+
+        <span class="macro">re_export_traits!</span>(<span class="string">"not"</span>, not_traits, core::ops, Neg, Not);
+
+        <span class="macro">re_export_traits!</span>(<span class="string">"sum"</span>, sum_traits, core::iter, Product, Sum);
+
+        <span class="macro">re_export_traits!</span>(<span class="string">"try_from"</span>, try_from_traits, core::convert, TryFrom);
+
+        <span class="macro">re_export_traits!</span>(<span class="string">"try_into"</span>, try_into_traits, core::convert, TryInto);
+
+        <span class="comment">// Now re-export our own derives by their exact name to overwrite any derives that the trait
+        // re-exporting might inadvertently pull into scope.
+        </span><span class="attr">#[cfg(feature = <span class="string">"add"</span>)]
+        </span><span class="kw">pub use </span>derive_more_impl::{Add, BitAnd, BitOr, BitXor, Sub};
+
+        <span class="attr">#[cfg(feature = <span class="string">"add_assign"</span>)]
+        </span><span class="kw">pub use </span>derive_more_impl::{
+            AddAssign, BitAndAssign, BitOrAssign, BitXorAssign, SubAssign,
+        };
+
+        <span class="attr">#[cfg(feature = <span class="string">"as_ref"</span>)]
+        </span><span class="kw">pub use </span>derive_more_impl::{AsMut, AsRef};
+
+        <span class="attr">#[cfg(feature = <span class="string">"constructor"</span>)]
+        </span><span class="kw">pub use </span>derive_more_impl::Constructor;
+
+        <span class="attr">#[cfg(feature = <span class="string">"debug"</span>)]
+        </span><span class="kw">pub use </span>derive_more_impl::Debug;
+
+        <span class="attr">#[cfg(feature = <span class="string">"deref"</span>)]
+        </span><span class="kw">pub use </span>derive_more_impl::Deref;
+
+        <span class="attr">#[cfg(feature = <span class="string">"deref_mut"</span>)]
+        </span><span class="kw">pub use </span>derive_more_impl::DerefMut;
+
+        <span class="attr">#[cfg(feature = <span class="string">"display"</span>)]
+        </span><span class="kw">pub use </span>derive_more_impl::{
+            Binary, Display, LowerExp, LowerHex, Octal, Pointer, UpperExp, UpperHex,
+        };
+
+        <span class="attr">#[cfg(feature = <span class="string">"error"</span>)]
+        </span><span class="kw">pub use </span>derive_more_impl::Error;
+
+        <span class="attr">#[cfg(feature = <span class="string">"from"</span>)]
+        </span><span class="kw">pub use </span>derive_more_impl::From;
+
+        <span class="attr">#[cfg(feature = <span class="string">"from_str"</span>)]
+        </span><span class="kw">pub use </span>derive_more_impl::FromStr;
+
+        <span class="attr">#[cfg(feature = <span class="string">"index"</span>)]
+        </span><span class="kw">pub use </span>derive_more_impl::Index;
+
+        <span class="attr">#[cfg(feature = <span class="string">"index_mut"</span>)]
+        </span><span class="kw">pub use </span>derive_more_impl::IndexMut;
+
+        <span class="attr">#[cfg(feature = <span class="string">"into"</span>)]
+        </span><span class="kw">pub use </span>derive_more_impl::Into;
+
+        <span class="attr">#[cfg(feature = <span class="string">"into_iterator"</span>)]
+        </span><span class="kw">pub use </span>derive_more_impl::IntoIterator;
+
+        <span class="attr">#[cfg(feature = <span class="string">"is_variant"</span>)]
+        </span><span class="kw">pub use </span>derive_more_impl::IsVariant;
+
+        <span class="attr">#[cfg(feature = <span class="string">"mul"</span>)]
+        </span><span class="kw">pub use </span>derive_more_impl::{Div, Mul, Rem, Shl, Shr};
+
+        <span class="attr">#[cfg(feature = <span class="string">"mul_assign"</span>)]
+        </span><span class="kw">pub use </span>derive_more_impl::{
+            DivAssign, MulAssign, RemAssign, ShlAssign, ShrAssign,
+        };
+
+        <span class="attr">#[cfg(feature = <span class="string">"not"</span>)]
+        </span><span class="kw">pub use </span>derive_more_impl::{Neg, Not};
+
+        <span class="attr">#[cfg(feature = <span class="string">"sum"</span>)]
+        </span><span class="kw">pub use </span>derive_more_impl::{Product, Sum};
+
+        <span class="attr">#[cfg(feature = <span class="string">"try_from"</span>)]
+        </span><span class="kw">pub use </span>derive_more_impl::TryFrom;
+
+        <span class="attr">#[cfg(feature = <span class="string">"try_into"</span>)]
+        </span><span class="kw">pub use </span>derive_more_impl::TryInto;
+
+        <span class="attr">#[cfg(feature = <span class="string">"try_unwrap"</span>)]
+        </span><span class="kw">pub use </span>derive_more_impl::TryUnwrap;
+
+        <span class="attr">#[cfg(feature = <span class="string">"unwrap"</span>)]
+        </span><span class="kw">pub use </span>derive_more_impl::Unwrap;
+    }
+
+    <span class="comment">// Now re-export our own derives and the std traits by their exact name to make rust-analyzer
+    // recognize the #[doc(hidden)] flag.
+    // See issues:
+    // 1. https://github.com/rust-lang/rust-analyzer/issues/11698
+    // 2. https://github.com/rust-lang/rust-analyzer/issues/14079
+    </span><span class="attr">#[cfg(feature = <span class="string">"add"</span>)]
+    #[doc(hidden)]
+    </span><span class="kw">pub use </span>all_traits_and_derives::{Add, BitAnd, BitOr, BitXor, Sub};
+
+    <span class="attr">#[cfg(feature = <span class="string">"add_assign"</span>)]
+    #[doc(hidden)]
+    </span><span class="kw">pub use </span>all_traits_and_derives::{
+        AddAssign, BitAndAssign, BitOrAssign, BitXorAssign, SubAssign,
+    };
+
+    <span class="attr">#[cfg(feature = <span class="string">"as_ref"</span>)]
+    #[doc(hidden)]
+    </span><span class="kw">pub use </span>all_traits_and_derives::{AsMut, AsRef};
+
+    <span class="attr">#[cfg(feature = <span class="string">"constructor"</span>)]
+    #[doc(hidden)]
+    </span><span class="kw">pub use </span>all_traits_and_derives::Constructor;
+
+    <span class="attr">#[cfg(feature = <span class="string">"debug"</span>)]
+    #[doc(hidden)]
+    </span><span class="kw">pub use </span>all_traits_and_derives::Debug;
+
+    <span class="attr">#[cfg(feature = <span class="string">"deref"</span>)]
+    #[doc(hidden)]
+    </span><span class="kw">pub use </span>all_traits_and_derives::Deref;
+
+    <span class="attr">#[cfg(feature = <span class="string">"deref_mut"</span>)]
+    #[doc(hidden)]
+    </span><span class="kw">pub use </span>all_traits_and_derives::DerefMut;
+
+    <span class="attr">#[cfg(feature = <span class="string">"display"</span>)]
+    #[doc(hidden)]
+    </span><span class="kw">pub use </span>all_traits_and_derives::{
+        Binary, Display, LowerExp, LowerHex, Octal, Pointer, UpperExp, UpperHex,
+    };
+
+    <span class="attr">#[cfg(feature = <span class="string">"error"</span>)]
+    #[doc(hidden)]
+    </span><span class="kw">pub use </span>all_traits_and_derives::Error;
+
+    <span class="attr">#[cfg(feature = <span class="string">"from"</span>)]
+    #[doc(hidden)]
+    </span><span class="kw">pub use </span>all_traits_and_derives::From;
+
+    <span class="attr">#[cfg(feature = <span class="string">"from_str"</span>)]
+    #[doc(hidden)]
+    </span><span class="kw">pub use </span>all_traits_and_derives::FromStr;
+
+    <span class="attr">#[cfg(feature = <span class="string">"index"</span>)]
+    #[doc(hidden)]
+    </span><span class="kw">pub use </span>all_traits_and_derives::Index;
+
+    <span class="attr">#[cfg(feature = <span class="string">"index_mut"</span>)]
+    #[doc(hidden)]
+    </span><span class="kw">pub use </span>all_traits_and_derives::IndexMut;
+
+    <span class="attr">#[cfg(feature = <span class="string">"into"</span>)]
+    #[doc(hidden)]
+    </span><span class="kw">pub use </span>all_traits_and_derives::Into;
+
+    <span class="attr">#[cfg(feature = <span class="string">"into_iterator"</span>)]
+    #[doc(hidden)]
+    </span><span class="kw">pub use </span>all_traits_and_derives::IntoIterator;
+
+    <span class="attr">#[cfg(feature = <span class="string">"is_variant"</span>)]
+    #[doc(hidden)]
+    </span><span class="kw">pub use </span>all_traits_and_derives::IsVariant;
+
+    <span class="attr">#[cfg(feature = <span class="string">"mul"</span>)]
+    #[doc(hidden)]
+    </span><span class="kw">pub use </span>all_traits_and_derives::{Div, Mul, Rem, Shl, Shr};
+
+    <span class="attr">#[cfg(feature = <span class="string">"mul_assign"</span>)]
+    #[doc(hidden)]
+    </span><span class="kw">pub use </span>all_traits_and_derives::{
+        DivAssign, MulAssign, RemAssign, ShlAssign, ShrAssign,
+    };
+
+    <span class="attr">#[cfg(feature = <span class="string">"not"</span>)]
+    #[doc(hidden)]
+    </span><span class="kw">pub use </span>all_traits_and_derives::{Neg, Not};
+
+    <span class="attr">#[cfg(feature = <span class="string">"sum"</span>)]
+    #[doc(hidden)]
+    </span><span class="kw">pub use </span>all_traits_and_derives::{Product, Sum};
+
+    <span class="attr">#[cfg(feature = <span class="string">"try_from"</span>)]
+    #[doc(hidden)]
+    </span><span class="kw">pub use </span>all_traits_and_derives::TryFrom;
+
+    <span class="attr">#[cfg(feature = <span class="string">"try_into"</span>)]
+    #[doc(hidden)]
+    </span><span class="kw">pub use </span>all_traits_and_derives::TryInto;
+
+    <span class="attr">#[cfg(feature = <span class="string">"try_unwrap"</span>)]
+    #[doc(hidden)]
+    </span><span class="kw">pub use </span>all_traits_and_derives::TryUnwrap;
+
+    <span class="attr">#[cfg(feature = <span class="string">"unwrap"</span>)]
+    #[doc(hidden)]
+    </span><span class="kw">pub use </span>all_traits_and_derives::Unwrap;
+
+    <span class="comment">// Re-export the derive macros again to show docs for our derives (but not for traits). This is
+    // done using a glob import to not hit E0252.
+    </span><span class="attr">#[allow(unused_imports)]
+    </span><span class="kw">pub use </span>derive_more_impl::<span class="kw-2">*</span>;
+}
+
+<span class="comment">// Check if any feature is enabled
+</span><span class="attr">#[cfg(not(any(
+    feature = <span class="string">"full"</span>,
     feature = <span class="string">"add"</span>,
     feature = <span class="string">"add_assign"</span>,
+    feature = <span class="string">"as_ref"</span>,
+    feature = <span class="string">"constructor"</span>,
+    feature = <span class="string">"debug"</span>,
+    feature = <span class="string">"deref"</span>,
+    feature = <span class="string">"deref_mut"</span>,
+    feature = <span class="string">"display"</span>,
+    feature = <span class="string">"error"</span>,
+    feature = <span class="string">"from"</span>,
+    feature = <span class="string">"from_str"</span>,
+    feature = <span class="string">"index"</span>,
+    feature = <span class="string">"index_mut"</span>,
+    feature = <span class="string">"into"</span>,
+    feature = <span class="string">"into_iterator"</span>,
+    feature = <span class="string">"is_variant"</span>,
     feature = <span class="string">"mul"</span>,
     feature = <span class="string">"mul_assign"</span>,
-))]
-</span><span class="kw">mod </span>add_helpers;
-<span class="attr">#[cfg(any(feature = <span class="string">"add"</span>, feature = <span class="string">"mul"</span>))]
-</span><span class="kw">mod </span>add_like;
-<span class="attr">#[cfg(feature = <span class="string">"as_mut"</span>)]
-</span><span class="kw">mod </span>as_mut;
-<span class="attr">#[cfg(feature = <span class="string">"as_ref"</span>)]
-</span><span class="kw">mod </span>as_ref;
-<span class="attr">#[cfg(feature = <span class="string">"constructor"</span>)]
-</span><span class="kw">mod </span>constructor;
-<span class="attr">#[cfg(feature = <span class="string">"deref"</span>)]
-</span><span class="kw">mod </span>deref;
-<span class="attr">#[cfg(feature = <span class="string">"deref_mut"</span>)]
-</span><span class="kw">mod </span>deref_mut;
-<span class="attr">#[cfg(feature = <span class="string">"display"</span>)]
-</span><span class="kw">mod </span>display;
-<span class="attr">#[cfg(feature = <span class="string">"error"</span>)]
-</span><span class="kw">mod </span>error;
-<span class="attr">#[cfg(feature = <span class="string">"from"</span>)]
-</span><span class="kw">mod </span>from;
-<span class="attr">#[cfg(feature = <span class="string">"from_str"</span>)]
-</span><span class="kw">mod </span>from_str;
-<span class="attr">#[cfg(feature = <span class="string">"index"</span>)]
-</span><span class="kw">mod </span>index;
-<span class="attr">#[cfg(feature = <span class="string">"index_mut"</span>)]
-</span><span class="kw">mod </span>index_mut;
-<span class="attr">#[cfg(feature = <span class="string">"into"</span>)]
-</span><span class="kw">mod </span>into;
-<span class="attr">#[cfg(feature = <span class="string">"into_iterator"</span>)]
-</span><span class="kw">mod </span>into_iterator;
-<span class="attr">#[cfg(feature = <span class="string">"is_variant"</span>)]
-</span><span class="kw">mod </span>is_variant;
-<span class="attr">#[cfg(feature = <span class="string">"mul_assign"</span>)]
-</span><span class="kw">mod </span>mul_assign_like;
-<span class="attr">#[cfg(any(feature = <span class="string">"mul"</span>, feature = <span class="string">"mul_assign"</span>))]
-</span><span class="kw">mod </span>mul_helpers;
-<span class="attr">#[cfg(feature = <span class="string">"mul"</span>)]
-</span><span class="kw">mod </span>mul_like;
-<span class="attr">#[cfg(feature = <span class="string">"not"</span>)]
-</span><span class="kw">mod </span>not_like;
-<span class="attr">#[cfg(feature = <span class="string">"display"</span>)]
-#[allow(ellipsis_inclusive_range_patterns)]
-#[allow(clippy::all)]
-</span><span class="kw">mod </span>parsing;
-<span class="attr">#[cfg(feature = <span class="string">"sum"</span>)]
-</span><span class="kw">mod </span>sum_like;
-<span class="attr">#[cfg(feature = <span class="string">"try_into"</span>)]
-</span><span class="kw">mod </span>try_into;
-<span class="attr">#[cfg(feature = <span class="string">"unwrap"</span>)]
-</span><span class="kw">mod </span>unwrap;
-
-<span class="comment">// This trait describes the possible return types of
-// the derives. A derive can generally be infallible and
-// return a TokenStream, or it can be fallible and return
-// a Result&lt;TokenStream, syn::parse::Error&gt;.
-</span><span class="kw">trait </span>Output {
-    <span class="kw">fn </span>process(<span class="self">self</span>) -&gt; TokenStream;
-}
-
-<span class="kw">impl </span>Output <span class="kw">for </span>proc_macro2::TokenStream {
-    <span class="kw">fn </span>process(<span class="self">self</span>) -&gt; TokenStream {
-        <span class="self">self</span>.into()
-    }
-}
-
-<span class="kw">impl </span>Output <span class="kw">for </span><span class="prelude-ty">Result</span>&lt;proc_macro2::TokenStream, ParseError&gt; {
-    <span class="kw">fn </span>process(<span class="self">self</span>) -&gt; TokenStream {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="prelude-val">Ok</span>(ts) =&gt; ts.into(),
-            <span class="prelude-val">Err</span>(e) =&gt; e.to_compile_error().into(),
-        }
-    }
-}
-
-<span class="macro">macro_rules!</span> create_derive(
-    (<span class="macro-nonterminal">$feature</span>:literal, <span class="macro-nonterminal">$mod_</span>:ident, <span class="macro-nonterminal">$trait_</span>:ident, <span class="macro-nonterminal">$fn_name</span>: ident $(,<span class="macro-nonterminal">$attribute</span>:ident)* $(,)<span class="question-mark">?</span>) =&gt; {
-        <span class="attr">#[cfg(feature = <span class="macro-nonterminal">$feature</span>)]
-        #[proc_macro_derive(<span class="macro-nonterminal">$trait_</span>, attributes($(<span class="macro-nonterminal">$attribute</span>),<span class="kw-2">*</span>))]
-        #[doc(hidden)]
-        </span><span class="kw">pub fn </span><span class="macro-nonterminal">$fn_name</span>(input: TokenStream) -&gt; TokenStream {
-            <span class="kw">let </span>ast = syn::parse(input).unwrap();
-            Output::process(<span class="macro-nonterminal">$mod_::expand</span>(<span class="kw-2">&amp;</span>ast, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$trait_</span>)))
-        }
-    }
-);
-
-<span class="macro">create_derive!</span>(<span class="string">"from"</span>, from, From, from_derive, from);
-
-<span class="macro">create_derive!</span>(<span class="string">"into"</span>, into, Into, into_derive, into);
-
-<span class="macro">create_derive!</span>(<span class="string">"constructor"</span>, constructor, Constructor, constructor_derive);
-
-<span class="macro">create_derive!</span>(<span class="string">"not"</span>, not_like, Not, not_derive);
-<span class="macro">create_derive!</span>(<span class="string">"not"</span>, not_like, Neg, neg_derive);
-
-<span class="macro">create_derive!</span>(<span class="string">"add"</span>, add_like, Add, add_derive);
-<span class="macro">create_derive!</span>(<span class="string">"add"</span>, add_like, Sub, sub_derive);
-<span class="macro">create_derive!</span>(<span class="string">"add"</span>, add_like, BitAnd, bit_and_derive);
-<span class="macro">create_derive!</span>(<span class="string">"add"</span>, add_like, BitOr, bit_or_derive);
-<span class="macro">create_derive!</span>(<span class="string">"add"</span>, add_like, BitXor, bit_xor_derive);
-
-<span class="macro">create_derive!</span>(<span class="string">"mul"</span>, mul_like, Mul, mul_derive, mul);
-<span class="macro">create_derive!</span>(<span class="string">"mul"</span>, mul_like, Div, div_derive, div);
-<span class="macro">create_derive!</span>(<span class="string">"mul"</span>, mul_like, Rem, rem_derive, rem);
-<span class="macro">create_derive!</span>(<span class="string">"mul"</span>, mul_like, Shr, shr_derive, shr);
-<span class="macro">create_derive!</span>(<span class="string">"mul"</span>, mul_like, Shl, shl_derive, shl);
-
-<span class="macro">create_derive!</span>(<span class="string">"add_assign"</span>, add_assign_like, AddAssign, add_assign_derive,);
-<span class="macro">create_derive!</span>(<span class="string">"add_assign"</span>, add_assign_like, SubAssign, sub_assign_derive,);
-<span class="macro">create_derive!</span>(
-    <span class="string">"add_assign"</span>,
-    add_assign_like,
-    BitAndAssign,
-    bit_and_assign_derive,
-);
-<span class="macro">create_derive!</span>(
-    <span class="string">"add_assign"</span>,
-    add_assign_like,
-    BitOrAssign,
-    bit_or_assign_derive,
-);
-<span class="macro">create_derive!</span>(
-    <span class="string">"add_assign"</span>,
-    add_assign_like,
-    BitXorAssign,
-    bit_xor_assign_derive,
-);
-
-<span class="macro">create_derive!</span>(
-    <span class="string">"mul_assign"</span>,
-    mul_assign_like,
-    MulAssign,
-    mul_assign_derive,
-    mul_assign,
-);
-<span class="macro">create_derive!</span>(
-    <span class="string">"mul_assign"</span>,
-    mul_assign_like,
-    DivAssign,
-    div_assign_derive,
-    div_assign,
-);
-<span class="macro">create_derive!</span>(
-    <span class="string">"mul_assign"</span>,
-    mul_assign_like,
-    RemAssign,
-    rem_assign_derive,
-    rem_assign,
-);
-<span class="macro">create_derive!</span>(
-    <span class="string">"mul_assign"</span>,
-    mul_assign_like,
-    ShrAssign,
-    shr_assign_derive,
-    shr_assign,
-);
-<span class="macro">create_derive!</span>(
-    <span class="string">"mul_assign"</span>,
-    mul_assign_like,
-    ShlAssign,
-    shl_assign_derive,
-    shl_assign,
-);
-
-<span class="macro">create_derive!</span>(<span class="string">"sum"</span>, sum_like, Sum, sum_derive);
-<span class="macro">create_derive!</span>(<span class="string">"sum"</span>, sum_like, Product, product_derive);
-
-<span class="macro">create_derive!</span>(<span class="string">"error"</span>, error, Error, error_derive, error);
-
-<span class="macro">create_derive!</span>(<span class="string">"from_str"</span>, from_str, FromStr, from_str_derive);
-
-<span class="macro">create_derive!</span>(<span class="string">"display"</span>, display, Display, display_derive, display);
-<span class="macro">create_derive!</span>(<span class="string">"display"</span>, display, Binary, binary_derive, binary);
-<span class="macro">create_derive!</span>(<span class="string">"display"</span>, display, Octal, octal_derive, octal);
-<span class="macro">create_derive!</span>(<span class="string">"display"</span>, display, LowerHex, lower_hex_derive, lower_hex);
-<span class="macro">create_derive!</span>(<span class="string">"display"</span>, display, UpperHex, upper_hex_derive, upper_hex);
-<span class="macro">create_derive!</span>(<span class="string">"display"</span>, display, LowerExp, lower_exp_derive, lower_exp);
-<span class="macro">create_derive!</span>(<span class="string">"display"</span>, display, UpperExp, upper_exp_derive, upper_exp);
-<span class="macro">create_derive!</span>(<span class="string">"display"</span>, display, Pointer, pointer_derive, pointer);
-<span class="macro">create_derive!</span>(<span class="string">"display"</span>, display, DebugCustom, debug_custom_derive, debug);
-
-<span class="macro">create_derive!</span>(<span class="string">"index"</span>, index, Index, index_derive, index);
-<span class="macro">create_derive!</span>(
-    <span class="string">"index_mut"</span>,
-    index_mut,
-    IndexMut,
-    index_mut_derive,
-    index_mut,
-);
-
-<span class="macro">create_derive!</span>(
-    <span class="string">"into_iterator"</span>,
-    into_iterator,
-    IntoIterator,
-    into_iterator_derive,
-    into_iterator,
-);
-
-<span class="macro">create_derive!</span>(<span class="string">"try_into"</span>, try_into, TryInto, try_into_derive, try_into);
-
-<span class="macro">create_derive!</span>(<span class="string">"deref"</span>, deref, Deref, deref_derive, deref);
-<span class="macro">create_derive!</span>(
-    <span class="string">"deref_mut"</span>,
-    deref_mut,
-    DerefMut,
-    deref_mut_derive,
-    deref_mut,
-);
-
-<span class="macro">create_derive!</span>(<span class="string">"as_ref"</span>, as_ref, AsRef, as_ref_derive, as_ref);
-<span class="macro">create_derive!</span>(<span class="string">"as_mut"</span>, as_mut, AsMut, as_mut_derive, as_mut);
-
-<span class="macro">create_derive!</span>(
-    <span class="string">"is_variant"</span>,
-    is_variant,
-    IsVariant,
-    is_variant_derive,
-    is_variant
-);
-
-<span class="macro">create_derive!</span>(<span class="string">"unwrap"</span>, unwrap, Unwrap, unwrap_derive, unwrap);
+    feature = <span class="string">"not"</span>,
+    feature = <span class="string">"sum"</span>,
+    feature = <span class="string">"try_from"</span>,
+    feature = <span class="string">"try_into"</span>,
+    feature = <span class="string">"try_unwrap"</span>,
+    feature = <span class="string">"unwrap"</span>,
+)))]
+</span><span class="macro">compile_error!</span>(
+    <span class="string">"at least one derive feature must be enabled (or the \"full\" feature enabling all the derives)"
+</span>);
 </code></pre></div></section></main></body></html>

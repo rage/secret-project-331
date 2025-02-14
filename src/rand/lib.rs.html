@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rand" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.9.0/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rand" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rand/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -212,7 +213,120 @@
 <a href="#212" id="212">212</a>
 <a href="#213" id="213">213</a>
 <a href="#214" id="214">214</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright 2018 Developers of the Rand project.
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
+<a href="#240" id="240">240</a>
+<a href="#241" id="241">241</a>
+<a href="#242" id="242">242</a>
+<a href="#243" id="243">243</a>
+<a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a></pre></div><pre class="rust"><code><span class="comment">// Copyright 2018 Developers of the Rand project.
 // Copyright 2013-2017 The Rust Project Developers.
 //
 // Licensed under the Apache License, Version 2.0 &lt;LICENSE-APACHE or
@@ -228,25 +342,24 @@
 //!
 //! # Quick Start
 //!
-//! To get you started quickly, the easiest and highest-level way to get
-//! a random value is to use [`random()`]; alternatively you can use
-//! [`thread_rng()`]. The [`Rng`] trait provides a useful API on all RNGs, while
-//! the [`distributions`] and [`seq`] modules provide further
-//! functionality on top of RNGs.
-//!
 //! ```
+//! // The prelude import enables methods we use below, specifically
+//! // Rng::random, Rng::sample, SliceRandom::shuffle and IndexedRandom::choose.
 //! use rand::prelude::*;
 //!
-//! if rand::random() { // generates a boolean
-//!     // Try printing a random unicode code point (probably a bad idea)!
-//!     println!("char: {}", rand::random::&lt;char&gt;());
-//! }
+//! // Get an RNG:
+//! let mut rng = rand::rng();
 //!
-//! let mut rng = rand::thread_rng();
-//! let y: f64 = rng.gen(); // generates a float between 0 and 1
+//! // Try printing a random unicode code point (probably a bad idea)!
+//! println!("char: '{}'", rng.random::&lt;char&gt;());
+//! // Try printing a random alphanumeric value instead!
+//! println!("alpha: '{}'", rng.sample(rand::distr::Alphanumeric) as char);
 //!
+//! // Generate and shuffle a sequence:
 //! let mut nums: Vec&lt;i32&gt; = (1..100).collect();
 //! nums.shuffle(&amp;mut rng);
+//! // And take a random pick (yes, we didn't need to shuffle first!):
+//! let _ = nums.choose(&amp;mut rng);
 //! ```
 //!
 //! # The Book
@@ -263,15 +376,22 @@
 #![deny(missing_debug_implementations)]
 #![doc(test(attr(allow(unused_variables), deny(warnings))))]
 #![no_std]
-#![cfg_attr(feature = <span class="string">"simd_support"</span>, feature(stdsimd))]
-#![cfg_attr(doc_cfg, feature(doc_cfg))]
+#![cfg_attr(feature = <span class="string">"simd_support"</span>, feature(portable_simd))]
+#![cfg_attr(
+    all(feature = <span class="string">"simd_support"</span>, target_feature = <span class="string">"avx512bw"</span>),
+    feature(stdarch_x86_avx512)
+)]
+#![cfg_attr(docsrs, feature(doc_auto_cfg))]
 #![allow(
     clippy::float_cmp,
     clippy::neg_cmp_op_on_partial_ord,
+    clippy::nonminimal_bool
 )]
 
-#[cfg(feature = <span class="string">"std"</span>)] </span><span class="kw">extern crate </span>std;
-<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)] </span><span class="kw">extern crate </span>alloc;
+#[cfg(feature = <span class="string">"alloc"</span>)]
+</span><span class="kw">extern crate </span>alloc;
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">extern crate </span>std;
 
 <span class="attr">#[allow(unused)]
 </span><span class="macro">macro_rules!</span> trace { ($(<span class="macro-nonterminal">$x</span>:tt)<span class="kw-2">*</span>) =&gt; (
@@ -305,55 +425,40 @@
 ) }
 
 <span class="comment">// Re-exports from rand_core
-</span><span class="kw">pub use </span>rand_core::{CryptoRng, Error, RngCore, SeedableRng};
+</span><span class="kw">pub use </span>rand_core::{CryptoRng, RngCore, SeedableRng, TryCryptoRng, TryRngCore};
 
 <span class="comment">// Public modules
-</span><span class="kw">pub mod </span>distributions;
+</span><span class="kw">pub mod </span>distr;
 <span class="kw">pub mod </span>prelude;
 <span class="kw">mod </span>rng;
 <span class="kw">pub mod </span>rngs;
 <span class="kw">pub mod </span>seq;
 
 <span class="comment">// Public exports
-</span><span class="attr">#[cfg(all(feature = <span class="string">"std"</span>, feature = <span class="string">"std_rng"</span>))]
-</span><span class="kw">pub use </span><span class="kw">crate</span>::rngs::thread::thread_rng;
+</span><span class="attr">#[cfg(feature = <span class="string">"thread_rng"</span>)]
+</span><span class="kw">pub use </span><span class="kw">crate</span>::rngs::thread::rng;
+
+<span class="doccomment">/// Access the thread-local generator
+///
+/// Use [`rand::rng()`](rng()) instead.
+</span><span class="attr">#[cfg(feature = <span class="string">"thread_rng"</span>)]
+#[deprecated(since = <span class="string">"0.9.0"</span>, note = <span class="string">"renamed to `rng`"</span>)]
+#[inline]
+</span><span class="kw">pub fn </span>thread_rng() -&gt; <span class="kw">crate</span>::rngs::ThreadRng {
+    rng()
+}
+
 <span class="kw">pub use </span>rng::{Fill, Rng};
 
-<span class="attr">#[cfg(all(feature = <span class="string">"std"</span>, feature = <span class="string">"std_rng"</span>))]
-</span><span class="kw">use </span><span class="kw">crate</span>::distributions::{Distribution, Standard};
+<span class="attr">#[cfg(feature = <span class="string">"thread_rng"</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::distr::{Distribution, StandardUniform};
 
-<span class="doccomment">/// Generates a random value using the thread-local random number generator.
+<span class="doccomment">/// Generate a random value using the thread-local random number generator.
 ///
-/// This is simply a shortcut for `thread_rng().gen()`. See [`thread_rng`] for
-/// documentation of the entropy source and [`Standard`] for documentation of
-/// distributions and type-specific generation.
+/// This function is shorthand for &lt;code&gt;[rng()].[random()](Rng::random)&lt;/code&gt;:
 ///
-/// # Provided implementations
-///
-/// The following types have provided implementations that
-/// generate values with the following ranges and distributions:
-///
-/// * Integers (`i32`, `u32`, `isize`, `usize`, etc.): Uniformly distributed
-///   over all values of the type.
-/// * `char`: Uniformly distributed over all Unicode scalar values, i.e. all
-///   code points in the range `0...0x10_FFFF`, except for the range
-///   `0xD800...0xDFFF` (the surrogate code points). This includes
-///   unassigned/reserved code points.
-/// * `bool`: Generates `false` or `true`, each with probability 0.5.
-/// * Floating point types (`f32` and `f64`): Uniformly distributed in the
-///   half-open range `[0, 1)`. See notes below.
-/// * Wrapping integers (`Wrapping&lt;T&gt;`), besides the type identical to their
-///   normal integer variants.
-///
-/// Also supported is the generation of the following
-/// compound types where all component types are supported:
-///
-/// *   Tuples (up to 12 elements): each element is generated sequentially.
-/// *   Arrays (up to 32 elements): each element is generated sequentially;
-///     see also [`Rng::fill`] which supports arbitrary array length for integer
-///     types and tends to be faster for `u32` and smaller types.
-/// *   `Option&lt;T&gt;` first generates a `bool`, and if true generates and returns
-///     `Some(value)` where `value: T`, otherwise returning `None`.
+/// -   See [`ThreadRng`] for documentation of the generator and security
+/// -   See [`StandardUniform`] for documentation of supported types and distributions
 ///
 /// # Examples
 ///
@@ -369,34 +474,151 @@
 /// }
 /// ```
 ///
-/// If you're calling `random()` in a loop, caching the generator as in the
-/// following example can increase performance.
+/// If you're calling `random()` repeatedly, consider using a local `rng`
+/// handle to save an initialization-check on each usage:
 ///
 /// ```
-/// use rand::Rng;
+/// use rand::Rng; // provides the `random` method
+///
+/// let mut rng = rand::rng(); // a local handle to the generator
 ///
 /// let mut v = vec![1, 2, 3];
 ///
 /// for x in v.iter_mut() {
-///     *x = rand::random()
-/// }
-///
-/// // can be made faster by caching thread_rng
-///
-/// let mut rng = rand::thread_rng();
-///
-/// for x in v.iter_mut() {
-///     *x = rng.gen();
+///     *x = rng.random();
 /// }
 /// ```
 ///
-/// [`Standard`]: distributions::Standard
-</span><span class="attr">#[cfg(all(feature = <span class="string">"std"</span>, feature = <span class="string">"std_rng"</span>))]
-#[cfg_attr(doc_cfg, doc(cfg(all(feature = <span class="string">"std"</span>, feature = <span class="string">"std_rng"</span>))))]
+/// [`StandardUniform`]: distr::StandardUniform
+/// [`ThreadRng`]: rngs::ThreadRng
+</span><span class="attr">#[cfg(feature = <span class="string">"thread_rng"</span>)]
 #[inline]
 </span><span class="kw">pub fn </span>random&lt;T&gt;() -&gt; T
-<span class="kw">where </span>Standard: Distribution&lt;T&gt; {
-    thread_rng().gen()
+<span class="kw">where
+    </span>StandardUniform: Distribution&lt;T&gt;,
+{
+    rng().random()
+}
+
+<span class="doccomment">/// Return an iterator over [`random()`] variates
+///
+/// This function is shorthand for
+/// &lt;code&gt;[rng()].[random_iter](Rng::random_iter)()&lt;/code&gt;.
+///
+/// # Example
+///
+/// ```
+/// let v: Vec&lt;i32&gt; = rand::random_iter().take(5).collect();
+/// println!("{v:?}");
+/// ```
+</span><span class="attr">#[cfg(feature = <span class="string">"thread_rng"</span>)]
+#[inline]
+</span><span class="kw">pub fn </span>random_iter&lt;T&gt;() -&gt; distr::Iter&lt;StandardUniform, rngs::ThreadRng, T&gt;
+<span class="kw">where
+    </span>StandardUniform: Distribution&lt;T&gt;,
+{
+    rng().random_iter()
+}
+
+<span class="doccomment">/// Generate a random value in the given range using the thread-local random number generator.
+///
+/// This function is shorthand for
+/// &lt;code&gt;[rng()].[random_range](Rng::random_range)(&lt;var&gt;range&lt;/var&gt;)&lt;/code&gt;.
+///
+/// # Example
+///
+/// ```
+/// let y: f32 = rand::random_range(0.0..=1e9);
+/// println!("{}", y);
+///
+/// let words: Vec&lt;&amp;str&gt; = "Mary had a little lamb".split(' ').collect();
+/// println!("{}", words[rand::random_range(..words.len())]);
+/// ```
+/// Note that the first example can also be achieved (without `collect`'ing
+/// to a `Vec`) using [`seq::IteratorRandom::choose`].
+</span><span class="attr">#[cfg(feature = <span class="string">"thread_rng"</span>)]
+#[inline]
+</span><span class="kw">pub fn </span>random_range&lt;T, R&gt;(range: R) -&gt; T
+<span class="kw">where
+    </span>T: distr::uniform::SampleUniform,
+    R: distr::uniform::SampleRange&lt;T&gt;,
+{
+    rng().random_range(range)
+}
+
+<span class="doccomment">/// Return a bool with a probability `p` of being true.
+///
+/// This function is shorthand for
+/// &lt;code&gt;[rng()].[random_bool](Rng::random_bool)(&lt;var&gt;p&lt;/var&gt;)&lt;/code&gt;.
+///
+/// # Example
+///
+/// ```
+/// println!("{}", rand::random_bool(1.0 / 3.0));
+/// ```
+///
+/// # Panics
+///
+/// If `p &lt; 0` or `p &gt; 1`.
+</span><span class="attr">#[cfg(feature = <span class="string">"thread_rng"</span>)]
+#[inline]
+#[track_caller]
+</span><span class="kw">pub fn </span>random_bool(p: f64) -&gt; bool {
+    rng().random_bool(p)
+}
+
+<span class="doccomment">/// Return a bool with a probability of `numerator/denominator` of being
+/// true.
+///
+/// That is, `random_ratio(2, 3)` has chance of 2 in 3, or about 67%, of
+/// returning true. If `numerator == denominator`, then the returned value
+/// is guaranteed to be `true`. If `numerator == 0`, then the returned
+/// value is guaranteed to be `false`.
+///
+/// See also the [`Bernoulli`] distribution, which may be faster if
+/// sampling from the same `numerator` and `denominator` repeatedly.
+///
+/// This function is shorthand for
+/// &lt;code&gt;[rng()].[random_ratio](Rng::random_ratio)(&lt;var&gt;numerator&lt;/var&gt;, &lt;var&gt;denominator&lt;/var&gt;)&lt;/code&gt;.
+///
+/// # Panics
+///
+/// If `denominator == 0` or `numerator &gt; denominator`.
+///
+/// # Example
+///
+/// ```
+/// println!("{}", rand::random_ratio(2, 3));
+/// ```
+///
+/// [`Bernoulli`]: distr::Bernoulli
+</span><span class="attr">#[cfg(feature = <span class="string">"thread_rng"</span>)]
+#[inline]
+#[track_caller]
+</span><span class="kw">pub fn </span>random_ratio(numerator: u32, denominator: u32) -&gt; bool {
+    rng().random_ratio(numerator, denominator)
+}
+
+<span class="doccomment">/// Fill any type implementing [`Fill`] with random data
+///
+/// This function is shorthand for
+/// &lt;code&gt;[rng()].[fill](Rng::fill)(&lt;var&gt;dest&lt;/var&gt;)&lt;/code&gt;.
+///
+/// # Example
+///
+/// ```
+/// let mut arr = [0i8; 20];
+/// rand::fill(&amp;mut arr[..]);
+/// ```
+///
+/// Note that you can instead use [`random()`] to generate an array of random
+/// data, though this is slower for small elements (smaller than the RNG word
+/// size).
+</span><span class="attr">#[cfg(feature = <span class="string">"thread_rng"</span>)]
+#[inline]
+#[track_caller]
+</span><span class="kw">pub fn </span>fill&lt;T: Fill + <span class="question-mark">?</span>Sized&gt;(dest: <span class="kw-2">&amp;mut </span>T) {
+    dest.fill(<span class="kw-2">&amp;mut </span>rng())
 }
 
 <span class="attr">#[cfg(test)]
@@ -412,18 +634,24 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(all(feature = <span class="string">"std"</span>, feature = <span class="string">"std_rng"</span>))]
+    #[cfg(feature = <span class="string">"thread_rng"</span>)]
     </span><span class="kw">fn </span>test_random() {
-        <span class="kw">let </span>_n: usize = random();
+        <span class="kw">let </span>_n: u64 = random();
         <span class="kw">let </span>_f: f32 = random();
-        <span class="kw">let </span>_o: <span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Option</span>&lt;i8&gt;&gt; = random();
         <span class="attr">#[allow(clippy::type_complexity)]
         </span><span class="kw">let </span>_many: (
             (),
-            (usize, isize, <span class="prelude-ty">Option</span>&lt;(u32, (bool,))&gt;),
+            [(u32, bool); <span class="number">3</span>],
             (u8, i8, u16, i16, u32, i32, u64, i64),
             (f32, (f64, (f64,))),
         ) = random();
+    }
+
+    <span class="attr">#[test]
+    #[cfg(feature = <span class="string">"thread_rng"</span>)]
+    </span><span class="kw">fn </span>test_range() {
+        <span class="kw">let </span>_n: usize = random_range(<span class="number">42</span>..=<span class="number">43</span>);
+        <span class="kw">let </span>_f: f32 = random_range(<span class="number">42.0</span>..<span class="number">43.0</span>);
     }
 }
 </code></pre></div></section></main></body></html>

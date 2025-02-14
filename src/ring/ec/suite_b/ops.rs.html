@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.8/src/ec/suite_b/ops.rs`."><title>ops.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.9/src/ec/suite_b/ops.rs`."><title>ops.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ring/ec/suite_b/</div>ops.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1216,7 +1217,188 @@
 <a href="#1216" id="1216">1216</a>
 <a href="#1217" id="1217">1217</a>
 <a href="#1218" id="1218">1218</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright 2016 Brian Smith.
+<a href="#1219" id="1219">1219</a>
+<a href="#1220" id="1220">1220</a>
+<a href="#1221" id="1221">1221</a>
+<a href="#1222" id="1222">1222</a>
+<a href="#1223" id="1223">1223</a>
+<a href="#1224" id="1224">1224</a>
+<a href="#1225" id="1225">1225</a>
+<a href="#1226" id="1226">1226</a>
+<a href="#1227" id="1227">1227</a>
+<a href="#1228" id="1228">1228</a>
+<a href="#1229" id="1229">1229</a>
+<a href="#1230" id="1230">1230</a>
+<a href="#1231" id="1231">1231</a>
+<a href="#1232" id="1232">1232</a>
+<a href="#1233" id="1233">1233</a>
+<a href="#1234" id="1234">1234</a>
+<a href="#1235" id="1235">1235</a>
+<a href="#1236" id="1236">1236</a>
+<a href="#1237" id="1237">1237</a>
+<a href="#1238" id="1238">1238</a>
+<a href="#1239" id="1239">1239</a>
+<a href="#1240" id="1240">1240</a>
+<a href="#1241" id="1241">1241</a>
+<a href="#1242" id="1242">1242</a>
+<a href="#1243" id="1243">1243</a>
+<a href="#1244" id="1244">1244</a>
+<a href="#1245" id="1245">1245</a>
+<a href="#1246" id="1246">1246</a>
+<a href="#1247" id="1247">1247</a>
+<a href="#1248" id="1248">1248</a>
+<a href="#1249" id="1249">1249</a>
+<a href="#1250" id="1250">1250</a>
+<a href="#1251" id="1251">1251</a>
+<a href="#1252" id="1252">1252</a>
+<a href="#1253" id="1253">1253</a>
+<a href="#1254" id="1254">1254</a>
+<a href="#1255" id="1255">1255</a>
+<a href="#1256" id="1256">1256</a>
+<a href="#1257" id="1257">1257</a>
+<a href="#1258" id="1258">1258</a>
+<a href="#1259" id="1259">1259</a>
+<a href="#1260" id="1260">1260</a>
+<a href="#1261" id="1261">1261</a>
+<a href="#1262" id="1262">1262</a>
+<a href="#1263" id="1263">1263</a>
+<a href="#1264" id="1264">1264</a>
+<a href="#1265" id="1265">1265</a>
+<a href="#1266" id="1266">1266</a>
+<a href="#1267" id="1267">1267</a>
+<a href="#1268" id="1268">1268</a>
+<a href="#1269" id="1269">1269</a>
+<a href="#1270" id="1270">1270</a>
+<a href="#1271" id="1271">1271</a>
+<a href="#1272" id="1272">1272</a>
+<a href="#1273" id="1273">1273</a>
+<a href="#1274" id="1274">1274</a>
+<a href="#1275" id="1275">1275</a>
+<a href="#1276" id="1276">1276</a>
+<a href="#1277" id="1277">1277</a>
+<a href="#1278" id="1278">1278</a>
+<a href="#1279" id="1279">1279</a>
+<a href="#1280" id="1280">1280</a>
+<a href="#1281" id="1281">1281</a>
+<a href="#1282" id="1282">1282</a>
+<a href="#1283" id="1283">1283</a>
+<a href="#1284" id="1284">1284</a>
+<a href="#1285" id="1285">1285</a>
+<a href="#1286" id="1286">1286</a>
+<a href="#1287" id="1287">1287</a>
+<a href="#1288" id="1288">1288</a>
+<a href="#1289" id="1289">1289</a>
+<a href="#1290" id="1290">1290</a>
+<a href="#1291" id="1291">1291</a>
+<a href="#1292" id="1292">1292</a>
+<a href="#1293" id="1293">1293</a>
+<a href="#1294" id="1294">1294</a>
+<a href="#1295" id="1295">1295</a>
+<a href="#1296" id="1296">1296</a>
+<a href="#1297" id="1297">1297</a>
+<a href="#1298" id="1298">1298</a>
+<a href="#1299" id="1299">1299</a>
+<a href="#1300" id="1300">1300</a>
+<a href="#1301" id="1301">1301</a>
+<a href="#1302" id="1302">1302</a>
+<a href="#1303" id="1303">1303</a>
+<a href="#1304" id="1304">1304</a>
+<a href="#1305" id="1305">1305</a>
+<a href="#1306" id="1306">1306</a>
+<a href="#1307" id="1307">1307</a>
+<a href="#1308" id="1308">1308</a>
+<a href="#1309" id="1309">1309</a>
+<a href="#1310" id="1310">1310</a>
+<a href="#1311" id="1311">1311</a>
+<a href="#1312" id="1312">1312</a>
+<a href="#1313" id="1313">1313</a>
+<a href="#1314" id="1314">1314</a>
+<a href="#1315" id="1315">1315</a>
+<a href="#1316" id="1316">1316</a>
+<a href="#1317" id="1317">1317</a>
+<a href="#1318" id="1318">1318</a>
+<a href="#1319" id="1319">1319</a>
+<a href="#1320" id="1320">1320</a>
+<a href="#1321" id="1321">1321</a>
+<a href="#1322" id="1322">1322</a>
+<a href="#1323" id="1323">1323</a>
+<a href="#1324" id="1324">1324</a>
+<a href="#1325" id="1325">1325</a>
+<a href="#1326" id="1326">1326</a>
+<a href="#1327" id="1327">1327</a>
+<a href="#1328" id="1328">1328</a>
+<a href="#1329" id="1329">1329</a>
+<a href="#1330" id="1330">1330</a>
+<a href="#1331" id="1331">1331</a>
+<a href="#1332" id="1332">1332</a>
+<a href="#1333" id="1333">1333</a>
+<a href="#1334" id="1334">1334</a>
+<a href="#1335" id="1335">1335</a>
+<a href="#1336" id="1336">1336</a>
+<a href="#1337" id="1337">1337</a>
+<a href="#1338" id="1338">1338</a>
+<a href="#1339" id="1339">1339</a>
+<a href="#1340" id="1340">1340</a>
+<a href="#1341" id="1341">1341</a>
+<a href="#1342" id="1342">1342</a>
+<a href="#1343" id="1343">1343</a>
+<a href="#1344" id="1344">1344</a>
+<a href="#1345" id="1345">1345</a>
+<a href="#1346" id="1346">1346</a>
+<a href="#1347" id="1347">1347</a>
+<a href="#1348" id="1348">1348</a>
+<a href="#1349" id="1349">1349</a>
+<a href="#1350" id="1350">1350</a>
+<a href="#1351" id="1351">1351</a>
+<a href="#1352" id="1352">1352</a>
+<a href="#1353" id="1353">1353</a>
+<a href="#1354" id="1354">1354</a>
+<a href="#1355" id="1355">1355</a>
+<a href="#1356" id="1356">1356</a>
+<a href="#1357" id="1357">1357</a>
+<a href="#1358" id="1358">1358</a>
+<a href="#1359" id="1359">1359</a>
+<a href="#1360" id="1360">1360</a>
+<a href="#1361" id="1361">1361</a>
+<a href="#1362" id="1362">1362</a>
+<a href="#1363" id="1363">1363</a>
+<a href="#1364" id="1364">1364</a>
+<a href="#1365" id="1365">1365</a>
+<a href="#1366" id="1366">1366</a>
+<a href="#1367" id="1367">1367</a>
+<a href="#1368" id="1368">1368</a>
+<a href="#1369" id="1369">1369</a>
+<a href="#1370" id="1370">1370</a>
+<a href="#1371" id="1371">1371</a>
+<a href="#1372" id="1372">1372</a>
+<a href="#1373" id="1373">1373</a>
+<a href="#1374" id="1374">1374</a>
+<a href="#1375" id="1375">1375</a>
+<a href="#1376" id="1376">1376</a>
+<a href="#1377" id="1377">1377</a>
+<a href="#1378" id="1378">1378</a>
+<a href="#1379" id="1379">1379</a>
+<a href="#1380" id="1380">1380</a>
+<a href="#1381" id="1381">1381</a>
+<a href="#1382" id="1382">1382</a>
+<a href="#1383" id="1383">1383</a>
+<a href="#1384" id="1384">1384</a>
+<a href="#1385" id="1385">1385</a>
+<a href="#1386" id="1386">1386</a>
+<a href="#1387" id="1387">1387</a>
+<a href="#1388" id="1388">1388</a>
+<a href="#1389" id="1389">1389</a>
+<a href="#1390" id="1390">1390</a>
+<a href="#1391" id="1391">1391</a>
+<a href="#1392" id="1392">1392</a>
+<a href="#1393" id="1393">1393</a>
+<a href="#1394" id="1394">1394</a>
+<a href="#1395" id="1395">1395</a>
+<a href="#1396" id="1396">1396</a>
+<a href="#1397" id="1397">1397</a>
+<a href="#1398" id="1398">1398</a>
+<a href="#1399" id="1399">1399</a>
+<a href="#1400" id="1400">1400</a></pre></div><pre class="rust"><code><span class="comment">// Copyright 2016 Brian Smith.
 //
 // Permission to use, copy, modify, and/or distribute this software for any
 // purpose with or without fee is hereby granted, provided that the above
@@ -1230,14 +1412,22 @@
 // OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
 // CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-</span><span class="kw">use crate</span>::{arithmetic::limbs_from_hex, arithmetic::montgomery::<span class="kw-2">*</span>, error, limb::<span class="kw-2">*</span>};
+</span><span class="kw">use crate</span>::{
+    arithmetic::limbs_from_hex,
+    arithmetic::montgomery::<span class="kw-2">*</span>,
+    constant_time::LeakyWord,
+    cpu,
+    error::{<span class="self">self</span>, LenMismatchError},
+    limb::<span class="kw-2">*</span>,
+};
 <span class="kw">use </span>core::marker::PhantomData;
 
-<span class="kw">pub use </span><span class="self">self</span>::elem::<span class="kw-2">*</span>;
+<span class="kw">use </span>elem::{mul_mont, unary_op, unary_op_assign, unary_op_from_binary_op_assign};
 
 <span class="doccomment">/// A field element, i.e. an element of ℤ/qℤ for the curve's field modulus
 /// *q*.
 </span><span class="kw">pub type </span>Elem&lt;E&gt; = elem::Elem&lt;Q, E&gt;;
+<span class="kw">type </span>PublicElem&lt;E&gt; = elem::PublicElem&lt;Q, E&gt;;
 
 <span class="doccomment">/// Represents the (prime) order *q* of the curve's prime field.
 </span><span class="attr">#[derive(Clone, Copy)]
@@ -1246,10 +1436,20 @@
 <span class="doccomment">/// A scalar. Its value is in [0, n). Zero-valued scalars are forbidden in most
 /// contexts.
 </span><span class="kw">pub type </span>Scalar&lt;E = Unencoded&gt; = elem::Elem&lt;N, E&gt;;
+<span class="kw">type </span>PublicScalar&lt;E&gt; = elem::PublicElem&lt;N, E&gt;;
 
 <span class="doccomment">/// Represents the prime order *n* of the curve's group.
 </span><span class="attr">#[derive(Clone, Copy)]
 </span><span class="kw">pub enum </span>N {}
+
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct </span>Modulus&lt;M&gt; {
+    <span class="comment">// TODO: [Limb; elem::NumLimbs::MAX]
+    </span>limbs: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[Limb; elem::NumLimbs::MAX],
+    num_limbs: elem::NumLimbs,
+    cops: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>CommonOps,
+    m: PhantomData&lt;M&gt;,
+    cpu: cpu::Features,
+}
 
 <span class="kw">pub struct </span>Point {
     <span class="comment">// The coordinates are stored in a contiguous array, where the first
@@ -1257,69 +1457,145 @@
     // `ops.num_limbs` elements are the Y coordinate, and the next
     // `ops.num_limbs` elements are the Z coordinate. This layout is dictated
     // by the requirements of the nistz256 code.
-    </span>xyz: [Limb; <span class="number">3 </span>* MAX_LIMBS],
+    </span>xyz: [Limb; <span class="number">3 </span>* elem::NumLimbs::MAX],
 }
 
 <span class="kw">impl </span>Point {
     <span class="kw">pub fn </span>new_at_infinity() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            xyz: [<span class="number">0</span>; <span class="number">3 </span>* MAX_LIMBS],
+            xyz: [<span class="number">0</span>; <span class="number">3 </span>* elem::NumLimbs::MAX],
         }
     }
 }
 
 <span class="doccomment">/// Operations and values needed by all curve operations.
 </span><span class="kw">pub struct </span>CommonOps {
-    num_limbs: usize,
-    q: Modulus,
-    n: Elem&lt;Unencoded&gt;,
+    num_limbs: elem::NumLimbs,
+    q: PublicModulus,
+    n: PublicElem&lt;Unencoded&gt;,
 
-    <span class="kw">pub </span>a: Elem&lt;R&gt;, <span class="comment">// Must be -3 mod q
-    </span><span class="kw">pub </span>b: Elem&lt;R&gt;,
+    <span class="kw">pub </span>a: PublicElem&lt;R&gt;, <span class="comment">// Must be -3 mod q
+    </span><span class="kw">pub </span>b: PublicElem&lt;R&gt;,
 
     <span class="comment">// In all cases, `r`, `a`, and `b` may all alias each other.
     </span>elem_mul_mont: <span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(r: <span class="kw-2">*mut </span>Limb, a: <span class="kw-2">*const </span>Limb, b: <span class="kw-2">*const </span>Limb),
     elem_sqr_mont: <span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(r: <span class="kw-2">*mut </span>Limb, a: <span class="kw-2">*const </span>Limb),
-
-    point_add_jacobian_impl: <span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(r: <span class="kw-2">*mut </span>Limb, a: <span class="kw-2">*const </span>Limb, b: <span class="kw-2">*const </span>Limb),
 }
 
 <span class="kw">impl </span>CommonOps {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>elem_modulus(<span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="self">self</span>, cpu_features: cpu::Features) -&gt; Modulus&lt;Q&gt; {
+        Modulus {
+            <span class="comment">// TODO: limbs: self.q.p.map(Limb::from),
+            </span>limbs: <span class="kw-2">&amp;</span><span class="self">self</span>.q.p,
+            num_limbs: <span class="self">self</span>.num_limbs,
+            cops: <span class="self">self</span>,
+            m: PhantomData,
+            cpu: cpu_features,
+        }
+    }
+
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>scalar_modulus(<span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="self">self</span>, cpu_features: cpu::Features) -&gt; Modulus&lt;N&gt; {
+        Modulus {
+            <span class="comment">// TODO: limbs: self.n.limbs.map(Limb::from),
+            </span>limbs: <span class="kw-2">&amp;</span><span class="self">self</span>.n.limbs,
+            num_limbs: <span class="self">self</span>.num_limbs,
+            cops: <span class="self">self</span>,
+            m: PhantomData,
+            cpu: cpu_features,
+        }
+    }
+
     <span class="comment">// The length of a field element, which is the same as the length of a
     // scalar, in bytes.
     </span><span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="self">self</span>.num_limbs * LIMB_BYTES
+        <span class="comment">// Keep in sync with `Modulus&lt;M&gt;::len()`
+        </span><span class="self">self</span>.num_limbs.into() * LIMB_BYTES
     }
 
     <span class="attr">#[cfg(test)]
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>n_limbs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[Limb] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.n.limbs[..<span class="self">self</span>.num_limbs]
+        <span class="kw-2">&amp;</span><span class="self">self</span>.n.limbs[..<span class="self">self</span>.num_limbs.into()]
+    }
+}
+
+<span class="kw">impl</span>&lt;M&gt; Modulus&lt;M&gt; {
+    <span class="kw">pub fn </span>cpu(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; cpu::Features {
+        <span class="self">self</span>.cpu
     }
 
+    <span class="comment">// Keep in sync with `CommonOps::len()`.
+    </span><span class="kw">pub fn </span>bytes_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.num_limbs.into() * LIMB_BYTES
+    }
+}
+
+<span class="kw">impl</span>&lt;M&gt; Modulus&lt;M&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>elem_add&lt;E: Encoding&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;mut </span>Elem&lt;E&gt;, b: <span class="kw-2">&amp;</span>Elem&lt;E&gt;) {
-        <span class="kw">let </span>num_limbs = <span class="self">self</span>.num_limbs;
+    </span><span class="kw">pub fn </span>add_assign&lt;E: Encoding&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;mut </span>elem::Elem&lt;M, E&gt;, b: <span class="kw-2">&amp;</span>elem::Elem&lt;M, E&gt;) {
+        <span class="kw">let </span>num_limbs = <span class="self">self</span>.num_limbs.into();
         limbs_add_assign_mod(
             <span class="kw-2">&amp;mut </span>a.limbs[..num_limbs],
             <span class="kw-2">&amp;</span>b.limbs[..num_limbs],
-            <span class="kw-2">&amp;</span><span class="self">self</span>.q.p[..num_limbs],
-        );
+            <span class="kw-2">&amp;</span><span class="self">self</span>.limbs[..num_limbs],
+        )
+        .unwrap_or_else(unwrap_impossible_len_mismatch_error)
     }
+}
 
+<span class="kw">impl </span>Modulus&lt;Q&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>elems_are_equal(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;</span>Elem&lt;R&gt;, b: <span class="kw-2">&amp;</span>Elem&lt;R&gt;) -&gt; LimbMask {
-        limbs_equal_limbs_consttime(<span class="kw-2">&amp;</span>a.limbs[..<span class="self">self</span>.num_limbs], <span class="kw-2">&amp;</span>b.limbs[..<span class="self">self</span>.num_limbs])
+    </span><span class="kw">pub fn </span>elems_are_equal&lt;E: Encoding&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;</span>Elem&lt;E&gt;, b: <span class="kw-2">&amp;</span>Elem&lt;E&gt;) -&gt; LimbMask {
+        <span class="kw">let </span>num_limbs = <span class="self">self</span>.num_limbs.into();
+        limbs_equal_limbs_consttime(<span class="kw-2">&amp;</span>a.limbs[..num_limbs], <span class="kw-2">&amp;</span>b.limbs[..num_limbs])
+            .unwrap_or_else(unwrap_impossible_len_mismatch_error)
     }
 
     <span class="attr">#[inline]
     </span><span class="kw">pub fn </span>elem_unencoded(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;</span>Elem&lt;R&gt;) -&gt; Elem&lt;Unencoded&gt; {
-        <span class="kw">const </span>ONE: Elem&lt;Unencoded&gt; = Elem::from_hex(<span class="string">"1"</span>);
-        <span class="self">self</span>.elem_product(a, <span class="kw-2">&amp;</span>ONE)
+        <span class="self">self</span>.elem_product(a, <span class="kw-2">&amp;</span>Elem::one())
+    }
+}
+
+<span class="kw">impl </span>CommonOps {
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>is_zero&lt;M, E: Encoding&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;</span>elem::Elem&lt;M, E&gt;) -&gt; bool {
+        <span class="kw">let </span>num_limbs = <span class="self">self</span>.num_limbs.into();
+        limbs_are_zero_constant_time(<span class="kw-2">&amp;</span>a.limbs[..num_limbs]).leak()
     }
 
     <span class="attr">#[inline]
+    </span><span class="kw">fn </span>elem_mul(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;mut </span>Elem&lt;R&gt;, b: <span class="kw-2">&amp;</span>Elem&lt;R&gt;, _cpu: cpu::Features) {
+        elem::binary_op_assign(<span class="self">self</span>.elem_mul_mont, a, b)
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>elem_product&lt;EA: Encoding, EB: Encoding&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        a: <span class="kw-2">&amp;</span>Elem&lt;EA&gt;,
+        b: <span class="kw-2">&amp;</span>Elem&lt;EB&gt;,
+        _cpu: cpu::Features,
+    ) -&gt; Elem&lt;&lt;(EA, EB) <span class="kw">as </span>ProductEncoding&gt;::Output&gt;
+    <span class="kw">where
+        </span>(EA, EB): ProductEncoding,
+    {
+        mul_mont(<span class="self">self</span>.elem_mul_mont, a, b)
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>elem_square(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;mut </span>Elem&lt;R&gt;, _cpu: cpu::Features) {
+        unary_op_assign(<span class="self">self</span>.elem_sqr_mont, a);
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>elem_squared(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;</span>Elem&lt;R&gt;, _cpu: cpu::Features) -&gt; Elem&lt;R&gt; {
+        unary_op(<span class="self">self</span>.elem_sqr_mont, a)
+    }
+}
+
+<span class="kw">impl </span>Modulus&lt;Q&gt; {
+    <span class="attr">#[inline]
     </span><span class="kw">pub fn </span>elem_mul(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;mut </span>Elem&lt;R&gt;, b: <span class="kw-2">&amp;</span>Elem&lt;R&gt;) {
-        binary_op_assign(<span class="self">self</span>.elem_mul_mont, a, b)
+        <span class="self">self</span>.cops.elem_mul(a, b, <span class="self">self</span>.cpu)
     }
 
     <span class="attr">#[inline]
@@ -1331,24 +1607,28 @@
     <span class="kw">where
         </span>(EA, EB): ProductEncoding,
     {
-        mul_mont(<span class="self">self</span>.elem_mul_mont, a, b)
+        <span class="self">self</span>.cops.elem_product(a, b, <span class="self">self</span>.cpu)
     }
 
     <span class="attr">#[inline]
     </span><span class="kw">pub fn </span>elem_square(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;mut </span>Elem&lt;R&gt;) {
-        unary_op_assign(<span class="self">self</span>.elem_sqr_mont, a);
+        <span class="self">self</span>.cops.elem_square(a, <span class="self">self</span>.cpu)
     }
 
     <span class="attr">#[inline]
     </span><span class="kw">pub fn </span>elem_squared(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;</span>Elem&lt;R&gt;) -&gt; Elem&lt;R&gt; {
-        unary_op(<span class="self">self</span>.elem_sqr_mont, a)
+        <span class="self">self</span>.cops.elem_squared(a, <span class="self">self</span>.cpu)
     }
+}
 
+<span class="kw">impl</span>&lt;M&gt; Modulus&lt;M&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>is_zero&lt;M, E: Encoding&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;</span>elem::Elem&lt;M, E&gt;) -&gt; bool {
-        limbs_are_zero_constant_time(<span class="kw-2">&amp;</span>a.limbs[..<span class="self">self</span>.num_limbs]) == LimbMask::True
+    </span><span class="kw">pub fn </span>is_zero&lt;E: Encoding&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;</span>elem::Elem&lt;M, E&gt;) -&gt; bool {
+        <span class="self">self</span>.cops.is_zero(a)
     }
+}
 
+<span class="kw">impl </span>Modulus&lt;Q&gt; {
     <span class="kw">pub fn </span>elem_verify_is_not_zero(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;</span>Elem&lt;R&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), error::Unspecified&gt; {
         <span class="kw">if </span><span class="self">self</span>.is_zero(a) {
             <span class="prelude-val">Err</span>(error::Unspecified)
@@ -1357,64 +1637,83 @@
         }
     }
 
-    <span class="kw">pub fn </span>point_sum(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;</span>Point, b: <span class="kw-2">&amp;</span>Point) -&gt; Point {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>a(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>PublicElem&lt;R&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.cops.a
+    }
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>b(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>PublicElem&lt;R&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.cops.b
+    }
+}
+
+<span class="kw">impl </span>PrivateKeyOps {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>point_sum(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;</span>Point, b: <span class="kw-2">&amp;</span>Point, _cpu: cpu::Features) -&gt; Point {
         <span class="kw">let </span><span class="kw-2">mut </span>r = Point::new_at_infinity();
         <span class="kw">unsafe </span>{
             (<span class="self">self</span>.point_add_jacobian_impl)(r.xyz.as_mut_ptr(), a.xyz.as_ptr(), b.xyz.as_ptr())
         }
         r
     }
+}
 
+<span class="kw">impl </span>Modulus&lt;Q&gt; {
     <span class="kw">pub fn </span>point_x(<span class="kw-2">&amp;</span><span class="self">self</span>, p: <span class="kw-2">&amp;</span>Point) -&gt; Elem&lt;R&gt; {
+        <span class="kw">let </span>num_limbs = <span class="self">self</span>.num_limbs.into();
         <span class="kw">let </span><span class="kw-2">mut </span>r = Elem::zero();
-        r.limbs[..<span class="self">self</span>.num_limbs].copy_from_slice(<span class="kw-2">&amp;</span>p.xyz[<span class="number">0</span>..<span class="self">self</span>.num_limbs]);
+        r.limbs[..num_limbs].copy_from_slice(<span class="kw-2">&amp;</span>p.xyz[<span class="number">0</span>..num_limbs]);
         r
     }
 
     <span class="kw">pub fn </span>point_y(<span class="kw-2">&amp;</span><span class="self">self</span>, p: <span class="kw-2">&amp;</span>Point) -&gt; Elem&lt;R&gt; {
+        <span class="kw">let </span>num_limbs = <span class="self">self</span>.num_limbs.into();
         <span class="kw">let </span><span class="kw-2">mut </span>r = Elem::zero();
-        r.limbs[..<span class="self">self</span>.num_limbs].copy_from_slice(<span class="kw-2">&amp;</span>p.xyz[<span class="self">self</span>.num_limbs..(<span class="number">2 </span>* <span class="self">self</span>.num_limbs)]);
+        r.limbs[..num_limbs].copy_from_slice(<span class="kw-2">&amp;</span>p.xyz[num_limbs..(<span class="number">2 </span>* num_limbs)]);
         r
     }
 
     <span class="kw">pub fn </span>point_z(<span class="kw-2">&amp;</span><span class="self">self</span>, p: <span class="kw-2">&amp;</span>Point) -&gt; Elem&lt;R&gt; {
+        <span class="kw">let </span>num_limbs = <span class="self">self</span>.num_limbs.into();
         <span class="kw">let </span><span class="kw-2">mut </span>r = Elem::zero();
-        r.limbs[..<span class="self">self</span>.num_limbs]
-            .copy_from_slice(<span class="kw-2">&amp;</span>p.xyz[(<span class="number">2 </span>* <span class="self">self</span>.num_limbs)..(<span class="number">3 </span>* <span class="self">self</span>.num_limbs)]);
+        r.limbs[..num_limbs].copy_from_slice(<span class="kw-2">&amp;</span>p.xyz[(<span class="number">2 </span>* num_limbs)..(<span class="number">3 </span>* num_limbs)]);
         r
     }
 }
 
-<span class="kw">struct </span>Modulus {
-    p: [Limb; MAX_LIMBS],
-    rr: [Limb; MAX_LIMBS],
+<span class="kw">struct </span>PublicModulus {
+    p: [LeakyLimb; elem::NumLimbs::MAX],
+    rr: PublicElem&lt;RR&gt;,
 }
 
 <span class="doccomment">/// Operations on private keys, for ECDH and ECDSA signing.
 </span><span class="kw">pub struct </span>PrivateKeyOps {
     <span class="kw">pub </span>common: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>CommonOps,
-    elem_inv_squared: <span class="kw">fn</span>(a: <span class="kw-2">&amp;</span>Elem&lt;R&gt;) -&gt; Elem&lt;R&gt;,
-    point_mul_base_impl: <span class="kw">fn</span>(a: <span class="kw-2">&amp;</span>Scalar) -&gt; Point,
+    elem_inv_squared: <span class="kw">fn</span>(q: <span class="kw-2">&amp;</span>Modulus&lt;Q&gt;, a: <span class="kw-2">&amp;</span>Elem&lt;R&gt;) -&gt; Elem&lt;R&gt;,
+    point_mul_base_impl: <span class="kw">fn</span>(a: <span class="kw-2">&amp;</span>Scalar, cpu: cpu::Features) -&gt; Point,
     point_mul_impl: <span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(
         r: <span class="kw-2">*mut </span>Limb,          <span class="comment">// [3][num_limbs]
         </span>p_scalar: <span class="kw-2">*const </span>Limb, <span class="comment">// [num_limbs]
         </span>p_x: <span class="kw-2">*const </span>Limb,      <span class="comment">// [num_limbs]
         </span>p_y: <span class="kw-2">*const </span>Limb,      <span class="comment">// [num_limbs]
     </span>),
+    point_add_jacobian_impl: <span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(r: <span class="kw-2">*mut </span>Limb, a: <span class="kw-2">*const </span>Limb, b: <span class="kw-2">*const </span>Limb),
 }
 
 <span class="kw">impl </span>PrivateKeyOps {
     <span class="kw">pub fn </span>leak_limbs&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Elem&lt;Unencoded&gt;) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[Limb] {
-        <span class="kw-2">&amp;</span>a.limbs[..<span class="self">self</span>.common.num_limbs]
+        <span class="kw-2">&amp;</span>a.limbs[..<span class="self">self</span>.common.num_limbs.into()]
     }
 
     <span class="attr">#[inline(always)]
-    </span><span class="kw">pub fn </span>point_mul_base(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;</span>Scalar) -&gt; Point {
-        (<span class="self">self</span>.point_mul_base_impl)(a)
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>point_mul_base(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;</span>Scalar, cpu: cpu::Features) -&gt; Point {
+        (<span class="self">self</span>.point_mul_base_impl)(a, cpu)
     }
 
     <span class="attr">#[inline(always)]
-    </span><span class="kw">pub fn </span>point_mul(<span class="kw-2">&amp;</span><span class="self">self</span>, p_scalar: <span class="kw-2">&amp;</span>Scalar, (p_x, p_y): <span class="kw-2">&amp;</span>(Elem&lt;R&gt;, Elem&lt;R&gt;)) -&gt; Point {
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>point_mul(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        p_scalar: <span class="kw-2">&amp;</span>Scalar,
+        (p_x, p_y): <span class="kw-2">&amp;</span>(Elem&lt;R&gt;, Elem&lt;R&gt;),
+        _cpu: cpu::Features,
+    ) -&gt; Point {
         <span class="kw">let </span><span class="kw-2">mut </span>r = Point::new_at_infinity();
         <span class="kw">unsafe </span>{
             (<span class="self">self</span>.point_mul_impl)(
@@ -1428,8 +1727,8 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>elem_inverse_squared(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;</span>Elem&lt;R&gt;) -&gt; Elem&lt;R&gt; {
-        (<span class="self">self</span>.elem_inv_squared)(a)
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>elem_inverse_squared(<span class="kw-2">&amp;</span><span class="self">self</span>, q: <span class="kw-2">&amp;</span>Modulus&lt;Q&gt;, a: <span class="kw-2">&amp;</span>Elem&lt;R&gt;) -&gt; Elem&lt;R&gt; {
+        (<span class="self">self</span>.elem_inv_squared)(q, a)
     }
 }
 
@@ -1445,17 +1744,23 @@
     // most significant limb. Besides the parsing, conversion, this also
     // implements NIST SP 800-56A Step 2: "Verify that xQ and yQ are integers
     // in the interval [0, p-1] in the case that q is an odd prime p[.]"
-    </span><span class="kw">pub fn </span>elem_parse(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="kw-2">&amp;mut </span>untrusted::Reader) -&gt; <span class="prelude-ty">Result</span>&lt;Elem&lt;R&gt;, error::Unspecified&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>elem_parse(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        q: <span class="kw-2">&amp;</span>Modulus&lt;Q&gt;,
+        input: <span class="kw-2">&amp;mut </span>untrusted::Reader,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Elem&lt;R&gt;, error::Unspecified&gt; {
+        <span class="kw">let </span>_cpu = cpu::features();
         <span class="kw">let </span>encoded_value = input.read_bytes(<span class="self">self</span>.common.len())<span class="question-mark">?</span>;
-        <span class="kw">let </span>parsed = elem_parse_big_endian_fixed_consttime(<span class="self">self</span>.common, encoded_value)<span class="question-mark">?</span>;
+        <span class="kw">let </span>parsed = elem_parse_big_endian_fixed_consttime(q, encoded_value)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>r = Elem::zero();
+        <span class="kw">let </span>rr = Elem::from(<span class="kw-2">&amp;</span><span class="self">self</span>.common.q.rr);
         <span class="comment">// Montgomery encode (elem_to_mont).
         // TODO: do something about this.
         </span><span class="kw">unsafe </span>{
             (<span class="self">self</span>.common.elem_mul_mont)(
                 r.limbs.as_mut_ptr(),
                 parsed.limbs.as_ptr(),
-                <span class="self">self</span>.common.q.rr.as_ptr(),
+                rr.limbs.as_ptr(),
             )
         }
         <span class="prelude-val">Ok</span>(r)
@@ -1471,20 +1776,27 @@
 }
 
 <span class="kw">impl </span>ScalarOps {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>scalar_modulus(<span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="self">self</span>, cpu_features: cpu::Features) -&gt; Modulus&lt;N&gt; {
+        <span class="self">self</span>.common.scalar_modulus(cpu_features)
+    }
+
     <span class="comment">// The (maximum) length of a scalar, not including any padding.
     </span><span class="kw">pub fn </span>scalar_bytes_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.common.len()
     }
+}
 
+<span class="kw">impl </span>ScalarOps {
     <span class="kw">pub fn </span>leak_limbs&lt;<span class="lifetime">'s</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, s: <span class="kw-2">&amp;</span><span class="lifetime">'s </span>Scalar) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'s </span>[Limb] {
-        <span class="kw-2">&amp;</span>s.limbs[..<span class="self">self</span>.common.num_limbs]
+        <span class="kw-2">&amp;</span>s.limbs[..<span class="self">self</span>.common.num_limbs.into()]
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>scalar_product&lt;EA: Encoding, EB: Encoding&gt;(
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>scalar_product&lt;EA: Encoding, EB: Encoding&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         a: <span class="kw-2">&amp;</span>Scalar&lt;EA&gt;,
         b: <span class="kw-2">&amp;</span>Scalar&lt;EB&gt;,
+        _cpu: cpu::Features,
     ) -&gt; Scalar&lt;&lt;(EA, EB) <span class="kw">as </span>ProductEncoding&gt;::Output&gt;
     <span class="kw">where
         </span>(EA, EB): ProductEncoding,
@@ -1498,13 +1810,18 @@
     <span class="kw">pub </span>scalar_ops: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>ScalarOps,
     <span class="kw">pub </span>public_key_ops: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>PublicKeyOps,
 
-    <span class="kw">pub </span>twin_mul: <span class="kw">fn</span>(g_scalar: <span class="kw-2">&amp;</span>Scalar, p_scalar: <span class="kw-2">&amp;</span>Scalar, p_xy: <span class="kw-2">&amp;</span>(Elem&lt;R&gt;, Elem&lt;R&gt;)) -&gt; Point,
-    <span class="kw">pub </span>scalar_inv_to_mont_vartime: <span class="kw">fn</span>(s: <span class="kw-2">&amp;</span>Scalar&lt;Unencoded&gt;) -&gt; Scalar&lt;R&gt;,
-    <span class="kw">pub </span>q_minus_n: Elem&lt;Unencoded&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) twin_mul: <span class="kw">fn</span>(
+        g_scalar: <span class="kw-2">&amp;</span>Scalar,
+        p_scalar: <span class="kw-2">&amp;</span>Scalar,
+        p_xy: <span class="kw-2">&amp;</span>(Elem&lt;R&gt;, Elem&lt;R&gt;),
+        cpu: cpu::Features,
+    ) -&gt; Point,
+    scalar_inv_to_mont_vartime: <span class="kw">fn</span>(s: <span class="kw-2">&amp;</span>Scalar&lt;Unencoded&gt;, cpu: cpu::Features) -&gt; Scalar&lt;R&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) q_minus_n: PublicElem&lt;Unencoded&gt;,
 }
 
 <span class="kw">impl </span>PublicScalarOps {
-    <span class="kw">pub fn </span>n(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Elem&lt;Unencoded&gt; {
+    <span class="kw">pub fn </span>n(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>PublicElem&lt;Unencoded&gt; {
         <span class="kw-2">&amp;</span><span class="self">self</span>.scalar_ops.common.n
     }
 
@@ -1516,19 +1833,23 @@
             encoding: PhantomData,
         }
     }
+}
 
-    <span class="kw">pub fn </span>elem_equals_vartime(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;</span>Elem&lt;Unencoded&gt;, b: <span class="kw-2">&amp;</span>Elem&lt;Unencoded&gt;) -&gt; bool {
-        a.limbs[..<span class="self">self</span>.public_key_ops.common.num_limbs]
-            == b.limbs[..<span class="self">self</span>.public_key_ops.common.num_limbs]
-    }
-
-    <span class="kw">pub fn </span>elem_less_than(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;</span>Elem&lt;Unencoded&gt;, b: <span class="kw-2">&amp;</span>Elem&lt;Unencoded&gt;) -&gt; bool {
-        <span class="kw">let </span>num_limbs = <span class="self">self</span>.public_key_ops.common.num_limbs;
+<span class="kw">impl </span>Modulus&lt;Q&gt; {
+    <span class="kw">pub fn </span>elem_less_than_vartime(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;</span>Elem&lt;Unencoded&gt;, b: <span class="kw-2">&amp;</span>PublicElem&lt;Unencoded&gt;) -&gt; bool {
+        <span class="kw">let </span>num_limbs = <span class="self">self</span>.num_limbs.into();
         limbs_less_than_limbs_vartime(<span class="kw-2">&amp;</span>a.limbs[..num_limbs], <span class="kw-2">&amp;</span>b.limbs[..num_limbs])
+            .unwrap_or_else(|LenMismatchError { .. }| <span class="macro">unreachable!</span>())
     }
+}
 
-    <span class="kw">pub fn </span>scalar_inv_to_mont_vartime(<span class="kw-2">&amp;</span><span class="self">self</span>, s: <span class="kw-2">&amp;</span>Scalar&lt;Unencoded&gt;) -&gt; Scalar&lt;R&gt; {
-        (<span class="self">self</span>.scalar_inv_to_mont_vartime)(s)
+<span class="kw">impl </span>PublicScalarOps {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>scalar_inv_to_mont_vartime(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        s: <span class="kw-2">&amp;</span>Scalar&lt;Unencoded&gt;,
+        cpu: cpu::Features,
+    ) -&gt; Scalar&lt;R&gt; {
+        (<span class="self">self</span>.scalar_inv_to_mont_vartime)(s, cpu)
     }
 }
 
@@ -1536,20 +1857,21 @@
 </span><span class="kw">pub struct </span>PrivateScalarOps {
     <span class="kw">pub </span>scalar_ops: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>ScalarOps,
 
-    oneRR_mod_n: Scalar&lt;RR&gt;, <span class="comment">// 1 * R**2 (mod n). TOOD: Use One&lt;RR&gt;.
-    </span>scalar_inv_to_mont: <span class="kw">fn</span>(a: Scalar&lt;R&gt;) -&gt; Scalar&lt;R&gt;,
+    oneRR_mod_n: PublicScalar&lt;RR&gt;, <span class="comment">// 1 * R**2 (mod n). TOOD: Use One&lt;RR&gt;.
+    </span>scalar_inv_to_mont: <span class="kw">fn</span>(a: Scalar&lt;R&gt;, cpu: cpu::Features) -&gt; Scalar&lt;R&gt;,
 }
 
 <span class="kw">impl </span>PrivateScalarOps {
-    <span class="kw">pub fn </span>to_mont(<span class="kw-2">&amp;</span><span class="self">self</span>, s: <span class="kw-2">&amp;</span>Scalar&lt;Unencoded&gt;) -&gt; Scalar&lt;R&gt; {
-        <span class="self">self</span>.scalar_ops.scalar_product(s, <span class="kw-2">&amp;</span><span class="self">self</span>.oneRR_mod_n)
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>to_mont(<span class="kw-2">&amp;</span><span class="self">self</span>, s: <span class="kw-2">&amp;</span>Scalar&lt;Unencoded&gt;, cpu: cpu::Features) -&gt; Scalar&lt;R&gt; {
+        <span class="self">self</span>.scalar_ops
+            .scalar_product(s, <span class="kw-2">&amp;</span>Scalar::from(<span class="kw-2">&amp;</span><span class="self">self</span>.oneRR_mod_n), cpu)
     }
 
     <span class="doccomment">/// Returns the modular inverse of `a` (mod `n`). Panics if `a` is zero.
-    </span><span class="kw">pub fn </span>scalar_inv_to_mont(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;</span>Scalar) -&gt; Scalar&lt;R&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>scalar_inv_to_mont(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;</span>Scalar, cpu: cpu::Features) -&gt; Scalar&lt;R&gt; {
         <span class="macro">assert!</span>(!<span class="self">self</span>.scalar_ops.common.is_zero(a));
-        <span class="kw">let </span>a = <span class="self">self</span>.to_mont(a);
-        (<span class="self">self</span>.scalar_inv_to_mont)(a)
+        <span class="kw">let </span>a = <span class="self">self</span>.to_mont(a, cpu);
+        (<span class="self">self</span>.scalar_inv_to_mont)(a, cpu)
     }
 }
 
@@ -1560,116 +1882,131 @@
     g_scalar: <span class="kw-2">&amp;</span>Scalar,
     p_scalar: <span class="kw-2">&amp;</span>Scalar,
     p_xy: <span class="kw-2">&amp;</span>(Elem&lt;R&gt;, Elem&lt;R&gt;),
+    cpu: cpu::Features,
 ) -&gt; Point {
-    <span class="kw">let </span>scaled_g = ops.point_mul_base(g_scalar);
-    <span class="kw">let </span>scaled_p = ops.point_mul(p_scalar, p_xy);
-    ops.common.point_sum(<span class="kw-2">&amp;</span>scaled_g, <span class="kw-2">&amp;</span>scaled_p)
+    <span class="kw">let </span>scaled_g = ops.point_mul_base(g_scalar, cpu);
+    <span class="kw">let </span>scaled_p = ops.point_mul(p_scalar, p_xy, cpu);
+    ops.point_sum(<span class="kw-2">&amp;</span>scaled_g, <span class="kw-2">&amp;</span>scaled_p, cpu)
 }
 
 <span class="comment">// This assumes n &lt; q &lt; 2*n.
-</span><span class="kw">pub fn </span>elem_reduced_to_scalar(ops: <span class="kw-2">&amp;</span>CommonOps, elem: <span class="kw-2">&amp;</span>Elem&lt;Unencoded&gt;) -&gt; Scalar&lt;Unencoded&gt; {
-    <span class="kw">let </span>num_limbs = ops.num_limbs;
-    <span class="kw">let </span><span class="kw-2">mut </span>r_limbs = elem.limbs;
-    limbs_reduce_once_constant_time(<span class="kw-2">&amp;mut </span>r_limbs[..num_limbs], <span class="kw-2">&amp;</span>ops.n.limbs[..num_limbs]);
-    Scalar {
-        limbs: r_limbs,
-        m: PhantomData,
-        encoding: PhantomData,
+</span><span class="kw">impl </span>Modulus&lt;N&gt; {
+    <span class="kw">pub fn </span>elem_reduced_to_scalar(<span class="kw-2">&amp;</span><span class="self">self</span>, elem: <span class="kw-2">&amp;</span>Elem&lt;Unencoded&gt;) -&gt; Scalar&lt;Unencoded&gt; {
+        <span class="kw">let </span>num_limbs = <span class="self">self</span>.num_limbs.into();
+        <span class="kw">let </span><span class="kw-2">mut </span>r_limbs = elem.limbs;
+        limbs_reduce_once_constant_time(<span class="kw-2">&amp;mut </span>r_limbs[..num_limbs], <span class="kw-2">&amp;</span><span class="self">self</span>.limbs[..num_limbs])
+            .unwrap_or_else(unwrap_impossible_len_mismatch_error);
+        Scalar {
+            limbs: r_limbs,
+            m: PhantomData,
+            encoding: PhantomData,
+        }
     }
-}
-
-<span class="kw">pub fn </span>scalar_sum(ops: <span class="kw-2">&amp;</span>CommonOps, a: <span class="kw-2">&amp;</span>Scalar, <span class="kw-2">mut </span>b: Scalar) -&gt; Scalar {
-    limbs_add_assign_mod(
-        <span class="kw-2">&amp;mut </span>b.limbs[..ops.num_limbs],
-        <span class="kw-2">&amp;</span>a.limbs[..ops.num_limbs],
-        <span class="kw-2">&amp;</span>ops.n.limbs[..ops.num_limbs],
-    );
-    b
 }
 
 <span class="comment">// Returns (`a` squared `squarings` times) * `b`.
-</span><span class="kw">fn </span>elem_sqr_mul(ops: <span class="kw-2">&amp;</span>CommonOps, a: <span class="kw-2">&amp;</span>Elem&lt;R&gt;, squarings: usize, b: <span class="kw-2">&amp;</span>Elem&lt;R&gt;) -&gt; Elem&lt;R&gt; {
+</span><span class="kw">fn </span>elem_sqr_mul(
+    ops: <span class="kw-2">&amp;</span>CommonOps,
+    a: <span class="kw-2">&amp;</span>Elem&lt;R&gt;,
+    squarings: LeakyWord,
+    b: <span class="kw-2">&amp;</span>Elem&lt;R&gt;,
+    cpu: cpu::Features,
+) -&gt; Elem&lt;R&gt; {
     <span class="macro">debug_assert!</span>(squarings &gt;= <span class="number">1</span>);
-    <span class="kw">let </span><span class="kw-2">mut </span>tmp = ops.elem_squared(a);
+    <span class="kw">let </span><span class="kw-2">mut </span>tmp = ops.elem_squared(a, cpu);
     <span class="kw">for _ in </span><span class="number">1</span>..squarings {
-        ops.elem_square(<span class="kw-2">&amp;mut </span>tmp);
+        ops.elem_square(<span class="kw-2">&amp;mut </span>tmp, cpu);
     }
-    ops.elem_product(<span class="kw-2">&amp;</span>tmp, b)
+    ops.elem_product(<span class="kw-2">&amp;</span>tmp, b, cpu)
 }
 
 <span class="comment">// Sets `acc` = (`acc` squared `squarings` times) * `b`.
-</span><span class="kw">fn </span>elem_sqr_mul_acc(ops: <span class="kw-2">&amp;</span>CommonOps, acc: <span class="kw-2">&amp;mut </span>Elem&lt;R&gt;, squarings: usize, b: <span class="kw-2">&amp;</span>Elem&lt;R&gt;) {
+</span><span class="kw">fn </span>elem_sqr_mul_acc(
+    ops: <span class="kw-2">&amp;</span>CommonOps,
+    acc: <span class="kw-2">&amp;mut </span>Elem&lt;R&gt;,
+    squarings: LeakyWord,
+    b: <span class="kw-2">&amp;</span>Elem&lt;R&gt;,
+    cpu: cpu::Features,
+) {
     <span class="macro">debug_assert!</span>(squarings &gt;= <span class="number">1</span>);
     <span class="kw">for _ in </span><span class="number">0</span>..squarings {
-        ops.elem_square(acc);
+        ops.elem_square(acc, cpu);
     }
-    ops.elem_mul(acc, b)
+    ops.elem_mul(acc, b, cpu)
 }
 
 <span class="attr">#[inline]
-</span><span class="kw">pub fn </span>elem_parse_big_endian_fixed_consttime(
-    ops: <span class="kw-2">&amp;</span>CommonOps,
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>elem_parse_big_endian_fixed_consttime(
+    q: <span class="kw-2">&amp;</span>Modulus&lt;Q&gt;,
     bytes: untrusted::Input,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Elem&lt;Unencoded&gt;, error::Unspecified&gt; {
-    parse_big_endian_fixed_consttime(ops, bytes, AllowZero::Yes, <span class="kw-2">&amp;</span>ops.q.p[..ops.num_limbs])
+    parse_big_endian_fixed_consttime(q, bytes, AllowZero::Yes)
 }
 
 <span class="attr">#[inline]
-</span><span class="kw">pub fn </span>scalar_parse_big_endian_fixed_consttime(
-    ops: <span class="kw-2">&amp;</span>CommonOps,
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>scalar_parse_big_endian_fixed_consttime(
+    n: <span class="kw-2">&amp;</span>Modulus&lt;N&gt;,
     bytes: untrusted::Input,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Scalar, error::Unspecified&gt; {
-    parse_big_endian_fixed_consttime(ops, bytes, AllowZero::No, <span class="kw-2">&amp;</span>ops.n.limbs[..ops.num_limbs])
+    parse_big_endian_fixed_consttime(n, bytes, AllowZero::No)
 }
 
 <span class="attr">#[inline]
-</span><span class="kw">pub fn </span>scalar_parse_big_endian_variable(
-    ops: <span class="kw-2">&amp;</span>CommonOps,
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>scalar_parse_big_endian_variable(
+    n: <span class="kw-2">&amp;</span>Modulus&lt;N&gt;,
     allow_zero: AllowZero,
     bytes: untrusted::Input,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Scalar, error::Unspecified&gt; {
+    <span class="kw">let </span>num_limbs = n.num_limbs.into();
     <span class="kw">let </span><span class="kw-2">mut </span>r = Scalar::zero();
     parse_big_endian_in_range_and_pad_consttime(
         bytes,
         allow_zero,
-        <span class="kw-2">&amp;</span>ops.n.limbs[..ops.num_limbs],
-        <span class="kw-2">&amp;mut </span>r.limbs[..ops.num_limbs],
+        <span class="kw-2">&amp;</span>n.limbs[..num_limbs],
+        <span class="kw-2">&amp;mut </span>r.limbs[..num_limbs],
     )<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(r)
 }
 
-<span class="kw">pub fn </span>scalar_parse_big_endian_partially_reduced_variable_consttime(
-    ops: <span class="kw-2">&amp;</span>CommonOps,
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>scalar_parse_big_endian_partially_reduced_variable_consttime(
+    n: <span class="kw-2">&amp;</span>Modulus&lt;N&gt;,
     bytes: untrusted::Input,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Scalar, error::Unspecified&gt; {
+    <span class="kw">let </span>num_limbs = n.num_limbs.into();
     <span class="kw">let </span><span class="kw-2">mut </span>r = Scalar::zero();
-
     {
-        <span class="kw">let </span>r = <span class="kw-2">&amp;mut </span>r.limbs[..ops.num_limbs];
+        <span class="kw">let </span>r = <span class="kw-2">&amp;mut </span>r.limbs[..num_limbs];
         parse_big_endian_and_pad_consttime(bytes, r)<span class="question-mark">?</span>;
-        limbs_reduce_once_constant_time(r, <span class="kw-2">&amp;</span>ops.n.limbs[..ops.num_limbs]);
+        limbs_reduce_once_constant_time(r, <span class="kw-2">&amp;</span>n.limbs[..num_limbs])
+            .unwrap_or_else(unwrap_impossible_len_mismatch_error);
     }
 
     <span class="prelude-val">Ok</span>(r)
 }
 
 <span class="kw">fn </span>parse_big_endian_fixed_consttime&lt;M&gt;(
-    ops: <span class="kw-2">&amp;</span>CommonOps,
+    m: <span class="kw-2">&amp;</span>Modulus&lt;M&gt;,
     bytes: untrusted::Input,
     allow_zero: AllowZero,
-    max_exclusive: <span class="kw-2">&amp;</span>[Limb],
 ) -&gt; <span class="prelude-ty">Result</span>&lt;elem::Elem&lt;M, Unencoded&gt;, error::Unspecified&gt; {
-    <span class="kw">if </span>bytes.len() != ops.len() {
+    <span class="kw">let </span>num_limbs = m.num_limbs.into();
+    <span class="kw">if </span>bytes.len() != m.bytes_len() {
         <span class="kw">return </span><span class="prelude-val">Err</span>(error::Unspecified);
     }
     <span class="kw">let </span><span class="kw-2">mut </span>r = elem::Elem::zero();
     parse_big_endian_in_range_and_pad_consttime(
         bytes,
         allow_zero,
-        max_exclusive,
-        <span class="kw-2">&amp;mut </span>r.limbs[..ops.num_limbs],
+        <span class="kw-2">&amp;</span>m.limbs[..num_limbs],
+        <span class="kw-2">&amp;mut </span>r.limbs[..num_limbs],
     )<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(r)
+}
+
+<span class="attr">#[cold]
+#[inline(never)]
+</span><span class="kw">fn </span>unwrap_impossible_len_mismatch_error&lt;T&gt;(LenMismatchError { .. }: LenMismatchError) -&gt; T {
+    <span class="macro">unreachable!</span>()
 }
 
 <span class="attr">#[cfg(test)]
@@ -1680,32 +2017,33 @@
     <span class="kw">use </span>alloc::{format, vec, vec::Vec};
 
     <span class="kw">const </span>ZERO_SCALAR: Scalar = Scalar {
-        limbs: [<span class="number">0</span>; MAX_LIMBS],
+        limbs: [<span class="number">0</span>; elem::NumLimbs::MAX],
         m: PhantomData,
         encoding: PhantomData,
     };
 
     <span class="kw">trait </span>Convert&lt;E: Encoding&gt; {
-        <span class="kw">fn </span>convert(<span class="self">self</span>, cops: <span class="kw-2">&amp;</span>CommonOps) -&gt; Elem&lt;E&gt;;
+        <span class="kw">fn </span>convert(<span class="self">self</span>, q: <span class="kw-2">&amp;</span>Modulus&lt;Q&gt;) -&gt; Elem&lt;E&gt;;
     }
 
     <span class="kw">impl </span>Convert&lt;R&gt; <span class="kw">for </span>Elem&lt;R&gt; {
-        <span class="kw">fn </span>convert(<span class="self">self</span>, _cops: <span class="kw-2">&amp;</span>CommonOps) -&gt; Elem&lt;R&gt; {
+        <span class="kw">fn </span>convert(<span class="self">self</span>, _q: <span class="kw-2">&amp;</span>Modulus&lt;Q&gt;) -&gt; Elem&lt;R&gt; {
             <span class="self">self
         </span>}
     }
 
     <span class="kw">impl </span>Convert&lt;Unencoded&gt; <span class="kw">for </span>Elem&lt;R&gt; {
-        <span class="kw">fn </span>convert(<span class="self">self</span>, cops: <span class="kw-2">&amp;</span>CommonOps) -&gt; Elem&lt;Unencoded&gt; {
-            cops.elem_unencoded(<span class="kw-2">&amp;</span><span class="self">self</span>)
+        <span class="kw">fn </span>convert(<span class="self">self</span>, q: <span class="kw-2">&amp;</span>Modulus&lt;Q&gt;) -&gt; Elem&lt;Unencoded&gt; {
+            q.elem_unencoded(<span class="kw-2">&amp;</span><span class="self">self</span>)
         }
     }
 
     <span class="kw">fn </span>q_minus_n_plus_n_equals_0_test(ops: <span class="kw-2">&amp;</span>PublicScalarOps) {
         <span class="kw">let </span>cops = ops.scalar_ops.common;
-        <span class="kw">let </span><span class="kw-2">mut </span>x = ops.q_minus_n;
-        cops.elem_add(<span class="kw-2">&amp;mut </span>x, <span class="kw-2">&amp;</span>cops.n);
-        <span class="macro">assert!</span>(cops.is_zero(<span class="kw-2">&amp;</span>x));
+        <span class="kw">let </span>q = <span class="kw-2">&amp;</span>cops.elem_modulus(cpu::features());
+        <span class="kw">let </span><span class="kw-2">mut </span>x = Elem::from(<span class="kw-2">&amp;</span>ops.q_minus_n);
+        q.add_assign(<span class="kw-2">&amp;mut </span>x, <span class="kw-2">&amp;</span>Elem::from(<span class="kw-2">&amp;</span>cops.n));
+        <span class="macro">assert!</span>(q.is_zero(<span class="kw-2">&amp;</span>x));
     }
 
     <span class="attr">#[test]
@@ -1735,20 +2073,21 @@
     }
 
     <span class="kw">fn </span>elem_add_test(ops: <span class="kw-2">&amp;</span>PublicScalarOps, test_file: test::File) {
+        <span class="kw">let </span>cops = ops.public_key_ops.common;
+        <span class="kw">let </span>q = <span class="kw-2">&amp;</span>cops.elem_modulus(cpu::features());
         test::run(test_file, |section, test_case| {
             <span class="macro">assert_eq!</span>(section, <span class="string">""</span>);
 
-            <span class="kw">let </span>cops = ops.public_key_ops.common;
-            <span class="kw">let </span>a = consume_elem(cops, test_case, <span class="string">"a"</span>);
-            <span class="kw">let </span>b = consume_elem(cops, test_case, <span class="string">"b"</span>);
-            <span class="kw">let </span>expected_sum = consume_elem(cops, test_case, <span class="string">"r"</span>);
+            <span class="kw">let </span>a = consume_elem(q, test_case, <span class="string">"a"</span>);
+            <span class="kw">let </span>b = consume_elem(q, test_case, <span class="string">"b"</span>);
+            <span class="kw">let </span>expected_sum = consume_elem(q, test_case, <span class="string">"r"</span>);
 
             <span class="kw">let </span><span class="kw-2">mut </span>actual_sum = a;
-            ops.public_key_ops.common.elem_add(<span class="kw-2">&amp;mut </span>actual_sum, <span class="kw-2">&amp;</span>b);
+            q.add_assign(<span class="kw-2">&amp;mut </span>actual_sum, <span class="kw-2">&amp;</span>b);
             assert_limbs_are_equal(cops, <span class="kw-2">&amp;</span>actual_sum.limbs, <span class="kw-2">&amp;</span>expected_sum.limbs);
 
             <span class="kw">let </span><span class="kw-2">mut </span>actual_sum = b;
-            ops.public_key_ops.common.elem_add(<span class="kw-2">&amp;mut </span>actual_sum, <span class="kw-2">&amp;</span>a);
+            q.add_assign(<span class="kw-2">&amp;mut </span>actual_sum, <span class="kw-2">&amp;</span>a);
             assert_limbs_are_equal(cops, <span class="kw-2">&amp;</span>actual_sum.limbs, <span class="kw-2">&amp;</span>expected_sum.limbs);
 
             <span class="prelude-val">Ok</span>(())
@@ -1771,16 +2110,17 @@
     }
 
     <span class="kw">fn </span>elem_sub_test(
-        ops: <span class="kw-2">&amp;</span>CommonOps,
+        ops: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>CommonOps,
         elem_sub: <span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(r: <span class="kw-2">*mut </span>Limb, a: <span class="kw-2">*const </span>Limb, b: <span class="kw-2">*const </span>Limb),
         test_file: test::File,
     ) {
+        <span class="kw">let </span>q = <span class="kw-2">&amp;</span>ops.elem_modulus(cpu::features());
         test::run(test_file, |section, test_case| {
             <span class="macro">assert_eq!</span>(section, <span class="string">""</span>);
 
-            <span class="kw">let </span>a = consume_elem(ops, test_case, <span class="string">"a"</span>);
-            <span class="kw">let </span>b = consume_elem(ops, test_case, <span class="string">"b"</span>);
-            <span class="kw">let </span>r = consume_elem(ops, test_case, <span class="string">"r"</span>);
+            <span class="kw">let </span>a = consume_elem(q, test_case, <span class="string">"a"</span>);
+            <span class="kw">let </span>b = consume_elem(q, test_case, <span class="string">"b"</span>);
+            <span class="kw">let </span>r = consume_elem(q, test_case, <span class="string">"r"</span>);
 
             <span class="kw">let </span><span class="kw-2">mut </span>actual_difference = Elem::&lt;R&gt;::zero();
             <span class="kw">unsafe </span>{
@@ -1822,15 +2162,16 @@
     }
 
     <span class="kw">fn </span>elem_div_by_2_test(
-        ops: <span class="kw-2">&amp;</span>CommonOps,
+        ops: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>CommonOps,
         elem_div_by_2: <span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(r: <span class="kw-2">*mut </span>Limb, a: <span class="kw-2">*const </span>Limb),
         test_file: test::File,
     ) {
+        <span class="kw">let </span>q = <span class="kw-2">&amp;</span>ops.elem_modulus(cpu::features());
         test::run(test_file, |section, test_case| {
             <span class="macro">assert_eq!</span>(section, <span class="string">""</span>);
 
-            <span class="kw">let </span>a = consume_elem(ops, test_case, <span class="string">"a"</span>);
-            <span class="kw">let </span>r = consume_elem(ops, test_case, <span class="string">"r"</span>);
+            <span class="kw">let </span>a = consume_elem(q, test_case, <span class="string">"a"</span>);
+            <span class="kw">let </span>r = consume_elem(q, test_case, <span class="string">"r"</span>);
 
             <span class="kw">let </span><span class="kw-2">mut </span>actual_result = Elem::&lt;R&gt;::zero();
             <span class="kw">unsafe </span>{
@@ -1869,15 +2210,16 @@
     }
 
     <span class="kw">fn </span>elem_neg_test(
-        ops: <span class="kw-2">&amp;</span>CommonOps,
+        ops: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>CommonOps,
         elem_neg: <span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(r: <span class="kw-2">*mut </span>Limb, a: <span class="kw-2">*const </span>Limb),
         test_file: test::File,
     ) {
+        <span class="kw">let </span>q = <span class="kw-2">&amp;</span>ops.elem_modulus(cpu::features());
         test::run(test_file, |section, test_case| {
             <span class="macro">assert_eq!</span>(section, <span class="string">""</span>);
 
-            <span class="kw">let </span>a = consume_elem(ops, test_case, <span class="string">"a"</span>);
-            <span class="kw">let </span>b = consume_elem(ops, test_case, <span class="string">"b"</span>);
+            <span class="kw">let </span>a = consume_elem(q, test_case, <span class="string">"a"</span>);
+            <span class="kw">let </span>b = consume_elem(q, test_case, <span class="string">"b"</span>);
 
             <span class="comment">// Verify -a == b.
             </span>{
@@ -1911,14 +2253,15 @@
         elem_mul_test(<span class="kw-2">&amp;</span>p384::COMMON_OPS, <span class="macro">test_file!</span>(<span class="string">"ops/p384_elem_mul_tests.txt"</span>));
     }
 
-    <span class="kw">fn </span>elem_mul_test(ops: <span class="kw-2">&amp;</span>CommonOps, test_file: test::File) {
+    <span class="kw">fn </span>elem_mul_test(ops: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>CommonOps, test_file: test::File) {
+        <span class="kw">let </span>q = <span class="kw-2">&amp;</span>ops.elem_modulus(cpu::features());
         test::run(test_file, |section, test_case| {
             <span class="macro">assert_eq!</span>(section, <span class="string">""</span>);
 
-            <span class="kw">let </span><span class="kw-2">mut </span>a = consume_elem(ops, test_case, <span class="string">"a"</span>);
-            <span class="kw">let </span>b = consume_elem(ops, test_case, <span class="string">"b"</span>);
-            <span class="kw">let </span>r = consume_elem(ops, test_case, <span class="string">"r"</span>);
-            ops.elem_mul(<span class="kw-2">&amp;mut </span>a, <span class="kw-2">&amp;</span>b);
+            <span class="kw">let </span><span class="kw-2">mut </span>a = consume_elem(q, test_case, <span class="string">"a"</span>);
+            <span class="kw">let </span>b = consume_elem(q, test_case, <span class="string">"b"</span>);
+            <span class="kw">let </span>r = consume_elem(q, test_case, <span class="string">"r"</span>);
+            q.elem_mul(<span class="kw-2">&amp;mut </span>a, <span class="kw-2">&amp;</span>b);
             assert_limbs_are_equal(ops, <span class="kw-2">&amp;</span>a.limbs, <span class="kw-2">&amp;</span>r.limbs);
 
             <span class="prelude-val">Ok</span>(())
@@ -1942,13 +2285,15 @@
     }
 
     <span class="kw">fn </span>scalar_mul_test(ops: <span class="kw-2">&amp;</span>ScalarOps, test_file: test::File) {
+        <span class="kw">let </span>cpu = cpu::features();
+        <span class="kw">let </span>cops = ops.common;
+        <span class="kw">let </span>n = <span class="kw-2">&amp;</span>cops.scalar_modulus(cpu);
         test::run(test_file, |section, test_case| {
             <span class="macro">assert_eq!</span>(section, <span class="string">""</span>);
-            <span class="kw">let </span>cops = ops.common;
-            <span class="kw">let </span>a = consume_scalar(cops, test_case, <span class="string">"a"</span>);
-            <span class="kw">let </span>b = consume_scalar_mont(cops, test_case, <span class="string">"b"</span>);
-            <span class="kw">let </span>expected_result = consume_scalar(cops, test_case, <span class="string">"r"</span>);
-            <span class="kw">let </span>actual_result = ops.scalar_product(<span class="kw-2">&amp;</span>a, <span class="kw-2">&amp;</span>b);
+            <span class="kw">let </span>a = consume_scalar(n, test_case, <span class="string">"a"</span>);
+            <span class="kw">let </span>b = consume_scalar_mont(n, test_case, <span class="string">"b"</span>);
+            <span class="kw">let </span>expected_result = consume_scalar(n, test_case, <span class="string">"r"</span>);
+            <span class="kw">let </span>actual_result = ops.scalar_product(<span class="kw-2">&amp;</span>a, <span class="kw-2">&amp;</span>b, cpu);
             assert_limbs_are_equal(cops, <span class="kw-2">&amp;</span>actual_result.limbs, <span class="kw-2">&amp;</span>expected_result.limbs);
 
             <span class="prelude-val">Ok</span>(())
@@ -1958,7 +2303,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>p256_scalar_square_test() {
         <span class="macro">prefixed_extern!</span> {
-            <span class="kw">fn </span>p256_scalar_sqr_rep_mont(r: <span class="kw-2">*mut </span>Limb, a: <span class="kw-2">*const </span>Limb, rep: Limb);
+            <span class="kw">fn </span>p256_scalar_sqr_rep_mont(r: <span class="kw-2">*mut </span>Limb, a: <span class="kw-2">*const </span>Limb, rep: LeakyWord);
         }
         scalar_square_test(
             <span class="kw-2">&amp;</span>p256::SCALAR_OPS,
@@ -1972,18 +2317,21 @@
 
     </span><span class="kw">fn </span>scalar_square_test(
         ops: <span class="kw-2">&amp;</span>ScalarOps,
-        sqr_rep: <span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(r: <span class="kw-2">*mut </span>Limb, a: <span class="kw-2">*const </span>Limb, rep: Limb),
+        sqr_rep: <span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(r: <span class="kw-2">*mut </span>Limb, a: <span class="kw-2">*const </span>Limb, rep: LeakyWord),
         test_file: test::File,
     ) {
+        <span class="kw">let </span>cpu = cpu::features();
+        <span class="kw">let </span>cops = ops.common;
+        <span class="kw">let </span>n = <span class="kw-2">&amp;</span>cops.scalar_modulus(cpu);
         test::run(test_file, |section, test_case| {
             <span class="macro">assert_eq!</span>(section, <span class="string">""</span>);
-            <span class="kw">let </span>cops = <span class="kw-2">&amp;</span>ops.common;
-            <span class="kw">let </span>a = consume_scalar(cops, test_case, <span class="string">"a"</span>);
-            <span class="kw">let </span>expected_result = consume_scalar(cops, test_case, <span class="string">"r"</span>);
+            <span class="kw">let </span>cpu = cpu::features();
+            <span class="kw">let </span>a = consume_scalar(n, test_case, <span class="string">"a"</span>);
+            <span class="kw">let </span>expected_result = consume_scalar(n, test_case, <span class="string">"r"</span>);
 
             {
                 <span class="kw">let </span><span class="kw-2">mut </span>actual_result: Scalar&lt;R&gt; = Scalar {
-                    limbs: [<span class="number">0</span>; MAX_LIMBS],
+                    limbs: [<span class="number">0</span>; elem::NumLimbs::MAX],
                     m: PhantomData,
                     encoding: PhantomData,
                 };
@@ -1994,7 +2342,7 @@
             }
 
             {
-                <span class="kw">let </span>actual_result = ops.scalar_product(<span class="kw-2">&amp;</span>a, <span class="kw-2">&amp;</span>a);
+                <span class="kw">let </span>actual_result = ops.scalar_product(<span class="kw-2">&amp;</span>a, <span class="kw-2">&amp;</span>a, cpu);
                 assert_limbs_are_equal(cops, <span class="kw-2">&amp;</span>actual_result.limbs, <span class="kw-2">&amp;</span>expected_result.limbs);
             }
 
@@ -2005,13 +2353,13 @@
     <span class="attr">#[test]
     #[should_panic(expected = <span class="string">"!self.scalar_ops.common.is_zero(a)"</span>)]
     </span><span class="kw">fn </span>p256_scalar_inv_to_mont_zero_panic_test() {
-        <span class="kw">let _ </span>= p256::PRIVATE_SCALAR_OPS.scalar_inv_to_mont(<span class="kw-2">&amp;</span>ZERO_SCALAR);
+        <span class="kw">let _ </span>= p256::PRIVATE_SCALAR_OPS.scalar_inv_to_mont(<span class="kw-2">&amp;</span>ZERO_SCALAR, cpu::features());
     }
 
     <span class="attr">#[test]
     #[should_panic(expected = <span class="string">"!self.scalar_ops.common.is_zero(a)"</span>)]
     </span><span class="kw">fn </span>p384_scalar_inv_to_mont_zero_panic_test() {
-        <span class="kw">let _ </span>= p384::PRIVATE_SCALAR_OPS.scalar_inv_to_mont(<span class="kw-2">&amp;</span>ZERO_SCALAR);
+        <span class="kw">let _ </span>= p384::PRIVATE_SCALAR_OPS.scalar_inv_to_mont(<span class="kw-2">&amp;</span>ZERO_SCALAR, cpu::features());
     }
 
     <span class="attr">#[test]
@@ -2031,6 +2379,8 @@
     }
 
     <span class="kw">fn </span>point_sum_test(ops: <span class="kw-2">&amp;</span>PrivateKeyOps, test_file: test::File) {
+        <span class="kw">let </span>cpu = cpu::features();
+
         test::run(test_file, |section, test_case| {
             <span class="macro">assert_eq!</span>(section, <span class="string">""</span>);
 
@@ -2038,7 +2388,7 @@
             <span class="kw">let </span>b = consume_jacobian_point(ops, test_case, <span class="string">"b"</span>);
             <span class="kw">let </span>r_expected: TestPoint&lt;R&gt; = consume_point(ops, test_case, <span class="string">"r"</span>);
 
-            <span class="kw">let </span>r_actual = ops.common.point_sum(<span class="kw-2">&amp;</span>a, <span class="kw-2">&amp;</span>b);
+            <span class="kw">let </span>r_actual = ops.point_sum(<span class="kw-2">&amp;</span>a, <span class="kw-2">&amp;</span>b, cpu);
             assert_point_actual_equals_expected(ops, <span class="kw-2">&amp;</span>r_actual, <span class="kw-2">&amp;</span>r_expected);
 
             <span class="prelude-val">Ok</span>(())
@@ -2148,9 +2498,13 @@
     <span class="doccomment">/// TODO: We should be testing `point_mul` with points other than the generator.
     </span><span class="attr">#[test]
     </span><span class="kw">fn </span>p256_point_mul_test() {
+        <span class="kw">let </span>generator = (
+            Elem::from(<span class="kw-2">&amp;</span>p256::GENERATOR.<span class="number">0</span>),
+            Elem::from(<span class="kw-2">&amp;</span>p256::GENERATOR.<span class="number">1</span>),
+        );
         point_mul_base_tests(
             <span class="kw-2">&amp;</span>p256::PRIVATE_KEY_OPS,
-            |s| p256::PRIVATE_KEY_OPS.point_mul(s, <span class="kw-2">&amp;</span>p256::GENERATOR),
+            |s, cpu| p256::PRIVATE_KEY_OPS.point_mul(s, <span class="kw-2">&amp;</span>generator, cpu),
             <span class="macro">test_file!</span>(<span class="string">"ops/p256_point_mul_base_tests.txt"</span>),
         );
     }
@@ -2158,9 +2512,14 @@
     <span class="doccomment">/// TODO: We should be testing `point_mul` with points other than the generator.
     </span><span class="attr">#[test]
     </span><span class="kw">fn </span>p384_point_mul_test() {
+        <span class="kw">let </span>generator = (
+            Elem::from(<span class="kw-2">&amp;</span>p384::GENERATOR.<span class="number">0</span>),
+            Elem::from(<span class="kw-2">&amp;</span>p384::GENERATOR.<span class="number">1</span>),
+        );
+
         point_mul_base_tests(
             <span class="kw-2">&amp;</span>p384::PRIVATE_KEY_OPS,
-            |s| p384::PRIVATE_KEY_OPS.point_mul(s, <span class="kw-2">&amp;</span>p384::GENERATOR),
+            |s, cpu| p384::PRIVATE_KEY_OPS.point_mul(s, <span class="kw-2">&amp;</span>generator, cpu),
             <span class="macro">test_file!</span>(<span class="string">"ops/p384_point_mul_base_tests.txt"</span>),
         );
     }
@@ -2179,29 +2538,33 @@
         pub_ops: <span class="kw-2">&amp;</span>PublicKeyOps,
         test_file: test::File,
     ) {
+        <span class="kw">let </span>cpu = cpu::features();
         <span class="kw">let </span>cops = pub_ops.common;
-
+        <span class="kw">let </span>q = <span class="kw-2">&amp;</span>cops.elem_modulus(cpu);
+        <span class="kw">let </span>n = <span class="kw-2">&amp;</span>cops.scalar_modulus(cpu);
         test::run(test_file, |section, test_case| {
             <span class="macro">assert_eq!</span>(section, <span class="string">""</span>);
-            <span class="kw">let </span>p_scalar = consume_scalar(cops, test_case, <span class="string">"p_scalar"</span>);
+            <span class="kw">let </span>p_scalar = consume_scalar(n, test_case, <span class="string">"p_scalar"</span>);
 
             <span class="kw">let </span>p = test_case.consume_bytes(<span class="string">"p"</span>);
             <span class="kw">let </span>p = <span class="kw">super</span>::<span class="kw">super</span>::public_key::parse_uncompressed_point(
                 pub_ops,
+                q,
                 untrusted::Input::from(<span class="kw-2">&amp;</span>p),
             )
             .expect(<span class="string">"valid point"</span>);
 
             <span class="kw">let </span>expected_result = test_case.consume_bytes(<span class="string">"r"</span>);
 
-            <span class="kw">let </span>product = priv_ops.point_mul(<span class="kw-2">&amp;</span>p_scalar, <span class="kw-2">&amp;</span>p);
+            <span class="kw">let </span>product = priv_ops.point_mul(<span class="kw-2">&amp;</span>p_scalar, <span class="kw-2">&amp;</span>p, cpu::features());
 
             <span class="kw">let </span><span class="kw-2">mut </span>actual_result = <span class="macro">vec!</span>[<span class="number">4u8</span>; <span class="number">1 </span>+ (<span class="number">2 </span>* cops.len())];
             {
                 <span class="kw">let </span>(x, y) = actual_result[<span class="number">1</span>..].split_at_mut(cops.len());
                 <span class="kw">super</span>::<span class="kw">super</span>::private_key::big_endian_affine_from_jacobian(
                     priv_ops,
-                    <span class="prelude-val">Some</span>(x),
+                    q,
+                    x,
                     <span class="prelude-val">Some</span>(y),
                     <span class="kw-2">&amp;</span>product,
                 )
@@ -2218,7 +2581,7 @@
     </span><span class="kw">fn </span>p256_point_mul_base_test() {
         point_mul_base_tests(
             <span class="kw-2">&amp;</span>p256::PRIVATE_KEY_OPS,
-            |s| p256::PRIVATE_KEY_OPS.point_mul_base(s),
+            |s, cpu| p256::PRIVATE_KEY_OPS.point_mul_base(s, cpu),
             <span class="macro">test_file!</span>(<span class="string">"ops/p256_point_mul_base_tests.txt"</span>),
         );
     }
@@ -2227,21 +2590,23 @@
     </span><span class="kw">fn </span>p384_point_mul_base_test() {
         point_mul_base_tests(
             <span class="kw-2">&amp;</span>p384::PRIVATE_KEY_OPS,
-            |s| p384::PRIVATE_KEY_OPS.point_mul_base(s),
+            |s, cpu| p384::PRIVATE_KEY_OPS.point_mul_base(s, cpu),
             <span class="macro">test_file!</span>(<span class="string">"ops/p384_point_mul_base_tests.txt"</span>),
         );
     }
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>point_mul_base_tests(
         ops: <span class="kw-2">&amp;</span>PrivateKeyOps,
-        f: <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>Scalar) -&gt; Point,
+        f: <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>Scalar, cpu::Features) -&gt; Point,
         test_file: test::File,
     ) {
+        <span class="kw">let </span>cpu = cpu::features();
+        <span class="kw">let </span>n = <span class="kw-2">&amp;</span>ops.common.scalar_modulus(cpu);
         test::run(test_file, |section, test_case| {
             <span class="macro">assert_eq!</span>(section, <span class="string">""</span>);
-            <span class="kw">let </span>g_scalar = consume_scalar(ops.common, test_case, <span class="string">"g_scalar"</span>);
+            <span class="kw">let </span>g_scalar = consume_scalar(n, test_case, <span class="string">"g_scalar"</span>);
             <span class="kw">let </span>expected_result: TestPoint&lt;Unencoded&gt; = consume_point(ops, test_case, <span class="string">"r"</span>);
-            <span class="kw">let </span>actual_result = f(<span class="kw-2">&amp;</span>g_scalar);
+            <span class="kw">let </span>actual_result = f(<span class="kw-2">&amp;</span>g_scalar, cpu);
             assert_point_actual_equals_expected(ops, <span class="kw-2">&amp;</span>actual_result, <span class="kw-2">&amp;</span>expected_result);
             <span class="prelude-val">Ok</span>(())
         })
@@ -2254,29 +2619,32 @@
     ) <span class="kw">where
         </span>Elem&lt;R&gt;: Convert&lt;E&gt;,
     {
+        <span class="kw">let </span>cpu = cpu::features();
+
         <span class="kw">let </span>cops = ops.common;
-        <span class="kw">let </span>actual_x = <span class="kw-2">&amp;</span>cops.point_x(actual_point);
-        <span class="kw">let </span>actual_y = <span class="kw-2">&amp;</span>cops.point_y(actual_point);
-        <span class="kw">let </span>actual_z = <span class="kw-2">&amp;</span>cops.point_z(actual_point);
+        <span class="kw">let </span>q = <span class="kw-2">&amp;</span>cops.elem_modulus(cpu);
+        <span class="kw">let </span>actual_x = <span class="kw-2">&amp;</span>q.point_x(actual_point);
+        <span class="kw">let </span>actual_y = <span class="kw-2">&amp;</span>q.point_y(actual_point);
+        <span class="kw">let </span>actual_z = <span class="kw-2">&amp;</span>q.point_z(actual_point);
         <span class="kw">match </span>expected_point {
             TestPoint::Infinity =&gt; {
                 <span class="kw">let </span>zero = Elem::zero();
-                assert_elems_are_equal(cops, actual_z, <span class="kw-2">&amp;</span>zero);
+                assert_elems_are_equal(q, actual_z, <span class="kw-2">&amp;</span>zero);
             }
             TestPoint::Affine(expected_x, expected_y) =&gt; {
-                <span class="kw">let </span>zz_inv = ops.elem_inverse_squared(actual_z);
-                <span class="kw">let </span>x_aff = cops.elem_product(actual_x, <span class="kw-2">&amp;</span>zz_inv);
+                <span class="kw">let </span>zz_inv = ops.elem_inverse_squared(q, actual_z);
+                <span class="kw">let </span>x_aff = q.elem_product(actual_x, <span class="kw-2">&amp;</span>zz_inv);
                 <span class="kw">let </span>y_aff = {
-                    <span class="kw">let </span>zzzz_inv = cops.elem_squared(<span class="kw-2">&amp;</span>zz_inv);
-                    <span class="kw">let </span>zzz_inv = cops.elem_product(actual_z, <span class="kw-2">&amp;</span>zzzz_inv);
-                    cops.elem_product(actual_y, <span class="kw-2">&amp;</span>zzz_inv)
+                    <span class="kw">let </span>zzzz_inv = q.elem_squared(<span class="kw-2">&amp;</span>zz_inv);
+                    <span class="kw">let </span>zzz_inv = q.elem_product(actual_z, <span class="kw-2">&amp;</span>zzzz_inv);
+                    q.elem_product(actual_y, <span class="kw-2">&amp;</span>zzz_inv)
                 };
 
-                <span class="kw">let </span>x_aff = x_aff.convert(cops);
-                <span class="kw">let </span>y_aff = y_aff.convert(cops);
+                <span class="kw">let </span>x_aff = x_aff.convert(q);
+                <span class="kw">let </span>y_aff = y_aff.convert(q);
 
-                assert_elems_are_equal(cops, <span class="kw-2">&amp;</span>x_aff, expected_x);
-                assert_elems_are_equal(cops, <span class="kw-2">&amp;</span>y_aff, expected_y);
+                assert_elems_are_equal(q, <span class="kw-2">&amp;</span>x_aff, expected_x);
+                assert_elems_are_equal(q, <span class="kw-2">&amp;</span>y_aff, expected_y);
             }
         }
     }
@@ -2286,18 +2654,19 @@
         test_case: <span class="kw-2">&amp;mut </span>test::TestCase,
         name: <span class="kw-2">&amp;</span>str,
     ) -&gt; Point {
+        <span class="kw">let </span>q = <span class="kw-2">&amp;</span>ops.common.elem_modulus(cpu::features());
         <span class="kw">let </span>input = test_case.consume_string(name);
         <span class="kw">let </span>elems = input.split(<span class="string">", "</span>).collect::&lt;Vec&lt;<span class="kw-2">&amp;</span>str&gt;&gt;();
         <span class="macro">assert_eq!</span>(elems.len(), <span class="number">3</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>p = Point::new_at_infinity();
-        consume_point_elem(ops.common, <span class="kw-2">&amp;mut </span>p.xyz, <span class="kw-2">&amp;</span>elems, <span class="number">0</span>);
-        consume_point_elem(ops.common, <span class="kw-2">&amp;mut </span>p.xyz, <span class="kw-2">&amp;</span>elems, <span class="number">1</span>);
-        consume_point_elem(ops.common, <span class="kw-2">&amp;mut </span>p.xyz, <span class="kw-2">&amp;</span>elems, <span class="number">2</span>);
+        consume_point_elem(q, <span class="kw-2">&amp;mut </span>p.xyz, <span class="kw-2">&amp;</span>elems, <span class="number">0</span>);
+        consume_point_elem(q, <span class="kw-2">&amp;mut </span>p.xyz, <span class="kw-2">&amp;</span>elems, <span class="number">1</span>);
+        consume_point_elem(q, <span class="kw-2">&amp;mut </span>p.xyz, <span class="kw-2">&amp;</span>elems, <span class="number">2</span>);
         p
     }
 
     <span class="kw">struct </span>AffinePoint {
-        xy: [Limb; <span class="number">2 </span>* MAX_LIMBS],
+        xy: [Limb; <span class="number">2 </span>* elem::NumLimbs::MAX],
     }
 
     <span class="kw">fn </span>consume_affine_point(
@@ -2305,24 +2674,25 @@
         test_case: <span class="kw-2">&amp;mut </span>test::TestCase,
         name: <span class="kw-2">&amp;</span>str,
     ) -&gt; AffinePoint {
+        <span class="kw">let </span>q = <span class="kw-2">&amp;</span>ops.common.elem_modulus(cpu::features());
         <span class="kw">let </span>input = test_case.consume_string(name);
         <span class="kw">let </span>elems = input.split(<span class="string">", "</span>).collect::&lt;Vec&lt;<span class="kw-2">&amp;</span>str&gt;&gt;();
         <span class="macro">assert_eq!</span>(elems.len(), <span class="number">2</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>p = AffinePoint {
-            xy: [<span class="number">0</span>; <span class="number">2 </span>* MAX_LIMBS],
+            xy: [<span class="number">0</span>; <span class="number">2 </span>* elem::NumLimbs::MAX],
         };
-        consume_point_elem(ops.common, <span class="kw-2">&amp;mut </span>p.xy, <span class="kw-2">&amp;</span>elems, <span class="number">0</span>);
-        consume_point_elem(ops.common, <span class="kw-2">&amp;mut </span>p.xy, <span class="kw-2">&amp;</span>elems, <span class="number">1</span>);
+        consume_point_elem(q, <span class="kw-2">&amp;mut </span>p.xy, <span class="kw-2">&amp;</span>elems, <span class="number">0</span>);
+        consume_point_elem(q, <span class="kw-2">&amp;mut </span>p.xy, <span class="kw-2">&amp;</span>elems, <span class="number">1</span>);
         p
     }
 
-    <span class="kw">fn </span>consume_point_elem(ops: <span class="kw-2">&amp;</span>CommonOps, limbs_out: <span class="kw-2">&amp;mut </span>[Limb], elems: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>str], i: usize) {
+    <span class="kw">fn </span>consume_point_elem(q: <span class="kw-2">&amp;</span>Modulus&lt;Q&gt;, limbs_out: <span class="kw-2">&amp;mut </span>[Limb], elems: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>str], i: usize) {
+        <span class="kw">let </span>num_limbs = q.num_limbs.into();
         <span class="kw">let </span>bytes = test::from_hex(elems[i]).unwrap();
         <span class="kw">let </span>bytes = untrusted::Input::from(<span class="kw-2">&amp;</span>bytes);
-        <span class="kw">let </span>r: Elem&lt;Unencoded&gt; = elem_parse_big_endian_fixed_consttime(ops, bytes).unwrap();
+        <span class="kw">let </span>r: Elem&lt;Unencoded&gt; = elem_parse_big_endian_fixed_consttime(q, bytes).unwrap();
         <span class="comment">// XXX: “Transmute” this to `Elem&lt;R&gt;` limbs.
-        </span>limbs_out[(i * ops.num_limbs)..((i + <span class="number">1</span>) * ops.num_limbs)]
-            .copy_from_slice(<span class="kw-2">&amp;</span>r.limbs[..ops.num_limbs]);
+        </span>limbs_out[(i * num_limbs)..((i + <span class="number">1</span>) * num_limbs)].copy_from_slice(<span class="kw-2">&amp;</span>r.limbs[..num_limbs]);
     }
 
     <span class="kw">enum </span>TestPoint&lt;E: Encoding&gt; {
@@ -2335,11 +2705,12 @@
         test_case: <span class="kw-2">&amp;mut </span>test::TestCase,
         name: <span class="kw-2">&amp;</span>str,
     ) -&gt; TestPoint&lt;E&gt; {
-        <span class="kw">fn </span>consume_point_elem&lt;E: Encoding&gt;(ops: <span class="kw-2">&amp;</span>CommonOps, elems: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>str], i: usize) -&gt; Elem&lt;E&gt; {
+        <span class="kw">let </span>q = <span class="kw-2">&amp;</span>ops.common.elem_modulus(cpu::features());
+        <span class="kw">fn </span>consume_point_elem&lt;E: Encoding&gt;(q: <span class="kw-2">&amp;</span>Modulus&lt;Q&gt;, elems: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>str], i: usize) -&gt; Elem&lt;E&gt; {
             <span class="kw">let </span>bytes = test::from_hex(elems[i]).unwrap();
             <span class="kw">let </span>bytes = untrusted::Input::from(<span class="kw-2">&amp;</span>bytes);
             <span class="kw">let </span>unencoded: Elem&lt;Unencoded&gt; =
-                elem_parse_big_endian_fixed_consttime(ops, bytes).unwrap();
+                elem_parse_big_endian_fixed_consttime(q, bytes).unwrap();
             <span class="comment">// XXX: “Transmute” this to `Elem&lt;R&gt;` limbs.
             </span>Elem {
                 limbs: unencoded.limbs,
@@ -2354,28 +2725,29 @@
         }
         <span class="kw">let </span>elems = input.split(<span class="string">", "</span>).collect::&lt;Vec&lt;<span class="kw-2">&amp;</span>str&gt;&gt;();
         <span class="macro">assert_eq!</span>(elems.len(), <span class="number">2</span>);
-        <span class="kw">let </span>x = consume_point_elem(ops.common, <span class="kw-2">&amp;</span>elems, <span class="number">0</span>);
-        <span class="kw">let </span>y = consume_point_elem(ops.common, <span class="kw-2">&amp;</span>elems, <span class="number">1</span>);
+        <span class="kw">let </span>x = consume_point_elem(q, <span class="kw-2">&amp;</span>elems, <span class="number">0</span>);
+        <span class="kw">let </span>y = consume_point_elem(q, <span class="kw-2">&amp;</span>elems, <span class="number">1</span>);
         TestPoint::Affine(x, y)
     }
 
-    <span class="kw">fn </span>assert_elems_are_equal&lt;E: Encoding&gt;(ops: <span class="kw-2">&amp;</span>CommonOps, a: <span class="kw-2">&amp;</span>Elem&lt;E&gt;, b: <span class="kw-2">&amp;</span>Elem&lt;E&gt;) {
-        assert_limbs_are_equal(ops, <span class="kw-2">&amp;</span>a.limbs, <span class="kw-2">&amp;</span>b.limbs)
+    <span class="kw">fn </span>assert_elems_are_equal&lt;E: Encoding&gt;(q: <span class="kw-2">&amp;</span>Modulus&lt;Q&gt;, a: <span class="kw-2">&amp;</span>Elem&lt;E&gt;, b: <span class="kw-2">&amp;</span>Elem&lt;E&gt;) {
+        assert_limbs_are_equal(q.cops, <span class="kw-2">&amp;</span>a.limbs, <span class="kw-2">&amp;</span>b.limbs)
     }
 
     <span class="kw">fn </span>assert_limbs_are_equal(
         ops: <span class="kw-2">&amp;</span>CommonOps,
-        actual: <span class="kw-2">&amp;</span>[Limb; MAX_LIMBS],
-        expected: <span class="kw-2">&amp;</span>[Limb; MAX_LIMBS],
+        actual: <span class="kw-2">&amp;</span>[Limb; elem::NumLimbs::MAX],
+        expected: <span class="kw-2">&amp;</span>[Limb; elem::NumLimbs::MAX],
     ) {
-        <span class="kw">if </span>actual[..ops.num_limbs] != expected[..ops.num_limbs] {
+        <span class="kw">let </span>num_limbs = ops.num_limbs.into();
+        <span class="kw">if </span>actual[..num_limbs] != expected[..num_limbs] {
             <span class="kw">let </span><span class="kw-2">mut </span>actual_s = alloc::string::String::new();
             <span class="kw">let </span><span class="kw-2">mut </span>expected_s = alloc::string::String::new();
-            <span class="kw">for </span>j <span class="kw">in </span><span class="number">0</span>..ops.num_limbs {
+            <span class="kw">for </span>j <span class="kw">in </span><span class="number">0</span>..num_limbs {
                 <span class="kw">let </span>width = LIMB_BITS / <span class="number">4</span>;
-                <span class="kw">let </span>formatted = <span class="macro">format!</span>(<span class="string">"{:0width$x}"</span>, actual[ops.num_limbs - j - <span class="number">1</span>]);
+                <span class="kw">let </span>formatted = <span class="macro">format!</span>(<span class="string">"{:0width$x}"</span>, actual[num_limbs - j - <span class="number">1</span>]);
                 actual_s.push_str(<span class="kw-2">&amp;</span>formatted);
-                <span class="kw">let </span>formatted = <span class="macro">format!</span>(<span class="string">"{:0width$x}"</span>, expected[ops.num_limbs - j - <span class="number">1</span>]);
+                <span class="kw">let </span>formatted = <span class="macro">format!</span>(<span class="string">"{:0width$x}"</span>, expected[num_limbs - j - <span class="number">1</span>]);
                 expected_s.push_str(<span class="kw-2">&amp;</span>formatted);
             }
             <span class="macro">panic!</span>(
@@ -2385,10 +2757,13 @@
         }
     }
 
-    <span class="kw">fn </span>consume_elem(ops: <span class="kw-2">&amp;</span>CommonOps, test_case: <span class="kw-2">&amp;mut </span>test::TestCase, name: <span class="kw-2">&amp;</span>str) -&gt; Elem&lt;R&gt; {
-        <span class="kw">let </span>bytes = consume_padded_bytes(ops, test_case, name);
+    <span class="kw">fn </span>consume_elem(q: <span class="kw-2">&amp;</span>Modulus&lt;Q&gt;, test_case: <span class="kw-2">&amp;mut </span>test::TestCase, name: <span class="kw-2">&amp;</span>str) -&gt; Elem&lt;R&gt; {
+        <span class="kw">let </span>unpadded_bytes = test_case.consume_bytes(name);
+        <span class="kw">let </span><span class="kw-2">mut </span>bytes = <span class="macro">vec!</span>[<span class="number">0</span>; q.bytes_len() - unpadded_bytes.len()];
+        bytes.extend(<span class="kw-2">&amp;</span>unpadded_bytes);
+
         <span class="kw">let </span>bytes = untrusted::Input::from(<span class="kw-2">&amp;</span>bytes);
-        <span class="kw">let </span>r: Elem&lt;Unencoded&gt; = elem_parse_big_endian_fixed_consttime(ops, bytes).unwrap();
+        <span class="kw">let </span>r: Elem&lt;Unencoded&gt; = elem_parse_big_endian_fixed_consttime(q, bytes).unwrap();
         <span class="comment">// XXX: “Transmute” this to an `Elem&lt;R&gt;`.
         </span>Elem {
             limbs: r.limbs,
@@ -2397,37 +2772,26 @@
         }
     }
 
-    <span class="kw">fn </span>consume_scalar(ops: <span class="kw-2">&amp;</span>CommonOps, test_case: <span class="kw-2">&amp;mut </span>test::TestCase, name: <span class="kw-2">&amp;</span>str) -&gt; Scalar {
+    <span class="kw">fn </span>consume_scalar(n: <span class="kw-2">&amp;</span>Modulus&lt;N&gt;, test_case: <span class="kw-2">&amp;mut </span>test::TestCase, name: <span class="kw-2">&amp;</span>str) -&gt; Scalar {
         <span class="kw">let </span>bytes = test_case.consume_bytes(name);
         <span class="kw">let </span>bytes = untrusted::Input::from(<span class="kw-2">&amp;</span>bytes);
-        scalar_parse_big_endian_variable(ops, AllowZero::Yes, bytes).unwrap()
+        scalar_parse_big_endian_variable(n, AllowZero::Yes, bytes).unwrap()
     }
 
     <span class="kw">fn </span>consume_scalar_mont(
-        ops: <span class="kw-2">&amp;</span>CommonOps,
+        n: <span class="kw-2">&amp;</span>Modulus&lt;N&gt;,
         test_case: <span class="kw-2">&amp;mut </span>test::TestCase,
         name: <span class="kw-2">&amp;</span>str,
     ) -&gt; Scalar&lt;R&gt; {
         <span class="kw">let </span>bytes = test_case.consume_bytes(name);
         <span class="kw">let </span>bytes = untrusted::Input::from(<span class="kw-2">&amp;</span>bytes);
-        <span class="kw">let </span>s = scalar_parse_big_endian_variable(ops, AllowZero::Yes, bytes).unwrap();
+        <span class="kw">let </span>s = scalar_parse_big_endian_variable(n, AllowZero::Yes, bytes).unwrap();
         <span class="comment">// “Transmute” it to a `Scalar&lt;R&gt;`.
         </span>Scalar {
             limbs: s.limbs,
             m: PhantomData,
             encoding: PhantomData,
         }
-    }
-
-    <span class="kw">fn </span>consume_padded_bytes(
-        ops: <span class="kw-2">&amp;</span>CommonOps,
-        test_case: <span class="kw-2">&amp;mut </span>test::TestCase,
-        name: <span class="kw-2">&amp;</span>str,
-    ) -&gt; Vec&lt;u8&gt; {
-        <span class="kw">let </span>unpadded_bytes = test_case.consume_bytes(name);
-        <span class="kw">let </span><span class="kw-2">mut </span>bytes = <span class="macro">vec!</span>[<span class="number">0</span>; ops.len() - unpadded_bytes.len()];
-        bytes.extend(<span class="kw-2">&amp;</span>unpadded_bytes);
-        bytes
     }
 }
 

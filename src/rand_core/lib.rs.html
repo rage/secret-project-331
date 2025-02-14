@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand_core-0.6.4/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rand_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand_core-0.9.0/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rand_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rand_core/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -529,7 +530,71 @@
 <a href="#529" id="529">529</a>
 <a href="#530" id="530">530</a>
 <a href="#531" id="531">531</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright 2018 Developers of the Rand project.
+<a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
+<a href="#543" id="543">543</a>
+<a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a></pre></div><pre class="rust"><code><span class="comment">// Copyright 2018 Developers of the Rand project.
 // Copyright 2017-2018 The Rust Project Developers.
 //
 // Licensed under the Apache License, Version 2.0 &lt;LICENSE-APACHE or
@@ -550,9 +615,6 @@
 //! [`SeedableRng`] is an extension trait for construction from fixed seeds and
 //! other random number generators.
 //!
-//! [`Error`] is provided for error-handling. It is safe to use in `no_std`
-//! environments.
-//!
 //! The [`impls`] and [`le`] sub-modules include a few small functions to assist
 //! implementation of [`RngCore`].
 //!
@@ -566,32 +628,28 @@
 #![deny(missing_docs)]
 #![deny(missing_debug_implementations)]
 #![doc(test(attr(allow(unused_variables), deny(warnings))))]
-#![cfg_attr(doc_cfg, feature(doc_cfg))]
+#![cfg_attr(docsrs, feature(doc_auto_cfg))]
 #![no_std]
 
-</span><span class="kw">use </span>core::convert::AsMut;
-<span class="kw">use </span>core::default::Default;
+#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">extern crate </span>std;
 
-<span class="attr">#[cfg(feature = <span class="string">"std"</span>)] </span><span class="kw">extern crate </span>std;
-<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)] </span><span class="kw">extern crate </span>alloc;
-<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)] </span><span class="kw">use </span>alloc::boxed::Box;
-
-<span class="kw">pub use </span>error::Error;
-<span class="attr">#[cfg(feature = <span class="string">"getrandom"</span>)] </span><span class="kw">pub use </span>os::OsRng;
-
+<span class="kw">use </span>core::{fmt, ops::DerefMut};
 
 <span class="kw">pub mod </span>block;
-<span class="kw">mod </span>error;
 <span class="kw">pub mod </span>impls;
 <span class="kw">pub mod </span>le;
-<span class="attr">#[cfg(feature = <span class="string">"getrandom"</span>)] </span><span class="kw">mod </span>os;
+<span class="attr">#[cfg(feature = <span class="string">"os_rng"</span>)]
+</span><span class="kw">mod </span>os;
 
+<span class="attr">#[cfg(feature = <span class="string">"os_rng"</span>)]
+</span><span class="kw">pub use </span>os::{OsError, OsRng};
 
-<span class="doccomment">/// The core of a random number generator.
+<span class="doccomment">/// Implementation-level interface for RNGs
 ///
 /// This trait encapsulates the low-level functionality common to all
 /// generators, and is the "back end", to be implemented by generators.
-/// End users should normally use the `Rng` trait from the [`rand`] crate,
+/// End users should normally use the [`rand::Rng`] trait
 /// which is automatically implemented for every type implementing `RngCore`.
 ///
 /// Three different methods for generating random data are provided since the
@@ -601,11 +659,6 @@
 /// values and drop any remaining unused bytes. The same can happen with the
 /// [`next_u32`] and [`next_u64`] methods, implementations may discard some
 /// random bits for efficiency.
-///
-/// The [`try_fill_bytes`] method is a variant of [`fill_bytes`] allowing error
-/// handling; it is not deemed sufficiently useful to add equivalents for
-/// [`next_u32`] or [`next_u64`] since the latter methods are almost always used
-/// with algorithmic generators (PRNGs), which are normally infallible.
 ///
 /// Implementers should produce bits uniformly. Pathological RNGs (e.g. always
 /// returning the same value, or never setting certain bits) can break rejection
@@ -620,6 +673,10 @@
 /// Typically an RNG will implement only one of the methods available
 /// in this trait directly, then use the helper functions from the
 /// [`impls`] module to implement the other methods.
+///
+/// Note that implementors of [`RngCore`] also automatically implement
+/// the [`TryRngCore`] trait with the `Error` associated type being
+/// equal to [`Infallible`].
 ///
 /// It is recommended that implementations also implement:
 ///
@@ -641,7 +698,7 @@
 ///
 /// ```
 /// #![allow(dead_code)]
-/// use rand_core::{RngCore, Error, impls};
+/// use rand_core::{RngCore, impls};
 ///
 /// struct CountingRng(u64);
 ///
@@ -655,21 +712,17 @@
 ///         self.0
 ///     }
 ///
-///     fn fill_bytes(&amp;mut self, dest: &amp;mut [u8]) {
-///         impls::fill_bytes_via_next(self, dest)
-///     }
-///
-///     fn try_fill_bytes(&amp;mut self, dest: &amp;mut [u8]) -&gt; Result&lt;(), Error&gt; {
-///         Ok(self.fill_bytes(dest))
+///     fn fill_bytes(&amp;mut self, dst: &amp;mut [u8]) {
+///         impls::fill_bytes_via_next(self, dst)
 ///     }
 /// }
 /// ```
 ///
-/// [`rand`]: https://docs.rs/rand
-/// [`try_fill_bytes`]: RngCore::try_fill_bytes
+/// [`rand::Rng`]: https://docs.rs/rand/latest/rand/trait.Rng.html
 /// [`fill_bytes`]: RngCore::fill_bytes
 /// [`next_u32`]: RngCore::next_u32
 /// [`next_u64`]: RngCore::next_u64
+/// [`Infallible`]: core::convert::Infallible
 </span><span class="kw">pub trait </span>RngCore {
     <span class="doccomment">/// Return the next random `u32`.
     ///
@@ -689,34 +742,37 @@
     ///
     /// RNGs must implement at least one method from this trait directly. In
     /// the case this method is not implemented directly, it can be implemented
-    /// via [`impls::fill_bytes_via_next`] or
-    /// via [`RngCore::try_fill_bytes`]; if this generator can
-    /// fail the implementation must choose how best to handle errors here
-    /// (e.g. panic with a descriptive message or log a warning and retry a few
-    /// times).
+    /// via [`impls::fill_bytes_via_next`].
     ///
     /// This method should guarantee that `dest` is entirely filled
     /// with new data, and may panic if this is impossible
     /// (e.g. reading past the end of a file that is being used as the
     /// source of randomness).
-    </span><span class="kw">fn </span>fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: <span class="kw-2">&amp;mut </span>[u8]);
-
-    <span class="doccomment">/// Fill `dest` entirely with random data.
-    ///
-    /// This is the only method which allows an RNG to report errors while
-    /// generating random data thus making this the primary method implemented
-    /// by external (true) RNGs (e.g. `OsRng`) which can fail. It may be used
-    /// directly to generate keys and to seed (infallible) PRNGs.
-    ///
-    /// Other than error handling, this method is identical to [`RngCore::fill_bytes`];
-    /// thus this may be implemented using `Ok(self.fill_bytes(dest))` or
-    /// `fill_bytes` may be implemented with
-    /// `self.try_fill_bytes(dest).unwrap()` or more specific error handling.
-    </span><span class="kw">fn </span>try_fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;;
+    </span><span class="kw">fn </span>fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dst: <span class="kw-2">&amp;mut </span>[u8]);
 }
 
-<span class="doccomment">/// A marker trait used to indicate that an [`RngCore`] or [`BlockRngCore`]
-/// implementation is supposed to be cryptographically secure.
+<span class="kw">impl</span>&lt;T: DerefMut&gt; RngCore <span class="kw">for </span>T
+<span class="kw">where
+    </span>T::Target: RngCore,
+{
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>next_u32(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u32 {
+        <span class="self">self</span>.deref_mut().next_u32()
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>next_u64(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
+        <span class="self">self</span>.deref_mut().next_u64()
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dst: <span class="kw-2">&amp;mut </span>[u8]) {
+        <span class="self">self</span>.deref_mut().fill_bytes(dst);
+    }
+}
+
+<span class="doccomment">/// A marker trait used to indicate that an [`RngCore`] implementation is
+/// supposed to be cryptographically secure.
 ///
 /// *Cryptographically secure generators*, also known as *CSPRNGs*, should
 /// satisfy an additional properties over other generators: given the first
@@ -736,37 +792,110 @@
 /// Note also that use of a `CryptoRng` does not protect against other
 /// weaknesses such as seeding from a weak entropy source or leaking state.
 ///
+/// Note that implementors of [`CryptoRng`] also automatically implement
+/// the [`TryCryptoRng`] trait.
+///
 /// [`BlockRngCore`]: block::BlockRngCore
-</span><span class="kw">pub trait </span>CryptoRng {}
+/// [`Infallible`]: core::convert::Infallible
+</span><span class="kw">pub trait </span>CryptoRng: RngCore {}
 
-<span class="doccomment">/// An extension trait that is automatically implemented for any type
-/// implementing [`RngCore`] and [`CryptoRng`].
+<span class="kw">impl</span>&lt;T: DerefMut&gt; CryptoRng <span class="kw">for </span>T <span class="kw">where </span>T::Target: CryptoRng {}
+
+<span class="doccomment">/// A potentially fallible variant of [`RngCore`]
 ///
-/// It may be used as a trait object, and supports upcasting to [`RngCore`] via
-/// the [`CryptoRngCore::as_rngcore`] method.
+/// This trait is a generalization of [`RngCore`] to support potentially-
+/// fallible IO-based generators such as [`OsRng`].
 ///
-/// # Example
+/// All implementations of [`RngCore`] automatically support this `TryRngCore`
+/// trait, using [`Infallible`][core::convert::Infallible] as the associated
+/// `Error` type.
 ///
-/// ```
-/// use rand_core::CryptoRngCore;
-///
-/// #[allow(unused)]
-/// fn make_token(rng: &amp;mut dyn CryptoRngCore) -&gt; [u8; 32] {
-///     let mut buf = [0u8; 32];
-///     rng.fill_bytes(&amp;mut buf);
-///     buf
-/// }
-/// ```
-</span><span class="kw">pub trait </span>CryptoRngCore: CryptoRng + RngCore {
-    <span class="doccomment">/// Upcast to an [`RngCore`] trait object.
-    </span><span class="kw">fn </span>as_rngcore(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>RngCore;
+/// An implementation of this trait may be made compatible with code requiring
+/// an [`RngCore`] through [`TryRngCore::unwrap_err`]. The resulting RNG will
+/// panic in case the underlying fallible RNG yields an error.
+</span><span class="kw">pub trait </span>TryRngCore {
+    <span class="doccomment">/// The type returned in the event of a RNG error.
+    </span><span class="kw">type </span>Error: fmt::Debug + fmt::Display;
+
+    <span class="doccomment">/// Return the next random `u32`.
+    </span><span class="kw">fn </span>try_next_u32(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u32, <span class="self">Self</span>::Error&gt;;
+    <span class="doccomment">/// Return the next random `u64`.
+    </span><span class="kw">fn </span>try_next_u64(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u64, <span class="self">Self</span>::Error&gt;;
+    <span class="doccomment">/// Fill `dest` entirely with random data.
+    </span><span class="kw">fn </span>try_fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dst: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;;
+
+    <span class="doccomment">/// Wrap RNG with the [`UnwrapErr`] wrapper.
+    </span><span class="kw">fn </span>unwrap_err(<span class="self">self</span>) -&gt; UnwrapErr&lt;<span class="self">Self</span>&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+    {
+        UnwrapErr(<span class="self">self</span>)
+    }
+
+    <span class="doccomment">/// Convert an [`RngCore`] to a [`RngReadAdapter`].
+    </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+    </span><span class="kw">fn </span>read_adapter(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; RngReadAdapter&lt;<span class="lifetime">'_</span>, <span class="self">Self</span>&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+    {
+        RngReadAdapter { inner: <span class="self">self </span>}
+    }
 }
 
-<span class="kw">impl</span>&lt;T: CryptoRng + RngCore&gt; CryptoRngCore <span class="kw">for </span>T {
-    <span class="kw">fn </span>as_rngcore(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>RngCore {
-        <span class="self">self
-    </span>}
+<span class="comment">// Note that, unfortunately, this blanket impl prevents us from implementing
+// `TryRngCore` for types which can be dereferenced to `TryRngCore`, i.e. `TryRngCore`
+// will not be automatically implemented for `&amp;mut R`, `Box&lt;R&gt;`, etc.
+</span><span class="kw">impl</span>&lt;R: RngCore&gt; TryRngCore <span class="kw">for </span>R {
+    <span class="kw">type </span>Error = core::convert::Infallible;
+
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>try_next_u32(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u32, <span class="self">Self</span>::Error&gt; {
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.next_u32())
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>try_next_u64(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u64, <span class="self">Self</span>::Error&gt; {
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.next_u64())
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>try_fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dst: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
+        <span class="self">self</span>.fill_bytes(dst);
+        <span class="prelude-val">Ok</span>(())
+    }
 }
+
+<span class="doccomment">/// A marker trait used to indicate that a [`TryRngCore`] implementation is
+/// supposed to be cryptographically secure.
+///
+/// See [`CryptoRng`] docs for more information about cryptographically secure generators.
+</span><span class="kw">pub trait </span>TryCryptoRng: TryRngCore {}
+
+<span class="kw">impl</span>&lt;R: CryptoRng&gt; TryCryptoRng <span class="kw">for </span>R {}
+
+<span class="doccomment">/// Wrapper around [`TryRngCore`] implementation which implements [`RngCore`]
+/// by panicking on potential errors.
+</span><span class="attr">#[derive(Debug, Default, Clone, Copy, Eq, PartialEq, Hash)]
+</span><span class="kw">pub struct </span>UnwrapErr&lt;R: TryRngCore&gt;(<span class="kw">pub </span>R);
+
+<span class="kw">impl</span>&lt;R: TryRngCore&gt; RngCore <span class="kw">for </span>UnwrapErr&lt;R&gt; {
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>next_u32(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u32 {
+        <span class="self">self</span>.<span class="number">0</span>.try_next_u32().unwrap()
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>next_u64(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
+        <span class="self">self</span>.<span class="number">0</span>.try_next_u64().unwrap()
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dst: <span class="kw-2">&amp;mut </span>[u8]) {
+        <span class="self">self</span>.<span class="number">0</span>.try_fill_bytes(dst).unwrap()
+    }
+}
+
+<span class="kw">impl</span>&lt;R: TryCryptoRng&gt; CryptoRng <span class="kw">for </span>UnwrapErr&lt;R&gt; {}
 
 <span class="doccomment">/// A random number generator that can be explicitly seeded.
 ///
@@ -787,22 +916,28 @@
     ///
     /// # Implementing `SeedableRng` for RNGs with large seeds
     ///
-    /// Note that the required traits `core::default::Default` and
-    /// `core::convert::AsMut&lt;u8&gt;` are not implemented for large arrays
-    /// `[u8; N]` with `N` &gt; 32. To be able to implement the traits required by
-    /// `SeedableRng` for RNGs with such large seeds, the newtype pattern can be
-    /// used:
+    /// Note that [`Default`] is not implemented for large arrays `[u8; N]` with
+    /// `N` &gt; 32. To be able to implement the traits required by `SeedableRng`
+    /// for RNGs with such large seeds, the newtype pattern can be used:
     ///
     /// ```
     /// use rand_core::SeedableRng;
     ///
     /// const N: usize = 64;
+    /// #[derive(Clone)]
     /// pub struct MyRngSeed(pub [u8; N]);
+    /// # #[allow(dead_code)]
     /// pub struct MyRng(MyRngSeed);
     ///
     /// impl Default for MyRngSeed {
     ///     fn default() -&gt; MyRngSeed {
     ///         MyRngSeed([0; N])
+    ///     }
+    /// }
+    ///
+    /// impl AsRef&lt;[u8]&gt; for MyRngSeed {
+    ///     fn as_ref(&amp;self) -&gt; &amp;[u8] {
+    ///         &amp;self.0
     ///     }
     /// }
     ///
@@ -820,7 +955,7 @@
     ///     }
     /// }
     /// ```
-    </span><span class="kw">type </span>Seed: Sized + Default + AsMut&lt;[u8]&gt;;
+    </span><span class="kw">type </span>Seed: Clone + Default + AsRef&lt;[u8]&gt; + AsMut&lt;[u8]&gt;;
 
     <span class="doccomment">/// Create a new PRNG using the given seed.
     ///
@@ -894,7 +1029,7 @@
         <span class="self">Self</span>::from_seed(seed)
     }
 
-    <span class="doccomment">/// Create a new PRNG seeded from another `Rng`.
+    <span class="doccomment">/// Create a new PRNG seeded from an infallible `Rng`.
     ///
     /// This may be useful when needing to rapidly seed many PRNGs from a master
     /// PRNG, and to allow forking of PRNGs. It may be considered deterministic.
@@ -918,7 +1053,16 @@
     /// (in prior versions this was not required).
     ///
     /// [`rand`]: https://docs.rs/rand
-    </span><span class="kw">fn </span>from_rng&lt;R: RngCore&gt;(<span class="kw-2">mut </span>rng: R) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+    </span><span class="kw">fn </span>from_rng(rng: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>RngCore) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>seed = <span class="self">Self</span>::Seed::default();
+        rng.fill_bytes(seed.as_mut());
+        <span class="self">Self</span>::from_seed(seed)
+    }
+
+    <span class="doccomment">/// Create a new PRNG seeded from a potentially fallible `Rng`.
+    ///
+    /// See [`from_rng`][SeedableRng::from_rng] docs for more information.
+    </span><span class="kw">fn </span>try_from_rng&lt;R: TryRngCore&gt;(rng: <span class="kw-2">&amp;mut </span>R) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, R::Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>seed = <span class="self">Self</span>::Seed::default();
         rng.try_fill_bytes(seed.as_mut())<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="self">Self</span>::from_seed(seed))
@@ -929,91 +1073,77 @@
     /// This method is the recommended way to construct non-deterministic PRNGs
     /// since it is convenient and secure.
     ///
+    /// Note that this method may panic on (extremely unlikely) [`getrandom`] errors.
+    /// If it's not desirable, use the [`try_from_os_rng`] method instead.
+    ///
     /// In case the overhead of using [`getrandom`] to seed *many* PRNGs is an
     /// issue, one may prefer to seed from a local PRNG, e.g.
-    /// `from_rng(thread_rng()).unwrap()`.
+    /// `from_rng(rand::rng()).unwrap()`.
     ///
     /// # Panics
     ///
     /// If [`getrandom`] is unable to provide secure entropy this method will panic.
     ///
     /// [`getrandom`]: https://docs.rs/getrandom
-    </span><span class="attr">#[cfg(feature = <span class="string">"getrandom"</span>)]
-    #[cfg_attr(doc_cfg, doc(cfg(feature = <span class="string">"getrandom"</span>)))]
-    </span><span class="kw">fn </span>from_entropy() -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span><span class="kw-2">mut </span>seed = <span class="self">Self</span>::Seed::default();
-        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = getrandom::getrandom(seed.as_mut()) {
-            <span class="macro">panic!</span>(<span class="string">"from_entropy failed: {}"</span>, err);
+    /// [`try_from_os_rng`]: SeedableRng::try_from_os_rng
+    </span><span class="attr">#[cfg(feature = <span class="string">"os_rng"</span>)]
+    </span><span class="kw">fn </span>from_os_rng() -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span><span class="self">Self</span>::try_from_os_rng() {
+            <span class="prelude-val">Ok</span>(res) =&gt; res,
+            <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">"from_os_rng failed: {}"</span>, err),
         }
-        <span class="self">Self</span>::from_seed(seed)
+    }
+
+    <span class="doccomment">/// Creates a new instance of the RNG seeded via [`getrandom`] without unwrapping
+    /// potential [`getrandom`] errors.
+    ///
+    /// In case the overhead of using [`getrandom`] to seed *many* PRNGs is an
+    /// issue, one may prefer to seed from a local PRNG, e.g.
+    /// `from_rng(&amp;mut rand::rng()).unwrap()`.
+    ///
+    /// [`getrandom`]: https://docs.rs/getrandom
+    </span><span class="attr">#[cfg(feature = <span class="string">"os_rng"</span>)]
+    </span><span class="kw">fn </span>try_from_os_rng() -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, getrandom::Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>seed = <span class="self">Self</span>::Seed::default();
+        getrandom::fill(seed.as_mut())<span class="question-mark">?</span>;
+        <span class="kw">let </span>res = <span class="self">Self</span>::from_seed(seed);
+        <span class="prelude-val">Ok</span>(res)
     }
 }
 
-<span class="comment">// Implement `RngCore` for references to an `RngCore`.
-// Force inlining all functions, so that it is up to the `RngCore`
-// implementation and the optimizer to decide on inlining.
-</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, R: RngCore + <span class="question-mark">?</span>Sized&gt; RngCore <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>R {
-    <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>next_u32(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u32 {
-        (<span class="kw-2">**</span><span class="self">self</span>).next_u32()
-    }
-
-    <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>next_u64(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
-        (<span class="kw-2">**</span><span class="self">self</span>).next_u64()
-    }
-
-    <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: <span class="kw-2">&amp;mut </span>[u8]) {
-        (<span class="kw-2">**</span><span class="self">self</span>).fill_bytes(dest)
-    }
-
-    <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>try_fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-        (<span class="kw-2">**</span><span class="self">self</span>).try_fill_bytes(dest)
-    }
-}
-
-<span class="comment">// Implement `RngCore` for boxed references to an `RngCore`.
-// Force inlining all functions, so that it is up to the `RngCore`
-// implementation and the optimizer to decide on inlining.
-</span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
-</span><span class="kw">impl</span>&lt;R: RngCore + <span class="question-mark">?</span>Sized&gt; RngCore <span class="kw">for </span>Box&lt;R&gt; {
-    <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>next_u32(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u32 {
-        (<span class="kw-2">**</span><span class="self">self</span>).next_u32()
-    }
-
-    <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>next_u64(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
-        (<span class="kw-2">**</span><span class="self">self</span>).next_u64()
-    }
-
-    <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: <span class="kw-2">&amp;mut </span>[u8]) {
-        (<span class="kw-2">**</span><span class="self">self</span>).fill_bytes(dest)
-    }
-
-    <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>try_fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-        (<span class="kw-2">**</span><span class="self">self</span>).try_fill_bytes(dest)
-    }
+<span class="doccomment">/// Adapter that enables reading through a [`io::Read`](std::io::Read) from a [`RngCore`].
+///
+/// # Examples
+///
+/// ```no_run
+/// # use std::{io, io::Read};
+/// # use std::fs::File;
+/// # use rand_core::{OsRng, TryRngCore};
+///
+/// io::copy(&amp;mut OsRng.read_adapter().take(100), &amp;mut File::create("/tmp/random.bytes").unwrap()).unwrap();
+/// ```
+</span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">pub struct </span>RngReadAdapter&lt;<span class="lifetime">'a</span>, R: TryRngCore + <span class="question-mark">?</span>Sized&gt; {
+    inner: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>R,
 }
 
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-</span><span class="kw">impl </span>std::io::Read <span class="kw">for dyn </span>RngCore {
-    <span class="kw">fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;usize, std::io::Error&gt; {
-        <span class="self">self</span>.try_fill_bytes(buf)<span class="question-mark">?</span>;
+</span><span class="kw">impl</span>&lt;R: TryRngCore + <span class="question-mark">?</span>Sized&gt; std::io::Read <span class="kw">for </span>RngReadAdapter&lt;<span class="lifetime">'_</span>, R&gt; {
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;usize, std::io::Error&gt; {
+        <span class="self">self</span>.inner.try_fill_bytes(buf).map_err(|err| {
+            std::io::Error::new(std::io::ErrorKind::Other, <span class="macro">std::format!</span>(<span class="string">"RNG error: {err}"</span>))
+        })<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(buf.len())
     }
 }
 
-<span class="comment">// Implement `CryptoRng` for references to a `CryptoRng`.
-</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, R: CryptoRng + <span class="question-mark">?</span>Sized&gt; CryptoRng <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>R {}
-
-<span class="comment">// Implement `CryptoRng` for boxed references to a `CryptoRng`.
-</span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
-</span><span class="kw">impl</span>&lt;R: CryptoRng + <span class="question-mark">?</span>Sized&gt; CryptoRng <span class="kw">for </span>Box&lt;R&gt; {}
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">impl</span>&lt;R: TryRngCore + <span class="question-mark">?</span>Sized&gt; std::fmt::Debug <span class="kw">for </span>RngReadAdapter&lt;<span class="lifetime">'_</span>, R&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result {
+        f.debug_struct(<span class="string">"ReadAdapter"</span>).finish()
+    }
+}
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>test {

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.21/src/client/hs.rs`."><title>hs.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.23/src/client/hs.rs`."><title>hs.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rustls/client/</div>hs.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1234,9 +1235,24 @@
 <a href="#1234" id="1234">1234</a>
 <a href="#1235" id="1235">1235</a>
 <a href="#1236" id="1236">1236</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>alloc::borrow::ToOwned;
+<a href="#1237" id="1237">1237</a>
+<a href="#1238" id="1238">1238</a>
+<a href="#1239" id="1239">1239</a>
+<a href="#1240" id="1240">1240</a>
+<a href="#1241" id="1241">1241</a>
+<a href="#1242" id="1242">1242</a>
+<a href="#1243" id="1243">1243</a>
+<a href="#1244" id="1244">1244</a>
+<a href="#1245" id="1245">1245</a>
+<a href="#1246" id="1246">1246</a>
+<a href="#1247" id="1247">1247</a>
+<a href="#1248" id="1248">1248</a>
+<a href="#1249" id="1249">1249</a>
+<a href="#1250" id="1250">1250</a>
+<a href="#1251" id="1251">1251</a>
+<a href="#1252" id="1252">1252</a>
+<a href="#1253" id="1253">1253</a></pre></div><pre class="rust"><code><span class="kw">use </span>alloc::borrow::ToOwned;
 <span class="kw">use </span>alloc::boxed::Box;
-<span class="kw">use </span>alloc::sync::Arc;
 <span class="kw">use </span>alloc::vec;
 <span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::ops::Deref;
@@ -1253,9 +1269,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::client::common::ClientHelloDetails;
 <span class="kw">use </span><span class="kw">crate</span>::client::ech::EchState;
 <span class="kw">use </span><span class="kw">crate</span>::client::{tls13, ClientConfig, EchMode, EchStatus};
-<span class="kw">use </span><span class="kw">crate</span>::common_state::{
-    CommonState, HandshakeKind, KxState, RawKeyNegotationResult, RawKeyNegotiationParams, State,
-};
+<span class="kw">use </span><span class="kw">crate</span>::common_state::{CommonState, HandshakeKind, KxState, State};
 <span class="kw">use </span><span class="kw">crate</span>::conn::ConnectionRandoms;
 <span class="kw">use </span><span class="kw">crate</span>::crypto::{ActiveKeyExchange, KeyExchangeAlgorithm};
 <span class="kw">use </span><span class="kw">crate</span>::enums::{AlertDescription, CipherSuite, ContentType, HandshakeType, ProtocolVersion};
@@ -1273,6 +1287,7 @@
 };
 <span class="kw">use </span><span class="kw">crate</span>::msgs::message::{Message, MessagePayload};
 <span class="kw">use </span><span class="kw">crate</span>::msgs::persist;
+<span class="kw">use </span><span class="kw">crate</span>::sync::Arc;
 <span class="kw">use </span><span class="kw">crate</span>::tls13::key_schedule::KeyScheduleEarly;
 <span class="kw">use </span><span class="kw">crate</span>::SupportedCipherSuite;
 
@@ -1548,10 +1563,14 @@
         <span class="macro">debug_assert!</span>(support_tls13);
         <span class="kw">let </span><span class="kw-2">mut </span>shares = <span class="macro">vec!</span>[KeyShareEntry::new(key_share.group(), key_share.pub_key())];
 
-        <span class="kw">if </span>retryreq.is_none() {
-            <span class="comment">// Only for the initial client hello, see if we can send a second KeyShare
-            // for "free".  We only do this if the same algorithm is also supported
-            // separately by our provider for this version (`find_kx_group` looks that up).
+        <span class="kw">if </span>!retryreq
+            .map(|rr| rr.requested_key_share_group().is_some())
+            .unwrap_or_default()
+        {
+            <span class="comment">// Only for the initial client hello, or a HRR that does not specify a kx group,
+            // see if we can send a second KeyShare for "free".  We only do this if the same
+            // algorithm is also supported separately by our provider for this version
+            // (`find_kx_group` looks that up).
             </span><span class="kw">if let </span><span class="prelude-val">Some</span>((component_group, component_share)) =
                 key_share
                     .hybrid_component()
@@ -1933,46 +1952,30 @@
     common: <span class="kw-2">&amp;mut </span>CommonState,
     config: <span class="kw-2">&amp;</span>ClientConfig,
     server_cert_extension: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>CertificateType&gt;,
-) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-    <span class="kw">let </span>requires_server_rpk = config
-        .verifier
-        .requires_raw_public_keys();
-    <span class="kw">let </span>server_offers_rpk = <span class="macro">matches!</span>(server_cert_extension, <span class="prelude-val">Some</span>(CertificateType::RawPublicKey));
-
-    <span class="kw">let </span>raw_key_negotation_params = RawKeyNegotiationParams {
-        peer_supports_raw_key: server_offers_rpk,
-        local_expects_raw_key: requires_server_rpk,
-        extension_type: ExtensionType::ServerCertificateType,
-    };
-    <span class="kw">match </span>raw_key_negotation_params.validate_raw_key_negotiation() {
-        RawKeyNegotationResult::Err(err) =&gt; {
-            <span class="prelude-val">Err</span>(common.send_fatal_alert(AlertDescription::HandshakeFailure, err))
-        }
-        <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(()),
-    }
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(ExtensionType, CertificateType)&gt;, Error&gt; {
+    process_cert_type_extension(
+        common,
+        config
+            .verifier
+            .requires_raw_public_keys(),
+        server_cert_extension.copied(),
+        ExtensionType::ServerCertificateType,
+    )
 }
 
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>process_client_cert_type_extension(
     common: <span class="kw-2">&amp;mut </span>CommonState,
     config: <span class="kw-2">&amp;</span>ClientConfig,
     client_cert_extension: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>CertificateType&gt;,
-) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-    <span class="kw">let </span>requires_client_rpk = config
-        .client_auth_cert_resolver
-        .only_raw_public_keys();
-    <span class="kw">let </span>server_allows_rpk = <span class="macro">matches!</span>(client_cert_extension, <span class="prelude-val">Some</span>(CertificateType::RawPublicKey));
-
-    <span class="kw">let </span>raw_key_negotation_params = RawKeyNegotiationParams {
-        peer_supports_raw_key: server_allows_rpk,
-        local_expects_raw_key: requires_client_rpk,
-        extension_type: ExtensionType::ClientCertificateType,
-    };
-    <span class="kw">match </span>raw_key_negotation_params.validate_raw_key_negotiation() {
-        RawKeyNegotationResult::Err(err) =&gt; {
-            <span class="prelude-val">Err</span>(common.send_fatal_alert(AlertDescription::HandshakeFailure, err))
-        }
-        <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(()),
-    }
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(ExtensionType, CertificateType)&gt;, Error&gt; {
+    process_cert_type_extension(
+        common,
+        config
+            .client_auth_cert_resolver
+            .only_raw_public_keys(),
+        client_cert_extension.copied(),
+        ExtensionType::ClientCertificateType,
+    )
 }
 
 <span class="kw">impl </span>State&lt;ClientConnectionData&gt; <span class="kw">for </span>ExpectServerHello {
@@ -2208,13 +2211,24 @@
 
         <span class="comment">// A retry request is illegal if it contains no cookie and asks for
         // retry of a group we already sent.
-        </span><span class="kw">if </span>cookie.is_none() &amp;&amp; req_group == <span class="prelude-val">Some</span>(offered_key_share.group()) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>({
-                cx.common.send_fatal_alert(
-                    AlertDescription::IllegalParameter,
-                    PeerMisbehaved::IllegalHelloRetryRequestWithOfferedGroup,
-                )
-            });
+        </span><span class="kw">let </span>config = <span class="kw-2">&amp;</span><span class="self">self</span>.next.input.config;
+
+        <span class="kw">if let </span>(<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(req_group)) = (cookie, req_group) {
+            <span class="kw">let </span>offered_hybrid = offered_key_share
+                .hybrid_component()
+                .and_then(|(group_name, <span class="kw">_</span>)| {
+                    config.find_kx_group(group_name, ProtocolVersion::TLSv1_3)
+                })
+                .map(|skxg| skxg.name());
+
+            <span class="kw">if </span>req_group == offered_key_share.group() || <span class="prelude-val">Some</span>(req_group) == offered_hybrid {
+                <span class="kw">return </span><span class="prelude-val">Err</span>({
+                    cx.common.send_fatal_alert(
+                        AlertDescription::IllegalParameter,
+                        PeerMisbehaved::IllegalHelloRetryRequestWithOfferedGroup,
+                    )
+                });
+            }
         }
 
         <span class="comment">// Or has an empty cookie.
@@ -2295,8 +2309,7 @@
         }
 
         <span class="comment">// Or asks us to use a ciphersuite we didn't offer.
-        </span><span class="kw">let </span>config = <span class="kw-2">&amp;</span><span class="self">self</span>.next.input.config;
-        <span class="kw">let </span><span class="prelude-val">Some</span>(cs) = config.find_cipher_suite(hrr.cipher_suite) <span class="kw">else </span>{
+        </span><span class="kw">let </span><span class="prelude-val">Some</span>(cs) = config.find_cipher_suite(hrr.cipher_suite) <span class="kw">else </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>({
                 cx.common.send_fatal_alert(
                     AlertDescription::IllegalParameter,
@@ -2421,6 +2434,27 @@
     <span class="kw">fn </span>into_owned(<span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;) -&gt; NextState&lt;<span class="lifetime">'static</span>&gt; {
         <span class="self">self
     </span>}
+}
+
+<span class="kw">fn </span>process_cert_type_extension(
+    common: <span class="kw-2">&amp;mut </span>CommonState,
+    client_expects: bool,
+    server_negotiated: <span class="prelude-ty">Option</span>&lt;CertificateType&gt;,
+    extension_type: ExtensionType,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(ExtensionType, CertificateType)&gt;, Error&gt; {
+    <span class="kw">match </span>(client_expects, server_negotiated) {
+        (<span class="bool-val">true</span>, <span class="prelude-val">Some</span>(CertificateType::RawPublicKey)) =&gt; {
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((extension_type, CertificateType::RawPublicKey)))
+        }
+        (<span class="bool-val">true</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(common.send_fatal_alert(
+            AlertDescription::HandshakeFailure,
+            Error::PeerIncompatible(PeerIncompatible::IncorrectCertificateTypeExtension),
+        )),
+        (<span class="kw">_</span>, <span class="prelude-val">Some</span>(CertificateType::RawPublicKey)) =&gt; {
+            <span class="macro">unreachable!</span>(<span class="string">"Caught by `PeerMisbehaved::UnsolicitedEncryptedExtension`"</span>)
+        }
+        (<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+    }
 }
 
 <span class="kw">enum </span>ClientSessionValue {

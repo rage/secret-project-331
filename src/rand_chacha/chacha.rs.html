@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand_chacha-0.3.1/src/chacha.rs`."><title>chacha.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rand_chacha" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand_chacha-0.9.0/src/chacha.rs`."><title>chacha.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rand_chacha" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rand_chacha/</div>chacha.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -630,7 +631,25 @@
 <a href="#630" id="630">630</a>
 <a href="#631" id="631">631</a>
 <a href="#632" id="632">632</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright 2018 Developers of the Rand project.
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a></pre></div><pre class="rust"><code><span class="comment">// Copyright 2018 Developers of the Rand project.
 //
 // Licensed under the Apache License, Version 2.0 &lt;LICENSE-APACHE or
 // https://www.apache.org/licenses/LICENSE-2.0&gt; or the MIT license
@@ -640,15 +659,13 @@
 
 </span><span class="doccomment">//! The ChaCha random number generator.
 
-</span><span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))] </span><span class="kw">use </span>core;
-<span class="attr">#[cfg(feature = <span class="string">"std"</span>)] </span><span class="kw">use </span>std <span class="kw">as </span>core;
+</span><span class="kw">use </span><span class="kw">crate</span>::guts::ChaCha;
+<span class="kw">use </span>core::fmt;
+<span class="kw">use </span>rand_core::block::{BlockRng, BlockRngCore, CryptoBlockRng};
+<span class="kw">use </span>rand_core::{CryptoRng, RngCore, SeedableRng};
 
-<span class="kw">use </span><span class="self">self</span>::core::fmt;
-<span class="kw">use </span><span class="kw">crate</span>::guts::ChaCha;
-<span class="kw">use </span>rand_core::block::{BlockRng, BlockRngCore};
-<span class="kw">use </span>rand_core::{CryptoRng, Error, RngCore, SeedableRng};
-
-<span class="attr">#[cfg(feature = <span class="string">"serde1"</span>)] </span><span class="kw">use </span>serde::{Serialize, Deserialize, Serializer, Deserializer};
+<span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
+</span><span class="kw">use </span>serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 <span class="comment">// NB. this must remain consistent with some currently hard-coded numbers in this module
 </span><span class="kw">const </span>BUF_BLOCKS: u8 = <span class="number">4</span>;
@@ -658,7 +675,8 @@
 <span class="attr">#[repr(transparent)]
 </span><span class="kw">pub struct </span>Array64&lt;T&gt;([T; <span class="number">64</span>]);
 <span class="kw">impl</span>&lt;T&gt; Default <span class="kw">for </span>Array64&lt;T&gt;
-<span class="kw">where </span>T: Default
+<span class="kw">where
+    </span>T: Default,
 {
     <span class="attr">#[rustfmt::skip]
     </span><span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
@@ -685,7 +703,8 @@
     </span>}
 }
 <span class="kw">impl</span>&lt;T&gt; Clone <span class="kw">for </span>Array64&lt;T&gt;
-<span class="kw">where </span>T: Copy + Default
+<span class="kw">where
+    </span>T: Copy + Default,
 {
     <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>new = <span class="self">Self</span>::default();
@@ -700,7 +719,7 @@
 }
 
 <span class="macro">macro_rules!</span> chacha_impl {
-    (<span class="macro-nonterminal">$ChaChaXCore</span>:ident, <span class="macro-nonterminal">$ChaChaXRng</span>:ident, <span class="macro-nonterminal">$rounds</span>:expr, <span class="macro-nonterminal">$doc</span>:expr, <span class="macro-nonterminal">$abst</span>:ident) =&gt; {
+    (<span class="macro-nonterminal">$ChaChaXCore</span>:ident, <span class="macro-nonterminal">$ChaChaXRng</span>:ident, <span class="macro-nonterminal">$rounds</span>:expr, <span class="macro-nonterminal">$doc</span>:expr, <span class="macro-nonterminal">$abst</span>:ident,) =&gt; {
         <span class="attr">#[doc=<span class="macro-nonterminal">$doc</span>]
         #[derive(Clone, PartialEq, Eq)]
         </span><span class="kw">pub struct </span><span class="macro-nonterminal">$ChaChaXCore </span>{
@@ -717,27 +736,25 @@
         <span class="kw">impl </span>BlockRngCore <span class="kw">for </span><span class="macro-nonterminal">$ChaChaXCore </span>{
             <span class="kw">type </span>Item = u32;
             <span class="kw">type </span>Results = Array64&lt;u32&gt;;
+
             <span class="attr">#[inline]
             </span><span class="kw">fn </span>generate(<span class="kw-2">&amp;mut </span><span class="self">self</span>, r: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Results) {
-                <span class="comment">// Fill slice of words by writing to equivalent slice of bytes, then fixing endianness.
-                </span><span class="self">self</span>.state.refill4(<span class="macro-nonterminal">$rounds</span>, <span class="kw">unsafe </span>{
-                    <span class="kw-2">&amp;mut *</span>(<span class="kw-2">&amp;mut *</span>r <span class="kw">as </span><span class="kw-2">*mut </span>Array64&lt;u32&gt; <span class="kw">as </span><span class="kw-2">*mut </span>[u8; <span class="number">256</span>])
-                });
-                <span class="kw">for </span>x <span class="kw">in </span>r.as_mut() {
-                    <span class="kw-2">*</span>x = x.to_le();
-                }
+                <span class="self">self</span>.state.refill4(<span class="macro-nonterminal">$rounds</span>, <span class="kw-2">&amp;mut </span>r.<span class="number">0</span>);
             }
         }
 
         <span class="kw">impl </span>SeedableRng <span class="kw">for </span><span class="macro-nonterminal">$ChaChaXCore </span>{
             <span class="kw">type </span>Seed = [u8; <span class="number">32</span>];
+
             <span class="attr">#[inline]
             </span><span class="kw">fn </span>from_seed(seed: <span class="self">Self</span>::Seed) -&gt; <span class="self">Self </span>{
-                <span class="macro-nonterminal">$ChaChaXCore </span>{ state: ChaCha::new(<span class="kw-2">&amp;</span>seed, <span class="kw-2">&amp;</span>[<span class="number">0u8</span>; <span class="number">8</span>]) }
+                <span class="macro-nonterminal">$ChaChaXCore </span>{
+                    state: ChaCha::new(<span class="kw-2">&amp;</span>seed, <span class="kw-2">&amp;</span>[<span class="number">0u8</span>; <span class="number">8</span>]),
+                }
             }
         }
 
-        <span class="kw">impl </span>CryptoRng <span class="kw">for </span><span class="macro-nonterminal">$ChaChaXCore </span>{}
+        <span class="kw">impl </span>CryptoBlockRng <span class="kw">for </span><span class="macro-nonterminal">$ChaChaXCore </span>{}
 
         <span class="doccomment">/// A cryptographically secure random number generator that uses the ChaCha algorithm.
         ///
@@ -784,6 +801,7 @@
 
         <span class="kw">impl </span>SeedableRng <span class="kw">for </span><span class="macro-nonterminal">$ChaChaXRng </span>{
             <span class="kw">type </span>Seed = [u8; <span class="number">32</span>];
+
             <span class="attr">#[inline]
             </span><span class="kw">fn </span>from_seed(seed: <span class="self">Self</span>::Seed) -&gt; <span class="self">Self </span>{
                 <span class="kw">let </span>core = <span class="macro-nonterminal">$ChaChaXCore::from_seed</span>(seed);
@@ -798,23 +816,21 @@
             </span><span class="kw">fn </span>next_u32(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u32 {
                 <span class="self">self</span>.rng.next_u32()
             }
+
             <span class="attr">#[inline]
             </span><span class="kw">fn </span>next_u64(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
                 <span class="self">self</span>.rng.next_u64()
             }
+
             <span class="attr">#[inline]
             </span><span class="kw">fn </span>fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>[u8]) {
                 <span class="self">self</span>.rng.fill_bytes(bytes)
-            }
-            <span class="attr">#[inline]
-            </span><span class="kw">fn </span>try_fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-                <span class="self">self</span>.rng.try_fill_bytes(bytes)
             }
         }
 
         <span class="kw">impl </span><span class="macro-nonterminal">$ChaChaXRng </span>{
             <span class="comment">// The buffer is a 4-block window, i.e. it is always at a block-aligned position in the
-            // stream but if the stream has been seeked it may not be self-aligned.
+            // stream but if the stream has been sought it may not be self-aligned.
 
             </span><span class="doccomment">/// Get the offset from the start of the stream, in 32-bit words.
             ///
@@ -847,11 +863,9 @@
             </span><span class="attr">#[inline]
             </span><span class="kw">pub fn </span>set_word_pos(<span class="kw-2">&amp;mut </span><span class="self">self</span>, word_offset: u128) {
                 <span class="kw">let </span>block = (word_offset / u128::from(BLOCK_WORDS)) <span class="kw">as </span>u64;
+                <span class="self">self</span>.rng.core.state.set_block_pos(block);
                 <span class="self">self</span>.rng
-                    .core
-                    .state
-                    .set_block_pos(block);
-                <span class="self">self</span>.rng.generate_and_set((word_offset % u128::from(BLOCK_WORDS)) <span class="kw">as </span>usize);
+                    .generate_and_set((word_offset % u128::from(BLOCK_WORDS)) <span class="kw">as </span>usize);
             }
 
             <span class="doccomment">/// Set the stream number.
@@ -867,10 +881,7 @@
             /// indirectly via `set_word_pos`), but this is not directly supported.
             </span><span class="attr">#[inline]
             </span><span class="kw">pub fn </span>set_stream(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stream: u64) {
-                <span class="self">self</span>.rng
-                    .core
-                    .state
-                    .set_nonce(stream);
+                <span class="self">self</span>.rng.core.state.set_nonce(stream);
                 <span class="kw">if </span><span class="self">self</span>.rng.index() != <span class="number">64 </span>{
                     <span class="kw">let </span>wp = <span class="self">self</span>.get_word_pos();
                     <span class="self">self</span>.set_word_pos(wp);
@@ -880,19 +891,13 @@
             <span class="doccomment">/// Get the stream number.
             </span><span class="attr">#[inline]
             </span><span class="kw">pub fn </span>get_stream(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
-                <span class="self">self</span>.rng
-                    .core
-                    .state
-                    .get_nonce()
+                <span class="self">self</span>.rng.core.state.get_nonce()
             }
 
             <span class="doccomment">/// Get the seed.
             </span><span class="attr">#[inline]
             </span><span class="kw">pub fn </span>get_seed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [u8; <span class="number">32</span>] {
-                <span class="self">self</span>.rng
-                    .core
-                    .state
-                    .get_seed()
+                <span class="self">self</span>.rng.core.state.get_seed()
             }
         }
 
@@ -915,31 +920,34 @@
         }
         <span class="kw">impl </span>Eq <span class="kw">for </span><span class="macro-nonterminal">$ChaChaXRng </span>{}
 
-        <span class="attr">#[cfg(feature = <span class="string">"serde1"</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
         </span><span class="kw">impl </span>Serialize <span class="kw">for </span><span class="macro-nonterminal">$ChaChaXRng </span>{
             <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, s: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
-            <span class="kw">where </span>S: Serializer {
+            <span class="kw">where
+                </span>S: Serializer,
+            {
                 <span class="macro-nonterminal">$abst</span>::<span class="macro-nonterminal">$ChaChaXRng::from</span>(<span class="self">self</span>).serialize(s)
             }
         }
-        <span class="attr">#[cfg(feature = <span class="string">"serde1"</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
         </span><span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$ChaChaXRng </span>{
-            <span class="kw">fn </span>deserialize&lt;D&gt;(d: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt; <span class="kw">where </span>D: Deserializer&lt;<span class="lifetime">'de</span>&gt; {
+            <span class="kw">fn </span>deserialize&lt;D&gt;(d: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
+            <span class="kw">where
+                </span>D: Deserializer&lt;<span class="lifetime">'de</span>&gt;,
+            {
                 <span class="macro-nonterminal">$abst</span>::<span class="macro-nonterminal">$ChaChaXRng::deserialize</span>(d).map(|x| <span class="self">Self</span>::from(<span class="kw-2">&amp;</span>x))
             }
         }
 
         <span class="kw">mod </span><span class="macro-nonterminal">$abst </span>{
-            <span class="attr">#[cfg(feature = <span class="string">"serde1"</span>)] </span><span class="kw">use </span>serde::{Serialize, Deserialize};
+            <span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
+            </span><span class="kw">use </span>serde::{Deserialize, Serialize};
 
             <span class="comment">// The abstract state of a ChaCha stream, independent of implementation choices. The
             // comparison and serialization of this object is considered a semver-covered part of
             // the API.
             </span><span class="attr">#[derive(Debug, PartialEq, Eq)]
-            #[cfg_attr(
-                feature = <span class="string">"serde1"</span>,
-                derive(Serialize, Deserialize),
-            )]
+            #[cfg_attr(feature = <span class="string">"serde"</span>, derive(Serialize, Deserialize))]
             </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span><span class="macro-nonterminal">$ChaChaXRng </span>{
                 seed: [u8; <span class="number">32</span>],
                 stream: u64,
@@ -969,27 +977,46 @@
                 }
             }
         }
-    }
+    };
 }
 
-<span class="macro">chacha_impl!</span>(ChaCha20Core, ChaCha20Rng, <span class="number">10</span>, <span class="string">"ChaCha with 20 rounds"</span>, abstract20);
-<span class="macro">chacha_impl!</span>(ChaCha12Core, ChaCha12Rng, <span class="number">6</span>, <span class="string">"ChaCha with 12 rounds"</span>, abstract12);
-<span class="macro">chacha_impl!</span>(ChaCha8Core, ChaCha8Rng, <span class="number">4</span>, <span class="string">"ChaCha with 8 rounds"</span>, abstract8);
+<span class="macro">chacha_impl!</span>(
+    ChaCha20Core,
+    ChaCha20Rng,
+    <span class="number">10</span>,
+    <span class="string">"ChaCha with 20 rounds"</span>,
+    abstract20,
+);
+<span class="macro">chacha_impl!</span>(
+    ChaCha12Core,
+    ChaCha12Rng,
+    <span class="number">6</span>,
+    <span class="string">"ChaCha with 12 rounds"</span>,
+    abstract12,
+);
+<span class="macro">chacha_impl!</span>(
+    ChaCha8Core,
+    ChaCha8Rng,
+    <span class="number">4</span>,
+    <span class="string">"ChaCha with 8 rounds"</span>,
+    abstract8,
+);
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>test {
     <span class="kw">use </span>rand_core::{RngCore, SeedableRng};
 
-    <span class="attr">#[cfg(feature = <span class="string">"serde1"</span>)] </span><span class="kw">use super</span>::{ChaCha20Rng, ChaCha12Rng, ChaCha8Rng};
+    <span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
+    </span><span class="kw">use super</span>::{ChaCha12Rng, ChaCha20Rng, ChaCha8Rng};
 
     <span class="kw">type </span>ChaChaRng = <span class="kw">super</span>::ChaCha20Rng;
 
-    <span class="attr">#[cfg(feature = <span class="string">"serde1"</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
     #[test]
     </span><span class="kw">fn </span>test_chacha_serde_roundtrip() {
         <span class="kw">let </span>seed = [
-            <span class="number">1</span>, <span class="number">0</span>, <span class="number">52</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">10</span>, <span class="number">0</span>, <span class="number">22</span>, <span class="number">32</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">55</span>, <span class="number">49</span>, <span class="number">0</span>, <span class="number">11</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-            <span class="number">0</span>, <span class="number">2</span>, <span class="number">92</span>,
+            <span class="number">1</span>, <span class="number">0</span>, <span class="number">52</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">10</span>, <span class="number">0</span>, <span class="number">22</span>, <span class="number">32</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">55</span>, <span class="number">49</span>, <span class="number">0</span>, <span class="number">11</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">0</span>, <span class="number">0</span>,
+            <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">92</span>,
         ];
         <span class="kw">let </span><span class="kw-2">mut </span>rng1 = ChaCha20Rng::from_seed(seed);
         <span class="kw">let </span><span class="kw-2">mut </span>rng2 = ChaCha12Rng::from_seed(seed);
@@ -1022,11 +1049,11 @@
     // However testing for equivalence of serialized data is difficult, and there shouldn't be any
     // reason we need to violate the stronger-than-needed condition, e.g. by changing the field
     // definition order.
-    </span><span class="attr">#[cfg(feature = <span class="string">"serde1"</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
     #[test]
     </span><span class="kw">fn </span>test_chacha_serde_format_stability() {
         <span class="kw">let </span>j = <span class="string">r#"{"seed":[4,8,15,16,23,42,4,8,15,16,23,42,4,8,15,16,23,42,4,8,15,16,23,42,4,8,15,16,23,42,4,8],"stream":27182818284,"word_pos":314159265359}"#</span>;
-        <span class="kw">let </span>r: ChaChaRng = serde_json::from_str(<span class="kw-2">&amp;</span>j).unwrap();
+        <span class="kw">let </span>r: ChaChaRng = serde_json::from_str(j).unwrap();
         <span class="kw">let </span>j1 = serde_json::to_string(<span class="kw-2">&amp;</span>r).unwrap();
         <span class="macro">assert_eq!</span>(j, j1);
     }
@@ -1040,7 +1067,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>rng1 = ChaChaRng::from_seed(seed);
         <span class="macro">assert_eq!</span>(rng1.next_u32(), <span class="number">137206642</span>);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>rng2 = ChaChaRng::from_rng(rng1).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>rng2 = ChaChaRng::from_rng(<span class="kw-2">&amp;mut </span>rng1);
         <span class="macro">assert_eq!</span>(rng2.next_u32(), <span class="number">1325750369</span>);
     }
 
@@ -1236,7 +1263,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_chacha_word_pos_wrap_exact() {
-        <span class="kw">use super</span>::{BUF_BLOCKS, BLOCK_WORDS};
+        <span class="kw">use super</span>::{BLOCK_WORDS, BUF_BLOCKS};
         <span class="kw">let </span><span class="kw-2">mut </span>rng = ChaChaRng::from_seed(Default::default());
         <span class="comment">// refilling the buffer in set_word_pos will wrap the block counter to 0
         </span><span class="kw">let </span>last_block = (<span class="number">1 </span>&lt;&lt; <span class="number">68</span>) - u128::from(BUF_BLOCKS * BLOCK_WORDS);
@@ -1260,6 +1287,17 @@
         <span class="macro">assert_eq!</span>(rng.get_word_pos(), <span class="number">0</span>);
         rng.set_word_pos(<span class="number">0</span>);
         <span class="macro">assert_eq!</span>(rng.get_word_pos(), <span class="number">0</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_trait_objects() {
+        <span class="kw">use </span>rand_core::CryptoRng;
+
+        <span class="kw">let </span><span class="kw-2">mut </span>rng1 = ChaChaRng::from_seed(Default::default());
+        <span class="kw">let </span>rng2 = <span class="kw-2">&amp;mut </span>rng1.clone() <span class="kw">as </span><span class="kw-2">&amp;mut </span><span class="kw">dyn </span>CryptoRng;
+        <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">1000 </span>{
+            <span class="macro">assert_eq!</span>(rng1.next_u64(), rng2.next_u64());
+        }
     }
 }
 </code></pre></div></section></main></body></html>

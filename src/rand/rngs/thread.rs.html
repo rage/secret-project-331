@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/rngs/thread.rs`."><title>thread.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rand" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.9.0/src/rngs/thread.rs`."><title>thread.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rand" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rand/rngs/</div>thread.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -141,7 +142,75 @@
 <a href="#141" id="141">141</a>
 <a href="#142" id="142">142</a>
 <a href="#143" id="143">143</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright 2018 Developers of the Rand project.
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a></pre></div><pre class="rust"><code><span class="comment">// Copyright 2018 Developers of the Rand project.
 //
 // Licensed under the Apache License, Version 2.0 &lt;LICENSE-APACHE or
 // https://www.apache.org/licenses/LICENSE-2.0&gt; or the MIT license
@@ -152,13 +221,15 @@
 </span><span class="doccomment">//! Thread-local random number generator
 
 </span><span class="kw">use </span>core::cell::UnsafeCell;
+<span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::rc::Rc;
 <span class="kw">use </span>std::thread_local;
 
+<span class="kw">use </span>rand_core::{CryptoRng, RngCore};
+
 <span class="kw">use </span><span class="kw">super</span>::std::Core;
-<span class="kw">use </span><span class="kw">crate</span>::rngs::adapter::ReseedingRng;
 <span class="kw">use </span><span class="kw">crate</span>::rngs::OsRng;
-<span class="kw">use crate</span>::{CryptoRng, Error, RngCore, SeedableRng};
+<span class="kw">use </span><span class="kw">crate</span>::rngs::ReseedingRng;
 
 <span class="comment">// Rationale for using `UnsafeCell` in `ThreadRng`:
 //
@@ -174,7 +245,6 @@
 // `ThreadRng` internally, which is nonsensical anyway. We should also never run
 // `ThreadRng` in destructors of its implementation, which is also nonsensical.
 
-
 // Number of generated bytes after which to reseed `ThreadRng`.
 // According to benchmarks, reseeding has a noticeable impact with thresholds
 // of 32 kB and less. We choose 64 kB to avoid significant overhead.
@@ -182,60 +252,128 @@
 
 <span class="doccomment">/// A reference to the thread-local generator
 ///
-/// An instance can be obtained via [`thread_rng`] or via `ThreadRng::default()`.
-/// This handle is safe to use everywhere (including thread-local destructors),
-/// though it is recommended not to use inside a fork handler.
+/// This type is a reference to a lazily-initialized thread-local generator.
+/// An instance can be obtained via [`rand::rng()`][crate::rng()] or via
+/// [`ThreadRng::default()`].
 /// The handle cannot be passed between threads (is not `Send` or `Sync`).
 ///
-/// `ThreadRng` uses the same PRNG as [`StdRng`] for security and performance
-/// and is automatically seeded from [`OsRng`].
+/// # Security
 ///
-/// Unlike `StdRng`, `ThreadRng` uses the  [`ReseedingRng`] wrapper to reseed
-/// the PRNG from fresh entropy every 64 kiB of random data as well as after a
-/// fork on Unix (though not quite immediately; see documentation of
-/// [`ReseedingRng`]).
-/// Note that the reseeding is done as an extra precaution against side-channel
-/// attacks and mis-use (e.g. if somehow weak entropy were supplied initially).
-/// The PRNG algorithms used are assumed to be secure.
+/// Security must be considered relative to a threat model and validation
+/// requirements. The Rand project can provide no guarantee of fitness for
+/// purpose. The design criteria for `ThreadRng` are as follows:
 ///
-/// [`ReseedingRng`]: crate::rngs::adapter::ReseedingRng
+/// - Automatic seeding via [`OsRng`] and periodically thereafter (see
+///   ([`ReseedingRng`] documentation). Limitation: there is no automatic
+///   reseeding on process fork (see [below](#fork)).
+/// - A rigorusly analyzed, unpredictable (cryptographic) pseudo-random generator
+///   (see [the book on security](https://rust-random.github.io/book/guide-rngs.html#security)).
+///   The currently selected algorithm is ChaCha (12-rounds).
+///   See also [`StdRng`] documentation.
+/// - Not to leak internal state through [`Debug`] or serialization
+///   implementations.
+/// - No further protections exist to in-memory state. In particular, the
+///   implementation is not required to zero memory on exit (of the process or
+///   thread). (This may change in the future.)
+/// - Be fast enough for general-purpose usage. Note in particular that
+///   `ThreadRng` is designed to be a "fast, reasonably secure generator"
+///   (where "reasonably secure" implies the above criteria).
+///
+/// We leave it to the user to determine whether this generator meets their
+/// security requirements. For an alternative, see [`OsRng`].
+///
+/// # Fork
+///
+/// `ThreadRng` is not automatically reseeded on fork. It is recommended to
+/// explicitly call [`ThreadRng::reseed`] immediately after a fork, for example:
+/// ```ignore
+/// fn do_fork() {
+///     let pid = unsafe { libc::fork() };
+///     if pid == 0 {
+///         // Reseed ThreadRng in child processes:
+///         rand::rng().reseed();
+///     }
+/// }
+/// ```
+///
+/// Methods on `ThreadRng` are not reentrant-safe and thus should not be called
+/// from an interrupt (e.g. a fork handler) unless it can be guaranteed that no
+/// other method on the same `ThreadRng` is currently executing.
+///
+/// [`ReseedingRng`]: crate::rngs::ReseedingRng
 /// [`StdRng`]: crate::rngs::StdRng
-</span><span class="attr">#[cfg_attr(doc_cfg, doc(cfg(all(feature = <span class="string">"std"</span>, feature = <span class="string">"std_rng"</span>))))]
-#[derive(Clone, Debug)]
+</span><span class="attr">#[derive(Clone)]
 </span><span class="kw">pub struct </span>ThreadRng {
     <span class="comment">// Rc is explicitly !Send and !Sync
     </span>rng: Rc&lt;UnsafeCell&lt;ReseedingRng&lt;Core, OsRng&gt;&gt;&gt;,
 }
 
+<span class="kw">impl </span>ThreadRng {
+    <span class="doccomment">/// Immediately reseed the generator
+    ///
+    /// This discards any remaining random data in the cache.
+    </span><span class="kw">pub fn </span>reseed(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), rand_core::OsError&gt; {
+        <span class="comment">// SAFETY: We must make sure to stop using `rng` before anyone else
+        // creates another mutable reference
+        </span><span class="kw">let </span>rng = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span><span class="self">self</span>.rng.get() };
+        rng.reseed()
+    }
+}
+
+<span class="doccomment">/// Debug implementation does not leak internal state
+</span><span class="kw">impl </span>fmt::Debug <span class="kw">for </span>ThreadRng {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="macro">write!</span>(fmt, <span class="string">"ThreadRng {{ .. }}"</span>)
+    }
+}
+
 <span class="macro">thread_local!</span>(
-    <span class="comment">// We require Rc&lt;..&gt; to avoid premature freeing when thread_rng is used
+    <span class="comment">// We require Rc&lt;..&gt; to avoid premature freeing when ThreadRng is used
     // within thread-local destructors. See #968.
     </span><span class="kw">static </span>THREAD_RNG_KEY: Rc&lt;UnsafeCell&lt;ReseedingRng&lt;Core, OsRng&gt;&gt;&gt; = {
-        <span class="kw">let </span>r = Core::from_rng(OsRng).unwrap_or_else(|err|
-                <span class="macro">panic!</span>(<span class="string">"could not initialize thread_rng: {}"</span>, err));
-        <span class="kw">let </span>rng = ReseedingRng::new(r,
-                                    THREAD_RNG_RESEED_THRESHOLD,
-                                    OsRng);
+        <span class="kw">let </span>rng = ReseedingRng::new(THREAD_RNG_RESEED_THRESHOLD,
+                                    OsRng).unwrap_or_else(|err|
+                <span class="macro">panic!</span>(<span class="string">"could not initialize ThreadRng: {}"</span>, err));
         Rc::new(UnsafeCell::new(rng))
     }
 );
 
-<span class="doccomment">/// Retrieve the lazily-initialized thread-local random number generator,
-/// seeded by the system. Intended to be used in method chaining style,
-/// e.g. `thread_rng().gen::&lt;i32&gt;()`, or cached locally, e.g.
-/// `let mut rng = thread_rng();`.  Invoked by the `Default` trait, making
-/// `ThreadRng::default()` equivalent.
+<span class="doccomment">/// Access a fast, pre-initialized generator
 ///
-/// For more information see [`ThreadRng`].
-</span><span class="attr">#[cfg_attr(doc_cfg, doc(cfg(all(feature = <span class="string">"std"</span>, feature = <span class="string">"std_rng"</span>))))]
-</span><span class="kw">pub fn </span>thread_rng() -&gt; ThreadRng {
+/// This is a handle to the local [`ThreadRng`].
+///
+/// See also [`crate::rngs`] for alternatives.
+///
+/// # Example
+///
+/// ```
+/// use rand::prelude::*;
+///
+/// # fn main() {
+///
+/// let mut numbers = [1, 2, 3, 4, 5];
+/// numbers.shuffle(&amp;mut rand::rng());
+/// println!("Numbers: {numbers:?}");
+///
+/// // Using a local binding avoids an initialization-check on each usage:
+/// let mut rng = rand::rng();
+///
+/// println!("True or false: {}", rng.random::&lt;bool&gt;());
+/// println!("A simulated die roll: {}", rng.random_range(1..=6));
+/// # }
+/// ```
+///
+/// # Security
+///
+/// Refer to [`ThreadRng#Security`].
+</span><span class="kw">pub fn </span>rng() -&gt; ThreadRng {
     <span class="kw">let </span>rng = THREAD_RNG_KEY.with(|t| t.clone());
     ThreadRng { rng }
 }
 
 <span class="kw">impl </span>Default <span class="kw">for </span>ThreadRng {
     <span class="kw">fn </span>default() -&gt; ThreadRng {
-        <span class="kw">crate</span>::prelude::thread_rng()
+        rng()
     }
 }
 
@@ -256,32 +394,32 @@
         rng.next_u64()
     }
 
-    <span class="kw">fn </span>fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: <span class="kw-2">&amp;mut </span>[u8]) {
+    <span class="attr">#[inline(always)]
+    </span><span class="kw">fn </span>fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: <span class="kw-2">&amp;mut </span>[u8]) {
         <span class="comment">// SAFETY: We must make sure to stop using `rng` before anyone else
         // creates another mutable reference
         </span><span class="kw">let </span>rng = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span><span class="self">self</span>.rng.get() };
         rng.fill_bytes(dest)
     }
-
-    <span class="kw">fn </span>try_fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-        <span class="comment">// SAFETY: We must make sure to stop using `rng` before anyone else
-        // creates another mutable reference
-        </span><span class="kw">let </span>rng = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span><span class="self">self</span>.rng.get() };
-        rng.try_fill_bytes(dest)
-    }
 }
 
 <span class="kw">impl </span>CryptoRng <span class="kw">for </span>ThreadRng {}
-
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>test {
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_thread_rng() {
         <span class="kw">use </span><span class="kw">crate</span>::Rng;
-        <span class="kw">let </span><span class="kw-2">mut </span>r = <span class="kw">crate</span>::thread_rng();
-        r.gen::&lt;i32&gt;();
-        <span class="macro">assert_eq!</span>(r.gen_range(<span class="number">0</span>..<span class="number">1</span>), <span class="number">0</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>r = <span class="kw">crate</span>::rng();
+        r.random::&lt;i32&gt;();
+        <span class="macro">assert_eq!</span>(r.random_range(<span class="number">0</span>..<span class="number">1</span>), <span class="number">0</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_debug_output() {
+        <span class="comment">// We don't care about the exact output here, but it must not include
+        // private CSPRNG state or the cache stored by BlockRng!
+        </span><span class="macro">assert_eq!</span>(<span class="macro">std::format!</span>(<span class="string">"{:?}"</span>, <span class="kw">crate</span>::rng()), <span class="string">"ThreadRng { .. }"</span>);
     }
 }
 </code></pre></div></section></main></body></html>

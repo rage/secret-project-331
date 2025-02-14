@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.8/src/ec/suite_b/ecdsa/verification.rs`."><title>verification.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.9/src/ec/suite_b/ecdsa/verification.rs`."><title>verification.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ring/ec/suite_b/ecdsa/</div>verification.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -329,8 +330,7 @@
 <a href="#329" id="329">329</a>
 <a href="#330" id="330">330</a>
 <a href="#331" id="331">331</a>
-<a href="#332" id="332">332</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright 2015-2016 Brian Smith.
+<a href="#332" id="332">332</a></pre></div><pre class="rust"><code><span class="comment">// Copyright 2015-2016 Brian Smith.
 //
 // Permission to use, copy, modify, and/or distribute this software for any
 // purpose with or without fee is hereby granted, provided that the above
@@ -349,7 +349,7 @@
 </span><span class="kw">use </span><span class="kw">super</span>::digest_scalar::digest_scalar;
 <span class="kw">use crate</span>::{
     arithmetic::montgomery::<span class="kw-2">*</span>,
-    digest,
+    cpu, digest,
     ec::suite_b::{ops::<span class="kw-2">*</span>, public_key::<span class="kw-2">*</span>, verify_jacobian_point_is_on_the_curve},
     error,
     io::der,
@@ -388,6 +388,7 @@
         msg: untrusted::Input,
         signature: untrusted::Input,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), error::Unspecified&gt; {
+        <span class="kw">let </span>cpu = cpu::features();
         <span class="kw">let </span>e = {
             <span class="comment">// NSA Guide Step 2: "Use the selected hash function to compute H =
             // Hash(M)."
@@ -395,7 +396,8 @@
 
             <span class="comment">// NSA Guide Step 3: "Convert the bit string H to an integer e as
             // described in Appendix B.2."
-            </span>digest_scalar(<span class="self">self</span>.ops.scalar_ops, h)
+            </span><span class="kw">let </span>n = <span class="kw-2">&amp;</span><span class="self">self</span>.ops.scalar_ops.scalar_modulus(cpu);
+            digest_scalar(n, h)
         };
 
         <span class="self">self</span>.verify_digest(public_key, e, signature)
@@ -410,10 +412,14 @@
         e: Scalar,
         signature: untrusted::Input,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), error::Unspecified&gt; {
+        <span class="kw">let </span>cpu = cpu::features();
+
         <span class="comment">// NSA Suite B Implementer's Guide to ECDSA Section 3.4.2.
 
         </span><span class="kw">let </span>public_key_ops = <span class="self">self</span>.ops.public_key_ops;
         <span class="kw">let </span>scalar_ops = <span class="self">self</span>.ops.scalar_ops;
+        <span class="kw">let </span>q = <span class="kw-2">&amp;</span>public_key_ops.common.elem_modulus(cpu);
+        <span class="kw">let </span>n = <span class="kw-2">&amp;</span>scalar_ops.scalar_modulus(cpu);
 
         <span class="comment">// NSA Guide Prerequisites:
         //
@@ -432,7 +438,7 @@
         // can do. Prerequisite #2 is handled implicitly as the domain
         // parameters are hard-coded into the source. Prerequisite #3 is
         // handled by `parse_uncompressed_point`.
-        </span><span class="kw">let </span>peer_pub_key = parse_uncompressed_point(public_key_ops, public_key)<span class="question-mark">?</span>;
+        </span><span class="kw">let </span>peer_pub_key = parse_uncompressed_point(public_key_ops, q, public_key)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>(r, s) = signature.read_all(error::Unspecified, |input| {
             (<span class="self">self</span>.split_rs)(scalar_ops, input)
@@ -440,22 +446,22 @@
 
         <span class="comment">// NSA Guide Step 1: "If r and s are not both integers in the interval
         // [1, n − 1], output INVALID."
-        </span><span class="kw">let </span>r = scalar_parse_big_endian_variable(public_key_ops.common, limb::AllowZero::No, r)<span class="question-mark">?</span>;
-        <span class="kw">let </span>s = scalar_parse_big_endian_variable(public_key_ops.common, limb::AllowZero::No, s)<span class="question-mark">?</span>;
+        </span><span class="kw">let </span>r = scalar_parse_big_endian_variable(n, limb::AllowZero::No, r)<span class="question-mark">?</span>;
+        <span class="kw">let </span>s = scalar_parse_big_endian_variable(n, limb::AllowZero::No, s)<span class="question-mark">?</span>;
 
         <span class="comment">// NSA Guide Step 4: "Compute w = s**−1 mod n, using the routine in
         // Appendix B.1."
-        </span><span class="kw">let </span>w = <span class="self">self</span>.ops.scalar_inv_to_mont_vartime(<span class="kw-2">&amp;</span>s);
+        </span><span class="kw">let </span>w = <span class="self">self</span>.ops.scalar_inv_to_mont_vartime(<span class="kw-2">&amp;</span>s, cpu);
 
         <span class="comment">// NSA Guide Step 5: "Compute u1 = (e * w) mod n, and compute
         // u2 = (r * w) mod n."
-        </span><span class="kw">let </span>u1 = scalar_ops.scalar_product(<span class="kw-2">&amp;</span>e, <span class="kw-2">&amp;</span>w);
-        <span class="kw">let </span>u2 = scalar_ops.scalar_product(<span class="kw-2">&amp;</span>r, <span class="kw-2">&amp;</span>w);
+        </span><span class="kw">let </span>u1 = scalar_ops.scalar_product(<span class="kw-2">&amp;</span>e, <span class="kw-2">&amp;</span>w, cpu);
+        <span class="kw">let </span>u2 = scalar_ops.scalar_product(<span class="kw-2">&amp;</span>r, <span class="kw-2">&amp;</span>w, cpu);
 
         <span class="comment">// NSA Guide Step 6: "Compute the elliptic curve point
         // R = (xR, yR) = u1*G + u2*Q, using EC scalar multiplication and EC
         // addition. If R is equal to the point at infinity, output INVALID."
-        </span><span class="kw">let </span>product = (<span class="self">self</span>.ops.twin_mul)(<span class="kw-2">&amp;</span>u1, <span class="kw-2">&amp;</span>u2, <span class="kw-2">&amp;</span>peer_pub_key);
+        </span><span class="kw">let </span>product = (<span class="self">self</span>.ops.twin_mul)(<span class="kw-2">&amp;</span>u1, <span class="kw-2">&amp;</span>u2, <span class="kw-2">&amp;</span>peer_pub_key, cpu);
 
         <span class="comment">// Verify that the point we computed is on the curve; see
         // `verify_affine_point_is_on_the_curve_scaled` for details on why. It
@@ -464,7 +470,7 @@
         // `verify_affine_point_is_on_the_curve_scaled` for details on why).
         // But, we're going to avoid converting to affine for performance
         // reasons, so we do the verification using the Jacobian coordinates.
-        </span><span class="kw">let </span>z2 = verify_jacobian_point_is_on_the_curve(public_key_ops.common, <span class="kw-2">&amp;</span>product)<span class="question-mark">?</span>;
+        </span><span class="kw">let </span>z2 = verify_jacobian_point_is_on_the_curve(q, <span class="kw-2">&amp;</span>product)<span class="question-mark">?</span>;
 
         <span class="comment">// NSA Guide Step 7: "Compute v = xR mod n."
         // NSA Guide Step 8: "Compare v and r0. If v = r0, output VALID;
@@ -472,25 +478,20 @@
         //
         // Instead, we use Greg Maxwell's trick to avoid the inversion mod `q`
         // that would be necessary to compute the affine X coordinate.
-        </span><span class="kw">let </span>x = public_key_ops.common.point_x(<span class="kw-2">&amp;</span>product);
-        <span class="kw">fn </span>sig_r_equals_x(
-            ops: <span class="kw-2">&amp;</span>PublicScalarOps,
-            r: <span class="kw-2">&amp;</span>Elem&lt;Unencoded&gt;,
-            x: <span class="kw-2">&amp;</span>Elem&lt;R&gt;,
-            z2: <span class="kw-2">&amp;</span>Elem&lt;R&gt;,
-        ) -&gt; bool {
-            <span class="kw">let </span>cops = ops.public_key_ops.common;
-            <span class="kw">let </span>r_jacobian = cops.elem_product(z2, r);
-            <span class="kw">let </span>x = cops.elem_unencoded(x);
-            ops.elem_equals_vartime(<span class="kw-2">&amp;</span>r_jacobian, <span class="kw-2">&amp;</span>x)
+        </span><span class="kw">let </span>x = q.point_x(<span class="kw-2">&amp;</span>product);
+        <span class="kw">fn </span>sig_r_equals_x(q: <span class="kw-2">&amp;</span>Modulus&lt;Q&gt;, r: <span class="kw-2">&amp;</span>Elem&lt;Unencoded&gt;, x: <span class="kw-2">&amp;</span>Elem&lt;R&gt;, z2: <span class="kw-2">&amp;</span>Elem&lt;R&gt;) -&gt; bool {
+            <span class="kw">let </span>r_jacobian = q.elem_product(z2, r);
+            <span class="kw">let </span>x = q.elem_unencoded(x);
+            q.elems_are_equal(<span class="kw-2">&amp;</span>r_jacobian, <span class="kw-2">&amp;</span>x).leak()
         }
         <span class="kw">let </span><span class="kw-2">mut </span>r = <span class="self">self</span>.ops.scalar_as_elem(<span class="kw-2">&amp;</span>r);
-        <span class="kw">if </span>sig_r_equals_x(<span class="self">self</span>.ops, <span class="kw-2">&amp;</span>r, <span class="kw-2">&amp;</span>x, <span class="kw-2">&amp;</span>z2) {
+        <span class="kw">if </span>sig_r_equals_x(q, <span class="kw-2">&amp;</span>r, <span class="kw-2">&amp;</span>x, <span class="kw-2">&amp;</span>z2) {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(());
         }
-        <span class="kw">if </span><span class="self">self</span>.ops.elem_less_than(<span class="kw-2">&amp;</span>r, <span class="kw-2">&amp;</span><span class="self">self</span>.ops.q_minus_n) {
-            <span class="self">self</span>.ops.scalar_ops.common.elem_add(<span class="kw-2">&amp;mut </span>r, <span class="self">self</span>.ops.n());
-            <span class="kw">if </span>sig_r_equals_x(<span class="self">self</span>.ops, <span class="kw-2">&amp;</span>r, <span class="kw-2">&amp;</span>x, <span class="kw-2">&amp;</span>z2) {
+        <span class="kw">if </span>q.elem_less_than_vartime(<span class="kw-2">&amp;</span>r, <span class="kw-2">&amp;</span><span class="self">self</span>.ops.q_minus_n) {
+            <span class="kw">let </span>n = Elem::from(<span class="self">self</span>.ops.n());
+            q.add_assign(<span class="kw-2">&amp;mut </span>r, <span class="kw-2">&amp;</span>n);
+            <span class="kw">if </span>sig_r_equals_x(q, <span class="kw-2">&amp;</span>r, <span class="kw-2">&amp;</span>x, <span class="kw-2">&amp;</span>z2) {
                 <span class="kw">return </span><span class="prelude-val">Ok</span>(());
             }
         }
@@ -613,6 +614,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_digest_based_test_vectors() {
+        <span class="kw">let </span>cpu = cpu::features();
         test::run(
             <span class="macro">test_file!</span>(<span class="string">"../../../../crypto/fipsmodule/ecdsa/ecdsa_verify_tests.txt"</span>),
             |section, test_case| {
@@ -645,11 +647,9 @@
                         <span class="macro">panic!</span>(<span class="string">"Unsupported curve: {}"</span>, curve_name);
                     }
                 };
+                <span class="kw">let </span>n = <span class="kw-2">&amp;</span>alg.ops.scalar_ops.scalar_modulus(cpu);
 
-                <span class="kw">let </span>digest = <span class="kw">super</span>::<span class="kw">super</span>::digest_scalar::digest_bytes_scalar(
-                    alg.ops.scalar_ops,
-                    <span class="kw-2">&amp;</span>digest[..],
-                );
+                <span class="kw">let </span>digest = <span class="kw">super</span>::<span class="kw">super</span>::digest_scalar::digest_bytes_scalar(n, <span class="kw-2">&amp;</span>digest[..]);
                 <span class="kw">let </span>actual_result = alg.verify_digest(
                     untrusted::Input::from(<span class="kw-2">&amp;</span>public_key[..]),
                     digest,

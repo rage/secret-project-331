@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.26.1/src/aio/multiplexed_connection.rs`."><title>multiplexed_connection.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.28.2/src/aio/multiplexed_connection.rs`."><title>multiplexed_connection.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">redis/aio/</div>multiplexed_connection.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -616,12 +617,23 @@
 <a href="#616" id="616">616</a>
 <a href="#617" id="617">617</a>
 <a href="#618" id="618">618</a>
-</pre></div><pre class="rust"><code><span class="kw">use super</span>::{ConnectionLike, Runtime};
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a></pre></div><pre class="rust"><code><span class="kw">use super</span>::{AsyncPushSender, ConnectionLike, Runtime, SharedHandleContainer, TaskHandle};
 <span class="kw">use </span><span class="kw">crate</span>::aio::{check_resp3, setup_connection};
 <span class="kw">use </span><span class="kw">crate</span>::cmd::Cmd;
 <span class="attr">#[cfg(any(feature = <span class="string">"tokio-comp"</span>, feature = <span class="string">"async-std-comp"</span>))]
 </span><span class="kw">use </span><span class="kw">crate</span>::parser::ValueCodec;
-<span class="kw">use </span><span class="kw">crate</span>::types::{AsyncPushSender, RedisError, RedisFuture, RedisResult, Value};
+<span class="kw">use </span><span class="kw">crate</span>::types::{closed_connection_error, RedisError, RedisFuture, RedisResult, Value};
 <span class="kw">use crate</span>::{
     cmd, AsyncConnectionConfig, ProtocolVersion, PushInfo, RedisConnectionInfo, ToRedisArgs,
 };
@@ -639,8 +651,8 @@
 <span class="kw">use </span>std::collections::VecDeque;
 <span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::fmt::Debug;
-<span class="kw">use </span>std::io;
 <span class="kw">use </span>std::pin::Pin;
+<span class="kw">use </span>std::sync::Arc;
 <span class="kw">use </span>std::task::{<span class="self">self</span>, Poll};
 <span class="kw">use </span>std::time::Duration;
 <span class="attr">#[cfg(any(feature = <span class="string">"tokio-comp"</span>, feature = <span class="string">"async-std-comp"</span>))]
@@ -652,26 +664,30 @@
 <span class="kw">enum </span>ResponseAggregate {
     SingleCommand,
     Pipeline {
-        <span class="comment">// The number of responses to skip before starting to save responses in the buffer.
-        </span>skipped_response_count: usize,
-        <span class="comment">// The number of responses to keep in the buffer
-        </span>expected_response_count: usize,
         buffer: Vec&lt;Value&gt;,
         first_err: <span class="prelude-ty">Option</span>&lt;RedisError&gt;,
+        expectation: PipelineResponseExpectation,
     },
 }
 
+<span class="comment">// TODO - this is a really bad name.
+</span><span class="kw">struct </span>PipelineResponseExpectation {
+    <span class="comment">// The number of responses to skip before starting to save responses in the buffer.
+    </span>skipped_response_count: usize,
+    <span class="comment">// The number of responses to keep in the buffer
+    </span>expected_response_count: usize,
+    <span class="comment">// whether the pipelined request is a transaction
+    </span>is_transaction: bool,
+}
+
 <span class="kw">impl </span>ResponseAggregate {
-    <span class="kw">fn </span>new(pipeline_response_counts: <span class="prelude-ty">Option</span>&lt;(usize, usize)&gt;) -&gt; <span class="self">Self </span>{
-        <span class="kw">match </span>pipeline_response_counts {
-            <span class="prelude-val">Some</span>((skipped_response_count, expected_response_count)) =&gt; {
-                ResponseAggregate::Pipeline {
-                    expected_response_count,
-                    skipped_response_count,
-                    buffer: Vec::new(),
-                    first_err: <span class="prelude-val">None</span>,
-                }
-            }
+    <span class="kw">fn </span>new(expectation: <span class="prelude-ty">Option</span>&lt;PipelineResponseExpectation&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>expectation {
+            <span class="prelude-val">Some</span>(expectation) =&gt; ResponseAggregate::Pipeline {
+                buffer: Vec::new(),
+                first_err: <span class="prelude-val">None</span>,
+                expectation,
+            },
             <span class="prelude-val">None </span>=&gt; ResponseAggregate::SingleCommand,
         }
     }
@@ -687,8 +703,9 @@
     input: Vec&lt;u8&gt;,
     output: PipelineOutput,
     <span class="comment">// If `None`, this is a single request, not a pipeline of multiple requests.
-    // If `Some`, the first value is the number of responses to skip, and the second is the number of responses to keep.
-    </span>pipeline_response_counts: <span class="prelude-ty">Option</span>&lt;(usize, usize)&gt;,
+    // If `Some`, the first value is the number of responses to skip,
+    // the second is the number of responses to keep, and the third is whether the pipeline is a transaction.
+    </span>expectation: <span class="prelude-ty">Option</span>&lt;PipelineResponseExpectation&gt;,
 }
 
 <span class="doccomment">/// Wrapper around a `Stream + Sink` where each item sent through the `Sink` results in one or more
@@ -712,34 +729,25 @@
         </span>sink_stream: T,
         in_flight: VecDeque&lt;InFlight&gt;,
         error: <span class="prelude-ty">Option</span>&lt;RedisError&gt;,
-        push_sender: <span class="prelude-ty">Option</span>&lt;AsyncPushSender&gt;,
+        push_sender: <span class="prelude-ty">Option</span>&lt;Arc&lt;<span class="kw">dyn </span>AsyncPushSender&gt;&gt;,
     }
 }
 
-<span class="kw">fn </span>send_push(push_sender: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;AsyncPushSender&gt;, info: PushInfo) {
-    <span class="kw">match </span>push_sender {
-        <span class="prelude-val">Some</span>(sender) =&gt; {
-            <span class="kw">let _ </span>= sender.send(info);
-        }
-        <span class="prelude-val">None </span>=&gt; {}
+<span class="kw">fn </span>send_push(push_sender: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Arc&lt;<span class="kw">dyn </span>AsyncPushSender&gt;&gt;, info: PushInfo) {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(sender) = push_sender {
+        <span class="kw">let _ </span>= sender.send(info);
     };
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>send_disconnect(push_sender: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;AsyncPushSender&gt;) {
-    send_push(
-        push_sender,
-        PushInfo {
-            kind: <span class="kw">crate</span>::PushKind::Disconnection,
-            data: <span class="macro">vec!</span>[],
-        },
-    );
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>send_disconnect(push_sender: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Arc&lt;<span class="kw">dyn </span>AsyncPushSender&gt;&gt;) {
+    send_push(push_sender, PushInfo::disconnect());
 }
 
 <span class="kw">impl</span>&lt;T&gt; PipelineSink&lt;T&gt;
 <span class="kw">where
     </span>T: Stream&lt;Item = RedisResult&lt;Value&gt;&gt; + <span class="lifetime">'static</span>,
 {
-    <span class="kw">fn </span>new(sink_stream: T, push_sender: <span class="prelude-ty">Option</span>&lt;AsyncPushSender&gt;) -&gt; <span class="self">Self
+    <span class="kw">fn </span>new(sink_stream: T, push_sender: <span class="prelude-ty">Option</span>&lt;Arc&lt;<span class="kw">dyn </span>AsyncPushSender&gt;&gt;) -&gt; <span class="self">Self
     </span><span class="kw">where
         </span>T: Sink&lt;Vec&lt;u8&gt;, Error = RedisError&gt; + Stream&lt;Item = RedisResult&lt;Value&gt;&gt; + <span class="lifetime">'static</span>,
     {
@@ -756,24 +764,18 @@
         <span class="kw">loop </span>{
             <span class="kw">let </span>item = <span class="macro">ready!</span>(<span class="self">self</span>.as_mut().project().sink_stream.poll_next(cx));
             <span class="kw">let </span>item = <span class="kw">match </span>item {
-                <span class="prelude-val">Some</span>(result) =&gt; {
-                    <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="kw-2">&amp;</span>result {
-                        <span class="kw">if </span>err.is_unrecoverable_error() {
-                            <span class="kw">let </span>self_ = <span class="self">self</span>.as_mut().project();
-                            send_disconnect(self_.push_sender);
-                        }
-                    }
-                    result
-                }
-                <span class="comment">// The redis response stream is not going to produce any more items so we `Err`
-                // to break out of the `forward` combinator and stop handling requests
-                </span><span class="prelude-val">None </span>=&gt; {
-                    <span class="kw">let </span>self_ = <span class="self">self</span>.project();
-                    send_disconnect(self_.push_sender);
-                    <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(()));
-                }
+                <span class="prelude-val">Some</span>(result) =&gt; result,
+                <span class="comment">// The redis response stream is not going to produce any more items so we simulate a disconnection error to break out of the loop.
+                </span><span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(closed_connection_error()),
             };
+
+            <span class="kw">let </span>is_unrecoverable = item.as_ref().is_err_and(|err| err.is_unrecoverable_error());
             <span class="self">self</span>.as_mut().send_result(item);
+            <span class="kw">if </span>is_unrecoverable {
+                <span class="kw">let </span>self_ = <span class="self">self</span>.project();
+                send_disconnect(self_.push_sender);
+                <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(()));
+            }
         }
     }
 
@@ -810,16 +812,19 @@
                 entry.output.send(result).ok();
             }
             ResponseAggregate::Pipeline {
-                expected_response_count,
-                skipped_response_count,
                 buffer,
                 first_err,
+                expectation:
+                    PipelineResponseExpectation {
+                        expected_response_count,
+                        skipped_response_count,
+                        is_transaction,
+                    },
             } =&gt; {
                 <span class="kw">if </span><span class="kw-2">*</span>skipped_response_count &gt; <span class="number">0 </span>{
-                    <span class="comment">// errors in skipped values are still counted for errors, since they're errors that will cause the transaction to fail,
+                    <span class="comment">// errors in skipped values are still counted for errors in transactions, since they're errors that will cause the transaction to fail,
                     // and we only skip values in transaction.
-                    // TODO - the unified pipeline/transaction flows make this confusing. consider splitting them.
-                    </span><span class="kw">if </span>first_err.is_none() {
+                    </span><span class="kw">if </span>first_err.is_none() &amp;&amp; <span class="kw-2">*</span>is_transaction {
                         <span class="kw-2">*</span>first_err = result.and_then(Value::extract_error).err();
                     }
 
@@ -884,7 +889,7 @@
         PipelineMessage {
             input,
             output,
-            pipeline_response_counts,
+            expectation,
         }: PipelineMessage,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
         <span class="comment">// If there is nothing to receive our output we do not need to send the message as it is
@@ -903,7 +908,7 @@
 
         <span class="kw">match </span>self_.sink_stream.start_send(input) {
             <span class="prelude-val">Ok</span>(()) =&gt; {
-                <span class="kw">let </span>response_aggregate = ResponseAggregate::new(pipeline_response_counts);
+                <span class="kw">let </span>response_aggregate = ResponseAggregate::new(expectation);
                 <span class="kw">let </span>entry = InFlight {
                     output,
                     response_aggregate,
@@ -953,7 +958,7 @@
 <span class="kw">impl </span>Pipeline {
     <span class="kw">fn </span>new&lt;T&gt;(
         sink_stream: T,
-        push_sender: <span class="prelude-ty">Option</span>&lt;AsyncPushSender&gt;,
+        push_sender: <span class="prelude-ty">Option</span>&lt;Arc&lt;<span class="kw">dyn </span>AsyncPushSender&gt;&gt;,
     ) -&gt; (<span class="self">Self</span>, <span class="kw">impl </span>Future&lt;Output = ()&gt;)
     <span class="kw">where
         </span>T: Sink&lt;Vec&lt;u8&gt;, Error = RedisError&gt; + Stream&lt;Item = RedisResult&lt;Value&gt;&gt; + <span class="lifetime">'static</span>,
@@ -986,8 +991,8 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         input: Vec&lt;u8&gt;,
         <span class="comment">// If `None`, this is a single request, not a pipeline of multiple requests.
-        // If `Some`, the first value is the number of responses to skip, and the second is the number of responses to keep.
-        </span>pipeline_response_counts: <span class="prelude-ty">Option</span>&lt;(usize, usize)&gt;,
+        // If `Some`, the value inside defines how the response should look like
+        </span>expectation: <span class="prelude-ty">Option</span>&lt;PipelineResponseExpectation&gt;,
         timeout: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Value, <span class="prelude-ty">Option</span>&lt;RedisError&gt;&gt; {
         <span class="kw">let </span>(sender, receiver) = oneshot::channel();
@@ -995,7 +1000,7 @@
         <span class="self">self</span>.sender
             .send(PipelineMessage {
                 input,
-                pipeline_response_counts,
+                expectation,
                 output: sender,
             })
             .<span class="kw">await
@@ -1017,21 +1022,26 @@
 
 <span class="doccomment">/// A connection object which can be cloned, allowing requests to be be sent concurrently
 /// on the same underlying connection (tcp/unix socket).
+///
 /// This connection object is cancellation-safe, and the user can drop request future without polling them to completion,
 /// but this doesn't mean that the actual request sent to the server is cancelled.
 /// A side-effect of this is that the underlying connection won't be closed until all sent requests have been answered,
 /// which means that in case of blocking commands, the underlying connection resource might not be released,
 /// even when all clones of the multiplexed connection have been dropped (see &lt;https://github.com/redis-rs/redis-rs/issues/1236&gt;).
-/// If that is an issue, the user can, instead of using [crate::Client::get_multiplexed_async_connection], use either [MultiplexedConnection::new] or
-/// [crate::Client::create_multiplexed_tokio_connection]/[crate::Client::create_multiplexed_async_std_connection],
-/// manually spawn the returned driver function, keep the spawned task's handle and abort the task whenever they want,
-/// at the cost of effectively closing the clones of the multiplexed connection.
+/// This isn't an issue in a connection that was created in a canonical way, which ensures that `_task_handle` is set, so that
+/// once all of the connection's clones are dropped, the task will also be dropped. If the user creates the connection in
+/// another way and `_task_handle` isn't set, they should manually spawn the returned driver function, keep the spawned task's
+/// handle and abort the task whenever they want, at the risk of effectively closing the clones of the multiplexed connection.
 </span><span class="attr">#[derive(Clone)]
 </span><span class="kw">pub struct </span>MultiplexedConnection {
     pipeline: Pipeline,
     db: i64,
     response_timeout: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
     protocol: ProtocolVersion,
+    <span class="comment">// This handle ensures that once all the clones of the connection will be dropped, the underlying task will stop.
+    // This handle is only set for connection whose task was spawned by the crate, not for users who spawned their own
+    // task.
+    </span>_task_handle: <span class="prelude-ty">Option</span>&lt;SharedHandleContainer&gt;,
 }
 
 <span class="kw">impl </span>Debug <span class="kw">for </span>MultiplexedConnection {
@@ -1088,12 +1098,6 @@
     <span class="kw">where
         </span>C: Unpin + AsyncRead + AsyncWrite + Send + <span class="lifetime">'static</span>,
     {
-        <span class="kw">fn </span>boxed(
-            f: <span class="kw">impl </span>Future&lt;Output = ()&gt; + Send + <span class="lifetime">'static</span>,
-        ) -&gt; Pin&lt;Box&lt;<span class="kw">dyn </span>Future&lt;Output = ()&gt; + Send&gt;&gt; {
-            Box::pin(f)
-        }
-
         <span class="attr">#[cfg(all(not(feature = <span class="string">"tokio-comp"</span>), not(feature = <span class="string">"async-std-comp"</span>)))]
         </span><span class="macro">compile_error!</span>(<span class="string">"tokio-comp or async-std-comp features required for aio feature"</span>);
 
@@ -1105,12 +1109,12 @@
             </span>);
         }
         <span class="kw">let </span>(pipeline, driver) = Pipeline::new(codec, config.push_sender);
-        <span class="kw">let </span>driver = boxed(driver);
         <span class="kw">let </span><span class="kw-2">mut </span>con = MultiplexedConnection {
             pipeline,
             db: connection_info.db,
             response_timeout: config.response_timeout,
             protocol: connection_info.protocol,
+            _task_handle: <span class="prelude-val">None</span>,
         };
         <span class="kw">let </span>driver = {
             <span class="kw">let </span>auth = setup_connection(connection_info, <span class="kw-2">&amp;mut </span>con);
@@ -1133,6 +1137,12 @@
         <span class="prelude-val">Ok</span>((con, driver))
     }
 
+    <span class="doccomment">/// This should be called strictly before the multiplexed connection is cloned - that is, before it is returned to the user.
+    /// Otherwise some clones will be able to kill the backing task, while other clones are still alive.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>set_task_handle(<span class="kw-2">&amp;mut </span><span class="self">self</span>, handle: TaskHandle) {
+        <span class="self">self</span>._task_handle = <span class="prelude-val">Some</span>(SharedHandleContainer::new(handle));
+    }
+
     <span class="doccomment">/// Sets the time that the multiplexer will wait for responses on operations before failing.
     </span><span class="kw">pub fn </span>set_response_timeout(<span class="kw-2">&amp;mut </span><span class="self">self</span>, timeout: std::time::Duration) {
         <span class="self">self</span>.response_timeout = <span class="prelude-val">Some</span>(timeout);
@@ -1144,9 +1154,7 @@
         <span class="self">self</span>.pipeline
             .send_single(cmd.get_packed_command(), <span class="self">self</span>.response_timeout)
             .<span class="kw">await
-            </span>.map_err(|err| {
-                err.unwrap_or_else(|| RedisError::from(io::Error::from(io::ErrorKind::BrokenPipe)))
-            })
+            </span>.map_err(|err| err.unwrap_or_else(closed_connection_error))
     }
 
     <span class="doccomment">/// Sends multiple already encoded (packed) command into the TCP socket
@@ -1162,13 +1170,15 @@
             </span>.pipeline
             .send_recv(
                 cmd.get_packed_pipeline(),
-                <span class="prelude-val">Some</span>((offset, count)),
+                <span class="prelude-val">Some</span>(PipelineResponseExpectation {
+                    skipped_response_count: offset,
+                    expected_response_count: count,
+                    is_transaction: cmd.is_transaction(),
+                }),
                 <span class="self">self</span>.response_timeout,
             )
             .<span class="kw">await
-            </span>.map_err(|err| {
-                err.unwrap_or_else(|| RedisError::from(io::Error::from(io::ErrorKind::BrokenPipe)))
-            });
+            </span>.map_err(|err| err.unwrap_or_else(closed_connection_error));
 
         <span class="kw">let </span>value = result<span class="question-mark">?</span>;
         <span class="kw">match </span>value {
@@ -1199,6 +1209,11 @@
 
 <span class="kw">impl </span>MultiplexedConnection {
     <span class="doccomment">/// Subscribes to a new channel.
+    ///
+    /// Updates from the sender will be sent on the push sender that was passed to the connection.
+    /// If the connection was configured without a push sender, the connection won't be able to pass messages back to the user..
+    ///
+    /// This method is only available when the connection is using RESP3 protocol, and will return an error otherwise.
     </span><span class="kw">pub async fn </span>subscribe(<span class="kw-2">&amp;mut </span><span class="self">self</span>, channel_name: <span class="kw">impl </span>ToRedisArgs) -&gt; RedisResult&lt;()&gt; {
         <span class="macro">check_resp3!</span>(<span class="self">self</span>.protocol);
         <span class="kw">let </span><span class="kw-2">mut </span>cmd = cmd(<span class="string">"SUBSCRIBE"</span>);
@@ -1208,6 +1223,8 @@
     }
 
     <span class="doccomment">/// Unsubscribes from channel.
+    ///
+    /// This method is only available when the connection is using RESP3 protocol, and will return an error otherwise.
     </span><span class="kw">pub async fn </span>unsubscribe(<span class="kw-2">&amp;mut </span><span class="self">self</span>, channel_name: <span class="kw">impl </span>ToRedisArgs) -&gt; RedisResult&lt;()&gt; {
         <span class="macro">check_resp3!</span>(<span class="self">self</span>.protocol);
         <span class="kw">let </span><span class="kw-2">mut </span>cmd = cmd(<span class="string">"UNSUBSCRIBE"</span>);
@@ -1217,6 +1234,11 @@
     }
 
     <span class="doccomment">/// Subscribes to a new channel with pattern.
+    ///
+    /// Updates from the sender will be sent on the push sender that was passed to the connection.
+    /// If the connection was configured without a push sender, the connection won't be able to pass messages back to the user..
+    ///
+    /// This method is only available when the connection is using RESP3 protocol, and will return an error otherwise.
     </span><span class="kw">pub async fn </span>psubscribe(<span class="kw-2">&amp;mut </span><span class="self">self</span>, channel_pattern: <span class="kw">impl </span>ToRedisArgs) -&gt; RedisResult&lt;()&gt; {
         <span class="macro">check_resp3!</span>(<span class="self">self</span>.protocol);
         <span class="kw">let </span><span class="kw-2">mut </span>cmd = cmd(<span class="string">"PSUBSCRIBE"</span>);
@@ -1226,6 +1248,8 @@
     }
 
     <span class="doccomment">/// Unsubscribes from channel pattern.
+    ///
+    /// This method is only available when the connection is using RESP3 protocol, and will return an error otherwise.
     </span><span class="kw">pub async fn </span>punsubscribe(<span class="kw-2">&amp;mut </span><span class="self">self</span>, channel_pattern: <span class="kw">impl </span>ToRedisArgs) -&gt; RedisResult&lt;()&gt; {
         <span class="macro">check_resp3!</span>(<span class="self">self</span>.protocol);
         <span class="kw">let </span><span class="kw-2">mut </span>cmd = cmd(<span class="string">"PUNSUBSCRIBE"</span>);

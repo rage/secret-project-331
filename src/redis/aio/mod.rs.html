@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.26.1/src/aio/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.28.2/src/aio/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">redis/aio/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -192,13 +193,29 @@
 <a href="#192" id="192">192</a>
 <a href="#193" id="193">193</a>
 <a href="#194" id="194">194</a>
-</pre></div><pre class="rust"><code><span class="doccomment">//! Adds async IO support to redis.
-</span><span class="kw">use </span><span class="kw">crate</span>::cmd::{cmd, Cmd};
-<span class="kw">use </span><span class="kw">crate</span>::connection::get_resp3_hello_command_error;
-<span class="kw">use </span><span class="kw">crate</span>::connection::RedisConnectionInfo;
-<span class="kw">use </span><span class="kw">crate</span>::types::{ErrorKind, ProtocolVersion, RedisFuture, RedisResult, Value};
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a></pre></div><pre class="rust"><code><span class="doccomment">//! Adds async IO support to redis.
+</span><span class="kw">use </span><span class="kw">crate</span>::cmd::Cmd;
+<span class="kw">use </span><span class="kw">crate</span>::connection::{
+    check_connection_setup, connection_setup_pipeline, AuthResult, ConnectionSetupComponents,
+    RedisConnectionInfo,
+};
+<span class="kw">use </span><span class="kw">crate</span>::types::{RedisFuture, RedisResult, Value};
+<span class="kw">use </span><span class="kw">crate</span>::PushInfo;
 <span class="kw">use </span>::tokio::io::{AsyncRead, AsyncWrite};
-<span class="kw">use </span>async_trait::async_trait;
 <span class="kw">use </span>futures_util::Future;
 <span class="kw">use </span>std::net::SocketAddr;
 <span class="attr">#[cfg(unix)]
@@ -221,8 +238,10 @@
 #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"tokio-comp"</span>)))]
 </span><span class="kw">pub mod </span>tokio;
 
+<span class="kw">mod </span>pubsub;
+<span class="kw">pub use </span>pubsub::{PubSub, PubSubSink, PubSubStream};
+
 <span class="doccomment">/// Represents the ability of connecting via TCP or via Unix socket
-</span><span class="attr">#[async_trait]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait </span>RedisRuntime: AsyncStream + Send + Sync + Sized + <span class="lifetime">'static </span>{
     <span class="doccomment">/// Performs a TCP connection
     </span><span class="kw">async fn </span>connect_tcp(socket_addr: SocketAddr) -&gt; RedisResult&lt;<span class="self">Self</span>&gt;;
@@ -240,7 +259,7 @@
     </span><span class="attr">#[cfg(unix)]
     </span><span class="kw">async fn </span>connect_unix(path: <span class="kw-2">&amp;</span>Path) -&gt; RedisResult&lt;<span class="self">Self</span>&gt;;
 
-    <span class="kw">fn </span>spawn(f: <span class="kw">impl </span>Future&lt;Output = ()&gt; + Send + <span class="lifetime">'static</span>);
+    <span class="kw">fn </span>spawn(f: <span class="kw">impl </span>Future&lt;Output = ()&gt; + Send + <span class="lifetime">'static</span>) -&gt; TaskHandle;
 
     <span class="kw">fn </span>boxed(<span class="self">self</span>) -&gt; Pin&lt;Box&lt;<span class="kw">dyn </span>AsyncStream + Send + Sync&gt;&gt; {
         Box::pin(<span class="self">self</span>)
@@ -279,73 +298,29 @@
     </span><span class="kw">fn </span>get_db(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i64;
 }
 
+<span class="kw">async fn </span>execute_connection_pipeline(
+    rv: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>ConnectionLike,
+    (pipeline, instructions): (<span class="kw">crate</span>::Pipeline, ConnectionSetupComponents),
+) -&gt; RedisResult&lt;AuthResult&gt; {
+    <span class="kw">if </span>pipeline.len() == <span class="number">0 </span>{
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(AuthResult::Succeeded);
+    }
+
+    <span class="kw">let </span>results = rv.req_packed_commands(<span class="kw-2">&amp;</span>pipeline, <span class="number">0</span>, pipeline.len()).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    check_connection_setup(results, instructions)
+}
+
 <span class="comment">// Initial setup for every connection.
-</span><span class="kw">async fn </span>setup_connection&lt;C&gt;(connection_info: <span class="kw-2">&amp;</span>RedisConnectionInfo, con: <span class="kw-2">&amp;mut </span>C) -&gt; RedisResult&lt;()&gt;
-<span class="kw">where
-    </span>C: ConnectionLike,
-{
-    <span class="kw">if </span>connection_info.protocol != ProtocolVersion::RESP2 {
-        <span class="kw">let </span>hello_cmd = resp3_hello(connection_info);
-        <span class="kw">let </span>val: RedisResult&lt;Value&gt; = hello_cmd.query_async(con).<span class="kw">await</span>;
-        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = val {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(get_resp3_hello_command_error(err));
-        }
-    } <span class="kw">else if let </span><span class="prelude-val">Some</span>(password) = <span class="kw-2">&amp;</span>connection_info.password {
-        <span class="kw">let </span><span class="kw-2">mut </span>command = cmd(<span class="string">"AUTH"</span>);
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(username) = <span class="kw-2">&amp;</span>connection_info.username {
-            command.arg(username);
-        }
-        <span class="kw">match </span>command.arg(password).query_async(con).<span class="kw">await </span>{
-            <span class="prelude-val">Ok</span>(Value::Okay) =&gt; (),
-            <span class="prelude-val">Err</span>(e) =&gt; {
-                <span class="kw">let </span>err_msg = e.detail().ok_or((
-                    ErrorKind::AuthenticationFailed,
-                    <span class="string">"Password authentication failed"</span>,
-                ))<span class="question-mark">?</span>;
-
-                <span class="kw">if </span>!err_msg.contains(<span class="string">"wrong number of arguments for 'auth' command"</span>) {
-                    <span class="macro">fail!</span>((
-                        ErrorKind::AuthenticationFailed,
-                        <span class="string">"Password authentication failed"</span>,
-                    ));
-                }
-
-                <span class="kw">let </span><span class="kw-2">mut </span>command = cmd(<span class="string">"AUTH"</span>);
-                <span class="kw">match </span>command.arg(password).query_async(con).<span class="kw">await </span>{
-                    <span class="prelude-val">Ok</span>(Value::Okay) =&gt; (),
-                    <span class="kw">_ </span>=&gt; {
-                        <span class="macro">fail!</span>((
-                            ErrorKind::AuthenticationFailed,
-                            <span class="string">"Password authentication failed"
-                        </span>));
-                    }
-                }
-            }
-            <span class="kw">_ </span>=&gt; {
-                <span class="macro">fail!</span>((
-                    ErrorKind::AuthenticationFailed,
-                    <span class="string">"Password authentication failed"
-                </span>));
-            }
-        }
+</span><span class="kw">async fn </span>setup_connection(
+    connection_info: <span class="kw-2">&amp;</span>RedisConnectionInfo,
+    con: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>ConnectionLike,
+) -&gt; RedisResult&lt;()&gt; {
+    <span class="kw">if </span>execute_connection_pipeline(con, connection_setup_pipeline(connection_info, <span class="bool-val">true</span>)).<span class="kw">await</span><span class="question-mark">?
+        </span>== AuthResult::ShouldRetryWithoutUsername
+    {
+        execute_connection_pipeline(con, connection_setup_pipeline(connection_info, <span class="bool-val">false</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
     }
-
-    <span class="kw">if </span>connection_info.db != <span class="number">0 </span>{
-        <span class="kw">match </span>cmd(<span class="string">"SELECT"</span>).arg(connection_info.db).query_async(con).<span class="kw">await </span>{
-            <span class="prelude-val">Ok</span>(Value::Okay) =&gt; (),
-            <span class="kw">_ </span>=&gt; <span class="macro">fail!</span>((
-                ErrorKind::ResponseError,
-                <span class="string">"Redis server refused to switch database"
-            </span>)),
-        }
-    }
-
-    <span class="comment">// result is ignored, as per the command's instructions.
-    // https://redis.io/commands/client-setinfo/
-    </span><span class="attr">#[cfg(not(feature = <span class="string">"disable-client-setinfo"</span>))]
-    </span><span class="kw">let _</span>: RedisResult&lt;()&gt; = <span class="kw">crate</span>::connection::client_set_info_pipeline()
-        .query_async(con)
-        .<span class="kw">await</span>;
 
     <span class="prelude-val">Ok</span>(())
 }
@@ -360,7 +335,6 @@
 #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"connection-manager"</span>)))]
 </span><span class="kw">pub use </span>connection_manager::<span class="kw-2">*</span>;
 <span class="kw">mod </span>runtime;
-<span class="kw">use </span><span class="kw">crate</span>::commands::resp3_hello;
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">use </span>runtime::<span class="kw-2">*</span>;
 
 <span class="macro">macro_rules!</span> check_resp3 {
@@ -386,4 +360,60 @@
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>check_resp3;
+
+<span class="doccomment">/// An error showing that the receiver
+</span><span class="kw">pub struct </span>SendError;
+
+<span class="doccomment">/// A trait for sender parts of a channel that can be used for sending push messages from async
+/// connection.
+</span><span class="kw">pub trait </span>AsyncPushSender: Send + Sync + <span class="lifetime">'static </span>{
+    <span class="doccomment">/// The sender must send without blocking, otherwise it will block the sending connection.
+    /// Should error when the receiver was closed, and pushing values on the sender is no longer viable.
+    </span><span class="kw">fn </span>send(<span class="kw-2">&amp;</span><span class="self">self</span>, info: PushInfo) -&gt; <span class="prelude-ty">Result</span>&lt;(), SendError&gt;;
+}
+
+<span class="kw">impl </span>AsyncPushSender <span class="kw">for </span>::tokio::sync::mpsc::UnboundedSender&lt;PushInfo&gt; {
+    <span class="kw">fn </span>send(<span class="kw-2">&amp;</span><span class="self">self</span>, info: PushInfo) -&gt; <span class="prelude-ty">Result</span>&lt;(), SendError&gt; {
+        <span class="kw">match </span><span class="self">self</span>.send(info) {
+            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(SendError),
+        }
+    }
+}
+
+<span class="kw">impl </span>AsyncPushSender <span class="kw">for </span>::tokio::sync::broadcast::Sender&lt;PushInfo&gt; {
+    <span class="kw">fn </span>send(<span class="kw-2">&amp;</span><span class="self">self</span>, info: PushInfo) -&gt; <span class="prelude-ty">Result</span>&lt;(), SendError&gt; {
+        <span class="kw">match </span><span class="self">self</span>.send(info) {
+            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(SendError),
+        }
+    }
+}
+
+<span class="kw">impl</span>&lt;T, Func: Fn(PushInfo) -&gt; <span class="prelude-ty">Result</span>&lt;(), T&gt; + Send + Sync + <span class="lifetime">'static</span>&gt; AsyncPushSender <span class="kw">for </span>Func {
+    <span class="kw">fn </span>send(<span class="kw-2">&amp;</span><span class="self">self</span>, info: PushInfo) -&gt; <span class="prelude-ty">Result</span>&lt;(), SendError&gt; {
+        <span class="kw">match </span><span class="self">self</span>(info) {
+            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(SendError),
+        }
+    }
+}
+
+<span class="kw">impl </span>AsyncPushSender <span class="kw">for </span>std::sync::mpsc::Sender&lt;PushInfo&gt; {
+    <span class="kw">fn </span>send(<span class="kw-2">&amp;</span><span class="self">self</span>, info: PushInfo) -&gt; <span class="prelude-ty">Result</span>&lt;(), SendError&gt; {
+        <span class="kw">match </span><span class="self">self</span>.send(info) {
+            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(SendError),
+        }
+    }
+}
+
+<span class="kw">impl</span>&lt;T&gt; AsyncPushSender <span class="kw">for </span>std::sync::Arc&lt;T&gt;
+<span class="kw">where
+    </span>T: AsyncPushSender,
+{
+    <span class="kw">fn </span>send(<span class="kw-2">&amp;</span><span class="self">self</span>, info: PushInfo) -&gt; <span class="prelude-ty">Result</span>&lt;(), SendError&gt; {
+        <span class="self">self</span>.as_ref().send(info)
+    }
+}
 </code></pre></div></section></main></body></html>

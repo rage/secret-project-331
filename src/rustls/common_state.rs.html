@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.21/src/common_state.rs`."><title>common_state.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.23/src/common_state.rs`."><title>common_state.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rustls/</div>common_state.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1035,33 +1036,7 @@
 <a href="#1035" id="1035">1035</a>
 <a href="#1036" id="1036">1036</a>
 <a href="#1037" id="1037">1037</a>
-<a href="#1038" id="1038">1038</a>
-<a href="#1039" id="1039">1039</a>
-<a href="#1040" id="1040">1040</a>
-<a href="#1041" id="1041">1041</a>
-<a href="#1042" id="1042">1042</a>
-<a href="#1043" id="1043">1043</a>
-<a href="#1044" id="1044">1044</a>
-<a href="#1045" id="1045">1045</a>
-<a href="#1046" id="1046">1046</a>
-<a href="#1047" id="1047">1047</a>
-<a href="#1048" id="1048">1048</a>
-<a href="#1049" id="1049">1049</a>
-<a href="#1050" id="1050">1050</a>
-<a href="#1051" id="1051">1051</a>
-<a href="#1052" id="1052">1052</a>
-<a href="#1053" id="1053">1053</a>
-<a href="#1054" id="1054">1054</a>
-<a href="#1055" id="1055">1055</a>
-<a href="#1056" id="1056">1056</a>
-<a href="#1057" id="1057">1057</a>
-<a href="#1058" id="1058">1058</a>
-<a href="#1059" id="1059">1059</a>
-<a href="#1060" id="1060">1060</a>
-<a href="#1061" id="1061">1061</a>
-<a href="#1062" id="1062">1062</a>
-<a href="#1063" id="1063">1063</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
+<a href="#1038" id="1038">1038</a></pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
 <span class="kw">use </span>alloc::vec::Vec;
 
 <span class="kw">use </span>pki_types::CertificateDer;
@@ -1074,7 +1049,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::msgs::alert::AlertMessagePayload;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::base::Payload;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::codec::Codec;
-<span class="kw">use </span><span class="kw">crate</span>::msgs::enums::{AlertLevel, ExtensionType, KeyUpdateRequest};
+<span class="kw">use </span><span class="kw">crate</span>::msgs::enums::{AlertLevel, KeyUpdateRequest};
 <span class="kw">use </span><span class="kw">crate</span>::msgs::fragmenter::MessageFragmenter;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::{CertificateChain, HandshakeMessagePayload};
 <span class="kw">use </span><span class="kw">crate</span>::msgs::message::{
@@ -1087,7 +1062,7 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::tls12::ConnectionSecrets;
 <span class="kw">use </span><span class="kw">crate</span>::unbuffered::{EncryptError, InsufficientSizeError};
 <span class="kw">use </span><span class="kw">crate</span>::vecbuf::ChunkVecBuffer;
-<span class="kw">use crate</span>::{quic, record_layer, PeerIncompatible};
+<span class="kw">use crate</span>::{quic, record_layer};
 
 <span class="doccomment">/// Connection state common to both client and server connections.
 </span><span class="kw">pub struct </span>CommonState {
@@ -1103,6 +1078,8 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) may_receive_application_data: bool,
     <span class="kw">pub</span>(<span class="kw">crate</span>) early_traffic: bool,
     sent_fatal_alert: bool,
+    <span class="doccomment">/// If we signaled end of stream.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) has_sent_close_notify: bool,
     <span class="doccomment">/// If the peer has signaled end of stream.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) has_received_close_notify: bool,
     <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
@@ -1137,6 +1114,7 @@
             may_receive_application_data: <span class="bool-val">false</span>,
             early_traffic: <span class="bool-val">false</span>,
             sent_fatal_alert: <span class="bool-val">false</span>,
+            has_sent_close_notify: <span class="bool-val">false</span>,
             has_received_close_notify: <span class="bool-val">false</span>,
             <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
             </span>has_seen_eof: <span class="bool-val">false</span>,
@@ -1636,6 +1614,7 @@
         }
         <span class="macro">debug!</span>(<span class="string">"Sending warning alert {:?}"</span>, AlertDescription::CloseNotify);
         <span class="self">self</span>.sent_fatal_alert = <span class="bool-val">true</span>;
+        <span class="self">self</span>.has_sent_close_notify = <span class="bool-val">true</span>;
         <span class="self">self</span>.send_warning_alert_no_log(AlertDescription::CloseNotify);
     }
 
@@ -1961,35 +1940,6 @@
     <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span>Yes,
     No,
-}
-
-<span class="attr">#[derive(Debug)]
-</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct </span>RawKeyNegotiationParams {
-    <span class="kw">pub</span>(<span class="kw">super</span>) peer_supports_raw_key: bool,
-    <span class="kw">pub</span>(<span class="kw">super</span>) local_expects_raw_key: bool,
-    <span class="kw">pub</span>(<span class="kw">super</span>) extension_type: ExtensionType,
-}
-
-<span class="kw">impl </span>RawKeyNegotiationParams {
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>validate_raw_key_negotiation(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RawKeyNegotationResult {
-        <span class="kw">match </span>(<span class="self">self</span>.local_expects_raw_key, <span class="self">self</span>.peer_supports_raw_key) {
-            (<span class="bool-val">true</span>, <span class="bool-val">true</span>) =&gt; RawKeyNegotationResult::Negotiated(<span class="self">self</span>.extension_type),
-            (<span class="bool-val">false</span>, <span class="bool-val">false</span>) =&gt; RawKeyNegotationResult::NotNegotiated,
-            (<span class="bool-val">true</span>, <span class="bool-val">false</span>) =&gt; RawKeyNegotationResult::Err(Error::PeerIncompatible(
-                PeerIncompatible::IncorrectCertificateTypeExtension,
-            )),
-            (<span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; RawKeyNegotationResult::Err(Error::PeerIncompatible(
-                PeerIncompatible::UnsolicitedCertificateTypeExtension,
-            )),
-        }
-    }
-}
-
-<span class="attr">#[derive(Debug)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>RawKeyNegotationResult {
-    Negotiated(ExtensionType),
-    NotNegotiated,
-    <span class="prelude-val">Err</span>(Error),
 }
 
 <span class="doccomment">/// Tracking technically-allowed protocol actions

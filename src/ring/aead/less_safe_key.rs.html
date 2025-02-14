@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.8/src/aead/less_safe_key.rs`."><title>less_safe_key.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.9/src/aead/less_safe_key.rs`."><title>less_safe_key.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ring/aead/</div>less_safe_key.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -178,34 +179,7 @@
 <a href="#178" id="178">178</a>
 <a href="#179" id="179">179</a>
 <a href="#180" id="180">180</a>
-<a href="#181" id="181">181</a>
-<a href="#182" id="182">182</a>
-<a href="#183" id="183">183</a>
-<a href="#184" id="184">184</a>
-<a href="#185" id="185">185</a>
-<a href="#186" id="186">186</a>
-<a href="#187" id="187">187</a>
-<a href="#188" id="188">188</a>
-<a href="#189" id="189">189</a>
-<a href="#190" id="190">190</a>
-<a href="#191" id="191">191</a>
-<a href="#192" id="192">192</a>
-<a href="#193" id="193">193</a>
-<a href="#194" id="194">194</a>
-<a href="#195" id="195">195</a>
-<a href="#196" id="196">196</a>
-<a href="#197" id="197">197</a>
-<a href="#198" id="198">198</a>
-<a href="#199" id="199">199</a>
-<a href="#200" id="200">200</a>
-<a href="#201" id="201">201</a>
-<a href="#202" id="202">202</a>
-<a href="#203" id="203">203</a>
-<a href="#204" id="204">204</a>
-<a href="#205" id="205">205</a>
-<a href="#206" id="206">206</a>
-<a href="#207" id="207">207</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright 2015-2021 Brian Smith.
+<a href="#181" id="181">181</a></pre></div><pre class="rust"><code><span class="comment">// Copyright 2015-2021 Brian Smith.
 //
 // Permission to use, copy, modify, and/or distribute this software for any
 // purpose with or without fee is hereby granted, provided that the above
@@ -220,7 +194,7 @@
 // CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 </span><span class="kw">use super</span>::{Aad, Algorithm, KeyInner, Nonce, Tag, UnboundKey, TAG_LEN};
-<span class="kw">use crate</span>::{constant_time, cpu, error};
+<span class="kw">use crate</span>::{cpu, error};
 <span class="kw">use </span>core::ops::RangeFrom;
 
 <span class="doccomment">/// Immutable keys for use in situations where `OpeningKey`/`SealingKey` and
@@ -243,10 +217,10 @@
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new_(
         algorithm: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Algorithm,
         key_bytes: <span class="kw-2">&amp;</span>[u8],
+        cpu_features: cpu::Features,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, error::Unspecified&gt; {
-        <span class="kw">let </span>cpu_features = cpu::features();
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
-            inner: (algorithm.init)(key_bytes, cpu_features)<span class="question-mark">?</span>,
+            inner: algorithm.new_key(key_bytes, cpu_features)<span class="question-mark">?</span>,
             algorithm,
         })
     }
@@ -266,7 +240,15 @@
         </span>A: AsRef&lt;[u8]&gt;,
     {
         <span class="kw">let </span>aad = Aad::from(aad.as_ref());
-        open_within_(<span class="self">self</span>, nonce, aad, tag, in_out, ciphertext)
+        <span class="self">self</span>.algorithm.open_within(
+            <span class="kw-2">&amp;</span><span class="self">self</span>.inner,
+            nonce,
+            aad,
+            tag,
+            in_out,
+            ciphertext,
+            cpu::features(),
+        )
     }
 
     <span class="doccomment">/// Like [`super::OpeningKey::open_in_place()`], except it accepts an
@@ -347,7 +329,13 @@
     <span class="kw">where
         </span>A: AsRef&lt;[u8]&gt;,
     {
-        seal_in_place_separate_tag_(<span class="self">self</span>, nonce, Aad::from(aad.as_ref()), in_out)
+        <span class="self">self</span>.algorithm.seal(
+            <span class="kw-2">&amp;</span><span class="self">self</span>.inner,
+            nonce,
+            Aad::from(aad.as_ref()),
+            in_out,
+            cpu::features(),
+        )
     }
 
     <span class="doccomment">/// The key's AEAD algorithm.
@@ -365,46 +353,6 @@
             .field(<span class="string">"algorithm"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.algorithm())
             .finish()
     }
-}
-
-<span class="kw">fn </span>open_within_&lt;<span class="lifetime">'in_out</span>&gt;(
-    key: <span class="kw-2">&amp;</span>LessSafeKey,
-    nonce: Nonce,
-    aad: Aad&lt;<span class="kw-2">&amp;</span>[u8]&gt;,
-    received_tag: Tag,
-    in_out: <span class="kw-2">&amp;</span><span class="lifetime">'in_out </span><span class="kw-2">mut </span>[u8],
-    src: RangeFrom&lt;usize&gt;,
-) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'in_out </span><span class="kw-2">mut </span>[u8], error::Unspecified&gt; {
-    <span class="kw">let </span>ciphertext_len = in_out.get(src.clone()).ok_or(error::Unspecified)<span class="question-mark">?</span>.len();
-
-    <span class="kw">let </span>Tag(calculated_tag) =
-        (key.algorithm.open)(<span class="kw-2">&amp;</span>key.inner, nonce, aad, in_out, src, cpu::features())<span class="question-mark">?</span>;
-
-    <span class="kw">if </span>constant_time::verify_slices_are_equal(calculated_tag.as_ref(), received_tag.as_ref())
-        .is_err()
-    {
-        <span class="comment">// Zero out the plaintext so that it isn't accidentally leaked or used
-        // after verification fails. It would be safest if we could check the
-        // tag before decrypting, but some `open` implementations interleave
-        // authentication with decryption for performance.
-        </span><span class="kw">for </span>b <span class="kw">in </span><span class="kw-2">&amp;mut </span>in_out[..ciphertext_len] {
-            <span class="kw-2">*</span>b = <span class="number">0</span>;
-        }
-        <span class="kw">return </span><span class="prelude-val">Err</span>(error::Unspecified);
-    }
-
-    <span class="comment">// `ciphertext_len` is also the plaintext length.
-    </span><span class="prelude-val">Ok</span>(<span class="kw-2">&amp;mut </span>in_out[..ciphertext_len])
-}
-
-<span class="attr">#[inline]
-</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>seal_in_place_separate_tag_(
-    key: <span class="kw-2">&amp;</span>LessSafeKey,
-    nonce: Nonce,
-    aad: Aad&lt;<span class="kw-2">&amp;</span>[u8]&gt;,
-    in_out: <span class="kw-2">&amp;mut </span>[u8],
-) -&gt; <span class="prelude-ty">Result</span>&lt;Tag, error::Unspecified&gt; {
-    (key.algorithm.seal)(<span class="kw-2">&amp;</span>key.inner, nonce, aad, in_out, cpu::features())
 }
 
 <span class="kw">impl </span>core::fmt::Debug <span class="kw">for </span>LessSafeKey {

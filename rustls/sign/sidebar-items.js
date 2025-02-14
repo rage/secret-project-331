@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["CertifiedKey"],"trait":["Signer","SigningKey"]};
+window.SIDEBAR_ITEMS = {"struct":["CertifiedKey","SingleCertAndKey"],"trait":["Signer","SigningKey"]};

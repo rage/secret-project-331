@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="An extensible, strongly-typed implementation of OAuth2 (RFC 6749) including token introspection (RFC 7662) and token revocation (RFC 7009)."><title>oauth2 - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="oauth2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../oauth2/index.html">oauth2</a><span class="version">4.4.2</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section><ul class="block"><li><a href="#reexports">Re-exports</a></li><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li></ul></section></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <a class="mod" href="#">oauth2</a><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><span class="out-of-band"><a class="src" href="../src/oauth2/lib.rs.html#1-3197">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>An extensible, strongly-typed implementation of OAuth2
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="An extensible, strongly-typed implementation of OAuth2 (RFC 6749) including token introspection (RFC 7662) and token revocation (RFC 7009)."><title>oauth2 - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="oauth2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../static.files/storage-59e33391.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../oauth2/index.html">oauth2</a><span class="version">5.0.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#contents" title="Contents">Contents</a></li><li><a href="#importing-oauth2-selecting-an-http-client-interface" title="Importing `oauth2`: selecting an HTTP client interface">Importing <code>oauth2</code>: selecting an HTTP client interface</a><ul><li><a href="#security-warning" title="Security Warning">Security Warning</a></li><li><a href="#http-clients" title="HTTP Clients">HTTP Clients</a></li></ul></li><li><a href="#comparing-secrets-securely" title="Comparing secrets securely">Comparing secrets securely</a></li><li><a href="#getting-started-authorization-code-grant-w-pkce" title="Getting started: Authorization Code Grant w/ PKCE">Getting started: Authorization Code Grant w/ PKCE</a><ul><li><a href="#example-synchronous-blocking-api" title="Example: Synchronous (blocking) API">Example: Synchronous (blocking) API</a></li><li><a href="#example-asynchronous-api" title="Example: Asynchronous API">Example: Asynchronous API</a></li></ul></li><li><a href="#implicit-grant" title="Implicit Grant">Implicit Grant</a><ul><li><a href="#example" title="Example">Example</a></li></ul></li><li><a href="#resource-owner-password-credentials-grant" title="Resource Owner Password Credentials Grant">Resource Owner Password Credentials Grant</a><ul><li><a href="#example-1" title="Example">Example</a></li></ul></li><li><a href="#client-credentials-grant" title="Client Credentials Grant">Client Credentials Grant</a><ul><li><a href="#example-2" title="Example">Example</a></li></ul></li><li><a href="#device-authorization-flow" title="Device Authorization Flow">Device Authorization Flow</a><ul><li><a href="#example-3" title="Example">Example</a></li></ul></li><li><a href="#other-examples" title="Other examples">Other examples</a><ul><li><a href="#contributed-examples" title="Contributed Examples">Contributed Examples</a></li></ul></li></ul><h3><a href="#reexports">Crate Items</a></h3><ul class="block"><li><a href="#reexports" title="Re-exports">Re-exports</a></li><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>oauth2</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/oauth2/lib.rs.html#1-613">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>An extensible, strongly-typed implementation of OAuth2
 (<a href="https://tools.ietf.org/html/rfc6749">RFC 6749</a>) including token introspection (<a href="https://tools.ietf.org/html/rfc7662">RFC 7662</a>)
 and token revocation (<a href="https://tools.ietf.org/html/rfc7009">RFC 7009</a>).</p>
 <h2 id="contents"><a class="doc-anchor" href="#contents">§</a>Contents</h2>
@@ -13,7 +13,7 @@ and token revocation (<a href="https://tools.ietf.org/html/rfc7009">RFC 7009</a>
 <li><a href="#implicit-grant">Implicit Grant</a></li>
 <li><a href="#resource-owner-password-credentials-grant">Resource Owner Password Credentials Grant</a></li>
 <li><a href="#client-credentials-grant">Client Credentials Grant</a></li>
-<li><a href="#device-code-flow">Device Code Flow</a></li>
+<li><a href="#device-authorization-flow">Device Authorization Flow</a></li>
 <li><a href="#other-examples">Other examples</a>
 <ul>
 <li><a href="#contributed-examples">Contributed Examples</a></li>
@@ -23,52 +23,84 @@ and token revocation (<a href="https://tools.ietf.org/html/rfc7009">RFC 7009</a>
 <h2 id="importing-oauth2-selecting-an-http-client-interface"><a class="doc-anchor" href="#importing-oauth2-selecting-an-http-client-interface">§</a>Importing <code>oauth2</code>: selecting an HTTP client interface</h2>
 <p>This library offers a flexible HTTP client interface with two modes:</p>
 <ul>
-<li><strong>Synchronous (blocking)</strong></li>
-<li><strong>Asynchronous</strong></li>
+<li>
+<p><strong>Synchronous (blocking)</strong></p>
+<p>NOTE: Be careful not to use a blocking HTTP client within <code>async</code> Rust code, which may panic
+or cause other issues. The
+<a href="https://docs.rs/tokio/latest/tokio/task/fn.spawn_blocking.html"><code>tokio::task::spawn_blocking</code></a>
+function may be useful in this situation.</p>
+</li>
+<li>
+<p><strong>Asynchronous</strong></p>
+</li>
 </ul>
+<h3 id="security-warning"><a class="doc-anchor" href="#security-warning">§</a>Security Warning</h3>
+<p>To prevent
+<a href="https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html">SSRF</a>
+vulnerabilities, be sure to configure the HTTP client <strong>not to follow redirects</strong>. For example,
+use <a href="../reqwest/redirect/struct.Policy.html#method.none" title="associated function reqwest::redirect::Policy::none"><code>redirect::Policy::none</code></a> when using
+<a href="../reqwest/index.html" title="mod reqwest"><code>reqwest</code></a>, or <a href="ureq::AgentBuilder::redirects"><code>redirects(0)</code></a> when using [<code>ureq</code>].</p>
+<h3 id="http-clients"><a class="doc-anchor" href="#http-clients">§</a>HTTP Clients</h3>
 <p>For the HTTP client modes described above, the following HTTP client implementations can be
 used:</p>
 <ul>
 <li>
-<p><strong><a href="reqwest/index.html" title="mod oauth2::reqwest"><code>reqwest</code></a></strong></p>
+<p><strong><a href="../reqwest/index.html" title="mod reqwest"><code>reqwest</code></a></strong></p>
 <p>The <code>reqwest</code> HTTP client supports both the synchronous and asynchronous modes and is enabled
 by default.</p>
-<p>Synchronous client: <a href="reqwest/fn.http_client.html" title="fn oauth2::reqwest::http_client"><code>reqwest::http_client</code></a></p>
-<p>Asynchronous client: <a href="reqwest/fn.async_http_client.html" title="fn oauth2::reqwest::async_http_client"><code>reqwest::async_http_client</code></a></p>
+<p>Synchronous client: [<code>reqwest::blocking::Client</code>] (requires the
+<code>reqwest-blocking</code> feature flag)</p>
+<p>Asynchronous client: <a href="../reqwest/async_impl/client/struct.Client.html" title="struct reqwest::async_impl::client::Client"><code>reqwest::Client</code></a> (requires either the
+<code>reqwest</code> or <code>reqwest-blocking</code> feature flags)</p>
 </li>
 <li>
-<p><strong>[<code>curl</code>]</strong></p>
+<p><strong><a href="curl"><code>curl</code></a></strong></p>
 <p>The <code>curl</code> HTTP client only supports the synchronous HTTP client mode and can be enabled in
 <code>Cargo.toml</code> via the <code>curl</code> feature flag.</p>
-<p>Synchronous client: [<code>curl::http_client</code>]</p>
+<p>Synchronous client: <a href="CurlHttpClient"><code>oauth2::CurlHttpClient</code></a></p>
 </li>
 <li>
-<p><strong>[<code>ureq</code>]</strong></p>
+<p><strong><a href="ureq"><code>ureq</code></a></strong></p>
 <p>The <code>ureq</code> HTTP client is a simple HTTP client with minimal dependencies. It only supports
 the synchronous HTTP client mode and can be enabled in <code>Cargo.toml</code> via the <code>ureq</code> feature
 flag.</p>
+<p>Synchronous client: [<code>ureq::Agent</code>]</p>
 </li>
 <li>
 <p><strong>Custom</strong></p>
 <p>In addition to the clients above, users may define their own HTTP clients, which must accept
-an <a href="struct.HttpRequest.html" title="struct oauth2::HttpRequest"><code>HttpRequest</code></a> and return an <a href="struct.HttpResponse.html" title="struct oauth2::HttpResponse"><code>HttpResponse</code></a> or error. Users writing their own clients
+an <a href="type.HttpRequest.html" title="type oauth2::HttpRequest"><code>HttpRequest</code></a> and return an <a href="type.HttpResponse.html" title="type oauth2::HttpResponse"><code>HttpResponse</code></a> or error. Users writing their own clients
 may wish to disable the default <code>reqwest</code> dependency by specifying
 <code>default-features = false</code> in <code>Cargo.toml</code> (replacing <code>...</code> with the desired version of this
 crate):</p>
-<div class="example-wrap"><pre class="language-toml"><code>oauth2 = { version = &quot;...&quot;, default-features = false }
-</code></pre></div>
-<p>Synchronous HTTP clients should implement the following trait:</p>
+<div class="example-wrap"><pre class="language-toml"><code>oauth2 = { version = &quot;...&quot;, default-features = false }</code></pre></div>
+<p>Synchronous HTTP clients should implement the <a href="trait.SyncHttpClient.html" title="trait oauth2::SyncHttpClient"><code>SyncHttpClient</code></a> trait, which is
+automatically implemented for any function/closure that implements:</p>
 
-<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code>FnOnce(HttpRequest) -&gt; <span class="prelude-ty">Result</span>&lt;HttpResponse, RE&gt;
-<span class="kw">where </span>RE: std::error::Error + <span class="lifetime">'static</span></code></pre></div>
-<p>Asynchronous HTTP clients should implement the following trait:</p>
-
-<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code>FnOnce(HttpRequest) -&gt; F
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code>Fn(HttpRequest) -&gt; <span class="prelude-ty">Result</span>&lt;HttpResponse, E&gt;
 <span class="kw">where
-  </span>F: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;HttpResponse, RE&gt;&gt;,
-  RE: std::error::Error + <span class="lifetime">'static</span></code></pre></div>
+  </span>E: std::error::Error + <span class="lifetime">'static</span></code></pre></div>
+<p>Asynchronous HTTP clients should implement the <a href="trait.AsyncHttpClient.html" title="trait oauth2::AsyncHttpClient"><code>AsyncHttpClient</code></a> trait, which is
+automatically implemented for any function/closure that implements:</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code>Fn(HttpRequest) -&gt; F
+<span class="kw">where
+  </span>E: std::error::Error + <span class="lifetime">'static</span>,
+  F: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;HttpResponse, E&gt;&gt;,</code></pre></div>
 </li>
 </ul>
+<h2 id="comparing-secrets-securely"><a class="doc-anchor" href="#comparing-secrets-securely">§</a>Comparing secrets securely</h2>
+<p>OAuth flows require comparing secrets received from the provider servers. To do so securely
+while avoiding <a href="https://en.wikipedia.org/wiki/Timing_attack">timing side-channels</a>, the
+comparison must be done in constant time, either using a constant-time crate such as
+<a href="https://crates.io/crates/constant_time_eq"><code>constant_time_eq</code></a> (which could break if a future
+compiler version decides to be overly smart
+about its optimizations), or by first computing a cryptographically-secure hash (e.g., SHA-256)
+of both values and then comparing the hashes using <code>==</code>.</p>
+<p>The <code>timing-resistant-secret-traits</code> feature flag adds a safe (but comparatively expensive)
+<a href="https://doc.rust-lang.org/1.84.1/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq"><code>PartialEq</code></a> implementation to the secret types. Timing side-channels are why <a href="https://doc.rust-lang.org/1.84.1/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq"><code>PartialEq</code></a> is
+not auto-derived for this crate’s secret types, and the lack of <a href="https://doc.rust-lang.org/1.84.1/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq"><code>PartialEq</code></a> is intended to
+prompt users to think more carefully about these comparisons.</p>
 <h2 id="getting-started-authorization-code-grant-w-pkce"><a class="doc-anchor" href="#getting-started-authorization-code-grant-w-pkce">§</a>Getting started: Authorization Code Grant w/ PKCE</h2>
 <p>This is the most common OAuth2 flow. PKCE is recommended whenever the OAuth2 client has no
 client secret or has a client secret that cannot remain confidential (e.g., native, mobile, or
@@ -76,8 +108,7 @@ client-side web applications).</p>
 <h3 id="example-synchronous-blocking-api"><a class="doc-anchor" href="#example-synchronous-blocking-api">§</a>Example: Synchronous (blocking) API</h3>
 <p>This example works with <code>oauth2</code>’s default feature flags, which include <code>reqwest</code>.</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>anyhow;
-<span class="kw">use </span>oauth2::{
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>oauth2::{
     AuthorizationCode,
     AuthUrl,
     ClientId,
@@ -90,18 +121,15 @@ client-side web applications).</p>
     TokenUrl
 };
 <span class="kw">use </span>oauth2::basic::BasicClient;
-<span class="kw">use </span>oauth2::reqwest::http_client;
+<span class="kw">use </span>oauth2::reqwest;
 <span class="kw">use </span>url::Url;
 
 <span class="comment">// Create an OAuth2 client by specifying the client ID, client secret, authorization URL and
 // token URL.
-</span><span class="kw">let </span>client =
-    BasicClient::new(
-        ClientId::new(<span class="string">"client_id"</span>.to_string()),
-        <span class="prelude-val">Some</span>(ClientSecret::new(<span class="string">"client_secret"</span>.to_string())),
-        AuthUrl::new(<span class="string">"http://authorize"</span>.to_string())<span class="question-mark">?</span>,
-        <span class="prelude-val">Some</span>(TokenUrl::new(<span class="string">"http://token"</span>.to_string())<span class="question-mark">?</span>)
-    )
+</span><span class="kw">let </span>client = BasicClient::new(ClientId::new(<span class="string">"client_id"</span>.to_string()))
+    .set_client_secret(ClientSecret::new(<span class="string">"client_secret"</span>.to_string()))
+    .set_auth_uri(AuthUrl::new(<span class="string">"http://authorize"</span>.to_string())<span class="question-mark">?</span>)
+    .set_token_uri(TokenUrl::new(<span class="string">"http://token"</span>.to_string())<span class="question-mark">?</span>)
     <span class="comment">// Set the URL the user will be redirected to after the authorization process.
     </span>.set_redirect_uri(RedirectUrl::new(<span class="string">"http://redirect"</span>.to_string())<span class="question-mark">?</span>);
 
@@ -124,22 +152,27 @@ client-side web applications).</p>
 
 <span class="comment">// Once the user has been redirected to the redirect URL, you'll have access to the
 // authorization code. For security reasons, your code should verify that the `state`
-// parameter returned by the server matches `csrf_state`.
+// parameter returned by the server matches `csrf_token`.
 
-// Now you can trade it for an access token.
+</span><span class="kw">let </span>http_client = reqwest::blocking::ClientBuilder::new()
+    <span class="comment">// Following redirects opens the client up to SSRF vulnerabilities.
+    </span>.redirect(reqwest::redirect::Policy::none())
+    .build()
+    .expect(<span class="string">"Client should build"</span>);
+
+<span class="comment">// Now you can trade it for an access token.
 </span><span class="kw">let </span>token_result =
     client
         .exchange_code(AuthorizationCode::new(<span class="string">"some authorization code"</span>.to_string()))
         <span class="comment">// Set the PKCE code verifier.
         </span>.set_pkce_verifier(pkce_verifier)
-        .request(http_client)<span class="question-mark">?</span>;
+        .request(<span class="kw-2">&amp;</span>http_client)<span class="question-mark">?</span>;
 
 <span class="comment">// Unwrapping token_result will either produce a Token or a RequestTokenError.</span></code></pre></div>
 <h3 id="example-asynchronous-api"><a class="doc-anchor" href="#example-asynchronous-api">§</a>Example: Asynchronous API</h3>
 <p>The example below uses async/await:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>anyhow;
-<span class="kw">use </span>oauth2::{
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>oauth2::{
     AuthorizationCode,
     AuthUrl,
     ClientId,
@@ -152,18 +185,15 @@ client-side web applications).</p>
     TokenUrl
 };
 <span class="kw">use </span>oauth2::basic::BasicClient;
-<span class="kw">use </span>oauth2::reqwest::async_http_client;
+<span class="kw">use </span>oauth2::reqwest;
 <span class="kw">use </span>url::Url;
 
 <span class="comment">// Create an OAuth2 client by specifying the client ID, client secret, authorization URL and
 // token URL.
-</span><span class="kw">let </span>client =
-    BasicClient::new(
-        ClientId::new(<span class="string">"client_id"</span>.to_string()),
-        <span class="prelude-val">Some</span>(ClientSecret::new(<span class="string">"client_secret"</span>.to_string())),
-        AuthUrl::new(<span class="string">"http://authorize"</span>.to_string())<span class="question-mark">?</span>,
-        <span class="prelude-val">Some</span>(TokenUrl::new(<span class="string">"http://token"</span>.to_string())<span class="question-mark">?</span>)
-    )
+</span><span class="kw">let </span>client = BasicClient::new(ClientId::new(<span class="string">"client_id"</span>.to_string()))
+    .set_client_secret(ClientSecret::new(<span class="string">"client_secret"</span>.to_string()))
+    .set_auth_uri(AuthUrl::new(<span class="string">"http://authorize"</span>.to_string())<span class="question-mark">?</span>)
+    .set_token_uri(TokenUrl::new(<span class="string">"http://token"</span>.to_string())<span class="question-mark">?</span>)
     <span class="comment">// Set the URL the user will be redirected to after the authorization process.
     </span>.set_redirect_uri(RedirectUrl::new(<span class="string">"http://redirect"</span>.to_string())<span class="question-mark">?</span>);
 
@@ -186,14 +216,20 @@ client-side web applications).</p>
 
 <span class="comment">// Once the user has been redirected to the redirect URL, you'll have access to the
 // authorization code. For security reasons, your code should verify that the `state`
-// parameter returned by the server matches `csrf_state`.
+// parameter returned by the server matches `csrf_token`.
 
-// Now you can trade it for an access token.
+</span><span class="kw">let </span>http_client = reqwest::ClientBuilder::new()
+    <span class="comment">// Following redirects opens the client up to SSRF vulnerabilities.
+    </span>.redirect(reqwest::redirect::Policy::none())
+    .build()
+    .expect(<span class="string">"Client should build"</span>);
+
+<span class="comment">// Now you can trade it for an access token.
 </span><span class="kw">let </span>token_result = client
     .exchange_code(AuthorizationCode::new(<span class="string">"some authorization code"</span>.to_string()))
     <span class="comment">// Set the PKCE code verifier.
     </span>.set_pkce_verifier(pkce_verifier)
-    .request_async(async_http_client)
+    .request_async(<span class="kw-2">&amp;</span>http_client)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
 <span class="comment">// Unwrapping token_result will either produce a Token or a RequestTokenError.</span></code></pre></div>
@@ -202,11 +238,9 @@ client-side web applications).</p>
 understand the security implications of this flow before using it. In most cases, the
 Authorization Code Grant flow is preferable to the Implicit Grant flow.</p>
 <h3 id="example"><a class="doc-anchor" href="#example">§</a>Example</h3>
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>anyhow;
-<span class="kw">use </span>oauth2::{
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>oauth2::{
     AuthUrl,
     ClientId,
-    ClientSecret,
     CsrfToken,
     RedirectUrl,
     Scope
@@ -214,13 +248,8 @@ Authorization Code Grant flow is preferable to the Implicit Grant flow.</p>
 <span class="kw">use </span>oauth2::basic::BasicClient;
 <span class="kw">use </span>url::Url;
 
-<span class="kw">let </span>client =
-    BasicClient::new(
-        ClientId::new(<span class="string">"client_id"</span>.to_string()),
-        <span class="prelude-val">Some</span>(ClientSecret::new(<span class="string">"client_secret"</span>.to_string())),
-        AuthUrl::new(<span class="string">"http://authorize"</span>.to_string())<span class="question-mark">?</span>,
-        <span class="prelude-val">None
-    </span>);
+<span class="kw">let </span>client = BasicClient::new(ClientId::new(<span class="string">"client_id"</span>.to_string()))
+    .set_auth_uri(AuthUrl::new(<span class="string">"http://authorize"</span>.to_string())<span class="question-mark">?</span>);
 
 <span class="comment">// Generate the full authorization URL.
 </span><span class="kw">let </span>(auth_url, csrf_token) = client
@@ -234,14 +263,13 @@ Authorization Code Grant flow is preferable to the Implicit Grant flow.</p>
 
 <span class="comment">// Once the user has been redirected to the redirect URL, you'll have the access code.
 // For security reasons, your code should verify that the `state` parameter returned by the
-// server matches `csrf_state`.
+// server matches `csrf_token`.
 </span></code></pre></div>
 <h2 id="resource-owner-password-credentials-grant"><a class="doc-anchor" href="#resource-owner-password-credentials-grant">§</a>Resource Owner Password Credentials Grant</h2>
 <p>You can ask for a <em>password</em> access token by calling the <code>Client::exchange_password</code> method,
 while including the username and password.</p>
 <h3 id="example-1"><a class="doc-anchor" href="#example-1">§</a>Example</h3>
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>anyhow;
-<span class="kw">use </span>oauth2::{
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>oauth2::{
     AuthUrl,
     ClientId,
     ClientSecret,
@@ -252,16 +280,19 @@ while including the username and password.</p>
     TokenUrl
 };
 <span class="kw">use </span>oauth2::basic::BasicClient;
-<span class="kw">use </span>oauth2::reqwest::http_client;
+<span class="kw">use </span>oauth2::reqwest;
 <span class="kw">use </span>url::Url;
 
-<span class="kw">let </span>client =
-    BasicClient::new(
-        ClientId::new(<span class="string">"client_id"</span>.to_string()),
-        <span class="prelude-val">Some</span>(ClientSecret::new(<span class="string">"client_secret"</span>.to_string())),
-        AuthUrl::new(<span class="string">"http://authorize"</span>.to_string())<span class="question-mark">?</span>,
-        <span class="prelude-val">Some</span>(TokenUrl::new(<span class="string">"http://token"</span>.to_string())<span class="question-mark">?</span>)
-    );
+<span class="kw">let </span>client = BasicClient::new(ClientId::new(<span class="string">"client_id"</span>.to_string()))
+    .set_client_secret(ClientSecret::new(<span class="string">"client_secret"</span>.to_string()))
+    .set_auth_uri(AuthUrl::new(<span class="string">"http://authorize"</span>.to_string())<span class="question-mark">?</span>)
+    .set_token_uri(TokenUrl::new(<span class="string">"http://token"</span>.to_string())<span class="question-mark">?</span>);
+
+<span class="kw">let </span>http_client = reqwest::blocking::ClientBuilder::new()
+    <span class="comment">// Following redirects opens the client up to SSRF vulnerabilities.
+    </span>.redirect(reqwest::redirect::Policy::none())
+    .build()
+    .expect(<span class="string">"Client should build"</span>);
 
 <span class="kw">let </span>token_result =
     client
@@ -270,13 +301,12 @@ while including the username and password.</p>
             <span class="kw-2">&amp;</span>ResourceOwnerPassword::new(<span class="string">"pass"</span>.to_string())
         )
         .add_scope(Scope::new(<span class="string">"read"</span>.to_string()))
-        .request(http_client)<span class="question-mark">?</span>;</code></pre></div>
+        .request(<span class="kw-2">&amp;</span>http_client)<span class="question-mark">?</span>;</code></pre></div>
 <h2 id="client-credentials-grant"><a class="doc-anchor" href="#client-credentials-grant">§</a>Client Credentials Grant</h2>
 <p>You can ask for a <em>client credentials</em> access token by calling the
 <code>Client::exchange_client_credentials</code> method.</p>
 <h3 id="example-2"><a class="doc-anchor" href="#example-2">§</a>Example</h3>
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>anyhow;
-<span class="kw">use </span>oauth2::{
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>oauth2::{
     AuthUrl,
     ClientId,
     ClientSecret,
@@ -285,57 +315,62 @@ while including the username and password.</p>
     TokenUrl
 };
 <span class="kw">use </span>oauth2::basic::BasicClient;
-<span class="kw">use </span>oauth2::reqwest::http_client;
+<span class="kw">use </span>oauth2::reqwest;
 <span class="kw">use </span>url::Url;
 
-<span class="kw">let </span>client =
-    BasicClient::new(
-        ClientId::new(<span class="string">"client_id"</span>.to_string()),
-        <span class="prelude-val">Some</span>(ClientSecret::new(<span class="string">"client_secret"</span>.to_string())),
-        AuthUrl::new(<span class="string">"http://authorize"</span>.to_string())<span class="question-mark">?</span>,
-        <span class="prelude-val">Some</span>(TokenUrl::new(<span class="string">"http://token"</span>.to_string())<span class="question-mark">?</span>),
-    );
+<span class="kw">let </span>client = BasicClient::new(ClientId::new(<span class="string">"client_id"</span>.to_string()))
+    .set_client_secret(ClientSecret::new(<span class="string">"client_secret"</span>.to_string()))
+    .set_auth_uri(AuthUrl::new(<span class="string">"http://authorize"</span>.to_string())<span class="question-mark">?</span>)
+    .set_token_uri(TokenUrl::new(<span class="string">"http://token"</span>.to_string())<span class="question-mark">?</span>);
+
+<span class="kw">let </span>http_client = reqwest::blocking::ClientBuilder::new()
+    <span class="comment">// Following redirects opens the client up to SSRF vulnerabilities.
+    </span>.redirect(reqwest::redirect::Policy::none())
+    .build()
+    .expect(<span class="string">"Client should build"</span>);
 
 <span class="kw">let </span>token_result = client
     .exchange_client_credentials()
     .add_scope(Scope::new(<span class="string">"read"</span>.to_string()))
-    .request(http_client)<span class="question-mark">?</span>;</code></pre></div>
-<h2 id="device-code-flow"><a class="doc-anchor" href="#device-code-flow">§</a>Device Code Flow</h2>
-<p>Device Code Flow allows users to sign in on browserless or input-constrained
+    .request(<span class="kw-2">&amp;</span>http_client)<span class="question-mark">?</span>;</code></pre></div>
+<h2 id="device-authorization-flow"><a class="doc-anchor" href="#device-authorization-flow">§</a>Device Authorization Flow</h2>
+<p>Device Authorization Flow allows users to sign in on browserless or input-constrained
 devices.  This is a two-stage process; first a user-code and verification
 URL are obtained by using the <code>Client::exchange_client_credentials</code>
 method. Those are displayed to the user, then are used in a second client
 to poll the token endpoint for a token.</p>
 <h3 id="example-3"><a class="doc-anchor" href="#example-3">§</a>Example</h3>
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>anyhow;
-<span class="kw">use </span>oauth2::{
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>oauth2::{
     AuthUrl,
     ClientId,
     ClientSecret,
     DeviceAuthorizationUrl,
     Scope,
+    StandardDeviceAuthorizationResponse,
     TokenResponse,
     TokenUrl
 };
 <span class="kw">use </span>oauth2::basic::BasicClient;
-<span class="kw">use </span>oauth2::devicecode::StandardDeviceAuthorizationResponse;
-<span class="kw">use </span>oauth2::reqwest::http_client;
+<span class="kw">use </span>oauth2::reqwest;
 <span class="kw">use </span>url::Url;
 
 <span class="kw">let </span>device_auth_url = DeviceAuthorizationUrl::new(<span class="string">"http://deviceauth"</span>.to_string())<span class="question-mark">?</span>;
-<span class="kw">let </span>client =
-    BasicClient::new(
-        ClientId::new(<span class="string">"client_id"</span>.to_string()),
-        <span class="prelude-val">Some</span>(ClientSecret::new(<span class="string">"client_secret"</span>.to_string())),
-        AuthUrl::new(<span class="string">"http://authorize"</span>.to_string())<span class="question-mark">?</span>,
-        <span class="prelude-val">Some</span>(TokenUrl::new(<span class="string">"http://token"</span>.to_string())<span class="question-mark">?</span>),
-    )
+<span class="kw">let </span>client = BasicClient::new(ClientId::new(<span class="string">"client_id"</span>.to_string()))
+    .set_client_secret(ClientSecret::new(<span class="string">"client_secret"</span>.to_string()))
+    .set_auth_uri(AuthUrl::new(<span class="string">"http://authorize"</span>.to_string())<span class="question-mark">?</span>)
+    .set_token_uri(TokenUrl::new(<span class="string">"http://token"</span>.to_string())<span class="question-mark">?</span>)
     .set_device_authorization_url(device_auth_url);
 
+<span class="kw">let </span>http_client = reqwest::blocking::ClientBuilder::new()
+    <span class="comment">// Following redirects opens the client up to SSRF vulnerabilities.
+    </span>.redirect(reqwest::redirect::Policy::none())
+    .build()
+    .expect(<span class="string">"Client should build"</span>);
+
 <span class="kw">let </span>details: StandardDeviceAuthorizationResponse = client
-    .exchange_device_code()<span class="question-mark">?
-    </span>.add_scope(Scope::new(<span class="string">"read"</span>.to_string()))
-    .request(http_client)<span class="question-mark">?</span>;
+    .exchange_device_code()
+    .add_scope(Scope::new(<span class="string">"read"</span>.to_string()))
+    .request(<span class="kw-2">&amp;</span>http_client)<span class="question-mark">?</span>;
 
 <span class="macro">println!</span>(
     <span class="string">"Open this URL in your browser:\n{}\nand enter the code: {}"</span>,
@@ -346,14 +381,14 @@ to poll the token endpoint for a token.</p>
 <span class="kw">let </span>token_result =
     client
     .exchange_device_access_token(<span class="kw-2">&amp;</span>details)
-    .request(http_client, std::thread::sleep, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
+    .request(<span class="kw-2">&amp;</span>http_client, std::thread::sleep, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
 </code></pre></div>
 <h2 id="other-examples"><a class="doc-anchor" href="#other-examples">§</a>Other examples</h2>
 <p>More specific implementations are available as part of the examples:</p>
 <ul>
 <li><a href="https://github.com/ramosbugs/oauth2-rs/blob/main/examples/google.rs">Google</a> (includes token revocation)</li>
 <li><a href="https://github.com/ramosbugs/oauth2-rs/blob/main/examples/github.rs">Github</a></li>
-<li><a href="https://github.com/ramosbugs/oauth2-rs/blob/main/examples/microsoft_devicecode.rs">Microsoft Device Code Flow (async)</a></li>
+<li><a href="https://github.com/ramosbugs/oauth2-rs/blob/main/examples/microsoft_devicecode.rs">Microsoft Device Authorization Flow (async)</a></li>
 <li><a href="https://github.com/ramosbugs/oauth2-rs/blob/main/examples/msgraph.rs">Microsoft Graph</a></li>
 <li><a href="https://github.com/ramosbugs/oauth2-rs/blob/main/examples/wunderlist.rs">Wunderlist</a></li>
 </ul>
@@ -361,14 +396,14 @@ to poll the token endpoint for a token.</p>
 <ul>
 <li><a href="https://github.com/pka/actix-web-oauth2"><code>actix-web-oauth2</code></a> (version 2.x of this crate)</li>
 </ul>
-</div></details><h2 id="reexports" class="section-header">Re-exports<a href="#reexports" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name" id="reexport.DeviceAuthorizationResponse"><code>pub use devicecode::<a class="struct" href="devicecode/struct.DeviceAuthorizationResponse.html" title="struct oauth2::devicecode::DeviceAuthorizationResponse">DeviceAuthorizationResponse</a>;</code></div></li><li><div class="item-name" id="reexport.DeviceCodeErrorResponse"><code>pub use devicecode::<a class="type" href="devicecode/type.DeviceCodeErrorResponse.html" title="type oauth2::devicecode::DeviceCodeErrorResponse">DeviceCodeErrorResponse</a>;</code></div></li><li><div class="item-name" id="reexport.DeviceCodeErrorResponseType"><code>pub use devicecode::<a class="enum" href="devicecode/enum.DeviceCodeErrorResponseType.html" title="enum oauth2::devicecode::DeviceCodeErrorResponseType">DeviceCodeErrorResponseType</a>;</code></div></li><li><div class="item-name" id="reexport.EmptyExtraDeviceAuthorizationFields"><code>pub use devicecode::<a class="struct" href="devicecode/struct.EmptyExtraDeviceAuthorizationFields.html" title="struct oauth2::devicecode::EmptyExtraDeviceAuthorizationFields">EmptyExtraDeviceAuthorizationFields</a>;</code></div></li><li><div class="item-name" id="reexport.ExtraDeviceAuthorizationFields"><code>pub use devicecode::<a class="trait" href="devicecode/trait.ExtraDeviceAuthorizationFields.html" title="trait oauth2::devicecode::ExtraDeviceAuthorizationFields">ExtraDeviceAuthorizationFields</a>;</code></div></li><li><div class="item-name" id="reexport.StandardDeviceAuthorizationResponse"><code>pub use devicecode::<a class="type" href="devicecode/type.StandardDeviceAuthorizationResponse.html" title="type oauth2::devicecode::StandardDeviceAuthorizationResponse">StandardDeviceAuthorizationResponse</a>;</code></div></li><li><div class="item-name" id="reexport.RevocableToken"><code>pub use revocation::<a class="trait" href="revocation/trait.RevocableToken.html" title="trait oauth2::revocation::RevocableToken">RevocableToken</a>;</code></div></li><li><div class="item-name" id="reexport.RevocationErrorResponseType"><code>pub use revocation::<a class="enum" href="revocation/enum.RevocationErrorResponseType.html" title="enum oauth2::revocation::RevocationErrorResponseType">RevocationErrorResponseType</a>;</code></div></li><li><div class="item-name" id="reexport.StandardRevocableToken"><code>pub use revocation::<a class="enum" href="revocation/enum.StandardRevocableToken.html" title="enum oauth2::revocation::StandardRevocableToken">StandardRevocableToken</a>;</code></div></li><li><div class="item-name" id="reexport.http"><code>pub use <a class="mod" href="../http/index.html" title="mod http">http</a>;</code></div></li><li><div class="item-name" id="reexport.url"><code>pub use <a class="mod" href="../url/index.html" title="mod url">url</a>;</code></div></li></ul><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="mod" href="basic/index.html" title="mod oauth2::basic">basic</a></div><div class="desc docblock-short">Basic OAuth2 implementation with no extensions
-(<a href="https://tools.ietf.org/html/rfc6749">RFC 6749</a>).</div></li><li><div class="item-name"><a class="mod" href="devicecode/index.html" title="mod oauth2::devicecode">devicecode</a></div><div class="desc docblock-short">Device Code Flow OAuth2 implementation
-(<a href="https://tools.ietf.org/html/rfc8628">RFC 8628</a>).</div></li><li><div class="item-name"><a class="mod" href="helpers/index.html" title="mod oauth2::helpers">helpers</a></div><div class="desc docblock-short">Helper methods used by OAuth2 implementations/extensions.</div></li><li><div class="item-name"><a class="mod" href="reqwest/index.html" title="mod oauth2::reqwest">reqwest</a></div><div class="desc docblock-short">HTTP client backed by the <a href="https://crates.io/crates/reqwest">reqwest</a> crate.
-Requires “reqwest” feature.</div></li><li><div class="item-name"><a class="mod" href="revocation/index.html" title="mod oauth2::revocation">revocation</a></div><div class="desc docblock-short">OAuth 2.0 Token Revocation implementation
-(<a href="https://tools.ietf.org/html/rfc7009">RFC 7009</a>).</div></li></ul><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="struct" href="struct.AccessToken.html" title="struct oauth2::AccessToken">Access<wbr>Token</a></div><div class="desc docblock-short">Access token returned by the token endpoint and used to access protected resources.</div></li><li><div class="item-name"><a class="struct" href="struct.AuthUrl.html" title="struct oauth2::AuthUrl">AuthUrl</a></div><div class="desc docblock-short">URL of the authorization server’s authorization endpoint.</div></li><li><div class="item-name"><a class="struct" href="struct.AuthorizationCode.html" title="struct oauth2::AuthorizationCode">Authorization<wbr>Code</a></div><div class="desc docblock-short">Authorization code returned from the authorization endpoint.</div></li><li><div class="item-name"><a class="struct" href="struct.AuthorizationRequest.html" title="struct oauth2::AuthorizationRequest">Authorization<wbr>Request</a></div><div class="desc docblock-short">A request to the authorization endpoint</div></li><li><div class="item-name"><a class="struct" href="struct.Client.html" title="struct oauth2::Client">Client</a></div><div class="desc docblock-short">Stores the configuration for an OAuth2 client.</div></li><li><div class="item-name"><a class="struct" href="struct.ClientCredentialsTokenRequest.html" title="struct oauth2::ClientCredentialsTokenRequest">Client<wbr>Credentials<wbr>Token<wbr>Request</a></div><div class="desc docblock-short">A request to exchange client credentials for an access token.</div></li><li><div class="item-name"><a class="struct" href="struct.ClientId.html" title="struct oauth2::ClientId">Client<wbr>Id</a></div><div class="desc docblock-short">Client identifier issued to the client during the registration process described by
+</div></details><h2 id="reexports" class="section-header">Re-exports<a href="#reexports" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name" id="reexport.http"><code>pub use <a class="mod" href="../http/index.html" title="mod http">http</a>;</code></div></li><li><div class="item-name" id="reexport.url"><code>pub use <a class="mod" href="../url/index.html" title="mod url">url</a>;</code></div></li><li><div class="item-name" id="reexport.reqwest"><code>pub use ::<a class="mod" href="../reqwest/index.html" title="mod reqwest">reqwest</a>;</code></div></li></ul><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="mod" href="basic/index.html" title="mod oauth2::basic">basic</a></div><div class="desc docblock-short">Basic OAuth2 implementation with no extensions
+(<a href="https://tools.ietf.org/html/rfc6749">RFC 6749</a>).</div></li><li><div class="item-name"><a class="mod" href="helpers/index.html" title="mod oauth2::helpers">helpers</a></div><div class="desc docblock-short">Helper methods used by OAuth2 implementations/extensions.</div></li></ul><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="struct" href="struct.AccessToken.html" title="struct oauth2::AccessToken">Access<wbr>Token</a></div><div class="desc docblock-short">Access token returned by the token endpoint and used to access protected resources.</div></li><li><div class="item-name"><a class="struct" href="struct.AuthUrl.html" title="struct oauth2::AuthUrl">AuthUrl</a></div><div class="desc docblock-short">URL of the authorization server’s authorization endpoint.</div></li><li><div class="item-name"><a class="struct" href="struct.AuthorizationCode.html" title="struct oauth2::AuthorizationCode">Authorization<wbr>Code</a></div><div class="desc docblock-short">Authorization code returned from the authorization endpoint.</div></li><li><div class="item-name"><a class="struct" href="struct.AuthorizationRequest.html" title="struct oauth2::AuthorizationRequest">Authorization<wbr>Request</a></div><div class="desc docblock-short">A request to the authorization endpoint</div></li><li><div class="item-name"><a class="struct" href="struct.Client.html" title="struct oauth2::Client">Client</a></div><div class="desc docblock-short">Stores the configuration for an OAuth2 client.</div></li><li><div class="item-name"><a class="struct" href="struct.ClientCredentialsTokenRequest.html" title="struct oauth2::ClientCredentialsTokenRequest">Client<wbr>Credentials<wbr>Token<wbr>Request</a></div><div class="desc docblock-short">A request to exchange client credentials for an access token.</div></li><li><div class="item-name"><a class="struct" href="struct.ClientId.html" title="struct oauth2::ClientId">Client<wbr>Id</a></div><div class="desc docblock-short">Client identifier issued to the client during the registration process described by
 <a href="https://tools.ietf.org/html/rfc6749#section-2.2">Section 2.2</a>.</div></li><li><div class="item-name"><a class="struct" href="struct.ClientSecret.html" title="struct oauth2::ClientSecret">Client<wbr>Secret</a></div><div class="desc docblock-short">Client password issued to the client during the registration process described by
 <a href="https://tools.ietf.org/html/rfc6749#section-2.2">Section 2.2</a>.</div></li><li><div class="item-name"><a class="struct" href="struct.CodeTokenRequest.html" title="struct oauth2::CodeTokenRequest">Code<wbr>Token<wbr>Request</a></div><div class="desc docblock-short">A request to exchange an authorization code for an access token.</div></li><li><div class="item-name"><a class="struct" href="struct.CsrfToken.html" title="struct oauth2::CsrfToken">Csrf<wbr>Token</a></div><div class="desc docblock-short">Value used for <a href="https://tools.ietf.org/html/rfc6749#section-10.12">CSRF</a> protection
-via the <code>state</code> parameter.</div></li><li><div class="item-name"><a class="struct" href="struct.DeviceAccessTokenRequest.html" title="struct oauth2::DeviceAccessTokenRequest">Device<wbr>Access<wbr>Token<wbr>Request</a></div><div class="desc docblock-short">The request for an device access token from the authorization server.</div></li><li><div class="item-name"><a class="struct" href="struct.DeviceAuthorizationRequest.html" title="struct oauth2::DeviceAuthorizationRequest">Device<wbr>Authorization<wbr>Request</a></div><div class="desc docblock-short">The request for a set of verification codes from the authorization server.</div></li><li><div class="item-name"><a class="struct" href="struct.DeviceAuthorizationUrl.html" title="struct oauth2::DeviceAuthorizationUrl">Device<wbr>Authorization<wbr>Url</a></div><div class="desc docblock-short">URL of the client’s device authorization endpoint.</div></li><li><div class="item-name"><a class="struct" href="struct.DeviceCode.html" title="struct oauth2::DeviceCode">Device<wbr>Code</a></div><div class="desc docblock-short">Device code returned by the device authorization endpoint and used to query the token endpoint.</div></li><li><div class="item-name"><a class="struct" href="struct.EmptyExtraTokenFields.html" title="struct oauth2::EmptyExtraTokenFields">Empty<wbr>Extra<wbr>Token<wbr>Fields</a></div><div class="desc docblock-short">Empty (default) extra token fields.</div></li><li><div class="item-name"><a class="struct" href="struct.EndUserVerificationUrl.html" title="struct oauth2::EndUserVerificationUrl">EndUser<wbr>Verification<wbr>Url</a></div><div class="desc docblock-short">URL of the end-user verification URI on the authorization server.</div></li><li><div class="item-name"><a class="struct" href="struct.HttpRequest.html" title="struct oauth2::HttpRequest">Http<wbr>Request</a></div><div class="desc docblock-short">An HTTP request.</div></li><li><div class="item-name"><a class="struct" href="struct.HttpResponse.html" title="struct oauth2::HttpResponse">Http<wbr>Response</a></div><div class="desc docblock-short">An HTTP response.</div></li><li><div class="item-name"><a class="struct" href="struct.IntrospectionRequest.html" title="struct oauth2::IntrospectionRequest">Introspection<wbr>Request</a></div><div class="desc docblock-short">A request to introspect an access token.</div></li><li><div class="item-name"><a class="struct" href="struct.IntrospectionUrl.html" title="struct oauth2::IntrospectionUrl">Introspection<wbr>Url</a></div><div class="desc docblock-short">URL of the client’s <a href="https://tools.ietf.org/html/rfc7662">RFC 7662 OAuth 2.0 Token Introspection</a> endpoint.</div></li><li><div class="item-name"><a class="struct" href="struct.PasswordTokenRequest.html" title="struct oauth2::PasswordTokenRequest">Password<wbr>Token<wbr>Request</a></div><div class="desc docblock-short">A request to exchange resource owner credentials for an access token.</div></li><li><div class="item-name"><a class="struct" href="struct.PkceCodeChallenge.html" title="struct oauth2::PkceCodeChallenge">Pkce<wbr>Code<wbr>Challenge</a></div><div class="desc docblock-short">Code Challenge used for <a href="https://tools.ietf.org/html/rfc7636">PKCE</a> protection via the
+via the <code>state</code> parameter.</div></li><li><div class="item-name"><a class="struct" href="struct.DeviceAccessTokenRequest.html" title="struct oauth2::DeviceAccessTokenRequest">Device<wbr>Access<wbr>Token<wbr>Request</a></div><div class="desc docblock-short">The request for a device access token from the authorization server.</div></li><li><div class="item-name"><a class="struct" href="struct.DeviceAuthorizationRequest.html" title="struct oauth2::DeviceAuthorizationRequest">Device<wbr>Authorization<wbr>Request</a></div><div class="desc docblock-short">The request for a set of verification codes from the authorization server.</div></li><li><div class="item-name"><a class="struct" href="struct.DeviceAuthorizationResponse.html" title="struct oauth2::DeviceAuthorizationResponse">Device<wbr>Authorization<wbr>Response</a></div><div class="desc docblock-short">Standard OAuth2 device authorization response.</div></li><li><div class="item-name"><a class="struct" href="struct.DeviceAuthorizationUrl.html" title="struct oauth2::DeviceAuthorizationUrl">Device<wbr>Authorization<wbr>Url</a></div><div class="desc docblock-short">URL of the client’s device authorization endpoint.</div></li><li><div class="item-name"><a class="struct" href="struct.DeviceCode.html" title="struct oauth2::DeviceCode">Device<wbr>Code</a></div><div class="desc docblock-short">Device code returned by the device authorization endpoint and used to query the token endpoint.</div></li><li><div class="item-name"><a class="struct" href="struct.EmptyExtraDeviceAuthorizationFields.html" title="struct oauth2::EmptyExtraDeviceAuthorizationFields">Empty<wbr>Extra<wbr>Device<wbr>Authorization<wbr>Fields</a></div><div class="desc docblock-short">Empty (default) extra token fields.</div></li><li><div class="item-name"><a class="struct" href="struct.EmptyExtraTokenFields.html" title="struct oauth2::EmptyExtraTokenFields">Empty<wbr>Extra<wbr>Token<wbr>Fields</a></div><div class="desc docblock-short">Empty (default) extra token fields.</div></li><li><div class="item-name"><a class="struct" href="struct.EndUserVerificationUrl.html" title="struct oauth2::EndUserVerificationUrl">EndUser<wbr>Verification<wbr>Url</a></div><div class="desc docblock-short">URL of the end-user verification URI on the authorization server.</div></li><li><div class="item-name"><a class="struct" href="struct.EndpointMaybeSet.html" title="struct oauth2::EndpointMaybeSet">Endpoint<wbr>Maybe<wbr>Set</a></div><div class="desc docblock-short"><a href="https://cliffle.com/blog/rust-typestate/">Typestate</a> indicating that an endpoint may have been
+set and can be used via fallible methods.</div></li><li><div class="item-name"><a class="struct" href="struct.EndpointNotSet.html" title="struct oauth2::EndpointNotSet">Endpoint<wbr>NotSet</a></div><div class="desc docblock-short"><a href="https://cliffle.com/blog/rust-typestate/">Typestate</a> indicating that an endpoint has not been
+set and cannot be used.</div></li><li><div class="item-name"><a class="struct" href="struct.EndpointSet.html" title="struct oauth2::EndpointSet">Endpoint<wbr>Set</a></div><div class="desc docblock-short"><a href="https://cliffle.com/blog/rust-typestate/">Typestate</a> indicating that an endpoint has been set
+and is ready to be used.</div></li><li><div class="item-name"><a class="struct" href="struct.IntrospectionRequest.html" title="struct oauth2::IntrospectionRequest">Introspection<wbr>Request</a></div><div class="desc docblock-short">A request to introspect an access token.</div></li><li><div class="item-name"><a class="struct" href="struct.IntrospectionUrl.html" title="struct oauth2::IntrospectionUrl">Introspection<wbr>Url</a></div><div class="desc docblock-short">URL of the client’s <a href="https://tools.ietf.org/html/rfc7662">RFC 7662 OAuth 2.0 Token Introspection</a> endpoint.</div></li><li><div class="item-name"><a class="struct" href="struct.PasswordTokenRequest.html" title="struct oauth2::PasswordTokenRequest">Password<wbr>Token<wbr>Request</a></div><div class="desc docblock-short">A request to exchange resource owner credentials for an access token.</div></li><li><div class="item-name"><a class="struct" href="struct.PkceCodeChallenge.html" title="struct oauth2::PkceCodeChallenge">Pkce<wbr>Code<wbr>Challenge</a></div><div class="desc docblock-short">Code Challenge used for <a href="https://tools.ietf.org/html/rfc7636">PKCE</a> protection via the
 <code>code_challenge</code> parameter.</div></li><li><div class="item-name"><a class="struct" href="struct.PkceCodeChallengeMethod.html" title="struct oauth2::PkceCodeChallengeMethod">Pkce<wbr>Code<wbr>Challenge<wbr>Method</a></div><div class="desc docblock-short">Code Challenge Method used for <a href="https://tools.ietf.org/html/rfc7636">PKCE</a> protection
 via the <code>code_challenge_method</code> parameter.</div></li><li><div class="item-name"><a class="struct" href="struct.PkceCodeVerifier.html" title="struct oauth2::PkceCodeVerifier">Pkce<wbr>Code<wbr>Verifier</a></div><div class="desc docblock-short">Code Verifier used for <a href="https://tools.ietf.org/html/rfc7636">PKCE</a> protection via the
 <code>code_verifier</code> parameter. The value must have a minimum length of 43 characters and a
@@ -380,4 +415,6 @@ token.</div></li><li><div class="item-name"><a class="struct" href="struct.Respo
 endpoint.</div></li><li><div class="item-name"><a class="struct" href="struct.RevocationUrl.html" title="struct oauth2::RevocationUrl">Revocation<wbr>Url</a></div><div class="desc docblock-short">URL of the authorization server’s RFC 7009 token revocation endpoint.</div></li><li><div class="item-name"><a class="struct" href="struct.Scope.html" title="struct oauth2::Scope">Scope</a></div><div class="desc docblock-short">Access token scope, as defined by the authorization server.</div></li><li><div class="item-name"><a class="struct" href="struct.StandardErrorResponse.html" title="struct oauth2::StandardErrorResponse">Standard<wbr>Error<wbr>Response</a></div><div class="desc docblock-short">Error response returned by server after requesting an access token.</div></li><li><div class="item-name"><a class="struct" href="struct.StandardTokenIntrospectionResponse.html" title="struct oauth2::StandardTokenIntrospectionResponse">Standard<wbr>Token<wbr>Introspection<wbr>Response</a></div><div class="desc docblock-short">Standard OAuth2 token introspection response.</div></li><li><div class="item-name"><a class="struct" href="struct.StandardTokenResponse.html" title="struct oauth2::StandardTokenResponse">Standard<wbr>Token<wbr>Response</a></div><div class="desc docblock-short">Standard OAuth2 token response.</div></li><li><div class="item-name"><a class="struct" href="struct.TokenUrl.html" title="struct oauth2::TokenUrl">Token<wbr>Url</a></div><div class="desc docblock-short">URL of the authorization server’s token endpoint.</div></li><li><div class="item-name"><a class="struct" href="struct.UserCode.html" title="struct oauth2::UserCode">User<wbr>Code</a></div><div class="desc docblock-short">User code returned by the device authorization endpoint and used by the user to authorize at
 the verification URI.</div></li><li><div class="item-name"><a class="struct" href="struct.VerificationUriComplete.html" title="struct oauth2::VerificationUriComplete">Verification<wbr>UriComplete</a></div><div class="desc docblock-short">Verification URI returned by the device authorization endpoint and visited by the user
 to authorize.  Contains the user code.</div></li></ul><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="enum" href="enum.AuthType.html" title="enum oauth2::AuthType">Auth<wbr>Type</a></div><div class="desc docblock-short">Indicates whether requests to the authorization server should use basic authentication or
-include the parameters in the request body for requests in which either is valid.</div></li><li><div class="item-name"><a class="enum" href="enum.ConfigurationError.html" title="enum oauth2::ConfigurationError">Configuration<wbr>Error</a></div><div class="desc docblock-short">There was a problem configuring the request.</div></li><li><div class="item-name"><a class="enum" href="enum.RequestTokenError.html" title="enum oauth2::RequestTokenError">Request<wbr>Token<wbr>Error</a></div><div class="desc docblock-short">Error encountered while requesting access token.</div></li></ul><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="trait" href="trait.ErrorResponse.html" title="trait oauth2::ErrorResponse">Error<wbr>Response</a></div><div class="desc docblock-short">Server Error Response</div></li><li><div class="item-name"><a class="trait" href="trait.ErrorResponseType.html" title="trait oauth2::ErrorResponseType">Error<wbr>Response<wbr>Type</a></div><div class="desc docblock-short">Error types enum.</div></li><li><div class="item-name"><a class="trait" href="trait.ExtraTokenFields.html" title="trait oauth2::ExtraTokenFields">Extra<wbr>Token<wbr>Fields</a></div><div class="desc docblock-short">Trait for adding extra fields to the <code>TokenResponse</code>.</div></li><li><div class="item-name"><a class="trait" href="trait.TokenIntrospectionResponse.html" title="trait oauth2::TokenIntrospectionResponse">Token<wbr>Introspection<wbr>Response</a></div><div class="desc docblock-short">Common methods shared by all OAuth2 token introspection implementations.</div></li><li><div class="item-name"><a class="trait" href="trait.TokenResponse.html" title="trait oauth2::TokenResponse">Token<wbr>Response</a></div><div class="desc docblock-short">Common methods shared by all OAuth2 token implementations.</div></li><li><div class="item-name"><a class="trait" href="trait.TokenType.html" title="trait oauth2::TokenType">Token<wbr>Type</a></div><div class="desc docblock-short">Trait for OAuth2 access tokens.</div></li></ul></section></div></main></body></html>
+include the parameters in the request body for requests in which either is valid.</div></li><li><div class="item-name"><a class="enum" href="enum.ConfigurationError.html" title="enum oauth2::ConfigurationError">Configuration<wbr>Error</a></div><div class="desc docblock-short">There was a problem configuring the request.</div></li><li><div class="item-name"><a class="enum" href="enum.DeviceCodeErrorResponseType.html" title="enum oauth2::DeviceCodeErrorResponseType">Device<wbr>Code<wbr>Error<wbr>Response<wbr>Type</a></div><div class="desc docblock-short">Basic access token error types.</div></li><li><div class="item-name"><a class="enum" href="enum.HttpClientError.html" title="enum oauth2::HttpClientError">Http<wbr>Client<wbr>Error</a></div><div class="desc docblock-short">Error type returned by built-in HTTP clients when requests fail.</div></li><li><div class="item-name"><a class="enum" href="enum.RequestTokenError.html" title="enum oauth2::RequestTokenError">Request<wbr>Token<wbr>Error</a></div><div class="desc docblock-short">Error encountered while requesting access token.</div></li><li><div class="item-name"><a class="enum" href="enum.RevocationErrorResponseType.html" title="enum oauth2::RevocationErrorResponseType">Revocation<wbr>Error<wbr>Response<wbr>Type</a></div><div class="desc docblock-short">OAuth 2.0 Token Revocation error response types.</div></li><li><div class="item-name"><a class="enum" href="enum.StandardRevocableToken.html" title="enum oauth2::StandardRevocableToken">Standard<wbr>Revocable<wbr>Token</a></div><div class="desc docblock-short">A token representation usable with authorization servers that support <a href="https://tools.ietf.org/html/rfc7009">RFC 7009</a> token revocation.</div></li></ul><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="trait" href="trait.AsyncHttpClient.html" title="trait oauth2::AsyncHttpClient">Async<wbr>Http<wbr>Client</a></div><div class="desc docblock-short">An asynchronous (future-based) HTTP client.</div></li><li><div class="item-name"><a class="trait" href="trait.EndpointState.html" title="trait oauth2::EndpointState">Endpoint<wbr>State</a></div><div class="desc docblock-short"><a href="https://cliffle.com/blog/rust-typestate/">Typestate</a> base trait indicating whether an endpoint
+has been configured via its corresponding setter.</div></li><li><div class="item-name"><a class="trait" href="trait.ErrorResponse.html" title="trait oauth2::ErrorResponse">Error<wbr>Response</a></div><div class="desc docblock-short">Server Error Response</div></li><li><div class="item-name"><a class="trait" href="trait.ErrorResponseType.html" title="trait oauth2::ErrorResponseType">Error<wbr>Response<wbr>Type</a></div><div class="desc docblock-short">Error types enum.</div></li><li><div class="item-name"><a class="trait" href="trait.ExtraDeviceAuthorizationFields.html" title="trait oauth2::ExtraDeviceAuthorizationFields">Extra<wbr>Device<wbr>Authorization<wbr>Fields</a></div><div class="desc docblock-short">Trait for adding extra fields to the <code>DeviceAuthorizationResponse</code>.</div></li><li><div class="item-name"><a class="trait" href="trait.ExtraTokenFields.html" title="trait oauth2::ExtraTokenFields">Extra<wbr>Token<wbr>Fields</a></div><div class="desc docblock-short">Trait for adding extra fields to the <code>TokenResponse</code>.</div></li><li><div class="item-name"><a class="trait" href="trait.RevocableToken.html" title="trait oauth2::RevocableToken">Revocable<wbr>Token</a></div><div class="desc docblock-short">A revocable token.</div></li><li><div class="item-name"><a class="trait" href="trait.SyncHttpClient.html" title="trait oauth2::SyncHttpClient">Sync<wbr>Http<wbr>Client</a></div><div class="desc docblock-short">A synchronous (blocking) HTTP client.</div></li><li><div class="item-name"><a class="trait" href="trait.TokenIntrospectionResponse.html" title="trait oauth2::TokenIntrospectionResponse">Token<wbr>Introspection<wbr>Response</a></div><div class="desc docblock-short">Common methods shared by all OAuth2 token introspection implementations.</div></li><li><div class="item-name"><a class="trait" href="trait.TokenResponse.html" title="trait oauth2::TokenResponse">Token<wbr>Response</a></div><div class="desc docblock-short">Common methods shared by all OAuth2 token implementations.</div></li><li><div class="item-name"><a class="trait" href="trait.TokenType.html" title="trait oauth2::TokenType">Token<wbr>Type</a></div><div class="desc docblock-short">Type of OAuth2 access token.</div></li></ul><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="type" href="type.DeviceCodeErrorResponse.html" title="type oauth2::DeviceCodeErrorResponse">Device<wbr>Code<wbr>Error<wbr>Response</a></div><div class="desc docblock-short">Error response specialization for device code OAuth2 implementation.</div></li><li><div class="item-name"><a class="type" href="type.HttpRequest.html" title="type oauth2::HttpRequest">Http<wbr>Request</a></div><div class="desc docblock-short">An HTTP request.</div></li><li><div class="item-name"><a class="type" href="type.HttpResponse.html" title="type oauth2::HttpResponse">Http<wbr>Response</a></div><div class="desc docblock-short">An HTTP response.</div></li><li><div class="item-name"><a class="type" href="type.StandardDeviceAuthorizationResponse.html" title="type oauth2::StandardDeviceAuthorizationResponse">Standard<wbr>Device<wbr>Authorization<wbr>Response</a></div><div class="desc docblock-short">Standard implementation of DeviceAuthorizationResponse which throws away
+extra received response fields.</div></li></ul></section></div></main></body></html>

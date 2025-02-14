@@ -1,0 +1,130 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Using `#[derive(Error)]`"><title>Error in derive_more::with_trait - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="derive_more" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc derive"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../derive_more/index.html">derive_<wbr>more</a><span class="version">2.0.1</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Error</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#using-deriveerror" title="Using `#[derive(Error)]`">Using <code>#[derive(Error)]</code></a><ul><li><a href="#when-and-how-does-it-derive-source" title="When and how does it derive `source()`?">When and how does it derive <code>source()</code>?</a></li><li><a href="#when-and-how-does-it-derive-provide" title="When and how does it derive `provide()`?">When and how does it derive <code>provide()</code>?</a></li><li><a href="#ignoring-fields-for-derives" title="Ignoring fields for derives">Ignoring fields for derives</a></li><li><a href="#what-works-in-no_std" title="What works in `no_std`?">What works in <code>no_std</code>?</a></li><li><a href="#example-usage" title="Example usage">Example usage</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In derive_<wbr>more::<wbr>with_<wbr>trait</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><span class="rustdoc-breadcrumbs"><a href="../index.html">derive_more</a>::<wbr><a href="index.html">with_trait</a></span><h1>Derive Macro <span class="derive">Error</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><pre class="rust item-decl"><code>#[derive(Error)]
+{
+    <span class="comment">// Attributes available to this derive:</span>
+    #[error]
+}
+</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="using-deriveerror"><a class="doc-anchor" href="#using-deriveerror">§</a>Using <code>#[derive(Error)]</code></h2>
+<p>Deriving <code>Error</code> will generate an <code>Error</code> implementation, that contains
+(depending on the type) a <code>source()</code> and a <code>provide()</code> method. Please note,
+at the time of writing <code>provide()</code> is only supported on nightly rust. So you
+have to use that to make use of it.</p>
+<p>For a struct, these methods always do the same. For an <code>enum</code> they have separate
+behaviour for each of the variants. The variant is first matched and then the
+implementation will do the same as it would have done if the variant was a
+struct.</p>
+<p>Usually when you derive <code>Error</code> you will also want to <a href="../derive.Display.html" title="derive derive_more::Display">derive <code>Display</code></a> and
+often <a href="../derive.From.html" title="derive derive_more::From"><code>From</code> as well</a>.</p>
+<h4 id="when-and-how-does-it-derive-source"><a class="doc-anchor" href="#when-and-how-does-it-derive-source">§</a>When and how does it derive <code>source()</code>?</h4>
+<ol>
+<li>It’s a struct/variant with named fields and one is the fields is
+called <code>source</code>. Then it would return that field as the <code>source</code>.</li>
+<li>It’s a tuple struct/variant and there’s exactly one field that is not used as
+the <code>backtrace</code>. So either a tuple struct with one field, or one with two where one
+is the <code>backtrace</code>. Then it returns this field as the <code>source</code>.</li>
+<li>One of the fields is annotated with <code>#[error(source)]</code>. Then it would
+return that field as the <code>source</code>.</li>
+</ol>
+<h4 id="when-and-how-does-it-derive-provide"><a class="doc-anchor" href="#when-and-how-does-it-derive-provide">§</a>When and how does it derive <code>provide()</code>?</h4>
+<ol>
+<li>It’s a struct/variant with named fields and one of the fields is
+called <code>backtrace</code>. Then it would return that field as the <code>backtrace</code>.</li>
+<li>It’s a tuple struct/variant and the type of exactly one of the fields is
+called <code>Backtrace</code>. Then it would return that field as the <code>backtrace</code>.</li>
+<li>One of the fields is annotated with <code>#[error(backtrace)]</code>. Then it would
+return that field as the <code>backtrace</code>.</li>
+</ol>
+<h4 id="ignoring-fields-for-derives"><a class="doc-anchor" href="#ignoring-fields-for-derives">§</a>Ignoring fields for derives</h4>
+<p>It’s possible to ignore a field or a whole enum variant completely for this
+derive using the <code>#[error(ignore)]</code> attribute. This will ignore it both for
+detecting <code>backtrace</code> and <code>source</code>. It’s also possible to mark a field only
+ignored for one of these methods by using <code>#[error(not(backtrace))]</code> or
+<code>#[error(not(source))]</code>.</p>
+<h4 id="what-works-in-no_std"><a class="doc-anchor" href="#what-works-in-no_std">§</a>What works in <code>no_std</code>?</h4>
+<p>If you want to use the <code>Error</code> derive on <code>no_std</code> environments, then
+you need to compile with nightly, or wait until Rust 1.81 when <code>Error</code>
+in <code>core</code> is expected to be stabilized.</p>
+<p>Backtraces don’t work though, because the <code>Backtrace</code> type is only available in
+<code>std</code>.</p>
+<h3 id="example-usage"><a class="doc-anchor" href="#example-usage">§</a>Example usage</h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">// Nightly requires enabling this feature:
+// #![feature(error_generic_member_access)]
+
+// std::error::Error requires std::fmt::Debug and std::fmt::Display,
+// so we can also use derive_more::Display for fully declarative
+// error-type definitions.
+
+</span><span class="attr">#[derive(Default, Debug, Display, Error)]
+</span><span class="kw">struct </span>Simple;
+
+<span class="attr">#[derive(Default, Debug, Display, Error)]
+</span><span class="kw">struct </span>WithSource {
+    source: Simple,
+}
+<span class="attr">#[derive(Default, Debug, Display, Error)]
+</span><span class="kw">struct </span>WithExplicitSource {
+    <span class="attr">#[error(source)]
+    </span>explicit_source: Simple,
+}
+
+<span class="attr">#[derive(Default, Debug, Display, Error)]
+</span><span class="kw">struct </span>Tuple(Simple);
+
+<span class="attr">#[derive(Default, Debug, Display, Error)]
+</span><span class="kw">struct </span>WithoutSource(<span class="attr">#[error(not(source))] </span>i32);
+
+<span class="attr">#[derive(Debug, Display, Error)]
+#[display(<span class="string">"An error with a backtrace"</span>)]
+</span><span class="kw">struct </span>WithSourceAndBacktrace {
+    source: Simple,
+    backtrace: Backtrace,
+}
+
+<span class="comment">// derive_more::From fits nicely into this pattern as well
+</span><span class="attr">#[derive(Debug, Display, Error, From)]
+</span><span class="kw">enum </span>CompoundError {
+    Simple,
+    WithSource {
+        source: Simple,
+    },
+    <span class="attr">#[from(ignore)]
+    </span>WithBacktraceFromSource {
+        <span class="attr">#[error(backtrace)]
+        </span>source: Simple,
+    },
+    <span class="attr">#[display(<span class="string">"{source}"</span>)]
+    </span>WithDifferentBacktrace {
+        source: Simple,
+        backtrace: Backtrace,
+    },
+    WithExplicitSource {
+        <span class="attr">#[error(source)]
+        </span>explicit_source: WithSource,
+    },
+    <span class="attr">#[from(ignore)]
+    </span>WithBacktraceFromExplicitSource {
+        <span class="attr">#[error(backtrace, source)]
+        </span>explicit_source: WithSource,
+    },
+    Tuple(WithExplicitSource),
+    WithoutSource(<span class="attr">#[error(not(source))] </span>Tuple),
+}
+
+<span class="macro">assert!</span>(Simple.source().is_none());
+<span class="macro">assert!</span>(request_ref::&lt;Backtrace&gt;(<span class="kw-2">&amp;</span>Simple).is_none());
+<span class="macro">assert!</span>(WithSource::default().source().is_some());
+<span class="macro">assert!</span>(WithExplicitSource::default().source().is_some());
+<span class="macro">assert!</span>(Tuple::default().source().is_some());
+<span class="macro">assert!</span>(WithoutSource::default().source().is_none());
+<span class="kw">let </span>with_source_and_backtrace = WithSourceAndBacktrace {
+    source: Simple,
+    backtrace: Backtrace::capture(),
+};
+<span class="macro">assert!</span>(with_source_and_backtrace.source().is_some());
+<span class="macro">assert!</span>(request_ref::&lt;Backtrace&gt;(<span class="kw-2">&amp;</span>with_source_and_backtrace).is_some());
+
+<span class="macro">assert!</span>(CompoundError::Simple.source().is_none());
+<span class="macro">assert!</span>(CompoundError::from(Simple).source().is_some());
+<span class="macro">assert!</span>(CompoundError::from(WithSource::default()).source().is_some());
+<span class="macro">assert!</span>(CompoundError::from(WithExplicitSource::default()).source().is_some());
+<span class="macro">assert!</span>(CompoundError::from(Tuple::default()).source().is_none());</code></pre></div>
+</div></details></section></div></main></body></html>

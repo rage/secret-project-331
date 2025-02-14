@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/oauth2-4.4.2/src/helpers.rs`."><title>helpers.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oauth2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/oauth2-5.0.0/src/helpers.rs`."><title>helpers.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oauth2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">oauth2/</div>helpers.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -367,14 +368,39 @@
 <a href="#367" id="367">367</a>
 <a href="#368" id="368">368</a>
 <a href="#369" id="369">369</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>serde::ser::{Impossible, SerializeStructVariant, SerializeTupleVariant};
-<span class="kw">use </span>serde::{de, ser};
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a></pre></div><pre class="rust"><code><span class="kw">use </span>serde::de::value::SeqAccessDeserializer;
+<span class="kw">use </span>serde::ser::{Impossible, SerializeStructVariant, SerializeTupleVariant};
 <span class="kw">use </span>serde::{Deserialize, Deserializer, Serialize, Serializer};
-<span class="kw">use </span>std::fmt;
+<span class="kw">use </span>serde_json::Value;
+
+<span class="kw">use </span>std::error::Error;
+<span class="kw">use </span>std::fmt::{Display, Formatter};
 <span class="kw">use </span>std::marker::PhantomData;
 
-<span class="doccomment">///
-/// Serde case-insensitive deserializer for an untagged `enum`.
+<span class="doccomment">/// Serde case-insensitive deserializer for an untagged `enum`.
 ///
 /// This function converts values to lowercase before deserializing as the `enum`. Requires the
 /// `#[serde(rename_all = "lowercase")]` attribute to be set on the `enum`.
@@ -410,22 +436,18 @@
 /// }
 /// # */
 /// ```
-///
 </span><span class="kw">pub fn </span>deserialize_untagged_enum_case_insensitive&lt;<span class="lifetime">'de</span>, T, D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;T, D::Error&gt;
 <span class="kw">where
     </span>T: Deserialize&lt;<span class="lifetime">'de</span>&gt;,
     D: Deserializer&lt;<span class="lifetime">'de</span>&gt;,
 {
-    <span class="kw">use </span>serde::de::Error;
-    <span class="kw">use </span>serde_json::Value;
     T::deserialize(Value::String(
         String::deserialize(deserializer)<span class="question-mark">?</span>.to_lowercase(),
     ))
-    .map_err(Error::custom)
+    .map_err(serde::de::Error::custom)
 }
 
-<span class="doccomment">///
-/// Serde space-delimited string deserializer for a `Vec&lt;String&gt;`.
+<span class="doccomment">/// Serde space-delimited string deserializer for a `Vec&lt;String&gt;`.
 ///
 /// This function splits a JSON string at each space character into a `Vec&lt;String&gt;` .
 ///
@@ -456,29 +478,24 @@
 /// }
 /// # */
 /// ```
-///
 </span><span class="kw">pub fn </span>deserialize_space_delimited_vec&lt;<span class="lifetime">'de</span>, T, D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;T, D::Error&gt;
 <span class="kw">where
     </span>T: Default + Deserialize&lt;<span class="lifetime">'de</span>&gt;,
     D: Deserializer&lt;<span class="lifetime">'de</span>&gt;,
 {
-    <span class="kw">use </span>serde::de::Error;
-    <span class="kw">use </span>serde_json::Value;
     <span class="kw">if let </span><span class="prelude-val">Some</span>(space_delimited) = <span class="prelude-ty">Option</span>::&lt;String&gt;::deserialize(deserializer)<span class="question-mark">? </span>{
         <span class="kw">let </span>entries = space_delimited
             .split(<span class="string">' '</span>)
             .map(|s| Value::String(s.to_string()))
             .collect();
-        T::deserialize(Value::Array(entries)).map_err(Error::custom)
+        T::deserialize(Value::Array(entries)).map_err(serde::de::Error::custom)
     } <span class="kw">else </span>{
         <span class="comment">// If the JSON value is null, use the default value.
         </span><span class="prelude-val">Ok</span>(T::default())
     }
 }
 
-<span class="doccomment">///
-/// Deserializes a string or array of strings into an array of strings
-///
+<span class="doccomment">/// Deserializes a string or array of strings into an array of strings
 </span><span class="kw">pub fn </span>deserialize_optional_string_or_vec_string&lt;<span class="lifetime">'de</span>, D&gt;(
     deserializer: D,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Vec&lt;String&gt;&gt;, D::Error&gt;
@@ -487,52 +504,50 @@
 {
     <span class="kw">struct </span>StringOrVec(PhantomData&lt;Vec&lt;String&gt;&gt;);
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; de::Visitor&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>StringOrVec {
+    <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>StringOrVec {
         <span class="kw">type </span>Value = <span class="prelude-ty">Option</span>&lt;Vec&lt;String&gt;&gt;;
 
-        <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, formatter: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, formatter: <span class="kw-2">&amp;mut </span>Formatter) -&gt; std::fmt::Result {
             formatter.write_str(<span class="string">"string or list of strings"</span>)
         }
 
         <span class="kw">fn </span>visit_str&lt;E&gt;(<span class="self">self</span>, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, E&gt;
         <span class="kw">where
-            </span>E: de::Error,
+            </span>E: serde::de::Error,
         {
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="macro">vec!</span>[value.to_owned()]))
         }
 
         <span class="kw">fn </span>visit_none&lt;E&gt;(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, E&gt;
         <span class="kw">where
-            </span>E: de::Error,
+            </span>E: serde::de::Error,
         {
             <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
         }
 
         <span class="kw">fn </span>visit_unit&lt;E&gt;(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, E&gt;
         <span class="kw">where
-            </span>E: de::Error,
+            </span>E: serde::de::Error,
         {
             <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
         }
 
         <span class="kw">fn </span>visit_seq&lt;S&gt;(<span class="self">self</span>, visitor: S) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, S::Error&gt;
         <span class="kw">where
-            </span>S: de::SeqAccess&lt;<span class="lifetime">'de</span>&gt;,
+            </span>S: serde::de::SeqAccess&lt;<span class="lifetime">'de</span>&gt;,
         {
-            Deserialize::deserialize(de::value::SeqAccessDeserializer::new(visitor)).map(<span class="prelude-val">Some</span>)
+            Deserialize::deserialize(SeqAccessDeserializer::new(visitor)).map(<span class="prelude-val">Some</span>)
         }
     }
 
     deserializer.deserialize_any(StringOrVec(PhantomData))
 }
 
-<span class="doccomment">///
-/// Serde space-delimited string serializer for an `Option&lt;Vec&lt;String&gt;&gt;`.
+<span class="doccomment">/// Serde space-delimited string serializer for an `Option&lt;Vec&lt;String&gt;&gt;`.
 ///
 /// This function serializes a string vector into a single space-delimited string.
 /// If `string_vec_opt` is `None`, the function serializes it as `None` (e.g., `null`
 /// in the case of JSON serialization).
-///
 </span><span class="kw">pub fn </span>serialize_space_delimited_vec&lt;T, S&gt;(
     vec_opt: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Vec&lt;T&gt;&gt;,
     serializer: S,
@@ -550,28 +565,26 @@
     }
 }
 
-<span class="doccomment">///
-/// Serde string serializer for an enum.
-///&lt;
+<span class="doccomment">/// Serde string serializer for an enum.
+///
 /// Source:
 /// [https://github.com/serde-rs/serde/issues/553](https://github.com/serde-rs/serde/issues/553)
-///
 </span><span class="kw">pub fn </span>variant_name&lt;T: Serialize&gt;(t: <span class="kw-2">&amp;</span>T) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
     <span class="attr">#[derive(Debug)]
     </span><span class="kw">struct </span>NotEnum;
     <span class="kw">type </span><span class="prelude-ty">Result</span>&lt;T&gt; = std::result::Result&lt;T, NotEnum&gt;;
-    <span class="kw">impl </span>std::error::Error <span class="kw">for </span>NotEnum {
+    <span class="kw">impl </span>Error <span class="kw">for </span>NotEnum {
         <span class="kw">fn </span>description(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
             <span class="string">"not struct"
         </span>}
     }
-    <span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>NotEnum {
-        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, _f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter) -&gt; std::fmt::Result {
+    <span class="kw">impl </span>Display <span class="kw">for </span>NotEnum {
+        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, _f: <span class="kw-2">&amp;mut </span>Formatter) -&gt; std::fmt::Result {
             <span class="macro">unimplemented!</span>()
         }
     }
-    <span class="kw">impl </span>ser::Error <span class="kw">for </span>NotEnum {
-        <span class="kw">fn </span>custom&lt;T: std::fmt::Display&gt;(_msg: T) -&gt; <span class="self">Self </span>{
+    <span class="kw">impl </span>serde::ser::Error <span class="kw">for </span>NotEnum {
+        <span class="kw">fn </span>custom&lt;T: Display&gt;(_msg: T) -&gt; <span class="self">Self </span>{
             NotEnum
         }
     }
@@ -735,5 +748,40 @@
     }
 
     t.serialize(VariantName).unwrap()
+}
+
+<span class="attr">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>serde::Deserialize;
+
+    <span class="attr">#[derive(Deserialize, Debug, Clone)]
+    </span><span class="kw">pub struct </span>ObjectWithOptionalStringOrVecString {
+        <span class="attr">#[serde(deserialize_with = <span class="string">"crate::helpers::deserialize_optional_string_or_vec_string"</span>)]
+        </span><span class="kw">pub </span>strings: <span class="prelude-ty">Option</span>&lt;Vec&lt;String&gt;&gt;,
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_deserialize_optional_string_or_vec_string_none() {
+        <span class="kw">let </span>list_of_strings: ObjectWithOptionalStringOrVecString =
+            serde_json::from_str(<span class="string">r#"{ "strings": null }"#</span>).unwrap();
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, list_of_strings.strings);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_deserialize_optional_string_or_vec_string_single_value() {
+        <span class="kw">let </span>list_of_strings: ObjectWithOptionalStringOrVecString =
+            serde_json::from_str(<span class="string">r#"{ "strings": "v1" }"#</span>).unwrap();
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="macro">vec!</span>[<span class="string">"v1"</span>.to_string()]), list_of_strings.strings);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_deserialize_optional_string_or_vec_string_vec() {
+        <span class="kw">let </span>list_of_strings: ObjectWithOptionalStringOrVecString =
+            serde_json::from_str(<span class="string">r#"{ "strings": ["v1", "v2"] }"#</span>).unwrap();
+        <span class="macro">assert_eq!</span>(
+            <span class="prelude-val">Some</span>(<span class="macro">vec!</span>[<span class="string">"v1"</span>.to_string(), <span class="string">"v2"</span>.to_string()]),
+            list_of_strings.strings
+        );
+    }
 }
 </code></pre></div></section></main></body></html>

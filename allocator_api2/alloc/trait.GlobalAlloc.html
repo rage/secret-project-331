@@ -1,16 +1,16 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A memory allocator that can be registered as the standard library’s default through the `#[global_allocator]` attribute."><title>GlobalAlloc in allocator_api2::alloc - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="allocator_api2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../allocator_api2/index.html">allocator_<wbr>api2</a><span class="version">0.2.21</span></h2></div><h2 class="location"><a href="#">Global<wbr>Alloc</a></h2><div class="sidebar-elems"><section><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.alloc">alloc</a></li><li><a href="#tymethod.dealloc">dealloc</a></li></ul><h3><a href="#provided-methods">Provided Methods</a></h3><ul class="block"><li><a href="#method.alloc_zeroed">alloc_zeroed</a></li><li><a href="#method.realloc">realloc</a></li></ul><h3><a href="#implementors">Implementors</a></h3></section><h2><a href="index.html">In allocator_<wbr>api2::<wbr>alloc</a></h2></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Trait <a href="../index.html">allocator_api2</a>::<wbr><a href="index.html">alloc</a>::<wbr><a class="trait" href="#">GlobalAlloc</a><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><span class="out-of-band"><span class="since" title="Stable since Rust version 1.28.0">1.28.0</span> · <a class="src" href="https://doc.rust-lang.org/1.82.0/src/core/alloc/global.rs.html#119">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><pre class="rust item-decl"><code>pub unsafe trait GlobalAlloc {
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A memory allocator that can be registered as the standard library’s default through the `#[global_allocator]` attribute."><title>GlobalAlloc in allocator_api2::alloc - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="allocator_api2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../allocator_api2/index.html">allocator_<wbr>api2</a><span class="version">0.2.21</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Global<wbr>Alloc</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#example" title="Example">Example</a></li><li><a href="#safety" title="Safety">Safety</a></li></ul><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.alloc" title="alloc">alloc</a></li><li><a href="#tymethod.dealloc" title="dealloc">dealloc</a></li></ul><h3><a href="#provided-methods">Provided Methods</a></h3><ul class="block"><li><a href="#method.alloc_zeroed" title="alloc_zeroed">alloc_zeroed</a></li><li><a href="#method.realloc" title="realloc">realloc</a></li></ul><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In allocator_<wbr>api2::<wbr>alloc</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><span class="rustdoc-breadcrumbs"><a href="../index.html">allocator_api2</a>::<wbr><a href="index.html">alloc</a></span><h1>Trait <span class="trait">GlobalAlloc</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><span class="since" title="Stable since Rust version 1.28.0">1.28.0</span> · <a class="src" href="https://doc.rust-lang.org/1.84.1/src/core/alloc/global.rs.html#119">Source</a> </span></div><pre class="rust item-decl"><code>pub unsafe trait GlobalAlloc {
     // Required methods
-    unsafe fn <a href="#tymethod.alloc" class="fn">alloc</a>(&amp;self, layout: <a class="struct" href="struct.Layout.html" title="struct allocator_api2::alloc::Layout">Layout</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.82.0/core/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/1.82.0/core/primitive.u8.html">u8</a>;
-<span class="item-spacer"></span>    unsafe fn <a href="#tymethod.dealloc" class="fn">dealloc</a>(&amp;self, ptr: <a class="primitive" href="https://doc.rust-lang.org/1.82.0/core/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/1.82.0/core/primitive.u8.html">u8</a>, layout: <a class="struct" href="struct.Layout.html" title="struct allocator_api2::alloc::Layout">Layout</a>);
+    unsafe fn <a href="#tymethod.alloc" class="fn">alloc</a>(&amp;self, layout: <a class="struct" href="struct.Layout.html" title="struct allocator_api2::alloc::Layout">Layout</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.84.1/core/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/1.84.1/core/primitive.u8.html">u8</a>;
+<span class="item-spacer"></span>    unsafe fn <a href="#tymethod.dealloc" class="fn">dealloc</a>(&amp;self, ptr: <a class="primitive" href="https://doc.rust-lang.org/1.84.1/core/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/1.84.1/core/primitive.u8.html">u8</a>, layout: <a class="struct" href="struct.Layout.html" title="struct allocator_api2::alloc::Layout">Layout</a>);
 
     // Provided methods
-    unsafe fn <a href="#method.alloc_zeroed" class="fn">alloc_zeroed</a>(&amp;self, layout: <a class="struct" href="struct.Layout.html" title="struct allocator_api2::alloc::Layout">Layout</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.82.0/core/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/1.82.0/core/primitive.u8.html">u8</a> { ... }
+    unsafe fn <a href="#method.alloc_zeroed" class="fn">alloc_zeroed</a>(&amp;self, layout: <a class="struct" href="struct.Layout.html" title="struct allocator_api2::alloc::Layout">Layout</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.84.1/core/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/1.84.1/core/primitive.u8.html">u8</a> { ... }
 <span class="item-spacer"></span>    unsafe fn <a href="#method.realloc" class="fn">realloc</a>(
         &amp;self,
-        ptr: <a class="primitive" href="https://doc.rust-lang.org/1.82.0/core/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/1.82.0/core/primitive.u8.html">u8</a>,
+        ptr: <a class="primitive" href="https://doc.rust-lang.org/1.84.1/core/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/1.84.1/core/primitive.u8.html">u8</a>,
         layout: <a class="struct" href="struct.Layout.html" title="struct allocator_api2::alloc::Layout">Layout</a>,
-        new_size: <a class="primitive" href="https://doc.rust-lang.org/1.82.0/core/primitive.usize.html">usize</a>,
-    ) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.82.0/core/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/1.82.0/core/primitive.u8.html">u8</a> { ... }
+        new_size: <a class="primitive" href="https://doc.rust-lang.org/1.84.1/core/primitive.usize.html">usize</a>,
+    ) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.84.1/core/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/1.84.1/core/primitive.u8.html">u8</a> { ... }
 }</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A memory allocator that can be registered as the standard library’s default
 through the <code>#[global_allocator]</code> attribute.</p>
 <p>Some of the methods require that a memory block be <em>currently
@@ -123,12 +123,12 @@ could be detected via an allocator that tracks allocations by printing or otherw
 having side effects.</p>
 </li>
 </ul>
-</div></details><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.alloc" class="method"><span class="rightside"><span class="since" title="Stable since Rust version 1.28.0">1.28.0</span> · <a class="src" href="https://doc.rust-lang.org/1.82.0/src/core/alloc/global.rs.html#153">source</a></span><h4 class="code-header">unsafe fn <a href="#tymethod.alloc" class="fn">alloc</a>(&amp;self, layout: <a class="struct" href="struct.Layout.html" title="struct allocator_api2::alloc::Layout">Layout</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.82.0/core/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/1.82.0/core/primitive.u8.html">u8</a></h4></section></summary><div class="docblock"><p>Allocates memory as described by the given <code>layout</code>.</p>
+</div></details><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.alloc" class="method"><span class="rightside"><span class="since" title="Stable since Rust version 1.28.0">1.28.0</span> · <a class="src" href="https://doc.rust-lang.org/1.84.1/src/core/alloc/global.rs.html#153">Source</a></span><h4 class="code-header">unsafe fn <a href="#tymethod.alloc" class="fn">alloc</a>(&amp;self, layout: <a class="struct" href="struct.Layout.html" title="struct allocator_api2::alloc::Layout">Layout</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.84.1/core/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/1.84.1/core/primitive.u8.html">u8</a></h4></section></summary><div class="docblock"><p>Allocates memory as described by the given <code>layout</code>.</p>
 <p>Returns a pointer to newly-allocated memory,
 or null to indicate allocation failure.</p>
 <h5 id="safety-1"><a class="doc-anchor" href="#safety-1">§</a>Safety</h5>
-<p>This function is unsafe because undefined behavior can result
-if the caller does not ensure that <code>layout</code> has non-zero size.</p>
+<p><code>layout</code> must have non-zero size. Attempting to allocate for a zero-sized <code>layout</code> may
+result in undefined behavior.</p>
 <p>(Extension subtraits might provide more specific bounds on
 behavior, e.g., guarantee a sentinel address or a null pointer
 in response to a zero-size allocation request.)</p>
@@ -144,24 +144,24 @@ library that aborts on memory exhaustion.)</p>
 <p>Clients wishing to abort computation in response to an
 allocation error are encouraged to call the <a href="../../alloc/alloc/fn.handle_alloc_error.html"><code>handle_alloc_error</code></a> function,
 rather than directly invoking <code>panic!</code> or similar.</p>
-</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.dealloc" class="method"><span class="rightside"><span class="since" title="Stable since Rust version 1.28.0">1.28.0</span> · <a class="src" href="https://doc.rust-lang.org/1.82.0/src/core/alloc/global.rs.html#168">source</a></span><h4 class="code-header">unsafe fn <a href="#tymethod.dealloc" class="fn">dealloc</a>(&amp;self, ptr: <a class="primitive" href="https://doc.rust-lang.org/1.82.0/core/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/1.82.0/core/primitive.u8.html">u8</a>, layout: <a class="struct" href="struct.Layout.html" title="struct allocator_api2::alloc::Layout">Layout</a>)</h4></section></summary><div class="docblock"><p>Deallocates the block of memory at the given <code>ptr</code> pointer with the given <code>layout</code>.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.dealloc" class="method"><span class="rightside"><span class="since" title="Stable since Rust version 1.28.0">1.28.0</span> · <a class="src" href="https://doc.rust-lang.org/1.84.1/src/core/alloc/global.rs.html#168">Source</a></span><h4 class="code-header">unsafe fn <a href="#tymethod.dealloc" class="fn">dealloc</a>(&amp;self, ptr: <a class="primitive" href="https://doc.rust-lang.org/1.84.1/core/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/1.84.1/core/primitive.u8.html">u8</a>, layout: <a class="struct" href="struct.Layout.html" title="struct allocator_api2::alloc::Layout">Layout</a>)</h4></section></summary><div class="docblock"><p>Deallocates the block of memory at the given <code>ptr</code> pointer with the given <code>layout</code>.</p>
 <h5 id="safety-2"><a class="doc-anchor" href="#safety-2">§</a>Safety</h5>
-<p>This function is unsafe because undefined behavior can result
-if the caller does not ensure all of the following:</p>
+<p>The caller must ensure:</p>
 <ul>
 <li>
-<p><code>ptr</code> must denote a block of memory currently allocated via
-this allocator,</p>
+<p><code>ptr</code> is a block of memory currently allocated via this allocator and,</p>
 </li>
 <li>
-<p><code>layout</code> must be the same layout that was used
-to allocate that block of memory.</p>
+<p><code>layout</code> is the same layout that was used to allocate that block of
+memory.</p>
 </li>
 </ul>
-</div></details></div><h2 id="provided-methods" class="section-header">Provided Methods<a href="#provided-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="method.alloc_zeroed" class="method"><span class="rightside"><span class="since" title="Stable since Rust version 1.28.0">1.28.0</span> · <a class="src" href="https://doc.rust-lang.org/1.82.0/src/core/alloc/global.rs.html#190">source</a></span><h4 class="code-header">unsafe fn <a href="#method.alloc_zeroed" class="fn">alloc_zeroed</a>(&amp;self, layout: <a class="struct" href="struct.Layout.html" title="struct allocator_api2::alloc::Layout">Layout</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.82.0/core/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/1.82.0/core/primitive.u8.html">u8</a></h4></section></summary><div class="docblock"><p>Behaves like <code>alloc</code>, but also ensures that the contents
+<p>Otherwise undefined behavior can result.</p>
+</div></details></div><h2 id="provided-methods" class="section-header">Provided Methods<a href="#provided-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="method.alloc_zeroed" class="method"><span class="rightside"><span class="since" title="Stable since Rust version 1.28.0">1.28.0</span> · <a class="src" href="https://doc.rust-lang.org/1.84.1/src/core/alloc/global.rs.html#191">Source</a></span><h4 class="code-header">unsafe fn <a href="#method.alloc_zeroed" class="fn">alloc_zeroed</a>(&amp;self, layout: <a class="struct" href="struct.Layout.html" title="struct allocator_api2::alloc::Layout">Layout</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.84.1/core/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/1.84.1/core/primitive.u8.html">u8</a></h4></section></summary><div class="docblock"><p>Behaves like <code>alloc</code>, but also ensures that the contents
 are set to zero before being returned.</p>
 <h5 id="safety-3"><a class="doc-anchor" href="#safety-3">§</a>Safety</h5>
-<p>This function is unsafe for the same reasons that <code>alloc</code> is.
+<p>The caller has to ensure that <code>layout</code> has non-zero size. Like <code>alloc</code>
+zero sized <code>layout</code> can result in undefined behavior.
 However the allocated block of memory is guaranteed to be initialized.</p>
 <h5 id="errors-1"><a class="doc-anchor" href="#errors-1">§</a>Errors</h5>
 <p>Returning a null pointer indicates that either memory is exhausted
@@ -170,12 +170,12 @@ just as in <code>alloc</code>.</p>
 <p>Clients wishing to abort computation in response to an
 allocation error are encouraged to call the <a href="../../alloc/alloc/fn.handle_alloc_error.html"><code>handle_alloc_error</code></a> function,
 rather than directly invoking <code>panic!</code> or similar.</p>
-</div></details><details class="toggle method-toggle" open><summary><section id="method.realloc" class="method"><span class="rightside"><span class="since" title="Stable since Rust version 1.28.0">1.28.0</span> · <a class="src" href="https://doc.rust-lang.org/1.82.0/src/core/alloc/global.rs.html#259">source</a></span><h4 class="code-header">unsafe fn <a href="#method.realloc" class="fn">realloc</a>(
+</div></details><details class="toggle method-toggle" open><summary><section id="method.realloc" class="method"><span class="rightside"><span class="since" title="Stable since Rust version 1.28.0">1.28.0</span> · <a class="src" href="https://doc.rust-lang.org/1.84.1/src/core/alloc/global.rs.html#261">Source</a></span><h4 class="code-header">unsafe fn <a href="#method.realloc" class="fn">realloc</a>(
     &amp;self,
-    ptr: <a class="primitive" href="https://doc.rust-lang.org/1.82.0/core/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/1.82.0/core/primitive.u8.html">u8</a>,
+    ptr: <a class="primitive" href="https://doc.rust-lang.org/1.84.1/core/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/1.84.1/core/primitive.u8.html">u8</a>,
     layout: <a class="struct" href="struct.Layout.html" title="struct allocator_api2::alloc::Layout">Layout</a>,
-    new_size: <a class="primitive" href="https://doc.rust-lang.org/1.82.0/core/primitive.usize.html">usize</a>,
-) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.82.0/core/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/1.82.0/core/primitive.u8.html">u8</a></h4></section></summary><div class="docblock"><p>Shrinks or grows a block of memory to the given <code>new_size</code> in bytes.
+    new_size: <a class="primitive" href="https://doc.rust-lang.org/1.84.1/core/primitive.usize.html">usize</a>,
+) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.84.1/core/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/1.84.1/core/primitive.u8.html">u8</a></h4></section></summary><div class="docblock"><p>Shrinks or grows a block of memory to the given <code>new_size</code> in bytes.
 The block is described by the given <code>ptr</code> pointer and <code>layout</code>.</p>
 <p>If this returns a non-null pointer, then ownership of the memory block
 referenced by <code>ptr</code> has been transferred to this allocator.
@@ -191,25 +191,25 @@ guaranteed to have the same values as the original block.</p>
 block has not been transferred to this allocator, and the
 contents of the memory block are unaltered.</p>
 <h5 id="safety-4"><a class="doc-anchor" href="#safety-4">§</a>Safety</h5>
-<p>This function is unsafe because undefined behavior can result
-if the caller does not ensure all of the following:</p>
+<p>The caller must ensure that:</p>
 <ul>
 <li>
-<p><code>ptr</code> must be currently allocated via this allocator,</p>
+<p><code>ptr</code> is allocated via this allocator,</p>
 </li>
 <li>
-<p><code>layout</code> must be the same layout that was used
+<p><code>layout</code> is the same layout that was used
 to allocate that block of memory,</p>
 </li>
 <li>
-<p><code>new_size</code> must be greater than zero.</p>
+<p><code>new_size</code> is greater than zero.</p>
 </li>
 <li>
 <p><code>new_size</code>, when rounded up to the nearest multiple of <code>layout.align()</code>,
-must not overflow <code>isize</code> (i.e., the rounded value must be less than or
+does not overflow <code>isize</code> (i.e., the rounded value must be less than or
 equal to <code>isize::MAX</code>).</p>
 </li>
 </ul>
+<p>If these are not followed, undefined behavior can result.</p>
 <p>(Extension subtraits might provide more specific bounds on
 behavior, e.g., guarantee a sentinel address or a null pointer
 in response to a zero-size allocation request.)</p>

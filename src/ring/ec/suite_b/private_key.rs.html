@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.8/src/ec/suite_b/private_key.rs`."><title>private_key.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.9/src/ec/suite_b/private_key.rs`."><title>private_key.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ring/ec/suite_b/</div>private_key.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -194,7 +195,13 @@
 <a href="#194" id="194">194</a>
 <a href="#195" id="195">195</a>
 <a href="#196" id="196">196</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright 2016 Brian Smith.
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a></pre></div><pre class="rust"><code><span class="comment">// Copyright 2016 Brian Smith.
 //
 // Permission to use, copy, modify, and/or distribute this software for any
 // purpose with or without fee is hereby granted, provided that the above
@@ -212,23 +219,25 @@
 //! ECDSA signing).
 
 </span><span class="kw">use super</span>::{ops::<span class="kw-2">*</span>, verify_affine_point_is_on_the_curve};
-<span class="kw">use crate</span>::{arithmetic::montgomery::R, ec, error, limb, rand};
+<span class="kw">use crate</span>::{arithmetic::montgomery::R, cpu, ec, error, limb, rand};
 
 <span class="doccomment">/// Generates a random scalar in the range [1, n).
-</span><span class="kw">pub fn </span>random_scalar(
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>random_scalar(
     ops: <span class="kw-2">&amp;</span>PrivateKeyOps,
+    n: <span class="kw-2">&amp;</span>Modulus&lt;N&gt;,
     rng: <span class="kw-2">&amp;</span><span class="kw">dyn </span>rand::SecureRandom,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Scalar, error::Unspecified&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>bytes = [<span class="number">0</span>; ec::SCALAR_MAX_BYTES];
     <span class="kw">let </span>bytes = <span class="kw-2">&amp;mut </span>bytes[..ops.common.len()];
-    generate_private_scalar_bytes(ops, rng, bytes)<span class="question-mark">?</span>;
-    scalar_from_big_endian_bytes(ops, bytes)
+    generate_private_scalar_bytes(ops, rng, bytes, n.cpu())<span class="question-mark">?</span>;
+    scalar_from_big_endian_bytes(n, bytes)
 }
 
-<span class="kw">pub fn </span>generate_private_scalar_bytes(
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>generate_private_scalar_bytes(
     ops: <span class="kw-2">&amp;</span>PrivateKeyOps,
     rng: <span class="kw-2">&amp;</span><span class="kw">dyn </span>rand::SecureRandom,
     out: <span class="kw-2">&amp;mut </span>[u8],
+    cpu: cpu::Features,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), error::Unspecified&gt; {
     <span class="comment">// [NSA Suite B Implementer's Guide to ECDSA] Appendix A.1.2, and
     // [NSA Suite B Implementer's Guide to NIST SP 800-56A] Appendix B.2,
@@ -262,7 +271,7 @@
         </span>rng.fill(candidate)<span class="question-mark">?</span>;
 
         <span class="comment">// NSA Guide Steps 5, 6, and 7.
-        </span><span class="kw">if </span>check_scalar_big_endian_bytes(ops, candidate).is_err() {
+        </span><span class="kw">if </span>check_scalar_big_endian_bytes(ops, candidate, cpu).is_err() {
             <span class="kw">continue</span>;
         }
 
@@ -280,17 +289,19 @@
 // private key that way, which means we have to convert it to a Scalar whenever
 // we need to use it.
 </span><span class="attr">#[inline]
-</span><span class="kw">pub fn </span>private_key_as_scalar(ops: <span class="kw-2">&amp;</span>PrivateKeyOps, private_key: <span class="kw-2">&amp;</span>ec::Seed) -&gt; Scalar {
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>private_key_as_scalar(n: <span class="kw-2">&amp;</span>Modulus&lt;N&gt;, private_key: <span class="kw-2">&amp;</span>ec::Seed) -&gt; Scalar {
     <span class="comment">// This cannot fail because we know the private key is valid.
-    </span>scalar_from_big_endian_bytes(ops, private_key.bytes_less_safe()).unwrap()
+    </span>scalar_from_big_endian_bytes(n, private_key.bytes_less_safe()).unwrap()
 }
 
-<span class="kw">pub fn </span>check_scalar_big_endian_bytes(
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>check_scalar_big_endian_bytes(
     ops: <span class="kw-2">&amp;</span>PrivateKeyOps,
     bytes: <span class="kw-2">&amp;</span>[u8],
+    cpu: cpu::Features,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), error::Unspecified&gt; {
     <span class="macro">debug_assert_eq!</span>(bytes.len(), ops.common.len());
-    scalar_from_big_endian_bytes(ops, bytes).map(|<span class="kw">_</span>| ())
+    <span class="kw">let </span>n = <span class="kw-2">&amp;</span>ops.common.scalar_modulus(cpu);
+    scalar_from_big_endian_bytes(n, bytes).map(|<span class="kw">_</span>| ())
 }
 
 <span class="comment">// Parses a fixed-length (zero-padded) big-endian-encoded scalar in the range
@@ -298,8 +309,8 @@
 // value is actually in range. In other words, this won't leak anything about a
 // valid value, but it might leak small amounts of information about an invalid
 // value (which constraint it failed).
-</span><span class="kw">pub fn </span>scalar_from_big_endian_bytes(
-    ops: <span class="kw-2">&amp;</span>PrivateKeyOps,
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>scalar_from_big_endian_bytes(
+    n: <span class="kw-2">&amp;</span>Modulus&lt;N&gt;,
     bytes: <span class="kw-2">&amp;</span>[u8],
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Scalar, error::Unspecified&gt; {
     <span class="comment">// [NSA Suite B Implementer's Guide to ECDSA] Appendix A.1.2, and
@@ -317,74 +328,77 @@
     // way, we avoid needing to compute or store the value (n - 1), we avoid the
     // need to implement a function to add one to a scalar, and we avoid needing
     // to convert the scalar back into an array of bytes.
-    </span>scalar_parse_big_endian_fixed_consttime(ops.common, untrusted::Input::from(bytes))
+    </span>scalar_parse_big_endian_fixed_consttime(n, untrusted::Input::from(bytes))
 }
 
-<span class="kw">pub fn </span>public_from_private(
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>public_from_private(
     ops: <span class="kw-2">&amp;</span>PrivateKeyOps,
     public_out: <span class="kw-2">&amp;mut </span>[u8],
     my_private_key: <span class="kw-2">&amp;</span>ec::Seed,
+    cpu: cpu::Features,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), error::Unspecified&gt; {
+    <span class="kw">let </span>q = <span class="kw-2">&amp;</span>ops.common.elem_modulus(cpu);
     <span class="kw">let </span>elem_and_scalar_bytes = ops.common.len();
     <span class="macro">debug_assert_eq!</span>(public_out.len(), <span class="number">1 </span>+ (<span class="number">2 </span>* elem_and_scalar_bytes));
-    <span class="kw">let </span>my_private_key = private_key_as_scalar(ops, my_private_key);
-    <span class="kw">let </span>my_public_key = ops.point_mul_base(<span class="kw-2">&amp;</span>my_private_key);
+    <span class="kw">let </span>n = <span class="kw-2">&amp;</span>ops.common.scalar_modulus(cpu);
+    <span class="kw">let </span>my_private_key = private_key_as_scalar(n, my_private_key);
+    <span class="kw">let </span>my_public_key = ops.point_mul_base(<span class="kw-2">&amp;</span>my_private_key, cpu);
     public_out[<span class="number">0</span>] = <span class="number">4</span>; <span class="comment">// Uncompressed encoding.
     </span><span class="kw">let </span>(x_out, y_out) = public_out[<span class="number">1</span>..].split_at_mut(elem_and_scalar_bytes);
 
     <span class="comment">// `big_endian_affine_from_jacobian` verifies that the point is not at
     // infinity and is on the curve.
-    </span>big_endian_affine_from_jacobian(ops, <span class="prelude-val">Some</span>(x_out), <span class="prelude-val">Some</span>(y_out), <span class="kw-2">&amp;</span>my_public_key)
+    </span>big_endian_affine_from_jacobian(ops, q, x_out, <span class="prelude-val">Some</span>(y_out), <span class="kw-2">&amp;</span>my_public_key)
 }
 
-<span class="kw">pub fn </span>affine_from_jacobian(
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>affine_from_jacobian(
     ops: <span class="kw-2">&amp;</span>PrivateKeyOps,
+    q: <span class="kw-2">&amp;</span>Modulus&lt;Q&gt;,
     p: <span class="kw-2">&amp;</span>Point,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(Elem&lt;R&gt;, Elem&lt;R&gt;), error::Unspecified&gt; {
-    <span class="kw">let </span>z = ops.common.point_z(p);
+    <span class="kw">let </span>z = q.point_z(p);
 
     <span class="comment">// Since we restrict our private key to the range [1, n), the curve has
     // prime order, and we verify that the peer's point is on the curve,
     // there's no way that the result can be at infinity. But, use `assert!`
     // instead of `debug_assert!` anyway
-    </span><span class="macro">assert!</span>(ops.common.elem_verify_is_not_zero(<span class="kw-2">&amp;</span>z).is_ok());
+    </span><span class="macro">assert!</span>(q.elem_verify_is_not_zero(<span class="kw-2">&amp;</span>z).is_ok());
 
-    <span class="kw">let </span>x = ops.common.point_x(p);
-    <span class="kw">let </span>y = ops.common.point_y(p);
+    <span class="kw">let </span>x = q.point_x(p);
+    <span class="kw">let </span>y = q.point_y(p);
 
-    <span class="kw">let </span>zz_inv = ops.elem_inverse_squared(<span class="kw-2">&amp;</span>z);
+    <span class="kw">let </span>zz_inv = ops.elem_inverse_squared(q, <span class="kw-2">&amp;</span>z);
 
-    <span class="kw">let </span>x_aff = ops.common.elem_product(<span class="kw-2">&amp;</span>x, <span class="kw-2">&amp;</span>zz_inv);
+    <span class="kw">let </span>x_aff = q.elem_product(<span class="kw-2">&amp;</span>x, <span class="kw-2">&amp;</span>zz_inv);
 
     <span class="comment">// `y_aff` is needed to validate the point is on the curve. It is also
     // needed in the non-ECDH case where we need to output it.
     </span><span class="kw">let </span>y_aff = {
-        <span class="kw">let </span>zzzz_inv = ops.common.elem_squared(<span class="kw-2">&amp;</span>zz_inv);
-        <span class="kw">let </span>zzz_inv = ops.common.elem_product(<span class="kw-2">&amp;</span>z, <span class="kw-2">&amp;</span>zzzz_inv);
-        ops.common.elem_product(<span class="kw-2">&amp;</span>y, <span class="kw-2">&amp;</span>zzz_inv)
+        <span class="kw">let </span>zzzz_inv = q.elem_squared(<span class="kw-2">&amp;</span>zz_inv);
+        <span class="kw">let </span>zzz_inv = q.elem_product(<span class="kw-2">&amp;</span>z, <span class="kw-2">&amp;</span>zzzz_inv);
+        q.elem_product(<span class="kw-2">&amp;</span>y, <span class="kw-2">&amp;</span>zzz_inv)
     };
 
     <span class="comment">// If we validated our inputs correctly and then computed (x, y, z), then
     // (x, y, z) will be on the curve. See
     // `verify_affine_point_is_on_the_curve_scaled` for the motivation.
-    </span>verify_affine_point_is_on_the_curve(ops.common, (<span class="kw-2">&amp;</span>x_aff, <span class="kw-2">&amp;</span>y_aff))<span class="question-mark">?</span>;
+    </span>verify_affine_point_is_on_the_curve(q, (<span class="kw-2">&amp;</span>x_aff, <span class="kw-2">&amp;</span>y_aff))<span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>((x_aff, y_aff))
 }
 
-<span class="kw">pub fn </span>big_endian_affine_from_jacobian(
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>big_endian_affine_from_jacobian(
     ops: <span class="kw-2">&amp;</span>PrivateKeyOps,
-    x_out: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>[u8]&gt;,
+    q: <span class="kw-2">&amp;</span>Modulus&lt;Q&gt;,
+    x_out: <span class="kw-2">&amp;mut </span>[u8],
     y_out: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>[u8]&gt;,
     p: <span class="kw-2">&amp;</span>Point,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), error::Unspecified&gt; {
-    <span class="kw">let </span>(x_aff, y_aff) = affine_from_jacobian(ops, p)<span class="question-mark">?</span>;
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(x_out) = x_out {
-        <span class="kw">let </span>x = ops.common.elem_unencoded(<span class="kw-2">&amp;</span>x_aff);
-        limb::big_endian_from_limbs(ops.leak_limbs(<span class="kw-2">&amp;</span>x), x_out);
-    }
+    <span class="kw">let </span>(x_aff, y_aff) = affine_from_jacobian(ops, q, p)<span class="question-mark">?</span>;
+    <span class="kw">let </span>x = q.elem_unencoded(<span class="kw-2">&amp;</span>x_aff);
+    limb::big_endian_from_limbs(ops.leak_limbs(<span class="kw-2">&amp;</span>x), x_out);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(y_out) = y_out {
-        <span class="kw">let </span>y = ops.common.elem_unencoded(<span class="kw-2">&amp;</span>y_aff);
+        <span class="kw">let </span>y = q.elem_unencoded(<span class="kw-2">&amp;</span>y_aff);
         limb::big_endian_from_limbs(ops.leak_limbs(<span class="kw-2">&amp;</span>y), y_out);
     }
 

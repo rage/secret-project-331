@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bytes-1.9.0/src/buf/buf_mut.rs`."><title>buf_mut.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="bytes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bytes-1.10.0/src/buf/buf_mut.rs`."><title>buf_mut.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="bytes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">bytes/buf/</div>buf_mut.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1639,10 +1640,39 @@
 <a href="#1639" id="1639">1639</a>
 <a href="#1640" id="1640">1640</a>
 <a href="#1641" id="1641">1641</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::buf::{limit, Chain, Limit, UninitSlice};
+<a href="#1642" id="1642">1642</a>
+<a href="#1643" id="1643">1643</a>
+<a href="#1644" id="1644">1644</a>
+<a href="#1645" id="1645">1645</a>
+<a href="#1646" id="1646">1646</a>
+<a href="#1647" id="1647">1647</a>
+<a href="#1648" id="1648">1648</a>
+<a href="#1649" id="1649">1649</a>
+<a href="#1650" id="1650">1650</a>
+<a href="#1651" id="1651">1651</a>
+<a href="#1652" id="1652">1652</a>
+<a href="#1653" id="1653">1653</a>
+<a href="#1654" id="1654">1654</a>
+<a href="#1655" id="1655">1655</a>
+<a href="#1656" id="1656">1656</a>
+<a href="#1657" id="1657">1657</a>
+<a href="#1658" id="1658">1658</a>
+<a href="#1659" id="1659">1659</a>
+<a href="#1660" id="1660">1660</a>
+<a href="#1661" id="1661">1661</a>
+<a href="#1662" id="1662">1662</a>
+<a href="#1663" id="1663">1663</a>
+<a href="#1664" id="1664">1664</a>
+<a href="#1665" id="1665">1665</a>
+<a href="#1666" id="1666">1666</a>
+<a href="#1667" id="1667">1667</a>
+<a href="#1668" id="1668">1668</a>
+<a href="#1669" id="1669">1669</a>
+<a href="#1670" id="1670">1670</a>
+<a href="#1671" id="1671">1671</a></pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::buf::{limit, Chain, Limit, UninitSlice};
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::buf::{writer, Writer};
-<span class="kw">use crate</span>::{panic_advance, panic_does_not_fit};
+<span class="kw">use crate</span>::{panic_advance, panic_does_not_fit, TryGetError};
 
 <span class="kw">use </span>core::{mem, ptr, usize};
 
@@ -1845,7 +1875,10 @@
         </span><span class="self">Self</span>: Sized,
     {
         <span class="kw">if </span><span class="self">self</span>.remaining_mut() &lt; src.remaining() {
-            panic_advance(src.remaining(), <span class="self">self</span>.remaining_mut());
+            panic_advance(<span class="kw-2">&amp;</span>TryGetError {
+                requested: src.remaining(),
+                available: <span class="self">self</span>.remaining_mut(),
+            });
         }
 
         <span class="kw">while </span>src.has_remaining() {
@@ -1883,7 +1916,10 @@
     </span><span class="attr">#[inline]
     </span><span class="kw">fn </span>put_slice(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>src: <span class="kw-2">&amp;</span>[u8]) {
         <span class="kw">if </span><span class="self">self</span>.remaining_mut() &lt; src.len() {
-            panic_advance(src.len(), <span class="self">self</span>.remaining_mut());
+            panic_advance(<span class="kw-2">&amp;</span>TryGetError {
+                requested: src.len(),
+                available: <span class="self">self</span>.remaining_mut(),
+            });
         }
 
         <span class="kw">while </span>!src.is_empty() {
@@ -1926,7 +1962,10 @@
     </span><span class="attr">#[inline]
     </span><span class="kw">fn </span>put_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: u8, <span class="kw-2">mut </span>cnt: usize) {
         <span class="kw">if </span><span class="self">self</span>.remaining_mut() &lt; cnt {
-            panic_advance(cnt, <span class="self">self</span>.remaining_mut());
+            panic_advance(<span class="kw-2">&amp;</span>TryGetError {
+                requested: cnt,
+                available: <span class="self">self</span>.remaining_mut(),
+            })
         }
 
         <span class="kw">while </span>cnt &gt; <span class="number">0 </span>{
@@ -3128,7 +3167,10 @@
     <span class="attr">#[inline]
     </span><span class="kw">unsafe fn </span>advance_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cnt: usize) {
         <span class="kw">if </span><span class="self">self</span>.len() &lt; cnt {
-            panic_advance(cnt, <span class="self">self</span>.len());
+            panic_advance(<span class="kw-2">&amp;</span>TryGetError {
+                requested: cnt,
+                available: <span class="self">self</span>.len(),
+            });
         }
 
         <span class="comment">// Lifetime dance taken from `impl Write for &amp;mut [u8]`.
@@ -3139,7 +3181,10 @@
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>put_slice(<span class="kw-2">&amp;mut </span><span class="self">self</span>, src: <span class="kw-2">&amp;</span>[u8]) {
         <span class="kw">if </span><span class="self">self</span>.len() &lt; src.len() {
-            panic_advance(src.len(), <span class="self">self</span>.len());
+            panic_advance(<span class="kw-2">&amp;</span>TryGetError {
+                requested: src.len(),
+                available: <span class="self">self</span>.len(),
+            });
         }
 
         <span class="self">self</span>[..src.len()].copy_from_slice(src);
@@ -3150,7 +3195,10 @@
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>put_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: u8, cnt: usize) {
         <span class="kw">if </span><span class="self">self</span>.len() &lt; cnt {
-            panic_advance(cnt, <span class="self">self</span>.len());
+            panic_advance(<span class="kw-2">&amp;</span>TryGetError {
+                requested: cnt,
+                available: <span class="self">self</span>.len(),
+            });
         }
 
         <span class="comment">// SAFETY: We just checked that the pointer is valid for `cnt` bytes.
@@ -3175,7 +3223,10 @@
     <span class="attr">#[inline]
     </span><span class="kw">unsafe fn </span>advance_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cnt: usize) {
         <span class="kw">if </span><span class="self">self</span>.len() &lt; cnt {
-            panic_advance(cnt, <span class="self">self</span>.len());
+            panic_advance(<span class="kw-2">&amp;</span>TryGetError {
+                requested: cnt,
+                available: <span class="self">self</span>.len(),
+            });
         }
 
         <span class="comment">// Lifetime dance taken from `impl Write for &amp;mut [u8]`.
@@ -3186,7 +3237,10 @@
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>put_slice(<span class="kw-2">&amp;mut </span><span class="self">self</span>, src: <span class="kw-2">&amp;</span>[u8]) {
         <span class="kw">if </span><span class="self">self</span>.len() &lt; src.len() {
-            panic_advance(src.len(), <span class="self">self</span>.len());
+            panic_advance(<span class="kw-2">&amp;</span>TryGetError {
+                requested: src.len(),
+                available: <span class="self">self</span>.len(),
+            });
         }
 
         <span class="comment">// SAFETY: We just checked that the pointer is valid for `src.len()` bytes.
@@ -3199,7 +3253,10 @@
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>put_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: u8, cnt: usize) {
         <span class="kw">if </span><span class="self">self</span>.len() &lt; cnt {
-            panic_advance(cnt, <span class="self">self</span>.len());
+            panic_advance(<span class="kw-2">&amp;</span>TryGetError {
+                requested: cnt,
+                available: <span class="self">self</span>.len(),
+            });
         }
 
         <span class="comment">// SAFETY: We just checked that the pointer is valid for `cnt` bytes.
@@ -3223,7 +3280,10 @@
         <span class="kw">let </span>remaining = <span class="self">self</span>.capacity() - len;
 
         <span class="kw">if </span>remaining &lt; cnt {
-            panic_advance(cnt, remaining);
+            panic_advance(<span class="kw-2">&amp;</span>TryGetError {
+                requested: cnt,
+                available: remaining,
+            });
         }
 
         <span class="comment">// Addition will not overflow since the sum is at most the capacity.

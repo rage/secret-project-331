@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.8/src/aead/poly1305.rs`."><title>poly1305.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.9/src/aead/poly1305.rs`."><title>poly1305.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ring/aead/</div>poly1305.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -111,40 +112,7 @@
 <a href="#111" id="111">111</a>
 <a href="#112" id="112">112</a>
 <a href="#113" id="113">113</a>
-<a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-<a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
-<a href="#122" id="122">122</a>
-<a href="#123" id="123">123</a>
-<a href="#124" id="124">124</a>
-<a href="#125" id="125">125</a>
-<a href="#126" id="126">126</a>
-<a href="#127" id="127">127</a>
-<a href="#128" id="128">128</a>
-<a href="#129" id="129">129</a>
-<a href="#130" id="130">130</a>
-<a href="#131" id="131">131</a>
-<a href="#132" id="132">132</a>
-<a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
-<a href="#135" id="135">135</a>
-<a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
-<a href="#138" id="138">138</a>
-<a href="#139" id="139">139</a>
-<a href="#140" id="140">140</a>
-<a href="#141" id="141">141</a>
-<a href="#142" id="142">142</a>
-<a href="#143" id="143">143</a>
-<a href="#144" id="144">144</a>
-<a href="#145" id="145">145</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright 2015-2016 Brian Smith.
-// Portions Copyright (c) 2014, 2015, Google Inc.
+<a href="#114" id="114">114</a></pre></div><pre class="rust"><code><span class="comment">// Copyright 2015-2025 Brian Smith.
 //
 // Permission to use, copy, modify, and/or distribute this software for any
 // purpose with or without fee is hereby granted, provided that the above
@@ -161,7 +129,12 @@
 // TODO: enforce maximum input length.
 
 </span><span class="kw">use super</span>::{Tag, TAG_LEN};
-<span class="kw">use crate</span>::{c, cpu};
+<span class="attr">#[cfg(all(target_arch = <span class="string">"arm"</span>, target_endian = <span class="string">"little"</span>))]
+</span><span class="kw">use </span><span class="kw">crate</span>::cpu::GetFeature <span class="kw">as _</span>;
+<span class="kw">use crate</span>::{cpu, polyfill::slice::AsChunks};
+
+<span class="kw">mod </span>ffi_arm_neon;
+<span class="kw">mod </span>ffi_fallback;
 
 <span class="doccomment">/// A Poly1305 key.
 </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct </span>Key {
@@ -178,80 +151,46 @@
     }
 }
 
-<span class="kw">pub struct </span>Context {
-    state: poly1305_state,
-    <span class="attr">#[allow(dead_code)]
-    </span>cpu_features: cpu::Features,
-}
-
-<span class="comment">// Keep in sync with `poly1305_state` in ring-core/poly1305.h.
-//
-// The C code, in particular the way the `poly1305_aligned_state` functions
-// are used, is only correct when the state buffer is 64-byte aligned.
-</span><span class="attr">#[repr(C, align(<span class="number">64</span>))]
-</span><span class="kw">struct </span>poly1305_state([u8; OPAQUE_LEN]);
-<span class="kw">const </span>OPAQUE_LEN: usize = <span class="number">512</span>;
-
-<span class="comment">// Abstracts the dispatching logic that chooses the NEON implementation if and
-// only if it would work.
-</span><span class="macro">macro_rules!</span> dispatch {
-    ( <span class="macro-nonterminal">$features</span>:expr =&gt;
-      ( <span class="macro-nonterminal">$f</span>:ident | <span class="macro-nonterminal">$neon_f</span>:ident )
-      ( $( <span class="macro-nonterminal">$p</span>:ident : <span class="macro-nonterminal">$t</span>:ty ),+ )
-      ( $( <span class="macro-nonterminal">$a</span>:expr ),+ ) ) =&gt; {
-        <span class="kw">match </span>() {
-            <span class="comment">// Apple's 32-bit ARM ABI is incompatible with the assembly code.
-            </span><span class="attr">#[cfg(all(target_arch = <span class="string">"arm"</span>, not(target_vendor = <span class="string">"apple"</span>)))]
-            </span>() <span class="kw">if </span>cpu::arm::NEON.available(<span class="macro-nonterminal">$features</span>) =&gt; {
-                <span class="macro">prefixed_extern!</span> {
-                    <span class="kw">fn </span><span class="macro-nonterminal">$neon_f</span>( $( <span class="macro-nonterminal">$p </span>: <span class="macro-nonterminal">$t </span>),+ );
-                }
-                <span class="kw">unsafe </span>{ <span class="macro-nonterminal">$neon_f</span>( $( <span class="macro-nonterminal">$a </span>),+ ) }
-            }
-            () =&gt; {
-                <span class="macro">prefixed_extern!</span> {
-                    <span class="kw">fn </span><span class="macro-nonterminal">$f</span>( $( <span class="macro-nonterminal">$p </span>: <span class="macro-nonterminal">$t </span>),+ );
-                }
-                <span class="kw">unsafe </span>{ <span class="macro-nonterminal">$f</span>( $( <span class="macro-nonterminal">$a </span>),+ ) }
-            }
-        }
-    }
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">enum </span>Context {
+    <span class="attr">#[cfg(all(target_arch = <span class="string">"arm"</span>, target_endian = <span class="string">"little"</span>))]
+    </span>ArmNeon(ffi_arm_neon::State),
+    Fallback(ffi_fallback::State),
 }
 
 <span class="kw">impl </span>Context {
     <span class="attr">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>from_key(Key { key_and_nonce }: Key, cpu_features: cpu::Features) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span><span class="kw-2">mut </span>ctx = <span class="self">Self </span>{
-            state: poly1305_state([<span class="number">0u8</span>; OPAQUE_LEN]),
-            cpu_features,
-        };
-
-        <span class="macro">dispatch!</span>(
-            cpu_features =&gt;
-            (CRYPTO_poly1305_init | CRYPTO_poly1305_init_neon)
-            (statep: <span class="kw-2">&amp;mut </span>poly1305_state, key: <span class="kw-2">&amp;</span>[u8; KEY_LEN])
-            (<span class="kw-2">&amp;mut </span>ctx.state, <span class="kw-2">&amp;</span>key_and_nonce));
-
-        ctx
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>from_key(key: Key, cpu: cpu::Features) -&gt; <span class="self">Self </span>{
+        <span class="attr">#[cfg(all(target_arch = <span class="string">"arm"</span>, target_endian = <span class="string">"little"</span>))]
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(cpu) = cpu.get_feature() {
+            <span class="kw">return </span>ffi_arm_neon::State::new_context(key, cpu);
+        }
+        <span class="kw">let _</span>: cpu::Features = cpu;
+        ffi_fallback::State::new_context(key)
     }
 
-    <span class="attr">#[inline(always)]
-    </span><span class="kw">pub fn </span>update(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>[u8]) {
-        <span class="macro">dispatch!</span>(
-            <span class="self">self</span>.cpu_features =&gt;
-            (CRYPTO_poly1305_update | CRYPTO_poly1305_update_neon)
-            (statep: <span class="kw-2">&amp;mut </span>poly1305_state, input: <span class="kw-2">*const </span>u8, in_len: c::size_t)
-            (<span class="kw-2">&amp;mut </span><span class="self">self</span>.state, input.as_ptr(), input.len()));
+    <span class="kw">pub fn </span>update_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: [u8; BLOCK_LEN]) {
+        <span class="self">self</span>.update(AsChunks::from_ref(<span class="kw-2">&amp;</span>input))
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>finish(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; Tag {
-        <span class="kw">let </span><span class="kw-2">mut </span>tag = Tag([<span class="number">0u8</span>; TAG_LEN]);
-        <span class="macro">dispatch!</span>(
-            <span class="self">self</span>.cpu_features =&gt;
-            (CRYPTO_poly1305_finish | CRYPTO_poly1305_finish_neon)
-            (statep: <span class="kw-2">&amp;mut </span>poly1305_state, mac: <span class="kw-2">&amp;mut </span>[u8; TAG_LEN])
-            (<span class="kw-2">&amp;mut </span><span class="self">self</span>.state, <span class="kw-2">&amp;mut </span>tag.<span class="number">0</span>));
-        tag
+    <span class="kw">pub fn </span>update(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AsChunks&lt;u8, BLOCK_LEN&gt;) {
+        <span class="self">self</span>.update_internal(input.as_flattened());
+    }
+
+    <span class="kw">fn </span>update_internal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>[u8]) {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="attr">#[cfg(all(target_arch = <span class="string">"arm"</span>, target_endian = <span class="string">"little"</span>))]
+            </span><span class="self">Self</span>::ArmNeon(state) =&gt; state.update_internal(input),
+            <span class="self">Self</span>::Fallback(state) =&gt; state.update_internal(input),
+        }
+    }
+
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>finish(<span class="kw-2">mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>[u8]) -&gt; Tag {
+        <span class="self">self</span>.update_internal(input);
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="attr">#[cfg(all(target_arch = <span class="string">"arm"</span>, target_endian = <span class="string">"little"</span>))]
+            </span><span class="self">Self</span>::ArmNeon(state) =&gt; state.finish(),
+            <span class="self">Self</span>::Fallback(state) =&gt; state.finish(),
+        }
     }
 }
 
@@ -260,9 +199,8 @@
 /// This is used by chacha20_poly1305_openssh and the standalone
 /// poly1305 test vectors.
 </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>sign(key: Key, input: <span class="kw-2">&amp;</span>[u8], cpu_features: cpu::Features) -&gt; Tag {
-    <span class="kw">let </span><span class="kw-2">mut </span>ctx = Context::from_key(key, cpu_features);
-    ctx.update(input);
-    ctx.finish()
+    <span class="kw">let </span>ctx = Context::from_key(key, cpu_features);
+    ctx.finish(input)
 }
 
 <span class="attr">#[cfg(test)]

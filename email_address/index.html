@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A Rust crate providing an implementation of an RFC-compliant `EmailAddress` newtype."><title>email_address - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="email_address" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../email_address/index.html">email_<wbr>address</a><span class="version">0.2.9</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section><ul class="block"><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li></ul></section></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <a class="mod" href="#">email_address</a><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><span class="out-of-band"><a class="src" href="../src/email_address/lib.rs.html#1-1955">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A Rust crate providing an implementation of an RFC-compliant <code>EmailAddress</code> newtype.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A Rust crate providing an implementation of an RFC-compliant `EmailAddress` newtype."><title>email_address - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="email_address" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../static.files/storage-59e33391.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../email_address/index.html">email_<wbr>address</a><span class="version">0.2.9</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#example" title="Example">Example</a></li><li><a href="#specifications" title="Specifications">Specifications</a><ul><li><a href="#unicode" title="Unicode">Unicode</a></li></ul></li></ul><h3><a href="#structs">Crate Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>email_address</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/email_address/lib.rs.html#1-1955">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A Rust crate providing an implementation of an RFC-compliant <code>EmailAddress</code> newtype.</p>
 <p>Primarily for validation, the <code>EmailAddress</code> type is constructed with <code>FromStr::from_str</code> which will raise any
 parsing errors. Prior to constructions the functions <code>is_valid</code>, <code>is_valid_local_part</code>, and <code>is_valid_domain</code> may
 also be used to test for validity without constructing an instance. This supports all of the RFC ASCII and UTF-8
@@ -8,8 +8,7 @@ headers; folding whitespace, comments, etc.</p>
                  ^------------------^ email()
                             ^-------^ domain()
                  ^--------^ local_part()
- ^------------^ display_part()
-</code></pre></div><h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2>
+ ^------------^ display_part()</code></pre></div><h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2>
 <p>The following shoes the basic <code>is_valid</code> and <code>from_str</code> functions.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>email_address::<span class="kw-2">*</span>;
@@ -76,8 +75,7 @@ IETF, Feb 2012</li>
 IETF, Feb 2012.</li>
 </ol>
 <p>From RFC 5322: §3.2.1. <a href="https://tools.ietf.org/html/rfc5322#section-3.2.1">Quoted characters</a>:</p>
-<div class="example-wrap"><pre class="language-ebnf"><code>quoted-pair     =   (&quot;\&quot; (VCHAR / WSP)) / obs-qp
-</code></pre></div>
+<div class="example-wrap"><pre class="language-ebnf"><code>quoted-pair     =   (&quot;\&quot; (VCHAR / WSP)) / obs-qp</code></pre></div>
 <p>From RFC 5322: §3.2.2. <a href="https://tools.ietf.org/html/rfc5322#section-3.2.2">Folding White Space and Comments</a>:</p>
 <div class="example-wrap"><pre class="language-ebnf"><code>FWS             =   ([*WSP CRLF] 1*WSP) /  obs-FWS
                                        ; Folding white space
@@ -91,8 +89,7 @@ ccontent        =   ctext / quoted-pair / comment
 
 comment         =   &quot;(&quot; *([FWS] ccontent) [FWS] &quot;)&quot;
 
-CFWS            =   (1*([FWS] comment) [FWS]) / FWS
-</code></pre></div>
+CFWS            =   (1*([FWS] comment) [FWS]) / FWS</code></pre></div>
 <p>From RFC 5322: §3.2.3. <a href="https://tools.ietf.org/html/rfc5322#section-3.2.3">Atom</a>:</p>
 <div class="example-wrap"><pre class="language-ebnf"><code>atext           =   ALPHA / DIGIT /    ; Printable US-ASCII
                     &quot;!&quot; / &quot;#&quot; /        ;  characters not including
@@ -118,8 +115,7 @@ specials        =   &quot;(&quot; / &quot;)&quot; /        ; Special characters 
                     &quot;:&quot; / &quot;;&quot; /
                     &quot;@&quot; / &quot;\&quot; /
                     &quot;,&quot; / &quot;.&quot; /
-                    DQUOTE
-</code></pre></div>
+                    DQUOTE</code></pre></div>
 <p>From RFC 5322: §3.2.4. <a href="https://tools.ietf.org/html/rfc5322#section-3.2.4">Quoted Strings</a>:</p>
 <div class="example-wrap"><pre class="language-ebnf"><code>qtext           =   %d33 /             ; Printable US-ASCII
                     %d35-91 /          ;  characters not including
@@ -130,8 +126,7 @@ qcontent        =   qtext / quoted-pair
 
 quoted-string   =   [CFWS]
                     DQUOTE *([FWS] qcontent) [FWS] DQUOTE
-                    [CFWS]
-</code></pre></div>
+                    [CFWS]</code></pre></div>
 <p>From RFC 5322, §3.4.1. <a href="https://tools.ietf.org/html/rfc5322#section-3.4.1">Addr-Spec Specification</a>:</p>
 <div class="example-wrap"><pre class="language-ebnf"><code>addr-spec       =   local-part &quot;@&quot; domain
 
@@ -143,8 +138,7 @@ domain-literal  =   [CFWS] &quot;[&quot; *([FWS] dtext) [FWS] &quot;]&quot; [CFW
 
 dtext           =   %d33-90 /          ; Printable US-ASCII
                     %d94-126 /         ;  characters not including
-                    obs-dtext          ;  &quot;[&quot;, &quot;]&quot;, or &quot;\&quot;
-</code></pre></div>
+                    obs-dtext          ;  &quot;[&quot;, &quot;]&quot;, or &quot;\&quot;</code></pre></div>
 <p>RFC 3696, §3. <a href="https://tools.ietf.org/html/rfc3696#section-3">Restrictions on email addresses</a>
 describes in detail the quoting of characters in an address.</p>
 <h3 id="unicode"><a class="doc-anchor" href="#unicode">§</a>Unicode</h3>
@@ -162,8 +156,7 @@ qtextSMTP  =/ UTF8-non-ascii
     ; extend the definition of qtextSMTP in RFC 5321, Section 4.1.2
 
 esmtp-value  =/ UTF8-non-ascii
-    ; extend the definition of esmtp-value in RFC 5321, Section 4.1.2
-</code></pre></div>
+    ; extend the definition of esmtp-value in RFC 5321, Section 4.1.2</code></pre></div>
 <p>A “U-label” is an IDNA-valid string of Unicode characters, in Normalization Form C (NFC) and
 including at least one non-ASCII character, expressed in a standard Unicode Encoding Form (such as
 UTF-8). It is also subject to the constraints about permitted characters that are specified in
@@ -190,8 +183,7 @@ qtext   =/  UTF8-non-ascii
 text    =/  UTF8-non-ascii
               ; note that this upgrades the body to UTF-8
 
-dtext   =/  UTF8-non-ascii
-</code></pre></div>
+dtext   =/  UTF8-non-ascii</code></pre></div>
 <p>These in turn refer to RFC 6529 §4. <a href="https://tools.ietf.org/html/rfc3629#section-4">Syntax of UTF-8 Byte Sequences</a>:</p>
 <blockquote>
 <p>A UTF-8 string is a sequence of octets representing a sequence of UCS
@@ -207,8 +199,7 @@ and is expressed in the ABNF of [RFC2234].</p>
                  %xED %x80-9F UTF8-tail / %xEE-EF 2( UTF8-tail )
    UTF8-4      = %xF0 %x90-BF 2( UTF8-tail ) / %xF1-F3 3( UTF8-tail ) /
                  %xF4 %x80-8F 2( UTF8-tail )
-   UTF8-tail   = %x80-BF
-</code></pre></div>
+   UTF8-tail   = %x80-BF</code></pre></div>
 <p>Comments in addresses are discussed in RFC 5322 Appendix A.5. <a href="https://tools.ietf.org/html/rfc5322#appendix-A.5">White Space, Comments, and Other
 Oddities</a>.</p>
 <p>An informal description can be found on <a href="https://en.wikipedia.org/wiki/Email_address">Wikipedia</a>.</p>

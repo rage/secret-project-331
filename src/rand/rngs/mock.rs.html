@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/rngs/mock.rs`."><title>mock.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rand" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.9.0/src/rngs/mock.rs`."><title>mock.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rand" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rand/rngs/</div>mock.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -85,7 +86,22 @@
 <a href="#85" id="85">85</a>
 <a href="#86" id="86">86</a>
 <a href="#87" id="87">87</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright 2018 Developers of the Rand project.
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a></pre></div><pre class="rust"><code><span class="comment">// Copyright 2018 Developers of the Rand project.
 //
 // Licensed under the Apache License, Version 2.0 &lt;LICENSE-APACHE or
 // https://www.apache.org/licenses/LICENSE-2.0&gt; or the MIT license
@@ -95,27 +111,38 @@
 
 </span><span class="doccomment">//! Mock random number generator
 
-</span><span class="kw">use </span>rand_core::{impls, Error, RngCore};
+</span><span class="kw">use </span>rand_core::{impls, RngCore};
 
-<span class="attr">#[cfg(feature = <span class="string">"serde1"</span>)]
-</span><span class="kw">use </span>serde::{Serialize, Deserialize};
+<span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
+</span><span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="doccomment">/// A simple implementation of `RngCore` for testing purposes.
+<span class="doccomment">/// A mock generator yielding very predictable output
 ///
 /// This generates an arithmetic sequence (i.e. adds a constant each step)
 /// over a `u64` number, using wrapping arithmetic. If the increment is 0
 /// the generator yields a constant.
+///
+/// Other integer types (64-bit and smaller) are produced via cast from `u64`.
+///
+/// Other types are produced via their implementation of [`Rng`](crate::Rng) or
+/// [`Distribution`](crate::distr::Distribution).
+/// Output values may not be intuitive and may change in future releases but
+/// are considered
+/// [portable](https://rust-random.github.io/book/portability.html).
+/// (`bool` output is true when bit `1u64 &lt;&lt; 31` is set.)
+///
+/// # Example
 ///
 /// ```
 /// use rand::Rng;
 /// use rand::rngs::mock::StepRng;
 ///
 /// let mut my_rng = StepRng::new(2, 1);
-/// let sample: [u64; 3] = my_rng.gen();
+/// let sample: [u64; 3] = my_rng.random();
 /// assert_eq!(sample, [2, 3, 4]);
 /// ```
 </span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
-#[cfg_attr(feature = <span class="string">"serde1"</span>, derive(Serialize, Deserialize))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(Serialize, Deserialize))]
 </span><span class="kw">pub struct </span>StepRng {
     v: u64,
     a: u64,
@@ -140,36 +167,41 @@
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>next_u64(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
-        <span class="kw">let </span>result = <span class="self">self</span>.v;
+        <span class="kw">let </span>res = <span class="self">self</span>.v;
         <span class="self">self</span>.v = <span class="self">self</span>.v.wrapping_add(<span class="self">self</span>.a);
-        result
+        res
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: <span class="kw-2">&amp;mut </span>[u8]) {
-        impls::fill_bytes_via_next(<span class="self">self</span>, dest);
-    }
-
-    <span class="attr">#[inline]
-    </span><span class="kw">fn </span>try_fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-        <span class="self">self</span>.fill_bytes(dest);
-        <span class="prelude-val">Ok</span>(())
+    </span><span class="kw">fn </span>fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dst: <span class="kw-2">&amp;mut </span>[u8]) {
+        impls::fill_bytes_via_next(<span class="self">self</span>, dst)
     }
 }
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
-    <span class="attr">#[test]
-    #[cfg(feature = <span class="string">"serde1"</span>)]
-    </span><span class="kw">fn </span>test_serialization_step_rng() {
-        <span class="kw">use </span><span class="kw">super</span>::StepRng;
+    <span class="attr">#[cfg(any(feature = <span class="string">"alloc"</span>, feature = <span class="string">"serde"</span>))]
+    </span><span class="kw">use </span><span class="kw">super</span>::StepRng;
 
+    <span class="attr">#[test]
+    #[cfg(feature = <span class="string">"serde"</span>)]
+    </span><span class="kw">fn </span>test_serialization_step_rng() {
         <span class="kw">let </span>some_rng = StepRng::new(<span class="number">42</span>, <span class="number">7</span>);
         <span class="kw">let </span>de_some_rng: StepRng =
             bincode::deserialize(<span class="kw-2">&amp;</span>bincode::serialize(<span class="kw-2">&amp;</span>some_rng).unwrap()).unwrap();
         <span class="macro">assert_eq!</span>(some_rng.v, de_some_rng.v);
         <span class="macro">assert_eq!</span>(some_rng.a, de_some_rng.a);
+    }
 
+    <span class="attr">#[test]
+    #[cfg(feature = <span class="string">"alloc"</span>)]
+    </span><span class="kw">fn </span>test_bool() {
+        <span class="kw">use crate</span>::{distr::StandardUniform, Rng};
+
+        <span class="comment">// If this result ever changes, update doc on StepRng!
+        </span><span class="kw">let </span>rng = StepRng::new(<span class="number">0</span>, <span class="number">1 </span>&lt;&lt; <span class="number">31</span>);
+        <span class="kw">let </span>result: alloc::vec::Vec&lt;bool&gt; = rng.sample_iter(StandardUniform).take(<span class="number">6</span>).collect();
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>result, <span class="kw-2">&amp;</span>[<span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>]);
     }
 }
 </code></pre></div></section></main></body></html>

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Variant","Version"],"macro":["uuid"],"mod":["fmt","serde","timestamp"],"struct":["Builder","Error","NoContext","Timestamp","Uuid"],"trait":["ClockSequence"],"type":["Bytes"]};
+window.SIDEBAR_ITEMS = {"enum":["Variant","Version"],"macro":["uuid"],"mod":["fmt","serde","timestamp"],"struct":["Builder","Error","NoContext","NonNilUuid","Timestamp","Uuid"],"trait":["ClockSequence"],"type":["Bytes"]};

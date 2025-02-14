@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/rngs/std.rs`."><title>std.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rand" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.9.0/src/rngs/std.rs`."><title>std.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rand" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rand/rngs/</div>std.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -96,7 +97,32 @@
 <a href="#96" id="96">96</a>
 <a href="#97" id="97">97</a>
 <a href="#98" id="98">98</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright 2018 Developers of the Rand project.
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a></pre></div><pre class="rust"><code><span class="comment">// Copyright 2018 Developers of the Rand project.
 //
 // Licensed under the Apache License, Version 2.0 &lt;LICENSE-APACHE or
 // https://www.apache.org/licenses/LICENSE-2.0&gt; or the MIT license
@@ -106,29 +132,65 @@
 
 </span><span class="doccomment">//! The standard RNG
 
-</span><span class="kw">use crate</span>::{CryptoRng, Error, RngCore, SeedableRng};
+</span><span class="kw">use </span>rand_core::{CryptoRng, RngCore, SeedableRng};
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>rand_chacha::ChaCha12Core <span class="kw">as </span>Core;
+<span class="attr">#[cfg(any(test, feature = <span class="string">"os_rng"</span>))]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>rand_chacha::ChaCha12Core <span class="kw">as </span>Core;
 
 <span class="kw">use </span>rand_chacha::ChaCha12Rng <span class="kw">as </span>Rng;
 
-<span class="doccomment">/// The standard RNG. The PRNG algorithm in `StdRng` is chosen to be efficient
-/// on the current platform, to be statistically strong and unpredictable
-/// (meaning a cryptographically secure PRNG).
+<span class="doccomment">/// A strong, fast (amortized), non-portable RNG
+///
+/// This is the "standard" RNG, a generator with the following properties:
+///
+/// - Non-[portable]: any future library version may replace the algorithm
+///   and results may be platform-dependent.
+///   (For a portable version, use the [rand_chacha] crate directly.)
+/// - [CSPRNG]: statistically good quality of randomness and [unpredictable]
+/// - Fast ([amortized](https://en.wikipedia.org/wiki/Amortized_analysis)):
+///   the RNG is fast for bulk generation, but the cost of method calls is not
+///   consistent due to usage of an output buffer.
 ///
 /// The current algorithm used is the ChaCha block cipher with 12 rounds. Please
-/// see this relevant [rand issue] for the discussion. This may change as new 
+/// see this relevant [rand issue] for the discussion. This may change as new
 /// evidence of cipher security and performance becomes available.
 ///
-/// The algorithm is deterministic but should not be considered reproducible
-/// due to dependence on configuration and possible replacement in future
-/// library versions. For a secure reproducible generator, we recommend use of
-/// the [rand_chacha] crate directly.
+/// ## Seeding (construction)
 ///
+/// This generator implements the [`SeedableRng`] trait. Any method may be used,
+/// but note that `seed_from_u64` is not suitable for usage where security is
+/// important. Also note that, even with a fixed seed, output is not [portable].
+///
+/// Using a fresh seed **direct from the OS** is the most secure option:
+/// ```
+/// # use rand::{SeedableRng, rngs::StdRng};
+/// let rng = StdRng::from_os_rng();
+/// # let _: StdRng = rng;
+/// ```
+///
+/// Seeding via [`rand::rng()`](crate::rng()) may be faster:
+/// ```
+/// # use rand::{SeedableRng, rngs::StdRng};
+/// let rng = StdRng::from_rng(&amp;mut rand::rng());
+/// # let _: StdRng = rng;
+/// ```
+///
+/// Any [`SeedableRng`] method may be used, but note that `seed_from_u64` is not
+/// suitable where security is required. See also [Seeding RNGs] in the book.
+///
+/// ## Generation
+///
+/// The generators implements [`RngCore`] and thus also [`Rng`][crate::Rng].
+/// See also the [Random Values] chapter in the book.
+///
+/// [portable]: https://rust-random.github.io/book/crate-reprod.html
+/// [Seeding RNGs]: https://rust-random.github.io/book/guide-seeding.html
+/// [unpredictable]: https://rust-random.github.io/book/guide-rngs.html#security
+/// [Random Values]: https://rust-random.github.io/book/guide-values.html
+/// [CSPRNG]: https://rust-random.github.io/book/guide-gen.html#cryptographically-secure-pseudo-random-number-generator
 /// [rand_chacha]: https://crates.io/crates/rand_chacha
 /// [rand issue]: https://github.com/rust-random/rand/issues/932
-</span><span class="attr">#[cfg_attr(doc_cfg, doc(cfg(feature = <span class="string">"std_rng"</span>)))]
-#[derive(Clone, Debug, PartialEq, Eq)]
+</span><span class="attr">#[derive(Clone, Debug, PartialEq, Eq)]
 </span><span class="kw">pub struct </span>StdRng(Rng);
 
 <span class="kw">impl </span>RngCore <span class="kw">for </span>StdRng {
@@ -143,32 +205,22 @@
     }
 
     <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: <span class="kw-2">&amp;mut </span>[u8]) {
-        <span class="self">self</span>.<span class="number">0</span>.fill_bytes(dest);
-    }
-
-    <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>try_fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-        <span class="self">self</span>.<span class="number">0</span>.try_fill_bytes(dest)
+    </span><span class="kw">fn </span>fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dst: <span class="kw-2">&amp;mut </span>[u8]) {
+        <span class="self">self</span>.<span class="number">0</span>.fill_bytes(dst)
     }
 }
 
 <span class="kw">impl </span>SeedableRng <span class="kw">for </span>StdRng {
-    <span class="kw">type </span>Seed = &lt;Rng <span class="kw">as </span>SeedableRng&gt;::Seed;
+    <span class="comment">// Fix to 256 bits. Changing this is a breaking change!
+    </span><span class="kw">type </span>Seed = [u8; <span class="number">32</span>];
 
     <span class="attr">#[inline(always)]
     </span><span class="kw">fn </span>from_seed(seed: <span class="self">Self</span>::Seed) -&gt; <span class="self">Self </span>{
         StdRng(Rng::from_seed(seed))
     }
-
-    <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>from_rng&lt;R: RngCore&gt;(rng: R) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
-        Rng::from_rng(rng).map(StdRng)
-    }
 }
 
 <span class="kw">impl </span>CryptoRng <span class="kw">for </span>StdRng {}
-
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>test {
@@ -188,7 +240,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>rng0 = StdRng::from_seed(seed);
         <span class="kw">let </span>x0 = rng0.next_u64();
 
-        <span class="kw">let </span><span class="kw-2">mut </span>rng1 = StdRng::from_rng(rng0).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>rng1 = StdRng::from_rng(<span class="kw-2">&amp;mut </span>rng0);
         <span class="kw">let </span>x1 = rng1.next_u64();
 
         <span class="macro">assert_eq!</span>([x0, x1], target);

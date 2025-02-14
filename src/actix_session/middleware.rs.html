@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-session-0.7.2/src/middleware.rs`."><title>middleware.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_session" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-session-0.10.1/src/middleware.rs`."><title>middleware.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_session" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">actix_session/</div>middleware.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -460,9 +461,7 @@
 <a href="#460" id="460">460</a>
 <a href="#461" id="461">461</a>
 <a href="#462" id="462">462</a>
-<a href="#463" id="463">463</a>
-<a href="#464" id="464">464</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{collections::HashMap, convert::TryInto, fmt, future::Future, pin::Pin, rc::Rc};
+<a href="#463" id="463">463</a></pre></div><pre class="rust"><code><span class="kw">use </span>std::{collections::HashMap, fmt, future::Future, pin::Pin, rc::Rc};
 
 <span class="kw">use </span>actix_utils::future::{ready, Ready};
 <span class="kw">use </span>actix_web::{
@@ -511,7 +510,7 @@
 /// # Examples
 /// ```no_run
 /// use actix_web::{web, App, HttpServer, HttpResponse, Error};
-/// use actix_session::{Session, SessionMiddleware, storage::RedisActorSessionStore};
+/// use actix_session::{Session, SessionMiddleware, storage::RedisSessionStore};
 /// use actix_web::cookie::Key;
 ///
 /// // The secret key would usually be read from a configuration file/environment variables.
@@ -523,20 +522,20 @@
 /// #[actix_web::main]
 /// async fn main() -&gt; std::io::Result&lt;()&gt; {
 ///     let secret_key = get_secret_key();
-///     let redis_connection_string = "127.0.0.1:6379";
-///     HttpServer::new(move ||
-///             App::new()
-///             // Add session management to your application using Redis for session state storage
-///             .wrap(
-///                 SessionMiddleware::new(
-///                     RedisActorSessionStore::new(redis_connection_string),
-///                     secret_key.clone()
-///                 )
-///             )
-///             .default_service(web::to(|| HttpResponse::Ok())))
-///         .bind(("127.0.0.1", 8080))?
-///         .run()
-///         .await
+///     let storage = RedisSessionStore::new("127.0.0.1:6379").await.unwrap();
+///
+///     HttpServer::new(move || {
+///         App::new()
+///             // Add session management to your application using Redis as storage
+///             .wrap(SessionMiddleware::new(
+///                 storage.clone(),
+///                 secret_key.clone(),
+///             ))
+///             .default_service(web::to(|| HttpResponse::Ok()))
+///     })
+///     .bind(("127.0.0.1", 8080))?
+///     .run()
+///     .await
 /// }
 /// ```
 ///
@@ -544,7 +543,7 @@
 ///
 /// ```no_run
 /// use actix_web::{App, cookie::{Key, time}, Error, HttpResponse, HttpServer, web};
-/// use actix_session::{Session, SessionMiddleware, storage::RedisActorSessionStore};
+/// use actix_session::{Session, SessionMiddleware, storage::RedisSessionStore};
 /// use actix_session::config::PersistentSession;
 ///
 /// // The secret key would usually be read from a configuration file/environment variables.
@@ -556,25 +555,23 @@
 /// #[actix_web::main]
 /// async fn main() -&gt; std::io::Result&lt;()&gt; {
 ///     let secret_key = get_secret_key();
-///     let redis_connection_string = "127.0.0.1:6379";
-///     HttpServer::new(move ||
-///             App::new()
+///     let storage = RedisSessionStore::new("127.0.0.1:6379").await.unwrap();
+///
+///     HttpServer::new(move || {
+///         App::new()
 ///             // Customise session length!
 ///             .wrap(
-///                 SessionMiddleware::builder(
-///                     RedisActorSessionStore::new(redis_connection_string),
-///                     secret_key.clone()
-///                 )
-///                 .session_lifecycle(
-///                     PersistentSession::default()
-///                         .session_ttl(time::Duration::days(5))
-///                 )
-///                 .build(),
+///                 SessionMiddleware::builder(storage.clone(), secret_key.clone())
+///                     .session_lifecycle(
+///                         PersistentSession::default().session_ttl(time::Duration::days(5)),
+///                     )
+///                     .build(),
 ///             )
-///             .default_service(web::to(|| HttpResponse::Ok())))
-///         .bind(("127.0.0.1", 8080))?
-///         .run()
-///         .await
+///             .default_service(web::to(|| HttpResponse::Ok()))
+///     })
+///     .bind(("127.0.0.1", 8080))?
+///     .run()
+///     .await
 /// }
 /// ```
 </span><span class="attr">#[derive(Clone)]
@@ -908,6 +905,7 @@
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), anyhow::Error&gt; {
     <span class="kw">let </span>removal_cookie = Cookie::build(config.name.clone(), <span class="string">""</span>)
         .path(config.path.clone())
+        .secure(config.secure)
         .http_only(config.http_only)
         .same_site(config.same_site);
 

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.26.1/src/types.rs`."><title>types.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.28.2/src/types.rs`."><title>types.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">redis/</div>types.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2565,11 +2566,165 @@
 <a href="#2565" id="2565">2565</a>
 <a href="#2566" id="2566">2566</a>
 <a href="#2567" id="2567">2567</a>
-</pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">"ahash"</span>)]
+<a href="#2568" id="2568">2568</a>
+<a href="#2569" id="2569">2569</a>
+<a href="#2570" id="2570">2570</a>
+<a href="#2571" id="2571">2571</a>
+<a href="#2572" id="2572">2572</a>
+<a href="#2573" id="2573">2573</a>
+<a href="#2574" id="2574">2574</a>
+<a href="#2575" id="2575">2575</a>
+<a href="#2576" id="2576">2576</a>
+<a href="#2577" id="2577">2577</a>
+<a href="#2578" id="2578">2578</a>
+<a href="#2579" id="2579">2579</a>
+<a href="#2580" id="2580">2580</a>
+<a href="#2581" id="2581">2581</a>
+<a href="#2582" id="2582">2582</a>
+<a href="#2583" id="2583">2583</a>
+<a href="#2584" id="2584">2584</a>
+<a href="#2585" id="2585">2585</a>
+<a href="#2586" id="2586">2586</a>
+<a href="#2587" id="2587">2587</a>
+<a href="#2588" id="2588">2588</a>
+<a href="#2589" id="2589">2589</a>
+<a href="#2590" id="2590">2590</a>
+<a href="#2591" id="2591">2591</a>
+<a href="#2592" id="2592">2592</a>
+<a href="#2593" id="2593">2593</a>
+<a href="#2594" id="2594">2594</a>
+<a href="#2595" id="2595">2595</a>
+<a href="#2596" id="2596">2596</a>
+<a href="#2597" id="2597">2597</a>
+<a href="#2598" id="2598">2598</a>
+<a href="#2599" id="2599">2599</a>
+<a href="#2600" id="2600">2600</a>
+<a href="#2601" id="2601">2601</a>
+<a href="#2602" id="2602">2602</a>
+<a href="#2603" id="2603">2603</a>
+<a href="#2604" id="2604">2604</a>
+<a href="#2605" id="2605">2605</a>
+<a href="#2606" id="2606">2606</a>
+<a href="#2607" id="2607">2607</a>
+<a href="#2608" id="2608">2608</a>
+<a href="#2609" id="2609">2609</a>
+<a href="#2610" id="2610">2610</a>
+<a href="#2611" id="2611">2611</a>
+<a href="#2612" id="2612">2612</a>
+<a href="#2613" id="2613">2613</a>
+<a href="#2614" id="2614">2614</a>
+<a href="#2615" id="2615">2615</a>
+<a href="#2616" id="2616">2616</a>
+<a href="#2617" id="2617">2617</a>
+<a href="#2618" id="2618">2618</a>
+<a href="#2619" id="2619">2619</a>
+<a href="#2620" id="2620">2620</a>
+<a href="#2621" id="2621">2621</a>
+<a href="#2622" id="2622">2622</a>
+<a href="#2623" id="2623">2623</a>
+<a href="#2624" id="2624">2624</a>
+<a href="#2625" id="2625">2625</a>
+<a href="#2626" id="2626">2626</a>
+<a href="#2627" id="2627">2627</a>
+<a href="#2628" id="2628">2628</a>
+<a href="#2629" id="2629">2629</a>
+<a href="#2630" id="2630">2630</a>
+<a href="#2631" id="2631">2631</a>
+<a href="#2632" id="2632">2632</a>
+<a href="#2633" id="2633">2633</a>
+<a href="#2634" id="2634">2634</a>
+<a href="#2635" id="2635">2635</a>
+<a href="#2636" id="2636">2636</a>
+<a href="#2637" id="2637">2637</a>
+<a href="#2638" id="2638">2638</a>
+<a href="#2639" id="2639">2639</a>
+<a href="#2640" id="2640">2640</a>
+<a href="#2641" id="2641">2641</a>
+<a href="#2642" id="2642">2642</a>
+<a href="#2643" id="2643">2643</a>
+<a href="#2644" id="2644">2644</a>
+<a href="#2645" id="2645">2645</a>
+<a href="#2646" id="2646">2646</a>
+<a href="#2647" id="2647">2647</a>
+<a href="#2648" id="2648">2648</a>
+<a href="#2649" id="2649">2649</a>
+<a href="#2650" id="2650">2650</a>
+<a href="#2651" id="2651">2651</a>
+<a href="#2652" id="2652">2652</a>
+<a href="#2653" id="2653">2653</a>
+<a href="#2654" id="2654">2654</a>
+<a href="#2655" id="2655">2655</a>
+<a href="#2656" id="2656">2656</a>
+<a href="#2657" id="2657">2657</a>
+<a href="#2658" id="2658">2658</a>
+<a href="#2659" id="2659">2659</a>
+<a href="#2660" id="2660">2660</a>
+<a href="#2661" id="2661">2661</a>
+<a href="#2662" id="2662">2662</a>
+<a href="#2663" id="2663">2663</a>
+<a href="#2664" id="2664">2664</a>
+<a href="#2665" id="2665">2665</a>
+<a href="#2666" id="2666">2666</a>
+<a href="#2667" id="2667">2667</a>
+<a href="#2668" id="2668">2668</a>
+<a href="#2669" id="2669">2669</a>
+<a href="#2670" id="2670">2670</a>
+<a href="#2671" id="2671">2671</a>
+<a href="#2672" id="2672">2672</a>
+<a href="#2673" id="2673">2673</a>
+<a href="#2674" id="2674">2674</a>
+<a href="#2675" id="2675">2675</a>
+<a href="#2676" id="2676">2676</a>
+<a href="#2677" id="2677">2677</a>
+<a href="#2678" id="2678">2678</a>
+<a href="#2679" id="2679">2679</a>
+<a href="#2680" id="2680">2680</a>
+<a href="#2681" id="2681">2681</a>
+<a href="#2682" id="2682">2682</a>
+<a href="#2683" id="2683">2683</a>
+<a href="#2684" id="2684">2684</a>
+<a href="#2685" id="2685">2685</a>
+<a href="#2686" id="2686">2686</a>
+<a href="#2687" id="2687">2687</a>
+<a href="#2688" id="2688">2688</a>
+<a href="#2689" id="2689">2689</a>
+<a href="#2690" id="2690">2690</a>
+<a href="#2691" id="2691">2691</a>
+<a href="#2692" id="2692">2692</a>
+<a href="#2693" id="2693">2693</a>
+<a href="#2694" id="2694">2694</a>
+<a href="#2695" id="2695">2695</a>
+<a href="#2696" id="2696">2696</a>
+<a href="#2697" id="2697">2697</a>
+<a href="#2698" id="2698">2698</a>
+<a href="#2699" id="2699">2699</a>
+<a href="#2700" id="2700">2700</a>
+<a href="#2701" id="2701">2701</a>
+<a href="#2702" id="2702">2702</a>
+<a href="#2703" id="2703">2703</a>
+<a href="#2704" id="2704">2704</a>
+<a href="#2705" id="2705">2705</a>
+<a href="#2706" id="2706">2706</a>
+<a href="#2707" id="2707">2707</a>
+<a href="#2708" id="2708">2708</a>
+<a href="#2709" id="2709">2709</a>
+<a href="#2710" id="2710">2710</a>
+<a href="#2711" id="2711">2711</a>
+<a href="#2712" id="2712">2712</a>
+<a href="#2713" id="2713">2713</a>
+<a href="#2714" id="2714">2714</a>
+<a href="#2715" id="2715">2715</a>
+<a href="#2716" id="2716">2716</a>
+<a href="#2717" id="2717">2717</a>
+<a href="#2718" id="2718">2718</a>
+<a href="#2719" id="2719">2719</a>
+<a href="#2720" id="2720">2720</a>
+<a href="#2721" id="2721">2721</a>
+<a href="#2722" id="2722">2722</a>
+<a href="#2723" id="2723">2723</a></pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">"ahash"</span>)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>ahash::{AHashMap <span class="kw">as </span>HashMap, AHashSet <span class="kw">as </span>HashSet};
 <span class="kw">use </span>num_bigint::BigInt;
 <span class="kw">use </span>std::borrow::Cow;
-<span class="kw">use </span>std::collections::{BTreeMap, BTreeSet};
 <span class="attr">#[cfg(not(feature = <span class="string">"ahash"</span>))]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>std::collections::{HashMap, HashSet};
 <span class="kw">use </span>std::default::Default;
@@ -2702,6 +2857,8 @@
     </span>NotBusy,
     <span class="doccomment">/// Used when a cluster connection cannot find a connection to a valid node.
     </span>ClusterConnectionNotFound,
+    <span class="doccomment">/// Attempted to unsubscribe on a connection that is not in subscribed mode.
+    </span>NoSub,
 
     <span class="attr">#[cfg(feature = <span class="string">"json"</span>)]
     </span><span class="doccomment">/// Error Serializing a struct to JSON form
@@ -2726,6 +2883,7 @@
     MasterDown,
     ReadOnly,
     NotBusy,
+    NoSub,
 }
 
 <span class="attr">#[derive(PartialEq, Debug, Clone)]
@@ -2764,6 +2922,7 @@
                 ServerErrorKind::MasterDown =&gt; <span class="string">"MASTERDOWN"</span>,
                 ServerErrorKind::ReadOnly =&gt; <span class="string">"READONLY"</span>,
                 ServerErrorKind::NotBusy =&gt; <span class="string">"NOTBUSY"</span>,
+                ServerErrorKind::NoSub =&gt; <span class="string">"NOSUB"</span>,
             },
         }
     }
@@ -2796,6 +2955,7 @@
                     ServerErrorKind::MasterDown =&gt; ErrorKind::MasterDown,
                     ServerErrorKind::ReadOnly =&gt; ErrorKind::ReadOnly,
                     ServerErrorKind::NotBusy =&gt; ErrorKind::NotBusy,
+                    ServerErrorKind::NoSub =&gt; ErrorKind::NoSub,
                 };
                 <span class="kw">match </span>detail {
                     <span class="prelude-val">Some</span>(detail) =&gt; RedisError::from((kind, desc, detail)),
@@ -3143,9 +3303,10 @@
     }
 }
 
-<span class="doccomment">/// Represents a redis error.  For the most part you should be using
-/// the Error trait to interact with this rather than the actual
-/// struct.
+<span class="doccomment">/// Represents a redis error.
+///
+/// For the most part you should be using the Error trait to interact with this
+/// rather than the actual struct.
 </span><span class="kw">pub struct </span>RedisError {
     repr: ErrorRepr,
 }
@@ -3339,14 +3500,23 @@
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>RetryMethod {
-    Reconnect,
-    NoRetry,
-    RetryImmediately,
-    WaitAndRetry,
-    AskRedirect,
-    MovedRedirect,
-    ReconnectFromInitialConnections,
+<span class="doccomment">/// What method should be used if retrying this request.
+</span><span class="attr">#[non_exhaustive]
+</span><span class="kw">pub enum </span>RetryMethod {
+    <span class="doccomment">/// Create a fresh connection, since the current connection is no longer usable.
+    </span>Reconnect,
+    <span class="doccomment">/// Don't retry, this is a permanent error.
+    </span>NoRetry,
+    <span class="doccomment">/// Retry immediately, this doesn't require a wait.
+    </span>RetryImmediately,
+    <span class="doccomment">/// Retry after sleeping to avoid overloading the external service.
+    </span>WaitAndRetry,
+    <span class="doccomment">/// The key has moved to a different node but we have to ask which node, this is only relevant for clusters.
+    </span>AskRedirect,
+    <span class="doccomment">/// The key has moved to a different node, this is only relevant for clusters.
+    </span>MovedRedirect,
+    <span class="doccomment">/// Reconnect the initial connection to the master cluster, this is only relevant for clusters.
+    </span>ReconnectFromInitialConnections,
 }
 
 <span class="doccomment">/// Indicates a general failure in the library.
@@ -3421,6 +3591,9 @@
             </span>ErrorKind::Serialize =&gt; <span class="string">"serializing"</span>,
             ErrorKind::RESP3NotSupported =&gt; <span class="string">"resp3 is not supported by server"</span>,
             ErrorKind::ParseError =&gt; <span class="string">"parse error"</span>,
+            ErrorKind::NoSub =&gt; {
+                <span class="string">"Server declined unsubscribe related command in non-subscribed mode"
+            </span>}
         }
     }
 
@@ -3556,7 +3729,13 @@
         <span class="self">Self </span>{ repr }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>retry_method(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RetryMethod {
+    <span class="doccomment">/// Specifies what method (if any) should be used to retry this request.
+    ///
+    /// If you are using the cluster api retrying of requests is already handled by the library.
+    ///
+    /// This isn't precise, and internally the library uses multiple other considerations rather
+    /// than just the error kind on when to retry.
+    </span><span class="kw">pub fn </span>retry_method(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RetryMethod {
         <span class="kw">match </span><span class="self">self</span>.kind() {
             ErrorKind::Moved =&gt; RetryMethod::MovedRedirect,
             ErrorKind::Ask =&gt; RetryMethod::AskRedirect,
@@ -3582,6 +3761,7 @@
             <span class="attr">#[cfg(feature = <span class="string">"json"</span>)]
             </span>ErrorKind::Serialize =&gt; RetryMethod::NoRetry,
             ErrorKind::RESP3NotSupported =&gt; RetryMethod::NoRetry,
+            ErrorKind::NoSub =&gt; RetryMethod::NoRetry,
 
             ErrorKind::ParseError =&gt; RetryMethod::Reconnect,
             ErrorKind::AuthenticationFailed =&gt; RetryMethod::Reconnect,
@@ -3705,6 +3885,157 @@
 
     <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
         <span class="kw-2">&amp;</span><span class="self">self</span>.map
+    }
+}
+
+<span class="doccomment">/// High level representation of response to the [`ROLE`][1] command.
+///
+/// [1]: https://redis.io/docs/latest/commands/role/
+</span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq)]
+</span><span class="kw">pub enum </span>Role {
+    <span class="doccomment">/// Represents a primary role, which is `master` in legacy Redis terminology.
+    </span>Primary {
+        <span class="doccomment">/// The current primary replication offset
+        </span>replication_offset: u64,
+        <span class="doccomment">/// List of replica, each represented by a tuple of IP, port and the last acknowledged replication offset.
+        </span>replicas: Vec&lt;ReplicaInfo&gt;,
+    },
+    <span class="doccomment">/// Represents a replica role, which is `slave` in legacy Redis terminology.
+    </span>Replica {
+        <span class="doccomment">/// The IP of the primary.
+        </span>primary_ip: String,
+        <span class="doccomment">/// The port of the primary.
+        </span>primary_port: u16,
+        <span class="doccomment">/// The state of the replication from the point of view of the primary.
+        </span>replication_state: String,
+        <span class="doccomment">/// The amount of data received from the replica so far in terms of primary replication offset.
+        </span>data_received: u64,
+    },
+    <span class="doccomment">/// Represents a sentinel role.
+    </span>Sentinel {
+        <span class="doccomment">/// List of primary names monitored by this Sentinel instance.
+        </span>primary_names: Vec&lt;String&gt;,
+    },
+}
+
+<span class="doccomment">/// Replication information for a replica, as returned by the [`ROLE`][1] command.
+///
+/// [1]: https://redis.io/docs/latest/commands/role/
+</span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq)]
+</span><span class="kw">pub struct </span>ReplicaInfo {
+    <span class="doccomment">/// The IP of the replica.
+    </span><span class="kw">pub </span>ip: String,
+    <span class="doccomment">/// The port of the replica.
+    </span><span class="kw">pub </span>port: u16,
+    <span class="doccomment">/// The last acknowledged replication offset.
+    </span><span class="kw">pub </span>replication_offset: i64,
+}
+
+<span class="kw">impl </span>FromRedisValue <span class="kw">for </span>ReplicaInfo {
+    <span class="kw">fn </span>from_redis_value(v: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;<span class="self">Self</span>&gt; {
+        <span class="self">Self</span>::from_owned_redis_value(v.clone())
+    }
+
+    <span class="kw">fn </span>from_owned_redis_value(v: Value) -&gt; RedisResult&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>v = <span class="kw">match </span>get_owned_inner_value(v).into_sequence() {
+            <span class="prelude-val">Ok</span>(v) =&gt; v,
+            <span class="prelude-val">Err</span>(v) =&gt; <span class="macro">invalid_type_error!</span>(v, <span class="string">"Replica response should be an array"</span>),
+        };
+        <span class="kw">if </span>v.len() &lt; <span class="number">3 </span>{
+            <span class="macro">invalid_type_error!</span>(v, <span class="string">"Replica array is too short, expected 3 elements"</span>)
+        }
+        <span class="kw">let </span><span class="kw-2">mut </span>v = v.into_iter();
+        <span class="kw">let </span>ip = from_owned_redis_value(v.next().expect(<span class="string">"len was checked"</span>))<span class="question-mark">?</span>;
+        <span class="kw">let </span>port = from_owned_redis_value(v.next().expect(<span class="string">"len was checked"</span>))<span class="question-mark">?</span>;
+        <span class="kw">let </span>offset = from_owned_redis_value(v.next().expect(<span class="string">"len was checked"</span>))<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(ReplicaInfo {
+            ip,
+            port,
+            replication_offset: offset,
+        })
+    }
+}
+
+<span class="kw">impl </span>FromRedisValue <span class="kw">for </span>Role {
+    <span class="kw">fn </span>from_redis_value(v: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;<span class="self">Self</span>&gt; {
+        <span class="self">Self</span>::from_owned_redis_value(v.clone())
+    }
+
+    <span class="kw">fn </span>from_owned_redis_value(v: Value) -&gt; RedisResult&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>v = <span class="kw">match </span>get_owned_inner_value(v).into_sequence() {
+            <span class="prelude-val">Ok</span>(v) =&gt; v,
+            <span class="prelude-val">Err</span>(v) =&gt; <span class="macro">invalid_type_error!</span>(v, <span class="string">"Role response should be an array"</span>),
+        };
+        <span class="kw">if </span>v.len() &lt; <span class="number">2 </span>{
+            <span class="macro">invalid_type_error!</span>(v, <span class="string">"Role array is too short, expected at least 2 elements"</span>)
+        }
+        <span class="kw">match </span><span class="kw-2">&amp;</span>v[<span class="number">0</span>] {
+            Value::BulkString(role) =&gt; <span class="kw">match </span>role.as_slice() {
+                <span class="string">b"master" </span>=&gt; Role::new_primary(v),
+                <span class="string">b"slave" </span>=&gt; Role::new_replica(v),
+                <span class="string">b"sentinel" </span>=&gt; Role::new_sentinel(v),
+                <span class="kw">_ </span>=&gt; <span class="macro">invalid_type_error!</span>(v, <span class="string">"Role type is not master, slave or sentinel"</span>),
+            },
+            <span class="kw">_ </span>=&gt; <span class="macro">invalid_type_error!</span>(v, <span class="string">"Role type is not a bulk string"</span>),
+        }
+    }
+}
+
+<span class="kw">impl </span>Role {
+    <span class="kw">fn </span>new_primary(values: Vec&lt;Value&gt;) -&gt; RedisResult&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">if </span>values.len() &lt; <span class="number">3 </span>{
+            <span class="macro">invalid_type_error!</span>(
+                values,
+                <span class="string">"Role primary response too short, expected 3 elements"
+            </span>)
+        }
+
+        <span class="kw">let </span><span class="kw-2">mut </span>values = values.into_iter();
+        <span class="kw">_ </span>= values.next();
+
+        <span class="kw">let </span>replication_offset = from_owned_redis_value(values.next().expect(<span class="string">"len was checked"</span>))<span class="question-mark">?</span>;
+        <span class="kw">let </span>replicas = from_owned_redis_value(values.next().expect(<span class="string">"len was checked"</span>))<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(Role::Primary {
+            replication_offset,
+            replicas,
+        })
+    }
+
+    <span class="kw">fn </span>new_replica(values: Vec&lt;Value&gt;) -&gt; RedisResult&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">if </span>values.len() &lt; <span class="number">5 </span>{
+            <span class="macro">invalid_type_error!</span>(
+                values,
+                <span class="string">"Role replica response too short, expected 5 elements"
+            </span>)
+        }
+
+        <span class="kw">let </span><span class="kw-2">mut </span>values = values.into_iter();
+        <span class="kw">_ </span>= values.next();
+
+        <span class="kw">let </span>primary_ip = from_owned_redis_value(values.next().expect(<span class="string">"len was checked"</span>))<span class="question-mark">?</span>;
+        <span class="kw">let </span>primary_port = from_owned_redis_value(values.next().expect(<span class="string">"len was checked"</span>))<span class="question-mark">?</span>;
+        <span class="kw">let </span>replication_state = from_owned_redis_value(values.next().expect(<span class="string">"len was checked"</span>))<span class="question-mark">?</span>;
+        <span class="kw">let </span>data_received = from_owned_redis_value(values.next().expect(<span class="string">"len was checked"</span>))<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(Role::Replica {
+            primary_ip,
+            primary_port,
+            replication_state,
+            data_received,
+        })
+    }
+
+    <span class="kw">fn </span>new_sentinel(values: Vec&lt;Value&gt;) -&gt; RedisResult&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">if </span>values.len() &lt; <span class="number">2 </span>{
+            <span class="macro">invalid_type_error!</span>(
+                values,
+                <span class="string">"Role sentinel response too short, expected at least 2 elements"
+            </span>)
+        }
+        <span class="kw">let </span>second_val = values.into_iter().nth(<span class="number">1</span>).expect(<span class="string">"len was checked"</span>);
+        <span class="kw">let </span>primary_names = from_owned_redis_value(second_val)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(Role::Sentinel { primary_names })
     }
 }
 
@@ -3948,7 +4279,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ToRedisArgs <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>str {
+<span class="kw">impl </span>ToRedisArgs <span class="kw">for </span><span class="kw-2">&amp;</span>str {
     <span class="kw">fn </span>write_redis_args&lt;W&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>W)
     <span class="kw">where
         </span>W: <span class="question-mark">?</span>Sized + RedisWrite,
@@ -3994,7 +4325,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: ToRedisArgs&gt; ToRedisArgs <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T] {
+<span class="kw">impl</span>&lt;T: ToRedisArgs&gt; ToRedisArgs <span class="kw">for </span><span class="kw-2">&amp;</span>[T] {
     <span class="kw">fn </span>write_redis_args&lt;W&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>W)
     <span class="kw">where
         </span>W: <span class="question-mark">?</span>Sized + RedisWrite,
@@ -4066,118 +4397,118 @@
 }
 
 <span class="macro">deref_to_write_redis_args_impl!</span> {
-    &lt;<span class="lifetime">'a</span>, T: <span class="question-mark">?</span>Sized&gt; ToRedisArgs <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>T <span class="kw">where </span>T: ToRedisArgs
+    &lt;<span class="lifetime">'a</span>, T&gt; ToRedisArgs <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>T <span class="kw">where </span>T: ToRedisArgs
 }
 
 <span class="macro">deref_to_write_redis_args_impl!</span> {
-    &lt;<span class="lifetime">'a</span>, T: <span class="question-mark">?</span>Sized&gt; ToRedisArgs <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>T <span class="kw">where </span>T: ToRedisArgs
+    &lt;<span class="lifetime">'a</span>, T&gt; ToRedisArgs <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>T <span class="kw">where </span>T: ToRedisArgs
 }
 
 <span class="macro">deref_to_write_redis_args_impl!</span> {
-    &lt;T: <span class="question-mark">?</span>Sized&gt; ToRedisArgs <span class="kw">for </span>Box&lt;T&gt; <span class="kw">where </span>T: ToRedisArgs
+    &lt;T&gt; ToRedisArgs <span class="kw">for </span>Box&lt;T&gt; <span class="kw">where </span>T: ToRedisArgs
 }
 
 <span class="macro">deref_to_write_redis_args_impl!</span> {
-    &lt;T: <span class="question-mark">?</span>Sized&gt; ToRedisArgs <span class="kw">for </span>std::sync::Arc&lt;T&gt; <span class="kw">where </span>T: ToRedisArgs
+    &lt;T&gt; ToRedisArgs <span class="kw">for </span>std::sync::Arc&lt;T&gt; <span class="kw">where </span>T: ToRedisArgs
 }
 
 <span class="macro">deref_to_write_redis_args_impl!</span> {
-    &lt;T: <span class="question-mark">?</span>Sized&gt; ToRedisArgs <span class="kw">for </span>std::rc::Rc&lt;T&gt; <span class="kw">where </span>T: ToRedisArgs
+    &lt;T&gt; ToRedisArgs <span class="kw">for </span>std::rc::Rc&lt;T&gt; <span class="kw">where </span>T: ToRedisArgs
 }
 
 <span class="doccomment">/// @note: Redis cannot store empty sets so the application has to
 /// check whether the set is empty and if so, not attempt to use that
 /// result
-</span><span class="kw">impl</span>&lt;T: ToRedisArgs + Hash + Eq, S: BuildHasher + Default&gt; ToRedisArgs
-    <span class="kw">for </span>std::collections::HashSet&lt;T, S&gt;
-{
-    <span class="kw">fn </span>write_redis_args&lt;W&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>W)
-    <span class="kw">where
-        </span>W: <span class="question-mark">?</span>Sized + RedisWrite,
-    {
-        ToRedisArgs::make_arg_iter_ref(<span class="self">self</span>.iter(), out)
-    }
+</span><span class="macro">macro_rules!</span> impl_to_redis_args_for_set {
+    (<span class="kw">for </span>&lt;$(<span class="macro-nonterminal">$TypeParam</span>:ident),+&gt; <span class="macro-nonterminal">$SetType</span>:ty, <span class="kw">where </span>($(<span class="macro-nonterminal">$WhereClause</span>:tt)+) ) =&gt; {
+        <span class="kw">impl</span>&lt; $(<span class="macro-nonterminal">$TypeParam</span>),+ &gt; ToRedisArgs <span class="kw">for </span><span class="macro-nonterminal">$SetType
+        </span><span class="kw">where
+            </span>$(<span class="macro-nonterminal">$WhereClause</span>)+
+        {
+            <span class="kw">fn </span>write_redis_args&lt;W&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>W)
+            <span class="kw">where
+                </span>W: <span class="question-mark">?</span>Sized + RedisWrite,
+            {
+                ToRedisArgs::make_arg_iter_ref(<span class="self">self</span>.iter(), out)
+            }
 
-    <span class="kw">fn </span>num_of_args(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="self">self</span>.len()
-    }
-}
-
-<span class="doccomment">/// @note: Redis cannot store empty sets so the application has to
-/// check whether the set is empty and if so, not attempt to use that
-/// result
-</span><span class="attr">#[cfg(feature = <span class="string">"ahash"</span>)]
-</span><span class="kw">impl</span>&lt;T: ToRedisArgs + Hash + Eq, S: BuildHasher + Default&gt; ToRedisArgs <span class="kw">for </span>ahash::AHashSet&lt;T, S&gt; {
-    <span class="kw">fn </span>write_redis_args&lt;W&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>W)
-    <span class="kw">where
-        </span>W: <span class="question-mark">?</span>Sized + RedisWrite,
-    {
-        ToRedisArgs::make_arg_iter_ref(<span class="self">self</span>.iter(), out)
-    }
-
-    <span class="kw">fn </span>num_of_args(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="self">self</span>.len()
-    }
-}
-
-<span class="doccomment">/// @note: Redis cannot store empty sets so the application has to
-/// check whether the set is empty and if so, not attempt to use that
-/// result
-</span><span class="kw">impl</span>&lt;T: ToRedisArgs + Hash + Eq + Ord&gt; ToRedisArgs <span class="kw">for </span>BTreeSet&lt;T&gt; {
-    <span class="kw">fn </span>write_redis_args&lt;W&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>W)
-    <span class="kw">where
-        </span>W: <span class="question-mark">?</span>Sized + RedisWrite,
-    {
-        ToRedisArgs::make_arg_iter_ref(<span class="self">self</span>.iter(), out)
-    }
-
-    <span class="kw">fn </span>num_of_args(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="self">self</span>.len()
-    }
-}
-
-<span class="doccomment">/// this flattens BTreeMap into something that goes well with HMSET
-/// @note: Redis cannot store empty sets so the application has to
-/// check whether the set is empty and if so, not attempt to use that
-/// result
-</span><span class="kw">impl</span>&lt;T: ToRedisArgs + Hash + Eq + Ord, V: ToRedisArgs&gt; ToRedisArgs <span class="kw">for </span>BTreeMap&lt;T, V&gt; {
-    <span class="kw">fn </span>write_redis_args&lt;W&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>W)
-    <span class="kw">where
-        </span>W: <span class="question-mark">?</span>Sized + RedisWrite,
-    {
-        <span class="kw">for </span>(key, value) <span class="kw">in </span><span class="self">self </span>{
-            <span class="comment">// otherwise things like HMSET will simply NOT work
-            </span><span class="macro">assert!</span>(key.num_of_args() &lt;= <span class="number">1 </span>&amp;&amp; value.num_of_args() &lt;= <span class="number">1</span>);
-
-            key.write_redis_args(out);
-            value.write_redis_args(out);
+            <span class="kw">fn </span>num_of_args(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+                <span class="self">self</span>.len()
+            }
         }
-    }
-
-    <span class="kw">fn </span>num_of_args(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="self">self</span>.len()
-    }
+    };
 }
 
-<span class="kw">impl</span>&lt;T: ToRedisArgs + Hash + Eq + Ord, V: ToRedisArgs&gt; ToRedisArgs
-    <span class="kw">for </span>std::collections::HashMap&lt;T, V&gt;
-{
-    <span class="kw">fn </span>write_redis_args&lt;W&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>W)
-    <span class="kw">where
-        </span>W: <span class="question-mark">?</span>Sized + RedisWrite,
-    {
-        <span class="kw">for </span>(key, value) <span class="kw">in </span><span class="self">self </span>{
-            <span class="macro">assert!</span>(key.num_of_args() &lt;= <span class="number">1 </span>&amp;&amp; value.num_of_args() &lt;= <span class="number">1</span>);
+<span class="macro">impl_to_redis_args_for_set!</span>(
+    <span class="kw">for </span>&lt;T, S&gt; std::collections::HashSet&lt;T, S&gt;,
+    <span class="kw">where </span>(T: ToRedisArgs + Hash + Eq, S: BuildHasher + Default)
+);
 
-            key.write_redis_args(out);
-            value.write_redis_args(out);
+<span class="macro">impl_to_redis_args_for_set!</span>(
+    <span class="kw">for </span>&lt;T&gt; std::collections::BTreeSet&lt;T&gt;,
+    <span class="kw">where </span>(T: ToRedisArgs + Hash + Eq + Ord)
+);
+
+<span class="attr">#[cfg(feature = <span class="string">"hashbrown"</span>)]
+</span><span class="macro">impl_to_redis_args_for_set!</span>(
+    <span class="kw">for </span>&lt;T, S&gt; hashbrown::HashSet&lt;T, S&gt;,
+    <span class="kw">where </span>(T: ToRedisArgs + Hash + Eq, S: BuildHasher + Default)
+);
+
+<span class="attr">#[cfg(feature = <span class="string">"ahash"</span>)]
+</span><span class="macro">impl_to_redis_args_for_set!</span>(
+    <span class="kw">for </span>&lt;T, S&gt; ahash::AHashSet&lt;T, S&gt;,
+    <span class="kw">where </span>(T: ToRedisArgs + Hash + Eq, S: BuildHasher + Default)
+);
+
+<span class="doccomment">/// @note: Redis cannot store empty maps so the application has to
+/// check whether the set is empty and if so, not attempt to use that
+/// result
+</span><span class="macro">macro_rules!</span> impl_to_redis_args_for_map {
+    (
+        $(<span class="attr">#[<span class="macro-nonterminal">$meta</span>:meta]</span>)*
+        <span class="kw">for </span>&lt;$(<span class="macro-nonterminal">$TypeParam</span>:ident),+&gt; <span class="macro-nonterminal">$MapType</span>:ty,
+        <span class="kw">where </span>($(<span class="macro-nonterminal">$WhereClause</span>:tt)+)
+    ) =&gt; {
+        $(<span class="attr">#[<span class="macro-nonterminal">$meta</span>]</span>)*
+        <span class="kw">impl</span>&lt; $(<span class="macro-nonterminal">$TypeParam</span>),+ &gt; ToRedisArgs <span class="kw">for </span><span class="macro-nonterminal">$MapType
+        </span><span class="kw">where
+            </span>$(<span class="macro-nonterminal">$WhereClause</span>)+
+        {
+            <span class="kw">fn </span>write_redis_args&lt;W&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>W)
+            <span class="kw">where
+                </span>W: <span class="question-mark">?</span>Sized + RedisWrite,
+            {
+                <span class="kw">for </span>(key, value) <span class="kw">in </span><span class="self">self </span>{
+                    <span class="comment">// Ensure key and value produce a single argument each
+                    </span><span class="macro">assert!</span>(key.num_of_args() &lt;= <span class="number">1 </span>&amp;&amp; value.num_of_args() &lt;= <span class="number">1</span>);
+                    key.write_redis_args(out);
+                    value.write_redis_args(out);
+                }
+            }
+
+            <span class="kw">fn </span>num_of_args(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+                <span class="self">self</span>.len()
+            }
         }
-    }
-
-    <span class="kw">fn </span>num_of_args(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="self">self</span>.len()
-    }
+    };
 }
+<span class="macro">impl_to_redis_args_for_map!</span>(
+    <span class="kw">for </span>&lt;K, V&gt; std::collections::HashMap&lt;K, V&gt;,
+    <span class="kw">where </span>(K: ToRedisArgs + Hash + Eq + Ord, V: ToRedisArgs)
+);
+
+<span class="macro">impl_to_redis_args_for_map!</span>(
+    <span class="doccomment">/// this flattens BTreeMap into something that goes well with HMSET
+    </span><span class="kw">for </span>&lt;K, V&gt; std::collections::BTreeMap&lt;K, V&gt;,
+    <span class="kw">where </span>(K: ToRedisArgs + Hash + Eq + Ord, V: ToRedisArgs)
+);
+
+<span class="attr">#[cfg(feature = <span class="string">"hashbrown"</span>)]
+</span><span class="macro">impl_to_redis_args_for_map!</span>(
+    <span class="kw">for </span>&lt;K, V&gt; hashbrown::HashMap&lt;K, V&gt;,
+    <span class="kw">where </span>(K: ToRedisArgs + Hash + Eq + Ord, V: ToRedisArgs)
+);
 
 <span class="macro">macro_rules!</span> to_redis_args_for_tuple {
     () =&gt; ();
@@ -4245,7 +4576,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T: <span class="question-mark">?</span>Sized + FromRedisValue, <span class="kw">const </span>N: usize&gt; FromRedisValue <span class="kw">for </span>[T; N] {
+<span class="kw">impl</span>&lt;T: FromRedisValue, <span class="kw">const </span>N: usize&gt; FromRedisValue <span class="kw">for </span>[T; N] {
     <span class="kw">fn </span>from_redis_value(value: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;[T; N]&gt; {
         <span class="kw">match </span><span class="kw-2">*</span>value {
             Value::BulkString(<span class="kw-2">ref </span>bytes) =&gt; <span class="kw">match </span>FromRedisValue::from_byte_vec(bytes) {
@@ -4269,7 +4600,9 @@
 }
 
 <span class="doccomment">/// This trait is used to convert a redis value into a more appropriate
-/// type.  While a redis `Value` can represent any response that comes
+/// type.
+///
+/// While a redis `Value` can represent any response that comes
 /// back from the redis server, usually you want to map this into something
 /// that works better in rust.  For instance you might want to convert the
 /// return value into a `String` or an integer.
@@ -4550,7 +4883,7 @@
         <span class="macro-nonterminal">$id</span>:ident, <span class="macro-nonterminal">$ty</span>:ty, <span class="macro-nonterminal">$func</span>:expr
     ) =&gt; {
         $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>]</span>)*
-        <span class="kw">impl</span>&lt;<span class="macro-nonterminal">$id</span>: <span class="question-mark">?</span>Sized + FromRedisValue&gt; FromRedisValue <span class="kw">for </span><span class="macro-nonterminal">$ty </span>{
+        <span class="kw">impl</span>&lt;<span class="macro-nonterminal">$id</span>:  FromRedisValue&gt; FromRedisValue <span class="kw">for </span><span class="macro-nonterminal">$ty </span>{
             <span class="kw">fn </span>from_redis_value(v: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;<span class="self">Self</span>&gt;
             {
                 FromRedisValue::from_redis_value(v).map(<span class="macro-nonterminal">$func</span>)
@@ -4643,149 +4976,114 @@
 <span class="macro">from_vec_from_redis_value!</span>(&lt;T&gt; std::sync::Arc&lt;[T]&gt;);
 <span class="macro">from_vec_from_redis_value!</span>(&lt;T&gt; Box&lt;[T]&gt;; Vec::into_boxed_slice);
 
-<span class="kw">impl</span>&lt;K: FromRedisValue + Eq + Hash, V: FromRedisValue, S: BuildHasher + Default&gt; FromRedisValue
-    <span class="kw">for </span>std::collections::HashMap&lt;K, V, S&gt;
-{
-    <span class="kw">fn </span>from_redis_value(v: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;std::collections::HashMap&lt;K, V, S&gt;&gt; {
-        <span class="kw">let </span>v = get_inner_value(v);
-        <span class="kw">match </span><span class="kw-2">*</span>v {
-            Value::Nil =&gt; <span class="prelude-val">Ok</span>(Default::default()),
-            <span class="kw">_ </span>=&gt; v
-                .as_map_iter()
-                .ok_or_else(|| {
-                    <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">"Response type not hashmap compatible"</span>)
-                })<span class="question-mark">?
-                </span>.map(|(k, v)| <span class="prelude-val">Ok</span>((from_redis_value(k)<span class="question-mark">?</span>, from_redis_value(v)<span class="question-mark">?</span>)))
-                .collect(),
+<span class="macro">macro_rules!</span> impl_from_redis_value_for_map {
+    (<span class="kw">for </span>&lt;$(<span class="macro-nonterminal">$TypeParam</span>:ident),+&gt; <span class="macro-nonterminal">$MapType</span>:ty, <span class="kw">where </span>($(<span class="macro-nonterminal">$WhereClause</span>:tt)+)) =&gt; {
+        <span class="kw">impl</span>&lt; $(<span class="macro-nonterminal">$TypeParam</span>),+ &gt; FromRedisValue <span class="kw">for </span><span class="macro-nonterminal">$MapType
+        </span><span class="kw">where
+            </span>$(<span class="macro-nonterminal">$WhereClause</span>)+
+        {
+            <span class="kw">fn </span>from_redis_value(v: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;<span class="macro-nonterminal">$MapType</span>&gt; {
+                <span class="kw">let </span>v = get_inner_value(v);
+                <span class="kw">match </span><span class="kw-2">*</span>v {
+                    Value::Nil =&gt; <span class="prelude-val">Ok</span>(Default::default()),
+                    <span class="kw">_ </span>=&gt; v
+                        .as_map_iter()
+                        .ok_or_else(|| <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">"Response type not map compatible"</span>))<span class="question-mark">?
+                        </span>.map(|(k, v)| {
+                            <span class="prelude-val">Ok</span>((from_redis_value(k)<span class="question-mark">?</span>, from_redis_value(v)<span class="question-mark">?</span>))
+                        })
+                        .collect(),
+                }
+            }
+
+            <span class="kw">fn </span>from_owned_redis_value(v: Value) -&gt; RedisResult&lt;<span class="macro-nonterminal">$MapType</span>&gt; {
+                <span class="kw">let </span>v = get_owned_inner_value(v);
+                <span class="kw">match </span>v {
+                    Value::Nil =&gt; <span class="prelude-val">Ok</span>(Default::default()),
+                    <span class="kw">_ </span>=&gt; v
+                        .into_map_iter()
+                        .map_err(|v| <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">"Response type not map compatible"</span>))<span class="question-mark">?
+                        </span>.map(|(k, v)| {
+                            <span class="prelude-val">Ok</span>((from_owned_redis_value(k)<span class="question-mark">?</span>, from_owned_redis_value(v)<span class="question-mark">?</span>))
+                        })
+                        .collect(),
+                }
+            }
         }
-    }
-    <span class="kw">fn </span>from_owned_redis_value(v: Value) -&gt; RedisResult&lt;std::collections::HashMap&lt;K, V, S&gt;&gt; {
-        <span class="kw">let </span>v = get_owned_inner_value(v);
-        <span class="kw">match </span>v {
-            Value::Nil =&gt; <span class="prelude-val">Ok</span>(Default::default()),
-            <span class="kw">_ </span>=&gt; v
-                .into_map_iter()
-                .map_err(|v| <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">"Response type not hashmap compatible"</span>))<span class="question-mark">?
-                </span>.map(|(k, v)| <span class="prelude-val">Ok</span>((from_owned_redis_value(k)<span class="question-mark">?</span>, from_owned_redis_value(v)<span class="question-mark">?</span>)))
-                .collect(),
-        }
-    }
+    };
 }
+
+<span class="macro">impl_from_redis_value_for_map!</span>(
+    <span class="kw">for </span>&lt;K, V, S&gt; std::collections::HashMap&lt;K, V, S&gt;,
+    <span class="kw">where </span>(K: FromRedisValue + Eq + Hash, V: FromRedisValue, S: BuildHasher + Default)
+);
+
+<span class="attr">#[cfg(feature = <span class="string">"hashbrown"</span>)]
+</span><span class="macro">impl_from_redis_value_for_map!</span>(
+    <span class="kw">for </span>&lt;K, V, S&gt; hashbrown::HashMap&lt;K, V, S&gt;,
+    <span class="kw">where </span>(K: FromRedisValue + Eq + Hash, V: FromRedisValue, S: BuildHasher + Default)
+);
 
 <span class="attr">#[cfg(feature = <span class="string">"ahash"</span>)]
-</span><span class="kw">impl</span>&lt;K: FromRedisValue + Eq + Hash, V: FromRedisValue&gt; FromRedisValue <span class="kw">for </span>ahash::AHashMap&lt;K, V&gt; {
-    <span class="kw">fn </span>from_redis_value(v: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;ahash::AHashMap&lt;K, V&gt;&gt; {
-        <span class="kw">let </span>v = get_inner_value(v);
-        <span class="kw">match </span><span class="kw-2">*</span>v {
-            Value::Nil =&gt; <span class="prelude-val">Ok</span>(ahash::AHashMap::with_hasher(Default::default())),
-            <span class="kw">_ </span>=&gt; v
-                .as_map_iter()
-                .ok_or_else(|| {
-                    <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">"Response type not hashmap compatible"</span>)
-                })<span class="question-mark">?
-                </span>.map(|(k, v)| <span class="prelude-val">Ok</span>((from_redis_value(k)<span class="question-mark">?</span>, from_redis_value(v)<span class="question-mark">?</span>)))
-                .collect(),
+</span><span class="macro">impl_from_redis_value_for_map!</span>(
+    <span class="kw">for </span>&lt;K, V&gt; ahash::AHashMap&lt;K, V&gt;,
+    <span class="kw">where </span>(K: FromRedisValue + Eq + Hash, V: FromRedisValue)
+);
+
+<span class="macro">impl_from_redis_value_for_map!</span>(
+    <span class="kw">for </span>&lt;K, V&gt; std::collections::BTreeMap&lt;K, V&gt;,
+    <span class="kw">where </span>(K: FromRedisValue + Eq + Hash + Ord, V: FromRedisValue)
+);
+
+<span class="macro">macro_rules!</span> impl_from_redis_value_for_set {
+    (<span class="kw">for </span>&lt;$(<span class="macro-nonterminal">$TypeParam</span>:ident),+&gt; <span class="macro-nonterminal">$SetType</span>:ty, <span class="kw">where </span>($(<span class="macro-nonterminal">$WhereClause</span>:tt)+)) =&gt; {
+        <span class="kw">impl</span>&lt; $(<span class="macro-nonterminal">$TypeParam</span>),+ &gt; FromRedisValue <span class="kw">for </span><span class="macro-nonterminal">$SetType
+        </span><span class="kw">where
+            </span>$(<span class="macro-nonterminal">$WhereClause</span>)+
+        {
+            <span class="kw">fn </span>from_redis_value(v: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;<span class="macro-nonterminal">$SetType</span>&gt; {
+                <span class="kw">let </span>v = get_inner_value(v);
+                <span class="kw">let </span>items = v
+                    .as_sequence()
+                    .ok_or_else(|| <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">"Response type not map compatible"</span>))<span class="question-mark">?</span>;
+                items.iter().map(|item| from_redis_value(item)).collect()
+            }
+
+            <span class="kw">fn </span>from_owned_redis_value(v: Value) -&gt; RedisResult&lt;<span class="macro-nonterminal">$SetType</span>&gt; {
+                <span class="kw">let </span>v = get_owned_inner_value(v);
+                <span class="kw">let </span>items = v
+                    .into_sequence()
+                    .map_err(|v| <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">"Response type not map compatible"</span>))<span class="question-mark">?</span>;
+                items
+                    .into_iter()
+                    .map(|item| from_owned_redis_value(item))
+                    .collect()
+            }
         }
-    }
-    <span class="kw">fn </span>from_owned_redis_value(v: Value) -&gt; RedisResult&lt;ahash::AHashMap&lt;K, V&gt;&gt; {
-        <span class="kw">let </span>v = get_owned_inner_value(v);
-        <span class="kw">match </span>v {
-            Value::Nil =&gt; <span class="prelude-val">Ok</span>(ahash::AHashMap::with_hasher(Default::default())),
-            <span class="kw">_ </span>=&gt; v
-                .into_map_iter()
-                .map_err(|v| <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">"Response type not hashmap compatible"</span>))<span class="question-mark">?
-                </span>.map(|(k, v)| <span class="prelude-val">Ok</span>((from_owned_redis_value(k)<span class="question-mark">?</span>, from_owned_redis_value(v)<span class="question-mark">?</span>)))
-                .collect(),
-        }
-    }
+    };
 }
 
-<span class="kw">impl</span>&lt;K: FromRedisValue + Eq + Hash, V: FromRedisValue&gt; FromRedisValue <span class="kw">for </span>BTreeMap&lt;K, V&gt;
-<span class="kw">where
-    </span>K: Ord,
-{
-    <span class="kw">fn </span>from_redis_value(v: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;BTreeMap&lt;K, V&gt;&gt; {
-        <span class="kw">let </span>v = get_inner_value(v);
-        v.as_map_iter()
-            .ok_or_else(|| <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">"Response type not btreemap compatible"</span>))<span class="question-mark">?
-            </span>.map(|(k, v)| <span class="prelude-val">Ok</span>((from_redis_value(k)<span class="question-mark">?</span>, from_redis_value(v)<span class="question-mark">?</span>)))
-            .collect()
-    }
-    <span class="kw">fn </span>from_owned_redis_value(v: Value) -&gt; RedisResult&lt;BTreeMap&lt;K, V&gt;&gt; {
-        <span class="kw">let </span>v = get_owned_inner_value(v);
-        v.into_map_iter()
-            .map_err(|v| <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">"Response type not btreemap compatible"</span>))<span class="question-mark">?
-            </span>.map(|(k, v)| <span class="prelude-val">Ok</span>((from_owned_redis_value(k)<span class="question-mark">?</span>, from_owned_redis_value(v)<span class="question-mark">?</span>)))
-            .collect()
-    }
-}
+<span class="macro">impl_from_redis_value_for_set!</span>(
+    <span class="kw">for </span>&lt;T, S&gt; std::collections::HashSet&lt;T, S&gt;,
+    <span class="kw">where </span>(T: FromRedisValue + Eq + Hash, S: BuildHasher + Default)
+);
 
-<span class="kw">impl</span>&lt;T: FromRedisValue + Eq + Hash, S: BuildHasher + Default&gt; FromRedisValue
-    <span class="kw">for </span>std::collections::HashSet&lt;T, S&gt;
-{
-    <span class="kw">fn </span>from_redis_value(v: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;std::collections::HashSet&lt;T, S&gt;&gt; {
-        <span class="kw">let </span>v = get_inner_value(v);
-        <span class="kw">let </span>items = v
-            .as_sequence()
-            .ok_or_else(|| <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">"Response type not hashset compatible"</span>))<span class="question-mark">?</span>;
-        items.iter().map(|item| from_redis_value(item)).collect()
-    }
-    <span class="kw">fn </span>from_owned_redis_value(v: Value) -&gt; RedisResult&lt;std::collections::HashSet&lt;T, S&gt;&gt; {
-        <span class="kw">let </span>v = get_owned_inner_value(v);
-        <span class="kw">let </span>items = v
-            .into_sequence()
-            .map_err(|v| <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">"Response type not hashset compatible"</span>))<span class="question-mark">?</span>;
-        items
-            .into_iter()
-            .map(|item| from_owned_redis_value(item))
-            .collect()
-    }
-}
+<span class="macro">impl_from_redis_value_for_set!</span>(
+    <span class="kw">for </span>&lt;T&gt; std::collections::BTreeSet&lt;T&gt;,
+    <span class="kw">where </span>(T: FromRedisValue + Eq + Ord)
+);
+
+<span class="attr">#[cfg(feature = <span class="string">"hashbrown"</span>)]
+</span><span class="macro">impl_from_redis_value_for_set!</span>(
+    <span class="kw">for </span>&lt;T, S&gt; hashbrown::HashSet&lt;T, S&gt;,
+    <span class="kw">where </span>(T: FromRedisValue + Eq + Hash, S: BuildHasher + Default)
+);
 
 <span class="attr">#[cfg(feature = <span class="string">"ahash"</span>)]
-</span><span class="kw">impl</span>&lt;T: FromRedisValue + Eq + Hash&gt; FromRedisValue <span class="kw">for </span>ahash::AHashSet&lt;T&gt; {
-    <span class="kw">fn </span>from_redis_value(v: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;ahash::AHashSet&lt;T&gt;&gt; {
-        <span class="kw">let </span>v = get_inner_value(v);
-        <span class="kw">let </span>items = v
-            .as_sequence()
-            .ok_or_else(|| <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">"Response type not hashset compatible"</span>))<span class="question-mark">?</span>;
-        items.iter().map(|item| from_redis_value(item)).collect()
-    }
-
-    <span class="kw">fn </span>from_owned_redis_value(v: Value) -&gt; RedisResult&lt;ahash::AHashSet&lt;T&gt;&gt; {
-        <span class="kw">let </span>v = get_owned_inner_value(v);
-        <span class="kw">let </span>items = v
-            .into_sequence()
-            .map_err(|v| <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">"Response type not hashset compatible"</span>))<span class="question-mark">?</span>;
-        items
-            .into_iter()
-            .map(|item| from_owned_redis_value(item))
-            .collect()
-    }
-}
-
-<span class="kw">impl</span>&lt;T: FromRedisValue + Eq + Hash&gt; FromRedisValue <span class="kw">for </span>BTreeSet&lt;T&gt;
-<span class="kw">where
-    </span>T: Ord,
-{
-    <span class="kw">fn </span>from_redis_value(v: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;BTreeSet&lt;T&gt;&gt; {
-        <span class="kw">let </span>v = get_inner_value(v);
-        <span class="kw">let </span>items = v
-            .as_sequence()
-            .ok_or_else(|| <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">"Response type not btreeset compatible"</span>))<span class="question-mark">?</span>;
-        items.iter().map(|item| from_redis_value(item)).collect()
-    }
-    <span class="kw">fn </span>from_owned_redis_value(v: Value) -&gt; RedisResult&lt;BTreeSet&lt;T&gt;&gt; {
-        <span class="kw">let </span>v = get_owned_inner_value(v);
-        <span class="kw">let </span>items = v
-            .into_sequence()
-            .map_err(|v| <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">"Response type not btreeset compatible"</span>))<span class="question-mark">?</span>;
-        items
-            .into_iter()
-            .map(|item| from_owned_redis_value(item))
-            .collect()
-    }
-}
+</span><span class="macro">impl_from_redis_value_for_set!</span>(
+    <span class="kw">for </span>&lt;T&gt; ahash::AHashSet&lt;T&gt;,
+    <span class="kw">where </span>(T: FromRedisValue + Eq + Hash)
+);
 
 <span class="kw">impl </span>FromRedisValue <span class="kw">for </span>Value {
     <span class="kw">fn </span>from_redis_value(v: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;Value&gt; {
@@ -5078,8 +5376,10 @@
     FromRedisValue::from_owned_redis_value(v)
 }
 
-<span class="doccomment">/// Enum representing the communication protocol with the server. This enum represents the types
-/// of data that the server can send to the client, and the capabilities that the client can use.
+<span class="doccomment">/// Enum representing the communication protocol with the server.
+///
+/// This enum represents the types of data that the server can send to the client,
+/// and the capabilities that the client can use.
 </span><span class="attr">#[derive(Clone, Eq, PartialEq, Default, Debug, Copy)]
 </span><span class="kw">pub enum </span>ProtocolVersion {
     <span class="doccomment">/// &lt;https://github.com/redis/redis-specifications/blob/master/protocol/RESP2.md&gt;
@@ -5119,7 +5419,7 @@
     }
 }
 
-<span class="attr">#[derive(Debug, Clone)]
+<span class="attr">#[derive(Debug, Clone, PartialEq)]
 </span><span class="doccomment">/// A push message from the server.
 </span><span class="kw">pub struct </span>PushInfo {
     <span class="doccomment">/// Push Kind
@@ -5128,8 +5428,20 @@
     </span><span class="kw">pub </span>data: Vec&lt;Value&gt;,
 }
 
-<span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type </span>AsyncPushSender = tokio::sync::mpsc::UnboundedSender&lt;PushInfo&gt;;
+<span class="kw">impl </span>PushInfo {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>disconnect() -&gt; <span class="self">Self </span>{
+        PushInfo {
+            kind: <span class="kw">crate</span>::PushKind::Disconnection,
+            data: <span class="macro">vec!</span>[],
+        }
+    }
+}
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type </span>SyncPushSender = std::sync::mpsc::Sender&lt;PushInfo&gt;;
+
+<span class="comment">// A consistent error value for connections closed without a reason.
+</span><span class="attr">#[cfg(any(feature = <span class="string">"aio"</span>, feature = <span class="string">"r2d2"</span>))]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>closed_connection_error() -&gt; RedisError {
+    RedisError::from(io::Error::from(io::ErrorKind::BrokenPipe))
+}
 </code></pre></div></section></main></body></html>

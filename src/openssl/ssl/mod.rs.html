@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-0.10.68/src/ssl/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="openssl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-0.10.70/src/ssl/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="openssl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">openssl/ssl/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -4343,7 +4344,38 @@
 <a href="#4343" id="4343">4343</a>
 <a href="#4344" id="4344">4344</a>
 <a href="#4345" id="4345">4345</a>
-</pre></div><pre class="rust"><code><span class="doccomment">//! SSL/TLS support.
+<a href="#4346" id="4346">4346</a>
+<a href="#4347" id="4347">4347</a>
+<a href="#4348" id="4348">4348</a>
+<a href="#4349" id="4349">4349</a>
+<a href="#4350" id="4350">4350</a>
+<a href="#4351" id="4351">4351</a>
+<a href="#4352" id="4352">4352</a>
+<a href="#4353" id="4353">4353</a>
+<a href="#4354" id="4354">4354</a>
+<a href="#4355" id="4355">4355</a>
+<a href="#4356" id="4356">4356</a>
+<a href="#4357" id="4357">4357</a>
+<a href="#4358" id="4358">4358</a>
+<a href="#4359" id="4359">4359</a>
+<a href="#4360" id="4360">4360</a>
+<a href="#4361" id="4361">4361</a>
+<a href="#4362" id="4362">4362</a>
+<a href="#4363" id="4363">4363</a>
+<a href="#4364" id="4364">4364</a>
+<a href="#4365" id="4365">4365</a>
+<a href="#4366" id="4366">4366</a>
+<a href="#4367" id="4367">4367</a>
+<a href="#4368" id="4368">4368</a>
+<a href="#4369" id="4369">4369</a>
+<a href="#4370" id="4370">4370</a>
+<a href="#4371" id="4371">4371</a>
+<a href="#4372" id="4372">4372</a>
+<a href="#4373" id="4373">4373</a>
+<a href="#4374" id="4374">4374</a>
+<a href="#4375" id="4375">4375</a>
+<a href="#4376" id="4376">4376</a>
+<a href="#4377" id="4377">4377</a></pre></div><pre class="rust"><code><span class="doccomment">//! SSL/TLS support.
 //!
 //! `SslConnector` and `SslAcceptor` should be used in most cases - they handle
 //! configuration of the OpenSSL primitives for you.
@@ -4709,6 +4741,20 @@
         <span class="kw">unsafe </span>{ SslMethod(TLS_server_method()) }
     }
 
+    <span class="doccomment">/// Support all versions of the DTLS protocol, explicitly as a client.
+    </span><span class="attr">#[corresponds(DTLS_client_method)]
+    #[cfg(any(boringssl, ossl110, libressl291))]
+    </span><span class="kw">pub fn </span>dtls_client() -&gt; SslMethod {
+        <span class="kw">unsafe </span>{ SslMethod(DTLS_client_method()) }
+    }
+
+    <span class="doccomment">/// Support all versions of the DTLS protocol, explicitly as a server.
+    </span><span class="attr">#[corresponds(DTLS_server_method)]
+    #[cfg(any(boringssl, ossl110, libressl291))]
+    </span><span class="kw">pub fn </span>dtls_server() -&gt; SslMethod {
+        <span class="kw">unsafe </span>{ SslMethod(DTLS_server_method()) }
+    }
+
     <span class="doccomment">/// Constructs an `SslMethod` from a pointer to the underlying OpenSSL value.
     ///
     /// # Safety
@@ -4947,17 +4993,17 @@
 
 <span class="doccomment">/// An error returned from an ALPN selection callback.
 ///
-/// Requires OpenSSL 1.0.2 or LibreSSL 2.6.1 or newer.
-</span><span class="attr">#[cfg(any(ossl102, libressl261))]
+/// Requires BoringSSL or OpenSSL 1.0.2 or LibreSSL 2.6.1 or newer.
+</span><span class="attr">#[cfg(any(ossl102, libressl261, boringssl))]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 </span><span class="kw">pub struct </span>AlpnError(c_int);
 
-<span class="attr">#[cfg(any(ossl102, libressl261))]
+<span class="attr">#[cfg(any(ossl102, libressl261, boringssl))]
 </span><span class="kw">impl </span>AlpnError {
     <span class="doccomment">/// Terminate the handshake with a fatal alert.
     ///
-    /// Requires OpenSSL 1.1.0 or newer.
-    </span><span class="attr">#[cfg(ossl110)]
+    /// Requires BoringSSL or OpenSSL 1.1.0 or newer.
+    </span><span class="attr">#[cfg(any(ossl110, boringssl))]
     </span><span class="kw">pub const </span>ALERT_FATAL: AlpnError = AlpnError(ffi::SSL_TLSEXT_ERR_ALERT_FATAL);
 
     <span class="doccomment">/// Do not select a protocol, but continue the handshake.
@@ -5040,7 +5086,7 @@
 ///
 /// [`SslContextBuilder::set_alpn_protos`]: struct.SslContextBuilder.html#method.set_alpn_protos
 </span><span class="attr">#[corresponds(SSL_select_next_proto)]
-</span><span class="kw">pub fn </span>select_next_proto&lt;<span class="lifetime">'a</span>&gt;(server: <span class="kw-2">&amp;</span>[u8], client: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]&gt; {
+</span><span class="kw">pub fn </span>select_next_proto&lt;<span class="lifetime">'a</span>&gt;(server: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8], client: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]&gt; {
     <span class="kw">unsafe </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>out = ptr::null_mut();
         <span class="kw">let </span><span class="kw-2">mut </span>outlen = <span class="number">0</span>;
@@ -5269,12 +5315,23 @@
     /// The file should contain a sequence of PEM-formatted CA certificates.
     </span><span class="attr">#[corresponds(SSL_CTX_load_verify_locations)]
     </span><span class="kw">pub fn </span>set_ca_file&lt;P: AsRef&lt;Path&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, file: P) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorStack&gt; {
-        <span class="kw">let </span>file = CString::new(file.as_ref().as_os_str().to_str().unwrap()).unwrap();
+        <span class="self">self</span>.load_verify_locations(<span class="prelude-val">Some</span>(file.as_ref()), <span class="prelude-val">None</span>)
+    }
+
+    <span class="doccomment">/// Loads trusted root certificates from a file and/or a directory.
+    </span><span class="attr">#[corresponds(SSL_CTX_load_verify_locations)]
+    </span><span class="kw">pub fn </span>load_verify_locations(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ca_file: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Path&gt;,
+        ca_path: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Path&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorStack&gt; {
+        <span class="kw">let </span>ca_file = ca_file.map(|p| CString::new(p.as_os_str().to_str().unwrap()).unwrap());
+        <span class="kw">let </span>ca_path = ca_path.map(|p| CString::new(p.as_os_str().to_str().unwrap()).unwrap());
         <span class="kw">unsafe </span>{
             cvt(ffi::SSL_CTX_load_verify_locations(
                 <span class="self">self</span>.as_ptr(),
-                file.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_</span>,
-                ptr::null(),
+                ca_file.as_ref().map_or(ptr::null(), |s| s.as_ptr()),
+                ca_path.as_ref().map_or(ptr::null(), |s| s.as_ptr()),
             ))
             .map(|<span class="kw">_</span>| ())
         }
@@ -5612,19 +5669,26 @@
     /// of those protocols on success. The [`select_next_proto`] function implements the standard
     /// protocol selection algorithm.
     ///
-    /// Requires OpenSSL 1.0.2 or LibreSSL 2.6.1 or newer.
+    /// Requires BoringSSL or OpenSSL 1.0.2 or LibreSSL 2.6.1 or newer.
     ///
     /// [`SslContextBuilder::set_alpn_protos`]: struct.SslContextBuilder.html#method.set_alpn_protos
     /// [`select_next_proto`]: fn.select_next_proto.html
     </span><span class="attr">#[corresponds(SSL_CTX_set_alpn_select_cb)]
-    #[cfg(any(ossl102, libressl261))]
+    #[cfg(any(ossl102, libressl261, boringssl))]
     </span><span class="kw">pub fn </span>set_alpn_select_callback&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, callback: F)
     <span class="kw">where
         </span>F: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8], AlpnError&gt; + <span class="lifetime">'static </span>+ Sync + Send,
     {
         <span class="kw">unsafe </span>{
             <span class="self">self</span>.set_ex_data(SslContext::cached_ex_index::&lt;F&gt;(), callback);
-            ffi::SSL_CTX_set_alpn_select_cb__fixed_rust(
+            <span class="attr">#[cfg(not(boringssl))]
+            </span>ffi::SSL_CTX_set_alpn_select_cb__fixed_rust(
+                <span class="self">self</span>.as_ptr(),
+                <span class="prelude-val">Some</span>(callbacks::raw_alpn_select::&lt;F&gt;),
+                ptr::null_mut(),
+            );
+            <span class="attr">#[cfg(boringssl)]
+            </span>ffi::SSL_CTX_set_alpn_select_cb(
                 <span class="self">self</span>.as_ptr(),
                 <span class="prelude-val">Some</span>(callbacks::raw_alpn_select::&lt;F&gt;),
                 ptr::null_mut(),
@@ -8615,7 +8679,7 @@
 }
 <span class="macro">cfg_if!</span> {
     <span class="kw">if </span><span class="attr">#[cfg(any(boringssl, ossl110, libressl291))] </span>{
-        <span class="kw">use </span>ffi::{TLS_method, DTLS_method, TLS_client_method, TLS_server_method};
+        <span class="kw">use </span>ffi::{TLS_method, DTLS_method, TLS_client_method, TLS_server_method, DTLS_server_method, DTLS_client_method};
     } <span class="kw">else </span>{
         <span class="kw">use </span>ffi::{
             SSLv23_method <span class="kw">as </span>TLS_method, DTLSv1_method <span class="kw">as </span>DTLS_method, SSLv23_client_method <span class="kw">as </span>TLS_client_method,

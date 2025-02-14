@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/httparse-1.9.5/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="httparse" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/httparse-1.10.0/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="httparse" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">httparse/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2677,7 +2678,125 @@
 <a href="#2677" id="2677">2677</a>
 <a href="#2678" id="2678">2678</a>
 <a href="#2679" id="2679">2679</a>
-</pre></div><pre class="rust"><code><span class="attr">#![cfg_attr(not(feature = <span class="string">"std"</span>), no_std)]
+<a href="#2680" id="2680">2680</a>
+<a href="#2681" id="2681">2681</a>
+<a href="#2682" id="2682">2682</a>
+<a href="#2683" id="2683">2683</a>
+<a href="#2684" id="2684">2684</a>
+<a href="#2685" id="2685">2685</a>
+<a href="#2686" id="2686">2686</a>
+<a href="#2687" id="2687">2687</a>
+<a href="#2688" id="2688">2688</a>
+<a href="#2689" id="2689">2689</a>
+<a href="#2690" id="2690">2690</a>
+<a href="#2691" id="2691">2691</a>
+<a href="#2692" id="2692">2692</a>
+<a href="#2693" id="2693">2693</a>
+<a href="#2694" id="2694">2694</a>
+<a href="#2695" id="2695">2695</a>
+<a href="#2696" id="2696">2696</a>
+<a href="#2697" id="2697">2697</a>
+<a href="#2698" id="2698">2698</a>
+<a href="#2699" id="2699">2699</a>
+<a href="#2700" id="2700">2700</a>
+<a href="#2701" id="2701">2701</a>
+<a href="#2702" id="2702">2702</a>
+<a href="#2703" id="2703">2703</a>
+<a href="#2704" id="2704">2704</a>
+<a href="#2705" id="2705">2705</a>
+<a href="#2706" id="2706">2706</a>
+<a href="#2707" id="2707">2707</a>
+<a href="#2708" id="2708">2708</a>
+<a href="#2709" id="2709">2709</a>
+<a href="#2710" id="2710">2710</a>
+<a href="#2711" id="2711">2711</a>
+<a href="#2712" id="2712">2712</a>
+<a href="#2713" id="2713">2713</a>
+<a href="#2714" id="2714">2714</a>
+<a href="#2715" id="2715">2715</a>
+<a href="#2716" id="2716">2716</a>
+<a href="#2717" id="2717">2717</a>
+<a href="#2718" id="2718">2718</a>
+<a href="#2719" id="2719">2719</a>
+<a href="#2720" id="2720">2720</a>
+<a href="#2721" id="2721">2721</a>
+<a href="#2722" id="2722">2722</a>
+<a href="#2723" id="2723">2723</a>
+<a href="#2724" id="2724">2724</a>
+<a href="#2725" id="2725">2725</a>
+<a href="#2726" id="2726">2726</a>
+<a href="#2727" id="2727">2727</a>
+<a href="#2728" id="2728">2728</a>
+<a href="#2729" id="2729">2729</a>
+<a href="#2730" id="2730">2730</a>
+<a href="#2731" id="2731">2731</a>
+<a href="#2732" id="2732">2732</a>
+<a href="#2733" id="2733">2733</a>
+<a href="#2734" id="2734">2734</a>
+<a href="#2735" id="2735">2735</a>
+<a href="#2736" id="2736">2736</a>
+<a href="#2737" id="2737">2737</a>
+<a href="#2738" id="2738">2738</a>
+<a href="#2739" id="2739">2739</a>
+<a href="#2740" id="2740">2740</a>
+<a href="#2741" id="2741">2741</a>
+<a href="#2742" id="2742">2742</a>
+<a href="#2743" id="2743">2743</a>
+<a href="#2744" id="2744">2744</a>
+<a href="#2745" id="2745">2745</a>
+<a href="#2746" id="2746">2746</a>
+<a href="#2747" id="2747">2747</a>
+<a href="#2748" id="2748">2748</a>
+<a href="#2749" id="2749">2749</a>
+<a href="#2750" id="2750">2750</a>
+<a href="#2751" id="2751">2751</a>
+<a href="#2752" id="2752">2752</a>
+<a href="#2753" id="2753">2753</a>
+<a href="#2754" id="2754">2754</a>
+<a href="#2755" id="2755">2755</a>
+<a href="#2756" id="2756">2756</a>
+<a href="#2757" id="2757">2757</a>
+<a href="#2758" id="2758">2758</a>
+<a href="#2759" id="2759">2759</a>
+<a href="#2760" id="2760">2760</a>
+<a href="#2761" id="2761">2761</a>
+<a href="#2762" id="2762">2762</a>
+<a href="#2763" id="2763">2763</a>
+<a href="#2764" id="2764">2764</a>
+<a href="#2765" id="2765">2765</a>
+<a href="#2766" id="2766">2766</a>
+<a href="#2767" id="2767">2767</a>
+<a href="#2768" id="2768">2768</a>
+<a href="#2769" id="2769">2769</a>
+<a href="#2770" id="2770">2770</a>
+<a href="#2771" id="2771">2771</a>
+<a href="#2772" id="2772">2772</a>
+<a href="#2773" id="2773">2773</a>
+<a href="#2774" id="2774">2774</a>
+<a href="#2775" id="2775">2775</a>
+<a href="#2776" id="2776">2776</a>
+<a href="#2777" id="2777">2777</a>
+<a href="#2778" id="2778">2778</a>
+<a href="#2779" id="2779">2779</a>
+<a href="#2780" id="2780">2780</a>
+<a href="#2781" id="2781">2781</a>
+<a href="#2782" id="2782">2782</a>
+<a href="#2783" id="2783">2783</a>
+<a href="#2784" id="2784">2784</a>
+<a href="#2785" id="2785">2785</a>
+<a href="#2786" id="2786">2786</a>
+<a href="#2787" id="2787">2787</a>
+<a href="#2788" id="2788">2788</a>
+<a href="#2789" id="2789">2789</a>
+<a href="#2790" id="2790">2790</a>
+<a href="#2791" id="2791">2791</a>
+<a href="#2792" id="2792">2792</a>
+<a href="#2793" id="2793">2793</a>
+<a href="#2794" id="2794">2794</a>
+<a href="#2795" id="2795">2795</a>
+<a href="#2796" id="2796">2796</a>
+<a href="#2797" id="2797">2797</a>
+<a href="#2798" id="2798">2798</a></pre></div><pre class="rust"><code><span class="attr">#![cfg_attr(not(feature = <span class="string">"std"</span>), no_std)]
 #![deny(
     missing_docs,
     clippy::missing_safety_doc,
@@ -2704,7 +2823,7 @@
 //! `-C target_cpu=native` allows the detection to become compile time checks,
 //! making it *even* faster.
 
-</span><span class="kw">use </span>core::{fmt, result, str};
+</span><span class="kw">use </span>core::{fmt, mem, result, str};
 <span class="kw">use </span>core::mem::MaybeUninit;
 
 <span class="kw">use </span><span class="kw">crate</span>::iter::Bytes;
@@ -2723,7 +2842,7 @@
     <span class="kw">pub use </span><span class="kw">super</span>::iter::Bytes;
 }
 
-<span class="doccomment">/// Determines if byte is a token char.
+<span class="doccomment">/// Determines if byte is a method token char.
 ///
 /// &gt; ```notrust
 /// &gt; token          = 1*tchar
@@ -2734,88 +2853,41 @@
 /// &gt;                ; any VCHAR, except delimiters
 /// &gt; ```
 </span><span class="attr">#[inline]
-</span><span class="kw">fn </span>is_token(b: u8) -&gt; bool {
-    b &gt; <span class="number">0x1F </span>&amp;&amp; b &lt; <span class="number">0x7F
-</span>}
+</span><span class="kw">fn </span>is_method_token(b: u8) -&gt; bool {
+    <span class="kw">match </span>b {
+        <span class="comment">// For the majority case, this can be faster than the table lookup.
+        </span><span class="string">b'A'</span>..=<span class="string">b'Z' </span>=&gt; <span class="bool-val">true</span>,
+        <span class="kw">_ </span>=&gt; TOKEN_MAP[b <span class="kw">as </span>usize],
+    }
+}
 
-<span class="comment">// ASCII codes to accept URI string.
-// i.e. A-Z a-z 0-9 !#$%&amp;'*+-._();:@=,/?[]~^
+<span class="comment">// char codes to accept URI string.
+// i.e. b'!' &lt;= char and char != 127
 // TODO: Make a stricter checking for URI string?
-</span><span class="kw">static </span>URI_MAP: [bool; <span class="number">256</span>] = <span class="macro">byte_map!</span>[
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-<span class="comment">//  \0                            \n
-    </span><span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-<span class="comment">//  commands
-    </span><span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
-<span class="comment">//  \w !  "  #  $  %  &amp;  '  (  )  *  +  ,  -  .  /
-    </span><span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>,
-<span class="comment">//  0  1  2  3  4  5  6  7  8  9  :  ;  &lt;  =  &gt;  ?
-    </span><span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
-<span class="comment">//  @  A  B  C  D  E  F  G  H  I  J  K  L  M  N  O
-    </span><span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
-<span class="comment">//  P  Q  R  S  T  U  V  W  X  Y  Z  [  \  ]  ^  _
-    </span><span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
-<span class="comment">//  `  a  b  c  d  e  f  g  h  i  j  k  l  m  n  o
-    </span><span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>,
-<span class="comment">//  p  q  r  s  t  u  v  w  x  y  z  {  |  }  ~  del
-//   ====== Extended ASCII (aka. obs-text) ======
-    </span><span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-];
+</span><span class="kw">static </span>URI_MAP: [bool; <span class="number">256</span>] = <span class="macro">byte_map!</span>(
+    <span class="string">b'!'</span>..=<span class="number">0x7e </span>| <span class="number">0x80</span>..=<span class="number">0xFF
+</span>);
 
 <span class="attr">#[inline]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_uri_token(b: u8) -&gt; bool {
     URI_MAP[b <span class="kw">as </span>usize]
 }
 
-<span class="kw">static </span>HEADER_NAME_MAP: [bool; <span class="number">256</span>] = <span class="macro">byte_map!</span>[
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>,
-    <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
-    <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>,
-    <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
-    <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-];
+<span class="kw">static </span>TOKEN_MAP: [bool; <span class="number">256</span>] = <span class="macro">byte_map!</span>(
+    <span class="string">b'A'</span>..=<span class="string">b'Z' </span>| <span class="string">b'a'</span>..=<span class="string">b'z' </span>| <span class="string">b'0'</span>..=<span class="string">b'9' </span>|
+    <span class="string">b'!' </span>| <span class="string">b'#' </span>| <span class="string">b'$' </span>| <span class="string">b'%' </span>| <span class="string">b'&amp;' </span>| <span class="string">b'\'' </span>|  <span class="string">b'*' </span>| <span class="string">b'+' </span>|
+    <span class="string">b'-' </span>| <span class="string">b'.' </span>| <span class="string">b'^' </span>| <span class="string">b'_' </span>| <span class="string">b'`' </span>| <span class="string">b'|' </span>| <span class="string">b'~'
+</span>);
 
 <span class="attr">#[inline]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_header_name_token(b: u8) -&gt; bool {
-    HEADER_NAME_MAP[b <span class="kw">as </span>usize]
+    TOKEN_MAP[b <span class="kw">as </span>usize]
 }
 
-<span class="kw">static </span>HEADER_VALUE_MAP: [bool; <span class="number">256</span>] = <span class="macro">byte_map!</span>[
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
-    <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
-    <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
-    <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
-    <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
-    <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>,
-    <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
-    <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
-    <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
-    <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
-    <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
-    <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
-    <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
-    <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
-];
+
+<span class="kw">static </span>HEADER_VALUE_MAP: [bool; <span class="number">256</span>] = <span class="macro">byte_map!</span>(
+    <span class="string">b'\t' </span>| <span class="string">b' '</span>..=<span class="number">0x7e </span>| <span class="number">0x80</span>..=<span class="number">0xFF
+</span>);
 
 
 <span class="attr">#[inline]
@@ -3050,7 +3122,7 @@
     /// let result = httparse::ParserConfig::default()
     ///     .allow_space_before_first_header_name(true)
     ///     .parse_response(&amp;mut response, buf);
-
+    ///
     /// assert_eq!(result, Ok(httparse::Status::Complete(buf.len())));
     /// assert_eq!(response.version.unwrap(), 1);
     /// assert_eq!(response.code.unwrap(), 200);
@@ -3255,7 +3327,7 @@
     }
 
     <span class="kw">fn </span>parse_with_config(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span><span class="lifetime">'b </span>[u8], config: <span class="kw-2">&amp;</span>ParserConfig) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
-        <span class="kw">let </span>headers = core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.headers, <span class="kw-2">&amp;mut </span>[]);
+        <span class="kw">let </span>headers = mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.headers);
 
         <span class="comment">/* SAFETY: see `parse_headers_iter_uninit` guarantees */
         </span><span class="kw">unsafe </span>{
@@ -3358,7 +3430,7 @@
     }
 
     <span class="kw">fn </span>parse_with_config(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span><span class="lifetime">'b </span>[u8], config: <span class="kw-2">&amp;</span>ParserConfig) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
-        <span class="kw">let </span>headers = core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.headers, <span class="kw-2">&amp;mut </span>[]);
+        <span class="kw">let </span>headers = mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.headers);
 
         <span class="comment">// SAFETY: see guarantees of [`parse_headers_iter_uninit`], which leaves no uninitialized
         // headers around. On failure, the original headers are restored.
@@ -3454,7 +3526,7 @@
     </span><span class="kw">pub </span>value: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8],
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; fmt::Debug <span class="kw">for </span>Header&lt;<span class="lifetime">'a</span>&gt; {
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Header&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">let </span><span class="kw-2">mut </span>f = f.debug_struct(<span class="string">"Header"</span>);
         f.field(<span class="string">"name"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.name);
@@ -3524,21 +3596,24 @@
     <span class="kw">const </span>POST: [u8; <span class="number">4</span>] = <span class="kw-2">*</span><span class="string">b"POST"</span>;
     <span class="kw">match </span>bytes.peek_n::&lt;[u8; <span class="number">4</span>]&gt;(<span class="number">4</span>) {
         <span class="prelude-val">Some</span>(GET) =&gt; {
-            <span class="comment">// SAFETY: matched the ASCII string and boundary checked
+            <span class="comment">// SAFETY: we matched "GET " which has 4 bytes and is ASCII
             </span><span class="kw">let </span>method = <span class="kw">unsafe </span>{
-                bytes.advance(<span class="number">4</span>);
-                <span class="kw">let </span>buf = bytes.slice_skip(<span class="number">1</span>);
-                str::from_utf8_unchecked(buf)
-            };
+                bytes.advance(<span class="number">4</span>); <span class="comment">// advance cursor past "GET "
+                </span>str::from_utf8_unchecked(bytes.slice_skip(<span class="number">1</span>)) <span class="comment">// "GET" without space
+            </span>};
             <span class="prelude-val">Ok</span>(Status::Complete(method))
         }
-        <span class="prelude-val">Some</span>(POST) <span class="kw">if </span>bytes.peek_ahead(<span class="number">4</span>) == <span class="prelude-val">Some</span>(<span class="string">b' '</span>) =&gt; {
-            <span class="comment">// SAFETY: matched the ASCII string and boundary checked
+        <span class="comment">// SAFETY:
+        // If `bytes.peek_n...` returns a Some([u8; 4]),
+        // then we are assured that `bytes` contains at least 4 bytes.
+        // Thus `bytes.len() &gt;= 4`,
+        // and it is safe to peek at byte 4 with `bytes.peek_ahead(4)`.
+        </span><span class="prelude-val">Some</span>(POST) <span class="kw">if unsafe </span>{ bytes.peek_ahead(<span class="number">4</span>) } == <span class="prelude-val">Some</span>(<span class="string">b' '</span>) =&gt; {
+            <span class="comment">// SAFETY: we matched "POST " which has 5 bytes
             </span><span class="kw">let </span>method = <span class="kw">unsafe </span>{
-                bytes.advance(<span class="number">5</span>);
-                <span class="kw">let </span>buf = bytes.slice_skip(<span class="number">1</span>);
-                str::from_utf8_unchecked(buf)
-            };
+                bytes.advance(<span class="number">5</span>); <span class="comment">// advance cursor past "POST "
+                </span>str::from_utf8_unchecked(bytes.slice_skip(<span class="number">1</span>)) <span class="comment">// "POST" without space
+            </span>};
             <span class="prelude-val">Ok</span>(Status::Complete(method))
         }
         <span class="kw">_ </span>=&gt; parse_token(bytes),
@@ -3609,7 +3684,7 @@
 <span class="attr">#[inline]
 </span><span class="kw">fn </span>parse_token&lt;<span class="lifetime">'a</span>&gt;(bytes: <span class="kw-2">&amp;mut </span>Bytes&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt; {
     <span class="kw">let </span>b = <span class="macro">next!</span>(bytes);
-    <span class="kw">if </span>!is_token(b) {
+    <span class="kw">if </span>!is_method_token(b) {
         <span class="comment">// First char must be a token char, it can't be a space which would indicate an empty token.
         </span><span class="kw">return </span><span class="prelude-val">Err</span>(Error::Token);
     }
@@ -3618,10 +3693,10 @@
         <span class="kw">let </span>b = <span class="macro">next!</span>(bytes);
         <span class="kw">if </span>b == <span class="string">b' ' </span>{
             <span class="kw">return </span><span class="prelude-val">Ok</span>(Status::Complete(
-                <span class="comment">// SAFETY: all bytes up till `i` must have been `is_token` and therefore also utf-8.
+                <span class="comment">// SAFETY: all bytes up till `i` must have been `is_method_token` and therefore also utf-8.
                 </span><span class="kw">unsafe </span>{ str::from_utf8_unchecked(bytes.slice_skip(<span class="number">1</span>)) },
             ));
-        } <span class="kw">else if </span>!is_token(b) {
+        } <span class="kw">else if </span>!is_method_token(b) {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Token);
         }
     }
@@ -3642,10 +3717,11 @@
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Token);
         }
 
-        <span class="kw">return </span><span class="prelude-val">Ok</span>(Status::Complete(
-            <span class="comment">// SAFETY: all bytes up till `i` must have been `is_token` and therefore also utf-8.
-            </span><span class="kw">unsafe </span>{ str::from_utf8_unchecked(bytes.slice_skip(<span class="number">1</span>)) },
-        ));
+        <span class="comment">// SAFETY: all bytes up till `i` must have been `is_token` and therefore also utf-8.
+        </span><span class="kw">match </span>str::from_utf8(<span class="kw">unsafe </span>{ bytes.slice_skip(<span class="number">1</span>) }) {
+            <span class="prelude-val">Ok</span>(uri) =&gt; <span class="prelude-val">Ok</span>(Status::Complete(uri)),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(Error::Token),
+        }
     } <span class="kw">else </span>{
         <span class="prelude-val">Err</span>(Error::Token)
     }
@@ -3746,9 +3822,9 @@
         num_headers: usize,
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">'r1</span>, <span class="lifetime">'r2</span>, <span class="lifetime">'a</span>&gt; Drop <span class="kw">for </span>ShrinkOnDrop&lt;<span class="lifetime">'r1</span>, <span class="lifetime">'r2</span>, <span class="lifetime">'a</span>&gt; {
+    <span class="kw">impl </span>Drop <span class="kw">for </span>ShrinkOnDrop&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>&gt; {
         <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-            <span class="kw">let </span>headers = core::mem::replace(<span class="self">self</span>.headers, <span class="kw-2">&amp;mut </span>[]);
+            <span class="kw">let </span>headers = mem::take(<span class="self">self</span>.headers);
 
             <span class="comment">/* SAFETY: num_headers is the number of initialized headers */
             </span><span class="kw">let </span>headers = <span class="kw">unsafe </span>{ headers.get_unchecked_mut(..<span class="self">self</span>.num_headers) };
@@ -3998,7 +4074,7 @@
                     <span class="kw">return </span><span class="prelude-val">Err</span>(InvalidChunkSize);
                 }
                 count += <span class="number">1</span>;
-                <span class="kw">if </span><span class="macro">cfg!</span>(debug_assertions) &amp;&amp; size &gt; (core::u64::MAX / RADIX) {
+                <span class="kw">if </span><span class="macro">cfg!</span>(debug_assertions) &amp;&amp; size &gt; (u64::MAX / RADIX) {
                     <span class="comment">// actually unreachable!(), because count stops the loop at 15 digits before
                     // we can reach u64::MAX / RADIX == 0xfffffffffffffff, which requires 15 hex
                     // digits. This stops mirai reporting a false alarm regarding the `size *=
@@ -4013,7 +4089,7 @@
                     <span class="kw">return </span><span class="prelude-val">Err</span>(InvalidChunkSize);
                 }
                 count += <span class="number">1</span>;
-                <span class="kw">if </span><span class="macro">cfg!</span>(debug_assertions) &amp;&amp; size &gt; (core::u64::MAX / RADIX) {
+                <span class="kw">if </span><span class="macro">cfg!</span>(debug_assertions) &amp;&amp; size &gt; (u64::MAX / RADIX) {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(InvalidChunkSize);
                 }
                 size <span class="kw-2">*</span>= RADIX;
@@ -4024,7 +4100,7 @@
                     <span class="kw">return </span><span class="prelude-val">Err</span>(InvalidChunkSize);
                 }
                 count += <span class="number">1</span>;
-                <span class="kw">if </span><span class="macro">cfg!</span>(debug_assertions) &amp;&amp; size &gt; (core::u64::MAX / RADIX) {
+                <span class="kw">if </span><span class="macro">cfg!</span>(debug_assertions) &amp;&amp; size &gt; (u64::MAX / RADIX) {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(InvalidChunkSize);
                 }
                 size <span class="kw-2">*</span>= RADIX;
@@ -4062,7 +4138,7 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
-    <span class="kw">use super</span>::{Request, Response, Status, EMPTY_HEADER, parse_chunk_size};
+    <span class="kw">use super</span>::{Error, Request, Response, Status, EMPTY_HEADER, parse_chunk_size};
 
     <span class="kw">const </span>NUM_OF_HEADERS: usize = <span class="number">4</span>;
 
@@ -4732,7 +4808,7 @@
         <span class="macro">assert_eq!</span>(parse_chunk_size(<span class="string">b"567f8a\rfoo"</span>), <span class="prelude-val">Err</span>(<span class="kw">crate</span>::InvalidChunkSize));
         <span class="macro">assert_eq!</span>(parse_chunk_size(<span class="string">b"567f8a\rfoo"</span>), <span class="prelude-val">Err</span>(<span class="kw">crate</span>::InvalidChunkSize));
         <span class="macro">assert_eq!</span>(parse_chunk_size(<span class="string">b"567xf8a\r\n"</span>), <span class="prelude-val">Err</span>(<span class="kw">crate</span>::InvalidChunkSize));
-        <span class="macro">assert_eq!</span>(parse_chunk_size(<span class="string">b"ffffffffffffffff\r\n"</span>), <span class="prelude-val">Ok</span>(Status::Complete((<span class="number">18</span>, std::u64::MAX))));
+        <span class="macro">assert_eq!</span>(parse_chunk_size(<span class="string">b"ffffffffffffffff\r\n"</span>), <span class="prelude-val">Ok</span>(Status::Complete((<span class="number">18</span>, u64::MAX))));
         <span class="macro">assert_eq!</span>(parse_chunk_size(<span class="string">b"1ffffffffffffffff\r\n"</span>), <span class="prelude-val">Err</span>(<span class="kw">crate</span>::InvalidChunkSize));
         <span class="macro">assert_eq!</span>(parse_chunk_size(<span class="string">b"Affffffffffffffff\r\n"</span>), <span class="prelude-val">Err</span>(<span class="kw">crate</span>::InvalidChunkSize));
         <span class="macro">assert_eq!</span>(parse_chunk_size(<span class="string">b"fffffffffffffffff\r\n"</span>), <span class="prelude-val">Err</span>(<span class="kw">crate</span>::InvalidChunkSize));
@@ -4840,7 +4916,7 @@
         <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::Token));
     }
 
-    <span class="kw">static </span>REQUEST_WITH_MULTIPLE_SPACES_AND_BAD_PATH: <span class="kw-2">&amp;</span>[u8] = <span class="string">b"GET   /foo&gt;ohno HTTP/1.1\r\n\r\n"</span>;
+    <span class="kw">static </span>REQUEST_WITH_MULTIPLE_SPACES_AND_BAD_PATH: <span class="kw-2">&amp;</span>[u8] = <span class="string">b"GET   /foo ohno HTTP/1.1\r\n\r\n"</span>;
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_request_with_multiple_spaces_and_bad_path() {
@@ -4849,7 +4925,123 @@
         <span class="kw">let </span>result = <span class="kw">crate</span>::ParserConfig::default()
             .allow_multiple_spaces_in_request_line_delimiters(<span class="bool-val">true</span>)
             .parse_request(<span class="kw-2">&amp;mut </span>request, REQUEST_WITH_MULTIPLE_SPACES_AND_BAD_PATH);
+        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::Version));
+    }
+
+    <span class="comment">// This test ensure there is an error when there is a DEL character in the path
+    // since we allow all char from 0x21 code except DEL, this test ensure that DEL
+    // is not allowed in the path
+    </span><span class="kw">static </span>REQUEST_WITH_DEL_IN_PATH: <span class="kw-2">&amp;</span>[u8] = <span class="string">b"GET   /foo\x7Fohno HTTP/1.1\r\n\r\n"</span>;
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_request_with_del_in_path() {
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = [EMPTY_HEADER; NUM_OF_HEADERS];
+        <span class="kw">let </span><span class="kw-2">mut </span>request = Request::new(<span class="kw-2">&amp;mut </span>headers[..]);
+        <span class="kw">let </span>result = <span class="kw">crate</span>::ParserConfig::default()
+            .allow_multiple_spaces_in_request_line_delimiters(<span class="bool-val">true</span>)
+            .parse_request(<span class="kw-2">&amp;mut </span>request, <span class="kw">crate</span>::tests::REQUEST_WITH_DEL_IN_PATH);
         <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::Token));
+    }
+
+    <span class="attr">#[test]
+    #[cfg_attr(miri, ignore)] </span><span class="comment">// Miri is too slow for this test
+    </span><span class="kw">fn </span>test_all_utf8_char_in_paths() {
+        <span class="comment">// two code points
+        </span><span class="kw">for </span>i <span class="kw">in </span><span class="number">128</span>..<span class="number">256 </span>{
+            <span class="kw">for </span>j <span class="kw">in </span><span class="number">128</span>..<span class="number">256 </span>{
+                <span class="kw">let </span><span class="kw-2">mut </span>headers = [EMPTY_HEADER; NUM_OF_HEADERS];
+                <span class="kw">let </span><span class="kw-2">mut </span>request = Request::new(<span class="kw-2">&amp;mut </span>headers[..]);
+                <span class="kw">let </span>bytes = [i <span class="kw">as </span>u8, j <span class="kw">as </span>u8];
+
+                <span class="kw">match </span>core::str::from_utf8(<span class="kw-2">&amp;</span>bytes) {
+                    <span class="prelude-val">Ok</span>(s) =&gt; {
+                        <span class="kw">let </span>first_line = <span class="macro">format!</span>(<span class="string">"GET /{} HTTP/1.1\r\n\r\n"</span>, s);
+                        <span class="kw">let </span>result = <span class="kw">crate</span>::ParserConfig::default()
+                            .allow_multiple_spaces_in_request_line_delimiters(<span class="bool-val">true</span>)
+                            .parse_request(<span class="kw-2">&amp;mut </span>request, first_line.as_bytes());
+
+                        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Ok</span>(Status::Complete(<span class="number">20</span>)), <span class="string">"failed for utf8 char i: {}, j: {}"</span>, i, j);
+                    },
+                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
+                        <span class="kw">let </span><span class="kw-2">mut </span>first_line = <span class="string">b"GET /"</span>.to_vec();
+                        first_line.extend(<span class="kw-2">&amp;</span>bytes);
+                        first_line.extend(<span class="string">b" HTTP/1.1\r\n\r\n"</span>);
+
+                        <span class="kw">let </span>result = <span class="kw">crate</span>::ParserConfig::default()
+                            .allow_multiple_spaces_in_request_line_delimiters(<span class="bool-val">true</span>)
+                            .parse_request(<span class="kw-2">&amp;mut </span>request, first_line.as_slice());
+
+                        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::Token), <span class="string">"failed for utf8 char i: {}, j: {}"</span>, i, j);
+                    },
+                };
+
+                <span class="comment">// three code points starting from 0xe0
+                </span><span class="kw">if </span>i &lt; <span class="number">0xe0 </span>{
+                    <span class="kw">continue</span>;
+                }
+
+                <span class="kw">for </span>k <span class="kw">in </span><span class="number">128</span>..<span class="number">256 </span>{
+                    <span class="kw">let </span><span class="kw-2">mut </span>headers = [EMPTY_HEADER; NUM_OF_HEADERS];
+                    <span class="kw">let </span><span class="kw-2">mut </span>request = Request::new(<span class="kw-2">&amp;mut </span>headers[..]);
+                    <span class="kw">let </span>bytes = [i <span class="kw">as </span>u8, j <span class="kw">as </span>u8, k <span class="kw">as </span>u8];
+
+                    <span class="kw">match </span>core::str::from_utf8(<span class="kw-2">&amp;</span>bytes) {
+                        <span class="prelude-val">Ok</span>(s) =&gt; {
+                            <span class="kw">let </span>first_line = <span class="macro">format!</span>(<span class="string">"GET /{} HTTP/1.1\r\n\r\n"</span>, s);
+                            <span class="kw">let </span>result = <span class="kw">crate</span>::ParserConfig::default()
+                                .allow_multiple_spaces_in_request_line_delimiters(<span class="bool-val">true</span>)
+                                .parse_request(<span class="kw-2">&amp;mut </span>request, first_line.as_bytes());
+
+                            <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Ok</span>(Status::Complete(<span class="number">21</span>)), <span class="string">"failed for utf8 char i: {}, j: {}, k: {}"</span>, i, j, k);
+                        },
+                        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
+                            <span class="kw">let </span><span class="kw-2">mut </span>first_line = <span class="string">b"GET /"</span>.to_vec();
+                            first_line.extend(<span class="kw-2">&amp;</span>bytes);
+                            first_line.extend(<span class="string">b" HTTP/1.1\r\n\r\n"</span>);
+
+                            <span class="kw">let </span>result = <span class="kw">crate</span>::ParserConfig::default()
+                                .allow_multiple_spaces_in_request_line_delimiters(<span class="bool-val">true</span>)
+                                .parse_request(<span class="kw-2">&amp;mut </span>request, first_line.as_slice());
+
+                            <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::Token), <span class="string">"failed for utf8 char i: {}, j: {}, k: {}"</span>, i, j, k);
+                        },
+                    };
+
+                    <span class="comment">// four code points starting from 0xf0
+                    </span><span class="kw">if </span>i &lt; <span class="number">0xf0 </span>{
+                        <span class="kw">continue</span>;
+                    }
+
+                    <span class="kw">for </span>l <span class="kw">in </span><span class="number">128</span>..<span class="number">256 </span>{
+                        <span class="kw">let </span><span class="kw-2">mut </span>headers = [EMPTY_HEADER; NUM_OF_HEADERS];
+                        <span class="kw">let </span><span class="kw-2">mut </span>request = Request::new(<span class="kw-2">&amp;mut </span>headers[..]);
+                        <span class="kw">let </span>bytes = [i <span class="kw">as </span>u8, j <span class="kw">as </span>u8, k <span class="kw">as </span>u8, l <span class="kw">as </span>u8];
+
+                        <span class="kw">match </span>core::str::from_utf8(<span class="kw-2">&amp;</span>bytes) {
+                            <span class="prelude-val">Ok</span>(s) =&gt; {
+                                <span class="kw">let </span>first_line = <span class="macro">format!</span>(<span class="string">"GET /{} HTTP/1.1\r\n\r\n"</span>, s);
+                                <span class="kw">let </span>result = <span class="kw">crate</span>::ParserConfig::default()
+                                    .allow_multiple_spaces_in_request_line_delimiters(<span class="bool-val">true</span>)
+                                    .parse_request(<span class="kw-2">&amp;mut </span>request, first_line.as_bytes());
+
+                                <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Ok</span>(Status::Complete(<span class="number">22</span>)), <span class="string">"failed for utf8 char i: {}, j: {}, k: {}, l: {}"</span>, i, j, k, l);
+                            },
+                            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
+                                <span class="kw">let </span><span class="kw-2">mut </span>first_line = <span class="string">b"GET /"</span>.to_vec();
+                                first_line.extend(<span class="kw-2">&amp;</span>bytes);
+                                first_line.extend(<span class="string">b" HTTP/1.1\r\n\r\n"</span>);
+
+                                <span class="kw">let </span>result = <span class="kw">crate</span>::ParserConfig::default()
+                                    .allow_multiple_spaces_in_request_line_delimiters(<span class="bool-val">true</span>)
+                                    .parse_request(<span class="kw-2">&amp;mut </span>request, first_line.as_slice());
+
+                                <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::Token), <span class="string">"failed for utf8 char i: {}, j: {}, k: {}, l: {}"</span>, i, j, k, l);
+                            },
+                        };
+                    }
+                }
+            }
+        }
     }
 
     <span class="kw">static </span>RESPONSE_WITH_SPACES_IN_CODE: <span class="kw-2">&amp;</span>[u8] = <span class="string">b"HTTP/1.1 99 200 OK\r\n\r\n"</span>;
@@ -5354,6 +5546,52 @@
         <span class="macro">assert_eq!</span>(response.headers.len(), <span class="number">1</span>);
         <span class="macro">assert_eq!</span>(response.headers[<span class="number">0</span>].name, <span class="string">"foo"</span>);
         <span class="macro">assert_eq!</span>(response.headers[<span class="number">0</span>].value, <span class="kw-2">&amp;</span><span class="string">b"bar"</span>[..]);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_request_with_leading_space() {
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = [EMPTY_HEADER; <span class="number">1</span>];
+        <span class="kw">let </span><span class="kw-2">mut </span>request = Request::new(<span class="kw-2">&amp;mut </span>headers[..]);
+        <span class="kw">let </span>result = <span class="kw">crate</span>::ParserConfig::default()
+            .parse_request(<span class="kw-2">&amp;mut </span>request, <span class="string">b" GET / HTTP/1.1\r\nfoo:bar\r\n\r\n"</span>);
+
+        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Err</span>(Error::Token));
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_request_with_invalid_method() {
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = [EMPTY_HEADER; <span class="number">1</span>];
+        <span class="kw">let </span><span class="kw-2">mut </span>request = Request::new(<span class="kw-2">&amp;mut </span>headers[..]);
+        <span class="kw">let </span>result = <span class="kw">crate</span>::ParserConfig::default()
+            .parse_request(<span class="kw-2">&amp;mut </span>request, <span class="string">b"P()ST / HTTP/1.1\r\nfoo:bar\r\n\r\n"</span>);
+
+        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Err</span>(Error::Token));
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_utf8_in_path_ok() {
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = [EMPTY_HEADER; <span class="number">1</span>];
+        <span class="kw">let </span><span class="kw-2">mut </span>request = Request::new(<span class="kw-2">&amp;mut </span>headers[..]);
+
+        <span class="kw">let </span>result = <span class="kw">crate</span>::ParserConfig::default().parse_request(<span class="kw-2">&amp;mut </span>request, <span class="string">b"GET /test?post=I\xE2\x80\x99msorryIforkedyou HTTP/1.1\r\nHost: example.org\r\n\r\n"</span>);
+
+        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Ok</span>(Status::Complete(<span class="number">67</span>)));
+        <span class="macro">assert_eq!</span>(request.version.unwrap(), <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(request.method.unwrap(), <span class="string">"GET"</span>);
+        <span class="macro">assert_eq!</span>(request.path.unwrap(), <span class="string">"/test?post=I’msorryIforkedyou"</span>);
+        <span class="macro">assert_eq!</span>(request.headers.len(), <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(request.headers[<span class="number">0</span>].name, <span class="string">"Host"</span>);
+        <span class="macro">assert_eq!</span>(request.headers[<span class="number">0</span>].value, <span class="kw-2">&amp;</span><span class="string">b"example.org"</span>[..]);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_bad_utf8_in_path() {
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = [EMPTY_HEADER; <span class="number">1</span>];
+        <span class="kw">let </span><span class="kw-2">mut </span>request = Request::new(<span class="kw-2">&amp;mut </span>headers[..]);
+
+        <span class="kw">let </span>result = <span class="kw">crate</span>::ParserConfig::default().parse_request(<span class="kw-2">&amp;mut </span>request, <span class="string">b"GET /test?post=I\xE2msorryIforkedyou HTTP/1.1\r\nHost: example.org\r\n\r\n"</span>);
+
+        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::Token));
     }
 }
 </code></pre></div></section></main></body></html>

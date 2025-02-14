@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.8/src/arithmetic/montgomery.rs`."><title>montgomery.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.9/src/arithmetic/montgomery.rs`."><title>montgomery.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ring/arithmetic/</div>montgomery.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -356,7 +357,33 @@
 <a href="#356" id="356">356</a>
 <a href="#357" id="357">357</a>
 <a href="#358" id="358">358</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright 2017-2023 Brian Smith.
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a></pre></div><pre class="rust"><code><span class="comment">// Copyright 2017-2025 Brian Smith.
 //
 // Permission to use, copy, modify, and/or distribute this software for any
 // purpose with or without fee is hereby granted, provided that the above
@@ -371,7 +398,9 @@
 // CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 </span><span class="kw">pub use </span><span class="kw">super</span>::n0::N0;
+<span class="kw">use super</span>::{inout::AliasingSlices3, LimbSliceError, MIN_LIMBS};
 <span class="kw">use </span><span class="kw">crate</span>::cpu;
+<span class="kw">use </span>cfg_if::cfg_if;
 
 <span class="comment">// Indicates that the element is not encoded; there is no *R* factor
 // that needs to be canceled out.
@@ -471,51 +500,132 @@
 </span><span class="kw">use crate</span>::{bssl, c, limb::Limb};
 
 <span class="attr">#[inline(always)]
-</span><span class="kw">unsafe fn </span>mul_mont(
-    r: <span class="kw-2">*mut </span>Limb,
-    a: <span class="kw-2">*const </span>Limb,
-    b: <span class="kw-2">*const </span>Limb,
-    n: <span class="kw-2">*const </span>Limb,
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>limbs_mul_mont(
+    in_out: <span class="kw">impl </span>AliasingSlices3&lt;Limb&gt;,
+    n: <span class="kw-2">&amp;</span>[Limb],
     n0: <span class="kw-2">&amp;</span>N0,
-    num_limbs: c::size_t,
-    <span class="kw">_</span>: cpu::Features,
-) {
-    bn_mul_mont(r, a, b, n, n0, num_limbs)
+    cpu: cpu::Features,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(), LimbSliceError&gt; {
+    <span class="kw">const </span>MOD_FALLBACK: usize = <span class="number">1</span>; <span class="comment">// No restriction.
+    </span><span class="macro">cfg_if!</span> {
+        <span class="kw">if </span><span class="attr">#[cfg(all(target_arch = <span class="string">"aarch64"</span>, target_endian = <span class="string">"little"</span>))] </span>{
+            <span class="kw">let _</span>: cpu::Features = cpu;
+            <span class="kw">const </span>MIN_4X: usize = <span class="number">4</span>;
+            <span class="kw">const </span>MOD_4X: usize = <span class="number">4</span>;
+            <span class="kw">if </span>n.len() &gt;= MIN_4X &amp;&amp; n.len() % MOD_4X == <span class="number">0 </span>{
+                <span class="macro">bn_mul_mont_ffi!</span>(in_out, n, n0, (), <span class="kw">unsafe </span>{
+                    (MIN_4X, MOD_4X, ()) =&gt; bn_mul4x_mont
+                })
+            } <span class="kw">else </span>{
+                <span class="macro">bn_mul_mont_ffi!</span>(in_out, n, n0, (), <span class="kw">unsafe </span>{
+                    (MIN_LIMBS, MOD_FALLBACK, ()) =&gt; bn_mul_mont_nohw
+                })
+            }
+        } <span class="kw">else if </span><span class="attr">#[cfg(all(target_arch = <span class="string">"arm"</span>, target_endian = <span class="string">"little"</span>))] </span>{
+            <span class="kw">const </span>MIN_8X: usize = <span class="number">8</span>;
+            <span class="kw">const </span>MOD_8X: usize = <span class="number">8</span>;
+            <span class="kw">if </span>n.len() &gt;= MIN_8X &amp;&amp; n.len() % MOD_8X == <span class="number">0 </span>{
+                <span class="kw">use </span><span class="kw">crate</span>::cpu::{GetFeature <span class="kw">as _</span>, arm::Neon};
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(cpu) = cpu.get_feature() {
+                    <span class="kw">return </span><span class="macro">bn_mul_mont_ffi!</span>(in_out, n, n0, cpu, <span class="kw">unsafe </span>{
+                        (MIN_8X, MOD_8X, Neon) =&gt; bn_mul8x_mont_neon
+                    });
+                }
+            }
+            <span class="comment">// The ARM version of `bn_mul_mont_nohw` has a minimum of 2.
+            </span><span class="kw">const </span>_MIN_LIMBS_AT_LEAST_2: () = <span class="macro">assert!</span>(MIN_LIMBS &gt;= <span class="number">2</span>);
+            <span class="macro">bn_mul_mont_ffi!</span>(in_out, n, n0, (), <span class="kw">unsafe </span>{
+                (MIN_LIMBS, MOD_FALLBACK, ()) =&gt; bn_mul_mont_nohw
+            })
+        } <span class="kw">else if </span><span class="attr">#[cfg(target_arch = <span class="string">"x86"</span>)] </span>{
+            <span class="kw">use crate</span>::{cpu::GetFeature <span class="kw">as _</span>, cpu::intel::Sse2};
+            <span class="comment">// The X86 implementation of `bn_mul_mont` has a minimum of 4.
+            </span><span class="kw">const </span>_MIN_LIMBS_AT_LEAST_4: () = <span class="macro">assert!</span>(MIN_LIMBS &gt;= <span class="number">4</span>);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(cpu) = cpu.get_feature() {
+                <span class="macro">bn_mul_mont_ffi!</span>(in_out, n, n0, cpu, <span class="kw">unsafe </span>{
+                    (MIN_LIMBS, MOD_FALLBACK, Sse2) =&gt; bn_mul_mont
+                })
+            } <span class="kw">else </span>{
+                <span class="comment">// This isn't really an FFI call; it's defined below.
+                </span><span class="kw">unsafe </span>{
+                    <span class="kw">super</span>::ffi::bn_mul_mont_ffi::&lt;(), {MIN_LIMBS}, <span class="number">1</span>&gt;(in_out, n, n0, (),
+                    bn_mul_mont_fallback)
+                }
+            }
+        } <span class="kw">else if </span><span class="attr">#[cfg(target_arch = <span class="string">"x86_64"</span>)] </span>{
+            <span class="kw">use crate</span>::{cpu::GetFeature <span class="kw">as _</span>, polyfill::slice};
+            <span class="kw">use </span><span class="kw">super</span>::x86_64_mont;
+            <span class="kw">if </span>n.len() &gt;= x86_64_mont::MIN_4X {
+                <span class="kw">if let </span>(n, []) = slice::as_chunks(n) {
+                    <span class="kw">return </span>x86_64_mont::mul_mont5_4x(in_out, n, n0, cpu.get_feature());
+                }
+            }
+            <span class="macro">bn_mul_mont_ffi!</span>(in_out, n, n0, (), <span class="kw">unsafe </span>{
+                (MIN_LIMBS, MOD_FALLBACK, ()) =&gt; bn_mul_mont_nohw
+            })
+        } <span class="kw">else </span>{
+            <span class="comment">// Use the fallback implementation implemented below through the
+            // FFI wrapper defined below, so that Rust and C code both go
+            // through `bn_mul_mont`.
+            </span><span class="macro">bn_mul_mont_ffi!</span>(in_out, n, n0, cpu, <span class="kw">unsafe </span>{
+                (MIN_LIMBS, MOD_FALLBACK, cpu::Features) =&gt; bn_mul_mont
+            })
+        }
+    }
 }
 
-<span class="attr">#[cfg(not(any(
-    target_arch = <span class="string">"aarch64"</span>,
-    target_arch = <span class="string">"arm"</span>,
-    target_arch = <span class="string">"x86"</span>,
-    target_arch = <span class="string">"x86_64"
-</span>)))]
-</span><span class="comment">// TODO: Stop calling this from C and un-export it.
-</span><span class="attr">#[allow(deprecated)]
-</span><span class="macro">prefixed_export!</span> {
-    <span class="kw">unsafe fn </span>bn_mul_mont(
-        r: <span class="kw-2">*mut </span>Limb,
-        a: <span class="kw-2">*const </span>Limb,
-        b: <span class="kw-2">*const </span>Limb,
-        n: <span class="kw-2">*const </span>Limb,
-        n0: <span class="kw-2">&amp;</span>N0,
-        num_limbs: c::size_t,
-    ) {
-        <span class="comment">// The mutable pointer `r` may alias `a` and/or `b`, so the lifetimes of
-        // any slices for `a` or `b` must not overlap with the lifetime of any
-        // mutable for `r`.
+<span class="macro">cfg_if!</span> {
+    <span class="kw">if  </span><span class="attr">#[cfg(not(any(
+            all(target_arch = <span class="string">"aarch64"</span>, target_endian = <span class="string">"little"</span>),
+            all(target_arch = <span class="string">"arm"</span>, target_endian = <span class="string">"little"</span>),
+            target_arch = <span class="string">"x86_64"</span>)))] </span>{
 
-        // Nothing aliases `n`
-        </span><span class="kw">let </span>n = <span class="kw">unsafe </span>{ core::slice::from_raw_parts(n, num_limbs) };
-
-        <span class="kw">let </span><span class="kw-2">mut </span>tmp = [<span class="number">0</span>; <span class="number">2 </span>* <span class="kw">super</span>::BIGINT_MODULUS_MAX_LIMBS];
-        <span class="kw">let </span>tmp = <span class="kw-2">&amp;mut </span>tmp[..(<span class="number">2 </span>* num_limbs)];
-        {
-            <span class="kw">let </span>a: <span class="kw-2">&amp;</span>[Limb] = <span class="kw">unsafe </span>{ core::slice::from_raw_parts(a, num_limbs) };
-            <span class="kw">let </span>b: <span class="kw-2">&amp;</span>[Limb] = <span class="kw">unsafe </span>{ core::slice::from_raw_parts(b, num_limbs) };
-            limbs_mul(tmp, a, b);
+        <span class="comment">// TODO: Stop calling this from C and un-export it.
+        </span><span class="attr">#[cfg(not(target_arch = <span class="string">"x86"</span>))]
+        </span><span class="macro">prefixed_export!</span> {
+            <span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn </span>bn_mul_mont(
+                r: <span class="kw-2">*mut </span>Limb,
+                a: <span class="kw-2">*const </span>Limb,
+                b: <span class="kw-2">*const </span>Limb,
+                n: <span class="kw-2">*const </span>Limb,
+                n0: <span class="kw-2">&amp;</span>N0,
+                num_limbs: c::NonZero_size_t,
+            ) {
+                <span class="kw">unsafe </span>{ bn_mul_mont_fallback(r, a, b, n, n0, num_limbs) }
+            }
         }
-        <span class="kw">let </span>r: <span class="kw-2">&amp;mut </span>[Limb] = <span class="kw">unsafe </span>{ core::slice::from_raw_parts_mut(r, num_limbs) };
-        limbs_from_mont_in_place(r, tmp, n, n0);
+
+        <span class="attr">#[cfg_attr(target_arch = <span class="string">"x86"</span>, cold)]
+        #[cfg_attr(target_arch = <span class="string">"x86"</span>, inline(never))]
+        </span><span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn </span>bn_mul_mont_fallback(
+            r: <span class="kw-2">*mut </span>Limb,
+            a: <span class="kw-2">*const </span>Limb,
+            b: <span class="kw-2">*const </span>Limb,
+            n: <span class="kw-2">*const </span>Limb,
+            n0: <span class="kw-2">&amp;</span>N0,
+            num_limbs: c::NonZero_size_t,
+        ) {
+            <span class="kw">use </span><span class="kw">super</span>::MAX_LIMBS;
+
+            <span class="kw">let </span>num_limbs = num_limbs.get();
+
+            <span class="comment">// The mutable pointer `r` may alias `a` and/or `b`, so the lifetimes of
+            // any slices for `a` or `b` must not overlap with the lifetime of any
+            // mutable for `r`.
+
+            // Nothing aliases `n`
+            </span><span class="kw">let </span>n = <span class="kw">unsafe </span>{ core::slice::from_raw_parts(n, num_limbs) };
+
+            <span class="kw">let </span><span class="kw-2">mut </span>tmp = [<span class="number">0</span>; <span class="number">2 </span>* MAX_LIMBS];
+            <span class="kw">let </span>tmp = <span class="kw-2">&amp;mut </span>tmp[..(<span class="number">2 </span>* num_limbs)];
+            {
+                <span class="kw">let </span>a: <span class="kw-2">&amp;</span>[Limb] = <span class="kw">unsafe </span>{ core::slice::from_raw_parts(a, num_limbs) };
+                <span class="kw">let </span>b: <span class="kw-2">&amp;</span>[Limb] = <span class="kw">unsafe </span>{ core::slice::from_raw_parts(b, num_limbs) };
+                limbs_mul(tmp, a, b);
+            }
+            <span class="kw">let </span>r: <span class="kw-2">&amp;mut </span>[Limb] = <span class="kw">unsafe </span>{ core::slice::from_raw_parts_mut(r, num_limbs) };
+            limbs_from_mont_in_place(r, tmp, n, n0);
+        }
     }
 }
 
@@ -524,8 +634,8 @@
 </span><span class="attr">#[cfg(any(
     feature = <span class="string">"alloc"</span>,
     not(any(
-        target_arch = <span class="string">"aarch64"</span>,
-        target_arch = <span class="string">"arm"</span>,
+        all(target_arch = <span class="string">"aarch64"</span>, target_endian = <span class="string">"little"</span>),
+        all(target_arch = <span class="string">"arm"</span>, target_endian = <span class="string">"little"</span>),
         target_arch = <span class="string">"x86"</span>,
         target_arch = <span class="string">"x86_64"
     </span>))
@@ -557,9 +667,8 @@
 }
 
 <span class="attr">#[cfg(not(any(
-    target_arch = <span class="string">"aarch64"</span>,
-    target_arch = <span class="string">"arm"</span>,
-    target_arch = <span class="string">"x86"</span>,
+    all(target_arch = <span class="string">"aarch64"</span>, target_endian = <span class="string">"little"</span>),
+    all(target_arch = <span class="string">"arm"</span>, target_endian = <span class="string">"little"</span>),
     target_arch = <span class="string">"x86_64"
 </span>)))]
 </span><span class="kw">fn </span>limbs_mul(r: <span class="kw-2">&amp;mut </span>[Limb], a: <span class="kw-2">&amp;</span>[Limb], b: <span class="kw-2">&amp;</span>[Limb]) {
@@ -578,11 +687,10 @@
 <span class="attr">#[cfg(any(
     test,
     not(any(
-        target_arch = <span class="string">"aarch64"</span>,
-        target_arch = <span class="string">"arm"</span>,
+        all(target_arch = <span class="string">"aarch64"</span>, target_endian = <span class="string">"little"</span>),
+        all(target_arch = <span class="string">"arm"</span>, target_endian = <span class="string">"little"</span>),
         target_arch = <span class="string">"x86_64"</span>,
-        target_arch = <span class="string">"x86"
-    </span>))
+    ))
 ))]
 </span><span class="macro">prefixed_extern!</span> {
     <span class="comment">// `r` must not alias `a`
@@ -590,91 +698,37 @@
     </span><span class="kw">fn </span>limbs_mul_add_limb(r: <span class="kw-2">*mut </span>Limb, a: <span class="kw-2">*const </span>Limb, b: Limb, num_limbs: c::size_t) -&gt; Limb;
 }
 
-<span class="attr">#[cfg(any(
-    target_arch = <span class="string">"aarch64"</span>,
-    target_arch = <span class="string">"arm"</span>,
-    target_arch = <span class="string">"x86_64"</span>,
-    target_arch = <span class="string">"x86"
-</span>))]
-</span><span class="macro">prefixed_extern!</span> {
-    <span class="comment">// `r` and/or 'a' and/or 'b' may alias.
-    </span><span class="kw">fn </span>bn_mul_mont(
-        r: <span class="kw-2">*mut </span>Limb,
-        a: <span class="kw-2">*const </span>Limb,
-        b: <span class="kw-2">*const </span>Limb,
-        n: <span class="kw-2">*const </span>Limb,
-        n0: <span class="kw-2">&amp;</span>N0,
-        num_limbs: c::size_t,
-    );
-}
-
-<span class="doccomment">/// r *= a
-</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>limbs_mont_mul(
-    r: <span class="kw-2">&amp;mut </span>[Limb],
-    a: <span class="kw-2">&amp;</span>[Limb],
-    m: <span class="kw-2">&amp;</span>[Limb],
-    n0: <span class="kw-2">&amp;</span>N0,
-    cpu_features: cpu::Features,
-) {
-    <span class="macro">debug_assert_eq!</span>(r.len(), m.len());
-    <span class="macro">debug_assert_eq!</span>(a.len(), m.len());
-    <span class="kw">unsafe </span>{
-        mul_mont(
-            r.as_mut_ptr(),
-            r.as_ptr(),
-            a.as_ptr(),
-            m.as_ptr(),
-            n0,
-            r.len(),
-            cpu_features,
-        )
-    }
-}
-
-<span class="doccomment">/// r = a * b
-</span><span class="attr">#[cfg(not(target_arch = <span class="string">"x86_64"</span>))]
-</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>limbs_mont_product(
-    r: <span class="kw-2">&amp;mut </span>[Limb],
-    a: <span class="kw-2">&amp;</span>[Limb],
-    b: <span class="kw-2">&amp;</span>[Limb],
-    m: <span class="kw-2">&amp;</span>[Limb],
-    n0: <span class="kw-2">&amp;</span>N0,
-    cpu_features: cpu::Features,
-) {
-    <span class="macro">debug_assert_eq!</span>(r.len(), m.len());
-    <span class="macro">debug_assert_eq!</span>(a.len(), m.len());
-    <span class="macro">debug_assert_eq!</span>(b.len(), m.len());
-
-    <span class="kw">unsafe </span>{
-        mul_mont(
-            r.as_mut_ptr(),
-            a.as_ptr(),
-            b.as_ptr(),
-            m.as_ptr(),
-            n0,
-            r.len(),
-            cpu_features,
-        )
-    }
-}
-
 <span class="doccomment">/// r = r**2
-</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>limbs_mont_square(r: <span class="kw-2">&amp;mut </span>[Limb], m: <span class="kw-2">&amp;</span>[Limb], n0: <span class="kw-2">&amp;</span>N0, cpu_features: cpu::Features) {
-    <span class="macro">debug_assert_eq!</span>(r.len(), m.len());
-    <span class="kw">unsafe </span>{
-        mul_mont(
-            r.as_mut_ptr(),
-            r.as_ptr(),
-            r.as_ptr(),
-            m.as_ptr(),
-            n0,
-            r.len(),
-            cpu_features,
-        )
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>limbs_square_mont(
+    r: <span class="kw-2">&amp;mut </span>[Limb],
+    n: <span class="kw-2">&amp;</span>[Limb],
+    n0: <span class="kw-2">&amp;</span>N0,
+    cpu: cpu::Features,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(), LimbSliceError&gt; {
+    <span class="attr">#[cfg(all(target_arch = <span class="string">"aarch64"</span>, target_endian = <span class="string">"little"</span>))]
+    </span>{
+        <span class="kw">use </span><span class="kw">super</span>::aarch64_mont;
+        <span class="kw">use </span><span class="kw">crate</span>::polyfill::slice;
+        <span class="kw">if let </span>((r, []), (n, [])) = (slice::as_chunks_mut(r), slice::as_chunks(n)) {
+            <span class="kw">return </span>aarch64_mont::sqr_mont5(r, n, n0);
+        }
     }
+
+    <span class="attr">#[cfg(target_arch = <span class="string">"x86_64"</span>)]
+    </span>{
+        <span class="kw">use </span><span class="kw">super</span>::x86_64_mont;
+        <span class="kw">use crate</span>::{cpu::GetFeature <span class="kw">as _</span>, polyfill::slice};
+        <span class="kw">if let </span>((r, []), (n, [])) = (slice::as_chunks_mut(r), slice::as_chunks(n)) {
+            <span class="kw">return </span>x86_64_mont::sqr_mont5(r, n, n0, cpu.get_feature());
+        }
+    }
+
+    limbs_mul_mont(r, n, n0, cpu)
 }
+
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
+    <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::MAX_LIMBS;
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span><span class="kw">crate</span>::limb::Limb;
 
@@ -696,7 +750,7 @@
         ];
 
         <span class="kw">for </span>(i, (r_input, a, w, expected_retval, expected_r)) <span class="kw">in </span>TEST_CASES.iter().enumerate() {
-            <span class="kw">let </span><span class="kw-2">mut </span>r = [<span class="number">0</span>; <span class="kw">super</span>::<span class="kw">super</span>::BIGINT_MODULUS_MAX_LIMBS];
+            <span class="kw">let </span><span class="kw-2">mut </span>r = [<span class="number">0</span>; MAX_LIMBS];
             <span class="kw">let </span>r = {
                 <span class="kw">let </span>r = <span class="kw-2">&amp;mut </span>r[..r_input.len()];
                 r.copy_from_slice(r_input);

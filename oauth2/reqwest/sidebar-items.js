@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Error"],"fn":["async_http_client","http_client"],"type":["AsyncHttpClientError","HttpClientError"]};

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/uuid-1.11.1/src/builder.rs`."><title>builder.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="uuid" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/uuid-1.13.1/src/builder.rs`."><title>builder.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="uuid" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">uuid/</div>builder.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -876,59 +877,7 @@
 <a href="#876" id="876">876</a>
 <a href="#877" id="877">877</a>
 <a href="#878" id="878">878</a>
-<a href="#879" id="879">879</a>
-<a href="#880" id="880">880</a>
-<a href="#881" id="881">881</a>
-<a href="#882" id="882">882</a>
-<a href="#883" id="883">883</a>
-<a href="#884" id="884">884</a>
-<a href="#885" id="885">885</a>
-<a href="#886" id="886">886</a>
-<a href="#887" id="887">887</a>
-<a href="#888" id="888">888</a>
-<a href="#889" id="889">889</a>
-<a href="#890" id="890">890</a>
-<a href="#891" id="891">891</a>
-<a href="#892" id="892">892</a>
-<a href="#893" id="893">893</a>
-<a href="#894" id="894">894</a>
-<a href="#895" id="895">895</a>
-<a href="#896" id="896">896</a>
-<a href="#897" id="897">897</a>
-<a href="#898" id="898">898</a>
-<a href="#899" id="899">899</a>
-<a href="#900" id="900">900</a>
-<a href="#901" id="901">901</a>
-<a href="#902" id="902">902</a>
-<a href="#903" id="903">903</a>
-<a href="#904" id="904">904</a>
-<a href="#905" id="905">905</a>
-<a href="#906" id="906">906</a>
-<a href="#907" id="907">907</a>
-<a href="#908" id="908">908</a>
-<a href="#909" id="909">909</a>
-<a href="#910" id="910">910</a>
-<a href="#911" id="911">911</a>
-<a href="#912" id="912">912</a>
-<a href="#913" id="913">913</a>
-<a href="#914" id="914">914</a>
-<a href="#915" id="915">915</a>
-<a href="#916" id="916">916</a>
-<a href="#917" id="917">917</a>
-<a href="#918" id="918">918</a>
-<a href="#919" id="919">919</a>
-<a href="#920" id="920">920</a>
-<a href="#921" id="921">921</a>
-<a href="#922" id="922">922</a>
-<a href="#923" id="923">923</a>
-<a href="#924" id="924">924</a>
-<a href="#925" id="925">925</a>
-<a href="#926" id="926">926</a>
-<a href="#927" id="927">927</a>
-<a href="#928" id="928">928</a>
-<a href="#929" id="929">929</a>
-<a href="#930" id="930">930</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright 2013-2014 The Rust Project Developers.
+<a href="#879" id="879">879</a></pre></div><pre class="rust"><code><span class="comment">// Copyright 2013-2014 The Rust Project Developers.
 // Copyright 2018 The Uuid Project Developers.
 //
 // See the COPYRIGHT file at the top-level directory of this distribution.
@@ -1134,24 +1083,7 @@
     /// );
     /// ```
     </span><span class="kw">pub const fn </span>from_u128(v: u128) -&gt; <span class="self">Self </span>{
-        Uuid::from_bytes([
-            (v &gt;&gt; <span class="number">120</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">112</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">104</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">96</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">88</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">80</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">72</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">64</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">56</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">48</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">40</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">32</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">24</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8,
-            v <span class="kw">as </span>u8,
-        ])
+        Uuid::from_bytes(v.to_be_bytes())
     }
 
     <span class="doccomment">/// Creates a UUID from a 128bit value in little-endian order.
@@ -1177,24 +1109,7 @@
     /// );
     /// ```
     </span><span class="kw">pub const fn </span>from_u128_le(v: u128) -&gt; <span class="self">Self </span>{
-        Uuid::from_bytes([
-            v <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">24</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">32</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">40</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">48</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">56</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">64</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">72</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">80</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">88</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">96</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">104</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">112</span>) <span class="kw">as </span>u8,
-            (v &gt;&gt; <span class="number">120</span>) <span class="kw">as </span>u8,
-        ])
+        Uuid::from_bytes(v.to_le_bytes())
     }
 
     <span class="doccomment">/// Creates a UUID from two 64bit values.
@@ -1216,24 +1131,7 @@
     /// );
     /// ```
     </span><span class="kw">pub const fn </span>from_u64_pair(high_bits: u64, low_bits: u64) -&gt; <span class="self">Self </span>{
-        Uuid::from_bytes([
-            (high_bits &gt;&gt; <span class="number">56</span>) <span class="kw">as </span>u8,
-            (high_bits &gt;&gt; <span class="number">48</span>) <span class="kw">as </span>u8,
-            (high_bits &gt;&gt; <span class="number">40</span>) <span class="kw">as </span>u8,
-            (high_bits &gt;&gt; <span class="number">32</span>) <span class="kw">as </span>u8,
-            (high_bits &gt;&gt; <span class="number">24</span>) <span class="kw">as </span>u8,
-            (high_bits &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u8,
-            (high_bits &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8,
-            high_bits <span class="kw">as </span>u8,
-            (low_bits &gt;&gt; <span class="number">56</span>) <span class="kw">as </span>u8,
-            (low_bits &gt;&gt; <span class="number">48</span>) <span class="kw">as </span>u8,
-            (low_bits &gt;&gt; <span class="number">40</span>) <span class="kw">as </span>u8,
-            (low_bits &gt;&gt; <span class="number">32</span>) <span class="kw">as </span>u8,
-            (low_bits &gt;&gt; <span class="number">24</span>) <span class="kw">as </span>u8,
-            (low_bits &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u8,
-            (low_bits &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8,
-            low_bits <span class="kw">as </span>u8,
-        ])
+        Uuid::from_u128(((high_bits <span class="kw">as </span>u128) &lt;&lt; <span class="number">64</span>) | low_bits <span class="kw">as </span>u128)
     }
 
     <span class="doccomment">/// Creates a UUID using the supplied bytes.
@@ -1839,7 +1737,7 @@
 <span class="attr">#[doc(hidden)]
 </span><span class="kw">impl </span>Builder {
     <span class="attr">#[deprecated(
-        since = <span class="string">"1.11.1"</span>,
+        since = <span class="string">"1.10.0"</span>,
         note = <span class="string">"use `Builder::from_gregorian_timestamp(ticks, counter, node_id)`"
     </span>)]
     </span><span class="kw">pub const fn </span>from_rfc4122_timestamp(ticks: u64, counter: u16, node_id: <span class="kw-2">&amp;</span>[u8; <span class="number">6</span>]) -&gt; <span class="self">Self </span>{
@@ -1847,7 +1745,7 @@
     }
 
     <span class="attr">#[deprecated(
-        since = <span class="string">"1.11.1"</span>,
+        since = <span class="string">"1.10.0"</span>,
         note = <span class="string">"use `Builder::from_sorted_gregorian_timestamp(ticks, counter, node_id)`"
     </span>)]
     </span><span class="kw">pub const fn </span>from_sorted_rfc4122_timestamp(

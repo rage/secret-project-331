@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.8/src/rsa/public_key.rs`."><title>public_key.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.9/src/rsa/public_key.rs`."><title>public_key.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ring/rsa/</div>public_key.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -222,7 +223,10 @@
 <a href="#222" id="222">222</a>
 <a href="#223" id="223">223</a>
 <a href="#224" id="224">224</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright 2015-2021 Brian Smith.
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a></pre></div><pre class="rust"><code><span class="comment">// Copyright 2015-2021 Brian Smith.
 //
 // Permission to use, copy, modify, and/or distribute this software for any
 // purpose with or without fee is hereby granted, provided that the above
@@ -285,9 +289,10 @@
         <span class="kw">let </span>e_bytes = io::Positive::from_be_bytes(e_bytes)
             .map_err(|<span class="kw">_</span>: error::Unspecified| error::KeyRejected::unexpected_error())<span class="question-mark">?</span>;
         <span class="kw">let </span>serialized = der_writer::write_all(der::Tag::Sequence, <span class="kw-2">&amp;</span>|output| {
-            der_writer::write_positive_integer(output, <span class="kw-2">&amp;</span>n_bytes);
-            der_writer::write_positive_integer(output, <span class="kw-2">&amp;</span>e_bytes);
-        });
+            der_writer::write_positive_integer(output, <span class="kw-2">&amp;</span>n_bytes)<span class="question-mark">?</span>;
+            der_writer::write_positive_integer(output, <span class="kw-2">&amp;</span>e_bytes)
+        })
+        .map_err(|<span class="kw">_</span>: io::TooLongError| error::KeyRejected::unexpected_error())<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ inner, serialized })
     }
@@ -387,7 +392,8 @@
         }
 
         <span class="comment">// Step 2.
-        </span><span class="kw">let </span>m = <span class="self">self</span>.exponentiate_elem(<span class="kw-2">&amp;</span>s, cpu_features);
+        </span><span class="kw">let </span>m = n.alloc_zero();
+        <span class="kw">let </span>m = <span class="self">self</span>.exponentiate_elem(m, <span class="kw-2">&amp;</span>s, cpu_features);
 
         <span class="comment">// Step 3.
         </span><span class="prelude-val">Ok</span>(fill_be_bytes_n(m, <span class="self">self</span>.n.len_bits(), out_buffer))
@@ -398,6 +404,7 @@
     /// This is constant-time with respect to `base` only.
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>exponentiate_elem(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
+        out: bigint::Storage&lt;N&gt;,
         base: <span class="kw-2">&amp;</span>bigint::Elem&lt;N&gt;,
         cpu_features: cpu::Features,
     ) -&gt; bigint::Elem&lt;N&gt; {
@@ -408,13 +415,14 @@
 
         <span class="kw">let </span>n = <span class="kw-2">&amp;</span><span class="self">self</span>.n.value(cpu_features);
 
-        <span class="kw">let </span>base_r = bigint::elem_mul(<span class="self">self</span>.n.oneRR(), base.clone(), n);
+        <span class="kw">let </span>tmp = n.alloc_zero();
+        <span class="kw">let </span>base_r = bigint::elem_mul_into(tmp, <span class="self">self</span>.n.oneRR(), base, n);
 
         <span class="comment">// During RSA public key operations the exponent is almost always either
         // 65537 (0b10000000000000001) or 3 (0b11), both of which have a Hamming
         // weight of 2. The maximum bit length and maximum Hamming weight of the
         // exponent is bounded by the value of `PublicExponent::MAX`.
-        </span><span class="kw">let </span>acc = bigint::elem_exp_vartime(base_r, exponent_without_low_bit, n);
+        </span><span class="kw">let </span>acc = bigint::elem_exp_vartime(out, base_r, exponent_without_low_bit, n);
 
         <span class="comment">// Now do the multiplication for the low bit and convert out of the Montgomery domain.
         </span>bigint::elem_mul(base, acc, n)

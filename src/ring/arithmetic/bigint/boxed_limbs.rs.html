@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.8/src/arithmetic/bigint/boxed_limbs.rs`."><title>boxed_limbs.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.9/src/arithmetic/bigint/boxed_limbs.rs`."><title>boxed_limbs.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ring/arithmetic/bigint/</div>boxed_limbs.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -78,39 +79,7 @@
 <a href="#78" id="78">78</a>
 <a href="#79" id="79">79</a>
 <a href="#80" id="80">80</a>
-<a href="#81" id="81">81</a>
-<a href="#82" id="82">82</a>
-<a href="#83" id="83">83</a>
-<a href="#84" id="84">84</a>
-<a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a>
-<a href="#89" id="89">89</a>
-<a href="#90" id="90">90</a>
-<a href="#91" id="91">91</a>
-<a href="#92" id="92">92</a>
-<a href="#93" id="93">93</a>
-<a href="#94" id="94">94</a>
-<a href="#95" id="95">95</a>
-<a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a>
-<a href="#108" id="108">108</a>
-<a href="#109" id="109">109</a>
-<a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a>
-<a href="#112" id="112">112</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright 2015-2023 Brian Smith.
+<a href="#81" id="81">81</a></pre></div><pre class="rust"><code><span class="comment">// Copyright 2015-2023 Brian Smith.
 //
 // Permission to use, copy, modify, and/or distribute this software for any
 // purpose with or without fee is hereby granted, provided that the above
@@ -127,7 +96,7 @@
 </span><span class="kw">use </span><span class="kw">super</span>::Modulus;
 <span class="kw">use crate</span>::{
     error,
-    limb::{<span class="self">self</span>, Limb, LimbMask, LIMB_BYTES},
+    limb::{<span class="self">self</span>, Limb},
 };
 <span class="kw">use </span>alloc::{boxed::Box, vec};
 <span class="kw">use </span>core::{
@@ -170,45 +139,14 @@
 }
 
 <span class="kw">impl</span>&lt;M&gt; BoxedLimbs&lt;M&gt; {
-    <span class="comment">// The caller must ensure that `limbs.len()` is the same width as the
-    // modulus.
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new_unchecked(limbs: Box&lt;[Limb]&gt;) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            limbs,
-            m: PhantomData,
-        }
-    }
-
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>positive_minimal_width_from_be_bytes(
-        input: untrusted::Input,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, error::KeyRejected&gt; {
-        <span class="comment">// Reject leading zeros. Also reject the value zero ([0]) because zero
-        // isn't positive.
-        </span><span class="kw">if </span>untrusted::Reader::new(input).peek(<span class="number">0</span>) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(error::KeyRejected::invalid_encoding());
-        }
-        <span class="kw">let </span>num_limbs = (input.len() + LIMB_BYTES - <span class="number">1</span>) / LIMB_BYTES;
-        <span class="kw">let </span><span class="kw-2">mut </span>r = <span class="self">Self</span>::zero(num_limbs);
-        limb::parse_big_endian_and_pad_consttime(input, <span class="kw-2">&amp;mut </span>r)
-            .map_err(|error::Unspecified| error::KeyRejected::unexpected_error())<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(r)
-    }
-
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>from_be_bytes_padded_less_than(
         input: untrusted::Input,
         m: <span class="kw-2">&amp;</span>Modulus&lt;M&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, error::Unspecified&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>r = <span class="self">Self</span>::zero(m.limbs().len());
         limb::parse_big_endian_and_pad_consttime(input, <span class="kw-2">&amp;mut </span>r)<span class="question-mark">?</span>;
-        <span class="kw">if </span>limb::limbs_less_than_limbs_consttime(<span class="kw-2">&amp;</span>r, m.limbs()) != LimbMask::True {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(error::Unspecified);
-        }
+        limb::verify_limbs_less_than_limbs_leak_bit(<span class="kw-2">&amp;</span>r, m.limbs())<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(r)
-    }
-
-    <span class="attr">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>is_zero(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        limb::limbs_are_zero_constant_time(<span class="kw-2">&amp;</span><span class="self">self</span>.limbs) == LimbMask::True
     }
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>zero(len: usize) -&gt; <span class="self">Self </span>{

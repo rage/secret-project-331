@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/seq/index.rs`."><title>index.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rand" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.9.0/src/seq/index.rs`."><title>index.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rand" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rand/seq/</div>index.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -676,7 +677,24 @@
 <a href="#676" id="676">676</a>
 <a href="#677" id="677">677</a>
 <a href="#678" id="678">678</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright 2018 Developers of the Rand project.
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
+<a href="#690" id="690">690</a>
+<a href="#691" id="691">691</a>
+<a href="#692" id="692">692</a>
+<a href="#693" id="693">693</a>
+<a href="#694" id="694">694</a>
+<a href="#695" id="695">695</a>
+<a href="#696" id="696">696</a></pre></div><pre class="rust"><code><span class="comment">// Copyright 2018 Developers of the Rand project.
 //
 // Licensed under the Apache License, Version 2.0 &lt;LICENSE-APACHE or
 // https://www.apache.org/licenses/LICENSE-2.0&gt; or the MIT license
@@ -685,52 +703,56 @@
 // except according to those terms.
 
 </span><span class="doccomment">//! Low-level API for sampling indices
-
-</span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)] </span><span class="kw">use </span>core::slice;
-
-<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)] </span><span class="kw">use </span>alloc::vec::{<span class="self">self</span>, Vec};
+</span><span class="kw">use </span>alloc::vec::{<span class="self">self</span>, Vec};
+<span class="kw">use </span>core::slice;
+<span class="kw">use </span>core::{hash::Hash, ops::AddAssign};
 <span class="comment">// BTreeMap is not as fast in tests, but better than nothing.
-</span><span class="attr">#[cfg(all(feature = <span class="string">"alloc"</span>, not(feature = <span class="string">"std"</span>)))]
+</span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">use </span><span class="kw">super</span>::WeightError;
+<span class="kw">use </span><span class="kw">crate</span>::distr::uniform::SampleUniform;
+<span class="kw">use </span><span class="kw">crate</span>::distr::{Distribution, Uniform};
+<span class="kw">use </span><span class="kw">crate</span>::Rng;
+<span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
 </span><span class="kw">use </span>alloc::collections::BTreeSet;
-<span class="attr">#[cfg(feature = <span class="string">"std"</span>)] </span><span class="kw">use </span>std::collections::HashSet;
-
+<span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
+</span><span class="kw">use </span>serde::{Deserialize, Serialize};
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::distributions::WeightedError;
+</span><span class="kw">use </span>std::collections::HashSet;
 
-<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
-</span><span class="kw">use crate</span>::{Rng, distributions::{uniform::SampleUniform, Distribution, Uniform}};
-
-<span class="attr">#[cfg(feature = <span class="string">"serde1"</span>)]
-</span><span class="kw">use </span>serde::{Serialize, Deserialize};
+<span class="attr">#[cfg(not(any(target_pointer_width = <span class="string">"32"</span>, target_pointer_width = <span class="string">"64"</span>)))]
+</span><span class="macro">compile_error!</span>(<span class="string">"unsupported pointer width"</span>);
 
 <span class="doccomment">/// A vector of indices.
 ///
 /// Multiple internal representations are possible.
 </span><span class="attr">#[derive(Clone, Debug)]
-#[cfg_attr(feature = <span class="string">"serde1"</span>, derive(Serialize, Deserialize))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(Serialize, Deserialize))]
 </span><span class="kw">pub enum </span>IndexVec {
     <span class="attr">#[doc(hidden)]
     </span>U32(Vec&lt;u32&gt;),
-    <span class="attr">#[doc(hidden)]
-    </span>USize(Vec&lt;usize&gt;),
+    <span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
+    #[doc(hidden)]
+    </span>U64(Vec&lt;u64&gt;),
 }
 
 <span class="kw">impl </span>IndexVec {
     <span class="doccomment">/// Returns the number of indices
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            IndexVec::U32(<span class="kw-2">ref </span>v) =&gt; v.len(),
-            IndexVec::USize(<span class="kw-2">ref </span>v) =&gt; v.len(),
+        <span class="kw">match </span><span class="self">self </span>{
+            IndexVec::U32(v) =&gt; v.len(),
+            <span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
+            </span>IndexVec::U64(v) =&gt; v.len(),
         }
     }
 
     <span class="doccomment">/// Returns `true` if the length is 0.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            IndexVec::U32(<span class="kw-2">ref </span>v) =&gt; v.is_empty(),
-            IndexVec::USize(<span class="kw-2">ref </span>v) =&gt; v.is_empty(),
+        <span class="kw">match </span><span class="self">self </span>{
+            IndexVec::U32(v) =&gt; v.is_empty(),
+            <span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
+            </span>IndexVec::U64(v) =&gt; v.is_empty(),
         }
     }
 
@@ -740,9 +762,10 @@
     /// restrictions.)
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; usize {
-        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            IndexVec::U32(<span class="kw-2">ref </span>v) =&gt; v[index] <span class="kw">as </span>usize,
-            IndexVec::USize(<span class="kw-2">ref </span>v) =&gt; v[index],
+        <span class="kw">match </span><span class="self">self </span>{
+            IndexVec::U32(v) =&gt; v[index] <span class="kw">as </span>usize,
+            <span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
+            </span>IndexVec::U64(v) =&gt; v[index] <span class="kw">as </span>usize,
         }
     }
 
@@ -751,30 +774,33 @@
     </span><span class="kw">pub fn </span>into_vec(<span class="self">self</span>) -&gt; Vec&lt;usize&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             IndexVec::U32(v) =&gt; v.into_iter().map(|i| i <span class="kw">as </span>usize).collect(),
-            IndexVec::USize(v) =&gt; v,
+            <span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
+            </span>IndexVec::U64(v) =&gt; v.into_iter().map(|i| i <span class="kw">as </span>usize).collect(),
         }
     }
 
     <span class="doccomment">/// Iterate over the indices as a sequence of `usize` values
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; IndexVecIter&lt;<span class="lifetime">'_</span>&gt; {
-        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            IndexVec::U32(<span class="kw-2">ref </span>v) =&gt; IndexVecIter::U32(v.iter()),
-            IndexVec::USize(<span class="kw-2">ref </span>v) =&gt; IndexVecIter::USize(v.iter()),
+        <span class="kw">match </span><span class="self">self </span>{
+            IndexVec::U32(v) =&gt; IndexVecIter::U32(v.iter()),
+            <span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
+            </span>IndexVec::U64(v) =&gt; IndexVecIter::U64(v.iter()),
         }
     }
 }
 
 <span class="kw">impl </span>IntoIterator <span class="kw">for </span>IndexVec {
-    <span class="kw">type </span>Item = usize;
     <span class="kw">type </span>IntoIter = IndexVecIntoIter;
+    <span class="kw">type </span>Item = usize;
 
     <span class="doccomment">/// Convert into an iterator over the indices as a sequence of `usize` values
     </span><span class="attr">#[inline]
     </span><span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; IndexVecIntoIter {
         <span class="kw">match </span><span class="self">self </span>{
             IndexVec::U32(v) =&gt; IndexVecIntoIter::U32(v.into_iter()),
-            IndexVec::USize(v) =&gt; IndexVecIntoIter::USize(v.into_iter()),
+            <span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
+            </span>IndexVec::U64(v) =&gt; IndexVecIntoIter::U64(v.into_iter()),
         }
     }
 }
@@ -783,13 +809,16 @@
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>IndexVec) -&gt; bool {
         <span class="kw">use </span><span class="self">self</span>::IndexVec::<span class="kw-2">*</span>;
         <span class="kw">match </span>(<span class="self">self</span>, other) {
-            (<span class="kw-2">&amp;</span>U32(<span class="kw-2">ref </span>v1), <span class="kw-2">&amp;</span>U32(<span class="kw-2">ref </span>v2)) =&gt; v1 == v2,
-            (<span class="kw-2">&amp;</span>USize(<span class="kw-2">ref </span>v1), <span class="kw-2">&amp;</span>USize(<span class="kw-2">ref </span>v2)) =&gt; v1 == v2,
-            (<span class="kw-2">&amp;</span>U32(<span class="kw-2">ref </span>v1), <span class="kw-2">&amp;</span>USize(<span class="kw-2">ref </span>v2)) =&gt; {
-                (v1.len() == v2.len()) &amp;&amp; (v1.iter().zip(v2.iter()).all(|(x, y)| <span class="kw-2">*</span>x <span class="kw">as </span>usize == <span class="kw-2">*</span>y))
+            (U32(v1), U32(v2)) =&gt; v1 == v2,
+            <span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
+            </span>(U64(v1), U64(v2)) =&gt; v1 == v2,
+            <span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
+            </span>(U32(v1), U64(v2)) =&gt; {
+                (v1.len() == v2.len()) &amp;&amp; (v1.iter().zip(v2.iter()).all(|(x, y)| <span class="kw-2">*</span>x <span class="kw">as </span>u64 == <span class="kw-2">*</span>y))
             }
-            (<span class="kw-2">&amp;</span>USize(<span class="kw-2">ref </span>v1), <span class="kw-2">&amp;</span>U32(<span class="kw-2">ref </span>v2)) =&gt; {
-                (v1.len() == v2.len()) &amp;&amp; (v1.iter().zip(v2.iter()).all(|(x, y)| <span class="kw-2">*</span>x == <span class="kw-2">*</span>y <span class="kw">as </span>usize))
+            <span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
+            </span>(U64(v1), U32(v2)) =&gt; {
+                (v1.len() == v2.len()) &amp;&amp; (v1.iter().zip(v2.iter()).all(|(x, y)| <span class="kw-2">*</span>x == <span class="kw-2">*</span>y <span class="kw">as </span>u64))
             }
         }
     }
@@ -802,10 +831,11 @@
     }
 }
 
-<span class="kw">impl </span>From&lt;Vec&lt;usize&gt;&gt; <span class="kw">for </span>IndexVec {
+<span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
+</span><span class="kw">impl </span>From&lt;Vec&lt;u64&gt;&gt; <span class="kw">for </span>IndexVec {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>from(v: Vec&lt;usize&gt;) -&gt; <span class="self">Self </span>{
-        IndexVec::USize(v)
+    </span><span class="kw">fn </span>from(v: Vec&lt;u64&gt;) -&gt; <span class="self">Self </span>{
+        IndexVec::U64(v)
     }
 }
 
@@ -814,40 +844,44 @@
 </span><span class="kw">pub enum </span>IndexVecIter&lt;<span class="lifetime">'a</span>&gt; {
     <span class="attr">#[doc(hidden)]
     </span>U32(slice::Iter&lt;<span class="lifetime">'a</span>, u32&gt;),
-    <span class="attr">#[doc(hidden)]
-    </span>USize(slice::Iter&lt;<span class="lifetime">'a</span>, usize&gt;),
+    <span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
+    #[doc(hidden)]
+    </span>U64(slice::Iter&lt;<span class="lifetime">'a</span>, u64&gt;),
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Iterator <span class="kw">for </span>IndexVecIter&lt;<span class="lifetime">'a</span>&gt; {
+<span class="kw">impl </span>Iterator <span class="kw">for </span>IndexVecIter&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">type </span>Item = usize;
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
         <span class="kw">use </span><span class="self">self</span>::IndexVecIter::<span class="kw-2">*</span>;
-        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            U32(<span class="kw-2">ref mut </span>iter) =&gt; iter.next().map(|i| <span class="kw-2">*</span>i <span class="kw">as </span>usize),
-            USize(<span class="kw-2">ref mut </span>iter) =&gt; iter.next().cloned(),
+        <span class="kw">match </span><span class="self">self </span>{
+            U32(iter) =&gt; iter.next().map(|i| <span class="kw-2">*</span>i <span class="kw">as </span>usize),
+            <span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
+            </span>U64(iter) =&gt; iter.next().map(|i| <span class="kw-2">*</span>i <span class="kw">as </span>usize),
         }
     }
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {
-        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            IndexVecIter::U32(<span class="kw-2">ref </span>v) =&gt; v.size_hint(),
-            IndexVecIter::USize(<span class="kw-2">ref </span>v) =&gt; v.size_hint(),
+        <span class="kw">match </span><span class="self">self </span>{
+            IndexVecIter::U32(v) =&gt; v.size_hint(),
+            <span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
+            </span>IndexVecIter::U64(v) =&gt; v.size_hint(),
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ExactSizeIterator <span class="kw">for </span>IndexVecIter&lt;<span class="lifetime">'a</span>&gt; {}
+<span class="kw">impl </span>ExactSizeIterator <span class="kw">for </span>IndexVecIter&lt;<span class="lifetime">'_</span>&gt; {}
 
 <span class="doccomment">/// Return type of `IndexVec::into_iter`.
 </span><span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub enum </span>IndexVecIntoIter {
     <span class="attr">#[doc(hidden)]
     </span>U32(vec::IntoIter&lt;u32&gt;),
-    <span class="attr">#[doc(hidden)]
-    </span>USize(vec::IntoIter&lt;usize&gt;),
+    <span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
+    #[doc(hidden)]
+    </span>U64(vec::IntoIter&lt;u64&gt;),
 }
 
 <span class="kw">impl </span>Iterator <span class="kw">for </span>IndexVecIntoIter {
@@ -856,24 +890,25 @@
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
         <span class="kw">use </span><span class="self">self</span>::IndexVecIntoIter::<span class="kw-2">*</span>;
-        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            U32(<span class="kw-2">ref mut </span>v) =&gt; v.next().map(|i| i <span class="kw">as </span>usize),
-            USize(<span class="kw-2">ref mut </span>v) =&gt; v.next(),
+        <span class="kw">match </span><span class="self">self </span>{
+            U32(v) =&gt; v.next().map(|i| i <span class="kw">as </span>usize),
+            <span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
+            </span>U64(v) =&gt; v.next().map(|i| i <span class="kw">as </span>usize),
         }
     }
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {
         <span class="kw">use </span><span class="self">self</span>::IndexVecIntoIter::<span class="kw-2">*</span>;
-        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            U32(<span class="kw-2">ref </span>v) =&gt; v.size_hint(),
-            USize(<span class="kw-2">ref </span>v) =&gt; v.size_hint(),
+        <span class="kw">match </span><span class="self">self </span>{
+            U32(v) =&gt; v.size_hint(),
+            <span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
+            </span>U64(v) =&gt; v.size_hint(),
         }
     }
 }
 
 <span class="kw">impl </span>ExactSizeIterator <span class="kw">for </span>IndexVecIntoIter {}
-
 
 <span class="doccomment">/// Randomly sample exactly `amount` distinct indices from `0..length`, and
 /// return them in random order (fully shuffled).
@@ -897,15 +932,22 @@
 /// to adapt the internal `sample_floyd` implementation.
 ///
 /// Panics if `amount &gt; length`.
+</span><span class="attr">#[track_caller]
 </span><span class="kw">pub fn </span>sample&lt;R&gt;(rng: <span class="kw-2">&amp;mut </span>R, length: usize, amount: usize) -&gt; IndexVec
-<span class="kw">where </span>R: Rng + <span class="question-mark">?</span>Sized {
+<span class="kw">where
+    </span>R: Rng + <span class="question-mark">?</span>Sized,
+{
     <span class="kw">if </span>amount &gt; length {
         <span class="macro">panic!</span>(<span class="string">"`amount` of samples must be less than or equal to `length`"</span>);
     }
-    <span class="kw">if </span>length &gt; (::core::u32::MAX <span class="kw">as </span>usize) {
+    <span class="kw">if </span>length &gt; (u32::MAX <span class="kw">as </span>usize) {
+        <span class="attr">#[cfg(target_pointer_width = <span class="string">"32"</span>)]
+        </span><span class="macro">unreachable!</span>();
+
         <span class="comment">// We never want to use inplace here, but could use floyd's alg
         // Lazy version: always use the cache alg.
-        </span><span class="kw">return </span>sample_rejection(rng, length, amount);
+        </span><span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
+        </span><span class="kw">return </span>sample_rejection(rng, length <span class="kw">as </span>u64, amount <span class="kw">as </span>u64);
     }
     <span class="kw">let </span>amount = amount <span class="kw">as </span>u32;
     <span class="kw">let </span>length = length <span class="kw">as </span>u32;
@@ -916,7 +958,7 @@
 
     </span><span class="kw">if </span>amount &lt; <span class="number">163 </span>{
         <span class="kw">const </span>C: [[f32; <span class="number">2</span>]; <span class="number">2</span>] = [[<span class="number">1.6</span>, <span class="number">8.0 </span>/ <span class="number">45.0</span>], [<span class="number">10.0</span>, <span class="number">70.0 </span>/ <span class="number">9.0</span>]];
-        <span class="kw">let </span>j = <span class="kw">if </span>length &lt; <span class="number">500_000 </span>{ <span class="number">0 </span>} <span class="kw">else </span>{ <span class="number">1 </span>};
+        <span class="kw">let </span>j = usize::from(length &gt;= <span class="number">500_000</span>);
         <span class="kw">let </span>amount_fp = amount <span class="kw">as </span>f32;
         <span class="kw">let </span>m4 = C[<span class="number">0</span>][j] * amount_fp;
         <span class="comment">// Short-cut: when amount &lt; 12, floyd's is always faster
@@ -927,7 +969,7 @@
         }
     } <span class="kw">else </span>{
         <span class="kw">const </span>C: [f32; <span class="number">2</span>] = [<span class="number">270.0</span>, <span class="number">330.0 </span>/ <span class="number">9.0</span>];
-        <span class="kw">let </span>j = <span class="kw">if </span>length &lt; <span class="number">500_000 </span>{ <span class="number">0 </span>} <span class="kw">else </span>{ <span class="number">1 </span>};
+        <span class="kw">let </span>j = usize::from(length &gt;= <span class="number">500_000</span>);
         <span class="kw">if </span>(length <span class="kw">as </span>f32) &lt; C[j] * (amount <span class="kw">as </span>f32) {
             sample_inplace(rng, length, amount)
         } <span class="kw">else </span>{
@@ -936,57 +978,71 @@
     }
 }
 
-<span class="doccomment">/// Randomly sample exactly `amount` distinct indices from `0..length`, and
-/// return them in an arbitrary order (there is no guarantee of shuffling or
-/// ordering). The weights are to be provided by the input function `weights`,
-/// which will be called once for each index.
+<span class="doccomment">/// Randomly sample exactly `amount` distinct indices from `0..length`
+///
+/// Results are in arbitrary order (there is no guarantee of shuffling or
+/// ordering).
+///
+/// Function `weight` is called once for each index to provide weights.
 ///
 /// This method is used internally by the slice sampling methods, but it can
 /// sometimes be useful to have the indices themselves so this is provided as
 /// an alternative.
 ///
-/// This implementation uses `O(length + amount)` space and `O(length)` time
-/// if the "nightly" feature is enabled, or `O(length)` space and
-/// `O(length + amount * log length)` time otherwise.
+/// Error cases:
+/// -   [`WeightError::InvalidWeight`] when a weight is not-a-number or negative.
+/// -   [`WeightError::InsufficientNonZero`] when fewer than `amount` weights are positive.
 ///
-/// Panics if `amount &gt; length`.
+/// This implementation uses `O(length + amount)` space and `O(length)` time.
 </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-#[cfg_attr(doc_cfg, doc(cfg(feature = <span class="string">"std"</span>)))]
 </span><span class="kw">pub fn </span>sample_weighted&lt;R, F, X&gt;(
-    rng: <span class="kw-2">&amp;mut </span>R, length: usize, weight: F, amount: usize,
-) -&gt; <span class="prelude-ty">Result</span>&lt;IndexVec, WeightedError&gt;
+    rng: <span class="kw-2">&amp;mut </span>R,
+    length: usize,
+    weight: F,
+    amount: usize,
+) -&gt; <span class="prelude-ty">Result</span>&lt;IndexVec, WeightError&gt;
 <span class="kw">where
     </span>R: Rng + <span class="question-mark">?</span>Sized,
     F: Fn(usize) -&gt; X,
     X: Into&lt;f64&gt;,
 {
-    <span class="kw">if </span>length &gt; (core::u32::MAX <span class="kw">as </span>usize) {
-        sample_efraimidis_spirakis(rng, length, weight, amount)
+    <span class="kw">if </span>length &gt; (u32::MAX <span class="kw">as </span>usize) {
+        <span class="attr">#[cfg(target_pointer_width = <span class="string">"32"</span>)]
+        </span><span class="macro">unreachable!</span>();
+
+        <span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
+        </span>{
+            <span class="kw">let </span>amount = amount <span class="kw">as </span>u64;
+            <span class="kw">let </span>length = length <span class="kw">as </span>u64;
+            sample_efraimidis_spirakis(rng, length, weight, amount)
+        }
     } <span class="kw">else </span>{
-        <span class="macro">assert!</span>(amount &lt;= core::u32::MAX <span class="kw">as </span>usize);
+        <span class="macro">assert!</span>(amount &lt;= u32::MAX <span class="kw">as </span>usize);
         <span class="kw">let </span>amount = amount <span class="kw">as </span>u32;
         <span class="kw">let </span>length = length <span class="kw">as </span>u32;
         sample_efraimidis_spirakis(rng, length, weight, amount)
     }
 }
 
-
 <span class="doccomment">/// Randomly sample exactly `amount` distinct indices from `0..length`, and
 /// return them in an arbitrary order (there is no guarantee of shuffling or
 /// ordering). The weights are to be provided by the input function `weights`,
 /// which will be called once for each index.
 ///
-/// This implementation uses the algorithm described by Efraimidis and Spirakis
-/// in this paper: https://doi.org/10.1016/j.ipl.2005.11.003
-/// It uses `O(length + amount)` space and `O(length)` time if the
-/// "nightly" feature is enabled, or `O(length)` space and `O(length
-/// + amount * log length)` time otherwise.
+/// This implementation is based on the algorithm A-ExpJ as found in
+/// [Efraimidis and Spirakis, 2005](https://doi.org/10.1016/j.ipl.2005.11.003).
+/// It uses `O(length + amount)` space and `O(length)` time.
 ///
-/// Panics if `amount &gt; length`.
+/// Error cases:
+/// -   [`WeightError::InvalidWeight`] when a weight is not-a-number or negative.
+/// -   [`WeightError::InsufficientNonZero`] when fewer than `amount` weights are positive.
 </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">fn </span>sample_efraimidis_spirakis&lt;R, F, X, N&gt;(
-    rng: <span class="kw-2">&amp;mut </span>R, length: N, weight: F, amount: N,
-) -&gt; <span class="prelude-ty">Result</span>&lt;IndexVec, WeightedError&gt;
+    rng: <span class="kw-2">&amp;mut </span>R,
+    length: N,
+    weight: F,
+    amount: N,
+) -&gt; <span class="prelude-ty">Result</span>&lt;IndexVec, WeightError&gt;
 <span class="kw">where
     </span>R: Rng + <span class="question-mark">?</span>Sized,
     F: Fn(usize) -&gt; X,
@@ -994,94 +1050,82 @@
     N: UInt,
     IndexVec: From&lt;Vec&lt;N&gt;&gt;,
 {
+    <span class="kw">use </span>std::{cmp::Ordering, collections::BinaryHeap};
+
     <span class="kw">if </span>amount == N::zero() {
         <span class="kw">return </span><span class="prelude-val">Ok</span>(IndexVec::U32(Vec::new()));
-    }
-
-    <span class="kw">if </span>amount &gt; length {
-        <span class="macro">panic!</span>(<span class="string">"`amount` of samples must be less than or equal to `length`"</span>);
     }
 
     <span class="kw">struct </span>Element&lt;N&gt; {
         index: N,
         key: f64,
     }
+
     <span class="kw">impl</span>&lt;N&gt; PartialOrd <span class="kw">for </span>Element&lt;N&gt; {
-        <span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;core::cmp::Ordering&gt; {
-            <span class="self">self</span>.key.partial_cmp(<span class="kw-2">&amp;</span>other.key)
+        <span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Ordering&gt; {
+            <span class="prelude-val">Some</span>(<span class="self">self</span>.cmp(other))
         }
     }
+
     <span class="kw">impl</span>&lt;N&gt; Ord <span class="kw">for </span>Element&lt;N&gt; {
-        <span class="kw">fn </span>cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; core::cmp::Ordering {
-             <span class="comment">// partial_cmp will always produce a value,
-             // because we check that the weights are not nan
-            </span><span class="self">self</span>.partial_cmp(other).unwrap()
+        <span class="kw">fn </span>cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; Ordering {
+            <span class="comment">// unwrap() should not panic since weights should not be NaN
+            // We reverse so that BinaryHeap::peek shows the smallest item
+            </span><span class="self">self</span>.key.partial_cmp(<span class="kw-2">&amp;</span>other.key).unwrap().reverse()
         }
     }
+
     <span class="kw">impl</span>&lt;N&gt; PartialEq <span class="kw">for </span>Element&lt;N&gt; {
         <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
             <span class="self">self</span>.key == other.key
         }
     }
+
     <span class="kw">impl</span>&lt;N&gt; Eq <span class="kw">for </span>Element&lt;N&gt; {}
 
-    <span class="attr">#[cfg(feature = <span class="string">"nightly"</span>)]
-    </span>{
-        <span class="kw">let </span><span class="kw-2">mut </span>candidates = Vec::with_capacity(length.as_usize());
-        <span class="kw">let </span><span class="kw-2">mut </span>index = N::zero();
-        <span class="kw">while </span>index &lt; length {
-            <span class="kw">let </span>weight = weight(index.as_usize()).into();
-            <span class="kw">if </span>!(weight &gt;= <span class="number">0.</span>) {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(WeightedError::InvalidWeight);
-            }
-
-            <span class="kw">let </span>key = rng.gen::&lt;f64&gt;().powf(<span class="number">1.0 </span>/ weight);
+    <span class="kw">let </span><span class="kw-2">mut </span>candidates = BinaryHeap::with_capacity(amount.as_usize());
+    <span class="kw">let </span><span class="kw-2">mut </span>index = N::zero();
+    <span class="kw">while </span>index &lt; length &amp;&amp; candidates.len() &lt; amount.as_usize() {
+        <span class="kw">let </span>weight = weight(index.as_usize()).into();
+        <span class="kw">if </span>weight &gt; <span class="number">0.0 </span>{
+            <span class="comment">// We use the log of the key used in A-ExpJ to improve precision
+            // for small weights:
+            </span><span class="kw">let </span>key = rng.random::&lt;f64&gt;().ln() / weight;
             candidates.push(Element { index, key });
-
-            index += N::one();
+        } <span class="kw">else if </span>!(weight &gt;= <span class="number">0.0</span>) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(WeightError::InvalidWeight);
         }
 
-        <span class="comment">// Partially sort the array to find the `amount` elements with the greatest
-        // keys. Do this by using `select_nth_unstable` to put the elements with
-        // the *smallest* keys at the beginning of the list in `O(n)` time, which
-        // provides equivalent information about the elements with the *greatest* keys.
-        </span><span class="kw">let </span>(<span class="kw">_</span>, mid, greater)
-            = candidates.select_nth_unstable(length.as_usize() - amount.as_usize());
-
-        <span class="kw">let </span><span class="kw-2">mut </span>result: Vec&lt;N&gt; = Vec::with_capacity(amount.as_usize());
-        result.push(mid.index);
-        <span class="kw">for </span>element <span class="kw">in </span>greater {
-            result.push(element.index);
-        }
-        <span class="prelude-val">Ok</span>(IndexVec::from(result))
+        index += N::one();
     }
 
-    <span class="attr">#[cfg(not(feature = <span class="string">"nightly"</span>))]
-    </span>{
-        <span class="kw">use </span>alloc::collections::BinaryHeap;
-
-        <span class="comment">// Partially sort the array such that the `amount` elements with the largest
-        // keys are first using a binary max heap.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>candidates = BinaryHeap::with_capacity(length.as_usize());
-        <span class="kw">let </span><span class="kw-2">mut </span>index = N::zero();
-        <span class="kw">while </span>index &lt; length {
-            <span class="kw">let </span>weight = weight(index.as_usize()).into();
-            <span class="kw">if </span>!(weight &gt;= <span class="number">0.</span>) {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(WeightedError::InvalidWeight);
-            }
-
-            <span class="kw">let </span>key = rng.gen::&lt;f64&gt;().powf(<span class="number">1.0 </span>/ weight);
-            candidates.push(Element { index, key });
-
-            index += N::one();
-        }
-
-        <span class="kw">let </span><span class="kw-2">mut </span>result: Vec&lt;N&gt; = Vec::with_capacity(amount.as_usize());
-        <span class="kw">while </span>result.len() &lt; amount.as_usize() {
-            result.push(candidates.pop().unwrap().index);
-        }
-        <span class="prelude-val">Ok</span>(IndexVec::from(result))
+    <span class="kw">if </span>candidates.len() &lt; amount.as_usize() {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(WeightError::InsufficientNonZero);
     }
+
+    <span class="kw">let </span><span class="kw-2">mut </span>x = rng.random::&lt;f64&gt;().ln() / candidates.peek().unwrap().key;
+    <span class="kw">while </span>index &lt; length {
+        <span class="kw">let </span>weight = weight(index.as_usize()).into();
+        <span class="kw">if </span>weight &gt; <span class="number">0.0 </span>{
+            x -= weight;
+            <span class="kw">if </span>x &lt;= <span class="number">0.0 </span>{
+                <span class="kw">let </span>min_candidate = candidates.pop().unwrap();
+                <span class="kw">let </span>t = (min_candidate.key * weight).exp();
+                <span class="kw">let </span>key = rng.random_range(t..<span class="number">1.0</span>).ln() / weight;
+                candidates.push(Element { index, key });
+
+                x = rng.random::&lt;f64&gt;().ln() / candidates.peek().unwrap().key;
+            }
+        } <span class="kw">else if </span>!(weight &gt;= <span class="number">0.0</span>) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(WeightError::InvalidWeight);
+        }
+
+        index += N::one();
+    }
+
+    <span class="prelude-val">Ok</span>(IndexVec::from(
+        candidates.iter().map(|elt| elt.index).collect(),
+    ))
 }
 
 <span class="doccomment">/// Randomly sample exactly `amount` indices from `0..length`, using Floyd's
@@ -1091,33 +1135,20 @@
 ///
 /// This implementation uses `O(amount)` memory and `O(amount^2)` time.
 </span><span class="kw">fn </span>sample_floyd&lt;R&gt;(rng: <span class="kw-2">&amp;mut </span>R, length: u32, amount: u32) -&gt; IndexVec
-<span class="kw">where </span>R: Rng + <span class="question-mark">?</span>Sized {
-    <span class="comment">// For small amount we use Floyd's fully-shuffled variant. For larger
-    // amounts this is slow due to Vec::insert performance, so we shuffle
-    // afterwards. Benchmarks show little overhead from extra logic.
-    </span><span class="kw">let </span>floyd_shuffle = amount &lt; <span class="number">50</span>;
-
-    <span class="macro">debug_assert!</span>(amount &lt;= length);
+<span class="kw">where
+    </span>R: Rng + <span class="question-mark">?</span>Sized,
+{
+    <span class="comment">// Note that the values returned by `rng.random_range()` can be
+    // inferred from the returned vector by working backwards from
+    // the last entry. This bijection proves the algorithm fair.
+    </span><span class="macro">debug_assert!</span>(amount &lt;= length);
     <span class="kw">let </span><span class="kw-2">mut </span>indices = Vec::with_capacity(amount <span class="kw">as </span>usize);
     <span class="kw">for </span>j <span class="kw">in </span>length - amount..length {
-        <span class="kw">let </span>t = rng.gen_range(<span class="number">0</span>..=j);
-        <span class="kw">if </span>floyd_shuffle {
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(pos) = indices.iter().position(|<span class="kw-2">&amp;</span>x| x == t) {
-                indices.insert(pos, j);
-                <span class="kw">continue</span>;
-            }
-        } <span class="kw">else if </span>indices.contains(<span class="kw-2">&amp;</span>t) {
-            indices.push(j);
-            <span class="kw">continue</span>;
+        <span class="kw">let </span>t = rng.random_range(..=j);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(pos) = indices.iter().position(|<span class="kw-2">&amp;</span>x| x == t) {
+            indices[pos] = j;
         }
         indices.push(t);
-    }
-    <span class="kw">if </span>!floyd_shuffle {
-        <span class="comment">// Reimplement SliceRandom::shuffle with smaller indices
-        </span><span class="kw">for </span>i <span class="kw">in </span>(<span class="number">1</span>..amount).rev() {
-            <span class="comment">// invariant: elements with index &gt; i have been locked in place.
-            </span>indices.swap(i <span class="kw">as </span>usize, rng.gen_range(<span class="number">0</span>..=i) <span class="kw">as </span>usize);
-        }
     }
     IndexVec::from(indices)
 }
@@ -1135,12 +1166,14 @@
 ///
 /// Set-up is `O(length)` time and memory and shuffling is `O(amount)` time.
 </span><span class="kw">fn </span>sample_inplace&lt;R&gt;(rng: <span class="kw-2">&amp;mut </span>R, length: u32, amount: u32) -&gt; IndexVec
-<span class="kw">where </span>R: Rng + <span class="question-mark">?</span>Sized {
+<span class="kw">where
+    </span>R: Rng + <span class="question-mark">?</span>Sized,
+{
     <span class="macro">debug_assert!</span>(amount &lt;= length);
     <span class="kw">let </span><span class="kw-2">mut </span>indices: Vec&lt;u32&gt; = Vec::with_capacity(length <span class="kw">as </span>usize);
     indices.extend(<span class="number">0</span>..length);
     <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..amount {
-        <span class="kw">let </span>j: u32 = rng.gen_range(i..length);
+        <span class="kw">let </span>j: u32 = rng.random_range(i..length);
         indices.swap(i <span class="kw">as </span>usize, j <span class="kw">as </span>usize);
     }
     indices.truncate(amount <span class="kw">as </span>usize);
@@ -1148,12 +1181,13 @@
     IndexVec::from(indices)
 }
 
-<span class="kw">trait </span>UInt: Copy + PartialOrd + Ord + PartialEq + Eq + SampleUniform
-    + core::hash::Hash + core::ops::AddAssign {
+<span class="kw">trait </span>UInt: Copy + PartialOrd + Ord + PartialEq + Eq + SampleUniform + Hash + AddAssign {
     <span class="kw">fn </span>zero() -&gt; <span class="self">Self</span>;
-    <span class="kw">fn </span>one() -&gt; <span class="self">Self</span>;
+    <span class="attr">#[cfg_attr(feature = <span class="string">"alloc"</span>, allow(dead_code))]
+    </span><span class="kw">fn </span>one() -&gt; <span class="self">Self</span>;
     <span class="kw">fn </span>as_usize(<span class="self">self</span>) -&gt; usize;
 }
+
 <span class="kw">impl </span>UInt <span class="kw">for </span>u32 {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>zero() -&gt; <span class="self">Self </span>{
@@ -1170,7 +1204,9 @@
         <span class="self">self </span><span class="kw">as </span>usize
     }
 }
-<span class="kw">impl </span>UInt <span class="kw">for </span>usize {
+
+<span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
+</span><span class="kw">impl </span>UInt <span class="kw">for </span>u64 {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>zero() -&gt; <span class="self">Self </span>{
         <span class="number">0
@@ -1183,8 +1219,8 @@
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>as_usize(<span class="self">self</span>) -&gt; usize {
-        <span class="self">self
-    </span>}
+        <span class="self">self </span><span class="kw">as </span>usize
+    }
 }
 
 <span class="doccomment">/// Randomly sample exactly `amount` indices from `0..length`, using rejection
@@ -1206,7 +1242,7 @@
     </span><span class="kw">let </span><span class="kw-2">mut </span>cache = HashSet::with_capacity(amount.as_usize());
     <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
     </span><span class="kw">let </span><span class="kw-2">mut </span>cache = BTreeSet::new();
-    <span class="kw">let </span>distr = Uniform::new(X::zero(), length);
+    <span class="kw">let </span>distr = Uniform::new(X::zero(), length).unwrap();
     <span class="kw">let </span><span class="kw-2">mut </span>indices = Vec::with_capacity(amount.as_usize());
     <span class="kw">for _ in </span><span class="number">0</span>..amount.as_usize() {
         <span class="kw">let </span><span class="kw-2">mut </span>pos = distr.sample(rng);
@@ -1223,24 +1259,16 @@
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>test {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span>alloc::vec;
 
     <span class="attr">#[test]
-    #[cfg(feature = <span class="string">"serde1"</span>)]
+    #[cfg(feature = <span class="string">"serde"</span>)]
     </span><span class="kw">fn </span>test_serialization_index_vec() {
-        <span class="kw">let </span>some_index_vec = IndexVec::from(<span class="macro">vec!</span>[<span class="number">254_usize</span>, <span class="number">234</span>, <span class="number">2</span>, <span class="number">1</span>]);
-        <span class="kw">let </span>de_some_index_vec: IndexVec = bincode::deserialize(<span class="kw-2">&amp;</span>bincode::serialize(<span class="kw-2">&amp;</span>some_index_vec).unwrap()).unwrap();
-        <span class="kw">match </span>(some_index_vec, de_some_index_vec) {
-            (IndexVec::U32(a), IndexVec::U32(b)) =&gt; {
-                <span class="macro">assert_eq!</span>(a, b);
-            },
-            (IndexVec::USize(a), IndexVec::USize(b)) =&gt; {
-                <span class="macro">assert_eq!</span>(a, b);
-            },
-            <span class="kw">_ </span>=&gt; {<span class="macro">panic!</span>(<span class="string">"failed to seralize/deserialize `IndexVec`"</span>)}
-        }
+        <span class="kw">let </span>some_index_vec = IndexVec::from(<span class="macro">vec!</span>[<span class="number">254_u32</span>, <span class="number">234</span>, <span class="number">2</span>, <span class="number">1</span>]);
+        <span class="kw">let </span>de_some_index_vec: IndexVec =
+            bincode::deserialize(<span class="kw-2">&amp;</span>bincode::serialize(<span class="kw-2">&amp;</span>some_index_vec).unwrap()).unwrap();
+        <span class="macro">assert_eq!</span>(some_index_vec, de_some_index_vec);
     }
-
-    <span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)] </span><span class="kw">use </span>alloc::vec;
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_sample_boundaries() {
@@ -1303,7 +1331,7 @@
     #[test]
     </span><span class="kw">fn </span>test_sample_weighted() {
         <span class="kw">let </span>seed_rng = <span class="kw">crate</span>::test::rng;
-        <span class="kw">for </span><span class="kw-2">&amp;</span>(amount, len) <span class="kw">in </span><span class="kw-2">&amp;</span>[(<span class="number">0</span>, <span class="number">10</span>), (<span class="number">5</span>, <span class="number">10</span>), (<span class="number">10</span>, <span class="number">10</span>)] {
+        <span class="kw">for </span><span class="kw-2">&amp;</span>(amount, len) <span class="kw">in </span><span class="kw-2">&amp;</span>[(<span class="number">0</span>, <span class="number">10</span>), (<span class="number">5</span>, <span class="number">10</span>), (<span class="number">9</span>, <span class="number">10</span>)] {
             <span class="kw">let </span>v = sample_weighted(<span class="kw-2">&amp;mut </span>seed_rng(<span class="number">423</span>), len, |i| i <span class="kw">as </span>f64, amount).unwrap();
             <span class="kw">match </span>v {
                 IndexVec::U32(<span class="kw-2">mut </span>indices) =&gt; {
@@ -1314,10 +1342,14 @@
                     <span class="kw">for </span><span class="kw-2">&amp;</span>i <span class="kw">in </span><span class="kw-2">&amp;</span>indices {
                         <span class="macro">assert!</span>((i <span class="kw">as </span>usize) &lt; len);
                     }
-                },
-                IndexVec::USize(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">"expected `IndexVec::U32`"</span>),
+                }
+                <span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
+                </span><span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"expected `IndexVec::U32`"</span>),
             }
         }
+
+        <span class="kw">let </span>r = sample_weighted(<span class="kw-2">&amp;mut </span>seed_rng(<span class="number">423</span>), <span class="number">10</span>, |i| i <span class="kw">as </span>f64, <span class="number">10</span>);
+        <span class="macro">assert_eq!</span>(r.unwrap_err(), WeightError::InsufficientNonZero);
     }
 
     <span class="attr">#[test]
@@ -1340,18 +1372,22 @@
             );
         };
 
-        do_test(<span class="number">10</span>, <span class="number">6</span>, <span class="kw-2">&amp;</span>[<span class="number">8</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">9</span>, <span class="number">6</span>]); <span class="comment">// floyd
-        </span>do_test(<span class="number">25</span>, <span class="number">10</span>, <span class="kw-2">&amp;</span>[<span class="number">18</span>, <span class="number">15</span>, <span class="number">14</span>, <span class="number">9</span>, <span class="number">0</span>, <span class="number">13</span>, <span class="number">5</span>, <span class="number">24</span>]); <span class="comment">// floyd
-        </span>do_test(<span class="number">300</span>, <span class="number">8</span>, <span class="kw-2">&amp;</span>[<span class="number">30</span>, <span class="number">283</span>, <span class="number">150</span>, <span class="number">1</span>, <span class="number">73</span>, <span class="number">13</span>, <span class="number">285</span>, <span class="number">35</span>]); <span class="comment">// floyd
-        </span>do_test(<span class="number">300</span>, <span class="number">80</span>, <span class="kw-2">&amp;</span>[<span class="number">31</span>, <span class="number">289</span>, <span class="number">248</span>, <span class="number">154</span>, <span class="number">5</span>, <span class="number">78</span>, <span class="number">19</span>, <span class="number">286</span>]); <span class="comment">// inplace
-        </span>do_test(<span class="number">300</span>, <span class="number">180</span>, <span class="kw-2">&amp;</span>[<span class="number">31</span>, <span class="number">289</span>, <span class="number">248</span>, <span class="number">154</span>, <span class="number">5</span>, <span class="number">78</span>, <span class="number">19</span>, <span class="number">286</span>]); <span class="comment">// inplace
+        do_test(<span class="number">10</span>, <span class="number">6</span>, <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">9</span>, <span class="number">5</span>, <span class="number">4</span>, <span class="number">6</span>, <span class="number">8</span>]); <span class="comment">// floyd
+        </span>do_test(<span class="number">25</span>, <span class="number">10</span>, <span class="kw-2">&amp;</span>[<span class="number">24</span>, <span class="number">20</span>, <span class="number">19</span>, <span class="number">9</span>, <span class="number">22</span>, <span class="number">16</span>, <span class="number">0</span>, <span class="number">14</span>]); <span class="comment">// floyd
+        </span>do_test(<span class="number">300</span>, <span class="number">8</span>, <span class="kw-2">&amp;</span>[<span class="number">30</span>, <span class="number">283</span>, <span class="number">243</span>, <span class="number">150</span>, <span class="number">218</span>, <span class="number">240</span>, <span class="number">1</span>, <span class="number">189</span>]); <span class="comment">// floyd
+        </span>do_test(<span class="number">300</span>, <span class="number">80</span>, <span class="kw-2">&amp;</span>[<span class="number">31</span>, <span class="number">289</span>, <span class="number">248</span>, <span class="number">154</span>, <span class="number">221</span>, <span class="number">243</span>, <span class="number">7</span>, <span class="number">192</span>]); <span class="comment">// inplace
+        </span>do_test(<span class="number">300</span>, <span class="number">180</span>, <span class="kw-2">&amp;</span>[<span class="number">31</span>, <span class="number">289</span>, <span class="number">248</span>, <span class="number">154</span>, <span class="number">221</span>, <span class="number">243</span>, <span class="number">7</span>, <span class="number">192</span>]); <span class="comment">// inplace
 
-        </span>do_test(<span class="number">1_000_000</span>, <span class="number">8</span>, <span class="kw-2">&amp;</span>[
-            <span class="number">103717</span>, <span class="number">963485</span>, <span class="number">826422</span>, <span class="number">509101</span>, <span class="number">736394</span>, <span class="number">807035</span>, <span class="number">5327</span>, <span class="number">632573</span>,
-        ]); <span class="comment">// floyd
-        </span>do_test(<span class="number">1_000_000</span>, <span class="number">180</span>, <span class="kw-2">&amp;</span>[
-            <span class="number">103718</span>, <span class="number">963490</span>, <span class="number">826426</span>, <span class="number">509103</span>, <span class="number">736396</span>, <span class="number">807036</span>, <span class="number">5327</span>, <span class="number">632573</span>,
-        ]); <span class="comment">// rejection
+        </span>do_test(
+            <span class="number">1_000_000</span>,
+            <span class="number">8</span>,
+            <span class="kw-2">&amp;</span>[<span class="number">103717</span>, <span class="number">963485</span>, <span class="number">826422</span>, <span class="number">509101</span>, <span class="number">736394</span>, <span class="number">807035</span>, <span class="number">5327</span>, <span class="number">632573</span>],
+        ); <span class="comment">// floyd
+        </span>do_test(
+            <span class="number">1_000_000</span>,
+            <span class="number">180</span>,
+            <span class="kw-2">&amp;</span>[<span class="number">103718</span>, <span class="number">963490</span>, <span class="number">826426</span>, <span class="number">509103</span>, <span class="number">736396</span>, <span class="number">807036</span>, <span class="number">5327</span>, <span class="number">632573</span>],
+        ); <span class="comment">// rejection
     </span>}
 }
 </code></pre></div></section></main></body></html>

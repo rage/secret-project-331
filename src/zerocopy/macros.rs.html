@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerocopy-0.7.35/src/macros.rs`."><title>macros.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zerocopy" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerocopy-0.8.17/src/macros.rs`."><title>macros.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zerocopy" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">zerocopy/</div>macros.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -414,420 +415,1573 @@
 <a href="#414" id="414">414</a>
 <a href="#415" id="415">415</a>
 <a href="#416" id="416">416</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright 2023 The Fuchsia Authors
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
+<a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
+<a href="#490" id="490">490</a>
+<a href="#491" id="491">491</a>
+<a href="#492" id="492">492</a>
+<a href="#493" id="493">493</a>
+<a href="#494" id="494">494</a>
+<a href="#495" id="495">495</a>
+<a href="#496" id="496">496</a>
+<a href="#497" id="497">497</a>
+<a href="#498" id="498">498</a>
+<a href="#499" id="499">499</a>
+<a href="#500" id="500">500</a>
+<a href="#501" id="501">501</a>
+<a href="#502" id="502">502</a>
+<a href="#503" id="503">503</a>
+<a href="#504" id="504">504</a>
+<a href="#505" id="505">505</a>
+<a href="#506" id="506">506</a>
+<a href="#507" id="507">507</a>
+<a href="#508" id="508">508</a>
+<a href="#509" id="509">509</a>
+<a href="#510" id="510">510</a>
+<a href="#511" id="511">511</a>
+<a href="#512" id="512">512</a>
+<a href="#513" id="513">513</a>
+<a href="#514" id="514">514</a>
+<a href="#515" id="515">515</a>
+<a href="#516" id="516">516</a>
+<a href="#517" id="517">517</a>
+<a href="#518" id="518">518</a>
+<a href="#519" id="519">519</a>
+<a href="#520" id="520">520</a>
+<a href="#521" id="521">521</a>
+<a href="#522" id="522">522</a>
+<a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
+<a href="#527" id="527">527</a>
+<a href="#528" id="528">528</a>
+<a href="#529" id="529">529</a>
+<a href="#530" id="530">530</a>
+<a href="#531" id="531">531</a>
+<a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
+<a href="#543" id="543">543</a>
+<a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
+<a href="#690" id="690">690</a>
+<a href="#691" id="691">691</a>
+<a href="#692" id="692">692</a>
+<a href="#693" id="693">693</a>
+<a href="#694" id="694">694</a>
+<a href="#695" id="695">695</a>
+<a href="#696" id="696">696</a>
+<a href="#697" id="697">697</a>
+<a href="#698" id="698">698</a>
+<a href="#699" id="699">699</a>
+<a href="#700" id="700">700</a>
+<a href="#701" id="701">701</a>
+<a href="#702" id="702">702</a>
+<a href="#703" id="703">703</a>
+<a href="#704" id="704">704</a>
+<a href="#705" id="705">705</a>
+<a href="#706" id="706">706</a>
+<a href="#707" id="707">707</a>
+<a href="#708" id="708">708</a>
+<a href="#709" id="709">709</a>
+<a href="#710" id="710">710</a>
+<a href="#711" id="711">711</a>
+<a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
+<a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a>
+<a href="#793" id="793">793</a>
+<a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
+<a href="#821" id="821">821</a>
+<a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a>
+<a href="#829" id="829">829</a>
+<a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
+<a href="#835" id="835">835</a>
+<a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
+<a href="#842" id="842">842</a>
+<a href="#843" id="843">843</a>
+<a href="#844" id="844">844</a>
+<a href="#845" id="845">845</a>
+<a href="#846" id="846">846</a>
+<a href="#847" id="847">847</a>
+<a href="#848" id="848">848</a>
+<a href="#849" id="849">849</a>
+<a href="#850" id="850">850</a>
+<a href="#851" id="851">851</a>
+<a href="#852" id="852">852</a>
+<a href="#853" id="853">853</a>
+<a href="#854" id="854">854</a>
+<a href="#855" id="855">855</a>
+<a href="#856" id="856">856</a>
+<a href="#857" id="857">857</a>
+<a href="#858" id="858">858</a>
+<a href="#859" id="859">859</a>
+<a href="#860" id="860">860</a>
+<a href="#861" id="861">861</a>
+<a href="#862" id="862">862</a>
+<a href="#863" id="863">863</a>
+<a href="#864" id="864">864</a>
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a>
+<a href="#867" id="867">867</a>
+<a href="#868" id="868">868</a>
+<a href="#869" id="869">869</a>
+<a href="#870" id="870">870</a>
+<a href="#871" id="871">871</a>
+<a href="#872" id="872">872</a>
+<a href="#873" id="873">873</a>
+<a href="#874" id="874">874</a>
+<a href="#875" id="875">875</a>
+<a href="#876" id="876">876</a>
+<a href="#877" id="877">877</a>
+<a href="#878" id="878">878</a>
+<a href="#879" id="879">879</a>
+<a href="#880" id="880">880</a>
+<a href="#881" id="881">881</a>
+<a href="#882" id="882">882</a>
+<a href="#883" id="883">883</a>
+<a href="#884" id="884">884</a>
+<a href="#885" id="885">885</a>
+<a href="#886" id="886">886</a>
+<a href="#887" id="887">887</a>
+<a href="#888" id="888">888</a>
+<a href="#889" id="889">889</a>
+<a href="#890" id="890">890</a>
+<a href="#891" id="891">891</a>
+<a href="#892" id="892">892</a>
+<a href="#893" id="893">893</a>
+<a href="#894" id="894">894</a>
+<a href="#895" id="895">895</a>
+<a href="#896" id="896">896</a>
+<a href="#897" id="897">897</a>
+<a href="#898" id="898">898</a>
+<a href="#899" id="899">899</a>
+<a href="#900" id="900">900</a>
+<a href="#901" id="901">901</a>
+<a href="#902" id="902">902</a>
+<a href="#903" id="903">903</a>
+<a href="#904" id="904">904</a>
+<a href="#905" id="905">905</a>
+<a href="#906" id="906">906</a>
+<a href="#907" id="907">907</a>
+<a href="#908" id="908">908</a>
+<a href="#909" id="909">909</a>
+<a href="#910" id="910">910</a>
+<a href="#911" id="911">911</a>
+<a href="#912" id="912">912</a>
+<a href="#913" id="913">913</a>
+<a href="#914" id="914">914</a>
+<a href="#915" id="915">915</a>
+<a href="#916" id="916">916</a>
+<a href="#917" id="917">917</a>
+<a href="#918" id="918">918</a>
+<a href="#919" id="919">919</a>
+<a href="#920" id="920">920</a>
+<a href="#921" id="921">921</a>
+<a href="#922" id="922">922</a>
+<a href="#923" id="923">923</a>
+<a href="#924" id="924">924</a>
+<a href="#925" id="925">925</a>
+<a href="#926" id="926">926</a>
+<a href="#927" id="927">927</a>
+<a href="#928" id="928">928</a>
+<a href="#929" id="929">929</a>
+<a href="#930" id="930">930</a>
+<a href="#931" id="931">931</a>
+<a href="#932" id="932">932</a>
+<a href="#933" id="933">933</a>
+<a href="#934" id="934">934</a>
+<a href="#935" id="935">935</a>
+<a href="#936" id="936">936</a>
+<a href="#937" id="937">937</a>
+<a href="#938" id="938">938</a>
+<a href="#939" id="939">939</a>
+<a href="#940" id="940">940</a>
+<a href="#941" id="941">941</a>
+<a href="#942" id="942">942</a>
+<a href="#943" id="943">943</a>
+<a href="#944" id="944">944</a>
+<a href="#945" id="945">945</a>
+<a href="#946" id="946">946</a>
+<a href="#947" id="947">947</a>
+<a href="#948" id="948">948</a>
+<a href="#949" id="949">949</a>
+<a href="#950" id="950">950</a>
+<a href="#951" id="951">951</a>
+<a href="#952" id="952">952</a>
+<a href="#953" id="953">953</a>
+<a href="#954" id="954">954</a>
+<a href="#955" id="955">955</a>
+<a href="#956" id="956">956</a>
+<a href="#957" id="957">957</a>
+<a href="#958" id="958">958</a>
+<a href="#959" id="959">959</a>
+<a href="#960" id="960">960</a>
+<a href="#961" id="961">961</a>
+<a href="#962" id="962">962</a>
+<a href="#963" id="963">963</a>
+<a href="#964" id="964">964</a>
+<a href="#965" id="965">965</a>
+<a href="#966" id="966">966</a>
+<a href="#967" id="967">967</a>
+<a href="#968" id="968">968</a>
+<a href="#969" id="969">969</a>
+<a href="#970" id="970">970</a>
+<a href="#971" id="971">971</a>
+<a href="#972" id="972">972</a>
+<a href="#973" id="973">973</a>
+<a href="#974" id="974">974</a>
+<a href="#975" id="975">975</a>
+<a href="#976" id="976">976</a>
+<a href="#977" id="977">977</a>
+<a href="#978" id="978">978</a>
+<a href="#979" id="979">979</a>
+<a href="#980" id="980">980</a>
+<a href="#981" id="981">981</a>
+<a href="#982" id="982">982</a>
+<a href="#983" id="983">983</a>
+<a href="#984" id="984">984</a>
+<a href="#985" id="985">985</a>
+<a href="#986" id="986">986</a>
+<a href="#987" id="987">987</a>
+<a href="#988" id="988">988</a>
+<a href="#989" id="989">989</a>
+<a href="#990" id="990">990</a>
+<a href="#991" id="991">991</a>
+<a href="#992" id="992">992</a>
+<a href="#993" id="993">993</a></pre></div><pre class="rust"><code><span class="comment">// Copyright 2024 The Fuchsia Authors
 //
-// Licensed under a BSD-style license &lt;LICENSE-BSD&gt;, Apache License, Version 2.0
+// Licensed under the 2-Clause BSD License &lt;LICENSE-BSD or
+// https://opensource.org/license/bsd-2-clause&gt;, Apache License, Version 2.0
 // &lt;LICENSE-APACHE or https://www.apache.org/licenses/LICENSE-2.0&gt;, or the MIT
 // license &lt;LICENSE-MIT or https://opensource.org/licenses/MIT&gt;, at your option.
 // This file may not be copied, modified, or distributed except according to
 // those terms.
 
-</span><span class="doccomment">/// Documents multiple unsafe blocks with a single safety comment.
+</span><span class="doccomment">/// Safely transmutes a value of one type to a value of another type of the same
+/// size.
 ///
-/// Invoked as:
+/// This macro behaves like an invocation of this function:
 ///
-/// ```rust,ignore
-/// safety_comment! {
-///     // Non-doc comments come first.
-///     /// SAFETY:
-///     /// Safety comment starts on its own line.
-///     macro_1!(args);
-///     macro_2! { args };
-///     /// SAFETY:
-///     /// Subsequent safety comments are allowed but not required.
-///     macro_3! { args };
+/// ```ignore
+/// const fn transmute&lt;Src, Dst&gt;(src: Src) -&gt; Dst
+/// where
+///     Src: IntoBytes,
+///     Dst: FromBytes,
+///     size_of::&lt;Src&gt;() == size_of::&lt;Dst&gt;(),
+/// {
+/// # /*
+///     ...
+/// # */
 /// }
 /// ```
 ///
-/// The macro invocations are emitted, each decorated with the following
-/// attribute: `#[allow(clippy::undocumented_unsafe_blocks)]`.
-</span><span class="macro">macro_rules!</span> safety_comment {
-    (<span class="attr">#[doc = <span class="string">r" SAFETY:"</span>] </span>$($(<span class="attr">#[<span class="macro-nonterminal">$attr</span>:meta]</span>)* <span class="macro-nonterminal">$</span><span class="kw">macro</span>:<span class="macro">ident!</span><span class="macro-nonterminal">$args</span>:tt;)<span class="kw-2">*</span>) =&gt; {
-        <span class="attr">#[allow(clippy::undocumented_unsafe_blocks, unused_attributes)]
-        </span><span class="kw">const _</span>: () = { $($(<span class="attr">#[<span class="macro-nonterminal">$attr</span>]</span>)* <span class="macro-nonterminal">$</span><span class="macro">macro!</span><span class="macro-nonterminal">$args</span>;)* };
+/// However, unlike a function, this macro can only be invoked when the types of
+/// `Src` and `Dst` are completely concrete. The types `Src` and `Dst` are
+/// inferred from the calling context; they cannot be explicitly specified in
+/// the macro invocation.
+///
+/// Note that the `Src` produced by the expression `$e` will *not* be dropped.
+/// Semantically, its bits will be copied into a new value of type `Dst`, the
+/// original `Src` will be forgotten, and the value of type `Dst` will be
+/// returned.
+///
+/// # Examples
+///
+/// ```
+/// # use zerocopy::transmute;
+/// let one_dimensional: [u8; 8] = [0, 1, 2, 3, 4, 5, 6, 7];
+///
+/// let two_dimensional: [[u8; 4]; 2] = transmute!(one_dimensional);
+///
+/// assert_eq!(two_dimensional, [[0, 1, 2, 3], [4, 5, 6, 7]]);
+/// ```
+///
+/// # Use in `const` contexts
+///
+/// This macro can be invoked in `const` contexts.
+</span><span class="attr">#[macro_export]
+</span><span class="macro">macro_rules!</span> transmute {
+    (<span class="macro-nonterminal">$e</span>:expr) =&gt; {{
+        <span class="comment">// NOTE: This must be a macro (rather than a function with trait bounds)
+        // because there's no way, in a generic context, to enforce that two
+        // types have the same size. `core::mem::transmute` uses compiler magic
+        // to enforce this so long as the types are concrete.
+
+        </span><span class="kw">let </span>e = <span class="macro-nonterminal">$e</span>;
+        <span class="kw">if </span><span class="bool-val">false </span>{
+            <span class="comment">// This branch, though never taken, ensures that the type of `e` is
+            // `IntoBytes` and that the type of this macro invocation expression
+            // is `FromBytes`.
+
+            </span><span class="kw">struct </span>AssertIsIntoBytes&lt;T: <span class="macro-nonterminal">$crate::IntoBytes</span>&gt;(T);
+            <span class="kw">let _ </span>= AssertIsIntoBytes(e);
+
+            <span class="kw">struct </span>AssertIsFromBytes&lt;U: <span class="macro-nonterminal">$crate::FromBytes</span>&gt;(U);
+            <span class="attr">#[allow(unused, unreachable_code)]
+            </span><span class="kw">let </span>u = AssertIsFromBytes(<span class="kw">loop </span>{});
+            u.<span class="number">0
+        </span>} <span class="kw">else </span>{
+            <span class="comment">// SAFETY: `core::mem::transmute` ensures that the type of `e` and
+            // the type of this macro invocation expression have the same size.
+            // We know this transmute is safe thanks to the `IntoBytes` and
+            // `FromBytes` bounds enforced by the `false` branch.
+            //
+            // We use this reexport of `core::mem::transmute` because we know it
+            // will always be available for crates which are using the 2015
+            // edition of Rust. By contrast, if we were to use
+            // `std::mem::transmute`, this macro would not work for such crates
+            // in `no_std` contexts, and if we were to use
+            // `core::mem::transmute`, this macro would not work in `std`
+            // contexts in which `core` was not manually imported. This is not a
+            // problem for 2018 edition crates.
+            </span><span class="kw">let </span>u = <span class="kw">unsafe </span>{
+                <span class="comment">// Clippy: We can't annotate the types; this macro is designed
+                // to infer the types from the calling context.
+                </span><span class="attr">#[allow(clippy::missing_transmute_annotations)]
+                </span><span class="macro-nonterminal">$crate::util::macro_util::core_reexport::mem::transmute</span>(e)
+            };
+            <span class="macro-nonterminal">$crate::util::macro_util::must_use</span>(u)
+        }
+    }}
+}
+
+<span class="doccomment">/// Safely transmutes a mutable or immutable reference of one type to an
+/// immutable reference of another type of the same size and compatible
+/// alignment.
+///
+/// This macro behaves like an invocation of this function:
+///
+/// ```ignore
+/// const fn transmute_ref&lt;'src, 'dst, Src, Dst&gt;(src: &amp;'src Src) -&gt; &amp;'dst Dst
+/// where
+///     'src: 'dst,
+///     Src: IntoBytes + Immutable,
+///     Dst: FromBytes + Immutable,
+///     size_of::&lt;Src&gt;() == size_of::&lt;Dst&gt;(),
+///     align_of::&lt;Src&gt;() &gt;= align_of::&lt;Dst&gt;(),
+/// {
+/// # /*
+///     ...
+/// # */
+/// }
+/// ```
+///
+/// However, unlike a function, this macro can only be invoked when the types of
+/// `Src` and `Dst` are completely concrete. The types `Src` and `Dst` are
+/// inferred from the calling context; they cannot be explicitly specified in
+/// the macro invocation.
+///
+/// # Examples
+///
+/// ```
+/// # use zerocopy::transmute_ref;
+/// let one_dimensional: [u8; 8] = [0, 1, 2, 3, 4, 5, 6, 7];
+///
+/// let two_dimensional: &amp;[[u8; 4]; 2] = transmute_ref!(&amp;one_dimensional);
+///
+/// assert_eq!(two_dimensional, &amp;[[0, 1, 2, 3], [4, 5, 6, 7]]);
+/// ```
+///
+/// # Use in `const` contexts
+///
+/// This macro can be invoked in `const` contexts.
+///
+/// # Alignment increase error message
+///
+/// Because of limitations on macros, the error message generated when
+/// `transmute_ref!` is used to transmute from a type of lower alignment to a
+/// type of higher alignment is somewhat confusing. For example, the following
+/// code:
+///
+/// ```compile_fail
+/// const INCREASE_ALIGNMENT: &amp;u16 = zerocopy::transmute_ref!(&amp;[0u8; 2]);
+/// ```
+///
+/// ...generates the following error:
+///
+/// ```text
+/// error[E0512]: cannot transmute between types of different sizes, or dependently-sized types
+///  --&gt; src/lib.rs:1524:34
+///   |
+/// 5 | const INCREASE_ALIGNMENT: &amp;u16 = zerocopy::transmute_ref!(&amp;[0u8; 2]);
+///   |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+///   |
+///   = note: source type: `AlignOf&lt;[u8; 2]&gt;` (8 bits)
+///   = note: target type: `MaxAlignsOf&lt;[u8; 2], u16&gt;` (16 bits)
+///   = note: this error originates in the macro `$crate::assert_align_gt_eq` which comes from the expansion of the macro `transmute_ref` (in Nightly builds, run with -Z macro-backtrace for more info)
+/// ```
+///
+/// This is saying that `max(align_of::&lt;T&gt;(), align_of::&lt;U&gt;()) !=
+/// align_of::&lt;T&gt;()`, which is equivalent to `align_of::&lt;T&gt;() &lt;
+/// align_of::&lt;U&gt;()`.
+</span><span class="attr">#[macro_export]
+</span><span class="macro">macro_rules!</span> transmute_ref {
+    (<span class="macro-nonterminal">$e</span>:expr) =&gt; {{
+        <span class="comment">// NOTE: This must be a macro (rather than a function with trait bounds)
+        // because there's no way, in a generic context, to enforce that two
+        // types have the same size or alignment.
+
+        // Ensure that the source type is a reference or a mutable reference
+        // (note that mutable references are implicitly reborrowed here).
+        </span><span class="kw">let </span>e: <span class="kw-2">&amp;</span><span class="kw">_ </span>= <span class="macro-nonterminal">$e</span>;
+
+        <span class="attr">#[allow(unused, clippy::diverging_sub_expression)]
+        </span><span class="kw">if </span><span class="bool-val">false </span>{
+            <span class="comment">// This branch, though never taken, ensures that the type of `e` is
+            // `&amp;T` where `T: 't + Sized + IntoBytes + Immutable`, that the type of
+            // this macro expression is `&amp;U` where `U: 'u + Sized + FromBytes +
+            // Immutable`, and that `'t` outlives `'u`.
+
+            </span><span class="kw">struct </span>AssertSrcIsSized&lt;<span class="lifetime">'a</span>, T: ::core::marker::Sized&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T);
+            <span class="kw">struct </span>AssertSrcIsIntoBytes&lt;<span class="lifetime">'a</span>, T: <span class="question-mark">?</span>::core::marker::Sized + <span class="macro-nonterminal">$crate::IntoBytes</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T);
+            <span class="kw">struct </span>AssertSrcIsImmutable&lt;<span class="lifetime">'a</span>, T: <span class="question-mark">?</span>::core::marker::Sized + <span class="macro-nonterminal">$crate::Immutable</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T);
+            <span class="kw">struct </span>AssertDstIsSized&lt;<span class="lifetime">'a</span>, T: ::core::marker::Sized&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T);
+            <span class="kw">struct </span>AssertDstIsFromBytes&lt;<span class="lifetime">'a</span>, U: <span class="question-mark">?</span>::core::marker::Sized + <span class="macro-nonterminal">$crate::FromBytes</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>U);
+            <span class="kw">struct </span>AssertDstIsImmutable&lt;<span class="lifetime">'a</span>, T: <span class="question-mark">?</span>::core::marker::Sized + <span class="macro-nonterminal">$crate::Immutable</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T);
+
+            <span class="kw">let _ </span>= AssertSrcIsSized(e);
+            <span class="kw">let _ </span>= AssertSrcIsIntoBytes(e);
+            <span class="kw">let _ </span>= AssertSrcIsImmutable(e);
+
+            <span class="kw">if </span><span class="bool-val">true </span>{
+                <span class="attr">#[allow(unused, unreachable_code)]
+                </span><span class="kw">let </span>u = AssertDstIsSized(<span class="kw">loop </span>{});
+                u.<span class="number">0
+            </span>} <span class="kw">else if </span><span class="bool-val">true </span>{
+                <span class="attr">#[allow(unused, unreachable_code)]
+                </span><span class="kw">let </span>u = AssertDstIsFromBytes(<span class="kw">loop </span>{});
+                u.<span class="number">0
+            </span>} <span class="kw">else </span>{
+                <span class="attr">#[allow(unused, unreachable_code)]
+                </span><span class="kw">let </span>u = AssertDstIsImmutable(<span class="kw">loop </span>{});
+                u.<span class="number">0
+            </span>}
+        } <span class="kw">else if </span><span class="bool-val">false </span>{
+            <span class="comment">// This branch, though never taken, ensures that `size_of::&lt;T&gt;() ==
+            // size_of::&lt;U&gt;()` and that that `align_of::&lt;T&gt;() &gt;=
+            // align_of::&lt;U&gt;()`.
+
+            // `t` is inferred to have type `T` because it's assigned to `e` (of
+            // type `&amp;T`) as `&amp;t`.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>t = <span class="kw">loop </span>{};
+            e = <span class="kw-2">&amp;</span>t;
+
+            <span class="comment">// `u` is inferred to have type `U` because it's used as `&amp;u` as the
+            // value returned from this branch.
+            </span><span class="kw">let </span>u;
+
+            <span class="macro-nonterminal">$</span><span class="macro">crate::assert_size_eq!</span>(<span class="macro-nonterminal">t</span>, u);
+            <span class="macro-nonterminal">$</span><span class="macro">crate::assert_align_gt_eq!</span>(<span class="macro-nonterminal">t</span>, u);
+
+            <span class="kw-2">&amp;</span>u
+        } <span class="kw">else </span>{
+            <span class="comment">// SAFETY: For source type `Src` and destination type `Dst`:
+            // - We know that `Src: IntoBytes + Immutable` and `Dst: FromBytes +
+            //   Immutable` thanks to the uses of `AssertSrcIsIntoBytes`,
+            //   `AssertSrcIsImmutable`, `AssertDstIsFromBytes`, and
+            //   `AssertDstIsImmutable` above.
+            // - We know that `size_of::&lt;Src&gt;() == size_of::&lt;Dst&gt;()` thanks to
+            //   the use of `assert_size_eq!` above.
+            // - We know that `align_of::&lt;Src&gt;() &gt;= align_of::&lt;Dst&gt;()` thanks to
+            //   the use of `assert_align_gt_eq!` above.
+            </span><span class="kw">let </span>u = <span class="kw">unsafe </span>{ <span class="macro-nonterminal">$crate::util::macro_util::transmute_ref</span>(e) };
+            <span class="macro-nonterminal">$crate::util::macro_util::must_use</span>(u)
+        }
+    }}
+}
+
+<span class="doccomment">/// Safely transmutes a mutable reference of one type to a mutable reference of
+/// another type of the same size and compatible alignment.
+///
+/// This macro behaves like an invocation of this function:
+///
+/// ```ignore
+/// const fn transmute_mut&lt;'src, 'dst, Src, Dst&gt;(src: &amp;'src mut Src) -&gt; &amp;'dst mut Dst
+/// where
+///     'src: 'dst,
+///     Src: FromBytes + IntoBytes + Immutable,
+///     Dst: FromBytes + IntoBytes + Immutable,
+///     size_of::&lt;Src&gt;() == size_of::&lt;Dst&gt;(),
+///     align_of::&lt;Src&gt;() &gt;= align_of::&lt;Dst&gt;(),
+/// {
+/// # /*
+///     ...
+/// # */
+/// }
+/// ```
+///
+/// However, unlike a function, this macro can only be invoked when the types of
+/// `Src` and `Dst` are completely concrete. The types `Src` and `Dst` are
+/// inferred from the calling context; they cannot be explicitly specified in
+/// the macro invocation.
+///
+/// # Examples
+///
+/// ```
+/// # use zerocopy::transmute_mut;
+/// let mut one_dimensional: [u8; 8] = [0, 1, 2, 3, 4, 5, 6, 7];
+///
+/// let two_dimensional: &amp;mut [[u8; 4]; 2] = transmute_mut!(&amp;mut one_dimensional);
+///
+/// assert_eq!(two_dimensional, &amp;[[0, 1, 2, 3], [4, 5, 6, 7]]);
+///
+/// two_dimensional.reverse();
+///
+/// assert_eq!(one_dimensional, [4, 5, 6, 7, 0, 1, 2, 3]);
+/// ```
+///
+/// # Use in `const` contexts
+///
+/// This macro can be invoked in `const` contexts.
+///
+/// # Alignment increase error message
+///
+/// Because of limitations on macros, the error message generated when
+/// `transmute_mut!` is used to transmute from a type of lower alignment to a
+/// type of higher alignment is somewhat confusing. For example, the following
+/// code:
+///
+/// ```compile_fail
+/// const INCREASE_ALIGNMENT: &amp;mut u16 = zerocopy::transmute_mut!(&amp;mut [0u8; 2]);
+/// ```
+///
+/// ...generates the following error:
+///
+/// ```text
+/// error[E0512]: cannot transmute between types of different sizes, or dependently-sized types
+///  --&gt; src/lib.rs:1524:34
+///   |
+/// 5 | const INCREASE_ALIGNMENT: &amp;mut u16 = zerocopy::transmute_mut!(&amp;mut [0u8; 2]);
+///   |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+///   |
+///   = note: source type: `AlignOf&lt;[u8; 2]&gt;` (8 bits)
+///   = note: target type: `MaxAlignsOf&lt;[u8; 2], u16&gt;` (16 bits)
+///   = note: this error originates in the macro `$crate::assert_align_gt_eq` which comes from the expansion of the macro `transmute_mut` (in Nightly builds, run with -Z macro-backtrace for more info)
+/// ```
+///
+/// This is saying that `max(align_of::&lt;T&gt;(), align_of::&lt;U&gt;()) !=
+/// align_of::&lt;T&gt;()`, which is equivalent to `align_of::&lt;T&gt;() &lt;
+/// align_of::&lt;U&gt;()`.
+</span><span class="attr">#[macro_export]
+</span><span class="macro">macro_rules!</span> transmute_mut {
+    (<span class="macro-nonterminal">$e</span>:expr) =&gt; {{
+        <span class="comment">// NOTE: This must be a macro (rather than a function with trait bounds)
+        // because there's no way, in a generic context, to enforce that two
+        // types have the same size or alignment.
+
+        // Ensure that the source type is a mutable reference.
+        </span><span class="kw">let </span>e: <span class="kw-2">&amp;mut </span><span class="kw">_ </span>= <span class="macro-nonterminal">$e</span>;
+
+        <span class="attr">#[allow(unused, clippy::diverging_sub_expression)]
+        </span><span class="kw">if </span><span class="bool-val">false </span>{
+            <span class="comment">// This branch, though never taken, ensures that the type of `e` is
+            // `&amp;mut T` where `T: 't + Sized + FromBytes + IntoBytes + Immutable`
+            // and that the type of this macro expression is `&amp;mut U` where `U:
+            // 'u + Sized + FromBytes + IntoBytes + Immutable`.
+
+            // We use immutable references here rather than mutable so that, if
+            // this macro is used in a const context (in which, as of this
+            // writing, mutable references are banned), the error message
+            // appears to originate in the user's code rather than in the
+            // internals of this macro.
+            </span><span class="kw">struct </span>AssertSrcIsSized&lt;<span class="lifetime">'a</span>, T: ::core::marker::Sized&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T);
+            <span class="kw">struct </span>AssertSrcIsFromBytes&lt;<span class="lifetime">'a</span>, T: <span class="question-mark">?</span>::core::marker::Sized + <span class="macro-nonterminal">$crate::FromBytes</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T);
+            <span class="kw">struct </span>AssertSrcIsIntoBytes&lt;<span class="lifetime">'a</span>, T: <span class="question-mark">?</span>::core::marker::Sized + <span class="macro-nonterminal">$crate::IntoBytes</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T);
+            <span class="kw">struct </span>AssertDstIsSized&lt;<span class="lifetime">'a</span>, T: ::core::marker::Sized&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T);
+            <span class="kw">struct </span>AssertDstIsFromBytes&lt;<span class="lifetime">'a</span>, T: <span class="question-mark">?</span>::core::marker::Sized + <span class="macro-nonterminal">$crate::FromBytes</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T);
+            <span class="kw">struct </span>AssertDstIsIntoBytes&lt;<span class="lifetime">'a</span>, T: <span class="question-mark">?</span>::core::marker::Sized + <span class="macro-nonterminal">$crate::IntoBytes</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T);
+
+            <span class="kw">if </span><span class="bool-val">true </span>{
+                <span class="kw">let _ </span>= AssertSrcIsSized(<span class="kw-2">&amp;*</span>e);
+            } <span class="kw">else if </span><span class="bool-val">true </span>{
+                <span class="kw">let _ </span>= AssertSrcIsFromBytes(<span class="kw-2">&amp;*</span>e);
+            } <span class="kw">else </span>{
+                <span class="kw">let _ </span>= AssertSrcIsIntoBytes(<span class="kw-2">&amp;*</span>e);
+            }
+
+            <span class="kw">if </span><span class="bool-val">true </span>{
+                <span class="attr">#[allow(unused, unreachable_code)]
+                </span><span class="kw">let </span>u = AssertDstIsSized(<span class="kw">loop </span>{});
+                <span class="kw-2">&amp;mut *</span>u.<span class="number">0
+            </span>} <span class="kw">else if </span><span class="bool-val">true </span>{
+                <span class="attr">#[allow(unused, unreachable_code)]
+                </span><span class="kw">let </span>u = AssertDstIsFromBytes(<span class="kw">loop </span>{});
+                <span class="kw-2">&amp;mut *</span>u.<span class="number">0
+            </span>} <span class="kw">else </span>{
+                <span class="attr">#[allow(unused, unreachable_code)]
+                </span><span class="kw">let </span>u = AssertDstIsIntoBytes(<span class="kw">loop </span>{});
+                <span class="kw-2">&amp;mut *</span>u.<span class="number">0
+            </span>}
+        } <span class="kw">else if </span><span class="bool-val">false </span>{
+            <span class="comment">// This branch, though never taken, ensures that `size_of::&lt;T&gt;() ==
+            // size_of::&lt;U&gt;()` and that that `align_of::&lt;T&gt;() &gt;=
+            // align_of::&lt;U&gt;()`.
+
+            // `t` is inferred to have type `T` because it's assigned to `e` (of
+            // type `&amp;mut T`) as `&amp;mut t`.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>t = <span class="kw">loop </span>{};
+            e = <span class="kw-2">&amp;mut </span>t;
+
+            <span class="comment">// `u` is inferred to have type `U` because it's used as `&amp;mut u` as
+            // the value returned from this branch.
+            </span><span class="kw">let </span>u;
+
+            <span class="macro-nonterminal">$</span><span class="macro">crate::assert_size_eq!</span>(<span class="macro-nonterminal">t</span>, u);
+            <span class="macro-nonterminal">$</span><span class="macro">crate::assert_align_gt_eq!</span>(<span class="macro-nonterminal">t</span>, u);
+
+            <span class="kw-2">&amp;mut </span>u
+        } <span class="kw">else </span>{
+            <span class="comment">// SAFETY: For source type `Src` and destination type `Dst`:
+            // - We know that `size_of::&lt;Src&gt;() == size_of::&lt;Dst&gt;()` thanks to
+            //   the use of `assert_size_eq!` above.
+            // - We know that `align_of::&lt;Src&gt;() &gt;= align_of::&lt;Dst&gt;()` thanks to
+            //   the use of `assert_align_gt_eq!` above.
+            </span><span class="kw">let </span>u = <span class="kw">unsafe </span>{ <span class="macro-nonterminal">$crate::util::macro_util::transmute_mut</span>(e) };
+            <span class="macro-nonterminal">$crate::util::macro_util::must_use</span>(u)
+        }
+    }}
+}
+
+<span class="doccomment">/// Conditionally transmutes a value of one type to a value of another type of
+/// the same size.
+///
+/// This macro behaves like an invocation of this function:
+///
+/// ```ignore
+/// fn try_transmute&lt;Src, Dst&gt;(src: Src) -&gt; Result&lt;Dst, ValidityError&lt;Src, Dst&gt;&gt;
+/// where
+///     Src: IntoBytes,
+///     Dst: TryFromBytes,
+///     size_of::&lt;Src&gt;() == size_of::&lt;Dst&gt;(),
+/// {
+/// # /*
+///     ...
+/// # */
+/// }
+/// ```
+///
+/// However, unlike a function, this macro can only be invoked when the types of
+/// `Src` and `Dst` are completely concrete. The types `Src` and `Dst` are
+/// inferred from the calling context; they cannot be explicitly specified in
+/// the macro invocation.
+///
+/// Note that the `Src` produced by the expression `$e` will *not* be dropped.
+/// Semantically, its bits will be copied into a new value of type `Dst`, the
+/// original `Src` will be forgotten, and the value of type `Dst` will be
+/// returned.
+///
+/// # Examples
+///
+/// ```
+/// # use zerocopy::*;
+/// // 0u8 → bool = false
+/// assert_eq!(try_transmute!(0u8), Ok(false));
+///
+/// // 1u8 → bool = true
+///  assert_eq!(try_transmute!(1u8), Ok(true));
+///
+/// // 2u8 → bool = error
+/// assert!(matches!(
+///     try_transmute!(2u8),
+///     Result::&lt;bool, _&gt;::Err(ValidityError { .. })
+/// ));
+/// ```
+</span><span class="attr">#[macro_export]
+</span><span class="macro">macro_rules!</span> try_transmute {
+    (<span class="macro-nonterminal">$e</span>:expr) =&gt; {{
+        <span class="comment">// NOTE: This must be a macro (rather than a function with trait bounds)
+        // because there's no way, in a generic context, to enforce that two
+        // types have the same size. `core::mem::transmute` uses compiler magic
+        // to enforce this so long as the types are concrete.
+
+        </span><span class="kw">let </span>e = <span class="macro-nonterminal">$e</span>;
+        <span class="kw">if </span><span class="bool-val">false </span>{
+            <span class="comment">// Check that the sizes of the source and destination types are
+            // equal.
+
+            // SAFETY: This code is never executed.
+            </span><span class="prelude-val">Ok</span>(<span class="kw">unsafe </span>{
+                <span class="comment">// Clippy: We can't annotate the types; this macro is designed
+                // to infer the types from the calling context.
+                </span><span class="attr">#[allow(clippy::missing_transmute_annotations)]
+                </span><span class="macro-nonterminal">$crate::util::macro_util::core_reexport::mem::transmute</span>(e)
+            })
+        } <span class="kw">else </span>{
+            <span class="macro-nonterminal">$crate::util::macro_util::try_transmute</span>::&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt;(e)
+        }
+    }}
+}
+
+<span class="doccomment">/// Conditionally transmutes a mutable or immutable reference of one type to an
+/// immutable reference of another type of the same size and compatible
+/// alignment.
+///
+/// This macro behaves like an invocation of this function:
+///
+/// ```ignore
+/// fn try_transmute_ref&lt;Src, Dst&gt;(src: &amp;Src) -&gt; Result&lt;&amp;Dst, ValidityError&lt;&amp;Src, Dst&gt;&gt;
+/// where
+///     Src: IntoBytes + Immutable,
+///     Dst: TryFromBytes + Immutable,
+///     size_of::&lt;Src&gt;() == size_of::&lt;Dst&gt;(),
+///     align_of::&lt;Src&gt;() &gt;= align_of::&lt;Dst&gt;(),
+/// {
+/// # /*
+///     ...
+/// # */
+/// }
+/// ```
+///
+/// However, unlike a function, this macro can only be invoked when the types of
+/// `Src` and `Dst` are completely concrete. The types `Src` and `Dst` are
+/// inferred from the calling context; they cannot be explicitly specified in
+/// the macro invocation.
+///
+/// # Examples
+///
+/// ```
+/// # use zerocopy::*;
+/// // 0u8 → bool = false
+/// assert_eq!(try_transmute_ref!(&amp;0u8), Ok(&amp;false));
+///
+/// // 1u8 → bool = true
+///  assert_eq!(try_transmute_ref!(&amp;1u8), Ok(&amp;true));
+///
+/// // 2u8 → bool = error
+/// assert!(matches!(
+///     try_transmute_ref!(&amp;2u8),
+///     Result::&lt;&amp;bool, _&gt;::Err(ValidityError { .. })
+/// ));
+/// ```
+///
+/// # Alignment increase error message
+///
+/// Because of limitations on macros, the error message generated when
+/// `try_transmute_ref!` is used to transmute from a type of lower alignment to
+/// a type of higher alignment is somewhat confusing. For example, the following
+/// code:
+///
+/// ```compile_fail
+/// let increase_alignment: Result&lt;&amp;u16, _&gt; = zerocopy::try_transmute_ref!(&amp;[0u8; 2]);
+/// ```
+///
+/// ...generates the following error:
+///
+/// ```text
+/// error[E0512]: cannot transmute between types of different sizes, or dependently-sized types
+///  --&gt; example.rs:1:47
+///   |
+/// 1 |     let increase_alignment: Result&lt;&amp;u16, _&gt; = zerocopy::try_transmute_ref!(&amp;[0u8; 2]);
+///   |                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+///   |
+///   = note: source type: `AlignOf&lt;[u8; 2]&gt;` (8 bits)
+///   = note: target type: `MaxAlignsOf&lt;[u8; 2], u16&gt;` (16 bits)
+///   = note: this error originates in the macro `$crate::assert_align_gt_eq` which comes from the expansion of the macro `zerocopy::try_transmute_ref` (in Nightly builds, run with -Z macro-backtrace for more info)/// ```
+/// ```
+///
+/// This is saying that `max(align_of::&lt;T&gt;(), align_of::&lt;U&gt;()) !=
+/// align_of::&lt;T&gt;()`, which is equivalent to `align_of::&lt;T&gt;() &lt;
+/// align_of::&lt;U&gt;()`.
+</span><span class="attr">#[macro_export]
+</span><span class="macro">macro_rules!</span> try_transmute_ref {
+    (<span class="macro-nonterminal">$e</span>:expr) =&gt; {{
+        <span class="comment">// NOTE: This must be a macro (rather than a function with trait bounds)
+        // because there's no way, in a generic context, to enforce that two
+        // types have the same size. `core::mem::transmute` uses compiler magic
+        // to enforce this so long as the types are concrete.
+
+        // Ensure that the source type is a reference or a mutable reference
+        // (note that mutable references are implicitly reborrowed here).
+        </span><span class="kw">let </span>e: <span class="kw-2">&amp;</span><span class="kw">_ </span>= <span class="macro-nonterminal">$e</span>;
+
+        <span class="attr">#[allow(unreachable_code, unused, clippy::diverging_sub_expression)]
+        </span><span class="kw">if </span><span class="bool-val">false </span>{
+            <span class="comment">// This branch, though never taken, ensures that `size_of::&lt;T&gt;() ==
+            // size_of::&lt;U&gt;()` and that that `align_of::&lt;T&gt;() &gt;=
+            // align_of::&lt;U&gt;()`.
+
+            // `t` is inferred to have type `T` because it's assigned to `e` (of
+            // type `&amp;T`) as `&amp;t`.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>t = <span class="kw">loop </span>{};
+            e = <span class="kw-2">&amp;</span>t;
+
+            <span class="comment">// `u` is inferred to have type `U` because it's used as `Ok(&amp;u)` as
+            // the value returned from this branch.
+            </span><span class="kw">let </span>u;
+
+            <span class="macro-nonterminal">$</span><span class="macro">crate::assert_size_eq!</span>(<span class="macro-nonterminal">t</span>, u);
+            <span class="macro-nonterminal">$</span><span class="macro">crate::assert_align_gt_eq!</span>(<span class="macro-nonterminal">t</span>, u);
+
+            <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span>u)
+        } <span class="kw">else </span>{
+            <span class="macro-nonterminal">$crate::util::macro_util::try_transmute_ref</span>::&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt;(e)
+        }
+    }}
+}
+
+<span class="doccomment">/// Conditionally transmutes a mutable reference of one type to a mutable
+/// reference of another type of the same size and compatible alignment.
+///
+/// This macro behaves like an invocation of this function:
+///
+/// ```ignore
+/// fn try_transmute_mut&lt;Src, Dst&gt;(src: &amp;mut Src) -&gt; Result&lt;&amp;mut Dst, ValidityError&lt;&amp;mut Src, Dst&gt;&gt;
+/// where
+///     Src: FromBytes + IntoBytes,
+///     Dst: TryFromBytes,
+///     size_of::&lt;Src&gt;() == size_of::&lt;Dst&gt;(),
+///     align_of::&lt;Src&gt;() &gt;= align_of::&lt;Dst&gt;(),
+/// {
+/// # /*
+///     ...
+/// # */
+/// }
+/// ```
+///
+/// However, unlike a function, this macro can only be invoked when the types of
+/// `Src` and `Dst` are completely concrete. The types `Src` and `Dst` are
+/// inferred from the calling context; they cannot be explicitly specified in
+/// the macro invocation.
+///
+/// # Examples
+///
+/// ```
+/// # use zerocopy::*;
+/// // 0u8 → bool = false
+/// let src = &amp;mut 0u8;
+/// assert_eq!(try_transmute_mut!(src), Ok(&amp;mut false));
+///
+/// // 1u8 → bool = true
+/// let src = &amp;mut 1u8;
+///  assert_eq!(try_transmute_mut!(src), Ok(&amp;mut true));
+///
+/// // 2u8 → bool = error
+/// let src = &amp;mut 2u8;
+/// assert!(matches!(
+///     try_transmute_mut!(src),
+///     Result::&lt;&amp;mut bool, _&gt;::Err(ValidityError { .. })
+/// ));
+/// ```
+///
+/// # Alignment increase error message
+///
+/// Because of limitations on macros, the error message generated when
+/// `try_transmute_ref!` is used to transmute from a type of lower alignment to
+/// a type of higher alignment is somewhat confusing. For example, the following
+/// code:
+///
+/// ```compile_fail
+/// let src = &amp;mut [0u8; 2];
+/// let increase_alignment: Result&lt;&amp;mut u16, _&gt; = zerocopy::try_transmute_mut!(src);
+/// ```
+///
+/// ...generates the following error:
+///
+/// ```text
+/// error[E0512]: cannot transmute between types of different sizes, or dependently-sized types
+///  --&gt; example.rs:2:51
+///   |
+/// 2 |     let increase_alignment: Result&lt;&amp;mut u16, _&gt; = zerocopy::try_transmute_mut!(src);
+///   |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+///   |
+///   = note: source type: `AlignOf&lt;[u8; 2]&gt;` (8 bits)
+///   = note: target type: `MaxAlignsOf&lt;[u8; 2], u16&gt;` (16 bits)
+///   = note: this error originates in the macro `$crate::assert_align_gt_eq` which comes from the expansion of the macro `zerocopy::try_transmute_mut` (in Nightly builds, run with -Z macro-backtrace for more info)
+/// ```
+///
+/// This is saying that `max(align_of::&lt;T&gt;(), align_of::&lt;U&gt;()) !=
+/// align_of::&lt;T&gt;()`, which is equivalent to `align_of::&lt;T&gt;() &lt;
+/// align_of::&lt;U&gt;()`.
+</span><span class="attr">#[macro_export]
+</span><span class="macro">macro_rules!</span> try_transmute_mut {
+    (<span class="macro-nonterminal">$e</span>:expr) =&gt; {{
+        <span class="comment">// NOTE: This must be a macro (rather than a function with trait bounds)
+        // because there's no way, in a generic context, to enforce that two
+        // types have the same size. `core::mem::transmute` uses compiler magic
+        // to enforce this so long as the types are concrete.
+
+        // Ensure that the source type is a mutable reference.
+        </span><span class="kw">let </span>e: <span class="kw-2">&amp;mut </span><span class="kw">_ </span>= <span class="macro-nonterminal">$e</span>;
+
+        <span class="attr">#[allow(unreachable_code, unused, clippy::diverging_sub_expression)]
+        </span><span class="kw">if </span><span class="bool-val">false </span>{
+            <span class="comment">// This branch, though never taken, ensures that `size_of::&lt;T&gt;() ==
+            // size_of::&lt;U&gt;()` and that that `align_of::&lt;T&gt;() &gt;=
+            // align_of::&lt;U&gt;()`.
+
+            // `t` is inferred to have type `T` because it's assigned to `e` (of
+            // type `&amp;mut T`) as `&amp;mut t`.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>t = <span class="kw">loop </span>{};
+            e = <span class="kw-2">&amp;mut </span>t;
+
+            <span class="comment">// `u` is inferred to have type `U` because it's used as `Ok(&amp;mut
+            // u)` as the value returned from this branch.
+            </span><span class="kw">let </span>u;
+
+            <span class="macro-nonterminal">$</span><span class="macro">crate::assert_size_eq!</span>(<span class="macro-nonterminal">t</span>, u);
+            <span class="macro-nonterminal">$</span><span class="macro">crate::assert_align_gt_eq!</span>(<span class="macro-nonterminal">t</span>, u);
+
+            <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;mut </span>u)
+        } <span class="kw">else </span>{
+            <span class="macro-nonterminal">$crate::util::macro_util::try_transmute_mut</span>::&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt;(e)
+        }
+    }}
+}
+
+<span class="doccomment">/// Includes a file and safely transmutes it to a value of an arbitrary type.
+///
+/// The file will be included as a byte array, `[u8; N]`, which will be
+/// transmuted to another type, `T`. `T` is inferred from the calling context,
+/// and must implement [`FromBytes`].
+///
+/// The file is located relative to the current file (similarly to how modules
+/// are found). The provided path is interpreted in a platform-specific way at
+/// compile time. So, for instance, an invocation with a Windows path containing
+/// backslashes `\` would not compile correctly on Unix.
+///
+/// `include_value!` is ignorant of byte order. For byte order-aware types, see
+/// the [`byteorder`] module.
+///
+/// [`FromBytes`]: crate::FromBytes
+/// [`byteorder`]: crate::byteorder
+///
+/// # Examples
+///
+/// Assume there are two files in the same directory with the following
+/// contents:
+///
+/// File `data` (no trailing newline):
+///
+/// ```text
+/// abcd
+/// ```
+///
+/// File `main.rs`:
+///
+/// ```rust
+/// use zerocopy::include_value;
+/// # macro_rules! include_value {
+/// # ($file:expr) =&gt; { zerocopy::include_value!(concat!("../testdata/include_value/", $file)) };
+/// # }
+///
+/// fn main() {
+///     let as_u32: u32 = include_value!("data");
+///     assert_eq!(as_u32, u32::from_ne_bytes([b'a', b'b', b'c', b'd']));
+///     let as_i32: i32 = include_value!("data");
+///     assert_eq!(as_i32, i32::from_ne_bytes([b'a', b'b', b'c', b'd']));
+/// }
+/// ```
+///
+/// # Use in `const` contexts
+///
+/// This macro can be invoked in `const` contexts.
+</span><span class="attr">#[doc(alias(<span class="string">"include_bytes"</span>, <span class="string">"include_data"</span>, <span class="string">"include_type"</span>))]
+#[macro_export]
+</span><span class="macro">macro_rules!</span> include_value {
+    (<span class="macro-nonterminal">$file</span>:expr $(,)<span class="question-mark">?</span>) =&gt; {
+        <span class="macro-nonterminal">$</span><span class="macro">crate::transmute!</span>(<span class="kw-2">*</span><span class="macro">::core::include_bytes!</span>(<span class="macro-nonterminal">$file</span>))
+    };
+}
+
+<span class="attr">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span><span class="kw">crate</span>::util::testutil::<span class="kw-2">*</span>;
+    <span class="kw">use crate</span>::<span class="kw-2">*</span>;
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_transmute() {
+        <span class="comment">// Test that memory is transmuted as expected.
+        </span><span class="kw">let </span>array_of_u8s = [<span class="number">0u8</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];
+        <span class="kw">let </span>array_of_arrays = [[<span class="number">0</span>, <span class="number">1</span>], [<span class="number">2</span>, <span class="number">3</span>], [<span class="number">4</span>, <span class="number">5</span>], [<span class="number">6</span>, <span class="number">7</span>]];
+        <span class="kw">let </span>x: [[u8; <span class="number">2</span>]; <span class="number">4</span>] = <span class="macro">transmute!</span>(array_of_u8s);
+        <span class="macro">assert_eq!</span>(x, array_of_arrays);
+        <span class="kw">let </span>x: [u8; <span class="number">8</span>] = <span class="macro">transmute!</span>(array_of_arrays);
+        <span class="macro">assert_eq!</span>(x, array_of_u8s);
+
+        <span class="comment">// Test that the source expression's value is forgotten rather than
+        // dropped.
+        </span><span class="attr">#[derive(IntoBytes)]
+        #[repr(transparent)]
+        </span><span class="kw">struct </span>PanicOnDrop(());
+        <span class="kw">impl </span>Drop <span class="kw">for </span>PanicOnDrop {
+            <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+                <span class="macro">panic!</span>(<span class="string">"PanicOnDrop::drop"</span>);
+            }
+        }
+        <span class="attr">#[allow(clippy::let_unit_value)]
+        </span><span class="kw">let _</span>: () = <span class="macro">transmute!</span>(PanicOnDrop(()));
+
+        <span class="comment">// Test that `transmute!` is legal in a const context.
+        </span><span class="kw">const </span>ARRAY_OF_U8S: [u8; <span class="number">8</span>] = [<span class="number">0u8</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];
+        <span class="kw">const </span>ARRAY_OF_ARRAYS: [[u8; <span class="number">2</span>]; <span class="number">4</span>] = [[<span class="number">0</span>, <span class="number">1</span>], [<span class="number">2</span>, <span class="number">3</span>], [<span class="number">4</span>, <span class="number">5</span>], [<span class="number">6</span>, <span class="number">7</span>]];
+        <span class="kw">const </span>X: [[u8; <span class="number">2</span>]; <span class="number">4</span>] = <span class="macro">transmute!</span>(ARRAY_OF_U8S);
+        <span class="macro">assert_eq!</span>(X, ARRAY_OF_ARRAYS);
+
+        <span class="comment">// Test that `transmute!` works with `!Immutable` types.
+        </span><span class="kw">let </span>x: usize = <span class="macro">transmute!</span>(UnsafeCell::new(<span class="number">1usize</span>));
+        <span class="macro">assert_eq!</span>(x, <span class="number">1</span>);
+        <span class="kw">let </span>x: UnsafeCell&lt;usize&gt; = <span class="macro">transmute!</span>(<span class="number">1usize</span>);
+        <span class="macro">assert_eq!</span>(x.into_inner(), <span class="number">1</span>);
+        <span class="kw">let </span>x: UnsafeCell&lt;isize&gt; = <span class="macro">transmute!</span>(UnsafeCell::new(<span class="number">1usize</span>));
+        <span class="macro">assert_eq!</span>(x.into_inner(), <span class="number">1</span>);
     }
-}
 
-<span class="doccomment">/// Unsafely implements trait(s) for a type.
-///
-/// # Safety
-///
-/// The trait impl must be sound.
-///
-/// When implementing `TryFromBytes`:
-/// - If no `is_bit_valid` impl is provided, then it must be valid for
-///   `is_bit_valid` to unconditionally return `true`. In other words, it must
-///   be the case that any initialized sequence of bytes constitutes a valid
-///   instance of `$ty`.
-/// - If an `is_bit_valid` impl is provided, then:
-///   - Regardless of whether the provided closure takes a `Ptr&lt;$repr&gt;` or
-///     `&amp;$repr` argument, it must be the case that, given `t: *mut $ty` and
-///     `let r = t as *mut $repr`, `r` refers to an object of equal or lesser
-///     size than the object referred to by `t`.
-///   - If the provided closure takes a `&amp;$repr` argument, then given a `Ptr&lt;'a,
-///     $ty&gt;` which satisfies the preconditions of
-///     `TryFromBytes::&lt;$ty&gt;::is_bit_valid`, it must be guaranteed that the
-///     memory referenced by that `Ptr` always contains a valid `$repr`.
-///   - The alignment of `$repr` is less than or equal to the alignment of
-///     `$ty`.
-///   - The impl of `is_bit_valid` must only return `true` for its argument
-///     `Ptr&lt;$repr&gt;` if the original `Ptr&lt;$ty&gt;` refers to a valid `$ty`.
-</span><span class="macro">macro_rules!</span> unsafe_impl {
-    <span class="comment">// Implement `$trait` for `$ty` with no bounds.
-    </span>($(<span class="attr">#[<span class="macro-nonterminal">$attr</span>:meta]</span>)* <span class="macro-nonterminal">$ty</span>:ty: <span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident </span>$(; |<span class="macro-nonterminal">$candidate</span>:ident: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$repr</span>:ty| <span class="macro-nonterminal">$is_bit_valid</span>:expr)<span class="question-mark">?</span>) =&gt; {
-        $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>]</span>)*
-        <span class="kw">unsafe impl </span><span class="macro-nonterminal">$</span><span class="kw">trait for </span><span class="macro-nonterminal">$ty </span>{
-            <span class="macro">unsafe_impl!</span>(@method <span class="macro-nonterminal">$</span><span class="kw">trait </span>$(; |<span class="macro-nonterminal">$candidate</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$repr</span>| <span class="macro-nonterminal">$is_bit_valid</span>)<span class="question-mark">?</span>);
-        }
-    };
-    <span class="comment">// Implement all `$traits` for `$ty` with no bounds.
-    </span>(<span class="macro-nonterminal">$ty</span>:ty: $(<span class="macro-nonterminal">$traits</span>:ident),<span class="kw-2">*</span>) =&gt; {
-        $( <span class="macro">unsafe_impl!</span>(<span class="macro-nonterminal">$ty</span>: <span class="macro-nonterminal">$traits</span>); )*
-    };
-    <span class="comment">// This arm is identical to the following one, except it contains a
-    // preceding `const`. If we attempt to handle these with a single arm, there
-    // is an inherent ambiguity between `const` (the keyword) and `const` (the
-    // ident match for `$tyvar:ident`).
-    //
-    // To explain how this works, consider the following invocation:
-    //
-    //   unsafe_impl!(const N: usize, T: ?Sized + Copy =&gt; Clone for Foo&lt;T&gt;);
-    //
-    // In this invocation, here are the assignments to meta-variables:
-    //
-    //   |---------------|------------|
-    //   | Meta-variable | Assignment |
-    //   |---------------|------------|
-    //   | $constname    |  N         |
-    //   | $constty      |  usize     |
-    //   | $tyvar        |  T         |
-    //   | $optbound     |  Sized     |
-    //   | $bound        |  Copy      |
-    //   | $trait        |  Clone     |
-    //   | $ty           |  Foo&lt;T&gt;    |
-    //   |---------------|------------|
-    //
-    // The following arm has the same behavior with the exception of the lack of
-    // support for a leading `const` parameter.
-    </span>(
-        $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>:meta]</span>)*
-        <span class="kw">const </span><span class="macro-nonterminal">$constname</span>:ident : <span class="macro-nonterminal">$constty</span>:ident $(,)<span class="question-mark">?
-        </span>$(<span class="macro-nonterminal">$tyvar</span>:ident $(: $(<span class="question-mark">? </span><span class="macro-nonterminal">$optbound</span>:ident $(+)<span class="question-mark">?</span>)* $(<span class="macro-nonterminal">$bound</span>:ident $(+)<span class="question-mark">?</span>)* )<span class="question-mark">?</span>),*
-        =&gt; <span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident </span><span class="kw">for </span><span class="macro-nonterminal">$ty</span>:ty $(; |<span class="macro-nonterminal">$candidate</span>:ident $(: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$ref_repr</span>:ty)<span class="question-mark">? </span>$(: Ptr&lt;<span class="macro-nonterminal">$ptr_repr</span>:ty&gt;)<span class="question-mark">?</span>| <span class="macro-nonterminal">$is_bit_valid</span>:expr)<span class="question-mark">?
-    </span>) =&gt; {
-        <span class="macro">unsafe_impl!</span>(
-            @inner
-            $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>]</span>)*
-            @<span class="kw">const </span><span class="macro-nonterminal">$constname</span>: <span class="macro-nonterminal">$constty</span>,
-            $(<span class="macro-nonterminal">$tyvar </span>$(: $(<span class="question-mark">? </span><span class="macro-nonterminal">$optbound </span>+)* + $(<span class="macro-nonterminal">$bound </span>+)<span class="kw-2">*</span>)<span class="question-mark">?</span>,)*
-            =&gt; <span class="macro-nonterminal">$</span><span class="kw">trait for </span><span class="macro-nonterminal">$ty </span>$(; |<span class="macro-nonterminal">$candidate </span>$(: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$ref_repr</span>)<span class="question-mark">? </span>$(: Ptr&lt;<span class="macro-nonterminal">$ptr_repr</span>&gt;)<span class="question-mark">?</span>| <span class="macro-nonterminal">$is_bit_valid</span>)<span class="question-mark">?
-        </span>);
-    };
-    (
-        $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>:meta]</span>)*
-        $(<span class="macro-nonterminal">$tyvar</span>:ident $(: $(<span class="question-mark">? </span><span class="macro-nonterminal">$optbound</span>:ident $(+)<span class="question-mark">?</span>)* $(<span class="macro-nonterminal">$bound</span>:ident $(+)<span class="question-mark">?</span>)* )<span class="question-mark">?</span>),*
-        =&gt; <span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident </span><span class="kw">for </span><span class="macro-nonterminal">$ty</span>:ty $(; |<span class="macro-nonterminal">$candidate</span>:ident $(: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$ref_repr</span>:ty)<span class="question-mark">? </span>$(: Ptr&lt;<span class="macro-nonterminal">$ptr_repr</span>:ty&gt;)<span class="question-mark">?</span>| <span class="macro-nonterminal">$is_bit_valid</span>:expr)<span class="question-mark">?
-    </span>) =&gt; {
-        <span class="macro">unsafe_impl!</span>(
-            @inner
-            $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>]</span>)*
-            $(<span class="macro-nonterminal">$tyvar </span>$(: $(<span class="question-mark">? </span><span class="macro-nonterminal">$optbound </span>+)* + $(<span class="macro-nonterminal">$bound </span>+)<span class="kw-2">*</span>)<span class="question-mark">?</span>,)*
-            =&gt; <span class="macro-nonterminal">$</span><span class="kw">trait for </span><span class="macro-nonterminal">$ty </span>$(; |<span class="macro-nonterminal">$candidate </span>$(: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$ref_repr</span>)<span class="question-mark">? </span>$(: Ptr&lt;<span class="macro-nonterminal">$ptr_repr</span>&gt;)<span class="question-mark">?</span>| <span class="macro-nonterminal">$is_bit_valid</span>)<span class="question-mark">?
-        </span>);
-    };
-    (
-        @inner
-        $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>:meta]</span>)*
-        $(@<span class="kw">const </span><span class="macro-nonterminal">$constname</span>:ident : <span class="macro-nonterminal">$constty</span>:ident,)*
-        $(<span class="macro-nonterminal">$tyvar</span>:ident $(: $(<span class="question-mark">? </span><span class="macro-nonterminal">$optbound</span>:ident +)* + $(<span class="macro-nonterminal">$bound</span>:ident +)* )<span class="question-mark">?</span>,)*
-        =&gt; <span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident </span><span class="kw">for </span><span class="macro-nonterminal">$ty</span>:ty $(; |<span class="macro-nonterminal">$candidate</span>:ident $(: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$ref_repr</span>:ty)<span class="question-mark">? </span>$(: Ptr&lt;<span class="macro-nonterminal">$ptr_repr</span>:ty&gt;)<span class="question-mark">?</span>| <span class="macro-nonterminal">$is_bit_valid</span>:expr)<span class="question-mark">?
-    </span>) =&gt; {
-        $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>]</span>)*
-        <span class="kw">unsafe impl</span>&lt;$(<span class="kw">const </span><span class="macro-nonterminal">$constname</span>: <span class="macro-nonterminal">$constty</span>,)* $(<span class="macro-nonterminal">$tyvar </span>$(: $(<span class="question-mark">? </span><span class="macro-nonterminal">$optbound </span>+)* $(<span class="macro-nonterminal">$bound </span>+)<span class="kw-2">*</span>)<span class="question-mark">?</span>),<span class="kw-2">*</span>&gt; <span class="macro-nonterminal">$</span><span class="kw">trait for </span><span class="macro-nonterminal">$ty </span>{
-            <span class="macro">unsafe_impl!</span>(@method <span class="macro-nonterminal">$</span><span class="kw">trait </span>$(; |<span class="macro-nonterminal">$candidate</span>: $(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$ref_repr</span>)<span class="question-mark">? </span>$(Ptr&lt;<span class="macro-nonterminal">$ptr_repr</span>&gt;)<span class="question-mark">?</span>| <span class="macro-nonterminal">$is_bit_valid</span>)<span class="question-mark">?</span>);
-        }
-    };
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_transmute_ref() {
+        <span class="comment">// Test that memory is transmuted as expected.
+        </span><span class="kw">let </span>array_of_u8s = [<span class="number">0u8</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];
+        <span class="kw">let </span>array_of_arrays = [[<span class="number">0</span>, <span class="number">1</span>], [<span class="number">2</span>, <span class="number">3</span>], [<span class="number">4</span>, <span class="number">5</span>], [<span class="number">6</span>, <span class="number">7</span>]];
+        <span class="kw">let </span>x: <span class="kw-2">&amp;</span>[[u8; <span class="number">2</span>]; <span class="number">4</span>] = <span class="macro">transmute_ref!</span>(<span class="kw-2">&amp;</span>array_of_u8s);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>x, array_of_arrays);
+        <span class="kw">let </span>x: <span class="kw-2">&amp;</span>[u8; <span class="number">8</span>] = <span class="macro">transmute_ref!</span>(<span class="kw-2">&amp;</span>array_of_arrays);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>x, array_of_u8s);
 
-    (@method TryFromBytes ; |<span class="macro-nonterminal">$candidate</span>:ident: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$repr</span>:ty| <span class="macro-nonterminal">$is_bit_valid</span>:expr) =&gt; {
-        <span class="attr">#[inline]
-        </span><span class="kw">unsafe fn </span>is_bit_valid(candidate: Ptr&lt;<span class="lifetime">'_</span>, <span class="self">Self</span>&gt;) -&gt; bool {
-            <span class="comment">// SAFETY:
-            // - The argument to `cast_unsized` is `|p| p as *mut _` as required
-            //   by that method's safety precondition.
-            // - The caller has promised that the cast results in an object of
-            //   equal or lesser size.
-            // - The caller has promised that `$repr`'s alignment is less than
-            //   or equal to `Self`'s alignment.
-            </span><span class="attr">#[allow(clippy::as_conversions)]
-            </span><span class="kw">let </span>candidate = <span class="kw">unsafe </span>{ candidate.cast_unsized::&lt;<span class="macro-nonterminal">$repr</span>, <span class="kw">_</span>&gt;(|p| p <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_</span>) };
-            <span class="comment">// SAFETY:
-            // - The caller has promised that the referenced memory region will
-            //   contain a valid `$repr` for `'a`.
-            // - The memory may not be referenced by any mutable references.
-            //   This is a precondition of `is_bit_valid`.
-            // - The memory may not be mutated even via `UnsafeCell`s. This is a
-            //   precondition of `is_bit_valid`.
-            // - There must not exist any references to the same memory region
-            //   which contain `UnsafeCell`s at byte ranges which are not
-            //   identical to the byte ranges at which `T` contains
-            //   `UnsafeCell`s. This is a precondition of `is_bit_valid`.
-            </span><span class="kw">let </span><span class="macro-nonterminal">$candidate</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$repr </span>= <span class="kw">unsafe </span>{ candidate.as_ref() };
-            <span class="macro-nonterminal">$is_bit_valid
-        </span>}
-    };
-    (@method TryFromBytes ; |<span class="macro-nonterminal">$candidate</span>:ident: Ptr&lt;<span class="macro-nonterminal">$repr</span>:ty&gt;| <span class="macro-nonterminal">$is_bit_valid</span>:expr) =&gt; {
-        <span class="attr">#[inline]
-        </span><span class="kw">unsafe fn </span>is_bit_valid(candidate: Ptr&lt;<span class="lifetime">'_</span>, <span class="self">Self</span>&gt;) -&gt; bool {
-            <span class="comment">// SAFETY:
-            // - The argument to `cast_unsized` is `|p| p as *mut _` as required
-            //   by that method's safety precondition.
-            // - The caller has promised that the cast results in an object of
-            //   equal or lesser size.
-            // - The caller has promised that `$repr`'s alignment is less than
-            //   or equal to `Self`'s alignment.
-            </span><span class="attr">#[allow(clippy::as_conversions)]
-            </span><span class="kw">let </span><span class="macro-nonterminal">$candidate </span>= <span class="kw">unsafe </span>{ candidate.cast_unsized::&lt;<span class="macro-nonterminal">$repr</span>, <span class="kw">_</span>&gt;(|p| p <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_</span>) };
-            <span class="macro-nonterminal">$is_bit_valid
-        </span>}
-    };
-    (@method TryFromBytes) =&gt; { <span class="attr">#[inline(always)] </span><span class="kw">unsafe fn </span>is_bit_valid(<span class="kw">_</span>: Ptr&lt;<span class="lifetime">'_</span>, <span class="self">Self</span>&gt;) -&gt; bool { <span class="bool-val">true </span>} };
-    (@method <span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>) =&gt; {
-        <span class="attr">#[allow(clippy::missing_inline_in_public_items)]
-        </span><span class="kw">fn </span>only_derive_is_allowed_to_implement_this_trait() {}
-    };
-    (@method <span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>; |<span class="macro-nonterminal">$_candidate</span>:ident $(: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$_ref_repr</span>:ty)<span class="question-mark">? </span>$(: NonNull&lt;<span class="macro-nonterminal">$_ptr_repr</span>:ty&gt;)<span class="question-mark">?</span>| <span class="macro-nonterminal">$_is_bit_valid</span>:expr) =&gt; {
-        <span class="macro">compile_error!</span>(<span class="string">"Can't provide `is_bit_valid` impl for trait other than `TryFromBytes`"</span>);
-    };
-}
+        <span class="comment">// Test that `transmute_ref!` is legal in a const context.
+        </span><span class="kw">const </span>ARRAY_OF_U8S: [u8; <span class="number">8</span>] = [<span class="number">0u8</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];
+        <span class="kw">const </span>ARRAY_OF_ARRAYS: [[u8; <span class="number">2</span>]; <span class="number">4</span>] = [[<span class="number">0</span>, <span class="number">1</span>], [<span class="number">2</span>, <span class="number">3</span>], [<span class="number">4</span>, <span class="number">5</span>], [<span class="number">6</span>, <span class="number">7</span>]];
+        <span class="attr">#[allow(clippy::redundant_static_lifetimes)]
+        </span><span class="kw">const </span>X: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[[u8; <span class="number">2</span>]; <span class="number">4</span>] = <span class="macro">transmute_ref!</span>(<span class="kw-2">&amp;</span>ARRAY_OF_U8S);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>X, ARRAY_OF_ARRAYS);
 
-<span class="doccomment">/// Implements a trait for a type, bounding on each memeber of the power set of
-/// a set of type variables. This is useful for implementing traits for tuples
-/// or `fn` types.
-///
-/// The last argument is the name of a macro which will be called in every
-/// `impl` block, and is expected to expand to the name of the type for which to
-/// implement the trait.
-///
-/// For example, the invocation:
-/// ```ignore
-/// unsafe_impl_for_power_set!(A, B =&gt; Foo for type!(...))
-/// ```
-/// ...expands to:
-/// ```ignore
-/// unsafe impl       Foo for type!()     { ... }
-/// unsafe impl&lt;B&gt;    Foo for type!(B)    { ... }
-/// unsafe impl&lt;A, B&gt; Foo for type!(A, B) { ... }
-/// ```
-</span><span class="macro">macro_rules!</span> unsafe_impl_for_power_set {
-    (<span class="macro-nonterminal">$first</span>:ident $(, <span class="macro-nonterminal">$rest</span>:ident)* $(-&gt; <span class="macro-nonterminal">$ret</span>:ident)<span class="question-mark">? </span>=&gt; <span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident </span><span class="kw">for </span><span class="macro-nonterminal">$</span><span class="kw">macro</span>:<span class="macro">ident!</span>(...)) =&gt; {
-        <span class="macro">unsafe_impl_for_power_set!</span>($(<span class="macro-nonterminal">$rest</span>),* $(-&gt; <span class="macro-nonterminal">$ret</span>)<span class="question-mark">? </span>=&gt; <span class="macro-nonterminal">$</span><span class="kw">trait for </span><span class="macro-nonterminal">$</span><span class="macro">macro!</span>(...));
-        <span class="macro">unsafe_impl_for_power_set!</span>(@<span class="kw">impl </span><span class="macro-nonterminal">$first </span>$(, <span class="macro-nonterminal">$rest</span>)* $(-&gt; <span class="macro-nonterminal">$ret</span>)<span class="question-mark">? </span>=&gt; <span class="macro-nonterminal">$</span><span class="kw">trait for </span><span class="macro-nonterminal">$</span><span class="macro">macro!</span>(...));
-    };
-    ($(-&gt; <span class="macro-nonterminal">$ret</span>:ident)<span class="question-mark">? </span>=&gt; <span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident </span><span class="kw">for </span><span class="macro-nonterminal">$</span><span class="kw">macro</span>:<span class="macro">ident!</span>(...)) =&gt; {
-        <span class="macro">unsafe_impl_for_power_set!</span>(@<span class="kw">impl </span>$(-&gt; <span class="macro-nonterminal">$ret</span>)<span class="question-mark">? </span>=&gt; <span class="macro-nonterminal">$</span><span class="kw">trait for </span><span class="macro-nonterminal">$</span><span class="macro">macro!</span>(...));
-    };
-    (@<span class="kw">impl </span>$(<span class="macro-nonterminal">$vars</span>:ident),* $(-&gt; <span class="macro-nonterminal">$ret</span>:ident)<span class="question-mark">? </span>=&gt; <span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident </span><span class="kw">for </span><span class="macro-nonterminal">$</span><span class="kw">macro</span>:<span class="macro">ident!</span>(...)) =&gt; {
-        <span class="kw">unsafe impl</span>&lt;$(<span class="macro-nonterminal">$vars</span>,)* $(<span class="macro-nonterminal">$ret</span>)<span class="question-mark">?</span>&gt; <span class="macro-nonterminal">$</span><span class="kw">trait for </span><span class="macro-nonterminal">$</span><span class="macro">macro!</span>($(<span class="macro-nonterminal">$vars</span>),* $(-&gt; <span class="macro-nonterminal">$ret</span>)<span class="question-mark">?</span>) {
-            <span class="attr">#[allow(clippy::missing_inline_in_public_items)]
-            </span><span class="kw">fn </span>only_derive_is_allowed_to_implement_this_trait() {}
-        }
-    };
-}
+        <span class="comment">// Test that it's legal to transmute a reference while shrinking the
+        // lifetime (note that `X` has the lifetime `'static`).
+        </span><span class="kw">let </span>x: <span class="kw-2">&amp;</span>[u8; <span class="number">8</span>] = <span class="macro">transmute_ref!</span>(X);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>x, ARRAY_OF_U8S);
 
-<span class="doccomment">/// Expands to an `Option&lt;extern "C" fn&gt;` type with the given argument types and
-/// return type. Designed for use with `unsafe_impl_for_power_set`.
-</span><span class="macro">macro_rules!</span> opt_extern_c_fn {
-    ($(<span class="macro-nonterminal">$args</span>:ident),* -&gt; <span class="macro-nonterminal">$ret</span>:ident) =&gt; { <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>($(<span class="macro-nonterminal">$args</span>),<span class="kw-2">*</span>) -&gt; <span class="macro-nonterminal">$ret</span>&gt; };
-}
+        <span class="comment">// Test that `transmute_ref!` supports decreasing alignment.
+        </span><span class="kw">let </span>u = AU64(<span class="number">0</span>);
+        <span class="kw">let </span>array = [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>];
+        <span class="kw">let </span>x: <span class="kw-2">&amp;</span>[u8; <span class="number">8</span>] = <span class="macro">transmute_ref!</span>(<span class="kw-2">&amp;</span>u);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>x, array);
 
-<span class="doccomment">/// Expands to a `Option&lt;fn&gt;` type with the given argument types and return
-/// type. Designed for use with `unsafe_impl_for_power_set`.
-</span><span class="macro">macro_rules!</span> opt_fn {
-    ($(<span class="macro-nonterminal">$args</span>:ident),* -&gt; <span class="macro-nonterminal">$ret</span>:ident) =&gt; { <span class="prelude-ty">Option</span>&lt;<span class="kw">fn</span>($(<span class="macro-nonterminal">$args</span>),<span class="kw-2">*</span>) -&gt; <span class="macro-nonterminal">$ret</span>&gt; };
-}
+        <span class="comment">// Test that a mutable reference can be turned into an immutable one.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>x = <span class="number">0u8</span>;
+        <span class="attr">#[allow(clippy::useless_transmute)]
+        </span><span class="kw">let </span>y: <span class="kw-2">&amp;</span>u8 = <span class="macro">transmute_ref!</span>(<span class="kw-2">&amp;mut </span>x);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>y, <span class="number">0</span>);
+    }
 
-<span class="doccomment">/// Implements trait(s) for a type or verifies the given implementation by
-/// referencing an existing (derived) implementation.
-///
-/// This macro exists so that we can provide zerocopy-derive as an optional
-/// dependency and still get the benefit of using its derives to validate that
-/// our trait impls are sound.
-///
-/// When compiling without `--cfg 'feature = "derive"` and without `--cfg test`,
-/// `impl_or_verify!` emits the provided trait impl. When compiling with either
-/// of those cfgs, it is expected that the type in question is deriving the
-/// traits instead. In this case, `impl_or_verify!` emits code which validates
-/// that the given trait impl is at least as restrictive as the the impl emitted
-/// by the custom derive. This has the effect of confirming that the impl which
-/// is emitted when the `derive` feature is disabled is actually sound (on the
-/// assumption that the impl emitted by the custom derive is sound).
-///
-/// The caller is still required to provide a safety comment (e.g. using the
-/// `safety_comment!` macro) . The reason for this restriction is that, while
-/// `impl_or_verify!` can guarantee that the provided impl is sound when it is
-/// compiled with the appropriate cfgs, there is no way to guarantee that it is
-/// ever compiled with those cfgs. In particular, it would be possible to
-/// accidentally place an `impl_or_verify!` call in a context that is only ever
-/// compiled when the `derive` feature is disabled. If that were to happen,
-/// there would be nothing to prevent an unsound trait impl from being emitted.
-/// Requiring a safety comment reduces the likelihood of emitting an unsound
-/// impl in this case, and also provides useful documentation for readers of the
-/// code.
-///
-/// ## Example
-///
-/// ```rust,ignore
-/// // Note that these derives are gated by `feature = "derive"`
-/// #[cfg_attr(any(feature = "derive", test), derive(FromZeroes, FromBytes, AsBytes, Unaligned))]
-/// #[repr(transparent)]
-/// struct Wrapper&lt;T&gt;(T);
-///
-/// safety_comment! {
-///     /// SAFETY:
-///     /// `Wrapper&lt;T&gt;` is `repr(transparent)`, so it is sound to implement any
-///     /// zerocopy trait if `T` implements that trait.
-///     impl_or_verify!(T: FromZeroes =&gt; FromZeroes for Wrapper&lt;T&gt;);
-///     impl_or_verify!(T: FromBytes =&gt; FromBytes for Wrapper&lt;T&gt;);
-///     impl_or_verify!(T: AsBytes =&gt; AsBytes for Wrapper&lt;T&gt;);
-///     impl_or_verify!(T: Unaligned =&gt; Unaligned for Wrapper&lt;T&gt;);
-/// }
-/// ```
-</span><span class="macro">macro_rules!</span> impl_or_verify {
-    <span class="comment">// The following two match arms follow the same pattern as their
-    // counterparts in `unsafe_impl!`; see the documentation on those arms for
-    // more details.
-    </span>(
-        <span class="kw">const </span><span class="macro-nonterminal">$constname</span>:ident : <span class="macro-nonterminal">$constty</span>:ident $(,)<span class="question-mark">?
-        </span>$(<span class="macro-nonterminal">$tyvar</span>:ident $(: $(<span class="question-mark">? </span><span class="macro-nonterminal">$optbound</span>:ident $(+)<span class="question-mark">?</span>)* $(<span class="macro-nonterminal">$bound</span>:ident $(+)<span class="question-mark">?</span>)* )<span class="question-mark">?</span>),*
-        =&gt; <span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident </span><span class="kw">for </span><span class="macro-nonterminal">$ty</span>:ty
-    ) =&gt; {
-        <span class="macro">impl_or_verify!</span>(@<span class="kw">impl </span>{ <span class="macro">unsafe_impl!</span>(
-            <span class="kw">const </span><span class="macro-nonterminal">$constname</span>: <span class="macro-nonterminal">$constty</span>, $(<span class="macro-nonterminal">$tyvar </span>$(: $(<span class="question-mark">? </span><span class="macro-nonterminal">$optbound </span>+)* $(<span class="macro-nonterminal">$bound </span>+)<span class="kw-2">*</span>)<span class="question-mark">?</span>),* =&gt; <span class="macro-nonterminal">$</span><span class="kw">trait for </span><span class="macro-nonterminal">$ty
-        </span>); });
-        <span class="macro">impl_or_verify!</span>(@verify <span class="macro-nonterminal">$</span><span class="kw">trait</span>, {
-            <span class="kw">impl</span>&lt;<span class="kw">const </span><span class="macro-nonterminal">$constname</span>: <span class="macro-nonterminal">$constty</span>, $(<span class="macro-nonterminal">$tyvar </span>$(: $(<span class="question-mark">? </span><span class="macro-nonterminal">$optbound </span>+)* $(<span class="macro-nonterminal">$bound </span>+)<span class="kw-2">*</span>)<span class="question-mark">?</span>),<span class="kw-2">*</span>&gt; Subtrait <span class="kw">for </span><span class="macro-nonterminal">$ty </span>{}
-        });
-    };
-    (
-        $(<span class="macro-nonterminal">$tyvar</span>:ident $(: $(<span class="question-mark">? </span><span class="macro-nonterminal">$optbound</span>:ident $(+)<span class="question-mark">?</span>)* $(<span class="macro-nonterminal">$bound</span>:ident $(+)<span class="question-mark">?</span>)* )<span class="question-mark">?</span>),*
-        =&gt; <span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident </span><span class="kw">for </span><span class="macro-nonterminal">$ty</span>:ty
-    ) =&gt; {
-        <span class="macro">impl_or_verify!</span>(@<span class="kw">impl </span>{ <span class="macro">unsafe_impl!</span>(
-            $(<span class="macro-nonterminal">$tyvar </span>$(: $(<span class="question-mark">? </span><span class="macro-nonterminal">$optbound </span>+)* $(<span class="macro-nonterminal">$bound </span>+)<span class="kw-2">*</span>)<span class="question-mark">?</span>),* =&gt; <span class="macro-nonterminal">$</span><span class="kw">trait for </span><span class="macro-nonterminal">$ty
-        </span>); });
-        <span class="macro">impl_or_verify!</span>(@verify <span class="macro-nonterminal">$</span><span class="kw">trait</span>, {
-            <span class="kw">impl</span>&lt;$(<span class="macro-nonterminal">$tyvar </span>$(: $(<span class="question-mark">? </span><span class="macro-nonterminal">$optbound </span>+)* $(<span class="macro-nonterminal">$bound </span>+)<span class="kw-2">*</span>)<span class="question-mark">?</span>),<span class="kw-2">*</span>&gt; Subtrait <span class="kw">for </span><span class="macro-nonterminal">$ty </span>{}
-        });
-    };
-    (
-        $(<span class="macro-nonterminal">$tyvar</span>:ident $(: $(<span class="question-mark">? </span><span class="macro-nonterminal">$optbound</span>:ident $(+)<span class="question-mark">?</span>)* $(<span class="macro-nonterminal">$bound</span>:ident $(+)<span class="question-mark">?</span>)* )<span class="question-mark">?</span>),*
-        =&gt; <span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident </span><span class="kw">for </span><span class="macro-nonterminal">$ty</span>:ty
-    ) =&gt; {
-        <span class="macro">unsafe_impl!</span>(
-            @inner
-            $(<span class="macro-nonterminal">$tyvar </span>$(: $(<span class="question-mark">? </span><span class="macro-nonterminal">$optbound </span>+)* + $(<span class="macro-nonterminal">$bound </span>+)<span class="kw-2">*</span>)<span class="question-mark">?</span>,)*
-            =&gt; <span class="macro-nonterminal">$</span><span class="kw">trait for </span><span class="macro-nonterminal">$ty
-        </span>);
-    };
-    (@<span class="kw">impl </span><span class="macro-nonterminal">$impl_block</span>:tt) =&gt; {
-        <span class="attr">#[cfg(not(any(feature = <span class="string">"derive"</span>, test)))]
-        </span><span class="kw">const _</span>: () = { <span class="macro-nonterminal">$impl_block </span>};
-    };
-    (@verify <span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>, <span class="macro-nonterminal">$impl_block</span>:tt) =&gt; {
-        <span class="attr">#[cfg(any(feature = <span class="string">"derive"</span>, test))]
-        </span><span class="kw">const _</span>: () = {
-            <span class="kw">trait </span>Subtrait: <span class="macro-nonterminal">$</span><span class="kw">trait </span>{}
-            <span class="macro-nonterminal">$impl_block
-        </span>};
-    };
-}
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_try_transmute() {
+        <span class="comment">// Test that memory is transmuted with `try_transmute` as expected.
+        </span><span class="kw">let </span>array_of_bools = [<span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>];
+        <span class="kw">let </span>array_of_arrays = [[<span class="number">0</span>, <span class="number">1</span>], [<span class="number">0</span>, <span class="number">1</span>], [<span class="number">0</span>, <span class="number">1</span>], [<span class="number">0</span>, <span class="number">1</span>]];
+        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;[[u8; <span class="number">2</span>]; <span class="number">4</span>], <span class="kw">_</span>&gt; = <span class="macro">try_transmute!</span>(array_of_bools);
+        <span class="macro">assert_eq!</span>(x, <span class="prelude-val">Ok</span>(array_of_arrays));
+        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;[bool; <span class="number">8</span>], <span class="kw">_</span>&gt; = <span class="macro">try_transmute!</span>(array_of_arrays);
+        <span class="macro">assert_eq!</span>(x, <span class="prelude-val">Ok</span>(array_of_bools));
 
-<span class="doccomment">/// Implements `KnownLayout` for a sized type.
-</span><span class="macro">macro_rules!</span> impl_known_layout {
-    ($(<span class="kw">const </span><span class="macro-nonterminal">$constvar</span>:ident : <span class="macro-nonterminal">$constty</span>:ty, <span class="macro-nonterminal">$tyvar</span>:ident $(: <span class="question-mark">?</span><span class="macro-nonterminal">$optbound</span>:ident)<span class="question-mark">? </span>=&gt; <span class="macro-nonterminal">$ty</span>:ty),* $(,)<span class="question-mark">?</span>) =&gt; {
-        $(<span class="macro">impl_known_layout!</span>(@inner <span class="kw">const </span><span class="macro-nonterminal">$constvar</span>: <span class="macro-nonterminal">$constty</span>, <span class="macro-nonterminal">$tyvar </span>$(: <span class="question-mark">?</span><span class="macro-nonterminal">$optbound</span>)<span class="question-mark">? </span>=&gt; <span class="macro-nonterminal">$ty</span>);)*
-    };
-    ($(<span class="macro-nonterminal">$tyvar</span>:ident $(: <span class="question-mark">?</span><span class="macro-nonterminal">$optbound</span>:ident)<span class="question-mark">? </span>=&gt; <span class="macro-nonterminal">$ty</span>:ty),* $(,)<span class="question-mark">?</span>) =&gt; {
-        $(<span class="macro">impl_known_layout!</span>(@inner , <span class="macro-nonterminal">$tyvar </span>$(: <span class="question-mark">?</span><span class="macro-nonterminal">$optbound</span>)<span class="question-mark">? </span>=&gt; <span class="macro-nonterminal">$ty</span>);)*
-    };
-    ($(<span class="macro-nonterminal">$ty</span>:ty),<span class="kw-2">*</span>) =&gt; { $(<span class="macro">impl_known_layout!</span>(@inner , =&gt; <span class="macro-nonterminal">$ty</span>);)* };
-    (@inner $(<span class="kw">const </span><span class="macro-nonterminal">$constvar</span>:ident : <span class="macro-nonterminal">$constty</span>:ty)<span class="question-mark">? </span>, $(<span class="macro-nonterminal">$tyvar</span>:ident $(: <span class="question-mark">?</span><span class="macro-nonterminal">$optbound</span>:ident)<span class="question-mark">?</span>)<span class="question-mark">? </span>=&gt; <span class="macro-nonterminal">$ty</span>:ty) =&gt; {
-        <span class="kw">const _</span>: () = {
-            <span class="kw">use </span>core::ptr::NonNull;
+        <span class="comment">// Test that `try_transmute!` works with `!Immutable` types.
+        </span><span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;usize, <span class="kw">_</span>&gt; = <span class="macro">try_transmute!</span>(UnsafeCell::new(<span class="number">1usize</span>));
+        <span class="macro">assert_eq!</span>(x.unwrap(), <span class="number">1</span>);
+        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;UnsafeCell&lt;usize&gt;, <span class="kw">_</span>&gt; = <span class="macro">try_transmute!</span>(<span class="number">1usize</span>);
+        <span class="macro">assert_eq!</span>(x.unwrap().into_inner(), <span class="number">1</span>);
+        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;UnsafeCell&lt;isize&gt;, <span class="kw">_</span>&gt; = <span class="macro">try_transmute!</span>(UnsafeCell::new(<span class="number">1usize</span>));
+        <span class="macro">assert_eq!</span>(x.unwrap().into_inner(), <span class="number">1</span>);
 
-            <span class="comment">// SAFETY: Delegates safety to `DstLayout::for_type`.
-            </span><span class="kw">unsafe impl</span>&lt;$(<span class="kw">const </span><span class="macro-nonterminal">$constvar </span>: <span class="macro-nonterminal">$constty</span>,)<span class="question-mark">? </span>$(<span class="macro-nonterminal">$tyvar </span>$(: <span class="question-mark">?</span><span class="macro-nonterminal">$optbound</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>&gt; KnownLayout <span class="kw">for </span><span class="macro-nonterminal">$ty </span>{
-                <span class="attr">#[allow(clippy::missing_inline_in_public_items)]
-                </span><span class="kw">fn </span>only_derive_is_allowed_to_implement_this_trait() <span class="kw">where </span><span class="self">Self</span>: Sized {}
+        <span class="attr">#[derive(FromBytes, IntoBytes, Debug, PartialEq)]
+        #[repr(transparent)]
+        </span><span class="kw">struct </span>PanicOnDrop&lt;T&gt;(T);
 
-                <span class="kw">const </span>LAYOUT: DstLayout = DstLayout::for_type::&lt;<span class="macro-nonterminal">$ty</span>&gt;();
-
-                <span class="comment">// SAFETY: `.cast` preserves address and provenance.
-                //
-                // TODO(#429): Add documentation to `.cast` that promises that
-                // it preserves provenance.
-                </span><span class="attr">#[inline(always)]
-                </span><span class="kw">fn </span>raw_from_ptr_len(bytes: NonNull&lt;u8&gt;, _elems: usize) -&gt; NonNull&lt;<span class="self">Self</span>&gt; {
-                    bytes.cast::&lt;<span class="self">Self</span>&gt;()
-                }
+        <span class="kw">impl</span>&lt;T&gt; Drop <span class="kw">for </span>PanicOnDrop&lt;T&gt; {
+            <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+                <span class="macro">panic!</span>(<span class="string">"PanicOnDrop dropped"</span>);
             }
-        };
-    };
-}
+        }
 
-<span class="doccomment">/// Implements `KnownLayout` for a type in terms of the implementation of
-/// another type with the same representation.
-///
-/// # Safety
-///
-/// - `$ty` and `$repr` must have the same:
-///   - Fixed prefix size
-///   - Alignment
-///   - (For DSTs) trailing slice element size
-/// - It must be valid to perform an `as` cast from `*mut $repr` to `*mut $ty`,
-///   and this operation must preserve referent size (ie, `size_of_val_raw`).
-</span><span class="macro">macro_rules!</span> unsafe_impl_known_layout {
-    ($(<span class="macro-nonterminal">$tyvar</span>:ident: <span class="question-mark">?</span>Sized + KnownLayout =&gt;)<span class="question-mark">? </span><span class="attr">#[repr(<span class="macro-nonterminal">$repr</span>:ty)] </span><span class="macro-nonterminal">$ty</span>:ty) =&gt; {
-        <span class="kw">const _</span>: () = {
-            <span class="kw">use </span>core::ptr::NonNull;
+        <span class="comment">// Since `try_transmute!` semantically moves its argument on failure,
+        // the `PanicOnDrop` is not dropped, and thus this shouldn't panic.
+        </span><span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;usize, <span class="kw">_</span>&gt; = <span class="macro">try_transmute!</span>(PanicOnDrop(<span class="number">1usize</span>));
+        <span class="macro">assert_eq!</span>(x, <span class="prelude-val">Ok</span>(<span class="number">1</span>));
 
-            <span class="kw">unsafe impl</span>&lt;$(<span class="macro-nonterminal">$tyvar</span>: <span class="question-mark">?</span>Sized + KnownLayout)<span class="question-mark">?</span>&gt; KnownLayout <span class="kw">for </span><span class="macro-nonterminal">$ty </span>{
-                <span class="attr">#[allow(clippy::missing_inline_in_public_items)]
-                </span><span class="kw">fn </span>only_derive_is_allowed_to_implement_this_trait() {}
+        <span class="comment">// Since `try_transmute!` semantically returns ownership of its argument
+        // on failure, the `PanicOnDrop` is returned rather than dropped, and
+        // thus this shouldn't panic.
+        </span><span class="kw">let </span>y: <span class="prelude-ty">Result</span>&lt;bool, <span class="kw">_</span>&gt; = <span class="macro">try_transmute!</span>(PanicOnDrop(<span class="number">2u8</span>));
+        <span class="comment">// We have to use `map_err` instead of comparing against
+        // `Err(PanicOnDrop(2u8))` because the latter would create and then drop
+        // its `PanicOnDrop` temporary, which would cause a panic.
+        </span><span class="macro">assert_eq!</span>(y.as_ref().map_err(|p| <span class="kw-2">&amp;</span>p.src.<span class="number">0</span>), <span class="prelude-val">Err</span>::&lt;<span class="kw-2">&amp;</span>bool, <span class="kw">_</span>&gt;(<span class="kw-2">&amp;</span><span class="number">2u8</span>));
+        mem::forget(y);
+    }
 
-                <span class="kw">const </span>LAYOUT: DstLayout = &lt;<span class="macro-nonterminal">$repr </span><span class="kw">as </span>KnownLayout&gt;::LAYOUT;
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_try_transmute_ref() {
+        <span class="comment">// Test that memory is transmuted with `try_transmute_ref` as expected.
+        </span><span class="kw">let </span>array_of_bools = <span class="kw-2">&amp;</span>[<span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>];
+        <span class="kw">let </span>array_of_arrays = <span class="kw-2">&amp;</span>[[<span class="number">0</span>, <span class="number">1</span>], [<span class="number">0</span>, <span class="number">1</span>], [<span class="number">0</span>, <span class="number">1</span>], [<span class="number">0</span>, <span class="number">1</span>]];
+        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>[[u8; <span class="number">2</span>]; <span class="number">4</span>], <span class="kw">_</span>&gt; = <span class="macro">try_transmute_ref!</span>(array_of_bools);
+        <span class="macro">assert_eq!</span>(x, <span class="prelude-val">Ok</span>(array_of_arrays));
+        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>[bool; <span class="number">8</span>], <span class="kw">_</span>&gt; = <span class="macro">try_transmute_ref!</span>(array_of_arrays);
+        <span class="macro">assert_eq!</span>(x, <span class="prelude-val">Ok</span>(array_of_bools));
 
-                <span class="comment">// SAFETY: All operations preserve address and provenance.
-                // Caller has promised that the `as` cast preserves size.
-                //
-                // TODO(#429): Add documentation to `NonNull::new_unchecked`
-                // that it preserves provenance.
-                </span><span class="attr">#[inline(always)]
-                </span><span class="kw">fn </span>raw_from_ptr_len(bytes: NonNull&lt;u8&gt;, elems: usize) -&gt; NonNull&lt;<span class="self">Self</span>&gt; {
-                    <span class="attr">#[allow(clippy::as_conversions)]
-                    </span><span class="kw">let </span>ptr = &lt;<span class="macro-nonterminal">$repr</span>&gt;::raw_from_ptr_len(bytes, elems).as_ptr() <span class="kw">as </span><span class="kw-2">*mut </span><span class="self">Self</span>;
-                    <span class="comment">// SAFETY: `ptr` was converted from `bytes`, which is non-null.
-                    </span><span class="kw">unsafe </span>{ NonNull::new_unchecked(ptr) }
-                }
-            }
-        };
-    };
-}
+        <span class="comment">// Test that it's legal to transmute a reference while shrinking the
+        // lifetime.
+        </span>{
+            <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>[[u8; <span class="number">2</span>]; <span class="number">4</span>], <span class="kw">_</span>&gt; = <span class="macro">try_transmute_ref!</span>(array_of_bools);
+            <span class="macro">assert_eq!</span>(x, <span class="prelude-val">Ok</span>(array_of_arrays));
+        }
 
-<span class="doccomment">/// Uses `align_of` to confirm that a type or set of types have alignment 1.
-///
-/// Note that `align_of&lt;T&gt;` requires `T: Sized`, so this macro doesn't work for
-/// unsized types.
-</span><span class="macro">macro_rules!</span> assert_unaligned {
-    (<span class="macro-nonterminal">$ty</span>:ty) =&gt; {
-        <span class="comment">// We only compile this assertion under `cfg(test)` to avoid taking an
-        // extra non-dev dependency (and making this crate more expensive to
-        // compile for our dependents).
-        </span><span class="attr">#[cfg(test)]
-        </span><span class="macro">static_assertions::const_assert_eq!</span>(core::mem::align_of::&lt;<span class="macro-nonterminal">$ty</span>&gt;(), <span class="number">1</span>);
-    };
-    ($(<span class="macro-nonterminal">$ty</span>:ty),<span class="kw-2">*</span>) =&gt; {
-        $(<span class="macro">assert_unaligned!</span>(<span class="macro-nonterminal">$ty</span>);)*
-    };
+        <span class="comment">// Test that `try_transmute_ref!` supports decreasing alignment.
+        </span><span class="kw">let </span>u = AU64(<span class="number">0</span>);
+        <span class="kw">let </span>array = [<span class="number">0u8</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>];
+        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>[u8; <span class="number">8</span>], <span class="kw">_</span>&gt; = <span class="macro">try_transmute_ref!</span>(<span class="kw-2">&amp;</span>u);
+        <span class="macro">assert_eq!</span>(x, <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span>array));
+
+        <span class="comment">// Test that a mutable reference can be turned into an immutable one.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>x = <span class="number">0u8</span>;
+        <span class="attr">#[allow(clippy::useless_transmute)]
+        </span><span class="kw">let </span>y: <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>u8, <span class="kw">_</span>&gt; = <span class="macro">try_transmute_ref!</span>(<span class="kw-2">&amp;mut </span>x);
+        <span class="macro">assert_eq!</span>(y, <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="number">0</span>));
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_try_transmute_mut() {
+        <span class="comment">// Test that memory is transmuted with `try_transmute_mut` as expected.
+        </span><span class="kw">let </span>array_of_u8s = <span class="kw-2">&amp;mut </span>[<span class="number">0u8</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>];
+        <span class="kw">let </span>array_of_arrays = <span class="kw-2">&amp;mut </span>[[<span class="number">0u8</span>, <span class="number">1</span>], [<span class="number">0</span>, <span class="number">1</span>], [<span class="number">0</span>, <span class="number">1</span>], [<span class="number">0</span>, <span class="number">1</span>]];
+        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>[[u8; <span class="number">2</span>]; <span class="number">4</span>], <span class="kw">_</span>&gt; = <span class="macro">try_transmute_mut!</span>(array_of_u8s);
+        <span class="macro">assert_eq!</span>(x, <span class="prelude-val">Ok</span>(array_of_arrays));
+
+        <span class="kw">let </span>array_of_bools = <span class="kw-2">&amp;mut </span>[<span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>];
+        <span class="kw">let </span>array_of_arrays = <span class="kw-2">&amp;mut </span>[[<span class="number">0u8</span>, <span class="number">1</span>], [<span class="number">0</span>, <span class="number">1</span>], [<span class="number">0</span>, <span class="number">1</span>], [<span class="number">0</span>, <span class="number">1</span>]];
+        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>[bool; <span class="number">8</span>], <span class="kw">_</span>&gt; = <span class="macro">try_transmute_mut!</span>(array_of_arrays);
+        <span class="macro">assert_eq!</span>(x, <span class="prelude-val">Ok</span>(array_of_bools));
+
+        <span class="comment">// Test that it's legal to transmute a reference while shrinking the
+        // lifetime.
+        </span><span class="kw">let </span>array_of_bools = <span class="kw-2">&amp;mut </span>[<span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>];
+        <span class="kw">let </span>array_of_arrays = <span class="kw-2">&amp;mut </span>[[<span class="number">0u8</span>, <span class="number">1</span>], [<span class="number">0</span>, <span class="number">1</span>], [<span class="number">0</span>, <span class="number">1</span>], [<span class="number">0</span>, <span class="number">1</span>]];
+        {
+            <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>[bool; <span class="number">8</span>], <span class="kw">_</span>&gt; = <span class="macro">try_transmute_mut!</span>(array_of_arrays);
+            <span class="macro">assert_eq!</span>(x, <span class="prelude-val">Ok</span>(array_of_bools));
+        }
+
+        <span class="comment">// Test that `try_transmute_mut!` supports decreasing alignment.
+        </span><span class="kw">let </span>u = <span class="kw-2">&amp;mut </span>AU64(<span class="number">0</span>);
+        <span class="kw">let </span>array = <span class="kw-2">&amp;mut </span>[<span class="number">0u8</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>];
+        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>[u8; <span class="number">8</span>], <span class="kw">_</span>&gt; = <span class="macro">try_transmute_mut!</span>(u);
+        <span class="macro">assert_eq!</span>(x, <span class="prelude-val">Ok</span>(array));
+
+        <span class="comment">// Test that a mutable reference can be turned into an immutable one.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>x = <span class="number">0u8</span>;
+        <span class="attr">#[allow(clippy::useless_transmute)]
+        </span><span class="kw">let </span>y: <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>u8, <span class="kw">_</span>&gt; = <span class="macro">try_transmute_mut!</span>(<span class="kw-2">&amp;mut </span>x);
+        <span class="macro">assert_eq!</span>(y, <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;mut </span><span class="number">0</span>));
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_transmute_mut() {
+        <span class="comment">// Test that memory is transmuted as expected.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>array_of_u8s = [<span class="number">0u8</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];
+        <span class="kw">let </span><span class="kw-2">mut </span>array_of_arrays = [[<span class="number">0</span>, <span class="number">1</span>], [<span class="number">2</span>, <span class="number">3</span>], [<span class="number">4</span>, <span class="number">5</span>], [<span class="number">6</span>, <span class="number">7</span>]];
+        <span class="kw">let </span>x: <span class="kw-2">&amp;mut </span>[[u8; <span class="number">2</span>]; <span class="number">4</span>] = <span class="macro">transmute_mut!</span>(<span class="kw-2">&amp;mut </span>array_of_u8s);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>x, array_of_arrays);
+        <span class="kw">let </span>x: <span class="kw-2">&amp;mut </span>[u8; <span class="number">8</span>] = <span class="macro">transmute_mut!</span>(<span class="kw-2">&amp;mut </span>array_of_arrays);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>x, array_of_u8s);
+
+        {
+            <span class="comment">// Test that it's legal to transmute a reference while shrinking the
+            // lifetime.
+            </span><span class="kw">let </span>x: <span class="kw-2">&amp;mut </span>[u8; <span class="number">8</span>] = <span class="macro">transmute_mut!</span>(<span class="kw-2">&amp;mut </span>array_of_arrays);
+            <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>x, array_of_u8s);
+        }
+        <span class="comment">// Test that `transmute_mut!` supports decreasing alignment.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>u = AU64(<span class="number">0</span>);
+        <span class="kw">let </span>array = [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>];
+        <span class="kw">let </span>x: <span class="kw-2">&amp;</span>[u8; <span class="number">8</span>] = <span class="macro">transmute_mut!</span>(<span class="kw-2">&amp;mut </span>u);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>x, array);
+
+        <span class="comment">// Test that a mutable reference can be turned into an immutable one.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>x = <span class="number">0u8</span>;
+        <span class="attr">#[allow(clippy::useless_transmute)]
+        </span><span class="kw">let </span>y: <span class="kw-2">&amp;</span>u8 = <span class="macro">transmute_mut!</span>(<span class="kw-2">&amp;mut </span>x);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>y, <span class="number">0</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_macros_evaluate_args_once() {
+        <span class="kw">let </span><span class="kw-2">mut </span>ctr = <span class="number">0</span>;
+        <span class="attr">#[allow(clippy::useless_transmute)]
+        </span><span class="kw">let _</span>: usize = <span class="macro">transmute!</span>({
+            ctr += <span class="number">1</span>;
+            <span class="number">0usize
+        </span>});
+        <span class="macro">assert_eq!</span>(ctr, <span class="number">1</span>);
+
+        <span class="kw">let </span><span class="kw-2">mut </span>ctr = <span class="number">0</span>;
+        <span class="kw">let _</span>: <span class="kw-2">&amp;</span>usize = <span class="macro">transmute_ref!</span>({
+            ctr += <span class="number">1</span>;
+            <span class="kw-2">&amp;</span><span class="number">0usize
+        </span>});
+        <span class="macro">assert_eq!</span>(ctr, <span class="number">1</span>);
+
+        <span class="kw">let </span><span class="kw-2">mut </span>ctr: usize = <span class="number">0</span>;
+        <span class="kw">let _</span>: <span class="kw-2">&amp;mut </span>usize = <span class="macro">transmute_mut!</span>({
+            ctr += <span class="number">1</span>;
+            <span class="kw-2">&amp;mut </span>ctr
+        });
+        <span class="macro">assert_eq!</span>(ctr, <span class="number">1</span>);
+
+        <span class="kw">let </span><span class="kw-2">mut </span>ctr = <span class="number">0</span>;
+        <span class="attr">#[allow(clippy::useless_transmute)]
+        </span><span class="kw">let _</span>: usize = <span class="macro">try_transmute!</span>({
+            ctr += <span class="number">1</span>;
+            <span class="number">0usize
+        </span>})
+        .unwrap();
+        <span class="macro">assert_eq!</span>(ctr, <span class="number">1</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_include_value() {
+        <span class="kw">const </span>AS_U32: u32 = <span class="macro">include_value!</span>(<span class="string">"../testdata/include_value/data"</span>);
+        <span class="macro">assert_eq!</span>(AS_U32, u32::from_ne_bytes([<span class="string">b'a'</span>, <span class="string">b'b'</span>, <span class="string">b'c'</span>, <span class="string">b'd'</span>]));
+        <span class="kw">const </span>AS_I32: i32 = <span class="macro">include_value!</span>(<span class="string">"../testdata/include_value/data"</span>);
+        <span class="macro">assert_eq!</span>(AS_I32, i32::from_ne_bytes([<span class="string">b'a'</span>, <span class="string">b'b'</span>, <span class="string">b'c'</span>, <span class="string">b'd'</span>]));
+    }
 }
 </code></pre></div></section></main></body></html>

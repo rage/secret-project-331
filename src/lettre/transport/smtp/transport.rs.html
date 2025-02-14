@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.11/src/transport/smtp/transport.rs`."><title>transport.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.12/src/transport/smtp/transport.rs`."><title>transport.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">lettre/transport/smtp/</div>transport.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -426,7 +427,68 @@
 <a href="#426" id="426">426</a>
 <a href="#427" id="427">427</a>
 <a href="#428" id="428">428</a>
-</pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">"pool"</span>)]
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
+<a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
+<a href="#490" id="490">490</a></pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">"pool"</span>)]
 </span><span class="kw">use </span>std::sync::Arc;
 <span class="kw">use </span>std::{fmt::Debug, time::Duration};
 
@@ -439,7 +501,31 @@
 </span><span class="kw">use super</span>::{Tls, TlsParameters, SUBMISSIONS_PORT, SUBMISSION_PORT};
 <span class="kw">use crate</span>::{address::Envelope, Transport};
 
-<span class="doccomment">/// Sends emails using the SMTP protocol
+<span class="doccomment">/// Synchronously send emails using the SMTP protocol
+///
+/// `SmtpTransport` is the primary way for communicating
+/// with SMTP relay servers to send email messages. It holds the
+/// client connect configuration and creates new connections
+/// as necessary.
+///
+/// # Connection pool
+///
+/// When the `pool` feature is enabled (default), `SmtpTransport` maintains a
+/// connection pool to manage SMTP connections. The pool:
+///
+/// - Establishes a new connection when sending a message.
+/// - Recycles connections internally after a message is sent.
+/// - Reuses connections for subsequent messages, reducing connection setup overhead.
+///
+/// The connection pool can grow to hold multiple SMTP connections if multiple
+/// emails are sent concurrently, as SMTP does not support multiplexing within a
+/// single connection.
+///
+/// However, **connection reuse is not possible** if the `SmtpTransport` instance
+/// is dropped after every email send operation. You must reuse the instance
+/// of this struct for the connection pool to be of any use.
+///
+/// To customize connection pool settings, use [`SmtpTransportBuilder::pool_config`].
 </span><span class="attr">#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"smtp-transport"</span>)))]
 #[derive(Clone)]
 </span><span class="kw">pub struct </span>SmtpTransport {
@@ -543,54 +629,72 @@
 
     <span class="doccomment">/// Creates a `SmtpTransportBuilder` from a connection URL
     ///
-    /// The protocol, credentials, host and port can be provided in a single URL.
-    /// Use the scheme `smtp` for an unencrypted relay (optionally in combination with the
-    /// `tls` parameter to allow/require STARTTLS) or `smtps` for SMTP over TLS.
-    /// The path section of the url can be used to set an alternative name for
-    /// the HELO / EHLO command.
-    /// For example `smtps://username:password@smtp.example.com/client.example.com:465`
-    /// will set the HELO / EHLO name `client.example.com`.
+    /// The protocol, credentials, host, port and EHLO name can be provided
+    /// in a single URL. This may be simpler than having to configure SMTP
+    /// through multiple configuration parameters and then having to pass
+    /// those options to lettre.
     ///
-    /// &lt;table&gt;
-    ///   &lt;thead&gt;
-    ///     &lt;tr&gt;
-    ///       &lt;th&gt;scheme&lt;/th&gt;
-    ///       &lt;th&gt;tls parameter&lt;/th&gt;
-    ///       &lt;th&gt;example&lt;/th&gt;
-    ///       &lt;th&gt;remarks&lt;/th&gt;
-    ///     &lt;/tr&gt;
-    ///   &lt;/thead&gt;
-    ///   &lt;tbody&gt;
-    ///     &lt;tr&gt;
-    ///      &lt;td&gt;smtps&lt;/td&gt;
-    ///      &lt;td&gt;-&lt;/td&gt;
-    ///      &lt;td&gt;smtps://smtp.example.com&lt;/td&gt;
-    ///      &lt;td&gt;SMTP over TLS, recommended method&lt;/td&gt;
-    ///     &lt;/tr&gt;
-    ///     &lt;tr&gt;
-    ///      &lt;td&gt;smtp&lt;/td&gt;
-    ///      &lt;td&gt;required&lt;/td&gt;
-    ///      &lt;td&gt;smtp://smtp.example.com?tls=required&lt;/td&gt;
-    ///      &lt;td&gt;SMTP with STARTTLS required, when SMTP over TLS is not available&lt;/td&gt;
-    ///     &lt;/tr&gt;
-    ///     &lt;tr&gt;
-    ///      &lt;td&gt;smtp&lt;/td&gt;
-    ///      &lt;td&gt;opportunistic&lt;/td&gt;
-    ///      &lt;td&gt;smtp://smtp.example.com?tls=opportunistic&lt;/td&gt;
-    ///      &lt;td&gt;
-    ///         SMTP with optionally STARTTLS when supported by the server.
-    ///         Caution: this method is vulnerable to a man-in-the-middle attack.
-    ///         Not recommended for production use.
-    ///       &lt;/td&gt;
-    ///     &lt;/tr&gt;
-    ///     &lt;tr&gt;
-    ///      &lt;td&gt;smtp&lt;/td&gt;
-    ///      &lt;td&gt;-&lt;/td&gt;
-    ///      &lt;td&gt;smtp://smtp.example.com&lt;/td&gt;
-    ///      &lt;td&gt;Unencrypted SMTP, not recommended for production use.&lt;/td&gt;
-    ///     &lt;/tr&gt;
-    ///   &lt;/tbody&gt;
-    /// &lt;/table&gt;
+    /// The URL is created in the following way:
+    /// `scheme://user:pass@hostname:port/ehlo-name?tls=TLS`.
+    ///
+    /// `user` (Username) and `pass` (Password) are optional in case the
+    /// SMTP relay doesn't require authentication. When `port` is not
+    /// configured it is automatically determined based on the `scheme`.
+    /// `ehlo-name` optionally overwrites the hostname sent for the EHLO
+    /// command. `TLS` controls whether STARTTLS is simply enabled
+    /// (`opportunistic` - not enough to prevent man-in-the-middle attacks)
+    /// or `required` (require the server to upgrade the connection to
+    /// STARTTLS, otherwise fail on suspicion of main-in-the-middle attempt).
+    ///
+    /// Use the following table to construct your SMTP url:
+    ///
+    /// | scheme  | `tls` query parameter | example                                            | default port | remarks                                                                                                                               |
+    /// | ------- | --------------------- | -------------------------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+    /// | `smtps` | unset                 | `smtps://user:pass@hostname:port`                  | 465          | SMTP over TLS, recommended method                                                                                                     |
+    /// | `smtp`  | `required`            | `smtp://user:pass@hostname:port?tls=required`      | 587          | SMTP with STARTTLS required, when SMTP over TLS is not available                                                                      |
+    /// | `smtp`  | `opportunistic`       | `smtp://user:pass@hostname:port?tls=opportunistic` | 587          | SMTP with optionally STARTTLS when supported by the server. Not suitable for production use: vulnerable to a man-in-the-middle attack |
+    /// | `smtp`  | unset                 | `smtp://user:pass@hostname:port`                   | 587          | Always unencrypted SMTP. Not suitable for production use: sends all data unencrypted                                                  |
+    ///
+    /// IMPORTANT: some parameters like `user` and `pass` cannot simply
+    /// be concatenated to construct the final URL because special characters
+    /// contained within the parameter may confuse the URL decoder.
+    /// Manually URL encode the parameters before concatenating them or use
+    /// a proper URL encoder, like the following cargo script:
+    ///
+    /// ```rust
+    /// # let _ = r#"
+    /// #!/usr/bin/env cargo
+    ///
+    /// //! ```cargo
+    /// //! [dependencies]
+    /// //! url = "2"
+    /// //! ```
+    /// # "#;
+    ///
+    /// use url::Url;
+    ///
+    /// fn main() {
+    ///     // don't touch this line
+    ///     let mut url = Url::parse("foo://bar").unwrap();
+    ///
+    ///     // configure the scheme (`smtp` or `smtps`) here.
+    ///     url.set_scheme("smtps").unwrap();
+    ///     // configure the username and password.
+    ///     // remove the following two lines if unauthenticated.
+    ///     url.set_username("username").unwrap();
+    ///     url.set_password(Some("password")).unwrap();
+    ///     // configure the hostname
+    ///     url.set_host(Some("smtp.example.com")).unwrap();
+    ///     // configure the port - only necessary if using a non-default port
+    ///     url.set_port(Some(465)).unwrap();
+    ///     // configure the EHLO name
+    ///     url.set_path("ehlo-name");
+    ///
+    ///     println!("{url}");
+    /// }
+    /// ```
+    ///
+    /// The connection URL can then be used in the following way:
     ///
     /// ```rust,no_run
     /// use lettre::{
@@ -598,6 +702,7 @@
     ///     SmtpTransport, Transport,
     /// };
     ///
+    /// # fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
     /// let email = Message::builder()
     ///     .from("NoBody &lt;nobody@domain.tld&gt;".parse().unwrap())
     ///     .reply_to("Yuin &lt;yuin@domain.tld&gt;".parse().unwrap())
@@ -608,15 +713,12 @@
     ///     .unwrap();
     ///
     /// // Open a remote connection to example
-    /// let mailer = SmtpTransport::from_url("smtps://username:password@smtp.example.com:465")
-    ///     .unwrap()
-    ///     .build();
+    /// let mailer = SmtpTransport::from_url("smtps://username:password@smtp.example.com")?.build();
     ///
     /// // Send the email
-    /// match mailer.send(&amp;email) {
-    ///     Ok(_) =&gt; println!("Email sent successfully!"),
-    ///     Err(e) =&gt; panic!("Could not send email: {e:?}"),
-    /// }
+    /// mailer.send(&amp;email)?;
+    /// # Ok(())
+    /// # }
     /// ```
     </span><span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
     #[cfg_attr(
@@ -674,7 +776,7 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Set the authentication mechanism to use
+    <span class="doccomment">/// Set the authentication credentials to use
     </span><span class="kw">pub fn </span>credentials(<span class="kw-2">mut </span><span class="self">self</span>, credentials: Credentials) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.info.credentials = <span class="prelude-val">Some</span>(credentials);
         <span class="self">self
@@ -693,12 +795,34 @@
     </span>}
 
     <span class="doccomment">/// Set the port to use
+    ///
+    /// # ⚠️⚠️⚠️ You probably don't need to call this method ⚠️⚠️⚠️
+    ///
+    /// lettre usually picks the correct `port` when building
+    /// [`SmtpTransport`] using [`SmtpTransport::relay`] or
+    /// [`SmtpTransport::starttls_relay`].
+    ///
+    /// # Errors
+    ///
+    /// Using the incorrect `port` and [`Self::tls`] combination may
+    /// lead to hard to debug IO errors coming from the TLS library.
     </span><span class="kw">pub fn </span>port(<span class="kw-2">mut </span><span class="self">self</span>, port: u16) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.info.port = port;
         <span class="self">self
     </span>}
 
     <span class="doccomment">/// Set the TLS settings to use
+    ///
+    /// # ⚠️⚠️⚠️ You probably don't need to call this method ⚠️⚠️⚠️
+    ///
+    /// By default lettre chooses the correct `tls` configuration when
+    /// building [`SmtpTransport`] using [`SmtpTransport::relay`] or
+    /// [`SmtpTransport::starttls_relay`].
+    ///
+    /// # Errors
+    ///
+    /// Using the wrong [`Tls`] and [`Self::port`] combination may
+    /// lead to hard to debug IO errors coming from the TLS library.
     </span><span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
     #[cfg_attr(
         docsrs,

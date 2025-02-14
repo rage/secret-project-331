@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-session-0.7.2/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_session" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-session-0.10.1/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_session" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">actix_session/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -725,12 +726,7 @@
 <a href="#725" id="725">725</a>
 <a href="#726" id="726">726</a>
 <a href="#727" id="727">727</a>
-<a href="#728" id="728">728</a>
-<a href="#729" id="729">729</a>
-<a href="#730" id="730">730</a>
-<a href="#731" id="731">731</a>
-<a href="#732" id="732">732</a>
-</pre></div><pre class="rust"><code><span class="doccomment">//! Session management for Actix Web.
+<a href="#728" id="728">728</a></pre></div><pre class="rust"><code><span class="doccomment">//! Session management for Actix Web.
 //!
 //! The HTTP protocol, at a first glance, is stateless: the client sends a request, the server
 //! parses its content, performs some processing and returns a response. The outcome is only
@@ -759,11 +755,11 @@
 //! against the active [`Session`].
 //!
 //! `actix-session` provides some built-in storage backends: ([`CookieSessionStore`],
-//! [`RedisSessionStore`], and [`RedisActorSessionStore`]) - you can create a custom storage backend
-//! by implementing the [`SessionStore`] trait.
+//! [`RedisSessionStore`]) - you can create a custom storage backend by implementing the
+//! [`SessionStore`] trait.
 //!
 //! Further reading on sessions:
-//! - [RFC6265](https://datatracker.ietf.org/doc/html/rfc6265);
+//! - [RFC 6265](https://datatracker.ietf.org/doc/html/rfc6265);
 //! - [OWASP's session management cheat-sheet](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html).
 //!
 //! # Getting started
@@ -772,21 +768,27 @@
 //!
 //! ```no_run
 //! use actix_web::{web, App, HttpServer, HttpResponse, Error};
-//! use actix_session::{Session, SessionMiddleware, storage::RedisActorSessionStore};
+//! use actix_session::{Session, SessionMiddleware, storage::RedisSessionStore};
 //! use actix_web::cookie::Key;
 //!
 //! #[actix_web::main]
 //! async fn main() -&gt; std::io::Result&lt;()&gt; {
-//!     // The secret key would usually be read from a configuration file/environment variables.
+//!     // When using `Key::generate()` it is important to initialize outside of the
+//!     // `HttpServer::new` closure. When deployed the secret key should be read from a
+//!     // configuration file or environment variables.
 //!     let secret_key = Key::generate();
-//!     let redis_connection_string = "127.0.0.1:6379";
+//!
+//!     let redis_store = RedisSessionStore::new("redis://127.0.0.1:6379")
+//!         .await
+//!         .unwrap();
+//!
 //!     HttpServer::new(move ||
 //!             App::new()
 //!             // Add session management to your application using Redis for session state storage
 //!             .wrap(
 //!                 SessionMiddleware::new(
-//!                     RedisActorSessionStore::new(redis_connection_string),
-//!                     secret_key.clone()
+//!                     redis_store.clone(),
+//!                     secret_key.clone(),
 //!                 )
 //!             )
 //!             .default_service(web::to(|| HttpResponse::Ok())))
@@ -797,7 +799,7 @@
 //! ```
 //!
 //! The session state can be accessed and modified by your request handlers using the [`Session`]
-//! extractor.
+//! extractor. Note that this doesn't work in the stream of a streaming response.
 //!
 //! ```no_run
 //! use actix_web::Error;
@@ -825,37 +827,28 @@
 //! - a purely cookie-based "backend", [`CookieSessionStore`], using the `cookie-session` feature
 //!   flag.
 //!
-//!   ```toml
-//!   [dependencies]
-//!   # ...
-//!   actix-session = { version = "...", features = ["cookie-session"] }
+//!   ```console
+//!   cargo add actix-session --features=cookie-session
 //!   ```
 //!
-//! - a Redis-based backend via [`actix-redis`](https://docs.rs/acitx-redis),
-//!   [`RedisActorSessionStore`], using the `redis-actor-session` feature flag.
+//! - a Redis-based backend via the [`redis`] crate, [`RedisSessionStore`], using the
+//!   `redis-session` feature flag.
 //!
-//!   ```toml
-//!   [dependencies]
-//!   # ...
-//!   actix-session = { version = "...", features = ["redis-actor-session"] }
+//!   ```console
+//!   cargo add actix-session --features=redis-session
 //!   ```
 //!
-//! - a Redis-based backend via [`redis-rs`](https://docs.rs/redis-rs), [`RedisSessionStore`], using
-//!   the `redis-rs-session` feature flag.
+//!   Add the `redis-session-native-tls` feature flag if you want to connect to Redis using a secure
+//!   connection (via the `native-tls` crate):
 //!
-//!   ```toml
-//!   [dependencies]
-//!   # ...
-//!   actix-session = { version = "...", features = ["redis-rs-session"] }
+//!   ```console
+//!   cargo add actix-session --features=redis-session-native-tls
 //!   ```
 //!
-//!   Add the `redis-rs-tls-session` feature flag if you want to connect to Redis using a secured
-//!   connection:
+//!   If you, instead, prefer depending on `rustls`, use the `redis-session-rustls` feature flag:
 //!
-//!   ```toml
-//!   [dependencies]
-//!   # ...
-//!   actix-session = { version = "...", features = ["redis-rs-session", "redis-rs-tls-session"] }
+//!   ```console
+//!   cargo add actix-session --features=redis-session-rustls
 //!   ```
 //!
 //! You can implement your own session storage backend using the [`SessionStore`] trait.
@@ -863,14 +856,12 @@
 //! [`SessionStore`]: storage::SessionStore
 //! [`CookieSessionStore`]: storage::CookieSessionStore
 //! [`RedisSessionStore`]: storage::RedisSessionStore
-//! [`RedisActorSessionStore`]: storage::RedisActorSessionStore
 
 </span><span class="attr">#![forbid(unsafe_code)]
-#![deny(rust_2018_idioms, nonstandard_style)]
-#![warn(future_incompatible, missing_docs)]
+#![warn(missing_docs)]
 #![doc(html_logo_url = <span class="string">"https://actix.rs/img/logo.png"</span>)]
 #![doc(html_favicon_url = <span class="string">"https://actix.rs/favicon.ico"</span>)]
-#![cfg_attr(docsrs, feature(doc_cfg))]
+#![cfg_attr(docsrs, feature(doc_auto_cfg))]
 
 </span><span class="kw">pub mod </span>config;
 <span class="kw">mod </span>middleware;
@@ -878,9 +869,11 @@
 <span class="kw">mod </span>session_ext;
 <span class="kw">pub mod </span>storage;
 
-<span class="kw">pub use </span><span class="self">self</span>::middleware::SessionMiddleware;
-<span class="kw">pub use </span><span class="self">self</span>::session::{Session, SessionGetError, SessionInsertError, SessionStatus};
-<span class="kw">pub use </span><span class="self">self</span>::session_ext::SessionExt;
+<span class="kw">pub use </span><span class="self">self</span>::{
+    middleware::SessionMiddleware,
+    session::{Session, SessionGetError, SessionInsertError, SessionStatus},
+    session_ext::SessionExt,
+};
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">pub mod </span>test_helpers {
@@ -909,7 +902,7 @@
             CookieContentSecurity::Signed,
             CookieContentSecurity::Private,
         ] {
-            <span class="macro">println!</span>(<span class="string">"Using {:?} as cookie content security policy."</span>, policy);
+            <span class="macro">println!</span>(<span class="string">"Using {policy:?} as cookie content security policy."</span>);
             acceptance_tests::basic_workflow(store_builder.clone(), <span class="kw-2">*</span>policy).<span class="kw">await</span>;
             acceptance_tests::expiration_is_refreshed_on_changes(store_builder.clone(), <span class="kw-2">*</span>policy)
                 .<span class="kw">await</span>;
@@ -939,9 +932,11 @@
         <span class="kw">use </span>serde::{Deserialize, Serialize};
         <span class="kw">use </span>serde_json::json;
 
-        <span class="kw">use </span><span class="kw">crate</span>::config::{CookieContentSecurity, PersistentSession, TtlExtensionPolicy};
         <span class="kw">use crate</span>::{
-            storage::SessionStore, test_helpers::key, Session, SessionExt, SessionMiddleware,
+            config::{CookieContentSecurity, PersistentSession, TtlExtensionPolicy},
+            storage::SessionStore,
+            test_helpers::key,
+            Session, SessionExt, SessionMiddleware,
         };
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async fn </span>basic_workflow&lt;F, Store&gt;(
@@ -971,7 +966,7 @@
                     </span>}))
                     .service(web::resource(<span class="string">"/test/"</span>).to(|ses: Session| <span class="kw">async move </span>{
                         <span class="kw">let </span>val: usize = ses.get(<span class="string">"counter"</span>).unwrap().unwrap();
-                        <span class="macro">format!</span>(<span class="string">"counter: {}"</span>, val)
+                        <span class="macro">format!</span>(<span class="string">"counter: {val}"</span>)
                     })),
             )
             .<span class="kw">await</span>;
@@ -1402,7 +1397,7 @@
                 .get::&lt;i32&gt;(<span class="string">"counter"</span>)
                 .unwrap_or(<span class="prelude-val">Some</span>(<span class="number">0</span>))
                 .map_or(<span class="number">1</span>, |inner| inner + <span class="number">1</span>);
-            session.insert(<span class="string">"counter"</span>, <span class="kw-2">&amp;</span>counter)<span class="question-mark">?</span>;
+            session.insert(<span class="string">"counter"</span>, counter)<span class="question-mark">?</span>;
 
             <span class="prelude-val">Ok</span>(HttpResponse::Ok().json(<span class="kw-2">&amp;</span>IndexResponse { user_id, counter }))
         }
@@ -1438,9 +1433,9 @@
         <span class="kw">async fn </span>logout(session: Session) -&gt; <span class="prelude-ty">Result</span>&lt;HttpResponse&gt; {
             <span class="kw">let </span>id: <span class="prelude-ty">Option</span>&lt;String&gt; = session.get(<span class="string">"user_id"</span>)<span class="question-mark">?</span>;
 
-            <span class="kw">let </span>body = <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = id {
+            <span class="kw">let </span>body = <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = id {
                 session.purge();
-                <span class="macro">format!</span>(<span class="string">"Logged out: {}"</span>, x)
+                <span class="macro">format!</span>(<span class="string">"Logged out: {id}"</span>)
             } <span class="kw">else </span>{
                 <span class="string">"Could not log out anonymous user"</span>.to_owned()
             };
@@ -1454,10 +1449,7 @@
 
         <span class="kw">impl </span>ServiceResponseExt <span class="kw">for </span>ServiceResponse {
             <span class="kw">fn </span>get_cookie(<span class="kw-2">&amp;</span><span class="self">self</span>, cookie_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;actix_web::cookie::Cookie&lt;<span class="lifetime">'_</span>&gt;&gt; {
-                <span class="self">self</span>.response()
-                    .cookies()
-                    .into_iter()
-                    .find(|c| c.name() == cookie_name)
+                <span class="self">self</span>.response().cookies().find(|c| c.name() == cookie_name)
             }
         }
     }

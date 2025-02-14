@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.8/src/aead/chacha.rs`."><title>chacha.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.9/src/aead/chacha.rs`."><title>chacha.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ring/aead/</div>chacha.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -313,7 +314,14 @@
 <a href="#313" id="313">313</a>
 <a href="#314" id="314">314</a>
 <a href="#315" id="315">315</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright 2016 Brian Smith.
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a></pre></div><pre class="rust"><code><span class="comment">// Copyright 2016 Brian Smith.
 // Portions Copyright (c) 2016, Google Inc.
 //
 // Permission to use, copy, modify, and/or distribute this software for any
@@ -328,21 +336,29 @@
 // OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
 // CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-</span><span class="kw">use super</span>::{quic::Sample, Nonce};
+</span><span class="kw">use super</span>::{overlapping, quic::Sample, Nonce};
+<span class="kw">use </span><span class="kw">crate</span>::cpu;
+<span class="kw">use </span>cfg_if::cfg_if;
 
-<span class="attr">#[cfg(any(
-    test,
-    not(any(
-        target_arch = <span class="string">"aarch64"</span>,
-        target_arch = <span class="string">"arm"</span>,
-        target_arch = <span class="string">"x86"</span>,
-        target_arch = <span class="string">"x86_64"
-    </span>))
-))]
-</span><span class="kw">mod </span>fallback;
+<span class="macro">cfg_if!</span> {
+    <span class="kw">if </span><span class="attr">#[cfg(any(
+                all(target_arch = <span class="string">"aarch64"</span>, target_endian = <span class="string">"little"</span>),
+                all(target_arch = <span class="string">"arm"</span>, target_endian = <span class="string">"little"</span>),
+                target_arch = <span class="string">"x86"</span>,
+                target_arch = <span class="string">"x86_64"
+            </span>))] </span>{
+        <span class="attr">#[macro_use]
+        </span><span class="kw">mod </span>ffi;
+        <span class="attr">#[cfg(any(target_arch = <span class="string">"x86"</span>, test))]
+        </span><span class="kw">mod </span>fallback;
+    } <span class="kw">else </span>{
+        <span class="kw">mod </span>fallback;
+    }
+}
 
 <span class="kw">use </span><span class="kw">crate</span>::polyfill::ArraySplitMap;
-<span class="kw">use </span>core::ops::RangeFrom;
+
+<span class="kw">pub type </span>Overlapping&lt;<span class="lifetime">'o</span>&gt; = overlapping::Overlapping&lt;<span class="lifetime">'o</span>, u8&gt;;
 
 <span class="attr">#[derive(Clone)]
 </span><span class="kw">pub struct </span>Key {
@@ -358,97 +374,106 @@
 }
 
 <span class="kw">impl </span>Key {
-    <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>encrypt_in_place(<span class="kw-2">&amp;</span><span class="self">self</span>, counter: Counter, in_out: <span class="kw-2">&amp;mut </span>[u8]) {
-        <span class="self">self</span>.encrypt_less_safe(counter, in_out, <span class="number">0</span>..);
-    }
-
-    <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>encrypt_iv_xor_in_place(<span class="kw-2">&amp;</span><span class="self">self</span>, iv: Iv, in_out: <span class="kw-2">&amp;mut </span>[u8; <span class="number">32</span>]) {
-        <span class="comment">// It is safe to use `into_counter_for_single_block_less_safe()`
-        // because `in_out` is exactly one block long.
-        </span><span class="macro">debug_assert!</span>(in_out.len() &lt;= BLOCK_LEN);
-        <span class="self">self</span>.encrypt_less_safe(iv.into_counter_for_single_block_less_safe(), in_out, <span class="number">0</span>..);
+    <span class="comment">// Encrypts `in_out` with the counter 0 and returns counter 1,
+    // where the counter is derived from the nonce `nonce`.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>encrypt_single_block_with_ctr_0&lt;<span class="kw">const </span>N: usize&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        nonce: Nonce,
+        in_out: <span class="kw-2">&amp;mut </span>[u8; N],
+        cpu: cpu::Features,
+    ) -&gt; Counter {
+        <span class="macro">assert!</span>(N &lt;= BLOCK_LEN);
+        <span class="kw">let </span>(zero, one) = Counter::zero_one_less_safe(nonce);
+        <span class="self">self</span>.encrypt(zero, in_out.as_mut().into(), cpu);
+        one
     }
 
     <span class="attr">#[inline]
     </span><span class="kw">pub fn </span>new_mask(<span class="kw-2">&amp;</span><span class="self">self</span>, sample: Sample) -&gt; [u8; <span class="number">5</span>] {
+        <span class="kw">let </span>cpu = cpu::features(); <span class="comment">// TODO: Remove this.
+        </span><span class="kw">let </span>(ctr, nonce) = sample.split_at(<span class="number">4</span>);
+        <span class="kw">let </span>ctr = u32::from_le_bytes(ctr.try_into().unwrap());
+        <span class="kw">let </span>nonce = Nonce::assume_unique_for_key(nonce.try_into().unwrap());
+        <span class="kw">let </span>ctr = Counter::from_nonce_and_ctr(nonce, ctr);
+
         <span class="kw">let </span><span class="kw-2">mut </span>out: [u8; <span class="number">5</span>] = [<span class="number">0</span>; <span class="number">5</span>];
-        <span class="kw">let </span>iv = Iv::assume_unique_for_key(sample);
-
-        <span class="macro">debug_assert!</span>(out.len() &lt;= BLOCK_LEN);
-        <span class="self">self</span>.encrypt_less_safe(iv.into_counter_for_single_block_less_safe(), <span class="kw-2">&amp;mut </span>out, <span class="number">0</span>..);
-
+        <span class="self">self</span>.encrypt(ctr, out.as_mut().into(), cpu);
         out
     }
 
-    <span class="doccomment">/// Analogous to `slice::copy_within()`.
-    </span><span class="kw">pub fn </span>encrypt_within(<span class="kw-2">&amp;</span><span class="self">self</span>, counter: Counter, in_out: <span class="kw-2">&amp;mut </span>[u8], src: RangeFrom&lt;usize&gt;) {
-        <span class="comment">// XXX: The x86 and at least one branch of the ARM assembly language
-        // code doesn't allow overlapping input and output unless they are
-        // exactly overlapping. TODO: Figure out which branch of the ARM code
-        // has this limitation and come up with a better solution.
-        //
-        // https://rt.openssl.org/Ticket/Display.html?id=4362
-        </span><span class="kw">if </span><span class="macro">cfg!</span>(any(target_arch = <span class="string">"arm"</span>, target_arch = <span class="string">"x86"</span>)) &amp;&amp; src.start != <span class="number">0 </span>{
-            <span class="kw">let </span>len = in_out.len() - src.start;
-            in_out.copy_within(src, <span class="number">0</span>);
-            <span class="self">self</span>.encrypt_in_place(counter, <span class="kw-2">&amp;mut </span>in_out[..len]);
-        } <span class="kw">else </span>{
-            <span class="self">self</span>.encrypt_less_safe(counter, in_out, src);
-        }
-    }
-
-    <span class="doccomment">/// This is "less safe" because it skips the important check that `encrypt_within` does.
-    /// Only call this with `src` equal to `0..` or from `encrypt_within`.
-    </span><span class="attr">#[inline]
-    </span><span class="kw">fn </span>encrypt_less_safe(<span class="kw-2">&amp;</span><span class="self">self</span>, counter: Counter, in_out: <span class="kw-2">&amp;mut </span>[u8], src: RangeFrom&lt;usize&gt;) {
-        <span class="attr">#[cfg(any(
-            target_arch = <span class="string">"aarch64"</span>,
-            target_arch = <span class="string">"arm"</span>,
-            target_arch = <span class="string">"x86"</span>,
-            target_arch = <span class="string">"x86_64"
-        </span>))]
-        #[inline(always)]
-        </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>ChaCha20_ctr32(
-            key: <span class="kw-2">&amp;</span>Key,
-            counter: Counter,
-            in_out: <span class="kw-2">&amp;mut </span>[u8],
-            src: RangeFrom&lt;usize&gt;,
-        ) {
-            <span class="kw">let </span>in_out_len = in_out.len().checked_sub(src.start).unwrap();
-
-            <span class="comment">// There's no need to worry if `counter` is incremented because it is
-            // owned here and we drop immediately after the call.
-            </span><span class="macro">prefixed_extern!</span> {
-                <span class="kw">fn </span>ChaCha20_ctr32(
-                    out: <span class="kw-2">*mut </span>u8,
-                    in_: <span class="kw-2">*const </span>u8,
-                    in_len: <span class="kw">crate</span>::c::size_t,
-                    key: <span class="kw-2">&amp;</span>[u32; KEY_LEN / <span class="number">4</span>],
-                    counter: <span class="kw-2">&amp;</span>Counter,
-                );
+    <span class="attr">#[inline(always)]
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>encrypt(<span class="kw-2">&amp;</span><span class="self">self</span>, counter: Counter, in_out: Overlapping&lt;<span class="lifetime">'_</span>&gt;, cpu: cpu::Features) {
+        <span class="macro">cfg_if!</span> {
+            <span class="kw">if </span><span class="attr">#[cfg(all(target_arch = <span class="string">"aarch64"</span>, target_endian = <span class="string">"little"</span>))] </span>{
+                <span class="kw">use </span>cpu::{GetFeature <span class="kw">as _</span>, arm::Neon};
+                <span class="kw">const </span>NEON_MIN_LEN: usize = <span class="number">192 </span>+ <span class="number">1</span>;
+                <span class="kw">if </span>in_out.len() &gt;= NEON_MIN_LEN {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(cpu) = cpu.get_feature() {
+                        <span class="kw">return </span><span class="macro">chacha20_ctr32_ffi!</span>(
+                            <span class="kw">unsafe </span>{ (NEON_MIN_LEN, Neon, Overlapping&lt;<span class="lifetime">'_</span>&gt;) =&gt; ChaCha20_ctr32_neon },
+                            <span class="self">self</span>, counter, in_out, cpu);
+                    }
+                }
+                <span class="kw">if </span>in_out.len() &gt;= <span class="number">1 </span>{
+                    <span class="macro">chacha20_ctr32_ffi!</span>(
+                        <span class="kw">unsafe </span>{ (<span class="number">1</span>, (), Overlapping&lt;<span class="lifetime">'_</span>&gt;) =&gt; ChaCha20_ctr32_nohw },
+                        <span class="self">self</span>, counter, in_out, ())
+                }
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(target_arch = <span class="string">"arm"</span>, target_endian = <span class="string">"little"</span>))] </span>{
+                <span class="kw">use </span>cpu::{GetFeature <span class="kw">as _</span>, arm::Neon};
+                <span class="kw">const </span>NEON_MIN_LEN: usize = <span class="number">192 </span>+ <span class="number">1</span>;
+                <span class="kw">if </span>in_out.len() &gt;= NEON_MIN_LEN {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(cpu) = cpu.get_feature() {
+                        <span class="kw">return </span><span class="macro">chacha20_ctr32_ffi!</span>(
+                            <span class="kw">unsafe </span>{ (NEON_MIN_LEN, Neon, <span class="kw-2">&amp;mut </span>[u8]) =&gt; ChaCha20_ctr32_neon },
+                            <span class="self">self</span>, counter, in_out.copy_within(), cpu);
+                    }
+                }
+                <span class="kw">if </span>in_out.len() &gt;= <span class="number">1 </span>{
+                    <span class="macro">chacha20_ctr32_ffi!</span>(
+                        <span class="kw">unsafe </span>{ (<span class="number">1</span>, (), <span class="kw-2">&amp;mut </span>[u8]) =&gt; ChaCha20_ctr32_nohw },
+                        <span class="self">self</span>, counter, in_out.copy_within(), ())
+                }
+            } <span class="kw">else if </span><span class="attr">#[cfg(target_arch = <span class="string">"x86"</span>)] </span>{
+                <span class="kw">use </span>cpu::{GetFeature <span class="kw">as _</span>, intel::Ssse3};
+                <span class="kw">if </span>in_out.len() &gt;= <span class="number">1 </span>{
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(cpu) = cpu.get_feature() {
+                        <span class="macro">chacha20_ctr32_ffi!</span>(
+                            <span class="kw">unsafe </span>{ (<span class="number">1</span>, Ssse3, <span class="kw-2">&amp;mut </span>[u8]) =&gt; ChaCha20_ctr32_ssse3 },
+                            <span class="self">self</span>, counter, in_out.copy_within(), cpu)
+                    } <span class="kw">else </span>{
+                        <span class="kw">let _</span>: cpu::Features = cpu;
+                        fallback::ChaCha20_ctr32(<span class="self">self</span>, counter, in_out)
+                    }
+                }
+            } <span class="kw">else if </span><span class="attr">#[cfg(target_arch = <span class="string">"x86_64"</span>)] </span>{
+                <span class="kw">use </span>cpu::{GetFeature, intel::{Avx2, Ssse3}};
+                <span class="kw">const </span>SSE_MIN_LEN: usize = <span class="number">128 </span>+ <span class="number">1</span>; <span class="comment">// Also AVX2, SSSE3_4X, SSSE3
+                </span><span class="kw">if </span>in_out.len() &gt;= SSE_MIN_LEN {
+                    <span class="kw">let </span>values = cpu.values();
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(cpu) = values.get_feature() {
+                        <span class="kw">return </span><span class="macro">chacha20_ctr32_ffi!</span>(
+                            <span class="kw">unsafe </span>{ (SSE_MIN_LEN, Avx2, Overlapping&lt;<span class="lifetime">'_</span>&gt;) =&gt; ChaCha20_ctr32_avx2 },
+                            <span class="self">self</span>, counter, in_out, cpu);
+                    }
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(cpu) = values.get_feature() {
+                        <span class="kw">return </span><span class="macro">chacha20_ctr32_ffi!</span>(
+                            <span class="kw">unsafe </span>{ (SSE_MIN_LEN, Ssse3, Overlapping&lt;<span class="lifetime">'_</span>&gt;) =&gt;
+                                ChaCha20_ctr32_ssse3_4x },
+                            <span class="self">self</span>, counter, in_out, cpu);
+                    }
+                }
+                <span class="kw">if </span>in_out.len() &gt;= <span class="number">1 </span>{
+                    <span class="macro">chacha20_ctr32_ffi!</span>(
+                        <span class="kw">unsafe </span>{ (<span class="number">1</span>, (), Overlapping&lt;<span class="lifetime">'_</span>&gt;) =&gt; ChaCha20_ctr32_nohw },
+                        <span class="self">self</span>, counter, in_out, ())
+                }
+            } <span class="kw">else </span>{
+                <span class="kw">let _</span>: cpu::Features = cpu;
+                fallback::ChaCha20_ctr32(<span class="self">self</span>, counter, in_out)
             }
-            <span class="kw">unsafe </span>{
-                ChaCha20_ctr32(
-                    in_out.as_mut_ptr(),
-                    in_out[src].as_ptr(),
-                    in_out_len,
-                    key.words_less_safe(),
-                    <span class="kw-2">&amp;</span>counter,
-                )
-            }
         }
-
-        <span class="attr">#[cfg(not(any(
-            target_arch = <span class="string">"aarch64"</span>,
-            target_arch = <span class="string">"arm"</span>,
-            target_arch = <span class="string">"x86"</span>,
-            target_arch = <span class="string">"x86_64"
-        </span>)))]
-        </span><span class="kw">use </span>fallback::ChaCha20_ctr32;
-
-        ChaCha20_ctr32(<span class="self">self</span>, counter, in_out, src);
     }
 
     <span class="attr">#[inline]
@@ -462,8 +487,12 @@
 </span><span class="kw">pub struct </span>Counter([u32; <span class="number">4</span>]);
 
 <span class="kw">impl </span>Counter {
-    <span class="kw">pub fn </span>zero(nonce: Nonce) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::from_nonce_and_ctr(nonce, <span class="number">0</span>)
+    <span class="comment">// Nonce-reuse: the caller must only use the first counter (0) for at most
+    // a single block.
+    </span><span class="kw">fn </span>zero_one_less_safe(nonce: Nonce) -&gt; (<span class="self">Self</span>, <span class="self">Self</span>) {
+        <span class="kw">let </span>ctr0 @ <span class="self">Self</span>([<span class="kw">_</span>, n0, n1, n2]) = <span class="self">Self</span>::from_nonce_and_ctr(nonce, <span class="number">0</span>);
+        <span class="kw">let </span>ctr1 = <span class="self">Self</span>([<span class="number">1</span>, n0, n1, n2]);
+        (ctr0, ctr1)
     }
 
     <span class="kw">fn </span>from_nonce_and_ctr(nonce: Nonce, ctr: u32) -&gt; <span class="self">Self </span>{
@@ -471,41 +500,19 @@
         <span class="self">Self</span>([ctr, n0, n1, n2])
     }
 
-    <span class="kw">pub fn </span>increment(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Iv {
-        <span class="kw">let </span>iv = Iv(<span class="self">self</span>.<span class="number">0</span>);
-        <span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>] += <span class="number">1</span>;
-        iv
-    }
-
     <span class="doccomment">/// This is "less safe" because it hands off management of the counter to
     /// the caller.
     </span><span class="attr">#[cfg(any(
         test,
         not(any(
-            target_arch = <span class="string">"aarch64"</span>,
-            target_arch = <span class="string">"arm"</span>,
-            target_arch = <span class="string">"x86"</span>,
+            all(target_arch = <span class="string">"aarch64"</span>, target_endian = <span class="string">"little"</span>),
+            all(target_arch = <span class="string">"arm"</span>, target_endian = <span class="string">"little"</span>),
             target_arch = <span class="string">"x86_64"
         </span>))
     ))]
     </span><span class="kw">fn </span>into_words_less_safe(<span class="self">self</span>) -&gt; [u32; <span class="number">4</span>] {
         <span class="self">self</span>.<span class="number">0
     </span>}
-}
-
-<span class="doccomment">/// The IV for a single block encryption.
-///
-/// Intentionally not `Clone` to ensure each is used only once.
-</span><span class="kw">pub struct </span>Iv([u32; <span class="number">4</span>]);
-
-<span class="kw">impl </span>Iv {
-    <span class="kw">fn </span>assume_unique_for_key(value: [u8; <span class="number">16</span>]) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(value.array_split_map(u32::from_le_bytes))
-    }
-
-    <span class="kw">fn </span>into_counter_for_single_block_less_safe(<span class="self">self</span>) -&gt; Counter {
-        Counter(<span class="self">self</span>.<span class="number">0</span>)
-    }
 }
 
 <span class="kw">pub const </span>KEY_LEN: usize = <span class="number">32</span>;
@@ -516,13 +523,13 @@
 </span><span class="kw">mod </span>tests {
     <span class="kw">extern crate </span>alloc;
 
-    <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span><span class="kw">crate</span>::test;
+    <span class="kw">use super</span>::{<span class="kw">super</span>::overlapping::IndexError, <span class="kw-2">*</span>};
+    <span class="kw">use crate</span>::{error, test};
     <span class="kw">use </span>alloc::vec;
 
     <span class="kw">const </span>MAX_ALIGNMENT_AND_OFFSET: (usize, usize) = (<span class="number">15</span>, <span class="number">259</span>);
     <span class="kw">const </span>MAX_ALIGNMENT_AND_OFFSET_SUBSET: (usize, usize) =
-        <span class="kw">if </span><span class="macro">cfg!</span>(any(debug_assertions = <span class="string">"false"</span>, feature = <span class="string">"slow_tests"</span>)) {
+        <span class="kw">if </span><span class="macro">cfg!</span>(any(not(debug_assertions), feature = <span class="string">"slow_tests"</span>)) {
             MAX_ALIGNMENT_AND_OFFSET
         } <span class="kw">else </span>{
             (<span class="number">0</span>, <span class="number">0</span>)
@@ -532,8 +539,8 @@
     </span><span class="kw">fn </span>chacha20_test_default() {
         <span class="comment">// Always use `MAX_OFFSET` if we hav assembly code.
         </span><span class="kw">let </span>max_offset = <span class="kw">if </span><span class="macro">cfg!</span>(any(
-            target_arch = <span class="string">"aarch64"</span>,
-            target_arch = <span class="string">"arm"</span>,
+            all(target_arch = <span class="string">"aarch64"</span>, target_endian = <span class="string">"little"</span>),
+            all(target_arch = <span class="string">"arm"</span>, target_endian = <span class="string">"little"</span>),
             target_arch = <span class="string">"x86"</span>,
             target_arch = <span class="string">"x86_64"
         </span>)) {
@@ -541,13 +548,15 @@
         } <span class="kw">else </span>{
             MAX_ALIGNMENT_AND_OFFSET_SUBSET
         };
-        chacha20_test(max_offset, Key::encrypt_within);
+        chacha20_test(max_offset, Key::encrypt);
     }
 
     <span class="comment">// Smoketest the fallback implementation.
     </span><span class="attr">#[test]
     </span><span class="kw">fn </span>chacha20_test_fallback() {
-        chacha20_test(MAX_ALIGNMENT_AND_OFFSET_SUBSET, fallback::ChaCha20_ctr32);
+        chacha20_test(MAX_ALIGNMENT_AND_OFFSET_SUBSET, |key, ctr, in_out, _cpu| {
+            fallback::ChaCha20_ctr32(key, ctr, in_out)
+        });
     }
 
     <span class="comment">// Verifies the encryption is successful when done on overlapping buffers.
@@ -559,8 +568,10 @@
     // works around that.
     </span><span class="kw">fn </span>chacha20_test(
         max_alignment_and_offset: (usize, usize),
-        f: <span class="kw">impl for</span>&lt;<span class="lifetime">'k</span>, <span class="lifetime">'i</span>&gt; Fn(<span class="kw-2">&amp;</span><span class="lifetime">'k </span>Key, Counter, <span class="kw-2">&amp;</span><span class="lifetime">'i </span><span class="kw-2">mut </span>[u8], RangeFrom&lt;usize&gt;),
+        f: <span class="kw">impl for</span>&lt;<span class="lifetime">'k</span>, <span class="lifetime">'o</span>&gt; Fn(<span class="kw-2">&amp;</span><span class="lifetime">'k </span>Key, Counter, Overlapping&lt;<span class="lifetime">'o</span>&gt;, cpu::Features),
     ) {
+        <span class="kw">let </span>cpu = cpu::features();
+
         <span class="comment">// Reuse a buffer to avoid slowing down the tests with allocations.
         </span><span class="kw">let </span><span class="kw-2">mut </span>buf = <span class="macro">vec!</span>[<span class="number">0u8</span>; <span class="number">1300</span>];
 
@@ -589,6 +600,7 @@
                     <span class="kw-2">&amp;</span>output[..len],
                     <span class="kw-2">&amp;mut </span>buf,
                     max_alignment_and_offset,
+                    cpu,
                     <span class="kw-2">&amp;</span>f,
                 );
             }
@@ -605,7 +617,8 @@
         expected: <span class="kw-2">&amp;</span>[u8],
         buf: <span class="kw-2">&amp;mut </span>[u8],
         (max_alignment, max_offset): (usize, usize),
-        f: <span class="kw-2">&amp;</span><span class="kw">impl for</span>&lt;<span class="lifetime">'k</span>, <span class="lifetime">'i</span>&gt; Fn(<span class="kw-2">&amp;</span><span class="lifetime">'k </span>Key, Counter, <span class="kw-2">&amp;</span><span class="lifetime">'i </span><span class="kw-2">mut </span>[u8], RangeFrom&lt;usize&gt;),
+        cpu: cpu::Features,
+        f: <span class="kw-2">&amp;</span><span class="kw">impl for</span>&lt;<span class="lifetime">'k</span>, <span class="lifetime">'o</span>&gt; Fn(<span class="kw-2">&amp;</span><span class="lifetime">'k </span>Key, Counter, Overlapping&lt;<span class="lifetime">'o</span>&gt;, cpu::Features),
     ) {
         <span class="kw">const </span>ARBITRARY: u8 = <span class="number">123</span>;
 
@@ -622,7 +635,10 @@
                     Nonce::try_assume_unique_for_key(nonce).unwrap(),
                     ctr,
                 );
-                f(key, ctr, buf, src);
+                <span class="kw">let </span>in_out = Overlapping::new(buf, src)
+                    .map_err(error::erase::&lt;IndexError&gt;)
+                    .unwrap();
+                f(key, ctr, in_out, cpu);
                 <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>buf[..input.len()], expected)
             }
         }

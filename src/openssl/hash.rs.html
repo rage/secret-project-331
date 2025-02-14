@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-0.10.68/src/hash.rs`."><title>hash.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="openssl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-0.10.70/src/hash.rs`."><title>hash.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="openssl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">openssl/</div>hash.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -794,7 +795,91 @@
 <a href="#794" id="794">794</a>
 <a href="#795" id="795">795</a>
 <a href="#796" id="796">796</a>
-</pre></div><pre class="rust"><code><span class="doccomment">//! Message digest (hash) computation support.
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
+<a href="#821" id="821">821</a>
+<a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a>
+<a href="#829" id="829">829</a>
+<a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
+<a href="#835" id="835">835</a>
+<a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
+<a href="#842" id="842">842</a>
+<a href="#843" id="843">843</a>
+<a href="#844" id="844">844</a>
+<a href="#845" id="845">845</a>
+<a href="#846" id="846">846</a>
+<a href="#847" id="847">847</a>
+<a href="#848" id="848">848</a>
+<a href="#849" id="849">849</a>
+<a href="#850" id="850">850</a>
+<a href="#851" id="851">851</a>
+<a href="#852" id="852">852</a>
+<a href="#853" id="853">853</a>
+<a href="#854" id="854">854</a>
+<a href="#855" id="855">855</a>
+<a href="#856" id="856">856</a>
+<a href="#857" id="857">857</a>
+<a href="#858" id="858">858</a>
+<a href="#859" id="859">859</a>
+<a href="#860" id="860">860</a>
+<a href="#861" id="861">861</a>
+<a href="#862" id="862">862</a>
+<a href="#863" id="863">863</a>
+<a href="#864" id="864">864</a>
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a>
+<a href="#867" id="867">867</a>
+<a href="#868" id="868">868</a>
+<a href="#869" id="869">869</a>
+<a href="#870" id="870">870</a>
+<a href="#871" id="871">871</a>
+<a href="#872" id="872">872</a>
+<a href="#873" id="873">873</a>
+<a href="#874" id="874">874</a>
+<a href="#875" id="875">875</a>
+<a href="#876" id="876">876</a>
+<a href="#877" id="877">877</a>
+<a href="#878" id="878">878</a>
+<a href="#879" id="879">879</a>
+<a href="#880" id="880">880</a>
+<a href="#881" id="881">881</a></pre></div><pre class="rust"><code><span class="doccomment">//! Message digest (hash) computation support.
 //!
 //! # Examples
 //!
@@ -990,6 +1075,8 @@
 </span><span class="kw">enum </span>State {
     Reset,
     Updated,
+    <span class="attr">#[cfg(ossl330)]
+    </span>Squeeze,
     Finalized,
 }
 
@@ -1056,6 +1143,8 @@
             Updated =&gt; {
                 <span class="self">self</span>.finish()<span class="question-mark">?</span>;
             }
+            <span class="attr">#[cfg(ossl330)]
+            </span>Squeeze =&gt; (),
             Finalized =&gt; (),
         }
         <span class="kw">unsafe </span>{
@@ -1070,6 +1159,19 @@
         <span class="kw">if </span><span class="self">self</span>.state == Finalized {
             <span class="self">self</span>.init()<span class="question-mark">?</span>;
         }
+        <span class="attr">#[cfg(ossl330)]
+        </span><span class="kw">if </span><span class="self">self</span>.state == Squeeze {
+            <span class="comment">// [`EVP_DigestUpdate`], depending on the implementation, may allow Updates after Squeezes.
+            // But, [FIPS 202], as shown in Figure 7, has a distinguished absorbing phase followed by a squeezing phase.
+            // Indeed, the [`sha3.c`] implmentation disallows Updates after Squeezes.
+            // For consistency, we always return an error when Update is called after Squeeze.
+            //
+            // [`EVP_DigestUpdate`]: https://github.com/openssl/openssl/blob/b3bb214720f20f3b126ae4b9c330e9a48b835415/crypto/evp/digest.c#L385-L393
+            // [FIPS 202]: https://dx.doi.org/10.6028/NIST.FIPS.202
+            // [`sha3.c`]: https://github.com/openssl/openssl/blob/b3bb214720f20f3b126ae4b9c330e9a48b835415/crypto/sha/sha3.c#L52-L63
+            </span><span class="kw">let </span>errors = ErrorStack::get();
+            <span class="kw">return </span><span class="prelude-val">Err</span>(errors);
+        }
         <span class="kw">unsafe </span>{
             cvt(ffi::EVP_DigestUpdate(
                 <span class="self">self</span>.ctx,
@@ -1079,6 +1181,21 @@
         }
         <span class="self">self</span>.state = Updated;
         <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="doccomment">/// Squeezes buf out of the hasher. Can be called multiple times, unlike `finish_xof`.
+    /// The output will be as long as the buf.
+    </span><span class="attr">#[cfg(ossl330)]
+    </span><span class="kw">pub fn </span>squeeze_xof(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorStack&gt; {
+        <span class="kw">unsafe </span>{
+            cvt(ffi::EVP_DigestSqueeze(
+                <span class="self">self</span>.ctx,
+                buf.as_mut_ptr(),
+                buf.len(),
+            ))<span class="question-mark">?</span>;
+            <span class="self">self</span>.state = Squeeze;
+            <span class="prelude-val">Ok</span>(())
+        }
     }
 
     <span class="doccomment">/// Returns the hash of the data written and resets the non-XOF hasher.
@@ -1277,6 +1394,21 @@
         <span class="macro">assert_eq!</span>(buf, expected);
     }
 
+    <span class="doccomment">/// Squeezes the expected length by doing two squeezes.
+    </span><span class="attr">#[cfg(ossl330)]
+    </span><span class="kw">fn </span>hash_xof_squeeze_test(hashtype: MessageDigest, hashtest: <span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str)) {
+        <span class="kw">let </span>data = Vec::from_hex(hashtest.<span class="number">0</span>).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>h = Hasher::new(hashtype).unwrap();
+        h.update(<span class="kw-2">&amp;</span>data).unwrap();
+
+        <span class="kw">let </span>expected = Vec::from_hex(hashtest.<span class="number">1</span>).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = <span class="macro">vec!</span>[<span class="number">0</span>; expected.len()];
+        <span class="macro">assert!</span>(expected.len() &gt; <span class="number">10</span>);
+        h.squeeze_xof(<span class="kw-2">&amp;mut </span>buf[..<span class="number">10</span>]).unwrap();
+        h.squeeze_xof(<span class="kw-2">&amp;mut </span>buf[<span class="number">10</span>..]).unwrap();
+        <span class="macro">assert_eq!</span>(buf, expected);
+    }
+
     <span class="kw">fn </span>hash_recycle_test(h: <span class="kw-2">&amp;mut </span>Hasher, hashtest: <span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str)) {
         h.write_all(<span class="kw-2">&amp;</span>Vec::from_hex(hashtest.<span class="number">0</span>).unwrap()).unwrap();
         <span class="kw">let </span>res = h.finish().unwrap();
@@ -1331,6 +1463,40 @@
         <span class="kw">let </span>res = h.finish().unwrap();
         <span class="kw">let </span>null = hash(MessageDigest::md5(), <span class="kw-2">&amp;</span>[]).unwrap();
         <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;*</span>res, <span class="kw-2">&amp;*</span>null);
+    }
+
+    <span class="attr">#[cfg(ossl330)]
+    #[test]
+    </span><span class="kw">fn </span>test_finish_then_squeeze() {
+        <span class="kw">let </span>digest = MessageDigest::shake_128();
+        <span class="kw">let </span><span class="kw-2">mut </span>h = Hasher::new(digest).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = <span class="macro">vec!</span>[<span class="number">0</span>; digest.size()];
+        h.finish_xof(<span class="kw-2">&amp;mut </span>buf).unwrap();
+        h.squeeze_xof(<span class="kw-2">&amp;mut </span>buf)
+            .expect_err(<span class="string">"squeezing after finalize should fail"</span>);
+    }
+
+    <span class="attr">#[cfg(ossl330)]
+    #[test]
+    </span><span class="kw">fn </span>test_squeeze_then_update() {
+        <span class="kw">let </span>digest = MessageDigest::shake_128();
+        <span class="kw">let </span>data = Vec::from_hex(MD5_TESTS[<span class="number">6</span>].<span class="number">0</span>).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>h = Hasher::new(digest).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = <span class="macro">vec!</span>[<span class="number">0</span>; digest.size()];
+        h.squeeze_xof(<span class="kw-2">&amp;mut </span>buf).unwrap();
+        h.update(<span class="kw-2">&amp;</span>data)
+            .expect_err(<span class="string">"updating after squeeze should fail"</span>);
+    }
+
+    <span class="attr">#[cfg(ossl330)]
+    #[test]
+    </span><span class="kw">fn </span>test_squeeze_then_finalize() {
+        <span class="kw">let </span>digest = MessageDigest::shake_128();
+        <span class="kw">let </span><span class="kw-2">mut </span>h = Hasher::new(digest).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = <span class="macro">vec!</span>[<span class="number">0</span>; digest.size()];
+        h.squeeze_xof(<span class="kw-2">&amp;mut </span>buf).unwrap();
+        h.finish_xof(<span class="kw-2">&amp;mut </span>buf)
+            .expect_err(<span class="string">"finalize after squeeze should fail"</span>);
     }
 
     <span class="attr">#[test]
@@ -1506,6 +1672,8 @@
 
         <span class="kw">for </span>test <span class="kw">in </span>tests.iter() {
             hash_xof_test(MessageDigest::shake_128(), test);
+            <span class="attr">#[cfg(ossl330)]
+            </span>hash_xof_squeeze_test(MessageDigest::shake_128(), test);
         }
 
         <span class="macro">assert_eq!</span>(MessageDigest::shake_128().block_size(), <span class="number">168</span>);
@@ -1526,6 +1694,8 @@
 
         <span class="kw">for </span>test <span class="kw">in </span>tests.iter() {
             hash_xof_test(MessageDigest::shake_256(), test);
+            <span class="attr">#[cfg(ossl330)]
+            </span>hash_xof_squeeze_test(MessageDigest::shake_256(), test);
         }
 
         <span class="macro">assert_eq!</span>(MessageDigest::shake_256().block_size(), <span class="number">136</span>);

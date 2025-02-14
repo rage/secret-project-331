@@ -1,0 +1,56 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="What `#[derive(Unwrap)]` generates"><title>Unwrap in derive_more - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="derive_more" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../static.files/storage-59e33391.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc derive"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../derive_more/index.html">derive_<wbr>more</a><span class="version">2.0.1</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Unwrap</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#what-deriveunwrap-generates" title="What `#[derive(Unwrap)]` generates">What <code>#[derive(Unwrap)]</code> generates</a><ul><li><a href="#example-usage" title="Example usage">Example usage</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="index.html">In crate derive_<wbr>more</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><span class="rustdoc-breadcrumbs"><a href="index.html">derive_more</a></span><h1>Derive Macro <span class="derive">Unwrap</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><pre class="rust item-decl"><code>#[derive(Unwrap)]
+{
+    <span class="comment">// Attributes available to this derive:</span>
+    #[unwrap]
+}
+</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="what-deriveunwrap-generates"><a class="doc-anchor" href="#what-deriveunwrap-generates">§</a>What <code>#[derive(Unwrap)]</code> generates</h2>
+<p>When an enum is decorated with <code>#[derive(Unwrap)]</code>, for each variant <code>foo</code> in the enum, with fields <code>(a, b, c, ...)</code> a public instance method <code>unwrap_foo(self) -&gt; (a, b, c, ...)</code> is generated.
+If you don’t want the <code>unwrap_foo</code> method generated for a variant, you can put the <code>#[unwrap(ignore)]</code> attribute on that variant.
+If you want to treat a reference, you can put the <code>#[unwrap(ref)]</code> attribute on the enum declaration or that variant, then <code>unwrap_foo_ref(self) -&gt; (&amp;a, &amp;b, &amp;c, ...)</code> will be generated. You can also use mutable references by putting <code>#[unwrap(ref_mut)]</code>.</p>
+<h3 id="example-usage"><a class="doc-anchor" href="#example-usage">§</a>Example usage</h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Unwrap)]
+#[unwrap(<span class="kw-2">ref</span>)]
+</span><span class="kw">enum </span>Maybe&lt;T&gt; {
+    Just(T),
+    Nothing,
+}
+
+<span class="kw">fn </span>main() {
+    <span class="macro">assert_eq!</span>(Maybe::Just(<span class="number">1</span>).unwrap_just(), <span class="number">1</span>);
+
+    <span class="comment">// Panics if variants are different
+    // assert_eq!(Maybe::&lt;()&gt;::Nothing.unwrap_just(), /* panic */);
+    // assert_eq!(Maybe::Just(2).unwrap_nothing(), /* panic */);
+
+    </span><span class="macro">assert_eq!</span>((<span class="kw-2">&amp;</span>Maybe::Just(<span class="number">42</span>)).unwrap_just_ref(), <span class="kw-2">&amp;</span><span class="number">42</span>);
+}</code></pre></div>
+<h4 id="what-is-generated"><a class="doc-anchor" href="#what-is-generated">§</a>What is generated?</h4>
+<p>The derive in the above example code generates the following code:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl</span>&lt;T&gt; Maybe&lt;T&gt; {
+    <span class="kw">pub fn </span>unwrap_nothing(<span class="self">self</span>) -&gt; () {
+        <span class="kw">match </span><span class="self">self </span>{
+            Maybe::Nothing =&gt; (),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(),
+        }
+    }
+    <span class="kw">pub fn </span>unwrap_nothing_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; () {
+        <span class="kw">match </span><span class="self">self </span>{
+            Maybe::Nothing =&gt; (),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(),
+        }
+    }
+    <span class="kw">pub fn </span>unwrap_just(<span class="self">self</span>) -&gt; T {
+        <span class="kw">match </span><span class="self">self </span>{
+            Maybe::Just(field_0) =&gt; field_0,
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(),
+        }
+    }
+    <span class="kw">pub fn </span>unwrap_just_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>T {
+        <span class="kw">match </span><span class="self">self </span>{
+            Maybe::Just(field_0) =&gt; field_0,
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(),
+        }
+    }
+}</code></pre></div>
+</div></details></section></div></main></body></html>

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.26.1/src/commands/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.28.2/src/commands/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">redis/commands/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2499,7 +2500,111 @@
 <a href="#2499" id="2499">2499</a>
 <a href="#2500" id="2500">2500</a>
 <a href="#2501" id="2501">2501</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::cmd::{cmd, Cmd, Iter};
+<a href="#2502" id="2502">2502</a>
+<a href="#2503" id="2503">2503</a>
+<a href="#2504" id="2504">2504</a>
+<a href="#2505" id="2505">2505</a>
+<a href="#2506" id="2506">2506</a>
+<a href="#2507" id="2507">2507</a>
+<a href="#2508" id="2508">2508</a>
+<a href="#2509" id="2509">2509</a>
+<a href="#2510" id="2510">2510</a>
+<a href="#2511" id="2511">2511</a>
+<a href="#2512" id="2512">2512</a>
+<a href="#2513" id="2513">2513</a>
+<a href="#2514" id="2514">2514</a>
+<a href="#2515" id="2515">2515</a>
+<a href="#2516" id="2516">2516</a>
+<a href="#2517" id="2517">2517</a>
+<a href="#2518" id="2518">2518</a>
+<a href="#2519" id="2519">2519</a>
+<a href="#2520" id="2520">2520</a>
+<a href="#2521" id="2521">2521</a>
+<a href="#2522" id="2522">2522</a>
+<a href="#2523" id="2523">2523</a>
+<a href="#2524" id="2524">2524</a>
+<a href="#2525" id="2525">2525</a>
+<a href="#2526" id="2526">2526</a>
+<a href="#2527" id="2527">2527</a>
+<a href="#2528" id="2528">2528</a>
+<a href="#2529" id="2529">2529</a>
+<a href="#2530" id="2530">2530</a>
+<a href="#2531" id="2531">2531</a>
+<a href="#2532" id="2532">2532</a>
+<a href="#2533" id="2533">2533</a>
+<a href="#2534" id="2534">2534</a>
+<a href="#2535" id="2535">2535</a>
+<a href="#2536" id="2536">2536</a>
+<a href="#2537" id="2537">2537</a>
+<a href="#2538" id="2538">2538</a>
+<a href="#2539" id="2539">2539</a>
+<a href="#2540" id="2540">2540</a>
+<a href="#2541" id="2541">2541</a>
+<a href="#2542" id="2542">2542</a>
+<a href="#2543" id="2543">2543</a>
+<a href="#2544" id="2544">2544</a>
+<a href="#2545" id="2545">2545</a>
+<a href="#2546" id="2546">2546</a>
+<a href="#2547" id="2547">2547</a>
+<a href="#2548" id="2548">2548</a>
+<a href="#2549" id="2549">2549</a>
+<a href="#2550" id="2550">2550</a>
+<a href="#2551" id="2551">2551</a>
+<a href="#2552" id="2552">2552</a>
+<a href="#2553" id="2553">2553</a>
+<a href="#2554" id="2554">2554</a>
+<a href="#2555" id="2555">2555</a>
+<a href="#2556" id="2556">2556</a>
+<a href="#2557" id="2557">2557</a>
+<a href="#2558" id="2558">2558</a>
+<a href="#2559" id="2559">2559</a>
+<a href="#2560" id="2560">2560</a>
+<a href="#2561" id="2561">2561</a>
+<a href="#2562" id="2562">2562</a>
+<a href="#2563" id="2563">2563</a>
+<a href="#2564" id="2564">2564</a>
+<a href="#2565" id="2565">2565</a>
+<a href="#2566" id="2566">2566</a>
+<a href="#2567" id="2567">2567</a>
+<a href="#2568" id="2568">2568</a>
+<a href="#2569" id="2569">2569</a>
+<a href="#2570" id="2570">2570</a>
+<a href="#2571" id="2571">2571</a>
+<a href="#2572" id="2572">2572</a>
+<a href="#2573" id="2573">2573</a>
+<a href="#2574" id="2574">2574</a>
+<a href="#2575" id="2575">2575</a>
+<a href="#2576" id="2576">2576</a>
+<a href="#2577" id="2577">2577</a>
+<a href="#2578" id="2578">2578</a>
+<a href="#2579" id="2579">2579</a>
+<a href="#2580" id="2580">2580</a>
+<a href="#2581" id="2581">2581</a>
+<a href="#2582" id="2582">2582</a>
+<a href="#2583" id="2583">2583</a>
+<a href="#2584" id="2584">2584</a>
+<a href="#2585" id="2585">2585</a>
+<a href="#2586" id="2586">2586</a>
+<a href="#2587" id="2587">2587</a>
+<a href="#2588" id="2588">2588</a>
+<a href="#2589" id="2589">2589</a>
+<a href="#2590" id="2590">2590</a>
+<a href="#2591" id="2591">2591</a>
+<a href="#2592" id="2592">2592</a>
+<a href="#2593" id="2593">2593</a>
+<a href="#2594" id="2594">2594</a>
+<a href="#2595" id="2595">2595</a>
+<a href="#2596" id="2596">2596</a>
+<a href="#2597" id="2597">2597</a>
+<a href="#2598" id="2598">2598</a>
+<a href="#2599" id="2599">2599</a>
+<a href="#2600" id="2600">2600</a>
+<a href="#2601" id="2601">2601</a>
+<a href="#2602" id="2602">2602</a>
+<a href="#2603" id="2603">2603</a>
+<a href="#2604" id="2604">2604</a>
+<a href="#2605" id="2605">2605</a>
+<a href="#2606" id="2606">2606</a></pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::cmd::{cmd, Cmd, Iter};
 <span class="kw">use </span><span class="kw">crate</span>::connection::{Connection, ConnectionLike, Msg};
 <span class="kw">use </span><span class="kw">crate</span>::pipeline::Pipeline;
 <span class="kw">use </span><span class="kw">crate</span>::types::{
@@ -3088,6 +3193,16 @@
         cmd(<span class="string">"LSET"</span>).arg(key).arg(index).arg(value)
     }
 
+    <span class="doccomment">/// Sends a ping to the server
+    </span><span class="kw">fn </span>ping&lt;&gt;() {
+         <span class="kw-2">&amp;mut </span>cmd(<span class="string">"PING"</span>)
+    }
+
+    <span class="doccomment">/// Sends a ping with a message to the server
+    </span><span class="kw">fn </span>ping_message&lt;K: ToRedisArgs&gt;(message: K) {
+         cmd(<span class="string">"PING"</span>).arg(message)
+    }
+
     <span class="doccomment">/// Removes and returns the up to `count` last elements of the list stored at key
     ///
     /// If `count` is not specified, then defaults to last element.
@@ -3523,6 +3638,11 @@
         cmd(<span class="string">"PUBLISH"</span>).arg(channel).arg(message)
     }
 
+    <span class="doccomment">/// Posts a message to the given sharded channel.
+    </span><span class="kw">fn </span>spublish&lt;K: ToRedisArgs, E: ToRedisArgs&gt;(channel: K, message: E) {
+        cmd(<span class="string">"SPUBLISH"</span>).arg(channel).arg(message)
+    }
+
     <span class="comment">// Object commands
 
     </span><span class="doccomment">/// Returns the encoding of a key.
@@ -3543,6 +3663,21 @@
     <span class="doccomment">/// Returns the reference count of a key.
     </span><span class="kw">fn </span>object_refcount&lt;K: ToRedisArgs&gt;(key: K) {
         cmd(<span class="string">"OBJECT"</span>).arg(<span class="string">"REFCOUNT"</span>).arg(key)
+    }
+
+    <span class="doccomment">/// Returns the name of the current connection as set by CLIENT SETNAME.
+    </span><span class="kw">fn </span>client_getname&lt;&gt;() {
+        cmd(<span class="string">"CLIENT"</span>).arg(<span class="string">"GETNAME"</span>)
+    }
+
+    <span class="doccomment">/// Returns the ID of the current connection.
+    </span><span class="kw">fn </span>client_id&lt;&gt;() {
+        cmd(<span class="string">"CLIENT"</span>).arg(<span class="string">"ID"</span>)
+    }
+
+    <span class="doccomment">/// Command assigns a name to the current connection.
+    </span><span class="kw">fn </span>client_setname&lt;K: ToRedisArgs&gt;(connection_name: K) {
+        cmd(<span class="string">"CLIENT"</span>).arg(<span class="string">"SETNAME"</span>).arg(connection_name)
     }
 
     <span class="comment">// ACL commands
@@ -3608,6 +3743,13 @@
     #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"acl"</span>)))]
     </span><span class="kw">fn </span>acl_deluser&lt;K: ToRedisArgs&gt;(usernames: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[K]) {
         cmd(<span class="string">"ACL"</span>).arg(<span class="string">"DELUSER"</span>).arg(usernames)
+    }
+
+    <span class="doccomment">/// Simulate the execution of a given command by a given user.
+    </span><span class="attr">#[cfg(feature = <span class="string">"acl"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"acl"</span>)))]
+    </span><span class="kw">fn </span>acl_dryrun&lt;K: ToRedisArgs, C: ToRedisArgs, A: ToRedisArgs&gt;(username: K, command: C, args: A) {
+        cmd(<span class="string">"ACL"</span>).arg(<span class="string">"DRYRUN"</span>).arg(username).arg(command).arg(args)
     }
 
     <span class="doccomment">/// Shows the available ACL categories.
@@ -3921,6 +4063,42 @@
         cmd(<span class="string">"XADD"</span>).arg(key).arg(id).arg(map)
     }
 
+
+    <span class="doccomment">/// Add a stream message with options.
+    ///
+    /// Items can be any list type, e.g.
+    /// ```rust
+    /// // static items
+    /// let items = &amp;[("key", "val"), ("key2", "val2")];
+    /// # use std::collections::BTreeMap;
+    /// // A map (Can be BTreeMap, HashMap, etc)
+    /// let mut map: BTreeMap&lt;&amp;str, &amp;str&gt; = BTreeMap::new();
+    /// map.insert("ab", "cd");
+    /// map.insert("ef", "gh");
+    /// map.insert("ij", "kl");
+    /// ```
+    ///
+    /// ```text
+    /// XADD key [NOMKSTREAM] [&lt;MAXLEN|MINID&gt; [~|=] threshold [LIMIT count]] &lt;* | ID&gt; field value [field value] ...
+    /// ```
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
+    </span><span class="kw">fn </span>xadd_options&lt;
+        K: ToRedisArgs, ID: ToRedisArgs, I: ToRedisArgs
+    &gt;(
+        key: K,
+        id: ID,
+        items: I,
+        options: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>streams::StreamAddOptions
+    ) {
+        cmd(<span class="string">"XADD"</span>)
+            .arg(key)
+            .arg(options)
+            .arg(id)
+            .arg(items)
+    }
+
+
     <span class="doccomment">/// Add a stream message while capping the stream at a maxlength.
     ///
     /// ```text
@@ -4064,7 +4242,7 @@
     /// ```text
     /// XCLAIM &lt;key&gt; &lt;group&gt; &lt;consumer&gt; &lt;min-idle-time&gt; &lt;ID-1&gt; &lt;ID-2&gt;
     ///     [IDLE &lt;milliseconds&gt;] [TIME &lt;mstime&gt;] [RETRYCOUNT &lt;count&gt;]
-    ///     [FORCE] [JUSTID]
+    ///     [FORCE] [JUSTID] [LASTID &lt;lastid&gt;]
     /// ```
     </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
     #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
@@ -4586,9 +4764,27 @@
         cmd(<span class="string">"XTRIM"</span>).arg(key).arg(maxlen)
     }
 
+     <span class="doccomment">/// Trim a stream `key` with full options
+     ///
+     /// ```text
+     /// XTRIM &lt;key&gt; &lt;MAXLEN|MINID&gt; [~|=] &lt;threshold&gt; [LIMIT &lt;count&gt;]  (Same as XADD MAXID|MINID options)
+     /// ```
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
+    </span><span class="kw">fn </span>xtrim_options&lt;K: ToRedisArgs&gt;(
+        key: K,
+        options: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>streams::StreamTrimOptions
+    ) {
+        cmd(<span class="string">"XTRIM"</span>).arg(key).arg(options)
+    }
+
     <span class="comment">// script commands
 
     </span><span class="doccomment">/// Adds a prepared script command to the pipeline.
+    ///
+    /// Note: unlike a call to [`invoke`](crate::ScriptInvocation::invoke), if the script isn't loaded during the pipeline operation,
+    /// it will not automatically be loaded and retried. The script can be loaded using the
+    /// [`load`](crate::ScriptInvocation::load) operation.
     </span><span class="attr">#[cfg_attr(feature = <span class="string">"script"</span>, doc = <span class="string">r##"
 
 # Examples:
@@ -4600,6 +4796,7 @@
 let script = redis::Script::new(r"
     return tonumber(ARGV[1]) + tonumber(ARGV[2]);
 ");
+script.prepare_invoke().load(&amp;mut con)?;
 let (a, b): (isize, isize) = redis::pipe()
     .invoke_script(script.arg(1).arg(2))
     .invoke_script(script.arg(2).arg(3))
@@ -4688,7 +4885,7 @@ assert_eq!(b, 5);
 <span class="kw">impl</span>&lt;T&gt; Commands <span class="kw">for </span>T <span class="kw">where </span>T: ConnectionLike {}
 
 <span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
-</span><span class="kw">impl</span>&lt;T&gt; AsyncCommands <span class="kw">for </span>T <span class="kw">where </span>T: <span class="kw">crate</span>::aio::ConnectionLike + Send + Sized {}
+</span><span class="kw">impl</span>&lt;T&gt; AsyncCommands <span class="kw">for </span>T <span class="kw">where </span>T: <span class="kw">crate</span>::aio::ConnectionLike + Send + Sync + Sized {}
 
 <span class="kw">impl </span>PubSubCommands <span class="kw">for </span>Connection {
     <span class="kw">fn </span>subscribe&lt;C, F, U&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, channels: C, <span class="kw-2">mut </span>func: F) -&gt; RedisResult&lt;U&gt;
@@ -4747,6 +4944,7 @@ assert_eq!(b, 5);
 </span><span class="kw">pub struct </span>ScanOptions {
     pattern: <span class="prelude-ty">Option</span>&lt;String&gt;,
     count: <span class="prelude-ty">Option</span>&lt;usize&gt;,
+    scan_type: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
 <span class="kw">impl </span>ScanOptions {
@@ -4759,6 +4957,12 @@ assert_eq!(b, 5);
     <span class="doccomment">/// Pattern for scan
     </span><span class="kw">pub fn </span>with_pattern(<span class="kw-2">mut </span><span class="self">self</span>, p: <span class="kw">impl </span>Into&lt;String&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.pattern = <span class="prelude-val">Some</span>(p.into());
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Limit the results to those with the given Redis type
+    </span><span class="kw">pub fn </span>with_type(<span class="kw-2">mut </span><span class="self">self</span>, t: <span class="kw">impl </span>Into&lt;String&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.scan_type = <span class="prelude-val">Some</span>(t.into());
         <span class="self">self
     </span>}
 }
@@ -4777,6 +4981,11 @@ assert_eq!(b, 5);
             out.write_arg(<span class="string">b"COUNT"</span>);
             out.write_arg_fmt(n);
         }
+
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = <span class="kw-2">&amp;</span><span class="self">self</span>.scan_type {
+            out.write_arg(<span class="string">b"TYPE"</span>);
+            out.write_arg_fmt(t);
+        }
     }
 
     <span class="kw">fn </span>num_of_args(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
@@ -4785,6 +4994,9 @@ assert_eq!(b, 5);
             len += <span class="number">2</span>;
         }
         <span class="kw">if </span><span class="self">self</span>.count.is_some() {
+            len += <span class="number">2</span>;
+        }
+        <span class="kw">if </span><span class="self">self</span>.scan_type.is_some() {
             len += <span class="number">2</span>;
         }
         len
@@ -4988,16 +5200,14 @@ assert_eq!(b, 5);
 </span><span class="kw">pub fn </span>resp3_hello(connection_info: <span class="kw-2">&amp;</span>RedisConnectionInfo) -&gt; Cmd {
     <span class="kw">let </span><span class="kw-2">mut </span>hello_cmd = cmd(<span class="string">"HELLO"</span>);
     hello_cmd.arg(<span class="string">"3"</span>);
-    <span class="kw">if </span>connection_info.password.is_some() {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(password) = <span class="kw-2">&amp;</span>connection_info.password {
         <span class="kw">let </span>username: <span class="kw-2">&amp;</span>str = <span class="kw">match </span>connection_info.username.as_ref() {
             <span class="prelude-val">None </span>=&gt; <span class="string">"default"</span>,
             <span class="prelude-val">Some</span>(username) =&gt; username,
         };
-        hello_cmd
-            .arg(<span class="string">"AUTH"</span>)
-            .arg(username)
-            .arg(connection_info.password.as_ref().unwrap());
+        hello_cmd.arg(<span class="string">"AUTH"</span>).arg(username).arg(password);
     }
+
     hello_cmd
 }
 </code></pre></div></section></main></body></html>

@@ -267,7 +267,7 @@ pub async fn main() -> anyhow::Result<()> {
             file.ok().filter(|f| {
                 f.file_name()
                     .to_str()
-                    .map_or(false, |n| n.ends_with(".json") || n.ends_with(".ts"))
+                    .is_some_and(|n| n.ends_with(".json") || n.ends_with(".ts"))
             })
         })
         .for_each(|f| fs::remove_file(f.path()).unwrap());

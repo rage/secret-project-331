@@ -836,14 +836,13 @@ pub async fn get_user_module_completion_statuses_for_course_instance(
                 passed,
                 grade: completion.and_then(|x| x.grade),
                 prerequisite_modules_completed: completion
-                    .map_or(false, |x| x.prerequisite_modules_completed),
+                    .is_some_and(|x| x.prerequisite_modules_completed),
                 enable_registering_completion_to_uh_open_university: module
                     .enable_registering_completion_to_uh_open_university,
                 certification_enabled: module.certification_enabled,
                 certificate_configuration_id,
                 needs_to_be_reviewed: completion
-                .and_then(|x| x.needs_to_be_reviewed)
-                .unwrap_or(false),
+                    .is_some_and(|x| x.needs_to_be_reviewed.unwrap_or(false))
             }
         })
         .collect();

@@ -59,7 +59,8 @@ update_node_deps "$RELATIVE_PATH/shared-module/packages/common" "shared-module/c
 
 # Update rust deps
 run_command cd services/headless-lms
-run_command cargo upgrade --incompatible allow --pinned allow --recursive true
+# Azure-core excluded because the command downgrades the package version to 0.13.0
+run_command cargo upgrade --incompatible allow --pinned allow --recursive true --exclude azure_core
 if [[ $(git status --porcelain) ]]; then
   git add .
   git commit -m "Cargo upgrade" --no-verify

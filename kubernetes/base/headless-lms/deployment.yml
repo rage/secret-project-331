@@ -22,6 +22,11 @@ metadata:
     needs-db: "true"
 spec:
   replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 50%
+      maxSurge: 50%
   selector:
     matchLabels:
       app: headless-lms
@@ -40,11 +45,11 @@ spec:
               name: headless-lms
           resources:
             requests:
-              memory: 100Mi
-              cpu: 20m
+              memory: 200Mi
+              cpu: 100m
             limits:
-              memory: 600Mi
-              cpu: 200m
+              memory: 800Mi
+              cpu: 500m
           envFrom:
             - secretRef:
                 name: headless-lms-secrets

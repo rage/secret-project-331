@@ -38,6 +38,9 @@ const baseIgnorePatterns = [
   "**/services/main-frontend/public/monaco-editor/**",
   "**/.venv/**",
   "**/generated-docs/**",
+  "**/GutenbergBlockAttributes.ts",
+  "**/*.guard.ts",
+  "**/DeprecatedGutenbergBlockAttributes.ts",
 ]
 
 const getIgnorePatterns = (prefix = "") =>

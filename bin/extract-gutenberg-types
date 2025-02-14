@@ -10,7 +10,9 @@ RELATIVE_CMS_PATH=$(realpath --relative-to="$(pwd)" "$CMS_PATH")
 
 run_command cd "$RELATIVE_CMS_PATH" || exit
 run_command npx tsx scripts/extractGutenbergAttributeTypes.ts
-run_command npx eslint --fix ../course-material/types/GutenbergBlockAttributes.ts ../course-material/types/DeprecatedGutenbergBlockAttributes.ts
+
+# Format the generated files with prettier instead of eslint
+run_command npx prettier --write ../course-material/types/GutenbergBlockAttributes.ts ../course-material/types/DeprecatedGutenbergBlockAttributes.ts
 
 run_command cd ../..
 if [ -f "./services/course-material/types/GutenbergBlockAttributes.guard.ts" ]; then
@@ -21,9 +23,7 @@ if [ -f "./services/course-material/types/DepreactedGutenbergBlockAttributes.gua
 fi
 
 run_command npx ts-auto-guard --export-all --paths services/course-material/types/GutenbergBlockAttributes.ts --project services/course-material/tsconfig.json
-run_command sed -i '1s;^;/* eslint-disable @typescript-eslint/no-explicit-any */\n/* eslint-disable @typescript-eslint/explicit-module-boundary-types */\n\n;' services/course-material/types/GutenbergBlockAttributes.guard.ts
-run_command npx eslint --fix services/course-material/types/GutenbergBlockAttributes.ts services/course-material/types/GutenbergBlockAttributes.guard.ts
+run_command npx prettier --write services/course-material/types/GutenbergBlockAttributes.ts services/course-material/types/GutenbergBlockAttributes.guard.ts
 
 run_command npx ts-auto-guard --export-all --paths services/course-material/types/DeprecatedGutenbergBlockAttributes.ts --project services/course-material/tsconfig.json
-run_command sed -i '1s;^;/* eslint-disable @typescript-eslint/no-explicit-any */\n/* eslint-disable @typescript-eslint/explicit-module-boundary-types */\n\n;' services/course-material/types/DeprecatedGutenbergBlockAttributes.guard.ts
-run_command npx eslint --fix services/course-material/types/DeprecatedGutenbergBlockAttributes.ts services/course-material/types/DeprecatedGutenbergBlockAttributes.guard.ts
+run_command npx prettier --write services/course-material/types/DeprecatedGutenbergBlockAttributes.ts services/course-material/types/DeprecatedGutenbergBlockAttributes.guard.ts

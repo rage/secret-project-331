@@ -1,11 +1,12 @@
 import { exec as execOriginal, spawn } from "child_process"
 import { mkdir, readFile, writeFile } from "fs/promises"
 import path from "path"
+import { fileURLToPath } from "url"
 import { promisify } from "util"
 
 const exec = promisify(execOriginal)
 
-const currentDir = __dirname
+const currentDir = path.dirname(fileURLToPath(import.meta.url))
 const projectRoot = path.resolve(currentDir, "..")
 const savedCommitHashesPath = `${projectRoot}/.husky/_/saved-hashes`
 
@@ -16,11 +17,15 @@ async function main(): Promise<void> {
     console.log(`> npm ci`)
     await runCommandWithVisibleOutput("npm", ["ci"])
   })
-  await detectChange("shared-module/src", "shared-module", async () => {
-    console.log("Installing the shared module again.")
-    console.log(`> npm run postinstall`)
-    await runCommandWithVisibleOutput("npm", ["run", "postinstall"])
-  })
+  await detectChange(
+    "shared-module/packages/common/src/locales",
+    "shared-module-common-locales",
+    async () => {
+      console.log("Installing the shared module again.")
+      console.log(`> npm run postinstall`)
+      await runCommandWithVisibleOutput("npm", ["run", "postinstall"])
+    },
+  )
 }
 
 async function detectChange(

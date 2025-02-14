@@ -9,7 +9,7 @@ CMS_PATH="$BASEDIR/../services/cms/"
 RELATIVE_CMS_PATH=$(realpath --relative-to="$(pwd)" "$CMS_PATH")
 
 run_command cd "$RELATIVE_CMS_PATH" || exit
-run_command npx ts-node -O "{\"module\":\"commonjs\"}" scripts/extractGutenbergAttributeTypes.ts
+run_command npx tsx scripts/extractGutenbergAttributeTypes.ts
 run_command npx eslint --fix ../course-material/types/GutenbergBlockAttributes.ts ../course-material/types/DeprecatedGutenbergBlockAttributes.ts
 
 run_command cd ../..

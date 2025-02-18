@@ -1,6 +1,7 @@
 # The production environment is also used as a base for the test environment.
 resources:
   - ../base
+  - ./headless-lms/pdb.yml
 
 patches:
   - path: patch-ingress.yml
@@ -54,4 +55,4 @@ replicas:
   - name: cms
     count: 1
   - name: headless-lms
-    count: 2
+    count: 4

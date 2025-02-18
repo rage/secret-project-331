@@ -24,6 +24,7 @@ use serde_json::json;
 use sqlx::PgConnection;
 use std::env;
 use std::pin::Pin;
+use tracing_log::log;
 #[cfg(feature = "ts_rs")]
 pub use ts_rs::TS;
 use uuid::Uuid;
@@ -960,18 +961,13 @@ pub async fn authenticate_test_token(
     Ok(user)
 }
 
-/**
- * HTTP Client used only for authing with TMC server, this is to ensure that TMC server
- * does not rate limit auth requests from backend
- */
-async fn async_http_client_with_headers(
-    oauth_request: oauth2::HttpRequest,
-) -> Result<oauth2::HttpResponse, HttpClientError<reqwest::Error>> {
-    debug!("Making OAuth request to TMC server");
-    trace!("OAuth request details: {:?}", oauth_request);
-
-    let ratelimit_api_key = match std::env::var("RATELIMIT_PROTECTION_SAFE_API_KEY") {
-        Ok(key) => key,
+fn get_ratelimit_api_key() -> Result<reqwest::header::HeaderValue, HttpClientError<reqwest::Error>>
+{
+    let key = match std::env::var("RATELIMIT_PROTECTION_SAFE_API_KEY") {
+        Ok(key) => {
+            debug!("Found RATELIMIT_PROTECTION_SAFE_API_KEY");
+            key
+        }
         Err(e) => {
             error!(
                 "RATELIMIT_PROTECTION_SAFE_API_KEY environment variable not set: {}",
@@ -983,14 +979,27 @@ async fn async_http_client_with_headers(
         }
     };
 
-    let parsed_key = ratelimit_api_key
-        .parse::<reqwest::header::HeaderValue>()
-        .map_err(|err| {
-            error!("Invalid RATELIMIT API key format: {}", err);
-            HttpClientError::Other("Invalid RATELIMIT API key.".to_string())
-        })?;
+    key.parse::<reqwest::header::HeaderValue>().map_err(|err| {
+        error!("Invalid RATELIMIT API key format: {}", err);
+        HttpClientError::Other("Invalid RATELIMIT API key.".to_string())
+    })
+}
 
-    // Make the request but using our own reqwest client
+async fn async_http_client_with_headers(
+    oauth_request: oauth2::HttpRequest,
+) -> Result<oauth2::HttpResponse, HttpClientError<reqwest::Error>> {
+    debug!("Making OAuth request to TMC server");
+
+    if log::log_enabled!(log::Level::Trace) {
+        // Only log the URL path, not query parameters which may contain credentials
+        if let Ok(url) = oauth_request.uri().to_string().parse::<reqwest::Url>() {
+            trace!("OAuth request path: {}", url.path());
+        }
+    }
+
+    let parsed_key = get_ratelimit_api_key()?;
+
+    debug!("Building request to TMC server");
     let request = REQWEST_CLIENT
         .request(
             oauth_request.method().clone(),
@@ -1005,30 +1014,35 @@ async fn async_http_client_with_headers(
         .header("RATELIMIT-PROTECTION-SAFE-API-KEY", parsed_key)
         .body(oauth_request.body().to_vec());
 
+    debug!("Sending request to TMC server");
     let response = request
         .send()
         .await
         .map_err(|e| HttpClientError::Other(format!("Failed to execute request: {}", e)))?;
 
-    info!("Received response: {:?}", response);
+    // Log response status and version, but not headers or body which may contain tokens
+    debug!(
+        "Received response from TMC server - Status: {}, Version: {:?}",
+        response.status(),
+        response.version()
+    );
 
     let status = response.status();
     let version = response.version();
-    let headers = response.headers().clone(); // Clone headers before consuming response
+    let headers = response.headers().clone();
 
-    // Get the response body bytes directly from reqwest response
+    debug!("Reading response body");
     let body_bytes = response
         .bytes()
         .await
         .map_err(|e| HttpClientError::Other(format!("Failed to read response body: {}", e)))?
         .to_vec();
 
-    // Convert the reqwest response into http::Response
+    debug!("Building OAuth response");
     let mut builder = oauth2::http::Response::builder()
         .status(status)
         .version(version);
 
-    // Copy headers
     if let Some(builder_headers) = builder.headers_mut() {
         builder_headers.extend(headers.iter().map(|(k, v)| (k.clone(), v.clone())));
     }
@@ -1037,6 +1051,7 @@ async fn async_http_client_with_headers(
         .body(body_bytes)
         .map_err(|e| HttpClientError::Other(format!("Failed to construct response: {}", e)))?;
 
+    debug!("Successfully completed OAuth request");
     Ok(oauth_response)
 }
 

@@ -19,7 +19,6 @@ use oauth2::ResourceOwnerPassword;
 use oauth2::ResourceOwnerUsername;
 use oauth2::StandardTokenResponse;
 use oauth2::TokenResponse;
-use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sqlx::PgConnection;
@@ -32,15 +31,6 @@ use uuid::Uuid;
 const SESSION_KEY: &str = "user";
 
 const MOOCFI_GRAPHQL_URL: &str = "https://www.mooc.fi/api";
-
-/// Own http client for OAuth2 requests because we want to be sure we use the same one as is used in the oauth2 crate.
-static OAUTH_HTTP_CLIENT: Lazy<oauth2::reqwest::Client> = Lazy::new(|| {
-    oauth2::reqwest::Client::builder()
-        .use_rustls_tls()
-        .https_only(true)
-        .build()
-        .expect("Failed to build Client")
-});
 
 // at least one field should be kept private to prevent initializing the struct outside of this module;
 // this way FromRequest is the only way to create an AuthUser
@@ -975,7 +965,7 @@ pub async fn authenticate_test_token(
  * does not rate limit auth requests from backend
  */
 async fn async_http_client_with_headers(
-    mut oauth_request: oauth2::HttpRequest,
+    oauth_request: oauth2::HttpRequest,
 ) -> Result<oauth2::HttpResponse, HttpClientError<reqwest::Error>> {
     debug!("Making OAuth request to TMC server");
     trace!("OAuth request details: {:?}", oauth_request);
@@ -993,57 +983,60 @@ async fn async_http_client_with_headers(
         }
     };
 
-    let parsed_key = ratelimit_api_key.parse().map_err(|err| {
-        error!("Invalid RATELIMIT API key format: {}", err);
-        HttpClientError::Other("Invalid RATELIMIT API key.".to_string())
-    })?;
-
-    if oauth_request
-        .headers_mut()
-        .append("RATELIMIT-PROTECTION-SAFE-API-KEY", parsed_key)
-    {
-        debug!("Added rate limit protection header");
-    } else {
-        warn!("Failed to add rate limit protection header");
-        return Err(HttpClientError::Other(
-            "Failed to add rate limit protection header".to_string(),
-        ));
-    }
-
-    debug!("Executing request to TMC server");
-    let reqwest_request = oauth_request.try_into().map_err(|err| {
-        error!(
-            "Failed to convert OAuth request to reqwest request: {:?}",
-            err
-        );
-        HttpClientError::Other("Failed to convert OAuth request to reqwest request".to_string())
-    })?;
-
-    debug!("Executing request to TMC server");
-    let response = OAUTH_HTTP_CLIENT
-        .execute(reqwest_request)
-        .await
-        .map_err(|e| {
-            error!("Failed to execute request to TMC server: {}", e);
-            HttpClientError::Other(format!("Failed to execute request: {}", e))
+    let parsed_key = ratelimit_api_key
+        .parse::<reqwest::header::HeaderValue>()
+        .map_err(|err| {
+            error!("Invalid RATELIMIT API key format: {}", err);
+            HttpClientError::Other("Invalid RATELIMIT API key.".to_string())
         })?;
 
-    trace!("Received response: {:?}", response);
-    let http_response_with_body: oauth2::http::Response<reqwest::Body> = response.into();
+    // Make the request but using our own reqwest client
+    let request = REQWEST_CLIENT
+        .request(
+            oauth_request.method().clone(),
+            oauth_request
+                .uri()
+                .to_string()
+                .parse::<reqwest::Url>()
+                .map_err(|e| HttpClientError::Other(format!("Invalid URL: {}", e)))?,
+        )
+        .headers(oauth_request.headers().clone())
+        .version(oauth_request.version())
+        .header("RATELIMIT-PROTECTION-SAFE-API-KEY", parsed_key)
+        .body(oauth_request.body().to_vec());
 
-    let (parts, body) = http_response_with_body.into_parts();
-    let body_bytes = body
-        .as_bytes()
-        .ok_or_else(|| {
-            error!("Failed to get response body bytes");
-            HttpClientError::Other("Failed to get response body bytes".to_string())
-        })?
+    let response = request
+        .send()
+        .await
+        .map_err(|e| HttpClientError::Other(format!("Failed to execute request: {}", e)))?;
+
+    info!("Received response: {:?}", response);
+
+    let status = response.status();
+    let version = response.version();
+    let headers = response.headers().clone(); // Clone headers before consuming response
+
+    // Get the response body bytes directly from reqwest response
+    let body_bytes = response
+        .bytes()
+        .await
+        .map_err(|e| HttpClientError::Other(format!("Failed to read response body: {}", e)))?
         .to_vec();
 
-    debug!("Successfully processed OAuth response");
-    trace!("Response parts: {:?}", parts);
+    // Convert the reqwest response into http::Response
+    let mut builder = oauth2::http::Response::builder()
+        .status(status)
+        .version(version);
 
-    let oauth_response = oauth2::http::Response::from_parts(parts, body_bytes);
+    // Copy headers
+    if let Some(builder_headers) = builder.headers_mut() {
+        builder_headers.extend(headers.iter().map(|(k, v)| (k.clone(), v.clone())));
+    }
+
+    let oauth_response = builder
+        .body(body_bytes)
+        .map_err(|e| HttpClientError::Other(format!("Failed to construct response: {}", e)))?;
+
     Ok(oauth_response)
 }
 

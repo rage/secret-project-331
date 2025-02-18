@@ -961,6 +961,10 @@ pub async fn authenticate_test_token(
     Ok(user)
 }
 
+/**
+ Gets the rate limit protection API key from environment variables and converts it to a header value.
+ This key is used to bypass rate limiting when making requests to TMC server.
+*/
 fn get_ratelimit_api_key() -> Result<reqwest::header::HeaderValue, HttpClientError<reqwest::Error>>
 {
     let key = match std::env::var("RATELIMIT_PROTECTION_SAFE_API_KEY") {
@@ -985,6 +989,14 @@ fn get_ratelimit_api_key() -> Result<reqwest::header::HeaderValue, HttpClientErr
     })
 }
 
+/**
+ HTTP Client used only for authenticating with TMC server. This function:
+ 1. Ensures TMC server does not rate limit auth requests from backend by adding a special header
+ 2. Converts between oauth2 crate's internal http types and our reqwest types:
+    - Converts oauth2::HttpRequest to a reqwest::Request
+    - Makes the request using our REQWEST_CLIENT
+    - Converts the reqwest::Response back to oauth2::HttpResponse
+*/
 async fn async_http_client_with_headers(
     oauth_request: oauth2::HttpRequest,
 ) -> Result<oauth2::HttpResponse, HttpClientError<reqwest::Error>> {

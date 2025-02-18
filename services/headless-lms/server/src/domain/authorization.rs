@@ -10,6 +10,7 @@ use anyhow::Result;
 use chrono::{DateTime, Duration, Utc};
 use futures::Future;
 use headless_lms_models::{self as models, roles::UserRole, users::User};
+use headless_lms_utils::http::REQWEST_CLIENT;
 use models::{roles::Role, CourseOrExamId};
 use oauth2::basic::BasicTokenType;
 use oauth2::EmptyExtraTokenFields;
@@ -720,13 +721,16 @@ pub async fn authenticate_moocfi_user(
     email: String,
     password: String,
 ) -> anyhow::Result<(User, LoginToken)> {
-    let token = exchange_password_with_moocfi(client, email, password).await?;
+    info!("Attempting to authenticate user with TMC");
+    let token = exchange_password_with_tmc(client, email.clone(), password).await?;
+    debug!("Successfully obtained OAuth token from TMC");
     let user = get_user_from_moocfi_by_login_token(&token, conn).await?;
+    info!("Successfully authenticated user {} with mooc.fi", user.id);
     Ok((user, token))
 }
 
 pub type LoginToken = StandardTokenResponse<EmptyExtraTokenFields, BasicTokenType>;
-pub async fn exchange_password_with_moocfi(
+pub async fn exchange_password_with_tmc(
     client: &OAuthClient,
     email: String,
     password: String,
@@ -773,8 +777,7 @@ pub async fn get_user_from_moocfi_by_login_token(
 ) -> anyhow::Result<User> {
     info!("Getting user details from mooc.fi");
 
-    let client = reqwest::Client::default();
-    let res = client
+    let res = REQWEST_CLIENT
         .post(MOOCFI_GRAPHQL_URL)
         .header(reqwest::header::CONTENT_TYPE, "application/json")
         .header(reqwest::header::ACCEPT, "application/json")
@@ -795,16 +798,32 @@ pub async fn get_user_from_moocfi_by_login_token(
         .send()
         .await
         .context("Failed to send request to Mooc.fi")?;
+
     if !res.status().is_success() {
+        error!(
+            "Failed to get user from mooc.fi with status {}",
+            res.status()
+        );
         return Err(anyhow::anyhow!("Failed to get current user from Mooc.fi"));
     }
+
+    debug!("Received response from mooc.fi, parsing user data");
     let current_user_response: MoocfiUserResponse = res
         .json()
         .await
         .context("Unexpected response from Mooc.fi")?;
 
+    debug!(
+        "Creating or fetching user with mooc.fi id {}",
+        current_user_response.data.user.id
+    );
     let user = get_or_create_user_from_moocfi_response(&mut *conn, current_user_response.data.user)
         .await?;
+    info!(
+        "Successfully got user details from mooc.fi for user {}",
+        user.id
+    );
+
     Ok(user)
 }
 
@@ -958,32 +977,71 @@ pub async fn authenticate_test_token(
 async fn async_http_client_with_headers(
     mut oauth_request: oauth2::HttpRequest,
 ) -> Result<oauth2::HttpResponse, HttpClientError<reqwest::Error>> {
-    let ratelimit_api_key = std::env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
-        .expect("RATELIMIT_PROTECTION_SAFE_API_KEY must be defined");
+    debug!("Making OAuth request to TMC server");
+    trace!("OAuth request details: {:?}", oauth_request);
 
-    oauth_request.headers_mut().append(
-        "RATELIMIT-PROTECTION-SAFE-API-KEY",
-        ratelimit_api_key
-            .parse()
-            .map_err(|_err| HttpClientError::Other("Invalid RATELIMIT API key.".to_string()))?,
-    );
+    let ratelimit_api_key = match std::env::var("RATELIMIT_PROTECTION_SAFE_API_KEY") {
+        Ok(key) => key,
+        Err(e) => {
+            error!(
+                "RATELIMIT_PROTECTION_SAFE_API_KEY environment variable not set: {}",
+                e
+            );
+            return Err(HttpClientError::Other(
+                "RATELIMIT_PROTECTION_SAFE_API_KEY must be defined".to_string(),
+            ));
+        }
+    };
 
-    let reqwest_request = oauth_request.try_into().map_err(|_| {
+    let parsed_key = ratelimit_api_key.parse().map_err(|err| {
+        error!("Invalid RATELIMIT API key format: {}", err);
+        HttpClientError::Other("Invalid RATELIMIT API key.".to_string())
+    })?;
+
+    if oauth_request
+        .headers_mut()
+        .append("RATELIMIT-PROTECTION-SAFE-API-KEY", parsed_key)
+    {
+        debug!("Added rate limit protection header");
+    } else {
+        warn!("Failed to add rate limit protection header");
+        return Err(HttpClientError::Other(
+            "Failed to add rate limit protection header".to_string(),
+        ));
+    }
+
+    debug!("Executing request to TMC server");
+    let reqwest_request = oauth_request.try_into().map_err(|err| {
+        error!(
+            "Failed to convert OAuth request to reqwest request: {:?}",
+            err
+        );
         HttpClientError::Other("Failed to convert OAuth request to reqwest request".to_string())
     })?;
 
+    debug!("Executing request to TMC server");
     let response = OAUTH_HTTP_CLIENT
         .execute(reqwest_request)
         .await
-        .map_err(|e| HttpClientError::Other(format!("Failed to execute request: {}", e)))?;
+        .map_err(|e| {
+            error!("Failed to execute request to TMC server: {}", e);
+            HttpClientError::Other(format!("Failed to execute request: {}", e))
+        })?;
 
+    trace!("Received response: {:?}", response);
     let http_response_with_body: oauth2::http::Response<reqwest::Body> = response.into();
 
     let (parts, body) = http_response_with_body.into_parts();
     let body_bytes = body
         .as_bytes()
-        .ok_or_else(|| HttpClientError::Other("Failed to get response body bytes".to_string()))?
+        .ok_or_else(|| {
+            error!("Failed to get response body bytes");
+            HttpClientError::Other("Failed to get response body bytes".to_string())
+        })?
         .to_vec();
+
+    debug!("Successfully processed OAuth response");
+    trace!("Response parts: {:?}", parts);
 
     let oauth_response = oauth2::http::Response::from_parts(parts, body_bytes);
     Ok(oauth_response)

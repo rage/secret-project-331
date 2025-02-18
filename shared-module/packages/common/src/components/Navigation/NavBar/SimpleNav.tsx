@@ -11,7 +11,6 @@ import { NavigationProps } from "."
 
 const StyledIcon = css`
   font-size: 1.8rem;
-  transform: scale(0.7);
 
   path {
     color: ${baseTheme.colors.gray[600]} !important;

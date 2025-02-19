@@ -2,6 +2,19 @@ use anyhow::Result;
 use headless_lms_server::programs;
 use std::future::Future;
 
+#[cfg(not(target_env = "msvc"))]
+use tikv_jemallocator::Jemalloc;
+
+/// Using jemalloc instead of the system allocator for:
+/// 1. Better performance in long-running processes
+/// 2. Better memory fragmentation handling - prevents memory usage from appearing to grow over time
+///    (particularly important for async web servers)
+///
+/// Windows builds use system allocator as jemalloc isn't well-supported there.
+#[cfg(not(target_env = "msvc"))]
+#[global_allocator]
+static GLOBAL: Jemalloc = Jemalloc;
+
 struct Program {
     name: &'static str,
     execute: Box<dyn Fn() -> Result<()> + Sync>,

@@ -20,3 +20,7 @@ anyhow = "1.0.95"
 futures-util = "0.3.31"
 # A runtime for writing reliable network applications without compromising speed.
 tokio.workspace = true
+
+[target.'cfg(not(target_env = "msvc"))'.dependencies]
+# A Rust allocator backed by jemalloc
+tikv-jemallocator = "0.6.0"

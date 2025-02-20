@@ -118,7 +118,7 @@ const ExerciseSubmissionList: React.FC<React.PropsWithChildren<Props>> = ({
               </td>
               <td>{x.created_at.toLocaleString()}</td>
               <td>{x.user_id}</td>
-              <td>{x.course_instance_id}</td>
+              <td>{x.course_id}</td>
               <td>{x.exam_id}</td>
             </tr>
           ))}

@@ -123,7 +123,7 @@ where
         "exercise_task_submission_id".to_string(),
         "user_id".to_string(),
         "created_at".to_string(),
-        "course_instance_id".to_string(),
+        "course_id".to_string(),
         "exercise_id".to_string(),
         "exercise_task_id".to_string(),
         "score_given".to_string(),
@@ -139,7 +139,7 @@ where
             next.id.to_string(),
             next.user_id.to_string(),
             next.created_at.to_rfc3339(),
-            next.course_instance_id
+            next.course_id
                 .map(|o| o.to_string())
                 .unwrap_or_else(|| "".to_string()),
             next.exercise_id.to_string(),

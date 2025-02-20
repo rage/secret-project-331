@@ -144,10 +144,10 @@ WHERE user_exercise_state_id IN (
     Ok(res)
 }
 
-pub async fn get_all_latest_grading_decisions_by_user_id_and_course_instance_id(
+pub async fn get_all_latest_grading_decisions_by_user_id_and_course_id(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Vec<TeacherGradingDecision>> {
     let res = sqlx::query_as!(
         TeacherGradingDecision,
@@ -167,14 +167,14 @@ WHERE user_exercise_state_id IN (
     SELECT user_exercise_states.id
     FROM user_exercise_states
     WHERE user_exercise_states.user_id = $1
-      AND user_exercise_states.course_instance_id = $2
+      AND user_exercise_states.course_id = $2
       AND user_exercise_states.deleted_at IS NULL
   )
   AND deleted_at IS NULL
   ORDER BY user_exercise_state_id, created_at DESC
       "#,
         user_id,
-        course_instance_id,
+        course_id,
     )
     .fetch_all(conn)
     .await?;

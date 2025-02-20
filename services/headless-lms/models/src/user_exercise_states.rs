@@ -468,6 +468,42 @@ WHERE ues.deleted_at IS NULL
     Ok(res)
 }
 
+pub struct ChapterExerciseAttempts {
+    pub exercise_attempts: Option<i32>,
+}
+
+pub async fn get_user_course_instance_chapter_exercises_attempts(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+    exercise_ids: &[Uuid],
+    user_id: Uuid,
+) -> ModelResult<Vec<ChapterExerciseAttempts>> {
+    let res = sqlx::query_as!(
+        ChapterExerciseAttempts,
+        r#"
+    SELECT
+    CASE
+        WHEN ues.score_given IS NULL THEN 0
+        ELSE 1
+    END AS exercise_attempts
+FROM
+user_exercise_states AS ues
+WHERE ues.deleted_at IS NULL
+  AND ues.exercise_id IN (
+    SELECT UNNEST($1::uuid [])
+  )
+  AND ues.course_instance_id = $2
+  AND ues.user_id = $3;
+        "#,
+        exercise_ids,
+        course_instance_id,
+        user_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_or_create_user_exercise_state(
     conn: &mut PgConnection,
     user_id: Uuid,

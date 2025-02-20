@@ -423,6 +423,7 @@ export interface CourseModule {
   ects_credits: number | null
   enable_registering_completion_to_uh_open_university: boolean
   certification_enabled: boolean
+  is_completion_requirement_by_chapter: boolean
 }
 
 export interface ModifiedModule {

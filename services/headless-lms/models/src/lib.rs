@@ -8,6 +8,7 @@ Each submodule corresponds to a database table.
 pub mod certificate_configuration_to_requirements;
 pub mod certificate_configurations;
 pub mod certificate_fonts;
+pub mod chapter_completion_requirements;
 pub mod chapters;
 pub mod chatbot_configurations;
 pub mod chatbot_conversation_messages;

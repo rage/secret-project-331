@@ -955,7 +955,8 @@ export function isCourseModule(obj: unknown): obj is CourseModule {
       typeof typedObj["completion_registration_link_override"] === "string") &&
     (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number") &&
     typeof typedObj["enable_registering_completion_to_uh_open_university"] === "boolean" &&
-    typeof typedObj["certification_enabled"] === "boolean"
+    typeof typedObj["certification_enabled"] === "boolean" &&
+    typeof typedObj["is_completion_requirement_by_chapter"] === "boolean"
   )
 }
 

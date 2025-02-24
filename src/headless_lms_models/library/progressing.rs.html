@@ -1303,7 +1303,11 @@
 <a href="#1302" id="1302">1302</a>
 <a href="#1303" id="1303">1303</a>
 <a href="#1304" id="1304">1304</a>
-<a href="#1305" id="1305">1305</a></pre></div><pre class="rust"><code><span class="kw">use </span>chrono::{DateTime, Utc};
+<a href="#1305" id="1305">1305</a>
+<a href="#1306" id="1306">1306</a>
+<a href="#1307" id="1307">1307</a>
+<a href="#1308" id="1308">1308</a>
+<a href="#1309" id="1309">1309</a></pre></div><pre class="rust"><code><span class="kw">use </span>chrono::{DateTime, Utc};
 <span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>std::collections::HashMap;
 
@@ -1501,8 +1505,12 @@
             <span class="kw">if </span>eligible {
                 <span class="kw">if </span>requirements.requires_exam {
                     <span class="macro">info!</span>(<span class="string">"To complete this module automatically, the user must pass an exam."</span>);
-                    user_has_passed_exam_for_the_course(conn, user_id, course_module.course_id)
-                        .<span class="kw">await
+                    user_has_passed_exam_for_the_course_based_on_points(
+                        conn,
+                        user_id,
+                        course_module.course_id,
+                    )
+                    .<span class="kw">await
                 </span>} <span class="kw">else </span>{
                     <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)
                 }
@@ -1563,7 +1571,7 @@
 
 <span class="doccomment">/// Returns true if there is at least one exam associated with the course, that has ended and the
 /// user has received enough points from it.
-</span><span class="kw">async fn </span>user_has_passed_exam_for_the_course(
+</span><span class="kw">async fn </span>user_has_passed_exam_for_the_course_based_on_points(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     user_id: Uuid,
     course_id: Uuid,
@@ -1573,7 +1581,7 @@
     <span class="kw">for </span>exam_id <span class="kw">in </span>exam_ids {
         <span class="kw">let </span>exam = exams::get(conn, exam_id).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="comment">// A minimum points threshold of 0 indicates that the "Related courses can be completed automatically" option has not been enabled by the teacher. If you wish to remove this condition, please first store this information in a separate column in the exams table.
-        </span><span class="kw">if </span>exam.minimum_points_treshold == <span class="number">0 </span>{
+        </span><span class="kw">if </span>exam.minimum_points_treshold == <span class="number">0 </span>|| exam.grade_manually {
             <span class="kw">continue</span>;
         }
         <span class="kw">if </span>exam.ended_at_or(now, <span class="bool-val">false</span>) {

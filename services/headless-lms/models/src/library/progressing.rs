@@ -196,8 +196,12 @@ async fn user_is_eligible_for_automatic_completion(
             if eligible {
                 if requirements.requires_exam {
                     info!("To complete this module automatically, the user must pass an exam.");
-                    user_has_passed_exam_for_the_course(conn, user_id, course_module.course_id)
-                        .await
+                    user_has_passed_exam_for_the_course_based_on_points(
+                        conn,
+                        user_id,
+                        course_module.course_id,
+                    )
+                    .await
                 } else {
                     Ok(true)
                 }
@@ -258,7 +262,7 @@ pub async fn user_can_take_exam(
 
 /// Returns true if there is at least one exam associated with the course, that has ended and the
 /// user has received enough points from it.
-async fn user_has_passed_exam_for_the_course(
+async fn user_has_passed_exam_for_the_course_based_on_points(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,
@@ -268,7 +272,7 @@ async fn user_has_passed_exam_for_the_course(
     for exam_id in exam_ids {
         let exam = exams::get(conn, exam_id).await?;
         // A minimum points threshold of 0 indicates that the "Related courses can be completed automatically" option has not been enabled by the teacher. If you wish to remove this condition, please first store this information in a separate column in the exams table.
-        if exam.minimum_points_treshold == 0 {
+        if exam.minimum_points_treshold == 0 || exam.grade_manually {
             continue;
         }
         if exam.ended_at_or(now, false) {

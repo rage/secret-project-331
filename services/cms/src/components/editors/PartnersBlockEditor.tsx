@@ -1,8 +1,7 @@
-/* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
-import React, { useContext, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { allowedPartnerCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
@@ -12,6 +11,7 @@ import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 
 import { PartnersBlock } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
+import SuccessNotification from "@/shared-module/common/components/Notifications/Success"
 import Spinner from "@/shared-module/common/components/Spinner"
 
 interface PartnersBlockEditorProps {
@@ -40,7 +40,9 @@ const PartnersSectionEditor: React.FC<React.PropsWithChildren<PartnersBlockEdito
   )
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
+  //NB: refactor to use useToast
   const handleOnSave = async () => {
     setSaving(true)
     try {
@@ -54,8 +56,17 @@ const PartnersSectionEditor: React.FC<React.PropsWithChildren<PartnersBlockEdito
       setError(e.toString())
     } finally {
       setSaving(false)
+      setSuccessMessage(t("content-saved-successfully"))
     }
   }
+
+  // Hide success message after 3 seconds
+  useEffect(() => {
+    if (successMessage) {
+      const timeout = setTimeout(() => setSuccessMessage(null), 1000)
+      return () => clearTimeout(timeout) // Clear timeout if component unmounts
+    }
+  }, [successMessage])
 
   return (
     <>
@@ -82,6 +93,7 @@ const PartnersSectionEditor: React.FC<React.PropsWithChildren<PartnersBlockEdito
           setNeedToRunMigrationsAndValidations={() => {}}
         />
       )}
+      {successMessage && <SuccessNotification message={successMessage} />}
     </>
   )
 }

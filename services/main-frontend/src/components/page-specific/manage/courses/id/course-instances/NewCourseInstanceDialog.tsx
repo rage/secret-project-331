@@ -1,4 +1,3 @@
-import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
 import { newCourseInstance } from "../../../../../../services/backend/courses"
@@ -6,8 +5,8 @@ import { newCourseInstance } from "../../../../../../services/backend/courses"
 import NewCourseInstanceForm from "./NewCourseInstanceForm"
 
 import { CourseInstanceForm } from "@/shared-module/common/bindings"
-import Dialog from "@/shared-module/common/components/Dialog"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import StandardDialog from "@/shared-module/common/components/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 interface NewCourseLanguageVersionDialogProps {
@@ -35,43 +34,18 @@ const NewCourseInstanceDialog: React.FC<
       },
     },
   )
+
   return (
-    <Dialog
-      open={showDialog}
-      role="dialog"
-      aria-labelledby="label"
-      noPadding={true}
-      title={t("new-course-instance-dialog")}
-      className={css`
-        z-index: 10000;
-        display: flex;
-        flex-direction: column;
-        align-content: center;
-      `}
-    >
-      <div
-        className={css`
-          padding: 1rem;
-        `}
-      >
-        <h1
-          id="label"
-          className={css`
-            font-size: 32px;
-          `}
-        >
-          {t("new-course-instance")}
-        </h1>
-        {mutation.isError && <ErrorBanner variant={"readOnly"} error={mutation.error} />}
-        <NewCourseInstanceForm
-          initialData={null}
-          onSubmit={(data) => {
-            mutation.mutate(data)
-          }}
-          onCancel={onClose}
-        />
-      </div>
-    </Dialog>
+    <StandardDialog open={showDialog} onClose={onClose} title={t("new-course-instance")}>
+      {mutation.isError && <ErrorBanner variant={"readOnly"} error={mutation.error} />}
+      <NewCourseInstanceForm
+        initialData={null}
+        onSubmit={(data) => {
+          mutation.mutate(data)
+        }}
+        onCancel={onClose}
+      />
+    </StandardDialog>
   )
 }
 

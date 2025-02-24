@@ -90,6 +90,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       .getByTestId("exercise-row")
       .filter({ hasText: "ManualReviewEverything" })
       .getByText("View answers requiring attention")
+      .first()
       .click()
 
     // Make sure the iframe above is loaded so that it does not cause scrolling

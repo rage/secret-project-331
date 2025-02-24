@@ -1,5 +1,4 @@
 import dynamic from "next/dynamic"
-import React from "react"
 
 import Spinner from "@/shared-module/common/components/Spinner"
 

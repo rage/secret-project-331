@@ -164,10 +164,10 @@ fn derive_new_reviewing_stage(
     };
     let user_exercise_state = &input_data.current_user_exercise_state;
     if input_data.exercise.needs_peer_review || input_data.exercise.needs_self_review {
-        return peer_or_self_review_opinion
+        peer_or_self_review_opinion
             .as_ref()
             .map(|o| o.reviewing_stage)
-            .unwrap_or_else(|| input_data.current_user_exercise_state.reviewing_stage);
+            .unwrap_or_else(|| input_data.current_user_exercise_state.reviewing_stage)
     } else {
         // Valid states for exercises without peer review are `ReviewingStage::NotStarted` or `ReviewingStage::ReviewedAndLocked`.
         // If the state is one of those, we'll keep it but if the state is something not allowed, we'll reset it to the default.

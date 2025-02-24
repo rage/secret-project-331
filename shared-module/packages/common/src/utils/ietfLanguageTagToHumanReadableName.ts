@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 const languages: Record<string, string> = {
   en: "English",
   fi: "Suomi",

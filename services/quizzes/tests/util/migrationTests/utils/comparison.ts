@@ -1,5 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
-
 import { FlexDirection, sanitizeQuizDirection } from "../../../../src/util/css-sanitization"
 import {
   OldModelSolutionQuiz as OldModelSolutionQuiz,
@@ -31,12 +29,12 @@ const expectPrivateSpecMetadataToMatch = (
   privateSpecQuiz: PrivateSpecQuiz,
   version = QUIZ_VERSION,
 ) => {
-  expect(privateSpecQuiz.title).toEqual(oldQuiz.title)
-  expect(privateSpecQuiz.body).toEqual(oldQuiz.body)
-  expect(privateSpecQuiz.submitMessage).toEqual(oldQuiz.submitMessage)
-  expect(privateSpecQuiz.awardPointsEvenIfWrong).toEqual(oldQuiz.awardPointsEvenIfWrong)
-  expect(privateSpecQuiz.grantPointsPolicy).toEqual(oldQuiz.grantPointsPolicy)
-  expect(privateSpecQuiz.version).toEqual(version)
+  expect(privateSpecQuiz.title).toStrictEqual(oldQuiz.title)
+  expect(privateSpecQuiz.body).toStrictEqual(oldQuiz.body)
+  expect(privateSpecQuiz.submitMessage).toStrictEqual(oldQuiz.submitMessage)
+  expect(privateSpecQuiz.awardPointsEvenIfWrong).toStrictEqual(oldQuiz.awardPointsEvenIfWrong)
+  expect(privateSpecQuiz.grantPointsPolicy).toStrictEqual(oldQuiz.grantPointsPolicy)
+  expect(privateSpecQuiz.version).toStrictEqual(version)
 }
 
 /**
@@ -50,9 +48,9 @@ const expectPublicSpecMetadataToMatch = (
   publicSpecQuiz: PublicSpecQuiz,
   version = QUIZ_VERSION,
 ) => {
-  expect(publicSpecQuiz.title).toEqual(oldQuiz.title)
-  expect(publicSpecQuiz.version).toEqual(version)
-  expect(publicSpecQuiz.body).toEqual(oldQuiz.body)
+  expect(publicSpecQuiz.title).toStrictEqual(oldQuiz.title)
+  expect(publicSpecQuiz.version).toStrictEqual(version)
+  expect(publicSpecQuiz.body).toStrictEqual(oldQuiz.body)
 }
 
 /**
@@ -66,12 +64,12 @@ const expectModelSolutionSpecMetadataToMatch = (
   modelSolutionSpecQuiz: ModelSolutionQuiz,
   version = QUIZ_VERSION,
 ) => {
-  expect(modelSolutionSpecQuiz.title).toEqual(oldQuiz.title)
-  expect(modelSolutionSpecQuiz.body).toEqual(oldQuiz.body)
-  expect(modelSolutionSpecQuiz.submitMessage).toEqual(oldQuiz.submitMessage)
-  expect(modelSolutionSpecQuiz.awardPointsEvenIfWrong).toEqual(oldQuiz.awardPointsEvenIfWrong)
-  expect(modelSolutionSpecQuiz.grantPointsPolicy).toEqual(oldQuiz.grantPointsPolicy)
-  expect(modelSolutionSpecQuiz.version).toEqual(version)
+  expect(modelSolutionSpecQuiz.title).toStrictEqual(oldQuiz.title)
+  expect(modelSolutionSpecQuiz.body).toStrictEqual(oldQuiz.body)
+  expect(modelSolutionSpecQuiz.submitMessage).toStrictEqual(oldQuiz.submitMessage)
+  expect(modelSolutionSpecQuiz.awardPointsEvenIfWrong).toStrictEqual(oldQuiz.awardPointsEvenIfWrong)
+  expect(modelSolutionSpecQuiz.grantPointsPolicy).toStrictEqual(oldQuiz.grantPointsPolicy)
+  expect(modelSolutionSpecQuiz.version).toStrictEqual(version)
 }
 
 /**
@@ -104,9 +102,9 @@ const compareFields = <T extends object, S extends object>(
     } else if (key === "optionDisplayDirection") {
       // direction is changed to optionDisplayDirection with different values.
       const direction = sanitizeQuizDirection(oldQuizItem[fields[key] as keyof S] as FlexDirection)
-      expect(direction).toEqual(newQuizItem[key as keyof T])
+      expect(direction).toStrictEqual(newQuizItem[key as keyof T])
     } else {
-      expect(newQuizItem[key as keyof T]).toEqual(oldQuizItem[fields[key] as keyof S])
+      expect(newQuizItem[key as keyof T]).toStrictEqual(oldQuizItem[fields[key] as keyof S])
     }
   })
 }

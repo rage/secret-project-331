@@ -1,10 +1,9 @@
-import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
 import NewCourseForm from "../../../../../forms/NewCourseForm"
 
 import { NewCourse } from "@/shared-module/common/bindings"
-import Dialog from "@/shared-module/common/components/Dialog"
+import StandardDialog from "@/shared-module/common/components/StandardDialog"
 
 interface NewCourseLanguageVersionDialogProps {
   showNewLanguageVersionForm: boolean
@@ -20,20 +19,17 @@ const NewCourseLanguageVersionDialog: React.FC<
 > = ({ showNewLanguageVersionForm, courseName, handleSubmit, onClose, organizationId }) => {
   const { t } = useTranslation()
   return (
-    <Dialog open={showNewLanguageVersionForm} onClose={onClose}>
-      <div
-        className={css`
-          margin: 1rem;
-        `}
-      >
-        <div>{t("create-new-language-version-of", { "course-name": courseName })}</div>
-        <NewCourseForm
-          organizationId={organizationId}
-          onSubmitNewCourseForm={handleSubmit}
-          onClose={onClose}
-        />
-      </div>
-    </Dialog>
+    <StandardDialog
+      open={showNewLanguageVersionForm}
+      onClose={onClose}
+      title={t("create-new-language-version-of", { "course-name": courseName })}
+    >
+      <NewCourseForm
+        organizationId={organizationId}
+        onSubmitNewCourseForm={handleSubmit}
+        onClose={onClose}
+      />
+    </StandardDialog>
   )
 }
 

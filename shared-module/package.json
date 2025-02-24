@@ -10,13 +10,14 @@
   "keywords": [],
   "author": "Henrik Nygren <nygrenh@gmail.com>",
   "devDependencies": {
-    "@types/lodash": "^4.17.13",
+    "@types/lodash": "^4.17.15",
     "tsx": "^4.19.2"
   },
   "dependencies": {
-    "@fontsource-variable/inter": "^5.1.0",
-    "@fontsource/inter": "^5.1.0",
-    "@parcel/watcher": "^2.5.0",
+    "@fontsource-variable/inter": "^5.1.1",
+    "@fontsource/inter": "^5.1.1",
+    "@parcel/watcher": "^2.5.1",
+    "date-fns-tz": "^3.2.0",
     "lodash": "^4.17.21"
   }
 }

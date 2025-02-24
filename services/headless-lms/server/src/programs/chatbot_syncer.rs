@@ -156,9 +156,7 @@ async fn sync_pages(
             .filter(|status| {
                 latest_histories
                     .get(&status.page_id)
-                    .map_or(false, |history| {
-                        status.synced_page_revision_id != Some(history.id)
-                    })
+                    .is_some_and(|history| status.synced_page_revision_id != Some(history.id))
             })
             .collect();
 

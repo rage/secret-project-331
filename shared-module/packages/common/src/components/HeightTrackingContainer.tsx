@@ -8,9 +8,7 @@ interface Props {
   children?: ReactNode
 }
 
-const HeightTrackingContainer: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<Props>>
-> = ({ port, children }) => {
+const HeightTrackingContainer: React.FC<React.PropsWithChildren<Props>> = ({ port, children }) => {
   const contentRef = useRef<HTMLDivElement>(null)
   const [height, setHeight] = useState(0)
   const previouslySentHeightRef = useRef(0)

@@ -67,14 +67,12 @@ const TerminologyBlockEditor: React.FC<
               font-size: 16px;
               color: ${attributes.primaryColor} !important;
             `}
-            // eslint-disable-next-line i18next/no-literal-string
             tagName="p"
             value={blockName}
             onChange={(value: string) => setAttributes({ blockName: value })}
             placeholder={t("terminology")}
           />
           <RichText
-            // eslint-disable-next-line i18next/no-literal-string
             tagName="h2"
             value={title}
             onChange={(value: string) => setAttributes({ title: value })}

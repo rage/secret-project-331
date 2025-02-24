@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import { parseISO } from "date-fns"
 import { TFunction } from "i18next"
 import { useMemo } from "react"
@@ -31,7 +32,7 @@ interface EditExamFields {
 const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
   initialData,
   onEditExam,
-  onCancel,
+  onCancel: _onCancel,
   organizationId,
 }) => {
   const { t } = useTranslation()
@@ -77,47 +78,56 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
   return (
     <div>
       <form onSubmit={onEditExamWrapper}>
-        <TextField
-          id={"name"}
-          error={errors.name?.message}
-          label={t("label-name")}
-          {...register("name", { required: t("required-field") })}
-        />
-        <DateTimeLocal
-          error={errors.startsAt?.message}
-          label={t("label-starts-at")}
-          {...register("startsAt", { required: t("required-field") })}
-        />
-        <DateTimeLocal
-          error={errors.endsAt?.message}
-          label={t("label-ends-at")}
-          {...register("endsAt", { required: t("required-field"), validate: validateDates })}
-        />
-        <TextField
-          id={"timeMinutes"}
-          error={errors.timeMinutes?.message}
-          label={t("label-time-minutes")}
-          {...register("timeMinutes", { required: t("required-field") })}
-        />
-        <CheckBox label={t("label-grade-exam-manually")} {...register("gradeManually")} />
-        <CheckBox
-          label={t("label-related-courses-can-be-completed-automatically")}
-          {...register("automaticCompletionEnabled")}
-        />
-        {automaticEnabled && (
+        <div
+          className={css`
+            margin-bottom: 2rem;
+          `}
+        >
           <TextField
-            id={"minimumPointsTreshold"}
-            error={errors.minimumPointsTreshold?.message}
-            label={t("label-exam-minimum-points")}
-            {...register("minimumPointsTreshold", { required: t("required-field") })}
+            id={"name"}
+            error={errors.name?.message}
+            label={t("label-name")}
+            {...register("name", { required: t("required-field") })}
           />
-        )}
-        <br />
-        <Button variant="primary" size="medium" type="submit" value={t("button-text-submit")}>
+          <DateTimeLocal
+            error={errors.startsAt?.message}
+            label={t("label-starts-at")}
+            {...register("startsAt", { required: t("required-field") })}
+          />
+          <DateTimeLocal
+            error={errors.endsAt?.message}
+            label={t("label-ends-at")}
+            {...register("endsAt", { required: t("required-field"), validate: validateDates })}
+          />
+          <TextField
+            id={"timeMinutes"}
+            error={errors.timeMinutes?.message}
+            label={t("label-time-minutes")}
+            {...register("timeMinutes", { required: t("required-field") })}
+          />
+          <CheckBox label={t("label-grade-exam-manually")} {...register("gradeManually")} />
+          <CheckBox
+            label={t("label-related-courses-can-be-completed-automatically")}
+            {...register("automaticCompletionEnabled")}
+          />
+          {automaticEnabled && (
+            <TextField
+              id={"minimumPointsTreshold"}
+              error={errors.minimumPointsTreshold?.message}
+              label={t("label-exam-minimum-points")}
+              {...register("minimumPointsTreshold", { required: t("required-field") })}
+            />
+          )}
+        </div>
+
+        <Button
+          variant="primary"
+          size="medium"
+          type="submit"
+          value={t("button-text-submit")}
+          fullWidth
+        >
           {t("button-text-submit")}
-        </Button>
-        <Button variant="secondary" size="medium" type="button" onClick={onCancel}>
-          {t("button-text-close")}
         </Button>
       </form>
     </div>

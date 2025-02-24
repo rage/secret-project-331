@@ -23,7 +23,6 @@ export const BackgroundStyles = ({ bg }: BackgroundProps) => {
   return CARD_BACKGROUND_STYLES
 }
 
-// eslint-disable-next-line i18next/no-literal-string
 const CardContentWrapper = styled.div`
   display: flex;
   height: 100%;
@@ -41,12 +40,19 @@ const CardContentWrapper = styled.div`
     margin-top: 5px;
     font-size: clamp(26px, 2.2vw, 30px);
     opacity: 0.9;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    /* For multi-line truncation: */
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Limit to 3 lines */
+    -webkit-box-orient: vertical;
   }
 `
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & CardExtraProps
 
-const IllustrationCard: React.FC<React.PropsWithChildren<React.PropsWithChildren<CardProps>>> = ({
+const IllustrationCard: React.FC<React.PropsWithChildren<CardProps>> = ({
   title,
   chapterNumber,
   bg,
@@ -74,14 +80,14 @@ const IllustrationCard: React.FC<React.PropsWithChildren<React.PropsWithChildren
         <div
           className={css`
             width: 100%;
-            height: 370.6px;
+            height: 23.163rem;
             transition: transform 0.2s;
             ${backgroundImage &&
             `background-image: url(${backgroundImage});
               background-repeat: no-repeat;
               background-color: ${bg};
               background-position: center center;
-              background-size: contain;
+              background-size: cover;
               `}
 
             &:hover {
@@ -97,7 +103,7 @@ const IllustrationCard: React.FC<React.PropsWithChildren<React.PropsWithChildren
             background: #fff;
 
             ${respondToOrLarger.md} {
-              padding: 2rem 2rem;
+              padding: 1.6rem 1.25rem;
             }
           `}
         >

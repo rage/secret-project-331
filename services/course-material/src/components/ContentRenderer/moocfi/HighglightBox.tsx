@@ -22,10 +22,14 @@ const HightlightBlock: React.FC<
     <>
       <div
         className={css`
-          padding: 1rem 1.5rem;
           background-color: #fafbfb;
           margin: 1rem 0;
           border: 1px solid #e2e4e6;
+          padding: 1rem 0rem;
+
+          ${respondToOrLarger.md} {
+            padding: 1rem 1.5rem;
+          }
         `}
       >
         <div

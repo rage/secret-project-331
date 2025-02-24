@@ -60,7 +60,6 @@ const svgSquare = css`
   justify-content: center;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const gray400WithHover = css`
   background-color: ${baseTheme.colors.gray[200]};
 
@@ -69,7 +68,6 @@ const gray400WithHover = css`
   }
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const gray500WithHover = css`
   background-color: ${baseTheme.colors.gray[300]};
 

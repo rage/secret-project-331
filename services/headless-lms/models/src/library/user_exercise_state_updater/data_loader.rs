@@ -189,7 +189,6 @@ async fn load_peer_or_self_review_information(
                     conn,
                     peer_review_queue_entry,
                     loaded_latest_exercise_slide_submission.id,
-                    loaded_user_exercise_state,
                 )
                 .await?,
                 peer_or_self_review_config: loaded_peer_or_self_review_config.clone(),
@@ -303,26 +302,14 @@ async fn load_peer_review_queue_entry(
     conn: &mut PgConnection,
     already_loaded_peer_review_queue_entry: Option<Option<PeerReviewQueueEntry>>,
     latest_exercise_submission_id: Uuid,
-    loaded_user_exercise_state: &UserExerciseState,
 ) -> ModelResult<Option<PeerReviewQueueEntry>> {
     if let Some(prqe) = already_loaded_peer_review_queue_entry {
         info!("Using already loaded peer review queue entry");
         Ok(prqe)
     } else {
         info!("Loading peer review queue entry");
-        let course_instance_id =
-            loaded_user_exercise_state
-                .course_instance_id
-                .ok_or_else(|| {
-                    ModelError::new(
-                        ModelErrorType::InvalidRequest,
-                        "Peer reviews work only on courses (and not, for example, on exams)"
-                            .to_string(),
-                        None,
-                    )
-                })?;
         // The result is optinal because not all answers are in the peer review queue yet. For example, we don't place any answers to the queue if their giver has not given enough peer reviews.
-        Ok(crate::peer_review_queue_entries::try_to_get_by_receiving_submission_and_course_instance_ids(conn, latest_exercise_submission_id, course_instance_id ).await?)
+        Ok(crate::peer_review_queue_entries::get_by_receiving_peer_reviews_exercise_slide_submission_id(conn, latest_exercise_submission_id ).await.optional()?)
     }
 }
 

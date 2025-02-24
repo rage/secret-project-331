@@ -5,6 +5,7 @@
     "no-duplicate-selectors": null,
     "function-no-unknown": null,
     "media-query-no-invalid": null,
+    "declaration-property-value-no-unknown": null,
     "selector-type-no-unknown": [
       true,
       {

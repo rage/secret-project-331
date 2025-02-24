@@ -88,6 +88,8 @@ pub async fn seed_organization_uh_mathstat(
         copy_user_permissions: false,
         is_joinable_by_code_only: false,
         join_code: None,
+        ask_marketing_consent: false,
+        flagged_answers_threshold: Some(3),
     };
     let (
         statistics_course,
@@ -136,6 +138,8 @@ pub async fn seed_organization_uh_mathstat(
         copy_user_permissions: false,
         is_joinable_by_code_only: false,
         join_code: None,
+        ask_marketing_consent: false,
+        flagged_answers_threshold: Some(3),
     };
     library::content_management::create_new_course(
         &mut conn,
@@ -166,6 +170,8 @@ pub async fn seed_organization_uh_mathstat(
         join_code: Some(
             "zARvZARjYhESMPVceEgZyJGQZZuUHVVgcUepyzEqzSqCMdbSCDrTaFhkJTxBshWU".to_string(),
         ),
+        ask_marketing_consent: false,
+        flagged_answers_threshold: Some(3),
     };
     library::content_management::create_new_course(
         &mut conn,
@@ -216,6 +222,8 @@ pub async fn seed_organization_uh_mathstat(
             copy_user_permissions: false,
             is_joinable_by_code_only: false,
             join_code: None,
+            ask_marketing_consent: false,
+            flagged_answers_threshold: Some(3),
         },
         true,
         admin_user_id,

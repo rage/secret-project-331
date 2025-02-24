@@ -6,7 +6,7 @@ const htmlWriter = new HtmlRenderer()
 
 const KATEX_OUTPUT_FORMAT = "htmlAndMathml"
 const LATEX_REGEX = /\[latex\](.*?)\[\/latex\]/g
-const MARKDOWN_REGEX = /\[markdown\](.*?)\[\/markdown\]/g
+const MARKDOWN_REGEX = /\[markdown\]([\s\S]*?)\[\/markdown\]/g
 type PairArray<T, K> = [T, K][]
 
 /**

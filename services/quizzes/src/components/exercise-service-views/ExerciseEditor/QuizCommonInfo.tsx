@@ -4,7 +4,8 @@ import { useTranslation } from "react-i18next"
 
 import { PrivateSpecQuiz } from "../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../hooks/useQuizzesExerciseServiceOutputState"
-import MarkdownEditor from "../../MarkdownEditor"
+
+import ParsedTextField from "./QuizComponents/common/ParsedTextField"
 
 import Accordion from "@/shared-module/common/components/Accordion"
 import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
@@ -65,9 +66,9 @@ const QuizCommonInfo: React.FC = () => {
         <details>
           <summary>{t("advanced-options")}</summary>
           <AdvancedOptionsContainer>
-            <MarkdownEditor
-              text={selected.submitMessage ?? ""}
+            <ParsedTextField
               label={t("submit-message")}
+              value={selected.submitMessage ?? ""}
               onChange={(value) => {
                 updateState((draft) => {
                   if (!draft) {

@@ -9,7 +9,6 @@ import Centered from "@/shared-module/common/components/Centering/Centered"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-// eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`
   margin: 0.5rem auto;
   padding-bottom: 20px;

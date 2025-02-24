@@ -70,11 +70,10 @@ const StyledCheck = styled(Check)`
   margin-top: 8px;
 `
 
-export type TopicObjectives = React.HTMLAttributes<HTMLDivElement> /* & TopicObjectivesExtraProps */
+export type TopicObjectiveProps =
+  React.HTMLAttributes<HTMLDivElement> /* & TopicObjectivesExtraProps */
 
-const TopicObjectives: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<TopicObjectives>>
-> = () => {
+const TopicObjectives: React.FC<React.PropsWithChildren<TopicObjectiveProps>> = () => {
   const { t } = useTranslation()
   return (
     <Wrapper>

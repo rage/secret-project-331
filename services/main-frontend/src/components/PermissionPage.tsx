@@ -56,8 +56,8 @@ const options = (t: TFunction) => {
 }
 
 // Check we have options for all the roles in the system
-const allRoles = options(globalT).map((o) => o.value)
-type rolesInTheForm = (typeof allRoles)[number]
+const _allRoles = options(globalT).map((o) => o.value)
+type rolesInTheForm = (typeof _allRoles)[number]
 // Check if two string unions are the same. If this fails, you have changed the UserRole type and need to update the options function above.
 assert<Equals<rolesInTheForm, UserRole>>()
 

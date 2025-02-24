@@ -148,7 +148,7 @@ macro_rules! insert_data {
         let mut $tx = conn.begin().await;
     };
     (@inner tx: $tx:ident; user: $user:ident) => {
-        let rs = ::rand::Rng::sample_iter(::rand::thread_rng(), &::rand::distributions::Alphanumeric)
+        let rs = ::rand::Rng::sample_iter(::rand::rng(), &::rand::distr::Alphanumeric)
             .take(8)
             .map(char::from)
             .collect::<String>();
@@ -158,7 +158,7 @@ macro_rules! insert_data {
                 .unwrap();
     };
     (@inner tx: $tx:ident, user: $user:ident; org: $org:ident) => {
-        let rs = rand::Rng::sample_iter(rand::thread_rng(), &::rand::distributions::Alphanumeric)
+        let rs = rand::Rng::sample_iter(rand::rng(), &::rand::distr::Alphanumeric)
             .take(8)
             .map(char::from)
             .collect::<String>();
@@ -168,7 +168,7 @@ macro_rules! insert_data {
                 .unwrap();
     };
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident; course: $course: ident) => {
-        let rs = ::rand::Rng::sample_iter(::rand::thread_rng(), &::rand::distributions::Alphanumeric)
+        let rs = ::rand::Rng::sample_iter(::rand::rng(), &::rand::distr::Alphanumeric)
             .take(8)
             .map(char::from)
             .collect::<String>();
@@ -189,6 +189,8 @@ macro_rules! insert_data {
                 copy_user_permissions: false,
                 is_joinable_by_code_only: false,
                 join_code: None,
+                ask_marketing_consent:false,
+                flagged_answers_threshold: Some(3),
             },
             $user,
             |_, _, _| unimplemented!(),

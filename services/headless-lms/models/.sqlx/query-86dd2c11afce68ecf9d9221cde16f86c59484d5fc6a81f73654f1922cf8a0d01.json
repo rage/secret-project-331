@@ -1,0 +1,83 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DISTINCT ON (user_id)\n  ess.id,\n  ess.created_at,\n  ess.updated_at,\n  ess.deleted_at,\n  ess.exercise_slide_id,\n  ess.course_id,\n  ess.course_instance_id,\n  ess.exam_id,\n  ess.exercise_id,\n  ess.user_id,\n  ess.user_points_update_strategy AS \"user_points_update_strategy: _\",\n  ess.flag_count\nFROM exercise_slide_submissions AS ess\nJOIN courses AS c\n  ON ess.course_id = c.id\nWHERE ess.exercise_id = $1\n  AND ess.id <> ALL($2)\n  AND ess.user_id <> $3\n  AND ess.deleted_at IS NULL\n  AND ess.flag_count < c.flagged_answers_threshold\nORDER BY ess.user_id, ess.created_at DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "exercise_slide_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "course_instance_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "exam_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "exercise_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 9,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 10,
+        "name": "user_points_update_strategy: _",
+        "type_info": {
+          "Custom": {
+            "name": "user_points_update_strategy",
+            "kind": {
+              "Enum": [
+                "can-add-points-but-cannot-remove-points",
+                "can-add-points-and-can-remove-points"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "flag_count",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "UuidArray", "Uuid"]
+    },
+    "nullable": [false, false, false, true, false, true, true, true, false, false, false, false]
+  },
+  "hash": "86dd2c11afce68ecf9d9221cde16f86c59484d5fc6a81f73654f1922cf8a0d01"
+}

@@ -4,7 +4,7 @@ import { freemem } from "os"
 function envToNumber(env: string, defaultNumber: number) {
   try {
     return Number(env.trim())
-  } catch (error) {
+  } catch (_error) {
     return defaultNumber
   }
 }
@@ -12,13 +12,16 @@ function envToNumber(env: string, defaultNumber: number) {
 const chromeUse = {
   ...devices["Desktop Chrome"],
   launchOptions: {
-    // For fighting anti-aliasing from: https://github.com/microsoft/playwright/issues/8161#issuecomment-1369230603
     args: [
+      // For fighting anti-aliasing from: https://github.com/microsoft/playwright/issues/8161#issuecomment-1369230603
       "--font-render-hinting=none",
       "--disable-skia-runtime-opts",
       "--disable-font-subpixel-positioning",
       "--disable-lcd-text",
     ],
+    env: {
+      lang: "en_US",
+    },
   },
 }
 

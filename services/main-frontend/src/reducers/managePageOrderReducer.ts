@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { produce } from "immer"
 import { WritableDraft } from "immer/src/types/types-external"
 import { Dictionary, groupBy, mapValues, max, orderBy } from "lodash"

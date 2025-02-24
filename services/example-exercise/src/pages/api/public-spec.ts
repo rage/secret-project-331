@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { NextApiRequest, NextApiResponse } from "next"
 
 import { Alternative, ClientErrorResponse, PublicAlternative } from "../../util/stateInterfaces"

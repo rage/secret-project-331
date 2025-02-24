@@ -20,7 +20,7 @@ $sidebar-width: 350px;
 
   /* Give space for sidebar so that it won't accidentally overlap the main editor */
   /* Same as sidebar width */
-  margin-right: calc("auto" - $sidebar-width);
+  margin-right: calc(auto - $sidebar-width);
 
   @media (max-width: $sidebar-threshold) {
     // Disable the margin-right if min-width more than 600px for responsiveness
@@ -32,7 +32,7 @@ $sidebar-width: 350px;
 .editor__component {
   /* Give space for sidebar so that it won't accidentally overlap the main editor */
   /* Same as sidebar width */
-  margin-right: calc("auto" - $sidebar-width);
+  margin-right: calc(auto - $sidebar-width);
 
   @media (max-width: $sidebar-threshold) {
     // Disable the margin-right if min-width more than 600px for responsiveness

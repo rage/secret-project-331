@@ -25,7 +25,7 @@ interface Fields {
 const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
   initialData,
   onSubmit,
-  onCancel,
+  onCancel: _onCancel,
 }) => {
   const { t } = useTranslation()
   const {
@@ -104,11 +104,14 @@ const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
             margin-bottom: 0.5rem;
           `}
         />
-        <Button variant="primary" size="medium" type="submit" value={t("button-text-submit")}>
+        <Button
+          variant="primary"
+          size="medium"
+          fullWidth
+          type="submit"
+          value={t("button-text-submit")}
+        >
           {t("button-text-submit")}
-        </Button>
-        <Button variant="secondary" size="medium" onClick={onCancel}>
-          {t("button-text-cancel")}
         </Button>
       </form>
     </>

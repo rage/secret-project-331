@@ -12,6 +12,7 @@ import {
 import {
   isHeightChangedMessage,
   isMessageFromIframe,
+  isOpenLinkMessage,
 } from "../exercise-service-protocol-types.guard"
 import useMessageChannel from "../hooks/useMessageChannel"
 
@@ -30,9 +31,7 @@ interface MessageChannelIFrameProps {
 
 // const IFRAME_TITLE = "Exercise type specific content"
 
-const MessageChannelIFrame: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<MessageChannelIFrameProps>>
-> = ({
+const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFrameProps>> = ({
   url,
   postThisStateToIFrame,
   onMessageFromIframe,
@@ -57,33 +56,31 @@ const MessageChannelIFrame: React.FC<
     messageChannel.port1.onmessage = (message: WindowEventMap["message"]) => {
       const data = message.data
       if (data.message) {
-        // eslint-disable-next-line i18next/no-literal-string
         console.groupCollapsed(`Parent page: received message ${data.message} from iframe`)
       } else {
-        // eslint-disable-next-line i18next/no-literal-string
         console.groupCollapsed(`Parent page: received message from iframe`)
       }
 
       console.info(JSON.stringify(data, undefined, 2))
       if (isHeightChangedMessage(data)) {
         if (!iframeRef.current) {
-          // eslint-disable-next-line i18next/no-literal-string
           console.error("Cannot send data to iframe because reference does not exist.")
           return
         }
-        // eslint-disable-next-line i18next/no-literal-string
         console.info("Updating height")
         // eslint-disable-next-line i18next/no-literal-string
         iframeRef.current.height = Number(data.data).toString() + "px"
+      } else if (isOpenLinkMessage(data)) {
+        console.info(`The iframe wants to open a link: ${data.data}`)
+
+        window.open(data.data, "_blank", "noopener,noreferrer")
       } else if (isMessageFromIframe(data)) {
         try {
           onMessageFromIframe(data, messageChannel.port1)
         } catch (e) {
-          // eslint-disable-next-line i18next/no-literal-string
           console.error("onMessageFromIframe crashed", e)
         }
       } else {
-        // eslint-disable-next-line i18next/no-literal-string
         console.warn("unsupported message")
       }
       console.groupEnd()
@@ -105,13 +102,11 @@ const MessageChannelIFrame: React.FC<
         return
       }
       if (e.data !== "ready") {
-        // eslint-disable-next-line i18next/no-literal-string
         console.warn(`Unsupported message from IFrame: ${e.data}`)
         return
       }
 
       if (iframeRef.current && iframeRef.current.contentWindow) {
-        // eslint-disable-next-line i18next/no-literal-string
         console.info("Parent posting message port to iframe")
         try {
           // The iframe will use port 2 for communication
@@ -119,12 +114,10 @@ const MessageChannelIFrame: React.FC<
             messageChannel.port2,
           ])
         } catch (e) {
-          // eslint-disable-next-line i18next/no-literal-string
           console.error("Posting communication port to iframe failed", e)
         }
       } else {
         console.error(
-          // eslint-disable-next-line i18next/no-literal-string
           "Could not send port to iframe because the target iframe content window could not be found.",
         )
       }
@@ -142,11 +135,9 @@ const MessageChannelIFrame: React.FC<
       return
     }
     const message: SetLanguageMessage = {
-      // eslint-disable-next-line i18next/no-literal-string
       message: "set-language",
       data: language,
     }
-    // eslint-disable-next-line i18next/no-literal-string
     console.groupCollapsed(`Parent posting set-language message to iframe (${language})`)
     console.info(JSON.stringify(message, undefined, 2))
     console.groupEnd()
@@ -163,11 +154,9 @@ const MessageChannelIFrame: React.FC<
     }
     const postData: SetStateMessage = {
       ...postThisStateToIFrame,
-      // eslint-disable-next-line i18next/no-literal-string
       message: "set-state",
     }
 
-    // eslint-disable-next-line i18next/no-literal-string
     console.groupCollapsed(`Parent posting set-state message to iframe`)
     console.info(JSON.stringify(postData, undefined, 2))
     console.groupEnd()

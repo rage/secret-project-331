@@ -91,13 +91,13 @@ const MessageDialogTitle = styled.div`
 const MessageDialogDescription = styled.div<{ isNull: boolean }>`
   color: #535a66;
   padding: 16px;
-  height: 60px;
+  min-height: 60px;
 `
 const MultipleChoiceMessageDialogContainer = styled.div`
   margin-bottom: 4px;
 `
 
-interface MultipleChoiceOption {
+interface MultipleChoiceOptionProps {
   option: QuizItemOption
   onUpdateValues: (
     title: string | null,
@@ -108,7 +108,7 @@ interface MultipleChoiceOption {
   onDelete: () => void
 }
 
-const MultipleChoiceOption: React.FC<MultipleChoiceOption> = ({
+const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
   option,
   onUpdateValues,
   onDelete,

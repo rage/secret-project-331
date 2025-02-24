@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 
 /*
  * Generated type guards for "bindings.ts".
@@ -50,6 +49,7 @@ import {
   CourseBackgroundQuestionType,
   CourseBreadcrumbInfo,
   CourseCount,
+  CourseCustomPrivacyPolicyCheckboxText,
   CourseExam,
   CourseInstance,
   CourseInstanceCompletionSummary,
@@ -124,6 +124,7 @@ import {
   Feedback,
   FeedbackBlock,
   FeedbackCount,
+  FlaggedAnswer,
   GeneratedCertificate,
   GetEditProposalsQuery,
   GetFeedbackQuery,
@@ -148,6 +149,8 @@ import {
   NewExam,
   NewExerciseRepository,
   NewFeedback,
+  NewFlaggedAnswer,
+  NewFlaggedAnswerWithToken,
   NewMaterialReference,
   NewModule,
   NewPage,
@@ -198,11 +201,13 @@ import {
   PlaygroundViewsMessage,
   PointMap,
   Points,
+  PrivacyLink,
   ProposalCount,
   ProposalStatus,
   Regrading,
   RegradingInfo,
   RegradingSubmissionInfo,
+  ReportReason,
   RepositoryExercise,
   ResearchForm,
   ResearchFormQuestion,
@@ -241,6 +246,7 @@ import {
   UserDetail,
   UserExerciseState,
   UserInfo,
+  UserMarketingConsent,
   UserModuleCompletionStatus,
   UserPointsUpdateStrategy,
   UserResearchConsent,
@@ -634,18 +640,6 @@ export function isCodeGiveaway(obj: unknown): obj is CodeGiveaway {
   )
 }
 
-export function isNewCodeGiveaway(obj: unknown): obj is NewCodeGiveaway {
-  const typedObj = obj as NewCodeGiveaway
-  return (
-    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typeof typedObj["course_id"] === "string" &&
-    typeof typedObj["name"] === "string" &&
-    (typedObj["course_module_id"] === null || typeof typedObj["course_module_id"] === "string") &&
-    (typedObj["require_course_specific_consent_form_question_id"] === null ||
-      typeof typedObj["require_course_specific_consent_form_question_id"] === "string")
-  )
-}
-
 export function isCodeGiveawayStatus(obj: unknown): obj is CodeGiveawayStatus {
   const typedObj = obj as CodeGiveawayStatus
   return (
@@ -659,6 +653,18 @@ export function isCodeGiveawayStatus(obj: unknown): obj is CodeGiveawayStatus {
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["tag"] === "AlreadyGottenCode" &&
       typeof typedObj["given_code"] === "string")
+  )
+}
+
+export function isNewCodeGiveaway(obj: unknown): obj is NewCodeGiveaway {
+  const typedObj = obj as NewCodeGiveaway
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["name"] === "string" &&
+    (typedObj["course_module_id"] === null || typeof typedObj["course_module_id"] === "string") &&
+    (typedObj["require_course_specific_consent_form_question_id"] === null ||
+      typeof typedObj["require_course_specific_consent_form_question_id"] === "string")
   )
 }
 
@@ -720,6 +726,22 @@ export function isCourseBackgroundQuestionsAndAnswers(
     typedObj["background_questions"].every((e: any) => isCourseBackgroundQuestion(e) as boolean) &&
     Array.isArray(typedObj["answers"]) &&
     typedObj["answers"].every((e: any) => isCourseBackgroundQuestionAnswer(e) as boolean)
+  )
+}
+
+export function isCourseCustomPrivacyPolicyCheckboxText(
+  obj: unknown,
+): obj is CourseCustomPrivacyPolicyCheckboxText {
+  const typedObj = obj as CourseCustomPrivacyPolicyCheckboxText
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["created_at"] === "string" &&
+    typeof typedObj["updated_at"] === "string" &&
+    (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
+    typeof typedObj["text_html"] === "string" &&
+    typeof typedObj["text_slug"] === "string"
   )
 }
 
@@ -1026,7 +1048,10 @@ export function isCourse(obj: unknown): obj is Course {
     typeof typedObj["base_module_completion_requires_n_submodule_completions"] === "number" &&
     typeof typedObj["can_add_chatbot"] === "boolean" &&
     typeof typedObj["is_joinable_by_code_only"] === "boolean" &&
-    (typedObj["join_code"] === null || typeof typedObj["join_code"] === "string")
+    (typedObj["join_code"] === null || typeof typedObj["join_code"] === "string") &&
+    typeof typedObj["ask_marketing_consent"] === "boolean" &&
+    (typedObj["flagged_answers_threshold"] === null ||
+      typeof typedObj["flagged_answers_threshold"] === "number")
   )
 }
 
@@ -1074,7 +1099,9 @@ export function isCourseUpdate(obj: unknown): obj is CourseUpdate {
     typeof typedObj["is_test_mode"] === "boolean" &&
     typeof typedObj["can_add_chatbot"] === "boolean" &&
     typeof typedObj["is_unlisted"] === "boolean" &&
-    typeof typedObj["is_joinable_by_code_only"] === "boolean"
+    typeof typedObj["is_joinable_by_code_only"] === "boolean" &&
+    typeof typedObj["ask_marketing_consent"] === "boolean" &&
+    typeof typedObj["flagged_answers_threshold"] === "number"
   )
 }
 
@@ -1094,7 +1121,10 @@ export function isNewCourse(obj: unknown): obj is NewCourse {
     typeof typedObj["is_unlisted"] === "boolean" &&
     typeof typedObj["copy_user_permissions"] === "boolean" &&
     typeof typedObj["is_joinable_by_code_only"] === "boolean" &&
-    (typedObj["join_code"] === null || typeof typedObj["join_code"] === "string")
+    (typedObj["join_code"] === null || typeof typedObj["join_code"] === "string") &&
+    typeof typedObj["ask_marketing_consent"] === "boolean" &&
+    (typedObj["flagged_answers_threshold"] === null ||
+      typeof typedObj["flagged_answers_threshold"] === "number")
   )
 }
 
@@ -1353,7 +1383,8 @@ export function isExerciseSlideSubmission(obj: unknown): obj is ExerciseSlideSub
     (typedObj["exam_id"] === null || typeof typedObj["exam_id"] === "string") &&
     typeof typedObj["exercise_id"] === "string" &&
     typeof typedObj["user_id"] === "string" &&
-    (isUserPointsUpdateStrategy(typedObj["user_points_update_strategy"]) as boolean)
+    (isUserPointsUpdateStrategy(typedObj["user_points_update_strategy"]) as boolean) &&
+    (typedObj["flag_count"] === null || typeof typedObj["flag_count"] === "number")
   )
 }
 
@@ -1539,6 +1570,53 @@ export function isPeerOrSelfReviewsReceived(obj: unknown): obj is PeerOrSelfRevi
     typedObj["peer_or_self_review_submissions"].every(
       (e: any) => isPeerOrSelfReviewSubmission(e) as boolean,
     )
+  )
+}
+
+export function isFlaggedAnswer(obj: unknown): obj is FlaggedAnswer {
+  const typedObj = obj as FlaggedAnswer
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["submission_id"] === "string" &&
+    typeof typedObj["flagged_user"] === "string" &&
+    typeof typedObj["flagged_by"] === "string" &&
+    (isReportReason(typedObj["reason"]) as boolean) &&
+    (typedObj["description"] === null || typeof typedObj["description"] === "string") &&
+    typeof typedObj["created_at"] === "string" &&
+    typeof typedObj["updated_at"] === "string" &&
+    (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string")
+  )
+}
+
+export function isReportReason(obj: unknown): obj is ReportReason {
+  const typedObj = obj as ReportReason
+  return typedObj === "Spam" || typedObj === "HarmfulContent" || typedObj === "AiGenerated"
+}
+
+export function isNewFlaggedAnswer(obj: unknown): obj is NewFlaggedAnswer {
+  const typedObj = obj as NewFlaggedAnswer
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["submission_id"] === "string" &&
+    (typedObj["flagged_user"] === null || typeof typedObj["flagged_user"] === "string") &&
+    (typedObj["flagged_by"] === null || typeof typedObj["flagged_by"] === "string") &&
+    (isReportReason(typedObj["reason"]) as boolean) &&
+    (typedObj["description"] === null || typeof typedObj["description"] === "string")
+  )
+}
+
+export function isNewFlaggedAnswerWithToken(obj: unknown): obj is NewFlaggedAnswerWithToken {
+  const typedObj = obj as NewFlaggedAnswerWithToken
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["submission_id"] === "string" &&
+    (typedObj["flagged_user"] === null || typeof typedObj["flagged_user"] === "string") &&
+    (typedObj["flagged_by"] === null || typeof typedObj["flagged_by"] === "string") &&
+    (isReportReason(typedObj["reason"]) as boolean) &&
+    (typedObj["description"] === null || typeof typedObj["description"] === "string") &&
+    typeof typedObj["peer_or_self_review_config_id"] === "string" &&
+    typeof typedObj["token"] === "string"
   )
 }
 
@@ -1930,6 +2008,10 @@ export function isAnswerRequiringAttentionWithTasks(
     Array.isArray(typedObj["received_peer_or_self_reviews"]) &&
     typedObj["received_peer_or_self_reviews"].every(
       (e: any) => isPeerReviewWithQuestionsAndAnswers(e) as boolean,
+    ) &&
+    Array.isArray(typedObj["received_peer_review_flagging_reports"]) &&
+    typedObj["received_peer_review_flagging_reports"].every(
+      (e: any) => isFlaggedAnswer(e) as boolean,
     )
   )
 }
@@ -2191,6 +2273,26 @@ export function isUserWithModuleCompletions(obj: unknown): obj is UserWithModule
     (typedObj["first_name"] === null || typeof typedObj["first_name"] === "string") &&
     (typedObj["last_name"] === null || typeof typedObj["last_name"] === "string") &&
     typeof typedObj["user_id"] === "string"
+  )
+}
+
+export function isUserMarketingConsent(obj: unknown): obj is UserMarketingConsent {
+  const typedObj = obj as UserMarketingConsent
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["course_language_group_id"] === "string" &&
+    typeof typedObj["user_id"] === "string" &&
+    (typedObj["user_mailchimp_id"] === null || typeof typedObj["user_mailchimp_id"] === "string") &&
+    typeof typedObj["consent"] === "boolean" &&
+    (typedObj["email_subscription_in_mailchimp"] === null ||
+      typeof typedObj["email_subscription_in_mailchimp"] === "string") &&
+    typeof typedObj["created_at"] === "string" &&
+    typeof typedObj["updated_at"] === "string" &&
+    (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
+    (typedObj["synced_to_mailchimp_at"] === null ||
+      typeof typedObj["synced_to_mailchimp_at"] === "string")
   )
 }
 
@@ -2627,6 +2729,26 @@ export function isSearchRequest(obj: unknown): obj is SearchRequest {
   )
 }
 
+export function isPartnerBlockNew(obj: unknown): obj is PartnerBlockNew {
+  const typedObj = obj as PartnerBlockNew
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["course_id"] === "string"
+  )
+}
+
+export function isPartnersBlock(obj: unknown): obj is PartnersBlock {
+  const typedObj = obj as PartnersBlock
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["created_at"] === "string" &&
+    typeof typedObj["updated_at"] === "string" &&
+    (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
+    typeof typedObj["course_id"] === "string"
+  )
+}
+
 export function isCmsPeerOrSelfReviewConfig(obj: unknown): obj is CmsPeerOrSelfReviewConfig {
   const typedObj = obj as CmsPeerOrSelfReviewConfig
   return (
@@ -2863,6 +2985,20 @@ export function isPlaygroundExampleData(obj: unknown): obj is PlaygroundExampleD
     typeof typedObj["name"] === "string" &&
     typeof typedObj["url"] === "string" &&
     typeof typedObj["width"] === "number"
+  )
+}
+
+export function isPrivacyLink(obj: unknown): obj is PrivacyLink {
+  const typedObj = obj as PrivacyLink
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["created_at"] === "string" &&
+    typeof typedObj["updated_at"] === "string" &&
+    (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
+    typeof typedObj["title"] === "string" &&
+    typeof typedObj["url"] === "string" &&
+    typeof typedObj["course_id"] === "string"
   )
 }
 
@@ -3414,26 +3550,6 @@ export function isUser(obj: unknown): obj is User {
     (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
     (typedObj["upstream_id"] === null || typeof typedObj["upstream_id"] === "number") &&
     (typedObj["email_domain"] === null || typeof typedObj["email_domain"] === "string")
-  )
-}
-
-export function isPartnersBlock(obj: unknown): obj is PartnersBlock {
-  const typedObj = obj as PartnersBlock
-  return (
-    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typeof typedObj["id"] === "string" &&
-    typeof typedObj["created_at"] === "string" &&
-    typeof typedObj["updated_at"] === "string" &&
-    (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
-    typeof typedObj["course_id"] === "string"
-  )
-}
-
-export function isPartnerBlockNew(obj: unknown): obj is PartnerBlockNew {
-  const typedObj = obj as PartnerBlockNew
-  return (
-    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typeof typedObj["course_id"] === "string"
   )
 }
 

@@ -239,18 +239,18 @@ export interface CodeGiveaway {
   name: string
 }
 
+export type CodeGiveawayStatus =
+  | { tag: "Disabled" }
+  | { tag: "NotEligible" }
+  | { tag: "Eligible"; codes_left: boolean }
+  | { tag: "AlreadyGottenCode"; given_code: string }
+
 export interface NewCodeGiveaway {
   course_id: string
   name: string
   course_module_id: string | null
   require_course_specific_consent_form_question_id: string | null
 }
-
-export type CodeGiveawayStatus =
-  | { tag: "Disabled" }
-  | { tag: "NotEligible" }
-  | { tag: "Eligible"; codes_left: boolean }
-  | { tag: "AlreadyGottenCode"; given_code: string }
 
 export interface CourseBackgroundQuestionAnswer {
   id: string
@@ -283,6 +283,16 @@ export type CourseBackgroundQuestionType = "Checkbox" | "Text"
 export interface CourseBackgroundQuestionsAndAnswers {
   background_questions: Array<CourseBackgroundQuestion>
   answers: Array<CourseBackgroundQuestionAnswer>
+}
+
+export interface CourseCustomPrivacyPolicyCheckboxText {
+  id: string
+  course_id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  text_html: string
+  text_slug: string
 }
 
 export interface CourseInstanceEnrollment {
@@ -475,6 +485,8 @@ export interface Course {
   can_add_chatbot: boolean
   is_joinable_by_code_only: boolean
   join_code: string | null
+  ask_marketing_consent: boolean
+  flagged_answers_threshold: number | null
 }
 
 export interface CourseBreadcrumbInfo {
@@ -504,6 +516,8 @@ export interface CourseUpdate {
   can_add_chatbot: boolean
   is_unlisted: boolean
   is_joinable_by_code_only: boolean
+  ask_marketing_consent: boolean
+  flagged_answers_threshold: number
 }
 
 export interface NewCourse {
@@ -520,6 +534,8 @@ export interface NewCourse {
   copy_user_permissions: boolean
   is_joinable_by_code_only: boolean
   join_code: string | null
+  ask_marketing_consent: boolean
+  flagged_answers_threshold: number | null
 }
 
 export interface EmailTemplate {
@@ -694,6 +710,7 @@ export interface ExerciseSlideSubmission {
   exercise_id: string
   user_id: string
   user_points_update_strategy: UserPointsUpdateStrategy
+  flag_count: number | null
 }
 
 export interface ExerciseSlideSubmissionAndUserExerciseState {
@@ -797,6 +814,38 @@ export interface PeerOrSelfReviewsReceived {
   peer_or_self_review_questions: Array<PeerOrSelfReviewQuestion>
   peer_or_self_review_question_submissions: Array<PeerOrSelfReviewQuestionSubmission>
   peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmission>
+}
+
+export interface FlaggedAnswer {
+  id: string
+  submission_id: string
+  flagged_user: string
+  flagged_by: string
+  reason: ReportReason
+  description: string | null
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+}
+
+export type ReportReason = "Spam" | "HarmfulContent" | "AiGenerated"
+
+export interface NewFlaggedAnswer {
+  submission_id: string
+  flagged_user: string | null
+  flagged_by: string | null
+  reason: ReportReason
+  description: string | null
+}
+
+export interface NewFlaggedAnswerWithToken {
+  submission_id: string
+  flagged_user: string | null
+  flagged_by: string | null
+  reason: ReportReason
+  description: string | null
+  peer_or_self_review_config_id: string
+  token: string
 }
 
 export interface CourseMaterialExerciseTask {
@@ -1021,6 +1070,7 @@ export interface AnswerRequiringAttentionWithTasks {
   tasks: Array<CourseMaterialExerciseTask>
   given_peer_reviews: Array<PeerReviewWithQuestionsAndAnswers>
   received_peer_or_self_reviews: Array<PeerReviewWithQuestionsAndAnswers>
+  received_peer_review_flagging_reports: Array<FlaggedAnswer>
 }
 
 export interface AnswersRequiringAttention {
@@ -1148,6 +1198,20 @@ export interface UserWithModuleCompletions {
   first_name: string | null
   last_name: string | null
   user_id: string
+}
+
+export interface UserMarketingConsent {
+  id: string
+  course_id: string
+  course_language_group_id: string
+  user_id: string
+  user_mailchimp_id: string | null
+  consent: boolean
+  email_subscription_in_mailchimp: string | null
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  synced_to_mailchimp_at: string | null
 }
 
 export interface MaterialReference {
@@ -1434,6 +1498,20 @@ export interface SearchRequest {
   query: string
 }
 
+export interface PartnerBlockNew {
+  course_id: string
+  content: unknown | null
+}
+
+export interface PartnersBlock {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  content: unknown
+  course_id: string
+}
+
 export interface CmsPeerOrSelfReviewConfig {
   id: string
   course_id: string
@@ -1587,6 +1665,16 @@ export interface PlaygroundExampleData {
   url: string
   width: number
   data: unknown
+}
+
+export interface PrivacyLink {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  title: string
+  url: string
+  course_id: string
 }
 
 export type BlockProposal =
@@ -1928,20 +2016,6 @@ export interface User {
   deleted_at: string | null
   upstream_id: number | null
   email_domain: string | null
-}
-
-export interface PartnersBlock {
-  id: string
-  created_at: string
-  updated_at: string
-  deleted_at: string | null
-  content: unknown
-  course_id: string
-}
-
-export interface PartnerBlockNew {
-  course_id: string
-  content: unknown | null
 }
 
 export interface UploadResult {

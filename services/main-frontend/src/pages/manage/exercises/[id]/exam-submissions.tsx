@@ -52,11 +52,7 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
   return (
     <div>
       <BreakFromCentered sidebar={false}>
-        <PageMarginOffset
-          marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`}
-          // eslint-disable-next-line i18next/no-literal-string
-          marginBottom={"0rem"}
-        >
+        <PageMarginOffset marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`} marginBottom={"0rem"}>
           <Breadcrumbs pieces={pieces} />
         </PageMarginOffset>
       </BreakFromCentered>
@@ -122,7 +118,6 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
                           size={"small"}
                           transform="none"
                           onClick={() => {
-                            // eslint-disable-next-line i18next/no-literal-string
                             location.href = `/submissions/${submission.exercise_slide_submission.id}/grading/`
                           }}
                         >
@@ -134,7 +129,6 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
                           size={"small"}
                           transform="none"
                           onClick={() => {
-                            // eslint-disable-next-line i18next/no-literal-string
                             location.href = `/submissions/${submission.exercise_slide_submission.id}/grading/`
                           }}
                         >
@@ -147,7 +141,6 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
                         size={"small"}
                         transform="none"
                         onClick={() => {
-                          // eslint-disable-next-line i18next/no-literal-string
                           location.href = `/submissions/${submission.exercise_slide_submission.id}/grading/`
                         }}
                       >

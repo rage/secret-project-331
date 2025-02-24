@@ -37,7 +37,6 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
   )
 
   const chapters = courseStructure.data.chapters.sort((a, b) => a.chapter_number - b.chapter_number)
-  console.log
 
   return (
     <>

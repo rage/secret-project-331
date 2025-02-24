@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { ExerciseTaskGradingResult, RepositoryExercise, UserInfo } from "./bindings"
 import { GradingRequest, GradingResult } from "./exercise-service-protocol-types-2"
 import { isSetStateMessage } from "./exercise-service-protocol-types.guard"
@@ -19,6 +18,11 @@ export interface CurrentStateMessage {
 export interface HeightChangedMessage {
   message: "height-changed"
   data: number
+}
+
+export interface OpenLinkMessage {
+  message: "open-link"
+  data: string
 }
 
 export interface FileUploadMessage {

@@ -94,7 +94,6 @@ const CourseUsersWithSubmissionsByDay: React.FC<
           series: Object.entries(getCourseDailySubmissionCounts.data.eChartsData).map(
             ([_year, submissionCounts], i) => {
               return {
-                // eslint-disable-next-line i18next/no-literal-string
                 type: "heatmap",
                 // eslint-disable-next-line i18next/no-literal-string
                 coordinateSystem: "calendar",

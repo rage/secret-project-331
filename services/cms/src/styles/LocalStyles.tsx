@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { css, injectGlobal } from "@emotion/css"
 
 import {
@@ -13,7 +12,7 @@ import { primaryFont } from "@/shared-module/common/styles"
 const localCss = css`
   .wp-block-button__link {
     border-radius: 0;
-    ${BASE_BUTTON_STYLES}
+    ${BASE_BUTTON_STYLES({ variant: "primary", size: "large" })}
   }
   /* stylelint-disable-next-line block-no-empty */
   .is-style-material-primary-button .wp-block-button__link {
@@ -32,6 +31,7 @@ const localCss = css`
   }
 `
 
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 injectGlobal`
 ${localCss}
 `

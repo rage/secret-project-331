@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { useContext } from "react"
+import { useContext, useMemo } from "react"
 
 import { BlockRendererProps } from "../.."
 import {
@@ -20,7 +20,7 @@ interface ExtraAttributes {
 
 const TableBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<TableAttributes & ExtraAttributes>>
-> = ({ data }) => {
+> = ({ data, dontAllowBlockToBeWiderThanContainerWidth }) => {
   const {
     hasFixedLayout,
     caption,
@@ -32,12 +32,22 @@ const TableBlock: React.FC<
   const head = data.attributes.head
   const foot = data.attributes.foot
 
+  const hasManyColumns = useMemo(() => {
+    for (const row of body) {
+      if (row.cells && row.cells.length > 5) {
+        return true
+      }
+    }
+
+    return false
+  }, [body])
+  const shouldUseSmallerFont = hasManyColumns && dontAllowBlockToBeWiderThanContainerWidth
+
   const { terms } = useContext(GlossaryContext)
   const isStriped = className === "is-style-stripes"
 
   const fetchAlignment = (align: string | undefined) => {
     if (align) {
-      // eslint-disable-next-line i18next/no-literal-string
       return css`
         text-align: ${align};
       `
@@ -46,7 +56,11 @@ const TableBlock: React.FC<
   }
 
   return (
-    <div>
+    <div
+      className={css`
+        overflow-x: scroll;
+      `}
+    >
       <table
         className={css`
           border-collapse: collapse;
@@ -68,6 +82,8 @@ const TableBlock: React.FC<
           tfoot {
             border-top: 3px solid;
           }
+
+          ${shouldUseSmallerFont && `font-size: 15px;`}
         `}
       >
         {head && (

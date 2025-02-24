@@ -26,7 +26,6 @@ const slideDown = keyframes`
   to { opacity: 1; height: 100%; padding: 10px;}
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`
   details {
     transition: all 0.3s ease-in-out;

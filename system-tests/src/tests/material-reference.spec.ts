@@ -35,7 +35,7 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "add-new-material-reference-dialog",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Submit"), page.locator("text=Close")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Submit")],
   })
 
   await page.locator('textarea[name="references"]').click()
@@ -79,9 +79,7 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "material-reference-editor",
-    waitForTheseToBeVisibleAndStable: [
-      page.getByTitle("Edit reference").getByText("Edit reference"),
-    ],
+    waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "Edit reference" })],
   })
 
   // Fill textarea[name="references"]

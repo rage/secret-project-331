@@ -15,8 +15,8 @@ import {
 } from "../../../../../../services/backend/courses"
 import BottomPanel from "../../../../../BottomPanel"
 
+import ChapterFormDialog from "./ChapterFormDialog"
 import ChapterImageWidget from "./ChapterImageWidget"
-import NewChapterForm from "./NewChapterForm"
 import FrontPage from "./PageList/FrontPage"
 import PageList from "./PageList/PageList"
 import {
@@ -73,7 +73,6 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
   const postNewPageOrderingMutation = useToastMutation(
     () => {
       if (!pageOrderState.chapterIdToPages) {
-        // eslint-disable-next-line i18next/no-literal-string
         throw new Error("Page data not loaded")
       }
       const pages = Object.values(pageOrderState.chapterIdToPages).flat()
@@ -89,7 +88,6 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
   const postNewChapterOrderingMutation = useToastMutation(
     () => {
       if (!pageOrderState.chapters) {
-        // eslint-disable-next-line i18next/no-literal-string
         throw new Error("Chapter data not loaded")
       }
       const chapters = Object.values(pageOrderState.chapters).flat()
@@ -103,12 +101,11 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
   )
 
   useEffect(() => {
-    // eslint-disable-next-line i18next/no-literal-string
     pageOrderDispatch({ type: "setData", payload: courseStructure })
   }, [courseStructure])
 
   const handleCreateChapter = async () => {
-    setShowEditChapterForm(!showEditChapterForm)
+    setShowEditChapterForm(false)
     setChapterBeingEdited(null)
     await refetch()
   }
@@ -116,7 +113,6 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
   const maxPart = max(courseStructure.chapters.map((p) => p.chapter_number))
 
   const openEditor = async () => {
-    // eslint-disable-next-line i18next/no-literal-string
     window.location.assign(`/cms/partners-block/${courseStructure.course.id}/edit`)
   }
 
@@ -216,13 +212,12 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
                                     label: t("button-text-move-up"),
                                     onClick: () => {
                                       pageOrderDispatch({
-                                        // eslint-disable-next-line i18next/no-literal-string
                                         type: "move",
-                                        // eslint-disable-next-line i18next/no-literal-string
+
                                         payload: {
                                           pageId: null,
                                           chapterId: chapter.id,
-                                          // eslint-disable-next-line i18next/no-literal-string
+
                                           direction: "up",
                                         },
                                       })
@@ -234,13 +229,12 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
                                     label: t("button-text-move-down"),
                                     onClick: () => {
                                       pageOrderDispatch({
-                                        // eslint-disable-next-line i18next/no-literal-string
                                         type: "move",
-                                        // eslint-disable-next-line i18next/no-literal-string
+
                                         payload: {
                                           pageId: null,
                                           chapterId: chapter.id,
-                                          // eslint-disable-next-line i18next/no-literal-string
+
                                           direction: "down",
                                         },
                                       })
@@ -291,36 +285,18 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
           {t("button-text-new-chapter")}
         </Button>
 
-        <Dialog
-          open={!!showEditChapterForm}
+        <ChapterFormDialog
+          open={showEditChapterForm}
           onClose={() => {
             setChapterBeingEdited(null)
+            setShowEditChapterForm(false)
           }}
-        >
-          <div
-            className={css`
-              margin: 1rem;
-            `}
-          >
-            <Button
-              variant="primary"
-              size="medium"
-              onClick={() => {
-                setChapterBeingEdited(null)
-                setShowEditChapterForm(false)
-              }}
-            >
-              {t("button-text-close")}
-            </Button>
-            <NewChapterForm
-              courseId={courseStructure.course.id}
-              onSubmitForm={handleCreateChapter}
-              chapterNumber={chapterBeingEdited?.chapter_number ?? (maxPart ?? 0) + 1}
-              initialData={chapterBeingEdited}
-              newRecord={!chapterBeingEdited}
-            />
-          </div>
-        </Dialog>
+          courseId={courseStructure.course.id}
+          onSubmitForm={handleCreateChapter}
+          chapterNumber={chapterBeingEdited?.chapter_number ?? (maxPart ?? 0) + 1}
+          initialData={chapterBeingEdited}
+          newRecord={!chapterBeingEdited}
+        />
 
         <Dialog
           open={!!showEditImageModal}
@@ -403,7 +379,6 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
         }}
         rightButtonText={t("button-reset")}
         onClickRight={() => {
-          // eslint-disable-next-line i18next/no-literal-string
           pageOrderDispatch({ type: "setData", payload: courseStructure })
         }}
       />
@@ -416,7 +391,6 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
         }}
         rightButtonText={t("button-reset")}
         onClickRight={() => {
-          // eslint-disable-next-line i18next/no-literal-string
           pageOrderDispatch({ type: "setData", payload: courseStructure })
         }}
       />

@@ -16,10 +16,9 @@ import UpdatePeerReviewQueueReviewsReceivedButton from "./UpdatePeerReviewQueueR
 import { setJoinCourseLinkForCourse } from "@/services/backend/courses"
 import { Course } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
-import Dialog from "@/shared-module/common/components/Dialog"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
+import { baseTheme, headingFont, primaryFont, typography } from "@/shared-module/common/styles"
 import { courseMaterialFrontPageHref } from "@/shared-module/common/utils/cross-routing"
 
 interface Props {
@@ -41,7 +40,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
     },
     {
       notify: true,
-      // eslint-disable-next-line i18next/no-literal-string
+
       method: "DELETE",
     },
     {
@@ -57,7 +56,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
     },
     {
       notify: true,
-      // eslint-disable-next-line i18next/no-literal-string
+
       method: "DELETE",
     },
   )
@@ -68,13 +67,12 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
     },
     {
       notify: true,
-      // eslint-disable-next-line i18next/no-literal-string
+
       method: "DELETE",
     },
   )
 
   const handleOnUpdateCourse = async () => {
-    setShowForm(!showForm)
     await refetch()
   }
 
@@ -101,6 +99,20 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           margin-bottom: 1rem;
         `}
       >
+        <p
+          className={css`
+            font-size: 1.2rem;
+            color: ${baseTheme.colors.gray[700]};
+            font-family: ${primaryFont};
+            font-weight: 450;
+            margin-top: 0.4rem;
+            margin-bottom: 0.6rem;
+            display: inline-block;
+          `}
+        >
+          {t("wiki-link-text")}
+          <a href="https://github.com/rage/secret-project-331/wiki"> {t("documentation")}</a>.
+        </p>
         <h1
           className={css`
             font-size: ${typography.h4};
@@ -145,26 +157,15 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           {t("button-text-delete")}
         </Button>
       </OnlyRenderIfPermissions>
-      <Button variant="primary" size="medium" onClick={() => setShowForm(!showForm)}>
+      <Button variant="primary" size="medium" onClick={() => setShowForm(true)}>
         {t("edit")}
       </Button>
-      <Dialog open={showForm} noPadding={true}>
-        <div
-          className={css`
-            margin: 1rem;
-            display: flex;
-            flex-direction: column;
-          `}
-        >
-          <div>
-            <Button variant="primary" size="medium" onClick={() => setShowForm(!showForm)}>
-              {t("button-text-close")}
-            </Button>
-          </div>
-
-          <UpdateCourseForm course={course} onSubmitForm={handleOnUpdateCourse} />
-        </div>
-      </Dialog>
+      <UpdateCourseForm
+        course={course}
+        onSubmitForm={handleOnUpdateCourse}
+        open={showForm}
+        onClose={() => setShowForm(false)}
+      />
       {organizationSlug && (
         <div
           className={css`

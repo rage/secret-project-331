@@ -16,7 +16,6 @@ import TableWrapper from "./TableWrapper"
 
 import { Chapter, Page } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
-import Dialog from "@/shared-module/common/components/Dialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, typography } from "@/shared-module/common/styles"
 
@@ -98,7 +97,6 @@ const PageList: React.FC<React.PropsWithChildren<Props>> = ({
               key={page.id}
               pageOrderDispatch={pageOrderDispatch}
               onDeletePage={() => handleDeletePage(page.id, page.title)}
-              // eslint-disable-next-line i18next/no-literal-string
               moving={moving}
               reload={() => refetch()}
             />
@@ -109,29 +107,16 @@ const PageList: React.FC<React.PropsWithChildren<Props>> = ({
         {t("button-text-new-page")}
       </Button>
 
-      <Dialog
+      <NewOrEditPageForm
+        chapterId={chapter?.id}
+        courseId={courseId}
+        onSubmitForm={handleCreateTopLevelPage}
+        // eslint-disable-next-line i18next/no-literal-string
+        prefix={chapter && `/chapter-${chapter.chapter_number}/`}
+        isUpdate={false}
         open={showNewOrEditPageForm}
         onClose={() => setShowNewOrEditPageForm(false)}
-        noPadding
-      >
-        <div
-          className={css`
-            margin: 1rem;
-          `}
-        >
-          <Button size="medium" variant="secondary" onClick={() => setShowNewOrEditPageForm(false)}>
-            {t("button-text-close")}
-          </Button>
-          <NewOrEditPageForm
-            chapterId={chapter?.id}
-            courseId={courseId}
-            onSubmitForm={handleCreateTopLevelPage}
-            // eslint-disable-next-line i18next/no-literal-string
-            prefix={chapter && `/chapter-${chapter.chapter_number}/`}
-            isUpdate={false}
-          />
-        </div>
-      </Dialog>
+      />
     </div>
   )
 }

@@ -4,7 +4,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import UHLogo from "../img/UHBrandLogo.svg"
-import MOOCfi from "../img/moocfiLogo.svg"
+import MOOCfi from "../img/moocfiTextLogo.svg"
 import { baseTheme, headingFont } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 
@@ -14,7 +14,6 @@ const PRIVACY_LINK_EN = "https://www.mooc.fi/en/faq/tietosuojaseloste/"
 // To be link in the future
 // const CREATORS_LINK = "https://www.mooc.fi/en/"
 
-// eslint-disable-next-line i18next/no-literal-string
 const Container = styled.div`
   margin-top: 5em;
   padding: 1rem;
@@ -76,8 +75,7 @@ const StyledLink = styled.a`
   padding-left: 0;
 
   ${respondToOrLarger.lg} {
-    margin-bottom: 10px;
-    padding-left: 3rem;
+    margin-bottom: 14px;
   }
 
   :hover {
@@ -132,11 +130,25 @@ const LogoA = styled.a`
   }
 `
 
+export interface Props extends FooterProps {
+  privacyLinks?: {
+    linkTitle: string
+    linkUrl: string
+  }[]
+}
+
 export type FooterProps = React.HTMLAttributes<HTMLDivElement>
 
-const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<FooterProps>>> = () => {
+const Footer: React.FC<React.PropsWithChildren<Props>> = ({ privacyLinks = null }) => {
   const { t, i18n } = useTranslation()
   const useFinnishLinks = i18n.language === "fi" || i18n.language === "fi-FI"
+  const defaultLink = useFinnishLinks ? PRIVACY_LINK_FI : PRIVACY_LINK_EN
+
+  const displayedLinks =
+    privacyLinks && privacyLinks?.length > 0
+      ? privacyLinks
+      : [{ linkTitle: t("privacy"), linkUrl: defaultLink }]
+
   return (
     <footer
       role="contentinfo"
@@ -160,15 +172,17 @@ const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<FooterPro
             </p>
           </Text>
           <Links>
-            <StyledLink href={useFinnishLinks ? PRIVACY_LINK_FI : PRIVACY_LINK_EN}>
-              {t("privacy")}
-            </StyledLink>
-            {/* <StyledLink href={basePath() + "/accessibility"}>{t("accessibility")}</StyledLink> */}
+            {displayedLinks?.map((link) => (
+              <StyledLink key={`${link.linkTitle}-${link.linkUrl}`} href={link.linkUrl}>
+                {link.linkTitle}
+              </StyledLink>
+            ))}
           </Links>
           <div
             className={css`
               display: flex;
               align-content: space-between;
+              align-items: center;
               row-gap: 1.4em;
               opacity: 0.9;
 

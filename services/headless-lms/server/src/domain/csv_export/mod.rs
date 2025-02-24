@@ -249,13 +249,13 @@ pub async fn general_export(
     });
 
     // return response that streams data from the receiver
-    return token.authorized_ok(
+    token.authorized_ok(
         HttpResponse::Ok()
             .append_header(("Content-Disposition", content_disposition))
             .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
                 receiver,
             ))),
-    );
+    )
 }
 
 #[cfg(test)]

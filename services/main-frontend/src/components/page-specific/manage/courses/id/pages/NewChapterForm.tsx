@@ -64,7 +64,6 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
         return postNewChapter(data)
       }
       if (!initialData?.id) {
-        // eslint-disable-next-line i18next/no-literal-string
         throw new Error("No id for chapter")
       }
       return updateChapter(initialData?.id, {
@@ -159,7 +158,7 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
         />
       </CheckboxFieldWrapper>
       <div>
-        <Button variant="primary" size="medium" disabled={!isValid || isSubmitting}>
+        <Button variant="primary" size="medium" fullWidth disabled={!isValid || isSubmitting}>
           {newRecord ? t("button-text-create") : t("button-text-update")}
         </Button>
       </div>

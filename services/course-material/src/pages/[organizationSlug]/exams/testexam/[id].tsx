@@ -37,6 +37,7 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import { humanReadableDateTime } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface ExamProps {
@@ -61,6 +62,8 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     queryKey: [`exam-page-testexam-${examId}-fetch-exam-for-testing`],
     queryFn: () => fetchExamForTesting(examId),
   })
+
+  const { refetch: refetchExam } = exam
 
   const showAnswersMutation = useToastMutation(
     (showAnswers: boolean) => updateShowExerciseAnswers(examId, showAnswers),
@@ -90,11 +93,9 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
 
   useEffect(() => {
     if (exam.isError) {
-      // eslint-disable-next-line i18next/no-literal-string
       pageStateDispatch({ type: "setError", payload: exam.error })
     } else if (exam.isSuccess && exam.data.enrollment_data.tag === "EnrolledAndStarted") {
       pageStateDispatch({
-        // eslint-disable-next-line i18next/no-literal-string
         type: "setData",
         payload: {
           pageData: exam.data.enrollment_data.page,
@@ -106,7 +107,6 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
       })
       setShowExamAnswers(exam.data.enrollment_data.enrollment.show_exercise_answers ?? false)
     } else {
-      // eslint-disable-next-line i18next/no-literal-string
       pageStateDispatch({ type: "setLoading" })
     }
   }, [exam.isError, exam.isSuccess, exam.data, exam.error])
@@ -126,8 +126,8 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   }, [layoutContext, query.organizationSlug])
 
   const handleRefresh = useCallback(async () => {
-    await exam.refetch()
-  }, [exam])
+    await refetchExam()
+  }, [refetchExam])
 
   const handleTimeOverModalClose = useCallback(async () => {
     await handleRefresh()
@@ -249,7 +249,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
           <ExamStartBanner
             onStart={async () => {
               await enrollInExam(examId, true)
-              exam.refetch()
+              await refetchExam()
             }}
             examEnrollmentData={exam.data.enrollment_data}
             examHasStarted={true}
@@ -280,7 +280,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     return (
       <>
         {examInfo}
-        <div>{t("exam-time-up", { "ends-at": exam.data.ends_at.toLocaleString() })}</div>
+        <div>{t("exam-time-up", { "ends-at": humanReadableDateTime(exam.data.ends_at) })}</div>
       </>
     )
   }
@@ -307,7 +307,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
             endsAt={endsAt}
             secondsLeft={secondsLeft}
           />
-          {secondsLeft < 10 * 60 && (
+          {secondsLeft < 10 * 60 && secondsLeft >= 0 && (
             <div
               className={css`
                 background-color: ${baseTheme.colors.yellow[100]};

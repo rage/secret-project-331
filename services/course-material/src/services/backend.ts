@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { RawAxiosRequestHeaders } from "axios"
 import { Dictionary } from "lodash"
 
@@ -11,6 +10,7 @@ import {
   CodeGiveawayStatus,
   Course,
   CourseBackgroundQuestionsAndAnswers,
+  CourseCustomPrivacyPolicyCheckboxText,
   CourseInstance,
   CourseMaterialExercise,
   CourseMaterialPeerOrSelfReviewDataWithToken,
@@ -21,9 +21,11 @@ import {
   ExamData,
   ExamEnrollment,
   ExerciseSlideSubmissionAndUserExerciseStateList,
+  FlaggedAnswer,
   IsChapterFrontPage,
   MaterialReference,
   NewFeedback,
+  NewFlaggedAnswerWithToken,
   NewMaterialReference,
   NewProposedPageEdits,
   NewResearchFormQuestionAnswer,
@@ -36,6 +38,7 @@ import {
   PageWithExercises,
   PartnersBlock,
   PeerOrSelfReviewsReceived,
+  PrivacyLink,
   ResearchForm,
   ResearchFormQuestion,
   ResearchFormQuestionAnswer,
@@ -50,6 +53,7 @@ import {
   UserCourseInstanceChapterProgress,
   UserCourseInstanceProgress,
   UserCourseSettings,
+  UserMarketingConsent,
   UserModuleCompletionStatus,
 } from "@/shared-module/common/bindings"
 import {
@@ -59,6 +63,7 @@ import {
   isCodeGiveawayStatus,
   isCourse,
   isCourseBackgroundQuestionsAndAnswers,
+  isCourseCustomPrivacyPolicyCheckboxText,
   isCourseInstance,
   isCourseMaterialExercise,
   isCourseMaterialPeerOrSelfReviewDataWithToken,
@@ -67,6 +72,7 @@ import {
   isCustomViewExerciseSubmissions,
   isExamData,
   isExerciseSlideSubmissionAndUserExerciseStateList,
+  isFlaggedAnswer,
   isIsChapterFrontPage,
   isMaterialReference,
   isOEmbedResponse,
@@ -78,6 +84,7 @@ import {
   isPageWithExercises,
   isPartnersBlock,
   isPeerOrSelfReviewsReceived,
+  isPrivacyLink,
   isResearchForm,
   isResearchFormQuestion,
   isResearchFormQuestionAnswer,
@@ -88,6 +95,7 @@ import {
   isUserCourseInstanceChapterProgress,
   isUserCourseInstanceProgress,
   isUserCourseSettings,
+  isUserMarketingConsent,
   isUserModuleCompletionStatus,
 } from "@/shared-module/common/bindings.guard"
 import {
@@ -171,7 +179,6 @@ export const fetchCoursePageByPath = async (
   // There is no benefit from bypassing this.
   const browserControlledByAutomation = !!navigator.webdriver
   if (!browserControlledByAutomation) {
-    // eslint-disable-next-line i18next/no-literal-string
     headers["totally-not-a-bot"] = "true"
   }
 
@@ -404,6 +411,20 @@ export const postPeerOrSelfReviewSubmission = async (
       responseType: "json",
     },
   )
+}
+
+export const postFlagAnswerInPeerReview = async (
+  exerciseId: string,
+  newFlaggedAnswer: NewFlaggedAnswerWithToken,
+): Promise<FlaggedAnswer> => {
+  const response = await courseMaterialClient.post(
+    `/exercises/${exerciseId}/flag-peer-review-answer`,
+    newFlaggedAnswer,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isFlaggedAnswer)
 }
 
 export const postStartPeerOrSelfReview = async (exerciseId: string): Promise<void> => {
@@ -746,7 +767,49 @@ export const claimCodeFromCodeGiveaway = async (id: string): Promise<string> => 
   return validateResponse(response, isString)
 }
 
+export const updateMarketingConsent = async (
+  courseId: string,
+  courseLanguageGroupsId: string,
+  emailSubscription: boolean,
+  marketingConsent: boolean,
+): Promise<string> => {
+  const res = await courseMaterialClient.post(
+    `/courses/${courseId}/user-marketing-consent`,
+    {
+      course_language_groups_id: courseLanguageGroupsId,
+      email_subscription: emailSubscription,
+      marketing_consent: marketingConsent,
+    },
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(res, isString)
+}
+
+export const fetchUserMarketingConsent = async (
+  courseId: string,
+): Promise<UserMarketingConsent | null> => {
+  const res = await courseMaterialClient.get(`/courses/${courseId}/fetch-user-marketing-consent`)
+  return validateResponse(res, isUnion(isUserMarketingConsent, isNull))
+}
+
 export const fetchPartnersBlock = async (courseId: string): Promise<PartnersBlock> => {
   const response = await courseMaterialClient.get(`/courses/${courseId}/partners-block`)
   return validateResponse(response, isPartnersBlock)
+}
+
+export const fetchPrivacyLink = async (courseId: string): Promise<PrivacyLink[]> => {
+  const response = await courseMaterialClient.get(`/courses/${courseId}/privacy-link`)
+  return validateResponse(response, isArray(isPrivacyLink))
+}
+
+export const fetchCustomPrivacyPolicyCheckboxTexts = async (
+  courseId: string,
+): Promise<CourseCustomPrivacyPolicyCheckboxText[]> => {
+  const response = await courseMaterialClient.get(
+    `/courses/${courseId}/custom-privacy-policy-checkbox-texts`,
+    { responseType: "json" },
+  )
+  return validateResponse(response, isArray(isCourseCustomPrivacyPolicyCheckboxText))
 }

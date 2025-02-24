@@ -21,6 +21,7 @@ import { migratePrivateSpecQuiz } from "../util/migration/privateSpecQuiz"
 import migratePublicSpecQuiz from "../util/migration/publicSpecQuiz"
 import migrateQuizAnswer from "../util/migration/userAnswerSpec"
 
+import MessagePortContext from "@/contexts/MessagePortContext"
 import { StudentExerciseTaskSubmissionResult } from "@/shared-module/common/bindings"
 import HeightTrackingContainer from "@/shared-module/common/components/HeightTrackingContainer"
 import {
@@ -195,23 +196,23 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
               | null,
           })
         } else {
-          // eslint-disable-next-line i18next/no-literal-string
           console.error("Unknown view type received from parent")
         }
       })
     } else if (isSetLanguageMessage(messageData)) {
       i18n.changeLanguage(messageData.data)
     } else {
-      // eslint-disable-next-line i18next/no-literal-string
       console.error("Frame received an unknown message from message port")
     }
   })
 
   return (
     <HeightTrackingContainer port={port}>
-      <div>
-        <Renderer port={port} setState={setState} state={state} />
-      </div>
+      <MessagePortContext.Provider value={port}>
+        <div>
+          <Renderer port={port} setState={setState} state={state} />
+        </div>
+      </MessagePortContext.Provider>
     </HeightTrackingContainer>
   )
 }

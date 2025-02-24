@@ -14,7 +14,6 @@ const slideDown = keyframes`
 from { opacity: 0; height: 0; padding: 0;}
 to { opacity: 1; height: 100%; padding: 10px;}
 `
-// eslint-disable-next-line i18next/no-literal-string
 const TextWrapper = styled.div`
   padding: 0;
   margin: 0;
@@ -87,6 +86,8 @@ const TextWrapper = styled.div`
     margin: 1rem 0 1rem 0.2rem;
     padding-left: 8px;
     list-style-position: outside;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   ul li::marker {
@@ -111,34 +112,30 @@ const BEHAVIOR = "smooth"
 
 export type ReferenceProps = React.HTMLAttributes<HTMLDivElement> & ReferenceExtraProps
 
-const Reference: React.FC<React.PropsWithChildren<React.PropsWithChildren<ReferenceProps>>> = ({
-  data,
-}) => {
+const ReferenceComponent: React.FC<React.PropsWithChildren<ReferenceProps>> = ({ data }) => {
   const { t } = useTranslation()
   const [reference, setReference] = useState<Reference[]>([])
   const [active, setActive] = useState<string>()
 
   useEffect(() => {
     const arr: Reference[] = []
-    // eslint-disable-next-line i18next/no-literal-string
+
     const referenceEl = Array.from(document.querySelectorAll<HTMLElement>("sup"))
 
     referenceEl.forEach((ref) => {
       const { innerText: text } = ref
       const { dataset } = ref
       const id = dataset.citationId || ""
-      ref.style
+      void ref.style
       arr.push({ id, text })
     })
     setReference(arr)
   }, [])
 
   useEffect(() => {
-    // eslint-disable-next-line i18next/no-literal-string
     const references = document.querySelectorAll(".reference")
 
     const eventHandler = (evt: Event) => {
-      // eslint-disable-next-line i18next/no-literal-string
       let citation = null
       if (evt.target instanceof Element) {
         citation = evt.target
@@ -151,9 +148,8 @@ const Reference: React.FC<React.PropsWithChildren<React.PropsWithChildren<Refere
       const el = data.find((item) => item.id === citationId)
 
       if (el) {
-        // eslint-disable-next-line i18next/no-literal-string
         const wrapper = document.createElement("div")
-        // eslint-disable-next-line i18next/no-literal-string
+
         wrapper.setAttribute("id", "wrapper")
 
         const wrapperEl = document.getElementById("wrapper")
@@ -165,12 +161,12 @@ const Reference: React.FC<React.PropsWithChildren<React.PropsWithChildren<Refere
             "opacity: 1; z-index: 2; position: absolute; top: 20px; left: 50%; border-radius: 3px; min-width: 400px; transition: visibility 0s linear 100ms, opacity 100ms; box-shadow: rgba(0, 0, 0, 0.1) 0 2px 10px;"
           // eslint-disable-next-line i18next/no-literal-string
           wrapper.innerHTML = `<div style="color: #313947; border: 1px solid #E2E4E6; border-radius: 3px; font-family: 'Inter', sans-serif; font-size: 14px; background: #F9f9f9; padding: 0 5px;">${el.text}</div`
-          wrapperEl && wrapperEl.remove()
-          citation?.appendChild(wrapper)
+          void (wrapperEl && wrapperEl.remove())
+          void citation?.appendChild(wrapper)
         } else if (evt.type === "mouseout") {
           // @ts-expect-error: Type not aware of the field
           citation.style.cssText = "text-decoration: none; color: #46749B;"
-          wrapperEl && wrapperEl.remove()
+          void (wrapperEl && wrapperEl.remove())
         }
       }
     }
@@ -196,7 +192,6 @@ const Reference: React.FC<React.PropsWithChildren<React.PropsWithChildren<Refere
             evt.preventDefault()
             elementId = elementId.substring(1, elementId.length - 1)
             const details = document.querySelector<HTMLDetailsElement>(ELEMENT_CLASS)
-            // eslint-disable-next-line i18next/no-literal-string
             setActive(`ref-${elementId}`)
 
             if (details) {
@@ -242,4 +237,4 @@ const Reference: React.FC<React.PropsWithChildren<React.PropsWithChildren<Refere
   )
 }
 
-export default Reference
+export default ReferenceComponent

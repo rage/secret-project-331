@@ -17,7 +17,6 @@ interface InputExtraProps {
   colorField?: boolean
 }
 
-// eslint-disable-next-line i18next/no-literal-string
 const Input = styled.input<InputExtraProps>`
   background: #fcfcfc;
   border-width: 2px;
@@ -44,7 +43,6 @@ const Input = styled.input<InputExtraProps>`
   }
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const errorClass = css`
   color: ${baseTheme.colors.red[600]};
   font-size: 14px;
@@ -60,7 +58,7 @@ export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   onChangeByValue?: (value: string, name?: string) => void
 }
 
-const TextField: React.FC<TextFieldProps> = forwardRef<HTMLInputElement, TextFieldProps>(
+const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
   ({ onChange, onChangeByValue, className, disabled, error, ...rest }: TextFieldProps, ref) => {
     const { t } = useTranslation()
 
@@ -114,7 +112,6 @@ const TextField: React.FC<TextFieldProps> = forwardRef<HTMLInputElement, TextFie
             name={rest.name}
             disabled={disabled}
             colorField={rest.type === "color"}
-            // eslint-disable-next-line i18next/no-literal-string
             aria-errormessage={`${rest.id ?? rest.label}_error`}
             aria-invalid={error !== undefined}
             onChange={handleOnChange}

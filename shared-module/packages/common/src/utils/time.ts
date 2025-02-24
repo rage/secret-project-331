@@ -1,12 +1,12 @@
-/* eslint-disable i18next/no-literal-string */
 import { format } from "date-fns"
+import { toZonedTime } from "date-fns-tz"
 
 export const dateToString = (date: Date | string, timeZone = true): string => {
   try {
     const datePart = `${format(date, "yyyy-MM-dd HH:mm:ss")}`
     const timeZonePart = ` UTC${format(date, `xxx`)}`
     return datePart + (timeZone ? timeZonePart : "")
-  } catch (e) {
+  } catch (_e) {
     return "Invalid date"
   }
 }
@@ -14,7 +14,7 @@ export const dateToString = (date: Date | string, timeZone = true): string => {
 export const dateToDateTimeLocalString = (date: Date | string): string => {
   try {
     return `${format(date, "yyyy-MM-dd")}T${format(date, "HH:mm:ss")}`
-  } catch (e) {
+  } catch (_e) {
     return "Invalid date"
   }
 }
@@ -34,4 +34,27 @@ export const formatDateForDateTimeLocalInputs = (
     return undefined
   }
   return format(date, "yyyy-MM-dd'T'HH:mm")
+}
+
+export const humanReadableDateTime = (
+  date: Date | string | null | undefined,
+): string | undefined => {
+  const localDate = dateToUsersLocalTimeZone(date)
+  if (!localDate) {
+    return undefined
+  }
+  return format(localDate, "Pp")
+}
+
+export const getLocalTimeZone = (): string => {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone
+}
+
+export const dateToUsersLocalTimeZone = (date: Date | string | null | undefined) => {
+  if (!date) {
+    return undefined
+  }
+
+  const timeZone = getLocalTimeZone()
+  return toZonedTime(date, timeZone)
 }

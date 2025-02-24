@@ -4,7 +4,13 @@ import { UseMutationResult, useQuery } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchBackgroundQuestionsAndAnswers } from "../../services/backend"
+import {
+  fetchBackgroundQuestionsAndAnswers,
+  fetchCourseById,
+  updateMarketingConsent,
+} from "../../services/backend"
+
+import SelectMarketingConsentForm from "./SelectMarketingConsentForm"
 
 import { CourseInstance, NewCourseBackgroundQuestionAnswer } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
@@ -18,7 +24,6 @@ const FieldContainer = styled.div`
   margin-bottom: 1.5rem;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const GreenText = styled.span`
   color: ${baseTheme.colors.green[700]};
 `
@@ -40,11 +45,18 @@ interface SelectCourseInstanceFormProps {
   >
   initialSelectedInstanceId?: string
   dialogLanguage: string
+  selectedLangCourseId: string
 }
 
 const SelectCourseInstanceForm: React.FC<
   React.PropsWithChildren<SelectCourseInstanceFormProps>
-> = ({ courseInstances, submitMutation, initialSelectedInstanceId, dialogLanguage }) => {
+> = ({
+  courseInstances,
+  submitMutation,
+  initialSelectedInstanceId,
+  dialogLanguage,
+  selectedLangCourseId,
+}) => {
   const { t } = useTranslation("course-material", { lng: dialogLanguage })
   const [selectedInstanceId, setSelectedInstanceId] = useState(
     figureOutInitialValue(courseInstances, initialSelectedInstanceId),
@@ -52,10 +64,20 @@ const SelectCourseInstanceForm: React.FC<
   const [additionalQuestionAnswers, setAdditionalQuestionAnswers] = useState<
     NewCourseBackgroundQuestionAnswer[]
   >([])
+
+  const [isMarketingConsentChecked, setIsMarketingConsentChecked] = useState(false)
+  const [isEmailSubscriptionConsentChecked, setIsEmailSubscriptionConsentChecked] = useState(false)
+
   const additionalQuestionsQuery = useQuery({
     queryKey: ["additional-questions", selectedInstanceId],
     queryFn: () => fetchBackgroundQuestionsAndAnswers(assertNotNullOrUndefined(selectedInstanceId)),
     enabled: selectedInstanceId !== undefined,
+  })
+
+  const getCourse = useQuery({
+    queryKey: ["courses", selectedLangCourseId],
+    queryFn: () => fetchCourseById(selectedLangCourseId as NonNullable<string>),
+    enabled: selectedLangCourseId !== null,
   })
 
   useEffect(() => {
@@ -100,6 +122,14 @@ const SelectCourseInstanceForm: React.FC<
         backgroundQuestionAnswers: additionalQuestionAnswers,
       })
     }
+    if (getCourse.isSuccess && getCourse.data?.ask_marketing_consent) {
+      await updateMarketingConsent(
+        getCourse.data.id,
+        getCourse.data.course_language_group_id,
+        isEmailSubscriptionConsentChecked,
+        isMarketingConsentChecked,
+      )
+    }
   }
 
   const additionalQuestions = additionalQuestionsQuery.data?.background_questions
@@ -111,30 +141,41 @@ const SelectCourseInstanceForm: React.FC<
           {t("title-select-course-instance")}
           <GreenText>*</GreenText>
         </h2>
-        <FieldContainer
-          role="radiogroup"
-          aria-label={t("label-course-instance")}
-          // eslint-disable-next-line i18next/no-literal-string
-          aria-required="true"
-        >
-          {courseInstances.map((x) => (
-            <RadioButton
-              key={x.id}
-              {...(x.name === null
-                ? // eslint-disable-next-line i18next/no-literal-string
-                  { "data-testid": "default-course-instance-radiobutton" }
-                : undefined)}
-              label={x.name || t("default-course-instance-name")}
-              onChange={(_event) => setSelectedInstanceId(x.id)}
-              checked={selectedInstanceId === x.id}
-              // eslint-disable-next-line i18next/no-literal-string
-              name="select-course-instance"
-            />
+        <FieldContainer role="radiogroup" aria-label={t("label-course-instance")} aria-required>
+          {courseInstances.map((courseInstance) => (
+            <div key={courseInstance.id}>
+              <RadioButton
+                className={css`
+                  span {
+                    font-weight: 500;
+                  }
+                `}
+                key={courseInstance.id}
+                {...(courseInstance.name === null
+                  ? // eslint-disable-next-line i18next/no-literal-string
+                    { "data-testid": "default-course-instance-radiobutton" }
+                  : undefined)}
+                label={courseInstance.name || t("default-course-instance-name")}
+                onChange={(_event) => setSelectedInstanceId(courseInstance.id)}
+                checked={selectedInstanceId === courseInstance.id}
+                // eslint-disable-next-line i18next/no-literal-string
+                name="select-course-instance"
+              />
+              <span
+                className={css`
+                  font-size: 15px;
+                  display: flex;
+                  margin-top: -0.4rem;
+                `}
+              >
+                {courseInstance.description}
+              </span>
+            </div>
           ))}
         </FieldContainer>
         <div
           className={css`
-            margin-top: -0.5rem;
+            margin-top: 1rem;
             margin-bottom: 1rem;
             color: ${baseTheme.colors.gray[600]};
           `}
@@ -191,12 +232,25 @@ const SelectCourseInstanceForm: React.FC<
         {additionalQuestionsQuery.error && (
           <ErrorBanner variant="readOnly" error={additionalQuestionsQuery.error} />
         )}
+        {getCourse.data?.ask_marketing_consent && (
+          <div>
+            <SelectMarketingConsentForm
+              courseId={selectedLangCourseId}
+              onEmailSubscriptionConsentChange={setIsEmailSubscriptionConsentChecked}
+              onMarketingConsentChange={setIsMarketingConsentChecked}
+            />
+          </div>
+        )}
         <div>
           <Button
             size="medium"
             variant="primary"
             onClick={enrollOnCourse}
-            disabled={!selectedInstanceId || additionalQuestionsQuery.isPending}
+            disabled={
+              !selectedInstanceId ||
+              additionalQuestionsQuery.isPending ||
+              (getCourse.data?.ask_marketing_consent && !isEmailSubscriptionConsentChecked)
+            }
             data-testid="select-course-instance-continue-button"
           >
             {t("continue")}

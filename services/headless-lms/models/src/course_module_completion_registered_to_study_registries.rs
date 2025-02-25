@@ -191,6 +191,7 @@ pub async fn mark_completions_as_registered_to_study_registry(
 
     insert_bulk(conn, new_registrations).await?;
 
+    // We soft-delete all duplicate registrations straight away, this way we can still see if the study registry keeps pushing the same completion multiple times
     delete_duplicate_registrations(conn).await?;
 
     Ok(())

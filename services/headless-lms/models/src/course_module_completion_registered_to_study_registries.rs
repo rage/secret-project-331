@@ -148,39 +148,49 @@ pub struct RegisteredCompletion {
     pub registration_date: DateTime<Utc>,
 }
 
-pub async fn insert_completions(
+pub async fn mark_completions_as_registered_to_study_registry(
     conn: &mut PgConnection,
     completions: Vec<RegisteredCompletion>,
     study_registry_registrar_id: Uuid,
 ) -> ModelResult<()> {
+    if completions.is_empty() {
+        return Ok(());
+    }
+
     let ids: Vec<Uuid> = completions.iter().map(|x| x.completion_id).collect();
     let completions_by_id = course_module_completions::get_by_ids_as_map(conn, &ids).await?;
-    let mut tx = conn.begin().await?;
-    for completion in completions.into_iter() {
-        let module_completion = completions_by_id
-            .get(&completion.completion_id)
-            .ok_or_else(|| {
-                ModelError::new(
-                    ModelErrorType::PreconditionFailed,
-                    "Missing completion.".to_string(),
-                    None,
-                )
-            })?;
-        insert(
-            &mut tx,
-            PKeyPolicy::Generate,
-            &NewCourseModuleCompletionRegisteredToStudyRegistry {
+
+    // Validate all completions exist before proceeding
+    for completion in &completions {
+        if !completions_by_id.contains_key(&completion.completion_id) {
+            return Err(ModelError::new(
+                ModelErrorType::PreconditionFailed,
+                format!(
+                    "Cannot find completion with id: {}. This completion does not exist in the database.",
+                    completion.completion_id
+                ),
+                None,
+            ));
+        }
+    }
+
+    let new_registrations: Vec<NewCourseModuleCompletionRegisteredToStudyRegistry> = completions
+        .into_iter()
+        .map(|completion| {
+            let module_completion = completions_by_id.get(&completion.completion_id).unwrap();
+            NewCourseModuleCompletionRegisteredToStudyRegistry {
                 course_id: module_completion.course_id,
                 course_module_completion_id: completion.completion_id,
                 course_module_id: module_completion.course_module_id,
                 study_registry_registrar_id,
                 user_id: module_completion.user_id,
                 real_student_number: completion.student_number,
-            },
-        )
-        .await?;
-    }
-    tx.commit().await?;
+            }
+        })
+        .collect();
+
+    insert_bulk(conn, new_registrations).await?;
+
     Ok(())
 }
 
@@ -382,9 +392,13 @@ mod test {
             registration_date: Utc::now(),
         }];
 
-        insert_completions(tx.as_mut(), registered_completions, registrar_id)
-            .await
-            .unwrap();
+        mark_completions_as_registered_to_study_registry(
+            tx.as_mut(),
+            registered_completions,
+            registrar_id,
+        )
+        .await
+        .unwrap();
 
         let registrations =
             get_by_completion_id_and_registrar_id(tx.as_mut(), completion.id, registrar_id)
@@ -419,11 +433,17 @@ mod test {
         }];
 
         // Attempt to insert the completions should fail
-        let result = insert_completions(tx.as_mut(), registered_completions, registrar_id).await;
+        let result = mark_completions_as_registered_to_study_registry(
+            tx.as_mut(),
+            registered_completions,
+            registrar_id,
+        )
+        .await;
 
         assert!(result.is_err());
         let error = result.unwrap_err();
         assert_eq!(*error.error_type(), ModelErrorType::PreconditionFailed);
-        assert!(error.message().contains("Missing completion"));
+        assert!(error.message().contains("Cannot find completion with id"));
+        assert!(error.message().contains(&invalid_uuid.to_string()));
     }
 }

@@ -184,7 +184,7 @@ pub async fn insert_completions(
     Ok(())
 }
 
-pub async fn get_id(
+pub async fn get_by_id(
     conn: &mut PgConnection,
     id: Uuid,
 ) -> ModelResult<CourseModuleCompletionRegisteredToStudyRegistry> {
@@ -234,6 +234,28 @@ WHERE course_id = $1
     .fetch_one(conn)
     .await?;
     Ok(res.count.unwrap_or(0))
+}
+
+pub async fn get_by_completion_id_and_registrar_id(
+    conn: &mut PgConnection,
+    completion_id: Uuid,
+    study_registry_registrar_id: Uuid,
+) -> ModelResult<Vec<CourseModuleCompletionRegisteredToStudyRegistry>> {
+    let registrations = sqlx::query_as!(
+        CourseModuleCompletionRegisteredToStudyRegistry,
+        r#"
+        SELECT *
+        FROM course_module_completion_registered_to_study_registries
+        WHERE course_module_completion_id = $1 AND study_registry_registrar_id = $2
+        AND deleted_at IS NULL
+        "#,
+        completion_id,
+        study_registry_registrar_id
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(registrations)
 }
 
 #[cfg(test)]
@@ -299,7 +321,7 @@ mod test {
 
         // Verify both records were inserted correctly
         for id in inserted_ids {
-            let registration = get_id(tx.as_mut(), id).await.unwrap();
+            let registration = get_by_id(tx.as_mut(), id).await.unwrap();
             assert_eq!(registration.course_id, course);
             assert_eq!(
                 registration.course_module_completion_id,
@@ -318,5 +340,90 @@ mod test {
         let empty_vec = vec![];
         let result = insert_bulk(tx.as_mut(), empty_vec).await.unwrap();
         assert!(result.is_empty());
+    }
+
+    #[tokio::test]
+    async fn insert_completions_works() {
+        insert_data!(:tx, :user, :org, :course, :instance, :course_module);
+
+        let registrar_id = crate::study_registry_registrars::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            "Test Registrar",
+            "test_123131231231231231231231231231238971283718927389172893718923712893129837189273891278317892378193971289",
+        )
+        .await
+        .unwrap();
+
+        let completion = crate::course_module_completions::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &crate::course_module_completions::NewCourseModuleCompletion {
+                course_id: course,
+                course_module_id: course_module.id,
+                user_id: user,
+                course_instance_id: instance.id,
+                completion_date: Utc::now(),
+                completion_registration_attempt_date: None,
+                completion_language: "en-US".to_string(),
+                eligible_for_ects: true,
+                email: "test@example.com".to_string(),
+                grade: Some(5),
+                passed: true,
+            },
+            CourseModuleCompletionGranter::User(user),
+        )
+        .await
+        .unwrap();
+
+        let registered_completions = vec![RegisteredCompletion {
+            completion_id: completion.id,
+            student_number: "12345".to_string(),
+            registration_date: Utc::now(),
+        }];
+
+        insert_completions(tx.as_mut(), registered_completions, registrar_id)
+            .await
+            .unwrap();
+
+        let registrations =
+            get_by_completion_id_and_registrar_id(tx.as_mut(), completion.id, registrar_id)
+                .await
+                .unwrap();
+
+        assert_eq!(registrations.len(), 1);
+        assert_eq!(registrations[0].course_id, course);
+        assert_eq!(registrations[0].course_module_id, course_module.id);
+        assert_eq!(registrations[0].user_id, user);
+        assert_eq!(registrations[0].real_student_number, "12345");
+    }
+
+    #[tokio::test]
+    async fn insert_completions_with_invalid_completion_id_fails() {
+        insert_data!(:tx);
+
+        let registrar_id = crate::study_registry_registrars::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            "Test Registrar",
+            "test_123131231231231231231231231231238971283718927389172893718923712893129837189273891278317892378193971289",
+        )
+        .await
+        .unwrap();
+
+        let invalid_uuid = Uuid::new_v4(); // This UUID doesn't correspond to any completion
+        let registered_completions = vec![RegisteredCompletion {
+            completion_id: invalid_uuid,
+            student_number: "12345".to_string(),
+            registration_date: Utc::now(),
+        }];
+
+        // Attempt to insert the completions should fail
+        let result = insert_completions(tx.as_mut(), registered_completions, registrar_id).await;
+
+        assert!(result.is_err());
+        let error = result.unwrap_err();
+        assert_eq!(*error.error_type(), ModelErrorType::PreconditionFailed);
+        assert!(error.message().contains("Missing completion"));
     }
 }

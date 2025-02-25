@@ -191,6 +191,8 @@ pub async fn mark_completions_as_registered_to_study_registry(
 
     insert_bulk(conn, new_registrations).await?;
 
+    delete_duplicate_registrations(conn).await?;
+
     Ok(())
 }
 
@@ -266,6 +268,36 @@ pub async fn get_by_completion_id_and_registrar_id(
     .await?;
 
     Ok(registrations)
+}
+
+/// Deletes duplicate completion registrations, keeping only the oldest registration for each completion.
+/// Returns the number of deleted duplicate registrations.
+pub async fn delete_duplicate_registrations(conn: &mut PgConnection) -> ModelResult<i64> {
+    let res = sqlx::query!(
+        r#"
+WITH duplicate_rows AS (
+  SELECT id,
+    ROW_NUMBER() OVER (
+      PARTITION BY course_module_completion_id
+      ORDER BY created_at ASC -- Keep the oldest, delete the rest
+    ) AS rn
+  FROM course_module_completion_registered_to_study_registries
+  WHERE deleted_at IS NULL
+)
+UPDATE course_module_completion_registered_to_study_registries
+SET deleted_at = NOW()
+WHERE id IN (
+    SELECT id
+    FROM duplicate_rows
+    WHERE rn > 1
+  )
+RETURNING id
+        "#
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(res.len() as i64)
 }
 
 #[cfg(test)]
@@ -445,5 +477,198 @@ mod test {
         assert_eq!(*error.error_type(), ModelErrorType::PreconditionFailed);
         assert!(error.message().contains("Cannot find completion with id"));
         assert!(error.message().contains(&invalid_uuid.to_string()));
+    }
+
+    #[tokio::test]
+    async fn delete_duplicate_registrations_works() {
+        insert_data!(:tx, :user, :org, :course, :instance, :course_module);
+
+        let registrar_id = crate::study_registry_registrars::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            "Test Registrar",
+            "test_123131231231231231231231231231238971283718927389172893718923712893129837189273891278317892378193971289",
+        )
+        .await
+        .unwrap();
+
+        let completion = crate::course_module_completions::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &crate::course_module_completions::NewCourseModuleCompletion {
+                course_id: course,
+                course_module_id: course_module.id,
+                user_id: user,
+                course_instance_id: instance.id,
+                completion_date: Utc::now(),
+                completion_registration_attempt_date: None,
+                completion_language: "en-US".to_string(),
+                eligible_for_ects: true,
+                email: "test@example.com".to_string(),
+                grade: Some(5),
+                passed: true,
+            },
+            CourseModuleCompletionGranter::User(user),
+        )
+        .await
+        .unwrap();
+
+        // Create first registration
+        let first_registration = NewCourseModuleCompletionRegisteredToStudyRegistry {
+            course_id: course,
+            course_module_completion_id: completion.id,
+            course_module_id: course_module.id,
+            study_registry_registrar_id: registrar_id,
+            user_id: user,
+            real_student_number: "12345".to_string(),
+        };
+        let first_id = insert(tx.as_mut(), PKeyPolicy::Generate, &first_registration)
+            .await
+            .unwrap();
+
+        // Create additional registrations in a separate bulk insert so that we get a different created_at timestamp
+        let later_registrations = vec![
+            NewCourseModuleCompletionRegisteredToStudyRegistry {
+                course_id: course,
+                course_module_completion_id: completion.id,
+                course_module_id: course_module.id,
+                study_registry_registrar_id: registrar_id,
+                user_id: user,
+                real_student_number: "67890".to_string(),
+            },
+            NewCourseModuleCompletionRegisteredToStudyRegistry {
+                course_id: course,
+                course_module_completion_id: completion.id,
+                course_module_id: course_module.id,
+                study_registry_registrar_id: registrar_id,
+                user_id: user,
+                real_student_number: "54321".to_string(),
+            },
+        ];
+        insert_bulk(tx.as_mut(), later_registrations).await.unwrap();
+
+        let before_registrations =
+            get_by_completion_id_and_registrar_id(tx.as_mut(), completion.id, registrar_id)
+                .await
+                .unwrap();
+        assert_eq!(before_registrations.len(), 3);
+
+        let deleted_count = delete_duplicate_registrations(tx.as_mut()).await.unwrap();
+        assert_eq!(deleted_count, 2); // Should delete 2 out of 3 registrations
+
+        let after_registrations =
+            get_by_completion_id_and_registrar_id(tx.as_mut(), completion.id, registrar_id)
+                .await
+                .unwrap();
+        assert_eq!(after_registrations.len(), 1);
+
+        // The remaining registration should be the first one we created
+        assert_eq!(after_registrations[0].id, first_id);
+        assert_eq!(after_registrations[0].real_student_number, "12345");
+    }
+
+    #[tokio::test]
+    async fn delete_duplicate_registrations_with_no_duplicates() {
+        insert_data!(:tx, :user, :org, :course, :instance, :course_module);
+
+        let registrar_id = crate::study_registry_registrars::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            "Test Registrar",
+            "test_123131231231231231231231231231238971283718927389172893718923712893129837189273891278317892378193971289",
+        )
+        .await
+        .unwrap();
+
+        let completion1 = crate::course_module_completions::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &crate::course_module_completions::NewCourseModuleCompletion {
+                course_id: course,
+                course_module_id: course_module.id,
+                user_id: user,
+                course_instance_id: instance.id,
+                completion_date: Utc::now(),
+                completion_registration_attempt_date: None,
+                completion_language: "en-US".to_string(),
+                eligible_for_ects: true,
+                email: "test1@example.com".to_string(),
+                grade: Some(5),
+                passed: true,
+            },
+            CourseModuleCompletionGranter::User(user),
+        )
+        .await
+        .unwrap();
+
+        let completion2 = crate::course_module_completions::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &crate::course_module_completions::NewCourseModuleCompletion {
+                course_id: course,
+                course_module_id: course_module.id,
+                user_id: user,
+                course_instance_id: instance.id,
+                completion_date: Utc::now(),
+                completion_registration_attempt_date: None,
+                completion_language: "en-US".to_string(),
+                eligible_for_ects: true,
+                email: "test2@example.com".to_string(),
+                grade: Some(4),
+                passed: true,
+            },
+            CourseModuleCompletionGranter::User(user),
+        )
+        .await
+        .unwrap();
+
+        // Create one registration for each completion (no duplicates)
+        let registrations = vec![
+            NewCourseModuleCompletionRegisteredToStudyRegistry {
+                course_id: course,
+                course_module_completion_id: completion1.id,
+                course_module_id: course_module.id,
+                study_registry_registrar_id: registrar_id,
+                user_id: user,
+                real_student_number: "12345".to_string(),
+            },
+            NewCourseModuleCompletionRegisteredToStudyRegistry {
+                course_id: course,
+                course_module_completion_id: completion2.id,
+                course_module_id: course_module.id,
+                study_registry_registrar_id: registrar_id,
+                user_id: user,
+                real_student_number: "67890".to_string(),
+            },
+        ];
+        insert_bulk(tx.as_mut(), registrations).await.unwrap();
+
+        // Verify we have 1 registration for each completion
+        let before_reg1 =
+            get_by_completion_id_and_registrar_id(tx.as_mut(), completion1.id, registrar_id)
+                .await
+                .unwrap();
+        let before_reg2 =
+            get_by_completion_id_and_registrar_id(tx.as_mut(), completion2.id, registrar_id)
+                .await
+                .unwrap();
+        assert_eq!(before_reg1.len(), 1);
+        assert_eq!(before_reg2.len(), 1);
+
+        // Delete duplicate registrations
+        let deleted_count = delete_duplicate_registrations(tx.as_mut()).await.unwrap();
+        assert_eq!(deleted_count, 0); // Should delete 0 registrations as there are no duplicates
+
+        // Verify both registrations still exist
+        let after_reg1 =
+            get_by_completion_id_and_registrar_id(tx.as_mut(), completion1.id, registrar_id)
+                .await
+                .unwrap();
+        let after_reg2 =
+            get_by_completion_id_and_registrar_id(tx.as_mut(), completion2.id, registrar_id)
+                .await
+                .unwrap();
+        assert_eq!(after_reg1.len(), 1);
+        assert_eq!(after_reg2.len(), 1);
     }
 }

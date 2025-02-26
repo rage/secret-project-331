@@ -1,7 +1,7 @@
 import "highlight.js/styles/atom-one-dark.css"
 import { css } from "@emotion/css"
 import hljs from "highlight.js"
-import { useEffect, useMemo, useRef } from "react"
+import { memo, useEffect, useMemo, useRef } from "react"
 
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
@@ -9,22 +9,24 @@ interface SyntaxHighlightedContainerProps {
   content: string | undefined
 }
 
+/**
+ * Renders code with syntax highlighting using highlight.js.
+ */
 const SyntaxHighlightedContainer: React.FC<SyntaxHighlightedContainerProps> = ({ content }) => {
   const ref = useRef<HTMLElement>(null)
+
+  const replacedContent = useMemo(() => {
+    let res = content ?? ""
+    res = res.replace(/<br\s*\\?>/g, "\n")
+    return res
+  }, [content])
+
   useEffect(() => {
     if (!ref.current) {
       return
     }
     hljs.highlightElement(ref.current)
   }, [ref])
-
-  // The content coming from gutenberg contains <br> tags which do not work when we higlight the code with hljs
-  // So we'll replace the br tags with newlines
-  const replacedContent = useMemo(() => {
-    let res = content ?? ""
-    res = res.replace(/<br\s*\\?>/g, "\n")
-    return res
-  }, [content])
 
   return (
     <code
@@ -40,4 +42,4 @@ const SyntaxHighlightedContainer: React.FC<SyntaxHighlightedContainerProps> = ({
   )
 }
 
-export default SyntaxHighlightedContainer
+export default memo(SyntaxHighlightedContainer)

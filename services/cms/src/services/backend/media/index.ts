@@ -13,8 +13,11 @@ export const uploadFileFromPage = async (
   const data = new FormData()
   data.append("file", file, file.name || "unknown")
 
-  // Override the dedault json value
-  const headers: RawAxiosRequestHeaders = { "Content-Type": "multipart/form-data" }
+  // Override the default json value and include the file's mime type
+  const headers: RawAxiosRequestHeaders = {
+    "Content-Type": "multipart/form-data",
+    "X-File-Type": file.type || "application/octet-stream",
+  }
 
   if ("organizationId" in uploadType) {
     return (

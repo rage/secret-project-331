@@ -1,9 +1,10 @@
 import { css } from "@emotion/css"
-import { CheckCircle, PlusClipboard, XmarkCircle } from "@vectopus/atlas-icons-react"
+import { CheckCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { animated, SpringValue, useTransition } from "react-spring"
 
+import CopyIcon from "@/img/copy.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 
 const COPY_STATUS = {
@@ -35,12 +36,20 @@ const buttonStyles = css`
   border-radius: 4px;
   transition:
     transform 0.2s,
-    background-color 0.2s;
+    background-color 0.2s,
+    color 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 32px;
   height: 32px;
+  color: ${baseTheme.colors.primary[100]};
+  &[data-status="success"] {
+    color: ${ICON_COLORS.SUCCESS};
+  }
+  &[data-status="error"] {
+    color: ${ICON_COLORS.ERROR};
+  }
   &:hover:not([data-status="default"]) {
     background-color: ${baseTheme.colors.gray[600]};
   }
@@ -90,6 +99,12 @@ const iconWrapperStyles = css`
   position: relative;
   width: 24px;
   height: 24px;
+`
+
+const iconStyles = css`
+  width: 24px;
+  height: 24px;
+  color: currentColor;
 `
 
 const AnimatedDiv = animated.div as React.FC<{
@@ -168,27 +183,16 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ content }) => {
     <button onClick={handleCopy} className={buttonStyles} data-status={copyStatus}>
       <div className={iconWrapperStyles}>
         {transitions((style, item) => {
-          const Icon =
-            item === COPY_STATUS.SUCCESS
-              ? CheckCircle
-              : item === COPY_STATUS.ERROR
-                ? XmarkCircle
-                : PlusClipboard
-          return (
-            // eslint-disable-next-line react/forbid-component-props
-            <AnimatedDiv style={style}>
-              <Icon
-                size={24}
-                color={
-                  item === COPY_STATUS.SUCCESS
-                    ? ICON_COLORS.SUCCESS
-                    : item === COPY_STATUS.ERROR
-                      ? ICON_COLORS.ERROR
-                      : ICON_COLORS.DEFAULT
-                }
-              />
-            </AnimatedDiv>
-          )
+          const IconComponent =
+            item === COPY_STATUS.SUCCESS ? (
+              <CheckCircle size={24} color={ICON_COLORS.SUCCESS} />
+            ) : item === COPY_STATUS.ERROR ? (
+              <XmarkCircle size={24} color={ICON_COLORS.ERROR} />
+            ) : (
+              <CopyIcon className={iconStyles} />
+            )
+          // eslint-disable-next-line react/forbid-component-props
+          return <AnimatedDiv style={style}>{IconComponent}</AnimatedDiv>
         })}
       </div>
       <span className={tooltipStyles} data-show={showTooltip}>

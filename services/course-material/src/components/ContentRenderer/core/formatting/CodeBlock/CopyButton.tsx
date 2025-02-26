@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { animated, SpringValue, useTransition } from "react-spring"
 
+import { baseTheme } from "@/shared-module/common/styles"
+
 const COPY_STATUS = {
   DEFAULT: "default",
   SUCCESS: "success",
@@ -13,9 +15,9 @@ const COPY_STATUS = {
 type CopyStatus = (typeof COPY_STATUS)[keyof typeof COPY_STATUS]
 
 const ICON_COLORS = {
-  DEFAULT: "#fff",
-  SUCCESS: "#4ade80",
-  ERROR: "#ff6b6b",
+  DEFAULT: baseTheme.colors.primary[100],
+  SUCCESS: baseTheme.colors.green[300],
+  ERROR: baseTheme.colors.red[300],
 } as const
 
 interface CopyButtonProps {
@@ -40,19 +42,19 @@ const buttonStyles = css`
   width: 32px;
   height: 32px;
   &:hover:not([data-status="default"]) {
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: ${baseTheme.colors.gray[600]};
   }
   &:hover[data-status="default"] {
     transform: scale(1.1);
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: ${baseTheme.colors.gray[600]};
   }
 `
 
 const tooltipStyles = css`
   visibility: hidden;
   opacity: 0;
-  background-color: #333;
-  color: #fff;
+  background-color: ${baseTheme.colors.gray[700]};
+  color: ${baseTheme.colors.primary[100]};
   text-align: center;
   border-radius: 4px;
   padding: 4px 8px;
@@ -75,7 +77,7 @@ const tooltipStyles = css`
     margin-left: -5px;
     border-width: 5px;
     border-style: solid;
-    border-color: #333 transparent transparent transparent;
+    border-color: ${baseTheme.colors.gray[700]} transparent transparent transparent;
   }
   button:hover &,
   &[data-show="true"] {

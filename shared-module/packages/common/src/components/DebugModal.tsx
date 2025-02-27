@@ -5,7 +5,7 @@ import { Dispatch, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Button from "./Button"
-import Dialog from "./Dialog"
+import Dialog from "./dialogs/Dialog"
 import MonacoEditor from "./monaco/MonacoEditor"
 
 export interface DebugModalProps {

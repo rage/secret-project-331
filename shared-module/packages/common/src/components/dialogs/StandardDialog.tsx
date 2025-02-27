@@ -2,9 +2,9 @@ import { css } from "@emotion/css"
 import React, { useId } from "react"
 import { useTranslation } from "react-i18next"
 
-import { typography } from "../styles"
+import { typography } from "../../styles"
+import Button, { ButtonProps } from "../Button"
 
-import Button, { ButtonProps } from "./Button"
 import Dialog from "./Dialog"
 
 interface StandardDialogProps {

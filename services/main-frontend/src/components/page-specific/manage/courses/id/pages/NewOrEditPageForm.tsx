@@ -8,7 +8,7 @@ import { normalizePath } from "../../../../../../utils/normalizePath"
 
 import { Page } from "@/shared-module/common/bindings"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import StandardDialog from "@/shared-module/common/components/StandardDialog"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 const PathFieldWithPrefixElement = styled.div`

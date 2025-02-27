@@ -24,8 +24,8 @@ import ContentArea from "./ContentArea"
 
 import { ExerciseService, ExerciseServiceNewOrUpdate } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
-import Dialog from "@/shared-module/common/components/Dialog"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
+import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { validURL } from "@/shared-module/common/utils/validation"
 
 interface ExerciseServiceCardProps {

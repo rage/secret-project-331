@@ -21,9 +21,9 @@ import {
 } from "./ChooseCourseLanguage"
 
 import { NewCourseBackgroundQuestionAnswer } from "@/shared-module/common/bindings"
-import Dialog from "@/shared-module/common/components/Dialog"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, primaryFont, typography } from "@/shared-module/common/styles"

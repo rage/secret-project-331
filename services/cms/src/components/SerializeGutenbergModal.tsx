@@ -3,7 +3,7 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Button from "@/shared-module/common/components/Button"
-import Dialog from "@/shared-module/common/components/Dialog"
+import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import MonacoEditor from "@/shared-module/common/components/monaco/MonacoEditor"
 
 export interface SerializeGutenbergModalProps {

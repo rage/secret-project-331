@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import NewCourseForm from "../../../../../forms/NewCourseForm"
 
 import { NewCourse } from "@/shared-module/common/bindings"
-import StandardDialog from "@/shared-module/common/components/StandardDialog"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 
 interface NewCourseLanguageVersionDialogProps {
   showNewLanguageVersionForm: boolean

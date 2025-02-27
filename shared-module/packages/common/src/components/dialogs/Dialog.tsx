@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
 import React, { useEffect, useRef } from "react"
 
-import useClickOutside from "../hooks/useClickOutside"
-import { typography } from "../styles"
+import useClickOutside from "../../hooks/useClickOutside"
+import { typography } from "../../styles"
 
 interface DialogProps extends React.HTMLAttributes<HTMLDialogElement> {
   open: boolean

@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import NewChapterForm from "./NewChapterForm"
 
 import { Chapter } from "@/shared-module/common/bindings"
-import StandardDialog from "@/shared-module/common/components/StandardDialog"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 
 interface ChapterFormDialogProps {
   open: boolean

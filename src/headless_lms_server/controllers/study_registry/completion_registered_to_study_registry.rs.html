@@ -134,7 +134,7 @@ Content-Type: application/json
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>registrar =
         models::study_registry_registrars::get_by_secret_key(<span class="kw-2">&amp;mut </span>conn, secret_key).<span class="kw">await</span><span class="question-mark">?</span>;
-    models::course_module_completion_registered_to_study_registries::insert_completions(
+    models::course_module_completion_registered_to_study_registries::mark_completions_as_registered_to_study_registry(
         <span class="kw-2">&amp;mut </span>conn,
         payload.<span class="number">0</span>,
         registrar.id,

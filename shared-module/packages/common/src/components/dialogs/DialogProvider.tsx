@@ -177,6 +177,16 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   )
 }
 
+/**
+ * Hook for showing dialogs
+ * @example
+ * ```tsx
+ * const { alert, confirm, prompt } = useDialog()
+ * await alert("Title", "Message")
+ * const confirmed = await confirm("Are you sure?") // returns boolean
+ * const name = await prompt("Enter name", "Message", "default") // returns string | null
+ * ```
+ */
 export const useDialog = () => {
   const context = useContext(DialogContext)
   if (!context) {

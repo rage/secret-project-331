@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react"
 
 import Layout from "../components/layout/Layout"
 
+import DialogProvider from "@/shared-module/common/components/dialogs/DialogProvider"
 import { LoginStateContextProvider } from "@/shared-module/common/contexts/LoginStateContext"
 import useLanguage, { getDir } from "@/shared-module/common/hooks/useLanguage"
 import { queryClient } from "@/shared-module/common/services/appQueryClient"
@@ -77,14 +78,16 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
         {OUTDATED_BROWSER_WARNING_SCRIPT}
       </Script>
 
-      <QueryClientProvider client={queryClient}>
-        <GlobalStyles />
-        <LoginStateContextProvider>
-          <Layout>
-            <Component {...pageProps} />
-          </Layout>
-        </LoginStateContextProvider>
-      </QueryClientProvider>
+      <DialogProvider>
+        <QueryClientProvider client={queryClient}>
+          <GlobalStyles />
+          <LoginStateContextProvider>
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          </LoginStateContextProvider>
+        </QueryClientProvider>
+      </DialogProvider>
     </>
   )
 }

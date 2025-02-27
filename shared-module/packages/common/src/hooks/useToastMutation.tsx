@@ -5,14 +5,12 @@ import {
   UseMutationResult,
 } from "@tanstack/react-query"
 import { AxiosError } from "axios"
-import toast, { ToastOptions } from "react-hot-toast"
+import toast, { Toast, ToastOptions } from "react-hot-toast"
 
-import {
-  showDeleteNotification,
-  showErrorNotification,
-  showLoadingNotification,
-  showSuccessNotification,
-} from "../components/Notifications/notificationHelpers"
+import DeleteNotification from "../components/Notifications/Delete"
+import ErrorNotification from "../components/Notifications/Error"
+import LoadingNotification from "../components/Notifications/Loading"
+import SuccessNotification from "../components/Notifications/Success"
 
 import useSetShowStuffInfinitelyInSystemTestScreenshots from "./useShowToastInfinitely"
 
@@ -45,16 +43,36 @@ export default function useToastMutation<
   mutationOptions: Omit<UseMutationOptions<TData, TError, TVariables, TContext>, "mutationFn"> = {},
 ): UseMutationResult<TData, TError, TVariables, TContext> {
   const showToastInfinitely = useSetShowStuffInfinitelyInSystemTestScreenshots()
+  let toastId = ""
+  const displaySuccessNotification = (notificationOptions: EnableNotifications) => {
+    toast.custom(
+      (toast: Toast) => {
+        return (
+          <SuccessNotification
+            header={notificationOptions.successHeader}
+            message={notificationOptions.successMessage}
+            {...(notificationOptions.dismissable ? { toastId: toast.id } : {})}
+          />
+        )
+      },
+      {
+        ...notificationOptions.toastOptions,
+        duration: showToastInfinitely ? Infinity : notificationOptions.toastOptions?.duration,
+        id: toastId,
+      },
+    )
+  }
 
   const mutation = useMutation({
     mutationFn,
     ...mutationOptions,
     onMutate: (variables: TVariables) => {
       if (notificationOptions.notify) {
+        // Remove old toasts
         toast.remove()
-        showLoadingNotification({
-          message: notificationOptions.loadingText,
-          duration: showToastInfinitely ? Infinity : notificationOptions.toastOptions?.duration,
+        // Set toastId that is updated once operation is successful or erronous.
+        toastId = toast.custom(<LoadingNotification message={notificationOptions.loadingText} />, {
+          ...notificationOptions.toastOptions,
         })
       }
       if (mutationOptions?.onMutate) {
@@ -64,17 +82,30 @@ export default function useToastMutation<
     },
     onSuccess: (data: TData, variables: TVariables, context) => {
       if (notificationOptions.notify) {
+        // Remove old toasts
         toast.remove()
-        const options = {
-          header: notificationOptions.successHeader,
-          message: notificationOptions.successMessage,
-          duration: showToastInfinitely ? Infinity : notificationOptions.toastOptions?.duration,
-        }
-
-        if (notificationOptions.method === "DELETE") {
-          showDeleteNotification(options)
-        } else {
-          showSuccessNotification(options)
+        switch (notificationOptions.method) {
+          case "PUT":
+            displaySuccessNotification(notificationOptions)
+            break
+          case "POST":
+            displaySuccessNotification(notificationOptions)
+            break
+          case "DELETE":
+            toast.custom(
+              <DeleteNotification
+                header={notificationOptions.successHeader}
+                message={notificationOptions.successMessage}
+                {...(notificationOptions.dismissable ? { id: toastId } : {})}
+              />,
+              {
+                ...notificationOptions.toastOptions,
+                id: toastId,
+              },
+            )
+            break
+          default:
+            displaySuccessNotification(notificationOptions)
         }
       }
       if (mutationOptions?.onSuccess) {
@@ -86,7 +117,6 @@ export default function useToastMutation<
       console.warn(`Error: ${error}`)
       console.warn(error)
       console.groupEnd()
-
       if (notificationOptions.notify) {
         // Remove old toasts
         toast.remove()
@@ -103,12 +133,22 @@ export default function useToastMutation<
         } else if (!errorMessage || errorMessage === "") {
           errorMessage = (error as Error).message
         }
-
-        showErrorNotification({
-          header: notificationOptions.errorHeader,
-          message: errorMessage,
-          duration: showToastInfinitely ? Infinity : notificationOptions.toastOptions?.duration,
-        })
+        toast.custom(
+          (toast: Toast) => {
+            return (
+              <ErrorNotification
+                header={notificationOptions.errorHeader}
+                message={errorMessage}
+                {...(notificationOptions.dismissable ? { toastId: toast.id } : {})}
+              />
+            )
+          },
+          {
+            ...notificationOptions.toastOptions,
+            id: toastId,
+            duration: showToastInfinitely ? Infinity : notificationOptions.toastOptions?.duration,
+          },
+        )
       }
       if (mutationOptions?.onError) {
         return mutationOptions.onError(error, variables, context)

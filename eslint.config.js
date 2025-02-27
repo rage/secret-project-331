@@ -368,6 +368,7 @@ const config = [
               "window.history.pushState",
               "setFormError",
               "animated",
+              "useTransition",
             ],
           },
           "object-properties": {

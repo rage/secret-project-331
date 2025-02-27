@@ -149,6 +149,29 @@ pub async fn upload_image_for_organization(
     }
 }
 
+// These limits must match the limits in CMS/src/services/backend/media/uploadMediaToServer.ts
+// If you modify these, update the TypeScript file as well.
+// Note: The nginx ingress also has a limit on max request size (see kubernetes/base/ingress.yml)
+const FILE_SIZE_LIMITS: &[(mime::Name, i32)] = &[
+    // 10 MB for images
+    (mime::IMAGE, 10 * 1024 * 1024),
+    // 100 MB for audio
+    (mime::AUDIO, 100 * 1024 * 1024),
+    // 100 MB for video
+    (mime::VIDEO, 100 * 1024 * 1024),
+    // 25 MB for documents/other files
+    (mime::APPLICATION, 25 * 1024 * 1024),
+];
+// 10 MB default fallback
+const DEFAULT_FILE_SIZE_LIMIT: i32 = 10 * 1024 * 1024;
+
+fn get_size_limit_for_mime(mime_type: Option<mime::Name>) -> i32 {
+    mime_type
+        .and_then(|mime| FILE_SIZE_LIMITS.iter().find(|(m, _)| *m == mime))
+        .map(|(_, size)| *size)
+        .unwrap_or(DEFAULT_FILE_SIZE_LIMIT)
+}
+
 /// Uploads the data from the multipart `field` to the given `path` in file storage.
 async fn upload_field_to_storage(
     conn: &mut PgConnection,
@@ -157,6 +180,35 @@ async fn upload_field_to_storage(
     file_store: &dyn FileStore,
     uploader: Option<AuthUser>,
 ) -> Result<(), ControllerError> {
+    // Check file size limit based on mime type
+    let mime_type = field.content_type().map(|ct| ct.type_());
+    let size_limit = get_size_limit_for_mime(mime_type);
+
+    // Get size from content disposition if available
+    // Note: This does not enforce the size of the file since the client can lie about the content length
+    if let Some(content_disposition) = field.content_disposition() {
+        if let Some(size_str) = content_disposition
+            .parameters
+            .iter()
+            .find_map(|p| p.as_unknown("size"))
+        {
+            if let Ok(size) = size_str.parse::<u64>() {
+                if size > size_limit as u64 {
+                    return Err(ControllerError::new(
+                        ControllerErrorType::BadRequest,
+                        format!(
+                            "File size {} exceeds limit of {} bytes for type {}",
+                            size,
+                            size_limit,
+                            mime_type.map_or("unknown".to_string(), |m| m.to_string())
+                        ),
+                        None,
+                    ));
+                }
+            }
+        }
+    }
+
     // TODO: convert archives into a uniform format
     let mime_type = field
         .content_type()
@@ -430,11 +482,31 @@ async fn validate_media_headers(
             )
         })?;
 
-    // This does not enforce the size of the file since the client can lie about the content length
-    if content_length_number > 10485760 {
+    let mime_type = headers
+        .get("X-File-Type")
+        .map(|h| h.to_str().unwrap_or("application/octet-stream"))
+        .unwrap_or("application/octet-stream")
+        .split('/')
+        .next()
+        .map(|s| match s {
+            "image" => mime::IMAGE,
+            "audio" => mime::AUDIO,
+            "video" => mime::VIDEO,
+            "application" => mime::APPLICATION,
+            _ => mime::APPLICATION,
+        });
+    let size_limit = get_size_limit_for_mime(mime_type);
+
+    // Note: This does not enforce the size of the file since the client can lie about the content length
+    if content_length_number > size_limit {
         return Err(ControllerError::new(
             ControllerErrorType::BadRequest,
-            "Content length over 10 MB",
+            format!(
+                "File size {} exceeds limit of {} bytes for type {}",
+                content_length_number,
+                size_limit,
+                mime_type.map_or("unknown".to_string(), |m| m.to_string())
+            ),
             None,
         ));
     }

@@ -35,7 +35,7 @@ function generateNormalResponseHeaders(options = { requireTrustedTypesFor: false
         "frame-ancestors 'none'",
         "base-uri 'none'",
         "form-action 'self'",
-        "media-src 'self' https://storage.googleapis.com",
+        "media-src 'self' blob: https://storage.googleapis.com",
         // Forces us to sanitize html before using dangerouslySetInnerHTML. Please see: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/require-trusted-types-for
         options.requireTrustedTypesFor && "require-trusted-types-for 'script'",
       ]

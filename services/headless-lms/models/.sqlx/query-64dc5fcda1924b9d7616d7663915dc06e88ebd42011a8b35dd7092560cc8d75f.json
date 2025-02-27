@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO course_module_completion_registered_to_study_registries (\n    id,\n    course_id,\n    course_module_completion_id,\n    course_module_id,\n    study_registry_registrar_id,\n    user_id,\n    real_student_number\n)\nSELECT * FROM UNNEST(\n    $1::uuid[],\n    $2::uuid[],\n    $3::uuid[],\n    $4::uuid[],\n    $5::uuid[],\n    $6::uuid[],\n    $7::text[]\n)\nRETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "UuidArray",
+        "UuidArray",
+        "UuidArray",
+        "UuidArray",
+        "UuidArray",
+        "TextArray"
+      ]
+    },
+    "nullable": [false]
+  },
+  "hash": "64dc5fcda1924b9d7616d7663915dc06e88ebd42011a8b35dd7092560cc8d75f"
+}

@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH duplicate_rows AS (\n  SELECT id,\n    ROW_NUMBER() OVER (\n      PARTITION BY course_module_completion_id\n      ORDER BY created_at ASC -- Keep the oldest, delete the rest\n    ) AS rn\n  FROM course_module_completion_registered_to_study_registries\n  WHERE deleted_at IS NULL\n    AND course_module_completion_id = ANY($1)\n)\nUPDATE course_module_completion_registered_to_study_registries\nSET deleted_at = NOW()\nWHERE id IN (\n    SELECT id\n    FROM duplicate_rows\n    WHERE rn > 1\n  )\nRETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["UuidArray"]
+    },
+    "nullable": [false]
+  },
+  "hash": "0d4a6a92d86e79e4b5e2fb44ee6cc8af92c7d2e3d0a3c4eea000005b5c3385e4"
+}

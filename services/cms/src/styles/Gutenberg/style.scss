@@ -74,3 +74,11 @@ $sidebar-width: 350px;
 
   background: #f5f6f7;
 }
+
+p {
+  code {
+    background: #e5e5e5;
+    padding: 0 0.4rem 0.2rem 0.4rem;
+    border-radius: 3px;
+  }
+}

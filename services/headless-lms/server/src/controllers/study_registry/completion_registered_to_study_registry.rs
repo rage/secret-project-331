@@ -56,7 +56,7 @@ async fn post_completions(
     .await?;
     let registrar =
         models::study_registry_registrars::get_by_secret_key(&mut conn, secret_key).await?;
-    models::course_module_completion_registered_to_study_registries::insert_completions(
+    models::course_module_completion_registered_to_study_registries::mark_completions_as_registered_to_study_registry(
         &mut conn,
         payload.0,
         registrar.id,

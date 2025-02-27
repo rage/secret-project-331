@@ -257,6 +257,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
                     selectedBlockId={null}
                     setEdits={(map) => map}
                     isExam={false}
+                    dontAllowBlockToBeWiderThanContainerWidth={true}
                   />
                 </div>
 

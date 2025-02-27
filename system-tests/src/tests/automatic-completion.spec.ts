@@ -111,6 +111,6 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
     .click()
 
   await page.getByText("To the registration form").click()
-  // wait for the navigation to complete
-  await expect(page).toHaveURL("https://www.example.com/override")
+  // Wait for the redirection
+  await page.waitForURL("https://www.example.com/override", { waitUntil: "commit" })
 })

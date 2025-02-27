@@ -180,7 +180,18 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ content }) => {
   })
 
   return (
-    <button onClick={handleCopy} className={buttonStyles} data-status={copyStatus}>
+    <button
+      onClick={handleCopy}
+      className={buttonStyles}
+      data-status={copyStatus}
+      aria-label={
+        copyStatus === COPY_STATUS.SUCCESS
+          ? t("copied")
+          : copyStatus === COPY_STATUS.ERROR
+            ? t("copying-failed")
+            : t("copy-to-clipboard")
+      }
+    >
       <div className={iconWrapperStyles}>
         {transitions((style, item) => {
           const IconComponent =

@@ -116,12 +116,23 @@ const AnimatedDiv = animated.div as React.FC<{
 }>
 
 /**
- * Copies text to clipboard using legacy execCommand method.
- * Used as fallback when Clipboard API is unavailable.
+ * Converts HTML string to plain text, handling <br> tags and other HTML elements
  */
-const copyWithFallback = (content: string) => {
+const parseHtmlToPlainText = (html: string): string => {
+  // Replace <br> tags with newline characters
+  const replaced = html.replace(/<br\s*\/?>/gi, "\n")
+  // Create a temporary container, set its innerHTML, and get its textContent
+  const container = document.createElement("div")
+  container.innerHTML = replaced
+  return container.textContent || ""
+}
+
+/**
+ * Fallback copy method using execCommand.
+ */
+const copyWithFallback = (text: string) => {
   const textArea = document.createElement("textarea")
-  textArea.value = content
+  textArea.value = text
   document.body.appendChild(textArea)
   textArea.select()
   // eslint-disable-next-line i18next/no-literal-string
@@ -153,17 +164,17 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ content }) => {
   }, [copyStatus])
 
   const handleCopy = useCallback(async () => {
+    const textToCopy = parseHtmlToPlainText(content)
+
     try {
       if (navigator.clipboard) {
         try {
-          await navigator.clipboard.writeText(content)
+          await navigator.clipboard.writeText(textToCopy)
         } catch {
-          // If clipboard API fails, try fallback method
-          copyWithFallback(content)
+          copyWithFallback(textToCopy)
         }
       } else {
-        // Fallback method for older browsers AND for non https sites
-        copyWithFallback(content)
+        copyWithFallback(textToCopy)
       }
       setCopyStatus(COPY_STATUS.SUCCESS)
     } catch (error) {

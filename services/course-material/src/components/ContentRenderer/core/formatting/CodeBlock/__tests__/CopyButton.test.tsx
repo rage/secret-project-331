@@ -134,4 +134,21 @@ describe("CopyButton", () => {
       consoleErrorSpy.mockRestore()
     })
   })
+
+  it("should copy sanitized code without <br> tags", async () => {
+    const contentWithBr = "line1<br>line2<br>line3"
+    renderCopyButton(contentWithBr)
+    const button = screen.getByRole("button")
+
+    await act(async () => {
+      fireEvent.click(button)
+    })
+
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith("line1\nline2\nline3")
+
+    act(() => {
+      jest.advanceTimersByTime(2000)
+    })
+    expect(button).toHaveAttribute("aria-label", "copy-to-clipboard")
+  })
 })

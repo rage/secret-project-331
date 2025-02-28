@@ -9,6 +9,14 @@ const renderCopyButton = (content = "Test content") => render(<CopyButton conten
 describe("CopyButton", () => {
   const mockContent = "Test content"
 
+  beforeAll(() => {
+    jest.useFakeTimers()
+  })
+
+  afterAll(() => {
+    jest.useRealTimers()
+  })
+
   beforeEach(() => {
     Object.defineProperty(navigator, "clipboard", {
       value: {
@@ -17,6 +25,10 @@ describe("CopyButton", () => {
       configurable: true,
     })
     document.execCommand = jest.fn(() => true)
+  })
+
+  afterEach(() => {
+    jest.clearAllTimers()
   })
 
   it("should render with default state", () => {
@@ -29,6 +41,7 @@ describe("CopyButton", () => {
       renderCopyButton(mockContent)
       const button = screen.getByRole("button")
 
+      // Click the copy button
       await act(async () => {
         fireEvent.click(button)
       })
@@ -36,9 +49,9 @@ describe("CopyButton", () => {
       expect(navigator.clipboard.writeText).toHaveBeenCalledWith(mockContent)
       expect(button).toHaveAttribute("aria-label", "copied")
 
-      // Wait for the success state to revert to default after timeout
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 2000))
+      // Advance timers by 2000ms to trigger state reset
+      act(() => {
+        jest.advanceTimersByTime(2000)
       })
       expect(button).toHaveAttribute("aria-label", "copy-to-clipboard")
     })
@@ -46,6 +59,7 @@ describe("CopyButton", () => {
     it("should show error state when Clipboard API fails", async () => {
       const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {})
 
+      // Override clipboard mock to force an error
       Object.defineProperty(navigator, "clipboard", {
         value: {
           writeText: jest.fn(() => Promise.reject(new Error("Clipboard error"))),
@@ -62,12 +76,19 @@ describe("CopyButton", () => {
       })
 
       expect(button).toHaveAttribute("aria-label", "copying-failed")
+
+      // Advance timers to allow error state to reset
+      act(() => {
+        jest.advanceTimersByTime(2000)
+      })
+      expect(button).toHaveAttribute("aria-label", "copy-to-clipboard")
       consoleErrorSpy.mockRestore()
     })
   })
 
   describe("Fallback copy method", () => {
     beforeEach(() => {
+      // Remove the Clipboard API for fallback testing
       Object.defineProperty(navigator, "clipboard", {
         value: undefined,
         configurable: true,
@@ -84,6 +105,12 @@ describe("CopyButton", () => {
 
       expect(document.execCommand).toHaveBeenCalledWith("copy")
       expect(button).toHaveAttribute("aria-label", "copied")
+
+      // Advance timers to trigger reset of copy status
+      act(() => {
+        jest.advanceTimersByTime(2000)
+      })
+      expect(button).toHaveAttribute("aria-label", "copy-to-clipboard")
     })
 
     it("should show error state when fallback method fails", async () => {
@@ -98,6 +125,12 @@ describe("CopyButton", () => {
       })
 
       expect(button).toHaveAttribute("aria-label", "copying-failed")
+
+      // Advance timers to allow error state to revert
+      act(() => {
+        jest.advanceTimersByTime(2000)
+      })
+      expect(button).toHaveAttribute("aria-label", "copy-to-clipboard")
       consoleErrorSpy.mockRestore()
     })
   })

@@ -3,9 +3,8 @@ import "@testing-library/jest-dom"
 
 import { CopyButton } from "../CopyButton"
 
-jest.mock("react-i18next", () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
-}))
+// Helper function for rendering CopyButton with default content
+const renderCopyButton = (content = "Test content") => render(<CopyButton content={content} />)
 
 describe("CopyButton", () => {
   const mockContent = "Test content"
@@ -20,18 +19,14 @@ describe("CopyButton", () => {
     document.execCommand = jest.fn(() => true)
   })
 
-  afterEach(() => {
-    jest.resetAllMocks()
-  })
-
-  it("renders with initial state", () => {
-    render(<CopyButton content={mockContent} />)
+  it("should render with default state", () => {
+    renderCopyButton(mockContent)
     expect(screen.getByRole("button")).toHaveAttribute("aria-label", "copy-to-clipboard")
   })
 
   describe("Clipboard API", () => {
-    it("copies content using Clipboard API and shows success state", async () => {
-      render(<CopyButton content={mockContent} />)
+    it("should copy content using Clipboard API and show success state", async () => {
+      renderCopyButton(mockContent)
       const button = screen.getByRole("button")
 
       await act(async () => {
@@ -41,14 +36,14 @@ describe("CopyButton", () => {
       expect(navigator.clipboard.writeText).toHaveBeenCalledWith(mockContent)
       expect(button).toHaveAttribute("aria-label", "copied")
 
-      // Wait for the success state to disappear
+      // Wait for the success state to revert to default after timeout
       await act(async () => {
         await new Promise((resolve) => setTimeout(resolve, 2000))
       })
       expect(button).toHaveAttribute("aria-label", "copy-to-clipboard")
     })
 
-    it("shows error state when clipboard API fails", async () => {
+    it("should show error state when Clipboard API fails", async () => {
       const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {})
 
       Object.defineProperty(navigator, "clipboard", {
@@ -59,7 +54,7 @@ describe("CopyButton", () => {
       })
       document.execCommand = jest.fn(() => false)
 
-      render(<CopyButton content={mockContent} />)
+      renderCopyButton(mockContent)
       const button = screen.getByRole("button")
 
       await act(async () => {
@@ -79,8 +74,8 @@ describe("CopyButton", () => {
       })
     })
 
-    it("uses fallback copy method when Clipboard API is not available", async () => {
-      render(<CopyButton content={mockContent} />)
+    it("should use fallback copy method when Clipboard API is not available", async () => {
+      renderCopyButton(mockContent)
       const button = screen.getByRole("button")
 
       await act(async () => {
@@ -91,12 +86,11 @@ describe("CopyButton", () => {
       expect(button).toHaveAttribute("aria-label", "copied")
     })
 
-    it("shows error state when fallback method fails", async () => {
+    it("should show error state when fallback method fails", async () => {
       const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {})
-
       document.execCommand = jest.fn(() => false)
 
-      render(<CopyButton content={mockContent} />)
+      renderCopyButton(mockContent)
       const button = screen.getByRole("button")
 
       await act(async () => {

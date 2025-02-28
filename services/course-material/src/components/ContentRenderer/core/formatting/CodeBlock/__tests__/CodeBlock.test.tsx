@@ -3,50 +3,35 @@ import "@testing-library/jest-dom"
 
 import CodeBlock from "../index"
 
-jest.mock("react-i18next", () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-    i18n: {
-      changeLanguage: () => new Promise(() => {}),
-    },
-  }),
-  Translation: ({ children }: { children: (t: (key: string) => string) => React.ReactNode }) =>
-    children((key: string) => key),
-}))
-
-jest.mock("next/dynamic", () => () => {
-  const DynamicComponent = ({ content }: { content: string }) => <div>{content}</div>
-  return DynamicComponent
-})
+// Helper function for rendering CodeBlock with default content
+const renderCodeBlock = (content = 'console.log("Hello, World!")') =>
+  render(
+    <CodeBlock
+      data={{
+        attributes: { content },
+        name: "core/code",
+        isValid: true,
+        clientId: "test-id",
+        innerBlocks: [],
+      }}
+      id="test-id"
+      selectedBlockId={null}
+      editing={false}
+      setEdits={() => {}}
+      isExam={false}
+    />,
+  )
 
 describe("CodeBlock", () => {
   const mockContent = 'console.log("Hello, World!")'
-  const defaultProps = {
-    data: {
-      attributes: { content: mockContent },
-      name: "core/code",
-      isValid: true,
-      clientId: "test-id",
-      innerBlocks: [],
-    },
-    id: "test-id",
-    selectedBlockId: null,
-    editing: false,
-    setEdits: () => {},
-    isExam: false,
-  }
 
-  beforeEach(() => {
-    jest.clearAllMocks()
-  })
-
-  it("renders the code block with the provided content", () => {
-    render(<CodeBlock {...defaultProps} />)
+  it("should render the code block with the provided content", () => {
+    renderCodeBlock(mockContent)
     expect(screen.getByText(mockContent)).toBeInTheDocument()
   })
 
-  it("renders the copy button", () => {
-    render(<CodeBlock {...defaultProps} />)
+  it("should render the copy button", () => {
+    renderCodeBlock(mockContent)
     expect(screen.getByLabelText("copy-to-clipboard")).toBeInTheDocument()
   })
 })

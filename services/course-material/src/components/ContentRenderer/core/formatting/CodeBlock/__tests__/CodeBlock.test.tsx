@@ -60,4 +60,13 @@ describe("CodeBlock", () => {
     // The user sees the decoded HTML with a literal <br> tag:
     expect(codeElement?.textContent).toBe("<html>\n  <p>hello<br>world!</p>\n</html>")
   })
+
+  it("should correctly render encoded command input", () => {
+    const encodedCommand = "apt-get update &amp;&amp; apt-get install -y curl python3"
+    const { container } = renderCodeBlock(encodedCommand)
+    const codeElement = container.querySelector("code")
+    expect(codeElement).toBeInTheDocument()
+    // The code block should decode the encoded ampersands
+    expect(codeElement?.textContent).toBe("apt-get update && apt-get install -y curl python3")
+  })
 })

@@ -171,4 +171,24 @@ describe("CopyButton", () => {
     })
     expect(button).toHaveAttribute("aria-label", "copy-to-clipboard")
   })
+
+  it("should copy sanitized command text for encoded command input", async () => {
+    const encodedCommand = "apt-get update &amp;&amp; apt-get install -y curl python3"
+    renderCopyButton(encodedCommand)
+    const button = screen.getByRole("button")
+
+    await act(async () => {
+      fireEvent.click(button)
+    })
+
+    // The copy logic uses our parseHtmlToPlainText helper, so the clipboard should receive the decoded command
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      "apt-get update && apt-get install -y curl python3",
+    )
+
+    act(() => {
+      jest.advanceTimersByTime(2000)
+    })
+    expect(button).toHaveAttribute("aria-label", "copy-to-clipboard")
+  })
 })

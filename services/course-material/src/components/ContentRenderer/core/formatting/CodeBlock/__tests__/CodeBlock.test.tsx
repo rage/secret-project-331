@@ -51,4 +51,13 @@ describe("CodeBlock", () => {
     expect(codeElement).toBeInTheDocument()
     expect(codeElement?.textContent).toBe("line1\nline2\nline3")
   })
+
+  it("should correctly render encoded HTML input as the user sees it", () => {
+    const encodedContent = "&lt;html>\n  &lt;p>hello&lt;br>world!&lt;/p>\n&lt;/html>"
+    const { container } = renderCodeBlock(encodedContent)
+    const codeElement = container.querySelector("code")
+    expect(codeElement).toBeInTheDocument()
+    // The user sees the decoded HTML with a literal <br> tag:
+    expect(codeElement?.textContent).toBe("<html>\n  <p>hello<br>world!</p>\n</html>")
+  })
 })

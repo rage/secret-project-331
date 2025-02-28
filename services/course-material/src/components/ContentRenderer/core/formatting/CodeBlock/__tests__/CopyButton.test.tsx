@@ -151,4 +151,24 @@ describe("CopyButton", () => {
     })
     expect(button).toHaveAttribute("aria-label", "copy-to-clipboard")
   })
+
+  it("should copy sanitized text for encoded HTML input", async () => {
+    const encodedContent = "&lt;html>\n  &lt;p>hello&lt;br>world!&lt;/p>\n&lt;/html>"
+    renderCopyButton(encodedContent)
+    const button = screen.getByRole("button")
+
+    await act(async () => {
+      fireEvent.click(button)
+    })
+
+    // The parseHtmlToPlainText helper should decode the input and preserve the literal <br> tag
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      "<html>\n  <p>hello<br>world!</p>\n</html>",
+    )
+
+    act(() => {
+      jest.advanceTimersByTime(2000)
+    })
+    expect(button).toHaveAttribute("aria-label", "copy-to-clipboard")
+  })
 })

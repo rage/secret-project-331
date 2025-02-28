@@ -18,6 +18,7 @@ interface StandardDialogProps {
   noPadding?: boolean
   className?: string
   backgroundColor?: string
+  closeOnClickOutside?: boolean
 }
 
 const CLOSE_SYMBOL = "×"
@@ -33,6 +34,7 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
   noPadding = false,
   className,
   backgroundColor,
+  closeOnClickOutside = true,
 }) => {
   const { t } = useTranslation()
   const titleId = useId()
@@ -46,6 +48,7 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
       className={className}
       role="dialog"
       aria-labelledby={titleId}
+      closeOnClickOutside={closeOnClickOutside}
     >
       <div
         className={css`

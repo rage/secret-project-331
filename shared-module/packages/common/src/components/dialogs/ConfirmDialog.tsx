@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import StandardDialog from "./StandardDialog"
 
@@ -16,20 +17,22 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   message,
   onConfirm,
   onCancel,
-}) => (
-  <StandardDialog
-    open={open}
-    onClose={onCancel}
-    title={title}
-    buttons={[
-      // eslint-disable-next-line i18next/no-literal-string
-      { children: "Cancel", variant: "secondary", onClick: onCancel },
-      // eslint-disable-next-line i18next/no-literal-string
-      { children: "OK", variant: "primary", onClick: onConfirm },
-    ]}
-  >
-    {message}
-  </StandardDialog>
-)
+}) => {
+  const { t } = useTranslation()
+  return (
+    <StandardDialog
+      open={open}
+      onClose={onCancel}
+      title={title}
+      closeOnClickOutside={false}
+      buttons={[
+        { children: t("no"), variant: "secondary", onClick: onCancel },
+        { children: t("yes"), variant: "primary", onClick: onConfirm },
+      ]}
+    >
+      {message}
+    </StandardDialog>
+  )
+}
 
 export default React.memo(ConfirmDialog)

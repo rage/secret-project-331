@@ -372,7 +372,7 @@ const config = [
             ],
           },
           "object-properties": {
-            exclude: ["type", "[A-Z_-]+", "displayName", "href", "direction"],
+            exclude: ["type", "[A-Z_-]+", "displayName", "href", "direction", "variant", "size"],
           },
           "class-properties": {
             exclude: ["displayName"],

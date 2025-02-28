@@ -10,6 +10,7 @@ interface DialogProps extends React.HTMLAttributes<HTMLDialogElement> {
   closeable?: boolean
   noPadding?: boolean
   width?: "normal" | "wide"
+  closeOnClickOutside?: boolean
 }
 
 const Dialog: React.FC<DialogProps> = ({
@@ -19,6 +20,7 @@ const Dialog: React.FC<DialogProps> = ({
   closeable = true,
   noPadding = false,
   width = "normal",
+  closeOnClickOutside = true,
   ...rest
 }) => {
   const ref = useRef<HTMLDialogElement>(null)
@@ -71,7 +73,7 @@ const Dialog: React.FC<DialogProps> = ({
   useClickOutside(
     dialogContentRef,
     () => {
-      if (closeable) {
+      if (closeable && closeOnClickOutside) {
         ref.current?.close()
       }
     },

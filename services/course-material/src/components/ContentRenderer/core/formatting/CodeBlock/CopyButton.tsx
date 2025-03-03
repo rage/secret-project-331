@@ -1,8 +1,11 @@
 import { css } from "@emotion/css"
+import { createPopper, Instance as PopperInstance } from "@popperjs/core"
 import { CheckCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { animated, SpringValue, useTransition } from "react-spring"
+
+import { useCopyToClipboard } from "./utils"
 
 import CopyIcon from "@/img/copy.svg"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -17,7 +20,7 @@ type CopyStatus = (typeof COPY_STATUS)[keyof typeof COPY_STATUS]
 
 const ICON_COLORS = {
   DEFAULT: baseTheme.colors.primary[100],
-  SUCCESS: baseTheme.colors.green[300],
+  SUCCESS: "#5cc89b",
   ERROR: baseTheme.colors.red[300],
 } as const
 
@@ -69,26 +72,12 @@ const tooltipStyles = css`
   padding: 4px 8px;
   position: absolute;
   z-index: 1;
-  top: -40px;
-  left: 50%;
-  transform: translateX(-50%);
-  white-space: nowrap;
   font-size: 12px;
   pointer-events: none;
+  white-space: nowrap;
   transition:
     visibility 0s,
     opacity 0.2s;
-  &::after {
-    content: "";
-    position: absolute;
-    bottom: -5px;
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: ${baseTheme.colors.gray[700]} transparent transparent transparent;
-  }
-  button:hover &,
   &[data-show="true"] {
     visibility: visible;
     opacity: 1;
@@ -116,41 +105,53 @@ const AnimatedDiv = animated.div as React.FC<{
 }>
 
 /**
- * Converts HTML string to plain text, handling <br> tags and other HTML elements
- */
-const parseHtmlToPlainText = (html: string): string => {
-  // Replace <br> tags with newline characters
-  const replaced = html.replace(/<br\s*\/?>/gi, "\n")
-  // Create a temporary container, set its innerHTML, and get its textContent
-  const container = document.createElement("div")
-  container.innerHTML = replaced
-  return container.textContent || ""
-}
-
-/**
- * Fallback copy method using execCommand.
- */
-const copyWithFallback = (text: string) => {
-  const textArea = document.createElement("textarea")
-  textArea.value = text
-  document.body.appendChild(textArea)
-  textArea.select()
-  // eslint-disable-next-line i18next/no-literal-string
-  const successful = document.execCommand("copy")
-  document.body.removeChild(textArea)
-  if (!successful) {
-    throw new Error("Copy failed")
-  }
-}
-
-/**
  * Button component that copies text to clipboard.
- * Shows success/error state for 10 seconds after copy attempt.
+ * Shows success/error state for 2 seconds after copy attempt.
  */
 export const CopyButton: React.FC<CopyButtonProps> = ({ content }) => {
   const { t } = useTranslation()
   const [copyStatus, setCopyStatus] = useState<CopyStatus>(COPY_STATUS.DEFAULT)
   const [showTooltip, setShowTooltip] = useState(false)
+  const copyToClipboard = useCopyToClipboard(content)
+
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const tooltipRef = useRef<HTMLDivElement>(null)
+  const popperInstanceRef = useRef<PopperInstance | null>(null)
+
+  useEffect(() => {
+    if (buttonRef.current && tooltipRef.current) {
+      popperInstanceRef.current = createPopper(buttonRef.current, tooltipRef.current, {
+        placement: "top",
+        modifiers: [
+          {
+            name: "offset",
+            options: {
+              offset: [0, 12],
+            },
+          },
+          {
+            name: "preventOverflow",
+            options: {
+              padding: 8,
+            },
+          },
+        ],
+      })
+    }
+
+    return () => {
+      if (popperInstanceRef.current) {
+        popperInstanceRef.current.destroy()
+        popperInstanceRef.current = null
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (popperInstanceRef.current) {
+      popperInstanceRef.current.update()
+    }
+  }, [showTooltip, copyStatus])
 
   useEffect(() => {
     if (copyStatus !== COPY_STATUS.DEFAULT) {
@@ -164,24 +165,19 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ content }) => {
   }, [copyStatus])
 
   const handleCopy = useCallback(async () => {
-    const textToCopy = parseHtmlToPlainText(content)
+    const success = await copyToClipboard()
+    setCopyStatus(success ? COPY_STATUS.SUCCESS : COPY_STATUS.ERROR)
+  }, [copyToClipboard])
 
-    try {
-      if (navigator.clipboard) {
-        try {
-          await navigator.clipboard.writeText(textToCopy)
-        } catch {
-          copyWithFallback(textToCopy)
-        }
-      } else {
-        copyWithFallback(textToCopy)
-      }
-      setCopyStatus(COPY_STATUS.SUCCESS)
-    } catch (error) {
-      console.error("Copying to clipboard failed:", error)
-      setCopyStatus(COPY_STATUS.ERROR)
+  const handleMouseEnter = useCallback(() => {
+    setShowTooltip(true)
+  }, [])
+
+  const handleMouseLeave = useCallback(() => {
+    if (copyStatus === COPY_STATUS.DEFAULT) {
+      setShowTooltip(false)
     }
-  }, [content])
+  }, [copyStatus])
 
   const transitions = useTransition(copyStatus, {
     from: { opacity: 0, transform: "scale(0.5)", position: "absolute" },
@@ -192,7 +188,10 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ content }) => {
 
   return (
     <button
+      ref={buttonRef}
       onClick={handleCopy}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       className={buttonStyles}
       data-status={copyStatus}
       aria-label={
@@ -217,13 +216,13 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ content }) => {
           return <AnimatedDiv style={style}>{IconComponent}</AnimatedDiv>
         })}
       </div>
-      <span className={tooltipStyles} data-show={showTooltip}>
+      <div ref={tooltipRef} className={tooltipStyles} data-show={showTooltip}>
         {copyStatus === COPY_STATUS.SUCCESS
           ? t("copied")
           : copyStatus === COPY_STATUS.ERROR
             ? t("copying-failed")
             : t("copy-to-clipboard")}
-      </span>
+      </div>
     </button>
   )
 }

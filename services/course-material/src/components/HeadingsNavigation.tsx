@@ -223,6 +223,7 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
         right: 0px;
         top: ${offsetpx}px;
         z-index: ${Z_INDEX};
+        pointer-events: ${realCollapsed ? "none" : "auto"};
       `}
     >
       <div
@@ -236,6 +237,7 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
             width: ${WIDTH_PX}px;
             max-height: 90vh;
             overflow-y: auto;
+            pointer-events: ${realCollapsed ? "none" : "auto"};
 
             padding: 1.5rem;
             padding-top: 12px;
@@ -347,6 +349,7 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
             align-items: center;
             justify-content: center;
             border: 0;
+            pointer-events: auto;
 
             &:focus-visible {
               outline: 2px solid ${baseTheme.colors.green[500]};

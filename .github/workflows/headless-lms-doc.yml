@@ -9,7 +9,6 @@ on:
       - master
 
 concurrency:
-  # New commits cancel previous builds only on pull requests. This is because `github.head_ref`` is only set on pull requests and `github.sha`` is unique for each commit.
   group: headless-lms-doc-${{ github.head_ref || github.sha }}
   cancel-in-progress: true
 
@@ -22,6 +21,9 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Install Rust toolchain
+        run: rustup show
+
       - name: Update rust to get edition 2021 support
         run: rustup update stable
 
@@ -33,13 +35,12 @@ jobs:
           bin/generate-doc-files
           npm run eslint:format-generated-docs
 
-      - name: Generate documentaion
+      - name: Generate documentation
         run: cargo doc --document-private-items
         working-directory: services/headless-lms
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
-
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: gh-pages

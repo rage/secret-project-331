@@ -5,6 +5,8 @@ import { memo, useEffect, useMemo, useRef } from "react"
 
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
+import { replaceBrTagsWithNewlines } from "./utils"
+
 interface SyntaxHighlightedContainerProps {
   content: string | undefined
 }
@@ -16,9 +18,7 @@ const SyntaxHighlightedContainer: React.FC<SyntaxHighlightedContainerProps> = ({
   const ref = useRef<HTMLElement>(null)
 
   const replacedContent = useMemo(() => {
-    let res = content ?? ""
-    res = res.replace(/<br\s*\\?>/g, "\n")
-    return res
+    return replaceBrTagsWithNewlines(content) ?? ""
   }, [content])
 
   useEffect(() => {

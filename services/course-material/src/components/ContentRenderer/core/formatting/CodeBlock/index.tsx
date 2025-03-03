@@ -6,10 +6,12 @@ import { BlockRendererProps } from "../../.."
 import { CodeAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 
 import { CopyButton } from "./CopyButton"
+import { replaceBrTagsWithNewlines } from "./utils"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { monospaceFont } from "@/shared-module/common/styles"
+import { copyString } from "@/shared-module/common/utils/strings"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const SyntaxHighlightedContainerLoading = <Spinner variant="medium" />
@@ -50,21 +52,26 @@ const CodeBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CodeAttribu
 }) => {
   const { content } = data.attributes
 
+  // To make sure we don't accidentally modify the original content, we work on copies of it.
+  const fontSizeContent = useMemo(() => copyString(replaceBrTagsWithNewlines(content)), [content])
+  const copyButtonContent = useMemo(() => copyString(replaceBrTagsWithNewlines(content)), [content])
+  const displayedContent = useMemo(() => copyString(replaceBrTagsWithNewlines(content)), [content])
+
   const fontSizePx = useMemo(() => {
-    const longestLine = (content ?? "")
+    const longestLine = (fontSizeContent ?? "")
       .split("\n")
       .reduce((acc, line) => Math.max(acc, line.length), 0)
     return longestLine > 100 ? 14 : longestLine > 70 ? 16 : 20
-  }, [content])
+  }, [fontSizeContent])
 
   return (
     <BreakFromCentered sidebar={false}>
       <div className={containerStyles}>
-        {content && <CopyButton content={content} />}
+        {copyButtonContent && <CopyButton content={copyButtonContent} />}
         <pre
           className={getPreStyles(fontSizePx, dontAllowBlockToBeWiderThanContainerWidth ?? false)}
         >
-          <SyntaxHighlightedContainer content={content} />
+          <SyntaxHighlightedContainer content={displayedContent ?? undefined} />
         </pre>
       </div>
     </BreakFromCentered>

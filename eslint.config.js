@@ -189,7 +189,7 @@ const config = [
           "newlines-between": "always",
         },
       ],
-      curly: "error",
+      curly: ["error", "all"],
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": [
         "warn",

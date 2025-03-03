@@ -4,8 +4,11 @@ import { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { animated, SpringValue, useTransition } from "react-spring"
 
+import { decodeHtmlEntities, replaceBrTagsWithNewlines, useCopyToClipboard } from "./utils"
+
 import CopyIcon from "@/img/copy.svg"
 import { baseTheme } from "@/shared-module/common/styles"
+import { copyString } from "@/shared-module/common/utils/strings"
 
 const COPY_STATUS = {
   DEFAULT: "default",
@@ -116,41 +119,14 @@ const AnimatedDiv = animated.div as React.FC<{
 }>
 
 /**
- * Converts HTML string to plain text, handling <br> tags and other HTML elements
- */
-const parseHtmlToPlainText = (html: string): string => {
-  // Replace <br> tags with newline characters
-  const replaced = html.replace(/<br\s*\/?>/gi, "\n")
-  // Create a temporary container, set its innerHTML, and get its textContent
-  const container = document.createElement("div")
-  container.innerHTML = replaced
-  return container.textContent || ""
-}
-
-/**
- * Fallback copy method using execCommand.
- */
-const copyWithFallback = (text: string) => {
-  const textArea = document.createElement("textarea")
-  textArea.value = text
-  document.body.appendChild(textArea)
-  textArea.select()
-  // eslint-disable-next-line i18next/no-literal-string
-  const successful = document.execCommand("copy")
-  document.body.removeChild(textArea)
-  if (!successful) {
-    throw new Error("Copy failed")
-  }
-}
-
-/**
  * Button component that copies text to clipboard.
- * Shows success/error state for 10 seconds after copy attempt.
+ * Shows success/error state for 2 seconds after copy attempt.
  */
 export const CopyButton: React.FC<CopyButtonProps> = ({ content }) => {
   const { t } = useTranslation()
   const [copyStatus, setCopyStatus] = useState<CopyStatus>(COPY_STATUS.DEFAULT)
   const [showTooltip, setShowTooltip] = useState(false)
+  const copyToClipboard = useCopyToClipboard(content)
 
   useEffect(() => {
     if (copyStatus !== COPY_STATUS.DEFAULT) {
@@ -164,24 +140,9 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ content }) => {
   }, [copyStatus])
 
   const handleCopy = useCallback(async () => {
-    const textToCopy = parseHtmlToPlainText(content)
-
-    try {
-      if (navigator.clipboard) {
-        try {
-          await navigator.clipboard.writeText(textToCopy)
-        } catch {
-          copyWithFallback(textToCopy)
-        }
-      } else {
-        copyWithFallback(textToCopy)
-      }
-      setCopyStatus(COPY_STATUS.SUCCESS)
-    } catch (error) {
-      console.error("Copying to clipboard failed:", error)
-      setCopyStatus(COPY_STATUS.ERROR)
-    }
-  }, [content])
+    const result = await copyToClipboard()
+    setCopyStatus(result.success ? COPY_STATUS.SUCCESS : COPY_STATUS.ERROR)
+  }, [copyToClipboard])
 
   const transitions = useTransition(copyStatus, {
     from: { opacity: 0, transform: "scale(0.5)", position: "absolute" },

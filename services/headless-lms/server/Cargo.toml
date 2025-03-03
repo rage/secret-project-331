@@ -38,17 +38,17 @@ dotenv = "0.15.0"
 # A simple library to work with listenfds passed from the outside (systemd/catflap socket activation)
 listenfd = "1.0.2"
 # Flexible concrete Error type built on std::error::Error
-anyhow = "1.0.95"
+anyhow = "1.0.97"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
 sqlx.workspace = true
 # A library to generate and parse UUIDs.
-uuid = { version = "1.13.1", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.15.1", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
-serde = { version = "1.0.217", features = ["derive"] }
+serde = { version = "1.0.218", features = ["derive"] }
 # Date and time library for Rust
-chrono = { version = "0.4.39", features = ["serde"] }
+chrono = { version = "0.4.40", features = ["serde"] }
 # A JSON serialization file format
-serde_json = "1.0.138"
+serde_json = "1.0.140"
 # Adds #[derive(x)] macros for more traits
 derive_more = { version = "2.0.1", features = ["full"] }
 # Types and traits for working with bytes
@@ -56,7 +56,7 @@ bytes = "1.10.0"
 # Extra iterator adaptors, iterator methods, free functions, and macros.
 itertools = "0.14.0"
 # the BLAKE3 hash function
-blake3 = "1.5.5"
+blake3 = "1.6.1"
 # Recursively walk a directory.
 walkdir = "2.5.0"
 # higher level HTTP client library
@@ -78,7 +78,7 @@ backtrace = "0.3.74"
 # Provides compatibility between `tracing` and the `log` crate.
 tracing-log = "0.2.0"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
-thiserror = "2.0.11"
+thiserror = "2.0.12"
 # generate typescript bindings from rust types
 ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "94bf3c040ece6627b69f0d7095c0a5e2984adc86", features = [
   "chrono-impl",
@@ -92,7 +92,7 @@ actix-http = "3.9.0"
 # Fast CSV parsing with support for serde.
 csv = "1.3.1"
 # Email client
-lettre = "0.11.12"
+lettre = "0.11.14"
 # An implementation of regular expressions for Rust.
 regex = "1.11.1"
 # Single assignment cells and lazy values.
@@ -106,11 +106,11 @@ woothee = "0.13.0"
 # Bindings to libgit2 for interoperating with git repositories.
 git2 = "0.20.0"
 # A library for managing temporary files and directories.
-tempfile = "3.16.0"
+tempfile = "3.17.1"
 #  Binding for the zstd compression library.
-zstd = "0.13.2" # matches the version from actix-http
+zstd = "0.13.3" # matches the version from actix-http
 # A Rust implementation of a TAR file reader and writer.
-tar = "0.4.43"
+tar = "0.4.44"
 # Utilities for random number generation
 rand = "0.9.0"
 # JSON Web Token (JWT) is a compact, URL-safe means of representing claims to be transferred between two parties.
@@ -124,7 +124,7 @@ actix-web-actors = "4.3.1"
 # Actors for actix-web-actors
 actix = "0.13.5"
 # Type erasure for async trait methods
-async-trait = "0.1.86"
+async-trait = "0.1.87"
 # Utilities for working with Tokio.
 tokio-util = "0.7.13"
 # Asynchronous streams using async & await notation

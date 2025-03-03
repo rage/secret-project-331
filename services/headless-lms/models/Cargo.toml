@@ -21,13 +21,13 @@ dotenv = "0.15.0"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
 sqlx.workspace = true
 # A library to generate and parse UUIDs.
-uuid = { version = "1.13.1", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.15.1", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
-serde = { version = "1.0.217", features = ["derive"] }
+serde = { version = "1.0.218", features = ["derive"] }
 # Date and time library for Rust
-chrono = { version = "0.4.39", features = ["serde"] }
+chrono = { version = "0.4.40", features = ["serde"] }
 # A JSON serialization file format
-serde_json = "1.0.138"
+serde_json = "1.0.140"
 # Adds #[derive(x)] macros for more traits
 derive_more = { version = "2.0.1", features = ["full"] }
 # Extra iterator adaptors, iterator methods, free functions, and macros.
@@ -41,7 +41,7 @@ tracing-error = "0.2.1"
 #  A library to acquire a stack trace (backtrace) at runtime in a Rust program. Should be removed after Rust 1.65.
 backtrace = "0.3.74"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
-thiserror = "2.0.11"
+thiserror = "2.0.12"
 # generate typescript bindings from rust types
 ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "94bf3c040ece6627b69f0d7095c0a5e2984adc86", features = [
   "bytes-impl",
@@ -51,11 +51,11 @@ ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "94bf3c040ece6627b69f
   "uuid-impl",
 ], optional = true }
 # Email client
-lettre = "0.11.12"
+lettre = "0.11.14"
 # Random number generators and other randomness functionality.
 rand = "0.9.0"
 # Flexible concrete Error type built on std::error::Error
-anyhow = "1.0.95"
+anyhow = "1.0.97"
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.

@@ -8,14 +8,14 @@ license.workspace = true
 
 [dependencies]
 # Date and time library
-chrono = { version = "0.4.39", features = ["serde"] }
+chrono = { version = "0.4.40", features = ["serde"] }
 # An extensible, strongly-typed implementation of OAuth2
 oauth2 = "5.0.0"
 # A generic serialization/deserialization framework
-serde = { version = "1.0.217", features = ["derive"] }
+serde = { version = "1.0.218", features = ["derive"] }
 # A JSON serialization file format
-serde_json = "1.0.138"
+serde_json = "1.0.140"
 # derive(Error)
-thiserror = "2.0.11"
+thiserror = "2.0.12"
 # A library to generate and parse UUIDs.
-uuid = { version = "1.13.1", features = ["serde"] }
+uuid = { version = "1.15.1", features = ["serde"] }

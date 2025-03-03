@@ -11,7 +11,7 @@ headless-lms-utils = { path = "../utils" }
 headless-lms-models = { path = "../models" }
 
 # Date and time library for Rust
-chrono = { version = "0.4.39", features = ["serde"] }
+chrono = { version = "0.4.40", features = ["serde"] }
 # An implementation of futures and streams featuring zero allocations, composability, and itera…
 futures = "0.3.31"
 # Common utilities and extension traits for the futures-rs library.
@@ -30,15 +30,15 @@ reqwest = { version = "0.12.12", features = [
   "stream",
 ] }
 # A generic serialization/deserialization framework
-serde = { version = "1.0.217", features = ["derive"] }
+serde = { version = "1.0.218", features = ["derive"] }
 # A JSON serialization file format
-serde_json = "1.0.138"
+serde_json = "1.0.140"
 # Application-level tracing for Rust.
 tracing = "0.1.41"
 # A library to generate and parse UUIDs.
-uuid = { version = "1.13.1", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.15.1", features = ["serde", "v4", "v5"] }
 # Flexible concrete Error type built on std::error::Error
-anyhow = "1.0.95"
+anyhow = "1.0.97"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
 sqlx.workspace = true
 # Asynchronous streams using async & await notation
@@ -50,7 +50,7 @@ azure_storage = "0.21.0"
 # Azure Blob Storage crate from the Azure SDK for Rust
 azure_storage_blobs = "0.21.0"
 # Rust wrappers around Microsoft Azure REST APIs - Core crate
-azure_core = "0.21.0"
+azure_core = "0.22.0"
 # URL library for Rust, based on the WHATWG URL Standard
 url = "2.5.4"
 # A crate for safe and ergonomic pin-projection.

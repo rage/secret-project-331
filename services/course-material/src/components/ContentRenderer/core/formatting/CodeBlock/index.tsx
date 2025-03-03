@@ -6,12 +6,10 @@ import { BlockRendererProps } from "../../.."
 import { CodeAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 
 import { CopyButton } from "./CopyButton"
-import { replaceBrTagsWithNewlines } from "./utils"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { monospaceFont } from "@/shared-module/common/styles"
-import { copyString } from "@/shared-module/common/utils/strings"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const SyntaxHighlightedContainerLoading = <Spinner variant="medium" />

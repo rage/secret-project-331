@@ -372,7 +372,7 @@ fn generate_audio_path(field: &Field, store_kind: StoreKind) -> Result<PathBuf, 
                 ControllerErrorType::BadRequest,
                 format!("Unsupported audio Mime type: {}", unsupported),
                 None,
-            ))
+            ));
         }
     };
     let mut file_name = generate_random_string(30);
@@ -428,7 +428,7 @@ fn generate_image_path(field: &Field, store_kind: StoreKind) -> Result<PathBuf, 
                 ControllerErrorType::BadRequest,
                 format!("Unsupported image Mime type: {}", unsupported),
                 None,
-            ))
+            ));
         }
     };
 

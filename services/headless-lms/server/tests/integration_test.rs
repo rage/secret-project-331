@@ -1,19 +1,19 @@
 use std::{env, sync::Arc};
 
-use actix_http::{body::BoxBody, Request};
-use actix_session::{storage::CookieSessionStore, SessionMiddleware};
-use actix_web::{cookie::Key, dev::ServiceResponse, test, App};
+use actix_http::{Request, body::BoxBody};
+use actix_session::{SessionMiddleware, storage::CookieSessionStore};
+use actix_web::{App, cookie::Key, dev::ServiceResponse, test};
 use headless_lms_models::{
-    organizations::{self, Organization},
     PKeyPolicy,
+    organizations::{self, Organization},
 };
 use headless_lms_server::{
     config::{ServerConfig, ServerConfigBuilder},
     domain::models_requests::JwtKey,
     setup_tracing,
 };
-use headless_lms_utils::{file_store::local_file_store::LocalFileStore, ApplicationConfiguration};
-use sqlx::{migrate::MigrateDatabase, Connection, PgConnection, PgPool, Postgres};
+use headless_lms_utils::{ApplicationConfiguration, file_store::local_file_store::LocalFileStore};
+use sqlx::{Connection, PgConnection, PgPool, Postgres, migrate::MigrateDatabase};
 use tokio::sync::Mutex;
 use uuid::Uuid;
 

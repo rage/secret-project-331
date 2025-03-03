@@ -4,7 +4,7 @@ use actix_web::FromRequest;
 use crate::prelude::*;
 use std::{
     convert::Infallible,
-    future::{ready, Ready},
+    future::{Ready, ready},
 };
 
 /// Extractor for a request's id.

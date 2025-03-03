@@ -4,15 +4,15 @@ Middleware that wraps HTTP requests to tokio tracing spans for debugging and att
 
 use super::request_id::RequestId;
 use actix_http::{
-    header::{HeaderName, HeaderValue},
     HttpMessage,
+    header::{HeaderName, HeaderValue},
 };
 use actix_web::{
-    dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
     Error,
+    dev::{Service, ServiceRequest, ServiceResponse, Transform, forward_ready},
 };
 use futures_util::future::LocalBoxFuture;
-use std::future::{ready, Ready};
+use std::future::{Ready, ready};
 use tracing::Instrument;
 use uuid::Uuid;
 

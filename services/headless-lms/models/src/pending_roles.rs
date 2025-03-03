@@ -37,7 +37,7 @@ pub async fn insert(
                 ModelErrorType::InvalidRequest,
                 "Cannot use a pending role with this much power".to_string(),
                 None,
-            ))
+            ));
         }
         _ => (),
     }
@@ -79,7 +79,7 @@ RETURNING id;
 pub async fn get_all(conn: &mut PgConnection, domain: RoleDomain) -> ModelResult<Vec<PendingRole>> {
     let res = match domain {
         RoleDomain::Global | RoleDomain::Organization(_) | RoleDomain::Exam(_) => {
-            return Ok(Vec::new())
+            return Ok(Vec::new());
         }
         RoleDomain::Course(course_id) => {
             sqlx::query_as!(

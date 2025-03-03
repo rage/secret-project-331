@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 use headless_lms_utils::url_to_oembed_endpoint::{
-    mentimeter_oembed_response_builder, OEmbedRequest, OEmbedResponse,
+    OEmbedRequest, OEmbedResponse, mentimeter_oembed_response_builder,
 };
 
 /**

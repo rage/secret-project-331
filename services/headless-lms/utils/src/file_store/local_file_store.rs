@@ -10,7 +10,7 @@ use tokio::{
 };
 use tokio_util::io::ReaderStream;
 
-use super::{generate_cache_folder_dir, path_to_str, FileStore, GenericPayload};
+use super::{FileStore, GenericPayload, generate_cache_folder_dir, path_to_str};
 use crate::prelude::*;
 
 #[derive(Debug, Clone)]

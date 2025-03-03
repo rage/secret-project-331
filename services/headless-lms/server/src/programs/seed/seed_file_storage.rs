@@ -1,4 +1,4 @@
-use headless_lms_utils::file_store::{local_file_store::LocalFileStore, FileStore};
+use headless_lms_utils::file_store::{FileStore, local_file_store::LocalFileStore};
 use std::path::Path;
 
 const REPOSITORY_EXERCISE_1: &[u8] = include_bytes!("./data/repository-exercise-1.tar.zst");

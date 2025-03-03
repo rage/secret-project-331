@@ -5,11 +5,11 @@ use anyhow::Result;
 use dotenv::dotenv;
 use futures::stream::{self, StreamExt};
 use headless_lms_models::{
-    exercise_service_info::{fetch_and_upsert_service_info, ExerciseServiceInfo},
+    exercise_service_info::{ExerciseServiceInfo, fetch_and_upsert_service_info},
     exercise_services::ExerciseService,
 };
 use sqlx::PgPool;
-use tokio::time::{sleep, Duration};
+use tokio::time::{Duration, sleep};
 use tracing::info;
 
 const N: usize = 10;

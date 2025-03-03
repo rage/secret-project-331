@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use headless_lms_utils::{http::REQWEST_CLIENT, ApplicationConfiguration};
+use headless_lms_utils::{ApplicationConfiguration, http::REQWEST_CLIENT};
 
 const API_VERSION: &str = "2024-07-01";
 

@@ -10,7 +10,7 @@ pub mod users_export;
 use anyhow::{Context, Result};
 use bytes::Bytes;
 use csv::Writer;
-use futures::{stream::FuturesUnordered, Stream, StreamExt};
+use futures::{Stream, StreamExt, stream::FuturesUnordered};
 
 use async_trait::async_trait;
 

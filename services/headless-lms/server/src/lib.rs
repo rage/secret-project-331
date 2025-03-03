@@ -26,13 +26,13 @@ extern crate doc_macro;
 
 use anyhow::Result;
 use headless_lms_utils::file_store::{
-    google_cloud_file_store::GoogleCloudFileStore, local_file_store::LocalFileStore, FileStore,
+    FileStore, google_cloud_file_store::GoogleCloudFileStore, local_file_store::LocalFileStore,
 };
 use oauth2::{EndpointNotSet, EndpointSet};
 use std::{env, sync::Arc};
 use tracing_error::ErrorLayer;
 use tracing_log::LogTracer;
-use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
+use tracing_subscriber::{EnvFilter, layer::SubscriberExt};
 
 pub type OAuthClient = oauth2::basic::BasicClient<
     EndpointSet,

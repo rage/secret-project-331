@@ -5,15 +5,15 @@ use actix_http::Payload;
 use actix_web::{FromRequest, HttpRequest};
 use chrono::{DateTime, Duration, Utc};
 use futures::{
-    future::{ready, BoxFuture, Ready},
     FutureExt,
+    future::{BoxFuture, Ready, ready},
 };
 use headless_lms_models::{
+    ModelError, ModelErrorType, ModelResult,
     exercise_service_info::ExerciseServiceInfoApi,
     exercise_task_gradings::{ExerciseTaskGradingRequest, ExerciseTaskGradingResult},
     exercise_task_submissions::ExerciseTaskSubmission,
     exercise_tasks::ExerciseTask,
-    ModelError, ModelErrorType, ModelResult,
 };
 use headless_lms_utils::error::backend_error::BackendError;
 use hmac::{Hmac, Mac};
@@ -271,7 +271,9 @@ pub fn make_spec_fetcher(
                 );
                 return Err(ModelError::new(
                     ModelErrorType::Generic,
-                    format!("Failed to generate spec for exercise for {exercise_service_slug}: {error}."),
+                    format!(
+                        "Failed to generate spec for exercise for {exercise_service_slug}: {error}."
+                    ),
                     None,
                 ));
             }

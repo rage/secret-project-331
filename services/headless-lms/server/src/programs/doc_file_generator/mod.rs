@@ -146,7 +146,7 @@ use headless_lms_models::{
     user_research_consents::UserResearchConsent,
 };
 use serde::Serialize;
-use serde_json::{json, ser::PrettyFormatter, Serializer, Value};
+use serde_json::{Serializer, Value, json, ser::PrettyFormatter};
 use std::{collections::HashMap, fs};
 #[cfg(feature = "ts_rs")]
 use ts_rs::TS;

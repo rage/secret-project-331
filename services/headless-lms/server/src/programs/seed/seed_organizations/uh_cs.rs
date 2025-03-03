@@ -3,7 +3,7 @@ use std::sync::Arc;
 use chrono::{Duration, TimeZone, Utc};
 use futures::try_join;
 use headless_lms_models::{
-    course_exams,
+    PKeyPolicy, course_exams,
     course_instances::{self, NewCourseInstance},
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy},
     courses::NewCourse,
@@ -14,7 +14,6 @@ use headless_lms_models::{
     },
     open_university_registration_links, organizations,
     roles::{self, RoleDomain, UserRole},
-    PKeyPolicy,
 };
 use headless_lms_utils::futures::run_parallelly;
 use uuid::Uuid;
@@ -23,8 +22,8 @@ use crate::{
     domain::models_requests::{self, JwtKey},
     programs::seed::{
         seed_courses::{
-            create_glossary_course, seed_cs_course_material,
-            seed_peer_review_course_without_submissions, seed_sample_course, CommonCourseData,
+            CommonCourseData, create_glossary_course, seed_cs_course_material,
+            seed_peer_review_course_without_submissions, seed_sample_course,
         },
         seed_file_storage::SeedFileStorageResult,
         seed_helpers::create_exam,

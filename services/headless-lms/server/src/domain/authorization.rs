@@ -1,7 +1,7 @@
 //! Common functionality related to authorization
 
-use crate::prelude::*;
 use crate::OAuthClient;
+use crate::prelude::*;
 use actix_http::Payload;
 use actix_session::Session;
 use actix_session::SessionExt;
@@ -11,14 +11,14 @@ use chrono::{DateTime, Duration, Utc};
 use futures::Future;
 use headless_lms_models::{self as models, roles::UserRole, users::User};
 use headless_lms_utils::http::REQWEST_CLIENT;
-use models::{roles::Role, CourseOrExamId};
-use oauth2::basic::BasicTokenType;
+use models::{CourseOrExamId, roles::Role};
 use oauth2::EmptyExtraTokenFields;
 use oauth2::HttpClientError;
 use oauth2::ResourceOwnerPassword;
 use oauth2::ResourceOwnerUsername;
 use oauth2::StandardTokenResponse;
 use oauth2::TokenResponse;
+use oauth2::basic::BasicTokenType;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sqlx::PgConnection;
@@ -873,30 +873,25 @@ async fn get_or_create_user_from_moocfi_response(
     } = moocfi_user;
 
     // fetch existing user or create new one
-    let user =
-        match models::users::find_by_upstream_id(conn, upstream_id).await? {
-            Some(existing_user) => existing_user,
-            None => {
-                models::users::insert_with_upstream_id_and_moocfi_id(
-                    conn,
-                    &email,
-                    // convert empty names to None
-                    first_name.as_deref().and_then(|n| {
-                        if n.trim().is_empty() {
-                            None
-                        } else {
-                            Some(n)
-                        }
-                    }),
-                    last_name
-                        .as_deref()
-                        .and_then(|n| if n.trim().is_empty() { None } else { Some(n) }),
-                    upstream_id,
-                    moocfi_id,
-                )
-                .await?
-            }
-        };
+    let user = match models::users::find_by_upstream_id(conn, upstream_id).await? {
+        Some(existing_user) => existing_user,
+        None => {
+            models::users::insert_with_upstream_id_and_moocfi_id(
+                conn,
+                &email,
+                // convert empty names to None
+                first_name
+                    .as_deref()
+                    .and_then(|n| if n.trim().is_empty() { None } else { Some(n) }),
+                last_name
+                    .as_deref()
+                    .and_then(|n| if n.trim().is_empty() { None } else { Some(n) }),
+                upstream_id,
+                moocfi_id,
+            )
+            .await?
+        }
+    };
     Ok(user)
 }
 

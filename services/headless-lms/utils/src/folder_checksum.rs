@@ -88,11 +88,7 @@ fn determine_permissions_mode_for_hashing(permissions: &Permissions) -> u32 {
     }
     // Default implementation for mostly windows that has no unix like modes.
     // Another approach here could be to pull the file mode from git.
-    if permissions.readonly() {
-        0o444
-    } else {
-        0o644
-    }
+    if permissions.readonly() { 0o444 } else { 0o644 }
 }
 
 #[cfg(test)]
@@ -211,7 +207,9 @@ mod tests {
             return;
         }
 
-        warn!("First attempt at the folder checksum test failed. Retrying in case there was a file corruption issue on this machine.");
+        warn!(
+            "First attempt at the folder checksum test failed. Retrying in case there was a file corruption issue on this machine."
+        );
         do_the_test().await;
     }
 }

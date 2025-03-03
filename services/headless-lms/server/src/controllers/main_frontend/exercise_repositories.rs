@@ -1,8 +1,8 @@
 use std::ops::Deref;
 
 use models::{
-    exercise_repositories::{ExerciseRepository, ExerciseRepositoryUpdate},
     CourseOrExamId,
+    exercise_repositories::{ExerciseRepository, ExerciseRepositoryUpdate},
 };
 
 use crate::{domain, prelude::*};

@@ -288,7 +288,9 @@ pub async fn upsert_multiple_peer_or_self_review_questions(
     conn: &mut PgConnection,
     peer_or_self_review_questions: &[CmsPeerOrSelfReviewQuestion],
 ) -> ModelResult<Vec<CmsPeerOrSelfReviewQuestion>> {
-    let mut sql:QueryBuilder<Postgres> = sqlx::QueryBuilder::new("INSERT INTO peer_or_self_review_questions (id, peer_or_self_review_config_id, order_number, question_type, question, answer_required) ");
+    let mut sql: QueryBuilder<Postgres> = sqlx::QueryBuilder::new(
+        "INSERT INTO peer_or_self_review_questions (id, peer_or_self_review_config_id, order_number, question_type, question, answer_required) ",
+    );
 
     sql.push_values(peer_or_self_review_questions, |mut x, prq| {
         x.push_bind(prq.id)

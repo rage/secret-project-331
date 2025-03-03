@@ -2,8 +2,8 @@ use std::{fmt, num::ParseIntError};
 
 use anyhow::bail;
 use serde::{
-    de::{self, MapAccess, Visitor},
     Deserialize, Deserializer,
+    de::{self, MapAccess, Visitor},
 };
 #[cfg(feature = "ts_rs")]
 use ts_rs::TS;
@@ -156,7 +156,7 @@ impl<'de> Deserialize<'de> for Pagination {
                             return Err(de::Error::custom(format!(
                                 "unexpected parameter `{}`",
                                 field
-                            )))
+                            )));
                         }
                     }
                 }

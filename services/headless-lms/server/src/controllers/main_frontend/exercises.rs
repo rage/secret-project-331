@@ -3,8 +3,8 @@
 use futures::future;
 
 use models::{
-    exercise_slide_submissions::ExerciseSlideSubmission,
-    library::grading::AnswersRequiringAttention, CourseOrExamId,
+    CourseOrExamId, exercise_slide_submissions::ExerciseSlideSubmission,
+    library::grading::AnswersRequiringAttention,
 };
 
 use crate::{domain::models_requests, prelude::*};

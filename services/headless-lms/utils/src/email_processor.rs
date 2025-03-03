@@ -456,7 +456,9 @@ mod email_processor_tests {
         let result = process_content_to_html(&input);
 
         assert_eq!(
-            String::from("<ol><li><code>first</code></li><li><kbd>second</kbd></li><li>third</li><li>fourth</li></ol>"),
+            String::from(
+                "<ol><li><code>first</code></li><li><kbd>second</kbd></li><li>third</li><li>fourth</li></ol>"
+            ),
             result
         );
     }

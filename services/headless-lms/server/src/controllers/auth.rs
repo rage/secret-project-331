@@ -3,14 +3,14 @@ Handlers for HTTP requests to `/api/v0/auth`.
 */
 
 use crate::{
+    OAuthClient,
     domain::{
         authorization::{
-            self, authorize_with_fetched_list_of_roles, skip_authorize, ActionOnResource,
+            self, ActionOnResource, authorize_with_fetched_list_of_roles, skip_authorize,
         },
         rate_limit_middleware_builder::build_rate_limiting_middleware,
     },
     prelude::*,
-    OAuthClient,
 };
 use actix_session::Session;
 use reqwest::Client;

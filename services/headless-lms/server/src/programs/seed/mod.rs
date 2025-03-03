@@ -17,7 +17,7 @@ use anyhow::Context;
 use futures::try_join;
 
 use headless_lms_utils::futures::run_parallelly;
-use sqlx::{migrate::MigrateDatabase, postgres::PgPoolOptions, Pool, Postgres};
+use sqlx::{Pool, Postgres, migrate::MigrateDatabase, postgres::PgPoolOptions};
 use tracing::info;
 
 pub async fn main() -> anyhow::Result<()> {

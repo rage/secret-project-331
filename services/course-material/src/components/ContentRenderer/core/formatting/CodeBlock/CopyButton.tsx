@@ -139,8 +139,8 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ content }) => {
   }, [copyStatus])
 
   const handleCopy = useCallback(async () => {
-    const result = await copyToClipboard()
-    setCopyStatus(result.success ? COPY_STATUS.SUCCESS : COPY_STATUS.ERROR)
+    const success = await copyToClipboard()
+    setCopyStatus(success ? COPY_STATUS.SUCCESS : COPY_STATUS.ERROR)
   }, [copyToClipboard])
 
   const transitions = useTransition(copyStatus, {

@@ -12,6 +12,7 @@ describe("CopyButton", () => {
     log: console.log,
     warn: console.warn,
     error: console.error,
+    info: console.info,
   }
 
   beforeAll(() => {
@@ -38,6 +39,7 @@ describe("CopyButton", () => {
     console.log = jest.fn()
     console.warn = jest.fn()
     console.error = jest.fn()
+    console.info = jest.fn()
   })
 
   afterEach(() => {
@@ -45,6 +47,7 @@ describe("CopyButton", () => {
     console.log = originalConsole.log
     console.warn = originalConsole.warn
     console.error = originalConsole.error
+    console.info = originalConsole.info
     jest.restoreAllMocks()
     jest.clearAllTimers()
   })
@@ -52,6 +55,36 @@ describe("CopyButton", () => {
   it("should render with default state", () => {
     renderCopyButton(mockContent)
     expect(screen.getByRole("button")).toHaveAttribute("aria-label", "copy-to-clipboard")
+  })
+
+  it("should show success state when copy succeeds", async () => {
+    renderCopyButton(mockContent)
+    const button = screen.getByRole("button")
+
+    await act(async () => {
+      fireEvent.click(button)
+    })
+
+    expect(button).toHaveAttribute("aria-label", "copied")
+  })
+
+  it("should show error state when copy fails", async () => {
+    Object.defineProperty(navigator, "clipboard", {
+      value: {
+        writeText: jest.fn(() => Promise.reject(new Error("Clipboard failed"))),
+      },
+      configurable: true,
+    })
+    document.execCommand = jest.fn(() => false)
+
+    renderCopyButton(mockContent)
+    const button = screen.getByRole("button")
+
+    await act(async () => {
+      fireEvent.click(button)
+    })
+
+    expect(button).toHaveAttribute("aria-label", "copying-failed")
   })
 
   describe("Clipboard API", () => {

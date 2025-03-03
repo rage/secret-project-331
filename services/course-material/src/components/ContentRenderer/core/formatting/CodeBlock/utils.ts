@@ -24,8 +24,9 @@ export function replaceBrTagsWithNewlines(html: string | null | undefined): type
 
 /**
  * Fallback copy method using execCommand.
+ * @throws Error if copy fails
  */
-function copyWithFallback(text: string) {
+function copyWithFallback(text: string): void {
   const textArea = document.createElement("textarea")
   textArea.value = text
   document.body.appendChild(textArea)
@@ -36,24 +37,24 @@ function copyWithFallback(text: string) {
   if (!successful) {
     throw new Error("Copy failed")
   }
-  console.log("[Copy Success] Legacy method:", { text })
+  console.info("[Copy] Success using legacy method", "\nCopied text:", text)
 }
 
 /**
- * Returns a callback for copying code to clipboard. The code can contain:
- * - HTML entities (like &lt; &gt; &amp;) -> Will be decoded to actual characters
- * - Actual HTML <br> tags -> Will be replaced with newlines
- * - Literal backslash-n sequences (like \n) -> Will be preserved
- * - Actual newlines -> Will be preserved
- *
- * The processing order matters:
- * 1. Copy content to avoid mutating original
- * 2. Replace actual <br> tags with newlines
- * 3. Decode HTML entities (&lt; -> <, &gt; -> >, &amp; -> &)
- *
+ * Attempts to copy text using the Clipboard API.
+ * @throws Error if copy fails
  */
-export function useCopyToClipboard(content: string) {
-  const copyToClipboard = useCallback(async () => {
+async function copyWithClipboardApi(text: string): Promise<void> {
+  await navigator.clipboard.writeText(text)
+  console.info("[Copy] Success using Clipboard API", "\nCopied text:", text)
+}
+
+/**
+ * Returns a callback for copying code to clipboard.
+ * @returns A function that when called attempts to copy text and returns true if successful
+ */
+export function useCopyToClipboard(content: string): () => Promise<boolean> {
+  const copyToClipboard = useCallback(async (): Promise<boolean> => {
     const copyOfContent = copyString(content)
     const withoutNewLines = replaceBrTagsWithNewlines(copyOfContent) ?? ""
     const textToCopy = decodeHtmlEntities(withoutNewLines)
@@ -61,9 +62,8 @@ export function useCopyToClipboard(content: string) {
     try {
       if (navigator.clipboard) {
         try {
-          await navigator.clipboard.writeText(textToCopy)
-          console.log("[Copy Success] Clipboard API:", { text: textToCopy })
-          return { success: true }
+          await copyWithClipboardApi(textToCopy)
+          return true
         } catch (error) {
           const isSecureContext = window.isSecureContext
           const isPermissionError = error instanceof Error && error.name === "NotAllowedError"
@@ -90,12 +90,12 @@ export function useCopyToClipboard(content: string) {
             )
           }
           copyWithFallback(textToCopy)
-          return { success: true }
+          return true
         }
       } else {
         console.warn("[Copy] Clipboard API not available", "\nTrying legacy method.")
         copyWithFallback(textToCopy)
-        return { success: true }
+        return true
       }
     } catch (error) {
       console.error(
@@ -103,7 +103,7 @@ export function useCopyToClipboard(content: string) {
         "Please try selecting the text manually and using Ctrl+C/Cmd+C.",
         error,
       )
-      return { success: false }
+      return false
     }
   }, [content])
 

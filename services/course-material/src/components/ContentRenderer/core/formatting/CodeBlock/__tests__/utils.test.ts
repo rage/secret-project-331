@@ -86,6 +86,7 @@ describe("useCopyToClipboard", () => {
     log: console.log,
     warn: console.warn,
     error: console.error,
+    info: console.info,
   }
 
   beforeEach(() => {
@@ -96,12 +97,15 @@ describe("useCopyToClipboard", () => {
       },
       configurable: true,
     })
+
+    // Mock execCommand for fallback
     document.execCommand = jest.fn(() => true)
 
     // Silence console methods
     console.log = jest.fn()
     console.warn = jest.fn()
     console.error = jest.fn()
+    console.info = jest.fn()
   })
 
   afterEach(() => {
@@ -109,6 +113,7 @@ describe("useCopyToClipboard", () => {
     console.log = originalConsole.log
     console.warn = originalConsole.warn
     console.error = originalConsole.error
+    console.info = originalConsole.info
     jest.restoreAllMocks()
   })
 
@@ -116,10 +121,10 @@ describe("useCopyToClipboard", () => {
     const { result } = renderHook(() => useCopyToClipboard("Hello world"))
     const copyToClipboard = result.current
 
-    const copyResult = await copyToClipboard()
+    const success = await copyToClipboard()
 
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith("Hello world")
-    expect(copyResult.success).toBe(true)
+    expect(success).toBe(true)
   })
 
   it("should decode HTML entities and convert BR tags", async () => {
@@ -167,10 +172,10 @@ describe("useCopyToClipboard", () => {
       const { result } = renderHook(() => useCopyToClipboard("Test content"))
       const copyToClipboard = result.current
 
-      const copyResult = await copyToClipboard()
+      const success = await copyToClipboard()
 
       expect(document.execCommand).toHaveBeenCalledWith("copy")
-      expect(copyResult.success).toBe(true)
+      expect(success).toBe(true)
     })
 
     it("should use fallback when Clipboard API is not available", async () => {
@@ -182,13 +187,13 @@ describe("useCopyToClipboard", () => {
       const { result } = renderHook(() => useCopyToClipboard("Test content"))
       const copyToClipboard = result.current
 
-      const copyResult = await copyToClipboard()
+      const success = await copyToClipboard()
 
       expect(document.execCommand).toHaveBeenCalledWith("copy")
-      expect(copyResult.success).toBe(true)
+      expect(success).toBe(true)
     })
 
-    it("should return failure when both clipboard methods fail", async () => {
+    it("should return false when both clipboard methods fail", async () => {
       Object.defineProperty(navigator, "clipboard", {
         value: {
           writeText: jest.fn(() => Promise.reject(new Error("Clipboard failed"))),
@@ -200,9 +205,9 @@ describe("useCopyToClipboard", () => {
       const { result } = renderHook(() => useCopyToClipboard("Test content"))
       const copyToClipboard = result.current
 
-      const copyResult = await copyToClipboard()
+      const success = await copyToClipboard()
 
-      expect(copyResult.success).toBe(false)
+      expect(success).toBe(false)
     })
   })
 })

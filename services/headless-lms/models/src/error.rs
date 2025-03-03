@@ -293,10 +293,13 @@ mod test {
         )
         .await
         .unwrap_err();
-        if let ModelErrorType::DatabaseConstraint { constraint, .. } = err.error_type {
-            assert_eq!(constraint, "email_templates_subject_check");
-        } else {
-            panic!("wrong error variant")
+        match err.error_type {
+            ModelErrorType::DatabaseConstraint { constraint, .. } => {
+                assert_eq!(constraint, "email_templates_subject_check");
+            }
+            _ => {
+                panic!("wrong error variant")
+            }
         }
     }
 
@@ -313,10 +316,13 @@ mod test {
         )
         .await
         .unwrap_err();
-        if let ModelErrorType::DatabaseConstraint { constraint, .. } = err.error_type {
-            assert_eq!(constraint, "user_details_email_check");
-        } else {
-            panic!("wrong error variant")
+        match err.error_type {
+            ModelErrorType::DatabaseConstraint { constraint, .. } => {
+                assert_eq!(constraint, "user_details_email_check");
+            }
+            _ => {
+                panic!("wrong error variant")
+            }
         }
     }
 }

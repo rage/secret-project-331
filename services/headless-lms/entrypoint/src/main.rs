@@ -93,15 +93,18 @@ fn main() -> Result<()> {
         std::process::exit(1);
     });
 
-    if let Some(program) = programs_list
+    match programs_list
         .iter()
         .find(|p| p.name == program_name.as_str())
     {
-        (program.execute)()?;
-    } else {
-        eprintln!("Error: Unknown program name: '{}'.", program_name);
-        print_valid_programs(&programs_list);
-        std::process::exit(1);
+        Some(program) => {
+            (program.execute)()?;
+        }
+        _ => {
+            eprintln!("Error: Unknown program name: '{}'.", program_name);
+            print_valid_programs(&programs_list);
+            std::process::exit(1);
+        }
     }
 
     Ok(())

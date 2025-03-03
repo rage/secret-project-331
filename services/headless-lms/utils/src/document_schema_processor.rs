@@ -21,7 +21,7 @@ macro_rules! attributes {
     () => {{
         serde_json::Map::<String, serde_json::Value>::new()
     }};
-    ($($name: tt: $value: expr),+ $(,)*) => {{
+    ($($name: tt: $value: expr_2021),+ $(,)*) => {{
         let mut map = serde_json::Map::<String, serde_json::Value>::new();
         $(map.insert($name.into(), serde_json::json!($value));)*
         map

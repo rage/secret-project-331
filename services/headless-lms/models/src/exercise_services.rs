@@ -228,7 +228,7 @@ pub async fn get_all_exercise_services_iframe_rendering_infos(
         .into_iter()
         .filter_map(|exercise_service| {
             if let Some((_, service_info)) = service_infos.get(&exercise_service.slug) {
-                if let Ok(mut url) =  get_exercise_service_externally_preferred_baseurl(&exercise_service) {
+                match get_exercise_service_externally_preferred_baseurl(&exercise_service) { Ok(mut url) => {
                     url.set_path(&service_info.user_interface_iframe_path);
                     Some(ExerciseServiceIframeRenderingInfo {
                         id: exercise_service.id,
@@ -237,10 +237,10 @@ pub async fn get_all_exercise_services_iframe_rendering_infos(
                         public_iframe_url: url.to_string(),
                         has_custom_view: service_info.has_custom_view,
                     })
-                } else {
+                } _ => {
                     warn!(exercise_service_id = ?exercise_service.id, "Skipping exercise service from the list because it has an invalid base url");
                     None
-                }
+                }}
 
             } else {
                 warn!(exercise_service_id = ?exercise_service.id, "Skipping exercise service from the list because it doesn't have a service info");

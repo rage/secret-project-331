@@ -32,7 +32,8 @@ pub struct Change {
 }
 
 pub async fn main() -> anyhow::Result<()> {
-    env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn");
+    // TODO: Audit that the environment access only happens in single-threaded code.
+    unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
     dotenv().ok();
     setup_tracing()?;
     let database_url = env::var("DATABASE_URL")

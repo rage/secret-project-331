@@ -91,8 +91,10 @@ pub async fn init_actix() -> (
     impl actix_web::dev::Service<Request, Response = ServiceResponse<BoxBody>, Error = actix_web::Error>,
     PgPool,
 ) {
-    env::set_var("OAUTH_APPLICATION_ID", "some-id");
-    env::set_var("HEADLESS_LMS_CACHE_FILES_PATH", "/tmp");
+    // TODO: Audit that the environment access only happens in single-threaded code.
+    unsafe { env::set_var("OAUTH_APPLICATION_ID", "some-id") };
+    // TODO: Audit that the environment access only happens in single-threaded code.
+    unsafe { env::set_var("HEADLESS_LMS_CACHE_FILES_PATH", "/tmp") };
     let private_cookie_key =
         "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS";
     let server_config = test_config().await;

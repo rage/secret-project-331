@@ -68,7 +68,8 @@ pub async fn main() -> anyhow::Result<()> {
 }
 
 fn initialize_environment() -> anyhow::Result<()> {
-    env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn");
+    // TODO: Audit that the environment access only happens in single-threaded code.
+    unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
     dotenv().ok();
     setup_tracing()?;
     Ok(())

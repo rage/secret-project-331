@@ -359,13 +359,11 @@ impl From<actix_multipart::MultipartError> for ControllerError {
 
 impl From<ModelError> for ControllerError {
     fn from(err: ModelError) -> Self {
-        let backtrace: Backtrace = if let Some(backtrace) =
-            headless_lms_utils::error::backend_error::BackendError::backtrace(&err)
-        {
-            backtrace.clone()
-        } else {
-            Backtrace::new()
-        };
+        let backtrace: Backtrace =
+            match headless_lms_utils::error::backend_error::BackendError::backtrace(&err) {
+                Some(backtrace) => backtrace.clone(),
+                _ => Backtrace::new(),
+            };
         let span_trace = err.span_trace().clone();
         match err.error_type() {
             ModelErrorType::RecordNotFound => Self::new_with_traces(
@@ -425,13 +423,11 @@ impl From<ModelError> for ControllerError {
 
 impl From<UtilError> for ControllerError {
     fn from(err: UtilError) -> Self {
-        let backtrace: Backtrace = if let Some(backtrace) =
-            headless_lms_utils::error::backend_error::BackendError::backtrace(&err)
-        {
-            backtrace.clone()
-        } else {
-            Backtrace::new()
-        };
+        let backtrace: Backtrace =
+            match headless_lms_utils::error::backend_error::BackendError::backtrace(&err) {
+                Some(backtrace) => backtrace.clone(),
+                _ => Backtrace::new(),
+            };
         let span_trace = err.span_trace().clone();
         Self::new_with_traces(
             ControllerErrorType::InternalServerError,

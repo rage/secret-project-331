@@ -82,9 +82,14 @@ describe("decodeHtmlEntities", () => {
 })
 
 describe("useCopyToClipboard", () => {
-  const originalExecCommand = document.execCommand
+  const originalConsole = {
+    log: console.log,
+    warn: console.warn,
+    error: console.error,
+  }
 
   beforeEach(() => {
+    // Mock clipboard API
     Object.defineProperty(navigator, "clipboard", {
       value: {
         writeText: jest.fn(() => Promise.resolve()),
@@ -92,14 +97,19 @@ describe("useCopyToClipboard", () => {
       configurable: true,
     })
     document.execCommand = jest.fn(() => true)
-    // Silence console.error
-    jest.spyOn(console, "error").mockImplementation(() => {})
+
+    // Silence console methods
+    console.log = jest.fn()
+    console.warn = jest.fn()
+    console.error = jest.fn()
   })
 
   afterEach(() => {
-    // Restore console.error and document.execCommand
+    // Restore console methods
+    console.log = originalConsole.log
+    console.warn = originalConsole.warn
+    console.error = originalConsole.error
     jest.restoreAllMocks()
-    document.execCommand = originalExecCommand
   })
 
   it("should handle basic text copying", async () => {

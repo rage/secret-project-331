@@ -8,6 +8,11 @@ const renderCopyButton = (content = "Test content") => render(<CopyButton conten
 
 describe("CopyButton", () => {
   const mockContent = "Test content"
+  const originalConsole = {
+    log: console.log,
+    warn: console.warn,
+    error: console.error,
+  }
 
   beforeAll(() => {
     jest.useFakeTimers()
@@ -18,16 +23,29 @@ describe("CopyButton", () => {
   })
 
   beforeEach(() => {
+    // Mock clipboard API
     Object.defineProperty(navigator, "clipboard", {
       value: {
         writeText: jest.fn(() => Promise.resolve()),
       },
       configurable: true,
     })
+
+    // Mock execCommand for fallback
     document.execCommand = jest.fn(() => true)
+
+    // Silence console methods
+    console.log = jest.fn()
+    console.warn = jest.fn()
+    console.error = jest.fn()
   })
 
   afterEach(() => {
+    // Restore console methods
+    console.log = originalConsole.log
+    console.warn = originalConsole.warn
+    console.error = originalConsole.error
+    jest.restoreAllMocks()
     jest.clearAllTimers()
   })
 

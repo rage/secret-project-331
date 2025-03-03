@@ -36,6 +36,7 @@ function copyWithFallback(text: string) {
   if (!successful) {
     throw new Error("Copy failed")
   }
+  console.log("[Copy Success] Legacy method:", { text })
 }
 
 /**
@@ -61,17 +62,47 @@ export function useCopyToClipboard(content: string) {
       if (navigator.clipboard) {
         try {
           await navigator.clipboard.writeText(textToCopy)
+          console.log("[Copy Success] Clipboard API:", { text: textToCopy })
           return { success: true }
-        } catch {
+        } catch (error) {
+          const isSecureContext = window.isSecureContext
+          const isPermissionError = error instanceof Error && error.name === "NotAllowedError"
+
+          if (!isSecureContext) {
+            console.warn(
+              "[Copy] Unable to use Clipboard API (HTTPS required)",
+              "To enable the best copy experience, please access this page via HTTPS.",
+              "\nTrying legacy method.",
+            )
+          } else if (isPermissionError) {
+            console.warn(
+              "[Copy] Unable to use Clipboard API (Permission denied)",
+              "\nError details:",
+              error instanceof Error ? error.message : String(error),
+              "\nTrying legacy method.",
+            )
+          } else {
+            console.warn(
+              "[Copy] Unable to use Clipboard API (Unknown error)",
+              "\nError details:",
+              error instanceof Error ? error.message : String(error),
+              "\nTrying legacy method.",
+            )
+          }
           copyWithFallback(textToCopy)
           return { success: true }
         }
       } else {
+        console.warn("[Copy] Clipboard API not available", "\nTrying legacy method.")
         copyWithFallback(textToCopy)
         return { success: true }
       }
     } catch (error) {
-      console.error("Copying to clipboard failed:", error)
+      console.error(
+        "[Copy Failed] Copy operation failed",
+        "Please try selecting the text manually and using Ctrl+C/Cmd+C.",
+        error,
+      )
       return { success: false }
     }
   }, [content])

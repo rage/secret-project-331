@@ -52,26 +52,21 @@ const CodeBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CodeAttribu
 }) => {
   const { content } = data.attributes
 
-  // To make sure we don't accidentally modify the original content, we work on copies of it.
-  const fontSizeContent = useMemo(() => replaceBrTagsWithNewlines(copyString(content)), [content])
-  const copyButtonContent = useMemo(() => copyString(content), [content])
-  const displayedContent = useMemo(() => copyString(content), [content])
-
   const fontSizePx = useMemo(() => {
-    const longestLine = (fontSizeContent ?? "")
+    const longestLine = (content ?? "")
       .split("\n")
       .reduce((acc, line) => Math.max(acc, line.length), 0)
     return longestLine > 100 ? 14 : longestLine > 70 ? 16 : 20
-  }, [fontSizeContent])
+  }, [content])
 
   return (
     <BreakFromCentered sidebar={false}>
       <div className={containerStyles}>
-        {copyButtonContent && <CopyButton content={copyButtonContent} />}
+        {content && <CopyButton content={content} />}
         <pre
           className={getPreStyles(fontSizePx, dontAllowBlockToBeWiderThanContainerWidth ?? false)}
         >
-          <SyntaxHighlightedContainer content={displayedContent ?? undefined} />
+          <SyntaxHighlightedContainer content={content} />
         </pre>
       </div>
     </BreakFromCentered>

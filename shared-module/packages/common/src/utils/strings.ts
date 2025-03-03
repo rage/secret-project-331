@@ -90,7 +90,3 @@ export function errorToDescription(error: string | FieldError | undefined): stri
   }
   return error.message ?? error.type
 }
-
-export function copyString(str: string | null | undefined): typeof str {
-  return str ? "" + str : str
-}

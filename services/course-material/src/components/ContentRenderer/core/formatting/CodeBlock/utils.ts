@@ -1,7 +1,5 @@
 import { useCallback } from "react"
 
-import { copyString } from "@/shared-module/common/utils/strings"
-
 /**
  * Decodes HTML entities in a string
  */
@@ -55,8 +53,7 @@ async function copyWithClipboardApi(text: string): Promise<void> {
  */
 export function useCopyToClipboard(content: string): () => Promise<boolean> {
   const copyToClipboard = useCallback(async (): Promise<boolean> => {
-    const copyOfContent = copyString(content)
-    const withoutNewLines = replaceBrTagsWithNewlines(copyOfContent) ?? ""
+    const withoutNewLines = replaceBrTagsWithNewlines(content) ?? ""
     const textToCopy = decodeHtmlEntities(withoutNewLines)
 
     try {

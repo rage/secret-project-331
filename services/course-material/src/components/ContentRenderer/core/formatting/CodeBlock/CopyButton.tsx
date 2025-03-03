@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
+import { createPopper, Instance as PopperInstance } from "@popperjs/core"
 import { CheckCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { animated, SpringValue, useTransition } from "react-spring"
 
@@ -71,26 +72,12 @@ const tooltipStyles = css`
   padding: 4px 8px;
   position: absolute;
   z-index: 1;
-  top: -40px;
-  left: 50%;
-  transform: translateX(-50%);
-  white-space: nowrap;
   font-size: 12px;
   pointer-events: none;
+  white-space: nowrap;
   transition:
     visibility 0s,
     opacity 0.2s;
-  &::after {
-    content: "";
-    position: absolute;
-    bottom: -5px;
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: ${baseTheme.colors.gray[700]} transparent transparent transparent;
-  }
-  button:hover &,
   &[data-show="true"] {
     visibility: visible;
     opacity: 1;
@@ -127,6 +114,45 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ content }) => {
   const [showTooltip, setShowTooltip] = useState(false)
   const copyToClipboard = useCopyToClipboard(content)
 
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const tooltipRef = useRef<HTMLDivElement>(null)
+  const popperInstanceRef = useRef<PopperInstance | null>(null)
+
+  useEffect(() => {
+    if (buttonRef.current && tooltipRef.current) {
+      popperInstanceRef.current = createPopper(buttonRef.current, tooltipRef.current, {
+        placement: "top",
+        modifiers: [
+          {
+            name: "offset",
+            options: {
+              offset: [0, 12],
+            },
+          },
+          {
+            name: "preventOverflow",
+            options: {
+              padding: 8,
+            },
+          },
+        ],
+      })
+    }
+
+    return () => {
+      if (popperInstanceRef.current) {
+        popperInstanceRef.current.destroy()
+        popperInstanceRef.current = null
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (popperInstanceRef.current) {
+      popperInstanceRef.current.update()
+    }
+  }, [showTooltip, copyStatus])
+
   useEffect(() => {
     if (copyStatus !== COPY_STATUS.DEFAULT) {
       setShowTooltip(true)
@@ -143,6 +169,16 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ content }) => {
     setCopyStatus(success ? COPY_STATUS.SUCCESS : COPY_STATUS.ERROR)
   }, [copyToClipboard])
 
+  const handleMouseEnter = useCallback(() => {
+    setShowTooltip(true)
+  }, [])
+
+  const handleMouseLeave = useCallback(() => {
+    if (copyStatus === COPY_STATUS.DEFAULT) {
+      setShowTooltip(false)
+    }
+  }, [copyStatus])
+
   const transitions = useTransition(copyStatus, {
     from: { opacity: 0, transform: "scale(0.5)", position: "absolute" },
     enter: { opacity: 1, transform: "scale(1.1)", position: "absolute" },
@@ -152,7 +188,10 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ content }) => {
 
   return (
     <button
+      ref={buttonRef}
       onClick={handleCopy}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       className={buttonStyles}
       data-status={copyStatus}
       aria-label={
@@ -177,13 +216,13 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ content }) => {
           return <AnimatedDiv style={style}>{IconComponent}</AnimatedDiv>
         })}
       </div>
-      <span className={tooltipStyles} data-show={showTooltip}>
+      <div ref={tooltipRef} className={tooltipStyles} data-show={showTooltip}>
         {copyStatus === COPY_STATUS.SUCCESS
           ? t("copied")
           : copyStatus === COPY_STATUS.ERROR
             ? t("copying-failed")
             : t("copy-to-clipboard")}
-      </span>
+      </div>
     </button>
   )
 }

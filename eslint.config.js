@@ -369,6 +369,7 @@ const config = [
               "setFormError",
               "animated",
               "useTransition",
+              "createPopper",
             ],
           },
           "object-properties": {

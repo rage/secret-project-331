@@ -17,7 +17,7 @@ type CopyStatus = (typeof COPY_STATUS)[keyof typeof COPY_STATUS]
 
 const ICON_COLORS = {
   DEFAULT: baseTheme.colors.primary[100],
-  SUCCESS: baseTheme.colors.green[300],
+  SUCCESS: "#5cc89b",
   ERROR: baseTheme.colors.red[300],
 } as const
 

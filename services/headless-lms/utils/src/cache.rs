@@ -1,7 +1,7 @@
 //! Redis cache wrapper.
 
 use redis::{AsyncCommands, Client, ToRedisArgs};
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{Serialize, de::DeserializeOwned};
 use std::time::Duration;
 
 /// Wrapper for accessing a redis cache.

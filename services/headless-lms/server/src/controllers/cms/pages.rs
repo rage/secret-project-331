@@ -1,11 +1,11 @@
 //! Controllers for requests starting with `/api/v0/cms/pages`.
 
 use models::{
+    CourseOrExamId,
     page_history::HistoryChangeReason,
     pages::{
         CmsPageUpdate, ContentManagementPage, PageInfo, PageNavigationInformation, PageUpdateArgs,
     },
-    CourseOrExamId,
 };
 
 use crate::{

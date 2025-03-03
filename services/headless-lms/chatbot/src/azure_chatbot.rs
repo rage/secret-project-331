@@ -1,7 +1,7 @@
 use std::pin::Pin;
 use std::sync::{
-    atomic::{self, AtomicBool},
     Arc,
+    atomic::{self, AtomicBool},
 };
 use std::task::{Context, Poll};
 
@@ -9,7 +9,7 @@ use bytes::Bytes;
 use chrono::Utc;
 use futures::{Stream, TryStreamExt};
 use headless_lms_models::chatbot_conversation_messages::ChatbotConversationMessage;
-use headless_lms_utils::{http::REQWEST_CLIENT, ApplicationConfiguration};
+use headless_lms_utils::{ApplicationConfiguration, http::REQWEST_CLIENT};
 use pin_project::pin_project;
 use reqwest::header::HeaderMap;
 use serde::{Deserialize, Serialize};

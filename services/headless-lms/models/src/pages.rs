@@ -1,16 +1,17 @@
-use std::collections::{hash_map, HashMap};
+use std::collections::{HashMap, hash_map};
 
 use futures::future::{BoxFuture, OptionFuture};
 use headless_lms_utils::document_schema_processor::{
-    contains_blocks_not_allowed_in_top_level_pages, GutenbergBlock,
+    GutenbergBlock, contains_blocks_not_allowed_in_top_level_pages,
 };
 use itertools::Itertools;
 use sqlx::{Postgres, QueryBuilder, Row};
 use url::Url;
 
 use crate::{
+    CourseOrExamId, SpecFetcher,
     chapters::{
-        self, course_chapters, get_chapter, get_chapter_by_page_id, Chapter, DatabaseChapter,
+        self, Chapter, DatabaseChapter, course_chapters, get_chapter, get_chapter_by_page_id,
     },
     course_instances::{self, CourseInstance},
     courses::{Course, CourseContextData},
@@ -22,11 +23,10 @@ use crate::{
     page_history::{self, HistoryChangeReason, PageHistoryContent},
     peer_or_self_review_configs::CmsPeerOrSelfReviewConfig,
     peer_or_self_review_questions::{
-        normalize_cms_peer_or_self_review_questions, CmsPeerOrSelfReviewQuestion,
+        CmsPeerOrSelfReviewQuestion, normalize_cms_peer_or_self_review_questions,
     },
     prelude::*,
     user_course_settings::{self, UserCourseSettings},
-    CourseOrExamId, SpecFetcher,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -3055,7 +3055,10 @@ WHERE pages.order_number = $1
                         ));
                     }
                 } else {
-                    error!("Cannot move a top level page to a chapter. matching_db_page.chapter_id: {:?} page.chapter_id: {:?}", matching_db_page.chapter_id, page.chapter_id);
+                    error!(
+                        "Cannot move a top level page to a chapter. matching_db_page.chapter_id: {:?} page.chapter_id: {:?}",
+                        matching_db_page.chapter_id, page.chapter_id
+                    );
                     // Moving page from the top level to a chapter
                     return Err(ModelError::new(
                         ModelErrorType::InvalidRequest,
@@ -3371,28 +3374,36 @@ mod test {
         };
 
         // Works without exercises
-        assert!(create_update(vec![], vec![], vec![])
-            .validate_exercise_data()
-            .is_ok());
+        assert!(
+            create_update(vec![], vec![], vec![])
+                .validate_exercise_data()
+                .is_ok()
+        );
 
         // Works with single valid exercise
-        assert!(create_update(
-            vec![e1.clone()],
-            vec![e1_s1.clone()],
-            vec![e1_s1_t1.clone()],
-        )
-        .validate_exercise_data()
-        .is_ok());
+        assert!(
+            create_update(
+                vec![e1.clone()],
+                vec![e1_s1.clone()],
+                vec![e1_s1_t1.clone()],
+            )
+            .validate_exercise_data()
+            .is_ok()
+        );
 
         // Fails with missing slide
-        assert!(create_update(vec![e1.clone()], vec![], vec![e1_s1_t1],)
-            .validate_exercise_data()
-            .is_err());
+        assert!(
+            create_update(vec![e1.clone()], vec![], vec![e1_s1_t1],)
+                .validate_exercise_data()
+                .is_err()
+        );
 
         // Fails with missing task
-        assert!(create_update(vec![e1], vec![e1_s1], vec![],)
-            .validate_exercise_data()
-            .is_err());
+        assert!(
+            create_update(vec![e1], vec![e1_s1], vec![],)
+                .validate_exercise_data()
+                .is_err()
+        );
     }
 
     fn create_update(

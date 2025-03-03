@@ -1,4 +1,4 @@
-use headless_lms_models::{user_research_consents, PKeyPolicy};
+use headless_lms_models::{PKeyPolicy, user_research_consents};
 use sqlx::{Pool, Postgres};
 
 use super::seed_users::SeedUsersResult;

@@ -8,9 +8,9 @@ use crate::programs::seed::seed_helpers::{
 use anyhow::Result;
 use chrono::{TimeZone, Utc};
 
-use headless_lms_models::{certificate_configuration_to_requirements, CourseOrExamId};
+use headless_lms_models::{CourseOrExamId, certificate_configuration_to_requirements};
 use headless_lms_models::{
-    certificate_configurations, chapters,
+    PKeyPolicy, certificate_configurations, chapters,
     chapters::NewChapter,
     course_instance_enrollments,
     course_instance_enrollments::NewCourseInstanceEnrollment,
@@ -31,7 +31,7 @@ use headless_lms_models::{
     proposed_block_edits::NewProposedBlockEdit,
     proposed_page_edits,
     proposed_page_edits::NewProposedPageEdits,
-    repository_exercises, url_redirections, PKeyPolicy,
+    repository_exercises, url_redirections,
 };
 use headless_lms_models::{certificate_configurations::DatabaseCertificateConfiguration, roles};
 use headless_lms_models::{
@@ -45,7 +45,7 @@ use tracing::info;
 use uuid::Uuid;
 
 use super::{
-    seed_helpers::{heading, CommonExerciseData},
+    seed_helpers::{CommonExerciseData, heading},
     seed_users::SeedUsersResult,
 };
 

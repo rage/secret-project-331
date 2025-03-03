@@ -26,8 +26,8 @@ use headless_lms_models::{
     pages::{Page, PageVisibility},
 };
 use headless_lms_utils::{
-    document_schema_processor::{remove_sensitive_attributes, GutenbergBlock},
     ApplicationConfiguration,
+    document_schema_processor::{GutenbergBlock, remove_sensitive_attributes},
 };
 
 const SYNC_INTERVAL_SECS: u64 = 10;

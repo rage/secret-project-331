@@ -3,7 +3,7 @@ use url::Url;
 
 use crate::{
     exercise_service_info::{
-        get_all_exercise_services_by_type, ExerciseServiceInfo, ExerciseServiceInfoApi,
+        ExerciseServiceInfo, ExerciseServiceInfoApi, get_all_exercise_services_by_type,
     },
     prelude::*,
 };

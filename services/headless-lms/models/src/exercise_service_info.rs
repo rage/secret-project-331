@@ -5,7 +5,7 @@ use url::Url;
 
 use crate::{
     exercise_services::{
-        get_exercise_service_by_exercise_type, get_exercise_services, ExerciseService,
+        ExerciseService, get_exercise_service_by_exercise_type, get_exercise_services,
     },
     prelude::*,
 };
@@ -96,10 +96,10 @@ pub async fn fetch_and_upsert_service_info(
 
         Some(Err(e)) => {
             warn!(
-            "Internal_url provided for {} is not a valid url. Using public_url instead. Error: {}",
-            exercise_service.name,
-            e.to_string()
-        );
+                "Internal_url provided for {} is not a valid url. Using public_url instead. Error: {}",
+                exercise_service.name,
+                e.to_string()
+            );
             exercise_service.public_url.clone()
         }
         None => exercise_service.public_url.clone(),
@@ -234,7 +234,10 @@ pub async fn get_service_info_by_exercise_service(
     let service_info = match res {
         Ok(exercise_service_info) => exercise_service_info,
         _ => {
-            warn!("Could not find service info for {} ({}). This is rare and only should happen when a background worker has not had the opportunity to complete their fetching task yet. Trying the fetching here in this worker so that we can continue.", exercise_service.name, exercise_service.slug);
+            warn!(
+                "Could not find service info for {} ({}). This is rare and only should happen when a background worker has not had the opportunity to complete their fetching task yet. Trying the fetching here in this worker so that we can continue.",
+                exercise_service.name, exercise_service.slug
+            );
 
             fetch_and_upsert_service_info(conn, exercise_service, fetch_service_info).await?
         }

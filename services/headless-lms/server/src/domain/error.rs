@@ -6,9 +6,8 @@ use std::{error::Error, fmt::Write};
 
 use crate::domain::authorization::AuthorizedResponse;
 use actix_web::{
-    error,
-    http::{header::ContentType, StatusCode},
-    HttpResponse, HttpResponseBuilder,
+    HttpResponse, HttpResponseBuilder, error,
+    http::{StatusCode, header::ContentType},
 };
 use backtrace::Backtrace;
 use derive_more::Display;

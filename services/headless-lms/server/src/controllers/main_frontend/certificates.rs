@@ -1,5 +1,5 @@
 use crate::{controllers::helpers::file_uploading, prelude::*};
-use actix_multipart::form::{tempfile::TempFile, MultipartForm};
+use actix_multipart::form::{MultipartForm, tempfile::TempFile};
 use chrono::Utc;
 use headless_lms_certificates as certificates;
 use headless_lms_utils::{file_store::file_utils, icu4x::Icu4xBlob};

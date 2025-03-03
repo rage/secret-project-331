@@ -277,7 +277,7 @@ mod test {
     use uuid::Uuid;
 
     use super::*;
-    use crate::{email_templates::EmailTemplateNew, test_helper::*, PKeyPolicy};
+    use crate::{PKeyPolicy, email_templates::EmailTemplateNew, test_helper::*};
 
     #[tokio::test]
     async fn email_templates_check() {

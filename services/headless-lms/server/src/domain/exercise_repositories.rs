@@ -1,10 +1,11 @@
 use anyhow::Context;
 use blake3::Hash;
-use git2::{build::RepoBuilder, Cred, FetchOptions, RemoteCallbacks, Repository};
+use git2::{Cred, FetchOptions, RemoteCallbacks, Repository, build::RepoBuilder};
 use headless_lms_models::{exercise_repositories, repository_exercises};
 use headless_lms_utils::{
+    ApplicationConfiguration,
     file_store::{self, FileStore},
-    folder_checksum, ApplicationConfiguration,
+    folder_checksum,
 };
 use sqlx::{Acquire, PgConnection};
 use std::{
@@ -47,7 +48,9 @@ pub async fn process(
         }
         Err(err) => {
             if !stored_files.is_empty() {
-                warn!("Failed while creating new exercise repository, cleaning files that were uploaded");
+                warn!(
+                    "Failed while creating new exercise repository, cleaning files that were uploaded"
+                );
                 for file in stored_files {
                     if let Err(err) = file_store.delete(&file).await {
                         error!("Failed to clean file {}: {err}", file.display());
@@ -141,7 +144,9 @@ pub async fn update(
         Ok(res) => Ok(res),
         Err(err) => {
             if !new_stored_files.is_empty() {
-                debug!("Failed while updating exercise repository, cleaning new exercises that were uploaded");
+                debug!(
+                    "Failed while updating exercise repository, cleaning new exercises that were uploaded"
+                );
                 for file in new_stored_files {
                     if let Err(err) = file_store.delete(&file).await {
                         error!("Failed to clean file {}: {err}", file.display());

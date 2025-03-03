@@ -1,7 +1,7 @@
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use headless_lms_models::{
-    course_exams,
+    PKeyPolicy, course_exams,
     exams::{self, NewExam},
     exercise_slide_submissions,
     exercise_task_gradings::{self, ExerciseTaskGradingResult, UserPointsUpdateStrategy},
@@ -14,7 +14,7 @@ use headless_lms_models::{
     },
     peer_or_self_review_configs::{self, CmsPeerOrSelfReviewConfig},
     peer_or_self_review_questions::{self, CmsPeerOrSelfReviewQuestion},
-    user_exercise_slide_states, user_exercise_states, PKeyPolicy,
+    user_exercise_slide_states, user_exercise_states,
 };
 use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
 use serde_json::Value;

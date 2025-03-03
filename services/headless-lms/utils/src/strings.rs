@@ -1,5 +1,5 @@
 use once_cell::sync::Lazy;
-use rand::{distr::Alphanumeric, rng, Rng};
+use rand::{Rng, distr::Alphanumeric, rng};
 use regex::Regex;
 
 static IETF_LANGUAGE_CODE_REGEX: Lazy<Regex> = Lazy::new(|| {

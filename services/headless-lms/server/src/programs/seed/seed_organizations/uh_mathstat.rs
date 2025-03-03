@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use headless_lms_models::{
+    PKeyPolicy,
     chatbot_configurations::{self, ChatbotConfiguration},
     course_instances::{self, NewCourseInstance},
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy},
@@ -8,7 +9,6 @@ use headless_lms_models::{
     library::{self, content_management::CreateNewCourseFixedIds, copying::copy_course},
     organizations,
     roles::{self, RoleDomain, UserRole},
-    PKeyPolicy,
 };
 use uuid::Uuid;
 
@@ -17,7 +17,7 @@ use sqlx::{Pool, Postgres};
 use crate::{
     domain::models_requests::{self, JwtKey},
     programs::seed::{
-        seed_courses::{seed_sample_course, CommonCourseData},
+        seed_courses::{CommonCourseData, seed_sample_course},
         seed_file_storage::SeedFileStorageResult,
     },
 };

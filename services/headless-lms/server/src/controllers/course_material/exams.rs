@@ -1,6 +1,6 @@
 use chrono::{DateTime, Duration, Utc};
 use headless_lms_models::{
-    exercises::Exercise, user_exercise_states::CourseInstanceOrExamId, ModelError, ModelErrorType,
+    ModelError, ModelErrorType, exercises::Exercise, user_exercise_states::CourseInstanceOrExamId,
 };
 use models::{
     exams::{self, ExamEnrollment},

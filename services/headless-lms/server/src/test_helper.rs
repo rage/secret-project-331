@@ -2,7 +2,7 @@ use crate::{
     config::{ServerConfig, ServerConfigBuilder},
     setup_tracing,
 };
-use headless_lms_utils::{file_store::local_file_store::LocalFileStore, ApplicationConfiguration};
+use headless_lms_utils::{ApplicationConfiguration, file_store::local_file_store::LocalFileStore};
 use sqlx::{Connection, PgConnection, Postgres, Transaction};
 use std::{env, sync::Arc};
 use tokio::sync::Mutex;

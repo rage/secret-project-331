@@ -19,7 +19,7 @@ use std::{io, path::Path};
 use std::{sync::Arc, time::Instant};
 use usvg::fontdb;
 
-use quick_xml::{events::BytesText, Writer};
+use quick_xml::{Writer, events::BytesText};
 use std::io::Cursor;
 
 use icu::datetime::options::length;

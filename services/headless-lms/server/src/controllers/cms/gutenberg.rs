@@ -1,8 +1,8 @@
 use std::time::Duration;
 
 use headless_lms_utils::url_to_oembed_endpoint::{
-    mentimeter_oembed_response_builder, thinglink_oembed_response_builder, url_to_oembed_endpoint,
-    vimeo_oembed_response_builder, OEmbedRequest, OEmbedResponse,
+    OEmbedRequest, OEmbedResponse, mentimeter_oembed_response_builder,
+    thinglink_oembed_response_builder, url_to_oembed_endpoint, vimeo_oembed_response_builder,
 };
 use serde::{Deserialize, Serialize};
 

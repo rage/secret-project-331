@@ -5,9 +5,9 @@ use serde_json::Value;
 use crate::course_instances;
 use crate::course_instances::NewCourseInstance;
 use crate::course_language_groups;
-use crate::courses::get_course;
 use crate::courses::Course;
 use crate::courses::NewCourse;
+use crate::courses::get_course;
 use crate::exams;
 use crate::exams::Exam;
 use crate::exams::NewExam;
@@ -1038,9 +1038,11 @@ mod tests {
             // Creating a course and a chapter both lead to an additional page being created.
             assert_eq!(copied_pages.len(), 3);
             copied_pages.into_iter().for_each(|copied_page| {
-                assert!(original_pages_by_id
-                    .remove(&copied_page.copied_from.unwrap())
-                    .is_some());
+                assert!(
+                    original_pages_by_id
+                        .remove(&copied_page.copied_from.unwrap())
+                        .is_some()
+                );
             });
             assert!(original_pages_by_id.is_empty());
         }
@@ -1088,8 +1090,7 @@ mod tests {
             let copied_content_in_page = copied_page.content[0]["attributes"]["content"]
                 .as_str()
                 .unwrap();
-            let content_with_updated_course_slug =
-            "Internal link <a href=\"http://project-331.local/org/uh-cs/courses/copied-course\">http://project-331.local/org/uh-cs/courses/copied-course</a>";
+            let content_with_updated_course_slug = "Internal link <a href=\"http://project-331.local/org/uh-cs/courses/copied-course\">http://project-331.local/org/uh-cs/courses/copied-course</a>";
             assert_eq!(copied_content_in_page, content_with_updated_course_slug);
         }
         #[tokio::test]

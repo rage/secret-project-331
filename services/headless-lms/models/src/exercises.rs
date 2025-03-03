@@ -4,10 +4,10 @@ use itertools::Itertools;
 use url::Url;
 
 use crate::{
-    course_instances, exams,
+    CourseOrExamId, course_instances, exams,
     exercise_service_info::ExerciseServiceInfoApi,
     exercise_slide_submissions::{
-        get_exercise_slide_submission_counts_for_exercise_user, ExerciseSlideSubmission,
+        ExerciseSlideSubmission, get_exercise_slide_submission_counts_for_exercise_user,
     },
     exercise_slides::{self, CourseMaterialExerciseSlide},
     exercise_tasks,
@@ -21,7 +21,6 @@ use crate::{
     user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
     user_course_settings,
     user_exercise_states::{self, CourseInstanceOrExamId, ReviewingStage, UserExerciseState},
-    CourseOrExamId,
 };
 use std::collections::HashMap;
 

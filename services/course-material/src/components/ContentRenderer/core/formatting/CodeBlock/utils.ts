@@ -37,7 +37,7 @@ function copyWithFallback(text: string): void {
   if (!successful) {
     throw new Error("Copy failed")
   }
-  console.info("[Copy] Success using legacy method", "\nCopied text:", text)
+  console.info(`[Copy] Success using legacy method:\n${text}`)
 }
 
 /**
@@ -46,7 +46,7 @@ function copyWithFallback(text: string): void {
  */
 async function copyWithClipboardApi(text: string): Promise<void> {
   await navigator.clipboard.writeText(text)
-  console.info("[Copy] Success using Clipboard API", "\nCopied text:", text)
+  console.info(`[Copy] Success using Clipboard API:\n${text}`)
 }
 
 /**
@@ -70,38 +70,28 @@ export function useCopyToClipboard(content: string): () => Promise<boolean> {
 
           if (!isSecureContext) {
             console.warn(
-              "[Copy] Unable to use Clipboard API (HTTPS required)",
-              "To enable the best copy experience, please access this page via HTTPS.",
-              "\nTrying legacy method.",
+              "[Copy] Unable to use Clipboard API - HTTPS required. Trying legacy method.",
             )
           } else if (isPermissionError) {
             console.warn(
-              "[Copy] Unable to use Clipboard API (Permission denied)",
-              "\nError details:",
-              error instanceof Error ? error.message : String(error),
-              "\nTrying legacy method.",
+              `[Copy] Unable to use Clipboard API - Permission denied: ${error instanceof Error ? error.message : String(error)}. Trying legacy method.`,
             )
           } else {
             console.warn(
-              "[Copy] Unable to use Clipboard API (Unknown error)",
-              "\nError details:",
-              error instanceof Error ? error.message : String(error),
-              "\nTrying legacy method.",
+              `[Copy] Unable to use Clipboard API - Unknown error: ${error instanceof Error ? error.message : String(error)}. Trying legacy method.`,
             )
           }
           copyWithFallback(textToCopy)
           return true
         }
       } else {
-        console.warn("[Copy] Clipboard API not available", "\nTrying legacy method.")
+        console.warn("[Copy] Clipboard API not available. Trying legacy method.")
         copyWithFallback(textToCopy)
         return true
       }
     } catch (error) {
       console.error(
-        "[Copy Failed] Copy operation failed",
-        "Please try selecting the text manually and using Ctrl+C/Cmd+C.",
-        error,
+        `[Copy Failed] Copy operation failed. Please try selecting the text manually and using Ctrl+C/Cmd+C. Error: ${error}`,
       )
       return false
     }

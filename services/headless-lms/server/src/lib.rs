@@ -90,7 +90,7 @@ pub fn setup_file_store() -> Arc<dyn FileStore + Send + Sync> {
 /// Used with the helper macro from the doc-macro crate: #[generated_doc]
 #[macro_export]
 macro_rules! generated_docs {
-    ($t: expr, ts) => {
+    ($t: expr_2021, ts) => {
         concat!(
             "## Response TypeScript definition\n",
             "```ts\n",
@@ -103,7 +103,7 @@ macro_rules! generated_docs {
             "\n```\n",
         )
     };
-    ($t: expr, json) => {
+    ($t: expr_2021, json) => {
         concat!(
             "## Example response\n",
             "```json\n",
@@ -116,7 +116,7 @@ macro_rules! generated_docs {
             "\n```\n",
         )
     };
-    ($t: expr) => {
+    ($t: expr_2021) => {
         concat!(generated_docs!($t, ts), generated_docs!($t, json),)
     };
 }

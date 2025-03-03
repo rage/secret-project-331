@@ -36,14 +36,13 @@ pub async fn authorize_action_on_resource(
     let mut conn = pool.acquire().await?;
     let data = payload.0;
     if let Some(user) = user {
-        if let Ok(true_token) =
-            authorize(&mut conn, data.action, Some(user.id), data.resource).await
-        {
-            true_token.authorized_ok(web::Json(true))
-        } else {
-            // We went to return success message even if the authorization fails.
-            let false_token = skip_authorize();
-            false_token.authorized_ok(web::Json(false))
+        match authorize(&mut conn, data.action, Some(user.id), data.resource).await {
+            Ok(true_token) => true_token.authorized_ok(web::Json(true)),
+            _ => {
+                // We went to return success message even if the authorization fails.
+                let false_token = skip_authorize();
+                false_token.authorized_ok(web::Json(false))
+            }
         }
     } else {
         // Never authorize anonymous user
@@ -102,16 +101,17 @@ pub async fn signup(
             user_details.password,
         )
         .await;
-        if let Ok((user, _token)) = user {
-            let token = skip_authorize();
-            authorization::remember(&session, user)?;
-            token.authorized_ok(HttpResponse::Ok().finish())
-        } else {
-            Err(ControllerError::new(
+        match user {
+            Ok((user, _token)) => {
+                let token = skip_authorize();
+                authorization::remember(&session, user)?;
+                token.authorized_ok(HttpResponse::Ok().finish())
+            }
+            _ => Err(ControllerError::new(
                 ControllerErrorType::Unauthorized,
                 "Incorrect email or password.".to_string(),
                 None,
-            ))
+            )),
         }
     } else {
         Err(ControllerError::new(

@@ -18,7 +18,8 @@ pub async fn main() -> anyhow::Result<()> {
     // Setting the sqlx log level to warn stops sql statements being printed to the console.
     // This is useful here since this is being run in a loop in background and the sql statements
     // would create a lot of noise to the log.
-    env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn");
+    // TODO: Audit that the environment access only happens in single-threaded code.
+    unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
     dotenv().ok();
     setup_tracing()?;
 

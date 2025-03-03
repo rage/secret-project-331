@@ -154,7 +154,8 @@ mod tests {
 
     #[tokio::test]
     async fn upload_download_delete_works() {
-        env::set_var("HEADLESS_LMS_CACHE_FILES_PATH", "/tmp");
+        // TODO: Audit that the environment access only happens in single-threaded code.
+        unsafe { env::set_var("HEADLESS_LMS_CACHE_FILES_PATH", "/tmp") };
         let dir = TempDir::new("test-local-filestore").expect("Failed to create a temp dir");
         let base_path = dir.into_path();
         let local_file_store =
@@ -186,7 +187,8 @@ mod tests {
 
     #[tokio::test]
     async fn get_download_url_works() {
-        env::set_var("HEADLESS_LMS_CACHE_FILES_PATH", "/tmp");
+        // TODO: Audit that the environment access only happens in single-threaded code.
+        unsafe { env::set_var("HEADLESS_LMS_CACHE_FILES_PATH", "/tmp") };
         let dir = TempDir::new("test-local-filestore").expect("Failed to create a temp dir");
         let base_path = dir.into_path();
         let local_file_store =

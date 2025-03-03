@@ -236,11 +236,12 @@ pub async fn delete(
         }
     }
 
-    if let Some(latest_error) = latest_error {
-        Err(latest_error.into())
-    } else {
-        tx.commit().await?;
-        Ok(())
+    match latest_error {
+        Some(latest_error) => Err(latest_error.into()),
+        _ => {
+            tx.commit().await?;
+            Ok(())
+        }
     }
 }
 

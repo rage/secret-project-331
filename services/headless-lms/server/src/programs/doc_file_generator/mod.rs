@@ -161,7 +161,7 @@ fn ex<T: Example>() -> T {
 
 #[macro_export]
 macro_rules! doc_path {
-    ($filename:expr, $extension:expr) => {{
+    ($filename:expr_2021, $extension:expr_2021) => {{
         let windows_safe_filename = $filename
             .replace('<', "(")
             .replace('>', ")")
@@ -234,7 +234,7 @@ macro_rules! doc {
         doc!(Vec<$i>, Example::example());
     };
     // writes the actual docs
-    ($t:ty, $e:expr) => {{
+    ($t:ty, $e:expr_2021) => {{
         let expr: $t = $e;
 
         let json_path = $crate::doc_path!(

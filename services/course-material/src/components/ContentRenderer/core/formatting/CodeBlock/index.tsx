@@ -53,9 +53,9 @@ const CodeBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CodeAttribu
   const { content } = data.attributes
 
   // To make sure we don't accidentally modify the original content, we work on copies of it.
-  const fontSizeContent = useMemo(() => copyString(replaceBrTagsWithNewlines(content)), [content])
-  const copyButtonContent = useMemo(() => copyString(replaceBrTagsWithNewlines(content)), [content])
-  const displayedContent = useMemo(() => copyString(replaceBrTagsWithNewlines(content)), [content])
+  const fontSizeContent = useMemo(() => replaceBrTagsWithNewlines(copyString(content)), [content])
+  const copyButtonContent = useMemo(() => copyString(content), [content])
+  const displayedContent = useMemo(() => copyString(content), [content])
 
   const fontSizePx = useMemo(() => {
     const longestLine = (fontSizeContent ?? "")

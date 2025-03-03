@@ -4,11 +4,10 @@ import { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { animated, SpringValue, useTransition } from "react-spring"
 
-import { decodeHtmlEntities, replaceBrTagsWithNewlines, useCopyToClipboard } from "./utils"
+import { useCopyToClipboard } from "./utils"
 
 import CopyIcon from "@/img/copy.svg"
 import { baseTheme } from "@/shared-module/common/styles"
-import { copyString } from "@/shared-module/common/utils/strings"
 
 const COPY_STATUS = {
   DEFAULT: "default",

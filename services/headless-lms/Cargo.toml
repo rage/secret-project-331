@@ -18,7 +18,7 @@ authors = [
   "University of Helsinki <mooc@cs.helsinki.fi>",
   "Henrik Nygren <nygrenh@gmail.com>",
 ]
-edition = "2021"
+edition = "2024"
 rust-version = "1.85.0" # minimum required Rust version, update if you use a new API
 license = "Apache-2.0"
 

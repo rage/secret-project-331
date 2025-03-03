@@ -31,7 +31,7 @@
   "devDependencies": {
     "@playwright/browser-chromium": "^1.50.1",
     "@playwright/test": "^1.50.1",
-    "@types/node": "^22.13.4",
+    "@types/node": "^22.13.8",
     "@types/tar-fs": "^2.0.4",
     "playwright": "^1.50.1",
     "typescript": "^5.7.3"

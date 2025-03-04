@@ -440,7 +440,11 @@ pub fn make_seed_spec_fetcher_with_cache(
 
         async move {
             // Try to get from cache first
-            if let Some(cached_spec) = cache.lock().unwrap().get(&key) {
+            if let Some(cached_spec) = cache
+                .lock()
+                .expect("Seed spec fetcher cache lock poisoned")
+                .get(&key)
+            {
                 return Ok(cached_spec.clone());
             }
 
@@ -448,7 +452,10 @@ pub fn make_seed_spec_fetcher_with_cache(
             let fetched_spec = base_fetcher(url, exercise_service_slug, private_spec).await?;
 
             // Store in cache
-            cache.lock().unwrap().insert(key, fetched_spec.clone());
+            cache
+                .lock()
+                .expect("Seed spec fetcher cache lock poisoned")
+                .insert(key, fetched_spec.clone());
 
             Ok(fetched_spec)
         }

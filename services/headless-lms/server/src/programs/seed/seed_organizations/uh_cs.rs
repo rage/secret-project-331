@@ -511,7 +511,7 @@ pub async fn seed_organization_uh_cs(
             }),
             new_course,
             admin_user_id,
-            models_requests::make_spec_fetcher(
+            models_requests::make_seed_spec_fetcher_with_cache(
                 base_url.clone(),
                 Uuid::new_v4(),
                 Arc::clone(&jwt_key),

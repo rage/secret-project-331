@@ -20,7 +20,9 @@ use hmac::{Hmac, Mac};
 use jwt::{SignWithKey, VerifyWithKey};
 use models::SpecFetcher;
 use sha2::Sha256;
-use std::{borrow::Cow, fmt::Debug, sync::Arc};
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
+use std::{borrow::Cow, fmt::Debug};
 use url::Url;
 
 use super::error::{ControllerError, ControllerErrorType};
@@ -408,5 +410,48 @@ impl GivePeerReviewClaim {
             ));
         }
         Ok(claim)
+    }
+}
+
+/// A caching spec fetcher ONLY FOR THE SEED that returns a cached spec if the same
+/// (url, exercise_service_slug, private_spec) is requested. Since this is only used during seeding,
+/// there is no cache eviction.
+pub fn make_seed_spec_fetcher_with_cache(
+    base_url: String,
+    request_id: Uuid,
+    jwt_key: Arc<JwtKey>,
+) -> impl SpecFetcher {
+    // Cache key: (url, exercise_service_slug, private_spec serialized)
+    let cache: Arc<Mutex<HashMap<(String, String, Option<String>), serde_json::Value>>> =
+        Arc::new(Mutex::new(HashMap::new()));
+
+    // Create the base non-caching spec fetcher and wrap it in Arc to make it clonable
+    let base_fetcher = Arc::new(make_spec_fetcher(base_url, request_id, jwt_key));
+
+    move |url, exercise_service_slug, private_spec| {
+        let url_str = url.to_string();
+        let service_slug = exercise_service_slug.to_string();
+        // Convert private_spec to string for cache key if present
+        let private_spec_str =
+            private_spec.map(|spec| serde_json::to_string(&spec).unwrap_or_default());
+        let key = (url_str.clone(), service_slug.clone(), private_spec_str);
+        let cache = Arc::clone(&cache);
+        let base_fetcher = Arc::clone(&base_fetcher);
+
+        async move {
+            // Try to get from cache first
+            if let Some(cached_spec) = cache.lock().unwrap().get(&key) {
+                return Ok(cached_spec.clone());
+            }
+
+            // Not in cache - fetch using base fetcher
+            let fetched_spec = base_fetcher(url, exercise_service_slug, private_spec).await?;
+
+            // Store in cache
+            cache.lock().unwrap().insert(key, fetched_spec.clone());
+
+            Ok(fetched_spec)
+        }
+        .boxed()
     }
 }

@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
 import { diffChars } from "diff"
 import dynamic from "next/dynamic"
-import React, { useContext, useEffect, useState } from "react"
-import { useMemo } from "use-memo-one"
+import React, { useContext, useEffect, useMemo, useState } from "react"
+import { useMemo as useMemoOne } from "use-memo-one"
 
 import { BlockRendererProps } from "../../.."
 import { ParagraphAttributes } from "../../../../../../types/GutenbergBlockAttributes"
@@ -34,13 +34,15 @@ interface ExtraAttributes {
   textColor?: string
 }
 
-const baseParagraphStyles = css`
+const baseParagraphStyles = (hideOverflow = false) => css`
   margin: 1.25rem 0;
   min-width: 1px;
-  overflow-x: hidden;
-  overflow-y: hidden;
+  ${hideOverflow && `overflow-x: hidden; overflow-y: hidden;`}
   height: auto;
 `
+
+const UNSET_COLOR = "unset"
+const P = "p"
 
 const ParagraphBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ParagraphAttributes & ExtraAttributes>>
@@ -57,10 +59,8 @@ const ParagraphBlock: React.FC<
     // style,
   } = data.attributes
 
-  // If background color is undefined, it indicates a transparent background
-  // and we let the background color property unset in CSS.
-  // eslint-disable-next-line i18next/no-literal-string
-  const bgColor = colorMapper(backgroundColor, "unset")
+  const bgColor = useMemo(() => colorMapper(backgroundColor, UNSET_COLOR), [backgroundColor])
+
   const [editedContent, setEditedContent] = useState(data.attributes.content)
   const { terms } = useContext(GlossaryContext)
 
@@ -72,17 +72,29 @@ const ParagraphBlock: React.FC<
     }
   }, [data.attributes.content, editedContent, editing])
 
-  // this value only changes when the selection changes, making sure the content of the div being edited isn't constantly changed under the user
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const memoizedContent = useMemo(() => editedContent, [selectedBlockId])
+  const memoizedContent = useMemoOne(() => editedContent, [selectedBlockId])
+
+  const parsedTextResult = useMemo(() => parseText(content, terms), [content, terms])
+
+  const { count, parsedText, hasCitationsOrGlossary } = parsedTextResult
+
+  const ParagraphComponent = useMemo(() => (count > 0 ? LatexParagraph : P), [count])
+
+  const hideOverflow = useMemo(() => !hasCitationsOrGlossary, [hasCitationsOrGlossary])
+
+  const diffChanges = useMemo(() => {
+    if (editing && selectedBlockId !== id) {
+      return diffChars(data.attributes.content ?? "", editedContent ?? "")
+    }
+    return null
+  }, [editing, selectedBlockId, id, data.attributes.content, editedContent])
 
   if (editing) {
     if (selectedBlockId === id) {
-      // block focused, editing
       return (
         <p
           className={css`
-            ${baseParagraphStyles}
+            ${baseParagraphStyles(true)}
             color: ${textColor};
             background-color: ${backgroundColor};
             font-size: ${fontSizeMapper(fontSize)};
@@ -117,37 +129,32 @@ const ParagraphBlock: React.FC<
         </p>
       )
     } else {
-      const diffChanges = diffChars(data.attributes.content ?? "", editedContent ?? "")
-
       return (
         <p
           className={css`
-            ${baseParagraphStyles}
+            ${baseParagraphStyles(true)}
             color: ${textColor};
             background-color: ${backgroundColor};
             font-size: ${fontSizeMapper(fontSize)};
             ${backgroundColor && `padding: 1.25em 2.375em;`}
           `}
         >
-          <DiffFormatter changes={diffChanges} />
+          <DiffFormatter changes={diffChanges ?? []} />
         </p>
       )
     }
   }
-  const { count, parsedText, hasCitationsOrGlossary } = parseText(content, terms)
-  const P = count > 0 ? LatexParagraph : "p"
 
   return (
-    <P
+    <ParagraphComponent
       className={css`
-        ${baseParagraphStyles}
+        ${baseParagraphStyles(hideOverflow)}
         color: ${colorMapper(textColor)};
         background-color: ${bgColor};
         font-size: ${mobileFontSizeMapper(fontSize)};
         line-height: 160%;
         text-align: ${align ?? "left"};
         ${backgroundColor && `padding: 1.25em 2.375em !important;`}
-        ${!hasCitationsOrGlossary && `overflow-x: hidden;`}
 
         ${respondToOrLarger.md} {
           font-size: ${fontSizeMapper(fontSize)};

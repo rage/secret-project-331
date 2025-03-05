@@ -2966,6 +2966,7 @@ WHERE p.course_id = $1
 
 /// Makes the order numbers and chapter ids to match in the db what's in the page objects
 /// Assumes that all pages belong to the given course id
+/// Also assumes the list of pages includes all nondeleted pages in the course, otherwise we will end up with random order numbers
 pub async fn reorder_pages(
     conn: &mut PgConnection,
     pages: &[Page],
@@ -2975,53 +2976,37 @@ pub async fn reorder_pages(
         get_all_by_course_id_and_visibility(conn, course_id, PageVisibility::Any).await?;
     let chapters = course_chapters(conn, course_id).await?;
     let mut tx = conn.begin().await?;
+
+    // First, randomize ALL page order numbers to avoid conflicts
+    // This is necessary because unique indexes cannot be deferred in PostgreSQL
+    // The random numbers are temporary and will be replaced with the correct order numbers
+    sqlx::query!(
+        "
+UPDATE pages
+SET order_number = floor(random() * (2000000 -200000 + 1) + 200000)
+WHERE course_id = $1
+  AND deleted_at IS NULL
+        ",
+        course_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    // Now update each page to its desired order_number
     for page in pages {
         if let Some(matching_db_page) = db_pages.iter().find(|p| p.id == page.id) {
             if matching_db_page.chapter_id == page.chapter_id {
-                // Chapter not changing
-                // Avoid conflicts in order_number since unique indexes cannot be deferred. The random number will not end up committing in the transaction since the loop goes through all the pages and will correct the number.
-                if let Some(chapter_id) = page.chapter_id {
-                    // For pages with chapter_id
-                    sqlx::query!(
-                        "
-UPDATE pages
-SET order_number = floor(random() * (2000000 -200000 + 1) + 200000)
-WHERE pages.order_number = $1
-  AND pages.chapter_id = $2
-  AND deleted_at IS NULL
-      ",
-                        page.order_number,
-                        chapter_id
-                    )
-                    .execute(&mut *tx)
-                    .await?;
-                } else {
-                    // For top-level pages (chapter_id is NULL)
-                    sqlx::query!(
-                        "
-UPDATE pages
-SET order_number = floor(random() * (2000000 -200000 + 1) + 200000)
-WHERE pages.order_number = $1
-  AND pages.chapter_id IS NULL
-  AND pages.course_id = $2
-  AND deleted_at IS NULL
-",
-                        page.order_number,
-                        course_id
-                    )
-                    .execute(&mut *tx)
-                    .await?;
-                }
-
+                // Chapter not changing - just set the order number
+                // The randomization step above ensures we won't have conflicts
                 sqlx::query!(
-                    "UPDATE pages SET order_number = $2 WHERE pages.id = $1",
+                    "UPDATE pages SET order_number = $2 WHERE id = $1",
                     page.id,
                     page.order_number
                 )
                 .execute(&mut *tx)
                 .await?;
             } else {
-                // Chapter changes
+                // Chapter changes - handle URL paths and redirections
                 if let Some(old_chapter_id) = matching_db_page.chapter_id {
                     if let Some(new_chapter_id) = page.chapter_id {
                         // Moving page to another chapter
@@ -3556,6 +3541,18 @@ mod test {
     async fn reorder_top_level_pages_works() {
         insert_data!(:tx, :user, :org, :course);
 
+        // First, delete any existing pages in this course to ensure a clean slate
+        let existing_pages =
+            get_all_by_course_id_and_visibility(tx.as_mut(), course, PageVisibility::Any)
+                .await
+                .unwrap();
+        for page in &existing_pages {
+            delete_page_and_exercises(tx.as_mut(), page.id)
+                .await
+                .unwrap();
+        }
+
+        // Create our test pages
         let page1 = NewCoursePage::new(course, 0, "top-page-1", "Top Page 1");
         let (page1_id, _) = insert_course_page(tx.as_mut(), &page1, user).await.unwrap();
         let page2 = NewCoursePage::new(course, 1, "top-page-2", "Top Page 2");
@@ -3563,50 +3560,29 @@ mod test {
         let page3 = NewCoursePage::new(course, 2, "top-page-3", "Top Page 3");
         let (page3_id, _) = insert_course_page(tx.as_mut(), &page3, user).await.unwrap();
 
-        let pages_with_orignal_order =
+        let mut pages =
             get_all_by_course_id_and_visibility(tx.as_mut(), course, PageVisibility::Any)
                 .await
                 .unwrap();
-        let mut reordered_pages = pages_with_orignal_order.clone();
 
-        let page1_index = reordered_pages
-            .iter()
-            .position(|p| p.id == page1_id)
-            .unwrap();
-        let page2_index = reordered_pages
-            .iter()
-            .position(|p| p.id == page2_id)
-            .unwrap();
-        let page3_index = reordered_pages
-            .iter()
-            .position(|p| p.id == page3_id)
-            .unwrap();
+        let page1_index = pages.iter().position(|p| p.id == page1_id).unwrap();
+        let page2_index = pages.iter().position(|p| p.id == page2_id).unwrap();
+        let page3_index = pages.iter().position(|p| p.id == page3_id).unwrap();
 
-        let order1 = reordered_pages[page1_index].order_number;
-        let order2 = reordered_pages[page2_index].order_number;
-        let order3 = reordered_pages[page3_index].order_number;
+        pages[page1_index].order_number = 2;
+        pages[page3_index].order_number = 1;
+        pages[page2_index].order_number = 3;
 
-        // Swap the order numbers (1 -> 3 -> 2 -> 1)
-        reordered_pages[page1_index].order_number = order3;
-        reordered_pages[page3_index].order_number = order2;
-        reordered_pages[page2_index].order_number = order1;
-
-        reorder_pages(tx.as_mut(), &reordered_pages, course)
-            .await
-            .unwrap();
+        // Apply the reordering
+        reorder_pages(tx.as_mut(), &pages, course).await.unwrap();
 
         // Check that the reordering took effect
-        let updated_pages =
-            get_all_by_course_id_and_visibility(tx.as_mut(), course, PageVisibility::Any)
-                .await
-                .unwrap();
+        let page1_updated = get_page(tx.as_mut(), page1_id).await.unwrap();
+        let page2_updated = get_page(tx.as_mut(), page2_id).await.unwrap();
+        let page3_updated = get_page(tx.as_mut(), page3_id).await.unwrap();
 
-        let page1 = updated_pages.iter().find(|p| p.id == page1_id).unwrap();
-        let page2 = updated_pages.iter().find(|p| p.id == page2_id).unwrap();
-        let page3 = updated_pages.iter().find(|p| p.id == page3_id).unwrap();
-
-        assert_eq!(page1.order_number, order3);
-        assert_eq!(page2.order_number, order1);
-        assert_eq!(page3.order_number, order2);
+        assert_eq!(page1_updated.order_number, 2);
+        assert_eq!(page2_updated.order_number, 3);
+        assert_eq!(page3_updated.order_number, 1);
     }
 }

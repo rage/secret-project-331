@@ -2980,17 +2980,39 @@ pub async fn reorder_pages(
             if matching_db_page.chapter_id == page.chapter_id {
                 // Chapter not changing
                 // Avoid conflicts in order_number since unique indexes cannot be deferred. The random number will not end up committing in the transaction since the loop goes through all the pages and will correct the number.
-                sqlx::query!(
-                    "UPDATE pages
+                if let Some(chapter_id) = page.chapter_id {
+                    // For pages with chapter_id
+                    sqlx::query!(
+                        "
+UPDATE pages
 SET order_number = floor(random() * (2000000 -200000 + 1) + 200000)
 WHERE pages.order_number = $1
   AND pages.chapter_id = $2
-  AND deleted_at IS NULL",
-                    page.order_number,
-                    page.chapter_id
-                )
-                .execute(&mut *tx)
-                .await?;
+  AND deleted_at IS NULL
+      ",
+                        page.order_number,
+                        chapter_id
+                    )
+                    .execute(&mut *tx)
+                    .await?;
+                } else {
+                    // For top-level pages (chapter_id is NULL)
+                    sqlx::query!(
+                        "
+UPDATE pages
+SET order_number = floor(random() * (2000000 -200000 + 1) + 200000)
+WHERE pages.order_number = $1
+  AND pages.chapter_id IS NULL
+  AND pages.course_id = $2
+  AND deleted_at IS NULL
+",
+                        page.order_number,
+                        course_id
+                    )
+                    .execute(&mut *tx)
+                    .await?;
+                }
+
                 sqlx::query!(
                     "UPDATE pages SET order_number = $2 WHERE pages.id = $1",
                     page.id,

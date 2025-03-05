@@ -3551,4 +3551,62 @@ mod test {
         assert!(pr_res.is_empty());
         assert!(prq_res.is_empty());
     }
+
+    #[tokio::test]
+    async fn reorder_top_level_pages_works() {
+        insert_data!(:tx, :user, :org, :course);
+
+        let page1 = NewCoursePage::new(course, 0, "top-page-1", "Top Page 1");
+        let (page1_id, _) = insert_course_page(tx.as_mut(), &page1, user).await.unwrap();
+        let page2 = NewCoursePage::new(course, 1, "top-page-2", "Top Page 2");
+        let (page2_id, _) = insert_course_page(tx.as_mut(), &page2, user).await.unwrap();
+        let page3 = NewCoursePage::new(course, 2, "top-page-3", "Top Page 3");
+        let (page3_id, _) = insert_course_page(tx.as_mut(), &page3, user).await.unwrap();
+
+        let pages_with_orignal_order =
+            get_all_by_course_id_and_visibility(tx.as_mut(), course, PageVisibility::Any)
+                .await
+                .unwrap();
+        let mut reordered_pages = pages_with_orignal_order.clone();
+
+        let page1_index = reordered_pages
+            .iter()
+            .position(|p| p.id == page1_id)
+            .unwrap();
+        let page2_index = reordered_pages
+            .iter()
+            .position(|p| p.id == page2_id)
+            .unwrap();
+        let page3_index = reordered_pages
+            .iter()
+            .position(|p| p.id == page3_id)
+            .unwrap();
+
+        let order1 = reordered_pages[page1_index].order_number;
+        let order2 = reordered_pages[page2_index].order_number;
+        let order3 = reordered_pages[page3_index].order_number;
+
+        // Swap the order numbers (1 -> 3 -> 2 -> 1)
+        reordered_pages[page1_index].order_number = order3;
+        reordered_pages[page3_index].order_number = order2;
+        reordered_pages[page2_index].order_number = order1;
+
+        reorder_pages(tx.as_mut(), &reordered_pages, course)
+            .await
+            .unwrap();
+
+        // Check that the reordering took effect
+        let updated_pages =
+            get_all_by_course_id_and_visibility(tx.as_mut(), course, PageVisibility::Any)
+                .await
+                .unwrap();
+
+        let page1 = updated_pages.iter().find(|p| p.id == page1_id).unwrap();
+        let page2 = updated_pages.iter().find(|p| p.id == page2_id).unwrap();
+        let page3 = updated_pages.iter().find(|p| p.id == page3_id).unwrap();
+
+        assert_eq!(page1.order_number, order3);
+        assert_eq!(page2.order_number, order1);
+        assert_eq!(page3.order_number, order2);
+    }
 }

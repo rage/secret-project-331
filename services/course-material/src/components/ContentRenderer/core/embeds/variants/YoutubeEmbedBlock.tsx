@@ -273,6 +273,8 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
     if (!hasValidVideo) {
       return
     }
+    const controller = new AbortController()
+    const { signal } = controller
 
     const handleMessage = (event: MessageEvent) => {
       try {
@@ -295,7 +297,8 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
       }
     }
 
-    window.addEventListener("message", handleMessage)
+    // Add event listener that can be cancelled with the signal from the AbortController
+    window.addEventListener("message", handleMessage, { signal })
 
     const initializePlayer = () => {
       if (iframeRef.current && iframeRef.current.contentWindow) {
@@ -311,8 +314,9 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
       }
     }
 
+    // Cleanup function that cancels all listeners connected to this controller
     return () => {
-      window.removeEventListener("message", handleMessage)
+      controller.abort()
     }
   }, [hasValidVideo, postMessageToYouTube])
 

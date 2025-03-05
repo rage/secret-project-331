@@ -644,7 +644,30 @@
 <a href="#643" id="643">643</a>
 <a href="#644" id="644">644</a>
 <a href="#645" id="645">645</a>
-<a href="#646" id="646">646</a></pre></div><pre class="rust"><code><span class="kw">use </span>anyhow::Result;
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a></pre></div><pre class="rust"><code><span class="kw">use </span>anyhow::{anyhow, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>chrono::{DateTime, Utc};
 <span class="kw">use </span>headless_lms_models::{
     course_exams,
@@ -660,9 +683,10 @@
     },
     peer_or_self_review_configs::{<span class="self">self</span>, CmsPeerOrSelfReviewConfig},
     peer_or_self_review_questions::{<span class="self">self</span>, CmsPeerOrSelfReviewQuestion},
-    user_exercise_slide_states, user_exercise_states, PKeyPolicy,
+    user_exercise_slide_states, user_exercise_states, PKeyPolicy, SpecFetcher,
 };
 <span class="kw">use </span>headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
+<span class="kw">use </span>once_cell::sync::OnceCell;
 <span class="kw">use </span>serde_json::Value;
 <span class="kw">use </span>sqlx::PgConnection;
 <span class="kw">use </span>std::collections::HashMap;
@@ -670,14 +694,38 @@
 <span class="kw">use </span>uuid::Uuid;
 
 <span class="kw">use </span><span class="kw">crate</span>::domain::models_requests::{<span class="self">self</span>, JwtKey};
+
+<span class="comment">// Static holder for our cached spec fetcher
+</span><span class="kw">static </span>SEED_SPEC_FETCHER: OnceCell&lt;Box&lt;<span class="kw">dyn </span>SpecFetcher + Send + Sync&gt;&gt; = OnceCell::new();
+
+<span class="doccomment">/// Initialize the global spec fetcher for seeding. Must be called once before any seeding operations.
+</span><span class="kw">pub fn </span>init_seed_spec_fetcher(base_url: String, jwt_key: Arc&lt;JwtKey&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">let </span>fetcher = Box::new(models_requests::make_seed_spec_fetcher_with_cache(
+        base_url,
+        Uuid::new_v4(),
+        jwt_key,
+    ));
+
+    SEED_SPEC_FETCHER
+        .set(fetcher)
+        .map_err(|<span class="kw">_</span>| <span class="macro">anyhow!</span>(<span class="string">"Seed spec fetcher already initialized"</span>))<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
+}
+
+<span class="doccomment">/// Get the global spec fetcher for seeding. Panics if not initialized.
+</span><span class="kw">pub fn </span>get_seed_spec_fetcher() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>(<span class="kw">dyn </span>SpecFetcher + Send + Sync) {
+    <span class="comment">// We can use unwrap here since this is a fatal error during seeding
+    </span>SEED_SPEC_FETCHER
+        .get()
+        .unwrap_or_else(|| <span class="macro">panic!</span>(<span class="string">"Seed spec fetcher not initialized"</span>))
+}
+
 <span class="kw">pub async fn </span>create_page(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     course_id: Uuid,
     author: Uuid,
     chapter_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
     page_data: CmsPageUpdate,
-    base_url: String,
-    jwt_key: Arc&lt;JwtKey&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Uuid&gt; {
     <span class="kw">let </span>new_page = NewPage {
         content: Value::Array(<span class="macro">vec!</span>[]),
@@ -696,7 +744,7 @@
         conn,
         new_page,
         author,
-        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
+        get_seed_spec_fetcher(),
         models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -718,7 +766,7 @@
             history_change_reason: HistoryChangeReason::PageSaved,
             is_exam_page: <span class="bool-val">false</span>,
         },
-        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
+        get_seed_spec_fetcher(),
         models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1116,8 +1164,6 @@
     exam_id: Uuid,
     teacher: Uuid,
     minimum_points_treshold: i32,
-    base_url: String,
-    jwt_key: Arc&lt;JwtKey&gt;,
     grade_manually: bool,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Uuid&gt; {
     <span class="kw">let </span>new_exam_id = exams::insert(
@@ -1199,7 +1245,7 @@
             content_search_language: <span class="prelude-val">None</span>,
         },
         teacher,
-        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), jwt_key),
+        get_seed_spec_fetcher(),
         models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;

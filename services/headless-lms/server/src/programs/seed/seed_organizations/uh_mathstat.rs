@@ -19,6 +19,7 @@ use crate::{
     programs::seed::{
         seed_courses::{seed_sample_course, CommonCourseData},
         seed_file_storage::SeedFileStorageResult,
+        seed_helpers::get_seed_spec_fetcher,
     },
 };
 
@@ -104,7 +105,7 @@ pub async fn seed_organization_uh_mathstat(
         }),
         new_course,
         admin_user_id,
-        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key)),
+        get_seed_spec_fetcher(),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -149,7 +150,7 @@ pub async fn seed_organization_uh_mathstat(
         }),
         draft_course,
         admin_user_id,
-        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key)),
+        get_seed_spec_fetcher(),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -181,7 +182,7 @@ pub async fn seed_organization_uh_mathstat(
         }),
         cody_only_course,
         admin_user_id,
-        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key)),
+        get_seed_spec_fetcher(),
         models_requests::fetch_service_info,
     )
     .await?;

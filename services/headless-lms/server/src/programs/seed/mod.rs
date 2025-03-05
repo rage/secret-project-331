@@ -25,6 +25,10 @@ pub async fn main() -> anyhow::Result<()> {
     let db_pool = setup_seed_environment().await?;
     let jwt_key = Arc::new(JwtKey::try_from_env().expect("Failed to create JwtKey"));
 
+    // Initialize the global spec fetcher before any seeding
+    seed_helpers::init_seed_spec_fetcher(base_url.clone(), Arc::clone(&jwt_key))
+        .expect("Failed to initialize seed spec fetcher");
+
     // Run parallelly to improve performance.
     let (_, seed_users_result, _) = try_join!(
         run_parallelly(seed_exercise_services::seed_exercise_services(

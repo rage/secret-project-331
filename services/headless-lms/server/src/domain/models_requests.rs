@@ -31,6 +31,9 @@ use super::error::{ControllerError, ControllerErrorType};
 const EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER: &str = "exercise-service-grading-update-claim";
 const EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER: &str = "exercise-service-upload-claim";
 
+/// A type for caching the spec fetching (only for the seed)
+type SpecCache = HashMap<(String, String, Option<String>), serde_json::Value>;
+
 #[derive(Clone, Debug)]
 pub struct JwtKey(Hmac<Sha256>);
 
@@ -422,8 +425,7 @@ pub fn make_seed_spec_fetcher_with_cache(
     jwt_key: Arc<JwtKey>,
 ) -> impl SpecFetcher {
     // Cache key: (url, exercise_service_slug, private_spec serialized)
-    let cache: Arc<Mutex<HashMap<(String, String, Option<String>), serde_json::Value>>> =
-        Arc::new(Mutex::new(HashMap::new()));
+    let cache: Arc<Mutex<SpecCache>> = Arc::new(Mutex::new(HashMap::new()));
 
     // Create the base non-caching spec fetcher and wrap it in Arc to make it clonable
     let base_fetcher = Arc::new(make_spec_fetcher(base_url, request_id, jwt_key));

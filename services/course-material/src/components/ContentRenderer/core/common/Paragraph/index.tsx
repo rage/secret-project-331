@@ -84,6 +84,8 @@ const ParagraphBlock: React.FC<
             border: 1px;
             border-style: dotted;
             overflow-x: hidden;
+            overflow-y: hidden;
+            height: auto;
           `}
           contentEditable
           onInput={(ev) => {
@@ -152,17 +154,6 @@ const ParagraphBlock: React.FC<
         }
 
         ${dropCap ? hasDropCap : null}
-
-        code {
-          background: #e5e5e5;
-          padding: 0 0.4rem 0.2rem 0.4rem;
-          border-radius: 3px;
-        }
-
-        mark {
-          padding: 0 0.4rem 0.2rem 0.4rem;
-          border-radius: 3px;
-        }
       `}
       dangerouslySetInnerHTML={{
         __html: parsedText,

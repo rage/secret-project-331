@@ -328,9 +328,14 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
           <div
             className={css`
               display: flex;
-              flex-direction: row;
-              align-items: baseline;
+              flex-direction: column;
+              align-items: flex-start;
               gap: 20px;
+
+              ${respondToOrLarger.sm} {
+                flex-direction: row;
+                align-items: baseline;
+              }
 
               span {
                 font-size: 20px;

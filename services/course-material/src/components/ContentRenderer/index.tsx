@@ -331,6 +331,19 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
               color: #8050f2;
             }
           }
+
+          /* Styling for inline code elements */
+          code:not(pre code) {
+            background: #e5e5e5;
+            padding: 0 0.4rem 0.2rem 0.4rem;
+            border-radius: 3px;
+          }
+
+          /* Styling for highlighted text */
+          mark {
+            padding: 0 0.4rem 0.2rem 0.4rem;
+            border-radius: 3px;
+          }
         `}
       >
         {content}

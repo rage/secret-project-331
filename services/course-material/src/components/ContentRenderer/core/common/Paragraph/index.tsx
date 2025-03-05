@@ -15,7 +15,6 @@ import DiffFormatter from "@/shared-module/common/components/DiffFormatter"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-const Paragraph = dynamic(() => import("./BasicParagraph"))
 const LatexParagraph = dynamic(() => import("./LatexParagraph"))
 
 const hasDropCap = css`
@@ -136,7 +135,7 @@ const ParagraphBlock: React.FC<
     }
   }
   const { count, parsedText, hasCitationsOrGlossary } = parseText(content, terms)
-  const P = count > 0 ? LatexParagraph : Paragraph
+  const P = count > 0 ? LatexParagraph : "p"
 
   return (
     <P

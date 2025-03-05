@@ -400,6 +400,7 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
               src={embedUrl}
               title={t("title-youtube-video-player")}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-presentation"
               allowFullScreen
               data-testid="youtube-player-iframe"
             />

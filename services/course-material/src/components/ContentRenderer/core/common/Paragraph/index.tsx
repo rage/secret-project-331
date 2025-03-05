@@ -73,13 +73,9 @@ const ParagraphBlock: React.FC<
   }, [data.attributes.content, editedContent, editing])
 
   const memoizedContent = useMemoOne(() => editedContent, [selectedBlockId])
-
   const parsedTextResult = useMemo(() => parseText(content, terms), [content, terms])
-
   const { count, parsedText, hasCitationsOrGlossary } = parsedTextResult
-
   const ParagraphComponent = useMemo(() => (count > 0 ? LatexParagraph : P), [count])
-
   const hideOverflow = useMemo(() => !hasCitationsOrGlossary, [hasCitationsOrGlossary])
 
   const diffChanges = useMemo(() => {

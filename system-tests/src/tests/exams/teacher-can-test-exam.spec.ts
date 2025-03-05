@@ -25,6 +25,7 @@ test("Testing exam works", async ({ page }) => {
       .getByTestId("exam-list-item")
       .filter({ hasText: "Exam for testing" })
       .getByRole("link", { name: "Manage" })
+      .first()
       .click()
 
     await page.getByRole("link", { name: "Manage page" }).click()
@@ -53,6 +54,7 @@ test("Testing exam works", async ({ page }) => {
       .getByTestId("exam-list-item")
       .filter({ hasText: "Exam for testing" })
       .getByRole("link", { name: "Manage" })
+      .first()
       .click()
   })
 

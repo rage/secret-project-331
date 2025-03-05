@@ -273,32 +273,48 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
     if (!hasValidVideo) {
       return
     }
-    const controller = new AbortController()
-    const { signal } = controller
 
-    const handleMessage = (event: MessageEvent) => {
-      try {
-        const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data
+    // Abort controller to cancel all listeners connected to this controller
+    const abortController = new AbortController()
 
-        if (data.event === YOUTUBE_EVENT_ONSTATE_CHANGE) {
-          setPlayerState(data.info)
-
-          if (data.info === YT_PLAYER_STATE.PLAYING) {
-            setIsPlayerReady(true)
+    window.addEventListener(
+      "message",
+      (event: MessageEvent) => {
+        try {
+          if (!iframeRef.current) {
+            return
           }
-        }
 
-        if (data.event === YOUTUBE_EVENT_INITIAL_DELIVERY || data.event === YOUTUBE_EVENT_ONREADY) {
-          setIsPlayerReady(true)
-          postMessageToYouTube({ event: YOUTUBE_EVENT_LISTENING })
-        }
-      } catch (_error) {
-        // Ignore parsing errors from unrelated messages
-      }
-    }
+          const iframeWindow = iframeRef.current.contentWindow
 
-    // Add event listener that can be cancelled with the signal from the AbortController
-    window.addEventListener("message", handleMessage, { signal })
+          // Skip if the message isn't from our iframe
+          if (event.source !== iframeWindow) {
+            return
+          }
+
+          const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data
+
+          if (data.event === YOUTUBE_EVENT_ONSTATE_CHANGE) {
+            setPlayerState(data.info)
+
+            if (data.info === YT_PLAYER_STATE.PLAYING) {
+              setIsPlayerReady(true)
+            }
+          }
+
+          if (
+            data.event === YOUTUBE_EVENT_INITIAL_DELIVERY ||
+            data.event === YOUTUBE_EVENT_ONREADY
+          ) {
+            setIsPlayerReady(true)
+            postMessageToYouTube({ event: YOUTUBE_EVENT_LISTENING })
+          }
+        } catch (_error) {
+          // Ignore parsing errors from unrelated messages
+        }
+      },
+      { signal: abortController.signal },
+    )
 
     const initializePlayer = () => {
       if (iframeRef.current && iframeRef.current.contentWindow) {
@@ -316,7 +332,7 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
 
     // Cleanup function that cancels all listeners connected to this controller
     return () => {
-      controller.abort()
+      abortController.abort()
     }
   }, [hasValidVideo, postMessageToYouTube])
 

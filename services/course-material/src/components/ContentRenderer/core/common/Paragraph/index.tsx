@@ -35,6 +35,14 @@ interface ExtraAttributes {
   textColor?: string
 }
 
+const baseParagraphStyles = css`
+  margin: 1.25rem 0;
+  min-width: 1px;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  height: auto;
+`
+
 const ParagraphBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ParagraphAttributes & ExtraAttributes>>
 > = ({ data, id, editing, selectedBlockId, setEdits }) => {
@@ -75,17 +83,13 @@ const ParagraphBlock: React.FC<
       return (
         <p
           className={css`
-            margin: 1.25rem 0;
-            min-width: 1px;
+            ${baseParagraphStyles}
             color: ${textColor};
             background-color: ${backgroundColor};
             font-size: ${fontSizeMapper(fontSize)};
             ${backgroundColor && `padding: 1.25em 2.375em;`}
             border: 1px;
             border-style: dotted;
-            overflow-x: hidden;
-            overflow-y: hidden;
-            height: auto;
           `}
           contentEditable
           onInput={(ev) => {
@@ -119,13 +123,11 @@ const ParagraphBlock: React.FC<
       return (
         <p
           className={css`
-            margin: 1.25rem 0;
-            min-width: 1px;
+            ${baseParagraphStyles}
             color: ${textColor};
             background-color: ${backgroundColor};
             font-size: ${fontSizeMapper(fontSize)};
             ${backgroundColor && `padding: 1.25em 2.375em;`}
-            overflow-x: hidden;
           `}
         >
           <DiffFormatter changes={diffChanges} />
@@ -139,8 +141,7 @@ const ParagraphBlock: React.FC<
   return (
     <P
       className={css`
-        margin: 1.25rem 0;
-        min-width: 1px;
+        ${baseParagraphStyles}
         color: ${colorMapper(textColor)};
         background-color: ${bgColor};
         font-size: ${mobileFontSizeMapper(fontSize)};

@@ -87,13 +87,8 @@ describe("parseYoutubeUrl", () => {
       "https://www.youtube.com/watch?v=dQw4w9WgXcQ&listType=playlist&list=PLC77007E23FF423C6",
     )
 
-    // Check that listType is correct
     expect(result.listType).toBe("playlist")
-
-    // Check that list is set
     expect(result.list).toBeTruthy()
-
-    // Check other properties
     expect(result.videoId).toBe("dQw4w9WgXcQ")
     expect(result.startTime).toBeNull()
     expect(result.endTime).toBeNull()

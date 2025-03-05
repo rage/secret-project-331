@@ -84,6 +84,8 @@ const ParagraphBlock: React.FC<
             border: 1px;
             border-style: dotted;
             overflow-x: hidden;
+            overflow-y: hidden;
+            height: auto;
           `}
           contentEditable
           onInput={(ev) => {

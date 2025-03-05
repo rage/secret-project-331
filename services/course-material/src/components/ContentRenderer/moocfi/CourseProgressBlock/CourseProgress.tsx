@@ -65,6 +65,10 @@ const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = (
                   margin: 0 auto;
                   text-align: center;
                   padding: 2em 0;
+
+                  /** Make sure the visualization does not make the page wider on mobile */
+                  max-width: 100%;
+                  overflow: hidden;
                 `}
               >
                 {/* TODO: Verify how it looks when score_given is a floating number */}

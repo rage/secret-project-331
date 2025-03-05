@@ -1,7 +1,6 @@
 import { css } from "@emotion/css"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useInView } from "react-intersection-observer"
 
 import { EmbedAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import aspectRatioFromClassName from "../../../../../utils/aspectRatioFromClassName"
@@ -10,12 +9,7 @@ import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseM
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { baseTheme } from "@/shared-module/common/styles/theme"
 
-/**
- * Technical constants used for YouTube API integration
- * These are not user-facing strings and should not be translated
- */
 const YOUTUBE_EMBED_BASE_URL = "https://www.youtube-nocookie.com/embed/"
-const YOUTUBE_PLAYLIST_PATH = "/playlist"
 const YOUTUBE_PLAYLIST_TYPE = "playlist"
 const YOUTUBE_VIDEOSERIES_ID = "videoseries"
 const YOUTUBE_PARAM_START = "start"
@@ -26,16 +20,10 @@ const YOUTUBE_PARAM_REL = "rel"
 const YOUTUBE_PARAM_MODESTBRANDING = "modestbranding"
 const YOUTUBE_PARAM_ENABLEJSAPI = "enablejsapi"
 
-// YouTube API message constants
-const YOUTUBE_EVENT_COMMAND = "command"
 const YOUTUBE_EVENT_LISTENING = "listening"
 const YOUTUBE_EVENT_ONREADY = "onReady"
 const YOUTUBE_EVENT_INITIAL_DELIVERY = "initialDelivery"
 const YOUTUBE_EVENT_ONSTATE_CHANGE = "onStateChange"
-const YOUTUBE_FUNC_PLAY_VIDEO = "playVideo"
-const YOUTUBE_FUNC_PAUSE_VIDEO = "pauseVideo"
-const YOUTUBE_FUNC_STOP_VIDEO = "stopVideo"
-const YOUTUBE_FUNC_SEEK_TO = "seekTo"
 
 // YouTube player states
 const YT_PLAYER_STATE = {
@@ -48,7 +36,7 @@ const YT_PLAYER_STATE = {
 }
 
 /**
- * Interface for YouTube video parameters
+ * YouTube video parameters
  */
 export interface YouTubeVideoParams {
   videoId: string | null
@@ -60,7 +48,7 @@ export interface YouTubeVideoParams {
 }
 
 /**
- * Interface for YouTube embed options
+ * YouTube embed options
  */
 export interface YouTubeEmbedOptions {
   rel?: string | number | boolean
@@ -83,7 +71,6 @@ export interface YouTubeEmbedOptions {
 
 /**
  * Common YouTube player parameters that can be extracted from URLs
- * These parameters control the player's appearance and behavior
  */
 const COMMON_OPTIONS = [
   "rel",
@@ -105,18 +92,13 @@ const COMMON_OPTIONS = [
 
 /**
  * Parses YouTube URLs and returns video parameters.
- * Handles various YouTube URL formats and parameters including:
- * - youtube.com/watch
- * - youtu.be
- * - youtube.com/embed
- * - youtube.com/playlist
- * - Various query parameters including t, start, end, list, listType
  */
 export function parseYoutubeUrl(url: string): YouTubeVideoParams {
   const result: YouTubeVideoParams = {
     videoId: null,
     startTime: null,
     endTime: null,
+    listType: null,
     embedOptions: {},
   }
 
@@ -128,55 +110,65 @@ export function parseYoutubeUrl(url: string): YouTubeVideoParams {
     return result
   }
 
-  const parsedUrl = new URL(url)
+  try {
+    const parsedUrl = new URL(url)
 
-  COMMON_OPTIONS.forEach((option) => {
-    const value = parsedUrl.searchParams.get(option)
-    if (value !== null) {
-      result.embedOptions![option] = value
+    COMMON_OPTIONS.forEach((option) => {
+      const value = parsedUrl.searchParams.get(option)
+      if (value !== null) {
+        result.embedOptions![option] = value
+      }
+    })
+
+    if (parsedUrl.hostname === "www.youtube.com" || parsedUrl.hostname === "youtube.com") {
+      if (parsedUrl.pathname === "/watch" || parsedUrl.pathname.startsWith("/watch/")) {
+        const videoId = parsedUrl.searchParams.get("v")
+        result.videoId = videoId !== "" ? videoId : null
+      } else if (parsedUrl.pathname.startsWith("/embed/")) {
+        const pathParts = parsedUrl.pathname.split("/embed/")
+        result.videoId = pathParts.length > 1 && pathParts[1] !== "" ? pathParts[1] : null
+      } else if (parsedUrl.pathname === "/playlist") {
+        result.videoId = null
+        result.listType = YOUTUBE_PLAYLIST_TYPE
+      }
+    } else if (parsedUrl.hostname === "youtu.be") {
+      const pathId = parsedUrl.pathname.substring(1)
+      result.videoId = pathId !== "" ? pathId : null
     }
-  })
 
-  if (parsedUrl.hostname === "www.youtube.com" || parsedUrl.hostname === "youtube.com") {
-    if (parsedUrl.pathname === "/watch" || parsedUrl.pathname.startsWith("/watch/")) {
-      const videoId = parsedUrl.searchParams.get("v")
-      result.videoId = videoId !== "" ? videoId : null
-    } else if (parsedUrl.pathname.startsWith("/embed/")) {
-      const pathParts = parsedUrl.pathname.split("/embed/")
-      result.videoId = pathParts.length > 1 && pathParts[1] !== "" ? pathParts[1] : null
-    } else if (parsedUrl.pathname === "/playlist") {
-      result.videoId = null
+    const startTime =
+      parsedUrl.searchParams.get("t") ||
+      parsedUrl.searchParams.get("start") ||
+      parsedUrl.searchParams.get("time_continue")
+    result.startTime = startTime || null
+
+    const endTime = parsedUrl.searchParams.get("end")
+    result.endTime = endTime || null
+
+    // Get list parameter
+    const list = parsedUrl.searchParams.get("list")
+    if (list) {
+      result.list = list
+      // Only set listType to playlist if we have a list parameter and listType isn't already set
+      if (!result.listType) {
+        result.listType = YOUTUBE_PLAYLIST_TYPE
+      }
     }
-  } else if (parsedUrl.hostname === "youtu.be") {
-    const pathId = parsedUrl.pathname.substring(1)
-    result.videoId = pathId !== "" ? pathId : null
+
+    // Check for explicit listType parameter
+    const listTypeParam = parsedUrl.searchParams.get(YOUTUBE_PARAM_LIST_TYPE)
+    if (listTypeParam) {
+      result.listType = listTypeParam
+    }
+  } catch (_error) {
+    // Return default result for invalid URLs
   }
-
-  const startTime =
-    parsedUrl.searchParams.get("t") ||
-    parsedUrl.searchParams.get("start") ||
-    parsedUrl.searchParams.get("time_continue")
-  result.startTime = startTime || null
-
-  const endTime = parsedUrl.searchParams.get("end")
-  result.endTime = endTime || null
-
-  const list = parsedUrl.searchParams.get("list")
-  if (list) {
-    result.listType = list
-  }
-
-  // This should remain using the literal "playlist" string
-  result.listType =
-    parsedUrl.pathname === YOUTUBE_PLAYLIST_PATH
-      ? YOUTUBE_PLAYLIST_TYPE
-      : parsedUrl.searchParams.get(YOUTUBE_PARAM_LIST_TYPE) || YOUTUBE_PLAYLIST_TYPE
 
   return result
 }
 
 /**
- * Parses time parameter from YouTube URL (e.g., "5s", "1m30s") into seconds
+ * Parses time parameter from YouTube URL into seconds
  */
 export function parseTimeParameter(time: string): number {
   if (!time) {
@@ -238,7 +230,7 @@ export function buildYoutubeEmbedUrl(params: YouTubeVideoParams): string {
 
   queryParams.push(`${YOUTUBE_PARAM_REL}=0`)
   queryParams.push(`${YOUTUBE_PARAM_MODESTBRANDING}=1`)
-  queryParams.push(`${YOUTUBE_PARAM_ENABLEJSAPI}=1`) // Always enable JS API for postMessage
+  queryParams.push(`${YOUTUBE_PARAM_ENABLEJSAPI}=1`)
 
   Object.entries(embedOptions).forEach(([key, value]) => {
     queryParams.push(`${key}=${value}`)
@@ -251,22 +243,11 @@ export function buildYoutubeEmbedUrl(params: YouTubeVideoParams): string {
   return embedUrl
 }
 
-/**
- * Interface for direct iframe control without YouTube API
- */
-interface YouTubePlayerDirectAPI {
-  play: () => void
-  pause: () => void
-  stop: () => void
-  seekTo: (seconds: number) => void
-  getPlayerState: () => number | null
-}
-
 export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
   const { t } = useTranslation()
   const { url, className, caption } = props
   const iframeRef = useRef<HTMLIFrameElement>(null)
-  const [playerState, setPlayerState] = useState<number | null>(null)
+  const [_playerState, setPlayerState] = useState<number | null>(null)
   const [isPlayerReady, setIsPlayerReady] = useState(false)
 
   const videoParams = useMemo(() => parseYoutubeUrl(url || ""), [url])
@@ -276,13 +257,6 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
   const hasValidVideo =
     (videoParams.videoId !== null && videoParams.videoId !== "") || isPlaylistEmbed
 
-  // Add intersection observer for lazy loading
-  const { ref: containerRef, inView } = useInView({
-    threshold: 0.1,
-    triggerOnce: true,
-  })
-
-  // Send message to YouTube iframe
   const postMessageToYouTube = useCallback((message: Record<string, unknown>) => {
     if (!iframeRef.current || !iframeRef.current.contentWindow) {
       return
@@ -295,52 +269,25 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
     }
   }, [])
 
-  // Create YouTube player control API
-  const playerAPI = useMemo<YouTubePlayerDirectAPI>(
-    () => ({
-      play: () =>
-        postMessageToYouTube({ event: YOUTUBE_EVENT_COMMAND, func: YOUTUBE_FUNC_PLAY_VIDEO }),
-      pause: () =>
-        postMessageToYouTube({ event: YOUTUBE_EVENT_COMMAND, func: YOUTUBE_FUNC_PAUSE_VIDEO }),
-      stop: () =>
-        postMessageToYouTube({ event: YOUTUBE_EVENT_COMMAND, func: YOUTUBE_FUNC_STOP_VIDEO }),
-      seekTo: (seconds: number) =>
-        postMessageToYouTube({
-          event: YOUTUBE_EVENT_COMMAND,
-          func: YOUTUBE_FUNC_SEEK_TO,
-          args: [seconds, true],
-        }),
-      getPlayerState: () => playerState,
-    }),
-    [postMessageToYouTube, playerState],
-  )
-
-  // Listen for messages from YouTube iframe
   useEffect(() => {
-    if (!hasValidVideo || !inView) {
+    if (!hasValidVideo) {
       return
     }
 
     const handleMessage = (event: MessageEvent) => {
       try {
-        // Parse message data
         const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data
 
-        // Handle player state changes
         if (data.event === YOUTUBE_EVENT_ONSTATE_CHANGE) {
           setPlayerState(data.info)
 
-          // If state changed to playing, player is definitely ready
           if (data.info === YT_PLAYER_STATE.PLAYING) {
             setIsPlayerReady(true)
           }
         }
 
-        // Handle API ready events
         if (data.event === YOUTUBE_EVENT_INITIAL_DELIVERY || data.event === YOUTUBE_EVENT_ONREADY) {
           setIsPlayerReady(true)
-
-          // Start listening for events
           postMessageToYouTube({ event: YOUTUBE_EVENT_LISTENING })
         }
       } catch (_error) {
@@ -348,63 +295,30 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
       }
     }
 
-    // Add message event listener
     window.addEventListener("message", handleMessage)
 
-    // Tell iframe we're listening when iframe is loaded
     const initializePlayer = () => {
       if (iframeRef.current && iframeRef.current.contentWindow) {
-        // Start listening for events
         postMessageToYouTube({ event: YOUTUBE_EVENT_LISTENING })
       }
     }
 
-    // Set up onload handler for iframe
     if (iframeRef.current) {
       iframeRef.current.onload = initializePlayer
 
-      // If iframe is already loaded, initialize player immediately
       if (iframeRef.current.contentDocument?.readyState === "complete") {
         initializePlayer()
       }
     }
 
     return () => {
-      // Clean up event listener
       window.removeEventListener("message", handleMessage)
     }
-  }, [hasValidVideo, inView, postMessageToYouTube])
-
-  // Expose player API to window
-  useEffect(() => {
-    if (!isPlayerReady) {
-      return
-    }
-
-    // Create a unique ID based on video ID
-    const instanceId = videoParams.videoId || videoParams.list || Date.now().toString()
-
-    // Initialize global object if needed
-    if (window && !window.YouTubePlayerInstances) {
-      window.YouTubePlayerInstances = {}
-    }
-
-    // Expose API to window
-    if (window && window.YouTubePlayerInstances) {
-      window.YouTubePlayerInstances[instanceId] = playerAPI
-
-      return () => {
-        if (window.YouTubePlayerInstances) {
-          delete window.YouTubePlayerInstances[instanceId]
-        }
-      }
-    }
-  }, [isPlayerReady, playerAPI, videoParams])
+  }, [hasValidVideo, postMessageToYouTube])
 
   return (
     <BreakFromCentered sidebar={false}>
       <figure
-        ref={containerRef}
         className={css`
           width: 100%;
           max-width: 1000px;
@@ -437,7 +351,6 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
               aspect-ratio: ${aspectRatioFromClassName(className) || "16/9"};
             `}
           >
-            {/* Placeholder with loading indicator */}
             {!isPlayerReady && (
               <div
                 className={css`
@@ -455,7 +368,6 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
                   z-index: 1;
                 `}
               >
-                {/* YouTube-style play button */}
                 <svg
                   width="68"
                   height="48"
@@ -473,27 +385,24 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
               </div>
             )}
 
-            {/* YouTube iframe (only create it when in view) */}
-            {inView && (
-              <iframe
-                ref={iframeRef}
-                className={css`
-                  position: absolute;
-                  top: 0;
-                  left: 0;
-                  width: 100%;
-                  height: 100%;
-                  border: 0;
-                  opacity: ${isPlayerReady ? 1 : 0};
-                  transition: opacity 0.3s ease;
-                `}
-                src={embedUrl}
-                title={t("title-youtube-video-player")}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                data-testid="youtube-player-iframe"
-              />
-            )}
+            <iframe
+              ref={iframeRef}
+              className={css`
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                border: 0;
+                opacity: ${isPlayerReady ? 1 : 0};
+                transition: opacity 0.3s ease;
+              `}
+              src={embedUrl}
+              title={t("title-youtube-video-player")}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              data-testid="youtube-player-iframe"
+            />
           </div>
         )}
 

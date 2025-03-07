@@ -81,11 +81,7 @@
 <a href="#80" id="80">80</a>
 <a href="#81" id="81">81</a>
 <a href="#82" id="82">82</a>
-<a href="#83" id="83">83</a>
-<a href="#84" id="84">84</a>
-<a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a></pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/regradings/`.
+<a href="#83" id="83">83</a></pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/regradings/`.
 
 </span><span class="kw">use </span>models::regradings::{NewRegrading, Regrading, RegradingInfo};
 
@@ -127,19 +123,15 @@ POST `/api/v0/main-frontend/regradings` - Creates a new regrading for the suppli
 */
 
 </span><span class="attr">#[instrument(skip(pool, user))]
-</span><span class="kw">async fn </span>create_by_exercise_task_submission_ids(
+</span><span class="kw">async fn </span>create(
     pool: web::Data&lt;PgPool&gt;,
     user: AuthUser,
     new_regrading: web::Json&lt;NewRegrading&gt;,
 ) -&gt; ControllerResult&lt;web::Json&lt;Uuid&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Edit, <span class="prelude-val">Some</span>(user.id), Res::GlobalPermissions).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>res = models::regradings::insert_and_create_exercise_task_regradings(
-        <span class="kw-2">&amp;mut </span>conn,
-        new_regrading.<span class="number">0</span>,
-        user.id,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>res = models::regradings::insert_and_create_regradings(<span class="kw-2">&amp;mut </span>conn, new_regrading.<span class="number">0</span>, user.id)
+        .<span class="kw">await</span><span class="question-mark">?</span>;
     token.authorized_ok(web::Json(res))
 }
 
@@ -169,7 +161,7 @@ We add the routes by calling the route method instead of using the route annotat
 </span><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
     cfg.route(<span class="string">""</span>, web::get().to(get_regradings))
         .route(<span class="string">"/count"</span>, web::get().to(get_regradings_count))
-        .route(<span class="string">""</span>, web::post().to(create_by_exercise_task_submission_ids))
+        .route(<span class="string">""</span>, web::post().to(create))
         .route(<span class="string">"/{regrading_id}"</span>, web::get().to(get_regrading_info_by_id));
 }
 </code></pre></div></section></main></body></html>

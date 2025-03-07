@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","create_by_exercise_task_submission_ids","get_regrading_info_by_id","get_regradings","get_regradings_count"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","create","get_regrading_info_by_id","get_regradings","get_regradings_count"]};

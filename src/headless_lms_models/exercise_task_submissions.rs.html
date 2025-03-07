@@ -603,7 +603,8 @@
 <a href="#602" id="602">602</a>
 <a href="#603" id="603">603</a>
 <a href="#604" id="604">604</a>
-<a href="#605" id="605">605</a></pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashSet;
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a></pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashSet;
 
 <span class="kw">use </span>futures::{future::BoxFuture, Stream};
 <span class="kw">use </span>serde_json::Value;
@@ -1177,6 +1178,7 @@ WHERE exercise_slide_submission_id IN (
     FROM exercise_slide_submissions
     WHERE exercise_id = $1
 )
+AND deleted_at IS NULL
 "</span>,
         <span class="kw-2">&amp;</span>exercise_id
     )

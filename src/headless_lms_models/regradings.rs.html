@@ -315,7 +315,14 @@
 <a href="#314" id="314">314</a>
 <a href="#315" id="315">315</a>
 <a href="#316" id="316">316</a>
-<a href="#317" id="317">317</a></pre></div><pre class="rust"><code><span class="kw">use crate</span>::{
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a></pre></div><pre class="rust"><code><span class="kw">use crate</span>::{
     exercise_task_gradings::{<span class="self">self</span>, ExerciseTaskGrading, UserPointsUpdateStrategy},
     exercise_task_regrading_submissions, exercise_task_submissions,
     exercises::GradingProgress,
@@ -383,7 +390,7 @@ RETURNING id
 }
 
 <span class="doccomment">/// Creates a new regrading for the exercise task submission ids supplied as arguments.
-</span><span class="kw">pub async fn </span>insert_and_create_exercise_task_regradings(
+</span><span class="kw">pub async fn </span>insert_and_create_regradings(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     new_regrading: NewRegrading,
     user_id: Uuid,
@@ -431,6 +438,13 @@ RETURNING id
     );
     <span class="kw">for </span>id <span class="kw">in </span><span class="kw-2">&amp;</span>exercise_task_submission_ids {
         <span class="kw">let </span>exercise_task_submission = exercise_task_submissions::get_by_id(<span class="kw-2">&amp;mut </span>tx, <span class="kw-2">*</span>id).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">if </span>exercise_task_submission.deleted_at.is_some() {
+            <span class="macro">warn!</span>(
+                <span class="string">"Skipping regrading of deleted exercise task submission {:?}"</span>,
+                id
+            );
+            <span class="kw">continue</span>;
+        }
         <span class="kw">let </span>grading_before_regrading_id = exercise_task_submission
             .exercise_task_grading_id
             .ok_or_else(|| {

@@ -11,6 +11,7 @@ import {
   getCourseCompletionStatsForEmailDomain,
 } from "../services/backend/global-stats"
 
+import Button from "@/shared-module/common/components/Button"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 
 const DomainStatsPage = () => {
@@ -62,15 +63,18 @@ const DomainStatsPage = () => {
       >
         <div>
           {selectedDomain && (
-            <button
+            <Button
+              variant="tertiary"
+              size="small"
               onClick={handleBackToAllDomains}
+              transform="none"
               className={css`
                 margin-right: 1rem;
               `}
               // eslint-disable-next-line i18next/no-literal-string
             >
               ← {t("back-to-all-domains")}
-            </button>
+            </Button>
           )}
           {selectedDomain && <h2>{selectedDomain}</h2>}
         </div>

@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 import FullWidthTable, { FullWidthTableRow } from "../../tables/FullWidthTable"
 
 import { DomainCompletionStats } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -63,21 +64,14 @@ const DomainCompletionStatsTable: React.FC<DomainCompletionStatsTableProps> = ({
             <td>{domain.registered_ects_credits.toFixed(1)}</td>
             <td>{domain.not_registered_ects_credits.toFixed(1)}</td>
             <td>
-              <button
+              <Button
+                variant="secondary"
+                size="small"
                 onClick={() => onDomainSelect(domain.email_domain)}
-                className={css`
-                  padding: 0.25rem 0.5rem;
-                  background-color: #f0f0f0;
-                  border: 1px solid #ccc;
-                  border-radius: 4px;
-                  cursor: pointer;
-                  &:hover {
-                    background-color: #e0e0e0;
-                  }
-                `}
+                transform="none"
               >
                 {t("view-courses")}
-              </button>
+              </Button>
             </td>
           </FullWidthTableRow>
         ))}

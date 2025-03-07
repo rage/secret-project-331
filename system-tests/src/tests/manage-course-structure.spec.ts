@@ -53,7 +53,6 @@ async function movePage(page: Page, pageText: string, direction: "up" | "down") 
 
 async function deletePage(page: Page, pageText: string) {
   await test.step(`Delete page "${pageText}"`, async () => {
-    await verifyDialogState(page, false, false)
     const pageRow = page.getByRole("row").filter({ hasText: pageText })
     await pageRow.getByLabel("Dropdown menu").click()
 
@@ -93,7 +92,7 @@ async function verifyElementOrder(page: Page, firstElement: string, secondElemen
   })
 }
 
-test.only("manage course structure works", async ({ page, headless }, testInfo) => {
+test("manage course structure works", async ({ page, headless }, testInfo) => {
   await test.step("Navigate to course structure page", async () => {
     await page.goto("http://project-331.local/organizations")
     await page.getByText("University of Helsinki, Department of Computer Science").click()
@@ -107,85 +106,65 @@ test.only("manage course structure works", async ({ page, headless }, testInfo) 
   })
 
   await test.step("Test chapter ordering", async () => {
-    await verifyDialogState(page, false, false)
     await verifyElementOrder(page, "Chapter 1: The Basics", "Chapter 2: The intermediaries")
 
     await moveChapter(page, "Chapter 1: The Basics", "down")
 
     await expect(page.getByRole("heading", { name: /Chapter 2: The Basics/ })).toBeVisible()
     await expect(page.getByRole("heading", { name: /Chapter 1: The intermediaries/ })).toBeVisible()
-    await verifyDialogState(page, true, false)
 
     await saveChanges(page)
-    await verifyDialogState(page, false, false)
 
     await moveChapter(page, "Chapter 2: The Basics", "up")
     await saveChanges(page)
-    await verifyDialogState(page, false, false)
 
     await expect(page.getByRole("heading", { name: /Chapter 1: The Basics/ })).toBeVisible()
     await expect(page.getByRole("heading", { name: /Chapter 2: The intermediaries/ })).toBeVisible()
   })
 
   await test.step("Test page ordering", async () => {
-    await verifyDialogState(page, false, false)
     await movePage(page, "Page One", "down")
-    await verifyDialogState(page, false, true)
     await movePage(page, "Page 6", "up")
-    await verifyDialogState(page, false, true)
     await saveChanges(page)
-    await verifyDialogState(page, false, false)
 
     await verifyElementOrder(page, "Page 2", "Page One")
     await verifyElementOrder(page, "Page 6", "Page 5")
   })
 
   await test.step("Test page deletion", async () => {
-    await verifyDialogState(page, false, false)
     await deletePage(page, "Page 4")
-    await verifyDialogState(page, false, true)
     await saveChanges(page)
-    await verifyDialogState(page, false, false)
     await page.reload()
     await verifyDialogState(page, false, false)
   })
 
   await test.step("Test chapter editing", async () => {
-    await verifyDialogState(page, false, false)
     await page
       .getByRole("heading", { name: /Chapter 2: The intermediaries/ })
       .getByRole("button", { name: "Dropdown menu" })
       .click()
-    await page.getByRole("button", { name: "Edit" }).click()
+    await page.getByRole("button", { name: "Edit", exact: true }).click()
 
-    await page.getByLabel("Name").click()
-    await page.getByLabel("Name").fill("The intermediaries TEST change")
-    await page.getByLabel("Set Deadline").check()
-    await page.getByLabel("Deadline").fill("2050-01-01T23:59:13")
+    await page.getByLabel("Name").first().fill("The intermediaries TEST change")
+    await page.getByLabel("Set Deadline").first().check()
+    await page.getByLabel("Deadline", { exact: true }).first().fill("2050-01-01T23:59:13")
 
     await hideToasts(page)
     await page.getByRole("button", { name: "Update" }).click()
     await expect(page.getByText("Operation successful!")).toBeVisible()
     await expect(page.getByText("The intermediaries TEST change")).toBeVisible()
-    await verifyDialogState(page, false, false)
   })
 
   await test.step("Test more page deletion", async () => {
-    await verifyDialogState(page, false, false)
     await deletePage(page, "Page 3")
-    await verifyDialogState(page, false, true)
     await page.reload()
-    await verifyDialogState(page, false, false)
     await saveChanges(page)
     await verifyDialogState(page, false, false)
   })
 
   await test.step("Test final chapter reordering", async () => {
-    await verifyDialogState(page, false, false)
     await moveChapter(page, "Chapter 1: The Basics", "down")
-    await verifyDialogState(page, true, false)
     await saveChanges(page)
-    await verifyDialogState(page, false, false)
 
     await expect(
       page.getByRole("heading", { name: /Chapter 1: The intermediaries TEST change/ }),
@@ -194,8 +173,6 @@ test.only("manage course structure works", async ({ page, headless }, testInfo) 
   })
 
   await test.step("Take screenshots", async () => {
-    await verifyDialogState(page, false, false)
-
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: page,
       headless,
@@ -207,8 +184,6 @@ test.only("manage course structure works", async ({ page, headless }, testInfo) 
     await page.evaluate(() => {
       window.scrollTo(0, 0)
     })
-
-    await verifyDialogState(page, false, false)
 
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: page,

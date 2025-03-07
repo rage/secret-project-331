@@ -56,7 +56,11 @@ export default function managePageOrderReducer(
           (c) => c.front_page_id !== null,
         )
         const chapters = action.payload.chapters.filter((c) => c.id !== null)
-        const orderedPages = orderBy([...action.payload.pages], (page) => page.order_number)
+        const orderedPages = orderBy(
+          [...action.payload.pages],
+          [(page) => page.order_number, (page) => page.id],
+          ["asc", "asc"],
+        )
 
         const withoutFrontpages = orderedPages.filter(
           (page) =>
@@ -222,6 +226,11 @@ function movePageWithinPageList(
   const temp = pages[currentIndex]
   pages[currentIndex] = pages[targetIndex]
   pages[targetIndex] = temp
+
+  const tempOrderNumber = pages[currentIndex].order_number
+  pages[currentIndex].order_number = pages[targetIndex].order_number
+  pages[targetIndex].order_number = tempOrderNumber
+
   draftState.unsavedChanges = true
 }
 

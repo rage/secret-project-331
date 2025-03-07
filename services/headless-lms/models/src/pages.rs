@@ -2966,7 +2966,7 @@ WHERE p.course_id = $1
 
 /// Makes the order numbers and chapter ids to match in the db what's in the page objects
 /// Assumes that all pages belong to the given course id
-/// Also assumes the list of pages includes all nondeleted pages in the course, otherwise we will end up with random order numbers
+/// Also assumes the list of pages includes all nondeleted pages in the course, except chapter front pages, which cannot be moved, otherwise we will end up with random order numbers
 pub async fn reorder_pages(
     conn: &mut PgConnection,
     pages: &[Page],
@@ -2975,9 +2975,35 @@ pub async fn reorder_pages(
     let db_pages =
         get_all_by_course_id_and_visibility(conn, course_id, PageVisibility::Any).await?;
     let chapters = course_chapters(conn, course_id).await?;
+
+    let mut chapter_pages: HashMap<Option<Uuid>, Vec<&Page>> = HashMap::new();
+
+    for page in pages {
+        chapter_pages.entry(page.chapter_id).or_default().push(page);
+    }
+
+    let mut normalized_pages = Vec::with_capacity(pages.len());
+
+    for (_, chapter_pages) in chapter_pages.iter() {
+        // Sort by order_number and then by id for consistency
+        let mut sorted_pages = chapter_pages.to_vec();
+        sorted_pages.sort_by(|a, b| {
+            a.order_number
+                .cmp(&b.order_number)
+                .then_with(|| a.id.cmp(&b.id))
+        });
+
+        // Create normalized pages with sequential order numbers
+        for (idx, &page) in sorted_pages.iter().enumerate() {
+            let mut normalized_page = page.clone();
+            normalized_page.order_number = (idx as i32) + 1; // Start at 1, zero is reserved for chapter front pages which cannot be moved and are not passed to this function
+            normalized_pages.push(normalized_page);
+        }
+    }
+
     let mut tx = conn.begin().await?;
 
-    // First, randomize ALL page order numbers to avoid conflicts
+    // First, randomize ALL page order numbers to avoid conflicts (except chapter front pages, which cannot be moved)
     // This is necessary because unique indexes cannot be deferred in PostgreSQL
     // The random numbers are temporary and will be replaced with the correct order numbers
     sqlx::query!(
@@ -2985,6 +3011,7 @@ pub async fn reorder_pages(
 UPDATE pages
 SET order_number = floor(random() * (2000000 -200000 + 1) + 200000)
 WHERE course_id = $1
+  AND order_number != 0
   AND deleted_at IS NULL
         ",
         course_id
@@ -2992,12 +3019,11 @@ WHERE course_id = $1
     .execute(&mut *tx)
     .await?;
 
-    // Now update each page to its desired order_number
-    for page in pages {
+    // Now update each page to its corrected order_number, using the normalized pages
+    for page in normalized_pages {
         if let Some(matching_db_page) = db_pages.iter().find(|p| p.id == page.id) {
             if matching_db_page.chapter_id == page.chapter_id {
-                // Chapter not changing - just set the order number
-                // The randomization step above ensures we won't have conflicts
+                // Chapter not changing - just set the corrected order number
                 sqlx::query!(
                     "UPDATE pages SET order_number = $2 WHERE id = $1",
                     page.id,

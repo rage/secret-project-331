@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE pages\nSET order_number = floor(random() * (2000000 -200000 + 1) + 200000)\nWHERE course_id = $1\n  AND order_number != 0\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": []
+  },
+  "hash": "e4dc312f95ba9748d27da40891757080925a7e0b9522878fbbfefafb2097c571"
+}

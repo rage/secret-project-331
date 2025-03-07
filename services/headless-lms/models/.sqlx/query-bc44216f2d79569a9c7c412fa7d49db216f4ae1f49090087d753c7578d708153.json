@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "UPDATE pages SET order_number = $2 WHERE pages.id = $1",
+  "query": "UPDATE pages SET order_number = $2 WHERE id = $1",
   "describe": {
     "columns": [],
     "parameters": {
@@ -8,5 +8,5 @@
     },
     "nullable": []
   },
-  "hash": "5866622c871cf13ddcf8be4db233bc7b1773b3fc978f96b6ccee1386e6e3a48e"
+  "hash": "bc44216f2d79569a9c7c412fa7d49db216f4ae1f49090087d753c7578d708153"
 }

@@ -85,9 +85,39 @@ if (process.env.RECORD_VIDEO) {
 }
 
 if (process.env.PWDEBUG === "1") {
+  // Reduce concurrency and timeouts for debugging
   config.workers = 1
   config.use.navigationTimeout = 0
   config.use.actionTimeout = 0
+
+  // Force headed mode in the global settings
+  config.use.headless = false
+  config.use.launchOptions = config.use.launchOptions || {}
+  config.use.launchOptions.args = config.use.launchOptions.args || []
+
+  // Append the necessary flags to make Chromium work in your VDI environment
+  config.use.launchOptions.args.push(
+    "--disable-gpu",
+    "--disable-software-rasterizer",
+    "--no-sandbox",
+    "--disable-dev-shm-usage",
+    "--disable-features=VizDisplayCompositor",
+    `--display=${process.env.DISPLAY || ":100"}`,
+  )
+
+  // If your projects override global settings, update them too.
+  // In your case, chromeUse is spread into each project.
+  // chromeUse.headless = false;
+  chromeUse.launchOptions = chromeUse.launchOptions || {}
+  chromeUse.launchOptions.args = chromeUse.launchOptions.args || []
+  chromeUse.launchOptions.args.push(
+    "--disable-gpu",
+    "--disable-software-rasterizer",
+    "--no-sandbox",
+    "--disable-dev-shm-usage",
+    "--disable-features=VizDisplayCompositor",
+    `--display=${process.env.DISPLAY || ":100"}`,
+  )
 }
 
 if (process.env.HTML) {

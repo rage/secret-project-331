@@ -114,3 +114,17 @@ jobs:
       - name: Run tests
         run: npm run test
         working-directory: ./services/course-material
+
+
+  main-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: npm ci for the root of the repo
+        run: npm ci
+      - name: npm ci
+        run: npm ci
+        working-directory: ./services/main-frontend
+      - name: Run tests
+        run: npm run test
+        working-directory: ./services/main-frontend

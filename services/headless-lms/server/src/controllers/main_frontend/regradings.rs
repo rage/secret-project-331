@@ -46,13 +46,7 @@ async fn create(
     new_regrading: web::Json<NewRegrading>,
 ) -> ControllerResult<web::Json<Uuid>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut **&mut conn,
-        Act::Edit,
-        Some(user.id),
-        Res::GlobalPermissions,
-    )
-    .await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
     let res = models::regradings::insert_and_create_regradings(&mut conn, new_regrading.0, user.id)
         .await?;
     token.authorized_ok(web::Json(res))

@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id\nFROM exercise_task_submissions\nWHERE exercise_slide_submission_id IN (\n    SELECT id\n    FROM exercise_slide_submissions\n    WHERE exercise_id = $1\n)\nAND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false]
+  },
+  "hash": "a0e001b06a5aa248a6cb61a03e92e7f10f6516733bae98dbc1544899921b6e9f"
+}

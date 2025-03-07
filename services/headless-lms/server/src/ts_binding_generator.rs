@@ -154,6 +154,8 @@ fn models(target: &mut File) {
         library::custom_view_exercises::CustomViewExerciseTasks,
         library::global_stats::GlobalCourseModuleStatEntry,
         library::global_stats::GlobalStatEntry,
+        library::global_stats::CourseCompletionStats,
+        library::global_stats::DomainCompletionStats,
         library::grading::AnswerRequiringAttentionWithTasks,
         library::grading::AnswersRequiringAttention,
         library::grading::StudentExerciseSlideSubmission,

@@ -40,19 +40,21 @@ POST `/api/v0/main-frontend/regradings` - Creates a new regrading for the suppli
 */
 
 #[instrument(skip(pool, user))]
-async fn create_by_exercise_task_submission_ids(
+async fn create(
     pool: web::Data<PgPool>,
     user: AuthUser,
     new_regrading: web::Json<NewRegrading>,
 ) -> ControllerResult<web::Json<Uuid>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
-    let res = models::regradings::insert_and_create_exercise_task_regradings(
-        &mut conn,
-        new_regrading.0,
-        user.id,
+    let token = authorize(
+        &mut **&mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::GlobalPermissions,
     )
     .await?;
+    let res = models::regradings::insert_and_create_regradings(&mut conn, new_regrading.0, user.id)
+        .await?;
     token.authorized_ok(web::Json(res))
 }
 
@@ -82,6 +84,6 @@ We add the routes by calling the route method instead of using the route annotat
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("", web::get().to(get_regradings))
         .route("/count", web::get().to(get_regradings_count))
-        .route("", web::post().to(create_by_exercise_task_submission_ids))
+        .route("", web::post().to(create))
         .route("/{regrading_id}", web::get().to(get_regrading_info_by_id));
 }

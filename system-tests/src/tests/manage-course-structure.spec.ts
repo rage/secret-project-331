@@ -1,163 +1,196 @@
-import { expect, test } from "@playwright/test"
+import { expect, Page, test } from "@playwright/test"
 
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
+
+import { hideToasts } from "@/utils/notificationUtils"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
+const chapterOrderingText = "Do you want to save the changes to the chapter ordering?"
+const pageOrderingText = "Do you want to save the changes to the page ordering?"
+
+async function verifyDialogState(page: Page, chapterVisible: boolean, pageVisible: boolean) {
+  await test.step("Verify dialog state", async () => {
+    // eslint-disable-next-line playwright/no-conditional-in-test
+    if (chapterVisible) {
+      await expect(page.getByText(chapterOrderingText)).toBeVisible()
+    } else {
+      // Checking that the wrong text is not in the dom at all, that way we can be sure that it's not under another dialog
+      await expect(page.getByText(chapterOrderingText)).toHaveCount(0)
+    }
+
+    // eslint-disable-next-line playwright/no-conditional-in-test
+    if (pageVisible) {
+      await expect(page.getByText(pageOrderingText)).toBeVisible()
+    } else {
+      // Checking that the wrong text is not in the dom at all, that way we can be sure that it's not under another dialog
+      await expect(page.getByText(pageOrderingText)).toHaveCount(0)
+    }
+  })
+}
+
+async function moveChapter(page: Page, chapterHeading: string, direction: "up" | "down") {
+  await test.step(`Move chapter "${chapterHeading}" ${direction}`, async () => {
+    await page
+      .getByRole("heading", { name: new RegExp(chapterHeading) })
+      .getByRole("button", { name: "Dropdown menu" })
+      .click()
+    await page.getByRole("button", { name: `Move ${direction}` }).click()
+    await verifyDialogState(page, true, false)
+  })
+}
+
+async function movePage(page: Page, pageText: string, direction: "up" | "down") {
+  await test.step(`Move page "${pageText}" ${direction}`, async () => {
+    const pageRow = page.getByRole("row").filter({ hasText: pageText })
+    await pageRow.getByLabel("Dropdown menu").click()
+    await page.getByRole("button", { name: `Move ${direction}` }).click()
+    await verifyDialogState(page, false, true)
+  })
+}
+
+async function deletePage(page: Page, pageText: string) {
+  await test.step(`Delete page "${pageText}"`, async () => {
+    const pageRow = page.getByRole("row").filter({ hasText: pageText })
+    await pageRow.getByLabel("Dropdown menu").click()
+
+    page.once("dialog", (dialog) => {
+      dialog.accept()
+    })
+
+    await hideToasts(page)
+    await page.getByRole("button", { name: "Delete" }).click()
+    await expect(page.getByText("Successfully deleted")).toBeVisible()
+    await verifyDialogState(page, false, true)
+  })
+}
+
+async function saveChanges(page: Page) {
+  await test.step("Save changes", async () => {
+    await hideToasts(page)
+    await page.getByRole("button", { name: "Save" }).click()
+    await expect(page.getByText("Operation successful!")).toBeVisible()
+    await verifyDialogState(page, false, false)
+  })
+}
+
+async function verifyElementOrder(page: Page, firstElement: string, secondElement: string) {
+  await test.step(`Verify element order: "${firstElement}" before "${secondElement}"`, async () => {
+    await expect(page.getByText(firstElement)).toBeVisible()
+    await expect(page.getByText(secondElement)).toBeVisible()
+
+    const firstPosition = await page
+      .getByText(firstElement)
+      .evaluate((el) => el.getBoundingClientRect().top)
+    const secondPosition = await page
+      .getByText(secondElement)
+      .evaluate((el) => el.getBoundingClientRect().top)
+
+    expect(firstPosition).toBeLessThan(secondPosition)
+  })
+}
+
 test("manage course structure works", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/organizations")
+  await test.step("Navigate to course structure page", async () => {
+    await page.goto("http://project-331.local/organizations")
+    await page.getByText("University of Helsinki, Department of Computer Science").click()
+    await page.getByLabel("Manage course 'Course Structure'").click()
+    await page.getByText("Pages").click()
 
-  await Promise.all([
-    page.getByText("University of Helsinki, Department of Computer Science").click(),
-  ])
-
-  await page.locator("[aria-label=\"Manage\\ course\\ \\'Course\\ Structure\\'\"] svg").click()
-
-  await page.getByText("Pages").click()
-  await expect(page).toHaveURL(
-    "http://project-331.local/manage/courses/86cbc198-601c-42f4-8e0f-3e6cce49bbfc/pages",
-  )
-  // Make sure the first two chapters have the right order
-  await page
-    .locator(`:text("Chapter 1: The Basics"):above(:text("Chapter 2: The intermediaries"))`)
-    .waitFor()
-  // Swap the order of the first two chapters
-  await page
-    .getByRole("heading", { name: "Chapter 1: The Basics Dropdown menu" })
-    .getByRole("button", { name: "Dropdown menu" })
-    .click()
-  await page.getByRole("button", { name: "Move down" }).click()
-  // The order should have changed
-  await page
-    .locator(`:text("Chapter 2: The Basics"):below(:text("Chapter 1: The intermediaries"))`)
-    .waitFor()
-  // Saving should work and the order should be saved
-  await page.getByRole("button", { name: "Save" }).click()
-  await page.getByText("Operation successful!").waitFor()
-  await page
-    .locator(`:text("Chapter 2: The Basics"):below(:text("Chapter 1: The intermediaries"))`)
-    .waitFor()
-  // Now if we switch the chapters back, the order should reset to normal and there should be no errors for example from duplicate redirections
-  await page
-    .getByRole("heading", { name: "Chapter 2: The Basics Dropdown menu" })
-    .getByRole("button", { name: "Dropdown menu" })
-    .click()
-  await page.getByRole("button", { name: "Move up" }).click()
-  await page.getByRole("button", { name: "Save" }).click()
-  await page.getByText("Operation successful!").waitFor()
-  await page
-    .locator(`:text("Chapter 1: The Basics"):above(:text("Chapter 2: The intermediaries"))`)
-    .waitFor()
-
-  // Test moving pages around
-  await page.click('text=Page One/chapter-1/page-1Edit page >> [aria-label="Dropdown\\ menu"]')
-
-  await page.getByText("Move down").click()
-
-  await page.click('text=Page 6/chapter-1/page-6Edit page >> [aria-label="Dropdown\\ menu"]')
-
-  await page.getByText("Move up").click()
-
-  await page.click('button:text-is("Save")')
-
-  await page.getByText("Operation successful!").waitFor()
-  // Check that the order is now right
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(100)
-  await page.locator(`:text("Page One"):below(:text("Page 2"))`).waitFor()
-  await page.locator(`:text("Page 5"):below(:text("Page 6"))`).waitFor()
-
-  await page.click('text=Page 4/chapter-1/page-4Edit page >> [aria-label="Dropdown\\ menu"]')
-
-  page.once("dialog", (dialog) => {
-    dialog.accept()
-  })
-  await page.getByText("Delete").click()
-
-  await page.click('button:text-is("Save")')
-  await page.getByText("Operation successful!").waitFor()
-  await page.reload()
-
-  await page
-    .getByRole("heading", { name: "Chapter 2: The intermediaries Dropdown menu" })
-    .getByRole("button", { name: "Dropdown menu" })
-    .click()
-
-  await page.locator(`button:text-is("Edit")`).click()
-
-  await page.click('[placeholder="Name"]')
-
-  await page.click('[placeholder="Name"]')
-
-  await page.press('[placeholder="Name"]', "ArrowRight")
-  // Fill [placeholder="Name"]
-  await page.fill('[placeholder="Name"]', "The intermediaries TEST change")
-  // Check text=Set DeadlineDeadline >> input[type="checkbox"]
-  await page.check('input[label="Set Deadline"]')
-
-  await page.click('[placeholder="Deadline"]')
-
-  await page.fill('[placeholder="Deadline"]', "2050-01-01T23:59:13")
-
-  await page.getByText("Update").click()
-
-  await page.getByText("Operation successful!").waitFor()
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(100)
-  // Check if the rename is visible on the page
-  await page.locator(`:text("The intermediaries TEST change")`).waitFor()
-
-  await page
-    .getByRole("row", { name: "Page 3 /chapter-1/page-3 Edit" })
-    .getByLabel("Dropdown menu")
-    .click()
-
-  page.once("dialog", (dialog) => {
-    dialog.accept()
-  })
-  await page.getByText("Delete").click()
-
-  await page.getByText("Successfully deleted").waitFor()
-
-  await page.reload()
-
-  await page.click('button:text-is("Save")')
-
-  await page.getByText("Operation successful!").waitFor()
-
-  await page.click('text=Chapter 1: The Basics >> [aria-label="Dropdown\\ menu"]')
-
-  await page.getByText("Move down").click()
-
-  await page.click('button:text-is("Save")')
-
-  await page.getByText("Operation successful!").waitFor()
-
-  await page
-    .locator(
-      `:text("Chapter 2: The Basics"):below(:text("Chapter 1: The intermediaries TEST change"))`,
+    await expect(page).toHaveURL(
+      "http://project-331.local/manage/courses/86cbc198-601c-42f4-8e0f-3e6cce49bbfc/pages",
     )
-    .waitFor()
-
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "manage-course-structure-middle-of-the-page",
-    clearNotifications: true,
+    await verifyDialogState(page, false, false)
   })
 
-  await page.evaluate(() => {
-    window.scrollTo(0, 0)
+  await test.step("Test chapter ordering", async () => {
+    await verifyElementOrder(page, "Chapter 1: The Basics", "Chapter 2: The intermediaries")
+
+    await moveChapter(page, "Chapter 1: The Basics", "down")
+
+    await expect(page.getByRole("heading", { name: /Chapter 2: The Basics/ })).toBeVisible()
+    await expect(page.getByRole("heading", { name: /Chapter 1: The intermediaries/ })).toBeVisible()
+
+    await saveChanges(page)
+
+    await moveChapter(page, "Chapter 2: The Basics", "up")
+    await saveChanges(page)
+
+    await expect(page.getByRole("heading", { name: /Chapter 1: The Basics/ })).toBeVisible()
+    await expect(page.getByRole("heading", { name: /Chapter 2: The intermediaries/ })).toBeVisible()
   })
 
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "manage-course-structure-top-of-the-page",
-    clearNotifications: true,
+  await test.step("Test page ordering", async () => {
+    await movePage(page, "Page One", "down")
+    await movePage(page, "Page 6", "up")
+    await saveChanges(page)
+
+    await verifyElementOrder(page, "Page 2", "Page One")
+    await verifyElementOrder(page, "Page 6", "Page 5")
+  })
+
+  await test.step("Test page deletion", async () => {
+    await deletePage(page, "Page 4")
+    await saveChanges(page)
+    await page.reload()
+    await verifyDialogState(page, false, false)
+  })
+
+  await test.step("Test chapter editing", async () => {
+    await page
+      .getByRole("heading", { name: /Chapter 2: The intermediaries/ })
+      .getByRole("button", { name: "Dropdown menu" })
+      .click()
+    await page.getByRole("button", { name: "Edit", exact: true }).click()
+
+    await page.getByLabel("Name").first().fill("The intermediaries TEST change")
+    await page.getByLabel("Set Deadline").first().check()
+    await page.getByLabel("Deadline", { exact: true }).first().fill("2050-01-01T23:59:13")
+
+    await hideToasts(page)
+    await page.getByRole("button", { name: "Update" }).click()
+    await expect(page.getByText("Operation successful!")).toBeVisible()
+    await expect(page.getByText("The intermediaries TEST change")).toBeVisible()
+  })
+
+  await test.step("Test more page deletion", async () => {
+    await deletePage(page, "Page 3")
+    await page.reload()
+    await saveChanges(page)
+    await verifyDialogState(page, false, false)
+  })
+
+  await test.step("Test final chapter reordering", async () => {
+    await moveChapter(page, "Chapter 1: The Basics", "down")
+    await saveChanges(page)
+
+    await expect(
+      page.getByRole("heading", { name: /Chapter 1: The intermediaries TEST change/ }),
+    ).toBeVisible()
+    await expect(page.getByRole("heading", { name: /Chapter 2: The Basics/ })).toBeVisible()
+  })
+
+  await test.step("Take screenshots", async () => {
+    await expectScreenshotsToMatchSnapshots({
+      screenshotTarget: page,
+      headless,
+      testInfo,
+      snapshotName: "manage-course-structure-middle-of-the-page",
+      clearNotifications: true,
+    })
+
+    await page.evaluate(() => {
+      window.scrollTo(0, 0)
+    })
+
+    await expectScreenshotsToMatchSnapshots({
+      screenshotTarget: page,
+      headless,
+      testInfo,
+      snapshotName: "manage-course-structure-top-of-the-page",
+      clearNotifications: true,
+    })
   })
 })

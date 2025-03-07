@@ -2966,6 +2966,7 @@ WHERE p.course_id = $1
 
 /// Makes the order numbers and chapter ids to match in the db what's in the page objects
 /// Assumes that all pages belong to the given course id
+/// Also assumes the list of pages includes all nondeleted pages in the course, except chapter front pages, which cannot be moved, otherwise we will end up with random order numbers
 pub async fn reorder_pages(
     conn: &mut PgConnection,
     pages: &[Page],
@@ -2974,32 +2975,64 @@ pub async fn reorder_pages(
     let db_pages =
         get_all_by_course_id_and_visibility(conn, course_id, PageVisibility::Any).await?;
     let chapters = course_chapters(conn, course_id).await?;
-    let mut tx = conn.begin().await?;
+
+    let mut chapter_pages: HashMap<Option<Uuid>, Vec<&Page>> = HashMap::new();
+
     for page in pages {
+        chapter_pages.entry(page.chapter_id).or_default().push(page);
+    }
+
+    let mut normalized_pages = Vec::with_capacity(pages.len());
+
+    for (_, chapter_pages) in chapter_pages.iter() {
+        // Sort by order_number and then by id for consistency
+        let mut sorted_pages = chapter_pages.to_vec();
+        sorted_pages.sort_by(|a, b| {
+            a.order_number
+                .cmp(&b.order_number)
+                .then_with(|| a.id.cmp(&b.id))
+        });
+
+        // Create normalized pages with sequential order numbers
+        for (idx, &page) in sorted_pages.iter().enumerate() {
+            let mut normalized_page = page.clone();
+            normalized_page.order_number = (idx as i32) + 1; // Start at 1, zero is reserved for chapter front pages which cannot be moved and are not passed to this function
+            normalized_pages.push(normalized_page);
+        }
+    }
+
+    let mut tx = conn.begin().await?;
+
+    // First, randomize ALL page order numbers to avoid conflicts (except chapter front pages, which cannot be moved)
+    // This is necessary because unique indexes cannot be deferred in PostgreSQL
+    // The random numbers are temporary and will be replaced with the correct order numbers
+    sqlx::query!(
+        "
+UPDATE pages
+SET order_number = floor(random() * (2000000 -200000 + 1) + 200000)
+WHERE course_id = $1
+  AND order_number != 0
+  AND deleted_at IS NULL
+        ",
+        course_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    // Now update each page to its corrected order_number, using the normalized pages
+    for page in normalized_pages {
         if let Some(matching_db_page) = db_pages.iter().find(|p| p.id == page.id) {
             if matching_db_page.chapter_id == page.chapter_id {
-                // Chapter not changing
-                // Avoid conflicts in order_number since unique indexes cannot be deferred. The random number will not end up committing in the transaction since the loop goes through all the pages and will correct the number.
+                // Chapter not changing - just set the corrected order number
                 sqlx::query!(
-                    "UPDATE pages
-SET order_number = floor(random() * (2000000 -200000 + 1) + 200000)
-WHERE pages.order_number = $1
-  AND pages.chapter_id = $2
-  AND deleted_at IS NULL",
-                    page.order_number,
-                    page.chapter_id
-                )
-                .execute(&mut *tx)
-                .await?;
-                sqlx::query!(
-                    "UPDATE pages SET order_number = $2 WHERE pages.id = $1",
+                    "UPDATE pages SET order_number = $2 WHERE id = $1",
                     page.id,
                     page.order_number
                 )
                 .execute(&mut *tx)
                 .await?;
             } else {
-                // Chapter changes
+                // Chapter changes - handle URL paths and redirections
                 if let Some(old_chapter_id) = matching_db_page.chapter_id {
                     if let Some(new_chapter_id) = page.chapter_id {
                         // Moving page to another chapter
@@ -3528,5 +3561,54 @@ mod test {
 
         assert!(pr_res.is_empty());
         assert!(prq_res.is_empty());
+    }
+
+    #[tokio::test]
+    async fn reorder_top_level_pages_works() {
+        insert_data!(:tx, :user, :org, :course);
+
+        // First, delete any existing pages in this course to ensure a clean slate
+        let existing_pages =
+            get_all_by_course_id_and_visibility(tx.as_mut(), course, PageVisibility::Any)
+                .await
+                .unwrap();
+        for page in &existing_pages {
+            delete_page_and_exercises(tx.as_mut(), page.id)
+                .await
+                .unwrap();
+        }
+
+        // Create our test pages
+        let page1 = NewCoursePage::new(course, 0, "top-page-1", "Top Page 1");
+        let (page1_id, _) = insert_course_page(tx.as_mut(), &page1, user).await.unwrap();
+        let page2 = NewCoursePage::new(course, 1, "top-page-2", "Top Page 2");
+        let (page2_id, _) = insert_course_page(tx.as_mut(), &page2, user).await.unwrap();
+        let page3 = NewCoursePage::new(course, 2, "top-page-3", "Top Page 3");
+        let (page3_id, _) = insert_course_page(tx.as_mut(), &page3, user).await.unwrap();
+
+        let mut pages =
+            get_all_by_course_id_and_visibility(tx.as_mut(), course, PageVisibility::Any)
+                .await
+                .unwrap();
+
+        let page1_index = pages.iter().position(|p| p.id == page1_id).unwrap();
+        let page2_index = pages.iter().position(|p| p.id == page2_id).unwrap();
+        let page3_index = pages.iter().position(|p| p.id == page3_id).unwrap();
+
+        pages[page1_index].order_number = 2;
+        pages[page3_index].order_number = 1;
+        pages[page2_index].order_number = 3;
+
+        // Apply the reordering
+        reorder_pages(tx.as_mut(), &pages, course).await.unwrap();
+
+        // Check that the reordering took effect
+        let page1_updated = get_page(tx.as_mut(), page1_id).await.unwrap();
+        let page2_updated = get_page(tx.as_mut(), page2_id).await.unwrap();
+        let page3_updated = get_page(tx.as_mut(), page3_id).await.unwrap();
+
+        assert_eq!(page1_updated.order_number, 2);
+        assert_eq!(page2_updated.order_number, 3);
+        assert_eq!(page3_updated.order_number, 1);
     }
 }

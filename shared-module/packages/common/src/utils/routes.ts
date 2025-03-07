@@ -36,6 +36,10 @@ export function globalStatsRoute() {
   return "/stats"
 }
 
+export function domainStatsRoute() {
+  return "/domain-stats"
+}
+
 export function allOrganizationsRoute() {
   return "/organizations"
 }

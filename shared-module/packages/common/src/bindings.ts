@@ -1056,6 +1056,33 @@ export interface GlobalStatEntry {
   value: number
 }
 
+export interface CourseCompletionStats {
+  course_id: string
+  course_name: string
+  total_completions: number
+  unique_users: number
+  registered_completion_percentage: number | null
+  registered_completions: number
+  not_registered_completions: number
+  users_with_some_registered_completions: number
+  users_with_some_unregistered_completions: number
+  registered_ects_credits: number
+  not_registered_ects_credits: number
+}
+
+export interface DomainCompletionStats {
+  email_domain: string
+  total_completions: number
+  unique_users: number
+  registered_completion_percentage: number | null
+  registered_completions: number
+  not_registered_completions: number
+  users_with_some_registered_completions: number
+  users_with_some_unregistered_completions: number
+  registered_ects_credits: number
+  not_registered_ects_credits: number
+}
+
 export interface AnswerRequiringAttentionWithTasks {
   id: string
   user_id: string

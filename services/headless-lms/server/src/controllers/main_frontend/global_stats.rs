@@ -1,10 +1,10 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/global-stats`.
 
+use crate::{domain::authorization::authorize, prelude::*};
 use models::library::global_stats::{
     CourseCompletionStats, DomainCompletionStats, GlobalCourseModuleStatEntry, GlobalStatEntry,
 };
-
-use crate::{domain::authorization::authorize, prelude::*};
+use std::collections::HashMap;
 
 /**
 GET `/api/v0/main-frontend/global-stats/number-of-people-completed-a-course`
@@ -167,7 +167,13 @@ async fn get_course_completion_stats_for_email_domain(
 
     let email_domain = query
         .get("email_domain")
-        .ok_or_else(|| Error::BadRequest("email_domain is required".into()))?
+        .ok_or_else(|| {
+            ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "email_domain is required".to_string(),
+                None,
+            )
+        })?
         .to_string();
 
     let year = query.get("year").and_then(|y| y.parse::<i32>().ok());

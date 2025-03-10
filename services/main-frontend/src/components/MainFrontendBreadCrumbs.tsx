@@ -10,7 +10,7 @@ import BreakFromCentered from "@/shared-module/common/components/Centering/Break
 import { PageMarginOffset } from "@/shared-module/common/components/layout/PageMarginOffset"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "@/shared-module/common/utils/constants"
 import {
-  exerciseRoute,
+  manageCourseExercisesRoute,
   manageCourseRoute,
   organizationFrontPageRoute,
 } from "@/shared-module/common/utils/routes"
@@ -62,7 +62,7 @@ const MainFrontendBreadCrumbs: React.FC<MainFrontendBreadCrumbsProps> = ({
     if (exerciseName) {
       pieces.push({
         text: exerciseName,
-        url: exerciseUrl ?? (exerciseId ? exerciseRoute(exerciseId) : ""),
+        url: exerciseUrl ?? (courseId ? manageCourseExercisesRoute(courseId) : ""),
       })
     }
 
@@ -78,7 +78,6 @@ const MainFrontendBreadCrumbs: React.FC<MainFrontendBreadCrumbsProps> = ({
     organizationSlug,
     t,
     exerciseName,
-    exerciseId,
     exerciseUrl,
     additionalPieces,
   ])

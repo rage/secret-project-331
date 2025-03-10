@@ -28,7 +28,6 @@ const MainFrontendBreadCrumbs: React.FC<MainFrontendBreadCrumbsProps> = ({
   organizationSlug,
   courseId,
   exerciseName,
-  exerciseId,
   exerciseUrl,
   additionalPieces = [],
 }) => {

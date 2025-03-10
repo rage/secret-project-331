@@ -9,16 +9,28 @@ import Breadcrumbs, { BreadcrumbPiece } from "@/shared-module/common/components/
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { PageMarginOffset } from "@/shared-module/common/components/layout/PageMarginOffset"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "@/shared-module/common/utils/constants"
-import { manageCourseRoute, organizationFrontPageRoute } from "@/shared-module/common/utils/routes"
+import {
+  exerciseRoute,
+  manageCourseRoute,
+  organizationFrontPageRoute,
+} from "@/shared-module/common/utils/routes"
 
 interface MainFrontendBreadCrumbsProps {
   organizationSlug: string | null
   courseId: string | null
+  exerciseName?: string
+  exerciseId?: string
+  exerciseUrl?: string
+  additionalPieces?: BreadcrumbPiece[]
 }
 
 const MainFrontendBreadCrumbs: React.FC<MainFrontendBreadCrumbsProps> = ({
   organizationSlug,
   courseId,
+  exerciseName,
+  exerciseId,
+  exerciseUrl,
+  additionalPieces = [],
 }) => {
   const { t } = useTranslation()
 
@@ -47,8 +59,29 @@ const MainFrontendBreadCrumbs: React.FC<MainFrontendBreadCrumbsProps> = ({
       }
       pieces.push({ text: courseName ?? courseId, url: manageCourseRoute(courseId) })
     }
+    if (exerciseName) {
+      pieces.push({
+        text: exerciseName,
+        url: exerciseUrl ?? (exerciseId ? exerciseRoute(exerciseId) : ""),
+      })
+    }
+
+    // Add any additional pieces
+    pieces.push(...additionalPieces)
+
     return pieces
-  }, [courseId, courseName, courseQueryOrganizationSlug, organizationName, organizationSlug, t])
+  }, [
+    courseId,
+    courseName,
+    courseQueryOrganizationSlug,
+    organizationName,
+    organizationSlug,
+    t,
+    exerciseName,
+    exerciseId,
+    exerciseUrl,
+    additionalPieces,
+  ])
 
   return (
     <div

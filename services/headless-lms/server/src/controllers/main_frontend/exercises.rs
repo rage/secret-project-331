@@ -3,7 +3,7 @@
 use futures::future;
 
 use models::{
-    exercise_slide_submissions::ExerciseSlideSubmission,
+    exercise_slide_submissions::ExerciseSlideSubmission, exercises::Exercise,
     library::grading::AnswersRequiringAttention, CourseOrExamId,
 };
 
@@ -14,6 +14,34 @@ use crate::{domain::models_requests, prelude::*};
 pub struct ExerciseSubmissions {
     pub data: Vec<ExerciseSlideSubmission>,
     pub total_pages: u32,
+}
+
+/**
+GET `/api/v0/main-frontend/exercises/:exercise_id` - Returns a single exercise.
+ */
+#[instrument(skip(pool))]
+async fn get_exercise(
+    pool: web::Data<PgPool>,
+    exercise_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Exercise>> {
+    let mut conn = pool.acquire().await?;
+
+    let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
+
+    let token = if let Some(course_id) = exercise.course_id {
+        authorize(&mut conn, Act::View, Some(user.id), Res::Course(course_id)).await?
+    } else if let Some(exam_id) = exercise.exam_id {
+        authorize(&mut conn, Act::View, Some(user.id), Res::Exam(exam_id)).await?
+    } else {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Exercise is not associated with a course or exam".to_string(),
+            None,
+        ));
+    };
+
+    token.authorized_ok(web::Json(exercise))
 }
 
 /**
@@ -95,12 +123,13 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.route(
-        "/{exercise_id}/submissions",
-        web::get().to(get_exercise_submissions),
-    )
-    .route(
-        "/{exercise_id}/answers-requiring-attention",
-        web::get().to(get_exercise_answers_requiring_attention),
-    );
+    cfg.route("/{exercise_id}", web::get().to(get_exercise))
+        .route(
+            "/{exercise_id}/submissions",
+            web::get().to(get_exercise_submissions),
+        )
+        .route(
+            "/{exercise_id}/answers-requiring-attention",
+            web::get().to(get_exercise_answers_requiring_attention),
+        );
 }

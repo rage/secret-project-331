@@ -98,7 +98,6 @@ const DailyVisitCountsGroupedByReferrer: React.FC<
       `}
     >
       <Accordion
-        variant="detail"
         className={css`
           margin-bottom: 0.5rem;
         `}

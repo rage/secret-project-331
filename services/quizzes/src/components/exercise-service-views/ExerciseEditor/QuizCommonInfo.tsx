@@ -62,7 +62,7 @@ const QuizCommonInfo: React.FC = () => {
 
   return (
     <InfoContainer>
-      <Accordion variant="detail" title={t("advanced-options")}>
+      <Accordion title={t("advanced-options")}>
         <details>
           <summary>{t("advanced-options")}</summary>
           <AdvancedOptionsContainer>

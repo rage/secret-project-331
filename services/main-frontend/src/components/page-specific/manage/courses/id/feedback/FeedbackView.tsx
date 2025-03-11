@@ -103,7 +103,7 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
         `}
       >
         {feedback.blocks.length > 0 && (
-          <Accordion variant="detail">
+          <Accordion>
             <details>
               <summary>{t("text-visible-when-feedback-given")}</summary>
               <div>

@@ -11,6 +11,7 @@ const customJestConfig = {
     customExportConditions: [""],
   },
   setupFilesAfterEnv: ["<rootDir>/tests/setup-jest.js"],
+  testPathIgnorePatterns: ["/node_modules/", "/src/shared-module/"],
 }
 
 // createJestConfig is exported in this way to ensure that next/jest can load the Next.js configuration, which is async

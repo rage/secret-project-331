@@ -1,4 +1,11 @@
-import React, { createContext, PropsWithChildren, useContext, useState } from "react"
+import React, {
+  createContext,
+  PropsWithChildren,
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+} from "react"
 
 interface AccordionContextType {
   expandAll: () => void
@@ -10,32 +17,36 @@ interface AccordionContextType {
 export const AccordionContext = createContext<AccordionContextType | undefined>(undefined)
 
 export const AccordionProvider: React.FC<PropsWithChildren> = ({ children }) => {
-  const [accordions, setAccordions] = useState<Set<HTMLDetailsElement>>(new Set())
+  const accordionsRef = useRef<Set<HTMLDetailsElement>>(new Set())
 
-  const controls = React.useMemo(
+  const registerAccordion = useCallback((ref: HTMLDetailsElement) => {
+    accordionsRef.current.add(ref)
+  }, [])
+
+  const unregisterAccordion = useCallback((ref: HTMLDetailsElement) => {
+    accordionsRef.current.delete(ref)
+  }, [])
+
+  const expandAll = useCallback(() => {
+    accordionsRef.current.forEach((accordion) => {
+      accordion.open = true
+    })
+  }, [])
+
+  const collapseAll = useCallback(() => {
+    accordionsRef.current.forEach((accordion) => {
+      accordion.open = false
+    })
+  }, [])
+
+  const controls = useMemo(
     () => ({
-      expandAll: () => {
-        accordions.forEach((accordion) => {
-          accordion.open = true
-        })
-      },
-      collapseAll: () => {
-        accordions.forEach((accordion) => {
-          accordion.open = false
-        })
-      },
-      registerAccordion: (ref: HTMLDetailsElement) => {
-        setAccordions((prev) => new Set(prev).add(ref))
-      },
-      unregisterAccordion: (ref: HTMLDetailsElement) => {
-        setAccordions((prev) => {
-          const next = new Set(prev)
-          next.delete(ref)
-          return next
-        })
-      },
+      expandAll,
+      collapseAll,
+      registerAccordion,
+      unregisterAccordion,
     }),
-    [accordions],
+    [expandAll, collapseAll, registerAccordion, unregisterAccordion],
   )
 
   return <AccordionContext.Provider value={controls}>{children}</AccordionContext.Provider>

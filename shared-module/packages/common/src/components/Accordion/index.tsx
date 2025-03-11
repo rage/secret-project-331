@@ -102,10 +102,7 @@ const TextWrapper = styled.div`
 
 export type AccordionProps = React.DetailsHTMLAttributes<HTMLDetailsElement>
 
-const DetailAccordion: React.FC<React.PropsWithChildren<AccordionProps>> = ({
-  className,
-  children,
-}) => {
+const Accordion: React.FC<React.PropsWithChildren<AccordionProps>> = ({ className, children }) => {
   const wrapperRef = React.useRef<HTMLDivElement>(null)
   const context = useContext(AccordionContext)
 
@@ -128,4 +125,4 @@ const DetailAccordion: React.FC<React.PropsWithChildren<AccordionProps>> = ({
   )
 }
 
-export default DetailAccordion
+export default Accordion

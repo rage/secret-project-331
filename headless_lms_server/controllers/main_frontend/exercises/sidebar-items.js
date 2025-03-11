@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_exercise_answers_requiring_attention","get_exercise_submissions"],"struct":["ExerciseSubmissions"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_exercise","get_exercise_answers_requiring_attention","get_exercise_submissions"],"struct":["ExerciseSubmissions"]};

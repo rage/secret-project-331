@@ -102,6 +102,18 @@ const TextWrapper = styled.div`
 
 export type AccordionProps = React.DetailsHTMLAttributes<HTMLDetailsElement>
 
+/**
+ * Accordion component that wraps HTML details/summary elements with styling and animations.
+ * AccordionContext can be used to expand/collapse all accordions in a subtree.
+ *
+ * @example
+ * <Accordion>
+ *   <details>
+ *     <summary>Title</summary>
+ *     Content goes here
+ *   </details>
+ * </Accordion>
+ */
 const Accordion: React.FC<React.PropsWithChildren<AccordionProps>> = ({ className, children }) => {
   const wrapperRef = React.useRef<HTMLDivElement>(null)
   const context = useContext(AccordionContext)

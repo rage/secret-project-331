@@ -1,9 +1,11 @@
 import { keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
-import React from "react"
+import React, { useContext } from "react"
 
 import { baseTheme, secondaryFont } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
+
+import { AccordionContext } from "./accordionContext"
 
 const openAnimation = keyframes`
   0% { opacity: 0; }
@@ -104,7 +106,26 @@ const DetailAccordion: React.FC<React.PropsWithChildren<AccordionProps>> = ({
   className,
   children,
 }) => {
-  return <TextWrapper className={className}>{children}</TextWrapper>
+  const wrapperRef = React.useRef<HTMLDivElement>(null)
+  const context = useContext(AccordionContext)
+
+  React.useEffect(() => {
+    if (wrapperRef.current && context) {
+      const details = wrapperRef.current.querySelector("details")
+      if (details) {
+        context.registerAccordion(details)
+        return () => {
+          context.unregisterAccordion(details)
+        }
+      }
+    }
+  }, [context])
+
+  return (
+    <TextWrapper ref={wrapperRef} className={className}>
+      {children}
+    </TextWrapper>
+  )
 }
 
 export default DetailAccordion

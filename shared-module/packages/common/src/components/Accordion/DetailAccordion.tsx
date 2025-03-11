@@ -6,12 +6,12 @@ import { baseTheme, secondaryFont } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
 
 const openAnimation = keyframes`
-0% { opacity: 0; }
-100% { opacity: 1; }
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 `
 const slideDown = keyframes`
-from { opacity: 0; height: 0; padding: 0;}
-to { opacity: 1; height: 100%; padding: 10px;}
+  from { opacity: 0; height: 0; padding: 0; }
+  to { opacity: 1; height: 100%; padding: 10px; }
 `
 
 const TextWrapper = styled.div`
@@ -98,32 +98,13 @@ const TextWrapper = styled.div`
   }
 `
 
-const PLACEHOLDER_HEADING = "This is a heading:"
-const PLACEHOLDER_TEXT = `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown
-printer took a galley of type and scrambled it to make a type specimen book. It has
-survived not only five centuries, but also the leap into electronic typesetting,
-remaining essentially unchanged. It was popularised in the 1960s with the release of
-Letraset sheets containing Lorem Ipsum passages, and more recently with desktop
-publishing software like Aldus PageMaker including versions of Lorem Ipsum`
-
 export type AccordionProps = React.DetailsHTMLAttributes<HTMLDetailsElement>
 
-const DetailAccordion: React.FC<React.PropsWithChildren<AccordionProps>> = (props) => {
-  if (props.children) {
-    return <TextWrapper className={props.className}>{props.children}</TextWrapper>
-  }
-  return (
-    <div className={props.className}>
-      <TextWrapper>
-        <details>
-          <summary>{PLACEHOLDER_HEADING}</summary>
-          <ul>
-            <li>{PLACEHOLDER_TEXT}</li>
-          </ul>
-        </details>
-      </TextWrapper>
-    </div>
-  )
+const DetailAccordion: React.FC<React.PropsWithChildren<AccordionProps>> = ({
+  className,
+  children,
+}) => {
+  return <TextWrapper className={className}>{children}</TextWrapper>
 }
 
 export default DetailAccordion

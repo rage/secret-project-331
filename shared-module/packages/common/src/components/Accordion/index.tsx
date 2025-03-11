@@ -7,13 +7,13 @@ import { baseTheme } from "../../styles"
 import DetailAccordion from "./DetailAccordion"
 
 const openAnimation = keyframes`
-0% { opacity: 0; }
-100% { opacity: 1; }
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 `
 
 const slideDown = keyframes`
-from { opacity: 0; height: 0; padding: 0;}
-to { opacity: 1; height: 100%; padding: 10px;}
+  from { opacity: 0; height: 0; padding: 0; }
+  to { opacity: 1; height: 100%; padding: 10px; }
 `
 
 const TextWrapper = styled.div`
@@ -91,55 +91,27 @@ const TextWrapper = styled.div`
   }
 `
 
-const PLACEHOLDER_HEADING = "This is a heading:"
-const PLACEHOLDER_LIST_ITEM = "This is a list item"
 export interface AccordionExtraProps {
   variant: "simple" | "detail"
 }
 
 export type AccordionProps = React.DetailsHTMLAttributes<HTMLDetailsElement> & AccordionExtraProps
 
-const Accordion: React.FC<React.PropsWithChildren<AccordionProps>> = (props) => {
-  if (props.variant === "detail") {
-    return <DetailAccordion {...props}></DetailAccordion>
+const Accordion: React.FC<React.PropsWithChildren<AccordionProps>> = ({
+  variant,
+  className,
+  children,
+  ...rest
+}) => {
+  if (variant === "detail") {
+    return (
+      <DetailAccordion className={className} {...rest}>
+        {children}
+      </DetailAccordion>
+    )
   }
 
-  if (props.children) {
-    return <TextWrapper className={props.className}>{props.children}</TextWrapper>
-  }
-  return (
-    <div className={props.className}>
-      <TextWrapper>
-        <details>
-          <summary>{PLACEHOLDER_HEADING}</summary>
-          <ul>
-            <li>{PLACEHOLDER_LIST_ITEM}</li>
-            <li>{PLACEHOLDER_LIST_ITEM}</li>
-            <li>{PLACEHOLDER_LIST_ITEM}</li>
-            <li>{PLACEHOLDER_LIST_ITEM}</li>
-          </ul>
-        </details>
-        <details>
-          <summary>{PLACEHOLDER_HEADING}</summary>
-          <ul>
-            <li>{PLACEHOLDER_LIST_ITEM}</li>
-            <li>{PLACEHOLDER_LIST_ITEM}</li>
-            <li>{PLACEHOLDER_LIST_ITEM}</li>
-            <li>{PLACEHOLDER_LIST_ITEM}</li>
-          </ul>
-        </details>
-        <details>
-          <summary>{PLACEHOLDER_HEADING}</summary>
-          <ul>
-            <li>{PLACEHOLDER_LIST_ITEM}</li>
-            <li>{PLACEHOLDER_LIST_ITEM}</li>
-            <li>{PLACEHOLDER_LIST_ITEM}</li>
-            <li>{PLACEHOLDER_LIST_ITEM}</li>
-          </ul>
-        </details>
-      </TextWrapper>
-    </div>
-  )
+  return <TextWrapper className={className}>{children}</TextWrapper>
 }
 
 export default Accordion

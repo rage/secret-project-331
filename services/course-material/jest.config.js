@@ -12,6 +12,7 @@ const customJestConfig = {
     "^@/(.*)$": "<rootDir>/src/$1",
     "^.+\\.(svg)$": "<rootDir>/tests/__mocks__/svg.js",
   },
+  testPathIgnorePatterns: ["/node_modules/", "/src/shared-module/"],
 }
 
 // createJestConfig is exported in this way to ensure that next/jest can load the Next.js configuration, which is async

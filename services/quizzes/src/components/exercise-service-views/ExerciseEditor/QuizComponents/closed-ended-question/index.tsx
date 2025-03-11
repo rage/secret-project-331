@@ -309,7 +309,7 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
         </>
       )}
 
-      <Accordion variant="detail" title={t("advanced-options")}>
+      <Accordion title={t("advanced-options")}>
         <details>
           <summary> {t("advanced-options")} </summary>
           <TestButtonContainer>

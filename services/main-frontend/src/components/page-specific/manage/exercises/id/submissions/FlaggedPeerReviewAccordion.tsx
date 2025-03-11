@@ -26,7 +26,7 @@ const FlaggedPeerReviewAccordion: React.FC<FlaggedPeerReviewAccordionProps> = ({
   const { t } = useTranslation()
 
   return (
-    <Accordion variant="detail">
+    <Accordion>
       <details>
         <summary>
           {title}

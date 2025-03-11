@@ -104,7 +104,7 @@ const ExerciseSettingsEditor = () => {
         />
       </div>
       {courseId && (
-        <Accordion variant="detail">
+        <Accordion>
           <details>
             <summary>{t("peer-and-self-review-configuration")}</summary>
             <PeerReviewEditor

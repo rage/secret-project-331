@@ -220,7 +220,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
 
       {/* Advanced options */}
       <br />
-      <Accordion variant="detail" title={t("advanced-options")}>
+      <Accordion title={t("advanced-options")}>
         <details>
           <summary> {t("advanced-options")} </summary>
           <AdvancedOptionsContainer>

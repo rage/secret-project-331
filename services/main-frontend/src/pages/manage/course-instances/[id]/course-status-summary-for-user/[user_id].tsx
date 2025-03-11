@@ -111,7 +111,6 @@ const CourseInstanceExerciseStatusList: React.FC<
           return (
             <Accordion
               key={courseModuleCompletion.id}
-              variant="detail"
               className={css`
                 margin-bottom: 1rem;
               `}
@@ -184,7 +183,6 @@ const CourseInstanceExerciseStatusList: React.FC<
           return (
             <Accordion
               key={courseInstanceProgress.course_module_id}
-              variant="detail"
               className={css`
                 margin-bottom: 1rem;
               `}
@@ -276,7 +274,6 @@ const CourseInstanceExerciseStatusList: React.FC<
                     return (
                       <Accordion
                         key={exerciseStatus.exercise.id}
-                        variant="detail"
                         className={css`
                           margin-bottom: 1rem;
                           ${userExerciseState === undefined &&

@@ -10,6 +10,7 @@ import MainFrontendBreadCrumbs from "@/components/MainFrontendBreadCrumbs"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import useExerciseQuery from "@/hooks/useExeciseQuery"
+import { AccordionProvider } from "@/shared-module/common/components/Accordion/accordionContext"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Pagination from "@/shared-module/common/components/Pagination"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -125,14 +126,15 @@ const SubmissionsPage: React.FC<SubmissionPageProps> = ({ query }) => {
       {answersQuery.isPending && <Spinner variant="medium" />}
 
       {answersQuery.isSuccess && (
-        <>
+        // AccordionProvider here allows us to collapse/expand all accordions in this subtree
+        <AccordionProvider>
           <AnswersRequiringAttentionList
             answersRequiringAttention={answersQuery.data.data}
             exercise_max_points={answersQuery.data.exercise_max_points}
             refetch={answersQuery.refetch}
           />
           <Pagination totalPages={answersQuery.data?.total_pages} paginationInfo={paginationInfo} />
-        </>
+        </AccordionProvider>
       )}
     </div>
   )

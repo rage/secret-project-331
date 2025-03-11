@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(DISTINCT user_id) AS \"total_users!\"\nFROM user_course_settings\nWHERE current_course_id = $1\n  AND deleted_at IS NULL;\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "total_users!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [null]
+  },
+  "hash": "e9481c6b3089c4ef13ba3140f455a5823a7f44af4077104375eebde82a294e12"
+}

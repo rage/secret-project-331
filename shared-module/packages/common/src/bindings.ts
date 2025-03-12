@@ -816,38 +816,6 @@ export interface PeerOrSelfReviewsReceived {
   peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmission>
 }
 
-export interface FlaggedAnswer {
-  id: string
-  submission_id: string
-  flagged_user: string
-  flagged_by: string
-  reason: ReportReason
-  description: string | null
-  created_at: string
-  updated_at: string
-  deleted_at: string | null
-}
-
-export type ReportReason = "Spam" | "HarmfulContent" | "AiGenerated"
-
-export interface NewFlaggedAnswer {
-  submission_id: string
-  flagged_user: string | null
-  flagged_by: string | null
-  reason: ReportReason
-  description: string | null
-}
-
-export interface NewFlaggedAnswerWithToken {
-  submission_id: string
-  flagged_user: string | null
-  flagged_by: string | null
-  reason: ReportReason
-  description: string | null
-  peer_or_self_review_config_id: string
-  token: string
-}
-
 export interface CourseMaterialExerciseTask {
   id: string
   exercise_service_slug: string
@@ -976,6 +944,38 @@ export interface NewFeedback {
   page_id: string
 }
 
+export interface FlaggedAnswer {
+  id: string
+  submission_id: string
+  flagged_user: string
+  flagged_by: string
+  reason: ReportReason
+  description: string | null
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+}
+
+export interface NewFlaggedAnswer {
+  submission_id: string
+  flagged_user: string | null
+  flagged_by: string | null
+  reason: ReportReason
+  description: string | null
+}
+
+export interface NewFlaggedAnswerWithToken {
+  submission_id: string
+  flagged_user: string | null
+  flagged_by: string | null
+  reason: ReportReason
+  description: string | null
+  peer_or_self_review_config_id: string
+  token: string
+}
+
+export type ReportReason = "Spam" | "HarmfulContent" | "AiGenerated"
+
 export interface GeneratedCertificate {
   id: string
   created_at: string
@@ -996,6 +996,23 @@ export interface Term {
 export interface TermUpdate {
   term: string
   definition: string
+}
+
+export interface AverageMetric {
+  period: string | null
+  average: number | null
+}
+
+export interface CohortActivity {
+  cohort_start: string | null
+  activity_period: string | null
+  day_offset: number | null
+  active_users: number
+}
+
+export interface CountResult {
+  period: string | null
+  count: number
 }
 
 export interface CustomViewExerciseSubmissions {
@@ -1035,27 +1052,6 @@ export interface CustomViewExerciseTasks {
   task_gradings: Array<CustomViewExerciseTaskGrading>
 }
 
-export interface GlobalCourseModuleStatEntry {
-  course_name: string
-  course_id: string
-  course_module_id: string
-  course_module_name: string | null
-  organization_id: string
-  organization_name: string
-  year: string
-  value: number
-  course_module_ects_credits: number | null
-}
-
-export interface GlobalStatEntry {
-  course_name: string
-  course_id: string
-  organization_id: string
-  organization_name: string
-  year: string
-  value: number
-}
-
 export interface CourseCompletionStats {
   course_id: string
   course_name: string
@@ -1081,6 +1077,27 @@ export interface DomainCompletionStats {
   users_with_some_unregistered_completions: number
   registered_ects_credits: number
   not_registered_ects_credits: number
+}
+
+export interface GlobalCourseModuleStatEntry {
+  course_name: string
+  course_id: string
+  course_module_id: string
+  course_module_name: string | null
+  organization_id: string
+  organization_name: string
+  year: string
+  value: number
+  course_module_ects_credits: number | null
+}
+
+export interface GlobalStatEntry {
+  course_name: string
+  course_id: string
+  organization_id: string
+  organization_name: string
+  year: string
+  value: number
 }
 
 export interface AnswerRequiringAttentionWithTasks {

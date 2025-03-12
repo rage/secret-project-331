@@ -1,43 +1,12 @@
 import { mainFrontendClient } from "../../mainFrontendClient"
 
+import { AverageMetric, CohortActivity, CountResult } from "@/shared-module/common/bindings"
+import {
+  isAverageMetric,
+  isCohortActivity,
+  isCountResult,
+} from "@/shared-module/common/bindings.guard"
 import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
-
-interface CountResult {
-  count: number
-  date?: string
-}
-
-interface AverageMetric {
-  average: number
-  date: string
-}
-
-interface CohortActivity {
-  cohort_start_date: string
-  activity_date: string
-  active_users: number
-  total_users: number
-}
-
-const isCountResult = (data: unknown): data is CountResult => {
-  const obj = data as CountResult
-  return typeof obj.count === "number" && (obj.date === undefined || typeof obj.date === "string")
-}
-
-const isAverageMetric = (data: unknown): data is AverageMetric => {
-  const obj = data as AverageMetric
-  return typeof obj.average === "number" && typeof obj.date === "string"
-}
-
-const isCohortActivity = (data: unknown): data is CohortActivity => {
-  const obj = data as CohortActivity
-  return (
-    typeof obj.cohort_start_date === "string" &&
-    typeof obj.activity_date === "string" &&
-    typeof obj.active_users === "number" &&
-    typeof obj.total_users === "number"
-  )
-}
 
 export const getTotalUsersStartedCourse = async (courseId: string): Promise<CountResult> => {
   const response = await mainFrontendClient.get(

@@ -1,5 +1,7 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/courses`.
 
+pub mod stats;
+
 use chrono::Utc;
 use domain::csv_export::user_exericse_states_export::UserExerciseStatesExportOperation;
 use headless_lms_models::{
@@ -1600,7 +1602,8 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/{course_id}", web::get().to(get_course))
+    cfg.service(web::scope("/{course_id}/stats").configure(stats::_add_routes))
+        .route("/{course_id}", web::get().to(get_course))
         .route("", web::post().to(post_new_course))
         .route("/{course_id}", web::put().to(update_course))
         .route("/{course_id}", web::delete().to(delete_course))

@@ -32,6 +32,17 @@ const StatHeading = styled.h2`
   margin-bottom: 1rem;
 `
 
+const InstructionBox = styled.div`
+  background-color: ${baseTheme.colors.clear[100]};
+  border-left: 4px solid ${baseTheme.colors.blue[600]};
+  padding: 1rem;
+  margin-bottom: 2rem;
+  border-radius: 4px;
+  color: ${baseTheme.colors.gray[600]};
+  font-size: 0.9rem;
+  line-height: 1.5;
+`
+
 // Define tab categories as constants
 const TAB_OVERVIEW = "overview"
 const TAB_USER_ACTIVITY = "user-activity"
@@ -88,18 +99,23 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
         {activeTab === TAB_OVERVIEW && (
           <>
             <StatHeading>{t("stats-heading-total-users")}</StatHeading>
+            <InstructionBox>{t("stats-instruction-total-users")}</InstructionBox>
             {/* TODO: Add TotalUsers component */}
 
             <StatHeading>{t("stats-heading-total-completions")}</StatHeading>
+            <InstructionBox>{t("stats-instruction-total-completions")}</InstructionBox>
             {/* TODO: Add TotalCompletions component */}
 
             <StatHeading>{t("stats-heading-monthly-completions")}</StatHeading>
+            <InstructionBox>{t("stats-instruction-monthly-completions")}</InstructionBox>
             {/* TODO: Add MonthlyCompletions component */}
 
             <StatHeading>{t("stats-heading-daily-completions")}</StatHeading>
+            <InstructionBox>{t("stats-instruction-daily-completions")}</InstructionBox>
             {/* TODO: Add DailyCompletions component */}
 
             <StatHeading>{t("stats-heading-exercise-participation")}</StatHeading>
+            <InstructionBox>{t("stats-instruction-exercise-participation")}</InstructionBox>
             <CourseUsersCountsByExercise courseId={courseId} />
           </>
         )}
@@ -107,36 +123,47 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
         {activeTab === TAB_USER_ACTIVITY && (
           <>
             <StatHeading>{t("stats-heading-unique-users-by-week")}</StatHeading>
+            <InstructionBox>{t("stats-instruction-unique-users-by-week")}</InstructionBox>
             {/* TODO: Add WeeklyUniqueUsers component */}
 
             <StatHeading>{t("stats-heading-unique-users-by-month")}</StatHeading>
+            <InstructionBox>{t("stats-instruction-unique-users-by-month")}</InstructionBox>
             {/* TODO: Add MonthlyUniqueUsers component */}
 
             <StatHeading>{t("stats-heading-unique-users-by-day")}</StatHeading>
+            <InstructionBox>{t("stats-instruction-unique-users-by-day")}</InstructionBox>
             {/* TODO: Add DailyUniqueUsers component */}
 
             <StatHeading>{t("stats-heading-users-with-submissions")}</StatHeading>
+            <InstructionBox>{t("stats-instruction-users-with-submissions")}</InstructionBox>
             <CourseUsersWithSubmissionsByDay courseId={courseId} />
 
             <StatHeading>{t("stats-heading-daily-submissions")}</StatHeading>
+            <InstructionBox>{t("stats-instruction-daily-submissions")}</InstructionBox>
             <CourseSubmissionsByDay courseId={courseId} />
 
             <StatHeading>{t("stats-heading-submission-timing")}</StatHeading>
+            <InstructionBox>{t("stats-instruction-submission-timing")}</InstructionBox>
             <CourseSubmissionsByWeekdayAndHour courseId={courseId} />
 
             <StatHeading>{t("stats-heading-first-submission-trends")}</StatHeading>
+            <InstructionBox>{t("stats-instruction-first-submission-trends")}</InstructionBox>
             {/* TODO: Add FirstSubmissionTrends component */}
 
             <StatHeading>{t("stats-heading-returning-users-monthly")}</StatHeading>
+            <InstructionBox>{t("stats-instruction-returning-users-monthly")}</InstructionBox>
             {/* TODO: Add MonthlyReturningUsers component */}
 
             <StatHeading>{t("stats-heading-average-time-to-submit")}</StatHeading>
+            <InstructionBox>{t("stats-instruction-average-time-to-submit")}</InstructionBox>
             {/* TODO: Add AverageTimeToSubmit component */}
 
             <StatHeading>{t("stats-heading-weekly-cohort-progress")}</StatHeading>
+            <InstructionBox>{t("stats-instruction-weekly-cohort-progress")}</InstructionBox>
             {/* TODO: Add WeeklyCohortProgress component */}
 
             <StatHeading>{t("stats-heading-daily-cohort-progress")}</StatHeading>
+            <InstructionBox>{t("stats-instruction-daily-cohort-progress")}</InstructionBox>
             {/* TODO: Add DailyCohortProgress component */}
           </>
         )}
@@ -144,27 +171,35 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
         {activeTab === TAB_VISITORS && (
           <>
             <StatHeading>{t("stats-heading-visitor-metrics")}</StatHeading>
+            <InstructionBox>{t("stats-instruction-visitor-metrics")}</InstructionBox>
             <CourseVisitorsByDay courseId={courseId} />
 
             <StatHeading>{t("stats-heading-geographic-distribution")}</StatHeading>
+            <InstructionBox>{t("stats-instruction-geographic-distribution")}</InstructionBox>
             <CourseVisitorsByCountry courseId={courseId} />
 
             <StatHeading>{t("stats-heading-device-analytics")}</StatHeading>
+            <InstructionBox>{t("stats-instruction-device-analytics")}</InstructionBox>
             <DeviceTypes courseId={courseId} />
 
             <StatHeading>{t("stats-heading-page-popularity")}</StatHeading>
+            <InstructionBox>{t("stats-instruction-page-popularity")}</InstructionBox>
             <MostVisitedPages courseId={courseId} />
 
             <StatHeading>{t("stats-heading-referrers")}</StatHeading>
+            <InstructionBox>{t("stats-instruction-referrers")}</InstructionBox>
             <TopReferrers courseId={courseId} />
 
             <StatHeading>{t("header-utm-sources")}</StatHeading>
+            <InstructionBox>{t("stats-instruction-utm-sources")}</InstructionBox>
             <TopUtmSources courseId={courseId} />
 
             <StatHeading>{t("header-utm-campaigns")}</StatHeading>
+            <InstructionBox>{t("stats-instruction-utm-campaigns")}</InstructionBox>
             <TopUtmCampaigns courseId={courseId} />
 
             <StatHeading>{t("stats-heading-utm-traffic-details")}</StatHeading>
+            <InstructionBox>{t("stats-instruction-utm-traffic-details")}</InstructionBox>
             <DailyVisitCountsGroupedByUtm courseId={courseId} />
             <DailyVisitCountsGroupedByReferrer courseId={courseId} />
           </>

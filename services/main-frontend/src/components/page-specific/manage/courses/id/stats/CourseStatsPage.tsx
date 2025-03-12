@@ -6,19 +6,30 @@ import { useTranslation } from "react-i18next"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 
+import AverageTimeToSubmit from "./AverageTimeToSubmit"
 import CourseSubmissionsByDay from "./CourseSubmissionsByDay"
 import CourseSubmissionsByWeekdayAndHour from "./CourseSubmissionsByWeekdayAndHour"
 import CourseUsersCountsByExercise from "./CourseUsersCountsByExercise"
 import CourseUsersWithSubmissionsByDay from "./CourseUsersWithSubmissionsByDay"
 import CourseVisitorsByCountry from "./CourseVisitorsByCountry"
 import CourseVisitorsByDay from "./CourseVisitorsByDay"
+import DailyCohortProgress from "./DailyCohortProgress"
+import DailyCompletions from "./DailyCompletions"
+import DailyUniqueUsers from "./DailyUniqueUsers"
 import DailyVisitCountsGroupedByReferrer from "./DailyVisitCountsGroupedByReferrer"
 import DailyVisitCountsGroupedByUtm from "./DailyVisitCountsGroupedByUtm"
 import DeviceTypes from "./DeviceTypes"
+import FirstSubmissionTrends from "./FirstSubmissionTrends"
+import MonthlyCompletions from "./MonthlyCompletions"
+import MonthlyReturningUsers from "./MonthlyReturningUsers"
+import MonthlyUniqueUsers from "./MonthlyUniqueUsers"
 import MostVisitedPages from "./MostVisitedPages"
 import TopReferrers from "./TopReferrers"
 import TopUtmCampaigns from "./TopUtmCampaigns"
 import TopUtmSources from "./TopUtmSources"
+import TotalStats from "./TotalStats"
+import WeeklyCohortProgress from "./WeeklyCohortProgress"
+import WeeklyUniqueUsers from "./WeeklyUniqueUsers"
 
 import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
 import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"
@@ -43,7 +54,6 @@ const InstructionBox = styled.div`
   line-height: 1.5;
 `
 
-// Define tab categories as constants
 const TAB_OVERVIEW = "overview"
 const TAB_USER_ACTIVITY = "user-activity"
 const TAB_VISITORS = "visitors"
@@ -98,21 +108,15 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
       <TabLinkPanel>
         {activeTab === TAB_OVERVIEW && (
           <>
-            <StatHeading>{t("stats-heading-total-users")}</StatHeading>
-            <InstructionBox>{t("stats-instruction-total-users")}</InstructionBox>
-            {/* TODO: Add TotalUsers component */}
-
-            <StatHeading>{t("stats-heading-total-completions")}</StatHeading>
-            <InstructionBox>{t("stats-instruction-total-completions")}</InstructionBox>
-            {/* TODO: Add TotalCompletions component */}
+            <TotalStats courseId={courseId} />
 
             <StatHeading>{t("stats-heading-monthly-completions")}</StatHeading>
             <InstructionBox>{t("stats-instruction-monthly-completions")}</InstructionBox>
-            {/* TODO: Add MonthlyCompletions component */}
+            <MonthlyCompletions courseId={courseId} />
 
             <StatHeading>{t("stats-heading-daily-completions")}</StatHeading>
             <InstructionBox>{t("stats-instruction-daily-completions")}</InstructionBox>
-            {/* TODO: Add DailyCompletions component */}
+            <DailyCompletions courseId={courseId} />
 
             <StatHeading>{t("stats-heading-exercise-participation")}</StatHeading>
             <InstructionBox>{t("stats-instruction-exercise-participation")}</InstructionBox>
@@ -124,15 +128,15 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
           <>
             <StatHeading>{t("stats-heading-unique-users-by-week")}</StatHeading>
             <InstructionBox>{t("stats-instruction-unique-users-by-week")}</InstructionBox>
-            {/* TODO: Add WeeklyUniqueUsers component */}
+            <WeeklyUniqueUsers courseId={courseId} />
 
             <StatHeading>{t("stats-heading-unique-users-by-month")}</StatHeading>
             <InstructionBox>{t("stats-instruction-unique-users-by-month")}</InstructionBox>
-            {/* TODO: Add MonthlyUniqueUsers component */}
+            <MonthlyUniqueUsers courseId={courseId} />
 
             <StatHeading>{t("stats-heading-unique-users-by-day")}</StatHeading>
             <InstructionBox>{t("stats-instruction-unique-users-by-day")}</InstructionBox>
-            {/* TODO: Add DailyUniqueUsers component */}
+            <DailyUniqueUsers courseId={courseId} />
 
             <StatHeading>{t("stats-heading-users-with-submissions")}</StatHeading>
             <InstructionBox>{t("stats-instruction-users-with-submissions")}</InstructionBox>
@@ -148,23 +152,23 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
 
             <StatHeading>{t("stats-heading-first-submission-trends")}</StatHeading>
             <InstructionBox>{t("stats-instruction-first-submission-trends")}</InstructionBox>
-            {/* TODO: Add FirstSubmissionTrends component */}
+            <FirstSubmissionTrends courseId={courseId} />
 
             <StatHeading>{t("stats-heading-returning-users-monthly")}</StatHeading>
             <InstructionBox>{t("stats-instruction-returning-users-monthly")}</InstructionBox>
-            {/* TODO: Add MonthlyReturningUsers component */}
+            <MonthlyReturningUsers courseId={courseId} />
 
             <StatHeading>{t("stats-heading-average-time-to-submit")}</StatHeading>
             <InstructionBox>{t("stats-instruction-average-time-to-submit")}</InstructionBox>
-            {/* TODO: Add AverageTimeToSubmit component */}
+            <AverageTimeToSubmit courseId={courseId} />
 
             <StatHeading>{t("stats-heading-weekly-cohort-progress")}</StatHeading>
             <InstructionBox>{t("stats-instruction-weekly-cohort-progress")}</InstructionBox>
-            {/* TODO: Add WeeklyCohortProgress component */}
+            <WeeklyCohortProgress courseId={courseId} />
 
             <StatHeading>{t("stats-heading-daily-cohort-progress")}</StatHeading>
             <InstructionBox>{t("stats-instruction-daily-cohort-progress")}</InstructionBox>
-            {/* TODO: Add DailyCohortProgress component */}
+            <DailyCohortProgress courseId={courseId} />
           </>
         )}
 

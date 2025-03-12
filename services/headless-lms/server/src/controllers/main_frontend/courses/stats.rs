@@ -4,9 +4,9 @@ use crate::{domain::authorization::authorize, prelude::*};
 use models::library::course_stats::{AverageMetric, CohortActivity, CountResult};
 use uuid::Uuid;
 
-/// GET `/api/v0/main-frontend/{course_id}/stats/total-users-in-settings`
+/// GET `/api/v0/main-frontend/{course_id}/stats/total-users-started-course`
 #[instrument(skip(pool))]
-async fn get_total_users_in_course_settings(
+async fn get_total_users_started_course(
     pool: web::Data<PgPool>,
     user: AuthUser,
     course_id: web::Path<Uuid>,
@@ -20,9 +20,8 @@ async fn get_total_users_in_course_settings(
     )
     .await?;
 
-    let res =
-        models::library::course_stats::get_total_users_in_course_settings(&mut conn, *course_id)
-            .await?;
+    let res = models::library::course_stats::get_total_users_started_course(&mut conn, *course_id)
+        .await?;
     token.authorized_ok(web::Json(res))
 }
 
@@ -331,8 +330,8 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/{course_id}/stats")
             .route(
-                "/total-users-in-settings",
-                web::get().to(get_total_users_in_course_settings),
+                "/total-users-started-course",
+                web::get().to(get_total_users_started_course),
             )
             .route(
                 "/total-users-completed",

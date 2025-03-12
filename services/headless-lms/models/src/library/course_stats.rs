@@ -40,7 +40,7 @@ pub struct CohortActivity {
 }
 
 /// Total unique users in the course settings table.
-pub async fn get_total_users_in_course_settings(
+pub async fn get_total_users_started_course(
     conn: &mut PgConnection,
     course_id: Uuid,
 ) -> ModelResult<CountResult> {

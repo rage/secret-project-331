@@ -1,44 +1,41 @@
 use crate::prelude::*;
 
-// Shared struct for queries returning a single count
+/// A generic result representing a count metric over a time period.
+/// When the time period is not applicable (for overall totals), `period` will be `None`.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct TotalCount {
-    pub total_users: i64,
+pub struct CountResult {
+    /// The start of the time period (e.g., day, week, month) associated with this count.
+    /// For overall totals, this will be `None`.
+    pub period: Option<DateTime<Utc>>,
+    /// The count (for example, the number of users).
+    pub count: i64,
 }
 
-// Shared struct for queries returning a time period and a user count
+/// A generic result representing an average metric over a time period.
+/// The average value (e.g. average time in seconds) may be absent if no data is available.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct TimeCount {
-    pub period_start: Option<DateTime<Utc>>,
-    pub user_count: i64,
+pub struct AverageMetric {
+    /// The start of the time period (e.g., day, week, month) associated with this metric.
+    pub period: Option<DateTime<Utc>>,
+    /// The average value. For example, the average time (in seconds) from course start to first submission.
+    pub average: Option<f64>,
 }
 
-// Average time (in seconds) from course start to first exercise submission
+/// Represents cohort activity metrics for both weekly and daily cohorts.
+/// For daily cohorts, `day_offset` will be populated (and `activity_period` may be computed from it);
+/// for weekly cohorts, `day_offset` will be `None` and `activity_period` indicates the week start.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct AvgTimeSubmission {
-    pub period_start: Option<DateTime<Utc>>,
-    // average time in seconds; can be None if no data is available
-    pub avg_time_to_first_submission: Option<f64>,
-}
-
-// Wekly cohort activity
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct CohortWeeklyActivity {
-    pub cohort_week: Option<DateTime<Utc>>,
-    pub period_start: Option<DateTime<Utc>>,
-    pub active_users: i64,
-}
-
-// Daily cohort activity (day offset from cohort start)
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct CohortDailyActivity {
-    pub cohort_day: Option<DateTime<Utc>>,
-    pub day_offset: i32,
+pub struct CohortActivity {
+    /// The start date of the cohort (either day or week).
+    pub cohort_start: Option<DateTime<Utc>>,
+    /// The activity period (for example, the start of the week or the computed activity day).
+    pub activity_period: Option<DateTime<Utc>>,
+    /// The day offset from the cohort start (only applicable for daily cohorts).
+    pub day_offset: Option<i32>,
+    /// The number of active users in this cohort for the given period.
     pub active_users: i64,
 }
 
@@ -46,11 +43,12 @@ pub struct CohortDailyActivity {
 pub async fn get_total_users_in_course_settings(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<TotalCount> {
+) -> ModelResult<CountResult> {
     let res = sqlx::query_as!(
-        TotalCount,
+        CountResult,
         r#"
-SELECT COUNT(DISTINCT user_id) AS "total_users!"
+SELECT NULL::timestamptz AS "period",
+       COUNT(DISTINCT user_id) AS "count!"
 FROM user_course_settings
 WHERE current_course_id = $1
   AND deleted_at IS NULL;
@@ -66,11 +64,12 @@ WHERE current_course_id = $1
 pub async fn get_total_users_completed_course(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<TotalCount> {
+) -> ModelResult<CountResult> {
     let res = sqlx::query_as!(
-        TotalCount,
+        CountResult,
         r#"
-SELECT COUNT(DISTINCT user_id) AS "total_users!"
+SELECT NULL::timestamptz AS "period",
+       COUNT(DISTINCT user_id) AS "count!"
 FROM course_module_completions
 WHERE course_id = $1
   AND deleted_at IS NULL;
@@ -86,17 +85,17 @@ WHERE course_id = $1
 pub async fn get_weekly_unique_users_starting(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<Vec<TimeCount>> {
+) -> ModelResult<Vec<CountResult>> {
     let res = sqlx::query_as!(
-        TimeCount,
+        CountResult,
         r#"
-SELECT DATE_TRUNC('week', created_at) AS "period_start",
-  COUNT(DISTINCT user_id) AS "user_count!"
+SELECT DATE_TRUNC('week', created_at) AS "period",
+       COUNT(DISTINCT user_id) AS "count!"
 FROM user_course_settings
 WHERE current_course_id = $1
   AND deleted_at IS NULL
-GROUP BY "period_start"
-ORDER BY "period_start";
+GROUP BY "period"
+ORDER BY "period";
         "#,
         course_id
     )
@@ -109,17 +108,17 @@ ORDER BY "period_start";
 pub async fn get_monthly_unique_users_starting(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<Vec<TimeCount>> {
+) -> ModelResult<Vec<CountResult>> {
     let res = sqlx::query_as!(
-        TimeCount,
+        CountResult,
         r#"
-SELECT DATE_TRUNC('month', created_at) AS "period_start",
-  COUNT(DISTINCT user_id) AS "user_count!"
+SELECT DATE_TRUNC('month', created_at) AS "period",
+       COUNT(DISTINCT user_id) AS "count!"
 FROM user_course_settings
 WHERE current_course_id = $1
   AND deleted_at IS NULL
-GROUP BY "period_start"
-ORDER BY "period_start"
+GROUP BY "period"
+ORDER BY "period"
         "#,
         course_id
     )
@@ -133,18 +132,18 @@ pub async fn get_daily_unique_users_starting_last_n_days(
     conn: &mut PgConnection,
     course_id: Uuid,
     days_limit: i32,
-) -> ModelResult<Vec<TimeCount>> {
+) -> ModelResult<Vec<CountResult>> {
     let res = sqlx::query_as!(
-        TimeCount,
+        CountResult,
         r#"
-SELECT DATE_TRUNC('day', created_at) AS "period_start",
-  COUNT(DISTINCT user_id) AS "user_count!"
+SELECT DATE_TRUNC('day', created_at) AS "period",
+  COUNT(DISTINCT user_id) AS "count!"
 FROM user_course_settings
 WHERE current_course_id = $1
   AND created_at >= NOW() - ($2 || ' days')::INTERVAL
   AND deleted_at IS NULL
-GROUP BY "period_start"
-ORDER BY "period_start"
+GROUP BY "period"
+ORDER BY "period"
         "#,
         course_id,
         &days_limit.to_string()
@@ -158,12 +157,12 @@ ORDER BY "period_start"
 pub async fn get_monthly_first_exercise_submissions(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<Vec<TimeCount>> {
+) -> ModelResult<Vec<CountResult>> {
     let res = sqlx::query_as!(
-        TimeCount,
+        CountResult,
         r#"
-SELECT DATE_TRUNC('month', first_submission) AS "period_start",
-COUNT(user_id) AS "user_count!"
+SELECT DATE_TRUNC('month', first_submission) AS "period",
+COUNT(user_id) AS "count!"
 FROM (
     SELECT user_id,
       MIN(created_at) AS first_submission
@@ -172,8 +171,8 @@ FROM (
       AND deleted_at IS NULL
     GROUP BY user_id
   ) AS first_submissions
-GROUP BY "period_start"
-ORDER BY "period_start"
+GROUP BY "period"
+ORDER BY "period"
         "#,
         course_id
     )
@@ -187,12 +186,12 @@ pub async fn get_daily_first_exercise_submissions_last_n_days(
     conn: &mut PgConnection,
     course_id: Uuid,
     days_limit: i32,
-) -> ModelResult<Vec<TimeCount>> {
+) -> ModelResult<Vec<CountResult>> {
     let res = sqlx::query_as!(
-        TimeCount,
+        CountResult,
         r#"
-SELECT DATE_TRUNC('day', first_submission) AS "period_start",
-  COUNT(user_id) AS "user_count!"
+SELECT DATE_TRUNC('day', first_submission) AS "period",
+  COUNT(user_id) AS "count!"
 FROM (
     SELECT user_id,
       MIN(created_at) AS first_submission
@@ -202,8 +201,8 @@ FROM (
       AND deleted_at IS NULL
     GROUP BY user_id
   ) AS first_submissions
-GROUP BY "period_start"
-ORDER BY "period_start"
+GROUP BY "period"
+ORDER BY "period"
         "#,
         course_id,
         &days_limit.to_string()
@@ -217,17 +216,17 @@ ORDER BY "period_start"
 pub async fn get_monthly_users_returning_exercises(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<Vec<TimeCount>> {
+) -> ModelResult<Vec<CountResult>> {
     let res = sqlx::query_as!(
-        TimeCount,
+        CountResult,
         r#"
-SELECT DATE_TRUNC('month', created_at) AS "period_start",
-  COUNT(DISTINCT user_id) AS "user_count!"
+SELECT DATE_TRUNC('month', created_at) AS "period",
+  COUNT(DISTINCT user_id) AS "count!"
 FROM exercise_slide_submissions
 WHERE course_id = $1
   AND deleted_at IS NULL
-GROUP BY "period_start"
-ORDER BY "period_start"
+GROUP BY "period"
+ORDER BY "period"
         "#,
         course_id
     )
@@ -241,18 +240,18 @@ pub async fn get_daily_users_returning_exercises_last_n_days(
     conn: &mut PgConnection,
     course_id: Uuid,
     days_limit: i32,
-) -> ModelResult<Vec<TimeCount>> {
+) -> ModelResult<Vec<CountResult>> {
     let res = sqlx::query_as!(
-        TimeCount,
+        CountResult,
         r#"
-SELECT DATE_TRUNC('day', created_at) AS "period_start",
-  COUNT(DISTINCT user_id) AS "user_count!"
+SELECT DATE_TRUNC('day', created_at) AS "period",
+  COUNT(DISTINCT user_id) AS "count!"
 FROM exercise_slide_submissions
 WHERE course_id = $1
   AND created_at >= NOW() - ($2 || ' days')::INTERVAL
   AND deleted_at IS NULL
-GROUP BY "period_start"
-ORDER BY "period_start"
+GROUP BY "period"
+ORDER BY "period"
         "#,
         course_id,
         &days_limit.to_string()
@@ -266,12 +265,12 @@ ORDER BY "period_start"
 pub async fn get_monthly_course_completions(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<Vec<TimeCount>> {
+) -> ModelResult<Vec<CountResult>> {
     let res = sqlx::query_as!(
-        TimeCount,
+        CountResult,
         r#"
-SELECT DATE_TRUNC('month', created_at) AS "period_start",
-  COUNT(DISTINCT user_id) AS "user_count!"
+SELECT DATE_TRUNC('month', created_at) AS "period",
+  COUNT(DISTINCT user_id) AS "count!"
 FROM course_module_completions
 WHERE course_id = $1
   AND prerequisite_modules_completed = TRUE
@@ -281,8 +280,8 @@ WHERE course_id = $1
   )
   AND passed = TRUE
   AND deleted_at IS NULL
-GROUP BY "period_start"
-ORDER BY "period_start"
+GROUP BY "period"
+ORDER BY "period"
         "#,
         course_id
     )
@@ -292,16 +291,16 @@ ORDER BY "period_start"
 }
 
 /// Daily count of users who have completed the course within specified days.
-pub async fn get_daily_course_completions_last_60_days(
+pub async fn get_daily_course_completions_last_n_days(
     conn: &mut PgConnection,
     course_id: Uuid,
     days_limit: i32,
-) -> ModelResult<Vec<TimeCount>> {
+) -> ModelResult<Vec<CountResult>> {
     let res = sqlx::query_as!(
-        TimeCount,
+        CountResult,
         r#"
-SELECT DATE_TRUNC('day', created_at) AS "period_start",
-COUNT(DISTINCT user_id) AS "user_count!"
+SELECT DATE_TRUNC('day', created_at) AS "period",
+COUNT(DISTINCT user_id) AS "count!"
 FROM course_module_completions
 WHERE course_id = $1
   AND prerequisite_modules_completed = TRUE
@@ -311,8 +310,8 @@ WHERE course_id = $1
   )
   AND created_at >= NOW() - ($2 || ' days')::INTERVAL
   AND deleted_at IS NULL
-GROUP BY "period_start"
-ORDER BY "period_start"
+GROUP BY "period"
+ORDER BY "period"
         "#,
         course_id,
         &days_limit.to_string()
@@ -327,17 +326,17 @@ ORDER BY "period_start"
 pub async fn get_avg_time_to_first_submission_by_month(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<Vec<AvgTimeSubmission>> {
+) -> ModelResult<Vec<AverageMetric>> {
     let res = sqlx::query_as!(
-        AvgTimeSubmission,
+        AverageMetric,
         r#"
-SELECT DATE_TRUNC('month', user_start) AS "period_start",
+SELECT DATE_TRUNC('month', user_start) AS "period",
 AVG(
   EXTRACT(
     EPOCH
     FROM (first_submission - user_start)
   )
-)::float8 AS "avg_time_to_first_submission"
+)::float8 AS "average"
 FROM (
     SELECT u.user_id,
       MIN(u.created_at) AS user_start,
@@ -350,8 +349,8 @@ FROM (
       AND u.deleted_at IS NULL
     GROUP BY u.user_id
   ) AS timings
-GROUP BY "period_start"
-ORDER BY "period_start"
+GROUP BY "period"
+ORDER BY "period"
         "#,
         course_id,
     )
@@ -365,9 +364,9 @@ pub async fn get_cohort_weekly_activity(
     conn: &mut PgConnection,
     course_id: Uuid,
     months_limit: i32,
-) -> ModelResult<Vec<CohortWeeklyActivity>> {
+) -> ModelResult<Vec<CohortActivity>> {
     let res = sqlx::query_as!(
-        CohortWeeklyActivity,
+        CohortActivity,
         r#"
 WITH cohort AS (
   SELECT user_id,
@@ -377,17 +376,19 @@ WITH cohort AS (
     AND created_at >= NOW() - ($3 || ' months')::INTERVAL
     AND deleted_at IS NULL
 )
-SELECT c.cohort_week,
-  DATE_TRUNC('week', s.created_at) AS "period_start",
+SELECT c.cohort_week AS "cohort_start",
+  DATE_TRUNC('week', s.created_at) AS "activity_period",
+  NULL::int AS "day_offset",
   COUNT(DISTINCT s.user_id) AS "active_users!"
 FROM cohort c
   JOIN exercise_slide_submissions s ON c.user_id = s.user_id
   AND s.course_id = $2
+  AND s.created_at >= NOW() - ($3 || ' months')::INTERVAL
   AND s.deleted_at IS NULL
 GROUP BY c.cohort_week,
-  "period_start"
+  "activity_period"
 ORDER BY c.cohort_week,
-  "period_start";
+  "activity_period";
         "#,
         course_id,
         course_id,
@@ -403,9 +404,9 @@ pub async fn get_cohort_daily_activity(
     conn: &mut PgConnection,
     course_id: Uuid,
     days_limit: i32,
-) -> ModelResult<Vec<CohortDailyActivity>> {
+) -> ModelResult<Vec<CohortActivity>> {
     let res = sqlx::query_as!(
-        CohortDailyActivity,
+        CohortActivity,
         r#"
 WITH cohort AS (
   SELECT user_id,
@@ -415,21 +416,24 @@ WITH cohort AS (
     AND created_at >= NOW() - ($3 || ' days')::INTERVAL
     AND deleted_at IS NULL
 )
-SELECT c.cohort_day,
+SELECT c.cohort_day AS "cohort_start",
+  DATE_TRUNC('day', s.created_at) AS "activity_period",
   EXTRACT(
     DAY
     FROM (DATE_TRUNC('day', s.created_at) - c.cohort_day)
-  )::int AS "day_offset!",
+  )::int AS "day_offset",
   COUNT(DISTINCT s.user_id) AS "active_users!"
 FROM cohort c
   JOIN exercise_slide_submissions s ON c.user_id = s.user_id
   AND s.course_id = $2
+  AND s.created_at >= NOW() - ($3 || ' days')::INTERVAL
   AND s.deleted_at IS NULL
 WHERE DATE_TRUNC('day', s.created_at) < c.cohort_day + INTERVAL '7 days'
 GROUP BY c.cohort_day,
-  "day_offset!"
+  "activity_period",
+  "day_offset"
 ORDER BY c.cohort_day,
-  "day_offset!";
+  "day_offset";
         "#,
         course_id,
         course_id,

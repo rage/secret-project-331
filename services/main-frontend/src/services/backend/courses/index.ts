@@ -1,6 +1,6 @@
 import { isBoolean } from "lodash"
 
-import { mainFrontendClient } from "../mainFrontendClient"
+import { mainFrontendClient } from "../../mainFrontendClient"
 
 import {
   Chapter,

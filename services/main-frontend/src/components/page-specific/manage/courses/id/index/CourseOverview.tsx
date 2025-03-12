@@ -1,6 +1,6 @@
 import React from "react"
 
-import useCourseQuery from "../../../../../../hooks/useCourseQuery"
+import useCourseQuery from "@/hooks/useCourseQuery"
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import ManageCourse from "../index/ManageCourse"
 

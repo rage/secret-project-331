@@ -3,7 +3,7 @@ import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from "@tanst
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import useCourseBreadcrumbInfoQuery from "../../../../../../hooks/useCourseBreadcrumbInfoQuery"
+import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import {
   deleteCourse,
   teacherResetCourseProgressForEveryone,

@@ -8,7 +8,7 @@ import {
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import useCoursePageVisitDatumSummary from "../../../../../../hooks/useCoursePageVisitDatumSummary"
+import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
 
 import { PageVisitDatumSummaryByCourse } from "@/shared-module/common/bindings"
 import Accordion from "@/shared-module/common/components/Accordion"
@@ -19,12 +19,12 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-export interface DailyVisitCountsGroupedByReferrerProps {
+export interface DailyVisitCountsGroupedByUtmProps {
   courseId: string
 }
 
-const DailyVisitCountsGroupedByReferrer: React.FC<
-  React.PropsWithChildren<DailyVisitCountsGroupedByReferrerProps>
+const DailyVisitCountsGroupedByUtm: React.FC<
+  React.PropsWithChildren<DailyVisitCountsGroupedByUtmProps>
 > = ({ courseId }) => {
   const { t } = useTranslation()
   const query = useCoursePageVisitDatumSummary(courseId)
@@ -41,11 +41,7 @@ const DailyVisitCountsGroupedByReferrer: React.FC<
             ...row,
             num_visitors: 0,
             // Excluded fields
-            utm_source: null,
-            utm_medium: null,
-            utm_campaign: null,
-            utm_term: null,
-            utm_content: null,
+            referrer: null,
           }
         }
         acc[key].num_visitors += row.num_visitors
@@ -73,7 +69,11 @@ const DailyVisitCountsGroupedByReferrer: React.FC<
     columnHelper.accessor("visit_date", {
       header: t("header-visit-date"),
     }),
-    columnHelper.accessor("referrer", { header: t("header-referrer") }),
+    columnHelper.accessor("utm_source", { header: "UTM Source" }),
+    columnHelper.accessor("utm_medium", { header: "UTM Medium" }),
+    columnHelper.accessor("utm_campaign", { header: "UTM Campaign" }),
+    columnHelper.accessor("utm_term", { header: "UTM Term" }),
+    columnHelper.accessor("utm_content", { header: "UTM Content" }),
     columnHelper.accessor("num_visitors", { header: t("header-number-of-visitors") }),
   ]
 
@@ -104,7 +104,7 @@ const DailyVisitCountsGroupedByReferrer: React.FC<
         `}
       >
         <details>
-          <summary>{t("header-grouped-by-referrer")}</summary>
+          <summary>{t("header-grouped-by-utm-tags")}</summary>
           <div
             className={css`
               table {
@@ -115,7 +115,7 @@ const DailyVisitCountsGroupedByReferrer: React.FC<
 
               td {
                 padding: 0.5rem 0.7rem;
-                max-width: 3000px;
+                max-width: 250px;
                 overflow: hidden;
                 white-space: nowrap;
                 text-overflow: ellipsis;
@@ -167,9 +167,7 @@ const DailyVisitCountsGroupedByReferrer: React.FC<
 }
 
 function rowToGroupingKey(row: PageVisitDatumSummaryByCourse) {
-  return `${row.visit_date}-${row.referrer}`
+  return `${row.visit_date}-${row.utm_source}-${row.utm_medium}-${row.utm_campaign}-${row.utm_term}-${row.utm_content}`
 }
 
-export default withErrorBoundary(
-  dontRenderUntilQueryParametersReady(DailyVisitCountsGroupedByReferrer),
-)
+export default withErrorBoundary(dontRenderUntilQueryParametersReady(DailyVisitCountsGroupedByUtm))

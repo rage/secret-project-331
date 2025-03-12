@@ -3,7 +3,7 @@ import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import createUnreadFeedbackCountHook from "../../../../../../hooks/count/useUnreadFeedbackCount"
+import createUnreadFeedbackCountHook from "@/hooks/count/useUnreadFeedbackCount"
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 
 import FeedbackList from "./FeedbackList"

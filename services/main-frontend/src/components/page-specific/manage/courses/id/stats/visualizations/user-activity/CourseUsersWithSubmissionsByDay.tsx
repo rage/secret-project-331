@@ -4,9 +4,9 @@ import { groupBy, max } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchCourseDailyUserCountsWithSubmissions } from "../../../../../../services/backend/courses"
+import { fetchCourseDailyUserCountsWithSubmissions } from "@/services/backend/courses"
 
-import Echarts from "./Echarts"
+import Echarts from "../../Echarts"
 
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"

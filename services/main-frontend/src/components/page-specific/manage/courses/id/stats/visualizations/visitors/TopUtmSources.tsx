@@ -1,10 +1,9 @@
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import React, { useMemo } from "react"
 
-import { fetchCoursePageVisitDatumSummariesByCountry } from "../../../../../../services/backend/courses"
+import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
 
-import Echarts from "./Echarts"
+import Echarts from "../../Echarts"
 
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -13,44 +12,30 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-export interface CourseVisitorsByCountryProps {
+export interface TopUTMSourcesProps {
   courseId: string
 }
 
-const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsByCountryProps>> = ({
-  courseId,
-}) => {
-  const query = useQuery({
-    queryKey: [`course-page-visit-datum-summary-by-country${courseId}`],
-    queryFn: () => fetchCoursePageVisitDatumSummariesByCountry(courseId),
-  })
+const TopUTMSources: React.FC<React.PropsWithChildren<TopUTMSourcesProps>> = ({ courseId }) => {
+  const query = useCoursePageVisitDatumSummary(courseId)
 
   const aggregatedData = useMemo(() => {
     if (!query.data || query.data.length === 0) {
       return null
     }
-    const allCountriesInData = new Set(query.data.map((d) => d.country))
-    let totalCountsByCountry = Array.from(allCountriesInData)
-      .map((country) => {
-        const countryData = query.data.filter((d) => d.country === country)
-        return {
-          country,
-          num_visitors: countryData.reduce((acc, d) => acc + d.num_visitors, 0),
-        }
-      })
-      .sort((a, b) => a.num_visitors - b.num_visitors)
-    if (totalCountsByCountry.length > 15) {
-      totalCountsByCountry = totalCountsByCountry.filter((d) => d.num_visitors >= 10)
-    }
-    const totalCountsByCountryObject = totalCountsByCountry.reduce(
-      (acc, d) => {
-        // eslint-disable-next-line i18next/no-literal-string
-        acc[d.country ?? "null"] = d.num_visitors
-        return acc
-      },
-      {} as Record<string, number>,
-    )
-    return totalCountsByCountryObject
+    const allUtmSourcesInData = Array.from(
+      new Set(query.data.map((item) => item.utm_source)),
+    ).filter((item) => !!item)
+    const totalCountsByUTMSource: { [referrer: string]: number } = Array.from(
+      allUtmSourcesInData,
+    ).reduce((acc, utm_source) => {
+      const totalCount = query.data
+        .filter((item) => item.utm_source === utm_source)
+        .reduce((acc, item) => acc + item.num_visitors, 0)
+      // eslint-disable-next-line i18next/no-literal-string
+      return { ...acc, [utm_source ?? "null"]: totalCount }
+    }, {})
+    return totalCountsByUTMSource
   }, [query.data])
 
   const categories = useMemo(() => {
@@ -92,6 +77,10 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
           <Echarts
             height={200 + categories.length * 25}
             options={{
+              grid: {
+                containLabel: true,
+                left: 0,
+              },
               yAxis: {
                 type: "category",
                 data: categories,
@@ -120,4 +109,4 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(CourseVisitorsByCountry))
+export default withErrorBoundary(dontRenderUntilQueryParametersReady(TopUTMSources))

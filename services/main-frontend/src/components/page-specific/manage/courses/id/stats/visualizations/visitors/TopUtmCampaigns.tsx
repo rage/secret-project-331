@@ -1,11 +1,9 @@
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import React, { useMemo } from "react"
 
-import { useCourseStructure } from "../../../../../../hooks/useCourseStructure"
-import { fetchCoursePageVisitDatumSummaryByPages } from "../../../../../../services/backend/courses"
+import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
 
-import Echarts from "./Echarts"
+import Echarts from "../../Echarts"
 
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -14,53 +12,38 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-export interface CourseVisitorsByCountryProps {
+export interface TopUTMCampaignsProps {
   courseId: string
 }
 
-const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsByCountryProps>> = ({
-  courseId,
-}) => {
-  const query = useQuery({
-    queryKey: [`course-page-visit-datum-summary-by-pages-${courseId}`],
-    queryFn: () => fetchCoursePageVisitDatumSummaryByPages(courseId),
-  })
-
-  const courseStructure = useCourseStructure(courseId)
+const TopUTMCampaigns: React.FC<React.PropsWithChildren<TopUTMCampaignsProps>> = ({ courseId }) => {
+  const query = useCoursePageVisitDatumSummary(courseId)
 
   const aggregatedData = useMemo(() => {
     if (!query.data || query.data.length === 0) {
       return null
     }
-    const allPageIdsInData = Array.from(new Set(query.data.map((obj) => obj.page_id)))
-    const totalCountsByPage = Array.from(allPageIdsInData)
-      .map((pageId) => {
-        const pageData = query.data.filter((item) => item.page_id === pageId)
-        return {
-          page_id: pageId,
-          total: pageData.reduce((acc, curr) => acc + curr.num_visitors, 0),
-        }
-      })
-      .sort((a, b) => a.total - b.total)
-    const topPages: { [page_id: string]: number } = totalCountsByPage
-      .slice(-100)
-      .reduce((acc, curr) => {
-        return {
-          ...acc,
-          [curr.page_id]: curr.total,
-        }
-      }, {})
-    return topPages
+    const allUtmCampaignsInData = Array.from(
+      new Set(query.data.map((item) => item.utm_campaign)),
+    ).filter((item) => !!item)
+    const totalCountsByUTMCampaign: { [referrer: string]: number } = Array.from(
+      allUtmCampaignsInData,
+    ).reduce((acc, utm_campaign) => {
+      const totalCount = query.data
+        .filter((item) => item.utm_campaign === utm_campaign)
+        .reduce((acc, item) => acc + item.num_visitors, 0)
+      // eslint-disable-next-line i18next/no-literal-string
+      return { ...acc, [utm_campaign ?? "null"]: totalCount }
+    }, {})
+    return totalCountsByUTMCampaign
   }, [query.data])
 
   const categories = useMemo(() => {
     if (!aggregatedData) {
       return []
     }
-    return Object.keys(aggregatedData).map((pageId) => {
-      return courseStructure.data?.pages.find((page) => page.id === pageId)?.url_path ?? pageId
-    })
-  }, [aggregatedData, courseStructure.data?.pages])
+    return Object.keys(aggregatedData)
+  }, [aggregatedData])
   const values = useMemo(() => {
     if (!aggregatedData) {
       return []
@@ -72,7 +55,7 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
     return <ErrorBanner variant="readOnly" error={query.error} />
   }
 
-  if (query.isPending || !query.data || courseStructure.isPending) {
+  if (query.isPending || !query.data) {
     return <Spinner variant="medium" />
   }
 
@@ -126,4 +109,4 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(CourseVisitorsByCountry))
+export default withErrorBoundary(dontRenderUntilQueryParametersReady(TopUTMCampaigns))

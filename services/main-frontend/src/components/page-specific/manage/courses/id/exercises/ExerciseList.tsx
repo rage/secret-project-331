@@ -4,8 +4,8 @@ import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import useCourseExercisesAndCountAnswersRequitingAttentionQuery from "../../../../../../hooks/useCourseExercisesAndCountAnswersRequitingAttentionQuery"
-import { useCourseStructure } from "../../../../../../hooks/useCourseStructure"
+import useCourseExercisesAndCountAnswersRequitingAttentionQuery from "@/hooks/useCourseExercisesAndCountAnswersRequitingAttentionQuery"
+import { useCourseStructure } from "@/hooks/useCourseStructure"
 
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"

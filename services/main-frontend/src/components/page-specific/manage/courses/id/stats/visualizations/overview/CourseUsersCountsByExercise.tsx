@@ -4,10 +4,9 @@ import { reverse, sortBy } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchCourseUsersCountByExercise } from "../../../../../../services/backend/courses"
+import Echarts from "../../Echarts"
 
-import Echarts from "./Echarts"
-
+import { fetchCourseUsersCountByExercise } from "@/services/backend/courses"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"

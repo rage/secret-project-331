@@ -4,9 +4,9 @@ import { Dictionary, groupBy, max } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchCourseWeekdayHourSubmissionCounts } from "../../../../../../services/backend/courses"
+import { fetchCourseWeekdayHourSubmissionCounts } from "@/services/backend/courses"
 
-import Echarts from "./Echarts"
+import Echarts from "../../Echarts"
 
 import { ExerciseSlideSubmissionCountByWeekAndHour } from "@/shared-module/common/bindings"
 import DebugModal from "@/shared-module/common/components/DebugModal"

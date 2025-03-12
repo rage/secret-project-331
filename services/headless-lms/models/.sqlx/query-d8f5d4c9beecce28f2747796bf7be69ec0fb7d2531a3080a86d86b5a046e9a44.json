@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DATE_TRUNC('day', created_at) AS \"period_start\",\n  COUNT(DISTINCT user_id) AS \"user_count!\"\nFROM user_course_settings\nWHERE current_course_id = $1\n  AND created_at >= NOW() - ($2 || ' days')::INTERVAL\n  AND deleted_at IS NULL\nGROUP BY \"period_start\"\nORDER BY \"period_start\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "period_start",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Text"]
+    },
+    "nullable": [null, null]
+  },
+  "hash": "d8f5d4c9beecce28f2747796bf7be69ec0fb7d2531a3080a86d86b5a046e9a44"
+}

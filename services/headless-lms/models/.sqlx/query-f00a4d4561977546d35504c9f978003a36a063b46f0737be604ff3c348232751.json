@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DATE_TRUNC('month', created_at) AS \"period_start\",\n  COUNT(DISTINCT user_id) AS \"user_count!\"\nFROM exercise_slide_submissions\nWHERE course_id = $1\n  AND deleted_at IS NULL\nGROUP BY \"period_start\"\nORDER BY \"period_start\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "period_start",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [null, null]
+  },
+  "hash": "f00a4d4561977546d35504c9f978003a36a063b46f0737be604ff3c348232751"
+}

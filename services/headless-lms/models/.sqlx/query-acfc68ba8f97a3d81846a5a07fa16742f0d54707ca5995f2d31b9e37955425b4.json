@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DATE_TRUNC('month', user_start) AS \"period_start\",\nAVG(\n  EXTRACT(\n    EPOCH\n    FROM (first_submission - user_start)\n  )\n)::float8 AS \"avg_time_to_first_submission\"\nFROM (\n    SELECT u.user_id,\n      MIN(u.created_at) AS user_start,\n      MIN(e.created_at) AS first_submission\n    FROM user_course_settings u\n      JOIN exercise_slide_submissions e ON u.user_id = e.user_id\n      AND e.course_id = $1\n      AND e.deleted_at IS NULL\n    WHERE u.current_course_id = $1\n      AND u.deleted_at IS NULL\n    GROUP BY u.user_id\n  ) AS timings\nGROUP BY \"period_start\"\nORDER BY \"period_start\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "period_start",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 1,
+        "name": "avg_time_to_first_submission",
+        "type_info": "Float8"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [null, null]
+  },
+  "hash": "acfc68ba8f97a3d81846a5a07fa16742f0d54707ca5995f2d31b9e37955425b4"
+}

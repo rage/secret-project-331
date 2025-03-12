@@ -1,6 +1,4 @@
 use crate::prelude::*;
-use chrono::NaiveDateTime;
-use uuid::Uuid;
 
 // Shared struct for queries returning a single count
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -13,7 +11,7 @@ pub struct TotalCount {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct TimeCount {
-    pub period_start: NaiveDateTime,
+    pub period_start: Option<DateTime<Utc>>,
     pub user_count: i64,
 }
 
@@ -21,7 +19,7 @@ pub struct TimeCount {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct AvgTimeSubmission {
-    pub period_start: NaiveDateTime,
+    pub period_start: Option<DateTime<Utc>>,
     // average time in seconds; can be None if no data is available
     pub avg_time_to_first_submission: Option<f64>,
 }
@@ -30,8 +28,8 @@ pub struct AvgTimeSubmission {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CohortWeeklyActivity {
-    pub cohort_week: NaiveDateTime,
-    pub period_start: NaiveDateTime,
+    pub cohort_week: Option<DateTime<Utc>>,
+    pub period_start: Option<DateTime<Utc>>,
     pub active_users: i64,
 }
 
@@ -39,7 +37,7 @@ pub struct CohortWeeklyActivity {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CohortDailyActivity {
-    pub cohort_day: NaiveDateTime,
+    pub cohort_day: Option<DateTime<Utc>>,
     pub day_offset: i32,
     pub active_users: i64,
 }
@@ -92,13 +90,13 @@ pub async fn get_weekly_unique_users_starting(
     let res = sqlx::query_as!(
         TimeCount,
         r#"
-SELECT DATE_TRUNC('week', created_at) AS "period_start!",
+SELECT DATE_TRUNC('week', created_at) AS "period_start",
   COUNT(DISTINCT user_id) AS "user_count!"
 FROM user_course_settings
 WHERE current_course_id = $1
   AND deleted_at IS NULL
-GROUP BY period_start
-ORDER BY period_start;
+GROUP BY "period_start"
+ORDER BY "period_start";
         "#,
         course_id
     )
@@ -115,13 +113,13 @@ pub async fn get_monthly_unique_users_starting(
     let res = sqlx::query_as!(
         TimeCount,
         r#"
-SELECT DATE_TRUNC('month', created_at) AS "period_start!",
+SELECT DATE_TRUNC('month', created_at) AS "period_start",
   COUNT(DISTINCT user_id) AS "user_count!"
 FROM user_course_settings
 WHERE current_course_id = $1
   AND deleted_at IS NULL
-GROUP BY period_start
-ORDER BY period_start;
+GROUP BY "period_start"
+ORDER BY "period_start"
         "#,
         course_id
     )
@@ -139,17 +137,17 @@ pub async fn get_daily_unique_users_starting_last_n_days(
     let res = sqlx::query_as!(
         TimeCount,
         r#"
-SELECT DATE_TRUNC('day', created_at) AS "period_start!",
+SELECT DATE_TRUNC('day', created_at) AS "period_start",
   COUNT(DISTINCT user_id) AS "user_count!"
 FROM user_course_settings
 WHERE current_course_id = $1
   AND created_at >= NOW() - ($2 || ' days')::INTERVAL
   AND deleted_at IS NULL
-GROUP BY period_start
-ORDER BY period_start;
+GROUP BY "period_start"
+ORDER BY "period_start"
         "#,
         course_id,
-        days_limit
+        &days_limit.to_string()
     )
     .fetch_all(conn)
     .await?;
@@ -164,7 +162,7 @@ pub async fn get_monthly_first_exercise_submissions(
     let res = sqlx::query_as!(
         TimeCount,
         r#"
-SELECT DATE_TRUNC('month', first_submission) AS "period_start!",
+SELECT DATE_TRUNC('month', first_submission) AS "period_start",
 COUNT(user_id) AS "user_count!"
 FROM (
     SELECT user_id,
@@ -174,8 +172,8 @@ FROM (
       AND deleted_at IS NULL
     GROUP BY user_id
   ) AS first_submissions
-GROUP BY period_start
-ORDER BY period_start;
+GROUP BY "period_start"
+ORDER BY "period_start"
         "#,
         course_id
     )
@@ -193,7 +191,7 @@ pub async fn get_daily_first_exercise_submissions_last_n_days(
     let res = sqlx::query_as!(
         TimeCount,
         r#"
-SELECT DATE_TRUNC('day', first_submission) AS "period_start!",
+SELECT DATE_TRUNC('day', first_submission) AS "period_start",
   COUNT(user_id) AS "user_count!"
 FROM (
     SELECT user_id,
@@ -204,11 +202,11 @@ FROM (
       AND deleted_at IS NULL
     GROUP BY user_id
   ) AS first_submissions
-GROUP BY period_start
-ORDER BY period_start;
+GROUP BY "period_start"
+ORDER BY "period_start"
         "#,
         course_id,
-        days_limit
+        &days_limit.to_string()
     )
     .fetch_all(conn)
     .await?;
@@ -223,13 +221,13 @@ pub async fn get_monthly_users_returning_exercises(
     let res = sqlx::query_as!(
         TimeCount,
         r#"
-SELECT DATE_TRUNC('month', created_at) AS "period_start!",
+SELECT DATE_TRUNC('month', created_at) AS "period_start",
   COUNT(DISTINCT user_id) AS "user_count!"
 FROM exercise_slide_submissions
 WHERE course_id = $1
   AND deleted_at IS NULL
-GROUP BY period_start
-ORDER BY period_start;
+GROUP BY "period_start"
+ORDER BY "period_start"
         "#,
         course_id
     )
@@ -247,17 +245,17 @@ pub async fn get_daily_users_returning_exercises_last_n_days(
     let res = sqlx::query_as!(
         TimeCount,
         r#"
-SELECT DATE_TRUNC('day', created_at) AS "period_start!",
+SELECT DATE_TRUNC('day', created_at) AS "period_start",
   COUNT(DISTINCT user_id) AS "user_count!"
 FROM exercise_slide_submissions
 WHERE course_id = $1
   AND created_at >= NOW() - ($2 || ' days')::INTERVAL
   AND deleted_at IS NULL
-GROUP BY period_start
-ORDER BY period_start;
+GROUP BY "period_start"
+ORDER BY "period_start"
         "#,
         course_id,
-        days_limit
+        &days_limit.to_string()
     )
     .fetch_all(conn)
     .await?;
@@ -272,7 +270,7 @@ pub async fn get_monthly_course_completions(
     let res = sqlx::query_as!(
         TimeCount,
         r#"
-SELECT DATE_TRUNC('month', created_at) AS "period_start!",
+SELECT DATE_TRUNC('month', created_at) AS "period_start",
   COUNT(DISTINCT user_id) AS "user_count!"
 FROM course_module_completions
 WHERE course_id = $1
@@ -283,8 +281,8 @@ WHERE course_id = $1
   )
   AND passed = TRUE
   AND deleted_at IS NULL
-GROUP BY period_start
-ORDER BY period_start;
+GROUP BY "period_start"
+ORDER BY "period_start"
         "#,
         course_id
     )
@@ -302,7 +300,7 @@ pub async fn get_daily_course_completions_last_60_days(
     let res = sqlx::query_as!(
         TimeCount,
         r#"
-SELECT DATE_TRUNC('day', created_at) AS "period_start!",
+SELECT DATE_TRUNC('day', created_at) AS "period_start",
 COUNT(DISTINCT user_id) AS "user_count!"
 FROM course_module_completions
 WHERE course_id = $1
@@ -313,11 +311,11 @@ WHERE course_id = $1
   )
   AND created_at >= NOW() - ($2 || ' days')::INTERVAL
   AND deleted_at IS NULL
-GROUP BY period_start
-ORDER BY period_start;
+GROUP BY "period_start"
+ORDER BY "period_start"
         "#,
         course_id,
-        days_limit
+        &days_limit.to_string()
     )
     .fetch_all(conn)
     .await?;
@@ -333,13 +331,13 @@ pub async fn get_avg_time_to_first_submission_by_month(
     let res = sqlx::query_as!(
         AvgTimeSubmission,
         r#"
-SELECT DATE_TRUNC('month', user_start) AS "period_start!",
+SELECT DATE_TRUNC('month', user_start) AS "period_start",
 AVG(
   EXTRACT(
     EPOCH
     FROM (first_submission - user_start)
   )
-) AS "avg_time_to_first_submission"
+)::float8 AS "avg_time_to_first_submission"
 FROM (
     SELECT u.user_id,
       MIN(u.created_at) AS user_start,
@@ -352,11 +350,10 @@ FROM (
       AND u.deleted_at IS NULL
     GROUP BY u.user_id
   ) AS timings
-GROUP BY period_start
-ORDER BY period_start;
+GROUP BY "period_start"
+ORDER BY "period_start"
         "#,
         course_id,
-        course_id
     )
     .fetch_all(conn)
     .await?;
@@ -381,20 +378,20 @@ WITH cohort AS (
     AND deleted_at IS NULL
 )
 SELECT c.cohort_week,
-  DATE_TRUNC('week', s.created_at) AS "period_start!",
+  DATE_TRUNC('week', s.created_at) AS "period_start",
   COUNT(DISTINCT s.user_id) AS "active_users!"
 FROM cohort c
   JOIN exercise_slide_submissions s ON c.user_id = s.user_id
   AND s.course_id = $2
   AND s.deleted_at IS NULL
 GROUP BY c.cohort_week,
-  period_start
+  "period_start"
 ORDER BY c.cohort_week,
-  period_start;
+  "period_start";
         "#,
         course_id,
         course_id,
-        months_limit
+        &months_limit.to_string()
     )
     .fetch_all(conn)
     .await?;
@@ -430,13 +427,13 @@ FROM cohort c
   AND s.deleted_at IS NULL
 WHERE DATE_TRUNC('day', s.created_at) < c.cohort_day + INTERVAL '7 days'
 GROUP BY c.cohort_day,
-  day_offset
+  "day_offset!"
 ORDER BY c.cohort_day,
-  day_offset;
+  "day_offset!";
         "#,
         course_id,
         course_id,
-        days_limit
+        &days_limit.to_string()
     )
     .fetch_all(conn)
     .await?;

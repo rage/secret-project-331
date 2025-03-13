@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import styled from "@emotion/styled"
 import { Parser } from "@json2csv/plainjs"
 import { BugInsect, DownloadArrowDown as Download } from "@vectopus/atlas-icons-react"
 import { Dispatch, useCallback, useMemo, useState } from "react"
@@ -8,7 +7,7 @@ import { useTranslation } from "react-i18next"
 import { baseTheme } from "../styles/theme"
 
 import Button from "./Button"
-import Dialog from "./Dialog"
+import StandardDialog from "./StandardDialog"
 import MonacoEditor from "./monaco/MonacoEditor"
 
 export interface DebugModalProps {
@@ -20,16 +19,6 @@ export interface DebugModalProps {
   variant?: "default" | "minimal"
   buttonWrapperStyles?: string
 }
-
-const HeaderBar = styled.div`
-  display: flex;
-  padding: 0.5rem;
-  align-items: center;
-  h1 {
-    font-size: 1.25rem;
-    margin-bottom: 0;
-  }
-`
 
 const iconButtonStyles = css`
   background: none;
@@ -62,12 +51,15 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
 }) => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
-  const [editedContent, setEditedContent] = useState<string | null>(null)
+  const [editedContent, setEditedContent] = useState<string>()
+
+  const stringifiedData = useMemo(() => {
+    return JSON.stringify(data, null, 2)
+  }, [data])
 
   // Memoize the stringification and size check together
-  const { stringifiedData, size } = useMemo(
+  const { size } = useMemo(
     () => ({
-      stringifiedData: JSON.stringify(data, undefined, 2),
       size: new Blob([JSON.stringify(data)]).size,
     }),
     [data],
@@ -92,18 +84,15 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
   }, [data, size])
 
   const closeModal = useCallback(() => {
-    setOpen(false)
-    if (updateDataOnClose) {
-      let parsed = null
-      if (typeof editedContent === "string") {
-        try {
-          parsed = JSON.parse(editedContent)
-        } catch (error) {
-          console.error("Failed to parse JSON:", error)
-        }
+    if (updateDataOnClose && editedContent) {
+      try {
+        updateDataOnClose(JSON.parse(editedContent))
+      } catch (err) {
+        console.error("Failed to parse edited content:", err)
       }
-      updateDataOnClose(parsed)
     }
+    setOpen(false)
+    setEditedContent(undefined) // Reset the edited content when closing
   }, [editedContent, updateDataOnClose])
 
   const handleDownloadCSV = useCallback(() => {
@@ -143,7 +132,7 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
         {variant === "minimal" ? (
           <button
             type="button"
-            aria-label={t("debug")}
+            aria-label={t("title-data-view")}
             onClick={() => {
               setEditedContent(stringifiedData)
               setOpen(true)
@@ -156,7 +145,7 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
           <Button
             variant="blue"
             size={buttonSize}
-            aria-label={t("debug")}
+            aria-label={t("title-data-view")}
             onClick={() => {
               setEditedContent(stringifiedData)
               setOpen(true)
@@ -171,33 +160,33 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
           </Button>
         )}
       </div>
-      <Dialog
-        width="wide"
+      <StandardDialog
         open={open}
         onClose={closeModal}
+        width="wide"
         noPadding
+        disableContentScroll
+        title={
+          <>
+            {t("title-data-view")}
+            <span
+              className={css`
+                color: ${baseTheme.colors.gray[700]};
+                font-weight: normal;
+                font-size: 0.9em;
+                margin-left: 0.5rem;
+              `}
+            >
+              ({readOnlySpecifier})
+            </span>
+          </>
+        }
         className={css`
           overflow: hidden;
         `}
-      >
-        <HeaderBar>
-          <h1>
-            {t("title-debug-view")} ({readOnlySpecifier})
-          </h1>
-          <div
-            className={css`
-              flex-grow: 1;
-            `}
-          />
-          {isDownloadable && (
-            <Button
-              variant="blue"
-              size="medium"
-              onClick={handleDownloadCSV}
-              className={css`
-                margin-right: 0.5rem;
-              `}
-            >
+        actionButtons={
+          isDownloadable && (
+            <Button variant="blue" size="medium" onClick={handleDownloadCSV}>
               <Download size={16} weight="bold" />
               <span
                 className={css`
@@ -207,11 +196,9 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
                 {t("download-csv")}
               </span>
             </Button>
-          )}
-          <Button variant="primary" size="medium" onClick={closeModal}>
-            {t("close")}
-          </Button>
-        </HeaderBar>
+          )
+        }
+      >
         <MonacoEditor
           height="90vh"
           defaultLanguage="json"
@@ -219,7 +206,7 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
           defaultValue={editedContent || undefined}
           onChange={handleEditorChange}
         />
-      </Dialog>
+      </StandardDialog>
     </>
   )
 }

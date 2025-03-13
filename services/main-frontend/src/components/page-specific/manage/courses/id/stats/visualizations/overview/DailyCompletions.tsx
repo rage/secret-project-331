@@ -2,6 +2,9 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import Echarts from "../../Echarts"
+import { useLineChartOptions } from "../../chartUtils"
+
 import { useDailyCourseCompletionsQuery } from "@/hooks/stats"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -20,7 +23,33 @@ const DailyCompletions: React.FC<React.PropsWithChildren<DailyCompletionsProps>>
   courseId,
 }) => {
   const { t } = useTranslation()
-  const { data, isLoading, error } = useDailyCourseCompletionsQuery(courseId, DAYS_TO_SHOW)
+  const {
+    data: realData,
+    isLoading,
+    error,
+  } = useDailyCourseCompletionsQuery(courseId, DAYS_TO_SHOW)
+
+  const PLACEHOLDER_DATA = [
+    { period: "2024-03-01T00:00:00.000Z", count: 5 },
+    { period: "2024-03-02T00:00:00.000Z", count: 8 },
+    { period: "2024-03-03T00:00:00.000Z", count: 3 },
+    { period: "2024-03-04T00:00:00.000Z", count: 10 },
+    { period: "2024-03-05T00:00:00.000Z", count: 7 },
+  ]
+
+  // Use real data if available, otherwise use placeholder
+  const data = (realData?.length ? realData : PLACEHOLDER_DATA).map((item) => ({
+    period: item.period,
+    count: item.count,
+  }))
+
+  const chartOptions = useLineChartOptions({
+    data,
+    yAxisName: t("completions"),
+    tooltipValueLabel: t("completions"),
+    // eslint-disable-next-line i18next/no-literal-string
+    dateFormat: "yyyy-MM-dd",
+  })
 
   if (error) {
     return <ErrorBanner variant="readOnly" error={error} />
@@ -43,9 +72,7 @@ const DailyCompletions: React.FC<React.PropsWithChildren<DailyCompletionsProps>>
         padding: 1rem;
       `}
     >
-      {/* TODO: Implement visualization with the data */}
-      {/* data format will be an array of objects with { date: string, count: number } */}
-      <div>Visualization will go here</div>
+      <Echarts options={chartOptions} height={300} />
       <DebugModal data={data} />
     </div>
   )

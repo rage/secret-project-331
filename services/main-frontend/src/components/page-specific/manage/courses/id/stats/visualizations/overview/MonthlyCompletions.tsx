@@ -31,22 +31,24 @@ const MonthlyCompletions: React.FC<React.PropsWithChildren<MonthlyCompletionsPro
   const { data: realData, isLoading, error } = useMonthlyCourseCompletionsQuery(courseId)
 
   // Add placeholder data for preview/development
-  const placeholderData = [
-    { period: "2024-01", count: 15 },
-    { period: "2024-02", count: 23 },
-    { period: "2024-03", count: 18 },
-    { period: "2024-04", count: 30 },
-    { period: "2024-05", count: 25 },
-    { period: "2024-06", count: 35 },
+  const PLACEHOLDER_DATA = [
+    { period: "2024-01-01T00:00:00.000Z", count: 15 },
+    { period: "2024-02-01T00:00:00.000Z", count: 23 },
+    { period: "2024-03-01T00:00:00.000Z", count: 18 },
+    { period: "2024-04-01T00:00:00.000Z", count: 30 },
+    { period: "2024-05-01T00:00:00.000Z", count: 25 },
+    { period: "2024-06-01T00:00:00.000Z", count: 35 },
   ]
 
   // Use real data if available, otherwise use placeholder
-  const data = realData?.length ? realData : placeholderData
+  const data = realData?.length ? realData : PLACEHOLDER_DATA
 
   const chartOptions = useLineChartOptions({
     data,
     yAxisName: t("completions"),
     tooltipValueLabel: t("completions"),
+    // eslint-disable-next-line i18next/no-literal-string
+    dateFormat: "yyyy-MM",
   })
 
   if (error) {

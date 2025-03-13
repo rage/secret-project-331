@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 
+import CompletionsChart from "./visualizations/overview/CompletionsChart"
 import CourseUsersCountsByExercise from "./visualizations/overview/CourseUsersCountsByExercise"
 import DailyCompletions from "./visualizations/overview/DailyCompletions"
 import MonthlyCompletions from "./visualizations/overview/MonthlyCompletions"
@@ -110,8 +111,7 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
         {activeTab === TAB_OVERVIEW && (
           <>
             <TotalStats courseId={courseId} />
-            <MonthlyCompletions courseId={courseId} />
-            <DailyCompletions courseId={courseId} />
+            <CompletionsChart courseId={courseId} />
 
             <StatHeading>{t("stats-heading-exercise-participation")}</StatHeading>
             <InstructionBox>{t("stats-instruction-exercise-participation")}</InstructionBox>

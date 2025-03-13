@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { InstructionBox, StatHeading } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
 import { useLineChartOptions } from "../../chartUtils"
 
@@ -64,17 +65,36 @@ const DailyCompletions: React.FC<React.PropsWithChildren<DailyCompletionsProps>>
   }
 
   return (
-    <div
-      className={css`
-        margin-bottom: 2rem;
-        border: 3px solid ${baseTheme.colors.clear[200]};
-        border-radius: 6px;
-        padding: 1rem;
-      `}
-    >
-      <Echarts options={chartOptions} height={300} />
-      <DebugModal data={data} />
-    </div>
+    <>
+      <div
+        className={css`
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        `}
+      >
+        <StatHeading>{t("stats-heading-daily-completions")}</StatHeading>
+        <DebugModal
+          variant="minimal"
+          data={data}
+          buttonWrapperStyles={css`
+            display: flex;
+            align-items: center;
+          `}
+        />
+      </div>
+      <InstructionBox>{t("stats-instruction-daily-completions")}</InstructionBox>
+      <div
+        className={css`
+          margin-bottom: 2rem;
+          border: 3px solid ${baseTheme.colors.clear[200]};
+          border-radius: 6px;
+          padding: 1rem;
+        `}
+      >
+        <Echarts options={chartOptions} height={300} />
+      </div>
+    </>
   )
 }
 

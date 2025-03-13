@@ -10,13 +10,13 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-interface WeeklyUniqueUsersProps {
+interface WeeklyUniqueUsersStartingCourseProps {
   courseId: string
 }
 
-const WeeklyUniqueUsers: React.FC<React.PropsWithChildren<WeeklyUniqueUsersProps>> = ({
-  courseId,
-}) => {
+const WeeklyUniqueUsersStartingCourse: React.FC<
+  React.PropsWithChildren<WeeklyUniqueUsersStartingCourseProps>
+> = ({ courseId }) => {
   const { t } = useTranslation()
   const { data, isLoading, error } = useWeeklyUniqueUsersStartingQuery(courseId)
 
@@ -49,4 +49,6 @@ const WeeklyUniqueUsers: React.FC<React.PropsWithChildren<WeeklyUniqueUsersProps
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(WeeklyUniqueUsers))
+export default withErrorBoundary(
+  dontRenderUntilQueryParametersReady(WeeklyUniqueUsersStartingCourse),
+)

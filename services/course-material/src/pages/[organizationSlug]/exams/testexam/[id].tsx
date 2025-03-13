@@ -268,6 +268,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
                 selectedBlockId={null}
                 setEdits={(map) => map}
                 isExam={false}
+                dontAllowBlockToBeWiderThanContainerWidth={false}
               />
             </div>
           </ExamStartBanner>

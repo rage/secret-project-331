@@ -40,7 +40,16 @@ const ConditionalBlock: React.FC<
     (userSettings?.current_course_instance_id &&
       enrollmentsRequired.some((x) => x == userSettings.current_course_instance_id))
 
-  return <>{completionMet && enrollmentMet && <InnerBlocks parentBlockProps={props} />}</>
+  return (
+    <>
+      {completionMet && enrollmentMet && (
+        <InnerBlocks
+          parentBlockProps={props}
+          dontAllowInnerBlocksToBeWiderThanParentBlock={false}
+        />
+      )}
+    </>
+  )
 }
 
 export default ConditionalBlock

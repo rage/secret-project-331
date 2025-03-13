@@ -196,16 +196,24 @@ const defaultBlockMargin = css`
   margin: ${COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM}rem 0;
 `
 
-const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> = (props) => {
+const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> = ({
+  data,
+  editing,
+  selectedBlockId,
+  setEdits,
+  isExam,
+  dontAddWrapperDivMeantForMostOutermostContentRenderer,
+  dontAllowBlockToBeWiderThanContainerWidth = true,
+}) => {
   const highlightBlocks = useQueryParameter("highlight-blocks")
     .split(",")
     .filter((id) => id !== "")
   const { t } = useTranslation()
-  if (props.data.constructor !== Array) {
+  if (data.constructor !== Array) {
     return (
       <div>
         <p>{t("error-page-data-in-invalid-format")}</p>
-        <pre>{JSON.stringify(props.data, undefined, 2)}</pre>
+        <pre>{JSON.stringify(data, undefined, 2)}</pre>
       </div>
     )
   }
@@ -249,7 +257,7 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
 
   const content = (
     <>
-      {props.data.map((block) => {
+      {data.map((block) => {
         const Component = blockToRendererMap[block.name] ?? DefaultBlock
         const isHighlighted = highlightBlocks.includes(block.clientId)
         const dontUseDefaultBlockMargin = Component.dontUseDefaultBlockMargin === true
@@ -269,14 +277,12 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
               key={block.clientId}
               id={block.clientId}
               data={block}
-              editing={props.editing}
-              selectedBlockId={props.selectedBlockId}
-              setEdits={props.setEdits}
-              isExam={props.isExam}
+              editing={editing}
+              selectedBlockId={selectedBlockId}
+              setEdits={setEdits}
+              isExam={isExam}
               wrapperClassName={wrapperClassName}
-              dontAllowBlockToBeWiderThanContainerWidth={
-                props.dontAllowBlockToBeWiderThanContainerWidth
-              }
+              dontAllowBlockToBeWiderThanContainerWidth={dontAllowBlockToBeWiderThanContainerWidth}
             />
           )
         }
@@ -286,14 +292,12 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
             <Component
               id={block.clientId}
               data={block}
-              editing={props.editing}
-              selectedBlockId={props.selectedBlockId}
-              setEdits={props.setEdits}
-              isExam={props.isExam}
+              editing={editing}
+              selectedBlockId={selectedBlockId}
+              setEdits={setEdits}
+              isExam={isExam}
               wrapperClassName={wrapperClassName}
-              dontAllowBlockToBeWiderThanContainerWidth={
-                props.dontAllowBlockToBeWiderThanContainerWidth
-              }
+              dontAllowBlockToBeWiderThanContainerWidth={dontAllowBlockToBeWiderThanContainerWidth}
             />
           </div>
         )
@@ -301,19 +305,15 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
     </>
   )
 
-  if (props.dontAddWrapperDivMeantForMostOutermostContentRenderer) {
+  if (dontAddWrapperDivMeantForMostOutermostContentRenderer) {
     return (
-      <BreakFromCenteredDisabledContext.Provider
-        value={props.dontAllowBlockToBeWiderThanContainerWidth ?? false}
-      >
+      <BreakFromCenteredDisabledContext.Provider value={dontAllowBlockToBeWiderThanContainerWidth}>
         {content}
       </BreakFromCenteredDisabledContext.Provider>
     )
   }
   return (
-    <BreakFromCenteredDisabledContext.Provider
-      value={props.dontAllowBlockToBeWiderThanContainerWidth ?? false}
-    >
+    <BreakFromCenteredDisabledContext.Provider value={dontAllowBlockToBeWiderThanContainerWidth}>
       <div
         className={css`
           font-size: 20px;

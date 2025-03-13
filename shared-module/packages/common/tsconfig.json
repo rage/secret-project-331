@@ -22,6 +22,6 @@
     "isolatedModules": false,
     "jsxImportSource": "@emotion/react"
   },
-  "exclude": ["node_modules"],
+  "exclude": ["node_modules", "src/shared-module"],
   "include": ["env.d.ts", "**/*.ts", "**/*.tsx"]
 }

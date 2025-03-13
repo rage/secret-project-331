@@ -1,7 +1,8 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { BugInsect } from "@vectopus/atlas-icons-react"
-import { Dispatch, useState } from "react"
+import { Parser } from "@json2csv/plainjs"
+import { BugInsect, DownloadArrowDown as Download } from "@vectopus/atlas-icons-react"
+import { Dispatch, useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../styles/theme"
@@ -46,6 +47,31 @@ const iconButtonStyles = css`
   }
 `
 
+const ON = "on"
+
+const isCSVDownloadable = (data: unknown): boolean => {
+  if (!Array.isArray(data) || data.length === 0) {
+    return false
+  }
+
+  if (!data.every((item) => typeof item === "object" && item !== null)) {
+    return false
+  }
+
+  const firstItemKeys = Object.keys(data[0] as Record<string, unknown>)
+  if (firstItemKeys.length === 0) {
+    return false
+  }
+
+  return data.every((item) => {
+    const keys = Object.keys(item as Record<string, unknown>)
+    return (
+      keys.length === firstItemKeys.length &&
+      firstItemKeys.every((key) => key in (item as Record<string, unknown>))
+    )
+  })
+}
+
 const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
   data,
   readOnly = true,
@@ -57,22 +83,60 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [editedContent, setEditedContent] = useState<string | null>(null)
+  const isDownloadable = useMemo(() => isCSVDownloadable(data), [data])
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setOpen(false)
     if (updateDataOnClose) {
       let parsed = null
       if (typeof editedContent === "string") {
-        parsed = JSON.parse(editedContent)
+        try {
+          parsed = JSON.parse(editedContent)
+        } catch (error) {
+          console.error("Failed to parse JSON:", error)
+        }
       }
       updateDataOnClose(parsed)
     }
-  }
+  }, [editedContent, updateDataOnClose])
 
-  const openModal = () => {
+  const openModal = useCallback(() => {
     setEditedContent(JSON.stringify(data, undefined, 2))
     setOpen(true)
-  }
+  }, [data])
+
+  const handleDownloadCSV = useCallback(() => {
+    if (!Array.isArray(data) || data.length === 0 || !isCSVDownloadable(data)) {
+      return
+    }
+
+    try {
+      const parser = new Parser({
+        fields: Object.keys(data[0] as Record<string, unknown>),
+        delimiter: ",",
+        withBOM: true,
+      })
+      const csvContent = parser.parse(data as Record<string, unknown>[])
+
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.href = url
+      link.setAttribute("download", "data.csv")
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error("Failed to generate CSV:", error)
+    }
+  }, [data])
+
+  const handleEditorChange = useCallback((value: string | undefined) => {
+    if (value) {
+      setEditedContent(value)
+    }
+  }, [])
 
   const readOnlySpecifier = readOnly ? t("read-only") : t("editable")
 
@@ -122,6 +186,25 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
               flex-grow: 1;
             `}
           />
+          {isDownloadable && (
+            <Button
+              variant="blue"
+              size="medium"
+              onClick={handleDownloadCSV}
+              className={css`
+                margin-right: 0.5rem;
+              `}
+            >
+              <Download size={16} weight="bold" />
+              <span
+                className={css`
+                  margin-left: 0.5rem;
+                `}
+              >
+                {t("download-csv")}
+              </span>
+            </Button>
+          )}
           <Button variant="primary" size="medium" onClick={closeModal}>
             {t("close")}
           </Button>
@@ -129,10 +212,9 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
         <MonacoEditor
           height="90vh"
           defaultLanguage="json"
-          // eslint-disable-next-line i18next/no-literal-string
-          options={{ wordWrap: "on", readOnly }}
+          options={{ wordWrap: ON, readOnly }}
           defaultValue={editedContent || undefined}
-          onChange={(value) => value && setEditedContent(value)}
+          onChange={handleEditorChange}
         />
       </Dialog>
     </>

@@ -85,6 +85,7 @@ const config = [
   react.configs.flat.recommended,
   react.configs.flat["jsx-runtime"],
   importPlugin.flatConfigs.recommended,
+  eslintPluginPrettierRecommended,
   {
     files: ["**/*.{js,jsx,ts,tsx}"],
     rules: {
@@ -443,7 +444,6 @@ const config = [
       },
     },
   },
-  eslintPluginPrettierRecommended,
 ]
 
 export default config

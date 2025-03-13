@@ -67,7 +67,7 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
 
   // Combine all data validation into one memo
   const isDownloadable = useMemo(() => {
-    if (!Array.isArray(data)) {
+    if (!Array.isArray(data) || data.length === 0) {
       return false
     }
     if (size > MAX_CSV_EXPORT_SIZE_BYTES) {
@@ -77,8 +77,7 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
     try {
       new Parser().parse(data)
       return true
-    } catch (error) {
-      console.error("CSV validation failed:", error)
+    } catch (_error) {
       return false
     }
   }, [data, size])

@@ -56,10 +56,6 @@ const ChartWithHeader: React.FC<ChartWithHeaderProps> = ({
     return <Spinner variant="medium" />
   }
 
-  if (!data || data.length === 0) {
-    return <div>{t("no-data")}</div>
-  }
-
   const chartOptions = {
     data,
     yAxisName,
@@ -110,16 +106,20 @@ const ChartWithHeader: React.FC<ChartWithHeaderProps> = ({
         />
       </div>
       <InstructionBox>{instructionText}</InstructionBox>
-      <div
-        className={css`
-          margin-bottom: 2rem;
-          border: 3px solid ${baseTheme.colors.clear[200]};
-          border-radius: 6px;
-          padding: 1rem;
-        `}
-      >
-        <Echarts options={chartOptions} height={300} />
-      </div>
+      {!data || data.length === 0 ? (
+        <div>{t("no-data")}</div>
+      ) : (
+        <div
+          className={css`
+            margin-bottom: 2rem;
+            border: 3px solid ${baseTheme.colors.clear[200]};
+            border-radius: 6px;
+            padding: 1rem;
+          `}
+        >
+          <Echarts options={chartOptions} height={300} />
+        </div>
+      )}
     </>
   )
 }

@@ -37,6 +37,8 @@ const TotalStats: React.FC<React.PropsWithChildren<TotalStatsProps>> = ({ course
         display: flex;
         flex-direction: column;
         gap: 1rem;
+        margin-top: 3rem;
+        margin-bottom: 2rem;
       `}
     >
       <div

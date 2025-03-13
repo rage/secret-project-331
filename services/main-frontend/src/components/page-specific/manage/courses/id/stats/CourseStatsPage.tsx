@@ -15,10 +15,8 @@ import CourseSubmissionsByDay from "./visualizations/user-activity/CourseSubmiss
 import CourseSubmissionsByWeekdayAndHour from "./visualizations/user-activity/CourseSubmissionsByWeekdayAndHour"
 import CourseUsersWithSubmissionsByDay from "./visualizations/user-activity/CourseUsersWithSubmissionsByDay"
 import DailyCohortProgress from "./visualizations/user-activity/DailyCohortProgress"
-import DailyUniqueUsers from "./visualizations/user-activity/DailyUniqueUsers"
 import FirstSubmissionTrends from "./visualizations/user-activity/FirstSubmissionTrends"
 import MonthlyReturningUsers from "./visualizations/user-activity/MonthlyReturningUsers"
-import MonthlyUniqueUsers from "./visualizations/user-activity/MonthlyUniqueUsers"
 import WeeklyCohortProgress from "./visualizations/user-activity/WeeklyCohortProgress"
 import CourseVisitorsByCountry from "./visualizations/visitors/CourseVisitorsByCountry"
 import CourseVisitorsByDay from "./visualizations/visitors/CourseVisitorsByDay"
@@ -120,14 +118,6 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
 
         {activeTab === TAB_USER_ACTIVITY && (
           <>
-            <StatHeading>{t("stats-heading-unique-users-by-month")}</StatHeading>
-            <InstructionBox>{t("stats-instruction-unique-users-by-month")}</InstructionBox>
-            <MonthlyUniqueUsers courseId={courseId} />
-
-            <StatHeading>{t("stats-heading-unique-users-by-day")}</StatHeading>
-            <InstructionBox>{t("stats-instruction-unique-users-by-day")}</InstructionBox>
-            <DailyUniqueUsers courseId={courseId} />
-
             <StatHeading>{t("stats-heading-users-with-submissions")}</StatHeading>
             <InstructionBox>{t("stats-instruction-users-with-submissions")}</InstructionBox>
             <CourseUsersWithSubmissionsByDay courseId={courseId} />

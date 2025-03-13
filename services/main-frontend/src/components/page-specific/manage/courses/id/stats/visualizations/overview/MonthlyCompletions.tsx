@@ -3,6 +3,8 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { InstructionBox, StatHeading } from "../../CourseStatsPage"
+import Echarts from "../../Echarts"
+import { useLineChartOptions } from "../../chartUtils"
 
 import { useMonthlyCourseCompletionsQuery } from "@/hooks/stats"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -40,6 +42,12 @@ const MonthlyCompletions: React.FC<React.PropsWithChildren<MonthlyCompletionsPro
 
   // Use real data if available, otherwise use placeholder
   const data = realData?.length ? realData : placeholderData
+
+  const chartOptions = useLineChartOptions({
+    data,
+    yAxisName: t("completions"),
+    tooltipValueLabel: t("completions"),
+  })
 
   if (error) {
     return <ErrorBanner variant="readOnly" error={error} />
@@ -81,14 +89,7 @@ const MonthlyCompletions: React.FC<React.PropsWithChildren<MonthlyCompletionsPro
           padding: 1rem;
         `}
       >
-        {/* TODO: Implement visualization with the data */}
-        <div>
-          {data.map((item) => (
-            <div key={item.period}>
-              {item.period}: {item.count} completions
-            </div>
-          ))}
-        </div>
+        <Echarts options={chartOptions} height={300} />
       </div>
     </>
   )

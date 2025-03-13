@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import React, { useId } from "react"
+import React, { useEffect, useId, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
 import { typography } from "../styles"
@@ -40,6 +40,14 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
 }) => {
   const { t } = useTranslation()
   const titleId = useId()
+  const dialogRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (open && dialogRef.current) {
+      // Focuses the dialog by default so that the close button is not focused by default
+      dialogRef.current.focus()
+    }
+  }, [open])
 
   return (
     <Dialog
@@ -53,12 +61,17 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
       disableContentScroll={disableContentScroll}
     >
       <div
+        ref={dialogRef}
+        tabIndex={-1}
         className={css`
           display: flex;
           flex-direction: column;
           height: 100%;
           position: relative;
           ${backgroundColor && `background-color: ${backgroundColor};`}
+          &:focus {
+            outline: none;
+          }
         `}
       >
         {((showCloseButton && onClose) || actionButtons) && (

@@ -186,7 +186,7 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
         `}
         actionButtons={
           isDownloadable && (
-            <Button variant="blue" size="medium" onClick={handleDownloadCSV}>
+            <Button variant="secondary" size="medium" onClick={handleDownloadCSV}>
               <Download size={16} weight="bold" />
               <span
                 className={css`

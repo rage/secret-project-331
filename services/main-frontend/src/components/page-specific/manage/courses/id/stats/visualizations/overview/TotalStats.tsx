@@ -3,7 +3,6 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { useTotalUsersCompletedCourseQuery, useTotalUsersStartedCourseQuery } from "@/hooks/stats"
-import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -33,37 +32,89 @@ const TotalStats: React.FC<React.PropsWithChildren<TotalStatsProps>> = ({ course
   }
 
   return (
-    <>
-      <StatHeading>{t("stats-heading-total-users")}</StatHeading>
-      <InstructionBox>{t("stats-instruction-total-users")}</InstructionBox>
+    <div
+      className={css`
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      `}
+    >
       <div
         className={css`
-          margin-bottom: 2rem;
-          border: 3px solid ${baseTheme.colors.clear[200]};
-          border-radius: 6px;
-          padding: 1rem;
+          display: flex;
+          gap: 2rem;
+          justify-content: center;
         `}
       >
-        {/* TODO: Implement visualization with the data */}
-        <div>Total users visualization will go here</div>
-        <DebugModal data={totalUsersQuery.data} />
-      </div>
+        <div
+          className={css`
+            flex: 1;
+            max-width: 300px;
+            border: 3px solid ${baseTheme.colors.clear[200]};
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+          `}
+        >
+          <h3
+            className={css`
+              margin: 0 0 1rem 0;
+              color: ${baseTheme.colors.gray[700]};
+              font-size: 1.2rem;
+              font-weight: 600;
+            `}
+          >
+            {t("stats-heading-students-started")}
+          </h3>
+          <div
+            className={css`
+              font-size: 2.8rem;
+              font-weight: bold;
+              color: ${baseTheme.colors.green[600]};
+              margin-bottom: 0.5rem;
+            `}
+          >
+            {totalUsersQuery.data?.count || 0}
+          </div>
+        </div>
 
-      <StatHeading>{t("stats-heading-total-completions")}</StatHeading>
-      <InstructionBox>{t("stats-instruction-total-completions")}</InstructionBox>
-      <div
-        className={css`
-          margin-bottom: 2rem;
-          border: 3px solid ${baseTheme.colors.clear[200]};
-          border-radius: 6px;
-          padding: 1rem;
-        `}
-      >
-        {/* TODO: Implement visualization with the data */}
-        <div>Total completions visualization will go here</div>
-        <DebugModal data={totalCompletionsQuery.data} />
+        <div
+          className={css`
+            flex: 1;
+            max-width: 300px;
+            border: 3px solid ${baseTheme.colors.clear[200]};
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+          `}
+        >
+          <h3
+            className={css`
+              margin: 0 0 1rem 0;
+              color: ${baseTheme.colors.gray[700]};
+              font-size: 1.2rem;
+              font-weight: 600;
+            `}
+          >
+            {t("stats-heading-students-completed")}
+          </h3>
+          <div
+            className={css`
+              font-size: 2.8rem;
+              font-weight: bold;
+              color: ${baseTheme.colors.green[600]};
+              margin-bottom: 0.5rem;
+            `}
+          >
+            {totalCompletionsQuery.data?.count || 0}
+          </div>
+        </div>
       </div>
-    </>
+    </div>
   )
 }
 

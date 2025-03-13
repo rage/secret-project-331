@@ -667,6 +667,8 @@
   "stats-heading-returning-users": "Returning Users",
   "stats-heading-returning-users-daily": "Returning Participants by Day",
   "stats-heading-returning-users-monthly": "Returning Participants by Month",
+  "stats-heading-students-completed": "Students Completed",
+  "stats-heading-students-started": "Students Started",
   "stats-heading-submission-activity": "Submissions by Day",
   "stats-heading-submission-timing": "Submission Times by Day and Hour",
   "stats-heading-time-metrics": "Time Metrics",

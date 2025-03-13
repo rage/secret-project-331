@@ -304,10 +304,7 @@ COUNT(DISTINCT user_id) AS "count!"
 FROM course_module_completions
 WHERE course_id = $1
   AND prerequisite_modules_completed = TRUE
-  AND (
-    needs_to_be_reviewed = FALSE
-    OR needs_to_be_reviewed IS NULL
-  )
+  AND needs_to_be_reviewed = FALSE
   AND created_at >= NOW() - ($2 || ' days')::INTERVAL
   AND deleted_at IS NULL
 GROUP BY "period"

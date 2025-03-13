@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DATE_TRUNC('day', created_at) AS \"period\",\nCOUNT(DISTINCT user_id) AS \"count!\"\nFROM course_module_completions\nWHERE course_id = $1\n  AND prerequisite_modules_completed = TRUE\n  AND needs_to_be_reviewed = FALSE\n  AND created_at >= NOW() - ($2 || ' days')::INTERVAL\n  AND deleted_at IS NULL\nGROUP BY \"period\"\nORDER BY \"period\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "period",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 1,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Text"]
+    },
+    "nullable": [null, null]
+  },
+  "hash": "c3f73539c1e4ca3e485acee45a1d3e13bb27bbdcf73a603420178719338d2eaf"
+}

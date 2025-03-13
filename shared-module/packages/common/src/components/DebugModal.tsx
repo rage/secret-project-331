@@ -49,28 +49,8 @@ const iconButtonStyles = css`
 
 const ON = "on"
 
-const isCSVDownloadable = (data: unknown): boolean => {
-  if (!Array.isArray(data) || data.length === 0) {
-    return false
-  }
-
-  if (!data.every((item) => typeof item === "object" && item !== null)) {
-    return false
-  }
-
-  const firstItemKeys = Object.keys(data[0] as Record<string, unknown>)
-  if (firstItemKeys.length === 0) {
-    return false
-  }
-
-  return data.every((item) => {
-    const keys = Object.keys(item as Record<string, unknown>)
-    return (
-      keys.length === firstItemKeys.length &&
-      firstItemKeys.every((key) => key in (item as Record<string, unknown>))
-    )
-  })
-}
+// Limit so that we don't freeze the browser
+const MAX_CSV_EXPORT_SIZE_BYTES = 10 * 1024 * 1024
 
 const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
   data,
@@ -83,7 +63,33 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [editedContent, setEditedContent] = useState<string | null>(null)
-  const isDownloadable = useMemo(() => isCSVDownloadable(data), [data])
+
+  // Memoize the stringification and size check together
+  const { stringifiedData, size } = useMemo(
+    () => ({
+      stringifiedData: JSON.stringify(data, undefined, 2),
+      size: new Blob([JSON.stringify(data)]).size,
+    }),
+    [data],
+  )
+
+  // Combine all data validation into one memo
+  const isDownloadable = useMemo(() => {
+    if (!Array.isArray(data)) {
+      return false
+    }
+    if (size > MAX_CSV_EXPORT_SIZE_BYTES) {
+      console.warn("Data too large for CSV download")
+      return false
+    }
+    try {
+      new Parser().parse(data)
+      return true
+    } catch (error) {
+      console.error("CSV validation failed:", error)
+      return false
+    }
+  }, [data, size])
 
   const closeModal = useCallback(() => {
     setOpen(false)
@@ -100,23 +106,14 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
     }
   }, [editedContent, updateDataOnClose])
 
-  const openModal = useCallback(() => {
-    setEditedContent(JSON.stringify(data, undefined, 2))
-    setOpen(true)
-  }, [data])
-
   const handleDownloadCSV = useCallback(() => {
-    if (!Array.isArray(data) || data.length === 0 || !isCSVDownloadable(data)) {
+    if (!Array.isArray(data) || !data.every((item) => typeof item === "object" && item !== null)) {
       return
     }
 
     try {
-      const parser = new Parser({
-        fields: Object.keys(data[0] as Record<string, unknown>),
-        delimiter: ",",
-        withBOM: true,
-      })
-      const csvContent = parser.parse(data as Record<string, unknown>[])
+      const parser = new Parser()
+      const csvContent = parser.parse(data)
 
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
       const url = URL.createObjectURL(blob)
@@ -147,7 +144,10 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
           <button
             type="button"
             aria-label={t("debug")}
-            onClick={() => openModal()}
+            onClick={() => {
+              setEditedContent(stringifiedData)
+              setOpen(true)
+            }}
             className={iconButtonStyles}
           >
             <BugInsect size={14} weight="bold" />
@@ -157,7 +157,10 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
             variant="blue"
             size={buttonSize}
             aria-label={t("debug")}
-            onClick={() => openModal()}
+            onClick={() => {
+              setEditedContent(stringifiedData)
+              setOpen(true)
+            }}
             className={css`
               height: 41px;
               padding: 8px;

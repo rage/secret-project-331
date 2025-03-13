@@ -6,7 +6,7 @@ import { InstructionBox, StatHeading } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
 import { useLineChartOptions } from "../../chartUtils"
 
-import { useDailyCourseCompletionsQuery, useMonthlyCourseCompletionsQuery } from "@/hooks/stats"
+import { useDailyUniqueUsersStartingQuery, useMonthlyUniqueUsersStartingQuery } from "@/hooks/stats"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
@@ -15,7 +15,7 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-interface CompletionsChartProps {
+interface StudentsStartingTheCourseChartProps {
   courseId: string
 }
 
@@ -26,9 +26,9 @@ const DAILY_PERIOD = "daily"
 
 type Period = "daily" | "monthly"
 
-const CompletionsChart: React.FC<React.PropsWithChildren<CompletionsChartProps>> = ({
-  courseId,
-}) => {
+const StudentsStartingTheCourseChart: React.FC<
+  React.PropsWithChildren<StudentsStartingTheCourseChartProps>
+> = ({ courseId }) => {
   const { t } = useTranslation()
   const [period, setPeriod] = useState<Period>(MONTHLY_PERIOD)
 
@@ -36,7 +36,7 @@ const CompletionsChart: React.FC<React.PropsWithChildren<CompletionsChartProps>>
     data: monthlyData,
     isLoading: monthlyLoading,
     error: monthlyError,
-  } = useMonthlyCourseCompletionsQuery(courseId, {
+  } = useMonthlyUniqueUsersStartingQuery(courseId, {
     enabled: period === MONTHLY_PERIOD,
   })
 
@@ -44,20 +44,21 @@ const CompletionsChart: React.FC<React.PropsWithChildren<CompletionsChartProps>>
     data: dailyData,
     isLoading: dailyLoading,
     error: dailyError,
-  } = useDailyCourseCompletionsQuery(courseId, DAYS_TO_SHOW, {
+  } = useDailyUniqueUsersStartingQuery(courseId, DAYS_TO_SHOW, {
     enabled: period === DAILY_PERIOD,
   })
 
-  const isLoading = period === "monthly" ? monthlyLoading : dailyLoading
-  const error = period === "monthly" ? monthlyError : dailyError
-  const data = period === "monthly" ? monthlyData : dailyData
+  const isLoading = period === MONTHLY_PERIOD ? monthlyLoading : dailyLoading
+  const error = period === MONTHLY_PERIOD ? monthlyError : dailyError
+
+  const data = period === MONTHLY_PERIOD ? monthlyData : dailyData
 
   const chartOptions = useLineChartOptions({
     data,
-    yAxisName: t("completions"),
-    tooltipValueLabel: t("completions"),
+    yAxisName: t("unique-users"),
+    tooltipValueLabel: t("unique-users"),
     // eslint-disable-next-line i18next/no-literal-string
-    dateFormat: period === "monthly" ? "yyyy-MM" : "yyyy-MM-dd",
+    dateFormat: period === MONTHLY_PERIOD ? "yyyy-MM" : "yyyy-MM-dd",
   })
 
   if (error) {
@@ -89,7 +90,7 @@ const CompletionsChart: React.FC<React.PropsWithChildren<CompletionsChartProps>>
             gap: 0.5rem;
           `}
         >
-          <StatHeading>{t("stats-heading-course-completions")}</StatHeading>
+          <StatHeading>{t("stats-heading-unique-users-starting-course")}</StatHeading>
           <DebugModal
             variant="minimal"
             data={data}
@@ -114,7 +115,7 @@ const CompletionsChart: React.FC<React.PropsWithChildren<CompletionsChartProps>>
           showDefaultOption={false}
         />
       </div>
-      <InstructionBox>{t("stats-instruction-course-completions")}</InstructionBox>
+      <InstructionBox>{t("stats-instruction-unique-users-starting-course")}</InstructionBox>
       <div
         className={css`
           margin-bottom: 2rem;
@@ -129,4 +130,6 @@ const CompletionsChart: React.FC<React.PropsWithChildren<CompletionsChartProps>>
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(CompletionsChart))
+export default withErrorBoundary(
+  dontRenderUntilQueryParametersReady(StudentsStartingTheCourseChart),
+)

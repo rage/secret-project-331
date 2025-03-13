@@ -4,15 +4,12 @@ import type { CallbackDataParams } from "echarts/types/src/util/types"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-interface DataPoint {
-  period: string | null
-  count: number
-}
+import { CountResult } from "@/shared-module/common/bindings"
 
 type DateFormatType = "yyyy-MM-dd" | "yyyy-MM"
 
 interface LineChartConfig {
-  data: DataPoint[]
+  data: CountResult[] | undefined
   yAxisName: string
   tooltipValueLabel: string
   dateFormat: DateFormatType
@@ -28,13 +25,14 @@ const isCurrentPeriod = (date: Date, currentDate: Date, dateFormat: DateFormatTy
 }
 
 export const useLineChartOptions = ({
-  data,
+  data: inputData,
   yAxisName,
   tooltipValueLabel,
   dateFormat,
 }: LineChartConfig): EChartsOption => {
   const { t, i18n } = useTranslation()
 
+  const data = useMemo(() => inputData ?? [], [inputData])
   const currentDate = useMemo(() => new Date(), [])
 
   const formattedDates = useMemo(
@@ -95,6 +93,6 @@ export const useLineChartOptions = ({
         },
       },
     }),
-    [data, yAxisName, tooltipValueLabel, dateFormat, t, currentDate, formattedDates, dateFormatter],
+    [formattedDates, yAxisName, data, dateFormatter, currentDate, dateFormat, tooltipValueLabel, t],
   )
 }

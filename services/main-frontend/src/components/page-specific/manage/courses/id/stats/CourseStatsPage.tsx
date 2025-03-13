@@ -8,8 +8,7 @@ import { CourseManagementPagesProps } from "../../../../../../pages/manage/cours
 
 import CompletionsChart from "./visualizations/overview/CompletionsChart"
 import CourseUsersCountsByExercise from "./visualizations/overview/CourseUsersCountsByExercise"
-import DailyCompletions from "./visualizations/overview/DailyCompletions"
-import MonthlyCompletions from "./visualizations/overview/MonthlyCompletions"
+import StudentsStartingTheCourseChart from "./visualizations/overview/StudentsStartingTheCourseChart"
 import TotalStats from "./visualizations/overview/TotalStats"
 import AverageTimeToSubmit from "./visualizations/user-activity/AverageTimeToSubmit"
 import CourseSubmissionsByDay from "./visualizations/user-activity/CourseSubmissionsByDay"
@@ -21,7 +20,6 @@ import FirstSubmissionTrends from "./visualizations/user-activity/FirstSubmissio
 import MonthlyReturningUsers from "./visualizations/user-activity/MonthlyReturningUsers"
 import MonthlyUniqueUsers from "./visualizations/user-activity/MonthlyUniqueUsers"
 import WeeklyCohortProgress from "./visualizations/user-activity/WeeklyCohortProgress"
-import WeeklyUniqueUsersStartingCourse from "./visualizations/user-activity/WeeklyUniqueUsersStartingCourse"
 import CourseVisitorsByCountry from "./visualizations/visitors/CourseVisitorsByCountry"
 import CourseVisitorsByDay from "./visualizations/visitors/CourseVisitorsByDay"
 import DailyVisitCountsGroupedByReferrer from "./visualizations/visitors/DailyVisitCountsGroupedByReferrer"
@@ -112,6 +110,7 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
           <>
             <TotalStats courseId={courseId} />
             <CompletionsChart courseId={courseId} />
+            <StudentsStartingTheCourseChart courseId={courseId} />
 
             <StatHeading>{t("stats-heading-exercise-participation")}</StatHeading>
             <InstructionBox>{t("stats-instruction-exercise-participation")}</InstructionBox>
@@ -121,12 +120,6 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
 
         {activeTab === TAB_USER_ACTIVITY && (
           <>
-            <StatHeading>{t("stats-heading-unique-users-starting-course-by-week")}</StatHeading>
-            <InstructionBox>
-              {t("stats-instruction-unique-users-starting-course-by-week")}
-            </InstructionBox>
-            <WeeklyUniqueUsersStartingCourse courseId={courseId} />
-
             <StatHeading>{t("stats-heading-unique-users-by-month")}</StatHeading>
             <InstructionBox>{t("stats-instruction-unique-users-by-month")}</InstructionBox>
             <MonthlyUniqueUsers courseId={courseId} />

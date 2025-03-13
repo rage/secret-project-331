@@ -4,6 +4,8 @@ import { BugInsect } from "@vectopus/atlas-icons-react"
 import { Dispatch, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { baseTheme } from "../styles/theme"
+
 import Button from "./Button"
 import Dialog from "./Dialog"
 import MonacoEditor from "./monaco/MonacoEditor"
@@ -14,6 +16,8 @@ export interface DebugModalProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateDataOnClose?: Dispatch<any>
   buttonSize?: "small" | "medium" | "large"
+  variant?: "default" | "minimal"
+  buttonWrapperStyles?: string
 }
 
 const HeaderBar = styled.div`
@@ -26,11 +30,29 @@ const HeaderBar = styled.div`
   }
 `
 
+const iconButtonStyles = css`
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  color: ${baseTheme.colors.gray[400]};
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: ${baseTheme.colors.green[600]};
+  }
+`
+
 const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
   data,
   readOnly = true,
   updateDataOnClose,
   buttonSize = "medium",
+  variant = "default",
+  buttonWrapperStyles,
 }) => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
@@ -56,19 +78,32 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
 
   return (
     <>
-      <Button
-        variant="blue"
-        size={buttonSize}
-        aria-label={t("debug")}
-        onClick={() => openModal()}
-        className={css`
-          height: 41px;
-          padding: 8px;
-          color: white !important;
-        `}
-      >
-        <BugInsect size={16} weight="bold" />
-      </Button>
+      <div className={buttonWrapperStyles}>
+        {variant === "minimal" ? (
+          <button
+            type="button"
+            aria-label={t("debug")}
+            onClick={() => openModal()}
+            className={iconButtonStyles}
+          >
+            <BugInsect size={14} weight="bold" />
+          </button>
+        ) : (
+          <Button
+            variant="blue"
+            size={buttonSize}
+            aria-label={t("debug")}
+            onClick={() => openModal()}
+            className={css`
+              height: 41px;
+              padding: 8px;
+              color: white !important;
+            `}
+          >
+            <BugInsect size={16} weight="bold" />
+          </Button>
+        )}
+      </div>
       <Dialog
         width="wide"
         open={open}

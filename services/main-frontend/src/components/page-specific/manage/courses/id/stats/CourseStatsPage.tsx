@@ -36,14 +36,15 @@ import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabL
 import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/TabLinkPanel"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 
-const StatHeading = styled.h2`
+export const StatHeading = styled.h2`
   font-size: 1.8rem;
   color: ${baseTheme.colors.gray[600]};
   font-family: ${headingFont};
   margin-bottom: 1rem;
+  margin-top: 1rem;
 `
 
-const InstructionBox = styled.div`
+export const InstructionBox = styled.div`
   background-color: ${baseTheme.colors.clear[100]};
   border-left: 4px solid ${baseTheme.colors.blue[600]};
   padding: 1rem;
@@ -109,9 +110,6 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
         {activeTab === TAB_OVERVIEW && (
           <>
             <TotalStats courseId={courseId} />
-
-            <StatHeading>{t("stats-heading-monthly-completions")}</StatHeading>
-            <InstructionBox>{t("stats-instruction-monthly-completions")}</InstructionBox>
             <MonthlyCompletions courseId={courseId} />
 
             <StatHeading>{t("stats-heading-daily-completions")}</StatHeading>

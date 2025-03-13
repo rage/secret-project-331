@@ -2,6 +2,8 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { InstructionBox, StatHeading } from "../../CourseStatsPage"
+
 import { useMonthlyCourseCompletionsQuery } from "@/hooks/stats"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -18,7 +20,26 @@ const MonthlyCompletions: React.FC<React.PropsWithChildren<MonthlyCompletionsPro
   courseId,
 }) => {
   const { t } = useTranslation()
-  const { data, isLoading, error } = useMonthlyCourseCompletionsQuery(courseId)
+
+  // export interface CountResult {
+  //   period: string | null
+  //   count: number
+  // }
+  // The data is an array of these
+  const { data: realData, isLoading, error } = useMonthlyCourseCompletionsQuery(courseId)
+
+  // Add placeholder data for preview/development
+  const placeholderData = [
+    { period: "2024-01", count: 15 },
+    { period: "2024-02", count: 23 },
+    { period: "2024-03", count: 18 },
+    { period: "2024-04", count: 30 },
+    { period: "2024-05", count: 25 },
+    { period: "2024-06", count: 35 },
+  ]
+
+  // Use real data if available, otherwise use placeholder
+  const data = realData?.length ? realData : placeholderData
 
   if (error) {
     return <ErrorBanner variant="readOnly" error={error} />
@@ -33,19 +54,43 @@ const MonthlyCompletions: React.FC<React.PropsWithChildren<MonthlyCompletionsPro
   }
 
   return (
-    <div
-      className={css`
-        margin-bottom: 2rem;
-        border: 3px solid ${baseTheme.colors.clear[200]};
-        border-radius: 6px;
-        padding: 1rem;
-      `}
-    >
-      {/* TODO: Implement visualization with the data */}
-      {/* data format will be an array of objects with { date: string, count: number } */}
-      <div>Visualization will go here</div>
-      <DebugModal data={data} />
-    </div>
+    <>
+      <div
+        className={css`
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        `}
+      >
+        <StatHeading>{t("stats-heading-monthly-completions")}</StatHeading>
+        <DebugModal
+          variant="minimal"
+          data={data}
+          buttonWrapperStyles={css`
+            display: flex;
+            align-items: center;
+          `}
+        />
+      </div>
+      <InstructionBox>{t("stats-instruction-monthly-completions")}</InstructionBox>
+      <div
+        className={css`
+          margin-bottom: 2rem;
+          border: 3px solid ${baseTheme.colors.clear[200]};
+          border-radius: 6px;
+          padding: 1rem;
+        `}
+      >
+        {/* TODO: Implement visualization with the data */}
+        <div>
+          {data.map((item) => (
+            <div key={item.period}>
+              {item.period}: {item.count} completions
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
   )
 }
 

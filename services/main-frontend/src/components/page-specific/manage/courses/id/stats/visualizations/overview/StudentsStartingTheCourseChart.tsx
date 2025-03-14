@@ -7,7 +7,7 @@ import ChartWithHeader, {
   MONTHLY_DATE_FORMAT,
   MONTHLY_PERIOD,
   Period,
-} from "./ChartWithHeader"
+} from "../../ChartWithHeader"
 
 import { useDailyUniqueUsersStartingQuery, useMonthlyUniqueUsersStartingQuery } from "@/hooks/stats"
 import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"

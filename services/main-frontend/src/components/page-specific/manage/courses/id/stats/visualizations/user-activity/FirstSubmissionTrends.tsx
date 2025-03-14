@@ -1,12 +1,18 @@
-import { css } from "@emotion/css"
-import React from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useMonthlyFirstExerciseSubmissionsQuery } from "@/hooks/stats"
-import DebugModal from "@/shared-module/common/components/DebugModal"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
-import { baseTheme } from "@/shared-module/common/styles"
+import ChartWithHeader, {
+  DAILY_DATE_FORMAT,
+  DAILY_PERIOD,
+  MONTHLY_DATE_FORMAT,
+  MONTHLY_PERIOD,
+  Period,
+} from "../../ChartWithHeader"
+
+import {
+  useDailyFirstExerciseSubmissionsQuery,
+  useMonthlyFirstExerciseSubmissionsQuery,
+} from "@/hooks/stats"
 import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -14,38 +20,47 @@ interface FirstSubmissionTrendsProps {
   courseId: string
 }
 
+const DAYS_TO_SHOW = 90
+
 const FirstSubmissionTrends: React.FC<React.PropsWithChildren<FirstSubmissionTrendsProps>> = ({
   courseId,
 }) => {
   const { t } = useTranslation()
-  const { data, isLoading, error } = useMonthlyFirstExerciseSubmissionsQuery(courseId)
+  const [period, setPeriod] = useState<Period>(MONTHLY_PERIOD)
 
-  if (error) {
-    return <ErrorBanner variant="readOnly" error={error} />
-  }
+  const {
+    data: monthlyData,
+    isLoading: monthlyLoading,
+    error: monthlyError,
+  } = useMonthlyFirstExerciseSubmissionsQuery(courseId, {
+    enabled: period === MONTHLY_PERIOD,
+  })
 
-  if (isLoading) {
-    return <Spinner variant="medium" />
-  }
+  const {
+    data: dailyData,
+    isLoading: dailyLoading,
+    error: dailyError,
+  } = useDailyFirstExerciseSubmissionsQuery(courseId, DAYS_TO_SHOW, {
+    enabled: period === DAILY_PERIOD,
+  })
 
-  if (!data || data.length === 0) {
-    return <div>{t("no-data")}</div>
-  }
+  const isLoading = period === MONTHLY_PERIOD ? monthlyLoading : dailyLoading
+  const error = period === MONTHLY_PERIOD ? monthlyError : dailyError
+  const data = period === MONTHLY_PERIOD ? monthlyData : dailyData
 
   return (
-    <div
-      className={css`
-        margin-bottom: 2rem;
-        border: 3px solid ${baseTheme.colors.clear[200]};
-        border-radius: 6px;
-        padding: 1rem;
-      `}
-    >
-      {/* TODO: Implement visualization with the data */}
-      {/* data format will be an array of objects with { date: string, count: number } */}
-      <div>Visualization will go here</div>
-      <DebugModal data={data} />
-    </div>
+    <ChartWithHeader
+      data={data}
+      isLoading={isLoading}
+      error={error}
+      period={period}
+      setPeriod={setPeriod}
+      yAxisName={t("first-submissions")}
+      tooltipValueLabel={t("first-submissions")}
+      dateFormat={period === MONTHLY_PERIOD ? MONTHLY_DATE_FORMAT : DAILY_DATE_FORMAT}
+      statHeading={t("stats-heading-first-submission-trends")}
+      instructionText={t("stats-instruction-first-submission-trends")}
+    />
   )
 }
 

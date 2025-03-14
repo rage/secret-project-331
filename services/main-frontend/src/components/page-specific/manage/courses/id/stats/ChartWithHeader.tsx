@@ -2,8 +2,8 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { InstructionBox, StatHeading } from "../../CourseStatsPage"
-import Echarts from "../../Echarts"
+import { InstructionBox, StatHeading } from "./CourseStatsPage"
+import Echarts from "./Echarts"
 
 import { CountResult } from "@/shared-module/common/bindings"
 import DebugModal from "@/shared-module/common/components/DebugModal"

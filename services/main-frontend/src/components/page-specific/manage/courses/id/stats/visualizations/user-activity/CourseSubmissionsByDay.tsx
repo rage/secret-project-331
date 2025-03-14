@@ -4,10 +4,10 @@ import { groupBy, max } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchCourseDailySubmissionCounts } from "@/services/backend/courses"
-
+import { InstructionBox, StatHeading } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
 
+import { fetchCourseDailySubmissionCounts } from "@/services/backend/courses"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -50,57 +50,67 @@ const CourseSubmissionsByDay: React.FC<React.PropsWithChildren<CourseSubmissions
   }
 
   return (
-    <div
-      className={css`
-        margin-bottom: 2rem;
-        border: 3px solid ${baseTheme.colors.clear[200]};
-        border-radius: 6px;
-        padding: 1rem;
-      `}
-    >
-      <Echarts
-        height={200 * Object.keys(getCourseDailySubmissionCounts.data.eChartsData).length}
-        options={{
-          tooltip: {
-            // eslint-disable-next-line i18next/no-literal-string
-            trigger: "item",
-            // eslint-disable-next-line i18next/no-literal-string
-            formatter: "{b}: {c}",
-          },
-          visualMap: {
-            show: false,
-            min: 0,
-            max: getCourseDailySubmissionCounts.data.maxValue,
-          },
-          calendar: Object.entries(getCourseDailySubmissionCounts.data.eChartsData).map(
-            ([year, _submissionCounts], i) => {
-              return {
-                range: year,
-                // eslint-disable-next-line i18next/no-literal-string
-                cellSize: ["auto", 20],
-                dayLabel: {
-                  firstDay: 1,
-                },
-                top: 190 * i + 40,
-              }
+    <>
+      <StatHeading>{t("stats-heading-daily-submissions")}</StatHeading>
+      <InstructionBox>{t("stats-instruction-daily-submissions")}</InstructionBox>
+      <div
+        className={css`
+          margin-bottom: 2rem;
+          border: 3px solid ${baseTheme.colors.clear[200]};
+          border-radius: 6px;
+          padding: 1rem;
+        `}
+      >
+        <Echarts
+          height={200 * Object.keys(getCourseDailySubmissionCounts.data.eChartsData).length}
+          options={{
+            tooltip: {
+              // eslint-disable-next-line i18next/no-literal-string
+              position: "top",
+              formatter: (a) => {
+                return t("daily-submissions-visualization-tooltip", {
+                  // @ts-expect-error: todo
+                  day: a.data[0],
+                  // @ts-expect-error: todo
+                  submissions: a.data[1],
+                })
+              },
             },
-          ),
-          series: Object.entries(getCourseDailySubmissionCounts.data.eChartsData).map(
-            ([_year, submissionCounts], i) => {
-              return {
-                type: "heatmap",
-                // eslint-disable-next-line i18next/no-literal-string
-                coordinateSystem: "calendar",
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                data: (submissionCounts as any[]).map((o) => [o.date, o.count]),
-                calendarIndex: i,
-              }
+            visualMap: {
+              show: false,
+              min: 0,
+              max: getCourseDailySubmissionCounts.data.maxValue,
             },
-          ),
-        }}
-      />
-      <DebugModal data={getCourseDailySubmissionCounts.data.apiData} />
-    </div>
+            calendar: Object.entries(getCourseDailySubmissionCounts.data.eChartsData).map(
+              ([year, _submissionCounts], i) => {
+                return {
+                  range: year,
+                  // eslint-disable-next-line i18next/no-literal-string
+                  cellSize: ["auto", 20],
+                  dayLabel: {
+                    firstDay: 1,
+                  },
+                  top: 190 * i + 40,
+                }
+              },
+            ),
+            series: Object.entries(getCourseDailySubmissionCounts.data.eChartsData).map(
+              ([_year, submissionCounts], i) => {
+                return {
+                  type: "heatmap",
+                  // eslint-disable-next-line i18next/no-literal-string
+                  coordinateSystem: "calendar",
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  data: (submissionCounts as any[]).map((o) => [o.date, o.count]),
+                  calendarIndex: i,
+                }
+              },
+            ),
+          }}
+        />
+        <DebugModal data={getCourseDailySubmissionCounts.data.apiData} />
+      </div>
+    </>
   )
 }
 

@@ -13,6 +13,7 @@ import {
   getMonthlyUniqueUsersStarting,
   getMonthlyUsersReturningExercises,
   getTotalUsersCompletedCourse,
+  getTotalUsersReturnedExercises,
   getTotalUsersStartedCourse,
   getWeeklyUniqueUsersStarting,
 } from "../services/backend/courses/stats"
@@ -191,6 +192,18 @@ export const useCohortDailyActivityQuery = (
   return useQuery<CohortActivity[], Error>({
     queryKey: ["course-stats", "cohort-daily-activity", courseId, days],
     queryFn: () => getCohortDailyActivity(assertNotNullOrUndefined(courseId), days),
+    enabled: !!courseId,
+    ...options,
+  })
+}
+
+export const useTotalUsersReturnedExercisesQuery = (
+  courseId: string | null,
+  options: HookQueryOptions<CountResult> = {},
+): UseQueryResult<CountResult, Error> => {
+  return useQuery<CountResult, Error>({
+    queryKey: ["course-stats", "total-users-returned-exercises", courseId],
+    queryFn: () => getTotalUsersReturnedExercises(assertNotNullOrUndefined(courseId)),
     enabled: !!courseId,
     ...options,
   })

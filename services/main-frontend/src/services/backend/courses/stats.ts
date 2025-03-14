@@ -121,3 +121,10 @@ export const getCohortDailyActivity = async (
   )
   return validateResponse(response, isArray(isCohortActivity))
 }
+
+export const getTotalUsersReturnedExercises = async (courseId: string): Promise<CountResult> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/stats/total-users-returned-exercises`,
+  )
+  return validateResponse(response, isCountResult)
+}

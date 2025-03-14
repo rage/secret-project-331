@@ -47,6 +47,29 @@ async fn get_total_users_completed_course(
     token.authorized_ok(web::Json(res))
 }
 
+/// GET `/api/v0/main-frontend/{course_id}/stats/total-users-returned-exercises`
+#[instrument(skip(pool))]
+async fn get_total_users_returned_at_least_one_exercise(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    course_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<CountResult>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+
+    let res = models::library::course_stats::get_total_users_returned_at_least_one_exercise(
+        &mut conn, *course_id,
+    )
+    .await?;
+    token.authorized_ok(web::Json(res))
+}
+
 /// GET `/api/v0/main-frontend/{course_id}/stats/weekly-users-starting`
 #[instrument(skip(pool))]
 async fn get_weekly_unique_users_starting(
@@ -334,6 +357,10 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     .route(
         "/total-users-completed",
         web::get().to(get_total_users_completed_course),
+    )
+    .route(
+        "/total-users-returned-exercises",
+        web::get().to(get_total_users_returned_at_least_one_exercise),
     )
     .route(
         "/weekly-users-starting",

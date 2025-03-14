@@ -318,6 +318,27 @@ ORDER BY "period"
     Ok(res)
 }
 
+/// Total unique users who have returned at least one exercise.
+pub async fn get_total_users_returned_at_least_one_exercise(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<CountResult> {
+    let res = sqlx::query_as!(
+        CountResult,
+        r#"
+SELECT NULL::timestamptz AS "period",
+       COUNT(DISTINCT user_id) AS "count!"
+FROM exercise_slide_submissions
+WHERE course_id = $1
+  AND deleted_at IS NULL;
+        "#,
+        course_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Average time from course start to first exercise submission, grouped by month.
 /// Returns the average time in seconds.
 pub async fn get_avg_time_to_first_submission_by_month(

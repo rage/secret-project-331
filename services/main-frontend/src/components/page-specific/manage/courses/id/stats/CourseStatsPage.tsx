@@ -119,8 +119,6 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
 
             <CourseSubmissionsByDay courseId={courseId} />
 
-            <StatHeading>{t("stats-heading-submission-timing")}</StatHeading>
-            <InstructionBox>{t("stats-instruction-submission-timing")}</InstructionBox>
             <CourseSubmissionsByWeekdayAndHour courseId={courseId} />
 
             <StatHeading>{t("stats-heading-first-submission-trends")}</StatHeading>

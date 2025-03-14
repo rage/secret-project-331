@@ -4,15 +4,15 @@ import { Dictionary, groupBy, max } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchCourseWeekdayHourSubmissionCounts } from "@/services/backend/courses"
-
+import { InstructionBox, StatHeading } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
 
+import { fetchCourseWeekdayHourSubmissionCounts } from "@/services/backend/courses"
 import { ExerciseSlideSubmissionCountByWeekAndHour } from "@/shared-module/common/bindings"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-import { baseTheme } from "@/shared-module/common/styles"
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -92,73 +92,78 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<
   dataByWeekDayOrdered.push(["2", []])
 
   return (
-    <div
-      className={css`
-        margin-bottom: 2rem;
-        border: 3px solid ${baseTheme.colors.clear[200]};
-        border-radius: 6px;
-        padding: 1rem;
-      `}
-    >
-      <Echarts
-        height={1000}
-        options={{
-          title: Object.keys(isodowToWeekdayName).map((weekdayNumber, i) => {
-            return {
+    <>
+      <StatHeading>{t("stats-heading-submission-timing")}</StatHeading>
+      <InstructionBox>{t("stats-instruction-submission-timing")}</InstructionBox>
+      <div
+        className={css`
+          margin-bottom: 2rem;
+          border: 3px solid ${baseTheme.colors.clear[200]};
+          border-radius: 6px;
+          padding: 1rem;
+        `}
+      >
+        <Echarts
+          height={1000}
+          options={{
+            title: Object.keys(isodowToWeekdayName).map((weekdayNumber, i) => {
+              return {
+                // eslint-disable-next-line i18next/no-literal-string
+                textBaseline: "middle",
+                top: ((i + 0.5) * 100) / 7 + "%",
+                // @ts-expect-error: todo
+                text: isodowToWeekdayName[weekdayNumber],
+              }
+            }),
+            tooltip: {
               // eslint-disable-next-line i18next/no-literal-string
-              textBaseline: "middle",
-              top: ((i + 0.5) * 100) / 7 + "%",
-              // @ts-expect-error: todo
-              text: isodowToWeekdayName[weekdayNumber],
-            }
-          }),
-          tooltip: {
-            // eslint-disable-next-line i18next/no-literal-string
-            position: "top",
-            formatter: (a) => {
-              return t("hourly-submissions-visualization-tooltip", {
-                // @ts-expect-error: todo
-                day: a.data[0],
-                // @ts-expect-error: todo
-                submissions: a.data[1],
-              })
+              position: "top",
+              formatter: (a) => {
+                return t("hourly-submissions-visualization-tooltip", {
+                  // @ts-expect-error: todo
+                  day: a.data[0],
+                  // @ts-expect-error: todo
+                  submissions: a.data[1],
+                })
+              },
             },
-          },
-          singleAxis: dataByWeekDayOrdered.map(([_weekdayNumber, _entries], i) => {
-            return {
-              left: 150,
+            singleAxis: dataByWeekDayOrdered.map(([_weekdayNumber, _entries], i) => {
+              return {
+                left: 150,
 
-              type: "category",
-              boundaryGap: false,
-              data: hours,
-              top: (i * 100) / 7 + 5 + "%",
-              height: 100 / 7 - 10 + "%",
-              axisLabel: {
-                interval: 2,
-              },
-            }
-          }),
-          series: dataByWeekDayOrdered.map(([_weekdayNumber, entries], i) => {
-            return {
-              singleAxisIndex: i,
-              // eslint-disable-next-line i18next/no-literal-string
-              coordinateSystem: "singleAxis",
+                type: "category",
+                boundaryGap: false,
+                data: hours,
+                top: (i * 100) / 7 + 5 + "%",
+                height: 100 / 7 - 10 + "%",
+                axisLabel: {
+                  interval: 2,
+                },
+              }
+            }),
+            series: dataByWeekDayOrdered.map(([_weekdayNumber, entries], i) => {
+              return {
+                singleAxisIndex: i,
+                // eslint-disable-next-line i18next/no-literal-string
+                coordinateSystem: "singleAxis",
 
-              type: "scatter",
-              // eslint-disable-next-line
-                data: entries.map((o) => [o.hour ?? -1, o.count ?? -1]),
-              symbolSize: function (dataItem) {
-                // scaling the size so that the largest value has size maxCircleSize
-                return (
-                  (dataItem[1] / getCourseWeekdayHourSubmissionCount.data.maxValue) * maxCircleSize
-                )
-              },
-            }
-          }),
-        }}
-      />
-      <DebugModal data={getCourseWeekdayHourSubmissionCount.data.apiData} />
-    </div>
+                type: "scatter",
+                // eslint-disable-next-line
+                  data: entries.map((o) => [o.hour ?? -1, o.count ?? -1]),
+                symbolSize: function (dataItem) {
+                  // scaling the size so that the largest value has size maxCircleSize
+                  return (
+                    (dataItem[1] / getCourseWeekdayHourSubmissionCount.data.maxValue) *
+                    maxCircleSize
+                  )
+                },
+              }
+            }),
+          }}
+        />
+        <DebugModal data={getCourseWeekdayHourSubmissionCount.data.apiData} />
+      </div>
+    </>
   )
 }
 

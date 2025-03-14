@@ -707,7 +707,7 @@
   "stats-instruction-page-popularity": "Most frequently visited pages on the course, ranked by visitor count",
   "stats-instruction-referrers": "Sources that directed visitors to the course pages",
   "stats-instruction-returning-users-monthly": "Number of students who return to the course each month after their first visit",
-  "stats-instruction-submission-timing": "Heatmap showing when students typically submit exercises",
+  "stats-instruction-submission-timing": "Shows the weekday and the hour of day the students typically submit exercises. Bigger bubbles indicate more popular times. Note that all times are in UTC.",
   "stats-instruction-total-completions": "Total number of students who have completed all course requirements",
   "stats-instruction-total-users": "Total number of unique participants who have started the course",
   "stats-instruction-unique-users-by-day": "Number of new participants who started the course each day",

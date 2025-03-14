@@ -116,17 +116,9 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
         {activeTab === TAB_USER_ACTIVITY && (
           <>
             <CourseUsersWithSubmissionsByDay courseId={courseId} />
-
             <CourseSubmissionsByDay courseId={courseId} />
-
             <CourseSubmissionsByWeekdayAndHour courseId={courseId} />
-
-            <StatHeading>{t("stats-heading-first-submission-trends")}</StatHeading>
-            <InstructionBox>{t("stats-instruction-first-submission-trends")}</InstructionBox>
             <FirstSubmissionTrends courseId={courseId} />
-
-            <StatHeading>{t("stats-heading-returning-users-monthly")}</StatHeading>
-            <InstructionBox>{t("stats-instruction-returning-users-monthly")}</InstructionBox>
             <MonthlyReturningUsers courseId={courseId} />
 
             <StatHeading>{t("stats-heading-average-time-to-submit")}</StatHeading>

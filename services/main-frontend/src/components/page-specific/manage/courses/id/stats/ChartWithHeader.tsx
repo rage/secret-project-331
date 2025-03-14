@@ -32,6 +32,7 @@ interface ChartWithHeaderProps {
   dateFormat: string
   statHeading: string
   instructionText: string
+  disablePeriodSelector?: boolean
 }
 
 const ChartWithHeader: React.FC<ChartWithHeaderProps> = ({
@@ -45,6 +46,7 @@ const ChartWithHeader: React.FC<ChartWithHeaderProps> = ({
   dateFormat,
   statHeading,
   instructionText,
+  disablePeriodSelector = false,
 }) => {
   const { t } = useTranslation()
 
@@ -90,20 +92,22 @@ const ChartWithHeader: React.FC<ChartWithHeaderProps> = ({
             `}
           />
         </div>
-        <SelectMenu
-          id="period-select"
-          options={[
-            { value: MONTHLY_PERIOD, label: t("stats-period-monthly") },
-            { value: DAILY_PERIOD, label: t("stats-period-daily") },
-          ]}
-          value={period}
-          onChange={(e) => setPeriod(e.target.value as Period)}
-          className={css`
-            margin-bottom: 0;
-            min-width: 120px;
-          `}
-          showDefaultOption={false}
-        />
+        {!disablePeriodSelector && (
+          <SelectMenu
+            id="period-select"
+            options={[
+              { value: MONTHLY_PERIOD, label: t("stats-period-monthly") },
+              { value: DAILY_PERIOD, label: t("stats-period-daily") },
+            ]}
+            value={period}
+            onChange={(e) => setPeriod(e.target.value as Period)}
+            className={css`
+              margin-bottom: 0;
+              min-width: 120px;
+            `}
+            showDefaultOption={false}
+          />
+        )}
       </div>
       <InstructionBox>{instructionText}</InstructionBox>
       {!data || data.length === 0 ? (

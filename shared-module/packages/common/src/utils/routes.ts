@@ -40,6 +40,10 @@ export function domainStatsRoute() {
   return "/domain-stats"
 }
 
+export function courseStatsRoute(courseId: string) {
+  return `/manage/courses/${courseId}/stats`
+}
+
 export function allOrganizationsRoute() {
   return "/organizations"
 }

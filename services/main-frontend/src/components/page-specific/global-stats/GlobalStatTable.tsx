@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import { UseQueryResult } from "@tanstack/react-query"
 import { groupBy, mapValues, sortBy } from "lodash"
+import Link from "next/link"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -11,8 +12,10 @@ import {
   GlobalStatEntry,
   TimeGranularity,
 } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { courseStatsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 type RegularStatTableProps = {
@@ -153,6 +156,7 @@ const GlobalStatTable: React.FC<GlobalStatTableProps> = ({ query, moduleStats, g
           {timeColumns.map((column) => (
             <th key={column.key}>{column.label}</th>
           ))}
+          <th></th>
         </FullWidthTableRow>
       </thead>
       <tbody>
@@ -197,6 +201,13 @@ const GlobalStatTable: React.FC<GlobalStatTableProps> = ({ query, moduleStats, g
                   }
                   return <td key={column.key}>{entry ? entry.value : "-"}</td>
                 })}
+                <td>
+                  <Link href={courseStatsRoute(courseId)}>
+                    <Button variant="tertiary" size="small">
+                      {t("stats")}
+                    </Button>
+                  </Link>
+                </td>
               </FullWidthTableRow>
             )
           })

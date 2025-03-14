@@ -109,9 +109,6 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
             <TotalStats courseId={courseId} />
             <CompletionsChart courseId={courseId} />
             <StudentsStartingTheCourseChart courseId={courseId} />
-
-            <StatHeading>{t("stats-heading-exercise-participation")}</StatHeading>
-            <InstructionBox>{t("stats-instruction-exercise-participation")}</InstructionBox>
             <CourseUsersCountsByExercise courseId={courseId} />
           </>
         )}

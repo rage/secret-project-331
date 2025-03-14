@@ -115,8 +115,6 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
 
         {activeTab === TAB_USER_ACTIVITY && (
           <>
-            <StatHeading>{t("stats-heading-users-with-submissions")}</StatHeading>
-            <InstructionBox>{t("stats-instruction-users-with-submissions")}</InstructionBox>
             <CourseUsersWithSubmissionsByDay courseId={courseId} />
 
             <StatHeading>{t("stats-heading-daily-submissions")}</StatHeading>

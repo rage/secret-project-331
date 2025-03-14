@@ -3,16 +3,21 @@
 use crate::{domain::authorization::authorize, prelude::*};
 use models::library::global_stats::{
     CourseCompletionStats, DomainCompletionStats, GlobalCourseModuleStatEntry, GlobalStatEntry,
+    TimeGranularity,
 };
 use std::collections::HashMap;
 
 /**
 GET `/api/v0/main-frontend/global-stats/number-of-people-completed-a-course`
+
+Query parameters:
+- granularity: String - Either "year" or "month" (defaults to "year")
 */
 #[instrument(skip(pool))]
 async fn get_number_of_people_completed_a_course(
     pool: web::Data<PgPool>,
     user: AuthUser,
+    query: web::Query<HashMap<String, String>>,
 ) -> ControllerResult<web::Json<Vec<GlobalStatEntry>>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
@@ -22,19 +27,32 @@ async fn get_number_of_people_completed_a_course(
         Res::GlobalPermissions,
     )
     .await?;
-    let res =
-        models::library::global_stats::get_number_of_people_completed_a_course(&mut conn).await?;
+
+    let granularity = query
+        .get("granularity")
+        .map(|s| s.parse().unwrap_or(TimeGranularity::Year))
+        .unwrap_or(TimeGranularity::Year);
+
+    let res = models::library::global_stats::get_number_of_people_completed_a_course(
+        &mut conn,
+        granularity,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(res))
 }
 
 /**
 GET `/api/v0/main-frontend/global-stats/number-of-people-registered-completion-to-study-registry`
+
+Query parameters:
+- granularity: String - Either "year" or "month" (defaults to "year")
 */
 #[instrument(skip(pool))]
 async fn get_number_of_people_registered_completion_to_study_registry(
     pool: web::Data<PgPool>,
     user: AuthUser,
+    query: web::Query<HashMap<String, String>>,
 ) -> ControllerResult<web::Json<Vec<GlobalStatEntry>>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
@@ -44,18 +62,28 @@ async fn get_number_of_people_registered_completion_to_study_registry(
         Res::GlobalPermissions,
     )
     .await?;
-    let res = models::library::global_stats::get_number_of_people_registered_completion_to_study_registry(&mut conn).await?;
+
+    let granularity = query
+        .get("granularity")
+        .map(|s| s.parse().unwrap_or(TimeGranularity::Year))
+        .unwrap_or(TimeGranularity::Year);
+
+    let res = models::library::global_stats::get_number_of_people_registered_completion_to_study_registry(&mut conn, granularity).await?;
 
     token.authorized_ok(web::Json(res))
 }
 
 /**
- * GET `/api/v0/main-frontend/global-stats/number-of-people-done-at-least-one-exercise`
- */
+GET `/api/v0/main-frontend/global-stats/number-of-people-done-at-least-one-exercise`
+
+Query parameters:
+- granularity: String - Either "year" or "month" (defaults to "year")
+*/
 #[instrument(skip(pool))]
 async fn get_number_of_people_done_at_least_one_exercise(
     pool: web::Data<PgPool>,
     user: AuthUser,
+    query: web::Query<HashMap<String, String>>,
 ) -> ControllerResult<web::Json<Vec<GlobalStatEntry>>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
@@ -65,20 +93,32 @@ async fn get_number_of_people_done_at_least_one_exercise(
         Res::GlobalPermissions,
     )
     .await?;
-    let res =
-        models::library::global_stats::get_number_of_people_done_at_least_one_exercise(&mut conn)
-            .await?;
+
+    let granularity = query
+        .get("granularity")
+        .map(|s| s.parse().unwrap_or(TimeGranularity::Year))
+        .unwrap_or(TimeGranularity::Year);
+
+    let res = models::library::global_stats::get_number_of_people_done_at_least_one_exercise(
+        &mut conn,
+        granularity,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(res))
 }
 
 /**
- * GET `/api/v0/main-frontend/global-stats/number-of-people-started-course`
- */
+GET `/api/v0/main-frontend/global-stats/number-of-people-started-course`
+
+Query parameters:
+- granularity: String - Either "year" or "month" (defaults to "year")
+*/
 #[instrument(skip(pool))]
 async fn get_number_of_people_started_course(
     pool: web::Data<PgPool>,
     user: AuthUser,
+    query: web::Query<HashMap<String, String>>,
 ) -> ControllerResult<web::Json<Vec<GlobalStatEntry>>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
@@ -88,7 +128,15 @@ async fn get_number_of_people_started_course(
         Res::GlobalPermissions,
     )
     .await?;
-    let res = models::library::global_stats::get_number_of_people_started_course(&mut conn).await?;
+
+    let granularity = query
+        .get("granularity")
+        .map(|s| s.parse().unwrap_or(TimeGranularity::Year))
+        .unwrap_or(TimeGranularity::Year);
+
+    let res =
+        models::library::global_stats::get_number_of_people_started_course(&mut conn, granularity)
+            .await?;
 
     token.authorized_ok(web::Json(res))
 }

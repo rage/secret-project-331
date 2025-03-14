@@ -11,6 +11,7 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import { formatNumber } from "@/shared-module/common/utils/numbers"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface TotalStatsProps {
@@ -45,7 +46,7 @@ const statTitleStyles = css`
 `
 
 const TotalStats: React.FC<React.PropsWithChildren<TotalStatsProps>> = ({ courseId }) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const totalUsersQuery = useTotalUsersStartedCourseQuery(courseId)
   const totalCompletionsQuery = useTotalUsersCompletedCourseQuery(courseId)
   const totalReturnedExercisesQuery = useTotalUsersReturnedExercisesQuery(courseId)
@@ -88,17 +89,23 @@ const TotalStats: React.FC<React.PropsWithChildren<TotalStatsProps>> = ({ course
         `}
       >
         <div className={statBoxStyles}>
-          <div className={statValueStyles}>{totalUsersQuery.data?.count || 0}</div>
+          <div className={statValueStyles}>
+            {formatNumber(totalUsersQuery.data?.count || 0, i18n.language)}
+          </div>
           <h3 className={statTitleStyles}>{t("stats-heading-students-started-the-course")}</h3>
         </div>
 
         <div className={statBoxStyles}>
-          <div className={statValueStyles}>{totalReturnedExercisesQuery.data?.count || 0}</div>
+          <div className={statValueStyles}>
+            {formatNumber(totalReturnedExercisesQuery.data?.count || 0, i18n.language)}
+          </div>
           <h3 className={statTitleStyles}>{t("stats-heading-students-returned-exercises")}</h3>
         </div>
 
         <div className={statBoxStyles}>
-          <div className={statValueStyles}>{totalCompletionsQuery.data?.count || 0}</div>
+          <div className={statValueStyles}>
+            {formatNumber(totalCompletionsQuery.data?.count || 0, i18n.language)}
+          </div>
           <h3 className={statTitleStyles}>{t("stats-heading-students-completed-the-course")}</h3>
         </div>
       </div>

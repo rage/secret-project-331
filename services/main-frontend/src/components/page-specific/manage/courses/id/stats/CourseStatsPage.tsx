@@ -11,6 +11,7 @@ import CourseUsersCountsByExercise from "./visualizations/overview/CourseUsersCo
 import StudentsStartingTheCourseChart from "./visualizations/overview/StudentsStartingTheCourseChart"
 import TotalStats from "./visualizations/overview/TotalStats"
 import AverageTimeToSubmit from "./visualizations/user-activity/AverageTimeToSubmit"
+import CohortProgress from "./visualizations/user-activity/CohortProgress"
 import CourseSubmissionsByDay from "./visualizations/user-activity/CourseSubmissionsByDay"
 import CourseSubmissionsByWeekdayAndHour from "./visualizations/user-activity/CourseSubmissionsByWeekdayAndHour"
 import CourseUsersWithSubmissionsByDay from "./visualizations/user-activity/CourseUsersWithSubmissionsByDay"
@@ -120,18 +121,8 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
             <CourseSubmissionsByWeekdayAndHour courseId={courseId} />
             <FirstSubmissionTrends courseId={courseId} />
             <MonthlyReturningUsers courseId={courseId} />
-
-            <StatHeading>{t("stats-heading-average-time-to-submit")}</StatHeading>
-            <InstructionBox>{t("stats-instruction-average-time-to-submit")}</InstructionBox>
             <AverageTimeToSubmit courseId={courseId} />
-
-            <StatHeading>{t("stats-heading-weekly-cohort-progress")}</StatHeading>
-            <InstructionBox>{t("stats-instruction-weekly-cohort-progress")}</InstructionBox>
-            <WeeklyCohortProgress courseId={courseId} />
-
-            <StatHeading>{t("stats-heading-daily-cohort-progress")}</StatHeading>
-            <InstructionBox>{t("stats-instruction-daily-cohort-progress")}</InstructionBox>
-            <DailyCohortProgress courseId={courseId} />
+            <CohortProgress courseId={courseId} />
           </>
         )}
 

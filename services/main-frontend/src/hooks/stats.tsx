@@ -1,4 +1,4 @@
-import { useQuery, UseQueryOptions, UseQueryResult } from "@tanstack/react-query"
+import { useQuery, UseQueryResult } from "@tanstack/react-query"
 
 import {
   getAvgTimeToFirstSubmissionByMonth,
@@ -17,17 +17,14 @@ import {
   getWeeklyUniqueUsersStarting,
 } from "../services/backend/courses/stats"
 
+import { HookQueryOptions } from "."
+
 import { AverageMetric, CohortActivity, CountResult } from "@/shared-module/common/bindings"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
-type QueryOptions<TData = unknown> = Omit<
-  UseQueryOptions<TData, Error, TData>,
-  "queryKey" | "queryFn"
->
-
 export const useTotalUsersStartedCourseQuery = (
   courseId: string | null,
-  options: QueryOptions<CountResult> = {},
+  options: HookQueryOptions<CountResult> = {},
 ): UseQueryResult<CountResult, Error> => {
   return useQuery<CountResult, Error>({
     queryKey: ["course-stats", "total-users-started", courseId],
@@ -39,7 +36,7 @@ export const useTotalUsersStartedCourseQuery = (
 
 export const useTotalUsersCompletedCourseQuery = (
   courseId: string | null,
-  options: QueryOptions<CountResult> = {},
+  options: HookQueryOptions<CountResult> = {},
 ): UseQueryResult<CountResult, Error> => {
   return useQuery<CountResult, Error>({
     queryKey: ["course-stats", "total-users-completed", courseId],
@@ -51,7 +48,7 @@ export const useTotalUsersCompletedCourseQuery = (
 
 export const useWeeklyUniqueUsersStartingQuery = (
   courseId: string | null,
-  options: QueryOptions<CountResult[]> = {},
+  options: HookQueryOptions<CountResult[]> = {},
 ): UseQueryResult<CountResult[], Error> => {
   return useQuery<CountResult[], Error>({
     queryKey: ["course-stats", "weekly-users-starting", courseId],
@@ -64,7 +61,7 @@ export const useWeeklyUniqueUsersStartingQuery = (
 export const useDailyUniqueUsersStartingQuery = (
   courseId: string | null,
   days: number,
-  options: QueryOptions<CountResult[]> = {},
+  options: HookQueryOptions<CountResult[]> = {},
 ): UseQueryResult<CountResult[], Error> => {
   return useQuery<CountResult[], Error>({
     queryKey: ["course-stats", "daily-users-starting", courseId, days],
@@ -76,7 +73,7 @@ export const useDailyUniqueUsersStartingQuery = (
 
 export const useMonthlyUniqueUsersStartingQuery = (
   courseId: string | null,
-  options: QueryOptions<CountResult[]> = {},
+  options: HookQueryOptions<CountResult[]> = {},
 ): UseQueryResult<CountResult[], Error> => {
   return useQuery<CountResult[], Error>({
     queryKey: ["course-stats", "monthly-users-starting", courseId],
@@ -88,7 +85,7 @@ export const useMonthlyUniqueUsersStartingQuery = (
 
 export const useMonthlyFirstExerciseSubmissionsQuery = (
   courseId: string | null,
-  options: QueryOptions<CountResult[]> = {},
+  options: HookQueryOptions<CountResult[]> = {},
 ): UseQueryResult<CountResult[], Error> => {
   return useQuery<CountResult[], Error>({
     queryKey: ["course-stats", "monthly-first-submissions", courseId],
@@ -101,7 +98,7 @@ export const useMonthlyFirstExerciseSubmissionsQuery = (
 export const useDailyFirstExerciseSubmissionsQuery = (
   courseId: string | null,
   days: number,
-  options: QueryOptions<CountResult[]> = {},
+  options: HookQueryOptions<CountResult[]> = {},
 ): UseQueryResult<CountResult[], Error> => {
   return useQuery<CountResult[], Error>({
     queryKey: ["course-stats", "daily-first-submissions", courseId, days],
@@ -113,7 +110,7 @@ export const useDailyFirstExerciseSubmissionsQuery = (
 
 export const useMonthlyUsersReturningExercisesQuery = (
   courseId: string | null,
-  options: QueryOptions<CountResult[]> = {},
+  options: HookQueryOptions<CountResult[]> = {},
 ): UseQueryResult<CountResult[], Error> => {
   return useQuery<CountResult[], Error>({
     queryKey: ["course-stats", "monthly-returning-exercises", courseId],
@@ -126,7 +123,7 @@ export const useMonthlyUsersReturningExercisesQuery = (
 export const useDailyUsersReturningExercisesQuery = (
   courseId: string | null,
   days: number,
-  options: QueryOptions<CountResult[]> = {},
+  options: HookQueryOptions<CountResult[]> = {},
 ): UseQueryResult<CountResult[], Error> => {
   return useQuery<CountResult[], Error>({
     queryKey: ["course-stats", "daily-returning-exercises", courseId, days],
@@ -138,7 +135,7 @@ export const useDailyUsersReturningExercisesQuery = (
 
 export const useMonthlyCourseCompletionsQuery = (
   courseId: string | null,
-  options: QueryOptions<CountResult[]> = {},
+  options: HookQueryOptions<CountResult[]> = {},
 ): UseQueryResult<CountResult[], Error> => {
   return useQuery<CountResult[], Error>({
     queryKey: ["course-stats", "monthly-completions", courseId],
@@ -151,7 +148,7 @@ export const useMonthlyCourseCompletionsQuery = (
 export const useDailyCourseCompletionsQuery = (
   courseId: string | null,
   days: number,
-  options: QueryOptions<CountResult[]> = {},
+  options: HookQueryOptions<CountResult[]> = {},
 ): UseQueryResult<CountResult[], Error> => {
   return useQuery<CountResult[], Error>({
     queryKey: ["course-stats", "daily-completions", courseId, days],
@@ -163,7 +160,7 @@ export const useDailyCourseCompletionsQuery = (
 
 export const useAvgTimeToFirstSubmissionByMonthQuery = (
   courseId: string | null,
-  options: QueryOptions<AverageMetric[]> = {},
+  options: HookQueryOptions<AverageMetric[]> = {},
 ): UseQueryResult<AverageMetric[], Error> => {
   return useQuery<AverageMetric[], Error>({
     queryKey: ["course-stats", "avg-time-to-first-submission", courseId],
@@ -176,7 +173,7 @@ export const useAvgTimeToFirstSubmissionByMonthQuery = (
 export const useCohortWeeklyActivityQuery = (
   courseId: string | null,
   months: number,
-  options: QueryOptions<CohortActivity[]> = {},
+  options: HookQueryOptions<CohortActivity[]> = {},
 ): UseQueryResult<CohortActivity[], Error> => {
   return useQuery<CohortActivity[], Error>({
     queryKey: ["course-stats", "cohort-weekly-activity", courseId, months],
@@ -189,7 +186,7 @@ export const useCohortWeeklyActivityQuery = (
 export const useCohortDailyActivityQuery = (
   courseId: string | null,
   days: number,
-  options: QueryOptions<CohortActivity[]> = {},
+  options: HookQueryOptions<CohortActivity[]> = {},
 ): UseQueryResult<CohortActivity[], Error> => {
   return useQuery<CohortActivity[], Error>({
     queryKey: ["course-stats", "cohort-daily-activity", courseId, days],

@@ -382,7 +382,7 @@ export interface CourseModuleCompletion {
   passed: boolean
   prerequisite_modules_completed: boolean
   completion_granter_user_id: string | null
-  needs_to_be_reviewed: boolean | null
+  needs_to_be_reviewed: boolean
 }
 
 export interface CourseModuleCompletionWithRegistrationInfo {
@@ -1096,9 +1096,12 @@ export interface GlobalStatEntry {
   course_id: string
   organization_id: string
   organization_name: string
-  year: string
+  year: number
+  month: number | null
   value: number
 }
+
+export type TimeGranularity = "Year" | "Month"
 
 export interface AnswerRequiringAttentionWithTasks {
   id: string

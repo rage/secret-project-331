@@ -67,8 +67,8 @@ pub enum TimeGranularity {
 impl std::fmt::Display for TimeGranularity {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            TimeGranularity::Year => write!(f, "year"),
-            TimeGranularity::Month => write!(f, "month"),
+            TimeGranularity::Year => write!(f, "Year"),
+            TimeGranularity::Month => write!(f, "Month"),
         }
     }
 }
@@ -171,6 +171,7 @@ pub async fn get_number_of_people_done_at_least_one_exercise(
     conn: &mut PgConnection,
     granularity: TimeGranularity,
 ) -> ModelResult<Vec<GlobalStatEntry>> {
+    dbg!(&granularity);
     let res = sqlx::query_as!(
         GlobalStatEntry,
         r#"
@@ -195,6 +196,7 @@ ORDER BY c.id, "year!", "month"
     )
     .fetch_all(conn)
     .await?;
+    dbg!(&res);
     Ok(res)
 }
 

@@ -1,6 +1,7 @@
 pub mod content_management;
 pub mod copying;
 pub mod course_instances;
+pub mod course_stats;
 pub mod custom_view_exercises;
 pub mod global_stats;
 pub mod grading;

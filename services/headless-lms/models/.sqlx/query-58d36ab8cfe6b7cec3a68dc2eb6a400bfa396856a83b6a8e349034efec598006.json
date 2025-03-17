@@ -1,0 +1,48 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT c.name AS course_name,\n  EXTRACT('year' FROM cms.completion_date)::int as \"year!\",\n  CASE WHEN $1 = 'Month' THEN EXTRACT('month' FROM cms.completion_date)::int ELSE NULL END as \"month\",\n  COUNT(DISTINCT cmcrtsr.user_id) as \"value!\",\n  c.id as \"course_id!\",\n  o.id as \"organization_id\",\n  o.name as \"organization_name\"\nFROM course_module_completion_registered_to_study_registries cmcrtsr\nJOIN course_module_completions cms ON cmcrtsr.course_module_completion_id = cms.id\nJOIN courses c ON cmcrtsr.course_id = c.id\nJOIN organizations o ON c.organization_id = o.id\nWHERE cmcrtsr.deleted_at IS NULL\n  AND c.is_draft = FALSE\n  AND c.deleted_at IS NULL\n  AND c.is_test_mode = FALSE\nGROUP BY c.name, c.id, o.id, o.name, \"year!\", \"month\"\nORDER BY c.id, \"year!\", \"month\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 1,
+        "name": "year!",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "month",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "value!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "organization_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "organization_name",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": ["Text"]
+    },
+    "nullable": [false, null, null, null, false, false, false]
+  },
+  "hash": "58d36ab8cfe6b7cec3a68dc2eb6a400bfa396856a83b6a8e349034efec598006"
+}

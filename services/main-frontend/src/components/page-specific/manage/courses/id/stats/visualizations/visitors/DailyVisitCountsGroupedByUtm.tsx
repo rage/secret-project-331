@@ -9,7 +9,6 @@ import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
-
 import { PageVisitDatumSummaryByCourse } from "@/shared-module/common/bindings"
 import Accordion from "@/shared-module/common/components/Accordion"
 import DebugModal from "@/shared-module/common/components/DebugModal"

@@ -3,10 +3,9 @@ import { max } from "lodash"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
-
 import Echarts from "../../Echarts"
 
+import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"

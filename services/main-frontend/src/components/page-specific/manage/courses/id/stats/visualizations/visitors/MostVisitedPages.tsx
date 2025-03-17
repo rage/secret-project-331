@@ -2,11 +2,10 @@ import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React, { useMemo } from "react"
 
-import { useCourseStructure } from "@/hooks/useCourseStructure"
-import { fetchCoursePageVisitDatumSummaryByPages } from "@/services/backend/courses"
-
 import Echarts from "../../Echarts"
 
+import { useCourseStructure } from "@/hooks/useCourseStructure"
+import { fetchCoursePageVisitDatumSummaryByPages } from "@/services/backend/courses"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"

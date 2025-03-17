@@ -1,10 +1,9 @@
 import { css } from "@emotion/css"
 import React, { useMemo } from "react"
 
-import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
-
 import Echarts from "../../Echarts"
 
+import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"

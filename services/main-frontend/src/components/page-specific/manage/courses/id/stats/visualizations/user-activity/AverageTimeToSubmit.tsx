@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ChartWithHeader, { MONTHLY_DATE_FORMAT, MONTHLY_PERIOD, Period } from "../../ChartWithHeader"
+import LineChart, { MONTHLY_DATE_FORMAT, MONTHLY_PERIOD, Period } from "../../LineChart"
 
 import { useAvgTimeToFirstSubmissionByMonthQuery } from "@/hooks/stats"
 import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
@@ -20,7 +20,7 @@ const AverageTimeToSubmit: React.FC<React.PropsWithChildren<AverageTimeToSubmitP
   const { data, isLoading, error } = useAvgTimeToFirstSubmissionByMonthQuery(courseId)
 
   return (
-    <ChartWithHeader
+    <LineChart
       data={data}
       isLoading={isLoading}
       error={error}

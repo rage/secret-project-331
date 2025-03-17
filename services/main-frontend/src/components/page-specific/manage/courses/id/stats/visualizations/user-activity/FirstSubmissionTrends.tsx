@@ -1,13 +1,13 @@
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ChartWithHeader, {
+import LineChart, {
   DAILY_DATE_FORMAT,
   DAILY_PERIOD,
   MONTHLY_DATE_FORMAT,
   MONTHLY_PERIOD,
   Period,
-} from "../../ChartWithHeader"
+} from "../../LineChart"
 
 import {
   useDailyFirstExerciseSubmissionsQuery,
@@ -49,7 +49,7 @@ const FirstSubmissionTrends: React.FC<React.PropsWithChildren<FirstSubmissionTre
   const data = period === MONTHLY_PERIOD ? monthlyData : dailyData
 
   return (
-    <ChartWithHeader
+    <LineChart
       data={data}
       isLoading={isLoading}
       error={error}

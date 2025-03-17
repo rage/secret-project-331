@@ -1,15 +1,12 @@
+import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ChartWithHeader, {
-  DAILY_DATE_FORMAT,
-  DAILY_PERIOD,
-  MONTHLY_DATE_FORMAT,
-  MONTHLY_PERIOD,
-  Period,
-} from "../../ChartWithHeader"
+import CohortAnalysisChart from "../../CohortAnalysisChart"
+import { DAILY_PERIOD, MONTHLY_PERIOD, Period } from "../../LineChart"
 
 import { useCohortDailyActivityQuery, useCohortWeeklyActivityQuery } from "@/hooks/stats"
+import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -43,7 +40,6 @@ const CohortProgress: React.FC<React.PropsWithChildren<CohortProgressProps>> = (
   const isLoading = period === MONTHLY_PERIOD ? weeklyLoading : dailyLoading
   const error = period === MONTHLY_PERIOD ? weeklyError : dailyError
   const data = period === MONTHLY_PERIOD ? weeklyData : dailyData
-  const dateFormat = period === MONTHLY_PERIOD ? MONTHLY_DATE_FORMAT : DAILY_DATE_FORMAT
 
   const statHeading =
     period === MONTHLY_PERIOD
@@ -56,18 +52,47 @@ const CohortProgress: React.FC<React.PropsWithChildren<CohortProgressProps>> = (
       : t("stats-instruction-daily-cohort-progress")
 
   return (
-    <ChartWithHeader
-      data={data}
-      isLoading={isLoading}
-      error={error}
-      period={period}
-      setPeriod={setPeriod}
-      yAxisName={t("cohort-progress")}
-      tooltipValueLabel={t("cohort-progress")}
-      dateFormat={dateFormat}
-      statHeading={statHeading}
-      instructionText={instructionText}
-    />
+    <>
+      <div
+        className={css`
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 0.5rem;
+        `}
+      >
+        <div
+          className={css`
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+          `}
+        >
+          <h2>{statHeading}</h2>
+        </div>
+        <SelectMenu
+          id="period-select"
+          options={[
+            { value: MONTHLY_PERIOD, label: t("stats-period-monthly") },
+            { value: DAILY_PERIOD, label: t("stats-period-daily") },
+          ]}
+          value={period}
+          onChange={(e) => setPeriod(e.target.value as Period)}
+          className={css`
+            margin-bottom: 0;
+            min-width: 120px;
+          `}
+          showDefaultOption={false}
+        />
+      </div>
+      <CohortAnalysisChart
+        data={data}
+        isLoading={isLoading}
+        error={error}
+        statHeading={statHeading}
+        instructionText={instructionText}
+      />
+    </>
   )
 }
 

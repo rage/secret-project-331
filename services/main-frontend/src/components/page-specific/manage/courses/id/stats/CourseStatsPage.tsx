@@ -15,10 +15,8 @@ import CohortProgress from "./visualizations/user-activity/CohortProgress"
 import CourseSubmissionsByDay from "./visualizations/user-activity/CourseSubmissionsByDay"
 import CourseSubmissionsByWeekdayAndHour from "./visualizations/user-activity/CourseSubmissionsByWeekdayAndHour"
 import CourseUsersWithSubmissionsByDay from "./visualizations/user-activity/CourseUsersWithSubmissionsByDay"
-import DailyCohortProgress from "./visualizations/user-activity/DailyCohortProgress"
 import FirstSubmissionTrends from "./visualizations/user-activity/FirstSubmissionTrends"
 import MonthlyReturningUsers from "./visualizations/user-activity/MonthlyReturningUsers"
-import WeeklyCohortProgress from "./visualizations/user-activity/WeeklyCohortProgress"
 import CourseVisitorsByCountry from "./visualizations/visitors/CourseVisitorsByCountry"
 import CourseVisitorsByDay from "./visualizations/visitors/CourseVisitorsByDay"
 import DailyVisitCountsGroupedByReferrer from "./visualizations/visitors/DailyVisitCountsGroupedByReferrer"
@@ -108,8 +106,8 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
         {activeTab === TAB_OVERVIEW && (
           <>
             <TotalStats courseId={courseId} />
-            <CompletionsChart courseId={courseId} />
             <StudentsStartingTheCourseChart courseId={courseId} />
+            <CompletionsChart courseId={courseId} />
             <CourseUsersCountsByExercise courseId={courseId} />
           </>
         )}

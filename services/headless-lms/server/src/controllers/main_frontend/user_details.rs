@@ -94,6 +94,27 @@ pub async fn search_users_fuzzy_match(
     token.authorized_ok(web::Json(res))
 }
 
+/**
+GET `/api/v0/main-frontend/user-details/get-users-by-course-id` - Get user details of users that are in the course
+*/
+pub async fn get_users_by_course_id(
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Vec<UserDetail>>> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize(
+        &mut conn,
+        Act::ViewUserProgressOrDetails,
+        Some(user.id),
+        Res::GlobalPermissions,
+    )
+    .await?;
+    let res = models::user_details::get_users_by_course_id(&mut conn, *course_id).await?;
+    token.authorized_ok(web::Json(res))
+}
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/search-by-email", web::post().to(search_users_by_email))
         .route(
@@ -104,5 +125,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/search-fuzzy-match",
             web::post().to(search_users_fuzzy_match),
         )
-        .route("/{user_id}", web::get().to(get_user_details));
+        .route("/{user_id}", web::get().to(get_user_details))
+        .route(
+            "/{course_id}/get-users-by-course-id",
+            web::get().to(get_users_by_course_id),
+        );
 }

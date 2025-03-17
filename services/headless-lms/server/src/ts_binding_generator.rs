@@ -137,6 +137,7 @@ fn models(target: &mut File) {
         exercises::ExerciseStatus,
         exercises::ExerciseStatusSummaryForUser,
         exercises::GradingProgress,
+        exercises::ExerciseResetLog,
 
         feedback::Feedback,
         feedback::FeedbackBlock,

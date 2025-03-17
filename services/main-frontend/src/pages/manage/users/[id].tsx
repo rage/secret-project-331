@@ -6,7 +6,9 @@ import { useTranslation } from "react-i18next"
 import CourseInstanceEnrollmentsList from "../../../components/page-specific/manage/user/id/CourseInstanceEnrollmentsList"
 import { getUserDetails } from "../../../services/backend/user-details"
 
+import ExerciseResetLogList from "@/components/page-specific/manage/user/id/ExerciseResetLogList"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import dontRenderUntilQueryParametersReady, {
@@ -57,6 +59,16 @@ const UserPage: React.FC<React.PropsWithChildren<UserPageProps>> = ({ query }) =
         <h2>{t("header-course-instance-enrollments")}</h2>
         <CourseInstanceEnrollmentsList userId={query.id} />
       </Area>
+      <OnlyRenderIfPermissions
+        // What are the corrrect action and resource to put here?
+        action={{ type: "edit_role", variant: "Admin" }}
+        resource={{ type: "global_permissions" }}
+      >
+        <Area>
+          <h2>{t("label-exercise-reset-log")}</h2>
+          <ExerciseResetLogList userId={query.id} />
+        </Area>
+      </OnlyRenderIfPermissions>
     </>
   )
 }

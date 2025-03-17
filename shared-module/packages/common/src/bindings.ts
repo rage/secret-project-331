@@ -944,6 +944,18 @@ export interface ExerciseStatusSummaryForUser {
 
 export type GradingProgress = "Failed" | "NotReady" | "PendingManual" | "Pending" | "FullyGraded"
 
+export interface ExerciseResetLog {
+  id: string
+  reset_by: string
+  reset_for: string
+  exercise_id: string
+  course_id: string
+  reset_at: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+}
+
 export interface Feedback {
   id: string
   user_id: string | null

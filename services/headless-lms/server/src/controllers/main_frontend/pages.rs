@@ -204,6 +204,24 @@ async fn update_page_details(
 }
 
 /**
+GET `/api/v0/main-frontend/pages/:course_id/all-course-pages-for-course` - Get all pages of a course
+*/
+async fn get_all_pages_by_course_id(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<Page>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*course_id)).await?;
+
+    let mut pages = models::pages::get_pages_by_course_id(&mut conn, *course_id).await?;
+
+    pages.sort_by(|a, b| a.order_number.cmp(&b.order_number));
+
+    token.authorized_ok(web::Json(pages))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -220,5 +238,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route("/{page_id}/history", web::get().to(history))
         .route("/{page_id}/history_count", web::get().to(history_count))
-        .route("/{history_id}/restore", web::post().to(restore));
+        .route("/{history_id}/restore", web::post().to(restore))
+        .route(
+            "/{course_id}/all-course-pages-for-course",
+            web::get().to(get_all_pages_by_course_id),
+        );
 }

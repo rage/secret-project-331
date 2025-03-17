@@ -40,7 +40,6 @@ const CourseInstanceExerciseStatusList: React.FC<
   React.PropsWithChildren<CourseInstancePointsListProps>
 > = ({ query }) => {
   const { t } = useTranslation()
-
   const exerciseStatusSummariesQuery = useQuery({
     queryKey: [`${query.id}-status-for-all-exercises-${query.user_id}`],
     queryFn: () => getAllExerciseStatusSummariesForUserAndCourseInstance(query.id, query.user_id),
@@ -50,6 +49,7 @@ const CourseInstanceExerciseStatusList: React.FC<
     queryFn: () => getAllCourseModuleCompletionsForUserAndCourseInstance(query.id, query.user_id),
   })
   const courseId = getCourseId(exerciseStatusSummariesQuery.data)
+  const userId = query.user_id
   const courseStructure = useCourseStructure(courseId)
   const courseInstanceProgresses = useQuery({
     queryKey: [`course-instance-${query.id}-progress-${query.user_id}`],
@@ -222,7 +222,7 @@ const CourseInstanceExerciseStatusList: React.FC<
       <Section>
         <h2
           className={css`
-            margin-bottom: -2rem;
+            margin-bottom: 0rem;
           `}
         >
           {t("link-exercises")}
@@ -527,6 +527,9 @@ const CourseInstanceExerciseStatusList: React.FC<
                 </div>
               )
             })}
+          <a href={`/manage/courses/${courseId}/other/exercise-reset-tool?user_id=${userId}`}>
+            {t("title-reset-exercises")}
+          </a>
         </div>
       </Section>
     </>

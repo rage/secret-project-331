@@ -5,6 +5,7 @@ import {
   DomainCompletionStats,
   GlobalCourseModuleStatEntry,
   GlobalStatEntry,
+  TimeGranularity,
 } from "@/shared-module/common/bindings"
 import {
   isCourseCompletionStats,
@@ -14,37 +15,62 @@ import {
 } from "@/shared-module/common/bindings.guard"
 import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
 
-export const getNumberOfPeopleCompletedACourse = async (): Promise<GlobalStatEntry[]> => {
-  const response = await mainFrontendClient.get(`/global-stats/number-of-people-completed-a-course`)
-  return validateResponse(response, isArray(isGlobalStatEntry))
-}
+export const getNumberOfPeopleCompletedACourse = async (
+  granularity: TimeGranularity,
+): Promise<GlobalStatEntry[]> => {
+  const params = new URLSearchParams()
+  params.append("granularity", granularity)
 
-export const getNumberOfPeopleRegisteredCompletionToStudyRegistry = async (): Promise<
-  GlobalStatEntry[]
-> => {
   const response = await mainFrontendClient.get(
-    `/global-stats/number-of-people-registered-completion-to-study-registry`,
+    `/global-stats/number-of-people-completed-a-course?${params}`,
   )
   return validateResponse(response, isArray(isGlobalStatEntry))
 }
 
-export const getNumberOfPeopleDoneAtLeastOneExercise = async (): Promise<GlobalStatEntry[]> => {
+export const getNumberOfPeopleRegisteredCompletionToStudyRegistry = async (
+  granularity: TimeGranularity,
+): Promise<GlobalStatEntry[]> => {
+  const params = new URLSearchParams()
+  params.append("granularity", granularity)
+
   const response = await mainFrontendClient.get(
-    `/global-stats/number-of-people-done-at-least-one-exercise`,
+    `/global-stats/number-of-people-registered-completion-to-study-registry?${params}`,
   )
   return validateResponse(response, isArray(isGlobalStatEntry))
 }
 
-export const getnumberOfPeopleStartedCourse = async (): Promise<GlobalStatEntry[]> => {
-  const response = await mainFrontendClient.get(`/global-stats/number-of-people-started-course`)
+export const getNumberOfPeopleDoneAtLeastOneExercise = async (
+  granularity: TimeGranularity,
+): Promise<GlobalStatEntry[]> => {
+  const params = new URLSearchParams()
+  params.append("granularity", granularity)
+
+  const response = await mainFrontendClient.get(
+    `/global-stats/number-of-people-done-at-least-one-exercise?${params}`,
+  )
   return validateResponse(response, isArray(isGlobalStatEntry))
 }
 
-export const getCourseModuleStatsByCompletionsRegisteredToStudyRegistry = async (): Promise<
-  GlobalCourseModuleStatEntry[]
-> => {
+export const getnumberOfPeopleStartedCourse = async (
+  granularity: TimeGranularity,
+): Promise<GlobalStatEntry[]> => {
+  const params = new URLSearchParams()
+  params.append("granularity", granularity)
+
   const response = await mainFrontendClient.get(
-    `/global-stats/course-module-stats-by-completions-registered-to-study-registry`,
+    `/global-stats/number-of-people-started-course?${params}`,
+  )
+  return validateResponse(response, isArray(isGlobalStatEntry))
+}
+
+export const getCourseModuleStatsByCompletionsRegisteredToStudyRegistry = async (
+  granularity: TimeGranularity,
+): Promise<GlobalCourseModuleStatEntry[]> => {
+  const params = new URLSearchParams()
+  params.append("granularity", granularity)
+
+  const response = await mainFrontendClient.get(
+    `/global-stats/course-module-stats-by-completions-registered-to-study-registry?${params}`,
   )
   return validateResponse(response, isArray(isGlobalCourseModuleStatEntry))
 }

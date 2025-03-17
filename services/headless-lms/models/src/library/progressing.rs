@@ -846,7 +846,7 @@ pub async fn get_user_module_completion_statuses_for_course_instance(
                 certification_enabled: module.certification_enabled,
                 certificate_configuration_id,
                 needs_to_be_reviewed: completion
-                    .is_some_and(|x| x.needs_to_be_reviewed.unwrap_or(false))
+                    .is_some_and(|x| x.needs_to_be_reviewed)
             }
         })
         .collect();

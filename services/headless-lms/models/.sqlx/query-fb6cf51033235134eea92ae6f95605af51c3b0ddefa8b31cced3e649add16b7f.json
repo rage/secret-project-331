@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DATE_TRUNC('month', first_submission) AS \"period\",\nCOUNT(user_id) AS \"count!\"\nFROM (\n    SELECT user_id,\n      MIN(created_at) AS first_submission\n    FROM exercise_slide_submissions\n    WHERE course_id = $1\n      AND deleted_at IS NULL\n    GROUP BY user_id\n  ) AS first_submissions\nGROUP BY \"period\"\nORDER BY \"period\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "period",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 1,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [null, null]
+  },
+  "hash": "fb6cf51033235134eea92ae6f95605af51c3b0ddefa8b31cced3e649add16b7f"
+}

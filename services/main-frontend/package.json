@@ -22,6 +22,7 @@
     "@fontsource/raleway": "^5.1.1",
     "@fontsource/roboto-mono": "^5.1.1",
     "@fontsource/space-mono": "^5.1.2",
+    "@json2csv/plainjs": "^7.0.6",
     "@monaco-editor/react": "^4.7.0",
     "@next/bundle-analyzer": "^15.1.7",
     "@popperjs/core": "^2.11.8",

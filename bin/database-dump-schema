@@ -2,4 +2,5 @@
 set -euo pipefail
 source "$(dirname "$0")/.common"
 
-run_command pg_dump --schema-only postgres://headless-lms@localhost:54328/headless_lms_dev "$@"
+echo -e "${CURSIVE}> pg_dump --schema-only postgres://headless-lms@localhost:54328/headless_lms_dev | grep -v '^--' | grep -v '^$'${RESET_EVERYTHING}"
+pg_dump --schema-only postgres://headless-lms@localhost:54328/headless_lms_dev "$@" | grep -v '^--' | grep -v '^$'

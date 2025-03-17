@@ -52,7 +52,9 @@ const SubmissionsPage: React.FC<SubmissionPageProps> = ({ query }) => {
   const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(exerciseQuery.data?.course_id ?? null)
 
   const exerciseContext = useMemo(() => {
-    if (!courseStructure.data || !exerciseQuery.data) return null
+    if (!courseStructure.data || !exerciseQuery.data) {
+      return null
+    }
 
     const pageId = exerciseQuery.data.page_id
     const chapterId = exerciseQuery.data.chapter_id

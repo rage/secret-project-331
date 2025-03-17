@@ -58,3 +58,19 @@ export const dateToUsersLocalTimeZone = (date: Date | string | null | undefined)
   const timeZone = getLocalTimeZone()
   return toZonedTime(date, timeZone)
 }
+
+/**
+ * Gets the localized month name for a given month number (1-12)
+ * @param month - Month number (1-12)
+ * @param locale - Locale string (e.g. 'en', 'fi')
+ * @returns Localized month name, falls back to English if locale not supported
+ */
+export const getLocalizedMonthName = (month: string | number, locale: string): string => {
+  const date = new Date(2024, Number(month) - 1, 1)
+  try {
+    return new Intl.DateTimeFormat(locale, { month: "long" }).format(date)
+  } catch {
+    // Fallback to English if locale not supported
+    return new Intl.DateTimeFormat("en", { month: "long" }).format(date)
+  }
+}

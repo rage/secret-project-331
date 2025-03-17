@@ -6,10 +6,12 @@ import { useTranslation } from "react-i18next"
 
 import { InstructionBox, StatHeading } from "./CourseStatsPage"
 import Echarts from "./Echarts"
+import { DAILY_PERIOD, MONTHLY_PERIOD, Period } from "./LineChart"
 
 import { CohortActivity } from "@/shared-module/common/bindings"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 
@@ -19,6 +21,9 @@ interface CohortAnalysisChartProps {
   error: Error | undefined | null
   statHeading: string
   instructionText: string
+  period?: Period
+  setPeriod?: React.Dispatch<React.SetStateAction<Period>>
+  disablePeriodSelector?: boolean
 }
 
 const CHART_POSITION = "top" as const
@@ -33,6 +38,9 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
   error,
   statHeading,
   instructionText,
+  period,
+  setPeriod,
+  disablePeriodSelector = false,
 }) => {
   const { t } = useTranslation()
 
@@ -167,6 +175,22 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
             `}
           />
         </div>
+        {!disablePeriodSelector && period && setPeriod && (
+          <SelectMenu
+            id="period-select"
+            options={[
+              { value: MONTHLY_PERIOD, label: t("stats-period-monthly") },
+              { value: DAILY_PERIOD, label: t("stats-period-daily") },
+            ]}
+            value={period}
+            onChange={(e) => setPeriod(e.target.value as Period)}
+            className={css`
+              margin-bottom: 0;
+              min-width: 120px;
+            `}
+            showDefaultOption={false}
+          />
+        )}
       </div>
       <InstructionBox>{instructionText}</InstructionBox>
       {!data || data.length === 0 ? (

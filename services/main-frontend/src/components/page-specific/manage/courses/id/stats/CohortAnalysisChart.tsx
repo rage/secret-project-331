@@ -4,12 +4,12 @@ import type { EChartsOption } from "echarts/types/src/export/option"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { InstructionBox, StatHeading } from "./CourseStatsPage"
+import { InstructionBox } from "./CourseStatsPage"
 import Echarts from "./Echarts"
 import { DAILY_PERIOD, MONTHLY_PERIOD, Period } from "./LineChart"
+import StatsHeader from "./StatsHeader"
 
 import { CohortActivity } from "@/shared-module/common/bindings"
-import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -150,31 +150,7 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
 
   return (
     <>
-      <div
-        className={css`
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 0.5rem;
-        `}
-      >
-        <div
-          className={css`
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-          `}
-        >
-          <StatHeading>{statHeading}</StatHeading>
-          <DebugModal
-            variant="minimal"
-            data={data}
-            buttonWrapperStyles={css`
-              display: flex;
-              align-items: center;
-            `}
-          />
-        </div>
+      <StatsHeader heading={statHeading} debugData={data}>
         {!disablePeriodSelector && period && setPeriod && (
           <SelectMenu
             id="period-select"
@@ -191,7 +167,7 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
             showDefaultOption={false}
           />
         )}
-      </div>
+      </StatsHeader>
       <InstructionBox>{instructionText}</InstructionBox>
       {!data || data.length === 0 ? (
         <div>{t("no-data")}</div>

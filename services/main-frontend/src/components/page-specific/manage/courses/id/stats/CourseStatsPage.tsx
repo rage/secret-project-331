@@ -19,6 +19,7 @@ import FirstSubmissionTrends from "./visualizations/user-activity/FirstSubmissio
 import MonthlyUsersReturningExercises from "./visualizations/user-activity/MonthlyUsersReturningExercises"
 import CourseVisitorsByCountry from "./visualizations/visitors/CourseVisitorsByCountry"
 import CourseVisitorsByDay from "./visualizations/visitors/CourseVisitorsByDay"
+import CourseVisitorsLineChart from "./visualizations/visitors/CourseVisitorsLineChart"
 import DailyVisitCountsGroupedByReferrer from "./visualizations/visitors/DailyVisitCountsGroupedByReferrer"
 import DailyVisitCountsGroupedByUtm from "./visualizations/visitors/DailyVisitCountsGroupedByUtm"
 import DeviceTypes from "./visualizations/visitors/DeviceTypes"
@@ -32,13 +33,9 @@ import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabL
 import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/TabLinkPanel"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 
-export const StatHeading = styled.h2`
-  font-size: 1.8rem;
-  color: ${baseTheme.colors.gray[600]};
-  font-family: ${headingFont};
-  margin-bottom: 1rem;
-  margin-top: 1rem;
-`
+const TAB_OVERVIEW = "overview"
+const TAB_USER_ACTIVITY = "user-activity"
+const TAB_VISITORS = "visitors"
 
 export const InstructionBox = styled.div`
   background-color: ${baseTheme.colors.clear[100]};
@@ -50,10 +47,6 @@ export const InstructionBox = styled.div`
   font-size: 0.9rem;
   line-height: 1.5;
 `
-
-const TAB_OVERVIEW = "overview"
-const TAB_USER_ACTIVITY = "user-activity"
-const TAB_VISITORS = "visitors"
 
 const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,
@@ -126,36 +119,14 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
 
         {activeTab === TAB_VISITORS && (
           <>
-            <StatHeading>{t("stats-heading-visitor-metrics")}</StatHeading>
-            <InstructionBox>{t("stats-instruction-visitor-metrics")}</InstructionBox>
+            <CourseVisitorsLineChart courseId={courseId} />
             <CourseVisitorsByDay courseId={courseId} />
-
-            <StatHeading>{t("stats-heading-geographic-distribution")}</StatHeading>
-            <InstructionBox>{t("stats-instruction-geographic-distribution")}</InstructionBox>
             <CourseVisitorsByCountry courseId={courseId} />
-
-            <StatHeading>{t("stats-heading-device-analytics")}</StatHeading>
-            <InstructionBox>{t("stats-instruction-device-analytics")}</InstructionBox>
             <DeviceTypes courseId={courseId} />
-
-            <StatHeading>{t("stats-heading-page-popularity")}</StatHeading>
-            <InstructionBox>{t("stats-instruction-page-popularity")}</InstructionBox>
             <MostVisitedPages courseId={courseId} />
-
-            <StatHeading>{t("stats-heading-referrers")}</StatHeading>
-            <InstructionBox>{t("stats-instruction-referrers")}</InstructionBox>
             <TopReferrers courseId={courseId} />
-
-            <StatHeading>{t("header-utm-sources")}</StatHeading>
-            <InstructionBox>{t("stats-instruction-utm-sources")}</InstructionBox>
             <TopUtmSources courseId={courseId} />
-
-            <StatHeading>{t("header-utm-campaigns")}</StatHeading>
-            <InstructionBox>{t("stats-instruction-utm-campaigns")}</InstructionBox>
             <TopUtmCampaigns courseId={courseId} />
-
-            <StatHeading>{t("stats-heading-utm-traffic-details")}</StatHeading>
-            <InstructionBox>{t("stats-instruction-utm-traffic-details")}</InstructionBox>
             <DailyVisitCountsGroupedByUtm courseId={courseId} />
             <DailyVisitCountsGroupedByReferrer courseId={courseId} />
           </>

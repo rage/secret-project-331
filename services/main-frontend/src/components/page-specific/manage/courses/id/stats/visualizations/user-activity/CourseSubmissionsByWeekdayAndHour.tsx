@@ -4,8 +4,9 @@ import { Dictionary, groupBy, max } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { InstructionBox, StatHeading } from "../../CourseStatsPage"
+import { InstructionBox } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
+import StatsHeader from "../../StatsHeader"
 
 import { fetchCourseWeekdayHourSubmissionCounts } from "@/services/backend/courses"
 import { ExerciseSlideSubmissionCountByWeekAndHour } from "@/shared-module/common/bindings"
@@ -93,7 +94,10 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<
 
   return (
     <>
-      <StatHeading>{t("stats-heading-submission-timing")}</StatHeading>
+      <StatsHeader
+        heading={t("stats-heading-submission-timing")}
+        debugData={getCourseWeekdayHourSubmissionCount.data.apiData}
+      />
       <InstructionBox>{t("stats-instruction-submission-timing")}</InstructionBox>
       <div
         className={css`

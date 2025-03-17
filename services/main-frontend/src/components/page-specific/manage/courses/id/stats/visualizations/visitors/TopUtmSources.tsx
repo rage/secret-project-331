@@ -1,7 +1,10 @@
 import { css } from "@emotion/css"
 import React, { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
+import { InstructionBox } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
+import StatsHeader from "../../StatsHeader"
 
 import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -16,6 +19,7 @@ export interface TopUTMSourcesProps {
 }
 
 const TopUTMSources: React.FC<React.PropsWithChildren<TopUTMSourcesProps>> = ({ courseId }) => {
+  const { t } = useTranslation()
   const query = useCoursePageVisitDatumSummary(courseId)
 
   const aggregatedData = useMemo(() => {
@@ -59,52 +63,56 @@ const TopUTMSources: React.FC<React.PropsWithChildren<TopUTMSourcesProps>> = ({ 
   }
 
   return (
-    <div
-      className={css`
-        margin-bottom: 2rem;
-      `}
-    >
+    <>
+      <StatsHeader heading={t("header-utm-sources")} debugData={aggregatedData} />
+      <InstructionBox>{t("stats-instruction-utm-sources")}</InstructionBox>
       <div
         className={css`
-          margin-bottom: 1.5rem;
-          border: 3px solid ${baseTheme.colors.clear[200]};
-          border-radius: 6px;
-          padding: 1rem;
+          margin-bottom: 2rem;
         `}
       >
-        {aggregatedData && (
-          <Echarts
-            height={200 + categories.length * 25}
-            options={{
-              grid: {
-                containLabel: true,
-                left: 0,
-              },
-              yAxis: {
-                type: "category",
-                data: categories,
-              },
-              xAxis: {
-                type: "value",
-              },
-              series: [
-                {
-                  data: values,
-                  type: "bar",
+        <div
+          className={css`
+            margin-bottom: 1.5rem;
+            border: 3px solid ${baseTheme.colors.clear[200]};
+            border-radius: 6px;
+            padding: 1rem;
+          `}
+        >
+          {aggregatedData && (
+            <Echarts
+              height={200 + categories.length * 25}
+              options={{
+                grid: {
+                  containLabel: true,
+                  left: 0,
                 },
-              ],
-              tooltip: {
-                // eslint-disable-next-line i18next/no-literal-string
-                trigger: "item",
-                // eslint-disable-next-line i18next/no-literal-string
-                formatter: "{b}: {c}",
-              },
-            }}
-          />
-        )}
-        <DebugModal data={aggregatedData} />
+                yAxis: {
+                  type: "category",
+                  data: categories,
+                },
+                xAxis: {
+                  type: "value",
+                },
+                series: [
+                  {
+                    data: values,
+                    type: "bar",
+                  },
+                ],
+                tooltip: {
+                  // eslint-disable-next-line i18next/no-literal-string
+                  trigger: "item",
+                  // eslint-disable-next-line i18next/no-literal-string
+                  formatter: "{b}: {c}",
+                },
+              }}
+            />
+          )}
+          <DebugModal data={aggregatedData} />
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 

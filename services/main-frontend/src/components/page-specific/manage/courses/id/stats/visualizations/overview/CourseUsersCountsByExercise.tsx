@@ -4,11 +4,11 @@ import { reverse, sortBy } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { InstructionBox, StatHeading } from "../../CourseStatsPage"
+import { InstructionBox } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
+import StatsHeader from "../../StatsHeader"
 
 import { fetchCourseUsersCountByExercise } from "@/services/backend/courses"
-import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -51,25 +51,10 @@ const CourseUsersCountsByExercise: React.FC<
 
   return (
     <>
-      <div
-        className={css`
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-        `}
-      >
-        <StatHeading>
-          {t("stats-heading-exercise-participation", "Exercise Attempts and Points")}
-        </StatHeading>
-        <DebugModal
-          variant="minimal"
-          data={query.data}
-          buttonWrapperStyles={css`
-            display: flex;
-            align-items: center;
-          `}
-        />
-      </div>
+      <StatsHeader
+        heading={t("stats-heading-exercise-participation", "Exercise Attempts and Points")}
+        debugData={query.data}
+      />
       <InstructionBox>
         {t(
           "stats-instruction-exercise-participation",

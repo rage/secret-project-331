@@ -3,7 +3,9 @@ import { max } from "lodash"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { InstructionBox } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
+import StatsHeader from "../../StatsHeader"
 
 import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -69,55 +71,59 @@ const CourseVisitorsByDay: React.FC<React.PropsWithChildren<CourseVisitorsByDayP
   }
 
   return (
-    <div
-      className={css`
-        margin-bottom: 2rem;
-        border: 3px solid ${baseTheme.colors.clear[200]};
-        border-radius: 6px;
-        padding: 1rem;
-      `}
-    >
-      {data && (
-        <Echarts
-          height={200 * Object.keys(data).length}
-          options={{
-            tooltip: {
-              // eslint-disable-next-line i18next/no-literal-string
-              trigger: "item",
-              // eslint-disable-next-line i18next/no-literal-string
-              formatter: "{b}: {c}",
-            },
-            visualMap: {
-              show: false,
-              min: 0,
-              max: maxValue,
-            },
-            calendar: Object.entries(data).map(([year, _visitCounts], i) => {
-              return {
-                range: year,
+    <>
+      <StatsHeader heading={t("stats-heading-visitor-metrics")} debugData={data} />
+      <InstructionBox>{t("stats-instruction-visitor-metrics")}</InstructionBox>
+      <div
+        className={css`
+          margin-bottom: 2rem;
+          border: 3px solid ${baseTheme.colors.clear[200]};
+          border-radius: 6px;
+          padding: 1rem;
+        `}
+      >
+        {data && (
+          <Echarts
+            height={200 * Object.keys(data).length}
+            options={{
+              tooltip: {
                 // eslint-disable-next-line i18next/no-literal-string
-                cellSize: ["auto", 20],
-                dayLabel: {
-                  firstDay: 1,
-                },
-                top: 190 * i + 40,
-              }
-            }),
-            series: Object.entries(data).map(([_year, visitCounts], i) => {
-              return {
-                type: "heatmap",
+                trigger: "item",
                 // eslint-disable-next-line i18next/no-literal-string
-                coordinateSystem: "calendar",
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                data: (visitCounts as any[]).map((o) => [o.date, o.count]),
-                calendarIndex: i,
-              }
-            }),
-          }}
-        />
-      )}
+                formatter: "{b}: {c}",
+              },
+              visualMap: {
+                show: false,
+                min: 0,
+                max: maxValue,
+              },
+              calendar: Object.entries(data).map(([year, _visitCounts], i) => {
+                return {
+                  range: year,
+                  // eslint-disable-next-line i18next/no-literal-string
+                  cellSize: ["auto", 20],
+                  dayLabel: {
+                    firstDay: 1,
+                  },
+                  top: 190 * i + 40,
+                }
+              }),
+              series: Object.entries(data).map(([_year, visitCounts], i) => {
+                return {
+                  type: "heatmap",
+                  // eslint-disable-next-line i18next/no-literal-string
+                  coordinateSystem: "calendar",
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  data: (visitCounts as any[]).map((o) => [o.date, o.count]),
+                  calendarIndex: i,
+                }
+              }),
+            }}
+          />
+        )}
+      </div>
       <DebugModal data={data} />
-    </div>
+    </>
   )
 }
 

@@ -4,8 +4,9 @@ import { groupBy, max } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { InstructionBox, StatHeading } from "../../CourseStatsPage"
+import { InstructionBox } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
+import StatsHeader from "../../StatsHeader"
 
 import { fetchCourseDailySubmissionCounts } from "@/services/backend/courses"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -51,7 +52,10 @@ const CourseSubmissionsByDay: React.FC<React.PropsWithChildren<CourseSubmissions
 
   return (
     <>
-      <StatHeading>{t("stats-heading-daily-submissions")}</StatHeading>
+      <StatsHeader
+        heading={t("stats-heading-daily-submissions")}
+        debugData={getCourseDailySubmissionCounts.data.apiData}
+      />
       <InstructionBox>{t("stats-instruction-daily-submissions")}</InstructionBox>
       <div
         className={css`

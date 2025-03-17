@@ -3,7 +3,9 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { InstructionBox } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
+import StatsHeader from "../../StatsHeader"
 
 import { fetchCoursePageVisitDatumSummariesByDeviceTypes } from "@/services/backend/courses"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -85,154 +87,161 @@ const DeviceTypes: React.FC<React.PropsWithChildren<DeviceTypesProps>> = ({ cour
   }
 
   return (
-    <div
-      className={css`
-        margin-bottom: 2rem;
-      `}
-    >
+    <>
+      <StatsHeader
+        heading={t("stats-heading-device-analytics")}
+        debugData={aggregatedDataDeviceType}
+      />
+      <InstructionBox>{t("stats-instruction-device-analytics")}</InstructionBox>
       <div
         className={css`
-          margin-bottom: 1.5rem;
-          border: 3px solid ${baseTheme.colors.clear[200]};
-          border-radius: 6px;
-          padding: 1rem;
+          margin-bottom: 2rem;
         `}
       >
         <div
           className={css`
-            display: flex;
-            flex-wrap: wrap;
-            flex-direction: row;
-            justify-content: center;
-            align-content: space-between;
-
-            > div {
-              width: 500px;
-            }
+            margin-bottom: 1.5rem;
+            border: 3px solid ${baseTheme.colors.clear[200]};
+            border-radius: 6px;
+            padding: 1rem;
           `}
         >
-          {aggregatedDataDeviceType && (
-            <div>
-              <Echarts
-                height={500}
-                options={{
-                  tooltip: {
-                    // eslint-disable-next-line i18next/no-literal-string
-                    trigger: "item",
-                    // eslint-disable-next-line i18next/no-literal-string
-                    formatter: "{b}: {c} ({d}%)",
-                  },
-                  title: {
-                    text: t("title-device-type"),
-                    // eslint-disable-next-line i18next/no-literal-string
-                    left: "center",
-                  },
-                  series: [
-                    {
-                      type: "pie",
-                      radius: "50%",
-                      data: Object.entries(aggregatedDataDeviceType).map(
-                        ([deviceType, visitors]) => ({
-                          name: deviceType,
-                          value: visitors,
-                        }),
-                      ),
-                      emphasis: {
-                        itemStyle: {
-                          shadowBlur: 10,
-                          shadowOffsetX: 0,
-                          shadowColor: "rgba(0, 0, 0, 0.5)",
-                        },
-                      },
-                    },
-                  ],
-                }}
-              />
-            </div>
-          )}
+          <div
+            className={css`
+              display: flex;
+              flex-wrap: wrap;
+              flex-direction: row;
+              justify-content: center;
+              align-content: space-between;
 
-          {aggregatedDataOperatingSystem && (
-            <div>
-              <Echarts
-                height={500}
-                options={{
-                  tooltip: {
-                    // eslint-disable-next-line i18next/no-literal-string
-                    trigger: "item",
-                    // eslint-disable-next-line i18next/no-literal-string
-                    formatter: "{b}: {c} ({d}%)",
-                  },
-                  title: {
-                    text: t("title-operating-system"),
-                    // eslint-disable-next-line i18next/no-literal-string
-                    left: "center",
-                  },
-                  series: [
-                    {
-                      type: "pie",
-                      radius: "50%",
-                      data: Object.entries(aggregatedDataOperatingSystem).map(
-                        ([operatingSystem, visitors]) => ({
-                          name: operatingSystem,
-                          value: visitors,
-                        }),
-                      ),
-                      emphasis: {
-                        itemStyle: {
-                          shadowBlur: 10,
-                          shadowOffsetX: 0,
-                          shadowColor: "rgba(0, 0, 0, 0.5)",
+              > div {
+                width: 500px;
+              }
+            `}
+          >
+            {aggregatedDataDeviceType && (
+              <div>
+                <Echarts
+                  height={500}
+                  options={{
+                    tooltip: {
+                      // eslint-disable-next-line i18next/no-literal-string
+                      trigger: "item",
+                      // eslint-disable-next-line i18next/no-literal-string
+                      formatter: "{b}: {c} ({d}%)",
+                    },
+                    title: {
+                      text: t("title-device-type"),
+                      // eslint-disable-next-line i18next/no-literal-string
+                      left: "center",
+                    },
+                    series: [
+                      {
+                        type: "pie",
+                        radius: "50%",
+                        data: Object.entries(aggregatedDataDeviceType).map(
+                          ([deviceType, visitors]) => ({
+                            name: deviceType,
+                            value: visitors,
+                          }),
+                        ),
+                        emphasis: {
+                          itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: "rgba(0, 0, 0, 0.5)",
+                          },
                         },
                       },
-                    },
-                  ],
-                }}
-              />
-            </div>
-          )}
+                    ],
+                  }}
+                />
+              </div>
+            )}
 
-          {aggregatedDataBrowser && (
-            <div>
-              <Echarts
-                height={500}
-                options={{
-                  tooltip: {
-                    // eslint-disable-next-line i18next/no-literal-string
-                    trigger: "item",
-                    // eslint-disable-next-line i18next/no-literal-string
-                    formatter: "{b}: {c} ({d}%)",
-                  },
-                  title: {
-                    text: t("title-browser"),
-                    // eslint-disable-next-line i18next/no-literal-string
-                    left: "center",
-                  },
-                  series: [
-                    {
-                      type: "pie",
-                      radius: "50%",
-                      data: Object.entries(aggregatedDataBrowser).map(([browser, visitors]) => ({
-                        name: browser,
-                        value: visitors,
-                      })),
-                      emphasis: {
-                        itemStyle: {
-                          shadowBlur: 10,
-                          shadowOffsetX: 0,
-                          shadowColor: "rgba(0, 0, 0, 0.5)",
+            {aggregatedDataOperatingSystem && (
+              <div>
+                <Echarts
+                  height={500}
+                  options={{
+                    tooltip: {
+                      // eslint-disable-next-line i18next/no-literal-string
+                      trigger: "item",
+                      // eslint-disable-next-line i18next/no-literal-string
+                      formatter: "{b}: {c} ({d}%)",
+                    },
+                    title: {
+                      text: t("title-operating-system"),
+                      // eslint-disable-next-line i18next/no-literal-string
+                      left: "center",
+                    },
+                    series: [
+                      {
+                        type: "pie",
+                        radius: "50%",
+                        data: Object.entries(aggregatedDataOperatingSystem).map(
+                          ([operatingSystem, visitors]) => ({
+                            name: operatingSystem,
+                            value: visitors,
+                          }),
+                        ),
+                        emphasis: {
+                          itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: "rgba(0, 0, 0, 0.5)",
+                          },
                         },
                       },
+                    ],
+                  }}
+                />
+              </div>
+            )}
+
+            {aggregatedDataBrowser && (
+              <div>
+                <Echarts
+                  height={500}
+                  options={{
+                    tooltip: {
+                      // eslint-disable-next-line i18next/no-literal-string
+                      trigger: "item",
+                      // eslint-disable-next-line i18next/no-literal-string
+                      formatter: "{b}: {c} ({d}%)",
                     },
-                  ],
-                }}
-              />
-            </div>
-          )}
+                    title: {
+                      text: t("title-browser"),
+                      // eslint-disable-next-line i18next/no-literal-string
+                      left: "center",
+                    },
+                    series: [
+                      {
+                        type: "pie",
+                        radius: "50%",
+                        data: Object.entries(aggregatedDataBrowser).map(([browser, visitors]) => ({
+                          name: browser,
+                          value: visitors,
+                        })),
+                        emphasis: {
+                          itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: "rgba(0, 0, 0, 0.5)",
+                          },
+                        },
+                      },
+                    ],
+                  }}
+                />
+              </div>
+            )}
+          </div>
+
+          <DebugModal data={aggregatedDataDeviceType} />
         </div>
-
-        <DebugModal data={aggregatedDataDeviceType} />
       </div>
-    </div>
+    </>
   )
 }
 

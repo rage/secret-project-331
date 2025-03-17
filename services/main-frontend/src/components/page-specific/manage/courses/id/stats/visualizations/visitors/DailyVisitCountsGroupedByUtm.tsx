@@ -8,6 +8,9 @@ import {
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { InstructionBox } from "../../CourseStatsPage"
+import StatsHeader from "../../StatsHeader"
+
 import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
 import { PageVisitDatumSummaryByCourse } from "@/shared-module/common/bindings"
 import Accordion from "@/shared-module/common/components/Accordion"
@@ -91,77 +94,81 @@ const DailyVisitCountsGroupedByUtm: React.FC<
   }
 
   return (
-    <div
-      className={css`
-        margin-bottom: 2rem;
-      `}
-    >
-      <Accordion
-        variant="detail"
+    <>
+      <StatsHeader heading={t("stats-heading-utm-traffic-details")} debugData={aggregatedData} />
+      <InstructionBox>{t("stats-instruction-utm-traffic-details")}</InstructionBox>
+      <div
         className={css`
-          margin-bottom: 0.5rem;
+          margin-bottom: 2rem;
         `}
       >
-        <details>
-          <summary>{t("header-grouped-by-utm-tags")}</summary>
-          <div
-            className={css`
-              table {
-                width: 100%;
-                border-collapse: separate;
-                border-spacing: 0;
-              }
-
-              td {
-                padding: 0.5rem 0.7rem;
-                max-width: 250px;
-                overflow: hidden;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-                border: 1px solid ${baseTheme.colors.clear[300]};
-              }
-              thead {
-                th {
-                  text-align: left;
-                  padding-left: 0.5rem;
-                  font-weight: 600;
-                  font-size: 14px;
-                  line-height: 16px;
-                  color: ${baseTheme.colors.gray[500]};
+        <Accordion
+          variant="detail"
+          className={css`
+            margin-bottom: 0.5rem;
+          `}
+        >
+          <details>
+            <summary>{t("header-grouped-by-utm-tags")}</summary>
+            <div
+              className={css`
+                table {
+                  width: 100%;
+                  border-collapse: separate;
+                  border-spacing: 0;
                 }
-              }
-            `}
-          >
-            <table>
-              <thead>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <tr key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => (
-                      <th key={header.id}>
-                        {!header.isPlaceholder &&
-                          flexRender(header.column.columnDef.header, header.getContext())}
-                      </th>
-                    ))}
-                  </tr>
-                ))}
-              </thead>
-              <tbody>
-                {table.getRowModel().rows.map((row) => (
-                  <tr key={row.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </details>
-      </Accordion>
+
+                td {
+                  padding: 0.5rem 0.7rem;
+                  max-width: 250px;
+                  overflow: hidden;
+                  white-space: nowrap;
+                  text-overflow: ellipsis;
+                  border: 1px solid ${baseTheme.colors.clear[300]};
+                }
+                thead {
+                  th {
+                    text-align: left;
+                    padding-left: 0.5rem;
+                    font-weight: 600;
+                    font-size: 14px;
+                    line-height: 16px;
+                    color: ${baseTheme.colors.gray[500]};
+                  }
+                }
+              `}
+            >
+              <table>
+                <thead>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <tr key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => (
+                        <th key={header.id}>
+                          {!header.isPlaceholder &&
+                            flexRender(header.column.columnDef.header, header.getContext())}
+                        </th>
+                      ))}
+                    </tr>
+                  ))}
+                </thead>
+                <tbody>
+                  {table.getRowModel().rows.map((row) => (
+                    <tr key={row.id}>
+                      {row.getVisibleCells().map((cell) => (
+                        <td key={cell.id}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </details>
+        </Accordion>
+      </div>
       <DebugModal data={aggregatedData} />
-    </div>
+    </>
   )
 }
 

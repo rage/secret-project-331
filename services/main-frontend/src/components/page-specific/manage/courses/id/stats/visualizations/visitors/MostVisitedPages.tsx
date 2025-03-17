@@ -1,8 +1,11 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React, { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
+import { InstructionBox } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
+import StatsHeader from "../../StatsHeader"
 
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import { fetchCoursePageVisitDatumSummaryByPages } from "@/services/backend/courses"
@@ -20,6 +23,7 @@ export interface CourseVisitorsByCountryProps {
 const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsByCountryProps>> = ({
   courseId,
 }) => {
+  const { t } = useTranslation()
   const query = useQuery({
     queryKey: [`course-page-visit-datum-summary-by-pages-${courseId}`],
     queryFn: () => fetchCoursePageVisitDatumSummaryByPages(courseId),
@@ -76,52 +80,56 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
   }
 
   return (
-    <div
-      className={css`
-        margin-bottom: 2rem;
-      `}
-    >
+    <>
+      <StatsHeader heading={t("stats-heading-page-popularity")} debugData={aggregatedData} />
+      <InstructionBox>{t("stats-instruction-page-popularity")}</InstructionBox>
       <div
         className={css`
-          margin-bottom: 1.5rem;
-          border: 3px solid ${baseTheme.colors.clear[200]};
-          border-radius: 6px;
-          padding: 1rem;
+          margin-bottom: 2rem;
         `}
       >
-        {aggregatedData && (
-          <Echarts
-            height={200 + categories.length * 25}
-            options={{
-              grid: {
-                containLabel: true,
-                left: 0,
-              },
-              yAxis: {
-                type: "category",
-                data: categories,
-              },
-              xAxis: {
-                type: "value",
-              },
-              series: [
-                {
-                  data: values,
-                  type: "bar",
+        <div
+          className={css`
+            margin-bottom: 1.5rem;
+            border: 3px solid ${baseTheme.colors.clear[200]};
+            border-radius: 6px;
+            padding: 1rem;
+          `}
+        >
+          {aggregatedData && (
+            <Echarts
+              height={200 + categories.length * 25}
+              options={{
+                grid: {
+                  containLabel: true,
+                  left: 0,
                 },
-              ],
-              tooltip: {
-                // eslint-disable-next-line i18next/no-literal-string
-                trigger: "item",
-                // eslint-disable-next-line i18next/no-literal-string
-                formatter: "{b}: {c}",
-              },
-            }}
-          />
-        )}
-        <DebugModal data={aggregatedData} />
+                yAxis: {
+                  type: "category",
+                  data: categories,
+                },
+                xAxis: {
+                  type: "value",
+                },
+                series: [
+                  {
+                    data: values,
+                    type: "bar",
+                  },
+                ],
+                tooltip: {
+                  // eslint-disable-next-line i18next/no-literal-string
+                  trigger: "item",
+                  // eslint-disable-next-line i18next/no-literal-string
+                  formatter: "{b}: {c}",
+                },
+              }}
+            />
+          )}
+          <DebugModal data={aggregatedData} />
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 

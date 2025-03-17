@@ -36,7 +36,7 @@ const PeerOrSelfReviewSubmissionSummaryAccordion = ({
         margin: 0.5rem 0;
       `}
     >
-      <Accordion variant="detail">
+      <Accordion>
         <details>
           <summary>
             {t("peer-review-submission-id")}:{" "}

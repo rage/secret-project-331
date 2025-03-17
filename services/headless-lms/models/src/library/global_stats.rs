@@ -233,6 +233,7 @@ ORDER BY c.id, "year!", "month"
 
 pub async fn get_course_module_stats_by_completions_registered_to_study_registry(
     conn: &mut PgConnection,
+    granularity: TimeGranularity,
 ) -> ModelResult<Vec<GlobalCourseModuleStatEntry>> {
     let res = sqlx::query_as!(
         GlobalCourseModuleStatEntry,
@@ -248,10 +249,11 @@ SELECT c.name as course_name,
   o.name as "organization_name"
 FROM (
     SELECT cmcrtsr.course_module_id,
-      EXTRACT(
-        'year'
-        FROM cms.completion_date
-      )::VARCHAR as year,
+      CASE WHEN $1 = 'Month' THEN
+        EXTRACT('year' FROM cms.completion_date)::VARCHAR || '-' || LPAD(EXTRACT('month' FROM cms.completion_date)::VARCHAR, 2, '0')
+      ELSE
+        EXTRACT('year' FROM cms.completion_date)::VARCHAR
+      END as year,
       COUNT(DISTINCT cmcrtsr.user_id) as value
     FROM course_module_completion_registered_to_study_registries cmcrtsr
       JOIN course_module_completions cms ON cmcrtsr.course_module_completion_id = cms.id
@@ -268,6 +270,7 @@ WHERE c.is_draft = FALSE
   AND c.deleted_at IS NULL
   AND c.is_test_mode = FALSE
 "#,
+        granularity.to_string()
     )
     .fetch_all(conn)
     .await?;

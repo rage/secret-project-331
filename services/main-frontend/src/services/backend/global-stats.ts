@@ -63,11 +63,14 @@ export const getnumberOfPeopleStartedCourse = async (
   return validateResponse(response, isArray(isGlobalStatEntry))
 }
 
-export const getCourseModuleStatsByCompletionsRegisteredToStudyRegistry = async (): Promise<
-  GlobalCourseModuleStatEntry[]
-> => {
+export const getCourseModuleStatsByCompletionsRegisteredToStudyRegistry = async (
+  granularity: TimeGranularity,
+): Promise<GlobalCourseModuleStatEntry[]> => {
+  const params = new URLSearchParams()
+  params.append("granularity", granularity)
+
   const response = await mainFrontendClient.get(
-    `/global-stats/course-module-stats-by-completions-registered-to-study-registry`,
+    `/global-stats/course-module-stats-by-completions-registered-to-study-registry?${params}`,
   )
   return validateResponse(response, isArray(isGlobalCourseModuleStatEntry))
 }

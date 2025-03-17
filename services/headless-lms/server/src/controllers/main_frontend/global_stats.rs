@@ -143,11 +143,15 @@ async fn get_number_of_people_started_course(
 
 /**
  * GET `/api/v0/main-frontend/global-stats/course-module-stats-by-completions-registered-to-study-registry`
+ *
+ * Query parameters:
+ * - granularity: String - Either "year" or "month" (defaults to "year")
  */
 #[instrument(skip(pool))]
 async fn get_course_module_stats_by_completions_registered_to_study_registry(
     pool: web::Data<PgPool>,
     user: AuthUser,
+    query: web::Query<HashMap<String, String>>,
 ) -> ControllerResult<web::Json<Vec<GlobalCourseModuleStatEntry>>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
@@ -157,7 +161,13 @@ async fn get_course_module_stats_by_completions_registered_to_study_registry(
         Res::GlobalPermissions,
     )
     .await?;
-    let res = models::library::global_stats::get_course_module_stats_by_completions_registered_to_study_registry(&mut conn).await?;
+
+    let granularity = query
+        .get("granularity")
+        .map(|s| s.parse().unwrap_or(TimeGranularity::Year))
+        .unwrap_or(TimeGranularity::Year);
+
+    let res = models::library::global_stats::get_course_module_stats_by_completions_registered_to_study_registry(&mut conn, granularity).await?;
 
     token.authorized_ok(web::Json(res))
 }

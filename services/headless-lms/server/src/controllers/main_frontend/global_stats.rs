@@ -1,7 +1,7 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/global-stats`.
 
 use crate::{domain::authorization::authorize, prelude::*};
-use headless_lms_utils::cache::Cache;
+
 use models::library::global_stats::{
     CourseCompletionStats, DomainCompletionStats, GlobalCourseModuleStatEntry, GlobalStatEntry,
     TimeGranularity,
@@ -19,7 +19,6 @@ async fn get_number_of_people_completed_a_course(
     pool: web::Data<PgPool>,
     user: AuthUser,
     query: web::Query<HashMap<String, String>>,
-    cache: web::Data<Cache>,
 ) -> ControllerResult<web::Json<Vec<GlobalStatEntry>>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(

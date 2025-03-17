@@ -2155,7 +2155,7 @@
                 certification_enabled: module.certification_enabled,
                 certificate_configuration_id,
                 needs_to_be_reviewed: completion
-                    .is_some_and(|x| x.needs_to_be_reviewed.unwrap_or(<span class="bool-val">false</span>))
+                    .is_some_and(|x| x.needs_to_be_reviewed)
             }
         })
         .collect();

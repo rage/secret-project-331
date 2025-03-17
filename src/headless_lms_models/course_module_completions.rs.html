@@ -710,7 +710,7 @@
     <span class="kw">pub </span>passed: bool,
     <span class="kw">pub </span>prerequisite_modules_completed: bool,
     <span class="kw">pub </span>completion_granter_user_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
-    <span class="kw">pub </span>needs_to_be_reviewed: <span class="prelude-ty">Option</span>&lt;bool&gt;,
+    <span class="kw">pub </span>needs_to_be_reviewed: bool,
 }
 
 <span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]

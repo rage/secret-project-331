@@ -225,21 +225,86 @@
 <a href="#224" id="224">224</a>
 <a href="#225" id="225">225</a>
 <a href="#226" id="226">226</a>
-<a href="#227" id="227">227</a></pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/global-stats`.
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
+<a href="#240" id="240">240</a>
+<a href="#241" id="241">241</a>
+<a href="#242" id="242">242</a>
+<a href="#243" id="243">243</a>
+<a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a></pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/global-stats`.
 
 </span><span class="kw">use crate</span>::{domain::authorization::authorize, prelude::<span class="kw-2">*</span>};
+
 <span class="kw">use </span>models::library::global_stats::{
     CourseCompletionStats, DomainCompletionStats, GlobalCourseModuleStatEntry, GlobalStatEntry,
+    TimeGranularity,
 };
 <span class="kw">use </span>std::collections::HashMap;
 
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/global-stats/number-of-people-completed-a-course`
+
+Query parameters:
+- granularity: String - Either "year" or "month" (defaults to "year")
 */
 </span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_number_of_people_completed_a_course(
     pool: web::Data&lt;PgPool&gt;,
     user: AuthUser,
+    query: web::Query&lt;HashMap&lt;String, String&gt;&gt;,
 ) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;GlobalStatEntry&gt;&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>token = authorize(
@@ -249,19 +314,32 @@ GET `/api/v0/main-frontend/global-stats/number-of-people-completed-a-course`
         Res::GlobalPermissions,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>res =
-        models::library::global_stats::get_number_of_people_completed_a_course(<span class="kw-2">&amp;mut </span>conn).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>granularity = query
+        .get(<span class="string">"granularity"</span>)
+        .map(|s| s.parse().unwrap_or(TimeGranularity::Year))
+        .unwrap_or(TimeGranularity::Year);
+
+    <span class="kw">let </span>res = models::library::global_stats::get_number_of_people_completed_a_course(
+        <span class="kw-2">&amp;mut </span>conn,
+        granularity,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
 
     token.authorized_ok(web::Json(res))
 }
 
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/global-stats/number-of-people-registered-completion-to-study-registry`
+
+Query parameters:
+- granularity: String - Either "year" or "month" (defaults to "year")
 */
 </span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_number_of_people_registered_completion_to_study_registry(
     pool: web::Data&lt;PgPool&gt;,
     user: AuthUser,
+    query: web::Query&lt;HashMap&lt;String, String&gt;&gt;,
 ) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;GlobalStatEntry&gt;&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>token = authorize(
@@ -271,18 +349,28 @@ GET `/api/v0/main-frontend/global-stats/number-of-people-registered-completion-t
         Res::GlobalPermissions,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>res = models::library::global_stats::get_number_of_people_registered_completion_to_study_registry(<span class="kw-2">&amp;mut </span>conn).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>granularity = query
+        .get(<span class="string">"granularity"</span>)
+        .map(|s| s.parse().unwrap_or(TimeGranularity::Year))
+        .unwrap_or(TimeGranularity::Year);
+
+    <span class="kw">let </span>res = models::library::global_stats::get_number_of_people_registered_completion_to_study_registry(<span class="kw-2">&amp;mut </span>conn, granularity).<span class="kw">await</span><span class="question-mark">?</span>;
 
     token.authorized_ok(web::Json(res))
 }
 
 <span class="doccomment">/**
- * GET `/api/v0/main-frontend/global-stats/number-of-people-done-at-least-one-exercise`
- */
+GET `/api/v0/main-frontend/global-stats/number-of-people-done-at-least-one-exercise`
+
+Query parameters:
+- granularity: String - Either "year" or "month" (defaults to "year")
+*/
 </span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_number_of_people_done_at_least_one_exercise(
     pool: web::Data&lt;PgPool&gt;,
     user: AuthUser,
+    query: web::Query&lt;HashMap&lt;String, String&gt;&gt;,
 ) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;GlobalStatEntry&gt;&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>token = authorize(
@@ -292,41 +380,65 @@ GET `/api/v0/main-frontend/global-stats/number-of-people-registered-completion-t
         Res::GlobalPermissions,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>granularity = query
+        .get(<span class="string">"granularity"</span>)
+        .map(|s| s.parse().unwrap_or(TimeGranularity::Year))
+        .unwrap_or(TimeGranularity::Year);
+
+    <span class="kw">let </span>res = models::library::global_stats::get_number_of_people_done_at_least_one_exercise(
+        <span class="kw-2">&amp;mut </span>conn,
+        granularity,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    token.authorized_ok(web::Json(res))
+}
+
+<span class="doccomment">/**
+GET `/api/v0/main-frontend/global-stats/number-of-people-started-course`
+
+Query parameters:
+- granularity: String - Either "year" or "month" (defaults to "year")
+*/
+</span><span class="attr">#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_number_of_people_started_course(
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+    query: web::Query&lt;HashMap&lt;String, String&gt;&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;GlobalStatEntry&gt;&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::ViewStats,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::GlobalPermissions,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>granularity = query
+        .get(<span class="string">"granularity"</span>)
+        .map(|s| s.parse().unwrap_or(TimeGranularity::Year))
+        .unwrap_or(TimeGranularity::Year);
+
     <span class="kw">let </span>res =
-        models::library::global_stats::get_number_of_people_done_at_least_one_exercise(<span class="kw-2">&amp;mut </span>conn)
+        models::library::global_stats::get_number_of_people_started_course(<span class="kw-2">&amp;mut </span>conn, granularity)
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
     token.authorized_ok(web::Json(res))
 }
 
 <span class="doccomment">/**
- * GET `/api/v0/main-frontend/global-stats/number-of-people-started-course`
- */
-</span><span class="attr">#[instrument(skip(pool))]
-</span><span class="kw">async fn </span>get_number_of_people_started_course(
-    pool: web::Data&lt;PgPool&gt;,
-    user: AuthUser,
-) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;GlobalStatEntry&gt;&gt;&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = authorize(
-        <span class="kw-2">&amp;mut </span>conn,
-        Act::ViewStats,
-        <span class="prelude-val">Some</span>(user.id),
-        Res::GlobalPermissions,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>res = models::library::global_stats::get_number_of_people_started_course(<span class="kw-2">&amp;mut </span>conn).<span class="kw">await</span><span class="question-mark">?</span>;
-
-    token.authorized_ok(web::Json(res))
-}
-
-<span class="doccomment">/**
  * GET `/api/v0/main-frontend/global-stats/course-module-stats-by-completions-registered-to-study-registry`
+ *
+ * Query parameters:
+ * - granularity: String - Either "year" or "month" (defaults to "year")
  */
 </span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_course_module_stats_by_completions_registered_to_study_registry(
     pool: web::Data&lt;PgPool&gt;,
     user: AuthUser,
+    query: web::Query&lt;HashMap&lt;String, String&gt;&gt;,
 ) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;GlobalCourseModuleStatEntry&gt;&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>token = authorize(
@@ -336,7 +448,13 @@ GET `/api/v0/main-frontend/global-stats/number-of-people-registered-completion-t
         Res::GlobalPermissions,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>res = models::library::global_stats::get_course_module_stats_by_completions_registered_to_study_registry(<span class="kw-2">&amp;mut </span>conn).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>granularity = query
+        .get(<span class="string">"granularity"</span>)
+        .map(|s| s.parse().unwrap_or(TimeGranularity::Year))
+        .unwrap_or(TimeGranularity::Year);
+
+    <span class="kw">let </span>res = models::library::global_stats::get_course_module_stats_by_completions_registered_to_study_registry(<span class="kw-2">&amp;mut </span>conn, granularity).<span class="kw">await</span><span class="question-mark">?</span>;
 
     token.authorized_ok(web::Json(res))
 }

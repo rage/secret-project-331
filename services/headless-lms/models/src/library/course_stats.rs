@@ -81,6 +81,58 @@ WHERE course_id = $1
     Ok(res)
 }
 
+/// Total unique users who have completed the course in all language versions
+pub async fn get_total_users_completed_all_language_versions_of_a_course(
+    conn: &mut PgConnection,
+    course_language_group_id: Uuid,
+) -> ModelResult<CountResult> {
+    let res = sqlx::query_as!(
+        CountResult,
+        r#"
+SELECT NULL::timestamptz AS "period",
+  COUNT(DISTINCT user_id) AS "count!"
+FROM course_module_completions
+WHERE course_id IN (
+    SELECT id
+    FROM courses
+    WHERE course_language_group_id = $1
+      AND deleted_at IS NULL
+  )
+  AND deleted_at IS NULL;
+    "#,
+        course_language_group_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Total unique users who have started the course in all language versions
+pub async fn get_total_users_started_all_language_versions_of_a_course(
+    conn: &mut PgConnection,
+    course_language_group_id: Uuid,
+) -> ModelResult<CountResult> {
+    let res = sqlx::query_as!(
+        CountResult,
+        r#"
+SELECT NULL::timestamptz AS "period",
+  COUNT(DISTINCT user_id) AS "count!"
+FROM user_course_settings
+WHERE current_course_id IN (
+    SELECT id
+    FROM courses
+    WHERE course_language_group_id = $1
+      AND deleted_at IS NULL
+  )
+  AND deleted_at IS NULL;
+    "#,
+        course_language_group_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Weekly count of unique users starting the course.
 pub async fn get_weekly_unique_users_starting(
     conn: &mut PgConnection,
@@ -455,6 +507,132 @@ ORDER BY c.cohort_day,
         "#,
         course_id,
         course_id,
+        &days_limit.to_string()
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Monthly count of unique users who started any language version of the course.
+pub async fn get_monthly_unique_users_starting_all_language_versions(
+    conn: &mut PgConnection,
+    course_language_group_id: Uuid,
+) -> ModelResult<Vec<CountResult>> {
+    let res = sqlx::query_as!(
+        CountResult,
+        r#"
+SELECT DATE_TRUNC('month', created_at) AS "period",
+       COUNT(DISTINCT user_id) AS "count!"
+FROM user_course_settings
+WHERE current_course_id IN (
+    SELECT id
+    FROM courses
+    WHERE course_language_group_id = $1
+      AND deleted_at IS NULL
+  )
+  AND deleted_at IS NULL
+GROUP BY "period"
+ORDER BY "period"
+        "#,
+        course_language_group_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Daily count of unique users who started any language version of the course within specified days.
+pub async fn get_daily_unique_users_starting_all_language_versions_last_n_days(
+    conn: &mut PgConnection,
+    course_language_group_id: Uuid,
+    days_limit: i32,
+) -> ModelResult<Vec<CountResult>> {
+    let res = sqlx::query_as!(
+        CountResult,
+        r#"
+SELECT DATE_TRUNC('day', created_at) AS "period",
+  COUNT(DISTINCT user_id) AS "count!"
+FROM user_course_settings
+WHERE current_course_id IN (
+    SELECT id
+    FROM courses
+    WHERE course_language_group_id = $1
+      AND deleted_at IS NULL
+  )
+  AND created_at >= NOW() - ($2 || ' days')::INTERVAL
+  AND deleted_at IS NULL
+GROUP BY "period"
+ORDER BY "period"
+        "#,
+        course_language_group_id,
+        &days_limit.to_string()
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Monthly count of users who have completed any language version of the course.
+pub async fn get_monthly_course_completions_all_language_versions(
+    conn: &mut PgConnection,
+    course_language_group_id: Uuid,
+) -> ModelResult<Vec<CountResult>> {
+    let res = sqlx::query_as!(
+        CountResult,
+        r#"
+SELECT DATE_TRUNC('month', created_at) AS "period",
+  COUNT(DISTINCT user_id) AS "count!"
+FROM course_module_completions
+WHERE course_id IN (
+    SELECT id
+    FROM courses
+    WHERE course_language_group_id = $1
+      AND deleted_at IS NULL
+  )
+  AND prerequisite_modules_completed = TRUE
+  AND (
+    needs_to_be_reviewed = FALSE
+    OR needs_to_be_reviewed IS NULL
+  )
+  AND passed = TRUE
+  AND deleted_at IS NULL
+GROUP BY "period"
+ORDER BY "period"
+        "#,
+        course_language_group_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Daily count of users who have completed any language version of the course within specified days.
+pub async fn get_daily_course_completions_all_language_versions_last_n_days(
+    conn: &mut PgConnection,
+    course_language_group_id: Uuid,
+    days_limit: i32,
+) -> ModelResult<Vec<CountResult>> {
+    let res = sqlx::query_as!(
+        CountResult,
+        r#"
+SELECT DATE_TRUNC('day', created_at) AS "period",
+COUNT(DISTINCT user_id) AS "count!"
+FROM course_module_completions
+WHERE course_id IN (
+    SELECT id
+    FROM courses
+    WHERE course_language_group_id = $1
+      AND deleted_at IS NULL
+  )
+  AND prerequisite_modules_completed = TRUE
+  AND needs_to_be_reviewed = FALSE
+  AND created_at >= NOW() - ($2 || ' days')::INTERVAL
+  AND deleted_at IS NULL
+GROUP BY "period"
+ORDER BY "period"
+        "#,
+        course_language_group_id,
         &days_limit.to_string()
     )
     .fetch_all(conn)

@@ -6,6 +6,9 @@ import { useTranslation } from "react-i18next"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 
+import AllLanguageCompletionsChart from "./visualizations/all-languages/AllLanguageCompletionsChart"
+import AllLanguageStartingUsersChart from "./visualizations/all-languages/AllLanguageStartingUsersChart"
+import AllLanguageTotalStats from "./visualizations/all-languages/AllLanguageTotalStats"
 import CompletionsChart from "./visualizations/overview/CompletionsChart"
 import CourseUsersCountsByExercise from "./visualizations/overview/CourseUsersCountsByExercise"
 import StudentsStartingTheCourseChart from "./visualizations/overview/StudentsStartingTheCourseChart"
@@ -36,6 +39,7 @@ import { baseTheme, headingFont } from "@/shared-module/common/styles"
 const TAB_OVERVIEW = "overview"
 const TAB_USER_ACTIVITY = "user-activity"
 const TAB_VISITORS = "visitors"
+const TAB_ALL_LANGUAGES = "all-languages"
 
 export const InstructionBox = styled.div`
   background-color: ${baseTheme.colors.clear[100]};
@@ -93,6 +97,12 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
         >
           {t("stats-tab-visitors")}
         </TabLink>
+        <TabLink
+          url={{ pathname: router.pathname, query: { ...router.query, tab: TAB_ALL_LANGUAGES } }}
+          isActive={activeTab === TAB_ALL_LANGUAGES}
+        >
+          {t("stats-tab-all-languages")}
+        </TabLink>
       </TabLinkNavigation>
 
       <TabLinkPanel>
@@ -130,6 +140,16 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
             <DailyVisitCountsGroupedByUtm courseId={courseId} />
             <DailyVisitCountsGroupedByReferrer courseId={courseId} />
           </>
+        )}
+
+        {activeTab === TAB_ALL_LANGUAGES && (
+          <div>
+            <InstructionBox>{t("all-language-versions-stats-description")}</InstructionBox>
+
+            <AllLanguageTotalStats courseId={courseId} />
+            <AllLanguageStartingUsersChart courseId={courseId} />
+            <AllLanguageCompletionsChart courseId={courseId} />
+          </div>
         )}
       </TabLinkPanel>
     </>

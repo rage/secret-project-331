@@ -6,11 +6,10 @@ import { useTranslation } from "react-i18next"
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import { getCourse, postNewCourseTranslation } from "../../../../../../services/backend/courses"
 
-import CourseLanguageVersionsList, {
-  formatLanguageVersionsQueryKey,
-} from "./CourseLanguageVersionsList"
+import CourseLanguageVersionsList from "./CourseLanguageVersionsList"
 import NewCourseLanguageVersionDialog from "./NewCourseLanguageVersionDialog"
 
+import { formatLanguageVersionsQueryKey } from "@/hooks/useCourseLanguageVersions"
 import { NewCourse } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"

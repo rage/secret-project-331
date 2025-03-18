@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useRouter } from "next/router"
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
@@ -31,6 +31,7 @@ import TopReferrers from "./visualizations/visitors/TopReferrers"
 import TopUtmCampaigns from "./visualizations/visitors/TopUtmCampaigns"
 import TopUtmSources from "./visualizations/visitors/TopUtmSources"
 
+import useCourseLanguageVersionsQuery from "@/hooks/useCourseLanguageVersions"
 import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
 import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"
 import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/TabLinkPanel"
@@ -59,11 +60,18 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
   const router = useRouter()
   const [activeTab, setActiveTab] = useState(TAB_OVERVIEW)
 
+  const courseLanguageVersions = useCourseLanguageVersionsQuery(courseId)
+
   useEffect(() => {
     if (router.query.tab) {
       setActiveTab(router.query.tab as string)
     }
   }, [router.query.tab])
+
+  const showLanguageVersionsTab = useMemo(
+    () => courseLanguageVersions.isSuccess && courseLanguageVersions.data.length > 1,
+    [courseLanguageVersions.isSuccess, courseLanguageVersions.data],
+  )
 
   return (
     <>
@@ -97,12 +105,14 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
         >
           {t("stats-tab-visitors")}
         </TabLink>
-        <TabLink
-          url={{ pathname: router.pathname, query: { ...router.query, tab: TAB_ALL_LANGUAGES } }}
-          isActive={activeTab === TAB_ALL_LANGUAGES}
-        >
-          {t("stats-tab-all-languages")}
-        </TabLink>
+        {showLanguageVersionsTab && (
+          <TabLink
+            url={{ pathname: router.pathname, query: { ...router.query, tab: TAB_ALL_LANGUAGES } }}
+            isActive={activeTab === TAB_ALL_LANGUAGES}
+          >
+            {t("stats-tab-all-languages")}
+          </TabLink>
+        )}
       </TabLinkNavigation>
 
       <TabLinkPanel>

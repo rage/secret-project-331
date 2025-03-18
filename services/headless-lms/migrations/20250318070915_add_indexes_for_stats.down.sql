@@ -1,0 +1,2 @@
+DROP INDEX exercise_slide_submissions_course_id_idx;
+DROP INDEX page_visit_datum_summary_by_courses_device_types_course_id_idx;

@@ -1,10 +1,12 @@
 //! Redis cache wrapper.
 
+use crate::prelude::*;
 use redis::{AsyncCommands, Client, ToRedisArgs};
 use serde::{de::DeserializeOwned, Serialize};
 use std::time::Duration;
 
 /// Wrapper for accessing a redis cache.
+#[derive(Debug)]
 pub struct Cache {
     client: Client,
 }
@@ -16,6 +18,36 @@ impl Cache {
         let client =
             Client::open(redis_url).unwrap_or_else(|_| panic!("Malformed url: {redis_url}"));
         Self { client }
+    }
+
+    /// Retrieves a value from cache, or executes the provided function to generate and cache the value.
+    ///
+    /// First checks if the key exists in the cache. If it does, returns the cached value.
+    /// If not, executes the provided async function, caches its result, and returns it.
+    pub async fn get_or_set<V, F, Fut, K>(
+        &self,
+        key: K,
+        expires_in: Duration,
+        f: F,
+    ) -> UtilResult<V>
+    where
+        V: DeserializeOwned + Serialize,
+        F: FnOnce() -> Fut,
+        Fut: std::future::Future<Output = UtilResult<V>>,
+        K: ToRedisArgs + Send + Sync + Clone + std::fmt::Debug,
+    {
+        // First try to get from cache
+        if let Some(cached) = self.get_json::<V>(key.clone()).await {
+            return Ok(cached);
+        }
+
+        // If not in cache, execute the function
+        let value = f().await?;
+        // Store in cache
+        if !self.cache_json(key.clone(), &value, expires_in).await {
+            warn!("Failed to cache value for key: {:?}", key);
+        }
+        Ok(value)
     }
 
     /// Stores the given value in the redis cache as JSON (`Vec<u8>`).

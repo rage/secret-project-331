@@ -1,8 +1,40 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/{course_id}/stats`.
 
 use crate::{domain::authorization::authorize, prelude::*};
+use headless_lms_utils::prelude::{UtilError, UtilErrorType};
 use models::library::course_stats::{AverageMetric, CohortActivity, CountResult};
+use std::time::Duration;
 use uuid::Uuid;
+
+const CACHE_DURATION: Duration = Duration::from_secs(3600);
+
+/// Helper function to handle caching for stats endpoints
+async fn cached_stats_query<F, Fut, T>(
+    cache: &Cache,
+    endpoint: &str,
+    course_id: Uuid,
+    extra_params: Option<&str>,
+    duration: Duration,
+    f: F,
+) -> Result<T, ControllerError>
+where
+    F: FnOnce() -> Fut,
+    Fut: std::future::Future<Output = Result<T, UtilError>>,
+    T: serde::Serialize + serde::de::DeserializeOwned,
+{
+    let cache_key = match extra_params {
+        Some(params) => format!("stats:{}:{}:{}", endpoint, course_id, params),
+        None => format!("stats:{}:{}", endpoint, course_id),
+    };
+
+    cache.get_or_set(cache_key, duration, f).await.map_err(|_| {
+        ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            "Failed to get data",
+            None,
+        )
+    })
+}
 
 /// GET `/api/v0/main-frontend/{course_id}/stats/total-users-started-course`
 #[instrument(skip(pool))]
@@ -10,6 +42,7 @@ async fn get_total_users_started_course(
     pool: web::Data<PgPool>,
     user: AuthUser,
     course_id: web::Path<Uuid>,
+    cache: web::Data<Cache>,
 ) -> ControllerResult<web::Json<CountResult>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
@@ -20,8 +53,23 @@ async fn get_total_users_started_course(
     )
     .await?;
 
-    let res = models::library::course_stats::get_total_users_started_course(&mut conn, *course_id)
-        .await?;
+    // Use the enhanced helper function
+    let res = cached_stats_query(
+        &cache,
+        "total-users-started-course",
+        *course_id,
+        None,
+        CACHE_DURATION,
+        || async {
+            models::library::course_stats::get_total_users_started_course(&mut conn, *course_id)
+                .await
+                .map_err(|err| {
+                    UtilError::new(UtilErrorType::Other, "Failed to get data", Some(err.into()))
+                })
+        },
+    )
+    .await?;
+
     token.authorized_ok(web::Json(res))
 }
 

@@ -38,11 +38,18 @@ impl Cache {
     {
         // First try to get from cache
         if let Some(cached) = self.get_json::<V>(key.clone()).await {
+            info!("Cache hit for key: {:?}", key);
             return Ok(cached);
         }
 
-        // If not in cache, execute the function
+        info!("Cache miss for key: {:?}", key);
+
+        // If not in cache, execute the function and measure time
+        let start = std::time::Instant::now();
         let value = f().await?;
+        let duration = start.elapsed();
+        info!("Generated value for key {:?} in {:?}", key, duration);
+
         // Store in cache
         if !self.cache_json(key.clone(), &value, expires_in).await {
             warn!("Failed to cache value for key: {:?}", key);

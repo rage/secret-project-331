@@ -22,6 +22,7 @@ pub struct Role {
     pub course_instance_id: Option<Uuid>,
     pub exam_id: Option<Uuid>,
     pub role: UserRole,
+    pub user_id: Uuid,
 }
 
 impl Role {
@@ -372,7 +373,8 @@ SELECT is_global,
   course_id,
   course_instance_id,
   exam_id,
-  role AS "role: UserRole"
+  role AS "role: UserRole",
+  user_id
 FROM roles
 WHERE user_id = $1
 AND roles.deleted_at IS NULL
@@ -381,5 +383,110 @@ AND roles.deleted_at IS NULL
     )
     .fetch_all(conn)
     .await?;
+    Ok(roles)
+}
+
+/// Gets all roles related to a specific course.
+/// This includes:
+/// - Global roles
+/// - Organization roles for the organization that owns the course
+/// - Course roles for this specific course
+/// - Course instance roles for any instance of this course
+pub async fn get_course_related_roles(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<Role>> {
+    let roles = sqlx::query_as!(
+        Role,
+        r#"
+WITH course_org AS (
+  SELECT organization_id
+  FROM courses
+  WHERE id = $1
+    AND deleted_at IS NULL
+)
+SELECT is_global,
+  organization_id,
+  course_id,
+  course_instance_id,
+  exam_id,
+  role AS "role: UserRole",
+  user_id
+FROM roles
+WHERE (
+    is_global = TRUE
+    OR organization_id = (
+      SELECT organization_id
+      FROM course_org
+    )
+    OR course_id = $1
+    OR course_instance_id IN (
+      SELECT id
+      FROM course_instances
+      WHERE course_id = $1
+        AND deleted_at IS NULL
+    )
+  )
+  AND deleted_at IS NULL
+"#,
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(roles)
+}
+
+/// Gets all roles related to any course in a language group.
+/// This includes global roles, organization roles for any organization that has a course in the group,
+/// course roles for any course in the group, and course instance roles for any instance of those courses.
+pub async fn get_course_language_group_related_roles(
+    conn: &mut PgConnection,
+    course_language_group_id: Uuid,
+) -> ModelResult<Vec<Role>> {
+    let roles = sqlx::query_as!(
+        Role,
+        r#"
+WITH course_org AS (
+  SELECT DISTINCT organization_id
+  FROM courses
+  WHERE course_language_group_id = $1
+    AND deleted_at IS NULL
+)
+SELECT is_global,
+  organization_id,
+  course_id,
+  course_instance_id,
+  exam_id,
+  role AS "role: UserRole",
+  user_id
+FROM roles
+WHERE (
+    is_global = TRUE
+    OR organization_id IN (
+      SELECT organization_id
+      FROM course_org
+    )
+    OR course_id IN (
+      SELECT id
+      FROM courses
+      WHERE course_language_group_id = $1
+        AND deleted_at IS NULL
+    )
+    OR course_instance_id IN (
+      SELECT ci.id
+      FROM course_instances ci
+        JOIN courses c ON ci.course_id = c.id
+      WHERE c.course_language_group_id = $1
+        AND ci.deleted_at IS NULL
+    )
+  )
+  AND deleted_at IS NULL
+"#,
+        course_language_group_id
+    )
+    .fetch_all(conn)
+    .await?;
+
     Ok(roles)
 }

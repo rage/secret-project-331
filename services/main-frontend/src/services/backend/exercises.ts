@@ -15,6 +15,11 @@ export const fetchExerciseSubmissions = async (
   return validateResponse(response, isExerciseSubmissions)
 }
 
+export const getExercise = async (exerciseId: string): Promise<Exercise> => {
+  const response = await mainFrontendClient.get(`/exercises/${exerciseId}`)
+  return validateResponse(response, isExercise)
+}
+
 export interface Block<T> {
   name: string
   isValid: boolean

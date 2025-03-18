@@ -10,6 +10,7 @@ interface DialogProps extends React.HTMLAttributes<HTMLDialogElement> {
   closeable?: boolean
   noPadding?: boolean
   width?: "normal" | "wide"
+  disableContentScroll?: boolean
 }
 
 const Dialog: React.FC<DialogProps> = ({
@@ -19,6 +20,7 @@ const Dialog: React.FC<DialogProps> = ({
   closeable = true,
   noPadding = false,
   width = "normal",
+  disableContentScroll = false,
   ...rest
 }) => {
   const ref = useRef<HTMLDialogElement>(null)
@@ -92,6 +94,7 @@ const Dialog: React.FC<DialogProps> = ({
         padding: 0;
         width: 95%;
         max-width: ${width === "normal" ? "700px" : "1200px"};
+        ${disableContentScroll && "overflow: hidden;"}
 
         h1 {
           font-size: ${typography.h5};

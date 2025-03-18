@@ -249,6 +249,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
               selectedBlockId={selectedBlockId}
               setEdits={setEdits}
               isExam={pageContext.exam !== null}
+              dontAllowBlockToBeWiderThanContainerWidth={false}
             />
           </div>
         </div>

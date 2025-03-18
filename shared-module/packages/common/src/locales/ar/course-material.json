@@ -44,6 +44,9 @@
   "commenting-on-selection": "التعليق على: {{selection}}",
   "congratulations": "تهانينا",
   "continue": "استمر",
+  "copied": "تم النسخ!",
+  "copy-to-clipboard": "نسخ إلى الحافظة",
+  "copying-failed": "فشل النسخ!",
   "could-not-fetch-embed": "لا يمكن جلب تضمين {{provider}} باستخدام عنوان URL: {{url}}",
   "country-added-successfully": "تمت إضافة البلد بنجاح",
   "course": "دورة",
@@ -225,6 +228,7 @@
   "you-have-completed-the-course-to-receive-credits-or-certificate-use-following-links": "لقد أكملت الدورة بنجاح! للحصول على اعتمادات ECTS لإكمال الدورة، يمكنك استخدام الروابط التالية لتسجيل إكمال الدورة والحصول على شهادة.",
   "you-have-completed-the-course-to-receive-credits-use-following-links": "لقد أكملت الدورة بنجاح! للحصول على اعتمادات ECTS لإكمال الدورة، يمكنك استخدام الروابط التالية لتسجيل إكمال الدورة.",
   "your-code-code": "رمزك هو: {{code}}",
+  "youtube-embed-error": "تعذر تحميل فيديو YouTube. قد يكون عنوان URL لـ YouTube غير صحيح.",
   "youve-made-changes": "لقد أجريت تغييرات",
   "youve-selected-material-for-editing": "لقد اخترت مادة للتحرير"
 }

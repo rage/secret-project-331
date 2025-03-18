@@ -85,6 +85,7 @@ const config = [
   react.configs.flat.recommended,
   react.configs.flat["jsx-runtime"],
   importPlugin.flatConfigs.recommended,
+  eslintPluginPrettierRecommended,
   {
     files: ["**/*.{js,jsx,ts,tsx}"],
     rules: {
@@ -189,7 +190,7 @@ const config = [
           "newlines-between": "always",
         },
       ],
-      curly: "error",
+      curly: ["error", "all"],
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": [
         "warn",
@@ -368,6 +369,8 @@ const config = [
               "window.history.pushState",
               "setFormError",
               "animated",
+              "useTransition",
+              "createPopper",
             ],
           },
           "object-properties": {
@@ -441,7 +444,6 @@ const config = [
       },
     },
   },
-  eslintPluginPrettierRecommended,
 ]
 
 export default config

@@ -268,6 +268,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
                 selectedBlockId={null}
                 setEdits={(map) => map}
                 isExam={false}
+                dontAllowBlockToBeWiderThanContainerWidth={false}
               />
             </div>
           </ExamStartBanner>
@@ -328,9 +329,14 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
           <div
             className={css`
               display: flex;
-              flex-direction: row;
-              align-items: baseline;
+              flex-direction: column;
+              align-items: flex-start;
               gap: 20px;
+
+              ${respondToOrLarger.sm} {
+                flex-direction: row;
+                align-items: baseline;
+              }
 
               span {
                 font-size: 20px;

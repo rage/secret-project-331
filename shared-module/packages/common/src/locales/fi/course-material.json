@@ -45,6 +45,9 @@
   "commenting-on-selection": "Kommentoimassa: {{selection}}",
   "congratulations": "Onnittelut",
   "continue": "Jatka",
+  "copied": "Kopioitu!",
+  "copy-to-clipboard": "Kopioi leikepöydälle",
+  "copying-failed": "Kopiointi epäonnistui!",
   "could-not-fetch-embed": "Ei voitu upottaa {{provider}} osoitteella: {{url}}",
   "country-added-successfully": "Maa lisätty onnistuneesti",
   "course": "Kurssi",
@@ -229,6 +232,7 @@
   "you-have-completed-the-course-to-receive-credits-or-certificate-use-following-links": "Olet suorittanut kurssin onnistuneesti! Voit käyttää oheisia linkkejä opintopisteiden saamiseksi tai sertifikaatin luomiseen.",
   "you-have-completed-the-course-to-receive-credits-use-following-links": "Olet suorittanut kurssin onnistuneesti! Saadaksesi opintopisteitä suorituksestasi, voit käyttää seuraavia linkkejä rekisteröidäksesi suorituksesi.",
   "your-code-code": "Koodisi on: {{code}}",
+  "youtube-embed-error": "YouTube-videota ei voi ladata. YouTube-URL-osoite saattaa olla virheellinen.",
   "youve-made-changes": "Olet tehnyt muutoksia",
   "youve-selected-material-for-editing": "Olet valinnut materiaalia muokkaukseen"
 }

@@ -3,11 +3,11 @@ import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import createUnreadFeedbackCountHook from "../../../../../../hooks/count/useUnreadFeedbackCount"
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 
 import FeedbackList from "./FeedbackList"
 
+import createUnreadFeedbackCountHook from "@/hooks/count/useUnreadFeedbackCount"
 import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
 import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"
 import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/TabLinkPanel"

@@ -94,7 +94,7 @@ const AllLanguageTotalStats: React.FC<React.PropsWithChildren<AllLanguageTotalSt
           <div className={statValueStyles}>
             {formatNumber(totalUsersQuery.data?.count || 0, i18n.language)}
           </div>
-          <h3 className={statTitleStyles}>{t("stats-heading-students-returned-exercises")}</h3>
+          <h3 className={statTitleStyles}>{t("stats-heading-students-started-the-course")}</h3>
         </div>
 
         <div className={statBoxStyles}>

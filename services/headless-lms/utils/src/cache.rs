@@ -1,23 +1,55 @@
 //! Redis cache wrapper.
 
 use crate::prelude::*;
-use redis::{AsyncCommands, Client, ToRedisArgs};
+use redis::{aio::ConnectionManager, AsyncCommands, Client, ToRedisArgs};
 use serde::{de::DeserializeOwned, Serialize};
 use std::time::Duration;
 
 /// Wrapper for accessing a redis cache.
-#[derive(Debug)]
+#[derive(Clone)]
 pub struct Cache {
-    client: Client,
+    manager: ConnectionManager,
+}
+
+impl std::fmt::Debug for Cache {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Cache")
+            .field("manager", &"<ConnectionManager>")
+            .finish()
+    }
 }
 
 impl Cache {
-    /// # Panics
-    /// If the URL is malformed.
-    pub async fn new(redis_url: &str) -> Self {
-        let client =
-            Client::open(redis_url).unwrap_or_else(|_| panic!("Malformed url: {redis_url}"));
-        Self { client }
+    /// Creates a new Redis cache instance.
+    pub async fn new(redis_url: &str) -> UtilResult<Self> {
+        let client = Client::open(redis_url).map_err(|e| {
+            UtilError::new(
+                UtilErrorType::Other,
+                format!("Failed to create Redis client: {e}"),
+                Some(e.into()),
+            )
+        })?;
+
+        let config = redis::aio::ConnectionManagerConfig::new()
+            .set_connection_timeout(Duration::from_secs(5))
+            .set_response_timeout(Duration::from_secs(2))
+            .set_number_of_retries(3)
+            .set_exponent_base(2)
+            .set_factor(100)
+            .set_max_delay(2000);
+
+        // Connection manager handles reconnections
+        let manager = ConnectionManager::new_with_config(client, config)
+            .await
+            .map_err(|e| {
+                UtilError::new(
+                    UtilErrorType::Other,
+                    format!("Failed to create Redis connection manager: {e}"),
+                    Some(e.into()),
+                )
+            })?;
+
+        Ok(Self { manager })
     }
 
     /// Retrieves a value from cache, or executes the provided function to generate and cache the value.
@@ -67,24 +99,19 @@ impl Cache {
     where
         V: Serialize,
     {
-        match self.client.get_multiplexed_async_connection().await {
-            Ok(mut conn) => {
-                let Ok(value) = serde_json::to_vec(value) else {
-                    return false;
-                };
-                match conn
-                    .set_ex::<_, _, ()>(key, value, expires_in.as_secs())
-                    .await
-                {
-                    Ok(_) => true,
-                    Err(err) => {
-                        error!("Error caching json: {err:#}");
-                        false
-                    }
-                }
-            }
+        let mut conn = self.manager.clone();
+
+        let Ok(value) = serde_json::to_vec(value) else {
+            return false;
+        };
+
+        match conn
+            .set_ex::<_, _, ()>(key, value, expires_in.as_secs())
+            .await
+        {
+            Ok(_) => true,
             Err(err) => {
-                error!("Error connecting to redis: {err:#}");
+                error!("Error caching json: {err:#}");
                 false
             }
         }
@@ -95,19 +122,15 @@ impl Cache {
     where
         V: DeserializeOwned,
     {
-        match self.client.get_multiplexed_async_connection().await {
-            Ok(mut conn) => match conn.get::<_, Vec<u8>>(key).await {
-                Ok(bytes) => {
-                    let value = serde_json::from_slice(bytes.as_slice()).ok()?;
-                    Some(value)
-                }
-                Err(err) => {
-                    error!("Error fetching json from cache: {err:#}");
-                    None
-                }
-            },
+        let mut conn = self.manager.clone();
+
+        match conn.get::<_, Vec<u8>>(key).await {
+            Ok(bytes) => {
+                let value = serde_json::from_slice(bytes.as_slice()).ok()?;
+                Some(value)
+            }
             Err(err) => {
-                error!("Error connecting to redis: {err:#}");
+                error!("Error fetching json from cache: {err:#}");
                 None
             }
         }
@@ -131,7 +154,7 @@ mod test {
             field: String,
         }
 
-        let cache = Cache::new(&redis_url).await;
+        let cache = Cache::new(&redis_url).await.unwrap();
         let value = S {
             field: "value".to_string(),
         };

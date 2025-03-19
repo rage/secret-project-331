@@ -19,7 +19,7 @@ test.afterEach(async () => {
   await context1.close()
   await context3.close()
 })
-test("Can manually reset exercises", async ({}) => {
+test("Can manually reset exercises", async () => {
   test.slow()
   const student1Page = await context1.newPage()
   const adminPage = await context3.newPage()

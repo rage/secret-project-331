@@ -56,9 +56,15 @@ const ExerciseList: React.FC<Props> = ({
     )
   }
 
-  if (exercisesLoading || chaptersLoading || pagesLoading) return <p>{t("loading-text")}</p>
-  if (exercisesError || chaptersError || pagesError) return <p>{t("label-error-loading")}</p>
-  if (!exercises || !chapters || !pages) return <p>{t("label-no-chapter")}</p>
+  if (exercisesLoading || chaptersLoading || pagesLoading) {
+    return <p>{t("loading-text")}</p>
+  }
+  if (exercisesError || chaptersError || pagesError) {
+    return <p>{t("label-error-loading")}</p>
+  }
+  if (!exercises || !chapters || !pages) {
+    return <p>{t("label-no-chapter")}</p>
+  }
 
   const selectAll = () => {
     const allIds = exercises.map((ex) => ex.id)

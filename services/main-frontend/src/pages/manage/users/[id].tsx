@@ -59,11 +59,7 @@ const UserPage: React.FC<React.PropsWithChildren<UserPageProps>> = ({ query }) =
         <h2>{t("header-course-instance-enrollments")}</h2>
         <CourseInstanceEnrollmentsList userId={query.id} />
       </Area>
-      <OnlyRenderIfPermissions
-        // What are the corrrect action and resource to put here?
-        action={{ type: "edit_role", variant: "Admin" }}
-        resource={{ type: "global_permissions" }}
-      >
+      <OnlyRenderIfPermissions action={{ type: "teach" }} resource={{ type: "global_permissions" }}>
         <Area>
           <h2>{t("label-exercise-reset-log")}</h2>
           <ExerciseResetLogList userId={query.id} />

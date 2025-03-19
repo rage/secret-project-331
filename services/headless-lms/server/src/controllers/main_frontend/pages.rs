@@ -212,7 +212,7 @@ async fn get_all_pages_by_course_id(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*course_id)).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
 
     let mut pages = models::pages::get_pages_by_course_id(&mut conn, *course_id).await?;
 

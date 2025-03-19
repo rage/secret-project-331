@@ -28,7 +28,9 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   const [selectedExerciseIds, setSelectedExerciseIds] = useState<string[]>([])
 
   useEffect(() => {
-    if (!users) return
+    if (!users) {
+      return
+    }
     const urlParams = new URLSearchParams(window.location.search)
     const userIdFromUrl = urlParams.get("user_id")
 

@@ -1021,11 +1021,13 @@ pub async fn collect_user_ids_and_exercise_ids_for_reset(
             SELECT DISTINCT user_id, exercise_id
             FROM user_exercise_states
             WHERE (user_id, exercise_id) IN (
-                SELECT unnest($1::uuid[]), unnest($2::uuid[])
+                SELECT u.user_id, e.exercise_id
+                FROM unnest($1::uuid[]) WITH ORDINALITY as u(user_id, pos)
+                JOIN unnest($2::uuid[]) WITH ORDINALITY as e(exercise_id, pos)
+                  ON u.pos = e.pos
             )
             AND reviewing_stage = 'reviewed_and_locked'
             AND deleted_at IS NULL
-
             ",
             &results.iter().map(|r| r.user_id).collect::<Vec<_>>(),
             &results.iter().map(|r| r.exercise_id).collect::<Vec<_>>()
@@ -1053,6 +1055,8 @@ pub async fn collect_user_ids_and_exercise_ids_for_reset(
 pub async fn reset_exercises_for_selected_users(
     conn: &mut PgConnection,
     users_and_exercises: &[(Uuid, Vec<Uuid>)],
+    reset_by: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Vec<(Uuid, Vec<Uuid>)>> {
     let mut successful_resets = Vec::new();
 
@@ -1192,6 +1196,20 @@ pub async fn reset_exercises_for_selected_users(
         .execute(&mut *tx)
         .await?;
 
+        // Adds a log of a reset exercise for a user
+        sqlx::query!(
+            "
+            INSERT INTO exercise_reset_logs (reset_by, reset_for, exercise_id, course_id, reset_at)
+            SELECT $1, $2, unnest($3::uuid[]), $4, NOW()
+            ",
+            reset_by,
+            user_id,
+            &exercise_ids,
+            course_id
+        )
+        .execute(&mut *tx)
+        .await?;
+
         tx.commit().await?;
 
         successful_resets.push((*user_id, exercise_ids.to_vec()));
@@ -1212,31 +1230,6 @@ pub struct ExerciseResetLog {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
-}
-
-/// Adds a log of a reset exercise for a user
-pub async fn log_exercise_resets_for_user(
-    conn: &mut PgConnection,
-    reset_by: Uuid,
-    reset_for: Uuid,
-    exercise_ids: &[Uuid],
-    course_id: Uuid,
-) -> ModelResult<()> {
-    for exercise_id in exercise_ids {
-        sqlx::query!(
-            "
-            INSERT INTO exercise_reset_logs (reset_by, reset_for, exercise_id, course_id, reset_at)
-            VALUES ($1, $2, $3, $4, NOW())
-            ",
-            reset_by,
-            reset_for,
-            exercise_id,
-            course_id
-        )
-        .execute(&mut *conn)
-        .await?;
-    }
-    Ok(())
 }
 
 pub async fn get_exercise_reset_logs_for_user(

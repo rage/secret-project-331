@@ -164,6 +164,7 @@ pub async fn reset_exercises_for_selected_users(
 
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
 
+    // Gets all valid users and their related exercises using the given filters
     let users_and_exercises = models::exercises::collect_user_ids_and_exercise_ids_for_reset(
         &mut conn,
         &payload.user_ids,
@@ -174,31 +175,18 @@ pub async fn reset_exercises_for_selected_users(
     )
     .await?;
 
-    let reset_results =
-        models::exercises::reset_exercises_for_selected_users(&mut conn, &users_and_exercises)
-            .await?;
+    // Resets exercises for selected users and add the resets to a log
+    let reset_results = models::exercises::reset_exercises_for_selected_users(
+        &mut conn,
+        &users_and_exercises,
+        user.id,
+        *course_id,
+    )
+    .await?;
 
-    let mut successful_resets_count = 0;
-    for (reset_for_user_id, exercise_ids) in &reset_results {
-        match models::exercises::log_exercise_resets_for_user(
-            &mut conn,
-            user.id,
-            *reset_for_user_id,
-            exercise_ids,
-            *course_id,
-        )
-        .await
-        {
-            Ok(_) => {
-                successful_resets_count += 1;
-            }
-            Err(e) => {
-                eprintln!("Failed to log reset for user {}: {}", reset_for_user_id, e);
-            }
-        }
-    }
+    let successful_resets_count = reset_results.len();
 
-    token.authorized_ok(web::Json(successful_resets_count))
+    token.authorized_ok(web::Json(successful_resets_count as i32))
 }
 
 /**

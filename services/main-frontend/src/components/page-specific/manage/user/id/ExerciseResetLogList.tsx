@@ -7,11 +7,11 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { dateToString } from "@/shared-module/common/utils/time"
 
-export interface CourseInstanceEnrollmentsListProps {
+export interface ExerciseResetLogListProps {
   userId: string
 }
 
-const ExerciseResetLogList: React.FC<CourseInstanceEnrollmentsListProps> = ({ userId }) => {
+const ExerciseResetLogList: React.FC<ExerciseResetLogListProps> = ({ userId }) => {
   const { t } = useTranslation()
   const userResetExerciseLogs = useQuery({
     queryKey: ["user-reset-exercise-logs", userId],

@@ -264,14 +264,14 @@ async fn remove_chapter_image(
 GET `/api/v0/main-frontend/chapters/{course_id}/all-chapters-for-course - Gets all chapters with a course_id
 */
 async fn get_all_chapters_by_course_id(
-    page_id: web::Path<Uuid>,
+    course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<DatabaseChapter>>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Page(*page_id)).await?;
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
 
-    let mut chapters = models::chapters::course_chapters(&mut conn, *page_id).await?;
+    let mut chapters = models::chapters::course_chapters(&mut conn, *course_id).await?;
 
     chapters.sort_by(|a, b| a.chapter_number.cmp(&b.chapter_number));
 

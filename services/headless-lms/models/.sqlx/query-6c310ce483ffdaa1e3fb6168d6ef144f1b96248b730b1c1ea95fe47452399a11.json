@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT NULL::timestamptz AS \"period\",\n       COUNT(DISTINCT user_id) AS \"count!\"\nFROM user_course_settings\nWHERE current_course_id = $1\n  AND deleted_at IS NULL\n  AND user_id != ALL($2);\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "period",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 1,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "UuidArray"]
+    },
+    "nullable": [null, null]
+  },
+  "hash": "6c310ce483ffdaa1e3fb6168d6ef144f1b96248b730b1c1ea95fe47452399a11"
+}

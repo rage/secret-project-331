@@ -1,0 +1,8 @@
+DROP INDEX exercise_slide_submissions_course_id_idx;
+DROP INDEX page_visit_datum_summary_by_courses_device_types_course_id_idx;
+DROP INDEX page_visit_datum_summary_by_courses_countries_course_id_idx;
+DROP INDEX user_course_settings_current_course_id_idx;
+DROP INDEX page_visit_datum_summary_by_courses_course_id_idx;
+DROP INDEX course_module_completions_course_id_idx;
+DROP INDEX glossary_course_id_idx;
+DROP INDEX peer_or_self_review_configs_exercise_id_idx;

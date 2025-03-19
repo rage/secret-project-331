@@ -1,16 +1,9 @@
-import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import React from "react"
 
-import { fetchCourseLanguageVersions } from "../../../../../../services/backend/courses"
-
+import useCourseLanguageVersionsQuery from "@/hooks/useCourseLanguageVersions"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-
-export const formatLanguageVersionsQueryKey = (courseId: string): string => {
-  // eslint-disable-next-line i18next/no-literal-string
-  return `course-${courseId}-language-versions`
-}
 
 export interface CourseTranslationsListProps {
   courseId: string
@@ -19,10 +12,7 @@ export interface CourseTranslationsListProps {
 const CourseLanguageVersionsList: React.FC<
   React.PropsWithChildren<CourseTranslationsListProps>
 > = ({ courseId }) => {
-  const getCourseLanguageVersions = useQuery({
-    queryKey: [formatLanguageVersionsQueryKey(courseId)],
-    queryFn: () => fetchCourseLanguageVersions(courseId),
-  })
+  const getCourseLanguageVersions = useCourseLanguageVersionsQuery(courseId)
   return (
     <>
       {getCourseLanguageVersions.isError && (

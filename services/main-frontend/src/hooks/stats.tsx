@@ -4,16 +4,21 @@ import {
   getAvgTimeToFirstSubmissionByMonth,
   getCohortDailyActivity,
   getCohortWeeklyActivity,
+  getDailyCompletionsAllLanguageVersions,
   getDailyCourseCompletions,
   getDailyFirstExerciseSubmissions,
   getDailyUniqueUsersStarting,
+  getDailyUniqueUsersStartingAllLanguageVersions,
   getDailyUsersReturningExercises,
+  getMonthlyCompletionsAllLanguageVersions,
   getMonthlyCourseCompletions,
   getMonthlyFirstExerciseSubmissions,
   getMonthlyUniqueUsersStarting,
+  getMonthlyUniqueUsersStartingAllLanguageVersions,
   getMonthlyUsersReturningExercises,
   getTotalUsersCompletedCourse,
   getTotalUsersReturnedExercises,
+  getTotalUsersStartedAllLanguageVersions,
   getTotalUsersStartedCourse,
   getWeeklyUniqueUsersStarting,
 } from "../services/backend/courses/stats"
@@ -204,6 +209,70 @@ export const useTotalUsersReturnedExercisesQuery = (
   return useQuery<CountResult, Error>({
     queryKey: ["course-stats", "total-users-returned-exercises", courseId],
     queryFn: () => getTotalUsersReturnedExercises(assertNotNullOrUndefined(courseId)),
+    enabled: !!courseId,
+    ...options,
+  })
+}
+
+export const useTotalUsersStartedAllLanguageVersionsQuery = (
+  courseId: string | null,
+  options: HookQueryOptions<CountResult> = {},
+): UseQueryResult<CountResult, Error> => {
+  return useQuery<CountResult, Error>({
+    queryKey: ["course-stats", "all-language-versions", "total-users-started", courseId],
+    queryFn: () => getTotalUsersStartedAllLanguageVersions(assertNotNullOrUndefined(courseId)),
+    enabled: !!courseId,
+    ...options,
+  })
+}
+
+export const useMonthlyUniqueUsersStartingAllLanguageVersionsQuery = (
+  courseId: string | null,
+  options: HookQueryOptions<CountResult[]> = {},
+): UseQueryResult<CountResult[], Error> => {
+  return useQuery<CountResult[], Error>({
+    queryKey: ["course-stats", "all-language-versions", "monthly-users-starting", courseId],
+    queryFn: () =>
+      getMonthlyUniqueUsersStartingAllLanguageVersions(assertNotNullOrUndefined(courseId)),
+    enabled: !!courseId,
+    ...options,
+  })
+}
+
+export const useDailyUniqueUsersStartingAllLanguageVersionsQuery = (
+  courseId: string | null,
+  days: number,
+  options: HookQueryOptions<CountResult[]> = {},
+): UseQueryResult<CountResult[], Error> => {
+  return useQuery<CountResult[], Error>({
+    queryKey: ["course-stats", "all-language-versions", "daily-users-starting", courseId, days],
+    queryFn: () =>
+      getDailyUniqueUsersStartingAllLanguageVersions(assertNotNullOrUndefined(courseId), days),
+    enabled: !!courseId,
+    ...options,
+  })
+}
+
+export const useMonthlyCompletionsAllLanguageVersionsQuery = (
+  courseId: string | null,
+  options: HookQueryOptions<CountResult[]> = {},
+): UseQueryResult<CountResult[], Error> => {
+  return useQuery<CountResult[], Error>({
+    queryKey: ["course-stats", "all-language-versions", "monthly-completions", courseId],
+    queryFn: () => getMonthlyCompletionsAllLanguageVersions(assertNotNullOrUndefined(courseId)),
+    enabled: !!courseId,
+    ...options,
+  })
+}
+
+export const useDailyCompletionsAllLanguageVersionsQuery = (
+  courseId: string | null,
+  days: number,
+  options: HookQueryOptions<CountResult[]> = {},
+): UseQueryResult<CountResult[], Error> => {
+  return useQuery<CountResult[], Error>({
+    queryKey: ["course-stats", "all-language-versions", "daily-completions", courseId, days],
+    queryFn: () => getDailyCompletionsAllLanguageVersions(assertNotNullOrUndefined(courseId), days),
     enabled: !!courseId,
     ...options,
   })

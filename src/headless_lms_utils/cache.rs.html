@@ -105,13 +105,54 @@
 <a href="#104" id="104">104</a>
 <a href="#105" id="105">105</a>
 <a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a></pre></div><pre class="rust"><code><span class="doccomment">//! Redis cache wrapper.
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a></pre></div><pre class="rust"><code><span class="doccomment">//! Redis cache wrapper.
 
-</span><span class="kw">use </span>redis::{AsyncCommands, Client, ToRedisArgs};
+</span><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>redis::{AsyncCommands, Client, ToRedisArgs};
 <span class="kw">use </span>serde::{de::DeserializeOwned, Serialize};
 <span class="kw">use </span>std::time::Duration;
 
 <span class="doccomment">/// Wrapper for accessing a redis cache.
+</span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>Cache {
     client: Client,
 }
@@ -123,6 +164,43 @@
         <span class="kw">let </span>client =
             Client::open(redis_url).unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">"Malformed url: {redis_url}"</span>));
         <span class="self">Self </span>{ client }
+    }
+
+    <span class="doccomment">/// Retrieves a value from cache, or executes the provided function to generate and cache the value.
+    ///
+    /// First checks if the key exists in the cache. If it does, returns the cached value.
+    /// If not, executes the provided async function, caches its result, and returns it.
+    </span><span class="kw">pub async fn </span>get_or_set&lt;V, F, Fut, K&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        key: K,
+        expires_in: Duration,
+        f: F,
+    ) -&gt; UtilResult&lt;V&gt;
+    <span class="kw">where
+        </span>V: DeserializeOwned + Serialize,
+        F: FnOnce() -&gt; Fut,
+        Fut: std::future::Future&lt;Output = UtilResult&lt;V&gt;&gt;,
+        K: ToRedisArgs + Send + Sync + Clone + std::fmt::Debug,
+    {
+        <span class="comment">// First try to get from cache
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(cached) = <span class="self">self</span>.get_json::&lt;V&gt;(key.clone()).<span class="kw">await </span>{
+            <span class="macro">info!</span>(<span class="string">"Cache hit for key: {:?}"</span>, key);
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(cached);
+        }
+
+        <span class="macro">info!</span>(<span class="string">"Cache miss for key: {:?}"</span>, key);
+
+        <span class="comment">// If not in cache, execute the function and measure time
+        </span><span class="kw">let </span>start = std::time::Instant::now();
+        <span class="kw">let </span>value = f().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>duration = start.elapsed();
+        <span class="macro">info!</span>(<span class="string">"Generated value for key {:?} in {:?}"</span>, key, duration);
+
+        <span class="comment">// Store in cache
+        </span><span class="kw">if </span>!<span class="self">self</span>.cache_json(key.clone(), <span class="kw-2">&amp;</span>value, expires_in).<span class="kw">await </span>{
+            <span class="macro">warn!</span>(<span class="string">"Failed to cache value for key: {:?}"</span>, key);
+        }
+        <span class="prelude-val">Ok</span>(value)
     }
 
     <span class="doccomment">/// Stores the given value in the redis cache as JSON (`Vec&lt;u8&gt;`).

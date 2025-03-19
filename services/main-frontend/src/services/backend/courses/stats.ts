@@ -128,3 +128,50 @@ export const getTotalUsersReturnedExercises = async (courseId: string): Promise<
   )
   return validateResponse(response, isCountResult)
 }
+
+export const getTotalUsersStartedAllLanguageVersions = async (
+  courseId: string,
+): Promise<CountResult> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/stats/all-language-versions/total-users-started`,
+  )
+  return validateResponse(response, isCountResult)
+}
+
+export const getMonthlyUniqueUsersStartingAllLanguageVersions = async (
+  courseId: string,
+): Promise<CountResult[]> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/stats/all-language-versions/monthly-users-starting`,
+  )
+  return validateResponse(response, isArray(isCountResult))
+}
+
+export const getDailyUniqueUsersStartingAllLanguageVersions = async (
+  courseId: string,
+  days: number,
+): Promise<CountResult[]> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/stats/all-language-versions/daily-users-starting/${days}`,
+  )
+  return validateResponse(response, isArray(isCountResult))
+}
+
+export const getMonthlyCompletionsAllLanguageVersions = async (
+  courseId: string,
+): Promise<CountResult[]> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/stats/all-language-versions/monthly-completions`,
+  )
+  return validateResponse(response, isArray(isCountResult))
+}
+
+export const getDailyCompletionsAllLanguageVersions = async (
+  courseId: string,
+  days: number,
+): Promise<CountResult[]> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/stats/all-language-versions/daily-completions/${days}`,
+  )
+  return validateResponse(response, isArray(isCountResult))
+}

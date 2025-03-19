@@ -1,0 +1,33 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH cohort AS (\n  SELECT user_id,\n    DATE_TRUNC('day', created_at) AS cohort_day\n  FROM user_course_settings\n  WHERE current_course_id = $1\n    AND created_at >= NOW() - ($3 || ' days')::INTERVAL\n    AND deleted_at IS NULL\n    AND user_id != ALL($4)\n)\nSELECT c.cohort_day AS \"cohort_start\",\n  DATE_TRUNC('day', s.created_at) AS \"activity_period\",\n  EXTRACT(\n    DAY\n    FROM (DATE_TRUNC('day', s.created_at) - c.cohort_day)\n  )::int AS \"day_offset\",\n  COUNT(DISTINCT s.user_id) AS \"active_users!\"\nFROM cohort c\n  JOIN exercise_slide_submissions s ON c.user_id = s.user_id\n  AND s.course_id = $2\n  AND s.created_at >= NOW() - ($3 || ' days')::INTERVAL\n  AND s.deleted_at IS NULL\nWHERE DATE_TRUNC('day', s.created_at) < c.cohort_day + INTERVAL '7 days'\nGROUP BY c.cohort_day,\n  \"activity_period\",\n  \"day_offset\"\nORDER BY c.cohort_day,\n  \"day_offset\";\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "cohort_start",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 1,
+        "name": "activity_period",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "day_offset",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "active_users!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Uuid", "Text", "UuidArray"]
+    },
+    "nullable": [null, null, null, null]
+  },
+  "hash": "94aeab61047c6efdecabc07be07d1cd4f27907bf367f7571cf8583cc54583209"
+}

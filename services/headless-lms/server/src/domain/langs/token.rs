@@ -4,7 +4,7 @@ use crate::{
 };
 use actix_web::{http::header, FromRequest};
 use futures_util::{future::LocalBoxFuture, FutureExt};
-use headless_lms_utils::{cache::Cache, prelude::UtilResult};
+use headless_lms_utils::cache::Cache;
 use models::users::User;
 use oauth2::TokenResponse;
 use std::ops::{Deref, DerefMut};
@@ -71,7 +71,7 @@ impl FromRequest for AuthToken {
                         )
                     })?
             } else {
-                match load_user(&cache, &token).await? {
+                match load_user(&cache, &token).await {
                     Some(user) => user,
                     None => {
                         let token = LoginToken::new(
@@ -113,6 +113,6 @@ pub async fn cache_user(cache: &Cache, token: &LoginToken, user: &User) {
         .await;
 }
 
-pub async fn load_user(cache: &Cache, token: &str) -> UtilResult<Option<User>> {
+pub async fn load_user(cache: &Cache, token: &str) -> Option<User> {
     cache.get_json(token).await
 }

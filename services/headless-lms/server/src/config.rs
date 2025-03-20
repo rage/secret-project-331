@@ -87,7 +87,7 @@ impl ServerConfigBuilder {
         let ip_to_country_mapper = IpToCountryMapper::new(&app_conf)?;
         let ip_to_country_mapper = Data::new(ip_to_country_mapper);
 
-        let cache = Cache::new(&self.redis_url).await?;
+        let cache = Cache::new(&self.redis_url)?;
         let cache = Data::new(cache);
 
         let jwt_key = JwtKey::new(&self.jwt_password)?;

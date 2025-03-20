@@ -3,16 +3,26 @@
 use crate::prelude::*;
 use redis::{aio::ConnectionManager, AsyncCommands, Client, ToRedisArgs};
 use serde::{de::DeserializeOwned, Serialize};
-use std::sync::Arc;
 use std::time::Duration;
-use tokio::sync::{Mutex, OnceCell};
+use tokio::sync::OnceCell;
 
 /// Wrapper for accessing a redis cache.
-#[derive(Clone)]
+/// Operations are non-blocking and fail gracefully when Redis is unavailable.
 pub struct Cache {
-    // The connection is initialized once and shared between threads
-    connection: Arc<OnceCell<Result<Arc<Mutex<ConnectionManager>>, ()>>>,
-    client: Client, // Keep client around for potential future use
+    connection_manager: OnceCell<ConnectionManager>,
+    initial_connection_successful: std::sync::atomic::AtomicBool,
+}
+
+impl Clone for Cache {
+    fn clone(&self) -> Self {
+        Self {
+            connection_manager: self.connection_manager.clone(),
+            initial_connection_successful: std::sync::atomic::AtomicBool::new(
+                self.initial_connection_successful
+                    .load(std::sync::atomic::Ordering::Relaxed),
+            ),
+        }
+    }
 }
 
 impl std::fmt::Debug for Cache {
@@ -20,6 +30,12 @@ impl std::fmt::Debug for Cache {
         f.debug_struct("Cache")
             .field("client", &"<Client>")
             .field("connection", &"<ConnectionManager>")
+            .field(
+                "initial_connection_successful",
+                &self
+                    .initial_connection_successful
+                    .load(std::sync::atomic::Ordering::Relaxed),
+            )
             .finish()
     }
 }
@@ -29,8 +45,8 @@ impl Cache {
     ///
     /// This will succeed even if Redis is unavailable.
     /// Cache operations will be no-ops if Redis cannot be connected to.
-    /// Will retry connecting every 10 minutes in the background if initial connection fails.
-    pub async fn new(redis_url: &str) -> UtilResult<Self> {
+    /// Will retry connecting in the background if initial connection fails.
+    pub fn new(redis_url: &str) -> UtilResult<Self> {
         let client = Client::open(redis_url).map_err(|e| {
             UtilError::new(
                 UtilErrorType::Other,
@@ -40,47 +56,52 @@ impl Cache {
         })?;
 
         let cache = Self {
-            connection: Arc::new(OnceCell::new()),
-            client,
+            connection_manager: OnceCell::new(),
+            initial_connection_successful: std::sync::atomic::AtomicBool::new(false),
         };
 
-        // Attempt initial connection in the background
-        let client_clone = cache.client.clone();
-        let connection_cell = cache.connection.clone();
+        let client_clone = client.clone();
+        let cache_clone = cache.clone();
+
         tokio::spawn(async move {
+            let mut backoff = Duration::from_secs(1);
+            const MAX_BACKOFF: Duration = Duration::from_secs(6000);
+            const MAX_ATTEMPTS: usize = 1000;
             let mut attempt = 0;
 
-            loop {
+            while attempt < MAX_ATTEMPTS {
                 attempt += 1;
-                info!("Attempting to establish initial Redis connection... (attempt {attempt})");
+                info!("Attempting to establish Redis connection... (attempt {attempt})");
                 let config = redis::aio::ConnectionManagerConfig::new()
                     .set_connection_timeout(Duration::from_secs(5))
                     .set_response_timeout(Duration::from_secs(2))
-                    .set_number_of_retries(3)
-                    .set_exponent_base(2)
-                    .set_factor(100)
-                    .set_max_delay(2000);
+                    .set_number_of_retries(3);
 
                 match ConnectionManager::new_with_config(client_clone.clone(), config).await {
                     Ok(conn_manager) => {
                         info!("Successfully established Redis connection");
-                        let _ = connection_cell.set(Ok(Arc::new(Mutex::new(conn_manager))));
+                        let _ = cache_clone.connection_manager.set(conn_manager);
+                        cache_clone
+                            .initial_connection_successful
+                            .store(true, std::sync::atomic::Ordering::Relaxed);
                         break;
                     }
                     Err(e) => {
                         warn!(
-                            "Failed to establish Redis connection: {e}. Will retry in 10 minutes."
+                            "Failed to establish Redis connection: {e}. Will retry in {:?}.",
+                            backoff
                         );
-                        tokio::time::sleep(Duration::from_secs(600)).await;
+                        tokio::time::sleep(backoff).await;
+                        backoff = std::cmp::min(backoff * 2, MAX_BACKOFF);
                     }
                 }
-                if attempt == i32::MAX {
-                    error!(
-                        "Failed to establish Redis connection after {} attempts",
-                        attempt
-                    );
-                    break;
-                }
+            }
+
+            if attempt >= MAX_ATTEMPTS {
+                error!("Failed to establish Redis connection after {MAX_ATTEMPTS} attempts");
+                cache_clone
+                    .initial_connection_successful
+                    .store(false, std::sync::atomic::Ordering::Relaxed);
             }
         });
 
@@ -91,6 +112,7 @@ impl Cache {
     ///
     /// First checks if the key exists in the cache. If it does, returns the cached value.
     /// If not, executes the provided async function, caches its result, and returns it.
+    /// Operations are non-blocking - if Redis is unavailable, the function is executed immediately.
     pub async fn get_or_set<V, F, Fut, K>(
         &self,
         key: K,
@@ -103,57 +125,39 @@ impl Cache {
         Fut: std::future::Future<Output = UtilResult<V>>,
         K: ToRedisArgs + Send + Sync + Clone + std::fmt::Debug,
     {
-        // First try to get from cache
-        if let Some(cached) = self.get_json::<V, K>(key.clone()).await? {
+        if let Some(cached) = self.get_json::<V, K>(key.clone()).await {
             info!("Cache hit for key: {:?}", key);
             return Ok(cached);
         }
 
         info!("Cache miss for key: {:?}", key);
 
-        // If not in cache, execute the function and measure time
+        // If not in cache or connection not available, execute the function
         let start = std::time::Instant::now();
         let value = f().await?;
         let duration = start.elapsed();
         info!("Generated value for key {:?} in {:?}", key, duration);
 
-        // Store in cache - don't fail if caching fails
         self.cache_json(key.clone(), &value, expires_in).await;
 
         Ok(value)
     }
 
     /// Stores the given value in the redis cache as JSON.
-    /// If Redis is unavailable, this function silently succeeds.
+    /// If Redis is unavailable, this function silently does nothing.
+    /// This is a non-blocking operation.
     pub async fn cache_json<V, K>(&self, key: K, value: &V, expires_in: Duration) -> bool
     where
         V: Serialize,
         K: ToRedisArgs + Send + Sync,
     {
-        // Wait for connection to be initialized, if it isn't already
-        let connection_result = match self
-            .connection
-            .get_or_init(|| async {
-                let config = redis::aio::ConnectionManagerConfig::new()
-                    .set_connection_timeout(Duration::from_secs(5))
-                    .set_response_timeout(Duration::from_secs(2))
-                    .set_number_of_retries(3);
+        if !self.initial_connection_successful() {
+            return false;
+        }
 
-                match ConnectionManager::new_with_config(self.client.clone(), config).await {
-                    Ok(conn) => {
-                        info!("Established Redis connection");
-                        Ok(Arc::new(Mutex::new(conn)))
-                    }
-                    Err(e) => {
-                        warn!("Failed to establish Redis connection: {e}");
-                        Err(())
-                    }
-                }
-            })
-            .await
-        {
-            Ok(conn) => conn,
-            Err(_) => return false, // Redis unavailable
+        let mut connection = match self.connection_manager.get() {
+            Some(conn) => conn.clone(),
+            None => return false,
         };
 
         let value = match serde_json::to_vec(value) {
@@ -164,10 +168,7 @@ impl Cache {
             }
         };
 
-        // Lock the connection manager to perform the operation
-        let mut connection_guard = connection_result.lock().await;
-
-        match connection_guard
+        match connection
             .set_ex::<_, _, ()>(key, value, expires_in.as_secs())
             .await
         {
@@ -181,58 +182,86 @@ impl Cache {
 
     /// Retrieves and deserializes a value from cache.
     /// If Redis is unavailable, returns None.
-    pub async fn get_json<V, K>(&self, key: K) -> UtilResult<Option<V>>
+    /// This is a non-blocking operation.
+    pub async fn get_json<V, K>(&self, key: K) -> Option<V>
     where
         V: DeserializeOwned,
         K: ToRedisArgs + Send + Sync,
     {
-        // Wait for connection to be initialized, if it isn't already
-        let connection_result = match self
-            .connection
-            .get_or_init(|| async {
-                let config = redis::aio::ConnectionManagerConfig::new()
-                    .set_connection_timeout(Duration::from_secs(5))
-                    .set_response_timeout(Duration::from_secs(2))
-                    .set_number_of_retries(3);
+        if !self.initial_connection_successful() {
+            return None;
+        }
 
-                match ConnectionManager::new_with_config(self.client.clone(), config).await {
-                    Ok(conn) => {
-                        info!("Established Redis connection");
-                        Ok(Arc::new(Mutex::new(conn)))
-                    }
-                    Err(e) => {
-                        warn!("Failed to establish Redis connection: {e}");
-                        Err(())
-                    }
-                }
-            })
-            .await
-        {
-            Ok(conn) => conn,
-            Err(_) => return Ok(None), // Redis unavailable
+        let mut connection = match self.connection_manager.get() {
+            Some(conn) => conn.clone(),
+            None => return None,
         };
 
-        // Lock the connection manager to perform the operation
-        let mut connection_guard = connection_result.lock().await;
-
-        // Use proper Redis get command with correct return type
-        match connection_guard.get::<_, Option<Vec<u8>>>(key).await {
-            Ok(Some(bytes)) => match serde_json::from_slice::<V>(&bytes) {
-                Ok(value) => Ok(Some(value)),
+        match connection.get::<_, Option<Vec<u8>>>(key).await {
+            Ok(Some(bytes)) => match serde_json::from_slice(&bytes) {
+                Ok(value) => Some(value),
                 Err(e) => {
                     error!("Failed to deserialize value from cache: {e}");
-                    Ok(None)
+                    None
                 }
             },
-            Ok(None) => Ok(None), // Key doesn't exist
+            Ok(None) => None,
             Err(e) => {
                 if e.to_string().contains("response was nil") {
-                    return Ok(None);
+                    return None;
                 }
                 error!("Failed to get value from cache: {e}");
-                Ok(None) // Treat errors as cache misses
+                None
             }
         }
+    }
+
+    /// Delete a key from the cache.
+    /// Returns true if the key was deleted, false otherwise.
+    /// This is a non-blocking operation.
+    pub async fn invalidate<K>(&self, key: K) -> bool
+    where
+        K: ToRedisArgs + Send + Sync,
+    {
+        if !self.initial_connection_successful() {
+            return false;
+        }
+
+        let mut connection = match self.connection_manager.get() {
+            Some(conn) => conn.clone(),
+            None => return false,
+        };
+
+        match connection.del::<_, i64>(key).await {
+            Ok(1) => true,
+            Ok(0) => false,
+            Ok(_) => true,
+            Err(e) => {
+                error!("Failed to invalidate cache key: {e}");
+                false
+            }
+        }
+    }
+
+    /// Returns whether the initial connection was successful
+    pub fn initial_connection_successful(&self) -> bool {
+        self.initial_connection_successful
+            .load(std::sync::atomic::Ordering::Relaxed)
+    }
+
+    /// Waits for the initial connection to be established, with a timeout.
+    /// Returns true if connected, false if timed out.
+    /// This is primarily intended for testing.
+    #[cfg(test)]
+    pub async fn wait_for_initial_connection(&self, timeout: Duration) -> bool {
+        let start = std::time::Instant::now();
+        while !self.initial_connection_successful() {
+            if start.elapsed() >= timeout {
+                return false;
+            }
+            tokio::time::sleep(Duration::from_millis(100)).await;
+        }
+        true
     }
 }
 
@@ -253,16 +282,24 @@ mod test {
             field: String,
         }
 
-        let cache = Cache::new(&redis_url).await.unwrap();
+        let cache = Cache::new(&redis_url).unwrap();
         let value = S {
             field: "value".to_string(),
         };
+
+        // Wait for connection to be established
+        assert!(
+            cache
+                .wait_for_initial_connection(Duration::from_secs(5))
+                .await,
+            "Failed to connect to Redis within timeout"
+        );
 
         // Test cache_json and get_json
         cache
             .cache_json("key", &value, Duration::from_secs(10))
             .await;
-        let retrieved = cache.get_json::<S, _>("key").await.unwrap();
+        let retrieved = cache.get_json::<S, _>("key").await;
         assert_eq!(
             retrieved,
             Some(S {
@@ -286,5 +323,10 @@ mod test {
                 field: "computed".to_string()
             }
         );
+
+        // Test invalidate
+        assert!(cache.invalidate("key").await);
+        let retrieved = cache.get_json::<S, _>("key").await;
+        assert_eq!(retrieved, None);
     }
 }

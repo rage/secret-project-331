@@ -27,6 +27,7 @@ pub enum UtilErrorType {
     CloudStorage,
     Other,
     Unavailable,
+    DeserializationError,
 }
 
 /**

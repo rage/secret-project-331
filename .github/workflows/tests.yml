@@ -71,7 +71,7 @@ jobs:
         env:
           DATABASE_URL: postgres://postgres:postgres@postgres/headless_lms_test
           DATABASE_URL_TEST: postgres://postgres:postgres@postgres/headless_lms_integration
-          REDIS_URL: redis://redis/1
+          REDIS_URL: redis://redis:6379/1
 
   cms:
     runs-on: ubuntu-latest

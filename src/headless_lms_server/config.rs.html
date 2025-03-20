@@ -246,7 +246,7 @@
         <span class="kw">let </span>ip_to_country_mapper = IpToCountryMapper::new(<span class="kw-2">&amp;</span>app_conf)<span class="question-mark">?</span>;
         <span class="kw">let </span>ip_to_country_mapper = Data::new(ip_to_country_mapper);
 
-        <span class="kw">let </span>cache = Cache::new(<span class="kw-2">&amp;</span><span class="self">self</span>.redis_url).<span class="kw">await</span>;
+        <span class="kw">let </span>cache = Cache::new(<span class="kw-2">&amp;</span><span class="self">self</span>.redis_url)<span class="question-mark">?</span>;
         <span class="kw">let </span>cache = Data::new(cache);
 
         <span class="kw">let </span>jwt_key = JwtKey::new(<span class="kw-2">&amp;</span><span class="self">self</span>.jwt_password)<span class="question-mark">?</span>;

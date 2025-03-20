@@ -1,0 +1,114 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Build Status Latest Version "><title>backon - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="backon" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../static.files/storage-59e33391.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button><a class="logo-container" href="../backon/index.html"><img src="https://raw.githubusercontent.com/Xuanwo/backon/main/.github/assets/logo.jpeg" alt=""></a></nav><nav class="sidebar"><div class="sidebar-crate"><a class="logo-container" href="../backon/index.html"><img src="https://raw.githubusercontent.com/Xuanwo/backon/main/.github/assets/logo.jpeg" alt="logo"></a><h2><a href="../backon/index.html">backon</a><span class="version">1.3.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#backoff" title="Backoff">Backoff</a></li><li><a href="#sleep" title="Sleep">Sleep</a><ul><li><a href="#default-sleeper" title="Default Sleeper">Default Sleeper</a></li><li><a href="#custom-sleeper" title="Custom Sleeper">Custom Sleeper</a></li><li><a href="#the-empty-sleeper" title="The empty Sleeper">The empty Sleeper</a></li></ul></li><li><a href="#retry" title="Retry">Retry</a><ul><li><a href="#retry-an-async-function" title="Retry an async function">Retry an async function</a></li><li><a href="#retry-a-blocking-function" title="Retry a blocking function">Retry a blocking function</a></li></ul></li></ul><h3><a href="#reexports">Crate Items</a></h3><ul class="block"><li><a href="#reexports" title="Re-exports">Re-exports</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>backon</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/backon/lib.rs.html#1-190">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><a href="https://github.com/Xuanwo/backon/actions?query=branch%3Amain"><img src="https://img.shields.io/github/actions/workflow/status/Xuanwo/backon/ci.yml?branch=main" alt="Build Status" /></a> <a href="https://crates.io/crates/backon"><img src="https://img.shields.io/crates/v/backon.svg" alt="Latest Version" /></a> <a href="https://discord.gg/8ARnvtJePD"><img src="https://img.shields.io/discord/1111711408875393035?logo=discord&amp;label=discord" alt="" /></a></p>
+<img src="https://raw.githubusercontent.com/Xuanwo/backon/main/.github/assets/logo.jpeg" alt="BackON" width="38.2%"/>
+<p>Make <strong>retry</strong> like a built-in feature provided by Rust.</p>
+<ul>
+<li><strong>Simple</strong>: Just like a built-in feature: <code>your_fn.retry(ExponentialBuilder::default()).await</code>.</li>
+<li><strong>Flexible</strong>: Supports both blocking and async functions.</li>
+<li><strong>Powerful</strong>: Allows control over retry behavior such as <a href="https://docs.rs/backon/latest/backon/struct.Retry.html#method.when"><code>when</code></a> and <a href="https://docs.rs/backon/latest/backon/struct.Retry.html#method.notify"><code>notify</code></a>.</li>
+<li><strong>Customizable</strong>: Supports custom retry strategies like <a href="https://docs.rs/backon/latest/backon/struct.ExponentialBuilder.html">exponential</a>, <a href="https://docs.rs/backon/latest/backon/struct.ConstantBuilder.html">constant</a>, etc.</li>
+</ul>
+<h2 id="backoff"><a class="doc-anchor" href="#backoff">§</a>Backoff</h2>
+<p>Retry in BackON requires a backoff strategy. BackON will accept a <a href="trait.BackoffBuilder.html" title="trait backon::BackoffBuilder"><code>BackoffBuilder</code></a> which will generate a new <a href="trait.Backoff.html" title="trait backon::Backoff"><code>Backoff</code></a> for each retry.</p>
+<p>BackON provides several backoff implementations with reasonable defaults:</p>
+<ul>
+<li><a href="struct.ConstantBuilder.html" title="struct backon::ConstantBuilder"><code>ConstantBuilder</code></a>: backoff with a constant delay, limited to a specific number of attempts.</li>
+<li><a href="struct.ExponentialBuilder.html" title="struct backon::ExponentialBuilder"><code>ExponentialBuilder</code></a>: backoff with an exponential delay, also supports jitter.</li>
+<li><a href="struct.FibonacciBuilder.html" title="struct backon::FibonacciBuilder"><code>FibonacciBuilder</code></a>: backoff with a fibonacci delay, also supports jitter.</li>
+</ul>
+<h2 id="sleep"><a class="doc-anchor" href="#sleep">§</a>Sleep</h2>
+<p>Retry in BackON requires an implementation for sleeping, such an implementation
+is called a Sleeper, it will implement <a href="trait.Sleeper.html" title="trait backon::Sleeper"><code>Sleeper</code></a> or <a href="trait.BlockingSleeper.html" title="trait backon::BlockingSleeper"><code>BlockingSleeper</code></a> depending
+on if it is going to be used in an asynchronous context.</p>
+<h3 id="default-sleeper"><a class="doc-anchor" href="#default-sleeper">§</a>Default Sleeper</h3>
+<p>Currently, BackON has 3 built-in Sleeper implementations for different
+environments, they are gated under their own features, which are enabled
+by default:</p>
+<div><table><thead><tr><th><code>Sleeper</code></th><th>feature</th><th>Environment</th><th>Asynchronous</th></tr></thead><tbody>
+<tr><td>[<code>TokioSleeper</code>]</td><td>tokio-sleep</td><td>non-wasm32</td><td>Yes</td></tr>
+<tr><td>[<code>GlooTimersSleep</code>]</td><td>gloo-timers-sleep</td><td>wasm32</td><td>Yes</td></tr>
+<tr><td>[<code>StdSleeper</code>]</td><td>std-blocking-sleep</td><td>all</td><td>No</td></tr>
+</tbody></table>
+</div><h3 id="custom-sleeper"><a class="doc-anchor" href="#custom-sleeper">§</a>Custom Sleeper</h3>
+<p>If you do not want to use the built-in Sleeper, you CAN provide a custom
+implementation, let’s implement an asynchronous dummy Sleeper that does
+not sleep at all. You will find it pretty similar when you implement a
+blocking one.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::time::Duration;
+<span class="kw">use </span>backon::Sleeper;
+
+<span class="doccomment">/// A dummy `Sleeper` impl that prints then becomes ready!
+</span><span class="kw">struct </span>DummySleeper;
+
+<span class="kw">impl </span>Sleeper <span class="kw">for </span>DummySleeper {
+    <span class="kw">type </span>Sleep = std::future::Ready&lt;()&gt;;
+
+    <span class="kw">fn </span>sleep(<span class="kw-2">&amp;</span><span class="self">self</span>, dur: Duration) -&gt; <span class="self">Self</span>::Sleep {
+        <span class="macro">println!</span>(<span class="string">"Hello from DummySleeper!"</span>);
+        std::future::ready(())
+    }
+}</code></pre></div>
+<h3 id="the-empty-sleeper"><a class="doc-anchor" href="#the-empty-sleeper">§</a>The empty Sleeper</h3>
+<p>If neither feature is enabled nor a custom implementation is provided, BackON
+will fallback to the empty sleeper, in which case, a compile-time error that
+<code>PleaseEnableAFeatureOrProvideACustomSleeper needs to implement Sleeper or BlockingSleeper</code> will be raised to remind you to choose or bring a real Sleeper
+implementation.</p>
+<h2 id="retry"><a class="doc-anchor" href="#retry">§</a>Retry</h2>
+<p>For additional examples, please visit [<code>docs::examples</code>].</p>
+<h3 id="retry-an-async-function"><a class="doc-anchor" href="#retry-an-async-function">§</a>Retry an async function</h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>backon::ExponentialBuilder;
+<span class="kw">use </span>backon::Retryable;
+<span class="kw">use </span>core::time::Duration;
+
+<span class="kw">async fn </span>fetch() -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+    <span class="prelude-val">Ok</span>(<span class="string">"hello, world!"</span>.to_string())
+}
+
+<span class="attr">#[tokio::main]
+</span><span class="kw">async fn </span>main() -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">let </span>content = fetch
+        <span class="comment">// Retry with exponential backoff
+        </span>.retry(ExponentialBuilder::default())
+        <span class="comment">// Sleep implementation, default to tokio::time::sleep if `tokio-sleep` has been enabled.
+        </span>.sleep(tokio::time::sleep)
+        <span class="comment">// When to retry
+        </span>.when(|e| e.to_string() == <span class="string">"EOF"</span>)
+        <span class="comment">// Notify when retrying
+        </span>.notify(|err: <span class="kw-2">&amp;</span>anyhow::Error, dur: Duration| {
+            <span class="macro">println!</span>(<span class="string">"retrying {:?} after {:?}"</span>, err, dur);
+        })
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="macro">println!</span>(<span class="string">"fetch succeeded: {}"</span>, content);
+
+    <span class="prelude-val">Ok</span>(())
+}</code></pre></div>
+<h3 id="retry-a-blocking-function"><a class="doc-anchor" href="#retry-a-blocking-function">§</a>Retry a blocking function</h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>backon::BlockingRetryable;
+<span class="kw">use </span>backon::ExponentialBuilder;
+<span class="kw">use </span>core::time::Duration;
+
+<span class="kw">fn </span>fetch() -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+    <span class="prelude-val">Ok</span>(<span class="string">"hello, world!"</span>.to_string())
+}
+
+<span class="kw">fn </span>main() -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">let </span>content = fetch
+        <span class="comment">// Retry with exponential backoff
+        </span>.retry(ExponentialBuilder::default())
+        <span class="comment">// Sleep implementation, default to std::thread::sleep if `std-blocking-sleep` has been enabled.
+        </span>.sleep(std::thread::sleep)
+        <span class="comment">// When to retry
+        </span>.when(|e| e.to_string() == <span class="string">"EOF"</span>)
+        <span class="comment">// Notify when retrying
+        </span>.notify(|err: <span class="kw-2">&amp;</span>anyhow::Error, dur: Duration| {
+            <span class="macro">println!</span>(<span class="string">"retrying {:?} after {:?}"</span>, err, dur);
+        })
+        .call()<span class="question-mark">?</span>;
+    <span class="macro">println!</span>(<span class="string">"fetch succeeded: {}"</span>, content);
+
+    <span class="prelude-val">Ok</span>(())
+}</code></pre></div>
+</div></details><h2 id="reexports" class="section-header">Re-exports<a href="#reexports" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name" id="reexport.ConstantBackoff"><code>pub use constant::ConstantBackoff;</code></div></li><li><div class="item-name" id="reexport.FibonacciBackoff"><code>pub use fibonacci::FibonacciBackoff;</code></div></li><li><div class="item-name" id="reexport.ExponentialBackoff"><code>pub use exponential::ExponentialBackoff;</code></div></li></ul><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="struct" href="struct.BlockingRetry.html" title="struct backon::BlockingRetry">Blocking<wbr>Retry</a></div><div class="desc docblock-short">Retry structure generated by <a href="trait.BlockingRetryable.html" title="trait backon::BlockingRetryable"><code>BlockingRetryable</code></a>.</div></li><li><div class="item-name"><a class="struct" href="struct.BlockingRetryWithContext.html" title="struct backon::BlockingRetryWithContext">Blocking<wbr>Retry<wbr>With<wbr>Context</a></div><div class="desc docblock-short">Retry structure generated by <a href="trait.BlockingRetryableWithContext.html" title="trait backon::BlockingRetryableWithContext"><code>BlockingRetryableWithContext</code></a>.</div></li><li><div class="item-name"><a class="struct" href="struct.ConstantBuilder.html" title="struct backon::ConstantBuilder">Constant<wbr>Builder</a></div><div class="desc docblock-short">ConstantBuilder is used to create a [<code>ConstantBackoff</code>], providing a steady delay with a fixed number of retries.</div></li><li><div class="item-name"><a class="struct" href="struct.ExponentialBuilder.html" title="struct backon::ExponentialBuilder">Exponential<wbr>Builder</a></div><div class="desc docblock-short">ExponentialBuilder is used to construct an [<code>ExponentialBackoff</code>] that offers delays with exponential retries.</div></li><li><div class="item-name"><a class="struct" href="struct.FibonacciBuilder.html" title="struct backon::FibonacciBuilder">Fibonacci<wbr>Builder</a></div><div class="desc docblock-short">FibonacciBuilder is used to build a [<code>FibonacciBackoff</code>] which offers a delay with Fibonacci-based retries.</div></li><li><div class="item-name"><a class="struct" href="struct.Retry.html" title="struct backon::Retry">Retry</a></div><div class="desc docblock-short">Struct generated by <a href="trait.Retryable.html" title="trait backon::Retryable"><code>Retryable</code></a>.</div></li><li><div class="item-name"><a class="struct" href="struct.RetryWithContext.html" title="struct backon::RetryWithContext">Retry<wbr>With<wbr>Context</a></div><div class="desc docblock-short">Retry struct generated by <a href="trait.RetryableWithContext.html" title="trait backon::RetryableWithContext"><code>RetryableWithContext</code></a>.</div></li></ul><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="trait" href="trait.Backoff.html" title="trait backon::Backoff">Backoff</a></div><div class="desc docblock-short">Backoff is an <a href="https://doc.rust-lang.org/1.84.1/core/iter/traits/iterator/trait.Iterator.html" title="trait core::iter::traits::iterator::Iterator"><code>Iterator</code></a> that returns <a href="https://doc.rust-lang.org/1.84.1/core/time/struct.Duration.html" title="struct core::time::Duration"><code>Duration</code></a>.</div></li><li><div class="item-name"><a class="trait" href="trait.BackoffBuilder.html" title="trait backon::BackoffBuilder">Backoff<wbr>Builder</a></div><div class="desc docblock-short">BackoffBuilder is utilized to construct a new backoff.</div></li><li><div class="item-name"><a class="trait" href="trait.BlockingRetryable.html" title="trait backon::BlockingRetryable">Blocking<wbr>Retryable</a></div><div class="desc docblock-short">BlockingRetryable adds retry support for blocking functions.</div></li><li><div class="item-name"><a class="trait" href="trait.BlockingRetryableWithContext.html" title="trait backon::BlockingRetryableWithContext">Blocking<wbr>Retryable<wbr>With<wbr>Context</a></div><div class="desc docblock-short">BlockingRetryableWithContext adds retry support for blocking functions.</div></li><li><div class="item-name"><a class="trait" href="trait.BlockingSleeper.html" title="trait backon::BlockingSleeper">Blocking<wbr>Sleeper</a></div><div class="desc docblock-short">A sleeper is used sleep for a specified duration.</div></li><li><div class="item-name"><a class="trait" href="trait.Retryable.html" title="trait backon::Retryable">Retryable</a></div><div class="desc docblock-short">Retryable will add retry support for functions that produce futures with results.</div></li><li><div class="item-name"><a class="trait" href="trait.RetryableWithContext.html" title="trait backon::RetryableWithContext">Retryable<wbr>With<wbr>Context</a></div><div class="desc docblock-short"><code>RetryableWithContext</code> adds retry support for functions that produce futures with results
+and context.</div></li><li><div class="item-name"><a class="trait" href="trait.Sleeper.html" title="trait backon::Sleeper">Sleeper</a></div><div class="desc docblock-short">A sleeper is used to generate a future that completes after a specified duration.</div></li></ul><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="type" href="type.DefaultBlockingSleeper.html" title="type backon::DefaultBlockingSleeper">Default<wbr>Blocking<wbr>Sleeper</a></div><div class="desc docblock-short">The default implementation of <code>Sleeper</code> when no features are enabled.</div></li><li><div class="item-name"><a class="type" href="type.DefaultSleeper.html" title="type backon::DefaultSleeper">Default<wbr>Sleeper</a></div><div class="desc docblock-short">The default implementation of <code>Sleeper</code> when no features are enabled.</div></li></ul></section></div></main></body></html>

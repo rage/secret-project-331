@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["BlockingRetry","BlockingRetryWithContext","ConstantBuilder","ExponentialBuilder","FibonacciBuilder","Retry","RetryWithContext"],"trait":["Backoff","BackoffBuilder","BlockingRetryable","BlockingRetryableWithContext","BlockingSleeper","Retryable","RetryableWithContext","Sleeper"],"type":["DefaultBlockingSleeper","DefaultSleeper"]};

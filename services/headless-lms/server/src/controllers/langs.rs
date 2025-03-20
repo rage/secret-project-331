@@ -1,3 +1,7 @@
+/*!
+Handlers for HTTP requests to `/api/v0/langs`. Contains endpoints for the use of tmc-langs.
+
+*/
 use crate::controllers::helpers::file_uploading;
 use crate::domain::langs::{convert::Convert, token::AuthToken};
 use crate::domain::models_requests::{self, JwtKey};
@@ -168,21 +172,26 @@ async fn get_exercise(
 }
 
 #[derive(MultipartForm)]
-struct UploadForm {
-    metadata: MultipartJson<api::UploadMetadata>,
+struct SubmissionForm {
+    submission: MultipartJson<api::ExerciseSlideSubmission>,
     file: TempFile,
 }
 
-async fn upload_exercise(
+/**
+ * POST /api/v0/langs/exercises/:id/submit
+ *
+ * Accepts an exercise submission from the user.
+ */
+async fn submit_exercise(
     pool: web::Data<PgPool>,
     file_store: web::Data<dyn FileStore>,
+    jwt_key: web::Data<JwtKey>,
     exercise_id: web::Path<Uuid>,
-    upload: MultipartForm<UploadForm>,
+    submission: MultipartForm<SubmissionForm>,
     user: AuthToken,
     app_conf: web::Data<ApplicationConfiguration>,
-) -> ControllerResult<web::Json<api::UploadResult>> {
+) -> ControllerResult<web::Json<api::ExerciseTaskSubmissionResult>> {
     let mut conn = pool.acquire().await?;
-    // if the user can view an exercise, they should be able to upload their attempt
     let token = authorize(
         &mut conn,
         Act::View,
@@ -191,17 +200,26 @@ async fn upload_exercise(
     )
     .await?;
 
+    // first get all the relevant data
+    let submission_form = submission.into_inner();
+    let submission = submission_form.submission.into_inner();
+    let temp_file = submission_form.file;
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
     let course_id = exercise
         .course_id
-        .ok_or_else(|| anyhow::anyhow!("Cannot upload non-course exercises"))?;
+        .ok_or_else(|| anyhow::anyhow!("Cannot answer non-course exercises"))?;
     let exercise_slide =
-        models::exercise_slides::get_exercise_slide(&mut conn, upload.metadata.slide_id).await?;
+        models::exercise_slides::get_exercise_slide(&mut conn, submission.exercise_slide_id)
+            .await?;
     let exercise_task =
-        models::exercise_tasks::get_exercise_task_by_id(&mut conn, upload.metadata.task_id).await?;
+        models::exercise_tasks::get_exercise_task_by_id(&mut conn, submission.exercise_task_id)
+            .await?;
 
-    let upload = upload.into_inner();
-    let (file, _temp_path) = upload.file.file.into_parts();
+    // upload the exercise file
+    let file = temp_file.file.into_file();
+    let mime = temp_file
+        .content_type
+        .ok_or_else(|| anyhow::anyhow!("Missing content-type header"))?;
     let contents = file_utils::file_to_payload(file);
     let (_upload_id, upload_path) = file_uploading::upload_exercise_archive(
         &mut conn,
@@ -213,33 +231,18 @@ async fn upload_exercise(
             exercise_slide: &exercise_slide,
             exercise_task: &exercise_task,
         },
+        mime,
         user.id,
     )
     .await?;
 
-    let download_url = file_store.get_download_url(&upload_path, &app_conf);
-    let upload_result = api::UploadResult { download_url };
-    token.authorized_ok(web::Json(upload_result))
-}
-
-async fn submit_exercise(
-    pool: web::Data<PgPool>,
-    jwt_key: web::Data<JwtKey>,
-    exercise_id: web::Path<Uuid>,
-    submission: web::Json<api::ExerciseSlideSubmission>,
-    user: AuthToken,
-) -> ControllerResult<web::Json<api::ExerciseTaskSubmissionResult>> {
-    let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::View,
-        Some(user.id),
-        Res::Exercise(*exercise_id),
-    )
-    .await?;
-
-    let submission = submission.into_inner();
-    let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
+    // send submission to the exercise service
+    let download_url = file_store.get_download_url(&upload_path, app_conf.as_ref());
+    // `services/tmc/src/util/stateInterfaces.ts/EditorAnswer
+    let data_json = serde_json::json!({
+        "type": "editor",
+        "archiveDownloadUrl": download_url
+    });
     let result = domain::exercises::process_submission(
         &mut conn,
         user.id,
@@ -248,7 +251,7 @@ async fn submit_exercise(
             exercise_slide_id: submission.exercise_slide_id,
             exercise_task_submissions: vec![StudentExerciseTaskSubmission {
                 exercise_task_id: submission.exercise_task_id,
-                data_json: submission.data_json,
+                data_json,
             }],
         },
         jwt_key.into_inner(),
@@ -313,7 +316,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_course_instance_exercises),
         )
         .route("/exercises/{id}", web::get().to(get_exercise))
-        .route("/exercises/{id}/upload", web::post().to(upload_exercise))
         .route("/exercises/{id}/submit", web::post().to(submit_exercise))
         .route(
             "/submissions/{id}/grading",

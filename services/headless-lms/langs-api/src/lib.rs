@@ -54,17 +54,6 @@ pub struct ExerciseTaskSubmissionResult {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct UploadMetadata {
-    pub slide_id: Uuid,
-    pub task_id: Uuid,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct UploadResult {
-    pub download_url: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
 pub enum ExerciseTaskSubmissionStatus {
     NoGradingYet,
     Grading {

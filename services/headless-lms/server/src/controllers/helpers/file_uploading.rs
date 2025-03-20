@@ -11,6 +11,7 @@ use headless_lms_utils::file_store::{FileStore, GenericPayload};
 use headless_lms_utils::{
     file_store::file_utils::get_extension_from_filename, strings::generate_random_string,
 };
+use mime::Mime;
 use models::exercise_slides::ExerciseSlide;
 use models::exercise_tasks::ExerciseTask;
 use models::exercises::Exercise;
@@ -275,6 +276,7 @@ pub async fn upload_exercise_archive(
     file: GenericPayload,
     file_store: &dyn FileStore,
     exercise: ExerciseTaskInfo<'_>,
+    mime: Mime,
     uploader: Uuid,
 ) -> Result<(Uuid, PathBuf), ControllerError> {
     let file_name = &exercise.exercise.name;
@@ -289,7 +291,7 @@ pub async fn upload_exercise_archive(
             &exercise.exercise_task.id.to_string(),
             file_name,
         ],
-        FileType::Image,
+        FileType::File,
         StoreKind::Course(exercise.course_id),
     );
     let safe_path = make_filename_safe(&path);
@@ -297,7 +299,7 @@ pub async fn upload_exercise_archive(
         conn,
         &safe_path,
         file_name,
-        "image/svg+xml",
+        mime.as_ref(),
         file,
         file_store,
         Some(uploader),

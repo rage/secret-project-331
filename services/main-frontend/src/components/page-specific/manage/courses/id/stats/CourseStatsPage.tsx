@@ -31,6 +31,7 @@ import TopReferrers from "./visualizations/visitors/TopReferrers"
 import TopUtmCampaigns from "./visualizations/visitors/TopUtmCampaigns"
 import TopUtmSources from "./visualizations/visitors/TopUtmSources"
 
+import useCourseInstancesQuery from "@/hooks/useCourseInstancesQuery"
 import useCourseLanguageVersionsQuery from "@/hooks/useCourseLanguageVersions"
 import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
 import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"
@@ -41,6 +42,7 @@ const TAB_OVERVIEW = "overview"
 const TAB_USER_ACTIVITY = "user-activity"
 const TAB_VISITORS = "visitors"
 const TAB_ALL_LANGUAGES = "all-languages"
+const TAB_COURSE_INSTANCES = "course-instances"
 
 export const InstructionBox = styled.div`
   background-color: ${baseTheme.colors.clear[100]};
@@ -61,6 +63,7 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
   const [activeTab, setActiveTab] = useState(TAB_OVERVIEW)
 
   const courseLanguageVersions = useCourseLanguageVersionsQuery(courseId)
+  const courseInstances = useCourseInstancesQuery(courseId)
 
   useEffect(() => {
     if (router.query.tab) {
@@ -71,6 +74,11 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
   const showLanguageVersionsTab = useMemo(
     () => courseLanguageVersions.isSuccess && courseLanguageVersions.data.length > 1,
     [courseLanguageVersions.isSuccess, courseLanguageVersions.data],
+  )
+
+  const showCourseInstancesTab = useMemo(
+    () => courseInstances.isSuccess && courseInstances.data.length > 1,
+    [courseInstances.isSuccess, courseInstances.data],
   )
 
   return (
@@ -111,6 +119,17 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
             isActive={activeTab === TAB_ALL_LANGUAGES}
           >
             {t("stats-tab-all-languages")}
+          </TabLink>
+        )}
+        {showCourseInstancesTab && (
+          <TabLink
+            url={{
+              pathname: router.pathname,
+              query: { ...router.query, tab: TAB_COURSE_INSTANCES },
+            }}
+            isActive={activeTab === TAB_COURSE_INSTANCES}
+          >
+            {t("stats-tab-course-instances")}
           </TabLink>
         )}
       </TabLinkNavigation>
@@ -161,6 +180,8 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
             <AllLanguageCompletionsChart courseId={courseId} />
           </div>
         )}
+
+        {activeTab === TAB_COURSE_INSTANCES && <div>Course instance stats will go here</div>}
       </TabLinkPanel>
     </>
   )

@@ -3,24 +3,22 @@
 use crate::prelude::*;
 use redis::{aio::ConnectionManager, AsyncCommands, Client, ToRedisArgs};
 use serde::{de::DeserializeOwned, Serialize};
+use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::OnceCell;
 
 /// Wrapper for accessing a redis cache.
 /// Operations are non-blocking and fail gracefully when Redis is unavailable.
 pub struct Cache {
-    connection_manager: OnceCell<ConnectionManager>,
-    initial_connection_successful: std::sync::atomic::AtomicBool,
+    connection_manager: Arc<OnceCell<ConnectionManager>>,
+    initial_connection_successful: Arc<std::sync::atomic::AtomicBool>,
 }
 
 impl Clone for Cache {
     fn clone(&self) -> Self {
         Self {
             connection_manager: self.connection_manager.clone(),
-            initial_connection_successful: std::sync::atomic::AtomicBool::new(
-                self.initial_connection_successful
-                    .load(std::sync::atomic::Ordering::Relaxed),
-            ),
+            initial_connection_successful: self.initial_connection_successful.clone(),
         }
     }
 }
@@ -34,7 +32,7 @@ impl std::fmt::Debug for Cache {
                 "initial_connection_successful",
                 &self
                     .initial_connection_successful
-                    .load(std::sync::atomic::Ordering::Relaxed),
+                    .load(std::sync::atomic::Ordering::SeqCst),
             )
             .finish()
     }
@@ -56,8 +54,8 @@ impl Cache {
         })?;
 
         let cache = Self {
-            connection_manager: OnceCell::new(),
-            initial_connection_successful: std::sync::atomic::AtomicBool::new(false),
+            connection_manager: Arc::new(OnceCell::new()),
+            initial_connection_successful: Arc::new(std::sync::atomic::AtomicBool::new(false)),
         };
 
         let client_clone = client.clone();
@@ -80,11 +78,20 @@ impl Cache {
                 match ConnectionManager::new_with_config(client_clone.clone(), config).await {
                     Ok(conn_manager) => {
                         info!("Successfully established Redis connection");
-                        let _ = cache_clone.connection_manager.set(conn_manager);
-                        cache_clone
-                            .initial_connection_successful
-                            .store(true, std::sync::atomic::Ordering::Relaxed);
-                        break;
+                        match cache_clone.connection_manager.set(conn_manager) {
+                            Ok(_) => {
+                                info!("Connection manager set successfully");
+                                cache_clone
+                                    .initial_connection_successful
+                                    .store(true, std::sync::atomic::Ordering::SeqCst);
+                                trace!("Connection flag set to true");
+                                break;
+                            }
+                            Err(_) => {
+                                warn!("Failed to set connection manager - will retry");
+                                continue;
+                            }
+                        }
                     }
                     Err(e) => {
                         warn!(
@@ -101,7 +108,7 @@ impl Cache {
                 error!("Failed to establish Redis connection after {MAX_ATTEMPTS} attempts");
                 cache_clone
                     .initial_connection_successful
-                    .store(false, std::sync::atomic::Ordering::Relaxed);
+                    .store(false, std::sync::atomic::Ordering::SeqCst);
             }
         });
 
@@ -152,12 +159,16 @@ impl Cache {
         K: ToRedisArgs + Send + Sync,
     {
         if !self.initial_connection_successful() {
+            warn!("Skipping cache_json because initial connection not successful");
             return false;
         }
 
         let mut connection = match self.connection_manager.get() {
             Some(conn) => conn.clone(),
-            None => return false,
+            None => {
+                warn!("Skipping cache_json because no connection manager");
+                return false;
+            }
         };
 
         let value = match serde_json::to_vec(value) {
@@ -172,7 +183,10 @@ impl Cache {
             .set_ex::<_, _, ()>(key, value, expires_in.as_secs())
             .await
         {
-            Ok(_) => true,
+            Ok(_) => {
+                debug!("Successfully cached value");
+                true
+            }
             Err(e) => {
                 error!("Failed to cache value: {e}");
                 false
@@ -189,25 +203,36 @@ impl Cache {
         K: ToRedisArgs + Send + Sync,
     {
         if !self.initial_connection_successful() {
+            warn!("Skipping get_json because initial connection not successful");
             return None;
         }
 
         let mut connection = match self.connection_manager.get() {
             Some(conn) => conn.clone(),
-            None => return None,
+            None => {
+                warn!("Skipping get_json because no connection manager");
+                return None;
+            }
         };
 
         match connection.get::<_, Option<Vec<u8>>>(key).await {
             Ok(Some(bytes)) => match serde_json::from_slice(&bytes) {
-                Ok(value) => Some(value),
+                Ok(value) => {
+                    debug!("Successfully retrieved and deserialized value from cache");
+                    Some(value)
+                }
                 Err(e) => {
                     error!("Failed to deserialize value from cache: {e}");
                     None
                 }
             },
-            Ok(None) => None,
+            Ok(None) => {
+                debug!("Key not found in cache");
+                None
+            }
             Err(e) => {
                 if e.to_string().contains("response was nil") {
+                    debug!("Got nil response from Redis");
                     return None;
                 }
                 error!("Failed to get value from cache: {e}");
@@ -246,7 +271,7 @@ impl Cache {
     /// Returns whether the initial connection was successful
     pub fn initial_connection_successful(&self) -> bool {
         self.initial_connection_successful
-            .load(std::sync::atomic::Ordering::Relaxed)
+            .load(std::sync::atomic::Ordering::SeqCst)
     }
 
     /// Waits for the initial connection to be established, with a timeout.
@@ -255,8 +280,14 @@ impl Cache {
     #[cfg(test)]
     pub async fn wait_for_initial_connection(&self, timeout: Duration) -> bool {
         let start = std::time::Instant::now();
-        while !self.initial_connection_successful() {
+        while !self.initial_connection_successful() || self.connection_manager.get().is_none() {
             if start.elapsed() >= timeout {
+                error!(
+                    "Timed out waiting for Redis connection after {:?}. Flag is: {}, Connection manager: {}",
+                    timeout,
+                    self.initial_connection_successful(),
+                    self.connection_manager.get().is_some()
+                );
                 return false;
             }
             tokio::time::sleep(Duration::from_millis(100)).await;
@@ -267,6 +298,8 @@ impl Cache {
 
 #[cfg(test)]
 mod test {
+    use std::env;
+
     use super::*;
     use serde::Deserialize;
 
@@ -290,15 +323,16 @@ mod test {
         // Wait for connection to be established
         assert!(
             cache
-                .wait_for_initial_connection(Duration::from_secs(5))
+                .wait_for_initial_connection(Duration::from_secs(10))
                 .await,
             "Failed to connect to Redis within timeout"
         );
 
         // Test cache_json and get_json
-        cache
+        let cache_result = cache
             .cache_json("key", &value, Duration::from_secs(10))
             .await;
+
         let retrieved = cache.get_json::<S, _>("key").await;
         assert_eq!(
             retrieved,

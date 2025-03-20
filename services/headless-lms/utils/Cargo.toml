@@ -27,7 +27,9 @@ chrono = { version = "0.4.39", features = ["serde"] }
 # A JSON serialization file format
 serde_json = "1.0.138"
 # A crate for uploading files to Google cloud storage, and for generating download urls.
-cloud-storage = { version = "0.11.1", default-features = false, features = ["rustls-tls"] }
+cloud-storage = { version = "0.11.1", default-features = false, features = [
+  "rustls-tls",
+] }
 # A library for managing a temporary directory and deleting all contents when it's dropped.
 tempdir = "0.3.7"
 # Type erasure for async trait methods
@@ -72,9 +74,20 @@ anyhow = "1.0.95"
 # DEFLATE compression and decompression exposed as Read/BufRead/Write streams.
 flate2 = "1.0.35"
 # higher level HTTP client library
-reqwest = { version = "0.12.12", features = ["brotli", "gzip", "json", "http2", "rustls-tls", "stream"] }
+reqwest = { version = "0.12.12", features = [
+  "brotli",
+  "gzip",
+  "json",
+  "http2",
+  "rustls-tls",
+  "stream",
+] }
 # Redis driver for Rust.
-redis = { version = "0.28.2", features = ["aio", "tokio-comp"] }
+redis = { version = "0.28.2", features = [
+  "aio",
+  "tokio-comp",
+  "connection-manager",
+] }
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.

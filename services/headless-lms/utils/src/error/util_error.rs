@@ -26,6 +26,7 @@ pub enum UtilErrorType {
     SerdeJson,
     CloudStorage,
     Other,
+    Unavailable,
 }
 
 /**

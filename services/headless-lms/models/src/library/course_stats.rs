@@ -1,3 +1,4 @@
+use crate::library::TimeGranularity;
 use crate::{prelude::*, roles::UserRole};
 
 /// A generic result representing a count metric over a time period.
@@ -388,69 +389,6 @@ ORDER BY "period"
     Ok(res)
 }
 
-/// Monthly count of users who have completed the course.
-pub async fn get_monthly_course_completions(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-) -> ModelResult<Vec<CountResult>> {
-    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
-    let res = sqlx::query_as!(
-        CountResult,
-        r#"
-SELECT DATE_TRUNC('month', created_at) AS "period",
-  COUNT(DISTINCT user_id) AS "count!"
-FROM course_module_completions
-WHERE course_id = $1
-  AND prerequisite_modules_completed = TRUE
-  AND (
-    needs_to_be_reviewed = FALSE
-    OR needs_to_be_reviewed IS NULL
-  )
-  AND passed = TRUE
-  AND deleted_at IS NULL
-  AND user_id != ALL($2)
-GROUP BY "period"
-ORDER BY "period"
-        "#,
-        course_id,
-        &exclude_user_ids
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
-/// Daily count of users who have completed the course within specified days.
-pub async fn get_daily_course_completions_last_n_days(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-    days_limit: i32,
-) -> ModelResult<Vec<CountResult>> {
-    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
-    let res = sqlx::query_as!(
-        CountResult,
-        r#"
-SELECT DATE_TRUNC('day', created_at) AS "period",
-COUNT(DISTINCT user_id) AS "count!"
-FROM course_module_completions
-WHERE course_id = $1
-  AND prerequisite_modules_completed = TRUE
-  AND needs_to_be_reviewed = FALSE
-  AND created_at >= NOW() - ($2 || ' days')::INTERVAL
-  AND deleted_at IS NULL
-  AND user_id != ALL($3)
-GROUP BY "period"
-ORDER BY "period"
-        "#,
-        course_id,
-        &days_limit.to_string(),
-        &exclude_user_ids
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
 /// Total unique users who have returned at least one exercise.
 pub async fn get_total_users_returned_at_least_one_exercise(
     conn: &mut PgConnection,
@@ -754,5 +692,48 @@ ORDER BY "period"
     )
     .fetch_all(conn)
     .await?;
+    Ok(res)
+}
+
+/// Get course completion counts with specified time granularity.
+///
+/// The time_window parameter controls how far back to look:
+/// - For Year granularity: number of years
+/// - For Month granularity: number of months
+/// - For Day granularity: number of days
+pub async fn course_completions_history(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    granularity: TimeGranularity,
+    time_window: i32,
+) -> ModelResult<Vec<CountResult>> {
+    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+    let (interval_unit, time_unit) = granularity.get_sql_units();
+
+    let res = sqlx::query_as!(
+        CountResult,
+        r#"
+SELECT DATE_TRUNC($5, created_at) AS "period",
+  COUNT(DISTINCT user_id) AS "count!"
+FROM course_module_completions
+WHERE course_id = $1
+  AND prerequisite_modules_completed = TRUE
+  AND needs_to_be_reviewed = FALSE
+  AND passed = TRUE
+  AND deleted_at IS NULL
+  AND NOT user_id = ANY($2)
+  AND created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
+GROUP BY "period"
+ORDER BY "period"
+        "#,
+        course_id,
+        &exclude_user_ids,
+        &time_window.to_string(),
+        interval_unit,
+        time_unit,
+    )
+    .fetch_all(conn)
+    .await?;
+
     Ok(res)
 }

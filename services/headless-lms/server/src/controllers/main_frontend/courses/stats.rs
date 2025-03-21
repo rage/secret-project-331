@@ -1,6 +1,7 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/{course_id}/stats`.
 
 use crate::{domain::authorization::authorize, prelude::*};
+use headless_lms_models::library::TimeGranularity;
 use headless_lms_models::ModelError;
 use headless_lms_utils::prelude::{UtilError, UtilErrorType};
 use models::library::course_stats::{AverageMetric, CohortActivity, CountResult};
@@ -391,75 +392,6 @@ async fn get_daily_users_returning_exercises_last_n_days(
     token.authorized_ok(web::Json(res))
 }
 
-/// GET `/api/v0/main-frontend/{course_id}/stats/monthly-completions`
-#[instrument(skip(pool))]
-async fn get_monthly_course_completions(
-    pool: web::Data<PgPool>,
-    user: AuthUser,
-    course_id: web::Path<Uuid>,
-    cache: web::Data<Cache>,
-) -> ControllerResult<web::Json<Vec<CountResult>>> {
-    let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::ViewStats,
-        Some(user.id),
-        Res::Course(*course_id),
-    )
-    .await?;
-
-    let res = cached_stats_query(
-        &cache,
-        "monthly-completions",
-        *course_id,
-        None,
-        CACHE_DURATION,
-        || async {
-            models::library::course_stats::get_monthly_course_completions(&mut conn, *course_id)
-                .await
-        },
-    )
-    .await?;
-
-    token.authorized_ok(web::Json(res))
-}
-
-/// GET `/api/v0/main-frontend/{course_id}/stats/daily-completions/{days}`
-#[instrument(skip(pool))]
-async fn get_daily_course_completions_last_n_days(
-    pool: web::Data<PgPool>,
-    user: AuthUser,
-    path: web::Path<(Uuid, i32)>,
-    cache: web::Data<Cache>,
-) -> ControllerResult<web::Json<Vec<CountResult>>> {
-    let (course_id, days_limit) = path.into_inner();
-    let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::ViewStats,
-        Some(user.id),
-        Res::Course(course_id),
-    )
-    .await?;
-
-    let res = cached_stats_query(
-        &cache,
-        "daily-completions",
-        course_id,
-        Some(&days_limit.to_string()),
-        CACHE_DURATION,
-        || async {
-            models::library::course_stats::get_daily_course_completions_last_n_days(
-                &mut conn, course_id, days_limit,
-            )
-            .await
-        },
-    )
-    .await?;
-
-    token.authorized_ok(web::Json(res))
-}
-
 /// GET `/api/v0/main-frontend/{course_id}/stats/avg-time-to-first-submission`
 #[instrument(skip(pool))]
 async fn get_avg_time_to_first_submission_by_month(
@@ -769,6 +701,51 @@ async fn get_daily_course_completions_all_language_versions_last_n_days(
     token.authorized_ok(web::Json(res))
 }
 
+/// GET `/api/v0/main-frontend/{course_id}/stats/completions-history/{granularity}/{time_window}`
+///
+/// Returns course completion statistics with specified time granularity and window.
+/// - granularity: "year", "month", or "day"
+/// - time_window: number of time units to look back
+#[instrument(skip(pool))]
+async fn get_course_completions_history(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    path: web::Path<(Uuid, TimeGranularity, i32)>,
+    cache: web::Data<Cache>,
+) -> ControllerResult<web::Json<Vec<CountResult>>> {
+    let (course_id, granularity, time_window) = path.into_inner();
+
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+
+    let cache_key = format!("completions-{}-{}", granularity.to_string(), time_window);
+    let res = cached_stats_query(
+        &cache,
+        &cache_key,
+        course_id,
+        None,
+        CACHE_DURATION,
+        || async {
+            models::library::course_stats::course_completions_history(
+                &mut conn,
+                course_id,
+                granularity,
+                time_window,
+            )
+            .await
+        },
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
 // Update the configure function to use the new prefix
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     cfg.route(
@@ -812,12 +789,8 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
         web::get().to(get_daily_users_returning_exercises_last_n_days),
     )
     .route(
-        "/monthly-completions",
-        web::get().to(get_monthly_course_completions),
-    )
-    .route(
-        "/daily-completions/{days}",
-        web::get().to(get_daily_course_completions_last_n_days),
+        "/completions-history/{granularity}/{time_window}",
+        web::get().to(get_course_completions_history),
     )
     .route(
         "/avg-time-to-first-submission",

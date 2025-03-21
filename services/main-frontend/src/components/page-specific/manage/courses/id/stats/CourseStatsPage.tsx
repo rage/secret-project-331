@@ -19,7 +19,7 @@ import CourseSubmissionsByDay from "./visualizations/user-activity/CourseSubmiss
 import CourseSubmissionsByWeekdayAndHour from "./visualizations/user-activity/CourseSubmissionsByWeekdayAndHour"
 import CourseUsersWithSubmissionsByDay from "./visualizations/user-activity/CourseUsersWithSubmissionsByDay"
 import FirstSubmissionTrends from "./visualizations/user-activity/FirstSubmissionTrends"
-import MonthlyUsersReturningExercises from "./visualizations/user-activity/MonthlyUsersReturningExercises"
+import UsersReturningExercises from "./visualizations/user-activity/UsersReturningExercises"
 import CourseVisitorsByCountry from "./visualizations/visitors/CourseVisitorsByCountry"
 import CourseVisitorsByDay from "./visualizations/visitors/CourseVisitorsByDay"
 import CourseVisitorsLineChart from "./visualizations/visitors/CourseVisitorsLineChart"
@@ -150,7 +150,7 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
             <CourseSubmissionsByDay courseId={courseId} />
             <CourseSubmissionsByWeekdayAndHour courseId={courseId} />
             <FirstSubmissionTrends courseId={courseId} />
-            <MonthlyUsersReturningExercises courseId={courseId} />
+            <UsersReturningExercises courseId={courseId} />
             <AverageTimeToSubmit courseId={courseId} />
             <CohortProgress courseId={courseId} />
           </>

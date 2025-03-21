@@ -64,25 +64,6 @@ export const getDailyFirstExerciseSubmissions = async (
   return validateResponse(response, isArray(isCountResult))
 }
 
-export const getMonthlyUsersReturningExercises = async (
-  courseId: string,
-): Promise<CountResult[]> => {
-  const response = await mainFrontendClient.get(
-    `/courses/${courseId}/stats/monthly-returning-exercises`,
-  )
-  return validateResponse(response, isArray(isCountResult))
-}
-
-export const getDailyUsersReturningExercises = async (
-  courseId: string,
-  days: number,
-): Promise<CountResult[]> => {
-  const response = await mainFrontendClient.get(
-    `/courses/${courseId}/stats/daily-returning-exercises/${days}`,
-  )
-  return validateResponse(response, isArray(isCountResult))
-}
-
 export const getAvgTimeToFirstSubmissionByMonth = async (
   courseId: string,
 ): Promise<AverageMetric[]> => {
@@ -151,4 +132,15 @@ export const getCohortActivityHistory = async (
     `/courses/${courseId}/stats/cohort-activity/${granularity}/${historyWindow}/${trackingWindow}`,
   )
   return validateResponse(response, isArray(isCohortActivity))
+}
+
+export const getUsersReturningExercisesHistory = async (
+  courseId: string,
+  granularity: TimeGranularity,
+  timeWindow: number,
+): Promise<CountResult[]> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/stats/users-returning-exercises-history/${granularity}/${timeWindow}`,
+  )
+  return validateResponse(response, isArray(isCountResult))
 }

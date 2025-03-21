@@ -16,6 +16,7 @@ import {
   getTotalUsersStartedAllLanguageVersions,
   getTotalUsersStartedCourse,
   getUniqueUsersStartingHistoryAllLanguageVersions,
+  getUsersReturningExercisesHistory,
   getWeeklyUniqueUsersStarting,
 } from "../services/backend/courses/stats"
 
@@ -115,26 +116,20 @@ export const useDailyFirstExerciseSubmissionsQuery = (
   })
 }
 
-export const useMonthlyUsersReturningExercisesQuery = (
+export const useUsersReturningExercisesHistoryQuery = (
   courseId: string | null,
+  granularity: TimeGranularity,
+  timeWindow: number,
   options: HookQueryOptions<CountResult[]> = {},
 ): UseQueryResult<CountResult[], Error> => {
   return useQuery<CountResult[], Error>({
-    queryKey: ["course-stats", "monthly-returning-exercises", courseId],
-    queryFn: () => getMonthlyUsersReturningExercises(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
-    ...options,
-  })
-}
-
-export const useDailyUsersReturningExercisesQuery = (
-  courseId: string | null,
-  days: number,
-  options: HookQueryOptions<CountResult[]> = {},
-): UseQueryResult<CountResult[], Error> => {
-  return useQuery<CountResult[], Error>({
-    queryKey: ["course-stats", "daily-returning-exercises", courseId, days],
-    queryFn: () => getDailyUsersReturningExercises(assertNotNullOrUndefined(courseId), days),
+    queryKey: ["course-stats", "users-returning-exercises", courseId, granularity, timeWindow],
+    queryFn: () =>
+      getUsersReturningExercisesHistory(
+        assertNotNullOrUndefined(courseId),
+        granularity,
+        timeWindow,
+      ),
     enabled: !!courseId,
     ...options,
   })

@@ -334,58 +334,43 @@ ORDER BY "period"
     Ok(res)
 }
 
-/// Monthly count of users returning exercises (any submission).
-pub async fn get_monthly_users_returning_exercises(
+/// Get users returning exercises counts with specified time granularity.
+///
+/// The time_window parameter controls how far back to look:
+/// - For Year granularity: number of years
+/// - For Month granularity: number of months
+/// - For Day granularity: number of days
+pub async fn users_returning_exercises_history(
     conn: &mut PgConnection,
     course_id: Uuid,
+    granularity: TimeGranularity,
+    time_window: i32,
 ) -> ModelResult<Vec<CountResult>> {
     let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
-    let res = sqlx::query_as!(
-        CountResult,
-        r#"
-SELECT DATE_TRUNC('month', created_at) AS "period",
-  COUNT(DISTINCT user_id) AS "count!"
-FROM exercise_slide_submissions
-WHERE course_id = $1
-  AND deleted_at IS NULL
-  AND user_id != ALL($2)
-GROUP BY "period"
-ORDER BY "period"
-        "#,
-        course_id,
-        &exclude_user_ids
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
+    let (interval_unit, time_unit) = granularity.get_sql_units();
 
-/// Daily count of users returning exercises within specified days.
-pub async fn get_daily_users_returning_exercises_last_n_days(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-    days_limit: i32,
-) -> ModelResult<Vec<CountResult>> {
-    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
     let res = sqlx::query_as!(
         CountResult,
         r#"
-SELECT DATE_TRUNC('day', created_at) AS "period",
+SELECT DATE_TRUNC($5, created_at) AS "period",
   COUNT(DISTINCT user_id) AS "count!"
 FROM exercise_slide_submissions
 WHERE course_id = $1
-  AND created_at >= NOW() - ($2 || ' days')::INTERVAL
   AND deleted_at IS NULL
-  AND user_id != ALL($3)
+  AND NOT user_id = ANY($2)
+  AND created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
 GROUP BY "period"
 ORDER BY "period"
         "#,
         course_id,
-        &days_limit.to_string(),
-        &exclude_user_ids
+        &exclude_user_ids,
+        &time_window.to_string(),
+        interval_unit,
+        time_unit,
     )
     .fetch_all(conn)
     .await?;
+
     Ok(res)
 }
 

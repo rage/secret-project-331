@@ -5,7 +5,6 @@ import {
   getCohortActivityHistory,
   getCourseCompletionsHistory,
   getCourseCompletionsHistoryAllLanguageVersions,
-  getDailyUniqueUsersStarting,
   getFirstExerciseSubmissionsHistory,
   getTotalUsersCompletedCourse,
   getTotalUsersReturnedExercises,
@@ -45,18 +44,6 @@ export const useTotalUsersCompletedCourseQuery = (
   return useQuery<CountResult, Error>({
     queryKey: ["course-stats", "total-users-completed", courseId],
     queryFn: () => getTotalUsersCompletedCourse(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
-    ...options,
-  })
-}
-export const useDailyUniqueUsersStartingQuery = (
-  courseId: string | null,
-  days: number,
-  options: HookQueryOptions<CountResult[]> = {},
-): UseQueryResult<CountResult[], Error> => {
-  return useQuery<CountResult[], Error>({
-    queryKey: ["course-stats", "daily-users-starting", courseId, days],
-    queryFn: () => getDailyUniqueUsersStarting(assertNotNullOrUndefined(courseId), days),
     enabled: !!courseId,
     ...options,
   })

@@ -25,16 +25,6 @@ export const getTotalUsersCompletedCourse = async (courseId: string): Promise<Co
   return validateResponse(response, isCountResult)
 }
 
-export const getDailyUniqueUsersStarting = async (
-  courseId: string,
-  days: number,
-): Promise<CountResult[]> => {
-  const response = await mainFrontendClient.get(
-    `/courses/${courseId}/stats/daily-users-starting/${days}`,
-  )
-  return validateResponse(response, isArray(isCountResult))
-}
-
 export const getAvgTimeToFirstSubmissionHistory = async (
   courseId: string,
   granularity: TimeGranularity,

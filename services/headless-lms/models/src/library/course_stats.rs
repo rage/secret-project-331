@@ -188,32 +188,43 @@ WHERE current_course_id IN (
     Ok(res)
 }
 
-/// Daily count of unique users who started the course within specified days.
-pub async fn get_daily_unique_users_starting_last_n_days(
+/// Get unique users starting counts with specified time granularity.
+///
+/// The time_window parameter controls how far back to look:
+/// - For Year granularity: number of years
+/// - For Month granularity: number of months
+/// - For Day granularity: number of days
+pub async fn unique_users_starting_history(
     conn: &mut PgConnection,
     course_id: Uuid,
-    days_limit: i32,
+    granularity: TimeGranularity,
+    time_window: i32,
 ) -> ModelResult<Vec<CountResult>> {
     let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+    let (interval_unit, time_unit) = granularity.get_sql_units();
+
     let res = sqlx::query_as!(
         CountResult,
         r#"
-SELECT DATE_TRUNC('day', created_at) AS "period",
+SELECT DATE_TRUNC($5, created_at) AS "period",
   COUNT(DISTINCT user_id) AS "count!"
 FROM user_course_settings
 WHERE current_course_id = $1
-  AND created_at >= NOW() - ($2 || ' days')::INTERVAL
   AND deleted_at IS NULL
-  AND user_id != ALL($3)
+  AND NOT user_id = ANY($2)
+  AND created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
 GROUP BY "period"
 ORDER BY "period"
         "#,
         course_id,
-        &days_limit.to_string(),
-        &exclude_user_ids
+        &exclude_user_ids,
+        &time_window.to_string(),
+        interval_unit,
+        time_unit,
     )
     .fetch_all(conn)
     .await?;
+
     Ok(res)
 }
 
@@ -608,46 +619,6 @@ GROUP BY "period"
 ORDER BY "period"
         "#,
         course_language_group_id,
-        &exclude_user_ids,
-        &time_window.to_string(),
-        interval_unit,
-        time_unit,
-    )
-    .fetch_all(conn)
-    .await?;
-
-    Ok(res)
-}
-
-/// Get unique users starting a course with specified time granularity.
-///
-/// The time_window parameter controls how far back to look:
-/// - For Year granularity: number of years
-/// - For Month granularity: number of months
-/// - For Day granularity: number of days
-pub async fn unique_users_starting_history(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-    granularity: TimeGranularity,
-    time_window: i32,
-) -> ModelResult<Vec<CountResult>> {
-    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
-    let (interval_unit, time_unit) = granularity.get_sql_units();
-
-    let res = sqlx::query_as!(
-        CountResult,
-        r#"
-SELECT DATE_TRUNC($5, created_at) AS "period",
-  COUNT(DISTINCT user_id) AS "count!"
-FROM user_course_settings
-WHERE current_course_id = $1
-  AND deleted_at IS NULL
-  AND NOT user_id = ANY($2)
-  AND created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
-GROUP BY "period"
-ORDER BY "period"
-        "#,
-        course_id,
         &exclude_user_ids,
         &time_window.to_string(),
         interval_unit,

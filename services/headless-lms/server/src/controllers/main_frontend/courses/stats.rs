@@ -148,42 +148,6 @@ async fn get_total_users_returned_at_least_one_exercise(
     token.authorized_ok(web::Json(res))
 }
 
-/// GET `/api/v0/main-frontend/{course_id}/stats/daily-users-starting/{days}`
-#[instrument(skip(pool))]
-async fn get_daily_unique_users_starting_last_n_days(
-    pool: web::Data<PgPool>,
-    user: AuthUser,
-    path: web::Path<(Uuid, i32)>,
-    cache: web::Data<Cache>,
-) -> ControllerResult<web::Json<Vec<CountResult>>> {
-    let (course_id, days_limit) = path.into_inner();
-    let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::ViewStats,
-        Some(user.id),
-        Res::Course(course_id),
-    )
-    .await?;
-
-    let res = cached_stats_query(
-        &cache,
-        "daily-users-starting",
-        course_id,
-        Some(&days_limit.to_string()),
-        CACHE_DURATION,
-        || async {
-            models::library::course_stats::get_daily_unique_users_starting_last_n_days(
-                &mut conn, course_id, days_limit,
-            )
-            .await
-        },
-    )
-    .await?;
-
-    token.authorized_ok(web::Json(res))
-}
-
 /// GET `/api/v0/main-frontend/{course_id}/stats/avg-time-to-first-submission/{granularity}/{time_window}`
 ///
 /// Returns average time to first submission statistics with specified time granularity and window.
@@ -566,10 +530,6 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     .route(
         "/total-users-returned-exercises",
         web::get().to(get_total_users_returned_at_least_one_exercise),
-    )
-    .route(
-        "/daily-users-starting/{days}",
-        web::get().to(get_daily_unique_users_starting_last_n_days),
     )
     .route(
         "/first-submissions-history/{granularity}/{time_window}",

@@ -5,10 +5,9 @@ import {
   getCohortActivityHistory,
   getCourseCompletionsHistory,
   getCourseCompletionsHistoryAllLanguageVersions,
-  getDailyFirstExerciseSubmissions,
   getDailyUniqueUsersStarting,
   getDailyUsersReturningExercises,
-  getMonthlyFirstExerciseSubmissions,
+  getFirstExerciseSubmissionsHistory,
   getMonthlyUniqueUsersStarting,
   getMonthlyUsersReturningExercises,
   getTotalUsersCompletedCourse,
@@ -86,31 +85,6 @@ export const useMonthlyUniqueUsersStartingQuery = (
   return useQuery<CountResult[], Error>({
     queryKey: ["course-stats", "monthly-users-starting", courseId],
     queryFn: () => getMonthlyUniqueUsersStarting(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
-    ...options,
-  })
-}
-
-export const useMonthlyFirstExerciseSubmissionsQuery = (
-  courseId: string | null,
-  options: HookQueryOptions<CountResult[]> = {},
-): UseQueryResult<CountResult[], Error> => {
-  return useQuery<CountResult[], Error>({
-    queryKey: ["course-stats", "monthly-first-submissions", courseId],
-    queryFn: () => getMonthlyFirstExerciseSubmissions(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
-    ...options,
-  })
-}
-
-export const useDailyFirstExerciseSubmissionsQuery = (
-  courseId: string | null,
-  days: number,
-  options: HookQueryOptions<CountResult[]> = {},
-): UseQueryResult<CountResult[], Error> => {
-  return useQuery<CountResult[], Error>({
-    queryKey: ["course-stats", "daily-first-submissions", courseId, days],
-    queryFn: () => getDailyFirstExerciseSubmissions(assertNotNullOrUndefined(courseId), days),
     enabled: !!courseId,
     ...options,
   })
@@ -260,6 +234,25 @@ export const useCohortActivityHistoryQuery = (
         granularity,
         historyWindow,
         trackingWindow,
+      ),
+    enabled: !!courseId,
+    ...options,
+  })
+}
+
+export const useFirstExerciseSubmissionsHistoryQuery = (
+  courseId: string | null,
+  granularity: TimeGranularity,
+  timeWindow: number,
+  options: HookQueryOptions<CountResult[]> = {},
+): UseQueryResult<CountResult[], Error> => {
+  return useQuery<CountResult[], Error>({
+    queryKey: ["course-stats", "first-submissions", courseId, granularity, timeWindow],
+    queryFn: () =>
+      getFirstExerciseSubmissionsHistory(
+        assertNotNullOrUndefined(courseId),
+        granularity,
+        timeWindow,
       ),
     enabled: !!courseId,
     ...options,

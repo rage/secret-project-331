@@ -250,77 +250,6 @@ async fn get_daily_unique_users_starting_last_n_days(
     token.authorized_ok(web::Json(res))
 }
 
-/// GET `/api/v0/main-frontend/{course_id}/stats/monthly-first-submissions`
-#[instrument(skip(pool))]
-async fn get_monthly_first_exercise_submissions(
-    pool: web::Data<PgPool>,
-    user: AuthUser,
-    course_id: web::Path<Uuid>,
-    cache: web::Data<Cache>,
-) -> ControllerResult<web::Json<Vec<CountResult>>> {
-    let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::ViewStats,
-        Some(user.id),
-        Res::Course(*course_id),
-    )
-    .await?;
-
-    let res = cached_stats_query(
-        &cache,
-        "monthly-first-submissions",
-        *course_id,
-        None,
-        CACHE_DURATION,
-        || async {
-            models::library::course_stats::get_monthly_first_exercise_submissions(
-                &mut conn, *course_id,
-            )
-            .await
-        },
-    )
-    .await?;
-
-    token.authorized_ok(web::Json(res))
-}
-
-/// GET `/api/v0/main-frontend/{course_id}/stats/daily-first-submissions/{days}`
-#[instrument(skip(pool))]
-async fn get_daily_first_exercise_submissions_last_n_days(
-    pool: web::Data<PgPool>,
-    user: AuthUser,
-    path: web::Path<(Uuid, i32)>,
-    cache: web::Data<Cache>,
-) -> ControllerResult<web::Json<Vec<CountResult>>> {
-    let (course_id, days_limit) = path.into_inner();
-    let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::ViewStats,
-        Some(user.id),
-        Res::Course(course_id),
-    )
-    .await?;
-
-    let res = cached_stats_query(
-        &cache,
-        "daily-first-submissions",
-        course_id,
-        Some(&days_limit.to_string()),
-        CACHE_DURATION,
-        || async {
-            models::library::course_stats::get_daily_first_exercise_submissions_last_n_days(
-                &mut conn, course_id, days_limit,
-            )
-            .await
-        },
-    )
-    .await?;
-
-    token.authorized_ok(web::Json(res))
-}
-
 /// GET `/api/v0/main-frontend/{course_id}/stats/avg-time-to-first-submission`
 #[instrument(skip(pool))]
 async fn get_avg_time_to_first_submission_by_month(
@@ -586,6 +515,54 @@ async fn get_users_returning_exercises_history(
     token.authorized_ok(web::Json(res))
 }
 
+/// GET `/api/v0/main-frontend/{course_id}/stats/first-submissions-history/{granularity}/{time_window}`
+///
+/// Returns first exercise submission statistics with specified time granularity and window.
+/// - granularity: "year", "month", or "day"
+/// - time_window: number of time units to look back
+#[instrument(skip(pool))]
+async fn get_first_exercise_submissions_history(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    path: web::Path<(Uuid, TimeGranularity, i32)>,
+    cache: web::Data<Cache>,
+) -> ControllerResult<web::Json<Vec<CountResult>>> {
+    let (course_id, granularity, time_window) = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+
+    let cache_key = format!(
+        "first-submissions-{}-{}",
+        granularity.to_string(),
+        time_window
+    );
+    let res = cached_stats_query(
+        &cache,
+        &cache_key,
+        course_id,
+        None,
+        CACHE_DURATION,
+        || async {
+            models::library::course_stats::first_exercise_submissions_history(
+                &mut conn,
+                course_id,
+                granularity,
+                time_window,
+            )
+            .await
+        },
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     cfg.route(
         "/total-users-started-course",
@@ -612,12 +589,8 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
         web::get().to(get_daily_unique_users_starting_last_n_days),
     )
     .route(
-        "/monthly-first-submissions",
-        web::get().to(get_monthly_first_exercise_submissions),
-    )
-    .route(
-        "/daily-first-submissions/{days}",
-        web::get().to(get_daily_first_exercise_submissions_last_n_days),
+        "/first-submissions-history/{granularity}/{time_window}",
+        web::get().to(get_first_exercise_submissions_history),
     )
     .route(
         "/users-returning-exercises-history/{granularity}/{time_window}",

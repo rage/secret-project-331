@@ -269,68 +269,48 @@ ORDER BY "period"
     Ok(res)
 }
 
-/// Monthly count of users who submitted their first exercise.
-pub async fn get_monthly_first_exercise_submissions(
+/// Get first exercise submission counts with specified time granularity.
+///
+/// The time_window parameter controls how far back to look:
+/// - For Year granularity: number of years
+/// - For Month granularity: number of months
+/// - For Day granularity: number of days
+pub async fn first_exercise_submissions_history(
     conn: &mut PgConnection,
     course_id: Uuid,
+    granularity: TimeGranularity,
+    time_window: i32,
 ) -> ModelResult<Vec<CountResult>> {
     let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
-    let res = sqlx::query_as!(
-        CountResult,
-        r#"
-SELECT DATE_TRUNC('month', first_submission) AS "period",
-COUNT(user_id) AS "count!"
-FROM (
-    SELECT user_id,
-      MIN(created_at) AS first_submission
-    FROM exercise_slide_submissions
-    WHERE course_id = $1
-      AND deleted_at IS NULL
-      AND user_id != ALL($2)
-    GROUP BY user_id
-  ) AS first_submissions
-GROUP BY "period"
-ORDER BY "period"
-        "#,
-        course_id,
-        &exclude_user_ids
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
+    let (interval_unit, time_unit) = granularity.get_sql_units();
 
-/// Daily count of users who submitted their first exercise within specified days.
-pub async fn get_daily_first_exercise_submissions_last_n_days(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-    days_limit: i32,
-) -> ModelResult<Vec<CountResult>> {
-    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
     let res = sqlx::query_as!(
         CountResult,
         r#"
-SELECT DATE_TRUNC('day', first_submission) AS "period",
+SELECT DATE_TRUNC($5, first_submission) AS "period",
   COUNT(user_id) AS "count!"
 FROM (
     SELECT user_id,
       MIN(created_at) AS first_submission
     FROM exercise_slide_submissions
     WHERE course_id = $1
-      AND created_at >= NOW() - ($2 || ' days')::INTERVAL
       AND deleted_at IS NULL
-      AND user_id != ALL($3)
+      AND NOT user_id = ANY($2)
+      AND created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
     GROUP BY user_id
   ) AS first_submissions
 GROUP BY "period"
 ORDER BY "period"
         "#,
         course_id,
-        &days_limit.to_string(),
-        &exclude_user_ids
+        &exclude_user_ids,
+        &time_window.to_string(),
+        interval_unit,
+        time_unit,
     )
     .fetch_all(conn)
     .await?;
+
     Ok(res)
 }
 

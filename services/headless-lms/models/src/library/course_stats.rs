@@ -25,8 +25,8 @@ pub struct AverageMetric {
 }
 
 /// Represents cohort activity metrics for both weekly and daily cohorts.
-/// For daily cohorts, `day_offset` will be populated (and `activity_period` may be computed from it);
-/// for weekly cohorts, `day_offset` will be `None` and `activity_period` indicates the week start.
+/// For daily cohorts, `offset` will be populated (and `activity_period` may be computed from it);
+/// for weekly cohorts, `offset` will be `None` and `activity_period` indicates the week start.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CohortActivity {
@@ -35,7 +35,7 @@ pub struct CohortActivity {
     /// The activity period (for example, the start of the week or the computed activity day).
     pub activity_period: Option<DateTime<Utc>>,
     /// The day offset from the cohort start (only applicable for daily cohorts).
-    pub day_offset: Option<i32>,
+    pub offset: Option<i32>,
     /// The number of active users in this cohort for the given period.
     pub active_users: i64,
 }
@@ -454,95 +454,102 @@ ORDER BY "period"
     Ok(res)
 }
 
-/// Cohort Analysis: Weekly activity by users who started the course within specified months.
-pub async fn get_cohort_weekly_activity(
+/// Get cohort activity statistics with specified time granularity.
+///
+/// Parameters:
+/// - history_window: How far back to look for cohorts
+/// - tracking_window: How long to track activity after each cohort's start
+///
+/// For each granularity:
+/// - Year: windows in years, tracking monthly activity
+/// - Month: windows in months, tracking weekly activity
+/// - Day: windows in days, tracking daily activity
+///
+/// Cohorts are defined by when users first submitted an exercise.
+pub async fn get_cohort_activity_history(
     conn: &mut PgConnection,
     course_id: Uuid,
-    months_limit: i32,
+    granularity: TimeGranularity,
+    history_window: i32,
+    tracking_window: i32,
 ) -> ModelResult<Vec<CohortActivity>> {
     let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
-    let res = sqlx::query_as!(
-        CohortActivity,
-        r#"
-WITH cohort AS (
-  SELECT user_id,
-    DATE_TRUNC('week', created_at) AS cohort_week
-  FROM user_course_settings
-  WHERE current_course_id = $1
-    AND created_at >= NOW() - ($3 || ' months')::INTERVAL
-    AND deleted_at IS NULL
-    AND user_id != ALL($4)
-)
-SELECT c.cohort_week AS "cohort_start",
-  DATE_TRUNC('week', s.created_at) AS "activity_period",
-  NULL::int AS "day_offset",
-  COUNT(DISTINCT s.user_id) AS "active_users!"
-FROM cohort c
-  JOIN exercise_slide_submissions s ON c.user_id = s.user_id
-  AND s.course_id = $2
-  AND s.created_at >= NOW() - ($3 || ' months')::INTERVAL
-  AND s.deleted_at IS NULL
-GROUP BY c.cohort_week,
-  "activity_period"
-ORDER BY c.cohort_week,
-  "activity_period";
-        "#,
-        course_id,
-        course_id,
-        &months_limit.to_string(),
-        &exclude_user_ids
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
+    let (interval_unit, time_unit) = granularity.get_sql_units();
 
-/// Cohort Analysis: Daily activity tracking for 1 week (day 0 to day 6), limited to specified number of days.
-pub async fn get_cohort_daily_activity(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-    days_limit: i32,
-) -> ModelResult<Vec<CohortActivity>> {
-    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
-    let res = sqlx::query_as!(
+    Ok(sqlx::query_as!(
         CohortActivity,
         r#"
-WITH cohort AS (
+WITH first_activity AS (
   SELECT user_id,
-    DATE_TRUNC('day', created_at) AS cohort_day
-  FROM user_course_settings
-  WHERE current_course_id = $1
-    AND created_at >= NOW() - ($3 || ' days')::INTERVAL
+    MIN(DATE_TRUNC($6, created_at)) AS first_active_at
+  FROM exercise_slide_submissions
+  WHERE course_id = $1
+    AND created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
     AND deleted_at IS NULL
-    AND user_id != ALL($4)
+    AND NOT user_id = ANY($2)
+  GROUP BY user_id
+),
+cohort AS (
+  SELECT user_id,
+    first_active_at AS cohort_start
+  FROM first_activity
 )
-SELECT c.cohort_day AS "cohort_start",
-  DATE_TRUNC('day', s.created_at) AS "activity_period",
-  EXTRACT(
-    DAY
-    FROM (DATE_TRUNC('day', s.created_at) - c.cohort_day)
-  )::int AS "day_offset",
+SELECT c.cohort_start AS "cohort_start",
+  DATE_TRUNC($6, s.created_at) AS "activity_period",
+  CASE
+    WHEN $6 = 'day' THEN EXTRACT(
+      DAY
+      FROM (DATE_TRUNC('day', s.created_at) - c.cohort_start)
+    )::integer
+    WHEN $6 = 'week' THEN EXTRACT(
+      WEEK
+      FROM (
+          DATE_TRUNC('week', s.created_at) - c.cohort_start
+        )
+    )::integer
+    WHEN $6 = 'month' THEN (
+      EXTRACT(
+        YEAR
+        FROM s.created_at
+      ) - EXTRACT(
+        YEAR
+        FROM c.cohort_start
+      )
+    )::integer * 12 + (
+      EXTRACT(
+        MONTH
+        FROM s.created_at
+      ) - EXTRACT(
+        MONTH
+        FROM c.cohort_start
+      )
+    )::integer
+    ELSE NULL::integer
+  END AS "offset",
   COUNT(DISTINCT s.user_id) AS "active_users!"
 FROM cohort c
-  JOIN exercise_slide_submissions s ON c.user_id = s.user_id
-  AND s.course_id = $2
-  AND s.created_at >= NOW() - ($3 || ' days')::INTERVAL
+  JOIN exercise_slide_submissions s ON (
+    c.user_id = s.user_id
+    AND s.course_id = $1
+  )
+  AND s.created_at >= c.cohort_start
+  AND s.created_at < c.cohort_start + ($5 || ' ' || $4)::INTERVAL
   AND s.deleted_at IS NULL
-WHERE DATE_TRUNC('day', s.created_at) < c.cohort_day + INTERVAL '7 days'
-GROUP BY c.cohort_day,
+GROUP BY c.cohort_start,
   "activity_period",
-  "day_offset"
-ORDER BY c.cohort_day,
-  "day_offset";
+  "offset"
+ORDER BY c.cohort_start,
+  "offset"
         "#,
         course_id,
-        course_id,
-        &days_limit.to_string(),
-        &exclude_user_ids
+        &exclude_user_ids,
+        &history_window.to_string(),
+        interval_unit,
+        &tracking_window.to_string(),
+        time_unit,
     )
     .fetch_all(conn)
-    .await?;
-    Ok(res)
+    .await?)
 }
 
 /// Get course completion counts with specified time granularity.

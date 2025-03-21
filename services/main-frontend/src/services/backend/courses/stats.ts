@@ -92,26 +92,6 @@ export const getAvgTimeToFirstSubmissionByMonth = async (
   return validateResponse(response, isArray(isAverageMetric))
 }
 
-export const getCohortWeeklyActivity = async (
-  courseId: string,
-  months: number,
-): Promise<CohortActivity[]> => {
-  const response = await mainFrontendClient.get(
-    `/courses/${courseId}/stats/cohort-weekly-activity/${months}`,
-  )
-  return validateResponse(response, isArray(isCohortActivity))
-}
-
-export const getCohortDailyActivity = async (
-  courseId: string,
-  days: number,
-): Promise<CohortActivity[]> => {
-  const response = await mainFrontendClient.get(
-    `/courses/${courseId}/stats/cohort-daily-activity/${days}`,
-  )
-  return validateResponse(response, isArray(isCohortActivity))
-}
-
 export const getTotalUsersReturnedExercises = async (courseId: string): Promise<CountResult> => {
   const response = await mainFrontendClient.get(
     `/courses/${courseId}/stats/total-users-returned-exercises`,
@@ -159,4 +139,16 @@ export const getUniqueUsersStartingHistoryAllLanguageVersions = async (
     `/courses/${courseId}/stats/all-language-versions/users-starting-history/${granularity}/${timeWindow}`,
   )
   return validateResponse(response, isArray(isCountResult))
+}
+
+export const getCohortActivityHistory = async (
+  courseId: string,
+  granularity: TimeGranularity,
+  historyWindow: number,
+  trackingWindow: number,
+): Promise<CohortActivity[]> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/stats/cohort-activity/${granularity}/${historyWindow}/${trackingWindow}`,
+  )
+  return validateResponse(response, isArray(isCohortActivity))
 }

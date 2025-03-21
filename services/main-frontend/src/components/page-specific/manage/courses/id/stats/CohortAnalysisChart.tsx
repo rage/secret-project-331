@@ -62,16 +62,16 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
       .filter((date): date is string => date !== null)
       .sort()
 
-    const dayOffsets = Array.from(new Set(rawData.map((item) => item.day_offset)))
+    const dayOffsets = Array.from(new Set(rawData.map((item) => item.offset)))
       .filter((offset): offset is number => offset !== null)
       .sort((a, b) => a - b)
 
     // Transform data into format needed for heatmap
     const chartData = rawData
-      .filter((item) => item.cohort_start !== null && item.day_offset !== null)
+      .filter((item) => item.cohort_start !== null && item.offset !== null)
       .map((item) => {
         const cohortIndex = cohorts.indexOf(item.cohort_start!)
-        return [item.day_offset, cohortIndex, item.active_users]
+        return [item.offset, cohortIndex, item.active_users]
       })
 
     return { cohorts, dayOffsets, chartData }

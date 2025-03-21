@@ -427,71 +427,42 @@ async fn get_avg_time_to_first_submission_by_month(
     token.authorized_ok(web::Json(res))
 }
 
-/// GET `/api/v0/main-frontend/{course_id}/stats/cohort-weekly-activity/{months}`
+/// GET `/api/v0/main-frontend/{course_id}/stats/cohort-activity/{granularity}/{history_window}/{tracking_window}`
 #[instrument(skip(pool))]
-async fn get_cohort_weekly_activity(
+async fn get_cohort_activity_history(
     pool: web::Data<PgPool>,
     user: AuthUser,
-    path: web::Path<(Uuid, i32)>,
+    course_id: web::Path<Uuid>,
+    params: web::Path<(TimeGranularity, i32, i32)>,
     cache: web::Data<Cache>,
 ) -> ControllerResult<web::Json<Vec<CohortActivity>>> {
-    let (course_id, months_limit) = path.into_inner();
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
         Act::ViewStats,
         Some(user.id),
-        Res::Course(course_id),
+        Res::Course(*course_id),
     )
     .await?;
 
+    let (granularity, history_window, tracking_window) = params.into_inner();
+
     let res = cached_stats_query(
         &cache,
-        "cohort-weekly-activity",
-        course_id,
-        Some(&months_limit.to_string()),
+        &format!(
+            "cohort-activity-{}-{}-{}",
+            granularity, history_window, tracking_window
+        ),
+        *course_id,
+        None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::get_cohort_weekly_activity(
+            models::library::course_stats::get_cohort_activity_history(
                 &mut conn,
-                course_id,
-                months_limit,
-            )
-            .await
-        },
-    )
-    .await?;
-
-    token.authorized_ok(web::Json(res))
-}
-
-/// GET `/api/v0/main-frontend/{course_id}/stats/cohort-daily-activity/{days}`
-#[instrument(skip(pool))]
-async fn get_cohort_daily_activity(
-    pool: web::Data<PgPool>,
-    user: AuthUser,
-    path: web::Path<(Uuid, i32)>,
-    cache: web::Data<Cache>,
-) -> ControllerResult<web::Json<Vec<CohortActivity>>> {
-    let (course_id, days_limit) = path.into_inner();
-    let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::ViewStats,
-        Some(user.id),
-        Res::Course(course_id),
-    )
-    .await?;
-
-    let res = cached_stats_query(
-        &cache,
-        "cohort-daily-activity",
-        course_id,
-        Some(&days_limit.to_string()),
-        CACHE_DURATION,
-        || async {
-            models::library::course_stats::get_cohort_daily_activity(
-                &mut conn, course_id, days_limit,
+                *course_id,
+                granularity,
+                history_window,
+                tracking_window,
             )
             .await
         },
@@ -638,7 +609,6 @@ async fn get_course_completions_history(
     token.authorized_ok(web::Json(res))
 }
 
-// Update the configure function to use the new prefix
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     cfg.route(
         "/total-users-started-course",
@@ -689,12 +659,8 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
         web::get().to(get_avg_time_to_first_submission_by_month),
     )
     .route(
-        "/cohort-weekly-activity/{months}",
-        web::get().to(get_cohort_weekly_activity),
-    )
-    .route(
-        "/cohort-daily-activity/{days}",
-        web::get().to(get_cohort_daily_activity),
+        "/cohort-activity/{granularity}/{history_window}/{tracking_window}",
+        web::get().to(get_cohort_activity_history),
     )
     .route(
         "/all-language-versions/total-users-started",

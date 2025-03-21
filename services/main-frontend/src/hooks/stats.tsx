@@ -2,8 +2,7 @@ import { useQuery, UseQueryResult } from "@tanstack/react-query"
 
 import {
   getAvgTimeToFirstSubmissionByMonth,
-  getCohortDailyActivity,
-  getCohortWeeklyActivity,
+  getCohortActivityHistory,
   getCourseCompletionsHistory,
   getCourseCompletionsHistoryAllLanguageVersions,
   getDailyFirstExerciseSubmissions,
@@ -153,32 +152,6 @@ export const useAvgTimeToFirstSubmissionByMonthQuery = (
   })
 }
 
-export const useCohortWeeklyActivityQuery = (
-  courseId: string | null,
-  months: number,
-  options: HookQueryOptions<CohortActivity[]> = {},
-): UseQueryResult<CohortActivity[], Error> => {
-  return useQuery<CohortActivity[], Error>({
-    queryKey: ["course-stats", "cohort-weekly-activity", courseId, months],
-    queryFn: () => getCohortWeeklyActivity(assertNotNullOrUndefined(courseId), months),
-    enabled: !!courseId,
-    ...options,
-  })
-}
-
-export const useCohortDailyActivityQuery = (
-  courseId: string | null,
-  days: number,
-  options: HookQueryOptions<CohortActivity[]> = {},
-): UseQueryResult<CohortActivity[], Error> => {
-  return useQuery<CohortActivity[], Error>({
-    queryKey: ["course-stats", "cohort-daily-activity", courseId, days],
-    queryFn: () => getCohortDailyActivity(assertNotNullOrUndefined(courseId), days),
-    enabled: !!courseId,
-    ...options,
-  })
-}
-
 export const useTotalUsersReturnedExercisesQuery = (
   courseId: string | null,
   options: HookQueryOptions<CountResult> = {},
@@ -264,6 +237,34 @@ export const useUniqueUsersStartingHistoryAllLanguageVersionsQuery = (
         assertNotNullOrUndefined(courseId),
         granularity,
         timeWindow,
+      ),
+    enabled: !!courseId,
+    ...options,
+  })
+}
+
+export const useCohortActivityHistoryQuery = (
+  courseId: string | null,
+  granularity: TimeGranularity,
+  historyWindow: number,
+  trackingWindow: number,
+  options: HookQueryOptions<CohortActivity[]> = {},
+): UseQueryResult<CohortActivity[], Error> => {
+  return useQuery<CohortActivity[], Error>({
+    queryKey: [
+      "course-stats",
+      "cohort-activity",
+      courseId,
+      granularity,
+      historyWindow,
+      trackingWindow,
+    ],
+    queryFn: () =>
+      getCohortActivityHistory(
+        assertNotNullOrUndefined(courseId),
+        granularity,
+        historyWindow,
+        trackingWindow,
       ),
     enabled: !!courseId,
     ...options,

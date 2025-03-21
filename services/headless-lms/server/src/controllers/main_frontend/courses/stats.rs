@@ -148,72 +148,6 @@ async fn get_total_users_returned_at_least_one_exercise(
     token.authorized_ok(web::Json(res))
 }
 
-/// GET `/api/v0/main-frontend/{course_id}/stats/weekly-users-starting`
-#[instrument(skip(pool))]
-async fn get_weekly_unique_users_starting(
-    pool: web::Data<PgPool>,
-    user: AuthUser,
-    course_id: web::Path<Uuid>,
-    cache: web::Data<Cache>,
-) -> ControllerResult<web::Json<Vec<CountResult>>> {
-    let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::ViewStats,
-        Some(user.id),
-        Res::Course(*course_id),
-    )
-    .await?;
-
-    let res = cached_stats_query(
-        &cache,
-        "weekly-users-starting",
-        *course_id,
-        None,
-        CACHE_DURATION,
-        || async {
-            models::library::course_stats::get_weekly_unique_users_starting(&mut conn, *course_id)
-                .await
-        },
-    )
-    .await?;
-
-    token.authorized_ok(web::Json(res))
-}
-
-/// GET `/api/v0/main-frontend/{course_id}/stats/monthly-users-starting`
-#[instrument(skip(pool))]
-async fn get_monthly_unique_users_starting(
-    pool: web::Data<PgPool>,
-    user: AuthUser,
-    course_id: web::Path<Uuid>,
-    cache: web::Data<Cache>,
-) -> ControllerResult<web::Json<Vec<CountResult>>> {
-    let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::ViewStats,
-        Some(user.id),
-        Res::Course(*course_id),
-    )
-    .await?;
-
-    let res = cached_stats_query(
-        &cache,
-        "monthly-users-starting",
-        *course_id,
-        None,
-        CACHE_DURATION,
-        || async {
-            models::library::course_stats::get_monthly_unique_users_starting(&mut conn, *course_id)
-                .await
-        },
-    )
-    .await?;
-
-    token.authorized_ok(web::Json(res))
-}
-
 /// GET `/api/v0/main-frontend/{course_id}/stats/daily-users-starting/{days}`
 #[instrument(skip(pool))]
 async fn get_daily_unique_users_starting_last_n_days(
@@ -563,6 +497,50 @@ async fn get_first_exercise_submissions_history(
     token.authorized_ok(web::Json(res))
 }
 
+/// GET `/api/v0/main-frontend/{course_id}/stats/users-starting-history/{granularity}/{time_window}`
+///
+/// Returns unique users starting statistics with specified time granularity and window.
+/// - granularity: "year", "month", or "day"
+/// - time_window: number of time units to look back
+#[instrument(skip(pool))]
+async fn get_unique_users_starting_history(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    path: web::Path<(Uuid, TimeGranularity, i32)>,
+    cache: web::Data<Cache>,
+) -> ControllerResult<web::Json<Vec<CountResult>>> {
+    let (course_id, granularity, time_window) = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+
+    let cache_key = format!("users-starting-{}-{}", granularity.to_string(), time_window);
+    let res = cached_stats_query(
+        &cache,
+        &cache_key,
+        course_id,
+        None,
+        CACHE_DURATION,
+        || async {
+            models::library::course_stats::unique_users_starting_history(
+                &mut conn,
+                course_id,
+                granularity,
+                time_window,
+            )
+            .await
+        },
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     cfg.route(
         "/total-users-started-course",
@@ -575,14 +553,6 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     .route(
         "/total-users-returned-exercises",
         web::get().to(get_total_users_returned_at_least_one_exercise),
-    )
-    .route(
-        "/weekly-users-starting",
-        web::get().to(get_weekly_unique_users_starting),
-    )
-    .route(
-        "/monthly-users-starting",
-        web::get().to(get_monthly_unique_users_starting),
     )
     .route(
         "/daily-users-starting/{days}",
@@ -615,5 +585,9 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     .route(
         "/all-language-versions/users-starting-history/{granularity}/{time_window}",
         web::get().to(get_unique_users_starting_history_all_language_versions),
+    )
+    .route(
+        "/users-starting-history/{granularity}/{time_window}",
+        web::get().to(get_unique_users_starting_history),
     );
 }

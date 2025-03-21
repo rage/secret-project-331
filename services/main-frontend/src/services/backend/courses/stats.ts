@@ -25,11 +25,6 @@ export const getTotalUsersCompletedCourse = async (courseId: string): Promise<Co
   return validateResponse(response, isCountResult)
 }
 
-export const getWeeklyUniqueUsersStarting = async (courseId: string): Promise<CountResult[]> => {
-  const response = await mainFrontendClient.get(`/courses/${courseId}/stats/weekly-users-starting`)
-  return validateResponse(response, isArray(isCountResult))
-}
-
 export const getDailyUniqueUsersStarting = async (
   courseId: string,
   days: number,
@@ -37,11 +32,6 @@ export const getDailyUniqueUsersStarting = async (
   const response = await mainFrontendClient.get(
     `/courses/${courseId}/stats/daily-users-starting/${days}`,
   )
-  return validateResponse(response, isArray(isCountResult))
-}
-
-export const getMonthlyUniqueUsersStarting = async (courseId: string): Promise<CountResult[]> => {
-  const response = await mainFrontendClient.get(`/courses/${courseId}/stats/monthly-users-starting`)
   return validateResponse(response, isArray(isCountResult))
 }
 
@@ -88,6 +78,17 @@ export const getCourseCompletionsHistoryAllLanguageVersions = async (
 ): Promise<CountResult[]> => {
   const response = await mainFrontendClient.get(
     `/courses/${courseId}/stats/all-language-versions/completions-history/${granularity}/${timeWindow}`,
+  )
+  return validateResponse(response, isArray(isCountResult))
+}
+
+export const getUniqueUsersStartingHistory = async (
+  courseId: string,
+  granularity: TimeGranularity,
+  timeWindow: number,
+): Promise<CountResult[]> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/stats/users-starting-history/${granularity}/${timeWindow}`,
   )
   return validateResponse(response, isArray(isCountResult))
 }

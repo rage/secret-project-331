@@ -31,3 +31,8 @@ export const getUserDetails = async (userId: string): Promise<UserDetail> => {
   const response = await mainFrontendClient.get(`/user-details/${userId}`)
   return validateResponse(response, isUserDetail)
 }
+
+export const getUsersByCourseId = async (courseId: string): Promise<UserDetail[]> => {
+  const response = await mainFrontendClient.get(`/user-details/${courseId}/get-users-by-course-id`)
+  return validateResponse(response, isArray(isUserDetail))
+}

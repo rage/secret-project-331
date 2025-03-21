@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT DISTINCT user_id, exercise_id\n            FROM user_exercise_states\n            WHERE user_id = ANY($1)\n              AND exercise_id = ANY($2)\n              AND deleted_at IS NULL\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "exercise_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["UuidArray", "UuidArray"]
+    },
+    "nullable": [false, false]
+  },
+  "hash": "85dbbdc3252b9a292d02b3d118a89c92bd4b689ed34fc53b41f7976230f4fe29"
+}

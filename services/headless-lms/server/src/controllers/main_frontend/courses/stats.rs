@@ -181,6 +181,39 @@ async fn get_weekly_unique_users_starting(
     token.authorized_ok(web::Json(res))
 }
 
+/// GET `/api/v0/main-frontend/{course_id}/stats/monthly-users-starting`
+#[instrument(skip(pool))]
+async fn get_monthly_unique_users_starting(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    course_id: web::Path<Uuid>,
+    cache: web::Data<Cache>,
+) -> ControllerResult<web::Json<Vec<CountResult>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+
+    let res = cached_stats_query(
+        &cache,
+        "monthly-users-starting",
+        *course_id,
+        None,
+        CACHE_DURATION,
+        || async {
+            models::library::course_stats::get_monthly_unique_users_starting(&mut conn, *course_id)
+                .await
+        },
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
 /// GET `/api/v0/main-frontend/{course_id}/stats/daily-users-starting/{days}`
 #[instrument(skip(pool))]
 async fn get_daily_unique_users_starting_last_n_days(
@@ -210,39 +243,6 @@ async fn get_daily_unique_users_starting_last_n_days(
                 &mut conn, course_id, days_limit,
             )
             .await
-        },
-    )
-    .await?;
-
-    token.authorized_ok(web::Json(res))
-}
-
-/// GET `/api/v0/main-frontend/{course_id}/stats/monthly-users-starting`
-#[instrument(skip(pool))]
-async fn get_monthly_unique_users_starting(
-    pool: web::Data<PgPool>,
-    user: AuthUser,
-    course_id: web::Path<Uuid>,
-    cache: web::Data<Cache>,
-) -> ControllerResult<web::Json<Vec<CountResult>>> {
-    let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::ViewStats,
-        Some(user.id),
-        Res::Course(*course_id),
-    )
-    .await?;
-
-    let res = cached_stats_query(
-        &cache,
-        "monthly-users-starting",
-        *course_id,
-        None,
-        CACHE_DURATION,
-        || async {
-            models::library::course_stats::get_monthly_unique_users_starting(&mut conn, *course_id)
-                .await
         },
     )
     .await?;
@@ -541,93 +541,13 @@ async fn get_total_users_started_all_language_versions(
     token.authorized_ok(web::Json(res))
 }
 
-/// GET `/api/v0/main-frontend/{course_id}/stats/all-language-versions/monthly-users-starting`
-#[instrument(skip(pool))]
-async fn get_monthly_unique_users_starting_all_language_versions(
-    pool: web::Data<PgPool>,
-    user: AuthUser,
-    course_id: web::Path<Uuid>,
-    cache: web::Data<Cache>,
-) -> ControllerResult<web::Json<Vec<CountResult>>> {
-    let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::ViewStats,
-        Some(user.id),
-        Res::Course(*course_id),
-    )
-    .await?;
-
-    let course = models::courses::get_course(&mut conn, *course_id).await?;
-    let language_group_id = course.course_language_group_id;
-
-    let res = cached_stats_query(
-        &cache,
-        "all-language-versions-monthly-users-starting",
-        language_group_id,
-        None,
-        CACHE_DURATION,
-        || async {
-            models::library::course_stats::get_monthly_unique_users_starting_all_language_versions(
-                &mut conn,
-                language_group_id,
-            )
-            .await
-        },
-    )
-    .await?;
-
-    token.authorized_ok(web::Json(res))
-}
-
-/// GET `/api/v0/main-frontend/{course_id}/stats/all-language-versions/daily-users-starting/{days}`
-#[instrument(skip(pool))]
-async fn get_daily_unique_users_starting_all_language_versions_last_n_days(
-    pool: web::Data<PgPool>,
-    user: AuthUser,
-    path: web::Path<(Uuid, i32)>,
-    cache: web::Data<Cache>,
-) -> ControllerResult<web::Json<Vec<CountResult>>> {
-    let (course_id, days_limit) = path.into_inner();
-    let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::ViewStats,
-        Some(user.id),
-        Res::Course(course_id),
-    )
-    .await?;
-
-    let course = models::courses::get_course(&mut conn, course_id).await?;
-    let language_group_id = course.course_language_group_id;
-
-    let res = cached_stats_query(
-        &cache,
-        "all-language-versions-daily-users-starting",
-        language_group_id,
-        Some(&days_limit.to_string()),
-        CACHE_DURATION,
-        || async {
-            models::library::course_stats::get_daily_unique_users_starting_all_language_versions_last_n_days(
-                &mut conn,
-                language_group_id,
-                days_limit,
-            )
-            .await
-        },
-    )
-    .await?;
-
-    token.authorized_ok(web::Json(res))
-}
-
-/// GET `/api/v0/main-frontend/{course_id}/stats/all-language-versions/completions-history/{granularity}/{time_window}`
+/// GET `/api/v0/main-frontend/{course_id}/stats/all-language-versions/users-starting-history/{granularity}/{time_window}`
 ///
-/// Returns completion statistics for all language versions with specified time granularity and window.
+/// Returns unique users starting statistics for all language versions with specified time granularity and window.
 /// - granularity: "year", "month", or "day"
 /// - time_window: number of time units to look back
 #[instrument(skip(pool))]
-async fn get_course_completions_history_all_language_versions(
+async fn get_unique_users_starting_history_all_language_versions(
     pool: web::Data<PgPool>,
     user: AuthUser,
     path: web::Path<(Uuid, TimeGranularity, i32)>,
@@ -648,7 +568,7 @@ async fn get_course_completions_history_all_language_versions(
     let language_group_id = course.course_language_group_id;
 
     let cache_key = format!(
-        "all-language-versions-completions-{}-{}",
+        "all-language-versions-users-starting-{}-{}",
         granularity.to_string(),
         time_window
     );
@@ -659,7 +579,7 @@ async fn get_course_completions_history_all_language_versions(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::course_completions_history_all_language_versions(
+            models::library::course_stats::unique_users_starting_history_all_language_versions(
                 &mut conn,
                 language_group_id,
                 granularity,
@@ -673,9 +593,9 @@ async fn get_course_completions_history_all_language_versions(
     token.authorized_ok(web::Json(res))
 }
 
-/// GET `/api/v0/main-frontend/{course_id}/stats/completions-history/{granularity}/{time_window}`
+/// GET `/api/v0/main-frontend/{course_id}/stats/all-language-versions/completions-history/{granularity}/{time_window}`
 ///
-/// Returns course completion statistics with specified time granularity and window.
+/// Returns completion statistics for all language versions with specified time granularity and window.
 /// - granularity: "year", "month", or "day"
 /// - time_window: number of time units to look back
 #[instrument(skip(pool))]
@@ -781,15 +701,7 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
         web::get().to(get_total_users_started_all_language_versions),
     )
     .route(
-        "/all-language-versions/monthly-users-starting",
-        web::get().to(get_monthly_unique_users_starting_all_language_versions),
-    )
-    .route(
-        "/all-language-versions/daily-users-starting/{days}",
-        web::get().to(get_daily_unique_users_starting_all_language_versions_last_n_days),
-    )
-    .route(
-        "/all-language-versions/completions-history/{granularity}/{time_window}",
-        web::get().to(get_course_completions_history_all_language_versions),
+        "/all-language-versions/users-starting-history/{granularity}/{time_window}",
+        web::get().to(get_unique_users_starting_history_all_language_versions),
     );
 }

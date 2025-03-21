@@ -184,32 +184,45 @@ async fn get_daily_unique_users_starting_last_n_days(
     token.authorized_ok(web::Json(res))
 }
 
-/// GET `/api/v0/main-frontend/{course_id}/stats/avg-time-to-first-submission`
+/// GET `/api/v0/main-frontend/{course_id}/stats/avg-time-to-first-submission/{granularity}/{time_window}`
+///
+/// Returns average time to first submission statistics with specified time granularity and window.
+/// - granularity: "year", "month", or "day"
+/// - time_window: number of time units to look back
 #[instrument(skip(pool))]
-async fn get_avg_time_to_first_submission_by_month(
+async fn get_avg_time_to_first_submission_history(
     pool: web::Data<PgPool>,
     user: AuthUser,
-    course_id: web::Path<Uuid>,
+    path: web::Path<(Uuid, TimeGranularity, i32)>,
     cache: web::Data<Cache>,
 ) -> ControllerResult<web::Json<Vec<AverageMetric>>> {
+    let (course_id, granularity, time_window) = path.into_inner();
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
         Act::ViewStats,
         Some(user.id),
-        Res::Course(*course_id),
+        Res::Course(course_id),
     )
     .await?;
 
+    let cache_key = format!(
+        "avg-time-to-first-submission-{}-{}",
+        granularity.to_string(),
+        time_window
+    );
     let res = cached_stats_query(
         &cache,
-        "avg-time-to-first-submission",
-        *course_id,
+        &cache_key,
+        course_id,
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::get_avg_time_to_first_submission_by_month(
-                &mut conn, *course_id,
+            models::library::course_stats::avg_time_to_first_submission_history(
+                &mut conn,
+                course_id,
+                granularity,
+                time_window,
             )
             .await
         },
@@ -571,8 +584,8 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
         web::get().to(get_course_completions_history),
     )
     .route(
-        "/avg-time-to-first-submission",
-        web::get().to(get_avg_time_to_first_submission_by_month),
+        "/avg-time-to-first-submission/{granularity}/{time_window}",
+        web::get().to(get_avg_time_to_first_submission_history),
     )
     .route(
         "/cohort-activity/{granularity}/{history_window}/{tracking_window}",

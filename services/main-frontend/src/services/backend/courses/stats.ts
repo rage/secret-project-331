@@ -35,11 +35,13 @@ export const getDailyUniqueUsersStarting = async (
   return validateResponse(response, isArray(isCountResult))
 }
 
-export const getAvgTimeToFirstSubmissionByMonth = async (
+export const getAvgTimeToFirstSubmissionHistory = async (
   courseId: string,
+  granularity: TimeGranularity,
+  timeWindow: number,
 ): Promise<AverageMetric[]> => {
   const response = await mainFrontendClient.get(
-    `/courses/${courseId}/stats/avg-time-to-first-submission`,
+    `/courses/${courseId}/stats/avg-time-to-first-submission/${granularity}/${timeWindow}`,
   )
   return validateResponse(response, isArray(isAverageMetric))
 }

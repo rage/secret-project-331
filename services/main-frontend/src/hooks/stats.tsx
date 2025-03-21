@@ -1,7 +1,7 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query"
 
 import {
-  getAvgTimeToFirstSubmissionByMonth,
+  getAvgTimeToFirstSubmissionHistory,
   getCohortActivityHistory,
   getCourseCompletionsHistory,
   getCourseCompletionsHistoryAllLanguageVersions,
@@ -76,18 +76,6 @@ export const useUsersReturningExercisesHistoryQuery = (
         granularity,
         timeWindow,
       ),
-    enabled: !!courseId,
-    ...options,
-  })
-}
-
-export const useAvgTimeToFirstSubmissionByMonthQuery = (
-  courseId: string | null,
-  options: HookQueryOptions<AverageMetric[]> = {},
-): UseQueryResult<AverageMetric[], Error> => {
-  return useQuery<AverageMetric[], Error>({
-    queryKey: ["course-stats", "avg-time-to-first-submission", courseId],
-    queryFn: () => getAvgTimeToFirstSubmissionByMonth(assertNotNullOrUndefined(courseId)),
     enabled: !!courseId,
     ...options,
   })
@@ -237,6 +225,25 @@ export const useUniqueUsersStartingHistoryAllLanguageVersionsQuery = (
     ],
     queryFn: () =>
       getUniqueUsersStartingHistoryAllLanguageVersions(
+        assertNotNullOrUndefined(courseId),
+        granularity,
+        timeWindow,
+      ),
+    enabled: !!courseId,
+    ...options,
+  })
+}
+
+export const useAvgTimeToFirstSubmissionHistoryQuery = (
+  courseId: string | null,
+  granularity: TimeGranularity,
+  timeWindow: number,
+  options: HookQueryOptions<AverageMetric[]> = {},
+): UseQueryResult<AverageMetric[], Error> => {
+  return useQuery<AverageMetric[], Error>({
+    queryKey: ["course-stats", "avg-time-to-first-submission", courseId, granularity, timeWindow],
+    queryFn: () =>
+      getAvgTimeToFirstSubmissionHistory(
         assertNotNullOrUndefined(courseId),
         granularity,
         timeWindow,

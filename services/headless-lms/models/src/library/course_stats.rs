@@ -326,23 +326,32 @@ WHERE course_id = $1
     Ok(res)
 }
 
-/// Average time from course start to first exercise submission, grouped by month.
+/// Get average time from course start to first exercise submission with specified time granularity.
+///
+/// The time_window parameter controls how far back to look:
+/// - For Year granularity: number of years
+/// - For Month granularity: number of months
+/// - For Day granularity: number of days
 /// Returns the average time in seconds.
-pub async fn get_avg_time_to_first_submission_by_month(
+pub async fn avg_time_to_first_submission_history(
     conn: &mut PgConnection,
     course_id: Uuid,
+    granularity: TimeGranularity,
+    time_window: i32,
 ) -> ModelResult<Vec<AverageMetric>> {
     let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+    let (interval_unit, time_unit) = granularity.get_sql_units();
+
     let res = sqlx::query_as!(
         AverageMetric,
         r#"
-SELECT DATE_TRUNC('month', user_start) AS "period",
-AVG(
-  EXTRACT(
-    EPOCH
-    FROM (first_submission - user_start)
-  )
-)::float8 AS "average"
+SELECT DATE_TRUNC($5, user_start) AS "period",
+  AVG(
+    EXTRACT(
+      EPOCH
+      FROM (first_submission - user_start)
+    )
+  )::float8 AS "average"
 FROM (
     SELECT u.user_id,
       MIN(u.created_at) AS user_start,
@@ -353,17 +362,22 @@ FROM (
       AND e.deleted_at IS NULL
     WHERE u.current_course_id = $1
       AND u.deleted_at IS NULL
-      AND u.user_id != ALL($2)
+      AND NOT u.user_id = ANY($2)
+      AND u.created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
     GROUP BY u.user_id
   ) AS timings
 GROUP BY "period"
 ORDER BY "period"
         "#,
         course_id,
-        &exclude_user_ids
+        &exclude_user_ids,
+        &time_window.to_string(),
+        interval_unit,
+        time_unit,
     )
     .fetch_all(conn)
     .await?;
+
     Ok(res)
 }
 

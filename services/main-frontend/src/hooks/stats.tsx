@@ -5,12 +5,11 @@ import {
   getCohortDailyActivity,
   getCohortWeeklyActivity,
   getCourseCompletionsHistory,
-  getDailyCompletionsAllLanguageVersions,
+  getCourseCompletionsHistoryAllLanguageVersions,
   getDailyFirstExerciseSubmissions,
   getDailyUniqueUsersStarting,
   getDailyUniqueUsersStartingAllLanguageVersions,
   getDailyUsersReturningExercises,
-  getMonthlyCompletionsAllLanguageVersions,
   getMonthlyFirstExerciseSubmissions,
   getMonthlyUniqueUsersStarting,
   getMonthlyUniqueUsersStartingAllLanguageVersions,
@@ -232,31 +231,6 @@ export const useDailyUniqueUsersStartingAllLanguageVersionsQuery = (
   })
 }
 
-export const useMonthlyCompletionsAllLanguageVersionsQuery = (
-  courseId: string | null,
-  options: HookQueryOptions<CountResult[]> = {},
-): UseQueryResult<CountResult[], Error> => {
-  return useQuery<CountResult[], Error>({
-    queryKey: ["course-stats", "all-language-versions", "monthly-completions", courseId],
-    queryFn: () => getMonthlyCompletionsAllLanguageVersions(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
-    ...options,
-  })
-}
-
-export const useDailyCompletionsAllLanguageVersionsQuery = (
-  courseId: string | null,
-  days: number,
-  options: HookQueryOptions<CountResult[]> = {},
-): UseQueryResult<CountResult[], Error> => {
-  return useQuery<CountResult[], Error>({
-    queryKey: ["course-stats", "all-language-versions", "daily-completions", courseId, days],
-    queryFn: () => getDailyCompletionsAllLanguageVersions(assertNotNullOrUndefined(courseId), days),
-    enabled: !!courseId,
-    ...options,
-  })
-}
-
 export const useCourseCompletionsHistoryQuery = (
   courseId: string | null,
   granularity: TimeGranularity,
@@ -267,6 +241,32 @@ export const useCourseCompletionsHistoryQuery = (
     queryKey: ["course-stats", "completions-history", courseId, granularity, timeWindow],
     queryFn: () =>
       getCourseCompletionsHistory(assertNotNullOrUndefined(courseId), granularity, timeWindow),
+    enabled: !!courseId,
+    ...options,
+  })
+}
+
+export const useCourseCompletionsHistoryAllLanguageVersionsQuery = (
+  courseId: string | null,
+  granularity: TimeGranularity,
+  timeWindow: number,
+  options: HookQueryOptions<CountResult[]> = {},
+): UseQueryResult<CountResult[], Error> => {
+  return useQuery<CountResult[], Error>({
+    queryKey: [
+      "course-stats",
+      "all-language-versions",
+      "completions-history",
+      courseId,
+      granularity,
+      timeWindow,
+    ],
+    queryFn: () =>
+      getCourseCompletionsHistoryAllLanguageVersions(
+        assertNotNullOrUndefined(courseId),
+        granularity,
+        timeWindow,
+      ),
     enabled: !!courseId,
     ...options,
   })

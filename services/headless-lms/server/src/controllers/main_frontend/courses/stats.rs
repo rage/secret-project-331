@@ -621,54 +621,19 @@ async fn get_daily_unique_users_starting_all_language_versions_last_n_days(
     token.authorized_ok(web::Json(res))
 }
 
-/// GET `/api/v0/main-frontend/{course_id}/stats/all-language-versions/monthly-completions`
+/// GET `/api/v0/main-frontend/{course_id}/stats/all-language-versions/completions-history/{granularity}/{time_window}`
+///
+/// Returns completion statistics for all language versions with specified time granularity and window.
+/// - granularity: "year", "month", or "day"
+/// - time_window: number of time units to look back
 #[instrument(skip(pool))]
-async fn get_monthly_course_completions_all_language_versions(
+async fn get_course_completions_history_all_language_versions(
     pool: web::Data<PgPool>,
     user: AuthUser,
-    course_id: web::Path<Uuid>,
+    path: web::Path<(Uuid, TimeGranularity, i32)>,
     cache: web::Data<Cache>,
 ) -> ControllerResult<web::Json<Vec<CountResult>>> {
-    let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::ViewStats,
-        Some(user.id),
-        Res::Course(*course_id),
-    )
-    .await?;
-
-    let course = models::courses::get_course(&mut conn, *course_id).await?;
-    let language_group_id = course.course_language_group_id;
-
-    let res = cached_stats_query(
-        &cache,
-        "all-language-versions-monthly-completions",
-        language_group_id,
-        None,
-        CACHE_DURATION,
-        || async {
-            models::library::course_stats::get_monthly_course_completions_all_language_versions(
-                &mut conn,
-                language_group_id,
-            )
-            .await
-        },
-    )
-    .await?;
-
-    token.authorized_ok(web::Json(res))
-}
-
-/// GET `/api/v0/main-frontend/{course_id}/stats/all-language-versions/daily-completions/{days}`
-#[instrument(skip(pool))]
-async fn get_daily_course_completions_all_language_versions_last_n_days(
-    pool: web::Data<PgPool>,
-    user: AuthUser,
-    path: web::Path<(Uuid, i32)>,
-    cache: web::Data<Cache>,
-) -> ControllerResult<web::Json<Vec<CountResult>>> {
-    let (course_id, days_limit) = path.into_inner();
+    let (course_id, granularity, time_window) = path.into_inner();
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
@@ -678,20 +643,27 @@ async fn get_daily_course_completions_all_language_versions_last_n_days(
     )
     .await?;
 
+    // Get the course to find its language group ID
     let course = models::courses::get_course(&mut conn, course_id).await?;
     let language_group_id = course.course_language_group_id;
 
+    let cache_key = format!(
+        "all-language-versions-completions-{}-{}",
+        granularity.to_string(),
+        time_window
+    );
     let res = cached_stats_query(
         &cache,
-        "all-language-versions-daily-completions",
+        &cache_key,
         language_group_id,
-        Some(&days_limit.to_string()),
+        None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::get_daily_course_completions_all_language_versions_last_n_days(
+            models::library::course_stats::course_completions_history_all_language_versions(
                 &mut conn,
                 language_group_id,
-                days_limit,
+                granularity,
+                time_window,
             )
             .await
         },
@@ -817,11 +789,7 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
         web::get().to(get_daily_unique_users_starting_all_language_versions_last_n_days),
     )
     .route(
-        "/all-language-versions/monthly-completions",
-        web::get().to(get_monthly_course_completions_all_language_versions),
-    )
-    .route(
-        "/all-language-versions/daily-completions/{days}",
-        web::get().to(get_daily_course_completions_all_language_versions_last_n_days),
+        "/all-language-versions/completions-history/{granularity}/{time_window}",
+        web::get().to(get_course_completions_history_all_language_versions),
     );
 }

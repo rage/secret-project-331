@@ -15,8 +15,8 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 
 // Common constants
-export const MONTHLY_PERIOD = "monthly"
-export const DAILY_PERIOD = "daily"
+export const MONTHLY_PERIOD = "Month" as const
+export const DAILY_PERIOD = "Day" as const
 
 export type Period = typeof MONTHLY_PERIOD | typeof DAILY_PERIOD
 

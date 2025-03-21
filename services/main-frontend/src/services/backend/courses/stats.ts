@@ -1,6 +1,11 @@
 import { mainFrontendClient } from "../../mainFrontendClient"
 
-import { AverageMetric, CohortActivity, CountResult } from "@/shared-module/common/bindings"
+import {
+  AverageMetric,
+  CohortActivity,
+  CountResult,
+  TimeGranularity,
+} from "@/shared-module/common/bindings"
 import {
   isAverageMetric,
   isCohortActivity,
@@ -74,21 +79,6 @@ export const getDailyUsersReturningExercises = async (
 ): Promise<CountResult[]> => {
   const response = await mainFrontendClient.get(
     `/courses/${courseId}/stats/daily-returning-exercises/${days}`,
-  )
-  return validateResponse(response, isArray(isCountResult))
-}
-
-export const getMonthlyCourseCompletions = async (courseId: string): Promise<CountResult[]> => {
-  const response = await mainFrontendClient.get(`/courses/${courseId}/stats/monthly-completions`)
-  return validateResponse(response, isArray(isCountResult))
-}
-
-export const getDailyCourseCompletions = async (
-  courseId: string,
-  days: number,
-): Promise<CountResult[]> => {
-  const response = await mainFrontendClient.get(
-    `/courses/${courseId}/stats/daily-completions/${days}`,
   )
   return validateResponse(response, isArray(isCountResult))
 }
@@ -172,6 +162,17 @@ export const getDailyCompletionsAllLanguageVersions = async (
 ): Promise<CountResult[]> => {
   const response = await mainFrontendClient.get(
     `/courses/${courseId}/stats/all-language-versions/daily-completions/${days}`,
+  )
+  return validateResponse(response, isArray(isCountResult))
+}
+
+export const getCourseCompletionsHistory = async (
+  courseId: string,
+  granularity: TimeGranularity,
+  timeWindow: number,
+): Promise<CountResult[]> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/stats/completions-history/${granularity}/${timeWindow}`,
   )
   return validateResponse(response, isArray(isCountResult))
 }

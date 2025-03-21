@@ -2288,7 +2288,8 @@ export function isTimeGranularity(obj: unknown): obj is TimeGranularity {
     const typedObj = obj as TimeGranularity
     return (
         (typedObj === "Year" ||
-            typedObj === "Month")
+            typedObj === "Month" ||
+            typedObj === "Day")
     )
 }
 

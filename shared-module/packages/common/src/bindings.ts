@@ -1101,7 +1101,7 @@ export interface GlobalStatEntry {
   value: number
 }
 
-export type TimeGranularity = "Year" | "Month"
+export type TimeGranularity = "Year" | "Month" | "Day"
 
 export interface AnswerRequiringAttentionWithTasks {
   id: string

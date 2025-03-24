@@ -44,6 +44,7 @@ export const getMyCourses = async (): Promise<Course[]> => {
   const response = await mainFrontendClient.get("/users/my-courses")
   return validateResponse(response, isArray(isCourse))
 }
+
 export const getUserResetExerciseLogs = async (
   userId: string,
 ): Promise<Array<ExerciseResetLog>> => {

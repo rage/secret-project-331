@@ -6,7 +6,7 @@ import { UserDetail } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import Spinner from "@/shared-module/common/components/Spinner"
 import StandardDialog from "@/shared-module/common/components/StandardDialog"
-import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
+import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 
 type Props = {
   users?: UserDetail[]
@@ -35,7 +35,14 @@ const UserSearch: React.FC<Props> = ({ users, addUser, isLoading }) => {
       `}
     >
       <div>
-        <Button onClick={() => setIsModalOpen(true)} variant="primary" size={"medium"}>
+        <Button
+          onClick={() => setIsModalOpen(true)}
+          variant="primary"
+          size={"small"}
+          className={css`
+            text-transform: capitalize !important;
+          `}
+        >
           {t("button-add-students")}
         </Button>
       </div>
@@ -51,10 +58,11 @@ const UserSearch: React.FC<Props> = ({ users, addUser, isLoading }) => {
           <div>
             <h2
               className={css`
-                margin-left: 15px;
+                font-weight: ${fontWeights.medium};
+                font-size: ${baseTheme.fontSizes[2]}px;
               `}
             >
-              {t("title-user-search")}{" "}
+              {t("label-list-of-all-students")}
             </h2>
 
             <input
@@ -63,75 +71,67 @@ const UserSearch: React.FC<Props> = ({ users, addUser, isLoading }) => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className={css`
-                margin: 15px;
+                margin-top: 1rem;
+                margin-bottom: 2rem;
               `}
             />
 
-            <div
-              className={css`
-                margin: 15px;
-              `}
-            >
-              <h2>{searchTerm.trim() ? t("label-search-results") : t("label-all-users")}</h2>
-
-              <div>
-                <table
-                  className={css`
-                    border-collapse: collapse;
-                    td,
-                    th {
-                      padding-left: 10px;
-                      text-align: left;
-                      height: 60px;
-                    }
-                    tr {
-                      border-bottom: 1.5px solid #0000001a;
-                      font-size: ${baseTheme.fontSizes[18]};
-                    }
-                  `}
-                >
-                  <thead>
-                    <tr
-                      className={css`
-                        font-family: ${headingFont};
-                        font-weight: ${fontWeights.semibold};
-                        font-size: ${baseTheme.fontSizes[18]};
-                        color: ${baseTheme.colors.gray[400]};
-                      `}
-                    >
-                      <th>{t("text-field-label-name")}</th>
-                      <th>{t("label-email")}</th>
-                      <th>{t("label-user-id")}</th>
+            <div>
+              <table
+                className={css`
+                  border-collapse: collapse;
+                  td,
+                  th {
+                    padding-left: 2rem;
+                    padding-bottom: 1rem;
+                    text-align: left;
+                    color: ${baseTheme.colors.gray[700]};
+                    font-size: ${baseTheme.fontSizes[0]}px;
+                    opacity: 0.8;
+                  }
+                  tr {
+                    border-bottom: 1.5px solid #ced1d7;
+                  }
+                  th {
+                    font-weight: ${fontWeights.medium};
+                  }
+                `}
+              >
+                <thead>
+                  <tr>
+                    <th>{t("text-field-label-name")}</th>
+                    <th>{t("label-email")}</th>
+                    <th>{t("label-user-id")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(searchTerm.trim() ? filteredUsers : users || []).map((user) => (
+                    <tr key={user.user_id}>
+                      <td>
+                        {user.first_name} {user.last_name}
+                      </td>
+                      <td>{user.email}</td>
+                      <td>{user.user_id}</td>
+                      <td>
+                        <Button
+                          onClick={() => addUser(user)}
+                          variant={"secondary"}
+                          size={"small"}
+                          data-testid={`add-user-button-${user.user_id}`}
+                          className={css`
+                            text-transform: capitalize !important;
+                          `}
+                        >
+                          {t("button-add")}
+                        </Button>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {(searchTerm.trim() ? filteredUsers : users || []).map((user) => (
-                      <tr key={user.user_id}>
-                        <td>
-                          {user.first_name} {user.last_name}
-                        </td>
-                        <td>{user.email}</td>
-                        <td>{user.user_id}</td>
-                        <td>
-                          <Button
-                            onClick={() => addUser(user)}
-                            variant={"primary"}
-                            size={"small"}
-                            data-testid={`add-user-button-${user.user_id}`}
-                          >
-                            {t("button-add")}
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {searchTerm.trim() && filteredUsers.length === 0 && (
-                <p>{t("label-no-users-found")}</p>
-              )}
+                  ))}
+                </tbody>
+              </table>
             </div>
+
+            {searchTerm.trim() && filteredUsers.length === 0 && <p>{t("label-no-users-found")}</p>}
           </div>
         )}
       </StandardDialog>

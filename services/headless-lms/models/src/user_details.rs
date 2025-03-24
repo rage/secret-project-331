@@ -162,6 +162,7 @@ WHERE dist < 0.7;
     Ok(res)
 }
 
+/// Retrieves all users enrolled in a specific course
 pub async fn get_users_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,

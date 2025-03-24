@@ -1,3 +1,5 @@
+import { isNumber } from "lodash"
+
 import { mainFrontendClient } from "../mainFrontendClient"
 
 import { Exercise, ExerciseSubmissions } from "@/shared-module/common/bindings"
@@ -52,5 +54,5 @@ export const resetExercisesForUsers = async (
     },
   )
 
-  return response.data
+  return validateResponse(response, isNumber)
 }

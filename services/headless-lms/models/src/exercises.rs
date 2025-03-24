@@ -1005,7 +1005,6 @@ pub async fn collect_user_ids_and_exercise_ids_for_reset(
         .await?
     };
 
-    // Create a map of user_id to exercise_ids
     let mut user_exercise_map: HashMap<Uuid, Vec<Uuid>> = HashMap::new();
     for row in &results {
         user_exercise_map
@@ -1044,7 +1043,7 @@ pub async fn collect_user_ids_and_exercise_ids_for_reset(
         }
         locked_user_exercise_map
     } else {
-        // Return the user_exercise_map if not resetting only locked reviews
+        // Palautetaan user_exercise_map, jos ei nollata vain lukittuja arvosteluja
         user_exercise_map
     };
 
@@ -1217,14 +1216,16 @@ pub async fn reset_exercises_for_selected_users(
 
     Ok(successful_resets)
 }
-
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseResetLog {
     pub id: Uuid,
     pub reset_by: Uuid,
+    pub reset_by_first_name: Option<String>,
+    pub reset_by_last_name: Option<String>,
     pub reset_for: Uuid,
     pub exercise_id: Uuid,
+    pub exercise_name: String,
     pub course_id: Uuid,
     pub reset_at: DateTime<Utc>,
     pub created_at: DateTime<Utc>,
@@ -1239,9 +1240,23 @@ pub async fn get_exercise_reset_logs_for_user(
     let result = sqlx::query_as!(
         ExerciseResetLog,
         "
-            SELECT *
-            FROM exercise_reset_logs
-            WHERE reset_for = $1
+            SELECT erl.id,
+                   erl.reset_by,
+                   ud.first_name AS reset_by_first_name,
+                   ud.last_name AS reset_by_last_name,
+                   erl.reset_for,
+                   erl.exercise_id,
+                   e.name AS exercise_name,
+                   erl.course_id,
+                   erl.reset_at,
+                   erl.created_at,
+                   erl.updated_at,
+                   erl.deleted_at
+            FROM exercise_reset_logs erl
+            JOIN exercises e ON erl.exercise_id = e.id
+            JOIN user_details ud ON erl.reset_by = ud.user_id
+            WHERE erl.reset_for = $1
+            ORDER BY erl.reset_at DESC
             ",
         user_id
     )

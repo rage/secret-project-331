@@ -8,7 +8,7 @@ import { fetchAllPagesByCourseId } from "@/services/backend/pages"
 import { DatabaseChapter, Exercise, Page } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
+import { baseTheme, fontWeights, secondaryFont } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 type Props = {
@@ -113,26 +113,72 @@ const ExerciseList: React.FC<Props> = ({
 
   return (
     <div>
-      <h2>{t("title-all-exercises")}</h2>
+      <h6
+        className={css`
+          font-weight: ${fontWeights.medium};
+          font-family: ${secondaryFont};
+          padding-bottom: 20px;
+          color: ${baseTheme.colors.gray[700]};
+        `}
+      >
+        {t("title-all-exercises")}
+      </h6>
 
       <div
         className={css`
+          display: flex;
           padding-bottom: 0.4rem;
+          gap: 8px;
         `}
       >
-        <Button onClick={selectAll} variant={"primary"} size={"medium"}>
+        <Button
+          onClick={selectAll}
+          variant={"secondary"}
+          size={"small"}
+          className={css`
+            text-transform: capitalize !important;
+          `}
+        >
           {t("button-select-all")}
         </Button>
-        <Button onClick={selectNone} variant={"primary"} size={"medium"}>
+        <Button
+          onClick={selectNone}
+          variant={"secondary"}
+          size={"small"}
+          className={css`
+            text-transform: capitalize !important;
+          `}
+        >
           {t("button-select-none")}
         </Button>
-        <Button onClick={invertSelection} variant={"primary"} size={"medium"}>
+        <Button
+          onClick={invertSelection}
+          variant={"secondary"}
+          size={"small"}
+          className={css`
+            text-transform: capitalize !important;
+          `}
+        >
           {t("button-invert-selection")}
         </Button>
-        <Button onClick={selectPeerReview} variant={"primary"} size={"medium"}>
+        <Button
+          onClick={selectPeerReview}
+          variant={"secondary"}
+          size={"small"}
+          className={css`
+            text-transform: capitalize !important;
+          `}
+        >
           {t("button-exercises-with-peer-review")}
         </Button>
-        <Button onClick={selectSelfReview} variant={"primary"} size={"medium"}>
+        <Button
+          onClick={selectSelfReview}
+          variant={"secondary"}
+          size={"small"}
+          className={css`
+            text-transform: capitalize !important;
+          `}
+        >
           {t("button-exercises-with-self-review")}
         </Button>
       </div>
@@ -142,75 +188,99 @@ const ExerciseList: React.FC<Props> = ({
           const chapterTitle = chapter
             ? `${t("chapter")} ${chapter.chapter_number}: ${chapter.name}`
             : t("label-no-chapter")
-
           return (
             <div key={chapterId}>
-              <h2
+              <p
                 className={css`
-                  font-style: normal;
-                  font-weight: ${fontWeights.semibold};
-                  padding: 0.4rem;
-
-                  color: ${baseTheme.colors.primary[200]};
+                  font-family: ${secondaryFont};
+                  color: ${baseTheme.colors.gray[700]};
+                  font-weight: ${fontWeights.medium};
+                  font-size: ${baseTheme.fontSizes[0]}px;
+                  padding-bottom: 10px;
+                  padding-top: 10px;
                 `}
               >
                 {chapterTitle}
-              </h2>
+              </p>
               <div
                 className={css`
-                  border-left: 1px solid ${baseTheme.colors.gray[400]};
-                  border-right: 1px solid ${baseTheme.colors.gray[400]};
-                  border-top: 1px solid ${baseTheme.colors.gray[400]};
+                  border: 1px solid #ced1d7;
+                  border-radius: 8px;
+                  border-width: 1px;
+                  color: ${baseTheme.colors.gray[700]};
                 `}
               >
-                {Object.entries(pagesExercises)
-                  .sort(([pageAId], [pageBId]) => {
-                    const pageA = pageMap.get(pageAId)
-                    const pageB = pageMap.get(pageBId)
-                    const orderA = pageA ? pageA.order_number : Number.MAX_VALUE
-                    const orderB = pageB ? pageB.order_number : Number.MAX_VALUE
-                    return orderA - orderB
-                  })
-                  .map(([pageId, exercises]) => {
-                    const page = pageId !== "no-page" ? pageMap.get(pageId) : null
-                    const pageTitle = page
-                      ? `${t("label-page")} ${page.order_number}`
-                      : t("label-no-page")
-                    return (
-                      <div
-                        key={pageId}
-                        className={css`
-                          border-bottom: 1px solid ${baseTheme.colors.gray[400]};
-                          padding: 0.4rem;
-                        `}
-                      >
-                        <h3
-                          className={css`
-                            color: ${baseTheme.colors.gray[700]};
-                            font-family: ${headingFont};
-                            padding: 0.4rem;
-                          `}
-                        >
-                          {pageTitle}
-                        </h3>
-                        <ul
-                          className={css`
-                            list-style-type: none;
-                          `}
-                        >
-                          {exercises.map((exercise) => (
-                            <li key={exercise.id}>
+                <table
+                  className={css`
+                    border-collapse: collapse;
+                    width: 100%;
+                    text-align: left;
+
+                    th {
+                      font-weight: ${fontWeights.medium};
+                      background: #f7f8f9;
+                      border-radius: 8px;
+                    }
+                    ,
+                    td {
+                      border-top: 1px solid #ced1d7;
+                    }
+                    ,
+                    td,
+                    th {
+                      font-size: ${baseTheme.fontSizes[0]}px;
+                      padding: 1rem;
+                      opacity: 0.8;
+                    }
+                  `}
+                >
+                  <thead>
+                    <tr>
+                      <th>{t("label-select")}</th>
+                      <th>{t("exercise")}</th>
+                      <th>{t("title-page")}</th>
+                      <th>{t("title-peer-review")}</th>
+                      <th>{t("title-self-review")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Object.entries(pagesExercises)
+                      .sort(([pageAId], [pageBId]) => {
+                        const pageA = pageMap.get(pageAId)
+                        const pageB = pageMap.get(pageBId)
+                        const orderA = pageA ? pageA.order_number : Number.MAX_VALUE
+                        const orderB = pageB ? pageB.order_number : Number.MAX_VALUE
+                        return orderA - orderB
+                      })
+                      .map(([pageId, exercises]) => {
+                        return exercises.map((exercise) => (
+                          <tr key={exercise.id}>
+                            <td>
                               <CheckBox
-                                label={exercise.name}
                                 checked={selectedExerciseIds.includes(exercise.id)}
                                 onChange={() => toggleExercise(exercise.id)}
+                                label={""}
+                                className={css`
+                                  margin: 0px;
+                                  padding-left: 10px;
+                                `}
                               />
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )
-                  })}
+                            </td>
+                            <td>{exercise.name}</td>
+                            <td>
+                              {t("title-page")} {pageMap.get(pageId)?.order_number}
+                            </td>
+                            <td>
+                              {exercise.needs_peer_review ? t("label-true") : t("label-false")}
+                            </td>
+                            <td>
+                              {exercise.needs_self_review ? t("label-true") : t("label-false")}
+                            </td>
+                          </tr>
+                        ))
+                      })}
+                  </tbody>
+                </table>
               </div>
             </div>
           )

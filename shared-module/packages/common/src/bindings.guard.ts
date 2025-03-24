@@ -1918,8 +1918,13 @@ export function isExerciseResetLog(obj: unknown): obj is ExerciseResetLog {
             typeof typedObj === "function") &&
         typeof typedObj["id"] === "string" &&
         typeof typedObj["reset_by"] === "string" &&
+        (typedObj["reset_by_first_name"] === null ||
+            typeof typedObj["reset_by_first_name"] === "string") &&
+        (typedObj["reset_by_last_name"] === null ||
+            typeof typedObj["reset_by_last_name"] === "string") &&
         typeof typedObj["reset_for"] === "string" &&
         typeof typedObj["exercise_id"] === "string" &&
+        typeof typedObj["exercise_name"] === "string" &&
         typeof typedObj["course_id"] === "string" &&
         typeof typedObj["reset_at"] === "string" &&
         typeof typedObj["created_at"] === "string" &&

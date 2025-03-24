@@ -1,59 +1,104 @@
 import { css } from "@emotion/css"
+import { XmarkCircle } from "@vectopus/atlas-icons-react"
 import { useTranslation } from "react-i18next"
+
+import UserSearch from "./UserSearch"
 
 import { UserDetail } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
-import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
+import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 
 type Props = {
   selectedUsers: UserDetail[]
   removeUser: (userId: string) => void
+  users?: UserDetail[]
+  isLoading: boolean
+  addUser: (user: UserDetail) => void
 }
 
-const SelectedUsers: React.FC<Props> = ({ selectedUsers, removeUser }) => {
+const SelectedUsers: React.FC<Props> = ({
+  selectedUsers,
+  removeUser,
+  users,
+  addUser,
+  isLoading,
+}) => {
   const { t } = useTranslation()
 
   return (
     <div>
-      <h2>{t("label-selected-users")}</h2>
       <div
         className={css`
-          padding-left: 0.4rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding-bottom: 10px;
+        `}
+      >
+        <p
+          className={css`
+            font-size: ${baseTheme.fontSizes[0]}px;
+            font-weight: ${fontWeights.semibold};
+            color: ${baseTheme.colors.gray[700]};
+          `}
+        >
+          {t("label-selected-users")}
+        </p>
+        <UserSearch users={users} isLoading={isLoading} addUser={addUser} />
+      </div>
+      <div
+        className={css`
+          padding-bottom: 20px;
+          font-weight: ${fontWeights.normal};
+          color: ${baseTheme.colors.gray[700]};
+          font-size: ${baseTheme.fontSizes[0]}px;
         `}
       >
         {selectedUsers.length === 0 ? (
-          <p>{t("label-no-users-selected")}</p>
+          <div
+            className={css`
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              align-items: center;
+              height: 74px;
+              border-radius: 2px;
+              background: #f2f3f5;
+            `}
+          >
+            <XmarkCircle />
+            <p>{t("label-no-users-selected")}</p>
+          </div>
         ) : (
           <table
             className={css`
               border-collapse: collapse;
-              margin-top: 1.5rem;
+              margin-bottom: 1.5rem;
+
               width: 100%;
 
               td,
               th {
-                padding-left: 20px;
+                padding-left: 28px;
                 text-align: left;
                 height: 60px;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
+                opacity: 0.8;
               }
-              tr {
-                border-bottom: 1.5px solid #0000001a;
-                font-size: ${baseTheme.fontSizes[18]};
+              ,
+              td {
+                border-top: 1px solid #ced1d7;
+              }
+              ,
+              th {
+                font-weight: ${fontWeights.medium};
               }
             `}
           >
             <thead>
-              <tr
-                className={css`
-                  font-family: ${headingFont};
-                  font-weight: ${fontWeights.semibold};
-                  font-size: ${baseTheme.fontSizes[18]};
-                  color: ${baseTheme.colors.gray[400]};
-                `}
-              >
+              <tr>
                 <th>{t("text-field-label-name")}</th>
                 <th>{t("label-email")}</th>
                 <th>{t("label-user-id")}</th>
@@ -70,8 +115,11 @@ const SelectedUsers: React.FC<Props> = ({ selectedUsers, removeUser }) => {
                   <td>
                     <Button
                       onClick={() => removeUser(user.user_id)}
-                      variant={"reject"}
+                      variant={"secondary"}
                       size={"small"}
+                      className={css`
+                        text-transform: capitalize !important;
+                      `}
                     >
                       {t("button-remove")}
                     </Button>

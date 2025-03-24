@@ -1,8 +1,9 @@
 import { css } from "@emotion/css"
-import React from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+import { baseTheme } from "@/shared-module/common/styles"
 
 type ResetFilterProps = {
   threshold: number | null
@@ -22,38 +23,65 @@ const ResetFilter: React.FC<ResetFilterProps> = ({
   setResetOnlyLockedPeerReviews,
 }) => {
   const { t } = useTranslation()
+  const [thresholdCheckBox, setThresholdCheckBox] = useState(false)
 
   return (
     <div>
       <div
         className={css`
-          padding-bottom: 1rem;
+          padding-bottom: 10px;
+          display: flex;
+          align-items: baseline;
+          gap: 4px;
         `}
       >
-        <label htmlFor="pointsThreshold">{t("label-only-reset-if-less-than")} </label>
+        <CheckBox
+          label={t("label-only-reset-if-less-than")}
+          checked={thresholdCheckBox}
+          onChange={(e) => {
+            setThresholdCheckBox(e.target.checked)
+          }}
+        />
         <input
           id="pointsThreshold"
           type="number"
           min="0"
+          className={css`
+            width: 5rem;
+          `}
           value={threshold ?? ""}
+          aria-label={t("label-only-reset-if-less-than")}
+          step="1"
+          disabled={!thresholdCheckBox}
           onChange={(e) => {
-            const value = e.target.value === "" ? null : Number(e.target.value)
+            let value = e.target.value === "" ? null : Number(e.target.value)
+            // Ensure value is non-negative integer if present
+            if (value !== null && (isNaN(value) || value < 0)) {
+              value = 0
+            }
             setThreshold(value)
           }}
         />
-
-        <span> {t("label-points").toLowerCase()}</span>
+        <p> {t("label-points").toLowerCase()}</p>
       </div>
       <CheckBox
         label={t("label-reset-only-if-less-than-max-points")}
-        checked={resetAllBelowMaxPoints ?? false}
+        className={css`
+          padding-bottom: 10px;
+          font-size: ${baseTheme.fontSizes[0]}px;
+        `}
+        checked={resetAllBelowMaxPoints}
         onChange={(e) => {
           setResetAllBelowMaxPoints(e.target.checked)
         }}
       />
       <CheckBox
         label={t("label-reset-only-if-reviewedAndLocked")}
-        checked={resetOnlyLockedPeerReviews ?? false}
+        className={css`
+          padding-bottom: 10px;
+          font-size: ${baseTheme.fontSizes[0]}px;
+        `}
+        checked={resetOnlyLockedPeerReviews}
         onChange={(e) => {
           setResetOnlyLockedPeerReviews(e.target.checked)
         }}

@@ -915,8 +915,11 @@ export type GradingProgress = "Failed" | "NotReady" | "PendingManual" | "Pending
 export interface ExerciseResetLog {
   id: string
   reset_by: string
+  reset_by_first_name: string | null
+  reset_by_last_name: string | null
   reset_for: string
   exercise_id: string
+  exercise_name: string
   course_id: string
   reset_at: string
   created_at: string

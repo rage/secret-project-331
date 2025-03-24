@@ -9,6 +9,7 @@ import { CourseManagementPagesProps } from "../../../../../../pages/manage/cours
 import AllLanguageCompletionsChart from "./visualizations/all-languages/AllLanguageCompletionsChart"
 import AllLanguageStartingUsersChart from "./visualizations/all-languages/AllLanguageStartingUsersChart"
 import AllLanguageTotalStats from "./visualizations/all-languages/AllLanguageTotalStats"
+import TotalStatsByInstance from "./visualizations/course-instances/TotalStatsByInstance"
 import CompletionsChart from "./visualizations/overview/CompletionsChart"
 import CourseUsersCountsByExercise from "./visualizations/overview/CourseUsersCountsByExercise"
 import StudentsStartingTheCourseChart from "./visualizations/overview/StudentsStartingTheCourseChart"
@@ -181,7 +182,11 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
           </div>
         )}
 
-        {activeTab === TAB_COURSE_INSTANCES && <div>Course instance stats will go here</div>}
+        {activeTab === TAB_COURSE_INSTANCES && (
+          <>
+            <TotalStatsByInstance courseId={courseId} />
+          </>
+        )}
       </TabLinkPanel>
     </>
   )

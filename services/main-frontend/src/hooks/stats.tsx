@@ -5,14 +5,21 @@ import {
   getCohortActivityHistory,
   getCourseCompletionsHistory,
   getCourseCompletionsHistoryAllLanguageVersions,
+  getCourseCompletionsHistoryByInstance,
   getFirstExerciseSubmissionsHistory,
+  getFirstExerciseSubmissionsHistoryByInstance,
   getTotalUsersCompletedCourse,
+  getTotalUsersCompletedCourseByInstance,
   getTotalUsersReturnedExercises,
+  getTotalUsersReturnedExercisesByInstance,
   getTotalUsersStartedAllLanguageVersions,
   getTotalUsersStartedCourse,
+  getTotalUsersStartedCourseByInstance,
   getUniqueUsersStartingHistory,
   getUniqueUsersStartingHistoryAllLanguageVersions,
+  getUniqueUsersStartingHistoryByInstance,
   getUsersReturningExercisesHistory,
+  getUsersReturningExercisesHistoryByInstance,
 } from "../services/backend/courses/stats"
 
 import { HookQueryOptions } from "."
@@ -231,6 +238,139 @@ export const useAvgTimeToFirstSubmissionHistoryQuery = (
     queryKey: ["course-stats", "avg-time-to-first-submission", courseId, granularity, timeWindow],
     queryFn: () =>
       getAvgTimeToFirstSubmissionHistory(
+        assertNotNullOrUndefined(courseId),
+        granularity,
+        timeWindow,
+      ),
+    enabled: !!courseId,
+    ...options,
+  })
+}
+
+export const useTotalUsersStartedCourseByInstanceQuery = (
+  courseId: string | null,
+  options: HookQueryOptions<Record<string, CountResult>> = {},
+): UseQueryResult<Record<string, CountResult>, Error> => {
+  return useQuery<Record<string, CountResult>, Error>({
+    queryKey: ["course-stats", "by-instance", "total-users-started", courseId],
+    queryFn: () => getTotalUsersStartedCourseByInstance(assertNotNullOrUndefined(courseId)),
+    enabled: !!courseId,
+    ...options,
+  })
+}
+
+export const useTotalUsersCompletedCourseByInstanceQuery = (
+  courseId: string | null,
+  options: HookQueryOptions<Record<string, CountResult>> = {},
+): UseQueryResult<Record<string, CountResult>, Error> => {
+  return useQuery<Record<string, CountResult>, Error>({
+    queryKey: ["course-stats", "by-instance", "total-users-completed", courseId],
+    queryFn: () => getTotalUsersCompletedCourseByInstance(assertNotNullOrUndefined(courseId)),
+    enabled: !!courseId,
+    ...options,
+  })
+}
+
+export const useTotalUsersReturnedExercisesByInstanceQuery = (
+  courseId: string | null,
+  options: HookQueryOptions<Record<string, CountResult>> = {},
+): UseQueryResult<Record<string, CountResult>, Error> => {
+  return useQuery<Record<string, CountResult>, Error>({
+    queryKey: ["course-stats", "by-instance", "total-users-returned-exercises", courseId],
+    queryFn: () => getTotalUsersReturnedExercisesByInstance(assertNotNullOrUndefined(courseId)),
+    enabled: !!courseId,
+    ...options,
+  })
+}
+
+export const useCourseCompletionsHistoryByInstanceQuery = (
+  courseId: string | null,
+  granularity: TimeGranularity,
+  timeWindow: number,
+  options: HookQueryOptions<Record<string, CountResult[]>> = {},
+): UseQueryResult<Record<string, CountResult[]>, Error> => {
+  return useQuery<Record<string, CountResult[]>, Error>({
+    queryKey: [
+      "course-stats",
+      "by-instance",
+      "completions-history",
+      courseId,
+      granularity,
+      timeWindow,
+    ],
+    queryFn: () =>
+      getCourseCompletionsHistoryByInstance(
+        assertNotNullOrUndefined(courseId),
+        granularity,
+        timeWindow,
+      ),
+    enabled: !!courseId,
+    ...options,
+  })
+}
+
+export const useUniqueUsersStartingHistoryByInstanceQuery = (
+  courseId: string | null,
+  granularity: TimeGranularity,
+  timeWindow: number,
+  options: HookQueryOptions<Record<string, CountResult[]>> = {},
+): UseQueryResult<Record<string, CountResult[]>, Error> => {
+  return useQuery<Record<string, CountResult[]>, Error>({
+    queryKey: ["course-stats", "by-instance", "users-starting", courseId, granularity, timeWindow],
+    queryFn: () =>
+      getUniqueUsersStartingHistoryByInstance(
+        assertNotNullOrUndefined(courseId),
+        granularity,
+        timeWindow,
+      ),
+    enabled: !!courseId,
+    ...options,
+  })
+}
+
+export const useFirstExerciseSubmissionsHistoryByInstanceQuery = (
+  courseId: string | null,
+  granularity: TimeGranularity,
+  timeWindow: number,
+  options: HookQueryOptions<Record<string, CountResult[]>> = {},
+): UseQueryResult<Record<string, CountResult[]>, Error> => {
+  return useQuery<Record<string, CountResult[]>, Error>({
+    queryKey: [
+      "course-stats",
+      "by-instance",
+      "first-submissions",
+      courseId,
+      granularity,
+      timeWindow,
+    ],
+    queryFn: () =>
+      getFirstExerciseSubmissionsHistoryByInstance(
+        assertNotNullOrUndefined(courseId),
+        granularity,
+        timeWindow,
+      ),
+    enabled: !!courseId,
+    ...options,
+  })
+}
+
+export const useUsersReturningExercisesHistoryByInstanceQuery = (
+  courseId: string | null,
+  granularity: TimeGranularity,
+  timeWindow: number,
+  options: HookQueryOptions<Record<string, CountResult[]>> = {},
+): UseQueryResult<Record<string, CountResult[]>, Error> => {
+  return useQuery<Record<string, CountResult[]>, Error>({
+    queryKey: [
+      "course-stats",
+      "by-instance",
+      "users-returning-exercises",
+      courseId,
+      granularity,
+      timeWindow,
+    ],
+    queryFn: () =>
+      getUsersReturningExercisesHistoryByInstance(
         assertNotNullOrUndefined(courseId),
         granularity,
         timeWindow,

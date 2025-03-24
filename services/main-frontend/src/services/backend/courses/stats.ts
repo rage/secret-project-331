@@ -11,7 +11,7 @@ import {
   isCohortActivity,
   isCountResult,
 } from "@/shared-module/common/bindings.guard"
-import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
+import { isArray, isObjectMap, validateResponse } from "@/shared-module/common/utils/fetching"
 
 export const getTotalUsersStartedCourse = async (courseId: string): Promise<CountResult> => {
   const response = await mainFrontendClient.get(
@@ -128,4 +128,75 @@ export const getFirstExerciseSubmissionsHistory = async (
     `/courses/${courseId}/stats/first-submissions-history/${granularity}/${timeWindow}`,
   )
   return validateResponse(response, isArray(isCountResult))
+}
+
+export const getTotalUsersStartedCourseByInstance = async (
+  courseId: string,
+): Promise<Record<string, CountResult>> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/stats/by-instance/total-users-started-course`,
+  )
+  return validateResponse(response, isObjectMap(isCountResult))
+}
+
+export const getTotalUsersCompletedCourseByInstance = async (
+  courseId: string,
+): Promise<Record<string, CountResult>> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/stats/by-instance/total-users-completed`,
+  )
+  return validateResponse(response, isObjectMap(isCountResult))
+}
+
+export const getTotalUsersReturnedExercisesByInstance = async (
+  courseId: string,
+): Promise<Record<string, CountResult>> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/stats/by-instance/total-users-returned-exercises`,
+  )
+  return validateResponse(response, isObjectMap(isCountResult))
+}
+
+export const getCourseCompletionsHistoryByInstance = async (
+  courseId: string,
+  granularity: TimeGranularity,
+  timeWindow: number,
+): Promise<Record<string, CountResult[]>> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/stats/by-instance/completions-history/${granularity}/${timeWindow}`,
+  )
+  return validateResponse(response, isObjectMap(isArray(isCountResult)))
+}
+
+export const getUniqueUsersStartingHistoryByInstance = async (
+  courseId: string,
+  granularity: TimeGranularity,
+  timeWindow: number,
+): Promise<Record<string, CountResult[]>> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/stats/by-instance/users-starting-history/${granularity}/${timeWindow}`,
+  )
+  return validateResponse(response, isObjectMap(isArray(isCountResult)))
+}
+
+export const getFirstExerciseSubmissionsHistoryByInstance = async (
+  courseId: string,
+  granularity: TimeGranularity,
+  timeWindow: number,
+): Promise<Record<string, CountResult[]>> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/stats/by-instance/first-submissions-history/${granularity}/${timeWindow}`,
+  )
+  return validateResponse(response, isObjectMap(isArray(isCountResult)))
+}
+
+export const getUsersReturningExercisesHistoryByInstance = async (
+  courseId: string,
+  granularity: TimeGranularity,
+  timeWindow: number,
+): Promise<Record<string, CountResult[]>> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/stats/by-instance/users-returning-exercises-history/${granularity}/${timeWindow}`,
+  )
+  return validateResponse(response, isObjectMap(isArray(isCountResult)))
 }

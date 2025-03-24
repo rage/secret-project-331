@@ -86,7 +86,6 @@ const DailyVisitCountsGroupedByReferrer: React.FC<
     <div
       className={css`
         margin-bottom: 2rem;
-        min-height: 300px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -96,9 +95,7 @@ const DailyVisitCountsGroupedByReferrer: React.FC<
         <Spinner variant="medium" />
       ) : query.isError ? (
         <ErrorBanner variant="readOnly" error={query.error} />
-      ) : !aggregatedData || aggregatedData.length === 0 ? (
-        <div>{t("no-data")}</div>
-      ) : (
+      ) : !aggregatedData || aggregatedData.length === 0 ? null : (
         <>
           <Accordion
             className={css`

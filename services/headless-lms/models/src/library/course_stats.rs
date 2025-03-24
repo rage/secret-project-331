@@ -1,5 +1,6 @@
 use crate::library::TimeGranularity;
 use crate::{prelude::*, roles::UserRole};
+use std::collections::HashMap;
 
 /// A generic result representing a count metric over a time period.
 /// When the time period is not applicable (for overall totals), `period` will be `None`.
@@ -116,6 +117,30 @@ WHERE course_id = $1
   AND deleted_at IS NULL
   AND user_id != ALL($2);
         "#,
+        course_id,
+        &exclude_user_ids
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Total unique users who have returned at least one exercise.
+pub async fn get_total_users_returned_at_least_one_exercise(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<CountResult> {
+    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+    let res = sqlx::query_as!(
+        CountResult,
+        r#"
+SELECT NULL::timestamptz AS "period",
+  COUNT(DISTINCT user_id) AS "count!"
+FROM exercise_slide_submissions
+WHERE course_id = $1
+  AND deleted_at IS NULL
+  AND user_id != ALL($2);
+      "#,
         course_id,
         &exclude_user_ids
     )
@@ -313,30 +338,6 @@ ORDER BY "period"
     Ok(res)
 }
 
-/// Total unique users who have returned at least one exercise.
-pub async fn get_total_users_returned_at_least_one_exercise(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-) -> ModelResult<CountResult> {
-    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
-    let res = sqlx::query_as!(
-        CountResult,
-        r#"
-SELECT NULL::timestamptz AS "period",
-       COUNT(DISTINCT user_id) AS "count!"
-FROM exercise_slide_submissions
-WHERE course_id = $1
-  AND deleted_at IS NULL
-  AND user_id != ALL($2);
-        "#,
-        course_id,
-        &exclude_user_ids
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res)
-}
-
 /// Get average time from course start to first exercise submission with specified time granularity.
 ///
 /// The time_window parameter controls how far back to look:
@@ -520,7 +521,7 @@ WHERE course_id = $1
   AND created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
 GROUP BY "period"
 ORDER BY "period"
-        "#,
+          "#,
         course_id,
         &exclude_user_ids,
         &time_window.to_string(),
@@ -628,4 +629,383 @@ ORDER BY "period"
     .await?;
 
     Ok(res)
+}
+
+/// Total unique users in the course settings table, grouped by course instance.
+///
+/// Returns a HashMap where keys are course instance IDs and values are the total user counts
+/// for that instance.
+pub async fn get_total_users_started_course_by_instance(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<HashMap<Uuid, CountResult>> {
+    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+    let results = sqlx::query!(
+        r#"
+SELECT current_course_instance_id AS "instance_id!",
+  NULL::timestamptz AS "period",
+  COUNT(DISTINCT user_id) AS "count!"
+FROM user_course_settings
+WHERE current_course_id = $1
+  AND deleted_at IS NULL
+  AND user_id != ALL($2)
+GROUP BY current_course_instance_id
+        "#,
+        course_id,
+        &exclude_user_ids
+    )
+    .fetch_all(conn)
+    .await?;
+
+    let mut grouped_results = HashMap::new();
+    for row in results {
+        let count_result = CountResult {
+            period: row.period,
+            count: row.count,
+        };
+        grouped_results.insert(row.instance_id, count_result);
+    }
+
+    Ok(grouped_results)
+}
+
+/// Total unique users who have completed the course, grouped by course instance.
+///
+/// Returns a HashMap where keys are course instance IDs and values are the completion counts
+/// for that instance.
+pub async fn get_total_users_completed_course_by_instance(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<HashMap<Uuid, CountResult>> {
+    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+    let results = sqlx::query!(
+        r#"
+SELECT ucs.current_course_instance_id AS "instance_id!",
+  NULL::timestamptz AS "period",
+  COUNT(DISTINCT c.user_id) AS "count!"
+FROM course_module_completions c
+JOIN user_course_settings ucs ON c.user_id = ucs.user_id
+  AND ucs.current_course_id = c.course_id
+WHERE c.course_id = $1
+  AND c.deleted_at IS NULL
+  AND c.user_id != ALL($2)
+GROUP BY ucs.current_course_instance_id
+        "#,
+        course_id,
+        &exclude_user_ids
+    )
+    .fetch_all(conn)
+    .await?;
+
+    let mut grouped_results = HashMap::new();
+    for row in results {
+        let count_result = CountResult {
+            period: row.period,
+            count: row.count,
+        };
+        grouped_results.insert(row.instance_id, count_result);
+    }
+
+    Ok(grouped_results)
+}
+
+/// Total unique users who have returned at least one exercise, grouped by course instance.
+///
+/// Returns a HashMap where keys are course instance IDs and values are the submission counts
+/// for that instance.
+pub async fn get_total_users_returned_at_least_one_exercise_by_instance(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<HashMap<Uuid, CountResult>> {
+    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+    let results = sqlx::query!(
+        r#"
+SELECT ucs.current_course_instance_id AS "instance_id!",
+  NULL::timestamptz AS "period",
+  COUNT(DISTINCT ess.user_id) AS "count!"
+FROM exercise_slide_submissions ess
+JOIN user_course_settings ucs ON ess.user_id = ucs.user_id
+  AND ucs.current_course_id = ess.course_id
+WHERE ess.course_id = $1
+  AND ess.deleted_at IS NULL
+  AND ess.user_id != ALL($2)
+GROUP BY ucs.current_course_instance_id
+        "#,
+        course_id,
+        &exclude_user_ids
+    )
+    .fetch_all(conn)
+    .await?;
+
+    let mut grouped_results = HashMap::new();
+    for row in results {
+        let count_result = CountResult {
+            period: row.period,
+            count: row.count,
+        };
+        grouped_results.insert(row.instance_id, count_result);
+    }
+
+    Ok(grouped_results)
+}
+
+/// Get course completion counts with specified time granularity, grouped by course instance.
+///
+/// Returns a HashMap where keys are course instance IDs and values are vectors of completion counts
+/// over time for that instance.
+///
+/// The time_window parameter controls how far back to look:
+/// - For Year granularity: number of years
+/// - For Month granularity: number of months
+/// - For Day granularity: number of days
+pub async fn course_completions_history_by_instance(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    granularity: TimeGranularity,
+    time_window: i32,
+) -> ModelResult<HashMap<Uuid, Vec<CountResult>>> {
+    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+    let (interval_unit, time_unit) = granularity.get_sql_units();
+
+    // Get completions joined with user_course_settings to get instance information
+    let results = sqlx::query!(
+        r#"
+WITH completions AS (
+SELECT c.user_id,
+  c.created_at,
+  ucs.current_course_instance_id
+FROM course_module_completions c
+  JOIN user_course_settings ucs ON c.user_id = ucs.user_id
+  AND ucs.current_course_id = c.course_id
+WHERE c.course_id = $1
+  AND c.prerequisite_modules_completed = TRUE
+  AND c.needs_to_be_reviewed = FALSE
+  AND c.passed = TRUE
+  AND c.deleted_at IS NULL
+  AND NOT c.user_id = ANY($2)
+  AND c.created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
+)
+SELECT current_course_instance_id AS "instance_id!",
+DATE_TRUNC($5, created_at) AS "period",
+COUNT(DISTINCT user_id) AS "count!"
+FROM completions
+GROUP BY current_course_instance_id,
+period
+ORDER BY current_course_instance_id,
+period "#,
+        course_id,
+        &exclude_user_ids,
+        &time_window.to_string(),
+        interval_unit,
+        time_unit,
+    )
+    .fetch_all(conn)
+    .await?;
+
+    // Convert the flat results into a HashMap grouped by instance_id
+    let mut grouped_results: HashMap<Uuid, Vec<CountResult>> = HashMap::new();
+
+    for row in results {
+        let count_result = CountResult {
+            period: row.period,
+            count: row.count,
+        };
+
+        grouped_results
+            .entry(row.instance_id)
+            .or_default()
+            .push(count_result);
+    }
+
+    Ok(grouped_results)
+}
+
+/// Get unique users starting counts with specified time granularity, grouped by course instance.
+///
+/// Returns a HashMap where keys are course instance IDs and values are vectors of user counts
+/// over time for that instance.
+///
+/// The time_window parameter controls how far back to look:
+/// - For Year granularity: number of years
+/// - For Month granularity: number of months
+/// - For Day granularity: number of days
+pub async fn unique_users_starting_history_by_instance(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    granularity: TimeGranularity,
+    time_window: i32,
+) -> ModelResult<HashMap<Uuid, Vec<CountResult>>> {
+    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+    let (interval_unit, time_unit) = granularity.get_sql_units();
+
+    let results = sqlx::query!(
+        r#"
+SELECT current_course_instance_id AS "instance_id!",
+DATE_TRUNC($5, created_at) AS "period",
+COUNT(DISTINCT user_id) AS "count!"
+FROM user_course_settings
+WHERE current_course_id = $1
+AND deleted_at IS NULL
+AND NOT user_id = ANY($2)
+AND created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
+GROUP BY current_course_instance_id,
+period
+ORDER BY current_course_instance_id,
+period
+    "#,
+        course_id,
+        &exclude_user_ids,
+        &time_window.to_string(),
+        interval_unit,
+        time_unit,
+    )
+    .fetch_all(conn)
+    .await?;
+
+    // Convert the flat results into a HashMap grouped by instance_id
+    let mut grouped_results: HashMap<Uuid, Vec<CountResult>> = HashMap::new();
+
+    for row in results {
+        let count_result = CountResult {
+            period: row.period,
+            count: row.count,
+        };
+
+        grouped_results
+            .entry(row.instance_id)
+            .or_default()
+            .push(count_result);
+    }
+
+    Ok(grouped_results)
+}
+
+/// Get first exercise submission counts with specified time granularity, grouped by course instance.
+///
+/// Returns a HashMap where keys are course instance IDs and values are vectors of submission counts
+/// over time for that instance.
+///
+/// The time_window parameter controls how far back to look:
+/// - For Year granularity: number of years
+/// - For Month granularity: number of months
+/// - For Day granularity: number of days
+pub async fn first_exercise_submissions_history_by_instance(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    granularity: TimeGranularity,
+    time_window: i32,
+) -> ModelResult<HashMap<Uuid, Vec<CountResult>>> {
+    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+    let (interval_unit, time_unit) = granularity.get_sql_units();
+
+    let results = sqlx::query!(
+        r#"
+WITH first_submissions AS (
+SELECT user_id,
+  MIN(created_at) AS first_submission
+FROM exercise_slide_submissions
+WHERE course_id = $1
+  AND deleted_at IS NULL
+  AND NOT user_id = ANY($2)
+  AND created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
+GROUP BY user_id
+)
+SELECT ucs.current_course_instance_id AS "instance_id!",
+DATE_TRUNC($5, fs.first_submission) AS "period",
+COUNT(fs.user_id) AS "count!"
+FROM first_submissions fs
+JOIN user_course_settings ucs ON fs.user_id = ucs.user_id
+AND ucs.current_course_id = $1
+GROUP BY ucs.current_course_instance_id,
+period
+ORDER BY ucs.current_course_instance_id,
+period
+    "#,
+        course_id,
+        &exclude_user_ids,
+        &time_window.to_string(),
+        interval_unit,
+        time_unit,
+    )
+    .fetch_all(conn)
+    .await?;
+
+    // Convert the flat results into a HashMap grouped by instance_id
+    let mut grouped_results: HashMap<Uuid, Vec<CountResult>> = HashMap::new();
+
+    for row in results {
+        let count_result = CountResult {
+            period: row.period,
+            count: row.count,
+        };
+
+        grouped_results
+            .entry(row.instance_id)
+            .or_default()
+            .push(count_result);
+    }
+
+    Ok(grouped_results)
+}
+
+/// Get users returning exercises counts with specified time granularity, grouped by course instance.
+///
+/// Returns a HashMap where keys are course instance IDs and values are vectors of user counts
+/// over time for that instance.
+///
+/// The time_window parameter controls how far back to look:
+/// - For Year granularity: number of years
+/// - For Month granularity: number of months
+/// - For Day granularity: number of days
+pub async fn users_returning_exercises_history_by_instance(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    granularity: TimeGranularity,
+    time_window: i32,
+) -> ModelResult<HashMap<Uuid, Vec<CountResult>>> {
+    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+    let (interval_unit, time_unit) = granularity.get_sql_units();
+
+    let results = sqlx::query!(
+        r#"
+SELECT ucs.current_course_instance_id AS "instance_id!",
+DATE_TRUNC($5, ess.created_at) AS "period",
+COUNT(DISTINCT ess.user_id) AS "count!"
+FROM exercise_slide_submissions ess
+JOIN user_course_settings ucs ON ess.user_id = ucs.user_id
+AND ucs.current_course_id = ess.course_id
+WHERE ess.course_id = $1
+AND ess.deleted_at IS NULL
+AND NOT ess.user_id = ANY($2)
+AND ess.created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
+GROUP BY ucs.current_course_instance_id,
+period
+ORDER BY ucs.current_course_instance_id,
+period
+    "#,
+        course_id,
+        &exclude_user_ids,
+        &time_window.to_string(),
+        interval_unit,
+        time_unit,
+    )
+    .fetch_all(conn)
+    .await?;
+
+    // Convert the flat results into a HashMap grouped by instance_id
+    let mut grouped_results: HashMap<Uuid, Vec<CountResult>> = HashMap::new();
+
+    for row in results {
+        let count_result = CountResult {
+            period: row.period,
+            count: row.count,
+        };
+
+        grouped_results
+            .entry(row.instance_id)
+            .or_default()
+            .push(count_result);
+    }
+
+    Ok(grouped_results)
 }

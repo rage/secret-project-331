@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT NULL::timestamptz AS \"period\",\n       COUNT(DISTINCT user_id) AS \"count!\"\nFROM exercise_slide_submissions\nWHERE course_id = $1\n  AND deleted_at IS NULL\n  AND user_id != ALL($2);\n        ",
+  "query": "\nSELECT NULL::timestamptz AS \"period\",\n  COUNT(DISTINCT user_id) AS \"count!\"\nFROM exercise_slide_submissions\nWHERE course_id = $1\n  AND deleted_at IS NULL\n  AND user_id != ALL($2);\n      ",
   "describe": {
     "columns": [
       {
@@ -19,5 +19,5 @@
     },
     "nullable": [null, null]
   },
-  "hash": "0e7c624ae01e94c1721593c9844bcdabe980644b7fe88d54e60735664f42f034"
+  "hash": "573fe0f8b33a2f64c2f5591b5dba004472dd0b6b638075283548aaa84c8bde28"
 }

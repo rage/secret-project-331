@@ -5,6 +5,7 @@ use headless_lms_models::library::TimeGranularity;
 use headless_lms_models::ModelError;
 use headless_lms_utils::prelude::{UtilError, UtilErrorType};
 use models::library::course_stats::{AverageMetric, CohortActivity, CountResult};
+use std::collections::HashMap;
 use std::time::Duration;
 use uuid::Uuid;
 
@@ -518,6 +519,303 @@ async fn get_unique_users_starting_history(
     token.authorized_ok(web::Json(res))
 }
 
+/// GET `/api/v0/main-frontend/{course_id}/stats/by-instance/total-users-started-course`
+#[instrument(skip(pool))]
+async fn get_total_users_started_course_by_instance(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    course_id: web::Path<Uuid>,
+    cache: web::Data<Cache>,
+) -> ControllerResult<web::Json<HashMap<Uuid, CountResult>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+
+    let res = cached_stats_query(
+        &cache,
+        "total-users-started-course-by-instance",
+        *course_id,
+        None,
+        CACHE_DURATION,
+        || async {
+            models::library::course_stats::get_total_users_started_course_by_instance(
+                &mut conn, *course_id,
+            )
+            .await
+        },
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/// GET `/api/v0/main-frontend/{course_id}/stats/by-instance/total-users-completed`
+#[instrument(skip(pool))]
+async fn get_total_users_completed_course_by_instance(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    course_id: web::Path<Uuid>,
+    cache: web::Data<Cache>,
+) -> ControllerResult<web::Json<HashMap<Uuid, CountResult>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+
+    let res = cached_stats_query(
+        &cache,
+        "total-users-completed-by-instance",
+        *course_id,
+        None,
+        CACHE_DURATION,
+        || async {
+            models::library::course_stats::get_total_users_completed_course_by_instance(
+                &mut conn, *course_id,
+            )
+            .await
+        },
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/// GET `/api/v0/main-frontend/{course_id}/stats/by-instance/total-users-returned-exercises`
+#[instrument(skip(pool))]
+async fn get_total_users_returned_at_least_one_exercise_by_instance(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    course_id: web::Path<Uuid>,
+    cache: web::Data<Cache>,
+) -> ControllerResult<web::Json<HashMap<Uuid, CountResult>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+
+    let res = cached_stats_query(
+        &cache,
+        "total-users-returned-exercises-by-instance",
+        *course_id,
+        None,
+        CACHE_DURATION,
+        || async {
+            models::library::course_stats::get_total_users_returned_at_least_one_exercise_by_instance(
+                &mut conn, *course_id,
+            )
+            .await
+        },
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/// GET `/api/v0/main-frontend/{course_id}/stats/by-instance/completions-history/{granularity}/{time_window}`
+///
+/// Returns course completion statistics with specified time granularity and window, grouped by course instance.
+/// - granularity: "year", "month", or "day"
+/// - time_window: number of time units to look back
+#[instrument(skip(pool))]
+async fn get_course_completions_history_by_instance(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    path: web::Path<(Uuid, TimeGranularity, i32)>,
+    cache: web::Data<Cache>,
+) -> ControllerResult<web::Json<HashMap<Uuid, Vec<CountResult>>>> {
+    let (course_id, granularity, time_window) = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+
+    let cache_key = format!(
+        "completions-by-instance-{}-{}",
+        granularity.to_string(),
+        time_window
+    );
+    let res = cached_stats_query(
+        &cache,
+        &cache_key,
+        course_id,
+        None,
+        CACHE_DURATION,
+        || async {
+            models::library::course_stats::course_completions_history_by_instance(
+                &mut conn,
+                course_id,
+                granularity,
+                time_window,
+            )
+            .await
+        },
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/// GET `/api/v0/main-frontend/{course_id}/stats/by-instance/users-starting-history/{granularity}/{time_window}`
+///
+/// Returns unique users starting statistics with specified time granularity and window, grouped by course instance.
+/// - granularity: "year", "month", or "day"
+/// - time_window: number of time units to look back
+#[instrument(skip(pool))]
+async fn get_unique_users_starting_history_by_instance(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    path: web::Path<(Uuid, TimeGranularity, i32)>,
+    cache: web::Data<Cache>,
+) -> ControllerResult<web::Json<HashMap<Uuid, Vec<CountResult>>>> {
+    let (course_id, granularity, time_window) = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+
+    let cache_key = format!(
+        "users-starting-by-instance-{}-{}",
+        granularity.to_string(),
+        time_window
+    );
+    let res = cached_stats_query(
+        &cache,
+        &cache_key,
+        course_id,
+        None,
+        CACHE_DURATION,
+        || async {
+            models::library::course_stats::unique_users_starting_history_by_instance(
+                &mut conn,
+                course_id,
+                granularity,
+                time_window,
+            )
+            .await
+        },
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/// GET `/api/v0/main-frontend/{course_id}/stats/by-instance/first-submissions-history/{granularity}/{time_window}`
+///
+/// Returns first exercise submission statistics with specified time granularity and window, grouped by course instance.
+/// - granularity: "year", "month", or "day"
+/// - time_window: number of time units to look back
+#[instrument(skip(pool))]
+async fn get_first_exercise_submissions_history_by_instance(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    path: web::Path<(Uuid, TimeGranularity, i32)>,
+    cache: web::Data<Cache>,
+) -> ControllerResult<web::Json<HashMap<Uuid, Vec<CountResult>>>> {
+    let (course_id, granularity, time_window) = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+
+    let cache_key = format!(
+        "first-submissions-by-instance-{}-{}",
+        granularity.to_string(),
+        time_window
+    );
+    let res = cached_stats_query(
+        &cache,
+        &cache_key,
+        course_id,
+        None,
+        CACHE_DURATION,
+        || async {
+            models::library::course_stats::first_exercise_submissions_history_by_instance(
+                &mut conn,
+                course_id,
+                granularity,
+                time_window,
+            )
+            .await
+        },
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/// GET `/api/v0/main-frontend/{course_id}/stats/by-instance/users-returning-exercises-history/{granularity}/{time_window}`
+///
+/// Returns users returning exercises statistics with specified time granularity and window, grouped by course instance.
+/// - granularity: "year", "month", or "day"
+/// - time_window: number of time units to look back
+#[instrument(skip(pool))]
+async fn get_users_returning_exercises_history_by_instance(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    path: web::Path<(Uuid, TimeGranularity, i32)>,
+    cache: web::Data<Cache>,
+) -> ControllerResult<web::Json<HashMap<Uuid, Vec<CountResult>>>> {
+    let (course_id, granularity, time_window) = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+
+    let cache_key = format!(
+        "users-returning-by-instance-{}-{}",
+        granularity.to_string(),
+        time_window
+    );
+    let res = cached_stats_query(
+        &cache,
+        &cache_key,
+        course_id,
+        None,
+        CACHE_DURATION,
+        || async {
+            models::library::course_stats::users_returning_exercises_history_by_instance(
+                &mut conn,
+                course_id,
+                granularity,
+                time_window,
+            )
+            .await
+        },
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     cfg.route(
         "/total-users-started-course",
@@ -532,16 +830,48 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
         web::get().to(get_total_users_returned_at_least_one_exercise),
     )
     .route(
+        "/by-instance/total-users-started-course",
+        web::get().to(get_total_users_started_course_by_instance),
+    )
+    .route(
+        "/by-instance/total-users-completed",
+        web::get().to(get_total_users_completed_course_by_instance),
+    )
+    .route(
+        "/by-instance/total-users-returned-exercises",
+        web::get().to(get_total_users_returned_at_least_one_exercise_by_instance),
+    )
+    .route(
         "/first-submissions-history/{granularity}/{time_window}",
         web::get().to(get_first_exercise_submissions_history),
+    )
+    .route(
+        "/by-instance/first-submissions-history/{granularity}/{time_window}",
+        web::get().to(get_first_exercise_submissions_history_by_instance),
     )
     .route(
         "/users-returning-exercises-history/{granularity}/{time_window}",
         web::get().to(get_users_returning_exercises_history),
     )
     .route(
+        "/by-instance/users-returning-exercises-history/{granularity}/{time_window}",
+        web::get().to(get_users_returning_exercises_history_by_instance),
+    )
+    .route(
         "/completions-history/{granularity}/{time_window}",
         web::get().to(get_course_completions_history),
+    )
+    .route(
+        "/by-instance/completions-history/{granularity}/{time_window}",
+        web::get().to(get_course_completions_history_by_instance),
+    )
+    .route(
+        "/users-starting-history/{granularity}/{time_window}",
+        web::get().to(get_unique_users_starting_history),
+    )
+    .route(
+        "/by-instance/users-starting-history/{granularity}/{time_window}",
+        web::get().to(get_unique_users_starting_history_by_instance),
     )
     .route(
         "/avg-time-to-first-submission/{granularity}/{time_window}",
@@ -558,9 +888,5 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     .route(
         "/all-language-versions/users-starting-history/{granularity}/{time_window}",
         web::get().to(get_unique_users_starting_history_all_language_versions),
-    )
-    .route(
-        "/users-starting-history/{granularity}/{time_window}",
-        web::get().to(get_unique_users_starting_history),
     );
 }

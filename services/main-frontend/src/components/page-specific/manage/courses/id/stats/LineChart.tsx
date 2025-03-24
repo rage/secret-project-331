@@ -52,14 +52,6 @@ const LineChart: React.FC<LineChartProps> = ({
 }) => {
   const { t } = useTranslation()
 
-  if (error) {
-    return <ErrorBanner variant="readOnly" error={error} />
-  }
-
-  if (isLoading) {
-    return <Spinner variant="medium" />
-  }
-
   const chartOptions: EChartsOption = {
     xAxis: {
       type: "category" as const,
@@ -128,20 +120,28 @@ const LineChart: React.FC<LineChartProps> = ({
         )}
       </StatsHeader>
       <InstructionBox>{instructionText}</InstructionBox>
-      {!data || data.length === 0 ? (
-        <div>{t("no-data")}</div>
-      ) : (
-        <div
-          className={css`
-            margin-bottom: 2rem;
-            border: 3px solid ${baseTheme.colors.clear[200]};
-            border-radius: 6px;
-            padding: 1rem;
-          `}
-        >
+      <div
+        className={css`
+          margin-bottom: 2rem;
+          border: 3px solid ${baseTheme.colors.clear[200]};
+          border-radius: 6px;
+          padding: 1rem;
+          min-height: 300px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        `}
+      >
+        {isLoading ? (
+          <Spinner variant="medium" />
+        ) : error ? (
+          <ErrorBanner variant="readOnly" error={error} />
+        ) : !data || data.length < 2 ? (
+          <div>{t("no-data")}</div>
+        ) : (
           <Echarts options={chartOptions} height={300} />
-        </div>
-      )}
+        )}
+      </div>
     </>
   )
 }

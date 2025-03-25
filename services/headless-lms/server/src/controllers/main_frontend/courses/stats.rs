@@ -173,8 +173,7 @@ async fn get_avg_time_to_first_submission_history(
 
     let cache_key = format!(
         "avg-time-to-first-submission-{}-{}",
-        granularity.to_string(),
-        time_window
+        granularity, time_window
     );
     let res = cached_stats_query(
         &cache,
@@ -310,8 +309,7 @@ async fn get_unique_users_starting_history_all_language_versions(
 
     let cache_key = format!(
         "all-language-versions-users-starting-{}-{}",
-        granularity.to_string(),
-        time_window
+        granularity, time_window
     );
     let res = cached_stats_query(
         &cache,
@@ -357,7 +355,7 @@ async fn get_course_completions_history(
     )
     .await?;
 
-    let cache_key = format!("completions-{}-{}", granularity.to_string(), time_window);
+    let cache_key = format!("completions-{}-{}", granularity, time_window);
     let res = cached_stats_query(
         &cache,
         &cache_key,
@@ -401,11 +399,7 @@ async fn get_users_returning_exercises_history(
     )
     .await?;
 
-    let cache_key = format!(
-        "users-returning-{}-{}",
-        granularity.to_string(),
-        time_window
-    );
+    let cache_key = format!("users-returning-{}-{}", granularity, time_window);
     let res = cached_stats_query(
         &cache,
         &cache_key,
@@ -449,11 +443,7 @@ async fn get_first_exercise_submissions_history(
     )
     .await?;
 
-    let cache_key = format!(
-        "first-submissions-{}-{}",
-        granularity.to_string(),
-        time_window
-    );
+    let cache_key = format!("first-submissions-{}-{}", granularity, time_window);
     let res = cached_stats_query(
         &cache,
         &cache_key,
@@ -497,7 +487,7 @@ async fn get_unique_users_starting_history(
     )
     .await?;
 
-    let cache_key = format!("users-starting-{}-{}", granularity.to_string(), time_window);
+    let cache_key = format!("users-starting-{}-{}", granularity, time_window);
     let res = cached_stats_query(
         &cache,
         &cache_key,
@@ -646,11 +636,7 @@ async fn get_course_completions_history_by_instance(
     )
     .await?;
 
-    let cache_key = format!(
-        "completions-by-instance-{}-{}",
-        granularity.to_string(),
-        time_window
-    );
+    let cache_key = format!("completions-by-instance-{}-{}", granularity, time_window);
     let res = cached_stats_query(
         &cache,
         &cache_key,
@@ -694,11 +680,7 @@ async fn get_unique_users_starting_history_by_instance(
     )
     .await?;
 
-    let cache_key = format!(
-        "users-starting-by-instance-{}-{}",
-        granularity.to_string(),
-        time_window
-    );
+    let cache_key = format!("users-starting-by-instance-{}-{}", granularity, time_window);
     let res = cached_stats_query(
         &cache,
         &cache_key,
@@ -744,8 +726,7 @@ async fn get_first_exercise_submissions_history_by_instance(
 
     let cache_key = format!(
         "first-submissions-by-instance-{}-{}",
-        granularity.to_string(),
-        time_window
+        granularity, time_window
     );
     let res = cached_stats_query(
         &cache,
@@ -792,8 +773,7 @@ async fn get_users_returning_exercises_history_by_instance(
 
     let cache_key = format!(
         "users-returning-by-instance-{}-{}",
-        granularity.to_string(),
-        time_window
+        granularity, time_window
     );
     let res = cached_stats_query(
         &cache,

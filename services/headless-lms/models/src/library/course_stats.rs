@@ -344,6 +344,7 @@ ORDER BY "period"
 /// - For Year granularity: number of years
 /// - For Month granularity: number of months
 /// - For Day granularity: number of days
+///
 /// Returns the average time in seconds.
 pub async fn avg_time_to_first_submission_history(
     conn: &mut PgConnection,

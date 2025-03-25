@@ -87,11 +87,9 @@ const SelectedUsers: React.FC<Props> = ({
                 text-overflow: ellipsis;
                 opacity: 0.8;
               }
-              ,
               td {
                 border-top: 1px solid #ced1d7;
               }
-              ,
               th {
                 font-weight: ${fontWeights.medium};
               }

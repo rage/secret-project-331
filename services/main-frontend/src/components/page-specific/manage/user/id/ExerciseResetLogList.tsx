@@ -21,13 +21,15 @@ const ExerciseResetLogList: React.FC<ExerciseResetLogListProps> = ({ userId }) =
     queryFn: () => getUserResetExerciseLogs(userId),
   })
 
-  const groupedLogs = groupBy(userResetExerciseLogs.data, (log) => dateToString(log.created_at))
   if (userResetExerciseLogs.isError) {
     return <ErrorBanner variant="readOnly" error={userResetExerciseLogs.error} />
   }
   if (userResetExerciseLogs.isPending) {
     return <Spinner variant="medium" />
   }
+
+  const groupedLogs = groupBy(userResetExerciseLogs.data, (log) => dateToString(log.created_at))
+
   return (
     <div
       className={css`

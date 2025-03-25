@@ -184,7 +184,7 @@ const ExerciseList: React.FC<Props> = ({
       </div>
       <div>
         {Object.entries(groupedExercises).map(([chapterId, pagesExercises]) => {
-          const chapter = chapterId !== "no-chapter" ? chapterMap.get(chapterId) : null
+          const chapter = chapterId !== t("label-no-chapter") ? chapterMap.get(chapterId) : null
           const chapterTitle = chapter
             ? `${t("chapter")} ${chapter.chapter_number}: ${chapter.name}`
             : t("label-no-chapter")
@@ -221,11 +221,9 @@ const ExerciseList: React.FC<Props> = ({
                       background: #f7f8f9;
                       border-radius: 8px;
                     }
-                    ,
                     td {
                       border-top: 1px solid #ced1d7;
                     }
-                    ,
                     td,
                     th {
                       font-size: ${baseTheme.fontSizes[0]}px;

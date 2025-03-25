@@ -1043,7 +1043,6 @@ pub async fn collect_user_ids_and_exercise_ids_for_reset(
         }
         locked_user_exercise_map
     } else {
-        // Palautetaan user_exercise_map, jos ei nollata vain lukittuja arvosteluja
         user_exercise_map
     };
 

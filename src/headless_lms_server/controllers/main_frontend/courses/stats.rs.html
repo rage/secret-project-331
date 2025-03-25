@@ -852,12 +852,32 @@
 <a href="#851" id="851">851</a>
 <a href="#852" id="852">852</a>
 <a href="#853" id="853">853</a>
-<a href="#854" id="854">854</a></pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/{course_id}/stats`.
+<a href="#854" id="854">854</a>
+<a href="#855" id="855">855</a>
+<a href="#856" id="856">856</a>
+<a href="#857" id="857">857</a>
+<a href="#858" id="858">858</a>
+<a href="#859" id="859">859</a>
+<a href="#860" id="860">860</a>
+<a href="#861" id="861">861</a>
+<a href="#862" id="862">862</a>
+<a href="#863" id="863">863</a>
+<a href="#864" id="864">864</a>
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a>
+<a href="#867" id="867">867</a>
+<a href="#868" id="868">868</a>
+<a href="#869" id="869">869</a>
+<a href="#870" id="870">870</a>
+<a href="#871" id="871">871</a>
+<a href="#872" id="872">872</a></pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/{course_id}/stats`.
 
 </span><span class="kw">use crate</span>::{domain::authorization::authorize, prelude::<span class="kw-2">*</span>};
+<span class="kw">use </span>headless_lms_models::library::TimeGranularity;
 <span class="kw">use </span>headless_lms_models::ModelError;
 <span class="kw">use </span>headless_lms_utils::prelude::{UtilError, UtilErrorType};
 <span class="kw">use </span>models::library::course_stats::{AverageMetric, CohortActivity, CountResult};
+<span class="kw">use </span>std::collections::HashMap;
 <span class="kw">use </span>std::time::Duration;
 <span class="kw">use </span>uuid::Uuid;
 
@@ -1001,327 +1021,62 @@
     token.authorized_ok(web::Json(res))
 }
 
-<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/weekly-users-starting`
+<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/avg-time-to-first-submission/{granularity}/{time_window}`
+///
+/// Returns average time to first submission statistics with specified time granularity and window.
+/// - granularity: "year", "month", or "day"
+/// - time_window: number of time units to look back
 </span><span class="attr">#[instrument(skip(pool))]
-</span><span class="kw">async fn </span>get_weekly_unique_users_starting(
+</span><span class="kw">async fn </span>get_avg_time_to_first_submission_history(
     pool: web::Data&lt;PgPool&gt;,
     user: AuthUser,
-    course_id: web::Path&lt;Uuid&gt;,
-    cache: web::Data&lt;Cache&gt;,
-) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;CountResult&gt;&gt;&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = authorize(
-        <span class="kw-2">&amp;mut </span>conn,
-        Act::ViewStats,
-        <span class="prelude-val">Some</span>(user.id),
-        Res::Course(<span class="kw-2">*</span>course_id),
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="kw">let </span>res = cached_stats_query(
-        <span class="kw-2">&amp;</span>cache,
-        <span class="string">"weekly-users-starting"</span>,
-        <span class="kw-2">*</span>course_id,
-        <span class="prelude-val">None</span>,
-        CACHE_DURATION,
-        || <span class="kw">async </span>{
-            models::library::course_stats::get_weekly_unique_users_starting(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id)
-                .<span class="kw">await
-        </span>},
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    token.authorized_ok(web::Json(res))
-}
-
-<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/daily-users-starting/{days}`
-</span><span class="attr">#[instrument(skip(pool))]
-</span><span class="kw">async fn </span>get_daily_unique_users_starting_last_n_days(
-    pool: web::Data&lt;PgPool&gt;,
-    user: AuthUser,
-    path: web::Path&lt;(Uuid, i32)&gt;,
-    cache: web::Data&lt;Cache&gt;,
-) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;CountResult&gt;&gt;&gt; {
-    <span class="kw">let </span>(course_id, days_limit) = path.into_inner();
-    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = authorize(
-        <span class="kw-2">&amp;mut </span>conn,
-        Act::ViewStats,
-        <span class="prelude-val">Some</span>(user.id),
-        Res::Course(course_id),
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="kw">let </span>res = cached_stats_query(
-        <span class="kw-2">&amp;</span>cache,
-        <span class="string">"daily-users-starting"</span>,
-        course_id,
-        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>days_limit.to_string()),
-        CACHE_DURATION,
-        || <span class="kw">async </span>{
-            models::library::course_stats::get_daily_unique_users_starting_last_n_days(
-                <span class="kw-2">&amp;mut </span>conn, course_id, days_limit,
-            )
-            .<span class="kw">await
-        </span>},
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    token.authorized_ok(web::Json(res))
-}
-
-<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/monthly-users-starting`
-</span><span class="attr">#[instrument(skip(pool))]
-</span><span class="kw">async fn </span>get_monthly_unique_users_starting(
-    pool: web::Data&lt;PgPool&gt;,
-    user: AuthUser,
-    course_id: web::Path&lt;Uuid&gt;,
-    cache: web::Data&lt;Cache&gt;,
-) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;CountResult&gt;&gt;&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = authorize(
-        <span class="kw-2">&amp;mut </span>conn,
-        Act::ViewStats,
-        <span class="prelude-val">Some</span>(user.id),
-        Res::Course(<span class="kw-2">*</span>course_id),
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="kw">let </span>res = cached_stats_query(
-        <span class="kw-2">&amp;</span>cache,
-        <span class="string">"monthly-users-starting"</span>,
-        <span class="kw-2">*</span>course_id,
-        <span class="prelude-val">None</span>,
-        CACHE_DURATION,
-        || <span class="kw">async </span>{
-            models::library::course_stats::get_monthly_unique_users_starting(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id)
-                .<span class="kw">await
-        </span>},
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    token.authorized_ok(web::Json(res))
-}
-
-<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/monthly-first-submissions`
-</span><span class="attr">#[instrument(skip(pool))]
-</span><span class="kw">async fn </span>get_monthly_first_exercise_submissions(
-    pool: web::Data&lt;PgPool&gt;,
-    user: AuthUser,
-    course_id: web::Path&lt;Uuid&gt;,
-    cache: web::Data&lt;Cache&gt;,
-) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;CountResult&gt;&gt;&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = authorize(
-        <span class="kw-2">&amp;mut </span>conn,
-        Act::ViewStats,
-        <span class="prelude-val">Some</span>(user.id),
-        Res::Course(<span class="kw-2">*</span>course_id),
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="kw">let </span>res = cached_stats_query(
-        <span class="kw-2">&amp;</span>cache,
-        <span class="string">"monthly-first-submissions"</span>,
-        <span class="kw-2">*</span>course_id,
-        <span class="prelude-val">None</span>,
-        CACHE_DURATION,
-        || <span class="kw">async </span>{
-            models::library::course_stats::get_monthly_first_exercise_submissions(
-                <span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id,
-            )
-            .<span class="kw">await
-        </span>},
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    token.authorized_ok(web::Json(res))
-}
-
-<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/daily-first-submissions/{days}`
-</span><span class="attr">#[instrument(skip(pool))]
-</span><span class="kw">async fn </span>get_daily_first_exercise_submissions_last_n_days(
-    pool: web::Data&lt;PgPool&gt;,
-    user: AuthUser,
-    path: web::Path&lt;(Uuid, i32)&gt;,
-    cache: web::Data&lt;Cache&gt;,
-) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;CountResult&gt;&gt;&gt; {
-    <span class="kw">let </span>(course_id, days_limit) = path.into_inner();
-    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = authorize(
-        <span class="kw-2">&amp;mut </span>conn,
-        Act::ViewStats,
-        <span class="prelude-val">Some</span>(user.id),
-        Res::Course(course_id),
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="kw">let </span>res = cached_stats_query(
-        <span class="kw-2">&amp;</span>cache,
-        <span class="string">"daily-first-submissions"</span>,
-        course_id,
-        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>days_limit.to_string()),
-        CACHE_DURATION,
-        || <span class="kw">async </span>{
-            models::library::course_stats::get_daily_first_exercise_submissions_last_n_days(
-                <span class="kw-2">&amp;mut </span>conn, course_id, days_limit,
-            )
-            .<span class="kw">await
-        </span>},
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    token.authorized_ok(web::Json(res))
-}
-
-<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/monthly-returning-exercises`
-</span><span class="attr">#[instrument(skip(pool))]
-</span><span class="kw">async fn </span>get_monthly_users_returning_exercises(
-    pool: web::Data&lt;PgPool&gt;,
-    user: AuthUser,
-    course_id: web::Path&lt;Uuid&gt;,
-    cache: web::Data&lt;Cache&gt;,
-) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;CountResult&gt;&gt;&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = authorize(
-        <span class="kw-2">&amp;mut </span>conn,
-        Act::ViewStats,
-        <span class="prelude-val">Some</span>(user.id),
-        Res::Course(<span class="kw-2">*</span>course_id),
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="kw">let </span>res = cached_stats_query(
-        <span class="kw-2">&amp;</span>cache,
-        <span class="string">"monthly-returning-exercises"</span>,
-        <span class="kw-2">*</span>course_id,
-        <span class="prelude-val">None</span>,
-        CACHE_DURATION,
-        || <span class="kw">async </span>{
-            models::library::course_stats::get_monthly_users_returning_exercises(
-                <span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id,
-            )
-            .<span class="kw">await
-        </span>},
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    token.authorized_ok(web::Json(res))
-}
-
-<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/daily-returning-exercises/{days}`
-</span><span class="attr">#[instrument(skip(pool))]
-</span><span class="kw">async fn </span>get_daily_users_returning_exercises_last_n_days(
-    pool: web::Data&lt;PgPool&gt;,
-    user: AuthUser,
-    path: web::Path&lt;(Uuid, i32)&gt;,
-    cache: web::Data&lt;Cache&gt;,
-) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;CountResult&gt;&gt;&gt; {
-    <span class="kw">let </span>(course_id, days_limit) = path.into_inner();
-    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = authorize(
-        <span class="kw-2">&amp;mut </span>conn,
-        Act::ViewStats,
-        <span class="prelude-val">Some</span>(user.id),
-        Res::Course(course_id),
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="kw">let </span>res = cached_stats_query(
-        <span class="kw-2">&amp;</span>cache,
-        <span class="string">"daily-returning-exercises"</span>,
-        course_id,
-        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>days_limit.to_string()),
-        CACHE_DURATION,
-        || <span class="kw">async </span>{
-            models::library::course_stats::get_daily_users_returning_exercises_last_n_days(
-                <span class="kw-2">&amp;mut </span>conn, course_id, days_limit,
-            )
-            .<span class="kw">await
-        </span>},
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    token.authorized_ok(web::Json(res))
-}
-
-<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/monthly-completions`
-</span><span class="attr">#[instrument(skip(pool))]
-</span><span class="kw">async fn </span>get_monthly_course_completions(
-    pool: web::Data&lt;PgPool&gt;,
-    user: AuthUser,
-    course_id: web::Path&lt;Uuid&gt;,
-    cache: web::Data&lt;Cache&gt;,
-) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;CountResult&gt;&gt;&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = authorize(
-        <span class="kw-2">&amp;mut </span>conn,
-        Act::ViewStats,
-        <span class="prelude-val">Some</span>(user.id),
-        Res::Course(<span class="kw-2">*</span>course_id),
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="kw">let </span>res = cached_stats_query(
-        <span class="kw-2">&amp;</span>cache,
-        <span class="string">"monthly-completions"</span>,
-        <span class="kw-2">*</span>course_id,
-        <span class="prelude-val">None</span>,
-        CACHE_DURATION,
-        || <span class="kw">async </span>{
-            models::library::course_stats::get_monthly_course_completions(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id)
-                .<span class="kw">await
-        </span>},
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    token.authorized_ok(web::Json(res))
-}
-
-<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/daily-completions/{days}`
-</span><span class="attr">#[instrument(skip(pool))]
-</span><span class="kw">async fn </span>get_daily_course_completions_last_n_days(
-    pool: web::Data&lt;PgPool&gt;,
-    user: AuthUser,
-    path: web::Path&lt;(Uuid, i32)&gt;,
-    cache: web::Data&lt;Cache&gt;,
-) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;CountResult&gt;&gt;&gt; {
-    <span class="kw">let </span>(course_id, days_limit) = path.into_inner();
-    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = authorize(
-        <span class="kw-2">&amp;mut </span>conn,
-        Act::ViewStats,
-        <span class="prelude-val">Some</span>(user.id),
-        Res::Course(course_id),
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="kw">let </span>res = cached_stats_query(
-        <span class="kw-2">&amp;</span>cache,
-        <span class="string">"daily-completions"</span>,
-        course_id,
-        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>days_limit.to_string()),
-        CACHE_DURATION,
-        || <span class="kw">async </span>{
-            models::library::course_stats::get_daily_course_completions_last_n_days(
-                <span class="kw-2">&amp;mut </span>conn, course_id, days_limit,
-            )
-            .<span class="kw">await
-        </span>},
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    token.authorized_ok(web::Json(res))
-}
-
-<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/avg-time-to-first-submission`
-</span><span class="attr">#[instrument(skip(pool))]
-</span><span class="kw">async fn </span>get_avg_time_to_first_submission_by_month(
-    pool: web::Data&lt;PgPool&gt;,
-    user: AuthUser,
-    course_id: web::Path&lt;Uuid&gt;,
+    path: web::Path&lt;(Uuid, TimeGranularity, u16)&gt;,
     cache: web::Data&lt;Cache&gt;,
 ) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;AverageMetric&gt;&gt;&gt; {
+    <span class="kw">let </span>(course_id, granularity, time_window) = path.into_inner();
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::ViewStats,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::Course(course_id),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>cache_key = <span class="macro">format!</span>(
+        <span class="string">"avg-time-to-first-submission-{}-{}"</span>,
+        granularity, time_window
+    );
+    <span class="kw">let </span>res = cached_stats_query(
+        <span class="kw-2">&amp;</span>cache,
+        <span class="kw-2">&amp;</span>cache_key,
+        course_id,
+        <span class="prelude-val">None</span>,
+        CACHE_DURATION,
+        || <span class="kw">async </span>{
+            models::library::course_stats::avg_time_to_first_submission_history(
+                <span class="kw-2">&amp;mut </span>conn,
+                course_id,
+                granularity,
+                time_window,
+            )
+            .<span class="kw">await
+        </span>},
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    token.authorized_ok(web::Json(res))
+}
+
+<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/cohort-activity/{granularity}/{history_window}/{tracking_window}`
+</span><span class="attr">#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_cohort_activity_history(
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+    course_id: web::Path&lt;Uuid&gt;,
+    params: web::Path&lt;(TimeGranularity, u16, u16)&gt;,
+    cache: web::Data&lt;Cache&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;CohortActivity&gt;&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>token = authorize(
         <span class="kw-2">&amp;mut </span>conn,
@@ -1331,89 +1086,24 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
+    <span class="kw">let </span>(granularity, history_window, tracking_window) = params.into_inner();
+
     <span class="kw">let </span>res = cached_stats_query(
         <span class="kw-2">&amp;</span>cache,
-        <span class="string">"avg-time-to-first-submission"</span>,
+        <span class="kw-2">&amp;</span><span class="macro">format!</span>(
+            <span class="string">"cohort-activity-{}-{}-{}"</span>,
+            granularity, history_window, tracking_window
+        ),
         <span class="kw-2">*</span>course_id,
         <span class="prelude-val">None</span>,
         CACHE_DURATION,
         || <span class="kw">async </span>{
-            models::library::course_stats::get_avg_time_to_first_submission_by_month(
-                <span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id,
-            )
-            .<span class="kw">await
-        </span>},
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    token.authorized_ok(web::Json(res))
-}
-
-<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/cohort-weekly-activity/{months}`
-</span><span class="attr">#[instrument(skip(pool))]
-</span><span class="kw">async fn </span>get_cohort_weekly_activity(
-    pool: web::Data&lt;PgPool&gt;,
-    user: AuthUser,
-    path: web::Path&lt;(Uuid, i32)&gt;,
-    cache: web::Data&lt;Cache&gt;,
-) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;CohortActivity&gt;&gt;&gt; {
-    <span class="kw">let </span>(course_id, months_limit) = path.into_inner();
-    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = authorize(
-        <span class="kw-2">&amp;mut </span>conn,
-        Act::ViewStats,
-        <span class="prelude-val">Some</span>(user.id),
-        Res::Course(course_id),
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="kw">let </span>res = cached_stats_query(
-        <span class="kw-2">&amp;</span>cache,
-        <span class="string">"cohort-weekly-activity"</span>,
-        course_id,
-        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>months_limit.to_string()),
-        CACHE_DURATION,
-        || <span class="kw">async </span>{
-            models::library::course_stats::get_cohort_weekly_activity(
+            models::library::course_stats::get_cohort_activity_history(
                 <span class="kw-2">&amp;mut </span>conn,
-                course_id,
-                months_limit,
-            )
-            .<span class="kw">await
-        </span>},
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    token.authorized_ok(web::Json(res))
-}
-
-<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/cohort-daily-activity/{days}`
-</span><span class="attr">#[instrument(skip(pool))]
-</span><span class="kw">async fn </span>get_cohort_daily_activity(
-    pool: web::Data&lt;PgPool&gt;,
-    user: AuthUser,
-    path: web::Path&lt;(Uuid, i32)&gt;,
-    cache: web::Data&lt;Cache&gt;,
-) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;CohortActivity&gt;&gt;&gt; {
-    <span class="kw">let </span>(course_id, days_limit) = path.into_inner();
-    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = authorize(
-        <span class="kw-2">&amp;mut </span>conn,
-        Act::ViewStats,
-        <span class="prelude-val">Some</span>(user.id),
-        Res::Course(course_id),
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="kw">let </span>res = cached_stats_query(
-        <span class="kw-2">&amp;</span>cache,
-        <span class="string">"cohort-daily-activity"</span>,
-        course_id,
-        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>days_limit.to_string()),
-        CACHE_DURATION,
-        || <span class="kw">async </span>{
-            models::library::course_stats::get_cohort_daily_activity(
-                <span class="kw-2">&amp;mut </span>conn, course_id, days_limit,
+                <span class="kw-2">*</span>course_id,
+                granularity,
+                history_window,
+                tracking_window,
             )
             .<span class="kw">await
         </span>},
@@ -1463,54 +1153,19 @@
     token.authorized_ok(web::Json(res))
 }
 
-<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/all-language-versions/monthly-users-starting`
+<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/all-language-versions/users-starting-history/{granularity}/{time_window}`
+///
+/// Returns unique users starting statistics for all language versions with specified time granularity and window.
+/// - granularity: "year", "month", or "day"
+/// - time_window: number of time units to look back
 </span><span class="attr">#[instrument(skip(pool))]
-</span><span class="kw">async fn </span>get_monthly_unique_users_starting_all_language_versions(
+</span><span class="kw">async fn </span>get_unique_users_starting_history_all_language_versions(
     pool: web::Data&lt;PgPool&gt;,
     user: AuthUser,
-    course_id: web::Path&lt;Uuid&gt;,
+    path: web::Path&lt;(Uuid, TimeGranularity, u16)&gt;,
     cache: web::Data&lt;Cache&gt;,
 ) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;CountResult&gt;&gt;&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = authorize(
-        <span class="kw-2">&amp;mut </span>conn,
-        Act::ViewStats,
-        <span class="prelude-val">Some</span>(user.id),
-        Res::Course(<span class="kw-2">*</span>course_id),
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="kw">let </span>course = models::courses::get_course(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>language_group_id = course.course_language_group_id;
-
-    <span class="kw">let </span>res = cached_stats_query(
-        <span class="kw-2">&amp;</span>cache,
-        <span class="string">"all-language-versions-monthly-users-starting"</span>,
-        language_group_id,
-        <span class="prelude-val">None</span>,
-        CACHE_DURATION,
-        || <span class="kw">async </span>{
-            models::library::course_stats::get_monthly_unique_users_starting_all_language_versions(
-                <span class="kw-2">&amp;mut </span>conn,
-                language_group_id,
-            )
-            .<span class="kw">await
-        </span>},
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    token.authorized_ok(web::Json(res))
-}
-
-<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/all-language-versions/daily-users-starting/{days}`
-</span><span class="attr">#[instrument(skip(pool))]
-</span><span class="kw">async fn </span>get_daily_unique_users_starting_all_language_versions_last_n_days(
-    pool: web::Data&lt;PgPool&gt;,
-    user: AuthUser,
-    path: web::Path&lt;(Uuid, i32)&gt;,
-    cache: web::Data&lt;Cache&gt;,
-) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;CountResult&gt;&gt;&gt; {
-    <span class="kw">let </span>(course_id, days_limit) = path.into_inner();
+    <span class="kw">let </span>(course_id, granularity, time_window) = path.into_inner();
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>token = authorize(
         <span class="kw-2">&amp;mut </span>conn,
@@ -1520,59 +1175,26 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>course = models::courses::get_course(<span class="kw-2">&amp;mut </span>conn, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// Get the course to find its language group ID
+    </span><span class="kw">let </span>course = models::courses::get_course(<span class="kw-2">&amp;mut </span>conn, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>language_group_id = course.course_language_group_id;
 
+    <span class="kw">let </span>cache_key = <span class="macro">format!</span>(
+        <span class="string">"all-language-versions-users-starting-{}-{}"</span>,
+        granularity, time_window
+    );
     <span class="kw">let </span>res = cached_stats_query(
         <span class="kw-2">&amp;</span>cache,
-        <span class="string">"all-language-versions-daily-users-starting"</span>,
-        language_group_id,
-        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>days_limit.to_string()),
-        CACHE_DURATION,
-        || <span class="kw">async </span>{
-            models::library::course_stats::get_daily_unique_users_starting_all_language_versions_last_n_days(
-                <span class="kw-2">&amp;mut </span>conn,
-                language_group_id,
-                days_limit,
-            )
-            .<span class="kw">await
-        </span>},
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    token.authorized_ok(web::Json(res))
-}
-
-<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/all-language-versions/monthly-completions`
-</span><span class="attr">#[instrument(skip(pool))]
-</span><span class="kw">async fn </span>get_monthly_course_completions_all_language_versions(
-    pool: web::Data&lt;PgPool&gt;,
-    user: AuthUser,
-    course_id: web::Path&lt;Uuid&gt;,
-    cache: web::Data&lt;Cache&gt;,
-) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;CountResult&gt;&gt;&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = authorize(
-        <span class="kw-2">&amp;mut </span>conn,
-        Act::ViewStats,
-        <span class="prelude-val">Some</span>(user.id),
-        Res::Course(<span class="kw-2">*</span>course_id),
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="kw">let </span>course = models::courses::get_course(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>language_group_id = course.course_language_group_id;
-
-    <span class="kw">let </span>res = cached_stats_query(
-        <span class="kw-2">&amp;</span>cache,
-        <span class="string">"all-language-versions-monthly-completions"</span>,
+        <span class="kw-2">&amp;</span>cache_key,
         language_group_id,
         <span class="prelude-val">None</span>,
         CACHE_DURATION,
         || <span class="kw">async </span>{
-            models::library::course_stats::get_monthly_course_completions_all_language_versions(
+            models::library::course_stats::unique_users_starting_history_all_language_versions(
                 <span class="kw-2">&amp;mut </span>conn,
                 language_group_id,
+                granularity,
+                time_window,
             )
             .<span class="kw">await
         </span>},
@@ -1582,15 +1204,20 @@
     token.authorized_ok(web::Json(res))
 }
 
-<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/all-language-versions/daily-completions/{days}`
+<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/all-language-versions/completions-history/{granularity}/{time_window}`
+///
+/// Returns completion statistics for all language versions with specified time granularity and window.
+/// - granularity: "year", "month", or "day"
+/// - time_window: number of time units to look back
 </span><span class="attr">#[instrument(skip(pool))]
-</span><span class="kw">async fn </span>get_daily_course_completions_all_language_versions_last_n_days(
+</span><span class="kw">async fn </span>get_course_completions_history(
     pool: web::Data&lt;PgPool&gt;,
     user: AuthUser,
-    path: web::Path&lt;(Uuid, i32)&gt;,
+    path: web::Path&lt;(Uuid, TimeGranularity, u16)&gt;,
     cache: web::Data&lt;Cache&gt;,
 ) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;CountResult&gt;&gt;&gt; {
-    <span class="kw">let </span>(course_id, days_limit) = path.into_inner();
+    <span class="kw">let </span>(course_id, granularity, time_window) = path.into_inner();
+
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>token = authorize(
         <span class="kw-2">&amp;mut </span>conn,
@@ -1600,20 +1227,19 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>course = models::courses::get_course(<span class="kw-2">&amp;mut </span>conn, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>language_group_id = course.course_language_group_id;
-
+    <span class="kw">let </span>cache_key = <span class="macro">format!</span>(<span class="string">"completions-{}-{}"</span>, granularity, time_window);
     <span class="kw">let </span>res = cached_stats_query(
         <span class="kw-2">&amp;</span>cache,
-        <span class="string">"all-language-versions-daily-completions"</span>,
-        language_group_id,
-        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>days_limit.to_string()),
+        <span class="kw-2">&amp;</span>cache_key,
+        course_id,
+        <span class="prelude-val">None</span>,
         CACHE_DURATION,
         || <span class="kw">async </span>{
-            models::library::course_stats::get_daily_course_completions_all_language_versions_last_n_days(
+            models::library::course_stats::course_completions_history(
                 <span class="kw-2">&amp;mut </span>conn,
-                language_group_id,
-                days_limit,
+                course_id,
+                granularity,
+                time_window,
             )
             .<span class="kw">await
         </span>},
@@ -1623,8 +1249,426 @@
     token.authorized_ok(web::Json(res))
 }
 
-<span class="comment">// Update the configure function to use the new prefix
-</span><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>web::ServiceConfig) {
+<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/users-returning-exercises-history/{granularity}/{time_window}`
+///
+/// Returns users returning exercises statistics with specified time granularity and window.
+/// - granularity: "year", "month", or "day"
+/// - time_window: number of time units to look back
+</span><span class="attr">#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_users_returning_exercises_history(
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+    path: web::Path&lt;(Uuid, TimeGranularity, u16)&gt;,
+    cache: web::Data&lt;Cache&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;CountResult&gt;&gt;&gt; {
+    <span class="kw">let </span>(course_id, granularity, time_window) = path.into_inner();
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::ViewStats,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::Course(course_id),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>cache_key = <span class="macro">format!</span>(<span class="string">"users-returning-{}-{}"</span>, granularity, time_window);
+    <span class="kw">let </span>res = cached_stats_query(
+        <span class="kw-2">&amp;</span>cache,
+        <span class="kw-2">&amp;</span>cache_key,
+        course_id,
+        <span class="prelude-val">None</span>,
+        CACHE_DURATION,
+        || <span class="kw">async </span>{
+            models::library::course_stats::users_returning_exercises_history(
+                <span class="kw-2">&amp;mut </span>conn,
+                course_id,
+                granularity,
+                time_window,
+            )
+            .<span class="kw">await
+        </span>},
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    token.authorized_ok(web::Json(res))
+}
+
+<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/first-submissions-history/{granularity}/{time_window}`
+///
+/// Returns first exercise submission statistics with specified time granularity and window.
+/// - granularity: "year", "month", or "day"
+/// - time_window: number of time units to look back
+</span><span class="attr">#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_first_exercise_submissions_history(
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+    path: web::Path&lt;(Uuid, TimeGranularity, u16)&gt;,
+    cache: web::Data&lt;Cache&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;CountResult&gt;&gt;&gt; {
+    <span class="kw">let </span>(course_id, granularity, time_window) = path.into_inner();
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::ViewStats,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::Course(course_id),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>cache_key = <span class="macro">format!</span>(<span class="string">"first-submissions-{}-{}"</span>, granularity, time_window);
+    <span class="kw">let </span>res = cached_stats_query(
+        <span class="kw-2">&amp;</span>cache,
+        <span class="kw-2">&amp;</span>cache_key,
+        course_id,
+        <span class="prelude-val">None</span>,
+        CACHE_DURATION,
+        || <span class="kw">async </span>{
+            models::library::course_stats::first_exercise_submissions_history(
+                <span class="kw-2">&amp;mut </span>conn,
+                course_id,
+                granularity,
+                time_window,
+            )
+            .<span class="kw">await
+        </span>},
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    token.authorized_ok(web::Json(res))
+}
+
+<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/users-starting-history/{granularity}/{time_window}`
+///
+/// Returns unique users starting statistics with specified time granularity and window.
+/// - granularity: "year", "month", or "day"
+/// - time_window: number of time units to look back
+</span><span class="attr">#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_unique_users_starting_history(
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+    path: web::Path&lt;(Uuid, TimeGranularity, u16)&gt;,
+    cache: web::Data&lt;Cache&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;CountResult&gt;&gt;&gt; {
+    <span class="kw">let </span>(course_id, granularity, time_window) = path.into_inner();
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::ViewStats,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::Course(course_id),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>cache_key = <span class="macro">format!</span>(<span class="string">"users-starting-{}-{}"</span>, granularity, time_window);
+    <span class="kw">let </span>res = cached_stats_query(
+        <span class="kw-2">&amp;</span>cache,
+        <span class="kw-2">&amp;</span>cache_key,
+        course_id,
+        <span class="prelude-val">None</span>,
+        CACHE_DURATION,
+        || <span class="kw">async </span>{
+            models::library::course_stats::unique_users_starting_history(
+                <span class="kw-2">&amp;mut </span>conn,
+                course_id,
+                granularity,
+                time_window,
+            )
+            .<span class="kw">await
+        </span>},
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    token.authorized_ok(web::Json(res))
+}
+
+<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/by-instance/total-users-started-course`
+</span><span class="attr">#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_total_users_started_course_by_instance(
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+    course_id: web::Path&lt;Uuid&gt;,
+    cache: web::Data&lt;Cache&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;HashMap&lt;Uuid, CountResult&gt;&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::ViewStats,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::Course(<span class="kw-2">*</span>course_id),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>res = cached_stats_query(
+        <span class="kw-2">&amp;</span>cache,
+        <span class="string">"total-users-started-course-by-instance"</span>,
+        <span class="kw-2">*</span>course_id,
+        <span class="prelude-val">None</span>,
+        CACHE_DURATION,
+        || <span class="kw">async </span>{
+            models::library::course_stats::get_total_users_started_course_by_instance(
+                <span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id,
+            )
+            .<span class="kw">await
+        </span>},
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    token.authorized_ok(web::Json(res))
+}
+
+<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/by-instance/total-users-completed`
+</span><span class="attr">#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_total_users_completed_course_by_instance(
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+    course_id: web::Path&lt;Uuid&gt;,
+    cache: web::Data&lt;Cache&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;HashMap&lt;Uuid, CountResult&gt;&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::ViewStats,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::Course(<span class="kw-2">*</span>course_id),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>res = cached_stats_query(
+        <span class="kw-2">&amp;</span>cache,
+        <span class="string">"total-users-completed-by-instance"</span>,
+        <span class="kw-2">*</span>course_id,
+        <span class="prelude-val">None</span>,
+        CACHE_DURATION,
+        || <span class="kw">async </span>{
+            models::library::course_stats::get_total_users_completed_course_by_instance(
+                <span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id,
+            )
+            .<span class="kw">await
+        </span>},
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    token.authorized_ok(web::Json(res))
+}
+
+<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/by-instance/total-users-returned-exercises`
+</span><span class="attr">#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_total_users_returned_at_least_one_exercise_by_instance(
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+    course_id: web::Path&lt;Uuid&gt;,
+    cache: web::Data&lt;Cache&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;HashMap&lt;Uuid, CountResult&gt;&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::ViewStats,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::Course(<span class="kw-2">*</span>course_id),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>res = cached_stats_query(
+        <span class="kw-2">&amp;</span>cache,
+        <span class="string">"total-users-returned-exercises-by-instance"</span>,
+        <span class="kw-2">*</span>course_id,
+        <span class="prelude-val">None</span>,
+        CACHE_DURATION,
+        || <span class="kw">async </span>{
+            models::library::course_stats::get_total_users_returned_at_least_one_exercise_by_instance(
+                <span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id,
+            )
+            .<span class="kw">await
+        </span>},
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    token.authorized_ok(web::Json(res))
+}
+
+<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/by-instance/completions-history/{granularity}/{time_window}`
+///
+/// Returns course completion statistics with specified time granularity and window, grouped by course instance.
+/// - granularity: "year", "month", or "day"
+/// - time_window: number of time units to look back
+</span><span class="attr">#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_course_completions_history_by_instance(
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+    path: web::Path&lt;(Uuid, TimeGranularity, u16)&gt;,
+    cache: web::Data&lt;Cache&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;HashMap&lt;Uuid, Vec&lt;CountResult&gt;&gt;&gt;&gt; {
+    <span class="kw">let </span>(course_id, granularity, time_window) = path.into_inner();
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::ViewStats,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::Course(course_id),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>cache_key = <span class="macro">format!</span>(<span class="string">"completions-by-instance-{}-{}"</span>, granularity, time_window);
+    <span class="kw">let </span>res = cached_stats_query(
+        <span class="kw-2">&amp;</span>cache,
+        <span class="kw-2">&amp;</span>cache_key,
+        course_id,
+        <span class="prelude-val">None</span>,
+        CACHE_DURATION,
+        || <span class="kw">async </span>{
+            models::library::course_stats::course_completions_history_by_instance(
+                <span class="kw-2">&amp;mut </span>conn,
+                course_id,
+                granularity,
+                time_window,
+            )
+            .<span class="kw">await
+        </span>},
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    token.authorized_ok(web::Json(res))
+}
+
+<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/by-instance/users-starting-history/{granularity}/{time_window}`
+///
+/// Returns unique users starting statistics with specified time granularity and window, grouped by course instance.
+/// - granularity: "year", "month", or "day"
+/// - time_window: number of time units to look back
+</span><span class="attr">#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_unique_users_starting_history_by_instance(
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+    path: web::Path&lt;(Uuid, TimeGranularity, u16)&gt;,
+    cache: web::Data&lt;Cache&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;HashMap&lt;Uuid, Vec&lt;CountResult&gt;&gt;&gt;&gt; {
+    <span class="kw">let </span>(course_id, granularity, time_window) = path.into_inner();
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::ViewStats,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::Course(course_id),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>cache_key = <span class="macro">format!</span>(<span class="string">"users-starting-by-instance-{}-{}"</span>, granularity, time_window);
+    <span class="kw">let </span>res = cached_stats_query(
+        <span class="kw-2">&amp;</span>cache,
+        <span class="kw-2">&amp;</span>cache_key,
+        course_id,
+        <span class="prelude-val">None</span>,
+        CACHE_DURATION,
+        || <span class="kw">async </span>{
+            models::library::course_stats::unique_users_starting_history_by_instance(
+                <span class="kw-2">&amp;mut </span>conn,
+                course_id,
+                granularity,
+                time_window,
+            )
+            .<span class="kw">await
+        </span>},
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    token.authorized_ok(web::Json(res))
+}
+
+<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/by-instance/first-submissions-history/{granularity}/{time_window}`
+///
+/// Returns first exercise submission statistics with specified time granularity and window, grouped by course instance.
+/// - granularity: "year", "month", or "day"
+/// - time_window: number of time units to look back
+</span><span class="attr">#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_first_exercise_submissions_history_by_instance(
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+    path: web::Path&lt;(Uuid, TimeGranularity, u16)&gt;,
+    cache: web::Data&lt;Cache&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;HashMap&lt;Uuid, Vec&lt;CountResult&gt;&gt;&gt;&gt; {
+    <span class="kw">let </span>(course_id, granularity, time_window) = path.into_inner();
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::ViewStats,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::Course(course_id),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>cache_key = <span class="macro">format!</span>(
+        <span class="string">"first-submissions-by-instance-{}-{}"</span>,
+        granularity, time_window
+    );
+    <span class="kw">let </span>res = cached_stats_query(
+        <span class="kw-2">&amp;</span>cache,
+        <span class="kw-2">&amp;</span>cache_key,
+        course_id,
+        <span class="prelude-val">None</span>,
+        CACHE_DURATION,
+        || <span class="kw">async </span>{
+            models::library::course_stats::first_exercise_submissions_history_by_instance(
+                <span class="kw-2">&amp;mut </span>conn,
+                course_id,
+                granularity,
+                time_window,
+            )
+            .<span class="kw">await
+        </span>},
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    token.authorized_ok(web::Json(res))
+}
+
+<span class="doccomment">/// GET `/api/v0/main-frontend/{course_id}/stats/by-instance/users-returning-exercises-history/{granularity}/{time_window}`
+///
+/// Returns users returning exercises statistics with specified time granularity and window, grouped by course instance.
+/// - granularity: "year", "month", or "day"
+/// - time_window: number of time units to look back
+</span><span class="attr">#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_users_returning_exercises_history_by_instance(
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+    path: web::Path&lt;(Uuid, TimeGranularity, u16)&gt;,
+    cache: web::Data&lt;Cache&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;HashMap&lt;Uuid, Vec&lt;CountResult&gt;&gt;&gt;&gt; {
+    <span class="kw">let </span>(course_id, granularity, time_window) = path.into_inner();
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::ViewStats,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::Course(course_id),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>cache_key = <span class="macro">format!</span>(
+        <span class="string">"users-returning-by-instance-{}-{}"</span>,
+        granularity, time_window
+    );
+    <span class="kw">let </span>res = cached_stats_query(
+        <span class="kw-2">&amp;</span>cache,
+        <span class="kw-2">&amp;</span>cache_key,
+        course_id,
+        <span class="prelude-val">None</span>,
+        CACHE_DURATION,
+        || <span class="kw">async </span>{
+            models::library::course_stats::users_returning_exercises_history_by_instance(
+                <span class="kw-2">&amp;mut </span>conn,
+                course_id,
+                granularity,
+                time_window,
+            )
+            .<span class="kw">await
+        </span>},
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    token.authorized_ok(web::Json(res))
+}
+
+<span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>web::ServiceConfig) {
     cfg.route(
         <span class="string">"/total-users-started-course"</span>,
         web::get().to(get_total_users_started_course),
@@ -1638,72 +1682,64 @@
         web::get().to(get_total_users_returned_at_least_one_exercise),
     )
     .route(
-        <span class="string">"/weekly-users-starting"</span>,
-        web::get().to(get_weekly_unique_users_starting),
+        <span class="string">"/by-instance/total-users-started-course"</span>,
+        web::get().to(get_total_users_started_course_by_instance),
     )
     .route(
-        <span class="string">"/monthly-users-starting"</span>,
-        web::get().to(get_monthly_unique_users_starting),
+        <span class="string">"/by-instance/total-users-completed"</span>,
+        web::get().to(get_total_users_completed_course_by_instance),
     )
     .route(
-        <span class="string">"/daily-users-starting/{days}"</span>,
-        web::get().to(get_daily_unique_users_starting_last_n_days),
+        <span class="string">"/by-instance/total-users-returned-exercises"</span>,
+        web::get().to(get_total_users_returned_at_least_one_exercise_by_instance),
     )
     .route(
-        <span class="string">"/monthly-first-submissions"</span>,
-        web::get().to(get_monthly_first_exercise_submissions),
+        <span class="string">"/first-submissions-history/{granularity}/{time_window}"</span>,
+        web::get().to(get_first_exercise_submissions_history),
     )
     .route(
-        <span class="string">"/daily-first-submissions/{days}"</span>,
-        web::get().to(get_daily_first_exercise_submissions_last_n_days),
+        <span class="string">"/by-instance/first-submissions-history/{granularity}/{time_window}"</span>,
+        web::get().to(get_first_exercise_submissions_history_by_instance),
     )
     .route(
-        <span class="string">"/monthly-returning-exercises"</span>,
-        web::get().to(get_monthly_users_returning_exercises),
+        <span class="string">"/users-returning-exercises-history/{granularity}/{time_window}"</span>,
+        web::get().to(get_users_returning_exercises_history),
     )
     .route(
-        <span class="string">"/daily-returning-exercises/{days}"</span>,
-        web::get().to(get_daily_users_returning_exercises_last_n_days),
+        <span class="string">"/by-instance/users-returning-exercises-history/{granularity}/{time_window}"</span>,
+        web::get().to(get_users_returning_exercises_history_by_instance),
     )
     .route(
-        <span class="string">"/monthly-completions"</span>,
-        web::get().to(get_monthly_course_completions),
+        <span class="string">"/completions-history/{granularity}/{time_window}"</span>,
+        web::get().to(get_course_completions_history),
     )
     .route(
-        <span class="string">"/daily-completions/{days}"</span>,
-        web::get().to(get_daily_course_completions_last_n_days),
+        <span class="string">"/by-instance/completions-history/{granularity}/{time_window}"</span>,
+        web::get().to(get_course_completions_history_by_instance),
     )
     .route(
-        <span class="string">"/avg-time-to-first-submission"</span>,
-        web::get().to(get_avg_time_to_first_submission_by_month),
+        <span class="string">"/users-starting-history/{granularity}/{time_window}"</span>,
+        web::get().to(get_unique_users_starting_history),
     )
     .route(
-        <span class="string">"/cohort-weekly-activity/{months}"</span>,
-        web::get().to(get_cohort_weekly_activity),
+        <span class="string">"/by-instance/users-starting-history/{granularity}/{time_window}"</span>,
+        web::get().to(get_unique_users_starting_history_by_instance),
     )
     .route(
-        <span class="string">"/cohort-daily-activity/{days}"</span>,
-        web::get().to(get_cohort_daily_activity),
+        <span class="string">"/avg-time-to-first-submission/{granularity}/{time_window}"</span>,
+        web::get().to(get_avg_time_to_first_submission_history),
+    )
+    .route(
+        <span class="string">"/cohort-activity/{granularity}/{history_window}/{tracking_window}"</span>,
+        web::get().to(get_cohort_activity_history),
     )
     .route(
         <span class="string">"/all-language-versions/total-users-started"</span>,
         web::get().to(get_total_users_started_all_language_versions),
     )
     .route(
-        <span class="string">"/all-language-versions/monthly-users-starting"</span>,
-        web::get().to(get_monthly_unique_users_starting_all_language_versions),
-    )
-    .route(
-        <span class="string">"/all-language-versions/daily-users-starting/{days}"</span>,
-        web::get().to(get_daily_unique_users_starting_all_language_versions_last_n_days),
-    )
-    .route(
-        <span class="string">"/all-language-versions/monthly-completions"</span>,
-        web::get().to(get_monthly_course_completions_all_language_versions),
-    )
-    .route(
-        <span class="string">"/all-language-versions/daily-completions/{days}"</span>,
-        web::get().to(get_daily_course_completions_all_language_versions_last_n_days),
+        <span class="string">"/all-language-versions/users-starting-history/{granularity}/{time_window}"</span>,
+        web::get().to(get_unique_users_starting_history_all_language_versions),
     );
 }
 </code></pre></div></section></main></body></html>

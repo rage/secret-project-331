@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["content_management","copying","course_instances","course_stats","custom_view_exercises","global_stats","grading","page_visit_stats","peer_or_self_reviewing","progressing","regrading","user_exercise_state_updater"]};
+window.SIDEBAR_ITEMS = {"enum":["TimeGranularity"],"mod":["content_management","copying","course_instances","course_stats","custom_view_exercises","global_stats","grading","page_visit_stats","peer_or_self_reviewing","progressing","regrading","user_exercise_state_updater"],"struct":["ParseTimeGranularityError"]};

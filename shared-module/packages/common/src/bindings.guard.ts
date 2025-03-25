@@ -2107,8 +2107,8 @@ export function isCohortActivity(obj: unknown): obj is CohortActivity {
             typeof typedObj["cohort_start"] === "string") &&
         (typedObj["activity_period"] === null ||
             typeof typedObj["activity_period"] === "string") &&
-        (typedObj["day_offset"] === null ||
-            typeof typedObj["day_offset"] === "number") &&
+        (typedObj["offset"] === null ||
+            typeof typedObj["offset"] === "number") &&
         typeof typedObj["active_users"] === "number"
     )
 }

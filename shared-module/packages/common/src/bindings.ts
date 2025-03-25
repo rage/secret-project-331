@@ -1006,7 +1006,7 @@ export interface AverageMetric {
 export interface CohortActivity {
   cohort_start: string | null
   activity_period: string | null
-  day_offset: number | null
+  offset: number | null
   active_users: number
 }
 

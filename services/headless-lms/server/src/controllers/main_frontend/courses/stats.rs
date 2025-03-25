@@ -158,7 +158,7 @@ async fn get_total_users_returned_at_least_one_exercise(
 async fn get_avg_time_to_first_submission_history(
     pool: web::Data<PgPool>,
     user: AuthUser,
-    path: web::Path<(Uuid, TimeGranularity, i32)>,
+    path: web::Path<(Uuid, TimeGranularity, u16)>,
     cache: web::Data<Cache>,
 ) -> ControllerResult<web::Json<Vec<AverageMetric>>> {
     let (course_id, granularity, time_window) = path.into_inner();
@@ -202,7 +202,7 @@ async fn get_cohort_activity_history(
     pool: web::Data<PgPool>,
     user: AuthUser,
     course_id: web::Path<Uuid>,
-    params: web::Path<(TimeGranularity, i32, i32)>,
+    params: web::Path<(TimeGranularity, u16, u16)>,
     cache: web::Data<Cache>,
 ) -> ControllerResult<web::Json<Vec<CohortActivity>>> {
     let mut conn = pool.acquire().await?;
@@ -290,7 +290,7 @@ async fn get_total_users_started_all_language_versions(
 async fn get_unique_users_starting_history_all_language_versions(
     pool: web::Data<PgPool>,
     user: AuthUser,
-    path: web::Path<(Uuid, TimeGranularity, i32)>,
+    path: web::Path<(Uuid, TimeGranularity, u16)>,
     cache: web::Data<Cache>,
 ) -> ControllerResult<web::Json<Vec<CountResult>>> {
     let (course_id, granularity, time_window) = path.into_inner();
@@ -341,7 +341,7 @@ async fn get_unique_users_starting_history_all_language_versions(
 async fn get_course_completions_history(
     pool: web::Data<PgPool>,
     user: AuthUser,
-    path: web::Path<(Uuid, TimeGranularity, i32)>,
+    path: web::Path<(Uuid, TimeGranularity, u16)>,
     cache: web::Data<Cache>,
 ) -> ControllerResult<web::Json<Vec<CountResult>>> {
     let (course_id, granularity, time_window) = path.into_inner();
@@ -386,7 +386,7 @@ async fn get_course_completions_history(
 async fn get_users_returning_exercises_history(
     pool: web::Data<PgPool>,
     user: AuthUser,
-    path: web::Path<(Uuid, TimeGranularity, i32)>,
+    path: web::Path<(Uuid, TimeGranularity, u16)>,
     cache: web::Data<Cache>,
 ) -> ControllerResult<web::Json<Vec<CountResult>>> {
     let (course_id, granularity, time_window) = path.into_inner();
@@ -430,7 +430,7 @@ async fn get_users_returning_exercises_history(
 async fn get_first_exercise_submissions_history(
     pool: web::Data<PgPool>,
     user: AuthUser,
-    path: web::Path<(Uuid, TimeGranularity, i32)>,
+    path: web::Path<(Uuid, TimeGranularity, u16)>,
     cache: web::Data<Cache>,
 ) -> ControllerResult<web::Json<Vec<CountResult>>> {
     let (course_id, granularity, time_window) = path.into_inner();
@@ -474,7 +474,7 @@ async fn get_first_exercise_submissions_history(
 async fn get_unique_users_starting_history(
     pool: web::Data<PgPool>,
     user: AuthUser,
-    path: web::Path<(Uuid, TimeGranularity, i32)>,
+    path: web::Path<(Uuid, TimeGranularity, u16)>,
     cache: web::Data<Cache>,
 ) -> ControllerResult<web::Json<Vec<CountResult>>> {
     let (course_id, granularity, time_window) = path.into_inner();
@@ -623,7 +623,7 @@ async fn get_total_users_returned_at_least_one_exercise_by_instance(
 async fn get_course_completions_history_by_instance(
     pool: web::Data<PgPool>,
     user: AuthUser,
-    path: web::Path<(Uuid, TimeGranularity, i32)>,
+    path: web::Path<(Uuid, TimeGranularity, u16)>,
     cache: web::Data<Cache>,
 ) -> ControllerResult<web::Json<HashMap<Uuid, Vec<CountResult>>>> {
     let (course_id, granularity, time_window) = path.into_inner();
@@ -667,7 +667,7 @@ async fn get_course_completions_history_by_instance(
 async fn get_unique_users_starting_history_by_instance(
     pool: web::Data<PgPool>,
     user: AuthUser,
-    path: web::Path<(Uuid, TimeGranularity, i32)>,
+    path: web::Path<(Uuid, TimeGranularity, u16)>,
     cache: web::Data<Cache>,
 ) -> ControllerResult<web::Json<HashMap<Uuid, Vec<CountResult>>>> {
     let (course_id, granularity, time_window) = path.into_inner();
@@ -711,7 +711,7 @@ async fn get_unique_users_starting_history_by_instance(
 async fn get_first_exercise_submissions_history_by_instance(
     pool: web::Data<PgPool>,
     user: AuthUser,
-    path: web::Path<(Uuid, TimeGranularity, i32)>,
+    path: web::Path<(Uuid, TimeGranularity, u16)>,
     cache: web::Data<Cache>,
 ) -> ControllerResult<web::Json<HashMap<Uuid, Vec<CountResult>>>> {
     let (course_id, granularity, time_window) = path.into_inner();
@@ -758,7 +758,7 @@ async fn get_first_exercise_submissions_history_by_instance(
 async fn get_users_returning_exercises_history_by_instance(
     pool: web::Data<PgPool>,
     user: AuthUser,
-    path: web::Path<(Uuid, TimeGranularity, i32)>,
+    path: web::Path<(Uuid, TimeGranularity, u16)>,
     cache: web::Data<Cache>,
 ) -> ControllerResult<web::Json<HashMap<Uuid, Vec<CountResult>>>> {
     let (course_id, granularity, time_window) = path.into_inner();

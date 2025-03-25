@@ -223,7 +223,7 @@ pub async fn unique_users_starting_history(
     conn: &mut PgConnection,
     course_id: Uuid,
     granularity: TimeGranularity,
-    time_window: i32,
+    time_window: u16,
 ) -> ModelResult<Vec<CountResult>> {
     let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
     let (interval_unit, time_unit) = granularity.get_sql_units();
@@ -263,7 +263,7 @@ pub async fn first_exercise_submissions_history(
     conn: &mut PgConnection,
     course_id: Uuid,
     granularity: TimeGranularity,
-    time_window: i32,
+    time_window: u16,
 ) -> ModelResult<Vec<CountResult>> {
     let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
     let (interval_unit, time_unit) = granularity.get_sql_units();
@@ -308,7 +308,7 @@ pub async fn users_returning_exercises_history(
     conn: &mut PgConnection,
     course_id: Uuid,
     granularity: TimeGranularity,
-    time_window: i32,
+    time_window: u16,
 ) -> ModelResult<Vec<CountResult>> {
     let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
     let (interval_unit, time_unit) = granularity.get_sql_units();
@@ -350,7 +350,7 @@ pub async fn avg_time_to_first_submission_history(
     conn: &mut PgConnection,
     course_id: Uuid,
     granularity: TimeGranularity,
-    time_window: i32,
+    time_window: u16,
 ) -> ModelResult<Vec<AverageMetric>> {
     let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
     let (interval_unit, time_unit) = granularity.get_sql_units();
@@ -410,8 +410,8 @@ pub async fn get_cohort_activity_history(
     conn: &mut PgConnection,
     course_id: Uuid,
     granularity: TimeGranularity,
-    history_window: i32,
-    tracking_window: i32,
+    history_window: u16,
+    tracking_window: u16,
 ) -> ModelResult<Vec<CohortActivity>> {
     let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
     let (interval_unit, time_unit) = granularity.get_sql_units();
@@ -502,7 +502,7 @@ pub async fn course_completions_history(
     conn: &mut PgConnection,
     course_id: Uuid,
     granularity: TimeGranularity,
-    time_window: i32,
+    time_window: u16,
 ) -> ModelResult<Vec<CountResult>> {
     let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
     let (interval_unit, time_unit) = granularity.get_sql_units();
@@ -545,7 +545,7 @@ pub async fn course_completions_history_all_language_versions(
     conn: &mut PgConnection,
     course_language_group_id: Uuid,
     granularity: TimeGranularity,
-    time_window: i32,
+    time_window: u16,
 ) -> ModelResult<Vec<CountResult>> {
     let exclude_user_ids =
         get_user_ids_to_exclude_from_course_language_group_stats(conn, course_language_group_id)
@@ -595,7 +595,7 @@ pub async fn unique_users_starting_history_all_language_versions(
     conn: &mut PgConnection,
     course_language_group_id: Uuid,
     granularity: TimeGranularity,
-    time_window: i32,
+    time_window: u16,
 ) -> ModelResult<Vec<CountResult>> {
     let exclude_user_ids =
         get_user_ids_to_exclude_from_course_language_group_stats(conn, course_language_group_id)
@@ -763,7 +763,7 @@ pub async fn course_completions_history_by_instance(
     conn: &mut PgConnection,
     course_id: Uuid,
     granularity: TimeGranularity,
-    time_window: i32,
+    time_window: u16,
 ) -> ModelResult<HashMap<Uuid, Vec<CountResult>>> {
     let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
     let (interval_unit, time_unit) = granularity.get_sql_units();
@@ -834,7 +834,7 @@ pub async fn unique_users_starting_history_by_instance(
     conn: &mut PgConnection,
     course_id: Uuid,
     granularity: TimeGranularity,
-    time_window: i32,
+    time_window: u16,
 ) -> ModelResult<HashMap<Uuid, Vec<CountResult>>> {
     let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
     let (interval_unit, time_unit) = granularity.get_sql_units();
@@ -894,7 +894,7 @@ pub async fn first_exercise_submissions_history_by_instance(
     conn: &mut PgConnection,
     course_id: Uuid,
     granularity: TimeGranularity,
-    time_window: i32,
+    time_window: u16,
 ) -> ModelResult<HashMap<Uuid, Vec<CountResult>>> {
     let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
     let (interval_unit, time_unit) = granularity.get_sql_units();
@@ -962,7 +962,7 @@ pub async fn users_returning_exercises_history_by_instance(
     conn: &mut PgConnection,
     course_id: Uuid,
     granularity: TimeGranularity,
-    time_window: i32,
+    time_window: u16,
 ) -> ModelResult<HashMap<Uuid, Vec<CountResult>>> {
     let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
     let (interval_unit, time_unit) = granularity.get_sql_units();

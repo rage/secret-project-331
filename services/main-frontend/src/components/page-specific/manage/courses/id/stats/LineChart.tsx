@@ -14,7 +14,6 @@ import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 
-// Common constants
 export const MONTHLY_PERIOD = "Month" as const
 export const DAILY_PERIOD = "Day" as const
 

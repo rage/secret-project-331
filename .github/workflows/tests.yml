@@ -37,6 +37,19 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            services/headless-lms/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
       - name: Cargo clippy
         run: cargo clippy --manifest-path services/headless-lms/Cargo.toml -- -D warnings
       - name: Build
@@ -55,18 +68,38 @@ jobs:
         env:
           DATABASE_URL: postgres://postgres:postgres@postgres/headless_lms_integration
 
+      - name: Wait for Redis
+        run: |
+          timeout 20s bash -c '
+          until redis-cli -h redis ping; do
+            echo "Waiting for Redis..."
+            sleep 1
+          done
+          '
+        working-directory: ./services/headless-lms
+
       - name: Run tests
         run: cargo test --verbose
         working-directory: ./services/headless-lms
         env:
           DATABASE_URL: postgres://postgres:postgres@postgres/headless_lms_test
           DATABASE_URL_TEST: postgres://postgres:postgres@postgres/headless_lms_integration
-          REDIS_URL: redis://redis:6379
+          REDIS_URL: redis://redis:6379/1
 
   cms:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            **/node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-cms-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-cms-
+
       - name: npm ci for the root of the repo
         run: npm ci
       - name: npm ci
@@ -80,6 +113,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            **/node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-shared-common-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-shared-common-
+
       - name: npm ci for the root of the repo
         run: npm ci
       - name: npm ci
@@ -93,6 +136,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            **/node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-quizzes-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-quizzes-
+
       - name: npm ci for the root of the repo
         run: npm ci
       - name: npm ci
@@ -106,6 +159,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            **/node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-course-material-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-course-material-
+
       - name: npm ci for the root of the repo
         run: npm ci
       - name: npm ci
@@ -115,11 +178,20 @@ jobs:
         run: npm run test
         working-directory: ./services/course-material
 
-
   main-frontend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            **/node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-main-frontend-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-main-frontend-
+
       - name: npm ci for the root of the repo
         run: npm ci
       - name: npm ci

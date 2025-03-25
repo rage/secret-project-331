@@ -9,7 +9,8 @@ import LineChart, {
   Period,
 } from "../../LineChart"
 
-import { useDailyUniqueUsersStartingQuery, useMonthlyUniqueUsersStartingQuery } from "@/hooks/stats"
+import { useUniqueUsersStartingHistoryQuery } from "@/hooks/stats"
+import { TimeGranularity } from "@/shared-module/common/bindings"
 import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -18,6 +19,7 @@ interface StudentsStartingTheCourseChartProps {
 }
 
 const DAYS_TO_SHOW = 90
+const MONTHS_TO_SHOW = 12
 
 const StudentsStartingTheCourseChart: React.FC<
   React.PropsWithChildren<StudentsStartingTheCourseChartProps>
@@ -25,25 +27,14 @@ const StudentsStartingTheCourseChart: React.FC<
   const { t } = useTranslation()
   const [period, setPeriod] = useState<Period>(MONTHLY_PERIOD)
 
-  const {
-    data: monthlyData,
-    isLoading: monthlyLoading,
-    error: monthlyError,
-  } = useMonthlyUniqueUsersStartingQuery(courseId, {
-    enabled: period === MONTHLY_PERIOD,
-  })
+  const granularity: TimeGranularity = period === MONTHLY_PERIOD ? MONTHLY_PERIOD : DAILY_PERIOD
+  const timeWindow = period === MONTHLY_PERIOD ? MONTHS_TO_SHOW : DAYS_TO_SHOW
 
-  const {
-    data: dailyData,
-    isLoading: dailyLoading,
-    error: dailyError,
-  } = useDailyUniqueUsersStartingQuery(courseId, DAYS_TO_SHOW, {
-    enabled: period === DAILY_PERIOD,
-  })
-
-  const isLoading = period === MONTHLY_PERIOD ? monthlyLoading : dailyLoading
-  const error = period === MONTHLY_PERIOD ? monthlyError : dailyError
-  const data = period === MONTHLY_PERIOD ? monthlyData : dailyData
+  const { data, isLoading, error } = useUniqueUsersStartingHistoryQuery(
+    courseId,
+    granularity,
+    timeWindow,
+  )
 
   return (
     <LineChart

@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH completions AS (\nSELECT c.user_id,\n  c.created_at,\n  ucs.current_course_instance_id\nFROM course_module_completions c\n  JOIN user_course_settings ucs ON c.user_id = ucs.user_id\n  AND ucs.current_course_id = c.course_id\nWHERE c.course_id = $1\n  AND c.prerequisite_modules_completed = TRUE\n  AND c.needs_to_be_reviewed = FALSE\n  AND c.passed = TRUE\n  AND c.deleted_at IS NULL\n  AND NOT c.user_id = ANY($2)\n  AND c.created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL\n)\nSELECT current_course_instance_id AS \"instance_id!\",\nDATE_TRUNC($5, created_at) AS \"period\",\nCOUNT(DISTINCT user_id) AS \"count!\"\nFROM completions\nGROUP BY current_course_instance_id,\nperiod\nORDER BY current_course_instance_id,\nperiod ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "instance_id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "period",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "UuidArray", "Text", "Text", "Text"]
+    },
+    "nullable": [false, null, null]
+  },
+  "hash": "b6efa59611110e92ea46d3e2c1704bad6079dd496d0bac1a48019106256af2ca"
+}

@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DATE_TRUNC($5, created_at) AS \"period\",\n  COUNT(DISTINCT user_id) AS \"count!\"\nFROM exercise_slide_submissions\nWHERE course_id = $1\n  AND deleted_at IS NULL\n  AND NOT user_id = ANY($2)\n  AND created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL\nGROUP BY \"period\"\nORDER BY \"period\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "period",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 1,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "UuidArray", "Text", "Text", "Text"]
+    },
+    "nullable": [null, null]
+  },
+  "hash": "46aff7d3cd94a2b1b236e74e02663c56cf3a73f71cbab40b2885efcee702b947"
+}

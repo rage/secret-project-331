@@ -7,7 +7,6 @@ import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
 
 import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
-import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -17,6 +16,19 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 export interface TopReferrersProps {
   courseId: string
 }
+
+const DEFAULT_CHART_HEIGHT = 300
+
+const containerStyles = css`
+  margin-bottom: 2rem;
+  border: 3px solid ${baseTheme.colors.clear[200]};
+  border-radius: 6px;
+  padding: 1rem;
+  min-height: ${DEFAULT_CHART_HEIGHT}px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
 
 const TopReferrers: React.FC<React.PropsWithChildren<TopReferrersProps>> = ({ courseId }) => {
   const { t } = useTranslation()
@@ -65,34 +77,27 @@ const TopReferrers: React.FC<React.PropsWithChildren<TopReferrersProps>> = ({ co
     return Object.values(aggregatedData)
   }, [aggregatedData])
 
-  if (query.isError) {
-    return <ErrorBanner variant="readOnly" error={query.error} />
-  }
-
-  if (query.isPending || !query.data) {
-    return <Spinner variant="medium" />
-  }
+  const chartHeight = categories.length ? 200 + categories.length * 25 : DEFAULT_CHART_HEIGHT
 
   return (
     <>
       <StatsHeader heading={t("stats-heading-referrers")} debugData={aggregatedData} />
       <InstructionBox>{t("stats-instruction-referrers")}</InstructionBox>
-      <div
-        className={css`
-          margin-bottom: 2rem;
-        `}
-      >
-        <div
-          className={css`
-            margin-bottom: 1.5rem;
-            border: 3px solid ${baseTheme.colors.clear[200]};
-            border-radius: 6px;
-            padding: 1rem;
-          `}
-        >
-          {aggregatedData && (
+      <div className={containerStyles}>
+        {query.isPending ? (
+          <Spinner variant="medium" />
+        ) : query.isError ? (
+          <ErrorBanner variant="readOnly" error={query.error} />
+        ) : !aggregatedData || categories.length === 0 ? (
+          <div>{t("no-data")}</div>
+        ) : (
+          <div
+            className={css`
+              width: 100%;
+            `}
+          >
             <Echarts
-              height={200 + categories.length * 25}
+              height={chartHeight}
               options={{
                 grid: {
                   containLabel: true,
@@ -119,9 +124,8 @@ const TopReferrers: React.FC<React.PropsWithChildren<TopReferrersProps>> = ({ co
                 },
               }}
             />
-          )}
-          <DebugModal data={aggregatedData} />
-        </div>
+          </div>
+        )}
       </div>
     </>
   )

@@ -1,0 +1,33 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH first_activity AS (\n  SELECT user_id,\n    MIN(DATE_TRUNC($6, created_at)) AS first_active_at\n  FROM exercise_slide_submissions\n  WHERE course_id = $1\n    AND created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL\n    AND deleted_at IS NULL\n    AND NOT user_id = ANY($2)\n  GROUP BY user_id\n),\ncohort AS (\n  SELECT user_id,\n    first_active_at AS cohort_start\n  FROM first_activity\n)\nSELECT c.cohort_start AS \"cohort_start\",\n  DATE_TRUNC($6, s.created_at) AS \"activity_period\",\n  CASE\n    WHEN $6 = 'day' THEN EXTRACT(\n      DAY\n      FROM (DATE_TRUNC('day', s.created_at) - c.cohort_start)\n    )::integer\n    WHEN $6 = 'week' THEN EXTRACT(\n      WEEK\n      FROM (\n          DATE_TRUNC('week', s.created_at) - c.cohort_start\n        )\n    )::integer\n    WHEN $6 = 'month' THEN (\n      EXTRACT(\n        YEAR\n        FROM s.created_at\n      ) - EXTRACT(\n        YEAR\n        FROM c.cohort_start\n      )\n    )::integer * 12 + (\n      EXTRACT(\n        MONTH\n        FROM s.created_at\n      ) - EXTRACT(\n        MONTH\n        FROM c.cohort_start\n      )\n    )::integer\n    ELSE NULL::integer\n  END AS \"offset\",\n  COUNT(DISTINCT s.user_id) AS \"active_users!\"\nFROM cohort c\n  JOIN exercise_slide_submissions s ON (\n    c.user_id = s.user_id\n    AND s.course_id = $1\n  )\n  AND s.created_at >= c.cohort_start\n  AND s.created_at < c.cohort_start + ($5 || ' ' || $4)::INTERVAL\n  AND s.deleted_at IS NULL\nGROUP BY c.cohort_start,\n  \"activity_period\",\n  \"offset\"\nORDER BY c.cohort_start,\n  \"offset\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "cohort_start",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 1,
+        "name": "activity_period",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "offset",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "active_users!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "UuidArray", "Text", "Text", "Text", "Text"]
+    },
+    "nullable": [null, null, null, null]
+  },
+  "hash": "895cc384ee60ef97377e6eedf3a9f2731dc87e09368addc8725d5adb94c591ad"
+}

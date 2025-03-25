@@ -8,7 +8,6 @@ import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
 
 import { fetchCoursePageVisitDatumSummariesByCountry } from "@/services/backend/courses"
-import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -69,13 +68,7 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
     return Object.values(aggregatedData)
   }, [aggregatedData])
 
-  if (query.isError) {
-    return <ErrorBanner variant="readOnly" error={query.error} />
-  }
-
-  if (query.isPending || !query.data) {
-    return <Spinner variant="medium" />
-  }
+  const chartHeight = categories.length ? 200 + categories.length * 25 : 300
 
   return (
     <>
@@ -87,44 +80,47 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
       <div
         className={css`
           margin-bottom: 2rem;
+          border: 3px solid ${baseTheme.colors.clear[200]};
+          border-radius: 6px;
+          padding: 1rem;
+          min-height: 300px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         `}
       >
-        <div
-          className={css`
-            margin-bottom: 1.5rem;
-            border: 3px solid ${baseTheme.colors.clear[200]};
-            border-radius: 6px;
-            padding: 1rem;
-          `}
-        >
-          {aggregatedData && (
-            <Echarts
-              height={200 + categories.length * 25}
-              options={{
-                yAxis: {
-                  type: "category",
-                  data: categories,
+        {query.isPending ? (
+          <Spinner variant="medium" />
+        ) : query.isError ? (
+          <ErrorBanner variant="readOnly" error={query.error} />
+        ) : !aggregatedData || categories.length === 0 ? (
+          <div>{t("no-data")}</div>
+        ) : (
+          <Echarts
+            height={chartHeight}
+            options={{
+              yAxis: {
+                type: "category",
+                data: categories,
+              },
+              xAxis: {
+                type: "value",
+              },
+              series: [
+                {
+                  data: values,
+                  type: "bar",
                 },
-                xAxis: {
-                  type: "value",
-                },
-                series: [
-                  {
-                    data: values,
-                    type: "bar",
-                  },
-                ],
-                tooltip: {
-                  // eslint-disable-next-line i18next/no-literal-string
-                  trigger: "item",
-                  // eslint-disable-next-line i18next/no-literal-string
-                  formatter: "{b}: {c}",
-                },
-              }}
-            />
-          )}
-          <DebugModal data={aggregatedData} />
-        </div>
+              ],
+              tooltip: {
+                // eslint-disable-next-line i18next/no-literal-string
+                trigger: "item",
+                // eslint-disable-next-line i18next/no-literal-string
+                formatter: "{b}: {c}",
+              },
+            }}
+          />
+        )}
       </div>
     </>
   )

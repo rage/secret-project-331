@@ -9,18 +9,30 @@ import StatsHeader from "../../StatsHeader"
 
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import { fetchCoursePageVisitDatumSummaryByPages } from "@/services/backend/courses"
-import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-export interface CourseVisitorsByCountryProps {
+export interface MostVisitedPagesProps {
   courseId: string
 }
 
-const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsByCountryProps>> = ({
+const DEFAULT_CHART_HEIGHT = 300
+
+const containerStyles = css`
+  margin-bottom: 2rem;
+  border: 3px solid ${baseTheme.colors.clear[200]};
+  border-radius: 6px;
+  padding: 1rem;
+  min-height: ${DEFAULT_CHART_HEIGHT}px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
+
+const MostVisitedPages: React.FC<React.PropsWithChildren<MostVisitedPagesProps>> = ({
   courseId,
 }) => {
   const { t } = useTranslation()
@@ -71,34 +83,28 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
     return Object.values(aggregatedData)
   }, [aggregatedData])
 
-  if (query.isError) {
-    return <ErrorBanner variant="readOnly" error={query.error} />
-  }
-
-  if (query.isPending || !query.data || courseStructure.isPending) {
-    return <Spinner variant="medium" />
-  }
+  const chartHeight = categories.length ? 200 + categories.length * 25 : DEFAULT_CHART_HEIGHT
+  const isLoading = query.isPending || courseStructure.isPending
 
   return (
     <>
       <StatsHeader heading={t("stats-heading-page-popularity")} debugData={aggregatedData} />
       <InstructionBox>{t("stats-instruction-page-popularity")}</InstructionBox>
-      <div
-        className={css`
-          margin-bottom: 2rem;
-        `}
-      >
-        <div
-          className={css`
-            margin-bottom: 1.5rem;
-            border: 3px solid ${baseTheme.colors.clear[200]};
-            border-radius: 6px;
-            padding: 1rem;
-          `}
-        >
-          {aggregatedData && (
+      <div className={containerStyles}>
+        {isLoading ? (
+          <Spinner variant="medium" />
+        ) : query.isError ? (
+          <ErrorBanner variant="readOnly" error={query.error} />
+        ) : !aggregatedData || categories.length === 0 ? (
+          <div>{t("no-data")}</div>
+        ) : (
+          <div
+            className={css`
+              width: 100%;
+            `}
+          >
             <Echarts
-              height={200 + categories.length * 25}
+              height={chartHeight}
               options={{
                 grid: {
                   containLabel: true,
@@ -125,12 +131,11 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
                 },
               }}
             />
-          )}
-          <DebugModal data={aggregatedData} />
-        </div>
+          </div>
+        )}
       </div>
     </>
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(CourseVisitorsByCountry))
+export default withErrorBoundary(dontRenderUntilQueryParametersReady(MostVisitedPages))

@@ -8,7 +8,6 @@ import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
 
 import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
-import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -58,18 +57,6 @@ const CourseVisitorsByDay: React.FC<React.PropsWithChildren<CourseVisitorsByDayP
     return max(Object.values(data).map((o) => max(o.map((o) => o.count)))) ?? 0
   }, [data])
 
-  if (query.isError) {
-    return <ErrorBanner variant={"readOnly"} error={query.error} />
-  }
-
-  if (query.isPending) {
-    return <Spinner variant={"medium"} />
-  }
-
-  if (query.data.length === 0) {
-    return <div>{t("no-data")}</div>
-  }
-
   return (
     <>
       <StatsHeader heading={t("stats-heading-visitor-metrics")} debugData={data} />
@@ -80,9 +67,19 @@ const CourseVisitorsByDay: React.FC<React.PropsWithChildren<CourseVisitorsByDayP
           border: 3px solid ${baseTheme.colors.clear[200]};
           border-radius: 6px;
           padding: 1rem;
+          min-height: 300px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         `}
       >
-        {data && (
+        {query.isPending ? (
+          <Spinner variant="medium" />
+        ) : query.isError ? (
+          <ErrorBanner variant="readOnly" error={query.error} />
+        ) : !data || query.data.length === 0 ? (
+          <div>{t("no-data")}</div>
+        ) : (
           <Echarts
             height={200 * Object.keys(data).length}
             options={{
@@ -122,7 +119,6 @@ const CourseVisitorsByDay: React.FC<React.PropsWithChildren<CourseVisitorsByDayP
           />
         )}
       </div>
-      <DebugModal data={data} />
     </>
   )
 }

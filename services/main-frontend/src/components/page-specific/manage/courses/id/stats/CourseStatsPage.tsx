@@ -9,6 +9,11 @@ import { CourseManagementPagesProps } from "../../../../../../pages/manage/cours
 import AllLanguageCompletionsChart from "./visualizations/all-languages/AllLanguageCompletionsChart"
 import AllLanguageStartingUsersChart from "./visualizations/all-languages/AllLanguageStartingUsersChart"
 import AllLanguageTotalStats from "./visualizations/all-languages/AllLanguageTotalStats"
+import CourseCompletionsHistoryByInstance from "./visualizations/course-instances/CourseCompletionsHistoryByInstance"
+import FirstExerciseSubmissionsHistoryByInstance from "./visualizations/course-instances/FirstExerciseSubmissionsHistoryByInstance"
+import TotalStatsByInstance from "./visualizations/course-instances/TotalStatsByInstance"
+import UniqueUsersStartingHistoryByInstance from "./visualizations/course-instances/UniqueUsersStartingHistoryByInstance"
+import UsersReturningExercisesHistoryByInstance from "./visualizations/course-instances/UsersReturningExercisesHistoryByInstance"
 import CompletionsChart from "./visualizations/overview/CompletionsChart"
 import CourseUsersCountsByExercise from "./visualizations/overview/CourseUsersCountsByExercise"
 import StudentsStartingTheCourseChart from "./visualizations/overview/StudentsStartingTheCourseChart"
@@ -19,7 +24,7 @@ import CourseSubmissionsByDay from "./visualizations/user-activity/CourseSubmiss
 import CourseSubmissionsByWeekdayAndHour from "./visualizations/user-activity/CourseSubmissionsByWeekdayAndHour"
 import CourseUsersWithSubmissionsByDay from "./visualizations/user-activity/CourseUsersWithSubmissionsByDay"
 import FirstSubmissionTrends from "./visualizations/user-activity/FirstSubmissionTrends"
-import MonthlyUsersReturningExercises from "./visualizations/user-activity/MonthlyUsersReturningExercises"
+import UsersReturningExercises from "./visualizations/user-activity/UsersReturningExercises"
 import CourseVisitorsByCountry from "./visualizations/visitors/CourseVisitorsByCountry"
 import CourseVisitorsByDay from "./visualizations/visitors/CourseVisitorsByDay"
 import CourseVisitorsLineChart from "./visualizations/visitors/CourseVisitorsLineChart"
@@ -31,6 +36,7 @@ import TopReferrers from "./visualizations/visitors/TopReferrers"
 import TopUtmCampaigns from "./visualizations/visitors/TopUtmCampaigns"
 import TopUtmSources from "./visualizations/visitors/TopUtmSources"
 
+import useCourseInstancesQuery from "@/hooks/useCourseInstancesQuery"
 import useCourseLanguageVersionsQuery from "@/hooks/useCourseLanguageVersions"
 import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
 import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"
@@ -41,6 +47,7 @@ const TAB_OVERVIEW = "overview"
 const TAB_USER_ACTIVITY = "user-activity"
 const TAB_VISITORS = "visitors"
 const TAB_ALL_LANGUAGES = "all-languages"
+const TAB_COURSE_INSTANCES = "course-instances"
 
 export const InstructionBox = styled.div`
   background-color: ${baseTheme.colors.clear[100]};
@@ -61,6 +68,7 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
   const [activeTab, setActiveTab] = useState(TAB_OVERVIEW)
 
   const courseLanguageVersions = useCourseLanguageVersionsQuery(courseId)
+  const courseInstances = useCourseInstancesQuery(courseId)
 
   useEffect(() => {
     if (router.query.tab) {
@@ -71,6 +79,11 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
   const showLanguageVersionsTab = useMemo(
     () => courseLanguageVersions.isSuccess && courseLanguageVersions.data.length > 1,
     [courseLanguageVersions.isSuccess, courseLanguageVersions.data],
+  )
+
+  const showCourseInstancesTab = useMemo(
+    () => courseInstances.isSuccess && courseInstances.data.length > 1,
+    [courseInstances.isSuccess, courseInstances.data],
   )
 
   return (
@@ -113,6 +126,17 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
             {t("stats-tab-all-languages")}
           </TabLink>
         )}
+        {showCourseInstancesTab && (
+          <TabLink
+            url={{
+              pathname: router.pathname,
+              query: { ...router.query, tab: TAB_COURSE_INSTANCES },
+            }}
+            isActive={activeTab === TAB_COURSE_INSTANCES}
+          >
+            {t("stats-tab-course-instances")}
+          </TabLink>
+        )}
       </TabLinkNavigation>
 
       <TabLinkPanel>
@@ -131,7 +155,7 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
             <CourseSubmissionsByDay courseId={courseId} />
             <CourseSubmissionsByWeekdayAndHour courseId={courseId} />
             <FirstSubmissionTrends courseId={courseId} />
-            <MonthlyUsersReturningExercises courseId={courseId} />
+            <UsersReturningExercises courseId={courseId} />
             <AverageTimeToSubmit courseId={courseId} />
             <CohortProgress courseId={courseId} />
           </>
@@ -160,6 +184,16 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
             <AllLanguageStartingUsersChart courseId={courseId} />
             <AllLanguageCompletionsChart courseId={courseId} />
           </div>
+        )}
+
+        {activeTab === TAB_COURSE_INSTANCES && (
+          <>
+            <TotalStatsByInstance courseId={courseId} />
+            <UniqueUsersStartingHistoryByInstance courseId={courseId} />
+            <FirstExerciseSubmissionsHistoryByInstance courseId={courseId} />
+            <UsersReturningExercisesHistoryByInstance courseId={courseId} />
+            <CourseCompletionsHistoryByInstance courseId={courseId} />
+          </>
         )}
       </TabLinkPanel>
     </>

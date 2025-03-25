@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DATE_TRUNC($5, user_start) AS \"period\",\n  AVG(\n    EXTRACT(\n      EPOCH\n      FROM (first_submission - user_start)\n    )\n  )::float8 AS \"average\"\nFROM (\n    SELECT u.user_id,\n      MIN(u.created_at) AS user_start,\n      MIN(e.created_at) AS first_submission\n    FROM user_course_settings u\n      JOIN exercise_slide_submissions e ON u.user_id = e.user_id\n      AND e.course_id = $1\n      AND e.deleted_at IS NULL\n    WHERE u.current_course_id = $1\n      AND u.deleted_at IS NULL\n      AND NOT u.user_id = ANY($2)\n      AND u.created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL\n    GROUP BY u.user_id\n  ) AS timings\nGROUP BY \"period\"\nORDER BY \"period\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "period",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 1,
+        "name": "average",
+        "type_info": "Float8"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "UuidArray", "Text", "Text", "Text"]
+    },
+    "nullable": [null, null]
+  },
+  "hash": "65190106363d166df4f1073e19c83ea4ed463b8fd847495a6edcb6ea8c20867c"
+}

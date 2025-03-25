@@ -1,12 +1,11 @@
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import { parseISO } from "date-fns"
 import Link from "next/link"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import useCourseInstancesQuery from "../../../../../../hooks/useCourseInstancesQuery"
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
-import { fetchCourseInstances } from "../../../../../../services/backend/courses"
 import {
   manageCourseInstanceEmailsPageRoute,
   manageCourseInstancePageRoute,
@@ -31,10 +30,7 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
 }) => {
   const { t } = useTranslation()
   const [showDialog, setShowDialog] = useState(false)
-  const getCourseInstances = useQuery({
-    queryKey: [`course-${courseId}-course-instances`],
-    queryFn: () => fetchCourseInstances(courseId),
-  })
+  const getCourseInstances = useCourseInstancesQuery(courseId)
 
   const handleCreateNewCourseInstance = async () => {
     setShowDialog(false)

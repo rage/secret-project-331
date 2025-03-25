@@ -9,10 +9,8 @@ import LineChart, {
   Period,
 } from "../../LineChart"
 
-import {
-  useDailyUsersReturningExercisesQuery,
-  useMonthlyUsersReturningExercisesQuery,
-} from "@/hooks/stats"
+import { useUsersReturningExercisesHistoryQuery } from "@/hooks/stats"
+import { TimeGranularity } from "@/shared-module/common/bindings"
 import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -21,6 +19,7 @@ interface UsersReturningExercisesProps {
 }
 
 const DAYS_TO_SHOW = 90
+const MONTHS_TO_SHOW = 12
 
 const UsersReturningExercises: React.FC<React.PropsWithChildren<UsersReturningExercisesProps>> = ({
   courseId,
@@ -28,25 +27,14 @@ const UsersReturningExercises: React.FC<React.PropsWithChildren<UsersReturningEx
   const { t } = useTranslation()
   const [period, setPeriod] = useState<Period>(MONTHLY_PERIOD)
 
-  const {
-    data: monthlyData,
-    isLoading: monthlyLoading,
-    error: monthlyError,
-  } = useMonthlyUsersReturningExercisesQuery(courseId, {
-    enabled: period === MONTHLY_PERIOD,
-  })
+  const granularity: TimeGranularity = period === MONTHLY_PERIOD ? MONTHLY_PERIOD : DAILY_PERIOD
+  const timeWindow = period === MONTHLY_PERIOD ? MONTHS_TO_SHOW : DAYS_TO_SHOW
 
-  const {
-    data: dailyData,
-    isLoading: dailyLoading,
-    error: dailyError,
-  } = useDailyUsersReturningExercisesQuery(courseId, DAYS_TO_SHOW, {
-    enabled: period === DAILY_PERIOD,
-  })
-
-  const isLoading = period === MONTHLY_PERIOD ? monthlyLoading : dailyLoading
-  const error = period === MONTHLY_PERIOD ? monthlyError : dailyError
-  const data = period === MONTHLY_PERIOD ? monthlyData : dailyData
+  const { data, isLoading, error } = useUsersReturningExercisesHistoryQuery(
+    courseId,
+    granularity,
+    timeWindow,
+  )
 
   return (
     <LineChart

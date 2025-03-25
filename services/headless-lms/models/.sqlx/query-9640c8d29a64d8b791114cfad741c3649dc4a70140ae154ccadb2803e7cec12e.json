@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT ucs.current_course_instance_id AS \"instance_id!\",\n  NULL::timestamptz AS \"period\",\n  COUNT(DISTINCT ess.user_id) AS \"count!\"\nFROM exercise_slide_submissions ess\nJOIN user_course_settings ucs ON ess.user_id = ucs.user_id\n  AND ucs.current_course_id = ess.course_id\nWHERE ess.course_id = $1\n  AND ess.deleted_at IS NULL\n  AND ess.user_id != ALL($2)\nGROUP BY ucs.current_course_instance_id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "instance_id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "period",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "UuidArray"]
+    },
+    "nullable": [false, null, null]
+  },
+  "hash": "9640c8d29a64d8b791114cfad741c3649dc4a70140ae154ccadb2803e7cec12e"
+}

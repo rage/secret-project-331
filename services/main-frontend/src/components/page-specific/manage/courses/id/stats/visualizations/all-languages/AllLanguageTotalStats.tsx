@@ -8,7 +8,6 @@ import {
   useTotalUsersStartedAllLanguageVersionsQuery,
 } from "@/hooks/stats"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import { formatNumber } from "@/shared-module/common/utils/numbers"
@@ -45,6 +44,26 @@ const statTitleStyles = css`
   letter-spacing: 0.5px;
 `
 
+const loadingValueStyles = css`
+  @keyframes pulse {
+    0%,
+    100% {
+      background-color: ${baseTheme.colors.gray[200]};
+    }
+    50% {
+      background-color: ${baseTheme.colors.gray[300]};
+    }
+  }
+
+  height: 67.2px;
+  width: 120px;
+  margin: 0 auto 0.5rem;
+  border-radius: 4px;
+  background-color: white;
+  animation: pulse 1.5s ease-in-out infinite;
+  animation-delay: 500ms;
+`
+
 const AllLanguageTotalStats: React.FC<React.PropsWithChildren<AllLanguageTotalStatsProps>> = ({
   courseId,
 }) => {
@@ -53,24 +72,12 @@ const AllLanguageTotalStats: React.FC<React.PropsWithChildren<AllLanguageTotalSt
   const totalCompletionsQuery = useTotalUsersCompletedCourseQuery(courseId)
   const totalReturnedExercisesQuery = useTotalUsersReturnedExercisesQuery(courseId)
 
-  if (totalUsersQuery.error || totalCompletionsQuery.error || totalReturnedExercisesQuery.error) {
-    return (
-      <ErrorBanner
-        variant="readOnly"
-        error={
-          totalUsersQuery.error || totalCompletionsQuery.error || totalReturnedExercisesQuery.error
-        }
-      />
-    )
-  }
-
-  if (
+  const hasError =
+    totalUsersQuery.error || totalCompletionsQuery.error || totalReturnedExercisesQuery.error
+  const isLoading =
     totalUsersQuery.isLoading ||
     totalCompletionsQuery.isLoading ||
     totalReturnedExercisesQuery.isLoading
-  ) {
-    return <Spinner variant="medium" />
-  }
 
   return (
     <div
@@ -82,35 +89,58 @@ const AllLanguageTotalStats: React.FC<React.PropsWithChildren<AllLanguageTotalSt
         margin-bottom: 2rem;
       `}
     >
-      <div
-        className={css`
-          display: flex;
-          gap: 2rem;
-          justify-content: center;
-          flex-wrap: wrap;
-        `}
-      >
-        <div className={statBoxStyles}>
-          <div className={statValueStyles}>
-            {formatNumber(totalUsersQuery.data?.count || 0, i18n.language)}
+      {hasError ? (
+        <ErrorBanner
+          variant="readOnly"
+          error={
+            totalUsersQuery.error ||
+            totalCompletionsQuery.error ||
+            totalReturnedExercisesQuery.error
+          }
+        />
+      ) : (
+        <div
+          className={css`
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+          `}
+        >
+          <div className={statBoxStyles}>
+            {isLoading ? (
+              <div className={loadingValueStyles} />
+            ) : (
+              <div className={statValueStyles}>
+                {formatNumber(totalUsersQuery.data?.count || 0, i18n.language)}
+              </div>
+            )}
+            <h3 className={statTitleStyles}>{t("stats-heading-students-started-the-course")}</h3>
           </div>
-          <h3 className={statTitleStyles}>{t("stats-heading-students-started-the-course")}</h3>
-        </div>
 
-        <div className={statBoxStyles}>
-          <div className={statValueStyles}>
-            {formatNumber(totalReturnedExercisesQuery.data?.count || 0, i18n.language)}
+          <div className={statBoxStyles}>
+            {isLoading ? (
+              <div className={loadingValueStyles} />
+            ) : (
+              <div className={statValueStyles}>
+                {formatNumber(totalReturnedExercisesQuery.data?.count || 0, i18n.language)}
+              </div>
+            )}
+            <h3 className={statTitleStyles}>{t("stats-heading-students-returned-exercises")}</h3>
           </div>
-          <h3 className={statTitleStyles}>{t("stats-heading-students-returned-exercises")}</h3>
-        </div>
 
-        <div className={statBoxStyles}>
-          <div className={statValueStyles}>
-            {formatNumber(totalCompletionsQuery.data?.count || 0, i18n.language)}
+          <div className={statBoxStyles}>
+            {isLoading ? (
+              <div className={loadingValueStyles} />
+            ) : (
+              <div className={statValueStyles}>
+                {formatNumber(totalCompletionsQuery.data?.count || 0, i18n.language)}
+              </div>
+            )}
+            <h3 className={statTitleStyles}>{t("stats-heading-students-completed-the-course")}</h3>
           </div>
-          <h3 className={statTitleStyles}>{t("stats-heading-students-completed-the-course")}</h3>
         </div>
-      </div>
+      )}
     </div>
   )
 }

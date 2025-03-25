@@ -18,6 +18,19 @@ export interface TopUTMSourcesProps {
   courseId: string
 }
 
+const DEFAULT_CHART_HEIGHT = 300
+
+const containerStyles = css`
+  margin-bottom: 2rem;
+  border: 3px solid ${baseTheme.colors.clear[200]};
+  border-radius: 6px;
+  padding: 1rem;
+  min-height: ${DEFAULT_CHART_HEIGHT}px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
+
 const TopUTMSources: React.FC<React.PropsWithChildren<TopUTMSourcesProps>> = ({ courseId }) => {
   const { t } = useTranslation()
   const query = useCoursePageVisitDatumSummary(courseId)
@@ -54,34 +67,27 @@ const TopUTMSources: React.FC<React.PropsWithChildren<TopUTMSourcesProps>> = ({ 
     return Object.values(aggregatedData)
   }, [aggregatedData])
 
-  if (query.isError) {
-    return <ErrorBanner variant="readOnly" error={query.error} />
-  }
-
-  if (query.isPending || !query.data) {
-    return <Spinner variant="medium" />
-  }
+  const chartHeight = categories.length ? 200 + categories.length * 25 : DEFAULT_CHART_HEIGHT
 
   return (
     <>
       <StatsHeader heading={t("header-utm-sources")} debugData={aggregatedData} />
       <InstructionBox>{t("stats-instruction-utm-sources")}</InstructionBox>
-      <div
-        className={css`
-          margin-bottom: 2rem;
-        `}
-      >
-        <div
-          className={css`
-            margin-bottom: 1.5rem;
-            border: 3px solid ${baseTheme.colors.clear[200]};
-            border-radius: 6px;
-            padding: 1rem;
-          `}
-        >
-          {aggregatedData && (
+      <div className={containerStyles}>
+        {query.isPending ? (
+          <Spinner variant="medium" />
+        ) : query.isError ? (
+          <ErrorBanner variant="readOnly" error={query.error} />
+        ) : !aggregatedData || categories.length === 0 ? (
+          <div>{t("no-data")}</div>
+        ) : (
+          <div
+            className={css`
+              width: 100%;
+            `}
+          >
             <Echarts
-              height={200 + categories.length * 25}
+              height={chartHeight}
               options={{
                 grid: {
                   containLabel: true,
@@ -108,9 +114,8 @@ const TopUTMSources: React.FC<React.PropsWithChildren<TopUTMSourcesProps>> = ({ 
                 },
               }}
             />
-          )}
-          <DebugModal data={aggregatedData} />
-        </div>
+          </div>
+        )}
       </div>
     </>
   )

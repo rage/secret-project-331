@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH first_submissions AS (\nSELECT user_id,\n  MIN(created_at) AS first_submission\nFROM exercise_slide_submissions\nWHERE course_id = $1\n  AND deleted_at IS NULL\n  AND NOT user_id = ANY($2)\n  AND created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL\nGROUP BY user_id\n)\nSELECT ucs.current_course_instance_id AS \"instance_id!\",\nDATE_TRUNC($5, fs.first_submission) AS \"period\",\nCOUNT(fs.user_id) AS \"count!\"\nFROM first_submissions fs\nJOIN user_course_settings ucs ON fs.user_id = ucs.user_id\nAND ucs.current_course_id = $1\nGROUP BY ucs.current_course_instance_id,\nperiod\nORDER BY ucs.current_course_instance_id,\nperiod\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "instance_id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "period",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "UuidArray", "Text", "Text", "Text"]
+    },
+    "nullable": [false, null, null]
+  },
+  "hash": "b3d59400c289be3348be80a8c9ff7bb8e1d8fe53ca6ed568cdd8b0dd9b21dc5e"
+}

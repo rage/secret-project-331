@@ -65,59 +65,53 @@ const CourseSubmissionsByDay: React.FC<React.PropsWithChildren<CourseSubmissions
         ) : !processedData || processedData.apiData.length === 0 ? (
           <div>{t("no-data")}</div>
         ) : (
-          <div
-            className={css`
-              width: 100%;
-            `}
-          >
-            <Echarts
-              height={200 * Object.keys(processedData.eChartsData).length}
-              options={{
-                tooltip: {
-                  // eslint-disable-next-line i18next/no-literal-string
-                  position: "top",
-                  formatter: (a) => {
-                    return t("daily-submissions-visualization-tooltip", {
-                      // @ts-expect-error: todo
-                      day: a.data[0],
-                      // @ts-expect-error: todo
-                      submissions: a.data[1],
-                    })
-                  },
+          <Echarts
+            height={200 * Object.keys(processedData.eChartsData).length}
+            options={{
+              tooltip: {
+                // eslint-disable-next-line i18next/no-literal-string
+                position: "top",
+                formatter: (a) => {
+                  return t("daily-submissions-visualization-tooltip", {
+                    // @ts-expect-error: todo
+                    day: a.data[0],
+                    // @ts-expect-error: todo
+                    submissions: a.data[1],
+                  })
                 },
-                visualMap: {
-                  show: false,
-                  min: 0,
-                  max: processedData.maxValue,
+              },
+              visualMap: {
+                show: false,
+                min: 0,
+                max: processedData.maxValue,
+              },
+              calendar: Object.entries(processedData.eChartsData).map(
+                ([year, _submissionCounts], i) => {
+                  return {
+                    range: year,
+                    // eslint-disable-next-line i18next/no-literal-string
+                    cellSize: ["auto", 20],
+                    dayLabel: {
+                      firstDay: 1,
+                    },
+                    top: 190 * i + 40,
+                  }
                 },
-                calendar: Object.entries(processedData.eChartsData).map(
-                  ([year, _submissionCounts], i) => {
-                    return {
-                      range: year,
-                      // eslint-disable-next-line i18next/no-literal-string
-                      cellSize: ["auto", 20],
-                      dayLabel: {
-                        firstDay: 1,
-                      },
-                      top: 190 * i + 40,
-                    }
-                  },
-                ),
-                series: Object.entries(processedData.eChartsData).map(
-                  ([_year, submissionCounts], i) => {
-                    return {
-                      type: "heatmap",
-                      // eslint-disable-next-line i18next/no-literal-string
-                      coordinateSystem: "calendar",
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      data: (submissionCounts as any[]).map((o) => [o.date, o.count]),
-                      calendarIndex: i,
-                    }
-                  },
-                ),
-              }}
-            />
-          </div>
+              ),
+              series: Object.entries(processedData.eChartsData).map(
+                ([_year, submissionCounts], i) => {
+                  return {
+                    type: "heatmap",
+                    // eslint-disable-next-line i18next/no-literal-string
+                    coordinateSystem: "calendar",
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    data: (submissionCounts as any[]).map((o) => [o.date, o.count]),
+                    calendarIndex: i,
+                  }
+                },
+              ),
+            }}
+          />
         )}
       </div>
     </>

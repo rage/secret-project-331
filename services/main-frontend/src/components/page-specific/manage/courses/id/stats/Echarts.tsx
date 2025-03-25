@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import { EChartsOption } from "echarts/types/src/export/option"
 import dynamic from "next/dynamic"
 import React from "react"
@@ -18,7 +19,11 @@ export interface EchartsProps {
 
 const Echarts: React.FC<React.PropsWithChildren<EchartsProps>> = ({ options, height = 300 }) => {
   return (
-    <div>
+    <div
+      className={css`
+        width: 100%;
+      `}
+    >
       {/* eslint-disable-next-line react/forbid-component-props */}
       <ReactECharts style={{ height }} option={options} />
     </div>

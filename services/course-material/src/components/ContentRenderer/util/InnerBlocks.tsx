@@ -22,9 +22,8 @@ const InnerBlocks: React.FC<React.PropsWithChildren<InnerBlocksProps>> = ({
       data={data.innerBlocks}
       {...rest}
       /// The wrapper div providing styles must be skipped for innerblocks because list block's inner blocks cannot contain any div elements. See: https://dequeuniversity.com/rules/axe/4.4/list
-      dontAddWrapperDivMeantForMostOutermostContentRenderer={
-        dontAllowInnerBlocksToBeWiderThanParentBlock
-      }
+      dontAddWrapperDivMeantForMostOutermostContentRenderer
+      dontAllowBlockToBeWiderThanContainerWidth={dontAllowInnerBlocksToBeWiderThanParentBlock}
     />
   )
 }

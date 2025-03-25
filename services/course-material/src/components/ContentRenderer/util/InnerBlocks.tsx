@@ -8,7 +8,7 @@ interface InnerBlocksProps {
   /** For convinience, this takes the props from the parent block directly  */
   parentBlockProps: BlockRendererProps<unknown>
   /** If true, the inner blocks will not be allowed to be wider than the parent block */
-  dontAllowInnerBlocksToBeWiderThanParentBlock?: boolean
+  dontAllowInnerBlocksToBeWiderThanParentBlock: boolean
 }
 
 /** An implementation on how to render inner blocks in the course material  */

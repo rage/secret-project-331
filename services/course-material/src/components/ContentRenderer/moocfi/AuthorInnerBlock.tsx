@@ -14,7 +14,7 @@ const AuthorInnerBlock: React.FC<
 > = (props) => {
   return (
     <div>
-      <InnerBlocks parentBlockProps={props} />
+      <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
     </div>
   )
 }

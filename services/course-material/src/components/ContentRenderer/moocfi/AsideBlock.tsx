@@ -37,7 +37,7 @@ const AsideBLock: React.FC<React.PropsWithChildren<BlockRendererProps<AsideBlock
         }
       `}
     >
-      <InnerBlocks parentBlockProps={props} />
+      <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
     </div>
   )
 }

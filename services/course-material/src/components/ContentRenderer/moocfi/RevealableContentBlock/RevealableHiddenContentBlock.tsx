@@ -40,7 +40,7 @@ const RevealableHiddenContentBlock: React.FC<
       >
         {t("an-insight-to-consider")}
       </h4>
-      <InnerBlocks parentBlockProps={props} />
+      <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
     </div>
   )
 }

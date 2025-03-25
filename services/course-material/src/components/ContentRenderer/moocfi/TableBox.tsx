@@ -93,7 +93,7 @@ const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<TableBoxAttr
           }
         `}
       >
-        <InnerBlocks parentBlockProps={props} />
+        <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
       </div>
     </div>
   )

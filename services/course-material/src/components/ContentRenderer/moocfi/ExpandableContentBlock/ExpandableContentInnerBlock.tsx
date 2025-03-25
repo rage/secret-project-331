@@ -69,7 +69,7 @@ const ExpandableContentInnerBlock: React.FC<
             }
           `}
         >
-          <InnerBlocks parentBlockProps={props} />
+          <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
         </div>
       )}
     </div>

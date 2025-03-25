@@ -30,7 +30,7 @@ const InfoBoxBlock: React.FC<
         `}
       >
         <Centered variant="narrow">
-          <InnerBlocks parentBlockProps={props} />
+          <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
         </Centered>
       </div>
     </BreakFromCentered>

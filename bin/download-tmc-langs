@@ -35,7 +35,7 @@ echo "$GENERATED" >> "$GENERATED_DOWNLOAD_TARGET"
 
 # write guard annotation for CliOutput and RunResult
 run_command sed -i '/^export type CliOutput/i \/** @see {isCliOutput} ts-auto-guard:type-guard *\/' "$GENERATED_DOWNLOAD_TARGET"
-run_command sed -i '/^export interface RunResult/i \/** @see {isRunResult} ts-auto-guard:type-guard *\/' "$GENERATED_DOWNLOAD_TARGET"
+run_command sed -i '/^export type RunResult/i \/** @see {isRunResult} ts-auto-guard:type-guard *\/' "$GENERATED_DOWNLOAD_TARGET"
 run_command npx eslint --fix "$GENERATED_DOWNLOAD_TARGET"
 
 # generate guard

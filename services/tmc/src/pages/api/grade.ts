@@ -227,14 +227,18 @@ const gradeInPodInner = async (
 
   // start pod and wait for it to start
   log("starting sandbox image", sandboxImage)
-  await kubeApi.createNamespacedPod({ body: pod, namespace: "default", pretty: "true" })
+  await kubeApi.createNamespacedPod({ namespace: "default", body: pod, pretty: "true" })
   let podPhase = null
   while (podPhase !== "Running") {
     // poll once per 500 ms
     const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
     await delay(500)
 
-    const podStatus = await kubeApi.readNamespacedPodStatus({ name: podName, namespace: "default" })
+    const podStatus = await kubeApi.readNamespacedPodStatus({
+      namespace: "default",
+      name: podName,
+      pretty: "true",
+    })
     podPhase = podStatus.status?.phase
     if (podPhase !== "Pending" && podPhase !== "Running") {
       // may indicate a problem like the pod crashing

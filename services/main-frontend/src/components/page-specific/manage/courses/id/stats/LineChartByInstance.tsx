@@ -81,8 +81,8 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
 
     const sortedDates = Array.from(allDates).sort()
 
-    // Create series for each instance
-    const series = Object.entries(data).map(([instanceId, instanceData]) => {
+    // Create series for each instance with their data
+    const seriesWithData = Object.entries(data).map(([instanceId, instanceData]) => {
       const countByDate = new Map(
         instanceData.map((item) => {
           const date = item.period ? format(new Date(item.period), dateFormat) : ""
@@ -90,12 +90,40 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
         }),
       )
 
+      const values = sortedDates.map((date) => countByDate.get(date) || 0)
+
+      // Find the last date with actual data (not a filled-in zero)
+      let lastDataIndex = -1
+      for (let i = 0; i < sortedDates.length; i++) {
+        if (countByDate.has(sortedDates[i])) {
+          lastDataIndex = i
+        }
+      }
+
+      // If instance has data for the latest date, use that value for sorting
+      // Otherwise, it should be ranked lower (use negative value as penalty)
+      const isLatestDateMissing = lastDataIndex < sortedDates.length - 1
+      const lastValue = lastDataIndex >= 0 ? values[lastDataIndex] : 0
+
       return {
         name: getInstanceName(instanceId),
         type: "line" as const,
-        data: sortedDates.map((date) => countByDate.get(date) || 0),
+        data: values,
+        sortValue: isLatestDateMissing ? -1 : lastValue, // Instances missing end data sorted last
       }
     })
+
+    // Sort series by sortValue in descending order, then alphabetically by name
+    const series = seriesWithData
+      .sort((a, b) => {
+        // First compare by sortValue
+        if (b.sortValue !== a.sortValue) {
+          return b.sortValue - a.sortValue
+        }
+        // If sortValues are equal, sort alphabetically by name
+        return a.name.localeCompare(b.name)
+      })
+      .map(({ name, type, data }) => ({ name, type, data }))
 
     return {
       xAxis: {

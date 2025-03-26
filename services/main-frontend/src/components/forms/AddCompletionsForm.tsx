@@ -32,6 +32,9 @@ interface RawTeacherManualCompletion {
   completion_date: string
 }
 
+const FIELD_NAME_USER_ID = "user_id"
+const FIELD_NAME_GRADE = "grade"
+
 const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
   courseModules,
   onSubmit,
@@ -55,35 +58,87 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
         header: true,
         skipEmptyLines: true,
         transform: (value) => value.trim(),
-        transformHeader: (header) => header.trim().toLocaleLowerCase(),
+        transformHeader: (header) => header.trim().toLowerCase(),
       })
+
+      // Validate header row
+      const requiredHeaders = [FIELD_NAME_USER_ID, FIELD_NAME_GRADE]
+      if (!parsed.meta.fields) {
+        throw new Error(t("header-missing"))
+      }
+      requiredHeaders.forEach((header) => {
+        if (!parsed.meta.fields?.includes(header)) {
+          if (header === FIELD_NAME_USER_ID) {
+            throw new Error(t("header-missing-for-user_id"))
+          }
+          if (header === FIELD_NAME_GRADE) {
+            throw new Error(t("header-missing-for-grade"))
+          }
+        }
+      })
+
       if (parsed.errors.length > 0) {
         setError(COMPLETIONS, { message: parsed.errors[0].message })
+        return
       }
+
       const defaultDate = date ? makeDateStringTimezoneErrorsLessLikely(date) : null
+
       const newCompletions = parsed.data.map((entry) => {
-        const completionDate = (entry as RawTeacherManualCompletion).completion_date
-        const grade = (entry as RawTeacherManualCompletion).grade
-        const userId = (entry as RawTeacherManualCompletion).user_id
-        if (!userId) {
-          throw new Error(t("user-id-is-missing"))
+        const { user_id, grade, completion_date } = entry as RawTeacherManualCompletion
+
+        // If a row is missing user_id, then the issue is likely with the header or the data row.
+        if (!user_id) {
+          throw new Error(t("header-missing-for-user_id"))
         }
+
+        // Validate the grade field.
+        let validatedGrade = null
+        if (grade) {
+          const numericGrade = parseInt(grade, 10)
+          if (!isNaN(numericGrade)) {
+            if (numericGrade < 0 || numericGrade > 5) {
+              throw new Error(t("grade-out-of-range"))
+            }
+            validatedGrade = numericGrade
+          } else {
+            const gradeLower = grade.toLowerCase()
+            if (gradeLower !== "pass" && gradeLower !== "fail") {
+              throw new Error(t("invalid-grade-format"))
+            }
+            validatedGrade = gradeLower
+          }
+        }
+
+        // Validate and process the completion date.
+        let processedDate = null
+        if (completion_date) {
+          processedDate = makeDateStringTimezoneErrorsLessLikely(completion_date)
+          // Optionally, add additional checks here to verify a valid date.
+        } else {
+          processedDate = defaultDate
+        }
+
         return {
-          completion_date: completionDate
-            ? makeDateStringTimezoneErrorsLessLikely(completionDate)
-            : defaultDate,
-          grade: grade ? parseInt(grade) : null,
-          user_id: userId,
+          user_id,
+          grade: typeof validatedGrade === "string" ? null : validatedGrade,
+          completion_date: processedDate,
+          passed:
+            validatedGrade === "pass" || (typeof validatedGrade === "number" && validatedGrade > 0),
         }
       })
+
       onSubmit({
         course_module_id: data.course_module_id,
         new_completions: newCompletions,
         skip_duplicate_completions: false,
       })
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (e: any) {
-      setError(COMPLETIONS, { message: e.message })
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        setError(COMPLETIONS, { message: e.message })
+      } else {
+        setError(COMPLETIONS, { message: String(e) })
+      }
     }
   })
 

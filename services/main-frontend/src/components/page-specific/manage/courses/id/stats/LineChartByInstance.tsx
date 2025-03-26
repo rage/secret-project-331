@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import { format } from "date-fns"
 import type { EChartsOption } from "echarts/types/src/export/option"
+import { ZRColor } from "echarts/types/src/util/types"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -35,37 +36,89 @@ const AXIS = "axis"
 const DATA_MAX = "dataMax"
 const DATA_MIN = "dataMin"
 
-const tooltipRowStyle = `
-display: flex;
-justify-content: space-between;
-margin: 3px 0;
-font-size: 14px;
+const tooltipRow = css`
+  display: flex;
+  justify-content: space-between;
+  margin: 3px 0;
+  font-size: 14px;
 `
 
-const tooltipLabelStyle = `
-margin-right: 15px;
-display: flex;
-align-items: center;
+const tooltipLabel = css`
+  margin-right: 15px;
+  display: flex;
+  align-items: center;
 `
 
-const tooltipDotStyle = `
-display: inline-block;
-width: 10px;
-height: 10px;
-border-radius: 50%;
-margin-right: 8px;
+const getTooltipDotStyle = (color: ZRColor | undefined) => css`
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+  background-color: ${typeof color === "object" ? "#000" : (color ?? "#000")};
 `
 
-const tooltipContainerStyle = `
-padding: 4px 8px;
-min-width: 200px;
+const tooltipContainer = css`
+  padding: 4px 8px;
+  min-width: 200px;
 `
 
-const tooltipHeaderStyle = `
-margin-bottom: 8px;
-padding-bottom: 4px;
-border-bottom: 1px solid rgba(0,0,0,0.1);
-font-weight: bold;
+const tooltipHeader = css`
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  font-weight: bold;
+`
+
+const tooltipValue = css`
+  font-weight: bold;
+`
+
+const chartContainer = css`
+  margin-bottom: 2rem;
+  border: 3px solid ${baseTheme.colors.clear[200]};
+  border-radius: 6px;
+  padding: 1rem;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
+
+const headerContainer = css`
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+`
+
+const getLogScaleButtonStyles = (isLogScale: boolean) => css`
+  padding: 0.15rem 0.4rem;
+  border: 1px solid ${isLogScale ? baseTheme.colors.blue[600] : baseTheme.colors.clear[300]};
+  border-radius: 12px;
+  background: ${isLogScale ? baseTheme.colors.blue[600] : baseTheme.colors.clear[200]};
+  cursor: pointer;
+  font-size: 11px;
+  color: ${isLogScale ? "white" : baseTheme.colors.gray[600]};
+  transition: all 0.15s ease-in-out;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+  box-shadow: ${isLogScale ? "inset 0 1px 1px rgba(0,0,0,0.1)" : "none"};
+
+  &:hover {
+    background: ${isLogScale ? baseTheme.colors.blue[700] : baseTheme.colors.clear[300]};
+    border-color: ${isLogScale ? baseTheme.colors.blue[700] : baseTheme.colors.clear[400]};
+  }
+
+  &:active {
+    transform: scale(0.96);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
+  }
+`
+
+const periodSelect = css`
+  margin-bottom: 0;
+  min-width: 120px;
 `
 
 const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
@@ -175,11 +228,11 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
     return {
       color: [
         baseTheme.colors.blue[600],
-        baseTheme.colors.green[600],
+        baseTheme.colors.green[400],
         baseTheme.colors.crimson[700],
-        baseTheme.colors.yellow[600],
+        baseTheme.colors.yellow[400],
         baseTheme.colors.purple[600],
-        baseTheme.colors.gray[600],
+        baseTheme.colors.gray[400],
         "#5470c6",
         "#91cc75",
         "#fc8452",
@@ -232,29 +285,24 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
           }
           const date = params[0].name
           const rows = params
-            .filter((p) => p.value !== null && p.value !== undefined)
-            .sort((a, b) => Number(b.value) - Number(a.value))
-
             .map((p) => {
-              const value = isLogScale
-                ? (p.value ?? 0).toLocaleString()
-                : Math.round(Number(p.value)).toLocaleString()
+              const value = Math.round(Number(p.value ?? 0)).toLocaleString()
               // eslint-disable-next-line i18next/no-literal-string
               return `
-                <div style="${tooltipRowStyle}">
-                  <span style="${tooltipLabelStyle}">
-                    <span style="${tooltipDotStyle}; background-color: ${p.color}"></span>
+                <div class="${tooltipRow}">
+                  <span class="${tooltipLabel}">
+                    <span class="${getTooltipDotStyle(p.color)}"></span>
                     ${p.seriesName}
                   </span>
-                  <span style="font-weight: bold;">${value} ${tooltipValueLabel}</span>
+                  <span class="${tooltipValue}">${value} ${tooltipValueLabel.toLocaleLowerCase()}</span>
                 </div>`
             })
             .join("")
 
           // eslint-disable-next-line i18next/no-literal-string
           return `
-            <div style="${tooltipContainerStyle}">
-              <div style="${tooltipHeaderStyle}">
+            <div class="${tooltipContainer}">
+              <div class="${tooltipHeader}">
                 ${date}
               </div>
               ${rows}
@@ -286,44 +334,10 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
   return (
     <>
       <StatsHeader heading={statHeading} debugData={data}>
-        <div
-          className={css`
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-          `}
-        >
+        <div className={headerContainer}>
           <button
             onClick={() => setIsLogScale(!isLogScale)}
-            className={css`
-              padding: 0.15rem 0.4rem;
-              border: 1px solid
-                ${isLogScale ? baseTheme.colors.blue[600] : baseTheme.colors.clear[300]};
-              border-radius: 12px;
-              background: ${isLogScale ? baseTheme.colors.blue[600] : baseTheme.colors.clear[200]};
-              cursor: pointer;
-              font-size: 11px;
-              color: ${isLogScale ? "white" : baseTheme.colors.gray[600]};
-              transition: all 0.15s ease-in-out;
-              text-transform: uppercase;
-              letter-spacing: 0.5px;
-              font-weight: 500;
-              box-shadow: ${isLogScale ? "inset 0 1px 1px rgba(0,0,0,0.1)" : "none"};
-
-              &:hover {
-                background: ${isLogScale
-                  ? baseTheme.colors.blue[700]
-                  : baseTheme.colors.clear[300]};
-                border-color: ${isLogScale
-                  ? baseTheme.colors.blue[700]
-                  : baseTheme.colors.clear[400]};
-              }
-
-              &:active {
-                transform: scale(0.96);
-                box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
-              }
-            `}
+            className={getLogScaleButtonStyles(isLogScale)}
           >
             {t("log-scale-short")}
           </button>
@@ -336,28 +350,14 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
               ]}
               value={period}
               onChange={(e) => setPeriod(e.target.value as Period)}
-              className={css`
-                margin-bottom: 0;
-                min-width: 120px;
-              `}
+              className={periodSelect}
               showDefaultOption={false}
             />
           )}
         </div>
       </StatsHeader>
       <InstructionBox>{instructionText}</InstructionBox>
-      <div
-        className={css`
-          margin-bottom: 2rem;
-          border: 3px solid ${baseTheme.colors.clear[200]};
-          border-radius: 6px;
-          padding: 1rem;
-          min-height: 300px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        `}
-      >
+      <div className={chartContainer}>
         {isLoading || courseInstancesQuery.isLoading ? (
           <Spinner variant="medium" />
         ) : error || courseInstancesQuery.error ? (

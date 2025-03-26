@@ -11,7 +11,7 @@ import TextAreaField from "@/shared-module/common/components/InputFields/TextAre
 import { makeDateStringTimezoneErrorsLessLikely } from "@/shared-module/common/utils/dateUtil"
 
 const COMPLETIONS = "completions"
-const CSV_HEADER_FORMAT = "user_id[,grade][,completion_date]"
+const CSV_HEADER_FORMAT = "user_id,grade[,completion_date]"
 const DATE = "date"
 
 interface AddCompletionsFormProps {

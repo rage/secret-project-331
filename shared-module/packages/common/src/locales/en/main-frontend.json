@@ -467,7 +467,7 @@
   "list-cheaters-of-cheaters-empty-state": "No student currently suspected of cheating",
   "loading-text": "Loading...",
   "locale": "Locale",
-  "log-scale": "Log scale",
+  "log-scale-short": "Log",
   "login": "Log in",
   "login-description": "This site uses",
   "login-description2": "accounts. If you have previously done mooc.fi -courses, you can log in with your existing account.",

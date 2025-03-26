@@ -31,6 +31,43 @@ interface LineChartByInstanceProps {
   disablePeriodSelector?: boolean
 }
 
+const AXIS = "axis"
+const DATA_MAX = "dataMax"
+const DATA_MIN = "dataMin"
+
+const tooltipRowStyle = `
+display: flex;
+justify-content: space-between;
+margin: 3px 0;
+font-size: 14px;
+`
+
+const tooltipLabelStyle = `
+margin-right: 15px;
+display: flex;
+align-items: center;
+`
+
+const tooltipDotStyle = `
+display: inline-block;
+width: 10px;
+height: 10px;
+border-radius: 50%;
+margin-right: 8px;
+`
+
+const tooltipContainerStyle = `
+padding: 4px 8px;
+min-width: 200px;
+`
+
+const tooltipHeaderStyle = `
+margin-bottom: 8px;
+padding-bottom: 4px;
+border-bottom: 1px solid rgba(0,0,0,0.1);
+font-weight: bold;
+`
+
 const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
   courseId,
   data,
@@ -119,6 +156,7 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
         data: values,
         connectNulls: false, // Don't connect across null values
         sortValue: isLatestDateMissing ? -1 : lastValue, // Instances missing end data sorted last
+        triggerLineEvent: true,
       }
     })
 
@@ -135,6 +173,38 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
       .map(({ name, type, data }) => ({ name, type, data }))
 
     return {
+      color: [
+        baseTheme.colors.blue[600],
+        baseTheme.colors.green[600],
+        baseTheme.colors.crimson[700],
+        baseTheme.colors.yellow[600],
+        baseTheme.colors.purple[600],
+        baseTheme.colors.gray[600],
+        "#5470c6",
+        "#91cc75",
+        "#fc8452",
+        "#73c0de",
+        "#3ba272",
+        "#ea7ccc",
+        "#2f4554",
+        "#61a0a8",
+        "#d48265",
+        "#ca8622",
+        "#bda29a",
+        "#546570",
+        "#f05b72",
+        "#ef5b9c",
+        "#9b8bba",
+        "#4d7c8a",
+        "#e66100",
+        "#956065",
+        "#5b8c5a",
+        "#a65d57",
+        "#4a639c",
+        "#ce8d3e",
+        "#806491",
+        "#c17305",
+      ],
       xAxis: {
         type: "category" as const,
         data: sortedDates,
@@ -145,28 +215,61 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
         type: isLogScale ? "log" : "value",
         logBase: 10,
         minorTick: {
-          show: isLogScale,
+          show: false,
         },
         minorSplitLine: {
-          show: isLogScale,
+          show: false,
         },
-        min: isLogScale ? 0.1 : 0, // Prevent log(0) issues while keeping 0 visible in linear scale
+        min: DATA_MIN,
+        max: DATA_MAX,
       },
       series,
       tooltip: {
-        // eslint-disable-next-line i18next/no-literal-string
-        trigger: "axis" as const,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        formatter: (params: any) => {
+        trigger: AXIS,
+        formatter: (params) => {
+          if (!Array.isArray(params)) {
+            throw new Error("Tooltip params is not an array")
+          }
           const date = params[0].name
           const rows = params
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .map((p: any) => `${p.seriesName}: ${tooltipValueLabel}: ${p.value}`)
-            // eslint-disable-next-line i18next/no-literal-string
-            .join("<br/>")
+            .filter((p) => p.value !== null && p.value !== undefined)
+            .sort((a, b) => Number(b.value) - Number(a.value))
+
+            .map((p) => {
+              const value = isLogScale
+                ? (p.value ?? 0).toLocaleString()
+                : Math.round(Number(p.value)).toLocaleString()
+              // eslint-disable-next-line i18next/no-literal-string
+              return `
+                <div style="${tooltipRowStyle}">
+                  <span style="${tooltipLabelStyle}">
+                    <span style="${tooltipDotStyle}; background-color: ${p.color}"></span>
+                    ${p.seriesName}
+                  </span>
+                  <span style="font-weight: bold;">${value} ${tooltipValueLabel}</span>
+                </div>`
+            })
+            .join("")
+
           // eslint-disable-next-line i18next/no-literal-string
-          return `${date}<br/>${rows}`
+          return `
+            <div style="${tooltipContainerStyle}">
+              <div style="${tooltipHeaderStyle}">
+                ${date}
+              </div>
+              ${rows}
+            </div>`
         },
+        backgroundColor: "rgba(255, 255, 255, 0.95)",
+        borderWidth: 0,
+        shadowBlur: 10,
+        shadowColor: "rgba(0, 0, 0, 0.2)",
+        shadowOffsetX: 1,
+        shadowOffsetY: 2,
+        textStyle: {
+          color: "#333",
+        },
+        padding: 0,
       },
       legend: {
         type: "scroll" as const,
@@ -175,7 +278,7 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
         bottom: 0,
       },
     }
-  }, [data, yAxisName, instanceMap, t, dateFormat, tooltipValueLabel, isLogScale])
+  }, [data, yAxisName, isLogScale, instanceMap, t, dateFormat, tooltipValueLabel])
 
   const isDataEmpty =
     !data || Object.keys(data).length === 0 || Object.values(data).every((arr) => arr.length < 2)
@@ -190,6 +293,40 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
             align-items: center;
           `}
         >
+          <button
+            onClick={() => setIsLogScale(!isLogScale)}
+            className={css`
+              padding: 0.15rem 0.4rem;
+              border: 1px solid
+                ${isLogScale ? baseTheme.colors.blue[600] : baseTheme.colors.clear[300]};
+              border-radius: 12px;
+              background: ${isLogScale ? baseTheme.colors.blue[600] : baseTheme.colors.clear[200]};
+              cursor: pointer;
+              font-size: 11px;
+              color: ${isLogScale ? "white" : baseTheme.colors.gray[600]};
+              transition: all 0.15s ease-in-out;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              font-weight: 500;
+              box-shadow: ${isLogScale ? "inset 0 1px 1px rgba(0,0,0,0.1)" : "none"};
+
+              &:hover {
+                background: ${isLogScale
+                  ? baseTheme.colors.blue[700]
+                  : baseTheme.colors.clear[300]};
+                border-color: ${isLogScale
+                  ? baseTheme.colors.blue[700]
+                  : baseTheme.colors.clear[400]};
+              }
+
+              &:active {
+                transform: scale(0.96);
+                box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
+              }
+            `}
+          >
+            {t("log-scale-short")}
+          </button>
           {!disablePeriodSelector && (
             <SelectMenu
               id="period-select"
@@ -206,21 +343,6 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
               showDefaultOption={false}
             />
           )}
-          <button
-            onClick={() => setIsLogScale(!isLogScale)}
-            className={css`
-              padding: 0.5rem 1rem;
-              border: 1px solid ${baseTheme.colors.clear[300]};
-              border-radius: 4px;
-              background: ${isLogScale ? baseTheme.colors.clear[200] : "white"};
-              cursor: pointer;
-              &:hover {
-                background: ${baseTheme.colors.clear[100]};
-              }
-            `}
-          >
-            {t("log-scale")}
-          </button>
         </div>
       </StatsHeader>
       <InstructionBox>{instructionText}</InstructionBox>

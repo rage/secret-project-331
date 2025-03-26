@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import { format } from "date-fns"
 import type { EChartsOption } from "echarts/types/src/export/option"
-import React, { useMemo } from "react"
+import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { InstructionBox } from "./CourseStatsPage"
@@ -47,6 +47,7 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
 }) => {
   const { t } = useTranslation()
   const courseInstancesQuery = useCourseInstancesQuery(courseId)
+  const [isLogScale, setIsLogScale] = useState(false)
 
   const instanceMap = useMemo(() => {
     if (!courseInstancesQuery.data) {
@@ -62,7 +63,10 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
 
     const getInstanceName = (instanceId: string) => {
       const instance = instanceMap.get(instanceId)
-      return instance?.name || t("default-instance")
+      if (!instance) {
+        return instanceId
+      }
+      return instance.name || t("default-instance")
     }
 
     // Get all unique dates across all instances
@@ -90,7 +94,11 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
         }),
       )
 
-      const values = sortedDates.map((date) => countByDate.get(date) || 0)
+      // When in log scale, replace zeros with null to create gaps in the line
+      const values = sortedDates.map((date) => {
+        const value = countByDate.get(date) || 0
+        return isLogScale && value <= 0 ? null : value
+      })
 
       // Find the last date with actual data (not a filled-in zero)
       let lastDataIndex = -1
@@ -109,6 +117,7 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
         name: getInstanceName(instanceId),
         type: "line" as const,
         data: values,
+        connectNulls: false, // Don't connect across null values
         sortValue: isLatestDateMissing ? -1 : lastValue, // Instances missing end data sorted last
       }
     })
@@ -118,7 +127,7 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
       .sort((a, b) => {
         // First compare by sortValue
         if (b.sortValue !== a.sortValue) {
-          return b.sortValue - a.sortValue
+          return (b.sortValue ?? -1) - (a.sortValue ?? -1)
         }
         // If sortValues are equal, sort alphabetically by name
         return a.name.localeCompare(b.name)
@@ -131,8 +140,17 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
         data: sortedDates,
       },
       yAxis: {
-        type: "value" as const,
         name: yAxisName,
+        scale: true,
+        type: isLogScale ? "log" : "value",
+        logBase: 10,
+        minorTick: {
+          show: isLogScale,
+        },
+        minorSplitLine: {
+          show: isLogScale,
+        },
+        min: isLogScale ? 0.1 : 0, // Prevent log(0) issues while keeping 0 visible in linear scale
       },
       series,
       tooltip: {
@@ -157,7 +175,7 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
         bottom: 0,
       },
     }
-  }, [data, yAxisName, instanceMap, t, dateFormat, tooltipValueLabel])
+  }, [data, yAxisName, instanceMap, t, dateFormat, tooltipValueLabel, isLogScale])
 
   const isDataEmpty =
     !data || Object.keys(data).length === 0 || Object.values(data).every((arr) => arr.length < 2)
@@ -165,22 +183,45 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
   return (
     <>
       <StatsHeader heading={statHeading} debugData={data}>
-        {!disablePeriodSelector && (
-          <SelectMenu
-            id="period-select"
-            options={[
-              { value: MONTHLY_PERIOD, label: t("stats-period-monthly") },
-              { value: DAILY_PERIOD, label: t("stats-period-daily") },
-            ]}
-            value={period}
-            onChange={(e) => setPeriod(e.target.value as Period)}
+        <div
+          className={css`
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+          `}
+        >
+          {!disablePeriodSelector && (
+            <SelectMenu
+              id="period-select"
+              options={[
+                { value: MONTHLY_PERIOD, label: t("stats-period-monthly") },
+                { value: DAILY_PERIOD, label: t("stats-period-daily") },
+              ]}
+              value={period}
+              onChange={(e) => setPeriod(e.target.value as Period)}
+              className={css`
+                margin-bottom: 0;
+                min-width: 120px;
+              `}
+              showDefaultOption={false}
+            />
+          )}
+          <button
+            onClick={() => setIsLogScale(!isLogScale)}
             className={css`
-              margin-bottom: 0;
-              min-width: 120px;
+              padding: 0.5rem 1rem;
+              border: 1px solid ${baseTheme.colors.clear[300]};
+              border-radius: 4px;
+              background: ${isLogScale ? baseTheme.colors.clear[200] : "white"};
+              cursor: pointer;
+              &:hover {
+                background: ${baseTheme.colors.clear[100]};
+              }
             `}
-            showDefaultOption={false}
-          />
-        )}
+          >
+            {t("log-scale")}
+          </button>
+        </div>
       </StatsHeader>
       <InstructionBox>{instructionText}</InstructionBox>
       <div

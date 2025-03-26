@@ -868,9 +868,7 @@
 <a href="#867" id="867">867</a>
 <a href="#868" id="868">868</a>
 <a href="#869" id="869">869</a>
-<a href="#870" id="870">870</a>
-<a href="#871" id="871">871</a>
-<a href="#872" id="872">872</a></pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/{course_id}/stats`.
+<a href="#870" id="870">870</a></pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/{course_id}/stats`.
 
 </span><span class="kw">use crate</span>::{domain::authorization::authorize, prelude::<span class="kw-2">*</span>};
 <span class="kw">use </span>headless_lms_models::library::TimeGranularity;
@@ -1073,20 +1071,18 @@
 </span><span class="kw">async fn </span>get_cohort_activity_history(
     pool: web::Data&lt;PgPool&gt;,
     user: AuthUser,
-    course_id: web::Path&lt;Uuid&gt;,
-    params: web::Path&lt;(TimeGranularity, u16, u16)&gt;,
+    path: web::Path&lt;(Uuid, TimeGranularity, u16, u16)&gt;,
     cache: web::Data&lt;Cache&gt;,
 ) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;CohortActivity&gt;&gt;&gt; {
+    <span class="kw">let </span>(course_id, granularity, history_window, tracking_window) = path.into_inner();
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>token = authorize(
         <span class="kw-2">&amp;mut </span>conn,
         Act::ViewStats,
         <span class="prelude-val">Some</span>(user.id),
-        Res::Course(<span class="kw-2">*</span>course_id),
+        Res::Course(course_id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="kw">let </span>(granularity, history_window, tracking_window) = params.into_inner();
 
     <span class="kw">let </span>res = cached_stats_query(
         <span class="kw-2">&amp;</span>cache,
@@ -1094,13 +1090,13 @@
             <span class="string">"cohort-activity-{}-{}-{}"</span>,
             granularity, history_window, tracking_window
         ),
-        <span class="kw-2">*</span>course_id,
+        course_id,
         <span class="prelude-val">None</span>,
         CACHE_DURATION,
         || <span class="kw">async </span>{
             models::library::course_stats::get_cohort_activity_history(
                 <span class="kw-2">&amp;mut </span>conn,
-                <span class="kw-2">*</span>course_id,
+                course_id,
                 granularity,
                 history_window,
                 tracking_window,

@@ -201,20 +201,18 @@ async fn get_avg_time_to_first_submission_history(
 async fn get_cohort_activity_history(
     pool: web::Data<PgPool>,
     user: AuthUser,
-    course_id: web::Path<Uuid>,
-    params: web::Path<(TimeGranularity, u16, u16)>,
+    path: web::Path<(Uuid, TimeGranularity, u16, u16)>,
     cache: web::Data<Cache>,
 ) -> ControllerResult<web::Json<Vec<CohortActivity>>> {
+    let (course_id, granularity, history_window, tracking_window) = path.into_inner();
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
         Act::ViewStats,
         Some(user.id),
-        Res::Course(*course_id),
+        Res::Course(course_id),
     )
     .await?;
-
-    let (granularity, history_window, tracking_window) = params.into_inner();
 
     let res = cached_stats_query(
         &cache,
@@ -222,13 +220,13 @@ async fn get_cohort_activity_history(
             "cohort-activity-{}-{}-{}",
             granularity, history_window, tracking_window
         ),
-        *course_id,
+        course_id,
         None,
         CACHE_DURATION,
         || async {
             models::library::course_stats::get_cohort_activity_history(
                 &mut conn,
-                *course_id,
+                course_id,
                 granularity,
                 history_window,
                 tracking_window,

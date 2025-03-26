@@ -1,9 +1,12 @@
 ![Secret Project 331](./img/secret-project-readme-banner.png)
 
-Secret Project 331 is a Learning Management System (LMS) developed by the MOOC Center of the University of Helsinki. It's deployed at [https://courses.mooc.fi](https://courses.mooc.fi). This document contains technical information intended for developers. If you're not a developer, you might find these links helpful instead:
+> [!IMPORTANT]
+> This document contains technical information intended for software developers. If you're not a software developer, you might find these links helpful instead:
+>
+> - To learn more about the courses, visit [https://www.mooc.fi](https://www.mooc.fi).
+> - For teacher documentation, refer to the **Wiki** tab in this repository.
 
-- To learn more about the courses, visit [https://www.mooc.fi](https://www.mooc.fi).
-- For teacher documentation, refer to the **Wiki** tab in this repository.
+Secret Project 331 is a Learning Management System (LMS) developed by the MOOC Center of the University of Helsinki. It's deployed at [https://courses.mooc.fi](https://courses.mooc.fi).
 
 > [!NOTE]
 > The system builds on years of dedicated work on Massive Open Online Courses (MOOCs) at the Computer Science Department of the University of Helsinki.

@@ -23,36 +23,35 @@ test("Teacher can manually add completions with validations", async ({ page }) =
   })
 
   await test.step("CSV missing required header", async () => {
-    await page.getByPlaceholder("user_id,grade[,").fill("grade\n3")
+    await page.getByRole("textbox", { name: "CSV" }).fill("grade\n3")
     await page.getByRole("button", { name: "Check" }).click()
-    await expect(page.locator("#maincontent")).toContainText("CSV header row is missing")
+    await expect(page.locator("#maincontent")).toContainText("User ID column is missing or empty")
   })
 
   await test.step("Grade out of range", async () => {
-    await page.getByRole("button", { name: "Manually add completions" }).click()
     await page.getByLabel("date").fill("2024-02-21")
     await page
-      .getByPlaceholder("user_id,grade[,")
+      .getByRole("textbox", { name: "CSV" })
       .fill("user_id,grade\nd7d6246c-45a8-4ff4-bf4d-31dedfaac159,6")
     await page.getByRole("button", { name: "Check" }).click()
-    await expect(page.locator("#maincontent")).toContainText("grade-out-of-range")
+    await expect(page.locator("#maincontent")).toContainText("Grade must be between 0 and 5")
   })
 
   await test.step("Invalid grade format", async () => {
-    await page.getByRole("button", { name: "Manually add completions" }).click()
     await page.getByLabel("date").fill("2024-02-21")
     await page
-      .getByPlaceholder("user_id,grade[,")
+      .getByRole("textbox", { name: "CSV" })
       .fill("user_id,grade\nd7d6246c-45a8-4ff4-bf4d-31dedfaac159,excellent")
     await page.getByRole("button", { name: "Check" }).click()
-    await expect(page.locator("#maincontent")).toContainText("invalid-grade-format")
+    await expect(page.locator("#maincontent")).toContainText(
+      "Grade must be a number between 0-5 or pass/fail",
+    )
   })
 
   await test.step("Valid submission", async () => {
-    await page.getByRole("button", { name: "Manually add completions" }).click()
     await page.getByLabel("date").fill("2024-02-21")
     await page
-      .getByPlaceholder("user_id,grade[,")
+      .getByRole("textbox", { name: "CSV" })
       .fill("user_id,grade\nd7d6246c-45a8-4ff4-bf4d-31dedfaac159,3")
     await page.getByRole("button", { name: "Check" }).click()
     await expect(page.locator("#maincontent")).toContainText(

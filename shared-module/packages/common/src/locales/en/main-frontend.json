@@ -352,7 +352,7 @@
   "label-created-at": "Created at",
   "label-csv": "CSV",
   "label-csv-completion-date": "Completion date - select this to use the same date for all completions that don't specify their own date",
-  "label-csv-completions-date-optional": "completion_date (optional): Date in ISO format (YYYY-MM-DD). Include this column to set specific dates for individual completions.",
+  "label-csv-completions-date-optional": "completion_date (optional): Date in ISO 8601 format (YYYY-MM-DD). Include this column to set specific dates for individual completions.",
   "label-csv-completions-example": "Example:",
   "label-csv-completions-format": "CSV format instructions:",
   "label-csv-completions-grade": "grade: A number (0-5) or 'pass'/'fail'",

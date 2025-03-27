@@ -67,9 +67,9 @@ test("Manually adding completions works", async ({ page, headless }, testInfo) =
 
   await page.locator('textarea[name="completions"]').click()
   // Fill textarea[name="completions"]
-  await page.locator('textarea[name="completions"]').fill(`user_id
-  00e249d8-345f-4eff-aedb-7bdc4c44c1d5
-  fbeb9286-3dd8-4896-a6b8-3faffa3fabd6`)
+  await page.locator('textarea[name="completions"]').fill(`user_id,grade
+  00e249d8-345f-4eff-aedb-7bdc4c44c1d5,pass
+  fbeb9286-3dd8-4896-a6b8-3faffa3fabd6,pass`)
 
   await page.getByRole("button", { name: "Check" }).click()
 

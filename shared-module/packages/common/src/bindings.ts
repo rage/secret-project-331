@@ -1200,6 +1200,7 @@ export interface ManualCompletionPreviewUser {
 export interface TeacherManualCompletion {
   user_id: string
   grade: number | null
+  passed: boolean
   completion_date: string | null
 }
 

@@ -2535,6 +2535,7 @@ export function isTeacherManualCompletion(obj: unknown): obj is TeacherManualCom
         typeof typedObj["user_id"] === "string" &&
         (typedObj["grade"] === null ||
             typeof typedObj["grade"] === "number") &&
+        typeof typedObj["passed"] === "boolean" &&
         (typedObj["completion_date"] === null ||
             typeof typedObj["completion_date"] === "string")
     )

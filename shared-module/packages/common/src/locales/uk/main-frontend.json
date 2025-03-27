@@ -338,7 +338,6 @@
   "label-course-module-id": "Ідентифікатор модуля курсу",
   "label-created": "Створено:",
   "label-created-at": "Створено в",
-  "label-csv-completions": "Формат: csv із заголовками з полями: <2>{{csvHeaderFormat}}</2> – необов’язкова дата у форматі ISO 8601.",
   "label-current": "Поточний",
   "label-current-text": "Поточний текст:",
   "label-deadline": "Дедлайн",

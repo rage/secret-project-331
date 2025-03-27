@@ -337,7 +337,6 @@
   "label-course-module-id": "معرف وحدة الدورة",
   "label-created": "تم الإنشاء:",
   "label-created-at": "تم الإنشاء في",
-  "label-csv-completions": "التنسيق: csv مع رؤوس الحقول: <2>{{csvHeaderFormat}}</2> - تاريخ اختياري بتنسيق ISO 8601.",
   "label-current": "الحالي",
   "label-current-text": "النص الحالي:",
   "label-deadline": "الموعد النهائي",

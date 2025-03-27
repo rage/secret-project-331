@@ -535,6 +535,7 @@ pub struct TeacherManualCompletionRequest {
 pub struct TeacherManualCompletion {
     pub user_id: Uuid,
     pub grade: Option<i32>,
+    pub passed: bool,
     pub completion_date: Option<DateTime<Utc>>,
 }
 
@@ -602,8 +603,11 @@ pub async fn add_manual_completions(
                     eligible_for_ects: true,
                     email: completion_receiver_user_details.email,
                     grade: completion.grade,
-                    // Should passed be false if grade == Some(0)?
-                    passed: true,
+                    passed: if completion.grade == Some(0) {
+                        false
+                    } else {
+                        completion.passed
+                    },
                 },
                 CourseModuleCompletionGranter::User(completion_giver_user_id),
             )
@@ -667,7 +671,7 @@ pub async fn get_manual_completion_result_preview(
             first_name: user_details.first_name,
             last_name: user_details.last_name,
             grade: completion.grade,
-            passed: true,
+            passed: completion.passed,
         };
         let enrollment = course_instance_enrollments::get_by_user_and_course_instance_id(
             conn,

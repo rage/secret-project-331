@@ -9,42 +9,55 @@ import Button from "@/shared-module/common/components/Button"
 import DatePicker from "@/shared-module/common/components/InputFields/DatePickerField"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
+import { baseTheme } from "@/shared-module/common/styles"
 import { makeDateStringTimezoneErrorsLessLikely } from "@/shared-module/common/utils/dateUtil"
 
 const FormatInstructions = styled.div`
   margin-top: 1.5rem;
   margin-bottom: 1rem;
+  padding: 1.5rem;
+  border: 1px solid ${baseTheme.colors.green[200]};
+  border-radius: 4px;
+  background-color: rgb(249 255 251);
 `
 
 const FormatTitle = styled.p`
   font-weight: bold;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
+  color: ${baseTheme.colors.gray[700]};
 `
 
 const ColumnList = styled.ul`
   margin-left: 1.5rem;
   margin-top: 0.5rem;
+  margin-bottom: 1rem;
 `
 
 const ExampleTitle = styled.p`
-  margin-top: 1rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: ${baseTheme.colors.gray[700]};
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const CodeExample = styled.pre`
-  background-color: #f5f5f5;
+  background-color: ${baseTheme.colors.clear[200]};
   padding: 0.75rem;
   border-radius: 4px;
   margin-top: 0.5rem;
+  font-family: monospace;
 `
 
 const Note = styled.p`
-  margin-top: 0.75rem;
+  margin-top: 1rem;
   font-size: 0.9em;
   font-style: italic;
+  color: ${baseTheme.colors.gray[600]};
 `
 
 const ErrorMessage = styled.p`
-  color: red;
+  color: ${baseTheme.colors.red[600]};
   margin-bottom: 0.5rem;
 `
 
@@ -53,9 +66,9 @@ const CSV_HEADER_FORMAT = "user_id,grade[,completion_date]"
 const DATE = "date"
 
 const CSV_EXAMPLE = `user_id,grade,completion_date
-12345,5,2024-03-15
-67890,pass,2024-03-16
-11111,3`
+00000000-0000-0000-0000-000000000000,5,2024-03-15
+00000000-0000-0000-0000-000000000001,pass,2024-03-16
+00000000-0000-0000-0000-000000000002,3`
 
 interface AddCompletionsFormProps {
   courseModules: Array<CourseModule>
@@ -217,6 +230,7 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
       {errors.completions?.message && <ErrorMessage>{errors.completions.message}</ErrorMessage>}
       <TextAreaField
         placeholder={CSV_HEADER_FORMAT}
+        label={t("label-csv")}
         {...register("completions", { required: t("required-field") })}
       />
       <Button variant="primary" size="medium" type="submit" value={t("button-text-submit")}>

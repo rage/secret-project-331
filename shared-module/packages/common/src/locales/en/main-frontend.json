@@ -350,6 +350,7 @@
   "label-course-module-id": "Course module id",
   "label-created": "Created:",
   "label-created-at": "Created at",
+  "label-csv": "CSV",
   "label-csv-completion-date": "Completion date - select this to use the same date for all completions that don't specify their own date",
   "label-csv-completions-date-optional": "completion_date (optional): Date in ISO format (YYYY-MM-DD). Include this column to set specific dates for individual completions.",
   "label-csv-completions-example": "Example:",

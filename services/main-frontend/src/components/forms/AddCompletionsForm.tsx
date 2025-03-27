@@ -1,7 +1,8 @@
+import styled from "@emotion/styled"
 import Papa from "papaparse"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
-import { Trans, useTranslation } from "react-i18next"
+import { useTranslation } from "react-i18next"
 
 import { CourseModule, TeacherManualCompletionRequest } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
@@ -10,9 +11,51 @@ import SelectField from "@/shared-module/common/components/InputFields/SelectFie
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import { makeDateStringTimezoneErrorsLessLikely } from "@/shared-module/common/utils/dateUtil"
 
+const FormatInstructions = styled.div`
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+`
+
+const FormatTitle = styled.p`
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+`
+
+const ColumnList = styled.ul`
+  margin-left: 1.5rem;
+  margin-top: 0.5rem;
+`
+
+const ExampleTitle = styled.p`
+  margin-top: 1rem;
+`
+
+const CodeExample = styled.pre`
+  background-color: #f5f5f5;
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-top: 0.5rem;
+`
+
+const Note = styled.p`
+  margin-top: 0.75rem;
+  font-size: 0.9em;
+  font-style: italic;
+`
+
+const ErrorMessage = styled.p`
+  color: red;
+  margin-bottom: 0.5rem;
+`
+
 const COMPLETIONS = "completions"
 const CSV_HEADER_FORMAT = "user_id,grade[,completion_date]"
 const DATE = "date"
+
+const CSV_EXAMPLE = `user_id,grade,completion_date
+12345,5,2024-03-15
+67890,pass,2024-03-16
+11111,3`
 
 interface AddCompletionsFormProps {
   courseModules: Array<CourseModule>
@@ -154,15 +197,24 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
         {...register("course_module_id", { required: t("required-field") })}
         aria-label={t("select-course-module")}
       />
-      <p>{t("label-completion-date")}</p>
+
+      <p>{t("label-csv-completion-date")}</p>
       <DatePicker label={DATE} onChangeByValue={(value) => setDate(value)} />
-      <p>
-        <Trans t={t} i18nKey="label-csv-completions">
-          Format: csv with headers with fields:{" "}
-          <code>{{ csvHeaderFormat: CSV_HEADER_FORMAT }}</code> - optional date in ISO format.
-        </Trans>
-      </p>
-      {errors.completions?.message && <p>{errors.completions.message}</p>}
+
+      <FormatInstructions>
+        <FormatTitle>{t("label-csv-completions-format")}</FormatTitle>
+        <p>{t("label-csv-completions-header")}</p>
+        <ColumnList>
+          <li>{t("label-csv-completions-user-id")}</li>
+          <li>{t("label-csv-completions-grade")}</li>
+          <li>{t("label-csv-completions-date-optional")}</li>
+        </ColumnList>
+        <ExampleTitle>{t("label-csv-completions-example")}</ExampleTitle>
+        <CodeExample>{CSV_EXAMPLE}</CodeExample>
+        <Note>{t("label-csv-completions-note")}</Note>
+      </FormatInstructions>
+
+      {errors.completions?.message && <ErrorMessage>{errors.completions.message}</ErrorMessage>}
       <TextAreaField
         placeholder={CSV_HEADER_FORMAT}
         {...register("completions", { required: t("required-field") })}

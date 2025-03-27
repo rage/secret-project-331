@@ -1307,7 +1307,11 @@
 <a href="#1306" id="1306">1306</a>
 <a href="#1307" id="1307">1307</a>
 <a href="#1308" id="1308">1308</a>
-<a href="#1309" id="1309">1309</a></pre></div><pre class="rust"><code><span class="kw">use </span>chrono::{DateTime, Utc};
+<a href="#1309" id="1309">1309</a>
+<a href="#1310" id="1310">1310</a>
+<a href="#1311" id="1311">1311</a>
+<a href="#1312" id="1312">1312</a>
+<a href="#1313" id="1313">1313</a></pre></div><pre class="rust"><code><span class="kw">use </span>chrono::{DateTime, Utc};
 <span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>std::collections::HashMap;
 
@@ -1844,6 +1848,7 @@
 </span><span class="kw">pub struct </span>TeacherManualCompletion {
     <span class="kw">pub </span>user_id: Uuid,
     <span class="kw">pub </span>grade: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    <span class="kw">pub </span>passed: bool,
     <span class="kw">pub </span>completion_date: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
 }
 
@@ -1911,8 +1916,11 @@
                     eligible_for_ects: <span class="bool-val">true</span>,
                     email: completion_receiver_user_details.email,
                     grade: completion.grade,
-                    <span class="comment">// Should passed be false if grade == Some(0)?
-                    </span>passed: <span class="bool-val">true</span>,
+                    passed: <span class="kw">if </span>completion.grade == <span class="prelude-val">Some</span>(<span class="number">0</span>) {
+                        <span class="bool-val">false
+                    </span>} <span class="kw">else </span>{
+                        completion.passed
+                    },
                 },
                 CourseModuleCompletionGranter::User(completion_giver_user_id),
             )
@@ -1976,7 +1984,7 @@
             first_name: user_details.first_name,
             last_name: user_details.last_name,
             grade: completion.grade,
-            passed: <span class="bool-val">true</span>,
+            passed: completion.passed,
         };
         <span class="kw">let </span>enrollment = course_instance_enrollments::get_by_user_and_course_instance_id(
             conn,

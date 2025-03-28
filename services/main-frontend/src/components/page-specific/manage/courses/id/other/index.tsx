@@ -10,6 +10,7 @@ import CourseCheaters from "../cheaters/CourseCheaters"
 import CodeGiveawayPage from "../code-giveaway/CodeGiveawayPage"
 import CourseGlossary from "../glossary/CourseGlossary"
 import References from "../references"
+import ResetExercises from "../reset-exercises-tool/ResetExercises"
 
 import useCourseQuery from "@/hooks/useCourseQuery"
 import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
@@ -28,6 +29,7 @@ const Subtabs: {
   chatbot: ChatBotPage,
   cheaters: CourseCheaters,
   "code-giveaways": CodeGiveawayPage,
+  "exercise-reset-tool": ResetExercises,
 }
 
 const Other: React.FC<React.PropsWithChildren<CourseManagementPagesProps & AdditionalProps>> = ({
@@ -59,6 +61,12 @@ const Other: React.FC<React.PropsWithChildren<CourseManagementPagesProps & Addit
         </TabLink>
         <TabLink url={"other/code-giveaways"} isActive={activeSubtab === "code-giveaways"}>
           {t("heading-code-giveaways")}
+        </TabLink>
+        <TabLink
+          url={"other/exercise-reset-tool"}
+          isActive={activeSubtab === "exercise-reset-tool"}
+        >
+          {t("label-exercise-reset-tool")}
         </TabLink>
       </TabLinkNavigation>
       <TabLinkPanel>

@@ -6,12 +6,12 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { usePopper } from "react-popper"
 
-import { updateAnswerRequiringAttention } from "../../../../../../services/backend/answers-requiring-attention"
 import SubmissionIFrame from "../../../../submissions/id/SubmissionIFrame"
 
 import FlaggedPeerReviewAccordion from "./FlaggedPeerReviewAccordion"
 import PeerReviewAccordion from "./PeerOrSelfReviewAccordion"
 
+import { createTeacherGradingDecision } from "@/services/backend/teacher-grading-decisions"
 import {
   AnswerRequiringAttentionWithTasks,
   NewTeacherGradingDecision,
@@ -76,7 +76,7 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
   const [arrowElement, setArrowElement] = useState<HTMLElement | null>(null)
   const submitMutation = useToastMutation(
     (update: NewTeacherGradingDecision) => {
-      return updateAnswerRequiringAttention(update)
+      return createTeacherGradingDecision(update)
     },
     {
       notify: true,

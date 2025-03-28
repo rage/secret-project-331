@@ -20,12 +20,13 @@ export const fetchSubmissionInfo = async (
   return validateResponse(response, isExerciseSlideSubmissionInfo)
 }
 
-export const addTeacherGrading = async (
+export const addTeacherGradingForExamSubmission = async (
   data: NewTeacherGradingDecision,
 ): Promise<TeacherGradingDecision> => {
-  const response = await mainFrontendClient.put(`/exercise-slide-submissions/add-teacher-grading`, {
-    ...data,
-  })
+  const response = await mainFrontendClient.put(
+    `/exercise-slide-submissions/add-teacher-grading-for-exam-submission`,
+    data,
+  )
   return validateResponse(response, isTeacherGradingDecision)
 }
 

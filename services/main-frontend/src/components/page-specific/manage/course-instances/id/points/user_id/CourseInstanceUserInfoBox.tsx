@@ -80,11 +80,6 @@ interface CourseInstanceUserInfoBoxProps {
   userId: string
 }
 
-interface CourseInstance {
-  id: string
-  name?: string
-}
-
 const CourseInstanceUserInfoBox: React.FC<CourseInstanceUserInfoBoxProps> = ({
   courseId,
   courseInstanceId,
@@ -111,7 +106,7 @@ const CourseInstanceUserInfoBox: React.FC<CourseInstanceUserInfoBoxProps> = ({
   }
 
   const courseInstance = courseInstancesQuery.data.find(
-    (instance: CourseInstance) => instance.id === courseInstanceId,
+    (instance) => instance.id === courseInstanceId,
   )
 
   return (

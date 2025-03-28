@@ -1,4 +1,9 @@
 use crate::prelude::*;
+use headless_lms_models::{
+    exercises::get_exercise_by_id,
+    teacher_grading_decisions::{NewTeacherGradingDecision, TeacherDecisionType},
+    user_exercise_states::UserExerciseState,
+};
 
 /**
 POST `/api/v0/main-frontend/teacher-grading-decisions` - Creates a new teacher grading decision, overriding the points a user has received from an exercise.

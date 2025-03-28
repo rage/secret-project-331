@@ -67,8 +67,7 @@ const DATE = "date"
 
 const CSV_EXAMPLE = `user_id,grade,completion_date
 00000000-0000-0000-0000-000000000000,5,2024-03-15
-00000000-0000-0000-0000-000000000001,pass,2024-03-16
-00000000-0000-0000-0000-000000000002,3`
+00000000-0000-0000-0000-000000000001,pass,2024-03-16`
 
 interface AddCompletionsFormProps {
   courseModules: Array<CourseModule>

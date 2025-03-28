@@ -2,7 +2,6 @@ use crate::{domain::models_requests, prelude::*};
 use headless_lms_models::exercise_slide_submissions::ExerciseSlideSubmissionInfo;
 use models::{
     exercises::get_exercise_by_id,
-    library::user_exercise_state_updater,
     teacher_grading_decisions::{
         NewTeacherGradingDecision, TeacherDecisionType, TeacherGradingDecision,
     },

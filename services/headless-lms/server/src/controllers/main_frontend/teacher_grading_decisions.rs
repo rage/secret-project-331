@@ -1,6 +1,7 @@
 use crate::prelude::*;
 use headless_lms_models::{
     exercises::get_exercise_by_id,
+    library::user_exercise_state_updater,
     teacher_grading_decisions::{NewTeacherGradingDecision, TeacherDecisionType},
     user_exercise_states::UserExerciseState,
 };

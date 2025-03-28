@@ -165,11 +165,12 @@ const CourseInstanceProgressSection: React.FC<CourseInstanceProgressSectionProps
 
         return (
           <ModuleCard key={courseInstanceProgress.course_module_id}>
-            {!isSingleModule && (
-              <ModuleHeader>
+            <ModuleHeader>
+              {!isSingleModule && (
                 <ModuleTitle>{courseModule?.name ?? t("default-module")}</ModuleTitle>
-              </ModuleHeader>
-            )}
+              )}
+              <DebugModal data={courseInstanceProgress} variant="minimal" />
+            </ModuleHeader>
             <InfoGrid>
               {courseInstanceProgress.attempted_exercises_required !== null && (
                 <InfoItem>
@@ -201,17 +202,6 @@ const CourseInstanceProgressSection: React.FC<CourseInstanceProgressSectionProps
                 <ProgressValue>{Math.round(exercisesProgress)}%</ProgressValue>
               </InfoItem>
             </InfoGrid>
-            <div
-              className={css`
-                margin-top: 1.5rem;
-                display: flex;
-                justify-content: flex-end;
-                padding-top: 1rem;
-                border-top: 1px solid ${baseTheme.colors.clear[200]};
-              `}
-            >
-              <DebugModal data={courseInstanceProgress} />
-            </div>
           </ModuleCard>
         )
       })}

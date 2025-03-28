@@ -1,47 +1,47 @@
 {
   "folders": [
     {
-      "name": "Root",
+      "name": "Root folder",
       "path": "."
     },
     {
-      "name": "CMS",
+      "name": "services/cms",
       "path": "./services/cms"
     },
     {
-      "name": "Course material",
+      "name": "services/course-material",
       "path": "./services/course-material"
     },
     {
-      "name": "Example exercise",
+      "name": "services/example-exercise",
       "path": "./services/example-exercise"
     },
     {
-      "name": "Headless LMS",
+      "name": "services/headless-lms",
       "path": "./services/headless-lms"
     },
     {
-      "name": "Main frontend",
+      "name": "services/main-frontend",
       "path": "./services/main-frontend"
     },
     {
-      "name": "Quizzes",
+      "name": "services/quizzes",
       "path": "./services/quizzes"
     },
     {
-      "name": "Shared module",
+      "name": "shared-module",
       "path": "./shared-module"
     },
     {
-      "name": "Storybook",
+      "name": "storybook",
       "path": "./storybook"
     },
     {
-      "name": "System tests",
+      "name": "system-tests",
       "path": "./system-tests"
     },
     {
-      "name": "TMC",
+      "name": "services/tmc",
       "path": "./services/tmc"
     }
   ],

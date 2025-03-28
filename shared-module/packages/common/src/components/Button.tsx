@@ -91,19 +91,19 @@ export const WhiteButtonStyles = (props: ButtonProps) => {
 
     color: ${theme.white.text};
     background: #FCFCFC;
-    border: 1.5px solid #DEDEDE;
+    border: 2.5px solid #DEDEDE;
 
     &:hover,
     &:focus {
       color: ${theme.white.text};
       box-shadow: 0 0 0 1px #FCFCFC;
-      border: 1.5px solid #FCFCFC;
+      border: 2.5px solid #999999;
     }
 
     &:active {
       color: ${theme.white.text};
       background-color: #F5F5F5;
-      border: 1.5px solid #FCFCFC;
+      border: 2.5px solid #999999;
     }
 
     &:disabled {

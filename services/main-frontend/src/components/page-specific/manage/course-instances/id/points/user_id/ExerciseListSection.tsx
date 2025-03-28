@@ -16,11 +16,13 @@ const Section = styled.section`
 interface ExerciseListSectionProps {
   groupedByChapter: [string, ExerciseStatusSummaryForUser[]][]
   courseId: string
+  onPointsUpdate?: () => void
 }
 
 const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
   groupedByChapter,
   courseId,
+  onPointsUpdate,
 }) => {
   const { t } = useTranslation()
   const courseStructure = useCourseStructure(courseId)
@@ -96,6 +98,7 @@ const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
                   <ExerciseAccordion
                     key={exerciseStatus.exercise.id}
                     exerciseStatus={exerciseStatus}
+                    onPointsUpdate={onPointsUpdate}
                   />
                 ))}
               </div>

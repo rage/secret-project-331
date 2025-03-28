@@ -1,10 +1,11 @@
 import { css } from "@emotion/css"
 import Link from "next/link"
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import PeerOrSelfReviewSubmissionSummaryAccordion from "./PeerOrSelfReviewSubmissionSummaryAccordion"
 
+import CustomPointsPopup from "@/components/page-specific/manage/exercises/id/submissions/CustomPointsPopup"
 import { ExerciseStatusSummaryForUser } from "@/shared-module/common/bindings"
 import BooleanAsText from "@/shared-module/common/components/BooleanAsText"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -14,12 +15,25 @@ import { dateToString } from "@/shared-module/common/utils/time"
 
 interface ExerciseAccordionProps {
   exerciseStatus: ExerciseStatusSummaryForUser
+  onPointsUpdate?: () => void
 }
 
-const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({ exerciseStatus }) => {
+const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
+  exerciseStatus,
+  onPointsUpdate,
+}) => {
   const { t } = useTranslation()
   const userExerciseState = exerciseStatus.user_exercise_state
   const [isExpanded, setIsExpanded] = useState(false)
+
+  const handleCustomPoints = useCallback(
+    (points: number) => {
+      // TODO: Handle points update
+      console.log("Points updated:", points)
+      onPointsUpdate?.()
+    },
+    [onPointsUpdate],
+  )
 
   return (
     <div
@@ -517,9 +531,17 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({ exerciseStatus })
                   margin-top: 1.5rem;
                   padding-top: 1.5rem;
                   border-top: 1px solid ${baseTheme.colors.clear[200]};
+                  display: flex;
+                  gap: 1rem;
+                  align-items: center;
                 `}
               >
                 <DebugModal data={exerciseStatus} />
+                <CustomPointsPopup
+                  exerciseMaxPoints={exerciseStatus.exercise.score_maximum || 0}
+                  onSubmit={handleCustomPoints}
+                  longButtonName
+                />
               </div>
             </div>
           </div>

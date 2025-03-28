@@ -69,7 +69,11 @@ const CourseInstanceExerciseStatusList: React.FC<
         userId={query.user_id}
         courseId={courseId}
       />
-      <ExerciseListSection groupedByChapter={groupedByChapter} courseId={courseId} />
+      <ExerciseListSection
+        groupedByChapter={groupedByChapter}
+        courseId={courseId}
+        onPointsUpdate={exerciseStatusSummariesQuery.refetch}
+      />
     </>
   )
 }

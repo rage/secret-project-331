@@ -1,12 +1,13 @@
+import { css } from "@emotion/css"
 import { groupBy } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import CourseInstanceProgressSection from "../../../../../components/page-specific/manage/course-instances/id/points/user_id/CourseInstanceProgressSection"
+import CourseInstanceUserInfoBox from "../../../../../components/page-specific/manage/course-instances/id/points/user_id/CourseInstanceUserInfoBox"
 import CourseModuleCompletionsSection from "../../../../../components/page-specific/manage/course-instances/id/points/user_id/CourseModuleCompletionsSection"
 import ExerciseListSection from "../../../../../components/page-specific/manage/course-instances/id/points/user_id/ExerciseListSection"
 import { useCourseIdFromExerciseStatus } from "../../../../../hooks/useCourseIdFromExerciseStatus"
-import { useCourseStructure } from "../../../../../hooks/useCourseStructure"
 import { useExerciseStatusSummaries } from "../../../../../hooks/useExerciseStatusSummaries"
 
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -28,23 +29,12 @@ const CourseInstanceExerciseStatusList: React.FC<
 
   const exerciseStatusSummariesQuery = useExerciseStatusSummaries(query.id, query.user_id)
   const courseId = useCourseIdFromExerciseStatus(exerciseStatusSummariesQuery.data)
-  const courseStructure = useCourseStructure(courseId)
 
-  if (exerciseStatusSummariesQuery.isError || courseStructure.isError) {
-    return (
-      <ErrorBanner
-        variant={"readOnly"}
-        error={exerciseStatusSummariesQuery.error || courseStructure.error}
-      />
-    )
+  if (exerciseStatusSummariesQuery.isError) {
+    return <ErrorBanner variant={"readOnly"} error={exerciseStatusSummariesQuery.error} />
   }
 
-  if (
-    exerciseStatusSummariesQuery.isPending ||
-    courseStructure.isPending ||
-    !exerciseStatusSummariesQuery.data ||
-    !courseId
-  ) {
+  if (exerciseStatusSummariesQuery.isPending || !exerciseStatusSummariesQuery.data || !courseId) {
     return <Spinner variant="medium" />
   }
 
@@ -57,7 +47,18 @@ const CourseInstanceExerciseStatusList: React.FC<
 
   return (
     <>
-      <h1>{t("course-status-summary")}</h1>
+      <h1
+        className={css`
+          margin-bottom: 2rem;
+        `}
+      >
+        {t("course-status-summary")}
+      </h1>
+      <CourseInstanceUserInfoBox
+        courseId={courseId}
+        courseInstanceId={query.id}
+        userId={query.user_id}
+      />
       <CourseModuleCompletionsSection
         courseInstanceId={query.id}
         userId={query.user_id}

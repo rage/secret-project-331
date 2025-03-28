@@ -1,4 +1,4 @@
-import { css, cx } from "@emotion/css"
+import { css } from "@emotion/css"
 import React, { useCallback } from "react"
 import { useTranslation } from "react-i18next"
 import { usePopper } from "react-popper"
@@ -27,6 +27,14 @@ const CustomPointsPopup: React.FC<CustomPointsPopupProps> = ({ exerciseMaxPoints
         name: "offset",
         options: {
           offset: [0, 20],
+        },
+      },
+      {
+        name: "preventOverflow",
+        options: {
+          padding: 8,
+          boundary: "clippingParents",
+          altAxis: true,
         },
       },
     ],

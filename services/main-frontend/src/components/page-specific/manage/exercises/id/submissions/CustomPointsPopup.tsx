@@ -11,15 +11,6 @@ interface CustomPointsPopupProps {
   onSubmit: (points: number) => void
 }
 
-const CustomPointPopup = css`
-  background-color: #e2e4e6;
-  padding: 2em;
-  z-index: 5;
-`
-
-const PLACEMENT = "bottom"
-const ARROW = "arrow"
-
 const CustomPointsPopup: React.FC<CustomPointsPopupProps> = ({ exerciseMaxPoints, onSubmit }) => {
   const { t } = useTranslation()
   const [open, setOpen] = React.useState(false)
@@ -29,9 +20,9 @@ const CustomPointsPopup: React.FC<CustomPointsPopupProps> = ({ exerciseMaxPoints
   const [arrowElement, setArrowElement] = React.useState<HTMLElement | null>(null)
 
   const { styles, attributes } = usePopper(referenceElement, popperElement, {
-    placement: PLACEMENT,
+    placement: "bottom",
     modifiers: [
-      { name: ARROW, options: { element: arrowElement, padding: 10 } },
+      { name: "arrow", options: { element: arrowElement, padding: 10 } },
       {
         name: "offset",
         options: {
@@ -70,6 +61,12 @@ const CustomPointsPopup: React.FC<CustomPointsPopupProps> = ({ exerciseMaxPoints
     [open],
   )
 
+  const isSubmitDisabled =
+    sliderValue > exerciseMaxPoints ||
+    sliderValue < 0 ||
+    // Limit to 2 decimal places
+    !Number.isInteger(sliderValue * 100)
+
   return (
     <>
       <Button
@@ -92,7 +89,11 @@ const CustomPointsPopup: React.FC<CustomPointsPopupProps> = ({ exerciseMaxPoints
         <div
           id="custom-point-popup"
           ref={setPopperElement}
-          className={cx(CustomPointPopup)}
+          className={css`
+            background-color: #e2e4e6;
+            padding: 2em;
+            z-index: 5;
+          `}
           // eslint-disable-next-line react/forbid-dom-props
           style={styles.popper}
           {...attributes.popper}
@@ -154,11 +155,7 @@ const CustomPointsPopup: React.FC<CustomPointsPopupProps> = ({ exerciseMaxPoints
             <Button
               size="medium"
               variant="primary"
-              disabled={
-                sliderValue > exerciseMaxPoints ||
-                sliderValue < 0 ||
-                sliderValue.toString().length > exerciseMaxPoints.toString().length + 4
-              }
+              disabled={isSubmitDisabled}
               onClick={handleSubmitAndClose}
             >
               {t("button-text-give-custom-points")}

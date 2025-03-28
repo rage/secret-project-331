@@ -10,7 +10,7 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 
 const Section = styled.section`
-  margin: 2rem 0;
+  margin: 3rem 0;
 `
 
 interface ExerciseListSectionProps {
@@ -41,7 +41,7 @@ const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
     <Section>
       <h2
         className={css`
-          margin-bottom: -2rem;
+          margin-bottom: 1.5rem;
         `}
       >
         {t("link-exercises")}
@@ -50,6 +50,7 @@ const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
         className={css`
           display: flex;
           flex-direction: column;
+          gap: 2.5rem;
         `}
       >
         {groupedByChapter
@@ -76,12 +77,14 @@ const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
               <div
                 key={chapterId}
                 className={css`
-                  margin: 2rem 0;
+                  display: flex;
+                  flex-direction: column;
+                  gap: 1rem;
                 `}
               >
                 <h3
                   className={css`
-                    margin-bottom: 1rem;
+                    margin-bottom: 0.5rem;
                   `}
                 >
                   {t("title-chapter", {

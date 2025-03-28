@@ -119,15 +119,15 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
       // Validate header row
       const requiredHeaders = [FIELD_NAME_USER_ID, FIELD_NAME_GRADE]
       if (!parsed.meta.fields) {
-        throw new Error(t("header-missing"))
+        throw new Error(t("header-missing-or-invalid"))
       }
       requiredHeaders.forEach((header) => {
         if (!parsed.meta.fields?.includes(header)) {
           if (header === FIELD_NAME_USER_ID) {
-            throw new Error(t("header-missing-for-user_id"))
+            throw new Error(t("header-missing-or-invalid"))
           }
           if (header === FIELD_NAME_GRADE) {
-            throw new Error(t("header-missing-for-grade"))
+            throw new Error(t("header-missing-or-invalid"))
           }
         }
       })
@@ -144,7 +144,7 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
 
         // If a row is missing user_id, then the issue is likely with the header or the data row.
         if (!user_id) {
-          throw new Error(t("header-missing-for-user_id"))
+          throw new Error(t("header-missing-or-invalid"))
         }
 
         // Validate the grade field.

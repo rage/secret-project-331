@@ -230,6 +230,7 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
       <TextAreaField
         placeholder={CSV_HEADER_FORMAT}
         label={t("label-csv")}
+        autoResize
         {...register("completions", { required: t("required-field") })}
       />
       <Button variant="primary" size="medium" type="submit" value={t("button-text-submit")}>

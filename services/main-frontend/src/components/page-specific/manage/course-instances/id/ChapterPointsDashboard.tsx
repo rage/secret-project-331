@@ -25,75 +25,92 @@ const ChapterPointsDashboard: React.FC<ChapterPointDashboardProps> = ({
   return (
     <div
       className={css`
-        margin-top: 51px;
-        margin-bottom: 67px;
-        padding: 44px 57px 49px 57px;
-
-        background: #ffffff;
-        border: 1px solid rgba(190, 190, 190, 0.6);
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        padding: 2rem;
       `}
     >
-      <h3
-        className={css`
-          text-transform: uppercase;
-        `}
-      >
-        {title}
-      </h3>
       <div
         className={css`
-          margin-top: 22px;
-
-          font-size: 22px;
-          line-height: 22px;
-          text-transform: capitalize;
-        `}
-      >
-        {t("number-of-students")}: {userCount}
-      </div>
-      <div
-        className={css`
-          column-gap: 36px;
           display: flex;
-          flex-direction: row;
-          flex-wrap: wrap;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 2rem;
+        `}
+      >
+        <h3
+          className={css`
+            margin: 0;
+            font-size: 1.4rem;
+            color: #2c3e50;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          `}
+        >
+          {title}
+        </h3>
+        <div
+          className={css`
+            font-size: 1.1rem;
+            color: #6c757d;
+            text-transform: capitalize;
+          `}
+        >
+          {t("number-of-students")}: {userCount}
+        </div>
+      </div>
+
+      <div
+        className={css`
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 1.5rem;
         `}
       >
         {chapterScores.map((c) => (
           <div
             className={css`
-              margin-top: 26px;
-              padding: 20px 24px;
-
+              background: #f8f9fa;
+              border-radius: 8px;
+              padding: 1.5rem;
               display: flex;
-              flex-direction: row;
-              border: 1.5px solid rgba(190, 190, 190, 0.5);
-              width: 347px;
+              align-items: center;
+              transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
+              &:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+              }
             `}
             key={c.id}
           >
             <div
               className={css`
-                height: 66px;
-                width: 66px;
-                background: #e6f4fb;
-                border-radius: 50%;
+                height: 56px;
+                width: 56px;
+                background: linear-gradient(135deg, #e6f4fb 0%, #d0e8f7 100%);
+                border-radius: 12px;
+                margin-right: 1.25rem;
+                flex-shrink: 0;
               `}
-            ></div>
-            <div
-              className={css`
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                margin-left: 20px;
-              `}
-            >
-              {c.name}
+            />
+            <div>
               <div
                 className={css`
-                  font-size: 30px;
-                  line-height: 30px;
-                  padding-top: 8px;
+                  font-size: 0.9rem;
+                  color: #6c757d;
+                  margin-bottom: 0.5rem;
+                `}
+              >
+                {c.name}
+              </div>
+              <div
+                className={css`
+                  font-size: 1.8rem;
+                  font-weight: 600;
+                  color: #2c3e50;
                   font-family: ${secondaryFont};
                 `}
               >

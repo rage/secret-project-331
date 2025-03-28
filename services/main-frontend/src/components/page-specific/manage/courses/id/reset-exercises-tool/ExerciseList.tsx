@@ -127,13 +127,12 @@ const ExerciseList: React.FC<Props> = ({
       <div
         className={css`
           display: flex;
-          padding-bottom: 0.4rem;
           gap: 8px;
         `}
       >
         <Button
           onClick={selectAll}
-          variant={"secondary"}
+          variant={"green"}
           size={"small"}
           className={css`
             text-transform: capitalize !important;
@@ -143,7 +142,7 @@ const ExerciseList: React.FC<Props> = ({
         </Button>
         <Button
           onClick={selectNone}
-          variant={"secondary"}
+          variant={"green"}
           size={"small"}
           className={css`
             text-transform: capitalize !important;
@@ -153,7 +152,7 @@ const ExerciseList: React.FC<Props> = ({
         </Button>
         <Button
           onClick={invertSelection}
-          variant={"secondary"}
+          variant={"green"}
           size={"small"}
           className={css`
             text-transform: capitalize !important;
@@ -163,7 +162,7 @@ const ExerciseList: React.FC<Props> = ({
         </Button>
         <Button
           onClick={selectPeerReview}
-          variant={"secondary"}
+          variant={"green"}
           size={"small"}
           className={css`
             text-transform: capitalize !important;
@@ -173,7 +172,7 @@ const ExerciseList: React.FC<Props> = ({
         </Button>
         <Button
           onClick={selectSelfReview}
-          variant={"secondary"}
+          variant={"green"}
           size={"small"}
           className={css`
             text-transform: capitalize !important;
@@ -197,7 +196,7 @@ const ExerciseList: React.FC<Props> = ({
                   font-weight: ${fontWeights.medium};
                   font-size: ${baseTheme.fontSizes[0]}px;
                   padding-bottom: 10px;
-                  padding-top: 10px;
+                  padding-top: 20px;
                 `}
               >
                 {chapterTitle}

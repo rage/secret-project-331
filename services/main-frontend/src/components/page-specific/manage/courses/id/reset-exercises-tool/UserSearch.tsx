@@ -4,10 +4,11 @@ import { useTranslation } from "react-i18next"
 
 import { UserDetail } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
+import TextFieldWithIcon from "@/shared-module/common/components/InputFields/TextFieldWithIcon"
 import Spinner from "@/shared-module/common/components/Spinner"
 import StandardDialog from "@/shared-module/common/components/StandardDialog"
-import { baseTheme, fontWeights } from "@/shared-module/common/styles"
-
+import SearchIcon from "@/shared-module/common/img/search-icon.svg"
+import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 type Props = {
   users?: UserDetail[]
   isLoading: boolean
@@ -51,21 +52,24 @@ const UserSearch: React.FC<Props> = ({ users, addUser, isLoading }) => {
         onClose={() => setIsModalOpen(false)}
         title={t("button-add-students")}
         open={isModalOpen}
+        leftAlignTitle={true}
+        width={"wide"}
       >
         {isLoading ? (
           <Spinner variant="medium" />
         ) : (
           <div>
-            <h2
+            <div
               className={css`
                 font-weight: ${fontWeights.medium};
-                font-size: ${baseTheme.fontSizes[2]}px;
+                font-size: ${baseTheme.fontSizes[1]}px;
+                font-family: ${headingFont};
               `}
             >
               {t("label-list-of-all-students")}
-            </h2>
+            </div>
 
-            <input
+            <TextFieldWithIcon
               type="text"
               placeholder={t("placeholder-search-users")}
               value={searchTerm}
@@ -73,17 +77,23 @@ const UserSearch: React.FC<Props> = ({ users, addUser, isLoading }) => {
               className={css`
                 margin-top: 1rem;
                 margin-bottom: 2rem;
+                width: 45%;
               `}
+              icon={<SearchIcon />}
             />
-
             <div>
               <table
                 className={css`
                   border-collapse: collapse;
+                  width: 100%;
                   td,
                   th {
+                    white-space: nowrap;
+                    height: 60px;
                     padding-left: 2rem;
+                    padding-top: 1rem;
                     padding-bottom: 1rem;
+
                     text-align: left;
                     color: ${baseTheme.colors.gray[700]};
                     font-size: ${baseTheme.fontSizes[0]}px;

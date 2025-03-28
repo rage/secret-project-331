@@ -112,6 +112,14 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
         resetOnlyLockedPeerReviews={resetOnlyLockedPeerReviews}
         setResetOnlyLockedPeerReviews={setResetOnlyLockedPeerReviews}
       ></ResetFilter>
+
+      <div
+        className={css`
+          border: 1px solid #e4e4e4;
+          margin-bottom: 30px;
+        `}
+      ></div>
+
       <ExerciseList
         courseId={courseId}
         selectedExerciseIds={selectedExerciseIds}
@@ -136,6 +144,7 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
           onClose={() => setIsModalOpen(false)}
           title={t("confirm-reset-title")}
           open={isModalOpen}
+          leftAlignTitle={true}
           buttons={[
             {
               // eslint-disable-next-line i18next/no-literal-string
@@ -152,13 +161,24 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
             },
           ]}
         >
-          <div>
-            <p>{t("confirm-reset-message")}</p>
+          <div
+            className={css`
+              padding-left: -10px;
+            `}
+          >
+            <p
+              className={css`
+                font-weight: ${fontWeights.medium};
+                font-size: ${baseTheme.fontSizes[2]}px;
+                padding-left: -10px;
+              `}
+            >
+              {t("confirm-reset-message")}
+            </p>
             {(resetAllBelowMaxPoints || threshold || resetOnlyLockedPeerReviews) && (
               <div>
                 <p
                   className={css`
-                    font-weight: ${fontWeights.medium};
                     margin-top: 1rem;
                     opacity: 0.8;
                     color: #1a2333;

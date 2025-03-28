@@ -37,7 +37,7 @@ const SelectedUsers: React.FC<Props> = ({
       >
         <p
           className={css`
-            font-size: ${baseTheme.fontSizes[0]}px;
+            font-size: ${baseTheme.fontSizes[1]}px;
             font-weight: ${fontWeights.semibold};
             color: ${baseTheme.colors.gray[700]};
           `}
@@ -48,7 +48,7 @@ const SelectedUsers: React.FC<Props> = ({
       </div>
       <div
         className={css`
-          padding-bottom: 20px;
+          padding-bottom: 25px;
           font-weight: ${fontWeights.normal};
           color: ${baseTheme.colors.gray[700]};
           font-size: ${baseTheme.fontSizes[0]}px;

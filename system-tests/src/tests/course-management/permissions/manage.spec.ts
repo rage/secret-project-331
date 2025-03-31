@@ -1,11 +1,7 @@
 import { expect, test } from "@playwright/test"
 
-import {
-  hideToasts,
-  showNextToastsInfinitely,
-  showToastsNormally,
-} from "../utils/notificationUtils"
-import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
+import { hideToasts, showNextToastsInfinitely, showToastsNormally } from "@/utils/notificationUtils"
+import expectScreenshotsToMatchSnapshots from "@/utils/screenshot"
 
 test.use({
   storageState: "src/states/admin@example.com.json",

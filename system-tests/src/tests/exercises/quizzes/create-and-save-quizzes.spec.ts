@@ -1,10 +1,10 @@
 import { Locator, Page, test } from "@playwright/test"
 
-import expectUrlPathWithRandomUuid from "../../utils/expect"
+import expectUrlPathWithRandomUuid from "@/utils/expect"
 import {
   getLocatorForNthExerciseServiceIframe,
   scrollElementInsideIframeToView,
-} from "../../utils/iframeLocators"
+} from "@/utils/iframeLocators"
 
 test.use({
   storageState: "src/states/admin@example.com.json",

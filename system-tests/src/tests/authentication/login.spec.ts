@@ -6,7 +6,7 @@ import {
   test,
 } from "@playwright/test"
 
-import { logout } from "../../utils/logout"
+import { logout } from "@/utils/logout"
 
 test.describe("Login session with Playwright", () => {
   /// Login state to use

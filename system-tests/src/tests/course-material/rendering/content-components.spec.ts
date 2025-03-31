@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test"
 
-import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
+import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import expectScreenshotsToMatchSnapshots from "@/utils/screenshot"
 test.use({
   storageState: "src/states/admin@example.com.json",
 })

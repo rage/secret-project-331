@@ -1,8 +1,7 @@
 import { expect, Page, test } from "@playwright/test"
 
-import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
-
 import { hideToasts } from "@/utils/notificationUtils"
+import expectScreenshotsToMatchSnapshots from "@/utils/screenshot"
 
 test.use({
   storageState: "src/states/admin@example.com.json",

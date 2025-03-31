@@ -1,11 +1,11 @@
 import { test } from "@playwright/test"
 
-import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
-import expectUrlPathWithRandomUuid from "../utils/expect"
+import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import expectUrlPathWithRandomUuid from "@/utils/expect"
 import {
   getLocatorForNthExerciseServiceIframe,
   scrollLocatorsParentIframeToViewIfNeeded,
-} from "../utils/iframeLocators"
+} from "@/utils/iframeLocators"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",

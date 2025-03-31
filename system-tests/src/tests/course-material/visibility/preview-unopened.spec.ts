@@ -1,6 +1,6 @@
 import { test } from "@playwright/test"
 
-import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
+import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",

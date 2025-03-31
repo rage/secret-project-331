@@ -1,8 +1,8 @@
 import { test } from "@playwright/test"
 
-import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
-import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
-import { waitForFooterTranslationsToLoad } from "../utils/waitingUtils"
+import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import expectScreenshotsToMatchSnapshots from "@/utils/screenshot"
+import { waitForFooterTranslationsToLoad } from "@/utils/waitingUtils"
 
 test.use({
   storageState: "src/states/admin@example.com.json",

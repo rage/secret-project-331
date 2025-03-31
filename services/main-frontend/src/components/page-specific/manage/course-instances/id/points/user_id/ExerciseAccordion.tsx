@@ -48,6 +48,7 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
          cursor: not-allowed;
         `}
       `}
+      data-testid={"exercise-status"}
     >
       <div
         className={css`

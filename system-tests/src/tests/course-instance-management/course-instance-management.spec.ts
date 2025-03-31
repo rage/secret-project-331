@@ -54,7 +54,8 @@ test("Managing course instances works", async ({ page }) => {
   expect(usersCsvContents).toContain(",User4,,user_4@example.com")
 
   await Promise.all([page.getByRole("tab", { name: "Course instances" }).click()])
-  await page.click(`:nth-match(button:text("New"):below(:text("All course instances")), 1)`)
+  await page.getByRole("heading", { name: "All course instances" }).waitFor()
+  await page.getByRole("button", { name: "New" }).click()
 
   await page.getByText("New course instance").waitFor()
 

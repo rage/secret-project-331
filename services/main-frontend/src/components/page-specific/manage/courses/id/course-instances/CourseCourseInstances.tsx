@@ -126,7 +126,7 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
             .map((instance) => {
               const name = instance.name ?? t("default-course-instance-name")
               return (
-                <div key={instance.id} className={cardStyles}>
+                <div key={instance.id} className={cardStyles} data-testid={"course-instance-card"}>
                   <h3 className={cardTitleStyles}>{name}</h3>
                   <div className={actionButtonsContainerStyles}>
                     <div className={buttonGroupStyles}>

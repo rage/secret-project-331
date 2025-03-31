@@ -14,7 +14,12 @@ test("Configuring certificates works", async ({ page, headless }, testInfo) => {
     .click()
   await page.getByRole("link", { name: "Manage course 'Certificates'" }).click()
   await page.getByRole("tab", { name: "Course instances" }).click()
-  await page.getByRole("link", { name: "Manage certificates (Default)" }).click()
+  await page
+    .getByTestId("course-instance-card")
+    .filter({ hasText: "Default" })
+    .getByRole("link", { name: "Manage certificates" })
+    .click()
+
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,

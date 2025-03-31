@@ -86,5 +86,5 @@ async fn create_teacher_grading_decision(
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/", web::post().to(create_teacher_grading_decision));
+    cfg.route("", web::post().to(create_teacher_grading_decision));
 }

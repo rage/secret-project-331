@@ -11,9 +11,9 @@ test("Teacher can manually add completions with validations", async ({ page }) =
     )
     await page.getByRole("tab", { name: "Course instances" }).click()
     await page
-      .locator("li")
-      .filter({ hasText: "Non-default instance Manage" })
-      .getByLabel("View completions")
+      .getByTestId("course-instance-card")
+      .filter({ hasText: "Non-default instance" })
+      .getByRole("link", { name: "View completions" })
       .click()
   })
 

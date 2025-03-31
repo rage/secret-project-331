@@ -78,7 +78,7 @@ test("Managing course instances works", async ({ page }) => {
 
   await page
     .getByTestId("course-instance-card")
-    .filter({ has: page.getByRole("heading", { name: "some name", exact: true }) })
+    .filter({ has: page.getByRole("heading", { name: "Default", exact: true }) })
     .getByRole("link", { name: "Manage", exact: true })
     .click()
   await expect(page).toHaveURL(

@@ -163,7 +163,6 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
                   ).length
                 }/${getCompletionsList.data.users.length}`,
               }))}
-              title={t("total-completions-dashboard")}
               userCount={getCompletionsList.data.users.length}
             />
           </div>

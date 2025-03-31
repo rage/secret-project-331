@@ -25,7 +25,7 @@ test("Manually adding completions works", async ({ page, headless }, testInfo) =
 
   await page
     .getByTestId("course-instance-card")
-    .filter({ hasText: "Default" })
+    .filter({ has: page.getByRole("heading", { name: "Default", exact: true }) })
     .getByRole("link", { name: "View completions" })
     .click()
   await expect(page).toHaveURL(

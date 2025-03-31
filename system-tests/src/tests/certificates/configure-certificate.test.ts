@@ -16,7 +16,7 @@ test("Configuring certificates works", async ({ page, headless }, testInfo) => {
   await page.getByRole("tab", { name: "Course instances" }).click()
   await page
     .getByTestId("course-instance-card")
-    .filter({ hasText: "Default" })
+    .filter({ has: page.getByRole("heading", { name: "Default", exact: true }) })
     .getByRole("link", { name: "Manage certificates" })
     .click()
 

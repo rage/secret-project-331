@@ -45,7 +45,6 @@ const TopBar = styled.div`
 const AnswersRequiringAttentionItem: React.FC<Props> = ({
   answerRequiringAttention,
   exerciseMaxPoints,
-  refetch,
 }) => {
   const { t } = useTranslation()
   const [updatedPoints, setUpdatedPoints] = useState<number | null>(null)
@@ -61,13 +60,13 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
     {
       onSuccess: (data) => {
         setUpdatedPoints(data.score_given)
-        refetch()
       },
     },
   )
   const handleGradingDecisionSubmit = useCallback(
     async (decision: NewTeacherGradingDecision) => {
       submitMutation.mutate(decision)
+      // Not refetching here because we want to just gray out the item so that if the user has misclicked, they can still see the item and correct their mistake.
     },
     [submitMutation],
   )

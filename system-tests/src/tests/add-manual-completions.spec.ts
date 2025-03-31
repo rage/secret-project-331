@@ -24,7 +24,7 @@ test("Teacher can manually add completions with validations", async ({ page }) =
 
   await test.step("CSV missing required header", async () => {
     await page.getByRole("textbox", { name: "CSV" }).fill("grade\n3")
-    await page.getByRole("button", { name: "Submit" }).click()
+    await page.getByRole("button", { name: "Check" }).click()
     await expect(page.locator("#maincontent")).toContainText(
       "CSV header row is missing, or it is invalid. Please check that the first row of your input follows the format specified in the instructions.",
     )

@@ -47,6 +47,7 @@ const CodeExample = styled.pre`
   border-radius: 4px;
   margin-top: 0.5rem;
   font-family: monospace;
+  overflow-x: auto;
 `
 
 const Note = styled.p`

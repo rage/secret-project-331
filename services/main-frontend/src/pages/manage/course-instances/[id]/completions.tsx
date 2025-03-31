@@ -29,6 +29,7 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
@@ -108,26 +109,32 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
   }
 
   return (
-    <div
-      className={css`
-        padding: 2rem;
-        max-width: 1400px;
-        margin: 0 auto;
-      `}
-    >
+    <>
       <div
         className={css`
           display: flex;
-          justify-content: space-between;
-          align-items: center;
+          flex-direction: column;
+          gap: 1rem;
           margin-bottom: 2rem;
+
+          ${respondToOrLarger.md} {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0;
+          }
         `}
       >
         <h2
           className={css`
             margin: 0;
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             color: #2c3e50;
+            overflow-wrap: break-word;
+
+            ${respondToOrLarger.md} {
+              font-size: 1.8rem;
+            }
           `}
         >
           {t("completions")}: {courseInstanceId}
@@ -279,7 +286,7 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
           <p>*: {t("module-is-completed-but-requires-completion-of-prerequisite-modules")}</p>
         </>
       )}
-    </div>
+    </>
   )
 }
 

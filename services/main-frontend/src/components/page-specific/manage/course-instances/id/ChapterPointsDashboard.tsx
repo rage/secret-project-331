@@ -64,8 +64,11 @@ const ChapterPointsDashboard: React.FC<ChapterPointDashboardProps> = ({
       <div
         className={css`
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
           gap: 1.5rem;
+          justify-content: center;
+          max-width: 1200px;
+          margin: 0 auto;
         `}
       >
         {chapterScores.map((c) => (
@@ -76,26 +79,9 @@ const ChapterPointsDashboard: React.FC<ChapterPointDashboardProps> = ({
               padding: 1.5rem;
               display: flex;
               align-items: center;
-              transition:
-                transform 0.2s ease,
-                box-shadow 0.2s ease;
-              &:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-              }
             `}
             key={c.id}
           >
-            <div
-              className={css`
-                height: 56px;
-                width: 56px;
-                background: linear-gradient(135deg, #e6f4fb 0%, #d0e8f7 100%);
-                border-radius: 12px;
-                margin-right: 1.25rem;
-                flex-shrink: 0;
-              `}
-            />
             <div>
               <div
                 className={css`

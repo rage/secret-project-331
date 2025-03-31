@@ -70,6 +70,7 @@ test.describe("test teacher changing grade behavior", () => {
         .getByRole("button", { name: "Give custom points" })
         .click()
       await teacherPage.getByText("Operation successful").first().waitFor()
+      await expect(exerciseDetailsComponent).toContainText("0.5/1")
     })
 
     await test.step("verify student sees updated grade", async () => {

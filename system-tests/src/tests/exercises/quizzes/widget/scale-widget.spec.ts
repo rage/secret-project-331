@@ -1,7 +1,7 @@
 import { test } from "@playwright/test"
 
-import { getLocatorForNthExerciseServiceIframe } from "../../../utils/iframeLocators"
-import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
+import { getLocatorForNthExerciseServiceIframe } from "@/utils/iframeLocators"
+import expectScreenshotsToMatchSnapshots from "@/utils/screenshot"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",

@@ -6,7 +6,7 @@ import {
   test,
 } from "@playwright/test"
 
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
+import expectScreenshotsToMatchSnapshots from "@/utils/screenshot"
 
 test.describe("Uploading media as admin", () => {
   // As Admin

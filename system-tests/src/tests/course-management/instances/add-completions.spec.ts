@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test"
 
-import { downloadToString } from "../../utils/download"
-import { showNextToastsInfinitely, showToastsNormally } from "../../utils/notificationUtils"
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
+import { downloadToString } from "@/utils/download"
+import { showNextToastsInfinitely, showToastsNormally } from "@/utils/notificationUtils"
+import expectScreenshotsToMatchSnapshots from "@/utils/screenshot"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",

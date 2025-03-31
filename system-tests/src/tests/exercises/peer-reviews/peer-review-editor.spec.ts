@@ -1,7 +1,7 @@
 import { test } from "@playwright/test"
 
-import { showNextToastsInfinitely, showToastsNormally } from "../../utils/notificationUtils"
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
+import { showNextToastsInfinitely, showToastsNormally } from "@/utils/notificationUtils"
+import expectScreenshotsToMatchSnapshots from "@/utils/screenshot"
 test.use({
   storageState: "src/states/admin@example.com.json",
 })

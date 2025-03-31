@@ -1,14 +1,14 @@
 /* eslint-disable playwright/no-wait-for-timeout */
 import { expect, test } from "@playwright/test"
 
-import { saveCMSPage } from "../../utils/cmsUtils"
-import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
-import expectUrlPathWithRandomUuid from "../../utils/expect"
+import { saveCMSPage } from "@/utils/cmsUtils"
+import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import expectUrlPathWithRandomUuid from "@/utils/expect"
 import {
   getLocatorForNthExerciseServiceIframe,
   scrollLocatorsParentIframeToViewIfNeeded,
-} from "../../utils/iframeLocators"
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
+} from "@/utils/iframeLocators"
+import expectScreenshotsToMatchSnapshots from "@/utils/screenshot"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",

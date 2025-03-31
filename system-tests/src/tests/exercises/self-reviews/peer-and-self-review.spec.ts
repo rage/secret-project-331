@@ -1,6 +1,6 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
-import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
+import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 
 test.describe("Peer review followed by self review works", () => {
   let context1: BrowserContext

@@ -1,9 +1,9 @@
 /* eslint-disable playwright/no-wait-for-timeout */
 import { test } from "@playwright/test"
 
-import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
-import expectUrlPathWithRandomUuid from "../utils/expect"
-import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
+import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import expectUrlPathWithRandomUuid from "@/utils/expect"
+import expectScreenshotsToMatchSnapshots from "@/utils/screenshot"
 
 test.use({
   storageState: "src/states/admin@example.com.json",

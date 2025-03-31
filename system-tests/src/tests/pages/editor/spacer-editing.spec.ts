@@ -1,7 +1,7 @@
 import { test } from "@playwright/test"
 
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-import { waitForFooterTranslationsToLoad } from "../../utils/waitingUtils"
+import expectScreenshotsToMatchSnapshots from "@/utils/screenshot"
+import { waitForFooterTranslationsToLoad } from "@/utils/waitingUtils"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",

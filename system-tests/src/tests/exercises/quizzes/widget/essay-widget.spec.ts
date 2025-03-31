@@ -3,8 +3,8 @@ import { test } from "@playwright/test"
 import {
   getLocatorForNthExerciseServiceIframe,
   scrollLocatorsParentIframeToViewIfNeeded,
-} from "../../../utils/iframeLocators"
-import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
+} from "@/utils/iframeLocators"
+import expectScreenshotsToMatchSnapshots from "@/utils/screenshot"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",

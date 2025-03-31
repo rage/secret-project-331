@@ -175,6 +175,7 @@ pub struct PageSearchResult {
     pub rank: Option<f32>,
     pub content_headline: Option<String>,
     pub url_path: String,
+    pub chapter_name: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -2644,6 +2645,7 @@ FROM pages p
 WHERE p.chapter_id = $1
   AND p.deleted_at IS NULL
   AND p.hidden IS FALSE
+  AND p.url_path IS NOT NULL
   AND p.id NOT IN (
     SELECT front_page_id
     FROM chapters c
@@ -2694,9 +2696,9 @@ WITH cte as (
         to_tsquery($4 || ':*')
     ) as query
 )
-SELECT id,
+SELECT p.id,
     ts_rank(
-    content_search,
+    p.content_search,
     (
         SELECT query
         from cte
@@ -2704,26 +2706,31 @@ SELECT id,
     ) as rank,
     ts_headline(
     $2::regconfig,
-    title,
+    p.title,
     (
         SELECT query
         from cte
-    )
+    ),
+    'MaxFragments=1, MaxWords=20, MinWords=1'
     ) as title_headline,
     ts_headline(
     $2::regconfig,
-    content_search_original_text,
+    p.content_search_original_text,
     (
         SELECT query
         from cte
-    )
+    ),
+    'MaxFragments=1, MaxWords=70, MinWords=15'
     ) as content_headline,
-    url_path
-FROM pages
-WHERE course_id = $1
-    AND deleted_at IS NULL
-    AND hidden IS FALSE
-    AND content_search @@ (
+    p.url_path,
+    c.name as chapter_name
+FROM pages p
+LEFT JOIN chapters c ON p.chapter_id = c.id
+WHERE p.course_id = $1
+    AND p.deleted_at IS NULL
+    AND p.hidden IS FALSE
+    AND p.url_path IS NOT NULL
+    AND p.content_search @@ (
     SELECT query
     from cte
     )
@@ -2779,9 +2786,9 @@ WITH cte as (
         to_tsquery($4 || ':*')
     ) as query
 )
-SELECT id,
+SELECT p.id,
     ts_rank(
-    content_search,
+    p.content_search,
     (
         SELECT query
         from cte
@@ -2789,26 +2796,30 @@ SELECT id,
     ) as rank,
     ts_headline(
     $2::regconfig,
-    title,
+    p.title,
     (
         SELECT query
         from cte
-    )
+    ),
+    'MaxFragments=1, MaxWords=20, MinWords=1'
     ) as title_headline,
     ts_headline(
     $2::regconfig,
-    content_search_original_text,
+    p.content_search_original_text,
     (
         SELECT query
         from cte
-    )
+    ),
+    'MaxFragments=1, MaxWords=70, MinWords=15'
     ) as content_headline,
-    url_path
-FROM pages
-WHERE course_id = $1
-    AND deleted_at IS NULL
-    AND hidden IS FALSE
-    AND content_search @@ (
+    p.url_path,
+    c.name as chapter_name
+FROM pages p
+LEFT JOIN chapters c ON p.chapter_id = c.id
+WHERE p.course_id = $1
+    AND p.deleted_at IS NULL
+    AND p.hidden IS FALSE
+    AND p.content_search @@ (
     SELECT query
     from cte
     )

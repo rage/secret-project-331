@@ -362,9 +362,7 @@
 <a href="#361" id="361">361</a>
 <a href="#362" id="362">362</a>
 <a href="#363" id="363">363</a>
-<a href="#364" id="364">364</a>
-<a href="#365" id="365">365</a>
-<a href="#366" id="366">366</a></pre></div><pre class="rust"><code><span class="doccomment">//! Redis cache wrapper.
+<a href="#364" id="364">364</a></pre></div><pre class="rust"><code><span class="doccomment">//! Redis cache wrapper.
 
 </span><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>redis::{aio::ConnectionManager, AsyncCommands, Client, ToRedisArgs};
@@ -664,8 +662,6 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>test {
-    <span class="kw">use </span>std::env;
-
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span>serde::Deserialize;
 
@@ -695,7 +691,7 @@
         </span>);
 
         <span class="comment">// Test cache_json and get_json
-        </span><span class="kw">let </span>cache_result = cache
+        </span><span class="kw">let </span>_cache_result = cache
             .cache_json(<span class="string">"key"</span>, <span class="kw-2">&amp;</span>value, Duration::from_secs(<span class="number">10</span>))
             .<span class="kw">await</span>;
 

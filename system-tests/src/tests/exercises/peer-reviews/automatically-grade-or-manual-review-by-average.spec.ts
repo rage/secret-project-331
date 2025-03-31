@@ -1,6 +1,6 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
-import { answerExercise, fillPeerReview } from "./peer_review_utils"
+import { answerExercise, fillPeerReview } from "./peer-review-utils"
 
 import { getLocatorForNthExerciseServiceIframe } from "@/utils/iframeLocators"
 

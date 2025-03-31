@@ -153,6 +153,13 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
               height: 41px;
               padding: 8px;
               color: white !important;
+              svg {
+                color: white;
+                transition: color 0.2s ease;
+              }
+              &:hover svg {
+                color: ${baseTheme.colors.blue[500]};
+              }
             `}
           >
             <BugInsect size={16} weight="bold" />

@@ -91,8 +91,26 @@ export const WhiteButtonStyles = (props: ButtonProps) => {
 
     color: ${theme.white.text};
     background: #FCFCFC;
-    border: 1.5px solid #DEDEDE;
+    border: 2.5px solid #DEDEDE;
 
+    &:hover,
+    &:focus {
+      color: ${theme.white.text};
+      box-shadow: 0 0 0 1px #FCFCFC;
+      border: 2.5px solid #999999;
+    }
+
+    &:active {
+      color: ${theme.white.text};
+      background-color: #F5F5F5;
+      border: 2.5px solid #999999;
+    }
+
+    &:disabled {
+      color: ${theme.white.disabledText};
+      background-color: ${theme.white.disabledBg};
+      border-color: ${theme.white.disabledBorder};
+    }
   `
   return WHITE_BUTTON_STYLES
 }
@@ -125,8 +143,8 @@ export const SecondaryButtonStyles = (props: ButtonProps) => {
     &:hover,
     &:focus {
       color: ${theme.secondary.hoverText};
-      box-shadow: 0 0 0 1px ${theme.secondary.text};
-      border: 1.5px solid ${theme.secondary.text};
+      box-shadow: 0 0 0 1px ${theme.secondary.bg};
+      border: 1.5px solid ${theme.secondary.bg};
     }
 
     &:active {
@@ -155,8 +173,8 @@ export const RejectButtonStyles = (props: ButtonProps) => {
     &:hover,
     &:focus {
       color: ${theme.reject.hoverText};
-      box-shadow: 0 0 0 1px ${theme.reject.text};
-      border: 1.5px solid ${theme.reject.text};
+      box-shadow: 0 0 0 1px ${theme.reject.bg};
+      border: 1.5px solid ${theme.reject.bg};
     }
 
     &:active {
@@ -180,11 +198,13 @@ export const TertiaryButtonStyles = (props: ButtonProps) => {
 
     color: ${theme.tertiary.text};
     background-color: ${theme.tertiary.bg};
-    border: unset;
+    border: 1.5px solid ${theme.tertiary.border};
 
-    &:hover {
+    &:hover,
+    &:focus {
       color: ${theme.tertiary.hoverText};
-      background-color: ${theme.tertiary.hoverBg};
+      box-shadow: 0 0 0 1px ${theme.tertiary.bg};
+      border: 1.5px solid ${theme.tertiary.bg};
     }
 
     &:active {
@@ -208,22 +228,25 @@ export const BlueButtonStyles = (props: ButtonProps) => {
 
     color: ${theme.tertiary.text};
     background-color: ${baseTheme.colors.blue[500]};
-    border: unset;
-    border: 2px solid ${theme.secondary.border};
+    border: 1.5px solid ${theme.secondary.border};
 
-    &:hover {
-      border: 2px solid ${baseTheme.colors.blue[600]};
+    &:hover,
+    &:focus {
       color: ${baseTheme.colors.blue[700]};
+      box-shadow: 0 0 0 1px ${baseTheme.colors.blue[500]};
+      border: 1.5px solid ${baseTheme.colors.blue[500]};
     }
 
     &:active {
-      border: 2px solid ${baseTheme.colors.blue[400]};
+      color: ${baseTheme.colors.blue[700]};
+      background-color: ${baseTheme.colors.blue[600]};
+      border: 1.5px solid ${baseTheme.colors.blue[500]};
     }
 
     &:disabled {
-      color: ${theme.secondary.disabledText};
-      background-color: ${theme.secondary.disabledBg};
-      border-color: ${theme.secondary.disabledBorder};
+      color: ${theme.tertiary.disabledText};
+      background-color: ${theme.tertiary.disabledBg};
+      border-color: ${theme.tertiary.disabledBorder};
     }
   `
   return BLUE_BUTTON_STYLES
@@ -267,14 +290,6 @@ const IconButton = styled.button`
 export const LabelButton = styled.label`
   ${BASE_BUTTON_STYLES}
 `
-
-/* BUTTON VARIANT
-PrimaryButton
-SecondaryButton
-GhostButton
-TertiaryButton
-IconButton
-Link */
 
 const Button = forwardRef((props: ButtonProps, ref?: Ref<HTMLButtonElement>) => {
   switch (props.variant) {

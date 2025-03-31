@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import useExamSubmissionsInfo from "../../hooks/useExamSubmissionsInfo"
 import {
-  addTeacherGrading,
+  addTeacherGradingForExamSubmission,
   fetchGradingInfo,
   fetchSubmissionInfo,
 } from "../../services/backend/submissions"
@@ -88,7 +88,7 @@ const GradeExamAnswerForm: React.FC<React.PropsWithChildren<GradeExamAnswerProps
 
   const submitMutation = useToastMutation(
     (update: NewTeacherGradingDecision) => {
-      return addTeacherGrading(update)
+      return addTeacherGradingForExamSubmission(update)
     },
     {
       notify: true,

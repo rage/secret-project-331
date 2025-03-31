@@ -298,8 +298,6 @@ impl Cache {
 
 #[cfg(test)]
 mod test {
-    use std::env;
-
     use super::*;
     use serde::Deserialize;
 
@@ -329,7 +327,7 @@ mod test {
         );
 
         // Test cache_json and get_json
-        let cache_result = cache
+        let _cache_result = cache
             .cache_json("key", &value, Duration::from_secs(10))
             .await;
 

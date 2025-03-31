@@ -54,7 +54,8 @@ test("Managing course instances works", async ({ page }) => {
   expect(usersCsvContents).toContain(",User4,,user_4@example.com")
 
   await Promise.all([page.getByRole("tab", { name: "Course instances" }).click()])
-  await page.click(`:nth-match(button:text("New"):below(:text("All course instances")), 1)`)
+  await page.getByRole("heading", { name: "All course instances" }).waitFor()
+  await page.getByRole("button", { name: "New" }).click()
 
   await page.getByText("New course instance").waitFor()
 
@@ -75,7 +76,11 @@ test("Managing course instances works", async ({ page }) => {
   await page.getByText("Success").first().waitFor()
   await showToastsNormally(page)
 
-  await page.click("text=Default Manage >> a")
+  await page
+    .getByTestId("course-instance-card")
+    .filter({ has: page.getByRole("heading", { name: "Default", exact: true }) })
+    .getByRole("link", { name: "Manage", exact: true })
+    .click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/course-instances/211556f5-7793-5705-ac63-b84465916da5",
   )

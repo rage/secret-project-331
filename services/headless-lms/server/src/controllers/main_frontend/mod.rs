@@ -29,6 +29,7 @@ pub mod playground_views;
 pub mod proposed_edits;
 pub mod regradings;
 pub mod roles;
+pub mod teacher_grading_decisions;
 pub mod user_details;
 pub mod users;
 
@@ -64,5 +65,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/user-details").configure(user_details::_add_routes))
         .service(web::scope("/certificates").configure(certificates::_add_routes))
         .service(web::scope("/global-stats").configure(global_stats::_add_routes))
+        .service(
+            web::scope("/teacher-grading-decisions")
+                .configure(teacher_grading_decisions::_add_routes),
+        )
         .service(web::scope("/code-giveaways").configure(code_giveaways::_add_routes));
 }

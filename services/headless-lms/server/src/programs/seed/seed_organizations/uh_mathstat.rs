@@ -351,5 +351,14 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
+    let _custom_points_course_id = seed_sample_course(
+        Uuid::parse_str("db5cd9c7-1658-4214-896e-8213678d3534")?,
+        "Custom points",
+        "custom-points",
+        uh_data.clone(),
+        seed_users_result,
+    )
+    .await?;
+
     Ok(uh_mathstat_id)
 }

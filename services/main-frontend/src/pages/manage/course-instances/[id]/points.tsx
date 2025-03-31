@@ -105,7 +105,6 @@ const CourseInstancePointsList: React.FC<
                 p.score_total * getPointsList.data.users.length
               }`,
             }))}
-            title={t("total-point-dashboard")}
             userCount={getPointsList.data.users.length}
           />
           <FullWidthTable>

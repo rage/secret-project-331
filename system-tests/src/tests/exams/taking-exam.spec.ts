@@ -1,6 +1,6 @@
 import { test } from "@playwright/test"
 
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
+import expectScreenshotsToMatchSnapshots from "@/utils/screenshot"
 test.use({
   storageState: "src/states/user@example.com.json",
 })

@@ -16,7 +16,7 @@ const Section = styled.section`
 interface ExerciseListSectionProps {
   groupedByChapter: [string, ExerciseStatusSummaryForUser[]][]
   courseId: string
-  onPointsUpdate?: () => void
+  onPointsUpdate: () => void
 }
 
 const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({

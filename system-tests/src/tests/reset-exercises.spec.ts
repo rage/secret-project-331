@@ -29,7 +29,7 @@ test("Can manually reset exercises", async () => {
     "http://project-331.local/org/uh-cs/courses/advanced-course-instance-management",
   )
 
-  await selectCourseInstanceIfPrompted(student1Page, "Default instance")
+  await selectCourseInstanceIfPrompted(student1Page)
   await student1Page.getByRole("link", { name: "Chapter 1 The Basics" }).click()
   await student1Page.getByRole("link", { name: "1 Page One" }).click()
   await student1Page
@@ -83,7 +83,7 @@ test("Can manually reset exercises", async () => {
   await student1Page
     .locator('iframe[title="Exercise 1\\, task 3 content"]')
     .contentFrame()
-    .getByRole("checkbox", { name: "Incorrect" })
+    .getByRole("checkbox", { name: "Incorrect", exact: true })
     .click()
   await student1Page.getByRole("button", { name: "Submit" }).click()
 
@@ -119,18 +119,18 @@ test("Can manually reset exercises", async () => {
   await adminPage.getByRole("button", { name: "Close" }).click()
 
   await adminPage.getByText("Reset only if less than max").click()
-  await adminPage.getByRole("checkbox", { name: "Best exercise" }).first().check()
-  await adminPage.getByRole("checkbox", { name: "Best exercise" }).nth(1).check()
-  await adminPage.getByRole("checkbox", { name: "Best exercise" }).nth(2).check()
-  await adminPage.getByRole("checkbox", { name: "Best exercise" }).nth(3).check()
+  await adminPage.locator(".css-uji28j > .css-vt0euu-Label > input").first().check()
+  await adminPage.locator("tr:nth-child(2) > td > .css-uji28j > .css-vt0euu-Label > input").check()
+  await adminPage.locator("tr:nth-child(3) > td > .css-uji28j > .css-vt0euu-Label > input").check()
+  await adminPage.locator("tr:nth-child(4) > td > .css-uji28j > .css-vt0euu-Label > input").check()
   await adminPage.getByRole("button", { name: "Submit and reset" }).click()
-  await adminPage.getByRole("button", { name: "Yes, reset" }).click()
+  await adminPage.getByRole("button", { name: "Reset", exact: true }).click()
 
   await expect(adminPage.getByText("Success", { exact: true })).toBeVisible()
 
   // Admin checks that correct exercises are reset and found in the users reset exercises log
   await adminPage.goto("http://project-331.local/manage/users/02364d40-2aac-4763-8a06-2381fd298d79")
-  await expect(adminPage.getByText("Exercise Id: ce1905e5-16a2-")).toBeVisible()
+  await expect(adminPage.getByRole("cell", { name: "ce1905e5-16a2-556c-92d6-" })).toBeVisible()
 
   // Admin resets only tasks that have gotten less than 2 points
   await adminPage.goto(
@@ -142,16 +142,17 @@ test("Can manually reset exercises", async () => {
   await adminPage.getByTestId("add-user-button-02364d40-2aac-4763-8a06-2381fd298d79").click()
 
   await adminPage.getByRole("button", { name: "Close" }).click()
+  await adminPage.getByRole("checkbox", { name: "Only reset if gotten less than" }).click()
   await adminPage.getByRole("spinbutton", { name: "Only reset if gotten less than" }).fill("3")
-  await adminPage.getByRole("checkbox", { name: "Multiple task exercise" }).check()
-  await adminPage.getByRole("checkbox", { name: "Multiple task quizzes exercise" }).check()
+  await adminPage.getByRole("row", { name: "Multiple task exercise Page" }).getByLabel("").check()
+  await adminPage.getByRole("row", { name: "Multiple task quizzes" }).getByLabel("").check()
   await adminPage.getByRole("button", { name: "Submit and reset" }).click()
-  await adminPage.getByRole("button", { name: "Yes, reset" }).click()
+  await adminPage.getByRole("button", { name: "Reset", exact: true }).click()
   await expect(adminPage.getByText("Success", { exact: true })).toBeVisible()
 
   // Admin checks that correct exercises are reset and found in the users reset exercises log
   await adminPage.goto("http://project-331.local/manage/users/02364d40-2aac-4763-8a06-2381fd298d79")
-  await expect(adminPage.getByText("Exercise Id: f22eedc4-1e66-")).toBeVisible()
+  await expect(adminPage.getByRole("cell", { name: "f22eedc4-1e66-" })).toBeVisible()
 
   // Admin resest exercises that have a peer review
   await adminPage.goto(
@@ -164,10 +165,10 @@ test("Can manually reset exercises", async () => {
   await adminPage.getByRole("button", { name: "Close" }).click()
   await adminPage.getByRole("button", { name: "Exercises with Peer Review" }).click()
   await adminPage.getByRole("button", { name: "Submit and reset" }).click()
-  await adminPage.getByRole("button", { name: "Yes, reset" }).click()
+  await adminPage.getByRole("button", { name: "Reset", exact: true }).click()
   await expect(adminPage.getByText("Success", { exact: true })).toBeVisible()
 
   // Admin checks that correct exercises are reset and found in the users reset exercises log
   await adminPage.goto("http://project-331.local/manage/users/02364d40-2aac-4763-8a06-2381fd298d79")
-  await expect(adminPage.getByText("Exercise Id: 3286861b-4407-514a-8f72-")).toBeVisible()
+  await expect(adminPage.getByRole("cell", { name: "3286861b-4407-514a-8f72-" })).toBeVisible()
 })

@@ -246,7 +246,7 @@ export const GreenButtonStyles = (props: ButtonProps) => {
 
     color: ${theme.secondary.text};
     background: ${theme.secondary.bg};
-    border: 1.5px solid: ${theme.secondary.border};
+    border: 1.5px solid ${theme.secondary.border};
 
     &:hover,
     &:focus {

@@ -1,6 +1,6 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
-import { answerExercise } from "./peer-reviews/peer_review_utils"
+import { answerExercise } from "@/tests/exercises/peer-reviews/peer-review-utils"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",

@@ -1,10 +1,9 @@
 import styled from "@emotion/styled"
-import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import CourseInstanceEnrollmentsList from "../../../components/page-specific/manage/user/id/CourseInstanceEnrollmentsList"
-import { getUserDetails } from "../../../services/backend/user-details"
+import { useUserDetails } from "../../../hooks/useUserDetails"
 
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -24,10 +23,7 @@ const Area = styled.div`
 
 const UserPage: React.FC<React.PropsWithChildren<UserPageProps>> = ({ query }) => {
   const { t } = useTranslation()
-  const userDetailsQuery = useQuery({
-    queryKey: ["user-details", query.id],
-    queryFn: () => getUserDetails(query.id),
-  })
+  const userDetailsQuery = useUserDetails(query.id)
 
   if (userDetailsQuery.isError) {
     return <ErrorBanner error={userDetailsQuery.error} variant="readOnly" />

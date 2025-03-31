@@ -47,6 +47,7 @@ const CodeExample = styled.pre`
   border-radius: 4px;
   margin-top: 0.5rem;
   font-family: monospace;
+  overflow-x: auto;
 `
 
 const Note = styled.p`
@@ -67,8 +68,7 @@ const DATE = "date"
 
 const CSV_EXAMPLE = `user_id,grade,completion_date
 00000000-0000-0000-0000-000000000000,5,2024-03-15
-00000000-0000-0000-0000-000000000001,pass,2024-03-16
-00000000-0000-0000-0000-000000000002,3`
+00000000-0000-0000-0000-000000000001,pass,2024-03-16`
 
 interface AddCompletionsFormProps {
   courseModules: Array<CourseModule>
@@ -120,15 +120,15 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
       // Validate header row
       const requiredHeaders = [FIELD_NAME_USER_ID, FIELD_NAME_GRADE]
       if (!parsed.meta.fields) {
-        throw new Error(t("header-missing"))
+        throw new Error(t("header-missing-or-invalid"))
       }
       requiredHeaders.forEach((header) => {
         if (!parsed.meta.fields?.includes(header)) {
           if (header === FIELD_NAME_USER_ID) {
-            throw new Error(t("header-missing-for-user_id"))
+            throw new Error(t("header-missing-or-invalid"))
           }
           if (header === FIELD_NAME_GRADE) {
-            throw new Error(t("header-missing-for-grade"))
+            throw new Error(t("header-missing-or-invalid"))
           }
         }
       })
@@ -145,7 +145,7 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
 
         // If a row is missing user_id, then the issue is likely with the header or the data row.
         if (!user_id) {
-          throw new Error(t("header-missing-for-user_id"))
+          throw new Error(t("header-missing-or-invalid"))
         }
 
         // Validate the grade field.
@@ -231,6 +231,7 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
       <TextAreaField
         placeholder={CSV_HEADER_FORMAT}
         label={t("label-csv")}
+        autoResize
         {...register("completions", { required: t("required-field") })}
       />
       <Button variant="primary" size="medium" type="submit" value={t("button-text-submit")}>

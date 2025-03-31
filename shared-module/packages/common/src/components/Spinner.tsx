@@ -5,7 +5,7 @@ import { baseTheme } from "../styles"
 import { SPINNER_CLASS } from "../utils/constants"
 
 export interface SpinnerProps {
-  variant: "large" | "medium" | "small"
+  variant?: "large" | "medium" | "small"
   disableMargin?: boolean
 }
 const rotation = keyframes`
@@ -39,8 +39,8 @@ const variantSizes = {
 
 const StyledSpinner = styled.div<SpinnerProps>`
   margin: ${(props) => (props.disableMargin ? "0" : "1rem")};
-  width: ${(props) => variantSizes[props.variant].width};
-  height: ${(props) => variantSizes[props.variant].height};
+  width: ${(props) => variantSizes[props.variant || "medium"].width};
+  height: ${(props) => variantSizes[props.variant || "medium"].height};
   border: 5px solid #f1f1f1;
   border-bottom-color: ${baseTheme.colors.green[500]};
   border-radius: 50%;

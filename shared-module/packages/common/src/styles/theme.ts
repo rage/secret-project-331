@@ -1,3 +1,13 @@
+export type ColorShades = {
+  100: string
+  200: string
+  300: string
+  400: string
+  500: string
+  600: string
+  700: string
+}
+
 export const baseTheme = {
   space: [0, 2, 4, 8, 16, 32],
   fontSizes: [14, 16, 18, 24, 32],

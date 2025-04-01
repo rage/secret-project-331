@@ -1,3 +1,4 @@
+use super::TimeGranularity;
 use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -55,53 +56,6 @@ pub struct CourseCompletionStats {
     pub users_with_some_unregistered_completions: i64,
     pub registered_ects_credits: f32,
     pub not_registered_ects_credits: f32,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub enum TimeGranularity {
-    Year,
-    Month,
-}
-
-impl std::fmt::Display for TimeGranularity {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            TimeGranularity::Year => write!(f, "Year"),
-            TimeGranularity::Month => write!(f, "Month"),
-        }
-    }
-}
-
-#[derive(Debug)]
-pub struct ParseTimeGranularityError;
-
-impl std::fmt::Display for ParseTimeGranularityError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "invalid time granularity")
-    }
-}
-
-impl std::error::Error for ParseTimeGranularityError {}
-
-impl std::str::FromStr for TimeGranularity {
-    type Err = ParseTimeGranularityError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s.to_lowercase().as_str() {
-            "year" => Ok(TimeGranularity::Year),
-            "month" => Ok(TimeGranularity::Month),
-            _ => Err(ParseTimeGranularityError),
-        }
-    }
-}
-
-impl TryFrom<String> for TimeGranularity {
-    type Error = ParseTimeGranularityError;
-
-    fn try_from(value: String) -> Result<Self, Self::Error> {
-        value.parse()
-    }
 }
 
 pub async fn get_number_of_people_completed_a_course(

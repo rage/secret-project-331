@@ -58,7 +58,7 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
       __html: parseText(values, terms).parsedText,
     }
   } else {
-    children = <InnerBlocks parentBlockProps={props} />
+    children = <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
   }
 
   if (ordered) {

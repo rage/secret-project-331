@@ -60,7 +60,7 @@ const CodeGiveawayBlock: React.FC<
   if (codeGiveawayStatusQuery.data?.tag === "Eligible") {
     return (
       <Wrapper>
-        <InnerBlocks parentBlockProps={props} />
+        <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
         <ClaimCode
           codeGiveawayId={codeGiveawayId}
           onClaimed={() => codeGiveawayStatusQuery.refetch()}
@@ -71,7 +71,7 @@ const CodeGiveawayBlock: React.FC<
 
   return (
     <Wrapper>
-      <InnerBlocks parentBlockProps={props} />
+      <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
       <p>{t("your-code-code", { code: codeGiveawayStatusQuery.data.given_code })}</p>
     </Wrapper>
   )

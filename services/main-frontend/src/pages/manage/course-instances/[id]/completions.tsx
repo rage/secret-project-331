@@ -29,12 +29,13 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-const DOWN_ARROW = "v"
+const DOWN_ARROW = "▼"
 const EMAIL = "email"
 const NAME = "name"
 const NUMBER = "number"
@@ -109,16 +110,49 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
 
   return (
     <>
-      <h2>
-        {t("completions")}: {courseInstanceId}
-      </h2>
+      <div
+        className={css`
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          margin-bottom: 2rem;
+
+          ${respondToOrLarger.md} {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0;
+          }
+        `}
+      >
+        <h2
+          className={css`
+            margin: 0;
+            font-size: 1.5rem;
+            color: #2c3e50;
+            overflow-wrap: break-word;
+
+            ${respondToOrLarger.md} {
+              font-size: 1.8rem;
+            }
+          `}
+        >
+          {t("completions")}: {courseInstanceId}
+        </h2>
+        <CompletionsExportButton courseInstanceId={courseInstanceId} />
+      </div>
+
       {getCompletionsList.isError && (
         <ErrorBanner variant="readOnly" error={getCompletionsList.error} />
       )}
       {getCompletionsList.isPending && <Spinner variant="medium" />}
       {getCompletionsList.isSuccess && (
         <>
-          <div>
+          <div
+            className={css`
+              margin-bottom: 2rem;
+            `}
+          >
             <ChapterPointsDashboard
               chapterScores={getCompletionsList.data.sortedCourseModules.map((module) => ({
                 id: module.id,
@@ -129,42 +163,53 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
                   ).length
                 }/${getCompletionsList.data.users.length}`,
               }))}
-              title={t("total-completions-dashboard")}
               userCount={getCompletionsList.data.users.length}
             />
           </div>
+
           <div
             className={css`
-              margin: 2rem;
+              margin-bottom: 2rem;
+              padding: 1.5rem;
+              background: #f8f9fa;
+              border-radius: 8px;
             `}
           >
-            <Button variant="primary" size="small" onClick={() => setShowForm(!showForm)}>
+            <Button
+              variant="primary"
+              size="small"
+              onClick={() => setShowForm(!showForm)}
+              className={css`
+                margin-bottom: ${showForm ? "1.5rem" : "0"};
+              `}
+            >
               {t("manually-add-completions")}
             </Button>
             {showForm && (
               <div
                 className={css`
-                  margin: 2rem;
+                  background: white;
+                  padding: 1.5rem;
+                  border-radius: 6px;
+                  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
                 `}
               >
-                <div>
-                  <AddCompletionsForm
-                    onSubmit={handlePostCompletionsPreview}
-                    courseModules={getCompletionsList.data.sortedCourseModules}
-                    submitText={t("button-text-check")}
+                <AddCompletionsForm
+                  onSubmit={handlePostCompletionsPreview}
+                  courseModules={getCompletionsList.data.sortedCourseModules}
+                  submitText={t("button-text-check")}
+                />
+                {previewData && completionFormData && (
+                  <CompletionRegistrationPreview
+                    manualCompletionPreview={previewData}
+                    onSubmit={(options) => {
+                      mutation.mutate({
+                        ...completionFormData,
+                        skip_duplicate_completions: options.skipDuplicateCompletions,
+                      })
+                    }}
                   />
-                  {previewData && completionFormData && (
-                    <CompletionRegistrationPreview
-                      manualCompletionPreview={previewData}
-                      onSubmit={(options) => {
-                        mutation.mutate({
-                          ...completionFormData,
-                          skip_duplicate_completions: options.skipDuplicateCompletions,
-                        })
-                      }}
-                    />
-                  )}
-                </div>
+                )}
               </div>
             )}
           </div>
@@ -240,7 +285,6 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
           <p>*: {t("module-is-completed-but-requires-completion-of-prerequisite-modules")}</p>
         </>
       )}
-      <CompletionsExportButton courseInstanceId={courseInstanceId} />
     </>
   )
 }

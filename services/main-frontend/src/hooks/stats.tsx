@@ -1,31 +1,35 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query"
 
 import {
-  getAvgTimeToFirstSubmissionByMonth,
-  getCohortDailyActivity,
-  getCohortWeeklyActivity,
-  getDailyCompletionsAllLanguageVersions,
-  getDailyCourseCompletions,
-  getDailyFirstExerciseSubmissions,
-  getDailyUniqueUsersStarting,
-  getDailyUniqueUsersStartingAllLanguageVersions,
-  getDailyUsersReturningExercises,
-  getMonthlyCompletionsAllLanguageVersions,
-  getMonthlyCourseCompletions,
-  getMonthlyFirstExerciseSubmissions,
-  getMonthlyUniqueUsersStarting,
-  getMonthlyUniqueUsersStartingAllLanguageVersions,
-  getMonthlyUsersReturningExercises,
+  getAvgTimeToFirstSubmissionHistory,
+  getCohortActivityHistory,
+  getCourseCompletionsHistory,
+  getCourseCompletionsHistoryAllLanguageVersions,
+  getCourseCompletionsHistoryByInstance,
+  getFirstExerciseSubmissionsHistory,
+  getFirstExerciseSubmissionsHistoryByInstance,
   getTotalUsersCompletedCourse,
+  getTotalUsersCompletedCourseByInstance,
   getTotalUsersReturnedExercises,
+  getTotalUsersReturnedExercisesByInstance,
   getTotalUsersStartedAllLanguageVersions,
   getTotalUsersStartedCourse,
-  getWeeklyUniqueUsersStarting,
+  getTotalUsersStartedCourseByInstance,
+  getUniqueUsersStartingHistory,
+  getUniqueUsersStartingHistoryAllLanguageVersions,
+  getUniqueUsersStartingHistoryByInstance,
+  getUsersReturningExercisesHistory,
+  getUsersReturningExercisesHistoryByInstance,
 } from "../services/backend/courses/stats"
 
 import { HookQueryOptions } from "."
 
-import { AverageMetric, CohortActivity, CountResult } from "@/shared-module/common/bindings"
+import {
+  AverageMetric,
+  CohortActivity,
+  CountResult,
+  TimeGranularity,
+} from "@/shared-module/common/bindings"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 export const useTotalUsersStartedCourseQuery = (
@@ -52,151 +56,20 @@ export const useTotalUsersCompletedCourseQuery = (
   })
 }
 
-export const useWeeklyUniqueUsersStartingQuery = (
+export const useUsersReturningExercisesHistoryQuery = (
   courseId: string | null,
+  granularity: TimeGranularity,
+  timeWindow: number,
   options: HookQueryOptions<CountResult[]> = {},
 ): UseQueryResult<CountResult[], Error> => {
   return useQuery<CountResult[], Error>({
-    queryKey: ["course-stats", "weekly-users-starting", courseId],
-    queryFn: () => getWeeklyUniqueUsersStarting(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
-    ...options,
-  })
-}
-
-export const useDailyUniqueUsersStartingQuery = (
-  courseId: string | null,
-  days: number,
-  options: HookQueryOptions<CountResult[]> = {},
-): UseQueryResult<CountResult[], Error> => {
-  return useQuery<CountResult[], Error>({
-    queryKey: ["course-stats", "daily-users-starting", courseId, days],
-    queryFn: () => getDailyUniqueUsersStarting(assertNotNullOrUndefined(courseId), days),
-    enabled: !!courseId,
-    ...options,
-  })
-}
-
-export const useMonthlyUniqueUsersStartingQuery = (
-  courseId: string | null,
-  options: HookQueryOptions<CountResult[]> = {},
-): UseQueryResult<CountResult[], Error> => {
-  return useQuery<CountResult[], Error>({
-    queryKey: ["course-stats", "monthly-users-starting", courseId],
-    queryFn: () => getMonthlyUniqueUsersStarting(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
-    ...options,
-  })
-}
-
-export const useMonthlyFirstExerciseSubmissionsQuery = (
-  courseId: string | null,
-  options: HookQueryOptions<CountResult[]> = {},
-): UseQueryResult<CountResult[], Error> => {
-  return useQuery<CountResult[], Error>({
-    queryKey: ["course-stats", "monthly-first-submissions", courseId],
-    queryFn: () => getMonthlyFirstExerciseSubmissions(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
-    ...options,
-  })
-}
-
-export const useDailyFirstExerciseSubmissionsQuery = (
-  courseId: string | null,
-  days: number,
-  options: HookQueryOptions<CountResult[]> = {},
-): UseQueryResult<CountResult[], Error> => {
-  return useQuery<CountResult[], Error>({
-    queryKey: ["course-stats", "daily-first-submissions", courseId, days],
-    queryFn: () => getDailyFirstExerciseSubmissions(assertNotNullOrUndefined(courseId), days),
-    enabled: !!courseId,
-    ...options,
-  })
-}
-
-export const useMonthlyUsersReturningExercisesQuery = (
-  courseId: string | null,
-  options: HookQueryOptions<CountResult[]> = {},
-): UseQueryResult<CountResult[], Error> => {
-  return useQuery<CountResult[], Error>({
-    queryKey: ["course-stats", "monthly-returning-exercises", courseId],
-    queryFn: () => getMonthlyUsersReturningExercises(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
-    ...options,
-  })
-}
-
-export const useDailyUsersReturningExercisesQuery = (
-  courseId: string | null,
-  days: number,
-  options: HookQueryOptions<CountResult[]> = {},
-): UseQueryResult<CountResult[], Error> => {
-  return useQuery<CountResult[], Error>({
-    queryKey: ["course-stats", "daily-returning-exercises", courseId, days],
-    queryFn: () => getDailyUsersReturningExercises(assertNotNullOrUndefined(courseId), days),
-    enabled: !!courseId,
-    ...options,
-  })
-}
-
-export const useMonthlyCourseCompletionsQuery = (
-  courseId: string | null,
-  options: HookQueryOptions<CountResult[]> = {},
-): UseQueryResult<CountResult[], Error> => {
-  return useQuery<CountResult[], Error>({
-    queryKey: ["course-stats", "monthly-completions", courseId],
-    queryFn: () => getMonthlyCourseCompletions(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
-    ...options,
-  })
-}
-
-export const useDailyCourseCompletionsQuery = (
-  courseId: string | null,
-  days: number,
-  options: HookQueryOptions<CountResult[]> = {},
-): UseQueryResult<CountResult[], Error> => {
-  return useQuery<CountResult[], Error>({
-    queryKey: ["course-stats", "daily-completions", courseId, days],
-    queryFn: () => getDailyCourseCompletions(assertNotNullOrUndefined(courseId), days),
-    enabled: !!courseId,
-    ...options,
-  })
-}
-
-export const useAvgTimeToFirstSubmissionByMonthQuery = (
-  courseId: string | null,
-  options: HookQueryOptions<AverageMetric[]> = {},
-): UseQueryResult<AverageMetric[], Error> => {
-  return useQuery<AverageMetric[], Error>({
-    queryKey: ["course-stats", "avg-time-to-first-submission", courseId],
-    queryFn: () => getAvgTimeToFirstSubmissionByMonth(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
-    ...options,
-  })
-}
-
-export const useCohortWeeklyActivityQuery = (
-  courseId: string | null,
-  months: number,
-  options: HookQueryOptions<CohortActivity[]> = {},
-): UseQueryResult<CohortActivity[], Error> => {
-  return useQuery<CohortActivity[], Error>({
-    queryKey: ["course-stats", "cohort-weekly-activity", courseId, months],
-    queryFn: () => getCohortWeeklyActivity(assertNotNullOrUndefined(courseId), months),
-    enabled: !!courseId,
-    ...options,
-  })
-}
-
-export const useCohortDailyActivityQuery = (
-  courseId: string | null,
-  days: number,
-  options: HookQueryOptions<CohortActivity[]> = {},
-): UseQueryResult<CohortActivity[], Error> => {
-  return useQuery<CohortActivity[], Error>({
-    queryKey: ["course-stats", "cohort-daily-activity", courseId, days],
-    queryFn: () => getCohortDailyActivity(assertNotNullOrUndefined(courseId), days),
+    queryKey: ["course-stats", "users-returning-exercises", courseId, granularity, timeWindow],
+    queryFn: () =>
+      getUsersReturningExercisesHistory(
+        assertNotNullOrUndefined(courseId),
+        granularity,
+        timeWindow,
+      ),
     enabled: !!courseId,
     ...options,
   })
@@ -226,53 +99,282 @@ export const useTotalUsersStartedAllLanguageVersionsQuery = (
   })
 }
 
-export const useMonthlyUniqueUsersStartingAllLanguageVersionsQuery = (
+export const useCourseCompletionsHistoryQuery = (
   courseId: string | null,
+  granularity: TimeGranularity,
+  timeWindow: number,
   options: HookQueryOptions<CountResult[]> = {},
 ): UseQueryResult<CountResult[], Error> => {
   return useQuery<CountResult[], Error>({
-    queryKey: ["course-stats", "all-language-versions", "monthly-users-starting", courseId],
+    queryKey: ["course-stats", "completions-history", courseId, granularity, timeWindow],
     queryFn: () =>
-      getMonthlyUniqueUsersStartingAllLanguageVersions(assertNotNullOrUndefined(courseId)),
+      getCourseCompletionsHistory(assertNotNullOrUndefined(courseId), granularity, timeWindow),
     enabled: !!courseId,
     ...options,
   })
 }
 
-export const useDailyUniqueUsersStartingAllLanguageVersionsQuery = (
+export const useCourseCompletionsHistoryAllLanguageVersionsQuery = (
   courseId: string | null,
-  days: number,
+  granularity: TimeGranularity,
+  timeWindow: number,
   options: HookQueryOptions<CountResult[]> = {},
 ): UseQueryResult<CountResult[], Error> => {
   return useQuery<CountResult[], Error>({
-    queryKey: ["course-stats", "all-language-versions", "daily-users-starting", courseId, days],
+    queryKey: [
+      "course-stats",
+      "all-language-versions",
+      "completions-history",
+      courseId,
+      granularity,
+      timeWindow,
+    ],
     queryFn: () =>
-      getDailyUniqueUsersStartingAllLanguageVersions(assertNotNullOrUndefined(courseId), days),
+      getCourseCompletionsHistoryAllLanguageVersions(
+        assertNotNullOrUndefined(courseId),
+        granularity,
+        timeWindow,
+      ),
     enabled: !!courseId,
     ...options,
   })
 }
 
-export const useMonthlyCompletionsAllLanguageVersionsQuery = (
+export const useUniqueUsersStartingHistoryQuery = (
   courseId: string | null,
+  granularity: TimeGranularity,
+  timeWindow: number,
   options: HookQueryOptions<CountResult[]> = {},
 ): UseQueryResult<CountResult[], Error> => {
   return useQuery<CountResult[], Error>({
-    queryKey: ["course-stats", "all-language-versions", "monthly-completions", courseId],
-    queryFn: () => getMonthlyCompletionsAllLanguageVersions(assertNotNullOrUndefined(courseId)),
+    queryKey: ["course-stats", "users-starting", courseId, granularity, timeWindow],
+    queryFn: () =>
+      getUniqueUsersStartingHistory(assertNotNullOrUndefined(courseId), granularity, timeWindow),
     enabled: !!courseId,
     ...options,
   })
 }
 
-export const useDailyCompletionsAllLanguageVersionsQuery = (
+export const useCohortActivityHistoryQuery = (
   courseId: string | null,
-  days: number,
+  granularity: TimeGranularity,
+  historyWindow: number,
+  trackingWindow: number,
+  options: HookQueryOptions<CohortActivity[]> = {},
+): UseQueryResult<CohortActivity[], Error> => {
+  return useQuery<CohortActivity[], Error>({
+    queryKey: [
+      "course-stats",
+      "cohort-activity",
+      courseId,
+      granularity,
+      historyWindow,
+      trackingWindow,
+    ],
+    queryFn: () =>
+      getCohortActivityHistory(
+        assertNotNullOrUndefined(courseId),
+        granularity,
+        historyWindow,
+        trackingWindow,
+      ),
+    enabled: !!courseId,
+    ...options,
+  })
+}
+
+export const useFirstExerciseSubmissionsHistoryQuery = (
+  courseId: string | null,
+  granularity: TimeGranularity,
+  timeWindow: number,
   options: HookQueryOptions<CountResult[]> = {},
 ): UseQueryResult<CountResult[], Error> => {
   return useQuery<CountResult[], Error>({
-    queryKey: ["course-stats", "all-language-versions", "daily-completions", courseId, days],
-    queryFn: () => getDailyCompletionsAllLanguageVersions(assertNotNullOrUndefined(courseId), days),
+    queryKey: ["course-stats", "first-submissions", courseId, granularity, timeWindow],
+    queryFn: () =>
+      getFirstExerciseSubmissionsHistory(
+        assertNotNullOrUndefined(courseId),
+        granularity,
+        timeWindow,
+      ),
+    enabled: !!courseId,
+    ...options,
+  })
+}
+
+export const useUniqueUsersStartingHistoryAllLanguageVersionsQuery = (
+  courseId: string | null,
+  granularity: TimeGranularity,
+  timeWindow: number,
+  options: HookQueryOptions<CountResult[]> = {},
+): UseQueryResult<CountResult[], Error> => {
+  return useQuery<CountResult[], Error>({
+    queryKey: [
+      "course-stats",
+      "all-language-versions",
+      "users-starting-history",
+      courseId,
+      granularity,
+      timeWindow,
+    ],
+    queryFn: () =>
+      getUniqueUsersStartingHistoryAllLanguageVersions(
+        assertNotNullOrUndefined(courseId),
+        granularity,
+        timeWindow,
+      ),
+    enabled: !!courseId,
+    ...options,
+  })
+}
+
+export const useAvgTimeToFirstSubmissionHistoryQuery = (
+  courseId: string | null,
+  granularity: TimeGranularity,
+  timeWindow: number,
+  options: HookQueryOptions<AverageMetric[]> = {},
+): UseQueryResult<AverageMetric[], Error> => {
+  return useQuery<AverageMetric[], Error>({
+    queryKey: ["course-stats", "avg-time-to-first-submission", courseId, granularity, timeWindow],
+    queryFn: () =>
+      getAvgTimeToFirstSubmissionHistory(
+        assertNotNullOrUndefined(courseId),
+        granularity,
+        timeWindow,
+      ),
+    enabled: !!courseId,
+    ...options,
+  })
+}
+
+export const useTotalUsersStartedCourseByInstanceQuery = (
+  courseId: string | null,
+  options: HookQueryOptions<Record<string, CountResult>> = {},
+): UseQueryResult<Record<string, CountResult>, Error> => {
+  return useQuery<Record<string, CountResult>, Error>({
+    queryKey: ["course-stats", "by-instance", "total-users-started", courseId],
+    queryFn: () => getTotalUsersStartedCourseByInstance(assertNotNullOrUndefined(courseId)),
+    enabled: !!courseId,
+    ...options,
+  })
+}
+
+export const useTotalUsersCompletedCourseByInstanceQuery = (
+  courseId: string | null,
+  options: HookQueryOptions<Record<string, CountResult>> = {},
+): UseQueryResult<Record<string, CountResult>, Error> => {
+  return useQuery<Record<string, CountResult>, Error>({
+    queryKey: ["course-stats", "by-instance", "total-users-completed", courseId],
+    queryFn: () => getTotalUsersCompletedCourseByInstance(assertNotNullOrUndefined(courseId)),
+    enabled: !!courseId,
+    ...options,
+  })
+}
+
+export const useTotalUsersReturnedExercisesByInstanceQuery = (
+  courseId: string | null,
+  options: HookQueryOptions<Record<string, CountResult>> = {},
+): UseQueryResult<Record<string, CountResult>, Error> => {
+  return useQuery<Record<string, CountResult>, Error>({
+    queryKey: ["course-stats", "by-instance", "total-users-returned-exercises", courseId],
+    queryFn: () => getTotalUsersReturnedExercisesByInstance(assertNotNullOrUndefined(courseId)),
+    enabled: !!courseId,
+    ...options,
+  })
+}
+
+export const useCourseCompletionsHistoryByInstanceQuery = (
+  courseId: string | null,
+  granularity: TimeGranularity,
+  timeWindow: number,
+  options: HookQueryOptions<Record<string, CountResult[]>> = {},
+): UseQueryResult<Record<string, CountResult[]>, Error> => {
+  return useQuery<Record<string, CountResult[]>, Error>({
+    queryKey: [
+      "course-stats",
+      "by-instance",
+      "completions-history",
+      courseId,
+      granularity,
+      timeWindow,
+    ],
+    queryFn: () =>
+      getCourseCompletionsHistoryByInstance(
+        assertNotNullOrUndefined(courseId),
+        granularity,
+        timeWindow,
+      ),
+    enabled: !!courseId,
+    ...options,
+  })
+}
+
+export const useUniqueUsersStartingHistoryByInstanceQuery = (
+  courseId: string | null,
+  granularity: TimeGranularity,
+  timeWindow: number,
+  options: HookQueryOptions<Record<string, CountResult[]>> = {},
+): UseQueryResult<Record<string, CountResult[]>, Error> => {
+  return useQuery<Record<string, CountResult[]>, Error>({
+    queryKey: ["course-stats", "by-instance", "users-starting", courseId, granularity, timeWindow],
+    queryFn: () =>
+      getUniqueUsersStartingHistoryByInstance(
+        assertNotNullOrUndefined(courseId),
+        granularity,
+        timeWindow,
+      ),
+    enabled: !!courseId,
+    ...options,
+  })
+}
+
+export const useFirstExerciseSubmissionsHistoryByInstanceQuery = (
+  courseId: string | null,
+  granularity: TimeGranularity,
+  timeWindow: number,
+  options: HookQueryOptions<Record<string, CountResult[]>> = {},
+): UseQueryResult<Record<string, CountResult[]>, Error> => {
+  return useQuery<Record<string, CountResult[]>, Error>({
+    queryKey: [
+      "course-stats",
+      "by-instance",
+      "first-submissions",
+      courseId,
+      granularity,
+      timeWindow,
+    ],
+    queryFn: () =>
+      getFirstExerciseSubmissionsHistoryByInstance(
+        assertNotNullOrUndefined(courseId),
+        granularity,
+        timeWindow,
+      ),
+    enabled: !!courseId,
+    ...options,
+  })
+}
+
+export const useUsersReturningExercisesHistoryByInstanceQuery = (
+  courseId: string | null,
+  granularity: TimeGranularity,
+  timeWindow: number,
+  options: HookQueryOptions<Record<string, CountResult[]>> = {},
+): UseQueryResult<Record<string, CountResult[]>, Error> => {
+  return useQuery<Record<string, CountResult[]>, Error>({
+    queryKey: [
+      "course-stats",
+      "by-instance",
+      "users-returning-exercises",
+      courseId,
+      granularity,
+      timeWindow,
+    ],
+    queryFn: () =>
+      getUsersReturningExercisesHistoryByInstance(
+        assertNotNullOrUndefined(courseId),
+        granularity,
+        timeWindow,
+      ),
     enabled: !!courseId,
     ...options,
   })

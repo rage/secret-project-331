@@ -1,4 +1,6 @@
+use crate::library::TimeGranularity;
 use crate::{prelude::*, roles::UserRole};
+use std::collections::HashMap;
 
 /// A generic result representing a count metric over a time period.
 /// When the time period is not applicable (for overall totals), `period` will be `None`.
@@ -24,8 +26,8 @@ pub struct AverageMetric {
 }
 
 /// Represents cohort activity metrics for both weekly and daily cohorts.
-/// For daily cohorts, `day_offset` will be populated (and `activity_period` may be computed from it);
-/// for weekly cohorts, `day_offset` will be `None` and `activity_period` indicates the week start.
+/// For daily cohorts, `offset` will be populated (and `activity_period` may be computed from it);
+/// for weekly cohorts, `offset` will be `None` and `activity_period` indicates the week start.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CohortActivity {
@@ -34,7 +36,7 @@ pub struct CohortActivity {
     /// The activity period (for example, the start of the week or the computed activity day).
     pub activity_period: Option<DateTime<Utc>>,
     /// The day offset from the cohort start (only applicable for daily cohorts).
-    pub day_offset: Option<i32>,
+    pub offset: Option<i32>,
     /// The number of active users in this cohort for the given period.
     pub active_users: i64,
 }
@@ -123,6 +125,30 @@ WHERE course_id = $1
     Ok(res)
 }
 
+/// Total unique users who have returned at least one exercise.
+pub async fn get_total_users_returned_at_least_one_exercise(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<CountResult> {
+    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+    let res = sqlx::query_as!(
+        CountResult,
+        r#"
+SELECT NULL::timestamptz AS "period",
+  COUNT(DISTINCT user_id) AS "count!"
+FROM exercise_slide_submissions
+WHERE course_id = $1
+  AND deleted_at IS NULL
+  AND user_id != ALL($2);
+      "#,
+        course_id,
+        &exclude_user_ids
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Total unique users who have completed the course in all language versions
 pub async fn get_total_users_completed_all_language_versions_of_a_course(
     conn: &mut PgConnection,
@@ -187,311 +213,158 @@ WHERE current_course_id IN (
     Ok(res)
 }
 
-/// Weekly count of unique users starting the course.
-pub async fn get_weekly_unique_users_starting(
+/// Get unique users starting counts with specified time granularity.
+///
+/// The time_window parameter controls how far back to look:
+/// - For Year granularity: number of years
+/// - For Month granularity: number of months
+/// - For Day granularity: number of days
+pub async fn unique_users_starting_history(
     conn: &mut PgConnection,
     course_id: Uuid,
+    granularity: TimeGranularity,
+    time_window: u16,
 ) -> ModelResult<Vec<CountResult>> {
     let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
-    let res = sqlx::query_as!(
-        CountResult,
-        r#"
-SELECT DATE_TRUNC('week', created_at) AS "period",
-       COUNT(DISTINCT user_id) AS "count!"
-FROM user_course_settings
-WHERE current_course_id = $1
-  AND deleted_at IS NULL
-  AND user_id != ALL($2)
-GROUP BY "period"
-ORDER BY "period";
-        "#,
-        course_id,
-        &exclude_user_ids
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
+    let (interval_unit, time_unit) = granularity.get_sql_units();
 
-/// Monthly count of unique users who started the course.
-pub async fn get_monthly_unique_users_starting(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-) -> ModelResult<Vec<CountResult>> {
-    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
     let res = sqlx::query_as!(
         CountResult,
         r#"
-SELECT DATE_TRUNC('month', created_at) AS "period",
-       COUNT(DISTINCT user_id) AS "count!"
-FROM user_course_settings
-WHERE current_course_id = $1
-  AND deleted_at IS NULL
-  AND user_id != ALL($2)
-GROUP BY "period"
-ORDER BY "period"
-        "#,
-        course_id,
-        &exclude_user_ids
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
-/// Daily count of unique users who started the course within specified days.
-pub async fn get_daily_unique_users_starting_last_n_days(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-    days_limit: i32,
-) -> ModelResult<Vec<CountResult>> {
-    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
-    let res = sqlx::query_as!(
-        CountResult,
-        r#"
-SELECT DATE_TRUNC('day', created_at) AS "period",
+SELECT DATE_TRUNC($5, created_at) AS "period",
   COUNT(DISTINCT user_id) AS "count!"
 FROM user_course_settings
 WHERE current_course_id = $1
-  AND created_at >= NOW() - ($2 || ' days')::INTERVAL
   AND deleted_at IS NULL
-  AND user_id != ALL($3)
+  AND NOT user_id = ANY($2)
+  AND created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
 GROUP BY "period"
 ORDER BY "period"
         "#,
         course_id,
-        &days_limit.to_string(),
-        &exclude_user_ids
+        &exclude_user_ids,
+        &time_window.to_string(),
+        interval_unit,
+        time_unit,
     )
     .fetch_all(conn)
     .await?;
+
     Ok(res)
 }
 
-/// Monthly count of users who submitted their first exercise.
-pub async fn get_monthly_first_exercise_submissions(
+/// Get first exercise submission counts with specified time granularity.
+///
+/// The time_window parameter controls how far back to look:
+/// - For Year granularity: number of years
+/// - For Month granularity: number of months
+/// - For Day granularity: number of days
+pub async fn first_exercise_submissions_history(
     conn: &mut PgConnection,
     course_id: Uuid,
+    granularity: TimeGranularity,
+    time_window: u16,
 ) -> ModelResult<Vec<CountResult>> {
     let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
-    let res = sqlx::query_as!(
-        CountResult,
-        r#"
-SELECT DATE_TRUNC('month', first_submission) AS "period",
-COUNT(user_id) AS "count!"
-FROM (
-    SELECT user_id,
-      MIN(created_at) AS first_submission
-    FROM exercise_slide_submissions
-    WHERE course_id = $1
-      AND deleted_at IS NULL
-      AND user_id != ALL($2)
-    GROUP BY user_id
-  ) AS first_submissions
-GROUP BY "period"
-ORDER BY "period"
-        "#,
-        course_id,
-        &exclude_user_ids
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
+    let (interval_unit, time_unit) = granularity.get_sql_units();
 
-/// Daily count of users who submitted their first exercise within specified days.
-pub async fn get_daily_first_exercise_submissions_last_n_days(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-    days_limit: i32,
-) -> ModelResult<Vec<CountResult>> {
-    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
     let res = sqlx::query_as!(
         CountResult,
         r#"
-SELECT DATE_TRUNC('day', first_submission) AS "period",
+SELECT DATE_TRUNC($5, first_submission) AS "period",
   COUNT(user_id) AS "count!"
 FROM (
     SELECT user_id,
       MIN(created_at) AS first_submission
     FROM exercise_slide_submissions
     WHERE course_id = $1
-      AND created_at >= NOW() - ($2 || ' days')::INTERVAL
       AND deleted_at IS NULL
-      AND user_id != ALL($3)
+      AND NOT user_id = ANY($2)
+      AND created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
     GROUP BY user_id
   ) AS first_submissions
 GROUP BY "period"
 ORDER BY "period"
         "#,
         course_id,
-        &days_limit.to_string(),
-        &exclude_user_ids
+        &exclude_user_ids,
+        &time_window.to_string(),
+        interval_unit,
+        time_unit,
     )
     .fetch_all(conn)
     .await?;
+
     Ok(res)
 }
 
-/// Monthly count of users returning exercises (any submission).
-pub async fn get_monthly_users_returning_exercises(
+/// Get users returning exercises counts with specified time granularity.
+///
+/// The time_window parameter controls how far back to look:
+/// - For Year granularity: number of years
+/// - For Month granularity: number of months
+/// - For Day granularity: number of days
+pub async fn users_returning_exercises_history(
     conn: &mut PgConnection,
     course_id: Uuid,
+    granularity: TimeGranularity,
+    time_window: u16,
 ) -> ModelResult<Vec<CountResult>> {
     let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+    let (interval_unit, time_unit) = granularity.get_sql_units();
+
     let res = sqlx::query_as!(
         CountResult,
         r#"
-SELECT DATE_TRUNC('month', created_at) AS "period",
+SELECT DATE_TRUNC($5, created_at) AS "period",
   COUNT(DISTINCT user_id) AS "count!"
 FROM exercise_slide_submissions
 WHERE course_id = $1
   AND deleted_at IS NULL
-  AND user_id != ALL($2)
+  AND NOT user_id = ANY($2)
+  AND created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
 GROUP BY "period"
 ORDER BY "period"
         "#,
         course_id,
-        &exclude_user_ids
+        &exclude_user_ids,
+        &time_window.to_string(),
+        interval_unit,
+        time_unit,
     )
     .fetch_all(conn)
     .await?;
+
     Ok(res)
 }
 
-/// Daily count of users returning exercises within specified days.
-pub async fn get_daily_users_returning_exercises_last_n_days(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-    days_limit: i32,
-) -> ModelResult<Vec<CountResult>> {
-    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
-    let res = sqlx::query_as!(
-        CountResult,
-        r#"
-SELECT DATE_TRUNC('day', created_at) AS "period",
-  COUNT(DISTINCT user_id) AS "count!"
-FROM exercise_slide_submissions
-WHERE course_id = $1
-  AND created_at >= NOW() - ($2 || ' days')::INTERVAL
-  AND deleted_at IS NULL
-  AND user_id != ALL($3)
-GROUP BY "period"
-ORDER BY "period"
-        "#,
-        course_id,
-        &days_limit.to_string(),
-        &exclude_user_ids
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
-/// Monthly count of users who have completed the course.
-pub async fn get_monthly_course_completions(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-) -> ModelResult<Vec<CountResult>> {
-    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
-    let res = sqlx::query_as!(
-        CountResult,
-        r#"
-SELECT DATE_TRUNC('month', created_at) AS "period",
-  COUNT(DISTINCT user_id) AS "count!"
-FROM course_module_completions
-WHERE course_id = $1
-  AND prerequisite_modules_completed = TRUE
-  AND (
-    needs_to_be_reviewed = FALSE
-    OR needs_to_be_reviewed IS NULL
-  )
-  AND passed = TRUE
-  AND deleted_at IS NULL
-  AND user_id != ALL($2)
-GROUP BY "period"
-ORDER BY "period"
-        "#,
-        course_id,
-        &exclude_user_ids
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
-/// Daily count of users who have completed the course within specified days.
-pub async fn get_daily_course_completions_last_n_days(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-    days_limit: i32,
-) -> ModelResult<Vec<CountResult>> {
-    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
-    let res = sqlx::query_as!(
-        CountResult,
-        r#"
-SELECT DATE_TRUNC('day', created_at) AS "period",
-COUNT(DISTINCT user_id) AS "count!"
-FROM course_module_completions
-WHERE course_id = $1
-  AND prerequisite_modules_completed = TRUE
-  AND needs_to_be_reviewed = FALSE
-  AND created_at >= NOW() - ($2 || ' days')::INTERVAL
-  AND deleted_at IS NULL
-  AND user_id != ALL($3)
-GROUP BY "period"
-ORDER BY "period"
-        "#,
-        course_id,
-        &days_limit.to_string(),
-        &exclude_user_ids
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
-/// Total unique users who have returned at least one exercise.
-pub async fn get_total_users_returned_at_least_one_exercise(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-) -> ModelResult<CountResult> {
-    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
-    let res = sqlx::query_as!(
-        CountResult,
-        r#"
-SELECT NULL::timestamptz AS "period",
-       COUNT(DISTINCT user_id) AS "count!"
-FROM exercise_slide_submissions
-WHERE course_id = $1
-  AND deleted_at IS NULL
-  AND user_id != ALL($2);
-        "#,
-        course_id,
-        &exclude_user_ids
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res)
-}
-
-/// Average time from course start to first exercise submission, grouped by month.
+/// Get average time from course start to first exercise submission with specified time granularity.
+///
+/// The time_window parameter controls how far back to look:
+/// - For Year granularity: number of years
+/// - For Month granularity: number of months
+/// - For Day granularity: number of days
+///
 /// Returns the average time in seconds.
-pub async fn get_avg_time_to_first_submission_by_month(
+pub async fn avg_time_to_first_submission_history(
     conn: &mut PgConnection,
     course_id: Uuid,
+    granularity: TimeGranularity,
+    time_window: u16,
 ) -> ModelResult<Vec<AverageMetric>> {
     let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+    let (interval_unit, time_unit) = granularity.get_sql_units();
+
     let res = sqlx::query_as!(
         AverageMetric,
         r#"
-SELECT DATE_TRUNC('month', user_start) AS "period",
-AVG(
-  EXTRACT(
-    EPOCH
-    FROM (first_submission - user_start)
-  )
-)::float8 AS "average"
+SELECT DATE_TRUNC($5, user_start) AS "period",
+  AVG(
+    EXTRACT(
+      EPOCH
+      FROM (first_submission - user_start)
+    )
+  )::float8 AS "average"
 FROM (
     SELECT u.user_id,
       MIN(u.created_at) AS user_start,
@@ -502,236 +375,187 @@ FROM (
       AND e.deleted_at IS NULL
     WHERE u.current_course_id = $1
       AND u.deleted_at IS NULL
-      AND u.user_id != ALL($2)
+      AND NOT u.user_id = ANY($2)
+      AND u.created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
     GROUP BY u.user_id
   ) AS timings
 GROUP BY "period"
 ORDER BY "period"
         "#,
         course_id,
-        &exclude_user_ids
+        &exclude_user_ids,
+        &time_window.to_string(),
+        interval_unit,
+        time_unit,
     )
     .fetch_all(conn)
     .await?;
+
     Ok(res)
 }
 
-/// Cohort Analysis: Weekly activity by users who started the course within specified months.
-pub async fn get_cohort_weekly_activity(
+/// Get cohort activity statistics with specified time granularity.
+///
+/// Parameters:
+/// - history_window: How far back to look for cohorts
+/// - tracking_window: How long to track activity after each cohort's start
+///
+/// For each granularity:
+/// - Year: windows in years, tracking monthly activity
+/// - Month: windows in months, tracking weekly activity
+/// - Day: windows in days, tracking daily activity
+///
+/// Cohorts are defined by when users first submitted an exercise.
+pub async fn get_cohort_activity_history(
     conn: &mut PgConnection,
     course_id: Uuid,
-    months_limit: i32,
+    granularity: TimeGranularity,
+    history_window: u16,
+    tracking_window: u16,
 ) -> ModelResult<Vec<CohortActivity>> {
     let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
-    let res = sqlx::query_as!(
-        CohortActivity,
-        r#"
-WITH cohort AS (
-  SELECT user_id,
-    DATE_TRUNC('week', created_at) AS cohort_week
-  FROM user_course_settings
-  WHERE current_course_id = $1
-    AND created_at >= NOW() - ($3 || ' months')::INTERVAL
-    AND deleted_at IS NULL
-    AND user_id != ALL($4)
-)
-SELECT c.cohort_week AS "cohort_start",
-  DATE_TRUNC('week', s.created_at) AS "activity_period",
-  NULL::int AS "day_offset",
-  COUNT(DISTINCT s.user_id) AS "active_users!"
-FROM cohort c
-  JOIN exercise_slide_submissions s ON c.user_id = s.user_id
-  AND s.course_id = $2
-  AND s.created_at >= NOW() - ($3 || ' months')::INTERVAL
-  AND s.deleted_at IS NULL
-GROUP BY c.cohort_week,
-  "activity_period"
-ORDER BY c.cohort_week,
-  "activity_period";
-        "#,
-        course_id,
-        course_id,
-        &months_limit.to_string(),
-        &exclude_user_ids
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
+    let (interval_unit, time_unit) = granularity.get_sql_units();
 
-/// Cohort Analysis: Daily activity tracking for 1 week (day 0 to day 6), limited to specified number of days.
-pub async fn get_cohort_daily_activity(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-    days_limit: i32,
-) -> ModelResult<Vec<CohortActivity>> {
-    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
-    let res = sqlx::query_as!(
+    Ok(sqlx::query_as!(
         CohortActivity,
         r#"
-WITH cohort AS (
+WITH first_activity AS (
   SELECT user_id,
-    DATE_TRUNC('day', created_at) AS cohort_day
-  FROM user_course_settings
-  WHERE current_course_id = $1
-    AND created_at >= NOW() - ($3 || ' days')::INTERVAL
+    MIN(DATE_TRUNC($6, created_at)) AS first_active_at
+  FROM exercise_slide_submissions
+  WHERE course_id = $1
+    AND created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
     AND deleted_at IS NULL
-    AND user_id != ALL($4)
+    AND NOT user_id = ANY($2)
+  GROUP BY user_id
+),
+cohort AS (
+  SELECT user_id,
+    first_active_at AS cohort_start
+  FROM first_activity
 )
-SELECT c.cohort_day AS "cohort_start",
-  DATE_TRUNC('day', s.created_at) AS "activity_period",
-  EXTRACT(
-    DAY
-    FROM (DATE_TRUNC('day', s.created_at) - c.cohort_day)
-  )::int AS "day_offset",
+SELECT c.cohort_start AS "cohort_start",
+  DATE_TRUNC($6, s.created_at) AS "activity_period",
+  CASE
+    WHEN $6 = 'day' THEN EXTRACT(
+      DAY
+      FROM (DATE_TRUNC('day', s.created_at) - c.cohort_start)
+    )::integer
+    WHEN $6 = 'week' THEN EXTRACT(
+      WEEK
+      FROM (
+          DATE_TRUNC('week', s.created_at) - c.cohort_start
+        )
+    )::integer
+    WHEN $6 = 'month' THEN (
+      EXTRACT(
+        YEAR
+        FROM s.created_at
+      ) - EXTRACT(
+        YEAR
+        FROM c.cohort_start
+      )
+    )::integer * 12 + (
+      EXTRACT(
+        MONTH
+        FROM s.created_at
+      ) - EXTRACT(
+        MONTH
+        FROM c.cohort_start
+      )
+    )::integer
+    ELSE NULL::integer
+  END AS "offset",
   COUNT(DISTINCT s.user_id) AS "active_users!"
 FROM cohort c
-  JOIN exercise_slide_submissions s ON c.user_id = s.user_id
-  AND s.course_id = $2
-  AND s.created_at >= NOW() - ($3 || ' days')::INTERVAL
+  JOIN exercise_slide_submissions s ON (
+    c.user_id = s.user_id
+    AND s.course_id = $1
+  )
+  AND s.created_at >= c.cohort_start
+  AND s.created_at < c.cohort_start + ($5 || ' ' || $4)::INTERVAL
   AND s.deleted_at IS NULL
-WHERE DATE_TRUNC('day', s.created_at) < c.cohort_day + INTERVAL '7 days'
-GROUP BY c.cohort_day,
+GROUP BY c.cohort_start,
   "activity_period",
-  "day_offset"
-ORDER BY c.cohort_day,
-  "day_offset";
+  "offset"
+ORDER BY c.cohort_start,
+  "offset"
         "#,
         course_id,
-        course_id,
-        &days_limit.to_string(),
-        &exclude_user_ids
+        &exclude_user_ids,
+        &history_window.to_string(),
+        interval_unit,
+        &tracking_window.to_string(),
+        time_unit,
     )
     .fetch_all(conn)
-    .await?;
-    Ok(res)
+    .await?)
 }
 
-/// Monthly count of unique users who started any language version of the course.
-pub async fn get_monthly_unique_users_starting_all_language_versions(
+/// Get course completion counts with specified time granularity.
+///
+/// The time_window parameter controls how far back to look:
+/// - For Year granularity: number of years
+/// - For Month granularity: number of months
+/// - For Day granularity: number of days
+pub async fn course_completions_history(
     conn: &mut PgConnection,
-    course_language_group_id: Uuid,
+    course_id: Uuid,
+    granularity: TimeGranularity,
+    time_window: u16,
 ) -> ModelResult<Vec<CountResult>> {
-    let exclude_user_ids =
-        get_user_ids_to_exclude_from_course_language_group_stats(conn, course_language_group_id)
-            .await?;
+    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+    let (interval_unit, time_unit) = granularity.get_sql_units();
 
     let res = sqlx::query_as!(
         CountResult,
         r#"
-SELECT DATE_TRUNC('month', created_at) AS "period",
-       COUNT(DISTINCT user_id) AS "count!"
-FROM user_course_settings
-WHERE current_course_id IN (
-    SELECT id
-    FROM courses
-    WHERE course_language_group_id = $1
-      AND deleted_at IS NULL
-  )
-  AND deleted_at IS NULL
-  AND user_id != ALL($2)
-GROUP BY "period"
-ORDER BY "period"
-        "#,
-        course_language_group_id,
-        &exclude_user_ids
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
-/// Daily count of unique users who started any language version of the course within specified days.
-pub async fn get_daily_unique_users_starting_all_language_versions_last_n_days(
-    conn: &mut PgConnection,
-    course_language_group_id: Uuid,
-    days_limit: i32,
-) -> ModelResult<Vec<CountResult>> {
-    let exclude_user_ids =
-        get_user_ids_to_exclude_from_course_language_group_stats(conn, course_language_group_id)
-            .await?;
-
-    let res = sqlx::query_as!(
-        CountResult,
-        r#"
-SELECT DATE_TRUNC('day', created_at) AS "period",
-  COUNT(DISTINCT user_id) AS "count!"
-FROM user_course_settings
-WHERE current_course_id IN (
-    SELECT id
-    FROM courses
-    WHERE course_language_group_id = $1
-      AND deleted_at IS NULL
-  )
-  AND created_at >= NOW() - ($2 || ' days')::INTERVAL
-  AND deleted_at IS NULL
-  AND user_id != ALL($3)
-GROUP BY "period"
-ORDER BY "period"
-        "#,
-        course_language_group_id,
-        &days_limit.to_string(),
-        &exclude_user_ids
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
-/// Monthly count of users who have completed any language version of the course.
-pub async fn get_monthly_course_completions_all_language_versions(
-    conn: &mut PgConnection,
-    course_language_group_id: Uuid,
-) -> ModelResult<Vec<CountResult>> {
-    let exclude_user_ids =
-        get_user_ids_to_exclude_from_course_language_group_stats(conn, course_language_group_id)
-            .await?;
-
-    let res = sqlx::query_as!(
-        CountResult,
-        r#"
-SELECT DATE_TRUNC('month', created_at) AS "period",
+SELECT DATE_TRUNC($5, created_at) AS "period",
   COUNT(DISTINCT user_id) AS "count!"
 FROM course_module_completions
-WHERE course_id IN (
-    SELECT id
-    FROM courses
-    WHERE course_language_group_id = $1
-      AND deleted_at IS NULL
-  )
+WHERE course_id = $1
   AND prerequisite_modules_completed = TRUE
-  AND (
-    needs_to_be_reviewed = FALSE
-    OR needs_to_be_reviewed IS NULL
-  )
+  AND needs_to_be_reviewed = FALSE
   AND passed = TRUE
   AND deleted_at IS NULL
-  AND user_id != ALL($2)
+  AND NOT user_id = ANY($2)
+  AND created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
 GROUP BY "period"
 ORDER BY "period"
-        "#,
-        course_language_group_id,
-        &exclude_user_ids
+          "#,
+        course_id,
+        &exclude_user_ids,
+        &time_window.to_string(),
+        interval_unit,
+        time_unit,
     )
     .fetch_all(conn)
     .await?;
+
     Ok(res)
 }
 
-/// Daily count of users who have completed any language version of the course within specified days.
-pub async fn get_daily_course_completions_all_language_versions_last_n_days(
+/// Get completion counts for all language versions of a course with specified time granularity.
+///
+/// The time_window parameter controls how far back to look:
+/// - For Year granularity: number of years
+/// - For Month granularity: number of months
+/// - For Day granularity: number of days
+pub async fn course_completions_history_all_language_versions(
     conn: &mut PgConnection,
     course_language_group_id: Uuid,
-    days_limit: i32,
+    granularity: TimeGranularity,
+    time_window: u16,
 ) -> ModelResult<Vec<CountResult>> {
     let exclude_user_ids =
         get_user_ids_to_exclude_from_course_language_group_stats(conn, course_language_group_id)
             .await?;
+    let (interval_unit, time_unit) = granularity.get_sql_units();
 
     let res = sqlx::query_as!(
         CountResult,
         r#"
-SELECT DATE_TRUNC('day', created_at) AS "period",
+SELECT DATE_TRUNC($5, created_at) AS "period",
 COUNT(DISTINCT user_id) AS "count!"
 FROM course_module_completions
 WHERE course_id IN (
@@ -742,17 +566,447 @@ WHERE course_id IN (
   )
   AND prerequisite_modules_completed = TRUE
   AND needs_to_be_reviewed = FALSE
-  AND created_at >= NOW() - ($2 || ' days')::INTERVAL
+  AND passed = TRUE
   AND deleted_at IS NULL
-  AND user_id != ALL($3)
+  AND NOT user_id = ANY($2)
+  AND created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
 GROUP BY "period"
 ORDER BY "period"
         "#,
         course_language_group_id,
-        &days_limit.to_string(),
+        &exclude_user_ids,
+        &time_window.to_string(),
+        interval_unit,
+        time_unit,
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(res)
+}
+
+/// Get unique users starting counts for all language versions with specified time granularity.
+///
+/// The time_window parameter controls how far back to look:
+/// - For Year granularity: number of years
+/// - For Month granularity: number of months
+/// - For Day granularity: number of days
+pub async fn unique_users_starting_history_all_language_versions(
+    conn: &mut PgConnection,
+    course_language_group_id: Uuid,
+    granularity: TimeGranularity,
+    time_window: u16,
+) -> ModelResult<Vec<CountResult>> {
+    let exclude_user_ids =
+        get_user_ids_to_exclude_from_course_language_group_stats(conn, course_language_group_id)
+            .await?;
+    let (interval_unit, time_unit) = granularity.get_sql_units();
+
+    let res = sqlx::query_as!(
+        CountResult,
+        r#"
+SELECT DATE_TRUNC($5, created_at) AS "period",
+  COUNT(DISTINCT user_id) AS "count!"
+FROM user_course_settings
+WHERE current_course_id IN (
+    SELECT id
+    FROM courses
+    WHERE course_language_group_id = $1
+      AND deleted_at IS NULL
+  )
+  AND deleted_at IS NULL
+  AND NOT user_id = ANY($2)
+  AND created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
+GROUP BY "period"
+ORDER BY "period"
+        "#,
+        course_language_group_id,
+        &exclude_user_ids,
+        &time_window.to_string(),
+        interval_unit,
+        time_unit,
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(res)
+}
+
+/// Total unique users in the course settings table, grouped by course instance.
+///
+/// Returns a HashMap where keys are course instance IDs and values are the total user counts
+/// for that instance.
+pub async fn get_total_users_started_course_by_instance(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<HashMap<Uuid, CountResult>> {
+    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+    let results = sqlx::query!(
+        r#"
+SELECT current_course_instance_id AS "instance_id!",
+  NULL::timestamptz AS "period",
+  COUNT(DISTINCT user_id) AS "count!"
+FROM user_course_settings
+WHERE current_course_id = $1
+  AND deleted_at IS NULL
+  AND user_id != ALL($2)
+GROUP BY current_course_instance_id
+        "#,
+        course_id,
         &exclude_user_ids
     )
     .fetch_all(conn)
     .await?;
-    Ok(res)
+
+    let mut grouped_results = HashMap::new();
+    for row in results {
+        let count_result = CountResult {
+            period: row.period,
+            count: row.count,
+        };
+        grouped_results.insert(row.instance_id, count_result);
+    }
+
+    Ok(grouped_results)
+}
+
+/// Total unique users who have completed the course, grouped by course instance.
+///
+/// Returns a HashMap where keys are course instance IDs and values are the completion counts
+/// for that instance.
+pub async fn get_total_users_completed_course_by_instance(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<HashMap<Uuid, CountResult>> {
+    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+    let results = sqlx::query!(
+        r#"
+SELECT ucs.current_course_instance_id AS "instance_id!",
+  NULL::timestamptz AS "period",
+  COUNT(DISTINCT c.user_id) AS "count!"
+FROM course_module_completions c
+JOIN user_course_settings ucs ON c.user_id = ucs.user_id
+  AND ucs.current_course_id = c.course_id
+WHERE c.course_id = $1
+  AND c.deleted_at IS NULL
+  AND c.user_id != ALL($2)
+GROUP BY ucs.current_course_instance_id
+        "#,
+        course_id,
+        &exclude_user_ids
+    )
+    .fetch_all(conn)
+    .await?;
+
+    let mut grouped_results = HashMap::new();
+    for row in results {
+        let count_result = CountResult {
+            period: row.period,
+            count: row.count,
+        };
+        grouped_results.insert(row.instance_id, count_result);
+    }
+
+    Ok(grouped_results)
+}
+
+/// Total unique users who have returned at least one exercise, grouped by course instance.
+///
+/// Returns a HashMap where keys are course instance IDs and values are the submission counts
+/// for that instance.
+pub async fn get_total_users_returned_at_least_one_exercise_by_instance(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<HashMap<Uuid, CountResult>> {
+    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+    let results = sqlx::query!(
+        r#"
+SELECT ucs.current_course_instance_id AS "instance_id!",
+  NULL::timestamptz AS "period",
+  COUNT(DISTINCT ess.user_id) AS "count!"
+FROM exercise_slide_submissions ess
+JOIN user_course_settings ucs ON ess.user_id = ucs.user_id
+  AND ucs.current_course_id = ess.course_id
+WHERE ess.course_id = $1
+  AND ess.deleted_at IS NULL
+  AND ess.user_id != ALL($2)
+GROUP BY ucs.current_course_instance_id
+        "#,
+        course_id,
+        &exclude_user_ids
+    )
+    .fetch_all(conn)
+    .await?;
+
+    let mut grouped_results = HashMap::new();
+    for row in results {
+        let count_result = CountResult {
+            period: row.period,
+            count: row.count,
+        };
+        grouped_results.insert(row.instance_id, count_result);
+    }
+
+    Ok(grouped_results)
+}
+
+/// Get course completion counts with specified time granularity, grouped by course instance.
+///
+/// Returns a HashMap where keys are course instance IDs and values are vectors of completion counts
+/// over time for that instance.
+///
+/// The time_window parameter controls how far back to look:
+/// - For Year granularity: number of years
+/// - For Month granularity: number of months
+/// - For Day granularity: number of days
+pub async fn course_completions_history_by_instance(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    granularity: TimeGranularity,
+    time_window: u16,
+) -> ModelResult<HashMap<Uuid, Vec<CountResult>>> {
+    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+    let (interval_unit, time_unit) = granularity.get_sql_units();
+
+    // Get completions joined with user_course_settings to get instance information
+    let results = sqlx::query!(
+        r#"
+WITH completions AS (
+SELECT c.user_id,
+  c.created_at,
+  ucs.current_course_instance_id
+FROM course_module_completions c
+  JOIN user_course_settings ucs ON c.user_id = ucs.user_id
+  AND ucs.current_course_id = c.course_id
+WHERE c.course_id = $1
+  AND c.prerequisite_modules_completed = TRUE
+  AND c.needs_to_be_reviewed = FALSE
+  AND c.passed = TRUE
+  AND c.deleted_at IS NULL
+  AND NOT c.user_id = ANY($2)
+  AND c.created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
+)
+SELECT current_course_instance_id AS "instance_id!",
+DATE_TRUNC($5, created_at) AS "period",
+COUNT(DISTINCT user_id) AS "count!"
+FROM completions
+GROUP BY current_course_instance_id,
+period
+ORDER BY current_course_instance_id,
+period "#,
+        course_id,
+        &exclude_user_ids,
+        &time_window.to_string(),
+        interval_unit,
+        time_unit,
+    )
+    .fetch_all(conn)
+    .await?;
+
+    // Convert the flat results into a HashMap grouped by instance_id
+    let mut grouped_results: HashMap<Uuid, Vec<CountResult>> = HashMap::new();
+
+    for row in results {
+        let count_result = CountResult {
+            period: row.period,
+            count: row.count,
+        };
+
+        grouped_results
+            .entry(row.instance_id)
+            .or_default()
+            .push(count_result);
+    }
+
+    Ok(grouped_results)
+}
+
+/// Get unique users starting counts with specified time granularity, grouped by course instance.
+///
+/// Returns a HashMap where keys are course instance IDs and values are vectors of user counts
+/// over time for that instance.
+///
+/// The time_window parameter controls how far back to look:
+/// - For Year granularity: number of years
+/// - For Month granularity: number of months
+/// - For Day granularity: number of days
+pub async fn unique_users_starting_history_by_instance(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    granularity: TimeGranularity,
+    time_window: u16,
+) -> ModelResult<HashMap<Uuid, Vec<CountResult>>> {
+    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+    let (interval_unit, time_unit) = granularity.get_sql_units();
+
+    let results = sqlx::query!(
+        r#"
+SELECT current_course_instance_id AS "instance_id!",
+DATE_TRUNC($5, created_at) AS "period",
+COUNT(DISTINCT user_id) AS "count!"
+FROM user_course_settings
+WHERE current_course_id = $1
+AND deleted_at IS NULL
+AND NOT user_id = ANY($2)
+AND created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
+GROUP BY current_course_instance_id,
+period
+ORDER BY current_course_instance_id,
+period
+    "#,
+        course_id,
+        &exclude_user_ids,
+        &time_window.to_string(),
+        interval_unit,
+        time_unit,
+    )
+    .fetch_all(conn)
+    .await?;
+
+    // Convert the flat results into a HashMap grouped by instance_id
+    let mut grouped_results: HashMap<Uuid, Vec<CountResult>> = HashMap::new();
+
+    for row in results {
+        let count_result = CountResult {
+            period: row.period,
+            count: row.count,
+        };
+
+        grouped_results
+            .entry(row.instance_id)
+            .or_default()
+            .push(count_result);
+    }
+
+    Ok(grouped_results)
+}
+
+/// Get first exercise submission counts with specified time granularity, grouped by course instance.
+///
+/// Returns a HashMap where keys are course instance IDs and values are vectors of submission counts
+/// over time for that instance.
+///
+/// The time_window parameter controls how far back to look:
+/// - For Year granularity: number of years
+/// - For Month granularity: number of months
+/// - For Day granularity: number of days
+pub async fn first_exercise_submissions_history_by_instance(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    granularity: TimeGranularity,
+    time_window: u16,
+) -> ModelResult<HashMap<Uuid, Vec<CountResult>>> {
+    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+    let (interval_unit, time_unit) = granularity.get_sql_units();
+
+    let results = sqlx::query!(
+        r#"
+WITH first_submissions AS (
+SELECT user_id,
+  MIN(created_at) AS first_submission
+FROM exercise_slide_submissions
+WHERE course_id = $1
+  AND deleted_at IS NULL
+  AND NOT user_id = ANY($2)
+  AND created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
+GROUP BY user_id
+)
+SELECT ucs.current_course_instance_id AS "instance_id!",
+DATE_TRUNC($5, fs.first_submission) AS "period",
+COUNT(fs.user_id) AS "count!"
+FROM first_submissions fs
+JOIN user_course_settings ucs ON fs.user_id = ucs.user_id
+AND ucs.current_course_id = $1
+GROUP BY ucs.current_course_instance_id,
+period
+ORDER BY ucs.current_course_instance_id,
+period
+    "#,
+        course_id,
+        &exclude_user_ids,
+        &time_window.to_string(),
+        interval_unit,
+        time_unit,
+    )
+    .fetch_all(conn)
+    .await?;
+
+    // Convert the flat results into a HashMap grouped by instance_id
+    let mut grouped_results: HashMap<Uuid, Vec<CountResult>> = HashMap::new();
+
+    for row in results {
+        let count_result = CountResult {
+            period: row.period,
+            count: row.count,
+        };
+
+        grouped_results
+            .entry(row.instance_id)
+            .or_default()
+            .push(count_result);
+    }
+
+    Ok(grouped_results)
+}
+
+/// Get users returning exercises counts with specified time granularity, grouped by course instance.
+///
+/// Returns a HashMap where keys are course instance IDs and values are vectors of user counts
+/// over time for that instance.
+///
+/// The time_window parameter controls how far back to look:
+/// - For Year granularity: number of years
+/// - For Month granularity: number of months
+/// - For Day granularity: number of days
+pub async fn users_returning_exercises_history_by_instance(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    granularity: TimeGranularity,
+    time_window: u16,
+) -> ModelResult<HashMap<Uuid, Vec<CountResult>>> {
+    let exclude_user_ids = get_user_ids_to_exclude_from_course_stats(conn, course_id).await?;
+    let (interval_unit, time_unit) = granularity.get_sql_units();
+
+    let results = sqlx::query!(
+        r#"
+SELECT ucs.current_course_instance_id AS "instance_id!",
+DATE_TRUNC($5, ess.created_at) AS "period",
+COUNT(DISTINCT ess.user_id) AS "count!"
+FROM exercise_slide_submissions ess
+JOIN user_course_settings ucs ON ess.user_id = ucs.user_id
+AND ucs.current_course_id = ess.course_id
+WHERE ess.course_id = $1
+AND ess.deleted_at IS NULL
+AND NOT ess.user_id = ANY($2)
+AND ess.created_at >= NOW() - ($3 || ' ' || $4)::INTERVAL
+GROUP BY ucs.current_course_instance_id,
+period
+ORDER BY ucs.current_course_instance_id,
+period
+    "#,
+        course_id,
+        &exclude_user_ids,
+        &time_window.to_string(),
+        interval_unit,
+        time_unit,
+    )
+    .fetch_all(conn)
+    .await?;
+
+    // Convert the flat results into a HashMap grouped by instance_id
+    let mut grouped_results: HashMap<Uuid, Vec<CountResult>> = HashMap::new();
+
+    for row in results {
+        let count_result = CountResult {
+            period: row.period,
+            count: row.count,
+        };
+
+        grouped_results
+            .entry(row.instance_id)
+            .or_default()
+            .push(count_result);
+    }
+
+    Ok(grouped_results)
 }

@@ -32,7 +32,7 @@ const ListItemBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListIte
       id={props.id}
     >
       <span dangerouslySetInnerHTML={{ __html: parseText(content, terms).parsedText }} />
-      <InnerBlocks parentBlockProps={props} />
+      <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
     </li>
   )
 }

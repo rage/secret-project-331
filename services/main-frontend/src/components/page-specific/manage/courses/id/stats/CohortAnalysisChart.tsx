@@ -44,14 +44,6 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
 }) => {
   const { t } = useTranslation()
 
-  if (error) {
-    return <ErrorBanner variant="readOnly" error={error} />
-  }
-
-  if (isLoading) {
-    return <Spinner variant="medium" />
-  }
-
   const processData = (rawData: CohortActivity[] | undefined) => {
     if (!rawData || rawData.length === 0) {
       return { cohorts: [], dayOffsets: [], chartData: [] }
@@ -62,16 +54,16 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
       .filter((date): date is string => date !== null)
       .sort()
 
-    const dayOffsets = Array.from(new Set(rawData.map((item) => item.day_offset)))
+    const dayOffsets = Array.from(new Set(rawData.map((item) => item.offset)))
       .filter((offset): offset is number => offset !== null)
       .sort((a, b) => a - b)
 
     // Transform data into format needed for heatmap
     const chartData = rawData
-      .filter((item) => item.cohort_start !== null && item.day_offset !== null)
+      .filter((item) => item.cohort_start !== null && item.offset !== null)
       .map((item) => {
         const cohortIndex = cohorts.indexOf(item.cohort_start!)
-        return [item.day_offset, cohortIndex, item.active_users]
+        return [item.offset, cohortIndex, item.active_users]
       })
 
     return { cohorts, dayOffsets, chartData }
@@ -169,20 +161,28 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
         )}
       </StatsHeader>
       <InstructionBox>{instructionText}</InstructionBox>
-      {!data || data.length === 0 ? (
-        <div>{t("no-data")}</div>
-      ) : (
-        <div
-          className={css`
-            margin-bottom: 2rem;
-            border: 3px solid ${baseTheme.colors.clear[200]};
-            border-radius: 6px;
-            padding: 1rem;
-          `}
-        >
+      <div
+        className={css`
+          margin-bottom: 2rem;
+          border: 3px solid ${baseTheme.colors.clear[200]};
+          border-radius: 6px;
+          padding: 1rem;
+          min-height: 400px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        `}
+      >
+        {isLoading ? (
+          <Spinner variant="medium" />
+        ) : error ? (
+          <ErrorBanner variant="readOnly" error={error} />
+        ) : !data || data.length === 0 ? (
+          <div>{t("no-data")}</div>
+        ) : (
           <Echarts options={chartOptions} height={400} />
-        </div>
-      )}
+        )}
+      </div>
     </>
   )
 }

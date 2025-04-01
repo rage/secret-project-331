@@ -60,7 +60,7 @@ const processGrading = async (
     let extractSubmissionNaively: boolean
     if (exercise_spec.type === "editor" && submission_data.type === "editor") {
       debug("grading editor submission")
-      const archiveDownloadUrl = submission_data.archiveDownloadUrl
+      const archiveDownloadUrl = submission_data.archive_download_url
       await downloadStream(archiveDownloadUrl, submissionArchivePath)
       extractSubmissionNaively = false
       // todo: support other compression methods? for now we just assume .tar.zstd
@@ -83,7 +83,7 @@ const processGrading = async (
 
     debug("downloading exercise template")
     const templateArchivePath = temporaryFile()
-    await downloadStream(exercise_spec.repositoryExercise.download_url, templateArchivePath)
+    await downloadStream(exercise_spec.repository_exercise.download_url, templateArchivePath)
 
     debug("extracting template")
     const extractedTemplatePath = temporaryDirectory()
@@ -227,14 +227,18 @@ const gradeInPodInner = async (
 
   // start pod and wait for it to start
   log("starting sandbox image", sandboxImage)
-  await kubeApi.createNamespacedPod({ body: pod, namespace: "default", pretty: "true" })
+  await kubeApi.createNamespacedPod({ namespace: "default", body: pod, pretty: "true" })
   let podPhase = null
   while (podPhase !== "Running") {
     // poll once per 500 ms
     const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
     await delay(500)
 
-    const podStatus = await kubeApi.readNamespacedPodStatus({ name: podName, namespace: "default" })
+    const podStatus = await kubeApi.readNamespacedPodStatus({
+      namespace: "default",
+      name: podName,
+      pretty: "true",
+    })
     podPhase = podStatus.status?.phase
     if (podPhase !== "Pending" && podPhase !== "Running") {
       // may indicate a problem like the pod crashing

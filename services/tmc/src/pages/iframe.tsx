@@ -46,13 +46,13 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
     }
     setState((old) => {
       const newState = updater(old)
-      if (newState?.viewType == "exercise-editor" && newState.privateSpec) {
+      if (newState?.view_type == "exercise-editor" && newState.private_spec) {
         // send updated private spec
-        sendSpecToParent(port, { private_spec: newState.privateSpec })
-      } else if (newState?.viewType == "answer-exercise") {
+        sendSpecToParent(port, { private_spec: newState.private_spec })
+      } else if (newState?.view_type == "answer-exercise") {
         // send user answer
-        sendSpecToParent(port, { private_spec: newState.userAnswer })
-      } else if (newState?.viewType == "view-submission") {
+        sendSpecToParent(port, { private_spec: newState.user_answer })
+      } else if (newState?.view_type == "view-submission") {
         sendSpecToParent(port, { private_spec: newState.submission })
       }
       return newState
@@ -66,10 +66,10 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
         ReactDOM.flushSync(() => {
           if (messageData.view_type === "exercise-editor") {
             setState({
-              viewType: messageData.view_type,
-              exerciseTaskId: messageData.exercise_task_id,
-              repositoryExercises: messageData.repository_exercises || null,
-              privateSpec: messageData.data.private_spec as PrivateSpec,
+              view_type: messageData.view_type,
+              exercise_task_id: messageData.exercise_task_id,
+              repository_exercises: messageData.repository_exercises || null,
+              private_spec: messageData.data.private_spec as PrivateSpec,
             })
           } else if (messageData.view_type === "answer-exercise") {
             setState((oldState) => {
@@ -77,24 +77,24 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
               const previousSubmission = messageData.data
                 .previous_submission as ExerciseTaskSubmission | null
               return {
-                viewType: messageData.view_type,
-                initialPublicSpec:
-                  oldState?.viewType === "answer-exercise"
-                    ? oldState.initialPublicSpec
+                view_type: messageData.view_type,
+                initial_public_spec:
+                  oldState?.view_type === "answer-exercise"
+                    ? oldState.initial_public_spec
                     : // cloneDeep prevents setState from changing the initial spec
                       _.cloneDeep(newPublicSpec),
-                userAnswer: publicSpecToTemplateUserAnswer(newPublicSpec),
-                previousSubmission,
+                user_answer: publicSpecToTemplateUserAnswer(newPublicSpec),
+                previous_submission: previousSubmission,
               }
             })
           } else if (messageData.view_type === "view-submission") {
             setState({
-              viewType: messageData.view_type,
-              exerciseTaskId: messageData.exercise_task_id,
+              view_type: messageData.view_type,
+              exercise_task_id: messageData.exercise_task_id,
               grading: messageData.data.grading,
               submission: messageData.data.user_answer as UserAnswer,
-              publicSpec: messageData.data.public_spec as PublicSpec,
-              modelSolutionSpec: messageData.data.model_solution_spec as ModelSolutionSpec,
+              public_spec: messageData.data.public_spec as PublicSpec,
+              model_solution_spec: messageData.data.model_solution_spec as ModelSolutionSpec,
             })
           } else {
             error(iframeId, "Unknown view type received from parent")
@@ -105,15 +105,15 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
         if (messageData.success) {
           // using the wrapper here because we want to let the frontend know
           setStateAndSend(port, (old) => {
-            if (old && old.viewType === "answer-exercise" && old.userAnswer.type === "editor") {
+            if (old && old.view_type === "answer-exercise" && old.user_answer.type === "editor") {
               const state = { ...old }
               let archiveDownloadUrl = "null"
               messageData.urls.forEach((val) => {
                 archiveDownloadUrl = val
               })
-              state.userAnswer = {
+              state.user_answer = {
                 type: "editor",
-                archiveDownloadUrl,
+                archive_download_url: archiveDownloadUrl,
               }
               return state
             } else {
@@ -183,7 +183,7 @@ const publicSpecToTemplateUserAnswer = (publicSpec: PublicSpec): UserAnswer => {
   if (publicSpec.type == "browser") {
     return { type: "browser", files: publicSpec.files }
   } else if (publicSpec.type == "editor") {
-    return { type: "editor", archiveDownloadUrl: publicSpec.archiveDownloadUrl }
+    return { type: "editor", archive_download_url: publicSpec.archive_download_url }
   } else {
     throw new Error("unreachable")
   }

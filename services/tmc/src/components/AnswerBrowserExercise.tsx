@@ -23,8 +23,8 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<Props>> = ({
   const setEditorState = (files: Array<ExerciseFile>) => {
     _setEditorState(files)
     setState((old) => {
-      if (old?.viewType == "answer-exercise") {
-        return { ...old, userAnswer: { type: "browser", files } }
+      if (old?.view_type == "answer-exercise") {
+        return { ...old, user_answer: { type: "browser", files } }
       } else {
         return null
       }

@@ -152,7 +152,7 @@ function ensure_tmc_langs_cli_downloaded() {
       echo "Found tmc-langs-cli"
   else
       echo "Downloading tmc-langs-cli"
-      path_to_downloader=$(relativize_path "./download-tmc-langs")
+      path_to_downloader=$(relativize_path "./tmc-langs-setup")
       run_command "$path_to_downloader"
   fi
 }

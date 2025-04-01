@@ -13,10 +13,10 @@ LANGS_PATH="./bin/$LANGS_FILENAME"
 
 echo "Updating TMC langs version to $VERSION"
 
-#if [[ -f "$LANGS_PATH" ]]; then
-  #echo "Already up to date!"
-  #exit 0
-#fi
+if [[ -f "$LANGS_PATH" ]]; then
+  echo "Already up to date!"
+  exit 0
+fi
 
 BINDINGS_DOWNLOAD_URL="https://raw.githubusercontent.com/rage/tmc-langs-rust/${VERSION}/crates/tmc-langs-cli/bindings.d.ts"
 BINDINGS_DOWNLOAD_TARGET="./src/tmc/cli.d.ts"

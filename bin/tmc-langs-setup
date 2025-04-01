@@ -14,6 +14,7 @@ LANGS_PATH="./bin/$LANGS_FILENAME"
 echo "Setup TMC langs version: $VERSION"
 
 echo "Removing old CLI versions if any"
+run_command mkdir -p ./bin
 run_command find ./bin -maxdepth 1 -type f -name 'tmc-langs-cli-*' -delete
 
 echo "Downloading CLI to $LANGS_PATH"

@@ -59,7 +59,7 @@ const processModelSolution = async (
     // create model solution
     debug(requestId, "downloading template")
     const templateArchive = temporaryFile()
-    await downloadStream(privateSpec.repositoryExercise.download_url, templateArchive)
+    await downloadStream(privateSpec.repository_exercise.download_url, templateArchive)
 
     debug(requestId, "extracting template")
     const extractedProjectDir = temporaryDirectory()
@@ -78,7 +78,7 @@ const processModelSolution = async (
       modelSolutionSpec = await prepareEditorModelSolution(
         requestId,
         solutionDir,
-        privateSpec.repositoryExercise,
+        privateSpec.repository_exercise,
         upload_url,
         uploadClaim,
       )
@@ -111,7 +111,7 @@ const prepareBrowserModelSolution = async (
 
   return {
     type: "browser",
-    solutionFiles,
+    solution_files: solutionFiles,
   }
 }
 
@@ -141,7 +141,7 @@ const prepareEditorModelSolution = async (
     const solutionDownloadUrl = res.data[archiveName]
     return {
       type: "editor",
-      downloadUrl: solutionDownloadUrl,
+      download_url: solutionDownloadUrl,
     }
   } else {
     throw new Error(`Unexpected response data: ${JSON.stringify(res.data)}`)

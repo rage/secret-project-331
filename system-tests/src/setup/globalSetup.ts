@@ -40,8 +40,8 @@ async function makeSureNpmCiHasBeenRan() {
 // Download the langs CLI binary for the TMC exercise service to work.
 async function downloadTmcLangsCli() {
   try {
-    console.time("download-tmc-langs")
-    const downloadTmcLangsPath = path.join(__dirname, "../../../bin/download-tmc-langs")
+    console.time("tmc-langs-setup")
+    const downloadTmcLangsPath = path.join(__dirname, "../../../bin/tmc-langs-setup")
     console.log("Downloading langs CLI.")
     const res = spawnSync(downloadTmcLangsPath, { stdio: "inherit" })
     if (res.status != 0) {
@@ -54,7 +54,7 @@ async function downloadTmcLangsCli() {
     }
     console.log("Successfully downloaded langs CLI.")
   } finally {
-    console.timeEnd("download-tmc-langs")
+    console.timeEnd("tmc-langs-setup")
   }
 }
 

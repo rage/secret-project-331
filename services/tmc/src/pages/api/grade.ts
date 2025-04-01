@@ -60,7 +60,7 @@ const processGrading = async (
     let extractSubmissionNaively: boolean
     if (exercise_spec.type === "editor" && submission_data.type === "editor") {
       debug("grading editor submission")
-      const archiveDownloadUrl = submission_data.archiveDownloadUrl
+      const archiveDownloadUrl = submission_data.archive_download_url
       await downloadStream(archiveDownloadUrl, submissionArchivePath)
       extractSubmissionNaively = false
       // todo: support other compression methods? for now we just assume .tar.zstd
@@ -83,7 +83,7 @@ const processGrading = async (
 
     debug("downloading exercise template")
     const templateArchivePath = temporaryFile()
-    await downloadStream(exercise_spec.repositoryExercise.download_url, templateArchivePath)
+    await downloadStream(exercise_spec.repository_exercise.download_url, templateArchivePath)
 
     debug("extracting template")
     const extractedTemplatePath = temporaryDirectory()

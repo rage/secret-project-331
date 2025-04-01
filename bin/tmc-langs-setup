@@ -1,0 +1,21 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FOLDER_PATH="$BASEDIR/../services/tmc/"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+run_command cd "$RELATIVE_PATH" || exit
+
+VERSION=$(head -n1 ./src/tmc/cli.d.ts | cut -d= -f2)
+LANGS_FILENAME="tmc-langs-cli-x86_64-unknown-linux-gnu-$VERSION"
+LANGS_PATH="./bin/$LANGS_FILENAME"
+
+echo "Setup TMC langs version: $VERSION"
+
+echo "Removing old CLI versions if any"
+run_command find ./bin -maxdepth 1 -type f -name 'tmc-langs-cli-*' -delete
+
+echo "Downloading CLI to $LANGS_PATH"
+run_command curl "https://download.mooc.fi/tmc-langs-rust/${LANGS_FILENAME}" --output "$LANGS_PATH"
+run_command chmod +x "$LANGS_PATH"

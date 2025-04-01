@@ -57,7 +57,7 @@ async function processPublicSpec(
     }
 
     debug(requestId, "preparing stub dir")
-    const stubDir = await prepareStubDir(requestId, privateSpec.repositoryExercise.download_url)
+    const stubDir = await prepareStubDir(requestId, privateSpec.repository_exercise.download_url)
     let publicSpec: PublicSpec
     if (privateSpec.type === "browser") {
       debug(requestId, "preparing browser exercise")
@@ -67,7 +67,7 @@ async function processPublicSpec(
       publicSpec = await prepareEditorExercise(
         requestId,
         stubDir,
-        privateSpec.repositoryExercise,
+        privateSpec.repository_exercise,
         upload_url,
         uploadClaim,
       )
@@ -137,8 +137,8 @@ const prepareEditorExercise = async (
     const archiveDownloadPath = res.data[archiveName]
     return {
       type: "editor",
-      archiveName,
-      archiveDownloadUrl: archiveDownloadPath,
+      archive_name: archiveName,
+      archive_download_url: archiveDownloadPath,
       checksum,
     }
   } else {

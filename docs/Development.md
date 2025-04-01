@@ -163,7 +163,7 @@ bin/npm-ci-all
 Make sure `TMC-Langs` is downloaded:
 
 ```bash
-bin/download-tmc-langs
+bin/tmc-langs-setup
 ```
 
 Next, copy the shared module contents:

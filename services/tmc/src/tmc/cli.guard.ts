@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+
 /*
  * Generated type guards for "cli.d.ts".
  * WARNING: Do not manually change this file.

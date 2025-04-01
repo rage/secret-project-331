@@ -1,0 +1,49 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FOLDER_PATH="$BASEDIR/../services/tmc/"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+run_command cd "$RELATIVE_PATH" || exit
+
+VERSION="$1"
+LANGS_FILENAME="tmc-langs-cli-x86_64-unknown-linux-gnu-${VERSION}"
+LANGS_PATH="./bin/$LANGS_FILENAME"
+
+echo "Updating TMC langs version to $VERSION"
+
+#if [[ -f "$LANGS_PATH" ]]; then
+  #echo "Already up to date!"
+  #exit 0
+#fi
+
+BINDINGS_DOWNLOAD_URL="https://raw.githubusercontent.com/rage/tmc-langs-rust/${VERSION}/crates/tmc-langs-cli/bindings.d.ts"
+BINDINGS_DOWNLOAD_TARGET="./src/tmc/cli.d.ts"
+BINDINGS_GUARD="./src/tmc/cli.guard.ts"
+
+echo "Removing old generated type definitions"
+run_command rm -f "$BINDINGS_DOWNLOAD_TARGET"
+run_command rm -f "$BINDINGS_GUARD"
+echo "Downloading generated type definitions"
+GENERATED=$(curl "$BINDINGS_DOWNLOAD_URL")
+# write version to the file
+printf "// VERSION=%s\n" "$VERSION" > "$BINDINGS_DOWNLOAD_TARGET"
+# write URL to the file to make it easy to keep track of the version
+printf "// %s\n\n" "$BINDINGS_DOWNLOAD_URL" >> "$BINDINGS_DOWNLOAD_TARGET"
+echo "$GENERATED" >> "$BINDINGS_DOWNLOAD_TARGET"
+
+# write guard annotation for CliOutput and RunResult
+run_command sed -i '/^export type CliOutput/i \/** @see {isCliOutput} ts-auto-guard:type-guard *\/' "$BINDINGS_DOWNLOAD_TARGET"
+run_command sed -i '/^export type RunResult/i \/** @see {isRunResult} ts-auto-guard:type-guard *\/' "$BINDINGS_DOWNLOAD_TARGET"
+run_command npx eslint --fix "$BINDINGS_DOWNLOAD_TARGET"
+
+# generate guard
+run_command npx ts-auto-guard --paths "$BINDINGS_DOWNLOAD_TARGET" --project ./tsconfig.json
+run_command sed -i '1s;^;/* eslint-disable @typescript-eslint/no-explicit-any */\n/* eslint-disable @typescript-eslint/explicit-module-boundary-types */\n\n;' "$BINDINGS_GUARD"
+run_command npx eslint --fix "$BINDINGS_GUARD"
+
+# this is done last so that if anything goes wrong earlier, we don't get a false "Already up to date!" message
+echo "Downloading CLI to ${LANGS_PATH}"
+run_command curl "https://download.mooc.fi/tmc-langs-rust/${LANGS_FILENAME}" --output "$LANGS_PATH"
+run_command chmod +x "$LANGS_PATH"

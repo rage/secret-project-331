@@ -241,7 +241,7 @@ async fn submit_exercise(
     // `services/tmc/src/util/stateInterfaces.ts/EditorAnswer
     let data_json = serde_json::json!({
         "type": "editor",
-        "archiveDownloadUrl": download_url
+        "archive_download_url": download_url
     });
     let result = domain::exercises::process_submission(
         &mut conn,

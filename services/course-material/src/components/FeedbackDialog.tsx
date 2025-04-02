@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import { InfoCircle } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -26,7 +27,6 @@ interface Comment {
 }
 
 const CLOSE_SYMBOL = "×"
-const INFO_ICON = "ℹ"
 
 const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
   courseId,
@@ -104,6 +104,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
       className={css`
         position: fixed;
         max-width: 500px;
+        width: 100%;
         background: ${baseTheme.colors.primary[100]};
         border: 2px solid ${baseTheme.colors.gray[200]};
         border-radius: 8px;
@@ -115,6 +116,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
         display: flex;
         flex-direction: column;
         max-height: 80vh;
+        overflow: hidden;
       `}
     >
       <div
@@ -157,6 +159,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
             line-height: 1;
             width: 40px;
             height: 40px;
+            margin-right: -0.5rem;
             color: ${baseTheme.colors.gray[600]};
 
             &:hover {
@@ -181,6 +184,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
           flex: 1;
           overflow-y: auto;
           padding: 1.5rem;
+          border-radius: 0 0 8px 8px;
         `}
       >
         {comments.length > 0 ? (
@@ -291,7 +295,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
                 {t("commenting-on-selection")}
               </div>
               <Button variant="tertiary" size="small" onClick={() => setLastSelection("")}>
-                {t("clear-selection")}
+                {t("clear")}
               </Button>
             </div>
             <div
@@ -321,22 +325,8 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
               gap: 0.75rem;
             `}
           >
-            <div
-              className={css`
-                width: 24px;
-                height: 24px;
-                border-radius: 50%;
-                background: ${baseTheme.colors.gray[200]};
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: ${baseTheme.colors.gray[600]};
-                font-size: 0.75rem;
-                font-weight: 600;
-              `}
-            >
-              {INFO_ICON}
-            </div>
+            <InfoCircle size={24} />
+
             <div
               className={css`
                 color: ${baseTheme.colors.gray[600]};
@@ -366,6 +356,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
           onChangeByValue={(value) => setComment(value)}
           placeholder={t("write-your-feedback-here")}
           autoResize
+          rows={3}
         />
 
         <div
@@ -374,7 +365,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
             justify-content: space-between;
             align-items: center;
             margin-top: 0.5rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
           `}
         >
           {charactersLeft >= 0 && charactersLeft < 200 && (
@@ -416,7 +407,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
             display: flex;
             gap: 1rem;
             justify-content: flex-end;
-            margin-top: 1rem;
+            margin-top: 0.5rem;
           `}
         >
           <Button

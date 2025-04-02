@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 import EditProposalDialog from "./EditProposalDialog"
 import FeedbackDialog from "./FeedbackDialog"
 import FeedbackTooltip from "./FeedbackTooltip"
+import FeedbackTypeDialog from "./FeedbackTypeDialog"
 import SelectionListener from "./SelectionListener"
 
 import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
@@ -35,7 +36,7 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
   edits,
 }) => {
   const { t } = useTranslation()
-  const [feedbackMenuAnchor, setFeedbackMenuAnchor] = useState<Element | null>(null)
+  const [feedbackTypeDialogOpen, setFeedbackTypeDialogOpen] = useState(false)
   const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false)
   const [editProposalDialogOpen, setEditProposalDialogOpen] = useState(false)
   const [lastSelection, setLastSelection] = useState("")
@@ -67,11 +68,6 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
     }
   }
 
-  function openFeedbackDialog() {
-    setSelectionRect(null)
-    setFeedbackDialogOpen(true)
-  }
-
   return (
     <>
       {!feedbackDialogOpen && !editProposalDialogOpen && (
@@ -84,63 +80,30 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
             z-index: 1100;
           `}
         >
-          {feedbackMenuAnchor !== null && (
-            <div
-              className={css`
-                display: flex;
-                flex-direction: column;
-                background: white;
-                box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-                padding: 10px;
-                position: fixed;
-                bottom: 20px;
-                right: 25px;
-                z-index: 1110;
-              `}
-            >
-              <Button
-                onClick={() => {
-                  setFeedbackMenuAnchor(null)
-                  setFeedbackDialogOpen(true)
-                  setLastSelection("")
-                }}
-                variant={"icon"}
-                transform="capitalize"
-                size={"small"}
-              >
-                {t("written-feedback")}
-              </Button>
-              <Button
-                onClick={() => {
-                  setFeedbackMenuAnchor(null)
-                  setEditProposalDialogOpen(true)
-                  onEnterEditProposalMode()
-                }}
-                variant={"icon"}
-                transform="capitalize"
-                size={"small"}
-              >
-                {t("improve-material")}
-              </Button>
-            </div>
-          )}
-
           <Button
             className="give-feedback-button"
             variant={"primary"}
             size={"medium"}
-            onClick={(ev) => {
-              if (feedbackMenuAnchor !== null) {
-                setFeedbackMenuAnchor(null)
-              } else {
-                setFeedbackMenuAnchor(ev.currentTarget)
-              }
-            }}
+            onClick={() => setFeedbackTypeDialogOpen(true)}
           >
             {t("give-feedback")}
           </Button>
         </div>
       )}
+
+      <FeedbackTypeDialog
+        open={feedbackTypeDialogOpen}
+        onClose={() => setFeedbackTypeDialogOpen(false)}
+        onSelectFeedback={() => {
+          setFeedbackDialogOpen(true)
+          setLastSelection("")
+        }}
+        onSelectImprovement={() => {
+          setEditProposalDialogOpen(true)
+          onEnterEditProposalMode()
+        }}
+      />
+
       {feedbackDialogOpen && (
         <FeedbackDialog
           courseId={courseId}
@@ -165,7 +128,10 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
       )}
 
       {!feedbackDialogOpen && !editProposalDialogOpen && selectionRect && (
-        <FeedbackTooltip selectionRect={selectionRect} onClick={openFeedbackDialog} />
+        <FeedbackTooltip
+          selectionRect={selectionRect}
+          onClick={() => setFeedbackTypeDialogOpen(true)}
+        />
       )}
       <SelectionListener
         onSelectionChange={handleSelectionChange}

@@ -2,6 +2,8 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import ImprovementExample from "./ImprovementExample"
+
 import StandardDialog from "@/shared-module/common/components/StandardDialog"
 import { baseTheme } from "@/shared-module/common/styles"
 
@@ -196,6 +198,7 @@ const FeedbackTypeDialog: React.FC<React.PropsWithChildren<Props>> = ({
             >
               {t("improve-material-description")}
             </p>
+            <ImprovementExample />
           </div>
         </button>
       </div>

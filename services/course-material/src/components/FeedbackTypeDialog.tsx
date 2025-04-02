@@ -12,7 +12,7 @@ interface Props {
   onSelectImprovement: () => void
 }
 
-const FeedbackTypeDialog: React.FC<Props> = ({
+const FeedbackTypeDialog: React.FC<React.PropsWithChildren<Props>> = ({
   open,
   onClose,
   onSelectFeedback,
@@ -20,134 +20,183 @@ const FeedbackTypeDialog: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation()
 
+  const handleKeyDown = (e: React.KeyboardEvent, callback: () => void) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault()
+      callback()
+    }
+  }
+
+  const handleFeedbackClick = () => {
+    onSelectFeedback()
+    onClose()
+  }
+
+  const handleImprovementClick = () => {
+    onSelectImprovement()
+    onClose()
+  }
+
   return (
-    <StandardDialog
-      open={open}
-      onClose={onClose}
-      title={t("select-feedback-type")}
-      width="normal"
-      className={css`
-        max-width: 600px;
-      `}
-    >
+    <StandardDialog open={open} onClose={onClose} title={t("select-feedback-type")} width="normal">
       <div
         className={css`
           display: flex;
           flex-direction: column;
-          gap: 1rem;
-          padding: 1rem;
+          gap: 1.5rem;
+          padding: 1rem 0;
         `}
       >
         <button
-          onClick={() => {
-            onSelectFeedback()
-            onClose()
-          }}
+          onClick={handleFeedbackClick}
+          onKeyDown={(e) => handleKeyDown(e, handleFeedbackClick)}
           className={css`
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
-            gap: 0.5rem;
+            gap: 0.75rem;
             padding: 1.5rem;
-            background: ${baseTheme.colors.clear[100]};
-            border: 2px solid ${baseTheme.colors.gray[200]};
             border-radius: 8px;
+            background-color: white;
+            border: 2px solid ${baseTheme.colors.gray[200]};
             cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
             width: 100%;
             text-align: left;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 
             &:hover {
-              background: ${baseTheme.colors.clear[200]};
-              border-color: ${baseTheme.colors.gray[300]};
-              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+              background-color: ${baseTheme.colors.gray[100]};
+              transform: translateY(-2px);
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            }
+
+            &:active {
+              transform: translateY(0);
             }
 
             &:focus {
               outline: none;
-              box-shadow:
-                0 0 0 2px ${baseTheme.colors.clear[100]},
-                0 0 0 4px ${baseTheme.colors.gray[200]};
+              box-shadow: 0 0 0 2px ${baseTheme.colors.gray[200]};
+            }
+
+            &::after {
+              content: "";
+              position: absolute;
+              top: 0;
+              right: 0;
+              width: 0;
+              height: 0;
+              border-style: solid;
+              border-width: 0 40px 40px 0;
+              border-color: transparent ${baseTheme.colors.gray[200]} transparent transparent;
             }
           `}
         >
-          <h3
+          <div
             className={css`
-              font-size: 1.25rem;
-              font-weight: 600;
-              margin: 0;
-              color: ${baseTheme.colors.gray[700]};
+              display: flex;
+              flex-direction: column;
+              gap: 0.5rem;
             `}
           >
-            {t("written-feedback")}
-          </h3>
-          <p
-            className={css`
-              margin: 0;
-              color: ${baseTheme.colors.gray[500]};
-              line-height: 1.5;
-              font-size: 0.95rem;
-            `}
-          >
-            {t("written-feedback-description")}
-          </p>
+            <h3
+              className={css`
+                font-size: 1.25rem;
+                font-weight: 600;
+                color: ${baseTheme.colors.gray[700]};
+                margin: 0;
+              `}
+            >
+              {t("written-feedback")}
+            </h3>
+            <p
+              className={css`
+                font-size: 0.875rem;
+                color: ${baseTheme.colors.gray[600]};
+                margin: 0;
+                line-height: 1.5;
+              `}
+            >
+              {t("can-comment-on-portions-of-material-by-highlightig")}
+            </p>
+          </div>
         </button>
 
         <button
-          onClick={() => {
-            onSelectImprovement()
-            onClose()
-          }}
+          onClick={handleImprovementClick}
+          onKeyDown={(e) => handleKeyDown(e, handleImprovementClick)}
           className={css`
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
-            gap: 0.5rem;
+            gap: 0.75rem;
             padding: 1.5rem;
-            background: ${baseTheme.colors.clear[100]};
-            border: 2px solid ${baseTheme.colors.gray[200]};
             border-radius: 8px;
+            background-color: white;
+            border: 2px solid ${baseTheme.colors.green[200]};
             cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
             width: 100%;
             text-align: left;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 
             &:hover {
-              background: ${baseTheme.colors.clear[200]};
-              border-color: ${baseTheme.colors.gray[300]};
-              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+              background-color: ${baseTheme.colors.green[100]};
+              transform: translateY(-2px);
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            }
+
+            &:active {
+              transform: translateY(0);
             }
 
             &:focus {
               outline: none;
-              box-shadow:
-                0 0 0 2px ${baseTheme.colors.clear[100]},
-                0 0 0 4px ${baseTheme.colors.gray[200]};
+              box-shadow: 0 0 0 2px ${baseTheme.colors.green[200]};
+            }
+
+            &::after {
+              content: "";
+              position: absolute;
+              top: 0;
+              right: 0;
+              width: 0;
+              height: 0;
+              border-style: solid;
+              border-width: 0 40px 40px 0;
+              border-color: transparent ${baseTheme.colors.green[200]} transparent transparent;
             }
           `}
         >
-          <h3
+          <div
             className={css`
-              font-size: 1.25rem;
-              font-weight: 600;
-              margin: 0;
-              color: ${baseTheme.colors.gray[700]};
+              display: flex;
+              flex-direction: column;
+              gap: 0.5rem;
             `}
           >
-            {t("improve-material")}
-          </h3>
-          <p
-            className={css`
-              margin: 0;
-              color: ${baseTheme.colors.gray[500]};
-              line-height: 1.5;
-              font-size: 0.95rem;
-            `}
-          >
-            {t("improve-material-description")}
-          </p>
+            <h3
+              className={css`
+                font-size: 1.25rem;
+                font-weight: 600;
+                color: ${baseTheme.colors.gray[700]};
+                margin: 0;
+              `}
+            >
+              {t("improve-material")}
+            </h3>
+            <p
+              className={css`
+                font-size: 0.875rem;
+                color: ${baseTheme.colors.gray[600]};
+                margin: 0;
+                line-height: 1.5;
+              `}
+            >
+              {t("improve-material-description")}
+            </p>
+          </div>
         </button>
       </div>
     </StandardDialog>

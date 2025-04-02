@@ -11,6 +11,7 @@ import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 interface Props {
   courseId: string
@@ -104,30 +105,41 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
       className={css`
         position: fixed;
         max-width: 500px;
-        width: 100%;
+        width: calc(100% - 40px);
         background: ${baseTheme.colors.primary[100]};
         border: 2px solid ${baseTheme.colors.gray[200]};
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         bottom: 100px;
         right: 20px;
+        left: 20px;
         z-index: 1100;
-        margin-left: 20px;
         display: flex;
         flex-direction: column;
         max-height: 80vh;
-        overflow: hidden;
+        height: auto;
+        min-height: 200px;
+        overflow-y: auto;
+
+        ${respondToOrLarger.xxs} {
+          width: 400px;
+          left: auto;
+          height: auto;
+          max-height: 60vh;
+        }
       `}
     >
       <div
         className={css`
           padding: 1rem 1.5rem;
-          position: relative;
+          position: sticky;
+          top: 0;
           background: ${baseTheme.colors.primary[100]};
           display: flex;
           justify-content: space-between;
           align-items: center;
           border-bottom: 1px solid ${baseTheme.colors.gray[100]};
+          z-index: 1;
         `}
       >
         <h2
@@ -181,10 +193,12 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
 
       <div
         className={css`
-          flex: 1;
-          overflow-y: auto;
-          padding: 1.5rem;
+          padding: 1rem;
           border-radius: 0 0 8px 8px;
+
+          ${respondToOrLarger.xxs} {
+            padding: 1.5rem;
+          }
         `}
       >
         {comments.length > 0 ? (
@@ -405,9 +419,14 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
         <div
           className={css`
             display: flex;
+            flex-direction: column;
             gap: 1rem;
-            justify-content: flex-end;
             margin-top: 0.5rem;
+
+            ${respondToOrLarger.xxs} {
+              flex-direction: row;
+              justify-content: flex-end;
+            }
           `}
         >
           <Button
@@ -417,6 +436,11 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
             disabled={comment.length === 0}
             className={css`
               min-width: 100px;
+              width: 100%;
+
+              ${respondToOrLarger.xxs} {
+                width: auto;
+              }
             `}
           >
             {t("add-comment")}
@@ -428,9 +452,14 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
             disabled={comments.length === 0}
             className={css`
               min-width: 100px;
+              width: 100%;
               background: ${baseTheme.colors.green[600]};
               border-color: ${baseTheme.colors.green[600]};
               color: ${baseTheme.colors.primary[100]};
+
+              ${respondToOrLarger.xxs} {
+                width: auto;
+              }
 
               &:hover {
                 background: ${baseTheme.colors.green[700]};

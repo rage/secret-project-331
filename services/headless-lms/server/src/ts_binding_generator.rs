@@ -160,7 +160,7 @@ fn models(target: &mut File) {
         library::global_stats::DomainCompletionStats,
         library::global_stats::GlobalCourseModuleStatEntry,
         library::global_stats::GlobalStatEntry,
-        library::global_stats::TimeGranularity,
+        library::TimeGranularity,
         library::grading::AnswerRequiringAttentionWithTasks,
         library::grading::AnswersRequiringAttention,
         library::grading::StudentExerciseSlideSubmission,

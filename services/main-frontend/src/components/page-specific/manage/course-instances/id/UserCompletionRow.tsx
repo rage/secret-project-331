@@ -49,18 +49,10 @@ const PlayerCompletionRow: React.FC<UserCompletionRowProps> = ({ sortedCourseMod
     }
   }
 
-  // let maxCompletions = max(user.completedModules.values())
-  // const asd = new Map<string, Array<CourseModuleCompletionWithRegistrationInfo>>()
   let maxCompletions = 1
   for (const completions of Array.from(user.moduleCompletions.values())) {
     maxCompletions = Math.max(maxCompletions, completions.length)
   }
-  // for (const completion of user.completed_modules) {
-  //   const bucket = asd.get(completion.course_module_id) ?? []
-  //   bucket.push(completion)
-  //   asd.set(completion.course_module_id, bucket)
-  //   maxCompletions = Math.max(bucket.length, maxCompletions)
-  // }
 
   const anyCompletions = sortedCourseModules.some((module) => {
     const completion = user.moduleCompletions.get(module.id)?.[0]
@@ -89,7 +81,6 @@ const PlayerCompletionRow: React.FC<UserCompletionRowProps> = ({ sortedCourseMod
           )
         })}
       </FullWidthTableRow>
-      {/* Render extra rows if there are any. */}
       {times(maxCompletions - 1, (i) => {
         return (
           <FullWidthTableRow
@@ -99,7 +90,6 @@ const PlayerCompletionRow: React.FC<UserCompletionRowProps> = ({ sortedCourseMod
             key={i}
           >
             {sortedCourseModules.map((module) => {
-              // First index we want is 1 but iteration starts from 0.
               const completion = user.moduleCompletions.get(module.id)?.[i + 1]
               return (
                 <React.Fragment key={module.id}>

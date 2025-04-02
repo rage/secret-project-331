@@ -25,7 +25,7 @@ const LogoLink: React.FC<React.PropsWithChildren<BlockRendererProps<LogoLinkBloc
         `}
       >
         <Centered variant="narrow">
-          <InnerBlocks parentBlockProps={props} />
+          <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
         </Centered>
       </div>
     </BreakFromCentered>

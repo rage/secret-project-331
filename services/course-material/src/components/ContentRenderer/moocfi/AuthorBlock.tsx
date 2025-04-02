@@ -70,7 +70,7 @@ const AuthorBlock: React.FC<React.PropsWithChildren<BlockRendererProps<AuthorBlo
     <Wrapper>
       <h3>{t("author")}</h3>
       <div>
-        <InnerBlocks parentBlockProps={props} />
+        <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
       </div>
     </Wrapper>
   )

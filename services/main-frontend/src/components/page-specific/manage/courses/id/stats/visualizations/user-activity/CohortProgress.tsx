@@ -4,7 +4,8 @@ import { useTranslation } from "react-i18next"
 import CohortAnalysisChart from "../../CohortAnalysisChart"
 import { DAILY_PERIOD, MONTHLY_PERIOD, Period } from "../../LineChart"
 
-import { useCohortDailyActivityQuery, useCohortWeeklyActivityQuery } from "@/hooks/stats"
+import { useCohortActivityHistoryQuery } from "@/hooks/stats"
+import { TimeGranularity } from "@/shared-module/common/bindings"
 import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -14,30 +15,21 @@ interface CohortProgressProps {
 
 const DAYS_TO_SHOW = 90 // Show last 90 days of data
 const MONTHS_TO_SHOW = 12 // Show last 12 months of data
+const TRACKING_WINDOW = 7 // Track 7 units (days/months) after cohort start
 
 const CohortProgress: React.FC<React.PropsWithChildren<CohortProgressProps>> = ({ courseId }) => {
   const { t } = useTranslation()
   const [period, setPeriod] = useState<Period>(MONTHLY_PERIOD)
 
-  const {
-    data: weeklyData,
-    isLoading: weeklyLoading,
-    error: weeklyError,
-  } = useCohortWeeklyActivityQuery(courseId, MONTHS_TO_SHOW, {
-    enabled: period === MONTHLY_PERIOD,
-  })
+  const granularity: TimeGranularity = period === MONTHLY_PERIOD ? MONTHLY_PERIOD : DAILY_PERIOD
+  const historyWindow = period === MONTHLY_PERIOD ? MONTHS_TO_SHOW : DAYS_TO_SHOW
 
-  const {
-    data: dailyData,
-    isLoading: dailyLoading,
-    error: dailyError,
-  } = useCohortDailyActivityQuery(courseId, DAYS_TO_SHOW, {
-    enabled: period === DAILY_PERIOD,
-  })
-
-  const isLoading = period === MONTHLY_PERIOD ? weeklyLoading : dailyLoading
-  const error = period === MONTHLY_PERIOD ? weeklyError : dailyError
-  const data = period === MONTHLY_PERIOD ? weeklyData : dailyData
+  const { data, isLoading, error } = useCohortActivityHistoryQuery(
+    courseId,
+    granularity,
+    historyWindow,
+    TRACKING_WINDOW,
+  )
 
   return (
     <CohortAnalysisChart

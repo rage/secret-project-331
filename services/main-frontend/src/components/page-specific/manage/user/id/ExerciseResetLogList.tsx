@@ -1,14 +1,15 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { formatDistanceToNow, parse, parseISO } from "date-fns"
+import { parseISO } from "date-fns"
 import { groupBy } from "lodash"
+import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { getUserResetExerciseLogs } from "@/services/backend/users"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, fontWeights, secondaryFont } from "@/shared-module/common/styles"
-import { dateToString } from "@/shared-module/common/utils/time"
+import { dateToString, relativeTimeFromTimestamp } from "@/shared-module/common/utils/time"
 
 export interface ExerciseResetLogListProps {
   userId: string
@@ -21,14 +22,16 @@ const ExerciseResetLogList: React.FC<ExerciseResetLogListProps> = ({ userId }) =
     queryFn: () => getUserResetExerciseLogs(userId),
   })
 
+  const groupedLogs = useMemo(() => {
+    return groupBy(userResetExerciseLogs.data, (log) => dateToString(log.created_at))
+  }, [userResetExerciseLogs.data])
+
   if (userResetExerciseLogs.isError) {
     return <ErrorBanner variant="readOnly" error={userResetExerciseLogs.error} />
   }
   if (userResetExerciseLogs.isPending) {
     return <Spinner variant="medium" />
   }
-
-  const groupedLogs = groupBy(userResetExerciseLogs.data, (log) => dateToString(log.created_at))
 
   return (
     <div
@@ -72,7 +75,8 @@ const ExerciseResetLogList: React.FC<ExerciseResetLogListProps> = ({ userId }) =
               `}
             >
               {/* eslint-disable-next-line i18next/no-literal-string */}
-              {logs[0].reset_by_first_name} {logs[0].reset_by_last_name} ∙ {parseTimestamp(date)}
+              {logs[0].reset_by_first_name} {logs[0].reset_by_last_name} ∙{" "}
+              {relativeTimeFromTimestamp(date)}
             </p>
           </div>
 
@@ -118,11 +122,4 @@ const ExerciseResetLogList: React.FC<ExerciseResetLogListProps> = ({ userId }) =
   )
 }
 
-const parseTimestamp = (timestamp: string) => {
-  const cleanTimestamp = timestamp.replace(/ UTC[+-]\d{2}:\d{2}/, "")
-  // eslint-disable-next-line i18next/no-literal-string
-  const parsedDate = parse(cleanTimestamp, "yyyy-MM-dd HH:mm:ss", new Date())
-
-  return formatDistanceToNow(parsedDate, { addSuffix: true })
-}
 export default ExerciseResetLogList

@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DISTINCT ues.user_id,\n  ues.exercise_id\nFROM user_exercise_states ues\n  LEFT JOIN exercises e ON ues.exercise_id = e.id\nWHERE ues.user_id = ANY($1)\n  AND ues.exercise_id = ANY($2)\n  AND ues.deleted_at IS NULL\n  AND (\n    $3 = FALSE\n    OR ues.score_given < e.score_maximum\n  )\n  AND (\n    $4::FLOAT IS NULL\n    OR ues.score_given < $4::FLOAT\n  )\n  AND (\n    $5 = FALSE\n    OR ues.reviewing_stage = 'reviewed_and_locked'\n  )\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "exercise_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["UuidArray", "UuidArray", "Bool", "Float8", "Bool"]
+    },
+    "nullable": [false, false]
+  },
+  "hash": "1df53d874296b593f6d16f37ce870805af4aed049b4dca1224486b617c299ef7"
+}

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            SELECT erl.id,\n                   erl.reset_by,\n                   ud.first_name AS reset_by_first_name,\n                   ud.last_name AS reset_by_last_name,\n                   erl.reset_for,\n                   erl.exercise_id,\n                   e.name AS exercise_name,\n                   erl.course_id,\n                   erl.reset_at,\n                   erl.created_at,\n                   erl.updated_at,\n                   erl.deleted_at\n            FROM exercise_reset_logs erl\n            JOIN exercises e ON erl.exercise_id = e.id\n            JOIN user_details ud ON erl.reset_by = ud.user_id\n            WHERE erl.reset_for = $1\n            ORDER BY erl.reset_at DESC\n            ",
+  "query": "\nSELECT erl.id,\n  erl.reset_by,\n  ud.first_name AS reset_by_first_name,\n  ud.last_name AS reset_by_last_name,\n  erl.reset_for,\n  erl.exercise_id,\n  e.name AS exercise_name,\n  erl.course_id,\n  erl.reset_at,\n  erl.created_at,\n  erl.updated_at,\n  erl.deleted_at\nFROM exercise_reset_logs erl\n  JOIN exercises e ON erl.exercise_id = e.id\n  JOIN user_details ud ON erl.reset_by = ud.user_id\nWHERE erl.reset_for = $1\nORDER BY erl.reset_at DESC",
   "describe": {
     "columns": [
       {
@@ -69,5 +69,5 @@
     },
     "nullable": [false, false, true, true, false, false, false, false, false, false, false, true]
   },
-  "hash": "3c9399a68e5930754ccd2307e8de33eaa555dc04000d5dc4226aa9475fb824db"
+  "hash": "cc50a0fb0869d17b7091bea510ee2915672e3c6c8e70faa2e6d3e0db2fc82bc2"
 }

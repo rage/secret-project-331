@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { UserDetail } from "@/shared-module/common/bindings"
@@ -21,13 +21,23 @@ const UserSearch: React.FC<Props> = ({ users, addUser, isLoading }) => {
 
   const [searchTerm, setSearchTerm] = useState("")
 
-  const filteredUsers = (users || []).filter(
-    (user) =>
-      (user.first_name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-      (user.last_name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-      user.user_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+  const filteredUsers = useMemo(() => {
+    const lowerCasedSearch = searchTerm.toLowerCase()
+
+    return (users || []).filter((user) => {
+      const firstName = user.first_name?.toLowerCase() ?? ""
+      const lastName = user.last_name?.toLowerCase() ?? ""
+      const userId = user.user_id?.toLowerCase() ?? ""
+      const email = user.email?.toLowerCase() ?? ""
+
+      return (
+        firstName.includes(lowerCasedSearch) ||
+        lastName.includes(lowerCasedSearch) ||
+        userId.includes(lowerCasedSearch) ||
+        email.includes(lowerCasedSearch)
+      )
+    })
+  }, [searchTerm, users])
 
   return (
     <div
@@ -40,9 +50,7 @@ const UserSearch: React.FC<Props> = ({ users, addUser, isLoading }) => {
           onClick={() => setIsModalOpen(true)}
           variant="primary"
           size={"small"}
-          className={css`
-            text-transform: capitalize !important;
-          `}
+          transform={"capitalize"}
         >
           {t("button-add-students")}
         </Button>
@@ -128,9 +136,7 @@ const UserSearch: React.FC<Props> = ({ users, addUser, isLoading }) => {
                           variant={"secondary"}
                           size={"small"}
                           data-testid={`add-user-button-${user.user_id}`}
-                          className={css`
-                            text-transform: capitalize !important;
-                          `}
+                          transform={"capitalize"}
                         >
                           {t("button-add")}
                         </Button>

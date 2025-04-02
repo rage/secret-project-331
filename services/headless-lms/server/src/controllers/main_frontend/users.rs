@@ -1,7 +1,7 @@
 use crate::prelude::*;
 use models::{
     course_instance_enrollments::CourseInstanceEnrollmentsInfo, courses::Course,
-    exercises::ExerciseResetLog, research_forms::ResearchFormQuestionAnswer,
+    exercise_reset_logs::ExerciseResetLog, research_forms::ResearchFormQuestionAnswer,
     user_research_consents::UserResearchConsent, users::User,
 };
 
@@ -159,7 +159,8 @@ pub async fn get_user_reset_exercise_logs(
         Res::GlobalPermissions,
     )
     .await?;
-    let res = models::exercises::get_exercise_reset_logs_for_user(&mut conn, *user_id).await?;
+    let res =
+        models::exercise_reset_logs::get_exercise_reset_logs_for_user(&mut conn, *user_id).await?;
 
     token.authorized_ok(web::Json(res))
 }

@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import { groupBy } from "lodash"
+import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -74,6 +75,9 @@ const CourseInstanceExerciseStatusList: React.FC<
         courseId={courseId}
         onPointsUpdate={exerciseStatusSummariesQuery.refetch}
       />
+      <Link href={`/manage/courses/${courseId}/other/exercise-reset-tool?user_id=${query.user_id}`}>
+        {t("title-reset-exercises")}
+      </Link>
     </>
   )
 }

@@ -115,9 +115,7 @@ const SelectedUsers: React.FC<Props> = ({
                       onClick={() => removeUser(user.user_id)}
                       variant={"secondary"}
                       size={"small"}
-                      className={css`
-                        text-transform: capitalize !important;
-                      `}
+                      transform={"capitalize"}
                     >
                       {t("button-remove")}
                     </Button>

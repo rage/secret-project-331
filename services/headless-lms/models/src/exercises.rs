@@ -4,7 +4,7 @@ use itertools::Itertools;
 use url::Url;
 
 use crate::{
-    course_instances, exams,
+    course_instances, exams, exercise_reset_logs,
     exercise_service_info::ExerciseServiceInfoApi,
     exercise_slide_submissions::{
         get_exercise_slide_submission_counts_for_exercise_user, ExerciseSlideSubmission,
@@ -269,26 +269,6 @@ FROM exercises
 WHERE course_id = $1
   AND deleted_at IS NULL
 "#,
-        course_id
-    )
-    .fetch_all(&mut *conn)
-    .await?;
-    Ok(exercises)
-}
-
-pub async fn get_exercises_by_course_id_sorted_by_chapter_and_page(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-) -> ModelResult<Vec<Exercise>> {
-    let exercises = sqlx::query_as!(
-        Exercise,
-        r#"
-        SELECT *
-        FROM exercises
-        WHERE course_id = $1
-          AND deleted_at IS NULL
-        ORDER BY chapter_id, page_id, order_number
-        "#,
         course_id
     )
     .fetch_all(&mut *conn)
@@ -939,71 +919,45 @@ where tasks.exercise_type = $1
     Ok(res)
 }
 
-#[derive(FromRow)]
-struct Record {
-    user_id: Uuid,
-    exercise_id: Uuid,
-}
-
 /// Collects user_ids and related exercise_ids according to given filters
 pub async fn collect_user_ids_and_exercise_ids_for_reset(
     conn: &mut PgConnection,
     user_ids: &[Uuid],
     exercise_ids: &[Uuid],
-    threshold: Option<f32>,
+    threshold: Option<f64>,
     reset_all_below_max: bool,
     reset_only_locked_reviews: bool,
 ) -> ModelResult<Vec<(Uuid, Vec<Uuid>)>> {
-    let results: Vec<Record> = if reset_all_below_max {
-        sqlx::query_as!(
-            Record,
-            "
-            SELECT DISTINCT ues.user_id, ues.exercise_id
-            FROM user_exercise_states ues
-            JOIN exercises e ON ues.exercise_id = e.id
-            WHERE ues.user_id = ANY($1)
-              AND ues.exercise_id = ANY($2)
-              AND ues.score_given < e.score_maximum
-              AND ues.deleted_at IS NULL
-            ",
-            user_ids,
-            exercise_ids
-        )
-        .fetch_all(&mut *conn)
-        .await?
-    } else if let Some(threshold) = threshold {
-        sqlx::query_as!(
-            Record,
-            "
-            SELECT DISTINCT user_id, exercise_id
-            FROM user_exercise_states
-            WHERE user_id = ANY($1)
-              AND exercise_id = ANY($2)
-              AND score_given < $3
-              AND deleted_at IS NULL
-            ",
-            user_ids,
-            exercise_ids,
-            threshold
-        )
-        .fetch_all(&mut *conn)
-        .await?
-    } else {
-        sqlx::query_as!(
-            Record,
-            "
-            SELECT DISTINCT user_id, exercise_id
-            FROM user_exercise_states
-            WHERE user_id = ANY($1)
-              AND exercise_id = ANY($2)
-              AND deleted_at IS NULL
-            ",
-            user_ids,
-            exercise_ids
-        )
-        .fetch_all(&mut *conn)
-        .await?
-    };
+    let results = sqlx::query!(
+        r#"
+SELECT DISTINCT ues.user_id,
+  ues.exercise_id
+FROM user_exercise_states ues
+  LEFT JOIN exercises e ON ues.exercise_id = e.id
+WHERE ues.user_id = ANY($1)
+  AND ues.exercise_id = ANY($2)
+  AND ues.deleted_at IS NULL
+  AND (
+    $3 = FALSE
+    OR ues.score_given < e.score_maximum
+  )
+  AND (
+    $4::FLOAT IS NULL
+    OR ues.score_given < $4::FLOAT
+  )
+  AND (
+    $5 = FALSE
+    OR ues.reviewing_stage = 'reviewed_and_locked'
+  )
+            "#,
+        user_ids,
+        exercise_ids,
+        reset_all_below_max,
+        threshold,
+        reset_only_locked_reviews
+    )
+    .fetch_all(&mut *conn)
+    .await?;
 
     let mut user_exercise_map: HashMap<Uuid, Vec<Uuid>> = HashMap::new();
     for row in &results {
@@ -1013,40 +967,7 @@ pub async fn collect_user_ids_and_exercise_ids_for_reset(
             .push(row.exercise_id);
     }
 
-    // Fetch only locked review results if the reset_only_locked_reviews is true
-    let final_map = if reset_only_locked_reviews {
-        let filtered_results = sqlx::query!(
-            "
-            SELECT DISTINCT user_id, exercise_id
-            FROM user_exercise_states
-            WHERE (user_id, exercise_id) IN (
-                SELECT u.user_id, e.exercise_id
-                FROM unnest($1::uuid[]) WITH ORDINALITY as u(user_id, pos)
-                JOIN unnest($2::uuid[]) WITH ORDINALITY as e(exercise_id, pos)
-                  ON u.pos = e.pos
-            )
-            AND reviewing_stage = 'reviewed_and_locked'
-            AND deleted_at IS NULL
-            ",
-            &results.iter().map(|r| r.user_id).collect::<Vec<_>>(),
-            &results.iter().map(|r| r.exercise_id).collect::<Vec<_>>()
-        )
-        .fetch_all(&mut *conn)
-        .await?;
-
-        let mut locked_user_exercise_map: HashMap<Uuid, Vec<Uuid>> = HashMap::new();
-        for row in filtered_results {
-            locked_user_exercise_map
-                .entry(row.user_id)
-                .or_default()
-                .push(row.exercise_id);
-        }
-        locked_user_exercise_map
-    } else {
-        user_exercise_map
-    };
-
-    Ok(final_map.into_iter().collect())
+    Ok(user_exercise_map.into_iter().collect())
 }
 
 /// Resets all related tables for selected users and related exercises
@@ -1057,18 +978,16 @@ pub async fn reset_exercises_for_selected_users(
     course_id: Uuid,
 ) -> ModelResult<Vec<(Uuid, Vec<Uuid>)>> {
     let mut successful_resets = Vec::new();
-
+    let mut tx = conn.begin().await?;
     for (user_id, exercise_ids) in users_and_exercises {
-        let mut tx = conn.begin().await?;
-
         sqlx::query!(
-            "
-            UPDATE exercise_slide_submissions
-            SET deleted_at = now()
-            WHERE user_id = $1
-              AND exercise_id = ANY($2)
-              AND deleted_at IS NULL
-            ",
+            r#"
+UPDATE exercise_slide_submissions
+SET deleted_at = NOW()
+WHERE user_id = $1
+  AND exercise_id = ANY($2)
+  AND deleted_at IS NULL
+            "#,
             user_id,
             exercise_ids
         )
@@ -1076,16 +995,17 @@ pub async fn reset_exercises_for_selected_users(
         .await?;
 
         sqlx::query!(
-            "
-            UPDATE exercise_task_submissions
-            SET deleted_at = now()
-            WHERE exercise_slide_submission_id IN (
-                SELECT id FROM exercise_slide_submissions
-                WHERE user_id = $1
-                  AND exercise_id = ANY($2)
-            )
-            AND deleted_at IS NULL
-            ",
+            r#"
+UPDATE exercise_task_submissions
+SET deleted_at = NOW()
+WHERE exercise_slide_submission_id IN (
+    SELECT id
+    FROM exercise_slide_submissions
+    WHERE user_id = $1
+      AND exercise_id = ANY($2)
+  )
+  AND deleted_at IS NULL
+            "#,
             user_id,
             exercise_ids
         )
@@ -1093,13 +1013,13 @@ pub async fn reset_exercises_for_selected_users(
         .await?;
 
         sqlx::query!(
-            "
-            UPDATE peer_review_queue_entries
-            SET deleted_at = now()
-            WHERE user_id = $1
-              AND exercise_id = ANY($2)
-              AND deleted_at IS NULL
-            ",
+            r#"
+UPDATE peer_review_queue_entries
+SET deleted_at = NOW()
+WHERE user_id = $1
+  AND exercise_id = ANY($2)
+  AND deleted_at IS NULL
+            "#,
             user_id,
             exercise_ids
         )
@@ -1107,19 +1027,21 @@ pub async fn reset_exercises_for_selected_users(
         .await?;
 
         sqlx::query!(
-            "
-            UPDATE exercise_task_gradings
-            SET deleted_at = now()
-            WHERE exercise_task_submission_id IN (
-                SELECT id FROM exercise_task_submissions
-                WHERE exercise_slide_submission_id IN (
-                    SELECT id FROM exercise_slide_submissions
-                    WHERE user_id = $1
-                      AND exercise_id = ANY($2)
-                )
-            )
-            AND deleted_at IS NULL
-            ",
+            r#"
+UPDATE exercise_task_gradings
+SET deleted_at = NOW()
+WHERE exercise_task_submission_id IN (
+    SELECT id
+    FROM exercise_task_submissions
+    WHERE exercise_slide_submission_id IN (
+        SELECT id
+        FROM exercise_slide_submissions
+        WHERE user_id = $1
+          AND exercise_id = ANY($2)
+      )
+  )
+  AND deleted_at IS NULL
+            "#,
             user_id,
             exercise_ids
         )
@@ -1127,13 +1049,13 @@ pub async fn reset_exercises_for_selected_users(
         .await?;
 
         sqlx::query!(
-            "
-            UPDATE user_exercise_states
-            SET deleted_at = now()
-            WHERE user_id = $1
-              AND exercise_id = ANY($2)
-              AND deleted_at IS NULL
-            ",
+            r#"
+UPDATE user_exercise_states
+SET deleted_at = NOW()
+WHERE user_id = $1
+  AND exercise_id = ANY($2)
+  AND deleted_at IS NULL
+            "#,
             user_id,
             exercise_ids
         )
@@ -1141,19 +1063,21 @@ pub async fn reset_exercises_for_selected_users(
         .await?;
 
         sqlx::query!(
-            "
-            UPDATE user_exercise_task_states
-            SET deleted_at = now()
-            WHERE user_exercise_slide_state_id IN (
-                SELECT id FROM user_exercise_slide_states
-                WHERE user_exercise_state_id IN (
-                    SELECT id FROM user_exercise_states
-                    WHERE user_id = $1
-                      AND exercise_id = ANY($2)
-                )
-            )
-            AND deleted_at IS NULL
-            ",
+            r#"
+UPDATE user_exercise_task_states
+SET deleted_at = NOW()
+WHERE user_exercise_slide_state_id IN (
+    SELECT id
+    FROM user_exercise_slide_states
+    WHERE user_exercise_state_id IN (
+        SELECT id
+        FROM user_exercise_states
+        WHERE user_id = $1
+          AND exercise_id = ANY($2)
+      )
+  )
+  AND deleted_at IS NULL
+            "#,
             user_id,
             exercise_ids
         )
@@ -1161,16 +1085,17 @@ pub async fn reset_exercises_for_selected_users(
         .await?;
 
         sqlx::query!(
-            "
-            UPDATE user_exercise_slide_states
-            SET deleted_at = now()
-            WHERE user_exercise_state_id IN (
-                SELECT id FROM user_exercise_states
-                WHERE user_id = $1
-                  AND exercise_id = ANY($2)
-            )
-            AND deleted_at IS NULL
-            ",
+            r#"
+UPDATE user_exercise_slide_states
+SET deleted_at = NOW()
+WHERE user_exercise_state_id IN (
+    SELECT id
+    FROM user_exercise_states
+    WHERE user_id = $1
+      AND exercise_id = ANY($2)
+  )
+  AND deleted_at IS NULL
+            "#,
             user_id,
             exercise_ids
         )
@@ -1178,16 +1103,17 @@ pub async fn reset_exercises_for_selected_users(
         .await?;
 
         sqlx::query!(
-            "
-            UPDATE teacher_grading_decisions
-            SET deleted_at = now()
-            WHERE user_exercise_state_id IN (
-                SELECT id FROM user_exercise_states
-                WHERE user_id = $1
-                  AND exercise_id = ANY($2)
-            )
-            AND deleted_at IS NULL
-            ",
+            r#"
+UPDATE teacher_grading_decisions
+SET deleted_at = NOW()
+WHERE user_exercise_state_id IN (
+    SELECT id
+    FROM user_exercise_states
+    WHERE user_id = $1
+      AND exercise_id = ANY($2)
+  )
+  AND deleted_at IS NULL
+            "#,
             user_id,
             exercise_ids
         )
@@ -1195,74 +1121,19 @@ pub async fn reset_exercises_for_selected_users(
         .await?;
 
         // Adds a log of a reset exercise for a user
-        sqlx::query!(
-            "
-            INSERT INTO exercise_reset_logs (reset_by, reset_for, exercise_id, course_id, reset_at)
-            SELECT $1, $2, unnest($3::uuid[]), $4, NOW()
-            ",
+        exercise_reset_logs::log_exercise_reset(
+            &mut tx,
             reset_by,
-            user_id,
-            &exercise_ids,
-            course_id
+            *user_id,
+            exercise_ids,
+            course_id,
         )
-        .execute(&mut *tx)
         .await?;
-
-        tx.commit().await?;
 
         successful_resets.push((*user_id, exercise_ids.to_vec()));
     }
-
+    tx.commit().await?;
     Ok(successful_resets)
-}
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct ExerciseResetLog {
-    pub id: Uuid,
-    pub reset_by: Uuid,
-    pub reset_by_first_name: Option<String>,
-    pub reset_by_last_name: Option<String>,
-    pub reset_for: Uuid,
-    pub exercise_id: Uuid,
-    pub exercise_name: String,
-    pub course_id: Uuid,
-    pub reset_at: DateTime<Utc>,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-    pub deleted_at: Option<DateTime<Utc>>,
-}
-
-pub async fn get_exercise_reset_logs_for_user(
-    conn: &mut PgConnection,
-    user_id: Uuid,
-) -> ModelResult<Vec<ExerciseResetLog>> {
-    let result = sqlx::query_as!(
-        ExerciseResetLog,
-        "
-            SELECT erl.id,
-                   erl.reset_by,
-                   ud.first_name AS reset_by_first_name,
-                   ud.last_name AS reset_by_last_name,
-                   erl.reset_for,
-                   erl.exercise_id,
-                   e.name AS exercise_name,
-                   erl.course_id,
-                   erl.reset_at,
-                   erl.created_at,
-                   erl.updated_at,
-                   erl.deleted_at
-            FROM exercise_reset_logs erl
-            JOIN exercises e ON erl.exercise_id = e.id
-            JOIN user_details ud ON erl.reset_by = ud.user_id
-            WHERE erl.reset_for = $1
-            ORDER BY erl.reset_at DESC
-            ",
-        user_id
-    )
-    .fetch_all(&mut *conn)
-    .await?;
-
-    Ok(result)
 }
 
 #[cfg(test)]

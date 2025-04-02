@@ -37,7 +37,7 @@ export const BASE_BUTTON_STYLES = (props: ButtonProps) => `
   text-decoration: none;
   text-align: center;
   justify-content: center;
-  text-transform: uppercase;
+  text-transform: ${props.transform || "uppercase"};
   letter-spacing: 0.02em;
   transition: all 150ms linear;
   border: 2.5px solid transparent;

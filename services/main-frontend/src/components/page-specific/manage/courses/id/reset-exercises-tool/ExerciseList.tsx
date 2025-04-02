@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useExercises } from "@/hooks/useExercises"
@@ -7,7 +8,9 @@ import { fetchAllChaptersByCourseId } from "@/services/backend/chapters"
 import { fetchAllPagesByCourseId } from "@/services/backend/pages"
 import { DatabaseChapter, Exercise, Page } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, fontWeights, secondaryFont } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
@@ -56,14 +59,32 @@ const ExerciseList: React.FC<Props> = ({
     )
   }
 
+  const groupedExercises = useMemo(() => {
+    if (!exercises) {
+      return {}
+    }
+
+    return exercises.reduce<Record<string, Record<string, Exercise[]>>>((acc, exercise) => {
+      const chapterKey = exercise.chapter_id ?? t("label-no-chapter")
+      const pageKey = exercise.page_id ?? t("label-no-page")
+
+      acc[chapterKey] ||= {}
+      acc[chapterKey][pageKey] ||= []
+
+      acc[chapterKey][pageKey].push(exercise)
+
+      return acc
+    }, {})
+  }, [exercises, t])
+
   if (exercisesLoading || chaptersLoading || pagesLoading) {
-    return <p>{t("loading-text")}</p>
+    return <Spinner variant="medium" />
   }
   if (exercisesError || chaptersError || pagesError) {
-    return <p>{t("label-error-loading")}</p>
+    return <ErrorBanner error={exercisesError || chaptersError || pagesError} />
   }
   if (!exercises || !chapters || !pages) {
-    return <p>{t("label-no-chapter")}</p>
+    return <ErrorBanner error={t("label-no-chapter")} />
   }
 
   const selectAll = () => {
@@ -94,23 +115,6 @@ const ExerciseList: React.FC<Props> = ({
   const chapterMap = new Map<string, DatabaseChapter>(chapters.map((ch) => [ch.id, ch]))
   const pageMap = new Map<string, Page>(pages.map((pg) => [pg.id, pg]))
 
-  const groupedExercises = exercises.reduce(
-    (acc, exercise) => {
-      const chapterKey = exercise.chapter_id ? exercise.chapter_id : t("label-no-chapter")
-      if (!acc[chapterKey]) {
-        acc[chapterKey] = {}
-      }
-      const chapterGroup = acc[chapterKey]
-      const pageKey = exercise.page_id ? exercise.page_id : t("label-no-page")
-      if (!chapterGroup[pageKey]) {
-        chapterGroup[pageKey] = []
-      }
-      chapterGroup[pageKey].push(exercise)
-      return acc
-    },
-    {} as Record<string, Record<string, Exercise[]>>,
-  )
-
   return (
     <div>
       <h6
@@ -130,43 +134,20 @@ const ExerciseList: React.FC<Props> = ({
           gap: 8px;
         `}
       >
-        <Button
-          onClick={selectAll}
-          variant={"green"}
-          size={"small"}
-          className={css`
-            text-transform: capitalize !important;
-          `}
-        >
+        <Button onClick={selectAll} variant={"green"} size={"small"} transform={"capitalize"}>
           {t("button-select-all")}
         </Button>
-        <Button
-          onClick={selectNone}
-          variant={"green"}
-          size={"small"}
-          className={css`
-            text-transform: capitalize !important;
-          `}
-        >
+        <Button onClick={selectNone} variant={"green"} size={"small"} transform={"capitalize"}>
           {t("button-select-none")}
         </Button>
-        <Button
-          onClick={invertSelection}
-          variant={"green"}
-          size={"small"}
-          className={css`
-            text-transform: capitalize !important;
-          `}
-        >
+        <Button onClick={invertSelection} variant={"green"} size={"small"} transform={"capitalize"}>
           {t("button-invert-selection")}
         </Button>
         <Button
           onClick={selectPeerReview}
           variant={"green"}
           size={"small"}
-          className={css`
-            text-transform: capitalize !important;
-          `}
+          transform={"capitalize"}
         >
           {t("button-exercises-with-peer-review")}
         </Button>
@@ -174,9 +155,7 @@ const ExerciseList: React.FC<Props> = ({
           onClick={selectSelfReview}
           variant={"green"}
           size={"small"}
-          className={css`
-            text-transform: capitalize !important;
-          `}
+          transform={"capitalize"}
         >
           {t("button-exercises-with-self-review")}
         </Button>

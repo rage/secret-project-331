@@ -134,10 +134,10 @@ pub async fn get_exercises_by_course_id(
     )
     .await?;
 
-    let exercises = models::exercises::get_exercises_by_course_id_sorted_by_chapter_and_page(
-        &mut conn, *course_id,
-    )
-    .await?;
+    let mut exercises =
+        models::exercises::get_exercises_by_course_id(&mut conn, *course_id).await?;
+
+    exercises.sort_by_key(|e| (e.chapter_id, e.page_id, e.order_number));
 
     token.authorized_ok(web::Json(exercises))
 }
@@ -146,7 +146,7 @@ pub async fn get_exercises_by_course_id(
 pub struct ResetExercisesPayload {
     pub user_ids: Vec<Uuid>,
     pub exercise_ids: Vec<Uuid>,
-    pub threshold: Option<i32>,
+    pub threshold: Option<f64>,
     pub reset_all_below_max_points: bool,
     pub reset_only_locked_peer_reviews: bool,
 }
@@ -162,14 +162,14 @@ pub async fn reset_exercises_for_selected_users(
 ) -> ControllerResult<web::Json<i32>> {
     let mut conn = pool.acquire().await?;
 
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::GlobalPermissions).await?;
 
     // Gets all valid users and their related exercises using the given filters
     let users_and_exercises = models::exercises::collect_user_ids_and_exercise_ids_for_reset(
         &mut conn,
         &payload.user_ids,
         &payload.exercise_ids,
-        payload.threshold.map(|t| t as f32),
+        payload.threshold.map(|t| t as f64),
         payload.reset_all_below_max_points,
         payload.reset_only_locked_peer_reviews,
     )

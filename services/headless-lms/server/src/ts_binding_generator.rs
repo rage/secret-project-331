@@ -133,7 +133,7 @@ fn models(target: &mut File) {
         exercises::ExerciseStatus,
         exercises::ExerciseStatusSummaryForUser,
         exercises::GradingProgress,
-        exercises::ExerciseResetLog,
+        exercise_reset_logs::ExerciseResetLog,
 
         feedback::Feedback,
         feedback::FeedbackBlock,

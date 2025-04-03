@@ -62,3 +62,19 @@ export const getEditingStyles = (
   border: 1px;
   border-style: dotted;
 `
+
+export const getEditableHoverStyles = (isEditing: boolean) => css`
+  ${isEditing && `cursor: text;`}
+
+  ${!isEditing &&
+  `
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: rgba(121, 247, 96, 0.05);
+      box-shadow: 0 0 0 2px rgba(93, 163, 36, 0.2);
+      border-radius: 3px;
+    }
+  `}
+`

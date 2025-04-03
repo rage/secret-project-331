@@ -52,7 +52,7 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({
   if (selectedBlockId !== null) {
     // currently editing block
     topMessage = t("youve-selected-material-for-editing")
-    bottomMessage = t("preview-changes-or-make-more-edits")
+    bottomMessage = t("click-on-any-paragraph-to-edit")
     leftButton = (
       <Button
         variant="primary"

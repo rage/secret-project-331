@@ -205,6 +205,7 @@ export const TertiaryButtonStyles = (props: ButtonProps) => {
       color: ${theme.tertiary.hoverText};
       box-shadow: 0 0 0 1px ${theme.tertiary.bg};
       border: 1.5px solid ${theme.tertiary.bg};
+      background-color: ${theme.tertiary.hoverBg};
     }
 
     &:active {

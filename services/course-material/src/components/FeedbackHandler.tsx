@@ -10,7 +10,6 @@ import SelectionListener from "./SelectionListener"
 
 import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
-import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 
 interface Props {
   courseId: string

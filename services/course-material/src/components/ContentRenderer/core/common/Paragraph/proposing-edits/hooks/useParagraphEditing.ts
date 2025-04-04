@@ -28,20 +28,6 @@ export const useParagraphEditing = (
     }
   }, [id, content])
 
-  // Reset edited content when no longer editing
-  useEffect(() => {
-    if (!editing && editedContentRef.current !== content) {
-      editedContentRef.current = content
-      setEditedContent(content)
-      editedContents.set(id, content)
-
-      // If the component has DOM content, update it
-      if (contentEditableRef.current) {
-        contentEditableRef.current.innerText = content || ""
-      }
-    }
-  }, [content, editing, id])
-
   // Sync with global edited content map
   useEffect(() => {
     // Only update if we're the source of truth (selected for editing)

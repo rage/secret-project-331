@@ -60,7 +60,6 @@ const ColumnsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnsA
             key={block.clientId}
             data={block}
             editing={false}
-            selectedBlockId={null}
             setEdits={function (_value: SetStateAction<Map<string, NewProposedBlockEdit>>): void {
               throw new Error("Function not implemented.")
             }}

@@ -109,7 +109,6 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
             <ContentRenderer
               data={(researchForm.content as Array<Block<unknown>>) ?? []}
               editing={false}
-              selectedBlockId={null}
               setEdits={(map) => map}
               isExam={false}
             />

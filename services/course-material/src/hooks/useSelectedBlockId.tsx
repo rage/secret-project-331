@@ -1,32 +1,101 @@
-import { useEffect, useState } from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useEffect } from "react"
 
 import { courseMaterialBlockClass } from "../utils/constants"
 
-export default function useSelectedBlockId(): [string | null, () => void] {
-  const [selectedBlockId, setSelectedBlockId] = useState(document.activeElement?.id ?? null)
-  useEffect(() => {
-    const handler = (ev: MouseEvent) => {
-      if (ev.target instanceof Element) {
-        // go through the clicked element's parents until we find a block
-        let blockId = null
-        let element: Element | null = ev.target
-        while (element !== null) {
-          if (element.classList.contains(courseMaterialBlockClass)) {
-            blockId = element.id
-            break
-          }
-          element = element.parentElement
+const SELECTED_BLOCK_ID_QUERY_KEY = ["selectedBlockId"]
+
+type BlockIdListener = {
+  getCurrentBlockId: () => string | null
+  cleanup: () => void
+}
+
+const setupBlockIdListener = (): BlockIdListener => {
+  let currentBlockId: string | null = document.activeElement?.id ?? null
+  const abortController = new AbortController()
+
+  const getState = (): string | null => currentBlockId
+
+  const handleClick = (ev: MouseEvent): void => {
+    if (ev.target instanceof Element) {
+      let newBlockId = null
+      let element: Element | null = ev.target
+      while (element !== null) {
+        if (element.classList.contains(courseMaterialBlockClass)) {
+          newBlockId = element.id
+          break
         }
-        setSelectedBlockId(blockId)
-      } else {
-        setSelectedBlockId(null)
+        element = element.parentElement
       }
+      currentBlockId = newBlockId
+    } else {
+      currentBlockId = null
     }
-    document.addEventListener("click", handler)
+  }
+
+  document.addEventListener("click", handleClick, { signal: abortController.signal })
+
+  return {
+    getCurrentBlockId: getState,
+    cleanup: () => {
+      abortController.abort()
+    },
+  }
+}
+
+let listenerInstance: BlockIdListener | null = null
+let observer: MutationObserver | null = null
+
+/**
+ * Hook that tracks the currently selected block ID.
+ * Uses Tanstack Query to deduplicate event listeners across multiple hook instances.
+ *
+ * @returns [selectedBlockId, clearSelectedBlock] - The selected block ID and a function to clear it
+ */
+export default function useSelectedBlockId(): [string | null, () => void] {
+  const queryClient = useQueryClient()
+
+  const { data = null } = useQuery({
+    queryKey: SELECTED_BLOCK_ID_QUERY_KEY,
+    queryFn: (): string | null => {
+      if (!listenerInstance) {
+        listenerInstance = setupBlockIdListener()
+
+        observer = new MutationObserver(() => {
+          queryClient.setQueryData(
+            SELECTED_BLOCK_ID_QUERY_KEY,
+            listenerInstance?.getCurrentBlockId(),
+          )
+        })
+
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true,
+        })
+      }
+
+      return listenerInstance?.getCurrentBlockId() ?? null
+    },
+    staleTime: Infinity,
+    gcTime: Infinity,
+  })
+
+  useEffect(() => {
     return () => {
-      document.removeEventListener("click", handler)
+      if (observer) {
+        observer.disconnect()
+        observer = null
+      }
+      if (listenerInstance) {
+        listenerInstance.cleanup()
+        listenerInstance = null
+      }
     }
   }, [])
 
-  return [selectedBlockId, () => setSelectedBlockId(null)]
+  const clearSelectedBlock = (): void => {
+    queryClient.setQueryData(SELECTED_BLOCK_ID_QUERY_KEY, null)
+  }
+
+  return [data, clearSelectedBlock] as [string | null, () => void]
 }

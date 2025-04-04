@@ -97,7 +97,6 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
             <ContentRenderer
               data={[frontCard]}
               editing={false}
-              selectedBlockId={null}
               setEdits={function (): void {}}
               isExam={false}
             />
@@ -123,7 +122,6 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
             <ContentRenderer
               data={[backCard]}
               editing={false}
-              selectedBlockId={null}
               setEdits={function (): void {}}
               isExam={false}
             />

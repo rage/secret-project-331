@@ -83,7 +83,6 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 export interface ContentRendererProps {
   data: Block<unknown>[]
   editing: boolean
-  selectedBlockId: string | null
   setEdits: React.Dispatch<React.SetStateAction<Map<string, NewProposedBlockEdit>>>
   isExam: boolean
   /// This wrapper div providing styles must be skipped for innerblocks because list block's inner blocks cannot contain any div elements. See: https://dequeuniversity.com/rules/axe/4.4/list
@@ -199,7 +198,6 @@ const defaultBlockMargin = css`
 const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> = ({
   data,
   editing,
-  selectedBlockId,
   setEdits,
   isExam,
   dontAddWrapperDivMeantForMostOutermostContentRenderer,
@@ -278,7 +276,6 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
               id={block.clientId}
               data={block}
               editing={editing}
-              selectedBlockId={selectedBlockId}
               setEdits={setEdits}
               isExam={isExam}
               wrapperClassName={wrapperClassName}
@@ -293,7 +290,6 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
               id={block.clientId}
               data={block}
               editing={editing}
-              selectedBlockId={selectedBlockId}
               setEdits={setEdits}
               isExam={isExam}
               wrapperClassName={wrapperClassName}

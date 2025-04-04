@@ -8,6 +8,7 @@ import FeedbackTooltip from "./FeedbackTooltip"
 import FeedbackTypeDialog from "./FeedbackTypeDialog"
 import SelectionListener from "./SelectionListener"
 
+import useSelectedBlockId from "@/hooks/useSelectedBlockId"
 import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 
@@ -16,8 +17,6 @@ interface Props {
   pageId: string
   onEnterEditProposalMode: () => void
   onExitEditProposalMode: () => void
-  selectedBlockId: string | null
-  clearSelectedBlockId: () => void
   edits: Map<string, NewProposedBlockEdit>
 }
 
@@ -31,10 +30,9 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
   pageId,
   onEnterEditProposalMode,
   onExitEditProposalMode,
-  selectedBlockId,
-  clearSelectedBlockId,
   edits,
 }) => {
+  const [selectedBlockId, clearSelectedBlockId] = useSelectedBlockId()
   const { t } = useTranslation()
   const [feedbackTypeDialogOpen, setFeedbackTypeDialogOpen] = useState(false)
   const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false)
@@ -45,14 +43,23 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
   const [selectionRect, setSelectionRect] = useState<SelectionPosition | null>(null)
 
   function handleSelectionChange(newSelection: string, rect: DOMRect | null) {
+    console.log("Selection changed:", {
+      newSelection,
+      selectionLength: newSelection.length,
+      rect: rect ? { x: rect.x, y: rect.y, width: rect.width, height: rect.height } : null,
+    })
+
     if (showFeedbackTooltipTimeout !== null) {
       clearTimeout(showFeedbackTooltipTimeout)
+      console.log("Cleared previous timeout")
     }
     if (newSelection.length > 0) {
       setLastSelection(newSelection)
+      console.log("Updated lastSelection:", newSelection)
     }
 
     const timeout = setTimeout(() => {
+      console.log("Timeout triggered, setting selectionRect:", rect)
       if (newSelection.length > 0) {
         setSelectionRect(rect)
       } else {
@@ -63,8 +70,13 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
   }
 
   function updateSelectionRect(pos: { x: number; y: number }) {
+    console.log("Updating selection position:", pos)
     if (selectionRect !== null) {
+      console.log("Previous selectionRect:", selectionRect)
       setSelectionRect({ x: pos.x, y: pos.y })
+      console.log("New selectionRect:", { x: pos.x, y: pos.y })
+    } else {
+      console.log("No selectionRect to update")
     }
   }
 

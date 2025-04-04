@@ -43,7 +43,6 @@ const RevealableContentBlock: React.FC<
               key={content.clientId}
               data={[content]}
               editing={false}
-              selectedBlockId={null}
               setEdits={function (): void {
                 throw new Error("Function not implemented.")
               }}
@@ -66,7 +65,6 @@ const RevealableContentBlock: React.FC<
                 key={content.clientId}
                 data={[content]}
                 editing={false}
-                selectedBlockId={null}
                 setEdits={function (): void {
                   throw new Error("Function not implemented.")
                 }}

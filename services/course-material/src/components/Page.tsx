@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next"
 
 import { GlossaryContext, GlossaryState } from "../contexts/GlossaryContext"
 import PageContext from "../contexts/PageContext"
-import useSelectedBlockId from "../hooks/useSelectedBlockId"
 import {
   Block,
   fetchGlossary,
@@ -69,7 +68,6 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   const courseId = pageContext?.pageData?.course_id
   const pageId = pageContext?.pageData?.id
   const isMaterialPage = pageContext.pageData?.content && Boolean(pageContext.pageData?.chapter_id)
-  const [selectedBlockId, clearSelectedBlockId] = useSelectedBlockId()
 
   const tracks: AudioFile[] = []
 
@@ -246,7 +244,6 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
             <ContentRenderer
               data={(pageContext.pageData?.content as Array<Block<unknown>>) ?? []}
               editing={editingMaterial}
-              selectedBlockId={selectedBlockId}
               setEdits={setEdits}
               isExam={pageContext.exam !== null}
               dontAllowBlockToBeWiderThanContainerWidth={false}
@@ -279,8 +276,6 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
                 setEditingMaterial(false)
                 setEdits(new Map())
               }}
-              selectedBlockId={selectedBlockId}
-              clearSelectedBlockId={clearSelectedBlockId}
               edits={edits}
             />
           </>

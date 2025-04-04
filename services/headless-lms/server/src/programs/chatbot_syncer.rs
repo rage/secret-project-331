@@ -263,9 +263,12 @@ async fn sync_pages_batch(
         metadata.insert("url".to_string(), url.to_string().into());
         metadata.insert("title".to_string(), page.title.to_string().into());
 
-        blob_client
+        if let Err(e) = blob_client
             .upload_file(&blob_path, content_string.as_bytes(), Some(metadata))
-            .await?;
+            .await
+        {
+            warn!("Failed to upload file {}: {:?}", blob_path, e);
+        }
     }
 
     let page_revision_map: HashMap<Uuid, Uuid> = pages

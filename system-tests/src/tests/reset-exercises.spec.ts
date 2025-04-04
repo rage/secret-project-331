@@ -25,9 +25,7 @@ test("Can manually reset exercises", async () => {
   const adminPage = await context3.newPage()
 
   // Students answers some exercises
-  await student1Page.goto(
-    "http://project-331.local/org/uh-cs/courses/advanced-course-instance-management",
-  )
+  await student1Page.goto("http://project-331.local/org/uh-cs/courses/advanced-exercise-states")
 
   await selectCourseInstanceIfPrompted(student1Page)
   await student1Page.getByRole("link", { name: "Chapter 1 The Basics" }).click()
@@ -67,7 +65,7 @@ test("Can manually reset exercises", async () => {
   await student1Page.getByRole("button", { name: "Start peer review" }).click()
 
   await student1Page.goto(
-    "http://project-331.local/org/uh-cs/courses/advanced-course-instance-management/chapter-1/complicated-exercise",
+    "http://project-331.local/org/uh-cs/courses/advanced-exercise-states/chapter-1/complicated-exercise",
   )
 
   await student1Page
@@ -110,7 +108,7 @@ test("Can manually reset exercises", async () => {
 
   // Admin resets only exercises that have less than maximum points
   await adminPage.goto(
-    "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4/other/exercise-reset-tool",
+    "http://project-331.local/manage/courses/0cf67777-0edb-480c-bdb6-13f90c136fc3/other/exercise-reset-tool",
   )
   await adminPage.getByRole("button", { name: "Add students" }).click()
 
@@ -119,10 +117,10 @@ test("Can manually reset exercises", async () => {
   await adminPage.getByRole("button", { name: "Close" }).click()
 
   await adminPage.getByText("Reset only if less than max").click()
-  await adminPage.locator(".css-uji28j > .css-vt0euu-Label > input").first().check()
-  await adminPage.locator("tr:nth-child(2) > td > .css-uji28j > .css-vt0euu-Label > input").check()
-  await adminPage.locator("tr:nth-child(3) > td > .css-uji28j > .css-vt0euu-Label > input").check()
-  await adminPage.locator("tr:nth-child(4) > td > .css-uji28j > .css-vt0euu-Label > input").check()
+  await adminPage.locator('input[type="checkbox"]').nth(3).check()
+  await adminPage.locator('input[type="checkbox"]').nth(4).check()
+  await adminPage.locator('input[type="checkbox"]').nth(5).check()
+  await adminPage.locator('input[type="checkbox"]').nth(6).check()
   await adminPage.getByRole("button", { name: "Submit and reset" }).click()
   await adminPage.getByRole("button", { name: "Reset", exact: true }).click()
 
@@ -130,11 +128,11 @@ test("Can manually reset exercises", async () => {
 
   // Admin checks that correct exercises are reset and found in the users reset exercises log
   await adminPage.goto("http://project-331.local/manage/users/02364d40-2aac-4763-8a06-2381fd298d79")
-  await expect(adminPage.getByRole("cell", { name: "ce1905e5-16a2-556c-92d6-" })).toBeVisible()
+  await expect(adminPage.getByRole("cell", { name: "0f827be8-9043-576a-badd-" })).toBeVisible()
 
   // Admin resets only tasks that have gotten less than 2 points
   await adminPage.goto(
-    "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4/other/exercise-reset-tool",
+    "http://project-331.local/manage/courses/0cf67777-0edb-480c-bdb6-13f90c136fc3/other/exercise-reset-tool",
   )
 
   await adminPage.getByRole("button", { name: "Add students" }).click()
@@ -152,11 +150,11 @@ test("Can manually reset exercises", async () => {
 
   // Admin checks that correct exercises are reset and found in the users reset exercises log
   await adminPage.goto("http://project-331.local/manage/users/02364d40-2aac-4763-8a06-2381fd298d79")
-  await expect(adminPage.getByRole("cell", { name: "f22eedc4-1e66-" })).toBeVisible()
+  await expect(adminPage.getByRole("cell", { name: "c1d545d7-c46b-5076-8f34-" })).toBeVisible()
 
   // Admin resest exercises that have a peer review
   await adminPage.goto(
-    "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4/other/exercise-reset-tool",
+    "http://project-331.local/manage/courses/0cf67777-0edb-480c-bdb6-13f90c136fc3/other/exercise-reset-tool",
   )
   await adminPage.getByRole("button", { name: "Add students" }).click()
 
@@ -170,5 +168,5 @@ test("Can manually reset exercises", async () => {
 
   // Admin checks that correct exercises are reset and found in the users reset exercises log
   await adminPage.goto("http://project-331.local/manage/users/02364d40-2aac-4763-8a06-2381fd298d79")
-  await expect(adminPage.getByRole("cell", { name: "3286861b-4407-514a-8f72-" })).toBeVisible()
+  await expect(adminPage.getByRole("cell", { name: "08004e49-b245-554c-994f-" })).toBeVisible()
 })

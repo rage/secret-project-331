@@ -169,7 +169,7 @@ pub async fn reset_exercises_for_selected_users(
         &mut conn,
         &payload.user_ids,
         &payload.exercise_ids,
-        payload.threshold.map(|t| t as f64),
+        payload.threshold,
         payload.reset_all_below_max_points,
         payload.reset_only_locked_peer_reviews,
     )

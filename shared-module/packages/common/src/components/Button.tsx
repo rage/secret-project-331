@@ -6,7 +6,16 @@ import { defaultFontSizePx } from "../styles/constants"
 import { respondToOrLarger } from "../styles/respond"
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant: "primary" | "secondary" | "reject" | "tertiary" | "outlined" | "blue" | "white" | "icon"
+  variant:
+    | "primary"
+    | "secondary"
+    | "reject"
+    | "tertiary"
+    | "outlined"
+    | "blue"
+    | "white"
+    | "icon"
+    | "green"
   size: "small" | "medium" | "large"
   transform?: "capitalize" | "uppercase" | "none" | "lowercase"
   fullWidth?: boolean
@@ -28,7 +37,7 @@ export const BASE_BUTTON_STYLES = (props: ButtonProps) => `
   text-decoration: none;
   text-align: center;
   justify-content: center;
-  text-transform: uppercase;
+  text-transform: ${props.transform || "uppercase"};
   letter-spacing: 0.02em;
   transition: all 150ms linear;
   border: 2.5px solid transparent;
@@ -252,6 +261,40 @@ export const BlueButtonStyles = (props: ButtonProps) => {
   return BLUE_BUTTON_STYLES
 }
 
+export const GreenButtonStyles = (props: ButtonProps) => {
+  const GREEN_BUTTON_STYLES = `
+    text-transform: ${props.transform};
+    padding: ${theme.buttonSizes[props.size].padding};
+    border-radius: 2px;
+
+    color: ${theme.secondary.text};
+    background: ${theme.secondary.bg};
+    border: 1.5px solid ${theme.secondary.border};
+
+    &:hover,
+    &:focus {
+    color: ${baseTheme.colors.gray[700]};
+      background-color: ${baseTheme.colors.green[700]}4D;
+      border-color: transparent;
+
+    }
+
+    &:active {
+      background-color: ${baseTheme.colors.green[700]}4D;
+      border-color: ${baseTheme.colors.green[700]}4D;
+    }
+
+    &:disabled {
+      color: ${baseTheme.colors.gray[500]};
+      background-color: ${baseTheme.colors.gray[300]};
+      border-color: transparent;
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  `
+  return GREEN_BUTTON_STYLES
+}
+
 const PrimaryButton = styled.button`
   ${BASE_BUTTON_STYLES}
   ${PrimaryButtonStyles}
@@ -286,6 +329,10 @@ const IconButton = styled.button`
   ${BASE_BUTTON_STYLES}
   ${IconButtonStyles}
 `
+const GreenButton = styled.button`
+  ${BASE_BUTTON_STYLES}
+  ${GreenButtonStyles}
+`
 
 export const LabelButton = styled.label`
   ${BASE_BUTTON_STYLES}
@@ -309,6 +356,8 @@ const Button = forwardRef((props: ButtonProps, ref?: Ref<HTMLButtonElement>) => 
       return <WhiteButton ref={ref} {...props} />
     case "icon":
       return <IconButton ref={ref} {...props} />
+    case "green":
+      return <GreenButton ref={ref} {...props} />
     default:
       return <PrimaryButton ref={ref} {...props} />
   }

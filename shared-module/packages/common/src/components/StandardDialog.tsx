@@ -20,6 +20,7 @@ interface StandardDialogProps {
   backgroundColor?: string
   actionButtons?: React.ReactNode
   disableContentScroll?: boolean
+  leftAlignTitle?: boolean
 }
 
 const CLOSE_SYMBOL = "×"
@@ -37,6 +38,7 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
   backgroundColor,
   actionButtons,
   disableContentScroll = false,
+  leftAlignTitle = false,
 }) => {
   const { t } = useTranslation()
   const titleId = useId()
@@ -106,7 +108,10 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
                   width: 40px;
                   height: 40px;
                   color: #000;
-
+                  ${leftAlignTitle &&
+                  `
+                    margin-top: -6px;
+                  `}
                   &:hover {
                     background-color: #f0f0f0;
                   }
@@ -128,9 +133,9 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
 
         <div
           className={css`
-            padding: 1.5rem 2rem;
+            padding: ${leftAlignTitle ? "1rem 2rem" : "1.5rem 2rem"};
             border-bottom: 1px solid #eaeaea;
-            text-align: center;
+            text-align: ${leftAlignTitle ? "left" : "center"};
           `}
         >
           <h2

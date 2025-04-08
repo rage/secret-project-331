@@ -106,7 +106,32 @@
 <a href="#105" id="105">105</a>
 <a href="#106" id="106">106</a>
 <a href="#107" id="107">107</a>
-<a href="#108" id="108">108</a></pre></div><pre class="rust"><code><span class="kw">use </span>models::{pages::SearchRequest, user_details::UserDetail};
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a></pre></div><pre class="rust"><code><span class="kw">use </span>models::{pages::SearchRequest, user_details::UserDetail};
 
 <span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 
@@ -202,6 +227,27 @@ GET `/api/v0/main-frontend/user-details/search-fuzzy-match` - Allows to find the
     token.authorized_ok(web::Json(res))
 }
 
+<span class="doccomment">/**
+GET `/api/v0/main-frontend/user-details/get-users-by-course-id` - Get user details of users that are in the course
+*/
+</span><span class="kw">pub async fn </span>get_users_by_course_id(
+    course_id: web::Path&lt;Uuid&gt;,
+    user: AuthUser,
+    pool: web::Data&lt;PgPool&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;UserDetail&gt;&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::ViewUserProgressOrDetails,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::GlobalPermissions,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>res = models::user_details::get_users_by_course_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    token.authorized_ok(web::Json(res))
+}
+
 <span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
     cfg.route(<span class="string">"/search-by-email"</span>, web::post().to(search_users_by_email))
         .route(
@@ -212,6 +258,10 @@ GET `/api/v0/main-frontend/user-details/search-fuzzy-match` - Allows to find the
             <span class="string">"/search-fuzzy-match"</span>,
             web::post().to(search_users_fuzzy_match),
         )
-        .route(<span class="string">"/{user_id}"</span>, web::get().to(get_user_details));
+        .route(<span class="string">"/{user_id}"</span>, web::get().to(get_user_details))
+        .route(
+            <span class="string">"/{course_id}/get-users-by-course-id"</span>,
+            web::get().to(get_users_by_course_id),
+        );
 }
 </code></pre></div></section></main></body></html>

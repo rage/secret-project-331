@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","delete_page","get_page_info","history","history_count","post_new_page","restore","update_page_details"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","delete_page","get_all_pages_by_course_id","get_page_info","history","history_count","post_new_page","restore","update_page_details"]};

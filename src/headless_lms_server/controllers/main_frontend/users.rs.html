@@ -162,11 +162,38 @@
 <a href="#161" id="161">161</a>
 <a href="#162" id="162">162</a>
 <a href="#163" id="163">163</a>
-<a href="#164" id="164">164</a></pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a></pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>models::{
     course_instance_enrollments::CourseInstanceEnrollmentsInfo, courses::Course,
-    research_forms::ResearchFormQuestionAnswer, user_research_consents::UserResearchConsent,
-    users::User,
+    exercise_reset_logs::ExerciseResetLog, research_forms::ResearchFormQuestionAnswer,
+    user_research_consents::UserResearchConsent, users::User,
 };
 
 <span class="doccomment">/**
@@ -306,6 +333,29 @@ GET `/api/v0/main-frontend/users/my-courses` - Gets all the courses the user has
     token.authorized_ok(web::Json(combined))
 }
 
+<span class="doccomment">/**
+GET `/api/v0/main-frontend/users/:id/user-reset-exercise-logs` - Get all logs of reset exercises for a user
+*/
+</span><span class="attr">#[instrument(skip(pool))]
+</span><span class="kw">pub async fn </span>get_user_reset_exercise_logs(
+    user_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    auth_user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;ExerciseResetLog&gt;&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::ViewUserProgressOrDetails,
+        <span class="prelude-val">Some</span>(auth_user.id),
+        Res::GlobalPermissions,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>res =
+        models::exercise_reset_logs::get_exercise_reset_logs_for_user(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>user_id).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    token.authorized_ok(web::Json(res))
+}
+
 <span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
     cfg.route(
         <span class="string">"/user-research-form-question-answers"</span>,
@@ -324,6 +374,10 @@ GET `/api/v0/main-frontend/users/my-courses` - Gets all the courses the user has
     .route(
         <span class="string">"/user-research-consents"</span>,
         web::post().to(post_user_consents),
+    )
+    .route(
+        <span class="string">"/{user_id}/user-reset-exercise-logs"</span>,
+        web::get().to(get_user_reset_exercise_logs),
     );
 }
 </code></pre></div></section></main></body></html>

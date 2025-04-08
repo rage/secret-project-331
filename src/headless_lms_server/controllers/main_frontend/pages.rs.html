@@ -222,7 +222,29 @@
 <a href="#221" id="221">221</a>
 <a href="#222" id="222">222</a>
 <a href="#223" id="223">223</a>
-<a href="#224" id="224">224</a></pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/pages`.
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
+<a href="#240" id="240">240</a>
+<a href="#241" id="241">241</a>
+<a href="#242" id="242">242</a>
+<a href="#243" id="243">243</a>
+<a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a></pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/pages`.
 
 </span><span class="kw">use </span>std::sync::Arc;
 
@@ -428,6 +450,24 @@ POST `/api/v0/main-frontend/pages/:page_id/page-details` - Update pages title an
 }
 
 <span class="doccomment">/**
+GET `/api/v0/main-frontend/pages/:course_id/all-course-pages-for-course` - Get all pages of a course
+*/
+</span><span class="kw">async fn </span>get_all_pages_by_course_id(
+    course_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;Page&gt;&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Edit, <span class="prelude-val">Some</span>(user.id), Res::Course(<span class="kw-2">*</span>course_id)).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span><span class="kw-2">mut </span>pages = models::pages::get_pages_by_course_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    pages.sort_by(|a, b| a.order_number.cmp(<span class="kw-2">&amp;</span>b.order_number));
+
+    token.authorized_ok(web::Json(pages))
+}
+
+<span class="doccomment">/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -444,6 +484,10 @@ We add the routes by calling the route method instead of using the route annotat
         )
         .route(<span class="string">"/{page_id}/history"</span>, web::get().to(history))
         .route(<span class="string">"/{page_id}/history_count"</span>, web::get().to(history_count))
-        .route(<span class="string">"/{history_id}/restore"</span>, web::post().to(restore));
+        .route(<span class="string">"/{history_id}/restore"</span>, web::post().to(restore))
+        .route(
+            <span class="string">"/{course_id}/all-course-pages-for-course"</span>,
+            web::get().to(get_all_pages_by_course_id),
+        );
 }
 </code></pre></div></section></main></body></html>

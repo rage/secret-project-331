@@ -1,4 +1,4 @@
-import { format } from "date-fns"
+import { format, formatDistanceToNow, parse } from "date-fns"
 import { toZonedTime } from "date-fns-tz"
 
 export const dateToString = (date: Date | string, timeZone = true): string => {
@@ -73,4 +73,11 @@ export const getLocalizedMonthName = (month: string | number, locale: string): s
     // Fallback to English if locale not supported
     return new Intl.DateTimeFormat("en", { month: "long" }).format(date)
   }
+}
+
+export const relativeTimeFromTimestamp = (timestamp: string): string => {
+  const cleanTimestamp = timestamp.replace(/ UTC[+-]\d{2}:\d{2}/, "")
+  const parsedDate = parse(cleanTimestamp, "yyyy-MM-dd HH:mm:ss", new Date())
+
+  return formatDistanceToNow(parsedDate, { addSuffix: true })
 }

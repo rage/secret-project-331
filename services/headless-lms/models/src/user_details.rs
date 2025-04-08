@@ -161,3 +161,32 @@ WHERE dist < 0.7;
     .await?;
     Ok(res)
 }
+
+/// Retrieves all users enrolled in a specific course
+pub async fn get_users_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<UserDetail>> {
+    let res = sqlx::query_as!(
+        UserDetail,
+        "
+        SELECT
+            d.user_id,
+            d.created_at,
+            d.updated_at,
+            d.email,
+            d.first_name,
+            d.last_name,
+            d.search_helper
+        FROM course_instance_enrollments e
+        JOIN user_details d ON e.user_id = d.user_id
+        WHERE e.course_id = $1
+        AND e.deleted_at IS NULL
+        ",
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(res)
+}

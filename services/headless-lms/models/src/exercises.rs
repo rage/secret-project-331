@@ -4,7 +4,7 @@ use itertools::Itertools;
 use url::Url;
 
 use crate::{
-    course_instances, exams,
+    course_instances, exams, exercise_reset_logs,
     exercise_service_info::ExerciseServiceInfoApi,
     exercise_slide_submissions::{
         get_exercise_slide_submission_counts_for_exercise_user, ExerciseSlideSubmission,
@@ -917,6 +917,223 @@ where tasks.exercise_type = $1
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+/// Collects user_ids and related exercise_ids according to given filters
+pub async fn collect_user_ids_and_exercise_ids_for_reset(
+    conn: &mut PgConnection,
+    user_ids: &[Uuid],
+    exercise_ids: &[Uuid],
+    threshold: Option<f64>,
+    reset_all_below_max: bool,
+    reset_only_locked_reviews: bool,
+) -> ModelResult<Vec<(Uuid, Vec<Uuid>)>> {
+    let results = sqlx::query!(
+        r#"
+SELECT DISTINCT ues.user_id,
+  ues.exercise_id
+FROM user_exercise_states ues
+  LEFT JOIN exercises e ON ues.exercise_id = e.id
+WHERE ues.user_id = ANY($1)
+  AND ues.exercise_id = ANY($2)
+  AND ues.deleted_at IS NULL
+  AND (
+    $3 = FALSE
+    OR ues.score_given < e.score_maximum
+  )
+  AND (
+    $4::FLOAT IS NULL
+    OR ues.score_given < $4::FLOAT
+  )
+  AND (
+    $5 = FALSE
+    OR ues.reviewing_stage = 'reviewed_and_locked'
+  )
+            "#,
+        user_ids,
+        exercise_ids,
+        reset_all_below_max,
+        threshold,
+        reset_only_locked_reviews
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+
+    let mut user_exercise_map: HashMap<Uuid, Vec<Uuid>> = HashMap::new();
+    for row in &results {
+        user_exercise_map
+            .entry(row.user_id)
+            .or_default()
+            .push(row.exercise_id);
+    }
+
+    Ok(user_exercise_map.into_iter().collect())
+}
+
+/// Resets all related tables for selected users and related exercises
+pub async fn reset_exercises_for_selected_users(
+    conn: &mut PgConnection,
+    users_and_exercises: &[(Uuid, Vec<Uuid>)],
+    reset_by: Uuid,
+    course_id: Uuid,
+) -> ModelResult<Vec<(Uuid, Vec<Uuid>)>> {
+    let mut successful_resets = Vec::new();
+    let mut tx = conn.begin().await?;
+    for (user_id, exercise_ids) in users_and_exercises {
+        sqlx::query!(
+            r#"
+UPDATE exercise_slide_submissions
+SET deleted_at = NOW()
+WHERE user_id = $1
+  AND exercise_id = ANY($2)
+  AND deleted_at IS NULL
+            "#,
+            user_id,
+            exercise_ids
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        sqlx::query!(
+            r#"
+UPDATE exercise_task_submissions
+SET deleted_at = NOW()
+WHERE exercise_slide_submission_id IN (
+    SELECT id
+    FROM exercise_slide_submissions
+    WHERE user_id = $1
+      AND exercise_id = ANY($2)
+  )
+  AND deleted_at IS NULL
+            "#,
+            user_id,
+            exercise_ids
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        sqlx::query!(
+            r#"
+UPDATE peer_review_queue_entries
+SET deleted_at = NOW()
+WHERE user_id = $1
+  AND exercise_id = ANY($2)
+  AND deleted_at IS NULL
+            "#,
+            user_id,
+            exercise_ids
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        sqlx::query!(
+            r#"
+UPDATE exercise_task_gradings
+SET deleted_at = NOW()
+WHERE exercise_task_submission_id IN (
+    SELECT id
+    FROM exercise_task_submissions
+    WHERE exercise_slide_submission_id IN (
+        SELECT id
+        FROM exercise_slide_submissions
+        WHERE user_id = $1
+          AND exercise_id = ANY($2)
+      )
+  )
+  AND deleted_at IS NULL
+            "#,
+            user_id,
+            exercise_ids
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        sqlx::query!(
+            r#"
+UPDATE user_exercise_states
+SET deleted_at = NOW()
+WHERE user_id = $1
+  AND exercise_id = ANY($2)
+  AND deleted_at IS NULL
+            "#,
+            user_id,
+            exercise_ids
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        sqlx::query!(
+            r#"
+UPDATE user_exercise_task_states
+SET deleted_at = NOW()
+WHERE user_exercise_slide_state_id IN (
+    SELECT id
+    FROM user_exercise_slide_states
+    WHERE user_exercise_state_id IN (
+        SELECT id
+        FROM user_exercise_states
+        WHERE user_id = $1
+          AND exercise_id = ANY($2)
+      )
+  )
+  AND deleted_at IS NULL
+            "#,
+            user_id,
+            exercise_ids
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        sqlx::query!(
+            r#"
+UPDATE user_exercise_slide_states
+SET deleted_at = NOW()
+WHERE user_exercise_state_id IN (
+    SELECT id
+    FROM user_exercise_states
+    WHERE user_id = $1
+      AND exercise_id = ANY($2)
+  )
+  AND deleted_at IS NULL
+            "#,
+            user_id,
+            exercise_ids
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        sqlx::query!(
+            r#"
+UPDATE teacher_grading_decisions
+SET deleted_at = NOW()
+WHERE user_exercise_state_id IN (
+    SELECT id
+    FROM user_exercise_states
+    WHERE user_id = $1
+      AND exercise_id = ANY($2)
+  )
+  AND deleted_at IS NULL
+            "#,
+            user_id,
+            exercise_ids
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        // Adds a log of a reset exercise for a user
+        exercise_reset_logs::log_exercise_reset(
+            &mut tx,
+            reset_by,
+            *user_id,
+            exercise_ids,
+            course_id,
+        )
+        .await?;
+
+        successful_resets.push((*user_id, exercise_ids.to_vec()));
+    }
+    tx.commit().await?;
+    Ok(successful_resets)
 }
 
 #[cfg(test)]

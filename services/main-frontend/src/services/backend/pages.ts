@@ -70,3 +70,8 @@ export const updatePageDetails = async (pageId: string, data: PageDetailsUpdate)
   const response = await mainFrontendClient.put(`/pages/${pageId}/page-details`, data)
   validateResponse(response, isBoolean)
 }
+
+export const fetchAllPagesByCourseId = async (courseId: string): Promise<Page[]> => {
+  const response = await mainFrontendClient.get(`/pages/${courseId}/all-course-pages-for-course`)
+  return validateResponse(response, isArray(isPage))
+}

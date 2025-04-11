@@ -53,7 +53,7 @@ impl Role {
     /// Returns a human-readable description of the domain this role applies to
     pub fn domain_description(&self) -> String {
         if self.is_global {
-            return "Global".to_string();
+            "Global".to_string()
         } else if let Some(id) = self.organization_id {
             return format!("Organization {}", id);
         } else if let Some(id) = self.course_id {

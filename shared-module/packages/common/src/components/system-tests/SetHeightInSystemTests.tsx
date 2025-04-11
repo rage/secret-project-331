@@ -23,7 +23,7 @@ const SetHeightInSystemTests: React.FC<SetHeightInSystemTestsProps> = ({ childre
     )
   }
 
-  return <>{children}</>
+  return <div data-not-visible-in-system-tests="true">{children}</div>
 }
 
 export default SetHeightInSystemTests

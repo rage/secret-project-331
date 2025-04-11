@@ -883,6 +883,38 @@ AND pages.deleted_at IS NULL
     Ok(res)
 }
 
+pub async fn get_pages_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<Page>> {
+    let res = sqlx::query_as!(
+        Page,
+        "
+SELECT pages.id,
+  pages.created_at,
+  pages.updated_at,
+  pages.course_id,
+  pages.exam_id,
+  pages.chapter_id,
+  pages.url_path,
+  pages.title,
+  pages.deleted_at,
+  pages.content,
+  pages.order_number,
+  pages.copied_from,
+  pages.hidden,
+  pages.page_language_group_id
+FROM pages
+WHERE course_id = $1
+AND pages.deleted_at IS NULL
+",
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CmsPageExercise {

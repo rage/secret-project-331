@@ -23,7 +23,11 @@ test("Manually adding completions works", async ({ page, headless }, testInfo) =
 
   await page.getByRole("tab", { name: "Course instances" }).click()
 
-  await page.locator('text=Default Manage >> [aria-label="View completions"]').click()
+  await page
+    .getByTestId("course-instance-card")
+    .filter({ has: page.getByRole("heading", { name: "Default", exact: true }) })
+    .getByRole("link", { name: "View completions" })
+    .click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/course-instances/6e3764c9-f2ad-5fe5-b310-ab73c289842e/completions",
   )

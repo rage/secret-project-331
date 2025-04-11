@@ -6,7 +6,16 @@ import { defaultFontSizePx } from "../styles/constants"
 import { respondToOrLarger } from "../styles/respond"
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant: "primary" | "secondary" | "reject" | "tertiary" | "outlined" | "blue" | "white" | "icon"
+  variant:
+    | "primary"
+    | "secondary"
+    | "reject"
+    | "tertiary"
+    | "outlined"
+    | "blue"
+    | "white"
+    | "icon"
+    | "green"
   size: "small" | "medium" | "large"
   transform?: "capitalize" | "uppercase" | "none" | "lowercase"
   fullWidth?: boolean
@@ -28,7 +37,7 @@ export const BASE_BUTTON_STYLES = (props: ButtonProps) => `
   text-decoration: none;
   text-align: center;
   justify-content: center;
-  text-transform: uppercase;
+  text-transform: ${props.transform || "uppercase"};
   letter-spacing: 0.02em;
   transition: all 150ms linear;
   border: 2.5px solid transparent;
@@ -91,8 +100,26 @@ export const WhiteButtonStyles = (props: ButtonProps) => {
 
     color: ${theme.white.text};
     background: #FCFCFC;
-    border: 1.5px solid #DEDEDE;
+    border: 2.5px solid #DEDEDE;
 
+    &:hover,
+    &:focus {
+      color: ${theme.white.text};
+      box-shadow: 0 0 0 1px #FCFCFC;
+      border: 2.5px solid #999999;
+    }
+
+    &:active {
+      color: ${theme.white.text};
+      background-color: #F5F5F5;
+      border: 2.5px solid #999999;
+    }
+
+    &:disabled {
+      color: ${theme.white.disabledText};
+      background-color: ${theme.white.disabledBg};
+      border-color: ${theme.white.disabledBorder};
+    }
   `
   return WHITE_BUTTON_STYLES
 }
@@ -125,8 +152,8 @@ export const SecondaryButtonStyles = (props: ButtonProps) => {
     &:hover,
     &:focus {
       color: ${theme.secondary.hoverText};
-      box-shadow: 0 0 0 1px ${theme.secondary.text};
-      border: 1.5px solid ${theme.secondary.text};
+      box-shadow: 0 0 0 1px ${theme.secondary.bg};
+      border: 1.5px solid ${theme.secondary.bg};
     }
 
     &:active {
@@ -155,8 +182,8 @@ export const RejectButtonStyles = (props: ButtonProps) => {
     &:hover,
     &:focus {
       color: ${theme.reject.hoverText};
-      box-shadow: 0 0 0 1px ${theme.reject.text};
-      border: 1.5px solid ${theme.reject.text};
+      box-shadow: 0 0 0 1px ${theme.reject.bg};
+      border: 1.5px solid ${theme.reject.bg};
     }
 
     &:active {
@@ -180,11 +207,13 @@ export const TertiaryButtonStyles = (props: ButtonProps) => {
 
     color: ${theme.tertiary.text};
     background-color: ${theme.tertiary.bg};
-    border: unset;
+    border: 1.5px solid ${theme.tertiary.border};
 
-    &:hover {
+    &:hover,
+    &:focus {
       color: ${theme.tertiary.hoverText};
-      background-color: ${theme.tertiary.hoverBg};
+      box-shadow: 0 0 0 1px ${theme.tertiary.bg};
+      border: 1.5px solid ${theme.tertiary.bg};
     }
 
     &:active {
@@ -208,25 +237,62 @@ export const BlueButtonStyles = (props: ButtonProps) => {
 
     color: ${theme.tertiary.text};
     background-color: ${baseTheme.colors.blue[500]};
-    border: unset;
-    border: 2px solid ${theme.secondary.border};
+    border: 1.5px solid ${theme.secondary.border};
 
-    &:hover {
-      border: 2px solid ${baseTheme.colors.blue[600]};
+    &:hover,
+    &:focus {
       color: ${baseTheme.colors.blue[700]};
+      box-shadow: 0 0 0 1px ${baseTheme.colors.blue[500]};
+      border: 1.5px solid ${baseTheme.colors.blue[500]};
     }
 
     &:active {
-      border: 2px solid ${baseTheme.colors.blue[400]};
+      color: ${baseTheme.colors.blue[700]};
+      background-color: ${baseTheme.colors.blue[600]};
+      border: 1.5px solid ${baseTheme.colors.blue[500]};
     }
 
     &:disabled {
-      color: ${theme.secondary.disabledText};
-      background-color: ${theme.secondary.disabledBg};
-      border-color: ${theme.secondary.disabledBorder};
+      color: ${theme.tertiary.disabledText};
+      background-color: ${theme.tertiary.disabledBg};
+      border-color: ${theme.tertiary.disabledBorder};
     }
   `
   return BLUE_BUTTON_STYLES
+}
+
+export const GreenButtonStyles = (props: ButtonProps) => {
+  const GREEN_BUTTON_STYLES = `
+    text-transform: ${props.transform};
+    padding: ${theme.buttonSizes[props.size].padding};
+    border-radius: 2px;
+
+    color: ${theme.secondary.text};
+    background: ${theme.secondary.bg};
+    border: 1.5px solid ${theme.secondary.border};
+
+    &:hover,
+    &:focus {
+    color: ${baseTheme.colors.gray[700]};
+      background-color: ${baseTheme.colors.green[700]}4D;
+      border-color: transparent;
+
+    }
+
+    &:active {
+      background-color: ${baseTheme.colors.green[700]}4D;
+      border-color: ${baseTheme.colors.green[700]}4D;
+    }
+
+    &:disabled {
+      color: ${baseTheme.colors.gray[500]};
+      background-color: ${baseTheme.colors.gray[300]};
+      border-color: transparent;
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  `
+  return GREEN_BUTTON_STYLES
 }
 
 const PrimaryButton = styled.button`
@@ -263,18 +329,14 @@ const IconButton = styled.button`
   ${BASE_BUTTON_STYLES}
   ${IconButtonStyles}
 `
+const GreenButton = styled.button`
+  ${BASE_BUTTON_STYLES}
+  ${GreenButtonStyles}
+`
 
 export const LabelButton = styled.label`
   ${BASE_BUTTON_STYLES}
 `
-
-/* BUTTON VARIANT
-PrimaryButton
-SecondaryButton
-GhostButton
-TertiaryButton
-IconButton
-Link */
 
 const Button = forwardRef((props: ButtonProps, ref?: Ref<HTMLButtonElement>) => {
   switch (props.variant) {
@@ -294,6 +356,8 @@ const Button = forwardRef((props: ButtonProps, ref?: Ref<HTMLButtonElement>) => 
       return <WhiteButton ref={ref} {...props} />
     case "icon":
       return <IconButton ref={ref} {...props} />
+    case "green":
+      return <GreenButton ref={ref} {...props} />
     default:
       return <PrimaryButton ref={ref} {...props} />
   }

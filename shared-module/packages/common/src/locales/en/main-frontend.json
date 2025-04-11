@@ -174,7 +174,6 @@
   "delete-confirmation": "Are you sure you want to delete \"{{name}}\"?",
   "delete-course-confirmation": "Are you sure you want to delete this course? ",
   "delete-course-confirmation-explanation": "Note that usually it is not a good idea to delete a course because some students will want to go back to the course material they have studied previously. Instead of deleting the course, it is recommended that you set an 'ends at' date to the course instances of this course. That way students will see that the course has ended.",
-  "delete-current-overlay-svg": "Delete current overlay SVG",
   "deleted": "Deleted",
   "deleted-cheaters-list": "List of deleted cheaters",
   "derived-specs-explanation": "Derived specs are generated from the private spec using special endpoints in the exercise service. These specs are given to different views of the exercise service depending on what kind of data the user is allowed to see. Each exercise service decides themselves what the format of the derived specs is.",

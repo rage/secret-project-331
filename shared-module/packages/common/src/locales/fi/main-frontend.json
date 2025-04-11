@@ -168,7 +168,6 @@
   "delete-confirmation": "Oletko varma että haluat poistaa \"{{name}}\"?",
   "delete-course-confirmation": "Oletko varma että haluat poistaa tämän kurssin? ",
   "delete-course-confirmation-explanation": "Huomaathan että yleensä kurssin poistaminen ei ole hyvä idea. Syynä tähän on että jotkut oppilaat haluavat käydä vielä kurssin päättymisen jälkeen katsomassa aikaisemmin opiskeltua oppimateriaalia. Poistamisen sijaan suosittelemme että asetat loppumispäivämäärään kurssin kurssi-instansseille. Näin oppilaat näkevät että kurssi on päättynyt.",
-  "delete-current-overlay-svg": "Poista nykyinen päällyskuva",
   "deleted": "Poistettu",
   "deleted-cheaters-list": "Poistettujen huijareiden lista",
   "derived-specs-explanation": "Johdetut specit ovat luotu private specistä käyttämällä tähän tarkoitettuja endpointteja tehtäväpalvelussa. Nämä specit annetaan tehtäväpalvelun eri näkymille riippuen minkälaista dataa käyttäjän kuuluu kussakin näkymässä nähdä. Jokainen tehtäväpalvelu päättää itse omien speccejensä muodon.",

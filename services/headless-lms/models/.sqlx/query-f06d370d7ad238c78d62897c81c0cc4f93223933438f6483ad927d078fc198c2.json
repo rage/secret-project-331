@@ -37,12 +37,17 @@
         "ordinal": 6,
         "name": "search_helper",
         "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "country",
+        "type_info": "Varchar"
       }
     ],
     "parameters": {
       "Left": ["Text"]
     },
-    "nullable": [false, false, false, true, true, false, true]
+    "nullable": [false, false, false, true, true, false, true, true]
   },
   "hash": "f06d370d7ad238c78d62897c81c0cc4f93223933438f6483ad927d078fc198c2"
 }

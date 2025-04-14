@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT\n            d.user_id,\n            d.created_at,\n            d.updated_at,\n            d.email,\n            d.first_name,\n            d.last_name,\n            d.search_helper\n        FROM course_instance_enrollments e\n        JOIN user_details d ON e.user_id = d.user_id\n        WHERE e.course_id = $1\n        AND e.deleted_at IS NULL\n        ",
+  "query": "\nSELECT user_id,\n  created_at,\n  updated_at,\n  email,\n  first_name,\n  last_name,\n  search_helper,\n  country\nFROM (\n    SELECT *,\n      LOWER($1) <<->search_helper AS dist\n    FROM user_details\n    ORDER BY dist, LENGTH(search_helper)\n    LIMIT 100\n  ) search\nWHERE dist < 0.7;\n",
   "describe": {
     "columns": [
       {
@@ -37,12 +37,17 @@
         "ordinal": 6,
         "name": "search_helper",
         "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "country",
+        "type_info": "Varchar"
       }
     ],
     "parameters": {
-      "Left": ["Uuid"]
+      "Left": ["Text"]
     },
-    "nullable": [false, false, false, false, true, true, true]
+    "nullable": [false, false, false, false, true, true, true, true]
   },
-  "hash": "1918b115a9a3b28b690df110e9685cf2a0e7641865d0df116d6d17a536e4df93"
+  "hash": "e956c8b9bac1bfdc72331806c764602bc164d9c90513053ad79a2a667c7b241f"
 }

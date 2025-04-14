@@ -2009,6 +2009,7 @@ export interface UserDetail {
   first_name: string | null
   last_name: string | null
   search_helper: string | null
+  country: string | null
 }
 
 export interface ExerciseUserCounts {
@@ -2092,6 +2093,7 @@ export interface CreateAccountDetails {
   language: string
   password: string
   password_confirmation: string
+  country: string
 }
 
 export interface Login {

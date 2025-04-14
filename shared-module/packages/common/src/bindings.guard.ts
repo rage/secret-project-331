@@ -4118,7 +4118,9 @@ export function isUserDetail(obj: unknown): obj is UserDetail {
         (typedObj["last_name"] === null ||
             typeof typedObj["last_name"] === "string") &&
         (typedObj["search_helper"] === null ||
-            typeof typedObj["search_helper"] === "string")
+            typeof typedObj["search_helper"] === "string") &&
+        (typedObj["country"] === null ||
+            typeof typedObj["country"] === "string")
     )
 }
 
@@ -4267,7 +4269,8 @@ export function isCreateAccountDetails(obj: unknown): obj is CreateAccountDetail
         typeof typedObj["last_name"] === "string" &&
         typeof typedObj["language"] === "string" &&
         typeof typedObj["password"] === "string" &&
-        typeof typedObj["password_confirmation"] === "string"
+        typeof typedObj["password_confirmation"] === "string" &&
+        typeof typedObj["country"] === "string"
     )
 }
 

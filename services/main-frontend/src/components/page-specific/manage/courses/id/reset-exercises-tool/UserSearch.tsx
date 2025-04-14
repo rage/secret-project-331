@@ -9,17 +9,29 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import StandardDialog from "@/shared-module/common/components/StandardDialog"
 import SearchIcon from "@/shared-module/common/img/search-icon.svg"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
+
 type Props = {
   users?: UserDetail[]
   isLoading: boolean
   addUser: (user: UserDetail) => void
+  removeUser: (userId: string) => void
+  selectedUsers: UserDetail[]
 }
 
-const UserSearch: React.FC<Props> = ({ users, addUser, isLoading }) => {
+const UserSearch: React.FC<Props> = ({ users, addUser, removeUser, selectedUsers, isLoading }) => {
   const { t } = useTranslation()
   const [isModalOpen, setIsModalOpen] = useState(false)
-
   const [searchTerm, setSearchTerm] = useState("")
+
+  const isAdded = (user: UserDetail) => selectedUsers.some((u) => u.user_id === user.user_id)
+
+  const handleAddUser = (user: UserDetail) => {
+    addUser(user)
+  }
+
+  const handleRemoveUser = (user: UserDetail) => {
+    removeUser(user.user_id)
+  }
 
   const filteredUsers = useMemo(() => {
     const lowerCasedSearch = searchTerm.toLowerCase()
@@ -132,13 +144,15 @@ const UserSearch: React.FC<Props> = ({ users, addUser, isLoading }) => {
                       <td>{user.user_id}</td>
                       <td>
                         <Button
-                          onClick={() => addUser(user)}
+                          onClick={() =>
+                            isAdded(user) ? handleRemoveUser(user) : handleAddUser(user)
+                          }
                           variant={"secondary"}
                           size={"small"}
                           data-testid={`add-user-button-${user.user_id}`}
                           transform={"capitalize"}
                         >
-                          {t("button-add")}
+                          {t(isAdded(user) ? "button-remove" : "button-add")}
                         </Button>
                       </td>
                     </tr>

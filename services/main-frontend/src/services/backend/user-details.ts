@@ -1,3 +1,5 @@
+import { isString } from "lodash"
+
 import { mainFrontendClient } from "../mainFrontendClient"
 
 import { UserDetail } from "@/shared-module/common/bindings"
@@ -35,4 +37,9 @@ export const getUserDetails = async (userId: string): Promise<UserDetail> => {
 export const getUsersByCourseId = async (courseId: string): Promise<UserDetail[]> => {
   const response = await mainFrontendClient.get(`/user-details/${courseId}/get-users-by-course-id`)
   return validateResponse(response, isArray(isUserDetail))
+}
+
+export const fetchCountryFromIP = async (): Promise<string> => {
+  const response = await mainFrontendClient.get(`/user-details/users-ip-country`)
+  return validateResponse(response, isString)
 }

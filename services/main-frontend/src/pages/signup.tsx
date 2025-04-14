@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { useQuery } from "@tanstack/react-query"
 import { Envelope } from "@vectopus/atlas-icons-react"
 import { useRouter } from "next/router"
 import { useContext, useEffect, useState } from "react"
@@ -8,6 +9,7 @@ import { useTranslation } from "react-i18next"
 
 import ResearchOnCoursesForm from "../components/forms/ResearchOnCoursesForm"
 
+import { fetchCountryFromIP } from "@/services/backend/user-details"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
@@ -180,6 +182,12 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
     value: code,
     label: tCountries(code as keyof typeof countries),
   }))
+
+  const preFillCountry = useQuery({
+    queryKey: [`users-ip-country`],
+    queryFn: () => fetchCountryFromIP(),
+  })
+  console.log(preFillCountry.data)
 
   if (confirmEmailPageVisible) {
     return (

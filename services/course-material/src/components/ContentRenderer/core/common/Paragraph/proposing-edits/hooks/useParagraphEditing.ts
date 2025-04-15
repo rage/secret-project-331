@@ -5,13 +5,23 @@ import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
 // Global store for edited content (shared between instances)
 const editedContents = new Map<string, string | null>()
 
-export const useParagraphEditing = (
-  id: string,
-  editing: boolean,
-  selectedBlockId: string | null,
-  content: string | null,
-  setEdits: React.Dispatch<React.SetStateAction<Map<string, NewProposedBlockEdit>>>,
-) => {
+interface UseParagraphEditingParams {
+  id: string
+  editing: boolean
+  selectedBlockId: string | ((prev: string | null) => string | null) | null
+  content: string | null
+  setEdits: React.Dispatch<React.SetStateAction<Map<string, NewProposedBlockEdit>>>
+  isEditingEnabled: boolean
+}
+
+export const useParagraphEditing = ({
+  id,
+  editing,
+  selectedBlockId,
+  content,
+  setEdits,
+  isEditingEnabled,
+}: UseParagraphEditingParams) => {
   // We don't use this state for rendering anymore, just for tracking
   const editedContentRef = useRef(content)
   const contentEditableRef = React.useRef<HTMLParagraphElement>(null)
@@ -31,7 +41,7 @@ export const useParagraphEditing = (
   // Sync with global edited content map
   useEffect(() => {
     // Only update if we're the source of truth (selected for editing)
-    if (selectedBlockId !== id) {
+    if (!isEditingEnabled || selectedBlockId !== id) {
       // We're not the source of truth, so get updates from global map
       const globalContent = editedContents.get(id)
       if (globalContent !== undefined && globalContent !== editedContent) {
@@ -39,7 +49,7 @@ export const useParagraphEditing = (
         editedContentRef.current = globalContent
       }
     }
-  }, [id, selectedBlockId, editedContent])
+  }, [id, selectedBlockId, editedContent, isEditingEnabled])
 
   // Position cursor at the end of content
   const positionAtEnd = useCallback(() => {
@@ -60,7 +70,7 @@ export const useParagraphEditing = (
 
   // Auto-focus and position cursor when paragraph becomes selected
   useEffect(() => {
-    if (editing && selectedBlockId === id) {
+    if (editing && isEditingEnabled && selectedBlockId === id) {
       // Give React time to finish render work
       const timeoutId = setTimeout(() => {
         if (!contentEditableRef.current) {
@@ -73,7 +83,7 @@ export const useParagraphEditing = (
 
       return () => clearTimeout(timeoutId)
     }
-  }, [editing, selectedBlockId, id, positionAtEnd])
+  }, [editing, selectedBlockId, id, positionAtEnd, isEditingEnabled])
 
   const handleClick = useCallback(() => {
     // Just a placeholder for onClick events, no position tracking anymore
@@ -81,6 +91,10 @@ export const useParagraphEditing = (
 
   const handleInput = useCallback(
     (ev: React.FormEvent<HTMLParagraphElement>) => {
+      if (!isEditingEnabled) {
+        return
+      }
+
       const changed = ev.currentTarget.innerText
       editedContentRef.current = changed
 
@@ -107,7 +121,7 @@ export const useParagraphEditing = (
         })
       }
     },
-    [content, id, setEdits],
+    [content, id, setEdits, isEditingEnabled],
   )
 
   return {

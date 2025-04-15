@@ -1,3 +1,4 @@
+import { useAtom, useSetAtom } from "jotai"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -8,7 +9,11 @@ import EditableParagraph from "./EditableParagraph"
 import PreviewableParagraph from "./PreviewableParagraph"
 import { useParagraphEditing } from "./hooks/useParagraphEditing"
 
-import { useFeedbackStore } from "@/stores/materialFeedbackStore"
+import {
+  blockEditsAtom,
+  currentlyOpenFeedbackDialogAtom,
+  selectedBlockIdAtom,
+} from "@/stores/materialFeedbackStore"
 
 interface EditingParagraphProps {
   data: {
@@ -27,19 +32,19 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
   const { t } = useTranslation()
   const { textColor, backgroundColor, fontSize, content, dropCap, align } = data.attributes
 
-  const feedbackStore = useFeedbackStore()
-  const selectedBlockId =
-    feedbackStore.type === "proposed-edits" ? feedbackStore.selectedBlockId : null
-  const setEdits = feedbackStore.type === "proposed-edits" ? feedbackStore.setBlockEdits : () => {}
+  const [type] = useAtom(currentlyOpenFeedbackDialogAtom)
+  const [selectedBlockId] = useAtom(selectedBlockIdAtom)
+  const setEdits = useSetAtom(blockEditsAtom)
 
   // Get the edited content even when not actively editing this paragraph
-  const { editedContent } = useParagraphEditing(
+  const { editedContent } = useParagraphEditing({
     id,
-    true, // editing is always true in this component
+    editing: true, // editing is always true in this component
     selectedBlockId,
-    content ?? null,
+    content: content ?? null,
     setEdits,
-  )
+    isEditingEnabled: type === "proposed-edits",
+  })
 
   const hasChanges = content !== editedContent
 

@@ -1,9 +1,14 @@
 import { css } from "@emotion/css"
+import { useAtom } from "jotai"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { postProposedEdits } from "../services/backend"
-import { useFeedbackStore } from "../stores/materialFeedbackStore"
+import {
+  blockEditsAtom,
+  currentlyOpenFeedbackDialogAtom,
+  selectedBlockIdAtom,
+} from "../stores/materialFeedbackStore"
 
 import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
@@ -20,7 +25,9 @@ const CLOSE_ICON = "×"
 
 const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pageId }) => {
   const { t } = useTranslation()
-  const store = useFeedbackStore()
+  const [type, setCurrentlyOpenFeedbackDialog] = useAtom(currentlyOpenFeedbackDialogAtom)
+  const [blockEdits] = useAtom(blockEditsAtom)
+  const [selectedBlockId, setSelectedBlockId] = useAtom(selectedBlockIdAtom)
 
   const mutation = useToastMutation(
     (block_edits: NewProposedBlockEdit[]) => {
@@ -33,16 +40,14 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId
     },
     {
       onSuccess: () => {
-        store.setCurrentlyOpenFeedbackDialog(null)
+        setCurrentlyOpenFeedbackDialog(null)
       },
     },
   )
 
-  if (store.type !== "proposed-edits") {
+  if (type !== "proposed-edits") {
     return null
   }
-
-  const { blockEdits, selectedBlockId, setCurrentlyOpenFeedbackDialog, setSelectedBlockId } = store
 
   const handleClose = () => {
     setCurrentlyOpenFeedbackDialog(null)

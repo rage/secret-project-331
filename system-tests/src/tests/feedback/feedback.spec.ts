@@ -7,7 +7,7 @@ import { login } from "../../utils/login"
 import { logout } from "../../utils/logout"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
-import { feedbackTooltipClass } from "@/shared-module/common/styles/constants"
+import { feedbackTooltipTestId } from "@/shared-module/common/styles/constants"
 
 test.use({
   storageState: "src/states/user@example.com.json",
@@ -50,7 +50,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "feedback-tooltip",
-    waitForTheseToBeVisibleAndStable: [page.locator(`.${feedbackTooltipClass}`)],
+    waitForTheseToBeVisibleAndStable: [page.getByTestId(feedbackTooltipTestId)],
   })
 
   await page.click(':nth-match(:text("Give feedback"), 2)')

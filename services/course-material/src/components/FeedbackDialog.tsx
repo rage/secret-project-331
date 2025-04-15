@@ -1,10 +1,11 @@
 import { css } from "@emotion/css"
 import { InfoCircle } from "@vectopus/atlas-icons-react"
+import { useAtom } from "jotai"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { postFeedback } from "../services/backend"
-import { useFeedbackStore } from "../stores/materialFeedbackStore"
+import { currentlyOpenFeedbackDialogAtom, selectionAtom } from "../stores/materialFeedbackStore"
 import { courseMaterialBlockClass } from "../utils/constants"
 
 import { FeedbackBlock } from "@/shared-module/common/bindings"
@@ -29,10 +30,10 @@ const CLOSE_SYMBOL = "×"
 
 const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pageId }) => {
   const { t } = useTranslation()
-  const store = useFeedbackStore()
+  const [type, setCurrentlyOpenFeedbackDialog] = useAtom(currentlyOpenFeedbackDialogAtom)
+  const [selection, setSelection] = useAtom(selectionAtom)
   const [comments, setComments] = useState<Array<Comment>>([])
   const [comment, setComment] = useState("")
-  const [lastSelection, setLastSelection] = useState("")
   const [error, setError] = useState<string | null>(null)
 
   const mutation = useToastMutation(
@@ -54,17 +55,17 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
     },
     {
       onSuccess: () => {
-        store.setCurrentlyOpenFeedbackDialog(null)
+        setCurrentlyOpenFeedbackDialog(null)
       },
     },
   )
 
-  if (store.type !== "written") {
+  if (type !== "written") {
     return null
   }
 
   const handleClose = () => {
-    store.setCurrentlyOpenFeedbackDialog(null)
+    setCurrentlyOpenFeedbackDialog(null)
   }
 
   async function addComment() {
@@ -95,16 +96,17 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
         })
       }
     }
-    const selectedText = lastSelection.slice(0, 10000)
+    const selectedText = selection.text.slice(0, 10000)
     setComments((cs) => [...cs, { comment, selectedText, relatedBlocks }])
     setComment("")
-    setLastSelection("")
+    setSelection("", undefined)
   }
 
   const charactersLeft = 1000 - comment.length
 
   return (
     <div
+      id="feedback-dialog"
       className={css`
         position: fixed;
         max-width: 500px;
@@ -284,7 +286,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
           background: ${baseTheme.colors.primary[100]};
         `}
       >
-        {lastSelection.length > 0 ? (
+        {selection.text.length > 0 ? (
           <div
             className={css`
               background: ${baseTheme.colors.green[100]};
@@ -311,7 +313,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
               >
                 {t("commenting-on-selection")}
               </div>
-              <Button variant="tertiary" size="small" onClick={() => setLastSelection("")}>
+              <Button variant="tertiary" size="small" onClick={() => setSelection("", undefined)}>
                 {t("clear")}
               </Button>
             </div>
@@ -326,7 +328,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
                 border: 1px solid ${baseTheme.colors.gray[200]};
               `}
             >
-              {lastSelection}
+              {selection.text}
             </div>
           </div>
         ) : (

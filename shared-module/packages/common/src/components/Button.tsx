@@ -32,7 +32,6 @@ export const BASE_BUTTON_STYLES = (props: ButtonProps) => `
   letter-spacing: 0.02em;
   transition: all 150ms linear;
   border: 2.5px solid transparent;
-  z-index: 1;
   white-space: nowrap;
 
   color: ${theme.primary.text};

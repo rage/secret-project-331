@@ -1,3 +1,4 @@
+import { useAtom } from "jotai"
 import dynamic from "next/dynamic"
 import React, { useContext, useMemo } from "react"
 
@@ -10,7 +11,7 @@ import EditingParagraph from "./proposing-edits/EditingParagraph"
 import { getParagraphStyles } from "./styles"
 
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { useFeedbackStore } from "@/stores/materialFeedbackStore"
+import { currentlyOpenFeedbackDialogAtom } from "@/stores/materialFeedbackStore"
 
 const LatexParagraph = dynamic(() => import("./LatexParagraph"))
 
@@ -25,8 +26,8 @@ const ParagraphBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ParagraphAttributes & ExtraAttributes>>
 > = ({ data, id }) => {
   const { textColor, backgroundColor, fontSize, content, dropCap, align } = data.attributes
-  const feedbackStore = useFeedbackStore()
-  const isEditing = feedbackStore.type === "proposed-edits"
+  const [type] = useAtom(currentlyOpenFeedbackDialogAtom)
+  const isEditing = type === "proposed-edits"
 
   const { terms } = useContext(GlossaryContext)
   const parsedTextResult = useMemo(() => parseText(content, terms), [content, terms])

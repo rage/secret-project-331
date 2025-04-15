@@ -66,7 +66,14 @@ const EditableParagraph: React.FC<EditableParagraphProps> = ({
   fontSize,
   setEdits,
 }) => {
-  const { contentEditableRef, handleInput } = useParagraphEditing(id, true, id, content, setEdits)
+  const { contentEditableRef, handleInput } = useParagraphEditing({
+    id,
+    editing: true,
+    selectedBlockId: id,
+    content,
+    setEdits,
+    isEditingEnabled: true,
+  })
 
   // Use a ref to the initial content to avoid re-renders
   const initialContentRef = useRef(content)

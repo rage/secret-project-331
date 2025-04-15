@@ -1,8 +1,9 @@
 import { css } from "@emotion/css"
+import { useAtom } from "jotai"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { useFeedbackStore } from "../stores/materialFeedbackStore"
+import { currentlyOpenFeedbackDialogAtom } from "../stores/materialFeedbackStore"
 
 import ImprovementExample from "./ImprovementExample"
 
@@ -11,7 +12,7 @@ import { baseTheme } from "@/shared-module/common/styles"
 
 const FeedbackTypeDialog: React.FC = () => {
   const { t } = useTranslation()
-  const { type, setCurrentlyOpenFeedbackDialog } = useFeedbackStore()
+  const [type, setCurrentlyOpenFeedbackDialog] = useAtom(currentlyOpenFeedbackDialogAtom)
 
   const handleKeyDown = (e: React.KeyboardEvent, callback: () => void) => {
     if (e.key === "Enter" || e.key === " ") {

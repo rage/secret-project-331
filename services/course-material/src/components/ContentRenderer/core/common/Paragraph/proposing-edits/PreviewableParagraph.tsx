@@ -31,13 +31,14 @@ const PreviewableParagraph: React.FC<PreviewableParagraphProps> = ({
   editedContent: propEditedContent,
 }) => {
   const { t } = useTranslation()
-  const { editedContent: hookEditedContent } = useParagraphEditing(
+  const { editedContent: hookEditedContent } = useParagraphEditing({
     id,
-    true,
-    null,
+    editing: true,
+    selectedBlockId: null,
     content,
     setEdits,
-  )
+    isEditingEnabled: false,
+  })
 
   const actualEditedContent = hookEditedContent !== content ? hookEditedContent : propEditedContent
 

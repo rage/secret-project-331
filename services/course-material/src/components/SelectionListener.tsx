@@ -1,10 +1,12 @@
+import { useSetAtom } from "jotai"
 import { useEffect } from "react"
 
-import { useFeedbackStore } from "../stores/materialFeedbackStore"
+import { selectedBlockIdAtom, selectionAtom } from "../stores/materialFeedbackStore"
 import { courseMaterialBlockClass } from "../utils/constants"
 
-const SelectionListener: React.FC = () => {
-  const { setSelection } = useFeedbackStore()
+const useSelectionTracking = (): void => {
+  const setSelection = useSetAtom(selectionAtom)
+  const setSelectedBlockId = useSetAtom(selectedBlockIdAtom)
 
   useEffect(() => {
     const abortController = new AbortController()
@@ -24,16 +26,6 @@ const SelectionListener: React.FC = () => {
       return closest !== null && closest !== undefined
     }
 
-    function getRect(selection: Selection): DOMRect | null {
-      if (selection.rangeCount === 0) {
-        return null
-      }
-      const range = selection.getRangeAt(0)
-      const rects = range?.getClientRects()
-      const rect = rects !== undefined && rects.length > 0 ? rects[0] : null
-      return rect
-    }
-
     function selectedCourseBlocks(selection: Selection): boolean {
       const firstNode = selection.anchorNode
       const lastNode = selection.focusNode
@@ -44,34 +36,51 @@ const SelectionListener: React.FC = () => {
       const selection = this.getSelection()
       if (selection && selectedCourseBlocks(selection)) {
         const newSelection = selection.toString()
-        const rect = getRect(selection)
-        setSelection(newSelection, rect ? { x: rect.x, y: rect.y } : null)
+        const range = selection.getRangeAt(0)
+        const rect = range.getBoundingClientRect()
+        setSelection(newSelection, { x: rect.right, y: rect.top })
       } else {
-        setSelection("", null)
+        setSelection("", undefined)
       }
     }
 
-    function handleWindowChange(this: Document) {
-      const selection = this.getSelection()
-      if (selection && selectedCourseBlocks(selection)) {
-        const rect = getRect(selection)
-        if (rect) {
-          setSelection(selection.toString(), { x: rect.x, y: rect.y })
+    function handleClick(ev: MouseEvent): void {
+      // Skip updating block ID if text is selected
+      const selectedText = window.getSelection()?.toString() || ""
+      if (selectedText.trim().length > 0) {
+        return
+      }
+
+      if (ev.target instanceof Element) {
+        let newBlockId = null
+        let element: Element | null = ev.target
+        while (element !== null) {
+          if (element.classList.contains(courseMaterialBlockClass)) {
+            newBlockId = element.id
+            break
+          }
+          element = element.parentElement
         }
+        setSelectedBlockId(newBlockId)
+      } else {
+        setSelectedBlockId(null)
       }
     }
 
     document.addEventListener("selectionchange", selectionHandler, {
       signal: abortController.signal,
     })
-    window.addEventListener("scroll", handleWindowChange, { signal: abortController.signal })
-    window.addEventListener("resize", handleWindowChange, { signal: abortController.signal })
+    document.addEventListener("click", handleClick, { signal: abortController.signal })
+
     return () => {
       abortController.abort()
     }
-  }, [setSelection])
+  }, [setSelection, setSelectedBlockId])
+}
 
-  return <div hidden={true}></div>
+const SelectionListener: React.FC = () => {
+  useSelectionTracking()
+  return null
 }
 
 export default SelectionListener

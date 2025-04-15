@@ -1,275 +1,171 @@
-import { atom, useAtom, useSetAtom } from "jotai"
-import { SetStateAction, useEffect } from "react"
+import { atom } from "jotai"
+import type { WritableAtom } from "jotai"
+import type { SetStateAction } from "react"
 
 import { courseMaterialBlockClass } from "../utils/constants"
 
-import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
+import type { NewProposedBlockEdit } from "@/shared-module/common/bindings"
 
+/**
+ * Types of feedback dialogs that can be displayed
+ */
 type CurrentlyOpenFeedbackDialog = "written" | "proposed-edits" | "select-type" | null
 
+/**
+ * Interface representing text selection state
+ */
 interface SelectionState {
   text: string
-  position: { x: number; y: number } | null
+  position?: { x: number; y: number }
 }
 
-/** Manages block selection in the DOM */
-type BlockIdListener = {
-  getCurrentBlockId: () => string | null
-  cleanup: () => void
-}
+// ------------------------------
+// Utility functions
+// ------------------------------
 
-/** Base interface for feedback store return types */
-interface BaseFeedbackStore {
-  setCurrentlyOpenFeedbackDialog: (type: CurrentlyOpenFeedbackDialog) => void
-  selection: SelectionState
-  setSelection: (text: string, position: { x: number; y: number } | null) => void
-}
-
-interface NotGivingFeedbackStore extends BaseFeedbackStore {
-  type: null
-}
-
-interface WrittenFeedbackStore extends BaseFeedbackStore {
-  type: "written"
-  content: string
-  setWrittenContent: (content: string) => void
-}
-
-interface ProposedEditsFeedbackStore extends BaseFeedbackStore {
-  type: "proposed-edits"
-  blockEdits: Map<string, NewProposedBlockEdit>
-  selectedBlockId: string | null
-  setBlockEdits: (edits: SetStateAction<Map<string, NewProposedBlockEdit>>) => void
-  setSelectedBlockId: (blockId: string | null) => void
-}
-
-interface SelectTypeFeedbackStore extends BaseFeedbackStore {
-  type: "select-type"
-}
-
-type FeedbackStore =
-  | NotGivingFeedbackStore
-  | WrittenFeedbackStore
-  | ProposedEditsFeedbackStore
-  | SelectTypeFeedbackStore
-
-/** Sets up DOM event listener to track currently selected block */
-const setupBlockIdListener = (): BlockIdListener => {
-  let currentBlockId: string | null = document.activeElement?.id ?? null
-  const abortController = new AbortController()
-
-  const getState = (): string | null => currentBlockId
-
-  const handleClick = (ev: MouseEvent): void => {
-    if (ev.target instanceof Element) {
-      let newBlockId = null
-      let element: Element | null = ev.target
-      while (element !== null) {
-        if (element.classList.contains(courseMaterialBlockClass)) {
-          newBlockId = element.id
-          break
-        }
-        element = element.parentElement
+/**
+ * Creates a derived atom that only allows updates when a condition is met
+ * @param baseAtom - The primitive atom to wrap
+ * @param condition - Function that determines if updates are allowed
+ * @returns A derived atom that conditionally allows updates
+ */
+function createConditionalAtom<T>(
+  baseAtom: WritableAtom<T, [T], void>,
+  condition: (dialogType: CurrentlyOpenFeedbackDialog) => boolean,
+): WritableAtom<T, [T], void> {
+  return atom(
+    (get) => get(baseAtom),
+    (get, set, value: T) => {
+      const dialogType = get(currentlyOpenFeedbackDialogPrimitiveAtom)
+      if (condition(dialogType)) {
+        set(baseAtom, value)
       }
-      currentBlockId = newBlockId
-    } else {
-      currentBlockId = null
-    }
-  }
-
-  document.addEventListener("click", handleClick, { signal: abortController.signal })
-
-  return {
-    getCurrentBlockId: getState,
-    cleanup: () => {
-      abortController.abort()
     },
-  }
+  )
 }
 
-/** Core state atoms */
-const currentlyOpenFeedbackDialogAtom = atom<CurrentlyOpenFeedbackDialog>(null)
-const writtenContentAtom = atom<string>("")
-const blockEditsAtom = atom<Map<string, NewProposedBlockEdit>>(new Map())
-const selectedBlockIdAtom = atom<string | null>(null)
-const selectionAtom = atom<SelectionState>({ text: "", position: null })
-const refCountAtom = atom(0)
+// ------------------------------
+// Primitive atoms (internal use only)
+// ------------------------------
 
-/** DOM listener state */
-const listenerInstanceAtom = atom<BlockIdListener | null>(null)
-const observerAtom = atom<MutationObserver | null>(null)
+/**
+ * Stores which feedback dialog is currently open
+ */
+const currentlyOpenFeedbackDialogPrimitiveAtom = atom<CurrentlyOpenFeedbackDialog>(null)
 
-/** Sets up DOM listeners for tracking selected blocks */
-const setupListenersAtom = atom(null, (get, set) => {
-  let listener = get(listenerInstanceAtom)
-  if (listener) {
-    return
-  }
+/**
+ * Stores written feedback content
+ */
+const writtenContentPrimitiveAtom = atom<string>("")
 
-  listener = setupBlockIdListener()
-  set(listenerInstanceAtom, listener)
+/**
+ * Stores proposed edits to course material blocks
+ */
+const blockEditsPrimitiveAtom = atom<Map<string, NewProposedBlockEdit>>(new Map())
 
-  const observer = new MutationObserver(() => {
-    const currentDialog = get(currentlyOpenFeedbackDialogAtom)
-    if (currentDialog !== "proposed-edits") {
+/**
+ * Stores the ID of the currently selected block
+ */
+const selectedBlockIdPrimitiveAtom = atom<string | null>(null)
+
+/**
+ * Stores the current text selection and its position
+ */
+const selectionPrimitiveAtom = atom<SelectionState>({ text: "" })
+
+// ------------------------------
+// Derived atoms (public API)
+// ------------------------------
+
+/**
+ * Controls which feedback dialog is displayed and handles state transitions
+ * between different dialog types.
+ *
+ * When the dialog is closed (set to null), all related state is cleared.
+ */
+export const currentlyOpenFeedbackDialogAtom = atom(
+  (get) => get(currentlyOpenFeedbackDialogPrimitiveAtom),
+  (_get, set, type: CurrentlyOpenFeedbackDialog) => {
+    console.log("setting currently open feedback dialog to", type)
+    // Clear all state when closing dialog
+    if (type === null) {
+      set(currentlyOpenFeedbackDialogPrimitiveAtom, null)
+      set(writtenContentPrimitiveAtom, "")
+      set(blockEditsPrimitiveAtom, new Map())
+      set(selectedBlockIdPrimitiveAtom, null)
+      set(selectionPrimitiveAtom, { text: "" })
       return
     }
 
-    set(selectedBlockIdAtom, listener?.getCurrentBlockId() ?? null)
-  })
-
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true,
-  })
-
-  set(observerAtom, observer)
-})
-
-/** Cleans up DOM listeners */
-const cleanupListenersAtom = atom(null, (get, set) => {
-  const refCount = get(refCountAtom)
-  if (refCount <= 1) {
-    const observer = get(observerAtom)
-    if (observer) {
-      observer.disconnect()
-      set(observerAtom, null)
-    }
-
-    const listener = get(listenerInstanceAtom)
-    if (listener) {
-      listener.cleanup()
-      set(listenerInstanceAtom, null)
-    }
-  }
-})
-
-/** Sets the currently open feedback dialog and handles setup/cleanup */
-const setCurrentlyOpenFeedbackDialogAtom = atom(
-  null,
-  (get, set, type: CurrentlyOpenFeedbackDialog) => {
+    // Handle opening different dialog types
     switch (type) {
       case "written":
-        set(setupListenersAtom)
-        set(currentlyOpenFeedbackDialogAtom, "written")
-        set(writtenContentAtom, "")
+        set(currentlyOpenFeedbackDialogPrimitiveAtom, "written")
+        set(writtenContentPrimitiveAtom, "")
         break
       case "proposed-edits":
-        set(setupListenersAtom)
-        set(currentlyOpenFeedbackDialogAtom, "proposed-edits")
-        set(blockEditsAtom, new Map())
-        set(selectedBlockIdAtom, get(listenerInstanceAtom)?.getCurrentBlockId() ?? null)
+        set(currentlyOpenFeedbackDialogPrimitiveAtom, "proposed-edits")
+        set(blockEditsPrimitiveAtom, new Map())
+        set(
+          selectedBlockIdPrimitiveAtom,
+          document.querySelector(`.${courseMaterialBlockClass}:focus`)?.id ?? null,
+        )
         break
       case "select-type":
-        set(currentlyOpenFeedbackDialogAtom, "select-type")
+        set(currentlyOpenFeedbackDialogPrimitiveAtom, "select-type")
         break
       default:
-        set(cleanupListenersAtom)
-        set(currentlyOpenFeedbackDialogAtom, null)
+        console.error(`Unknown dialog type: ${type}`)
     }
   },
 )
 
-/** Updates written feedback content */
-const setWrittenContentAtom = atom(null, (get, set, content: string) => {
-  const currentDialog = get(currentlyOpenFeedbackDialogAtom)
-  if (currentDialog === "written") {
-    set(writtenContentAtom, content)
-  }
-})
+/**
+ * Controls written feedback content
+ * Only allows updates when the written feedback dialog is open
+ */
+export const writtenContentAtom = createConditionalAtom(
+  writtenContentPrimitiveAtom,
+  (dialogType) => dialogType === "written",
+)
 
-/** Updates proposed block edits */
-const setBlockEditsAtom = atom(
-  null,
+/**
+ * Controls block edit proposals
+ * Only allows updates when the proposed-edits dialog is open
+ */
+export const blockEditsAtom = atom(
+  (get) => get(blockEditsPrimitiveAtom),
   (get, set, edits: SetStateAction<Map<string, NewProposedBlockEdit>>) => {
-    const currentDialog = get(currentlyOpenFeedbackDialogAtom)
-    if (currentDialog !== "proposed-edits") {
+    const currentlyOpenFeedbackDialog = get(currentlyOpenFeedbackDialogPrimitiveAtom)
+    if (currentlyOpenFeedbackDialog !== "proposed-edits") {
       return
     }
 
-    const currentEdits = get(blockEditsAtom)
+    const currentEdits = get(blockEditsPrimitiveAtom)
     if (typeof edits === "function") {
-      set(blockEditsAtom, edits(currentEdits))
+      set(blockEditsPrimitiveAtom, edits(currentEdits))
     } else {
-      set(blockEditsAtom, edits)
+      set(blockEditsPrimitiveAtom, edits)
     }
   },
 )
 
-/** Updates selected block ID */
-const setSelectedBlockIdAtom = atom(null, (get, set, blockId: string | null) => {
-  const currentDialog = get(currentlyOpenFeedbackDialogAtom)
-  if (currentDialog === "proposed-edits") {
-    set(selectedBlockIdAtom, blockId)
-  }
-})
-
-/** Updates selection state */
-const setSelectionAtom = atom(
-  null,
-  (_get, set, text: string, position: { x: number; y: number } | null) => {
-    set(selectionAtom, { text, position })
-  },
+/**
+ * Controls the selected block for editing
+ * Only allows updates when the proposed-edits dialog is open
+ */
+export const selectedBlockIdAtom = createConditionalAtom(
+  selectedBlockIdPrimitiveAtom,
+  (dialogType) => dialogType === "proposed-edits",
 )
 
-/** Hook for managing course material feedback state */
-export const useFeedbackStore = (): FeedbackStore => {
-  const [currentDialog] = useAtom(currentlyOpenFeedbackDialogAtom)
-  const [writtenContent] = useAtom(writtenContentAtom)
-  const [blockEdits] = useAtom(blockEditsAtom)
-  const [selectedBlockId] = useAtom(selectedBlockIdAtom)
-  const [selection] = useAtom(selectionAtom)
-  const setCurrentlyOpenFeedbackDialog = useSetAtom(setCurrentlyOpenFeedbackDialogAtom)
-  const setWrittenContent = useSetAtom(setWrittenContentAtom)
-  const setBlockEdits = useSetAtom(setBlockEditsAtom)
-  const setSelectedBlockId = useSetAtom(setSelectedBlockIdAtom)
-  const setSelection = useSetAtom(setSelectionAtom)
-  const setRefCount = useSetAtom(refCountAtom)
-
-  useEffect(() => {
-    setRefCount((prev) => prev + 1)
-    return () => {
-      setRefCount((prev) => {
-        const newCount = prev - 1
-        if (newCount === 0 && currentDialog !== null) {
-          setCurrentlyOpenFeedbackDialog(null)
-        }
-        return newCount
-      })
-    }
-  }, [currentDialog, setRefCount, setCurrentlyOpenFeedbackDialog])
-
-  const baseStore = {
-    setCurrentlyOpenFeedbackDialog,
-    selection,
-    setSelection,
-  }
-
-  if (currentDialog === "written") {
-    return {
-      ...baseStore,
-      type: currentDialog,
-      content: writtenContent,
-      setWrittenContent,
-    }
-  } else if (currentDialog === "proposed-edits") {
-    return {
-      ...baseStore,
-      type: currentDialog,
-      blockEdits,
-      selectedBlockId,
-      setBlockEdits,
-      setSelectedBlockId,
-    }
-  } else if (currentDialog === "select-type") {
-    return {
-      ...baseStore,
-      type: currentDialog,
-    }
-  } else {
-    return {
-      ...baseStore,
-      type: currentDialog,
-    }
-  }
-}
+/**
+ * Controls the text selection state
+ * Used for highlighting text and showing the feedback tooltip
+ */
+export const selectionAtom = atom(
+  (get) => get(selectionPrimitiveAtom),
+  (_get, set, text: string, position?: { x: number; y: number }) => {
+    set(selectionPrimitiveAtom, { text, position })
+  },
+)

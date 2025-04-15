@@ -29,7 +29,6 @@ import SelectResearchConsentForm from "./forms/SelectResearchConsentForm"
 import CourseSettingsModal from "./modals/CourseSettingsModal"
 import UserOnWrongCourseNotification from "./notifications/UserOnWrongCourseNotification"
 
-import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
@@ -59,15 +58,12 @@ const AudioNotification = styled.div`
 `
 
 const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizationSlug }) => {
-  // block id -> new block contents
-  const [edits, setEdits] = useState<Map<string, NewProposedBlockEdit>>(new Map())
   const pageContext = useContext(PageContext)
-  const [editingMaterial, setEditingMaterial] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
 
   const courseId = pageContext?.pageData?.course_id
   const pageId = pageContext?.pageData?.id
-  const isMaterialPage = pageContext.pageData?.content && Boolean(pageContext.pageData?.chapter_id)
+  const isMaterialPage = Boolean(pageContext.pageData?.content && pageContext.pageData?.chapter_id)
 
   const tracks: AudioFile[] = []
 
@@ -243,8 +239,6 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
           <div id="content" className={inlineColorStyles}>
             <ContentRenderer
               data={(pageContext.pageData?.content as Array<Block<unknown>>) ?? []}
-              editing={editingMaterial}
-              setEdits={setEdits}
               isExam={pageContext.exam !== null}
               dontAllowBlockToBeWiderThanContainerWidth={false}
             />
@@ -266,18 +260,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
             {chatbotConfiguration.data && (
               <Chatbot chatbotConfigurationId={chatbotConfiguration.data} />
             )}
-            <FeedbackHandler
-              courseId={courseId}
-              pageId={pageId}
-              onEnterEditProposalMode={() => {
-                setEditingMaterial(true)
-              }}
-              onExitEditProposalMode={() => {
-                setEditingMaterial(false)
-                setEdits(new Map())
-              }}
-              edits={edits}
-            />
+            <FeedbackHandler courseId={courseId} pageId={pageId} />
           </>
         )}
       </>

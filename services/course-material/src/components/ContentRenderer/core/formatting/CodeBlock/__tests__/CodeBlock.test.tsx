@@ -15,8 +15,6 @@ const renderCodeBlock = (content = 'console.log("Hello, World!")') =>
         innerBlocks: [],
       }}
       id="test-id"
-      editing={false}
-      setEdits={() => {}}
       isExam={false}
     />,
   )

@@ -264,8 +264,6 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
             >
               <ContentRenderer
                 data={(exam.data.instructions as Array<Block<unknown>>) ?? []}
-                editing={false}
-                setEdits={(map) => map}
                 isExam={false}
                 dontAllowBlockToBeWiderThanContainerWidth={false}
               />

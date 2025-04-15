@@ -1,23 +1,29 @@
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
-import { SelectionPosition } from "./FeedbackHandler"
+import { useFeedbackStore } from "../stores/materialFeedbackStore"
 
 import SpeechBalloon from "@/shared-module/common/components/SpeechBalloon"
 import { feedbackTooltipClass } from "@/shared-module/common/styles/constants"
 
-interface FeedbackProps {
-  selectionRect: SelectionPosition
-  onClick: () => void
-}
-
-const FeedbackTooltip: React.FC<React.PropsWithChildren<FeedbackProps>> = ({
-  onClick,
-  selectionRect,
-}) => {
+const FeedbackTooltip: React.FC = () => {
   const { t } = useTranslation()
-  const x = Math.max(0, Math.min(window.innerWidth - 150, window.scrollX + selectionRect.x - 60))
-  const y = Math.max(window.screenY, window.scrollY + selectionRect.y - 70)
+  const { selection, setCurrentlyOpenFeedbackDialog } = useFeedbackStore()
+
+  if (!selection.position) {
+    return null
+  }
+
+  const x = Math.max(
+    0,
+    Math.min(window.innerWidth - 150, window.scrollX + selection.position.x - 60),
+  )
+  const y = Math.max(window.screenY, window.scrollY + selection.position.y - 70)
+
+  const handleClick = () => {
+    // eslint-disable-next-line i18next/no-literal-string
+    setCurrentlyOpenFeedbackDialog("select-type")
+  }
 
   const balloonCss = css`
     position: absolute;
@@ -25,12 +31,11 @@ const FeedbackTooltip: React.FC<React.PropsWithChildren<FeedbackProps>> = ({
     left: ${x}px;
     z-index: 100;
   `
+
   return (
-    <>
-      <SpeechBalloon onClick={onClick} className={`${balloonCss} ${feedbackTooltipClass}`}>
-        {t("give-feedback")}
-      </SpeechBalloon>
-    </>
+    <SpeechBalloon onClick={handleClick} className={cx(balloonCss, feedbackTooltipClass)}>
+      {t("give-feedback")}
+    </SpeechBalloon>
   )
 }
 

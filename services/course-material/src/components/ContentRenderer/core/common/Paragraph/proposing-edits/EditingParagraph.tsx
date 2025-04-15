@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { ParagraphAttributes } from "../../../../../../../types/GutenbergBlockAttributes"
@@ -8,8 +8,7 @@ import EditableParagraph from "./EditableParagraph"
 import PreviewableParagraph from "./PreviewableParagraph"
 import { useParagraphEditing } from "./hooks/useParagraphEditing"
 
-import useSelectedBlockId from "@/hooks/useSelectedBlockId"
-import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
+import { useFeedbackStore } from "@/stores/materialFeedbackStore"
 
 interface EditingParagraphProps {
   data: {
@@ -19,18 +18,19 @@ interface EditingParagraphProps {
     }
   }
   id: string
-  setEdits: Dispatch<SetStateAction<Map<string, NewProposedBlockEdit>>>
 }
 
 const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>> = ({
   data,
   id,
-  setEdits,
 }) => {
   const { t } = useTranslation()
   const { textColor, backgroundColor, fontSize, content, dropCap, align } = data.attributes
 
-  const [selectedBlockId, _] = useSelectedBlockId()
+  const feedbackStore = useFeedbackStore()
+  const selectedBlockId =
+    feedbackStore.type === "proposed-edits" ? feedbackStore.selectedBlockId : null
+  const setEdits = feedbackStore.type === "proposed-edits" ? feedbackStore.setBlockEdits : () => {}
 
   // Get the edited content even when not actively editing this paragraph
   const { editedContent } = useParagraphEditing(

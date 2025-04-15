@@ -94,12 +94,7 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
               transform: rotateX(0deg);
             `}
           >
-            <ContentRenderer
-              data={[frontCard]}
-              editing={false}
-              setEdits={function (): void {}}
-              isExam={false}
-            />
+            <ContentRenderer data={[frontCard]} isExam={false} />
           </div>
           <div
             className={css`
@@ -119,12 +114,7 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
               justify-content: center;
             `}
           >
-            <ContentRenderer
-              data={[backCard]}
-              editing={false}
-              setEdits={function (): void {}}
-              isExam={false}
-            />
+            <ContentRenderer data={[backCard]} isExam={false} />
           </div>
         </div>
       </ImageInteractivityContext.Provider>

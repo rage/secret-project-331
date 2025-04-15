@@ -3,6 +3,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { postProposedEdits } from "../services/backend"
+import { useFeedbackStore } from "../stores/materialFeedbackStore"
 
 import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
@@ -13,23 +14,14 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 interface Props {
   courseId: string
   pageId: string
-  close: () => unknown
-  selectedBlockId: string | null
-  clearSelectedBlockId: () => void
-  edits: Map<string, NewProposedBlockEdit>
 }
 
 const CLOSE_ICON = "×"
 
-const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({
-  courseId,
-  pageId,
-  close,
-  selectedBlockId,
-  clearSelectedBlockId,
-  edits,
-}) => {
+const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pageId }) => {
   const { t } = useTranslation()
+  const store = useFeedbackStore()
+
   const mutation = useToastMutation(
     (block_edits: NewProposedBlockEdit[]) => {
       return postProposedEdits(courseId, { page_id: pageId, block_edits })
@@ -41,10 +33,24 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({
     },
     {
       onSuccess: () => {
-        close()
+        store.setCurrentlyOpenFeedbackDialog(null)
       },
     },
   )
+
+  if (store.type !== "proposed-edits") {
+    return null
+  }
+
+  const { blockEdits, selectedBlockId, setCurrentlyOpenFeedbackDialog, setSelectedBlockId } = store
+
+  const handleClose = () => {
+    setCurrentlyOpenFeedbackDialog(null)
+  }
+
+  const clearSelectedBlockId = () => {
+    setSelectedBlockId(null)
+  }
 
   let topMessage
   let bottomMessage
@@ -70,7 +76,7 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({
         {t("preview")}
       </Button>
     )
-  } else if (edits.size === 0) {
+  } else if (blockEdits.size === 0) {
     // not editing a block and no existing edits
     topMessage = t("click-on-course-material-to-make-it-editable")
     bottomMessage = t("click-on-any-paragraph-to-edit")
@@ -83,7 +89,7 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({
       <Button
         variant="primary"
         size="medium"
-        onClick={() => mutation.mutate(Array.from(edits.values()))}
+        onClick={() => mutation.mutate(Array.from(blockEdits.values()))}
         className={css`
           min-width: 100px;
           width: 100%;
@@ -152,7 +158,7 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({
           {topMessage}
         </h2>
         <button
-          onClick={close}
+          onClick={handleClose}
           className={css`
             background: none;
             border: none;

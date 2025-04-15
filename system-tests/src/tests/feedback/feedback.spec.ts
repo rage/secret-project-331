@@ -55,7 +55,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
 
   await page.click(':nth-match(:text("Give feedback"), 2)')
 
-  await page.locator("textarea").click()
+  await page.getByText("Give written feedback").click()
 
   // Fill textarea
   await page.fill(

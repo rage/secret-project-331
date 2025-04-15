@@ -2,25 +2,16 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { useFeedbackStore } from "../stores/materialFeedbackStore"
+
 import ImprovementExample from "./ImprovementExample"
 
 import StandardDialog from "@/shared-module/common/components/StandardDialog"
 import { baseTheme } from "@/shared-module/common/styles"
 
-interface Props {
-  open: boolean
-  onClose: () => void
-  onSelectFeedback: () => void
-  onSelectImprovement: () => void
-}
-
-const FeedbackTypeDialog: React.FC<React.PropsWithChildren<Props>> = ({
-  open,
-  onClose,
-  onSelectFeedback,
-  onSelectImprovement,
-}) => {
+const FeedbackTypeDialog: React.FC = () => {
   const { t } = useTranslation()
+  const { type, setCurrentlyOpenFeedbackDialog } = useFeedbackStore()
 
   const handleKeyDown = (e: React.KeyboardEvent, callback: () => void) => {
     if (e.key === "Enter" || e.key === " ") {
@@ -30,17 +21,26 @@ const FeedbackTypeDialog: React.FC<React.PropsWithChildren<Props>> = ({
   }
 
   const handleFeedbackClick = () => {
-    onSelectFeedback()
-    onClose()
+    // eslint-disable-next-line i18next/no-literal-string
+    setCurrentlyOpenFeedbackDialog("written")
   }
 
   const handleImprovementClick = () => {
-    onSelectImprovement()
-    onClose()
+    // eslint-disable-next-line i18next/no-literal-string
+    setCurrentlyOpenFeedbackDialog("proposed-edits")
+  }
+
+  const handleClose = () => {
+    setCurrentlyOpenFeedbackDialog(null)
   }
 
   return (
-    <StandardDialog open={open} onClose={onClose} title={t("select-feedback-type")} width="normal">
+    <StandardDialog
+      open={type === "select-type"}
+      onClose={handleClose}
+      title={t("select-feedback-type")}
+      width="normal"
+    >
       <div
         className={css`
           display: flex;

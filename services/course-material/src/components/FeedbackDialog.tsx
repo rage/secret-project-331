@@ -4,6 +4,7 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { postFeedback } from "../services/backend"
+import { useFeedbackStore } from "../stores/materialFeedbackStore"
 import { courseMaterialBlockClass } from "../utils/constants"
 
 import { FeedbackBlock } from "@/shared-module/common/bindings"
@@ -16,9 +17,6 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 interface Props {
   courseId: string
   pageId: string
-  lastSelection: string
-  setLastSelection: (s: string) => void
-  close: () => unknown
 }
 
 interface Comment {
@@ -29,17 +27,14 @@ interface Comment {
 
 const CLOSE_SYMBOL = "×"
 
-const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
-  courseId,
-  pageId,
-  lastSelection,
-  setLastSelection,
-  close,
-}) => {
+const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pageId }) => {
   const { t } = useTranslation()
+  const store = useFeedbackStore()
   const [comments, setComments] = useState<Array<Comment>>([])
   const [comment, setComment] = useState("")
+  const [lastSelection, setLastSelection] = useState("")
   const [error, setError] = useState<string | null>(null)
+
   const mutation = useToastMutation(
     (comments: Comment[]) => {
       const feedback = comments.map((c) => {
@@ -59,10 +54,18 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
     },
     {
       onSuccess: () => {
-        close()
+        store.setCurrentlyOpenFeedbackDialog(null)
       },
     },
   )
+
+  if (store.type !== "written") {
+    return null
+  }
+
+  const handleClose = () => {
+    store.setCurrentlyOpenFeedbackDialog(null)
+  }
 
   async function addComment() {
     setError("")
@@ -154,7 +157,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
           {t("written-feedback")}
         </h2>
         <button
-          onClick={close}
+          onClick={handleClose}
           className={css`
             background: none;
             border: none;

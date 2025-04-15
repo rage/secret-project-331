@@ -10,6 +10,8 @@ import EditingParagraph from "./proposing-edits/EditingParagraph"
 import { getParagraphStyles } from "./styles"
 
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { useFeedbackStore } from "@/stores/materialFeedbackStore"
+
 const LatexParagraph = dynamic(() => import("./LatexParagraph"))
 
 interface ExtraAttributes {
@@ -21,8 +23,10 @@ const P = "p"
 
 const ParagraphBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ParagraphAttributes & ExtraAttributes>>
-> = ({ data, id, editing, setEdits }) => {
+> = ({ data, id }) => {
   const { textColor, backgroundColor, fontSize, content, dropCap, align } = data.attributes
+  const feedbackStore = useFeedbackStore()
+  const isEditing = feedbackStore.type === "proposed-edits"
 
   const { terms } = useContext(GlossaryContext)
   const parsedTextResult = useMemo(() => parseText(content, terms), [content, terms])
@@ -30,8 +34,8 @@ const ParagraphBlock: React.FC<
   const ParagraphComponent = useMemo(() => (count > 0 ? LatexParagraph : P), [count])
   const hideOverflow = useMemo(() => !hasCitationsOrGlossary, [hasCitationsOrGlossary])
 
-  if (editing) {
-    return <EditingParagraph data={data} id={id} setEdits={setEdits} />
+  if (isEditing) {
+    return <EditingParagraph data={data} id={id} />
   }
 
   return (

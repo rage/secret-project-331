@@ -84,8 +84,6 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
           )}
           <ContentRenderer
             data={currentExerciseTaskAssignment}
-            editing={false}
-            setEdits={(map) => map}
             isExam={isExam}
             dontAllowBlockToBeWiderThanContainerWidth={true}
           />

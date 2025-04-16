@@ -1,5 +1,5 @@
 import { RawAxiosRequestHeaders } from "axios"
-import { Dictionary } from "lodash"
+import { Dictionary, isBoolean } from "lodash"
 
 import { courseMaterialClient } from "./courseMaterialClient"
 
@@ -53,6 +53,7 @@ import {
   UserCourseInstanceChapterProgress,
   UserCourseInstanceProgress,
   UserCourseSettings,
+  UserDetail,
   UserMarketingConsent,
   UserModuleCompletionStatus,
 } from "@/shared-module/common/bindings"
@@ -95,6 +96,7 @@ import {
   isUserCourseInstanceChapterProgress,
   isUserCourseInstanceProgress,
   isUserCourseSettings,
+  isUserDetail,
   isUserMarketingConsent,
   isUserModuleCompletionStatus,
 } from "@/shared-module/common/bindings.guard"
@@ -812,4 +814,16 @@ export const fetchCustomPrivacyPolicyCheckboxTexts = async (
     { responseType: "json" },
   )
   return validateResponse(response, isArray(isCourseCustomPrivacyPolicyCheckboxText))
+}
+
+export const getUserDetails = async (): Promise<UserDetail> => {
+  const response = await courseMaterialClient.get(`/user-details/user`)
+  return validateResponse(response, isUserDetail)
+}
+
+export const updateUserCountry = async (country: string): Promise<boolean> => {
+  const response = await courseMaterialClient.post(`/user-details/update-user-country`, {
+    country: country,
+  })
+  return validateResponse(response, isBoolean)
 }

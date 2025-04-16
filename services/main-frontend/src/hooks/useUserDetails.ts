@@ -6,7 +6,7 @@ import { UserDetail } from "@/shared-module/common/bindings"
 
 export const useUserDetails = (userId: string) => {
   return useQuery<UserDetail>({
-    queryKey: ["user-details", userId],
+    queryKey: ["user-details/user", userId],
     queryFn: () => getUserDetails(userId),
   })
 }

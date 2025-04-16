@@ -61,6 +61,7 @@ pub struct CreateAccountDetails {
     pub language: String,
     pub password: String,
     pub password_confirmation: String,
+    pub country: String,
 }
 
 /**
@@ -78,6 +79,7 @@ Content-Type: application/json
   "language": "en",
   "password": "hunter42",
   "password_confirmation": "hunter42"
+  "country" : "Finland"
 }
 ```
 */
@@ -103,6 +105,9 @@ pub async fn signup(
         )
         .await;
         if let Ok((user, _token)) = user {
+            let country = user_details.country.clone();
+            models::user_details::update_user_country(&mut conn, user.id, &country).await?;
+
             let token = skip_authorize();
             authorization::remember(&session, user)?;
             token.authorized_ok(HttpResponse::Ok().finish())

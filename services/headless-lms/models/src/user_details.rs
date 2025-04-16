@@ -14,6 +14,7 @@ pub struct UserDetail {
     pub first_name: Option<String>,
     pub last_name: Option<String>,
     pub search_helper: Option<String>,
+    pub country: Option<String>,
 }
 
 pub async fn get_user_details_by_user_id(
@@ -72,7 +73,8 @@ SELECT distinct (ud.user_id),
  ud.first_name,
  ud.last_name,
  ud.email,
- ud.search_helper
+ ud.search_helper,
+ ud.country
 FROM user_details ud
 JOIN users u
   ON u.id = ud.user_id
@@ -145,7 +147,8 @@ SELECT user_id,
   email,
   first_name,
   last_name,
-  search_helper
+  search_helper,
+  country
 FROM (
     SELECT *,
       LOWER($1) <<->search_helper AS dist
@@ -169,24 +172,43 @@ pub async fn get_users_by_course_id(
 ) -> ModelResult<Vec<UserDetail>> {
     let res = sqlx::query_as!(
         UserDetail,
-        "
-        SELECT
-            d.user_id,
-            d.created_at,
-            d.updated_at,
-            d.email,
-            d.first_name,
-            d.last_name,
-            d.search_helper
-        FROM course_instance_enrollments e
-        JOIN user_details d ON e.user_id = d.user_id
-        WHERE e.course_id = $1
-        AND e.deleted_at IS NULL
-        ",
+        r#"
+SELECT d.user_id,
+  d.created_at,
+  d.updated_at,
+  d.email,
+  d.first_name,
+  d.last_name,
+  d.search_helper,
+  d.country
+FROM course_instance_enrollments e
+  JOIN user_details d ON e.user_id = d.user_id
+WHERE e.course_id = $1
+  AND e.deleted_at IS NULL
+        "#,
         course_id
     )
     .fetch_all(conn)
     .await?;
 
     Ok(res)
+}
+
+pub async fn update_user_country(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    country: &str,
+) -> Result<(), sqlx::Error> {
+    sqlx::query!(
+        r#"
+UPDATE user_details
+SET country = $1
+WHERE user_id = $2
+"#,
+        country,
+        user_id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }

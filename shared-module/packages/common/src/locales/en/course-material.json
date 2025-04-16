@@ -64,6 +64,7 @@
   "dont-know-how-to-render-this-assignment": "Don't know how to render this assignment.",
   "ends-at-time": "Ends: {{time}}",
   "enroll": "Enroll",
+  "enter-country-question": "Where do you live?",
   "error-comment-cannot-be-empty": "Comment cannot be empty",
   "error-comment-too-long": "Comment is too long",
   "error-missing-course-instance-id": "Missing course instance id",

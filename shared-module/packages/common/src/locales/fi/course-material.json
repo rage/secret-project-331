@@ -65,6 +65,7 @@
   "dont-know-how-to-render-this-assignment": "En tiedä miten piirtää tätä tehtävää.",
   "ends-at-time": "Päättyy: {{time}}",
   "enroll": "Aloita",
+  "enter-country-question": "Missä asut?",
   "error-comment-cannot-be-empty": "Kommentti ei voi olla tyhjä",
   "error-comment-too-long": "Kommentti on liian pitkä",
   "error-missing-course-instance-id": "Kurssi version id puuttuu",

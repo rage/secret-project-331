@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["create_glossary_course","seed_course_without_submissions","seed_cs_course_material","seed_peer_review_course_without_submissions","seed_sample_course"],"struct":["CommonCourseData"]};
+window.SIDEBAR_ITEMS = {"fn":["create_glossary_course","seed_cs_course_material","seed_peer_review_course_without_submissions","seed_sample_course"],"struct":["CommonCourseData"]};

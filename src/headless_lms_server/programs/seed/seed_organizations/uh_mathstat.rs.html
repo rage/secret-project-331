@@ -362,7 +362,14 @@
 <a href="#361" id="361">361</a>
 <a href="#362" id="362">362</a>
 <a href="#363" id="363">363</a>
-<a href="#364" id="364">364</a></pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a></pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>headless_lms_models::{
     chatbot_configurations::{<span class="self">self</span>, ChatbotConfiguration},
@@ -400,8 +407,8 @@
     <span class="macro">info!</span>(<span class="string">"seeding organization uh-mathstat"</span>);
 
     <span class="kw">let </span>SeedUsersResult {
-        admin_user_id,
-        teacher_user_id: <span class="kw">_</span>,
+        teacher_user_id,
+        admin_user_id: <span class="kw">_</span>,
         language_teacher_user_id: <span class="kw">_</span>,
         material_viewer_user_id,
         assistant_user_id: <span class="kw">_</span>,
@@ -468,7 +475,7 @@
             default_course_instance_id: Uuid::parse_str(<span class="string">"8e4aeba5-1958-49bc-9b40-c9f0f0680911"</span>)<span class="question-mark">?</span>,
         }),
         new_course,
-        admin_user_id,
+        teacher_user_id,
         get_seed_spec_fetcher(),
         models_requests::fetch_service_info,
     )
@@ -513,48 +520,55 @@
             default_course_instance_id: Uuid::parse_str(<span class="string">"5cb4b4d6-4599-4f81-ab7e-79b415f8f584"</span>)<span class="question-mark">?</span>,
         }),
         draft_course,
-        admin_user_id,
+        teacher_user_id,
         get_seed_spec_fetcher(),
         models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>cody_only_course = NewCourse {
-        name: <span class="string">"Joinable by code only"</span>.to_string(),
-        slug: <span class="string">"joinable-by-code-only"</span>.to_string(),
-        organization_id: uh_mathstat_id,
-        language_code: <span class="string">"en-US"</span>.to_string(),
-        teacher_in_charge_name: <span class="string">"admin"</span>.to_string(),
-        teacher_in_charge_email: <span class="string">"admin@example.com"</span>.to_string(),
-        description: <span class="string">"Just a draft."</span>.to_string(),
-        is_draft: <span class="bool-val">false</span>,
-        is_test_mode: <span class="bool-val">false</span>,
-        is_unlisted: <span class="bool-val">false</span>,
-        copy_user_permissions: <span class="bool-val">false</span>,
-        is_joinable_by_code_only: <span class="bool-val">true</span>,
-        join_code: <span class="prelude-val">Some</span>(
-            <span class="string">"zARvZARjYhESMPVceEgZyJGQZZuUHVVgcUepyzEqzSqCMdbSCDrTaFhkJTxBshWU"</span>.to_string(),
-        ),
-        ask_marketing_consent: <span class="bool-val">false</span>,
-        flagged_answers_threshold: <span class="prelude-val">Some</span>(<span class="number">3</span>),
-    };
-    library::content_management::create_new_course(
+    <span class="kw">let </span>(cody_only_course, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) = library::content_management::create_new_course(
         <span class="kw-2">&amp;mut </span>conn,
         PKeyPolicy::Fixed(CreateNewCourseFixedIds {
             course_id: Uuid::parse_str(<span class="string">"39a52e8c-ebbf-4b9a-a900-09aa344f3691"</span>)<span class="question-mark">?</span>,
             default_course_instance_id: Uuid::parse_str(<span class="string">"5b7286ce-22c5-4874-ade1-262949c4a604"</span>)<span class="question-mark">?</span>,
         }),
-        cody_only_course,
-        admin_user_id,
+        NewCourse {
+            name: <span class="string">"Joinable by code only"</span>.to_string(),
+            slug: <span class="string">"joinable-by-code-only"</span>.to_string(),
+            organization_id: uh_mathstat_id,
+            language_code: <span class="string">"en-US"</span>.to_string(),
+            teacher_in_charge_name: <span class="string">"admin"</span>.to_string(),
+            teacher_in_charge_email: <span class="string">"admin@example.com"</span>.to_string(),
+            description: <span class="string">"Just a draft."</span>.to_string(),
+            is_draft: <span class="bool-val">false</span>,
+            is_test_mode: <span class="bool-val">false</span>,
+            is_unlisted: <span class="bool-val">false</span>,
+            copy_user_permissions: <span class="bool-val">false</span>,
+            is_joinable_by_code_only: <span class="bool-val">true</span>,
+            join_code: <span class="prelude-val">Some</span>(
+                <span class="string">"zARvZARjYhESMPVceEgZyJGQZZuUHVVgcUepyzEqzSqCMdbSCDrTaFhkJTxBshWU"</span>.to_string(),
+            ),
+            ask_marketing_consent: <span class="bool-val">false</span>,
+            flagged_answers_threshold: <span class="prelude-val">Some</span>(<span class="number">3</span>),
+        },
+        teacher_user_id,
         get_seed_spec_fetcher(),
         models_requests::fetch_service_info,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    roles::insert(
+        <span class="kw-2">&amp;mut </span>conn,
+        teacher_user_id,
+        UserRole::Teacher,
+        RoleDomain::Course(cody_only_course.id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let </span>uh_data = CommonCourseData {
         db_pool: db_pool.clone(),
         organization_id: uh_mathstat_id,
-        admin_user_id,
+        teacher_user_id,
         student_user_id: student_3_user_id,
         langs_user_id,
         example_normal_user_ids: Arc::new(example_normal_user_ids.to_vec()),
@@ -591,7 +605,7 @@
             flagged_answers_threshold: <span class="prelude-val">Some</span>(<span class="number">3</span>),
         },
         <span class="bool-val">true</span>,
-        admin_user_id,
+        teacher_user_id,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 

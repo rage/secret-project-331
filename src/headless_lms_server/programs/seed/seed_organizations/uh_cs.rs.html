@@ -572,7 +572,7 @@
 ) -&gt; anyhow::Result&lt;SeedOrganizationUhCsResult&gt; {
     <span class="macro">info!</span>(<span class="string">"inserting organization uh-cs"</span>);
     <span class="kw">let </span>SeedUsersResult {
-        admin_user_id,
+        admin_user_id: <span class="kw">_</span>,
         teacher_user_id,
         language_teacher_user_id,
         material_viewer_user_id,
@@ -617,7 +617,7 @@
     </span><span class="kw">let </span>cs_data = CommonCourseData {
         db_pool: db_pool.clone(),
         organization_id: uh_cs_organization_id,
-        admin_user_id,
+        teacher_user_id,
         student_user_id: student_3_user_id,
         langs_user_id,
         example_normal_user_ids: Arc::new(example_normal_user_ids.to_vec()),
@@ -829,7 +829,7 @@
         course_instances::get_default_by_course_id(<span class="kw-2">&amp;mut </span>conn, manual_completions_id).<span class="kw">await</span><span class="question-mark">?</span>;
     library::progressing::add_manual_completions(
         <span class="kw-2">&amp;mut </span>conn,
-        admin_user_id,
+        teacher_user_id,
         <span class="kw-2">&amp;</span>manual_default_instance,
         <span class="kw-2">&amp;</span>TeacherManualCompletionRequest {
             course_module_id: manual_default_module.id,
@@ -987,7 +987,7 @@
     <span class="kw">let </span>_cs_design = seed_cs_course_material(
         <span class="kw-2">&amp;</span>db_pool,
         uh_cs_organization_id,
-        admin_user_id,
+        teacher_user_id,
         langs_user_id,
         base_url,
     )
@@ -1019,7 +1019,7 @@
                 )<span class="question-mark">?</span>,
             }),
             new_course,
-            admin_user_id,
+            teacher_user_id,
             get_seed_spec_fetcher(),
             models_requests::fetch_service_info,
         )

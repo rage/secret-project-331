@@ -1161,7 +1161,12 @@
 <a href="#1160" id="1160">1160</a>
 <a href="#1161" id="1161">1161</a>
 <a href="#1162" id="1162">1162</a>
-<a href="#1163" id="1163">1163</a></pre></div><pre class="rust"><code><span class="doccomment">//! Common functionality related to authorization
+<a href="#1163" id="1163">1163</a>
+<a href="#1164" id="1164">1164</a>
+<a href="#1165" id="1165">1165</a>
+<a href="#1166" id="1166">1166</a>
+<a href="#1167" id="1167">1167</a>
+<a href="#1168" id="1168">1168</a></pre></div><pre class="rust"><code><span class="doccomment">//! Common functionality related to authorization
 
 </span><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::OAuthClient;
@@ -1238,7 +1243,7 @@
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(user)) =&gt; <span class="prelude-val">Ok</span>(verify_auth_user_exists(user, pool, <span class="kw-2">&amp;</span>session).<span class="kw">await</span><span class="question-mark">?</span>),
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Err</span>(ControllerError::new(
                     ControllerErrorType::Unauthorized,
-                    <span class="string">"Unauthorized. You're not logged in."</span>.to_string(),
+                    <span class="string">"You are not currently logged in. Please sign in to continue."</span>.to_string(),
                     <span class="prelude-val">None</span>,
                 )),
                 <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
@@ -1246,9 +1251,8 @@
                     </span>session.remove(SESSION_KEY);
                     <span class="prelude-val">Err</span>(ControllerError::new(
                         ControllerErrorType::Unauthorized,
-                        <span class="string">"Unauthorized. You're not logged in."</span>.to_string(),
-                        <span class="comment">// Don't want to leak too many details from the error to the user
-                        </span><span class="prelude-val">None</span>,
+                        <span class="string">"Your session is invalid or has expired. Please sign in again."</span>.to_string(),
+                        <span class="prelude-val">None</span>,
                     ))
                 }
             }
@@ -1294,7 +1298,8 @@
         <span class="macro">warn!</span>(<span class="string">"No database pool provided to verify_auth_user_exists"</span>);
         <span class="prelude-val">Err</span>(ControllerError::new(
             ControllerErrorType::InternalServerError,
-            <span class="string">"No database pool provided to verify_auth_user_exists"</span>.to_string(),
+            <span class="string">"Unable to verify your user account. The database connection is unavailable."
+                </span>.to_string(),
             <span class="prelude-val">None</span>,
         ))
     }
@@ -1378,7 +1383,6 @@
     User,
     PlaygroundExample,
     ExerciseService,
-    MaterialReference,
 }
 
 <span class="kw">impl </span>Resource {
@@ -1446,15 +1450,17 @@ async fn example_function(
     course_id: Uuid,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;AuthorizationToken, ControllerError&gt; {
     <span class="kw">let </span>token = <span class="kw">if </span>models::courses::is_draft(conn, course_id).<span class="kw">await</span><span class="question-mark">? </span>{
+        <span class="macro">info!</span>(<span class="string">"Course is in draft mode"</span>);
         <span class="kw">if </span>user_id.is_none() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
                 ControllerErrorType::Unauthorized,
-                <span class="string">"The course is not public"</span>.to_string(),
+                <span class="string">"This course is currently in draft mode and not publicly available. Please log in if you have access permissions."</span>.to_string(),
                 <span class="prelude-val">None</span>,
             ));
         }
         authorize(conn, Act::ViewMaterial, user_id, Res::Course(course_id)).<span class="kw">await</span><span class="question-mark">?
     </span>} <span class="kw">else if </span>models::courses::is_joinable_by_code_only(conn, course_id).<span class="kw">await</span><span class="question-mark">? </span>{
+        <span class="macro">info!</span>(<span class="string">"Course is joinable by code only"</span>);
         <span class="kw">if </span>models::join_code_uses::check_if_user_has_access_to_course(
             conn,
             user_id.unwrap(),
@@ -1467,7 +1473,8 @@ async fn example_function(
         }
         skip_authorize()
     } <span class="kw">else </span>{
-        skip_authorize()
+        <span class="comment">// The course is publicly available, no need to authorize
+        </span>skip_authorize()
     };
 
     <span class="prelude-val">Ok</span>(token)
@@ -1487,7 +1494,7 @@ async fn example_function(
         .ok_or_else(|| {
             ControllerError::new(
                 ControllerErrorType::Unauthorized,
-                <span class="string">"Unauthorized"</span>.to_string(),
+                <span class="string">"TMC server authorization failed: Missing Authorization header."</span>.to_string(),
                 <span class="prelude-val">None</span>,
             )
         })<span class="question-mark">?
@@ -1495,7 +1502,7 @@ async fn example_function(
         .map_err(|<span class="kw">_</span>| {
             ControllerError::new(
                 ControllerErrorType::Unauthorized,
-                <span class="string">"Unauthorized"</span>.to_string(),
+                <span class="string">"TMC server authorization failed: Invalid Authorization header format."</span>.to_string(),
                 <span class="prelude-val">None</span>,
             )
         })<span class="question-mark">?</span>;
@@ -1505,7 +1512,7 @@ async fn example_function(
     }
     <span class="prelude-val">Err</span>(ControllerError::new(
         ControllerErrorType::Unauthorized,
-        <span class="string">"Unauthorized"</span>.to_string(),
+        <span class="string">"TMC server authorization failed: Invalid authorization token."</span>.to_string(),
         <span class="prelude-val">None</span>,
     ))
 }
@@ -1557,7 +1564,7 @@ token.authorized_ok(web::Json(cms_page_info))
             </span>.map_err(|original_err| {
                 ControllerError::new(
                     ControllerErrorType::InternalServerError,
-                    original_err.to_string(),
+                    <span class="macro">format!</span>(<span class="string">"Failed to fetch user roles: {}"</span>, original_err),
                     <span class="prelude-val">Some</span>(original_err.into()),
                 )
             })<span class="question-mark">?
@@ -1567,6 +1574,35 @@ token.authorized_ok(web::Json(cms_page_info))
 
     authorize_with_fetched_list_of_roles(conn, action, user_id, resource, <span class="kw-2">&amp;</span>user_roles).<span class="kw">await
 </span>}
+
+<span class="doccomment">/// Creates a ControllerError for authorization failures with more information in the source error
+</span><span class="kw">fn </span>create_authorization_error(user_roles: <span class="kw-2">&amp;</span>[Role], action: <span class="prelude-ty">Option</span>&lt;Action&gt;) -&gt; ControllerError {
+    <span class="kw">let </span><span class="kw-2">mut </span>detail_message = String::new();
+
+    <span class="kw">if </span>user_roles.is_empty() {
+        detail_message.push_str(<span class="string">"You don't have any assigned roles."</span>);
+    } <span class="kw">else </span>{
+        detail_message.push_str(<span class="string">"Your current roles are: "</span>);
+        <span class="kw">let </span>roles_str = user_roles
+            .iter()
+            .map(|r| <span class="macro">format!</span>(<span class="string">"{:?} ({})"</span>, r.role, r.domain_description()))
+            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
+            .join(<span class="string">", "</span>);
+        detail_message.push_str(<span class="kw-2">&amp;</span>roles_str);
+    }
+
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(act) = action {
+        detail_message.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"\nAction attempted: {:?}"</span>, act));
+    }
+
+    <span class="comment">// Create the controller error
+    </span>ControllerError::new(
+        ControllerErrorType::Forbidden,
+        <span class="string">"Unauthorized. Please contact course staff if you believe you should have access."
+            </span>.to_string(),
+        <span class="prelude-val">Some</span>(ControllerError::new(ControllerErrorType::Forbidden, detail_message, <span class="prelude-val">None</span>).into()),
+    )
+}
 
 <span class="doccomment">/// Same as `authorize`, but takes as an argument `Vec&lt;Role&gt;` so that we avoid fetching the roles from the database for optimization reasons. This is useful when we're checking multiple authorizations at once.
 </span><span class="kw">pub async fn </span>authorize_with_fetched_list_of_roles(
@@ -1655,15 +1691,8 @@ token.authorized_ok(web::Json(cms_page_info))
         | Resource::ExerciseService
         | Resource::GlobalPermissions =&gt; {
             <span class="comment">// permissions for these resources have already been checked
-            </span><span class="prelude-val">Err</span>(ControllerError::new(
-                ControllerErrorType::Forbidden,
-                <span class="string">"Unauthorized"</span>.to_string(),
-                <span class="prelude-val">None</span>,
-            ))
+            </span><span class="prelude-val">Err</span>(create_authorization_error(user_roles, <span class="prelude-val">Some</span>(action)))
         }
-        Resource::MaterialReference =&gt; {
-            check_material_reference_permissions(user_roles, action).<span class="kw">await
-        </span>}
     }
 }
 
@@ -1683,11 +1712,7 @@ token.authorized_ok(web::Json(cms_page_info))
             <span class="kw">return </span><span class="prelude-val">Ok</span>(AuthorizationToken(()));
         }
     }
-    <span class="prelude-val">Err</span>(ControllerError::new(
-        ControllerErrorType::Forbidden,
-        <span class="string">"Unauthorized"</span>.to_string(),
-        <span class="prelude-val">None</span>,
-    ))
+    <span class="prelude-val">Err</span>(create_authorization_error(roles, <span class="prelude-val">Some</span>(action)))
 }
 
 <span class="doccomment">/// Also checks organization role which is valid for courses.
@@ -1763,33 +1788,17 @@ token.authorized_ok(web::Json(cms_page_info))
     }
 }
 
-<span class="kw">async fn </span>check_material_reference_permissions(
-    roles: <span class="kw-2">&amp;</span>[Role],
-    action: Action,
-) -&gt; <span class="prelude-ty">Result</span>&lt;AuthorizationToken, ControllerError&gt; {
-    <span class="kw">for </span>role <span class="kw">in </span>roles {
-        <span class="kw">if </span>has_permission(role.role, action) {
-            <span class="kw">return </span><span class="prelude-val">Ok</span>(AuthorizationToken(()));
-        }
-    }
-    <span class="prelude-val">Err</span>(ControllerError::new(
-        ControllerErrorType::Forbidden,
-        <span class="string">"Unauthorized"</span>.to_string(),
-        <span class="prelude-val">None</span>,
-    ))
-}
-
 <span class="kw">async fn </span>check_study_registry_permission(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     secret_key: String,
-    _action: Action,
+    action: Action,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;AuthorizationToken, ControllerError&gt; {
     <span class="kw">let </span>_registrar = models::study_registry_registrars::get_by_secret_key(conn, <span class="kw-2">&amp;</span>secret_key)
         .<span class="kw">await
         </span>.map_err(|original_error| {
             ControllerError::new(
                 ControllerErrorType::Forbidden,
-                <span class="string">"Unauthorized"</span>.to_string(),
+                <span class="macro">format!</span>(<span class="string">"Study registry access denied: Invalid or missing secret key. The operation {:?} cannot be performed."</span>, action),
                 <span class="prelude-val">Some</span>(original_error.into()),
             )
         })<span class="question-mark">?</span>;
@@ -1850,18 +1859,19 @@ token.authorized_ok(web::Json(cms_page_info))
         .headers()
         .get(<span class="string">"Authorization"</span>)
         .map_or(<span class="prelude-val">Ok</span>(<span class="string">""</span>), |x| x.to_str())
-        .map_err(|<span class="kw">_</span>| <span class="macro">anyhow::anyhow!</span>(<span class="string">"Access denied."</span>.to_string()))<span class="question-mark">?</span>;
+        .map_err(|<span class="kw">_</span>| <span class="macro">anyhow::anyhow!</span>(<span class="string">"Authorization header contains invalid characters."</span>))<span class="question-mark">?</span>;
     <span class="kw">if </span>!raw_token.starts_with(<span class="string">"Basic"</span>) {
         <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
             ControllerErrorType::Forbidden,
-            <span class="string">"Access denied"</span>.to_string(),
+            <span class="string">"Access denied: Authorization header must use Basic authentication format."</span>.to_string(),
             <span class="prelude-val">None</span>,
         ));
     }
     <span class="kw">let </span>secret_key = raw_token.split(<span class="string">' '</span>).nth(<span class="number">1</span>).ok_or_else(|| {
         ControllerError::new(
             ControllerErrorType::Forbidden,
-            <span class="string">"Malformed authorization token"</span>.to_string(),
+            <span class="string">"Access denied: Malformed authorization token, expected 'Basic &lt;token&gt;' format."
+                </span>.to_string(),
             <span class="prelude-val">None</span>,
         )
     })<span class="question-mark">?</span>;

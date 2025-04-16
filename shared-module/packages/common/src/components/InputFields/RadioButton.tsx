@@ -4,7 +4,6 @@ import { DetailedHTMLProps, InputHTMLAttributes } from "react"
 import { baseTheme, primaryFont } from "../../styles"
 
 const labelClass = css`
-  /* font-family: system-ui, sans-serif; */
   font-family: ${primaryFont};
   font-size: 16px;
   margin: 0.5rem 0.5rem 0.5rem 0;
@@ -17,7 +16,7 @@ const labelClass = css`
     appearance: none;
     background-color: #fff;
     margin: 0;
-    font: inherit;
+    font-family: ${primaryFont};
     width: 1.15em;
     height: 1.15em;
     border: 1.5px solid #787878;

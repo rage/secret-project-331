@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 import { CertificateConfigurationAndRequirements } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import MaskOverThisInSystemTests from "@/shared-module/common/components/system-tests/MaskOverThisInSystemTests"
+import SetHeightInSystemTests from "@/shared-module/common/components/system-tests/SetHeightInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
 
 interface Props {
@@ -37,18 +38,22 @@ const CertificateView: React.FC<Props> = ({
       <div>
         {t("background-svg")}:{" "}
         <MaskOverThisInSystemTests>
-          <Link href={`/api/v0/files/${configuration.background_svg_path}`}>
-            {configuration.background_svg_path}
-          </Link>
+          <SetHeightInSystemTests heightPx={100}>
+            <Link href={`/api/v0/files/${configuration.background_svg_path}`}>
+              {configuration.background_svg_path}
+            </Link>
+          </SetHeightInSystemTests>
         </MaskOverThisInSystemTests>
       </div>
       <div>
         {t("overlay-svg")}:{" "}
         {configuration.overlay_svg_path ? (
           <MaskOverThisInSystemTests>
-            <Link href={`/api/v0/files/${configuration.overlay_svg_path}`}>
-              {configuration.overlay_svg_path}
-            </Link>
+            <SetHeightInSystemTests heightPx={100}>
+              <Link href={`/api/v0/files/${configuration.overlay_svg_path}`}>
+                {configuration.overlay_svg_path}
+              </Link>
+            </SetHeightInSystemTests>
           </MaskOverThisInSystemTests>
         ) : (
           t("label-null")

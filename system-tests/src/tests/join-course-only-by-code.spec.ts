@@ -25,72 +25,61 @@ test.afterEach(async () => {
 test("Join course by code only", async ({}) => {
   test.slow()
   const student1Page = await context1.newPage()
-  const student2Page = await context2.newPage()
   const teacherPage = await context3.newPage()
 
-  // Check that student can't see to the course
-  await student1Page.goto("http://project-331.local/org/uh-mathstat/courses/joinable-by-code-only")
-  await student1Page.getByText("Unauthorized", { exact: true }).waitFor()
+  await test.step("Turn off join by code only feature", async () => {
+    await teacherPage.goto(
+      "http://project-331.local/manage/courses/39a52e8c-ebbf-4b9a-a900-09aa344f3691",
+    )
 
-  // Go to join page and add student to the course
-  await student1Page.goto(
-    "http://project-331.local/join?code=zARvZARjYhESMPVceEgZyJGQZZuUHVVgcUepyzEqzSqCMdbSCDrTaFhkJTxBshWU",
-  )
-  await student1Page.getByRole("heading", { name: "Joinable by code only" }).click()
-  await student1Page.getByRole("button", { name: "Yes" }).click()
+    await teacherPage.getByRole("button", { name: "Edit", exact: true }).click()
+    await teacherPage.getByLabel("Edit course").getByText("Joinable by code only").click()
+    await teacherPage.getByRole("button", { name: "Update", exact: true }).click()
+    await expect(teacherPage.getByText("Success", { exact: true })).toBeVisible()
 
-  // Check that student can see the course
-  await selectCourseInstanceIfPrompted(student1Page)
-  await student1Page.getByRole("heading", { name: "Welcome to..." }).click()
+    await expect(teacherPage.getByText("Generate join course link", { exact: true })).toBeHidden()
+  })
 
-  // Check that student can't see to the course
-  await student2Page.goto("http://project-331.local/org/uh-mathstat/courses/joinable-by-code-only")
-  await student2Page.getByText("Unauthorized", { exact: true }).waitFor()
+  await test.step("Turn join by code only feature back on", async () => {
+    await teacherPage.getByRole("button", { name: "Edit", exact: true }).click()
+    await teacherPage.getByLabel("Edit course").getByText("Joinable by code only").click()
+    await teacherPage.getByRole("button", { name: "Update", exact: true }).click()
+    await expect(teacherPage.getByText("Success", { exact: true })).toBeVisible()
 
-  // Go to join page and add student to the course
-  await student2Page.goto(
-    "http://project-331.local/join?code=zARvZARjYhESMPVceEgZyJGQZZuUHVVgcUepyzEqzSqCMdbSCDrTaFhkJTxBshWU",
-  )
-  await student2Page.getByRole("heading", { name: "Joinable by code only" }).click()
-  await student2Page.getByRole("button", { name: "Yes" }).click()
+    await expect(teacherPage.getByText("Generate join course link", { exact: true })).toBeVisible()
+  })
 
-  // Check that student can see the course
-  await selectCourseInstanceIfPrompted(student2Page)
-  await student2Page.getByRole("heading", { name: "Welcome to..." }).click()
+  let joinCode: string
 
-  // Check that teacher can change the course to join by code only
-  await teacherPage.goto(
-    "http://project-331.local/manage/courses/049061ba-ac30-49f1-aa9d-b7566dc22b78",
-  )
+  await test.step("Generate a new join code", async () => {
+    await expect(teacherPage.getByRole("link", { name: "/join?code=" })).toBeVisible()
+    await teacherPage.getByRole("button", { name: "Generate join course link" }).click()
+    await teacherPage.getByText("Operation successful").waitFor()
 
-  // Check that generate join code button is not visible if the feature is not enabled
-  await expect(teacherPage.getByText("Generate join course link", { exact: true })).toBeHidden()
+    const joinCodeElement = teacherPage.getByRole("link", { name: "/join?code=" }).first()
+    const joinCodeText = await joinCodeElement.textContent()
+    // eslint-disable-next-line playwright/no-conditional-in-test
+    joinCode = joinCodeText?.replace("/join?code=", "").trim() || ""
 
-  // Change course to be joinable by code only
-  await teacherPage.getByRole("button", { name: "Edit", exact: true }).click()
-  await teacherPage.getByText("Joinable by code only").click()
-  await teacherPage.getByRole("button", { name: "Update", exact: true }).click()
-  await expect(teacherPage.getByText("Success", { exact: true })).toBeVisible()
+    expect(joinCode).not.toBe("")
+  })
 
-  // Chech that code can be generated
-  await expect(teacherPage.getByText("/join?code=null")).toBeVisible()
+  await test.step("Student joins with the new code", async () => {
+    await student1Page.goto(`http://project-331.local/join?code=${joinCode}`)
+    await student1Page.getByRole("heading", { name: "Joinable by code only" }).click()
+    await student1Page.getByRole("button", { name: "Yes" }).click()
+  })
 
-  await teacherPage.getByRole("button", { name: "Generate join course link" }).click()
-  await expect(teacherPage.getByText("/join?code=null")).toBeHidden()
-  await expect(teacherPage.getByText("/join?code=")).toBeVisible()
+  await test.step("Verify student access with the new code", async () => {
+    await selectCourseInstanceIfPrompted(student1Page)
+    await student1Page.getByRole("heading", { name: "Welcome to..." }).click()
+  })
 
-  // Check that teacher can see the course page normally when the feature is enabled
-  await teacherPage.goto(
-    "http://project-331.local/org/uh-mathstat/courses/introduction-to-citations",
-  )
-  await selectCourseInstanceIfPrompted(teacherPage)
-  await teacherPage.getByRole("heading", { name: "Welcome to..." }).click()
-
-  // Change the course back to not joinable by code only
-  await teacherPage.goto(
-    "http://project-331.local/manage/courses/049061ba-ac30-49f1-aa9d-b7566dc22b78",
-  )
-  await teacherPage.getByRole("button", { name: "Edit", exact: true }).click()
-  await teacherPage.getByText("Joinable by code only").click()
-  await teacherPage.getByRole("button", { name: "Update", exact: true }).click()
+  await test.step("Verify student2 (who hasn't used the code) cannot access the course directly", async () => {
+    const student2Page = await context2.newPage()
+    await student2Page.goto(
+      "http://project-331.local/org/uh-mathstat/courses/joinable-by-code-only",
+    )
+    await student2Page.getByText("Unauthorized").first().waitFor()
+  })
 })

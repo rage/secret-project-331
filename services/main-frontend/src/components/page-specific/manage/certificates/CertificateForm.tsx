@@ -13,6 +13,7 @@ import FileField from "@/shared-module/common/components/InputFields/FileField"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import MaskOverThisInSystemTests from "@/shared-module/common/components/system-tests/MaskOverThisInSystemTests"
+import SetHeightInSystemTests from "@/shared-module/common/components/system-tests/SetHeightInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
 
 interface Props {
@@ -119,38 +120,40 @@ const CertificateForm: React.FC<Props> = ({
         {...register("paperSize")}
       />
       <MaskOverThisInSystemTests useDisplayBlockAndHideOverflow>
-        <FileField
-          id={"backgroundSvg"}
-          error={errors.backgroundSvg}
-          label={
-            configuration
-              ? t("label-background-svg-current", { path: configuration.background_svg_path })
-              : t("label-background-svg")
-          }
-          {...register(
-            "backgroundSvg",
-            // required if configuration does not exist yet
-            configuration ? undefined : { required: t("required-field") },
-          )}
-          // required for new configurations
-          required={configuration === null}
-          // eslint-disable-next-line i18next/no-literal-string
-          accept={".svg"}
-        />
-        <FileField
-          id={"overlaySvg"}
-          error={errors.overlaySvg}
-          label={
-            configuration
-              ? configuration.overlay_svg_path
-                ? t("label-overlay-svg-current", { path: configuration.overlay_svg_path })
-                : t("label-overlay-svg-optional")
-              : t("label-overlay-svg")
-          }
-          {...register("overlaySvg")}
-          // eslint-disable-next-line i18next/no-literal-string
-          accept={".svg"}
-        />
+        <SetHeightInSystemTests heightPx={100}>
+          <FileField
+            id={"backgroundSvg"}
+            error={errors.backgroundSvg}
+            label={
+              configuration
+                ? t("label-background-svg-current", { path: configuration.background_svg_path })
+                : t("label-background-svg")
+            }
+            {...register(
+              "backgroundSvg",
+              // required if configuration does not exist yet
+              configuration ? undefined : { required: t("required-field") },
+            )}
+            // required for new configurations
+            required={configuration === null}
+            // eslint-disable-next-line i18next/no-literal-string
+            accept={".svg"}
+          />
+          <FileField
+            id={"overlaySvg"}
+            error={errors.overlaySvg}
+            label={
+              configuration
+                ? configuration.overlay_svg_path
+                  ? t("label-overlay-svg-current", { path: configuration.overlay_svg_path })
+                  : t("label-overlay-svg-optional")
+                : t("label-overlay-svg")
+            }
+            {...register("overlaySvg")}
+            // eslint-disable-next-line i18next/no-literal-string
+            accept={".svg"}
+          />
+        </SetHeightInSystemTests>
       </MaskOverThisInSystemTests>
       <CheckBox
         id={"clearCurrentOverlaySvg"}

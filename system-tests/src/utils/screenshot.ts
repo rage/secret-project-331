@@ -105,8 +105,9 @@ export default async function expectScreenshotsToMatchSnapshots({
       if (!screenshotOptions.mask) {
         screenshotOptions.mask = []
       }
+      const maskLocator = page.locator('[data-mask-over-this-in-system-tests="true"]')
       // We always want to mask the objects that have been wrapped with the `MaskOverThisInSystemTests` component
-      screenshotOptions.mask.push(page.locator('[data-mask-over-this-in-system-tests="true"]'))
+      screenshotOptions.mask.push(maskLocator)
 
       // If the page has not fully loaded yet, no reason to continue
       await page.waitForLoadState()
@@ -133,6 +134,9 @@ export default async function expectScreenshotsToMatchSnapshots({
       try {
         if (replaceSomePartsWithPlaceholders) {
           await page.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
+          while ((await page.locator('[data-not-visible-in-system-tests="true"]').count()) > 0) {
+            await page.waitForTimeout(100)
+          }
         }
         if (waitForTheseToBeVisibleAndStable) {
           await waitToBeVisible({

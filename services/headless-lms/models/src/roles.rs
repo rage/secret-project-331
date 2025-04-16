@@ -49,6 +49,23 @@ impl Role {
     pub fn is_role_for_exam(&self, exam_id: Uuid) -> bool {
         self.exam_id.map(|id| id == exam_id).unwrap_or_default()
     }
+
+    /// Returns a human-readable description of the domain this role applies to
+    pub fn domain_description(&self) -> String {
+        if self.is_global {
+            "Global".to_string()
+        } else if let Some(id) = self.organization_id {
+            return format!("Organization {}", id);
+        } else if let Some(id) = self.course_id {
+            return format!("Course {}", id);
+        } else if let Some(id) = self.course_instance_id {
+            return format!("CourseInstance {}", id);
+        } else if let Some(id) = self.exam_id {
+            return format!("Exam {}", id);
+        } else {
+            return "Unknown domain".to_string();
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, Deserialize)]

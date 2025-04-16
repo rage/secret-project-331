@@ -120,6 +120,18 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
     // eslint-disable-next-line i18next/no-literal-string
     mode: "onChange",
   })
+
+  const preFillCountry = useQuery({
+    queryKey: [`users-ip-country`],
+    queryFn: () => fetchCountryFromIP(),
+  })
+
+  useEffect(() => {
+    if (preFillCountry.data) {
+      reset({ country: preFillCountry.data })
+    }
+  }, [preFillCountry.data, reset])
+
   const loginStateContext = useContext(LoginStateContext)
   const router = useRouter()
   const uncheckedReturnTo = useQueryParameter("return_to")
@@ -182,12 +194,6 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
     value: code,
     label: tCountries(code as keyof typeof countries),
   }))
-
-  const preFillCountry = useQuery({
-    queryKey: [`users-ip-country`],
-    queryFn: () => fetchCountryFromIP(),
-  })
-  console.log(preFillCountry.data)
 
   if (confirmEmailPageVisible) {
     return (

@@ -120,7 +120,7 @@ pub async fn get_users_by_course_id(
 pub async fn get_user_country_by_ip(
     req: HttpRequest,
     ip_to_country_mapper: web::Data<IpToCountryMapper>,
-) -> ControllerResult<Option<String>> {
+) -> ControllerResult<String> {
     let connection_info = req.connection_info();
 
     let ip: Option<IpAddr> = connection_info
@@ -129,7 +129,8 @@ pub async fn get_user_country_by_ip(
 
     let country = ip
         .and_then(|ip| ip_to_country_mapper.map_ip_to_country(&ip))
-        .map(|c| c.to_string());
+        .map(|c| c.to_string())
+        .unwrap_or_else(|| "".to_string());
 
     let token = skip_authorize();
     token.authorized_ok(country)
@@ -145,7 +146,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/search-fuzzy-match",
             web::post().to(search_users_fuzzy_match),
         )
-        .route("/{user_id}", web::get().to(get_user_details))
+        .route("/user/{user_id}", web::get().to(get_user_details))
         .route(
             "/{course_id}/get-users-by-course-id",
             web::get().to(get_users_by_course_id),

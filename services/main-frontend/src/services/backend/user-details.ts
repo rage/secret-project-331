@@ -30,7 +30,7 @@ export const searchForUserDetailsFuzzyMatch = async (searchTerm: string): Promis
 }
 
 export const getUserDetails = async (userId: string): Promise<UserDetail> => {
-  const response = await mainFrontendClient.get(`/user-details/${userId}`)
+  const response = await mainFrontendClient.get(`/user-details/user/${userId}`)
   return validateResponse(response, isUserDetail)
 }
 

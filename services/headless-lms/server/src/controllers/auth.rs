@@ -195,7 +195,15 @@ pub async fn login(
     let success = if app_conf.test_mode {
         warn!("Using test credentials. Normal accounts won't work.");
         let success =
-            authorization::authenticate_test_user(&mut conn, &email, &password, &app_conf).await?;
+            authorization::authenticate_test_user(&mut conn, &email, &password, &app_conf)
+                .await
+                .map_err(|e| {
+                    ControllerError::new(
+                        ControllerErrorType::Unauthorized,
+                        "Could not find the test user. Have you seeded the database?".to_string(),
+                        e,
+                    )
+                })?;
         if success {
             let user = models::users::get_by_email(&mut conn, &email).await?;
             authorization::remember(&session, user)?;

@@ -2,17 +2,15 @@ import axios from "axios"
 
 import { ActionOnResource, CreateAccountDetails, UserInfo } from "../../bindings"
 import { isUserInfo } from "../../bindings.guard"
-import { isNull, isUnion, validateResponse } from "../../utils/fetching"
+import { isArray, isBoolean, isNull, isUnion, validateResponse } from "../../utils/fetching"
 
 export const loggedIn = async (): Promise<boolean> => {
-  const url = `/api/v0/auth/logged-in`
-  const data = (await axios.get(url, { responseType: "json" })).data
-  return data
+  const response = await axios.get(`/api/v0/auth/logged-in`, { responseType: "json" })
+  return validateResponse(response, isBoolean)
 }
 
 export const createUser = async (newUser: CreateAccountDetails): Promise<void> => {
-  const url = `/api/v0/auth/signup`
-  await axios.post(url, newUser)
+  await axios.post(`/api/v0/auth/signup`, newUser)
 }
 
 export const login = async (email: string, password: string): Promise<boolean> => {
@@ -20,24 +18,24 @@ export const login = async (email: string, password: string): Promise<boolean> =
     email,
     password,
   })
-  return response.data
+  return validateResponse(response, isBoolean)
 }
 
 export const logout = async (): Promise<void> => {
-  const url = `/api/v0/auth/logout`
-  await axios.post(url)
+  await axios.post(`/api/v0/auth/logout`)
 }
 
 export const authorize = async (action: ActionOnResource): Promise<boolean> => {
-  return (await axios.post("/api/v0/auth/authorize", action)).data
+  const response = await axios.post("/api/v0/auth/authorize", action)
+  return validateResponse(response, isBoolean)
 }
 
 export const authorizeMultiple = async (action: ActionOnResource[]): Promise<boolean[]> => {
-  return (await axios.post("/api/v0/auth/authorize-multiple", action)).data
+  const response = await axios.post("/api/v0/auth/authorize-multiple", action)
+  return validateResponse(response, isArray(isBoolean))
 }
 
 export const userInfo = async (): Promise<UserInfo | null> => {
-  const url = `/api/v0/auth/user-info`
-  const response = await axios.get(url, { responseType: "json" })
+  const response = await axios.get(`/api/v0/auth/user-info`, { responseType: "json" })
   return validateResponse(response, isUnion(isUserInfo, isNull))
 }

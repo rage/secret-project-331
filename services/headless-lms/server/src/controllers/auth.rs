@@ -95,14 +95,15 @@ pub async fn signup(
         post_new_user_to_moocfi(&user_details).await?;
 
         let mut conn = pool.acquire().await?;
-        let user = authorization::authenticate_moocfi_user(
+        let auth_result = authorization::authenticate_moocfi_user(
             &mut conn,
             &client,
             user_details.email,
             user_details.password,
         )
-        .await;
-        if let Ok((user, _token)) = user {
+        .await?;
+
+        if let Some((user, _token)) = auth_result {
             let token = skip_authorize();
             authorization::remember(&session, user)?;
             token.authorized_ok(HttpResponse::Ok().finish())
@@ -168,6 +169,7 @@ pub async fn authorize_multiple_actions_on_resources(
 
 /**
 POST `/api/v0/auth/login` Logs in to TMC.
+Returns true if login was successful, false if credentials were incorrect.
 **/
 #[instrument(skip(session, pool, client, payload, app_conf))]
 pub async fn login(
@@ -176,7 +178,7 @@ pub async fn login(
     client: web::Data<OAuthClient>,
     app_conf: web::Data<ApplicationConfiguration>,
     payload: web::Json<Login>,
-) -> ControllerResult<HttpResponse> {
+) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let Login { email, password } = payload.into_inner();
 
@@ -186,30 +188,39 @@ pub async fn login(
             let user = { models::users::get_by_id(&mut conn, id).await? };
             let token = skip_authorize();
             authorization::remember(&session, user)?;
-            return token.authorized_ok(HttpResponse::Ok().finish());
+            return token.authorized_ok(web::Json(true));
         };
     }
 
-    let user = if app_conf.test_mode {
+    let success = if app_conf.test_mode {
         warn!("Using test credentials. Normal accounts won't work.");
-        authorization::authenticate_test_user(&mut conn, &email, &password, &app_conf).await?
+        let success =
+            authorization::authenticate_test_user(&mut conn, &email, &password, &app_conf).await?;
+        if success {
+            let user = models::users::get_by_email(&mut conn, &email).await?;
+            authorization::remember(&session, user)?;
+        }
+        success
     } else {
-        let (user, _token) =
-            authorization::authenticate_moocfi_user(&mut conn, &client, email, password)
-                .await
-                .map_err(|err| {
-                    info!("Could not get user from moocfi: {err}");
-                    ControllerError::new(
-                        ControllerErrorType::Unauthorized,
-                        "Incorrect email or password.".to_string(),
-                        None,
-                    )
-                })?;
-        user
+        let auth_result =
+            authorization::authenticate_moocfi_user(&mut conn, &client, email, password).await?;
+
+        if let Some((user, _token)) = auth_result {
+            authorization::remember(&session, user)?;
+            true
+        } else {
+            false
+        }
     };
+
+    if success {
+        info!("Authentication successful");
+    } else {
+        warn!("Authentication failed");
+    }
+
     let token = skip_authorize();
-    authorization::remember(&session, user)?;
-    token.authorized_ok(HttpResponse::Ok().finish())
+    token.authorized_ok(web::Json(success))
 }
 
 /**

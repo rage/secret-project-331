@@ -15,12 +15,12 @@ export const createUser = async (newUser: CreateAccountDetails): Promise<void> =
   await axios.post(url, newUser)
 }
 
-export const login = async (email: string, password: string): Promise<void> => {
-  const url = `/api/v0/auth/login`
-  await axios.post(url, {
+export const login = async (email: string, password: string): Promise<boolean> => {
+  const response = await axios.post(`/api/v0/auth/login`, {
     email,
     password,
   })
+  return response.data
 }
 
 export const logout = async (): Promise<void> => {

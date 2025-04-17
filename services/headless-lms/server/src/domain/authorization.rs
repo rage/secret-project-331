@@ -15,6 +15,7 @@ use models::{roles::Role, CourseOrExamId};
 use oauth2::basic::BasicTokenType;
 use oauth2::EmptyExtraTokenFields;
 use oauth2::HttpClientError;
+use oauth2::RequestTokenError;
 use oauth2::ResourceOwnerPassword;
 use oauth2::ResourceOwnerUsername;
 use oauth2::StandardTokenResponse;
@@ -716,29 +717,74 @@ pub async fn authenticate_moocfi_user(
     client: &OAuthClient,
     email: String,
     password: String,
-) -> anyhow::Result<(User, LoginToken)> {
+) -> anyhow::Result<Option<(User, LoginToken)>> {
     info!("Attempting to authenticate user with TMC");
-    let token = exchange_password_with_tmc(client, email.clone(), password).await?;
+    let token = match exchange_password_with_tmc(client, email.clone(), password).await? {
+        Some(token) => token,
+        None => return Ok(None),
+    };
     debug!("Successfully obtained OAuth token from TMC");
     let user = get_user_from_moocfi_by_login_token(&token, conn).await?;
     info!("Successfully authenticated user {} with mooc.fi", user.id);
-    Ok((user, token))
+    Ok(Some((user, token)))
 }
 
 pub type LoginToken = StandardTokenResponse<EmptyExtraTokenFields, BasicTokenType>;
+
+/**
+Exchanges user credentials with TMC server to obtain an OAuth token.
+
+This function attempts to authenticate a user with the TMC server using their email and password.
+It returns different results based on the authentication outcome:
+
+- `Ok(Some(token))` - Authentication successful, returns the OAuth token
+- `Ok(None)` - Authentication failed due to invalid credentials (email/password)
+- `Err(...)` - Authentication failed due to other errors (server issues, network problems, etc.)
+*/
 pub async fn exchange_password_with_tmc(
     client: &OAuthClient,
     email: String,
     password: String,
-) -> anyhow::Result<LoginToken> {
-    let token = client
+) -> anyhow::Result<Option<LoginToken>> {
+    let token_result = client
         .exchange_password(
             &ResourceOwnerUsername::new(email),
             &ResourceOwnerPassword::new(password),
         )
         .request_async(&async_http_client_with_headers)
-        .await?;
-    Ok(token)
+        .await;
+    match token_result {
+        Ok(token) => Ok(Some(token)),
+        Err(RequestTokenError::ServerResponse(server_response)) => {
+            let error = server_response.error();
+            let error_description = server_response.error_description();
+            let error_uri = server_response.error_uri();
+
+            // Only return Ok(None) for InvalidGrant errors (wrong email/password)
+            if let oauth2::basic::BasicErrorResponseType::InvalidGrant = error {
+                warn!(
+                    ?error_description,
+                    ?error_uri,
+                    "TMC did not accept the credentials: {}",
+                    error
+                );
+                Ok(None)
+            } else {
+                // For all other error types, return an error
+                error!(
+                    ?error_description,
+                    ?error_uri,
+                    "TMC authentication error: {}",
+                    error
+                );
+                Err(anyhow::anyhow!("Authentication error: {}", error))
+            }
+        }
+        Err(e) => {
+            error!("Failed to exchange password with TMC: {}", e);
+            Err(e.into())
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -905,16 +951,19 @@ async fn get_or_create_user_from_moocfi_response(
     Ok(user)
 }
 
-// Only used for testing, not to use in production.
+/// Authenticates a test user with predefined credentials.
+/// Returns Ok(true) if authentication succeeds, Ok(false) if credentials are incorrect,
+/// and Err for other errors.
 pub async fn authenticate_test_user(
     conn: &mut PgConnection,
     email: &str,
     password: &str,
     application_configuration: &ApplicationConfiguration,
-) -> anyhow::Result<User> {
+) -> anyhow::Result<bool> {
     // Sanity check to ensure this is not called outside of test mode. The whole application configuration is passed to this function instead of just the boolean to make mistakes harder.
     assert!(application_configuration.test_mode);
-    let user = if email == "admin@example.com" && password == "admin" {
+
+    let _user = if email == "admin@example.com" && password == "admin" {
         models::users::get_by_email(conn, "admin@example.com").await?
     } else if email == "teacher@example.com" && password == "teacher" {
         models::users::get_by_email(conn, "teacher@example.com").await?
@@ -949,9 +998,11 @@ pub async fn authenticate_test_user(
     } else if email == "langs@example.com" && password == "langs" {
         models::users::get_by_email(conn, "langs@example.com").await?
     } else {
-        anyhow::bail!("Invalid email or password");
+        info!("Authentication failed: incorrect test credentials");
+        return Ok(false);
     };
-    Ok(user)
+    info!("Successfully authenticated test user {}", email);
+    Ok(true)
 }
 
 // Only used for testing, not to use in production.

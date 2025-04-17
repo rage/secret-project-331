@@ -65,22 +65,29 @@ const FeedbackTooltip: React.FC = () => {
     setCurrentlyOpenFeedbackDialog("select-type")
   }
 
+  // Use a fixed class instead of dynamic styles to avoid re-renders
+  const tooltipClass = css`
+    z-index: 100;
+    position: absolute;
+    transform: none !important;
+  `
+
   return (
-    <SpeechBalloon
+    <div
       ref={setReferenceElement}
-      onClick={handleClick}
-      data-testid={feedbackTooltipTestId}
-      className={css`
-        z-index: 100;
-        position: ${styles.popper.position};
-        top: ${styles.popper.top};
-        left: ${styles.popper.left};
-        transform: ${styles.popper.transform};
-      `}
+      className={tooltipClass}
+      // eslint-disable-next-line react/forbid-dom-props
+      style={styles.popper}
       {...attributes.popper}
     >
-      {t("give-feedback")}
-    </SpeechBalloon>
+      <SpeechBalloon
+        ref={setReferenceElement}
+        onClick={handleClick}
+        data-testid={feedbackTooltipTestId}
+      >
+        {t("give-feedback")}
+      </SpeechBalloon>
+    </div>
   )
 }
 

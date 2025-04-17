@@ -10,46 +10,74 @@ export interface SpeechBalloonProps {
   children?: React.ReactNode
 }
 
-const SQUARE_SIZE = "1rem"
+const BORDER_RADIUS = "8px"
+const BORDER_WIDTH = "2px"
+const POINTER_SIZE = "12px"
+
+// Clean white background with green accents
+const COLORS = {
+  bg: "#ffffff",
+  border: baseTheme.colors.green[400],
+  text: baseTheme.colors.gray[700],
+  shadow: "rgba(0, 0, 0, 0.4)",
+}
 
 const SpeechBalloon = React.forwardRef<HTMLDivElement, SpeechBalloonProps>(
   ({ children, className, onClick }, ref) => {
-    const bg = baseTheme.colors.gray[100]
-
-    const outerCss = css`
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    const speechBalloonCss = css`
+      display: inline-block;
+      position: relative;
+      background: ${COLORS.bg};
+      color: ${COLORS.text};
+      padding: 1rem 1.5rem;
+      border-radius: ${BORDER_RADIUS};
+      border: ${BORDER_WIDTH} solid ${COLORS.border};
+      box-shadow: 0 3px 15px 0px ${COLORS.shadow};
+      margin-bottom: ${POINTER_SIZE};
+      transition: none;
       width: max-content;
+
+      &:active {
+        transform: translateY(0);
+      }
+
+      &:after {
+        content: "";
+        position: absolute;
+        bottom: -${POINTER_SIZE};
+        left: calc(50% - ${POINTER_SIZE});
+        width: 0;
+        height: 0;
+        border-left: ${POINTER_SIZE} solid transparent;
+        border-right: ${POINTER_SIZE} solid transparent;
+        border-top: ${POINTER_SIZE} solid ${COLORS.border};
+        filter: drop-shadow(0 8px 6px ${COLORS.shadow});
+      }
+
+      &:before {
+        content: "";
+        position: absolute;
+        bottom: calc(-${POINTER_SIZE} + ${BORDER_WIDTH} * 1.5);
+        left: calc(50% - ${POINTER_SIZE} + ${BORDER_WIDTH});
+        width: 0;
+        height: 0;
+        border-left: calc(${POINTER_SIZE} - ${BORDER_WIDTH}) solid transparent;
+        border-right: calc(${POINTER_SIZE} - ${BORDER_WIDTH}) solid transparent;
+        border-top: calc(${POINTER_SIZE} - ${BORDER_WIDTH} * 1.5) solid ${COLORS.bg};
+        z-index: 1;
+      }
     `
+
     return (
       <div
         ref={ref}
-        role="button"
-        tabIndex={0}
+        role={onClick ? "button" : undefined}
+        tabIndex={onClick ? 0 : undefined}
         onKeyDown={(e) => onClick && runCallbackIfEnterPressed(e, onClick)}
         onClick={onClick}
-        className={`${outerCss} ${className}`}
+        className={`${speechBalloonCss} ${className ?? ""}`}
       >
-        <div
-          className={css`
-            background: ${bg};
-            width: max-content;
-            padding: 1rem;
-          `}
-        >
-          {children}
-        </div>
-        <div
-          className={css`
-            width: ${SQUARE_SIZE};
-            height: ${SQUARE_SIZE};
-            position: relative;
-            top: calc(-${SQUARE_SIZE} / 2);
-            background: ${bg};
-            transform: rotate(45deg);
-          `}
-        />
+        {children}
       </div>
     )
   },

@@ -262,7 +262,6 @@ pub async fn create_peer_or_self_review_submission_for_user(
         &mut tx,
         exercise.id,
         giver_exercise_state.user_id,
-        giver_exercise_state.get_course_instance_id()?,
     )
     .await?;
     tx.commit().await?;
@@ -531,6 +530,11 @@ async fn try_to_select_peer_review_candidate_from_queue(
         .await?;
 
         if let Some((ess_id, selected_submission_needs_peer_review)) = maybe_submission {
+            if excluded_exercise_slide_submission_ids.contains(&ess_id) {
+                warn!(exercise_slide_submission_id = %ess_id, "Selected exercise slide submission that should have been excluded from the selection process. Trying again.");
+                continue;
+            }
+
             let ess = exercise_slide_submissions::get_by_id(conn, ess_id)
                 .await
                 .optional()?;

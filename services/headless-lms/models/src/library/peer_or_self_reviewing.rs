@@ -272,29 +272,37 @@ pub async fn create_peer_or_self_review_submission_for_user(
 
 /// Filters submitted peer review answers to those that are part of the peer review.
 fn validate_and_sanitize_peer_review_submission_answers(
-    mut peer_or_self_review_questions: HashMap<Uuid, PeerOrSelfReviewQuestion>,
+    peer_or_self_review_questions: HashMap<Uuid, PeerOrSelfReviewQuestion>,
     peer_review_submission_question_answers: Vec<CourseMaterialPeerOrSelfReviewQuestionAnswer>,
 ) -> ModelResult<Vec<CourseMaterialPeerOrSelfReviewQuestionAnswer>> {
-    let valid_peer_review_question_answers = peer_review_submission_question_answers
+    // Filter to valid answers (those with a matching question ID)
+    let valid_peer_review_question_answers: Vec<_> = peer_review_submission_question_answers
         .into_iter()
         .filter(|answer| {
-            peer_or_self_review_questions
-                .remove(&answer.peer_or_self_review_question_id)
-                .is_some()
+            peer_or_self_review_questions.contains_key(&answer.peer_or_self_review_question_id)
         })
         .collect();
-    if peer_or_self_review_questions
-        .into_iter()
-        .all(|question| !question.1.answer_required)
-    {
-        // Answer is valid if all required questions are answered.
-        Ok(valid_peer_review_question_answers)
-    } else {
+
+    // Get IDs of questions that have been answered
+    let answered_question_ids: std::collections::HashSet<_> = valid_peer_review_question_answers
+        .iter()
+        .map(|answer| answer.peer_or_self_review_question_id)
+        .collect();
+
+    // Check if any required question is unanswered
+    let has_unanswered_required_questions = peer_or_self_review_questions
+        .iter()
+        .any(|(id, question)| question.answer_required && !answered_question_ids.contains(id));
+
+    if has_unanswered_required_questions {
         Err(ModelError::new(
             ModelErrorType::PreconditionFailed,
             "All required questions need to be answered.".to_string(),
             None,
         ))
+    } else {
+        // All required questions are answered
+        Ok(valid_peer_review_question_answers)
     }
 }
 

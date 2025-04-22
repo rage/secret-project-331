@@ -2752,10 +2752,10 @@ SELECT p.id,
         SELECT query
         from cte
     ),
-    'MaxFragments=1, MaxWords=70, MinWords=15'
+    'MaxFragments=0, MaxWords=120, MinWords=70'
     ) as content_headline,
-    p.url_path as "url_path!",
-    c.name as chapter_name
+    COALESCE(p.url_path, '') as "url_path!",
+    c.name as "chapter_name?"
 FROM pages p
 LEFT JOIN chapters c ON p.chapter_id = c.id
 WHERE p.course_id = $1
@@ -2842,10 +2842,10 @@ SELECT p.id,
         SELECT query
         from cte
     ),
-    'MaxFragments=1, MaxWords=70, MinWords=15'
+    'MaxFragments=0, MaxWords=120, MinWords=70'
     ) as content_headline,
-    p.url_path as "url_path!",
-    c.name as chapter_name
+    COALESCE(p.url_path, '') as "url_path!",
+    c.name as "chapter_name?"
 FROM pages p
 LEFT JOIN chapters c ON p.chapter_id = c.id
 WHERE p.course_id = $1

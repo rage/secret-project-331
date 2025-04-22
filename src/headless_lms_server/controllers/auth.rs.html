@@ -340,7 +340,26 @@
 <a href="#339" id="339">339</a>
 <a href="#340" id="340">340</a>
 <a href="#341" id="341">341</a>
-<a href="#342" id="342">342</a></pre></div><pre class="rust"><code><span class="doccomment">/*!
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a></pre></div><pre class="rust"><code><span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0/auth`.
 */
 
@@ -437,14 +456,15 @@ Content-Type: application/json
         post_new_user_to_moocfi(<span class="kw-2">&amp;</span>user_details).<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let </span>user = authorization::authenticate_moocfi_user(
+        <span class="kw">let </span>auth_result = authorization::authenticate_moocfi_user(
             <span class="kw-2">&amp;mut </span>conn,
             <span class="kw-2">&amp;</span>client,
             user_details.email,
             user_details.password,
         )
-        .<span class="kw">await</span>;
-        <span class="kw">if let </span><span class="prelude-val">Ok</span>((user, _token)) = user {
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((user, _token)) = auth_result {
             <span class="kw">let </span>token = skip_authorize();
             authorization::remember(<span class="kw-2">&amp;</span>session, user)<span class="question-mark">?</span>;
             token.authorized_ok(HttpResponse::Ok().finish())
@@ -510,6 +530,7 @@ Returns booleans for the authorizations in the same order as the input.
 
 <span class="doccomment">/**
 POST `/api/v0/auth/login` Logs in to TMC.
+Returns true if login was successful, false if credentials were incorrect.
 **/
 </span><span class="attr">#[instrument(skip(session, pool, client, payload, app_conf))]
 </span><span class="kw">pub async fn </span>login(
@@ -518,7 +539,7 @@ POST `/api/v0/auth/login` Logs in to TMC.
     client: web::Data&lt;OAuthClient&gt;,
     app_conf: web::Data&lt;ApplicationConfiguration&gt;,
     payload: web::Json&lt;Login&gt;,
-) -&gt; ControllerResult&lt;HttpResponse&gt; {
+) -&gt; ControllerResult&lt;web::Json&lt;bool&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>Login { email, password } = payload.into_inner();
 
@@ -528,30 +549,47 @@ POST `/api/v0/auth/login` Logs in to TMC.
             <span class="kw">let </span>user = { models::users::get_by_id(<span class="kw-2">&amp;mut </span>conn, id).<span class="kw">await</span><span class="question-mark">? </span>};
             <span class="kw">let </span>token = skip_authorize();
             authorization::remember(<span class="kw-2">&amp;</span>session, user)<span class="question-mark">?</span>;
-            <span class="kw">return </span>token.authorized_ok(HttpResponse::Ok().finish());
+            <span class="kw">return </span>token.authorized_ok(web::Json(<span class="bool-val">true</span>));
         };
     }
 
-    <span class="kw">let </span>user = <span class="kw">if </span>app_conf.test_mode {
+    <span class="kw">let </span>success = <span class="kw">if </span>app_conf.test_mode {
         <span class="macro">warn!</span>(<span class="string">"Using test credentials. Normal accounts won't work."</span>);
-        authorization::authenticate_test_user(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>email, <span class="kw-2">&amp;</span>password, <span class="kw-2">&amp;</span>app_conf).<span class="kw">await</span><span class="question-mark">?
-    </span>} <span class="kw">else </span>{
-        <span class="kw">let </span>(user, _token) =
-            authorization::authenticate_moocfi_user(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>client, email, password)
+        <span class="kw">let </span>success =
+            authorization::authenticate_test_user(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>email, <span class="kw-2">&amp;</span>password, <span class="kw-2">&amp;</span>app_conf)
                 .<span class="kw">await
-                </span>.map_err(|err| {
-                    <span class="macro">info!</span>(<span class="string">"Could not get user from moocfi: {err}"</span>);
+                </span>.map_err(|e| {
                     ControllerError::new(
                         ControllerErrorType::Unauthorized,
-                        <span class="string">"Incorrect email or password."</span>.to_string(),
-                        <span class="prelude-val">None</span>,
+                        <span class="string">"Could not find the test user. Have you seeded the database?"</span>.to_string(),
+                        e,
                     )
                 })<span class="question-mark">?</span>;
-        user
+        <span class="kw">if </span>success {
+            <span class="kw">let </span>user = models::users::get_by_email(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>email).<span class="kw">await</span><span class="question-mark">?</span>;
+            authorization::remember(<span class="kw-2">&amp;</span>session, user)<span class="question-mark">?</span>;
+        }
+        success
+    } <span class="kw">else </span>{
+        <span class="kw">let </span>auth_result =
+            authorization::authenticate_moocfi_user(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>client, email, password).<span class="kw">await</span><span class="question-mark">?</span>;
+
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((user, _token)) = auth_result {
+            authorization::remember(<span class="kw-2">&amp;</span>session, user)<span class="question-mark">?</span>;
+            <span class="bool-val">true
+        </span>} <span class="kw">else </span>{
+            <span class="bool-val">false
+        </span>}
     };
+
+    <span class="kw">if </span>success {
+        <span class="macro">info!</span>(<span class="string">"Authentication successful"</span>);
+    } <span class="kw">else </span>{
+        <span class="macro">warn!</span>(<span class="string">"Authentication failed"</span>);
+    }
+
     <span class="kw">let </span>token = skip_authorize();
-    authorization::remember(<span class="kw-2">&amp;</span>session, user)<span class="question-mark">?</span>;
-    token.authorized_ok(HttpResponse::Ok().finish())
+    token.authorized_ok(web::Json(success))
 }
 
 <span class="doccomment">/**

@@ -9,7 +9,7 @@ import Button from "@/shared-module/common/components/Button"
 import DatePicker from "@/shared-module/common/components/InputFields/DatePickerField"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
-import { baseTheme } from "@/shared-module/common/styles"
+import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 import { makeDateStringTimezoneErrorsLessLikely } from "@/shared-module/common/utils/dateUtil"
 
 const FormatInstructions = styled.div`
@@ -46,7 +46,7 @@ const CodeExample = styled.pre`
   padding: 0.75rem;
   border-radius: 4px;
   margin-top: 0.5rem;
-  font-family: monospace;
+  font-family: ${monospaceFont};
   overflow-x: auto;
 `
 

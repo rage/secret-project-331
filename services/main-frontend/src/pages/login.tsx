@@ -8,6 +8,7 @@ import ResearchOnCoursesForm from "../components/forms/ResearchOnCoursesForm"
 import useUserResearchConsentQuery from "../hooks/useUserResearchConsentQuery"
 
 import Button from "@/shared-module/common/components/Button"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
@@ -25,7 +26,8 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
   const loginStateContext = useContext(LoginStateContext)
 
   const router = useRouter()
-  const [notification, setNotification] = useState<string | null>(null)
+  const [credentialsError, setCredentialsError] = useState<boolean>(false)
+  const [error, setError] = useState<Error | null>(null)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const uncheckedReturnTo = useQueryParameter("return_to")
@@ -34,7 +36,11 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
 
   const loginMutation = useToastMutation(
     async () => {
-      await login(email, password)
+      const success = await login(email, password)
+      // Clear any previous errors
+      setError(null)
+      setCredentialsError(!success)
+      return success
     },
     { notify: false },
   )
@@ -65,30 +71,24 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
         }
       `}
     >
+      {error && <ErrorBanner error={error} />}
+
       <form
         onSubmit={async (event) => {
           event.preventDefault()
           try {
-            await loginMutation.mutateAsync()
+            const success = await loginMutation.mutateAsync()
+            if (success) {
+              await loginStateContext.refresh()
+            }
           } catch (e) {
             if (!(e instanceof Error)) {
               throw e
             }
             console.error("failed to login: ", e)
-
-            // @ts-expect-error: null checked
-            if (e?.response?.status.toString().startsWith("4")) {
-              setNotification(t("incorrect-email-or-password"))
-            } else {
-              setNotification(t("failed-to-authenticate"))
-            }
-            setTimeout(() => {
-              setNotification(null)
-            }, 5000)
+            setError(e)
             return null
           }
-
-          await loginStateContext.refresh()
         }}
         className={css`
           display: flex;
@@ -107,16 +107,22 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
         </div>
         <TextField
           label={t("label-email")}
-          onChange={(event) => setEmail(event.target.value)}
+          onChange={(event) => {
+            setEmail(event.target.value)
+            setCredentialsError(false)
+          }}
           required
         />
         <TextField
           type="password"
           label={t("label-password")}
-          onChange={(event) => setPassword(event.target.value)}
+          onChange={(event) => {
+            setPassword(event.target.value)
+            setCredentialsError(false)
+          }}
           required
         />
-        {notification && (
+        {credentialsError && (
           <div
             aria-live="assertive"
             className={css`
@@ -124,9 +130,10 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
               border: 2px solid ${baseTheme.colors.red[500]};
               font-weight: bold;
               color: ${baseTheme.colors.red[500]};
+              margin-top: 1rem;
             `}
           >
-            {notification}
+            {t("incorrect-email-or-password")}
           </div>
         )}
         <Button

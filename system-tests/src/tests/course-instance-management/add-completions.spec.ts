@@ -48,6 +48,9 @@ test("Manually adding completions works", async ({ page, headless }, testInfo) =
     .locator('div[role="button"]:has-text("Users receiving a completion for the first time (3)")')
     .click()
 
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(200)
+
   await expectScreenshotsToMatchSnapshots({
     headless,
     testInfo,

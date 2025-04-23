@@ -11,6 +11,7 @@ interface DialogProps extends React.HTMLAttributes<HTMLDialogElement> {
   noPadding?: boolean
   width?: "normal" | "wide"
   disableContentScroll?: boolean
+  preventBackgroundScroll?: boolean
 }
 
 const Dialog: React.FC<DialogProps> = ({
@@ -21,6 +22,7 @@ const Dialog: React.FC<DialogProps> = ({
   noPadding = false,
   width = "normal",
   disableContentScroll = false,
+  preventBackgroundScroll = false,
   ...rest
 }) => {
   const ref = useRef<HTMLDialogElement>(null)
@@ -79,6 +81,22 @@ const Dialog: React.FC<DialogProps> = ({
     },
     open,
   )
+
+  // Add effect to handle body scroll
+  useEffect(() => {
+    if (preventBackgroundScroll) {
+      if (open) {
+        // eslint-disable-next-line i18next/no-literal-string
+        document.body.style.overflow = "hidden"
+      } else {
+        document.body.style.overflow = ""
+      }
+    }
+
+    return () => {
+      document.body.style.overflow = ""
+    }
+  }, [open, preventBackgroundScroll])
 
   if (!open) {
     return null

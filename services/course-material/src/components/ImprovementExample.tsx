@@ -4,8 +4,11 @@ import React, { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { animated, useSpring } from "react-spring"
 
+import { parseSentenceDifference } from "../utils/typingDemoSentenceUtils"
+
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+
 type Phase = "initial" | "mouseMove" | "mouseClick" | "showCaret" | "deleting" | "typing"
 
 interface AnimationState {
@@ -17,13 +20,13 @@ interface AnimationState {
   cursorTargetPosition: { x: number; y: number }
 }
 
-const useImprovementAnimation = (wrongWord: string, correctWord: string) => {
+const useImprovementAnimation = (incorrectPart: string, correctPart: string) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const wrongWordRef = useRef<HTMLSpanElement>(null)
 
   const [state, setState] = useState<AnimationState>({
     phase: "initial",
-    displayWord: wrongWord,
+    displayWord: incorrectPart,
     mouseClicked: false,
     caretVisible: false,
     cursorStartPosition: { x: 0, y: 0 },
@@ -35,14 +38,14 @@ const useImprovementAnimation = (wrongWord: string, correctWord: string) => {
       const containerRect = containerRef.current.getBoundingClientRect()
       setState({
         phase: "initial",
-        displayWord: wrongWord,
+        displayWord: incorrectPart,
         mouseClicked: false,
         caretVisible: false,
         cursorStartPosition: { x: containerRect.width + 20, y: -20 },
         cursorTargetPosition: { x: 0, y: 0 },
       })
     }
-  }, [wrongWord])
+  }, [incorrectPart])
 
   const updateState = (updates: Partial<AnimationState>) => {
     setState((prev) => ({ ...prev, ...updates }))
@@ -143,9 +146,9 @@ const useImprovementAnimation = (wrongWord: string, correctWord: string) => {
   // Typing correct word
   useEffect(() => {
     if (state.phase === "typing") {
-      if (state.displayWord.length < correctWord.length) {
+      if (state.displayWord.length < correctPart.length) {
         const interval = setInterval(() => {
-          updateState({ displayWord: correctWord.slice(0, state.displayWord.length + 1) })
+          updateState({ displayWord: correctPart.slice(0, state.displayWord.length + 1) })
         }, 100)
         return () => clearInterval(interval)
       } else {
@@ -155,7 +158,7 @@ const useImprovementAnimation = (wrongWord: string, correctWord: string) => {
         return () => clearTimeout(timeout)
       }
     }
-  }, [state.phase, state.displayWord, correctWord, resetAnimation])
+  }, [state.phase, state.displayWord, correctPart, resetAnimation])
 
   return {
     state,
@@ -168,13 +171,25 @@ const useImprovementAnimation = (wrongWord: string, correctWord: string) => {
 
 const ImprovementExample: React.FC = () => {
   const { t } = useTranslation()
-  const prefix = "The "
-  const wrongWord = "small"
-  const correctWord = "quick"
-  const suffix = " brown fox jumps over the lazy dog"
+
+  // Get translated versions of the sentences
+  const incorrectSentence = t("improvement-example-incorrect-sentence")
+  const correctSentence = t("improvement-example-correct-sentence")
+
+  // English fallbacks
+  const englishIncorrect = "The small brown fox jumps over the lazy dog."
+  const englishCorrect = "The quick brown fox jumps over the lazy dog."
+
+  // Parse the sentences to extract components, with fallback to English
+  const { prefix, incorrectPart, correctPart, suffix } = parseSentenceDifference(
+    incorrectSentence,
+    correctSentence,
+    englishIncorrect,
+    englishCorrect,
+  )
 
   const { state, containerRef, wrongWordRef, mouseSpring, mouseMoveSpring } =
-    useImprovementAnimation(wrongWord, correctWord)
+    useImprovementAnimation(incorrectPart, correctPart)
 
   return (
     <div

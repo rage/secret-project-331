@@ -39,7 +39,6 @@
   "choose-preferred-language": "Виберіть бажану мову",
   "claim-code": "Код твердження",
   "clear-selection": "Очистити вибір",
-  "click-on-course-material-to-make-it-editable": "Натисніть на матеріал курсу, щоб зробити його редагованим!",
   "close": "Закрити",
   "closed": "Зачинено!",
   "commenting-on-selection": "Коментуючи: {{selection}}",
@@ -233,7 +232,5 @@
   "you-have-completed-the-course-to-receive-credits-or-certificate-use-following-links": "Ви успішно пройшли курс! Щоб отримати кредити ECTS за завершення, ви можете скористатися наступними посиланнями, щоб зареєструвати своє завершення та отримати сертифікат.",
   "you-have-completed-the-course-to-receive-credits-use-following-links": "Ви успішно завершили курс! Щоб отримати кредити ECTS за ваше завершення, ви можете скористатися наступними посиланнями для реєстрації вашого завершення.",
   "your-code-code": "Ваш код: {{code}}",
-  "youtube-embed-error": "Не вдалося завантажити відео з YouTube. URL-адреса YouTube може бути неправильною.",
-  "youve-made-changes": "Ви внесли зміни",
-  "youve-selected-material-for-editing": "Ви вибрали матеріал для редагування"
+  "youtube-embed-error": "Не вдалося завантажити відео з YouTube. URL-адреса YouTube може бути неправильною."
 }

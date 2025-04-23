@@ -62,7 +62,7 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId
   let leftButton
   if (selectedBlockId !== null) {
     // currently editing block
-    topMessage = t("youve-selected-material-for-editing")
+    topMessage = t("type-your-changes-directly-to-into-the-content")
     bottomMessage = t("click-on-any-paragraph-to-edit")
     leftButton = (
       <Button
@@ -83,12 +83,12 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId
     )
   } else if (blockEdits.size === 0) {
     // not editing a block and no existing edits
-    topMessage = t("click-on-course-material-to-make-it-editable")
+    topMessage = t("click-on-paragraph-to-make-it-editable")
     bottomMessage = t("click-on-any-paragraph-to-edit")
     leftButton = null
   } else {
     // not editing and have existing edits
-    topMessage = t("youve-made-changes")
+    topMessage = t("send-your-proposal-to-review-or-select-another-paragraph")
     bottomMessage = t("do-you-want-to-send-changes")
     leftButton = (
       <Button

@@ -3197,7 +3197,9 @@ export function isPageSearchResult(obj: unknown): obj is PageSearchResult {
             typeof typedObj["rank"] === "number") &&
         (typedObj["content_headline"] === null ||
             typeof typedObj["content_headline"] === "string") &&
-        typeof typedObj["url_path"] === "string"
+        typeof typedObj["url_path"] === "string" &&
+        (typedObj["chapter_name"] === null ||
+            typeof typedObj["chapter_name"] === "string")
     )
 }
 

@@ -30,7 +30,7 @@ test("content search", async ({ page, headless }, testInfo) => {
 
   // Fill [placeholder="Search..."]
   await page.fill('[placeholder="Search..."]', "ma")
-  await page.getByText("Human-machine interface").waitFor()
+  await page.getByText("Human-machine interface").first().waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["aria-hidden-focus", "landmark-unique", "landmark-one-main", "page-has-heading-one"],
@@ -38,11 +38,11 @@ test("content search", async ({ page, headless }, testInfo) => {
     testInfo,
     screenshotTarget: page,
     snapshotName: "search-content-with-short-prefix",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Human-machine interface")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Human-machine interface").first()],
     screenshotOptions: { maxDiffPixelRatio: 0.05 },
   })
 
-  await page.getByText("Human-machine interface").click()
+  await page.getByText("Human-machine interface").first().click()
 
   await expectUrlPathWithRandomUuid(
     page,
@@ -55,9 +55,7 @@ test("content search", async ({ page, headless }, testInfo) => {
 
   // Fill [placeholder="Search..."]
   await page.fill('[placeholder="Search..."]', "welcome course")
-  await page
-    .getByText("Welcome to Introduction to Course Material In this course you'll...")
-    .waitFor()
+  await page.getByText("Welcome to Introduction to Course Material In this course you'll").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["aria-hidden-focus", "landmark-one-main", "page-has-heading-one"],

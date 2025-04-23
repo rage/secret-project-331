@@ -1537,6 +1537,7 @@ export interface PageSearchResult {
   rank: number | null
   content_headline: string | null
   url_path: string
+  chapter_name: string | null
 }
 
 export interface PageWithExercises {

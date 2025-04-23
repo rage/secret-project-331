@@ -3644,7 +3644,19 @@
 <a href="#3643" id="3643">3643</a>
 <a href="#3644" id="3644">3644</a>
 <a href="#3645" id="3645">3645</a>
-<a href="#3646" id="3646">3646</a></pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::{hash_map, HashMap};
+<a href="#3646" id="3646">3646</a>
+<a href="#3647" id="3647">3647</a>
+<a href="#3648" id="3648">3648</a>
+<a href="#3649" id="3649">3649</a>
+<a href="#3650" id="3650">3650</a>
+<a href="#3651" id="3651">3651</a>
+<a href="#3652" id="3652">3652</a>
+<a href="#3653" id="3653">3653</a>
+<a href="#3654" id="3654">3654</a>
+<a href="#3655" id="3655">3655</a>
+<a href="#3656" id="3656">3656</a>
+<a href="#3657" id="3657">3657</a>
+<a href="#3658" id="3658">3658</a></pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::{hash_map, HashMap};
 
 <span class="kw">use </span>futures::future::{BoxFuture, OptionFuture};
 <span class="kw">use </span>headless_lms_utils::document_schema_processor::{
@@ -3821,6 +3833,7 @@
     <span class="kw">pub </span>rank: <span class="prelude-ty">Option</span>&lt;f32&gt;,
     <span class="kw">pub </span>content_headline: <span class="prelude-ty">Option</span>&lt;String&gt;,
     <span class="kw">pub </span>url_path: String,
+    <span class="kw">pub </span>chapter_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -6322,6 +6335,7 @@ FROM pages p
 WHERE p.chapter_id = $1
   AND p.deleted_at IS NULL
   AND p.hidden IS FALSE
+  AND p.url_path IS NOT NULL
   AND p.id NOT IN (
     SELECT front_page_id
     FROM chapters c
@@ -6360,7 +6374,7 @@ Returns search results for a phrase i.e. looks for matches where the words come 
 
     <span class="kw">let </span>res =   <span class="macro">sqlx::query_as!</span>(
             PageSearchResult,
-            <span class="string">"
+            <span class="string">r#"
 -- common table expression for the search term tsquery so that we don't have to repeat it many times
 WITH cte as (
     -- Converts the search term to a phrase search with phraseto_tsquery but appends ':*' to the last word so that it
@@ -6372,9 +6386,9 @@ WITH cte as (
         to_tsquery($4 || ':*')
     ) as query
 )
-SELECT id,
+SELECT p.id,
     ts_rank(
-    content_search,
+    p.content_search,
     (
         SELECT query
         from cte
@@ -6382,32 +6396,37 @@ SELECT id,
     ) as rank,
     ts_headline(
     $2::regconfig,
-    title,
+    p.title,
     (
         SELECT query
         from cte
-    )
+    ),
+    'MaxFragments=1, MaxWords=20, MinWords=1'
     ) as title_headline,
     ts_headline(
     $2::regconfig,
-    content_search_original_text,
+    p.content_search_original_text,
     (
         SELECT query
         from cte
-    )
+    ),
+    'MaxFragments=0, MaxWords=120, MinWords=70'
     ) as content_headline,
-    url_path
-FROM pages
-WHERE course_id = $1
-    AND deleted_at IS NULL
-    AND hidden IS FALSE
-    AND content_search @@ (
+    COALESCE(p.url_path, '') as "url_path!",
+    c.name as "chapter_name?"
+FROM pages p
+LEFT JOIN chapters c ON p.chapter_id = c.id
+WHERE p.course_id = $1
+    AND p.deleted_at IS NULL
+    AND p.hidden IS FALSE
+    AND p.url_path IS NOT NULL
+    AND p.content_search @@ (
     SELECT query
     from cte
     )
 ORDER BY rank DESC
 LIMIT 50;
-        "</span>,
+        "#</span>,
             course_id,
             course.content_search_language <span class="kw">as _</span>,
             page_search_request.query,
@@ -6444,7 +6463,7 @@ Returns search results for the given words. The words can appear in the source d
 
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
             PageSearchResult,
-            <span class="string">"
+            <span class="string">r#"
 -- common table expression for the search term tsquery so that we don't have to repeat it many times
 WITH cte as (
     -- Converts the search term to a word search with ands between the words with plainto_tsquery but appends ':*' to the
@@ -6457,9 +6476,9 @@ WITH cte as (
         to_tsquery($4 || ':*')
     ) as query
 )
-SELECT id,
+SELECT p.id,
     ts_rank(
-    content_search,
+    p.content_search,
     (
         SELECT query
         from cte
@@ -6467,32 +6486,37 @@ SELECT id,
     ) as rank,
     ts_headline(
     $2::regconfig,
-    title,
+    p.title,
     (
         SELECT query
         from cte
-    )
+    ),
+    'MaxFragments=1, MaxWords=20, MinWords=1'
     ) as title_headline,
     ts_headline(
     $2::regconfig,
-    content_search_original_text,
+    p.content_search_original_text,
     (
         SELECT query
         from cte
-    )
+    ),
+    'MaxFragments=0, MaxWords=120, MinWords=70'
     ) as content_headline,
-    url_path
-FROM pages
-WHERE course_id = $1
-    AND deleted_at IS NULL
-    AND hidden IS FALSE
-    AND content_search @@ (
+    COALESCE(p.url_path, '') as "url_path!",
+    c.name as "chapter_name?"
+FROM pages p
+LEFT JOIN chapters c ON p.chapter_id = c.id
+WHERE p.course_id = $1
+    AND p.deleted_at IS NULL
+    AND p.hidden IS FALSE
+    AND p.url_path IS NOT NULL
+    AND p.content_search @@ (
     SELECT query
     from cte
     )
 ORDER BY rank DESC
 LIMIT 50;
-        "</span>,
+        "#</span>,
             course_id,
             course.content_search_language <span class="kw">as _</span>,
             page_search_request.query,

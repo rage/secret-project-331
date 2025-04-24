@@ -108,7 +108,7 @@ pub async fn get_users_by_course_id(
         &mut conn,
         Act::ViewUserProgressOrDetails,
         Some(user.id),
-        Res::GlobalPermissions,
+        Res::Course(*course_id),
     )
     .await?;
     let res = models::user_details::get_users_by_course_id(&mut conn, *course_id).await?;

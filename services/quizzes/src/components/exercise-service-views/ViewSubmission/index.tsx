@@ -187,7 +187,8 @@ const SubmissionFeedback: React.FC<{
     >
       <span
         className={css`
-          margin-top: 0.25rem;
+          position: relative;
+          top: 2px;
           min-width: 1rem;
         `}
       >

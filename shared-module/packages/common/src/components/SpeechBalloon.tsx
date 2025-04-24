@@ -34,12 +34,21 @@ const SpeechBalloon = React.forwardRef<HTMLDivElement, SpeechBalloonProps>(
       border: ${BORDER_WIDTH} solid ${COLORS.border};
       box-shadow: 0 3px 15px 0px ${COLORS.shadow};
       margin-bottom: ${POINTER_SIZE};
-      transition: none;
+      transition: filter 0.3s;
       width: max-content;
 
       &:active {
         transform: translateY(0);
       }
+
+      ${onClick &&
+      `
+        cursor: pointer;
+
+        &:hover {
+          filter: brightness(0.9);
+        }
+      `}
 
       &:after {
         content: "";

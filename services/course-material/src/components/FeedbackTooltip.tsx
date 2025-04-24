@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import type { VirtualElement } from "@popperjs/core"
 import { useAtom } from "jotai"
-import { useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { usePopper } from "react-popper"
 
@@ -15,30 +15,59 @@ const FeedbackTooltip: React.FC = () => {
   const [selection] = useAtom(selectionAtom)
   const [, setCurrentlyOpenFeedbackDialog] = useAtom(currentlyOpenFeedbackDialogAtom)
   const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null)
+  const [showTooltip, setShowTooltip] = useState(false)
 
-  const getBoundingClientRect = (): DOMRect => {
+  // Show tooltip after a delay so that it's less annoying
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout | null = null
+
+    if (selection.text) {
+      timeoutId = setTimeout(() => {
+        setShowTooltip(true)
+      }, 200)
+    } else {
+      setShowTooltip(false)
+    }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+      }
+    }
+  }, [selection.text])
+
+  // Simple getBoundingClientRect that directly uses the coordinates
+  const getBoundingClientRect = useCallback((): DOMRect => {
+    const x = selection.position?.x ?? 0
+    const y = selection.position?.y ?? 0
+
     const rect = {
       width: 0,
       height: 0,
-      top: selection.position?.y ?? 0,
-      right: selection.position?.x ?? 0,
-      bottom: selection.position?.y ?? 0,
-      left: selection.position?.x ?? 0,
-      x: selection.position?.x ?? 0,
-      y: selection.position?.y ?? 0,
+      top: y,
+      right: x,
+      bottom: y,
+      left: x,
+      x: x,
+      y: y,
     }
     return {
       ...rect,
       toJSON: () => rect,
     } as DOMRect
-  }
+  }, [selection.position?.x, selection.position?.y])
 
   const virtualReference = useRef<VirtualElement>({
     getBoundingClientRect,
     contextElement: document.body,
   }).current
 
-  const { styles, attributes } = usePopper(virtualReference, referenceElement, {
+  // Update the reference function when selection changes
+  useEffect(() => {
+    virtualReference.getBoundingClientRect = getBoundingClientRect
+  }, [getBoundingClientRect, virtualReference])
+
+  const { styles, attributes, update } = usePopper(virtualReference, referenceElement, {
     placement: "top",
     modifiers: [
       {
@@ -53,10 +82,24 @@ const FeedbackTooltip: React.FC = () => {
           padding: 8,
         },
       },
+      {
+        name: "computeStyles",
+        options: {
+          // Use direct positioning instead of transforms
+          gpuAcceleration: false,
+        },
+      },
     ],
   })
 
-  if (!selection) {
+  // Force update when selection changes
+  useEffect(() => {
+    if (update) {
+      update()
+    }
+  }, [selection.position, update])
+
+  if (!selection.text || !showTooltip) {
     return null
   }
 
@@ -65,11 +108,22 @@ const FeedbackTooltip: React.FC = () => {
     setCurrentlyOpenFeedbackDialog("select-type")
   }
 
-  // Use a fixed class instead of dynamic styles to avoid re-renders
+  // Position the tooltip absolutely using the selection coordinates
   const tooltipClass = css`
     z-index: 100;
     position: absolute;
-    transform: none !important;
+    animation: fadeIn 0.2s ease-in-out;
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
   `
 
   return (

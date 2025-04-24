@@ -38,7 +38,8 @@ const useSelectionTracking = (): void => {
         const newSelection = selection.toString()
         const range = selection.getRangeAt(0)
         const rect = range.getBoundingClientRect()
-        setSelection(newSelection, { x: rect.right, y: rect.top })
+        const centerX = rect.left + rect.width / 2
+        setSelection(newSelection, { x: centerX, y: rect.top })
       } else {
         setSelection("", undefined)
       }

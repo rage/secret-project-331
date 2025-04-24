@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { updateUserCountry } from "@/services/backend"
+import SearchableSelect from "@/shared-module/common/components/InputFields/SearchableSelectField"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import StandardDialog from "@/shared-module/common/components/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -72,6 +73,12 @@ export const SelectUserCountryForm: React.FC<SelectUserCountryFormProps> = ({
         {...register("country", { required: true })}
         error={errors.country?.message}
       />
+      <SearchableSelect
+        label={t("enter-country-question")}
+        options={countriesOptions}
+        {...register("country", { required: true })}
+        error={errors.country?.message}
+      ></SearchableSelect>
     </StandardDialog>
   )
 }

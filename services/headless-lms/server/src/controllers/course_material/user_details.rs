@@ -12,13 +12,8 @@ pub async fn get_user_details(
 ) -> ControllerResult<web::Json<UserDetail>> {
     let mut conn = pool.acquire().await?;
 
-    let token = authorize(
-        &mut conn,
-        Act::ViewUserProgressOrDetails,
-        Some(user.id),
-        Res::GlobalPermissions,
-    )
-    .await?;
+    let token = skip_authorize();
+
     let res = models::user_details::get_user_details_by_user_id(&mut conn, user.id).await?;
     token.authorized_ok(web::Json(res))
 }

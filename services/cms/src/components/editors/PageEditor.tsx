@@ -213,7 +213,7 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
           <li>
             <a href={nextPageUrl}>
               <Button size="medium" variant="primary">
-                {"next-page"}
+                {t("next-page")}
               </Button>
             </a>
           </li>

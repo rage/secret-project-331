@@ -59,6 +59,7 @@ const TableBlock: React.FC<
     <div
       className={css`
         overflow-x: auto;
+        overflow-y: hidden;
       `}
     >
       <table

@@ -181,11 +181,19 @@ const SubmissionFeedback: React.FC<{
         max-width: 100%;
         display: flex;
         font-size: 1.125rem;
-        line-height: 1.125rem;
-        column-gap: 0.8rem;
+        line-height: 1.5rem;
+        column-gap: 1rem;
       `}
     >
-      <BullhornMegaphone size={20} weight="bold" color="7A3F75" />{" "}
+      <span
+        className={css`
+          margin-top: 0.25rem;
+          min-width: 1rem;
+        `}
+      >
+        <BullhornMegaphone size={20} weight="bold" color="7A3F75" />{" "}
+      </span>
+
       <span>
         {mapScoreToFeedback(userScore)}{" "}
         <ParsedText inline parseLatex parseMarkdown addDotToEnd text={customItemFeedback} />

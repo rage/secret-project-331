@@ -58,7 +58,8 @@ const TableBlock: React.FC<
   return (
     <div
       className={css`
-        overflow-x: scroll;
+        overflow-x: auto;
+        overflow-y: hidden;
       `}
     >
       <table

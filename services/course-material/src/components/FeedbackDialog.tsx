@@ -140,7 +140,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
         <div
           className={css`
             max-height: 300px;
-            overflow-y: scroll;
+            overflow-y: auto;
           `}
         >
           {comments.length > 0 &&

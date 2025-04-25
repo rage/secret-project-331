@@ -140,8 +140,8 @@ test("Can manually reset exercises", async () => {
   await adminPage.getByTestId("add-user-button-02364d40-2aac-4763-8a06-2381fd298d79").click()
 
   await adminPage.getByRole("button", { name: "Close" }).click()
-  await adminPage.getByRole("checkbox", { name: "Only reset if gotten less than" }).click()
-  await adminPage.getByRole("spinbutton", { name: "Only reset if gotten less than" }).fill("3")
+  await adminPage.getByRole("checkbox", { name: "Reset only if gotten less than" }).click()
+  await adminPage.getByRole("spinbutton", { name: "Reset only if gotten less than" }).fill("3")
   await adminPage.getByRole("row", { name: "Multiple task exercise Page" }).getByLabel("").check()
   await adminPage.getByRole("row", { name: "Multiple task quizzes" }).getByLabel("").check()
   await adminPage.getByRole("button", { name: "Submit and reset" }).click()
@@ -151,6 +151,28 @@ test("Can manually reset exercises", async () => {
   // Admin checks that correct exercises are reset and found in the users reset exercises log
   await adminPage.goto("http://project-331.local/manage/users/02364d40-2aac-4763-8a06-2381fd298d79")
   await expect(adminPage.getByRole("cell", { name: "c1d545d7-c46b-5076-8f34-" })).toBeVisible()
+
+  // Admin resets only if the exercise has been self or peer reviewed and the reviewing process is complete
+  await adminPage.goto(
+    "http://project-331.local/manage/courses/0cf67777-0edb-480c-bdb6-13f90c136fc3/other/exercise-reset-tool",
+  )
+
+  await adminPage.getByRole("button", { name: "Add students" }).click()
+  await adminPage.getByTestId("add-user-button-02364d40-2aac-4763-8a06-2381fd298d79").click()
+  await adminPage.getByRole("button", { name: "Close" }).click()
+  await adminPage
+    .getByRole("checkbox", {
+      name: "Reset only if the exercise has been self or peer reviewed and the reviewing process is complete",
+    })
+    .click()
+  await adminPage.getByRole("button", { name: "Exercises with Peer Review" }).click()
+  await adminPage.getByRole("button", { name: "Submit and reset" }).click()
+  await adminPage.getByRole("button", { name: "Reset", exact: true }).click()
+  await expect(adminPage.getByText("Success", { exact: true })).toBeVisible()
+
+  // Admin checks that correct exercises is not found in the users reset exercises log since it hasn't been self or peer reviewed
+  await adminPage.goto("http://project-331.local/manage/users/02364d40-2aac-4763-8a06-2381fd298d79")
+  await expect(adminPage.getByRole("cell", { name: "08004e49-b245-554c-994f-" })).toBeHidden()
 
   // Admin resest exercises that have a peer review
   await adminPage.goto(

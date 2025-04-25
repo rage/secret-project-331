@@ -4,6 +4,9 @@ import { useEffect } from "react"
 import { selectedBlockIdAtom, selectionAtom } from "../stores/materialFeedbackStore"
 import { courseMaterialBlockClass } from "../utils/constants"
 
+import { FEEDBACK_TOOLTIP_ID } from "./FeedbackTooltip"
+import { SELECT_FEEDBACK_TYPE_DIALOG_CONTENT_ID } from "./FeedbackTypeDialog"
+
 const useSelectionTracking = (): void => {
   const setSelection = useSetAtom(selectionAtom)
   const setSelectedBlockId = useSetAtom(selectedBlockIdAtom)
@@ -26,10 +29,32 @@ const useSelectionTracking = (): void => {
       return closest !== null && closest !== undefined
     }
 
+    /** Tells whether the click or selection change is within a container within which we don't want to update the block ID */
+    function isWithinIgnoredContainer(node: Node | null | undefined): boolean {
+      if (node === null || node === undefined) {
+        return false
+      }
+      let element
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        element = node as Element
+      } else {
+        element = node.parentElement
+      }
+      const dialogContent = element?.closest(
+        `#${SELECT_FEEDBACK_TYPE_DIALOG_CONTENT_ID}, #${FEEDBACK_TOOLTIP_ID}`,
+      )
+      return dialogContent !== null && dialogContent !== undefined
+    }
+
     function selectedCourseBlocks(selection: Selection): boolean {
       const firstNode = selection.anchorNode
       const lastNode = selection.focusNode
-      return isChildOfCourseMaterialBlock(firstNode) && isChildOfCourseMaterialBlock(lastNode)
+      return (
+        isChildOfCourseMaterialBlock(firstNode) &&
+        isChildOfCourseMaterialBlock(lastNode) &&
+        !isWithinIgnoredContainer(firstNode) &&
+        !isWithinIgnoredContainer(lastNode)
+      )
     }
 
     function selectionHandler(this: Document) {
@@ -61,6 +86,11 @@ const useSelectionTracking = (): void => {
       }
 
       if (ev.target instanceof Element) {
+        // Skip if click is within feedback dialog
+        if (isWithinIgnoredContainer(ev.target)) {
+          return
+        }
+
         let newBlockId = null
         let element: Element | null = ev.target
         while (element !== null) {

@@ -10,6 +10,8 @@ import { currentlyOpenFeedbackDialogAtom, selectionAtom } from "../stores/materi
 import SpeechBalloon from "@/shared-module/common/components/SpeechBalloon"
 import { feedbackTooltipTestId } from "@/shared-module/common/styles/constants"
 
+export const FEEDBACK_TOOLTIP_ID = "feedback-tooltip"
+
 const FeedbackTooltip: React.FC = () => {
   const { t } = useTranslation()
   const [selection] = useAtom(selectionAtom)
@@ -147,6 +149,7 @@ const FeedbackTooltip: React.FC = () => {
       // eslint-disable-next-line react/forbid-dom-props
       style={styles.popper}
       {...attributes.popper}
+      id={FEEDBACK_TOOLTIP_ID}
     >
       <SpeechBalloon
         onClick={(e: React.MouseEvent) => {

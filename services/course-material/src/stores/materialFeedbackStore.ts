@@ -86,7 +86,7 @@ const selectionPrimitiveAtom = atom<SelectionState>({ text: "" })
  */
 export const currentlyOpenFeedbackDialogAtom = atom(
   (get) => get(currentlyOpenFeedbackDialogPrimitiveAtom),
-  (_get, set, type: CurrentlyOpenFeedbackDialog) => {
+  (get, set, type: CurrentlyOpenFeedbackDialog) => {
     console.log("setting currently open feedback dialog to", type)
     // Clear all state when closing dialog
     if (type === null) {
@@ -104,14 +104,32 @@ export const currentlyOpenFeedbackDialogAtom = atom(
         set(currentlyOpenFeedbackDialogPrimitiveAtom, "written")
         set(writtenContentPrimitiveAtom, "")
         break
-      case "proposed-edits":
+      case "proposed-edits": {
         set(currentlyOpenFeedbackDialogPrimitiveAtom, "proposed-edits")
         set(blockEditsPrimitiveAtom, new Map())
-        set(
-          selectedBlockIdPrimitiveAtom,
-          document.querySelector(`.${courseMaterialBlockClass}:focus`)?.id ?? null,
-        )
+
+        // Get the selected block id from the selection (used when the dialog opened from the selected text popup), otherwise fall back to the focused block
+        const selection = get(selectionPrimitiveAtom)
+        console.log("Selection state:", {
+          hasElement: !!selection.element,
+          selectedText: selection.text,
+          element: selection.element,
+        })
+
+        const selectedBlockId =
+          selection.element?.closest(`.${courseMaterialBlockClass}`)?.id ??
+          document.querySelector(`.${courseMaterialBlockClass}:focus`)?.id ??
+          null
+
+        console.log("Selected block ID determination:", {
+          fromSelection: selection.element?.closest(`.${courseMaterialBlockClass}`)?.id,
+          fromFocus: document.querySelector(`.${courseMaterialBlockClass}:focus`)?.id,
+          finalId: selectedBlockId,
+        })
+
+        set(selectedBlockIdPrimitiveAtom, selectedBlockId)
         break
+      }
       case "select-type":
         set(currentlyOpenFeedbackDialogPrimitiveAtom, "select-type")
         break
@@ -165,6 +183,13 @@ export const selectedBlockIdAtom = createConditionalAtom(
   selectedBlockIdPrimitiveAtom,
   (dialogType) => dialogType === "proposed-edits",
 )
+
+// Add logging to track selected block ID changes
+const originalWrite = selectedBlockIdAtom.write
+selectedBlockIdAtom.write = (get, set, update) => {
+  console.log("Writing to selected block ID:", update)
+  originalWrite(get, set, update)
+}
 
 /**
  * Controls the text selection state

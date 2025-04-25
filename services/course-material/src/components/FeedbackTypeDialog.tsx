@@ -1,18 +1,36 @@
 import { css } from "@emotion/css"
-import { useAtom } from "jotai"
+import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { currentlyOpenFeedbackDialogAtom } from "../stores/materialFeedbackStore"
+import { currentlyOpenFeedbackDialogAtom, selectionAtom } from "../stores/materialFeedbackStore"
 
 import ImprovementExample from "./ImprovementExample"
 
 import StandardDialog from "@/shared-module/common/components/StandardDialog"
 import { baseTheme } from "@/shared-module/common/styles"
 
+export const SELECT_FEEDBACK_TYPE_DIALOG_CONTENT_ID = "select-feedback-type-dialog-content"
+
 const FeedbackTypeDialog: React.FC = () => {
   const { t } = useTranslation()
   const [type, setCurrentlyOpenFeedbackDialog] = useAtom(currentlyOpenFeedbackDialogAtom)
+
+  const selection = useAtomValue(selectionAtom)
+  const setSelection = useSetAtom(selectionAtom)
+
+  // Click handlers we have in `SelectionListener` are aggressive with clearing the selction when this dialog is open. For performance, it's better to restore the selection after this dialog closes rather than checking on every update whether the
+  const restoreSelectionIfNeeded = (fn: () => void) => {
+    const savedSelection = selection
+    const restoreSelection = () => {
+      setSelection(savedSelection.text, savedSelection.position, savedSelection.element)
+    }
+    fn()
+    if (savedSelection.text) {
+      setTimeout(restoreSelection, 100)
+      setTimeout(restoreSelection, 300)
+    }
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent, callback: () => void) => {
     if (e.key === "Enter" || e.key === " ") {
@@ -22,13 +40,17 @@ const FeedbackTypeDialog: React.FC = () => {
   }
 
   const handleFeedbackClick = () => {
-    // eslint-disable-next-line i18next/no-literal-string
-    setCurrentlyOpenFeedbackDialog("written")
+    restoreSelectionIfNeeded(() => {
+      // eslint-disable-next-line i18next/no-literal-string
+      setCurrentlyOpenFeedbackDialog("written")
+    })
   }
 
   const handleImprovementClick = () => {
-    // eslint-disable-next-line i18next/no-literal-string
-    setCurrentlyOpenFeedbackDialog("proposed-edits")
+    restoreSelectionIfNeeded(() => {
+      // eslint-disable-next-line i18next/no-literal-string
+      setCurrentlyOpenFeedbackDialog("proposed-edits")
+    })
   }
 
   const handleClose = () => {
@@ -49,6 +71,7 @@ const FeedbackTypeDialog: React.FC = () => {
           gap: 1.5rem;
           padding: 1rem 0;
         `}
+        id={SELECT_FEEDBACK_TYPE_DIALOG_CONTENT_ID}
       >
         <button
           onClick={handleFeedbackClick}

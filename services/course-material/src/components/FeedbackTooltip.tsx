@@ -150,16 +150,9 @@ const FeedbackTooltip: React.FC = () => {
       style={styles.popper}
       {...attributes.popper}
       id={FEEDBACK_TOOLTIP_ID}
+      data-testid={feedbackTooltipTestId}
     >
-      <SpeechBalloon
-        onClick={() => {
-          console.log("SpeechBalloon clicked")
-          handleClick()
-        }}
-        data-testid={feedbackTooltipTestId}
-      >
-        {t("give-feedback")}
-      </SpeechBalloon>
+      <SpeechBalloon onClick={handleClick}>{t("give-feedback")}</SpeechBalloon>
     </div>
   )
 }

@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import type { VirtualElement } from "@popperjs/core"
-import { useAtom } from "jotai"
+import { useAtom, useSetAtom } from "jotai"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { usePopper } from "react-popper"
@@ -13,7 +13,7 @@ import { feedbackTooltipTestId } from "@/shared-module/common/styles/constants"
 const FeedbackTooltip: React.FC = () => {
   const { t } = useTranslation()
   const [selection] = useAtom(selectionAtom)
-  const [, setCurrentlyOpenFeedbackDialog] = useAtom(currentlyOpenFeedbackDialogAtom)
+  const setCurrentlyOpenFeedbackDialog = useSetAtom(currentlyOpenFeedbackDialogAtom)
   const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null)
   const [showTooltip, setShowTooltip] = useState(false)
 
@@ -41,15 +41,19 @@ const FeedbackTooltip: React.FC = () => {
     const x = selection.position?.x ?? 0
     const y = selection.position?.y ?? 0
 
+    // Subtract scroll position to get viewport-relative coordinates
+    const viewportX = x - window.scrollX
+    const viewportY = y - window.scrollY
+
     const rect = {
       width: 0,
       height: 0,
-      top: y,
-      right: x,
-      bottom: y,
-      left: x,
-      x: x,
-      y: y,
+      top: viewportY,
+      right: viewportX,
+      bottom: viewportY,
+      left: viewportX,
+      x: viewportX,
+      y: viewportY,
     }
     return {
       ...rect,
@@ -85,11 +89,18 @@ const FeedbackTooltip: React.FC = () => {
       {
         name: "computeStyles",
         options: {
-          // Use direct positioning instead of transforms
           gpuAcceleration: false,
         },
       },
+      {
+        name: "eventListeners",
+        options: {
+          scroll: true,
+          resize: true,
+        },
+      },
     ],
+    strategy: "absolute",
   })
 
   // Force update when selection changes
@@ -103,9 +114,9 @@ const FeedbackTooltip: React.FC = () => {
     return null
   }
 
-  const handleClick = () => {
+  const handleClick = (_e: React.MouseEvent | React.KeyboardEvent) => {
     // eslint-disable-next-line i18next/no-literal-string
-    setCurrentlyOpenFeedbackDialog("select-type")
+    setCurrentlyOpenFeedbackDialog("select-type" as const)
   }
 
   // Position the tooltip absolutely using the selection coordinates
@@ -113,6 +124,8 @@ const FeedbackTooltip: React.FC = () => {
     z-index: 100;
     position: absolute;
     animation: fadeIn 0.2s ease-in-out;
+    pointer-events: auto;
+    user-select: none;
 
     @keyframes fadeIn {
       from {
@@ -135,8 +148,10 @@ const FeedbackTooltip: React.FC = () => {
       {...attributes.popper}
     >
       <SpeechBalloon
-        ref={setReferenceElement}
-        onClick={handleClick}
+        onClick={(e: React.MouseEvent) => {
+          console.log("SpeechBalloon clicked")
+          handleClick(e)
+        }}
         data-testid={feedbackTooltipTestId}
       >
         {t("give-feedback")}

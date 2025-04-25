@@ -241,7 +241,7 @@ GET `/api/v0/main-frontend/user-details/get-users-by-course-id` - Get user detai
         <span class="kw-2">&amp;mut </span>conn,
         Act::ViewUserProgressOrDetails,
         <span class="prelude-val">Some</span>(user.id),
-        Res::GlobalPermissions,
+        Res::Course(<span class="kw-2">*</span>course_id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>res = models::user_details::get_users_by_course_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id).<span class="kw">await</span><span class="question-mark">?</span>;

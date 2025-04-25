@@ -223,7 +223,13 @@
 <a href="#222" id="222">222</a>
 <a href="#223" id="223">223</a>
 <a href="#224" id="224">224</a>
-<a href="#225" id="225">225</a></pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/exercises`.
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a></pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/exercises`.
 
 </span><span class="kw">use </span>futures::future;
 
@@ -355,7 +361,7 @@ GET `/api/v0/main-frontend/exercises/:course_id/exercises-by-course-id` - Return
         <span class="kw-2">&amp;mut </span>conn,
         Act::ViewUserProgressOrDetails,
         <span class="prelude-val">Some</span>(user.id),
-        Res::GlobalPermissions,
+        Res::Course(<span class="kw-2">*</span>course_id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -387,7 +393,13 @@ POST `/api/v0/main-frontend/exercises/:course_id/reset-exercises-for-selected-us
 ) -&gt; ControllerResult&lt;web::Json&lt;i32&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::GlobalPermissions).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::Teach,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::Course(<span class="kw-2">*</span>course_id),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// Gets all valid users and their related exercises using the given filters
     </span><span class="kw">let </span>users_and_exercises = models::exercises::collect_user_ids_and_exercise_ids_for_reset(

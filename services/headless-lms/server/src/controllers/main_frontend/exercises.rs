@@ -130,7 +130,7 @@ pub async fn get_exercises_by_course_id(
         &mut conn,
         Act::ViewUserProgressOrDetails,
         Some(user.id),
-        Res::GlobalPermissions,
+        Res::Course(*course_id),
     )
     .await?;
 
@@ -162,7 +162,13 @@ pub async fn reset_exercises_for_selected_users(
 ) -> ControllerResult<web::Json<i32>> {
     let mut conn = pool.acquire().await?;
 
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::GlobalPermissions).await?;
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
 
     // Gets all valid users and their related exercises using the given filters
     let users_and_exercises = models::exercises::collect_user_ids_and_exercise_ids_for_reset(

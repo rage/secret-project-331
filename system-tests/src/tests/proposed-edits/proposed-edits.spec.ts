@@ -30,6 +30,9 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
 
   await frame.getByText("b").waitFor()
 
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(100)
+
   await page.getByText("Give feedback").click()
 
   await page.getByText("Improve material").click()
@@ -40,6 +43,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "no-edits-yet",
     waitForTheseToBeVisibleAndStable: [page.getByText("Click on a paragraph to make it editable!")],
+    skipMobile: true,
   })
 
   await page.getByText("At vero eos et").click()

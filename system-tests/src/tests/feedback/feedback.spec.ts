@@ -53,7 +53,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
     waitForTheseToBeVisibleAndStable: [page.getByTestId(feedbackTooltipTestId)],
   })
 
-  await page.click(':nth-match(:text("Give feedback"), 2)')
+  await page.getByTestId(feedbackTooltipTestId).getByText("Give feedback").click()
 
   await page.getByText("Give written feedback").click()
 

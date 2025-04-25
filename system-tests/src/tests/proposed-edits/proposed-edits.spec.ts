@@ -39,9 +39,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "no-edits-yet",
-    waitForTheseToBeVisibleAndStable: [
-      page.getByText("Click on course material to make it editable!"),
-    ],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Click on a paragraph to make it editable!")],
   })
 
   await page.getByText("At vero eos et").click()
@@ -53,7 +51,9 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "currently-editing",
-    waitForTheseToBeVisibleAndStable: [page.getByText("You've selected material for editing")],
+    waitForTheseToBeVisibleAndStable: [
+      page.getByText("Now, type your proposed changes directly into the content"),
+    ],
   })
 
   await page.getByText("So big, that we need many paragraphs.").click()
@@ -91,13 +91,14 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "preview",
     waitForTheseToBeVisibleAndStable: [
-      page.locator(`text="Send"`),
-      page.locator(`text="You've made changes"`),
-      page.locator(`text="Do you want to send your changes?"`),
+      page.getByRole("button", { name: "Send" }),
+      page.getByText(
+        "Send your proposal to review or select another paragraph to make more changes",
+      ),
     ],
   })
 
-  await page.click('button:has-text("Send")')
+  await page.getByRole("button", { name: "Send" }).click()
 
   await page.getByText("Feedback submitted successfully").waitFor()
 

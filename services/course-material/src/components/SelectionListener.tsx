@@ -61,6 +61,9 @@ const useSelectionTracking = (): void => {
       const selection = this.getSelection()
       if (selection && selectedCourseBlocks(selection)) {
         const newSelection = selection.toString()
+        if (selection.rangeCount === 0) {
+          return
+        }
         const range = selection.getRangeAt(0)
         const rect = range.getBoundingClientRect()
         const centerX = rect.left + rect.width / 2

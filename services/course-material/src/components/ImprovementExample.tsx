@@ -47,9 +47,15 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
     }
   }, [incorrectPart])
 
-  const updateState = (updates: Partial<AnimationState>) => {
-    setState((prev) => ({ ...prev, ...updates }))
-  }
+  const updateState = useCallback(
+    (updates: Partial<AnimationState> | ((prev: AnimationState) => Partial<AnimationState>)) => {
+      setState((prev) => ({
+        ...prev,
+        ...(typeof updates === "function" ? updates(prev) : updates),
+      }))
+    },
+    [],
+  )
 
   const mouseSpring = useSpring({
     transform: state.mouseClicked ? "scale(0.5)" : "scale(1)",
@@ -74,7 +80,7 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
       }, 500)
       return () => clearInterval(blinkInterval)
     }
-  }, [state.phase, state.caretVisible])
+  }, [state.phase, state.caretVisible, updateState])
 
   // Initial → mouseMove after 1s
   useEffect(() => {
@@ -84,7 +90,7 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
       }, 1000)
       return () => clearTimeout(timeout)
     }
-  }, [state.phase])
+  }, [state.phase, updateState])
 
   // MouseMove → position cursor near the wrong word
   useEffect(() => {
@@ -102,7 +108,7 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
       }, 1000)
       return () => clearTimeout(timeout)
     }
-  }, [state.phase])
+  }, [state.phase, updateState])
 
   // Click animation → show caret
   useEffect(() => {
@@ -113,7 +119,7 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
       }, 300)
       return () => clearTimeout(timeout)
     }
-  }, [state.phase])
+  }, [state.phase, updateState])
 
   // Show caret → start deleting
   useEffect(() => {
@@ -124,7 +130,7 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
       }, 500)
       return () => clearTimeout(timeout)
     }
-  }, [state.phase])
+  }, [state.phase, updateState])
 
   // Deleting wrong word
   useEffect(() => {
@@ -141,7 +147,7 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
         return () => clearTimeout(timeout)
       }
     }
-  }, [state.phase, state.displayWord])
+  }, [state.phase, state.displayWord, updateState])
 
   // Typing correct word
   useEffect(() => {
@@ -158,7 +164,7 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
         return () => clearTimeout(timeout)
       }
     }
-  }, [state.phase, state.displayWord, correctPart, resetAnimation])
+  }, [state.phase, state.displayWord, correctPart, resetAnimation, updateState])
 
   return {
     state,

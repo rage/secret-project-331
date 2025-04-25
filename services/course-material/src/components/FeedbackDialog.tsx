@@ -209,7 +209,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
         {comments.length > 0 ? (
           comments.map((c, i) => (
             <div
-              key={`${c}-${i}`}
+              key={`${c.comment}-${i}`}
               className={css`
                 background: ${baseTheme.colors.clear[100]};
                 border: 1px solid ${baseTheme.colors.gray[200]};

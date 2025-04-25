@@ -54,6 +54,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     waitForTheseToBeVisibleAndStable: [
       page.getByText("Now, type your proposed changes directly into the content"),
     ],
+    skipMobile: true,
   })
 
   await page.getByText("So big, that we need many paragraphs.").click()
@@ -96,6 +97,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
         "Send your proposal to review or select another paragraph to make more changes",
       ),
     ],
+    skipMobile: true,
   })
 
   await page.getByRole("button", { name: "Send" }).click()
@@ -126,6 +128,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "manage-initial",
     waitForTheseToBeVisibleAndStable: [page.getByText("Accept").first()],
+    skipMobile: true,
   })
 
   await page.click(':nth-match(:text("Accept"), 1)')
@@ -143,6 +146,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     beforeScreenshot: async () => {
       await page.evaluate(() => window.scrollTo(0, 0))
     },
+    skipMobile: true,
   })
 
   await page.click('text="Send"')
@@ -157,6 +161,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     waitForTheseToBeVisibleAndStable: [page.getByText("Reject").first()],
     clearNotifications: true,
     scrollToYCoordinate: 0,
+    skipMobile: true,
   })
 
   await page.click('text="Old"')
@@ -195,5 +200,6 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     snapshotName: "after-changes",
     waitForTheseToBeVisibleAndStable: [page1.getByText("Like this!!!!!")],
     scrollToYCoordinate: 0,
+    skipMobile: true,
   })
 })

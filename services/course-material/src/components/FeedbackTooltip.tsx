@@ -117,7 +117,7 @@ const FeedbackTooltip: React.FC = () => {
     return null
   }
 
-  const handleClick = (_e: React.MouseEvent | React.KeyboardEvent) => {
+  const handleClick = () => {
     // eslint-disable-next-line i18next/no-literal-string
     setCurrentlyOpenFeedbackDialog("select-type" as const)
   }
@@ -152,9 +152,9 @@ const FeedbackTooltip: React.FC = () => {
       id={FEEDBACK_TOOLTIP_ID}
     >
       <SpeechBalloon
-        onClick={(e: React.MouseEvent) => {
+        onClick={() => {
           console.log("SpeechBalloon clicked")
-          handleClick(e)
+          handleClick()
         }}
         data-testid={feedbackTooltipTestId}
       >

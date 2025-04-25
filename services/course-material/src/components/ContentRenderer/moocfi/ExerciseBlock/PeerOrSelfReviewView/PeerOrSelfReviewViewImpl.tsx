@@ -234,11 +234,6 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
               peerOrSelfReviewData.peer_or_self_review_config
                 .review_instructions as Block<unknown>[]
             }
-            editing={false}
-            selectedBlockId={null}
-            setEdits={function (_value): void {
-              // NOP
-            }}
             isExam={false}
           />
         </div>
@@ -253,9 +248,6 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
                 <div data-testid="assignment">
                   <ContentRenderer
                     data={(course_material_exercise_task.assignment as Array<Block<unknown>>) ?? []}
-                    editing={false}
-                    selectedBlockId={null}
-                    setEdits={(map) => map}
                     isExam={false}
                     dontAllowBlockToBeWiderThanContainerWidth={true}
                   />

@@ -6,7 +6,7 @@ import { typography } from "../styles"
 
 interface DialogProps extends React.HTMLAttributes<HTMLDialogElement> {
   open: boolean
-  onClose?: () => void
+  onClose?: (e: React.MouseEvent) => void
   closeable?: boolean
   noPadding?: boolean
   width?: "normal" | "wide"
@@ -30,9 +30,9 @@ const Dialog: React.FC<DialogProps> = ({
 
   useEffect(() => {
     const current = ref.current
-    const closeCallback = () => {
+    const closeCallback = (e: Event) => {
       if (onClose) {
-        onClose()
+        onClose(e as unknown as React.MouseEvent)
       }
     }
     current?.addEventListener("close", closeCallback)

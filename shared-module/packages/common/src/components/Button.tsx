@@ -41,7 +41,6 @@ export const BASE_BUTTON_STYLES = (props: ButtonProps) => `
   letter-spacing: 0.02em;
   transition: all 150ms linear;
   border: 2.5px solid transparent;
-  z-index: 1;
   white-space: nowrap;
 
   color: ${theme.primary.text};
@@ -214,6 +213,7 @@ export const TertiaryButtonStyles = (props: ButtonProps) => {
       color: ${theme.tertiary.hoverText};
       box-shadow: 0 0 0 1px ${theme.tertiary.bg};
       border: 1.5px solid ${theme.tertiary.bg};
+      background-color: ${theme.tertiary.hoverBg};
     }
 
     &:active {

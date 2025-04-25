@@ -38,7 +38,6 @@
   "choose-preferred-language": "اختر لغتك المفضلة",
   "claim-code": "رمز المطالبة",
   "clear-selection": "مسح التحديد",
-  "click-on-course-material-to-make-it-editable": "انقر على مادة الدورة لجعلها قابلة للتحرير!",
   "close": "إغلاق",
   "closed": "مغلق!",
   "commenting-on-selection": "التعليق على: {{selection}}",
@@ -228,7 +227,5 @@
   "you-have-completed-the-course-to-receive-credits-or-certificate-use-following-links": "لقد أكملت الدورة بنجاح! للحصول على اعتمادات ECTS لإكمال الدورة، يمكنك استخدام الروابط التالية لتسجيل إكمال الدورة والحصول على شهادة.",
   "you-have-completed-the-course-to-receive-credits-use-following-links": "لقد أكملت الدورة بنجاح! للحصول على اعتمادات ECTS لإكمال الدورة، يمكنك استخدام الروابط التالية لتسجيل إكمال الدورة.",
   "your-code-code": "رمزك هو: {{code}}",
-  "youtube-embed-error": "تعذر تحميل فيديو YouTube. قد يكون عنوان URL لـ YouTube غير صحيح.",
-  "youve-made-changes": "لقد أجريت تغييرات",
-  "youve-selected-material-for-editing": "لقد اخترت مادة للتحرير"
+  "youtube-embed-error": "تعذر تحميل فيديو YouTube. قد يكون عنوان URL لـ YouTube غير صحيح."
 }

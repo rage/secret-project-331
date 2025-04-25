@@ -1,13 +1,11 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { useQuery } from "@tanstack/react-query"
 import { parseISO } from "date-fns"
 import { diffChars } from "diff"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchPageInfo } from "../../../../../../services/backend/pages"
-
+import { usePageInfo } from "@/hooks/usePageInfo"
 import {
   BlockProposal,
   BlockProposalAction,
@@ -50,15 +48,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
   const [blockActions, setBlockActions] = useState<Map<string, BlockProposalAction>>(new Map())
   const [editingBlocks, setEditingBlocks] = useState<Set<string>>(new Set())
 
-  const pageInfo = useQuery({
-    queryKey: [`page-info-id-${proposal.page_id}`],
-    queryFn: () => {
-      if (!proposal.page_id) {
-        return null
-      }
-      return fetchPageInfo(proposal.page_id)
-    },
-  })
+  const pageInfo = usePageInfo(proposal.page_id)
 
   const sendMutation = useToastMutation(
     () => {

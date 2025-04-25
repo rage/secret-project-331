@@ -39,7 +39,6 @@
   "choose-preferred-language": "Valitse kieli",
   "claim-code": "Hanki koodi",
   "clear-selection": "Tyhjennä valinnat",
-  "click-on-course-material-to-make-it-editable": "Klikkaa kurssimateriaalista muokkaaksesi sitä!",
   "close": "Sulje",
   "closed": "Suljettu!",
   "commenting-on-selection": "Kommentoimassa: {{selection}}",
@@ -232,7 +231,5 @@
   "you-have-completed-the-course-to-receive-credits-or-certificate-use-following-links": "Olet suorittanut kurssin onnistuneesti! Voit käyttää oheisia linkkejä opintopisteiden saamiseksi tai sertifikaatin luomiseen.",
   "you-have-completed-the-course-to-receive-credits-use-following-links": "Olet suorittanut kurssin onnistuneesti! Saadaksesi opintopisteitä suorituksestasi, voit käyttää seuraavia linkkejä rekisteröidäksesi suorituksesi.",
   "your-code-code": "Koodisi on: {{code}}",
-  "youtube-embed-error": "YouTube-videota ei voi ladata. YouTube-URL-osoite saattaa olla virheellinen.",
-  "youve-made-changes": "Olet tehnyt muutoksia",
-  "youve-selected-material-for-editing": "Olet valinnut materiaalia muokkaukseen"
+  "youtube-embed-error": "YouTube-videota ei voi ladata. YouTube-URL-osoite saattaa olla virheellinen."
 }

@@ -108,9 +108,6 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
           <CheckboxContext.Provider value={{ questionIdsAndAnswers, setQuestionIdsAndAnswers }}>
             <ContentRenderer
               data={(researchForm.content as Array<Block<unknown>>) ?? []}
-              editing={false}
-              selectedBlockId={null}
-              setEdits={(map) => map}
               isExam={false}
             />
           </CheckboxContext.Provider>

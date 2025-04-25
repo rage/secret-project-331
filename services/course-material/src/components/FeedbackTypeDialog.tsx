@@ -127,7 +127,7 @@ const FeedbackTypeDialog: React.FC = () => {
         </button>
 
         <button
-          onClick={handleImprovementClick}
+          onClick={(e) => handleImprovementClick()}
           onKeyDown={(e) => handleKeyDown(e, handleImprovementClick)}
           className={css`
             display: flex;

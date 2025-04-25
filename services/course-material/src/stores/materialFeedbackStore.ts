@@ -17,6 +17,7 @@ type CurrentlyOpenFeedbackDialog = "written" | "proposed-edits" | "select-type" 
 interface SelectionState {
   text: string
   position?: { x: number; y: number }
+  element?: HTMLElement
 }
 
 // ------------------------------
@@ -153,6 +154,12 @@ export const blockEditsAtom = atom(
 /**
  * Controls the selected block for editing
  * Only allows updates when the proposed-edits dialog is open
+ *
+ * This is so because the selected block id is only needed when the proposed-edits dialog is open.
+ * Q: Why does this need to be a conditional atom?
+ * A: The paragraph block switches to a different component when the current paragraph is focused,
+ * and if this would change whenever we select text and no feedback dialog is open, it clear the
+ * selection automatically!
  */
 export const selectedBlockIdAtom = createConditionalAtom(
   selectedBlockIdPrimitiveAtom,
@@ -165,7 +172,13 @@ export const selectedBlockIdAtom = createConditionalAtom(
  */
 export const selectionAtom = atom(
   (get) => get(selectionPrimitiveAtom),
-  (_get, set, text: string, position?: { x: number; y: number }) => {
-    set(selectionPrimitiveAtom, { text, position })
+  (get, set, text: string, position?: { x: number; y: number }, element?: HTMLElement) => {
+    const currentlyOpenDialog = get(currentlyOpenFeedbackDialogPrimitiveAtom)
+    if (currentlyOpenDialog === "select-type") {
+      console.log("Skipping updating selection because select-type dialog is open")
+      return
+    }
+    console.log("setting selection to", text, position, element)
+    set(selectionPrimitiveAtom, { text, position, element })
   },
 )

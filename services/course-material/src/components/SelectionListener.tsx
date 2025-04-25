@@ -39,12 +39,17 @@ const useSelectionTracking = (): void => {
         const range = selection.getRangeAt(0)
         const rect = range.getBoundingClientRect()
         const centerX = rect.left + rect.width / 2
-        setSelection(newSelection, {
-          x: centerX + window.scrollX,
-          y: rect.top + window.scrollY,
-        })
+        const element = range.commonAncestorContainer.parentElement ?? undefined
+        setSelection(
+          newSelection,
+          {
+            x: centerX + window.scrollX,
+            y: rect.top + window.scrollY,
+          },
+          element,
+        )
       } else {
-        setSelection("", undefined)
+        setSelection("", undefined, undefined)
       }
     }
 

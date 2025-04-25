@@ -14,6 +14,7 @@ const FeedbackTooltip: React.FC = () => {
   const { t } = useTranslation()
   const [selection] = useAtom(selectionAtom)
   const setCurrentlyOpenFeedbackDialog = useSetAtom(currentlyOpenFeedbackDialogAtom)
+
   const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null)
   const [showTooltip, setShowTooltip] = useState(false)
 

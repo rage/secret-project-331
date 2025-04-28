@@ -23,21 +23,26 @@ pub async fn copy_course(
     same_language_group: bool,
     user_id: Uuid,
 ) -> ModelResult<Course> {
-    let parent_course = get_course(conn, course_id).await?;
+    let mut tx = conn.begin().await?;
+    let parent_course = get_course(&mut tx, course_id).await?;
     let course_language_group_id = if same_language_group {
         parent_course.course_language_group_id
     } else {
-        course_language_groups::insert(conn, PKeyPolicy::Generate).await?
+        course_language_groups::insert(&mut tx, PKeyPolicy::Generate).await?
     };
 
-    copy_course_with_language_group(
-        conn,
+    let copied_course = copy_course_with_language_group(
+        &mut tx,
         course_id,
         course_language_group_id,
         new_course,
         user_id,
     )
-    .await
+    .await?;
+
+    tx.commit().await?;
+
+    Ok(copied_course)
 }
 
 pub async fn copy_course_with_language_group(

@@ -680,7 +680,10 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
         TeachingAndLearningServices => {
             matches!(
                 action,
-                View | ViewMaterial | ViewUserProgressOrDetails | ViewInternalCourseStructure
+                View | ViewMaterial
+                    | ViewUserProgressOrDetails
+                    | ViewInternalCourseStructure
+                    | ViewStats
             )
         }
         StatsViewer => matches!(action, ViewStats),

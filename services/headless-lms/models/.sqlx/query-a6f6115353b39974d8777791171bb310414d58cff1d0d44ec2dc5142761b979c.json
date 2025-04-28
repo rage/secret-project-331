@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH src AS (\n  SELECT e.*,\n    CASE\n      WHEN $4 THEN e.exercise_language_group_id\n      ELSE uuid_generate_v5($3, e.id::text)\n    END AS tgt_elg_id\n  FROM exercises e\n  WHERE e.course_id = $2\n    AND e.deleted_at IS NULL\n),\nins_elg AS (\n  INSERT INTO exercise_language_groups (id, course_language_group_id)\n  SELECT DISTINCT tgt_elg_id,\n    $3\n  FROM src\n  WHERE NOT $4 ON CONFLICT (id) DO NOTHING\n),\nins_exercises AS (\n  INSERT INTO exercises (\n      id,\n      course_id,\n      name,\n      deadline,\n      page_id,\n      score_maximum,\n      order_number,\n      chapter_id,\n      copied_from,\n      exercise_language_group_id,\n      max_tries_per_slide,\n      limit_number_of_tries,\n      needs_peer_review,\n      use_course_default_peer_or_self_review_config\n    )\n  SELECT uuid_generate_v5($1, src.id::text),\n    $1,\n    src.name,\n    src.deadline,\n    uuid_generate_v5($1, src.page_id::text),\n    src.score_maximum,\n    src.order_number,\n    uuid_generate_v5($1, src.chapter_id::text),\n    src.id,\n    src.tgt_elg_id,\n    src.max_tries_per_slide,\n    src.limit_number_of_tries,\n    src.needs_peer_review,\n    src.use_course_default_peer_or_self_review_config\n  FROM src\n  RETURNING id,\n    copied_from\n)\nSELECT id,\n  copied_from\nFROM ins_exercises;\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "copied_from",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Uuid", "Uuid", "Bool"]
+    },
+    "nullable": [false, true]
+  },
+  "hash": "a6f6115353b39974d8777791171bb310414d58cff1d0d44ec2dc5142761b979c"
+}

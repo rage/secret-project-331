@@ -1217,7 +1217,10 @@
 <a href="#1216" id="1216">1216</a>
 <a href="#1217" id="1217">1217</a>
 <a href="#1218" id="1218">1218</a>
-<a href="#1219" id="1219">1219</a></pre></div><pre class="rust"><code><span class="doccomment">//! Common functionality related to authorization
+<a href="#1219" id="1219">1219</a>
+<a href="#1220" id="1220">1220</a>
+<a href="#1221" id="1221">1221</a>
+<a href="#1222" id="1222">1222</a></pre></div><pre class="rust"><code><span class="doccomment">//! Common functionality related to authorization
 
 </span><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::OAuthClient;
@@ -1899,7 +1902,10 @@ token.authorized_ok(web::Json(cms_page_info))
         TeachingAndLearningServices =&gt; {
             <span class="macro">matches!</span>(
                 action,
-                View | ViewMaterial | ViewUserProgressOrDetails | ViewInternalCourseStructure
+                View | ViewMaterial
+                    | ViewUserProgressOrDetails
+                    | ViewInternalCourseStructure
+                    | ViewStats
             )
         }
         StatsViewer =&gt; <span class="macro">matches!</span>(action, ViewStats),

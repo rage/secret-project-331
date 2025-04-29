@@ -625,6 +625,7 @@
   "position-y": "Position (Y)",
   "previous-title-current-title": "Previous: {{current-title}} | Current: {{selected-title}}",
   "private-spec": "Private spec",
+  "proposal-edited-explanation": "Note: The text below is the student's original proposal. We're showing it because the text was edited after the proposal was made. Even though we try to include both the student's changes and the later edits in the result after merging field, you may still need to see exactly what the student originally proposed.",
   "public-spec-explanation": "Public spec is used for rendering the user interface when the user is starting to answer an exercise.",
   "publish-grading-results": "Publish grading results",
   "publish-grading-results-info": "The students won't automatically see the grading results. After publishing the grading results, the students can see the points and the feedback you have given to them. Also, the students who pass the course can register their completion to the study register.",

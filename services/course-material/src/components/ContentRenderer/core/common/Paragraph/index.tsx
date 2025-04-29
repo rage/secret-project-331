@@ -1,4 +1,3 @@
-import { cx } from "@emotion/css"
 import { useAtom } from "jotai"
 import dynamic from "next/dynamic"
 import React, { useContext, useMemo } from "react"
@@ -25,7 +24,7 @@ const P = "p"
 
 const ParagraphBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ParagraphAttributes & ExtraAttributes>>
-> = ({ data, id, wrapperClassName }) => {
+> = ({ data, id }) => {
   const { textColor, backgroundColor, fontSize, content, dropCap, align } = data.attributes
   const [type] = useAtom(currentlyOpenFeedbackDialogAtom)
   const isEditing = type === "proposed-edits"
@@ -42,9 +41,13 @@ const ParagraphBlock: React.FC<
 
   return (
     <ParagraphComponent
-      className={cx(
-        wrapperClassName,
-        getParagraphStyles(textColor, backgroundColor, fontSize, hideOverflow, dropCap, align),
+      className={getParagraphStyles(
+        textColor,
+        backgroundColor,
+        fontSize,
+        hideOverflow,
+        dropCap,
+        align,
       )}
       dangerouslySetInnerHTML={{
         __html: parsedText,

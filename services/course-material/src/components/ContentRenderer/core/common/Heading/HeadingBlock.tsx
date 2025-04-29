@@ -13,7 +13,6 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const HeadingBlock: React.FC<React.PropsWithChildren<BlockRendererProps<HeadingAttributes>>> = ({
   data,
-  wrapperClassName,
 }) => {
   const {
     content,
@@ -31,7 +30,6 @@ const HeadingBlock: React.FC<React.PropsWithChildren<BlockRendererProps<HeadingA
       __html: sanitizeCourseMaterialHtml(content),
     },
     className: cx(
-      wrapperClassName,
       level < 4 && INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS,
       css`
         line-height: ${level === 1 ? 1.1 : 1.2};

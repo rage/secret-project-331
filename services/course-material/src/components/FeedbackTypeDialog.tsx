@@ -6,11 +6,10 @@ import { useTranslation } from "react-i18next"
 import { currentlyOpenFeedbackDialogAtom, selectionAtom } from "../stores/materialFeedbackStore"
 
 import ImprovementExample from "./ImprovementExample"
+import { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
 
 import StandardDialog from "@/shared-module/common/components/StandardDialog"
 import { baseTheme } from "@/shared-module/common/styles"
-
-export const SELECT_FEEDBACK_TYPE_DIALOG_CONTENT_ID = "select-feedback-type-dialog-content"
 
 const FeedbackTypeDialog: React.FC = () => {
   const { t } = useTranslation()
@@ -71,7 +70,7 @@ const FeedbackTypeDialog: React.FC = () => {
           gap: 1.5rem;
           padding: 1rem 0;
         `}
-        id={SELECT_FEEDBACK_TYPE_DIALOG_CONTENT_ID}
+        id={FEEDBACK_DIALOG_CONTENT_ID}
       >
         <button
           onClick={handleFeedbackClick}

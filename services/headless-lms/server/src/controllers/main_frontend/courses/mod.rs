@@ -37,18 +37,11 @@ use models::{
 };
 
 use crate::{
-    domain::{
-        csv_export::{
-            course_instance_export::CourseInstancesExportOperation,
-            course_research_form_questions_answers_export::CourseResearchFormExportOperation,
-            exercise_tasks_export::CourseExerciseTasksExportOperation, general_export,
-            submissions::CourseSubmissionExportOperation, users_export::UsersExportOperation,
-        },
-        models_requests::{self, JwtKey},
-        request_id::RequestId,
-    },
+    controllers::ControllerResult,
+    models::{self, courses::NewCourse},
     prelude::*,
 };
+use headless_lms_models::course_language_groups;
 
 /**
 GET `/api/v0/main-frontend/courses/:course_id` - Get course.
@@ -395,15 +388,23 @@ Content-Type: application/json
   "name": "Johdatus kaikkeen",
   "slug": "johdatus-kaikkeen",
   "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
-  "language_code": "fi-FI"
+  "language_code": "fi-FI",
+  "target_course_language_group_id": "optional-uuid-of-existing-course"
 }
 ```
 */
+#[derive(Deserialize, Debug)]
+pub struct NewCourseLanguageVersionRequest {
+    #[serde(flatten)]
+    course: NewCourse,
+    target_course_language_group_id: Option<Uuid>,
+}
+
 #[instrument(skip(pool))]
 pub async fn post_new_course_language_version(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
-    payload: web::Json<NewCourse>,
+    payload: web::Json<NewCourseLanguageVersionRequest>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
@@ -415,9 +416,24 @@ pub async fn post_new_course_language_version(
     )
     .await?;
 
-    let copied_course =
-        models::library::copying::copy_course(&mut conn, *course_id, &payload.0, true, user.id)
-            .await?;
+    let target_clg_id = if let Some(target_course_id) = payload.target_course_language_group_id {
+        // Get the CLG ID from the target course
+        let target_course = models::courses::get_course(&mut conn, target_course_id).await?;
+        target_course.course_language_group_id
+    } else {
+        // Create a new CLG as before
+        course_language_groups::insert(&mut conn, PKeyPolicy::Generate).await?
+    };
+
+    let copied_course = models::library::copying::copy_course_with_language_group(
+        &mut conn,
+        *course_id,
+        target_clg_id,
+        &payload.course,
+        user.id,
+    )
+    .await?;
+
     models::roles::insert(
         &mut conn,
         user.id,
@@ -904,7 +920,7 @@ async fn get_course_default_peer_review(
 }
 
 /**
-POST `/api/v0/main-frontend/courses/{course_id}/update-peer-review-queue-reviews-received`
+POST `/api/v0/main-frontend/courses/${course_id}/update-peer-review-queue-reviews-received`
 
 Updates reviews received for all the students in the peer review queue for a specific course. Updates only entries that have not received enough peer reviews in the table. Only available to admins.
 */

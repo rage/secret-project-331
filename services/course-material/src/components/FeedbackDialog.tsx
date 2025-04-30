@@ -8,6 +8,8 @@ import { postFeedback } from "../services/backend"
 import { currentlyOpenFeedbackDialogAtom, selectionAtom } from "../stores/materialFeedbackStore"
 import { courseMaterialBlockClass } from "../utils/constants"
 
+import { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
+
 import { FeedbackBlock } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
@@ -106,7 +108,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
 
   return (
     <div
-      id="feedback-dialog"
+      id={FEEDBACK_DIALOG_CONTENT_ID}
       className={css`
         position: fixed;
         max-width: 500px;
@@ -313,7 +315,14 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
               >
                 {t("commenting-on-selection")}
               </div>
-              <Button variant="tertiary" size="small" onClick={() => setSelection("", undefined)}>
+              <Button
+                variant="tertiary"
+                size="small"
+                onClick={() => {
+                  // Setting the selection to null clears the selection. We don't set it to an empty string because the selction listener will do those kind of sets whenever something is clicked and that the dialog is open, and therefore those sets are blocked when the dialog is open.
+                  setSelection(null, undefined)
+                }}
+              >
                 {t("clear")}
               </Button>
             </div>

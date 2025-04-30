@@ -5,7 +5,8 @@ import { selectedBlockIdAtom, selectionAtom } from "../stores/materialFeedbackSt
 import { courseMaterialBlockClass } from "../utils/constants"
 
 import { FEEDBACK_TOOLTIP_ID } from "./FeedbackTooltip"
-import { SELECT_FEEDBACK_TYPE_DIALOG_CONTENT_ID } from "./FeedbackTypeDialog"
+
+export const FEEDBACK_DIALOG_CONTENT_ID = "feedback-dialog-content"
 
 const useSelectionTracking = (): void => {
   const setSelection = useSetAtom(selectionAtom)
@@ -41,7 +42,7 @@ const useSelectionTracking = (): void => {
         element = node.parentElement
       }
       const dialogContent = element?.closest(
-        `#${SELECT_FEEDBACK_TYPE_DIALOG_CONTENT_ID}, #${FEEDBACK_TOOLTIP_ID}`,
+        `#${FEEDBACK_DIALOG_CONTENT_ID}, #${FEEDBACK_TOOLTIP_ID}`,
       )
       return dialogContent !== null && dialogContent !== undefined
     }

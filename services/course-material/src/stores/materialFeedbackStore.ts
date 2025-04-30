@@ -178,12 +178,13 @@ export const selectedBlockIdAtom = createConditionalAtom(
  */
 export const selectionAtom = atom(
   (get) => get(selectionPrimitiveAtom),
-  (get, set, text: string, position?: { x: number; y: number }, element?: HTMLElement) => {
+  (get, set, text: string | null, position?: { x: number; y: number }, element?: HTMLElement) => {
     const currentlyOpenDialog = get(currentlyOpenFeedbackDialogPrimitiveAtom)
-    if (currentlyOpenDialog === "select-type") {
-      // Skipping updating selection because select-type dialog is open
+    if (currentlyOpenDialog !== null && text === "") {
+      // When the dialog is open, all clicks would set the text to an empty string, so we skip those.
+      // Clearing the selection is done by setting the text to null.
       return
     }
-    set(selectionPrimitiveAtom, { text, position, element })
+    set(selectionPrimitiveAtom, { text: text ?? "", position, element })
   },
 )

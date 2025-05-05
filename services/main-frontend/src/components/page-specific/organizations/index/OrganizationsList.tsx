@@ -26,14 +26,31 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
       <h1
         className={css`
           text-align: center;
-          font-weight: 600;
-          font-size: ${typography.h2};
-          margin: 2em 0em 1em 0em;
+          font-family: Inter;
+          font-weight: 500;
+          font-size: 30px;
+          line-height: 100%;
+          letter-spacing: 0;
+          margin: 2em 0em 0.5em 0em;
           color: #333;
         `}
       >
         {t("organizations-heading")}
       </h1>
+      <p
+        className={css`
+          text-align: center;
+          font-family: Inter;
+          font-weight: 400;
+          font-size: 16px;
+          line-height: 100%;
+          letter-spacing: 0;
+          margin-bottom: 2.5rem;
+          color: #555;
+        `}
+      >
+        {t("select-organization", { defaultValue: "Select an organization" })}
+      </p>
       {allOrganizationsQuery.isError && (
         <ErrorBanner variant={"readOnly"} error={allOrganizationsQuery.error} />
       )}
@@ -41,13 +58,16 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
       {allOrganizationsQuery.isSuccess && (
         <div
           className={css`
-            margin-bottom: 1rem;
+            background-color: rgba(26, 35, 51, 0.05);
+            padding: 2rem 1rem;
+            border-radius: 0.5rem;
+            margin: 2rem auto;
+            max-width: 900px;
           `}
         >
           {allOrganizationsQuery.data.map((organization) => (
-            <a
+            <div
               key={organization.id}
-              href={organizationCoursesPageHref(organization.slug)}
               aria-label={organization.name}
               className={css`
                 padding: 0em 1em;
@@ -69,15 +89,11 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
                   flex-direction: column;
                   display: flex;
                   align-items: center;
-                  background-color: #f5f6f7;
-                  margin-bottom: 1em;
+                  background-color: rgb(255, 255, 255);
+                  margin-bottom: 0.5em;
 
-                  &:hover {
-                    cursor: pointer;
-                    background-color: #ebedee;
-                  }
                   ${respondToOrLarger.lg} {
-                    height: 15rem;
+                    height: 3.5rem;
                     flex-direction: row;
                     max-height: 20rem;
                   }
@@ -88,12 +104,16 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
                     background: #1a2333;
                     display: flex;
                     align-items: center;
-                    width: 100%;
-                    height: auto;
-                    padding: 1em 1em;
+                    justify-content: center;
+                    width: 27px;
+                    min-width: 27px;
+                    height: 26px;
+                    padding: 0;
+                    margin-left: 0.75rem;
+
                     ${respondToOrLarger.lg} {
-                      width: 20%;
-                      height: 100%;
+                      width: 27px;
+                      height: 26px;
                     }
                   `}
                 >
@@ -101,9 +121,10 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
                     <img
                       alt={organization.name}
                       className={css`
-                        margin: 0 auto;
+                        width: auto;
+                        height: auto;
                         display: block;
-                        max-height: 10rem;
+                        object-fit: contain;
                       `}
                       src={organization.organization_image_url}
                     />
@@ -126,25 +147,45 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
                   <h2
                     className={css`
                       color: #333;
-                      font-weight: 600;
-                      font-size: clamp(1.4rem, 3vw, 1.8rem);
+                      font-family: Inter;
+                      font-weight: 400;
+                      font-size: 18px;
+                      line-height: 100%;
+                      letter-spacing: 0;
                       text-transform: uppercase;
                     `}
                   >
                     {organization.name}
                   </h2>
-                  <span
-                    className={css`
-                      font-size: clamp(16px, 2vw, 20px);
-                      color: #333;
-                      opacity: 0.8;
-                    `}
-                  >
-                    {organization.description}
-                  </span>
                 </div>
+                <button
+                  onClick={() =>
+                    (window.location.href = organizationCoursesPageHref(organization.slug))
+                  }
+                  className={css`
+                    margin-left: auto;
+                    margin-right: 1rem;
+                    background-color: rgba(237, 238, 240, 1);
+                    color: rgba(26, 35, 51, 1);
+                    border: none;
+                    border-radius: 0px;
+                    padding: 0.4rem 0.8rem;
+                    font-family: Inter;
+                    font-weight: 400;
+                    font-size: 18px;
+                    line-height: 100%;
+                    letter-spacing: 0;
+                    cursor: pointer;
+                    &:hover {
+                      background-color: rgb(216, 216, 216);
+                      cursor: pointer;
+                    }
+                  `}
+                >
+                  {t("Select", { defaultValue: "Select" })}
+                </button>
               </div>
-            </a>
+            </div>
           ))}
         </div>
       )}

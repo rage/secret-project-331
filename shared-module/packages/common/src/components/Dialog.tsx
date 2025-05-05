@@ -1,16 +1,20 @@
 import { css } from "@emotion/css"
-import React, { useEffect, useRef } from "react"
+import { useDialog } from "@react-aria/dialog"
+import { FocusScope } from "@react-aria/focus"
+import { DismissButton, OverlayContainer, useModal, useOverlay } from "@react-aria/overlays"
+import { AriaDialogProps } from "@react-types/dialog"
+import React, { useRef } from "react"
 
-import useClickOutside from "../hooks/useClickOutside"
 import { typography } from "../styles"
-
-interface DialogProps extends React.HTMLAttributes<HTMLDialogElement> {
+interface DialogProps extends AriaDialogProps {
   open: boolean
   onClose?: () => void
   closeable?: boolean
   noPadding?: boolean
   width?: "normal" | "wide"
   disableContentScroll?: boolean
+  children: React.ReactNode
+  className?: string
 }
 
 const Dialog: React.FC<DialogProps> = ({
@@ -21,117 +25,80 @@ const Dialog: React.FC<DialogProps> = ({
   noPadding = false,
   width = "normal",
   disableContentScroll = false,
-  ...rest
+  ...props
 }) => {
-  const ref = useRef<HTMLDialogElement>(null)
-  const dialogContentRef = useRef<HTMLDivElement>(null)
+  const ref = useRef(null)
 
-  useEffect(() => {
-    const current = ref.current
-    const closeCallback = () => {
-      if (onClose) {
-        onClose()
-      }
-    }
-    current?.addEventListener("close", closeCallback)
-    return () => {
-      current?.removeEventListener("close", closeCallback)
-    }
-  }, [onClose])
-
-  useEffect(() => {
-    if (!ref.current) {
-      return
-    }
-    if (open && !ref.current.open) {
-      ref.current.showModal()
-    } else if (ref.current.open) {
-      ref.current.close()
-    }
-  }, [open])
-
-  // Make non-closable dialogs not closable
-  useEffect(() => {
-    if (!ref.current || closeable) {
-      return
-    }
-    const eventHandler = (event: Event) => {
-      if (!event.cancelable) {
-        ref.current?.showModal()
-      }
-      event.preventDefault()
-    }
-    const element = ref.current
-    element.addEventListener("close", eventHandler)
-    element.addEventListener("cancel", eventHandler)
-    return () => {
-      element?.removeEventListener("close", eventHandler)
-      element?.removeEventListener("cancel", eventHandler)
-    }
-  }, [closeable])
-
-  useClickOutside(
-    dialogContentRef,
-    () => {
-      if (closeable) {
-        ref.current?.close()
-      }
+  const { overlayProps, underlayProps } = useOverlay(
+    {
+      isOpen: open,
+      onClose,
+      isDismissable: closeable,
+      shouldCloseOnBlur: false,
     },
-    open,
+    ref,
   )
+
+  const { modalProps } = useModal()
+  const { dialogProps } = useDialog(props, ref)
 
   if (!open) {
     return null
   }
 
   return (
-    <dialog
-      ref={ref}
-      {...rest}
-      className={css`
-        border: 0;
-        border-radius: 5px;
-        padding: 0;
-        width: 95%;
-        max-width: ${width === "normal" ? "700px" : "1200px"};
-        ${disableContentScroll && "overflow: hidden;"}
-
-        h1 {
-          font-size: ${typography.h5};
-        }
-        h2 {
-          font-size: ${typography.h6};
-        }
-        h3 {
-          font-size: ${typography.h6};
-        }
-        h4 {
-          font-size: ${typography.h6};
-        }
-        h5 {
-          font-size: ${typography.h6};
-        }
-        h6 {
-          font-size: ${typography.h6};
-        }
-
-        &::backdrop {
-          background: rgba(0, 0, 0, 0.4);
-        }
-      `}
-    >
+    <OverlayContainer>
       <div
-        //  For accessibility, so that screen readers don't interpret the whole dialog as clickable.
-        role="presentation"
-        ref={dialogContentRef}
+        {...underlayProps}
         className={css`
-          ${!noPadding && `padding: 2rem 3rem;`}
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.4);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
         `}
       >
-        {children}
+        {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
+        <FocusScope contain restoreFocus autoFocus>
+          <div
+            {...overlayProps}
+            {...dialogProps}
+            {...modalProps}
+            ref={ref}
+            className={css`
+              background: white;
+              border-radius: 5px;
+              width: 95%;
+              max-width: ${width === "normal" ? "700px" : "1200px"};
+              ${disableContentScroll && "overflow: hidden;"}
+              outline: none;
+
+              h1 {
+                font-size: ${typography.h5};
+              }
+              h2,
+              h3,
+              h4,
+              h5,
+              h6 {
+                font-size: ${typography.h6};
+              }
+            `}
+          >
+            <div
+              className={css`
+                ${!noPadding && "padding: 2rem 3rem;"}
+              `}
+            >
+              {children}
+              {closeable && <DismissButton onDismiss={onClose} />}
+            </div>
+          </div>
+        </FocusScope>
       </div>
-    </dialog>
+    </OverlayContainer>
   )
 }
-
 export default Dialog

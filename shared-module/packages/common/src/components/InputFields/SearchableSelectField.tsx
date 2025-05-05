@@ -1,12 +1,11 @@
 /* eslint-disable i18next/no-literal-string */
-import { css, cx } from "@emotion/css"
+import { css } from "@emotion/css"
 import { CheckCircle, MovementArrowsUpDown, XmarkCircle } from "@vectopus/atlas-icons-react"
-import React, { forwardRef, InputHTMLAttributes } from "react"
+import { forwardRef, InputHTMLAttributes, useState } from "react"
 import {
   Autocomplete,
   Button,
   Input,
-  Label,
   ListBox,
   ListBoxItem,
   Popover,
@@ -28,194 +27,211 @@ export interface SearchableSelectProps extends InputHTMLAttributes<HTMLSelectEle
   label?: string
   options: SelectOption[]
   error?: string
-  onChangeByValue?: (value: string, name?: string) => void
+  value?: string
+  onChangeByValue?: (value: string) => void
   className?: string
 }
 
-const SearchableSelect = forwardRef<HTMLSelectElement, SearchableSelectProps>(
-  ({ label, options, onChangeByValue, error, className, ...rest }) => {
+const SearchableSelectField = forwardRef<HTMLSelectElement, SearchableSelectProps>(
+  ({ value, label, options, onChangeByValue }) => {
     const { contains } = useFilter({ sensitivity: "base" })
-
-    const handleChange = (key: React.Key) => {
-      const value = String(key)
-      onChangeByValue?.(value, rest.name)
-    }
-
+    const [, setIsOpen] = useState(false)
     return (
-      <div
-        className={cx(
-          css`
+      <Select
+        selectedKey={value}
+        onSelectionChange={(selected) => {
+          const newValue = String(selected)
+          onChangeByValue?.(newValue)
+        }}
+        className={css`
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+          width: 250px;
+        `}
+      >
+        <label>{label}</label>
+        <Button
+          onClick={() => setIsOpen((isOpen) => !isOpen)}
+          className={css`
+            display: flex;
+            align-items: center;
+            cursor: default;
+            border-radius: 0.75rem;
+            border: 0;
+            background: rgba(255, 255, 255, 0.9);
+            transition: background-color 0.2s ease;
+            padding: 0.5rem 1.25rem 0.5rem 0.5rem;
+            font-size: 1rem;
+            text-align: left;
+            line-height: 1.5;
+            box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1);
+            color: #4a4a4a;
+            &:focus-visible {
+              outline: 2px solid black;
+              outline-offset: 3px;
+            }
+          `}
+        >
+          <SelectValue
+            className={css`
+              flex: 1;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            `}
+          />
+          <MovementArrowsUpDown />
+        </Button>
+
+        <Popover
+          className={css`
+            max-height: 20rem !important;
+            width: var(--trigger-width);
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-          `,
-          className,
-        )}
-      >
-        <Select onSelectionChange={handleChange} selectedKey={rest.name}>
-          {label && (
-            <Label
+            border-radius: 0.375rem;
+            background-color: white;
+            font-size: 1rem;
+            box-shadow:
+              0 10px 15px -3px rgba(0, 0, 0, 0.1),
+              0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+          `}
+        >
+          <Autocomplete filter={contains}>
+            <SearchField
+              aria-label="Search"
+              // eslint-disable-next-line jsx-a11y/no-autofocus
+              autoFocus
               className={css`
-                font-size: 14px;
-                font-weight: 500;
-                color: #1a2333;
-                cursor: default;
+                display: flex;
+                align-items: center;
+                background: white;
+                border: 2px solid #d1d5db;
+                border-radius: 9999px;
+                margin: 0.25rem;
+                padding: 0.5rem;
+                &:focus {
+                  border-color: #38bdf8;
+                }
               `}
             >
-              {label}
-            </Label>
-          )}
-          <Button
-            className={css`
-              display: flex;
-              align-items: center;
-              justify-content: space-between;
-              padding: 10px 12px;
-              background: #fff;
-              border: 1px solid #ccc;
-              border-radius: 6px;
-              font-size: 16px;
-              cursor: pointer;
-              box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-            `}
-          >
-            <SelectValue
-              className={css`
-                flex: 1;
-              `}
-            />
-            <MovementArrowsUpDown
-              className={css`
-                width: 1rem;
-                height: 1rem;
-              `}
-            />
-          </Button>
-
-          <Popover
-            className={css`
-              background: white;
-              border-radius: 6px;
-              border: 1px solid #ccc;
-              box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-              max-height: 250px;
-              padding: 0.5rem;
-              display: flex;
-              flex-direction: column;
-            `}
-          >
-            <Autocomplete filter={contains}>
-              <SearchField
-                aria-label="Search"
+              <SearchIcon />
+              <Input
+                placeholder="Search languages"
                 className={css`
+                  padding: 0.25rem 0.5rem;
+                  flex: 1;
+                  min-width: 0;
+                  border: none;
+                  outline: none;
+                  background: white;
+                  font-size: 1rem;
+                  color: #4b5563;
+                  ::placeholder {
+                    color: #6b7280;
+                  }
+                `}
+              />
+              <Button
+                className={css`
+                  font-size: 0.875rem;
+                  text-align: center;
+                  border: 0;
+                  padding: 0.25rem;
                   display: flex;
                   align-items: center;
-                  border: 1px solid #d1d5db;
-                  border-radius: 9999px;
-                  padding: 4px 8px;
-                  margin-bottom: 0.5rem;
+                  justify-content: center;
+                  color: #4b5563;
+                  background: transparent;
+                  transition: background-color 0.2s ease;
+                  &:hover {
+                    background-color: rgba(0, 0, 0, 0.05);
+                  }
+                  &:active {
+                    background-color: rgba(0, 0, 0, 0.1);
+                  }
                 `}
               >
-                <SearchIcon
+                <XmarkCircle />
+              </Button>
+            </SearchField>
+            <ListBox
+              items={options}
+              className={css`
+                outline: none;
+                padding: 0.25rem;
+                overflow: auto;
+                flex: 1;
+                max-height: 20rem;
+              `}
+            >
+              {(item) => (
+                <ListBoxItem
+                  key={item.value}
+                  id={item.value}
+                  textValue={item.label}
                   className={css`
-                    width: 1rem;
-                    height: 1rem;
-                    margin-right: 6px;
-                    color: #555;
-                  `}
-                />
-                <Input
-                  placeholder="Search..."
-                  className={css`
-                    flex: 1;
-                    border: none;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    cursor: default;
+                    user-select: none;
+                    padding: 0.5rem 1rem;
                     outline: none;
-                    font-size: 14px;
-                    background: transparent;
-                    color: #333;
-                  `}
-                />
-                <Button
-                  className={css`
-                    background: transparent;
-                    border: none;
-                    padding: 4px;
-                    cursor: pointer;
-                    color: #777;
+                    border-radius: 0.25rem;
+                    color: #1f2937;
+                    &:focus {
+                      background-color: #0284c7;
+                      color: white;
+                    }
                   `}
                 >
-                  <XmarkCircle
-                    className={css`
-                      width: 1rem;
-                      height: 1rem;
-                    `}
-                  />
-                </Button>
-              </SearchField>
-              <ListBox
-                className={css`
-                  overflow-y: auto;
-                  flex: 1;
-                `}
-                items={options}
-              >
-                {(item) => (
-                  <ListBoxItem
-                    id={item.value}
-                    textValue={item.label}
-                    isDisabled={item.disabled}
-                    className={css`
-                      display: flex;
-                      align-items: center;
-                      justify-content: space-between;
-                      padding: 8px 10px;
-                      border-radius: 4px;
-                      cursor: ${item.disabled ? "not-allowed" : "pointer"};
-                      background: transparent;
-                      color: ${item.disabled ? "#ccc" : "#1a2333"};
-                      &:focus {
-                        background: #1e90ff;
-                        color: white;
-                      }
-                    `}
-                  >
-                    {({ isSelected }) => (
-                      <>
-                        <span>{item.label}</span>
-                        {isSelected && (
-                          <CheckCircle
-                            className={css`
-                              width: 1rem;
-                              height: 1rem;
-                              color: #1e90ff;
-                            `}
-                          />
-                        )}
-                      </>
-                    )}
-                  </ListBoxItem>
-                )}
-              </ListBox>
-            </Autocomplete>
-          </Popover>
-        </Select>
-        {error && (
-          <span
-            className={css`
-              color: red;
-              font-size: 12px;
-              margin-top: 4px;
-            `}
-          >
-            {error}
-          </span>
-        )}
-      </div>
+                  {({ isSelected }) => (
+                    <>
+                      <span
+                        className={css`
+                          display: flex;
+                          flex: 1;
+                          align-items: center;
+                          gap: 0.5rem;
+                          white-space: nowrap;
+                          overflow: hidden;
+                          text-overflow: ellipsis;
+                          font-weight: normal;
+
+                          .group-selected & {
+                            font-weight: 500;
+                          }
+                        `}
+                      >
+                        {item.label}
+                      </span>
+                      <span
+                        className={css`
+                          width: 1.25rem;
+                          display: flex;
+                          align-items: center;
+                          color: #0284c7;
+                          .group:focus & {
+                            color: white;
+                          }
+                        `}
+                      >
+                        {isSelected && <CheckCircle />}
+                      </span>
+                    </>
+                  )}
+                </ListBoxItem>
+              )}
+            </ListBox>
+          </Autocomplete>
+        </Popover>
+      </Select>
     )
   },
 )
 
-SearchableSelect.displayName = "SearchableSelect"
+SearchableSelectField.displayName = "SearchableSelectField"
 
-export default SearchableSelect
+export default SearchableSelectField

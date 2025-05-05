@@ -821,9 +821,20 @@ export const getUserDetails = async (): Promise<UserDetail> => {
   return validateResponse(response, isUserDetail)
 }
 
-export const updateUserCountry = async (country: string): Promise<boolean> => {
-  const response = await courseMaterialClient.post(`/user-details/update-user-country`, {
+export const updateUserInfo = async (
+  first_name: string,
+  last_name: string,
+  country: string,
+): Promise<boolean> => {
+  const response = await courseMaterialClient.post(`/user-details/update-user-info`, {
     country: country,
+    first_name: first_name,
+    last_name: last_name,
   })
   return validateResponse(response, isBoolean)
+}
+
+export const fetchCountryFromIP = async (): Promise<string> => {
+  const response = await courseMaterialClient.get(`/user-details/users-ip-country`)
+  return validateResponse(response, isString)
 }

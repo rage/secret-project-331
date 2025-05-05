@@ -80,7 +80,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
 
   const [showResearchConsentForm, setShowResearchConsentForm] = useState<boolean>(false)
   const [shouldAnswerResearchForm, setShouldAnswerResearchForm] = useState<boolean>(false)
-  const [shouldAnswerUserCountryForm, setShouldAnswerUserCountryForm] = useState<boolean>(false)
+  const [shouldAnswerMissingInfoForm, setShouldAnswerMissingInfoForm] = useState<boolean>(false)
 
   const [hasAnsweredForm, setHasAnsweredForm] = useState<boolean>(false)
   const researchFormQueryParam = useQueryParameter("show_research_form")
@@ -123,10 +123,18 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   const userDetailsQuery = useUserDetails()
 
   useEffect(() => {
-    if (userDetailsQuery.data?.country === null) {
-      setShouldAnswerUserCountryForm(true)
+    if (
+      userDetailsQuery.data?.country === null ||
+      userDetailsQuery.data?.first_name === null ||
+      userDetailsQuery.data?.last_name
+    ) {
+      setShouldAnswerMissingInfoForm(true)
     }
-  }, [userDetailsQuery.data?.country])
+  }, [
+    userDetailsQuery.data?.country,
+    userDetailsQuery.data?.first_name,
+    userDetailsQuery.data?.last_name,
+  ])
 
   useEffect(() => {
     if (
@@ -214,10 +222,13 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
               }}
             />
           )}
-        {shouldAnswerUserCountryForm && (
+        {shouldAnswerMissingInfoForm && (
           <SelectUserCountryForm
-            shouldAnswerUserCountryForm={shouldAnswerUserCountryForm}
-            setShouldAnswerUserCountryForm={setShouldAnswerUserCountryForm}
+            shouldAnswerMissingInfoForm={shouldAnswerMissingInfoForm}
+            setShouldAnswerMissingInfoForm={setShouldAnswerMissingInfoForm}
+            firstName={userDetailsQuery.data?.first_name ?? ""}
+            lastName={userDetailsQuery.data?.last_name ?? ""}
+            country={userDetailsQuery.data?.country ?? null}
           />
         )}
         {getPageAudioFiles.isSuccess && tracks.length !== 0 && (

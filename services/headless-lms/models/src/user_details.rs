@@ -212,3 +212,28 @@ WHERE user_id = $2
     .await?;
     Ok(())
 }
+
+pub async fn update_user_info(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    first_name: &str,
+    last_name: &str,
+    country: &str,
+) -> Result<(), sqlx::Error> {
+    sqlx::query!(
+        r#"
+UPDATE user_details
+SET first_name = $1,
+  last_name = $2,
+  country = $3
+WHERE user_id = $4
+"#,
+        first_name,
+        last_name,
+        country,
+        user_id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}

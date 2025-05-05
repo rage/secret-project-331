@@ -147,9 +147,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::post().to(search_users_fuzzy_match),
         )
         .route("/user/{user_id}", web::get().to(get_user_details))
+        .route("/users-ip-country", web::get().to(get_user_country_by_ip))
         .route(
             "/{course_id}/get-users-by-course-id",
             web::get().to(get_users_by_course_id),
-        )
-        .route("/users-ip-country", web::get().to(get_user_country_by_ip));
+        );
 }

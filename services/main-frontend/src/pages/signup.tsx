@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 import { Envelope } from "@vectopus/atlas-icons-react"
 import { useRouter } from "next/router"
 import { useContext, useEffect, useState } from "react"
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import ResearchOnCoursesForm from "../components/forms/ResearchOnCoursesForm"
@@ -12,7 +12,7 @@ import ResearchOnCoursesForm from "../components/forms/ResearchOnCoursesForm"
 import { fetchCountryFromIP } from "@/services/backend/user-details"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import SelectField from "@/shared-module/common/components/InputFields/SelectField"
+import SearchableSelect from "@/shared-module/common/components/InputFields/SearchableSelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
@@ -116,10 +116,12 @@ const Wrapper = styled.div`
 `
 
 const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
-  const { register, formState, watch, reset, handleSubmit, trigger } = useForm<FormFields>({
-    // eslint-disable-next-line i18next/no-literal-string
-    mode: "onChange",
-  })
+  const { register, formState, watch, reset, handleSubmit, trigger, control } = useForm<FormFields>(
+    {
+      // eslint-disable-next-line i18next/no-literal-string
+      mode: "onChange",
+    },
+  )
 
   const preFillCountry = useQuery({
     queryKey: [`users-ip-country`],
@@ -270,13 +272,23 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
             required={true}
             error={errors.last_name}
           />
-          <SelectField
-            label={t("enter-country-question")}
-            options={countriesNames}
-            {...register("country", {
-              required: t("required-field"),
-            })}
+
+          <Controller
+            // eslint-disable-next-line i18next/no-literal-string
+            name="country"
+            control={control}
+            rules={{ required: t("required-field") }}
+            render={({ field }) => (
+              <SearchableSelect
+                label={t("enter-country-question")}
+                options={countriesNames}
+                onChangeByValue={(value) => field.onChange(value)}
+                value={field.value}
+                error={errors.country?.message}
+              />
+            )}
           />
+
           <TextField
             label={t("email")}
             type="email"

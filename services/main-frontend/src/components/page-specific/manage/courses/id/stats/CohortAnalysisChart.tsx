@@ -8,8 +8,6 @@ import { InstructionBox } from "./CourseStatsPage"
 import Echarts from "./Echarts"
 import { DAILY_PERIOD, MONTHLY_PERIOD, Period } from "./LineChart"
 import StatsHeader from "./StatsHeader"
-// For development only
-import data from "./devdata.json"
 
 import { CohortActivity } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -36,7 +34,7 @@ const MONTHLY_DATE_FORMAT = "yyyy-MM" as const
 const DAILY_DATE_FORMAT = "yyyy-MM-dd" as const
 
 const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
-  // data,
+  data,
   isLoading,
   error,
   statHeading,
@@ -117,20 +115,6 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
   }
 
   const { cohorts, dayOffsets, chartData, cohortSizes } = processData(data)
-
-  // Debug log
-  console.log(
-    "Chart data points with 100%:",
-    chartData
-      .filter((point) => point[2] === 100)
-      .map((point) => ({
-        offset: point[0],
-        cohortIndex: point[1],
-        percentage: point[2],
-        activeUsers: point[3],
-        cohortDate: cohorts[point[1]],
-      })),
-  )
 
   const chartOptions: EChartsOption = {
     tooltip: {
@@ -380,7 +364,7 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
           <Spinner variant="medium" />
         ) : error ? (
           <ErrorBanner variant="readOnly" error={error} />
-        ) : !data || data.length === 0 ? (
+        ) : !data || data.length < 2 ? (
           <div>{t("no-data")}</div>
         ) : (
           <Echarts options={chartOptions} height={600} />

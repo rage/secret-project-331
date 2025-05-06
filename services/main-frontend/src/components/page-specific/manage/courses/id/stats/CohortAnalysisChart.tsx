@@ -4,7 +4,7 @@ import type { EChartsOption } from "echarts/types/src/export/option"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { InstructionBox } from "./CourseStatsPage"
+import { DEFAULT_CHART_HEIGHT, InstructionBox } from "./CourseStatsPage"
 import Echarts from "./Echarts"
 import { DAILY_PERIOD, MONTHLY_PERIOD, Period } from "./LineChart"
 import StatsHeader from "./StatsHeader"
@@ -354,7 +354,7 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
           border: 3px solid ${baseTheme.colors.clear[200]};
           border-radius: 6px;
           padding: 1rem;
-          min-height: 600px;
+          min-height: ${DEFAULT_CHART_HEIGHT * 2}px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -367,7 +367,7 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
         ) : !data || data.length < 2 ? (
           <div>{t("no-data")}</div>
         ) : (
-          <Echarts options={chartOptions} height={600} />
+          <Echarts options={chartOptions} height={DEFAULT_CHART_HEIGHT * 2} />
         )}
       </div>
     </>

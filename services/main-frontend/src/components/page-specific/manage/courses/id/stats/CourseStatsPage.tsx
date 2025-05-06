@@ -49,6 +49,8 @@ const TAB_VISITORS = "visitors"
 const TAB_ALL_LANGUAGES = "all-languages"
 const TAB_COURSE_INSTANCES = "course-instances"
 
+export const DEFAULT_CHART_HEIGHT = 450
+
 export const InstructionBox = styled.div`
   background-color: ${baseTheme.colors.clear[100]};
   border-left: 4px solid ${baseTheme.colors.blue[600]};

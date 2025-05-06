@@ -1,3 +1,4 @@
+import dynamic from "next/dynamic"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -5,12 +6,6 @@ import {
   CourseManagementPagesProps,
   TabPage,
 } from "../../../../../../pages/manage/courses/[id]/[...path]"
-import ChatBotPage from "../chatbot/ChatbotPage"
-import CourseCheaters from "../cheaters/CourseCheaters"
-import CodeGiveawayPage from "../code-giveaway/CodeGiveawayPage"
-import CourseGlossary from "../glossary/CourseGlossary"
-import References from "../references"
-import ResetExercises from "../reset-exercises-tool/ResetExercises"
 
 import useCourseQuery from "@/hooks/useCourseQuery"
 import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
@@ -24,12 +19,14 @@ type AdditionalProps = {
 const Subtabs: {
   [key: string]: TabPage
 } = {
-  references: References,
-  glossary: CourseGlossary,
-  chatbot: ChatBotPage,
-  cheaters: CourseCheaters,
-  "code-giveaways": CodeGiveawayPage,
-  "exercise-reset-tool": ResetExercises,
+  references: dynamic(() => import("../references"), { ssr: false }),
+  glossary: dynamic(() => import("../glossary/CourseGlossary"), { ssr: false }),
+  chatbot: dynamic(() => import("../chatbot/ChatbotPage"), { ssr: false }),
+  cheaters: dynamic(() => import("../cheaters/CourseCheaters"), { ssr: false }),
+  "code-giveaways": dynamic(() => import("../code-giveaway/CodeGiveawayPage"), { ssr: false }),
+  "exercise-reset-tool": dynamic(() => import("../reset-exercises-tool/ResetExercises"), {
+    ssr: false,
+  }),
 }
 
 const Other: React.FC<React.PropsWithChildren<CourseManagementPagesProps & AdditionalProps>> = ({

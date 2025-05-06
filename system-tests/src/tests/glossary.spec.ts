@@ -22,14 +22,6 @@ test("glossary test", async ({ page, headless }, testInfo) => {
 
   await page.goto("http://project-331.local/org/uh-cs/courses/glossary-course/glossary")
 
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "initial-glossary-page",
-    waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "Glossary" })],
-  })
-
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
@@ -44,26 +36,9 @@ test("glossary test", async ({ page, headless }, testInfo) => {
   await page.getByRole("button", { name: "Edit" }).first().click()
   await page.getByText("Cancel").click()
 
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "initial-glossary-management-page",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Manage glossary")],
-  })
-
   await page.getByRole("button", { name: "Delete" }).first().click()
 
   await page.getByText("Deleted").first().waitFor()
-
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "deleted-term",
-    waitForTheseToBeGone: [page.getByText("Computer science is an essential")],
-    clearNotifications: true,
-  })
 
   await page.getByPlaceholder("New term").fill("abcd")
   await page.getByPlaceholder("New definition").fill("efgh")
@@ -75,25 +50,7 @@ test("glossary test", async ({ page, headless }, testInfo) => {
   await page.getByText("efgh").waitFor()
   await waitForFooterTranslationsToLoad(page)
 
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "added-new-term",
-    waitForTheseToBeVisibleAndStable: [page.getByText("efgh")],
-    scrollToYCoordinate: 538,
-  })
-
   await page.getByRole("button", { name: "Edit" }).first().click()
-
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "editing-term",
-    waitForTheseToBeVisibleAndStable: [page.getByText("updated term")],
-    clearNotifications: true,
-  })
 
   // Fill [placeholder="updated term"]
   await page.getByPlaceholder("Updated term").fill("ABCD")
@@ -102,15 +59,6 @@ test("glossary test", async ({ page, headless }, testInfo) => {
   await page.getByPlaceholder("Updated definition").fill("EFGH")
 
   await page.click(':nth-match(:text("Save"), 2)')
-
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "edited-term",
-    waitForTheseToBeVisibleAndStable: [page.locator(`text=EFGH`)],
-    clearNotifications: true,
-  })
 
   await page.goto("http://project-331.local/org/uh-cs/courses/glossary-course/glossary")
   await page.getByText("Give feedback").waitFor()

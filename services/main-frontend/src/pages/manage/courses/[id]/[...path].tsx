@@ -1,22 +1,13 @@
+import dynamic from "next/dynamic"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import MainFrontendBreadCrumbs from "../../../../components/MainFrontendBreadCrumbs"
-import CourseChangeRequests from "../../../../components/page-specific/manage/courses/id/change-request/CourseChangeRequests"
-import CourseCourseInstances from "../../../../components/page-specific/manage/courses/id/course-instances/CourseCourseInstances"
-import CourseExercises from "../../../../components/page-specific/manage/courses/id/exercises/CourseExercises"
-import CourseFeedback from "../../../../components/page-specific/manage/courses/id/feedback/CourseFeedback"
-import CourseOverview from "../../../../components/page-specific/manage/courses/id/index/CourseOverview"
-import CourseLanguageVersionsPage from "../../../../components/page-specific/manage/courses/id/language-versions/CourseLanguageVersions"
-import Other from "../../../../components/page-specific/manage/courses/id/other"
-import CourseModules from "../../../../components/page-specific/manage/courses/id/pages/CourseModules"
-import CoursePages from "../../../../components/page-specific/manage/courses/id/pages/CoursePages"
-import CoursePermissions from "../../../../components/page-specific/manage/courses/id/permissions/CoursePermissions"
-import CourseStatsPage from "../../../../components/page-specific/manage/courses/id/stats/CourseStatsPage"
 import useCountAnswersRequiringAttentionHook from "../../../../hooks/count/useCountAnswersRequiringAttentionHook"
 import createPendingChangeRequestCountHook from "../../../../hooks/count/usePendingChangeRequestCount"
 import createUnreadFeedbackCountHook from "../../../../hooks/count/useUnreadFeedbackCount"
 
+import MainFrontendBreadCrumbs from "@/components/MainFrontendBreadCrumbs"
+import Other from "@/components/page-specific/manage/courses/id/other"
 import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
 import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"
 import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/TabLinkPanel"
@@ -27,6 +18,40 @@ import {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+const CourseOverview = dynamic(
+  () => import("@/components/page-specific/manage/courses/id/index/CourseOverview"),
+)
+const CoursePages = dynamic(
+  () => import("@/components/page-specific/manage/courses/id/pages/CoursePages"),
+)
+const CourseModules = dynamic(
+  () => import("@/components/page-specific/manage/courses/id/pages/CourseModules"),
+)
+const CourseFeedback = dynamic(
+  () => import("@/components/page-specific/manage/courses/id/feedback/CourseFeedback"),
+)
+const CourseChangeRequests = dynamic(
+  () => import("@/components/page-specific/manage/courses/id/change-request/CourseChangeRequests"),
+)
+const CourseExercises = dynamic(
+  () => import("@/components/page-specific/manage/courses/id/exercises/CourseExercises"),
+)
+const CourseCourseInstances = dynamic(
+  () =>
+    import("@/components/page-specific/manage/courses/id/course-instances/CourseCourseInstances"),
+)
+const CourseLanguageVersionsPage = dynamic(
+  () =>
+    import("@/components/page-specific/manage/courses/id/language-versions/CourseLanguageVersions"),
+)
+const CoursePermissions = dynamic(
+  () => import("@/components/page-specific/manage/courses/id/permissions/CoursePermissions"),
+)
+const CourseStatsPage = dynamic(
+  () => import("@/components/page-specific/manage/courses/id/stats/CourseStatsPage"),
+)
+
 export interface CourseManagementPagesProps {
   courseId: string
 }
@@ -36,7 +61,7 @@ interface CourseManagementPageProps {
   query: SimplifiedUrlQuery<string>
 }
 
-export type TabPage = React.FC<React.PropsWithChildren<CourseManagementPagesProps>>
+export type TabPage = React.ComponentType<React.PropsWithChildren<CourseManagementPagesProps>>
 
 const CourseManagementPageTabs: {
   [key: string]: TabPage

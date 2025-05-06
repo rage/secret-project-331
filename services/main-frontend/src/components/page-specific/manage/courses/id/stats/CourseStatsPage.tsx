@@ -42,6 +42,7 @@ import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLi
 import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"
 import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/TabLinkPanel"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 
 const TAB_OVERVIEW = "overview"
 const TAB_USER_ACTIVITY = "user-activity"
@@ -202,4 +203,4 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
   )
 }
 
-export default CourseStatsPage
+export default withNoSsr(CourseStatsPage)

@@ -1,19 +1,20 @@
-import dynamic from "next/dynamic"
 import React, { useMemo } from "react"
 import "katex/dist/katex.min.css"
+
+import { formatText, isValidText } from "./tagParser"
+
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 
 export interface TextNodeProps {
   text: string
   inline?: boolean
 }
 
-const TextNodeImpl = dynamic(() => import("./TextNodeImpl"), { ssr: false })
+const TextNodeImpl = dynamicImport<TextNodeProps>(() => import("./TextNodeImpl"))
 
 const TextNode: React.FC<React.PropsWithChildren<TextNodeProps>> = (props) => (
   <TextNodeImpl {...props} />
 )
-
-import { formatText, isValidText } from "./tagParser"
 
 interface ParsedTextProps {
   text: string | null

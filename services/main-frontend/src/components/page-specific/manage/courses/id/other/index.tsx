@@ -1,4 +1,3 @@
-import dynamic from "next/dynamic"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -11,6 +10,7 @@ import useCourseQuery from "@/hooks/useCourseQuery"
 import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
 import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"
 import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/TabLinkPanel"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 
 type AdditionalProps = {
   activeSubtab: string
@@ -19,14 +19,16 @@ type AdditionalProps = {
 const Subtabs: {
   [key: string]: TabPage
 } = {
-  references: dynamic(() => import("../references"), { ssr: false }),
-  glossary: dynamic(() => import("../glossary/CourseGlossary"), { ssr: false }),
-  chatbot: dynamic(() => import("../chatbot/ChatbotPage"), { ssr: false }),
-  cheaters: dynamic(() => import("../cheaters/CourseCheaters"), { ssr: false }),
-  "code-giveaways": dynamic(() => import("../code-giveaway/CodeGiveawayPage"), { ssr: false }),
-  "exercise-reset-tool": dynamic(() => import("../reset-exercises-tool/ResetExercises"), {
-    ssr: false,
-  }),
+  references: dynamicImport<CourseManagementPagesProps>(() => import("../references")),
+  glossary: dynamicImport<CourseManagementPagesProps>(() => import("../glossary/CourseGlossary")),
+  chatbot: dynamicImport<CourseManagementPagesProps>(() => import("../chatbot/ChatbotPage")),
+  cheaters: dynamicImport<CourseManagementPagesProps>(() => import("../cheaters/CourseCheaters")),
+  "code-giveaways": dynamicImport<CourseManagementPagesProps>(
+    () => import("../code-giveaway/CodeGiveawayPage"),
+  ),
+  "exercise-reset-tool": dynamicImport<CourseManagementPagesProps>(
+    () => import("../reset-exercises-tool/ResetExercises"),
+  ),
 }
 
 const Other: React.FC<React.PropsWithChildren<CourseManagementPagesProps & AdditionalProps>> = ({

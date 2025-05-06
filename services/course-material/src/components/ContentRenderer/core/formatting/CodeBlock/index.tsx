@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import dynamic from "next/dynamic"
 import { useMemo } from "react"
 
 import { BlockRendererProps } from "../../.."
@@ -8,16 +7,11 @@ import { CodeAttributes } from "../../../../../../types/GutenbergBlockAttributes
 import { CopyButton } from "./CopyButton"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { monospaceFont } from "@/shared-module/common/styles"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-const SyntaxHighlightedContainerLoading = <Spinner variant="medium" />
-
-const SyntaxHighlightedContainer = dynamic(() => import("./SyntaxHighlightedContainer"), {
-  ssr: true,
-  loading: () => SyntaxHighlightedContainerLoading,
-})
+const SyntaxHighlightedContainer = dynamicImport(() => import("./SyntaxHighlightedContainer"))
 
 const containerStyles = css`
   position: relative;

@@ -3,7 +3,6 @@ import { css } from "@emotion/css"
 import { UseMutationResult, useQuery } from "@tanstack/react-query"
 import { BlockInstance } from "@wordpress/blocks"
 import { isEqual } from "lodash"
-import dynamic from "next/dynamic"
 import { useRouter } from "next/router"
 import React, { useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -32,7 +31,7 @@ import BreakFromCentered from "@/shared-module/common/components/Centering/Break
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Menu from "@/shared-module/common/components/Navigation/NavBar/Menu/Menu"
-import Spinner from "@/shared-module/common/components/Spinner"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { pageRoute } from "@/shared-module/common/utils/routes"
 
 interface PageEditorProps {
@@ -42,12 +41,7 @@ interface PageEditorProps {
   setNeedToRunMigrationsAndValidations: React.Dispatch<boolean>
 }
 
-const EditorLoading = <Spinner variant="medium" />
-
-const GutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
-  ssr: false,
-  loading: () => EditorLoading,
-})
+const GutenbergEditor = dynamicImport(() => import("./GutenbergEditor"))
 
 const supportedBlocks = (chapter_id: string | null, exam_id: string | null): string[] => {
   const supportedBlocksForPages: string[] = blockTypeMapForPages.map((mapping) => mapping[0])

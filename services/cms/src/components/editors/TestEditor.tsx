@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 import { BlockInstance } from "@wordpress/blocks"
-import dynamic from "next/dynamic"
 import React, { useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -14,14 +13,9 @@ import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import Spinner from "@/shared-module/common/components/Spinner"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 
-const EditorLoading = <Spinner variant="medium" />
-
-const GutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
-  ssr: false,
-  loading: () => EditorLoading,
-})
+const GutenbergEditor = dynamicImport(() => import("./GutenbergEditor"))
 
 const supportedBlocks = (): string[] => {
   const supportedBlocksForPages: string[] = blockTypeMapForPages.map((mapping) => mapping[0])

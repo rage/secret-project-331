@@ -1,13 +1,6 @@
-import dynamic from "next/dynamic"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 
-import Spinner from "@/shared-module/common/components/Spinner"
-
-const EditorLoading = <Spinner variant="medium" />
-
-const TestEditor = dynamic(() => import("@/components/editors/TestEditor"), {
-  ssr: false,
-  loading: () => EditorLoading,
-})
+const TestEditor = dynamicImport(() => import("@/components/editors/TestEditor"))
 
 const TestEditorPage = () => {
   return (

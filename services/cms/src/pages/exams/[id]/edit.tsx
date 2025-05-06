@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query"
-import dynamic from "next/dynamic"
 import React, { useState } from "react"
 
 import { fetchExamsInstructions, updateExamsInstructions } from "../../../services/backend/exams"
@@ -11,16 +10,11 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-const EditorLoading = <Spinner variant="medium" />
-
-const ExamsInstructionsGutenbergEditor = dynamic(
+const ExamsInstructionsGutenbergEditor = dynamicImport(
   () => import("../../../components/editors/ExamsInstructionsEditor"),
-  {
-    ssr: false,
-    loading: () => EditorLoading,
-  },
 )
 
 export interface ExamInstructionsEditProps {

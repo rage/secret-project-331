@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query"
 import { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { postNewCourse, postNewCourseDuplicate } from "../../../../services/backend/courses"
+import { postNewCourse } from "../../../../services/backend/courses"
 import {
   fetchOrganizationCourseCount,
   fetchOrganizationCourses,
@@ -12,6 +12,7 @@ import {
 import { CourseComponent, CourseGrid } from "./CourseCard"
 import NewCourseDialog from "./NewCourseDialog"
 
+import { useCreateCourseCopy } from "@/hooks/useCreateCourseCopy"
 import { NewCourse } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -35,6 +36,8 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
   const paginationInfo = usePaginationInfo()
   const [newCourseFormOpen, setNewCourseFormOpen] = useState(false)
   const loginStateContext = useContext(LoginStateContext)
+  const [courseToDuplicate, setCourseToDuplicate] = useState<string | null>(null)
+  const createCourseCopyMutation = useCreateCourseCopy(courseToDuplicate ?? "")
 
   const getOrgCourses = useQuery({
     queryKey: [`organization-courses`, paginationInfo.page, paginationInfo.limit, organizationId],
@@ -74,10 +77,16 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
   }
 
   const handleSubmitDuplicateCourse = async (oldCourseId: string, newCourse: NewCourse) => {
-    await postNewCourseDuplicate(oldCourseId, newCourse)
+    setCourseToDuplicate(oldCourseId)
+    await createCourseCopyMutation.mutateAsync({
+      ...newCourse,
+      // eslint-disable-next-line i18next/no-literal-string
+      mode: { mode: "duplicate" },
+    })
     await getOrgCourses.refetch()
     await getOrgCourseCount.refetch()
     setNewCourseFormOpen(false)
+    setCourseToDuplicate(null)
   }
 
   if (getOrgCourses.isError) {

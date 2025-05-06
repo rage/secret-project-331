@@ -10,6 +10,7 @@ pub struct ExerciseTaskInfo {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "type")]
+#[serde(rename_all = "lowercase")]
 pub enum PublicSpec {
     Browser {
         files: Vec<ExerciseFile>,
@@ -27,6 +28,8 @@ pub struct ExerciseFile {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(tag = "type")]
+#[serde(rename_all = "lowercase")]
 pub enum ModelSolutionSpec {
     Browser {
         files: Vec<ExerciseFile>,

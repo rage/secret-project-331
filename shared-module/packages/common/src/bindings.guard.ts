@@ -171,11 +171,7 @@ export function isResource(obj: unknown): obj is Resource {
             (typedObj !== null &&
                 typeof typedObj === "object" ||
                 typeof typedObj === "function") &&
-            typedObj["type"] === "exercise_service" ||
-            (typedObj !== null &&
-                typeof typedObj === "object" ||
-                typeof typedObj === "function") &&
-            typedObj["type"] === "material_reference")
+            typedObj["type"] === "exercise_service")
     )
 }
 

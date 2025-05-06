@@ -27,7 +27,7 @@ const AnswerEditorExercise: React.FC<React.PropsWithChildren<Props>> = ({
     <>
       <div>{t("solve-in-editor-instructions")}</div>
       <div>
-        <a href={initialPublicSpec.archiveDownloadUrl}>
+        <a href={initialPublicSpec.archive_download_url}>
           <Button variant={"primary"} size={"small"}>
             {t("download-exercise")}
           </Button>
@@ -57,7 +57,7 @@ const AnswerEditorExercise: React.FC<React.PropsWithChildren<Props>> = ({
           onClick={() => {
             if (fileToUpload) {
               // eslint-disable-next-line i18next/no-literal-string
-              sendFileUploadMessage(`submission-${initialPublicSpec.archiveName}`, fileToUpload)
+              sendFileUploadMessage(`submission-${initialPublicSpec.archive_name}`, fileToUpload)
             }
           }}
         >

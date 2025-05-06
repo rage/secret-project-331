@@ -26,7 +26,7 @@ const ViewSubmission: React.FC<React.PropsWithChildren<Props>> = ({ state }) => 
     return (
       <div>
         {t("submission-archive-download-label")}:{" "}
-        <a href={state.submission.archiveDownloadUrl}>{t("download-submission-button")}</a>
+        <a href={state.submission.archive_download_url}>{t("download-submission-button")}</a>
       </div>
     )
   } else {

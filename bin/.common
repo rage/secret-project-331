@@ -145,8 +145,7 @@ function point_docker_cli_to_minikube_docker() {
 
 function ensure_tmc_langs_cli_downloaded() {
   path_to_tmc=$(relativize_path "../services/tmc")
-  path_to_tmc_version="$path_to_tmc"/tmc-langs-version
-  tmc_version=$(< "$path_to_tmc_version" tr -d '[:space:]')
+  tmc_version=$(head -n1 "$path_to_tmc/src/tmc/cli.d.ts" | cut -d= -f2)
   if [ -f "$path_to_tmc"/tmc-langs-cli-x86_64-unknown-linux-gnu-"$tmc_version" ];
   then
       echo "Found tmc-langs-cli"

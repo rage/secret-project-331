@@ -15,14 +15,17 @@ import {
 import { ExerciseFile, ModelSolutionSpec, PrivateSpec } from "../../util/stateInterfaces"
 
 import { RepositoryExercise, SpecRequest } from "@/shared-module/common/bindings"
+import { isSpecRequest } from "@/shared-module/common/bindings.guard"
 import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/common/utils/exerciseServices"
 import { isObjectMap } from "@/shared-module/common/utils/fetching"
 
 export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
   try {
+    if (!isSpecRequest(req.body)) {
+      throw new Error("Request was not valid.")
+    }
     const specRequest = req.body as SpecRequest
     const requestId = specRequest.request_id.slice(0, 4)
-
     if (req.method !== "POST") {
       return badRequest(requestId, res, "Wrong method")
     }
@@ -48,13 +51,13 @@ const processModelSolution = async (
     log(requestId, "Processing model solution")
 
     const { private_spec, upload_url } = specRequest
-    const privateSpec = private_spec as PrivateSpec | null
-    if (privateSpec === null) {
-      return badRequest(requestId, res, "Private spec cannot be null")
+    if (private_spec === null || private_spec === undefined) {
+      return badRequest(requestId, res, "Missing private spec")
     }
-    if (upload_url === null) {
+    if (upload_url === null || upload_url == undefined) {
       return badRequest(requestId, res, "Missing upload URL")
     }
+    const privateSpec = private_spec as PrivateSpec
 
     // create model solution
     debug(requestId, "downloading template")

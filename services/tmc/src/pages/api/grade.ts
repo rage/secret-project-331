@@ -19,6 +19,7 @@ import { PrivateSpec, UserAnswer } from "../../util/stateInterfaces"
 
 import { ExerciseTaskGradingResult, GradingProgress } from "@/shared-module/common/bindings"
 import { GradingRequest } from "@/shared-module/common/exercise-service-protocol-types-2"
+import { isNonGenericGradingRequest } from "@/shared-module/common/exercise-service-protocol-types.guard"
 import { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER } from "@/shared-module/common/utils/exerciseServices"
 
 const DEFAULT_TASK_TIMEOUT_MS = 60000
@@ -28,11 +29,14 @@ export default async (
   res: NextApiResponse<ExerciseTaskGradingResult | ClientErrorResponse>,
 ): Promise<void> => {
   try {
-    const specRequest = req.body as TmcGradingRequest
-
     if (req.method !== "POST") {
       return badRequest(res, "Wrong method")
     }
+    if (!isNonGenericGradingRequest(req.body)) {
+      throw new Error("Invalid grading request")
+    }
+
+    const specRequest = req.body as TmcGradingRequest
     let gradingUpdateClaim: string | null = null
     const gradingUpdateClaimHeader = req.headers[EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER]
     if (typeof gradingUpdateClaimHeader === "string") {

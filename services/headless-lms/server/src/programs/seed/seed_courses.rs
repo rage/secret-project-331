@@ -2883,7 +2883,7 @@ pub async fn seed_cs_course_material(
             false,
             serde_json::json!({
                 "type": "browser",
-                "repositoryExercise": {
+                "repository_exercise": {
                     "id": repository_exercise_1_id,
                     "repository_id": exercise_repository_id,
                     "part": repository_exercise_part,
@@ -2906,7 +2906,7 @@ pub async fn seed_cs_course_material(
             false,
             serde_json::json!({
                 "type": "editor",
-                "repositoryExercise": {
+                "repository_exercise": {
                     "id": repository_exercise_2_id,
                     "repository_id": exercise_repository_id,
                     "part": repository_exercise_part,

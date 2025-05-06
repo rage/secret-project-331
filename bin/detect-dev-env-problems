@@ -30,7 +30,7 @@ echo ""
 
 echo "Checking if langs exists"
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
-FOLDER_PATH="$BASEDIR/../services/tmc/"
+FOLDER_PATH="$BASEDIR/../services/tmc/bin/"
 if [ -n "$(find "$FOLDER_PATH" -maxdepth 1 -type f -name "tmc-langs-cli-*")" ]; then
   echo "Found langs"
 else

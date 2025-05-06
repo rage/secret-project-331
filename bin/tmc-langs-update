@@ -7,16 +7,15 @@ FOLDER_PATH="$BASEDIR/../services/tmc/"
 RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 run_command cd "$RELATIVE_PATH" || exit
 
+if [ -z ${1+x} ]; then
+  echo -e "Missing version argument"
+  exit 1
+fi
 VERSION="$1"
 LANGS_FILENAME="tmc-langs-cli-x86_64-unknown-linux-gnu-${VERSION}"
 LANGS_PATH="./bin/$LANGS_FILENAME"
 
 echo "Updating TMC langs version to $VERSION"
-
-if [[ -f "$LANGS_PATH" ]]; then
-  echo "Already up to date!"
-  exit 0
-fi
 
 BINDINGS_DOWNLOAD_URL="https://raw.githubusercontent.com/rage/tmc-langs-rust/${VERSION}/crates/tmc-langs-cli/bindings.d.ts"
 BINDINGS_DOWNLOAD_TARGET="./src/tmc/cli.d.ts"

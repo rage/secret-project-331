@@ -1,7 +1,6 @@
 /* eslint-disable i18next/no-literal-string */
 import { css, cx } from "@emotion/css"
 import DOMPurify from "dompurify"
-import dynamic from "next/dynamic"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -76,6 +75,7 @@ import { BreakFromCenteredDisabledContext } from "@/shared-module/common/compone
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import { baseTheme } from "@/shared-module/common/styles"
 import { linkWithExtraIconClass } from "@/shared-module/common/styles/constants"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 /** The props that this component receives */
@@ -99,7 +99,7 @@ export type BlockRendererProps<T> = {
   wrapperClassName?: string
 } & Omit<ContentRendererProps, "data">
 
-const LatexBlock = dynamic(() => import("./moocfi/LatexBlock"))
+const LatexBlock = dynamicImport(() => import("./moocfi/LatexBlock"))
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const blockToRendererMap: { [blockName: string]: any } = {

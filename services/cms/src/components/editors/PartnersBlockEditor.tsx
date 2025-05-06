@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 import { BlockInstance } from "@wordpress/blocks"
-import dynamic from "next/dynamic"
 import React, { useContext, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -12,19 +11,14 @@ import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { PartnersBlock } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import SuccessNotification from "@/shared-module/common/components/Notifications/Success"
-import Spinner from "@/shared-module/common/components/Spinner"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 
 interface PartnersBlockEditorProps {
   data: PartnersBlock
   handleSave: (updatedTemplate: unknown) => Promise<PartnersBlock>
 }
 
-const EditorLoading = <Spinner variant="medium" />
-
-const PartnersBlockGutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
-  ssr: false,
-  loading: () => EditorLoading,
-})
+const PartnersBlockGutenbergEditor = dynamicImport(() => import("./GutenbergEditor"))
 
 const PartnersSectionEditor: React.FC<React.PropsWithChildren<PartnersBlockEditorProps>> = ({
   data,

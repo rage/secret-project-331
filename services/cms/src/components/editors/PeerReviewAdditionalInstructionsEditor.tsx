@@ -1,11 +1,10 @@
 import { css } from "@emotion/css"
 import { BlockInstance } from "@wordpress/blocks"
-import dynamic from "next/dynamic"
 import React, { useEffect, useState } from "react"
 
 import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
 
-import Spinner from "@/shared-module/common/components/Spinner"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 
 interface PeerReviewAdditionalInstructionsEditorProps {
   content: BlockInstance[]
@@ -13,12 +12,7 @@ interface PeerReviewAdditionalInstructionsEditorProps {
   courseId: string
 }
 
-const EditorLoading = <Spinner variant="medium" />
-
-const GutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
-  ssr: false,
-  loading: () => EditorLoading,
-})
+const GutenbergEditor = dynamicImport(() => import("./GutenbergEditor"))
 
 const PeerReviewAdditionalInstructionsEditor = (
   props: PeerReviewAdditionalInstructionsEditorProps,

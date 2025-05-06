@@ -1,16 +1,13 @@
 import { css } from "@emotion/css"
 import { EChartsOption } from "echarts/types/src/export/option"
-import dynamic from "next/dynamic"
 import React from "react"
 
-import Spinner from "@/shared-module/common/components/Spinner"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-const ReactECharts = dynamic(() => import("echarts-for-react"), {
-  ssr: false,
-
-  loading: () => <Spinner variant="medium" />,
-})
+const ReactECharts = dynamicImport<{ option: EChartsOption; style?: React.CSSProperties }>(
+  () => import("echarts-for-react"),
+)
 
 export interface EchartsProps {
   options: EChartsOption

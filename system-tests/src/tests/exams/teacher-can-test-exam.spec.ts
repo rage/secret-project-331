@@ -1,3 +1,4 @@
+/* eslint-disable playwright/no-wait-for-timeout */
 import { expect, test } from "@playwright/test"
 
 import { getLocatorForNthExerciseServiceIframe, waitForViewType } from "@/utils/iframeLocators"

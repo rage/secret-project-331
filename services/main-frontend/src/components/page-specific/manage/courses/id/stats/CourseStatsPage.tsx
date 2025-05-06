@@ -42,12 +42,15 @@ import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLi
 import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"
 import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/TabLinkPanel"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 
 const TAB_OVERVIEW = "overview"
 const TAB_USER_ACTIVITY = "user-activity"
 const TAB_VISITORS = "visitors"
 const TAB_ALL_LANGUAGES = "all-languages"
 const TAB_COURSE_INSTANCES = "course-instances"
+
+export const DEFAULT_CHART_HEIGHT = 450
 
 export const InstructionBox = styled.div`
   background-color: ${baseTheme.colors.clear[100]};
@@ -200,4 +203,4 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
   )
 }
 
-export default CourseStatsPage
+export default withNoSsr(CourseStatsPage)

@@ -1,5 +1,4 @@
 import { BlockInstance } from "@wordpress/blocks"
-import dynamic from "next/dynamic"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -10,7 +9,7 @@ import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsuppor
 
 import { ExamInstructions, ExamInstructionsUpdate } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
-import Spinner from "@/shared-module/common/components/Spinner"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 
 interface ExamsInstructionsEditorProps {
   data: ExamInstructions
@@ -19,12 +18,7 @@ interface ExamsInstructionsEditorProps {
   setNeedToRunMigrationsAndValidations: React.Dispatch<boolean>
 }
 
-const EditorLoading = <Spinner variant="medium" />
-
-const ExamsInstructionsGutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
-  ssr: false,
-  loading: () => EditorLoading,
-})
+const ExamsInstructionsGutenbergEditor = dynamicImport(() => import("./GutenbergEditor"))
 
 const ExamsInstructionsEditor: React.FC<React.PropsWithChildren<ExamsInstructionsEditorProps>> = ({
   data,

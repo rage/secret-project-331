@@ -1,5 +1,4 @@
 import { useAtom } from "jotai"
-import dynamic from "next/dynamic"
 import React, { useContext, useMemo } from "react"
 
 import { BlockRendererProps } from "../../.."
@@ -10,10 +9,11 @@ import { parseText } from "../../../util/textParsing"
 import EditingParagraph from "./proposing-edits/EditingParagraph"
 import { getParagraphStyles } from "./styles"
 
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { currentlyOpenFeedbackDialogAtom } from "@/stores/materialFeedbackStore"
 
-const LatexParagraph = dynamic(() => import("./LatexParagraph"))
+const LatexParagraph = dynamicImport(() => import("./LatexParagraph"))
 
 interface ExtraAttributes {
   backgroundColor?: string

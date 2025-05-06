@@ -35,7 +35,9 @@ test("Can manually reset exercises", async () => {
     .contentFrame()
     .getByRole("checkbox", { name: "a" })
     .click()
+
   await student1Page.getByRole("button", { name: "Submit" }).click()
+  await student1Page.getByRole("button", { name: "Try again" }).waitFor({ state: "visible" })
 
   await student1Page.getByRole("link", { name: "Next page: Page" }).click()
   await student1Page
@@ -45,6 +47,7 @@ test("Can manually reset exercises", async () => {
     .getByRole("checkbox", { name: "c" })
     .click()
   await student1Page.getByRole("button", { name: "Submit" }).first().click()
+  await student1Page.getByRole("button", { name: "Try again" }).waitFor({ state: "visible" })
 
   await student1Page
     .locator('iframe[title="Exercise 1\\, task 1 content"]')
@@ -53,6 +56,7 @@ test("Can manually reset exercises", async () => {
     .getByRole("checkbox", { name: "b" })
     .click()
   await student1Page.getByRole("button", { name: "Submit" }).first().click()
+  await student1Page.getByRole("button", { name: "Try again" }).waitFor({ state: "visible" })
 
   await student1Page.getByRole("link", { name: "Next page: Page" }).click()
 
@@ -62,6 +66,7 @@ test("Can manually reset exercises", async () => {
     .getByRole("textbox", { name: "Answer" })
     .fill("a a a a a a a a a a a")
   await student1Page.getByRole("button", { name: "Submit" }).click()
+  await student1Page.getByRole("button", { name: "Try again" }).waitFor({ state: "visible" })
   await student1Page.getByRole("button", { name: "Start peer review" }).click()
 
   await student1Page.goto(
@@ -105,7 +110,7 @@ test("Can manually reset exercises", async () => {
     .nth(1)
     .click()
   await student1Page.getByRole("button", { name: "Submit" }).click()
-
+  await student1Page.getByRole("button", { name: "Try again" }).waitFor({ state: "visible" })
   // Admin resets only exercises that have less than maximum points
   await adminPage.goto(
     "http://project-331.local/manage/courses/0cf67777-0edb-480c-bdb6-13f90c136fc3/other/exercise-reset-tool",

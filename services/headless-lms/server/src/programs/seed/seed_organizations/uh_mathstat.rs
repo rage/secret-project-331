@@ -36,8 +36,8 @@ pub async fn seed_organization_uh_mathstat(
     info!("seeding organization uh-mathstat");
 
     let SeedUsersResult {
-        admin_user_id,
-        teacher_user_id: _,
+        teacher_user_id,
+        admin_user_id: _,
         language_teacher_user_id: _,
         material_viewer_user_id,
         assistant_user_id: _,
@@ -104,7 +104,7 @@ pub async fn seed_organization_uh_mathstat(
             default_course_instance_id: Uuid::parse_str("8e4aeba5-1958-49bc-9b40-c9f0f0680911")?,
         }),
         new_course,
-        admin_user_id,
+        teacher_user_id,
         get_seed_spec_fetcher(),
         models_requests::fetch_service_info,
     )
@@ -149,48 +149,55 @@ pub async fn seed_organization_uh_mathstat(
             default_course_instance_id: Uuid::parse_str("5cb4b4d6-4599-4f81-ab7e-79b415f8f584")?,
         }),
         draft_course,
-        admin_user_id,
+        teacher_user_id,
         get_seed_spec_fetcher(),
         models_requests::fetch_service_info,
     )
     .await?;
 
-    let cody_only_course = NewCourse {
-        name: "Joinable by code only".to_string(),
-        slug: "joinable-by-code-only".to_string(),
-        organization_id: uh_mathstat_id,
-        language_code: "en-US".to_string(),
-        teacher_in_charge_name: "admin".to_string(),
-        teacher_in_charge_email: "admin@example.com".to_string(),
-        description: "Just a draft.".to_string(),
-        is_draft: false,
-        is_test_mode: false,
-        is_unlisted: false,
-        copy_user_permissions: false,
-        is_joinable_by_code_only: true,
-        join_code: Some(
-            "zARvZARjYhESMPVceEgZyJGQZZuUHVVgcUepyzEqzSqCMdbSCDrTaFhkJTxBshWU".to_string(),
-        ),
-        ask_marketing_consent: false,
-        flagged_answers_threshold: Some(3),
-    };
-    library::content_management::create_new_course(
+    let (cody_only_course, _, _, _) = library::content_management::create_new_course(
         &mut conn,
         PKeyPolicy::Fixed(CreateNewCourseFixedIds {
             course_id: Uuid::parse_str("39a52e8c-ebbf-4b9a-a900-09aa344f3691")?,
             default_course_instance_id: Uuid::parse_str("5b7286ce-22c5-4874-ade1-262949c4a604")?,
         }),
-        cody_only_course,
-        admin_user_id,
+        NewCourse {
+            name: "Joinable by code only".to_string(),
+            slug: "joinable-by-code-only".to_string(),
+            organization_id: uh_mathstat_id,
+            language_code: "en-US".to_string(),
+            teacher_in_charge_name: "admin".to_string(),
+            teacher_in_charge_email: "admin@example.com".to_string(),
+            description: "Just a draft.".to_string(),
+            is_draft: false,
+            is_test_mode: false,
+            is_unlisted: false,
+            copy_user_permissions: false,
+            is_joinable_by_code_only: true,
+            join_code: Some(
+                "zARvZARjYhESMPVceEgZyJGQZZuUHVVgcUepyzEqzSqCMdbSCDrTaFhkJTxBshWU".to_string(),
+            ),
+            ask_marketing_consent: false,
+            flagged_answers_threshold: Some(3),
+        },
+        teacher_user_id,
         get_seed_spec_fetcher(),
         models_requests::fetch_service_info,
+    )
+    .await?;
+
+    roles::insert(
+        &mut conn,
+        teacher_user_id,
+        UserRole::Teacher,
+        RoleDomain::Course(cody_only_course.id),
     )
     .await?;
 
     let uh_data = CommonCourseData {
         db_pool: db_pool.clone(),
         organization_id: uh_mathstat_id,
-        admin_user_id,
+        teacher_user_id,
         student_user_id: student_3_user_id,
         langs_user_id,
         example_normal_user_ids: Arc::new(example_normal_user_ids.to_vec()),
@@ -227,7 +234,7 @@ pub async fn seed_organization_uh_mathstat(
             flagged_answers_threshold: Some(3),
         },
         true,
-        admin_user_id,
+        teacher_user_id,
     )
     .await?;
 
@@ -346,6 +353,15 @@ pub async fn seed_organization_uh_mathstat(
         Uuid::parse_str("f118ce1e-3511-4b5e-ba92-9ab91b81de22")?,
         "Giveaway",
         "giveaway",
+        uh_data.clone(),
+        seed_users_result,
+    )
+    .await?;
+
+    let _custom_points_course_id = seed_sample_course(
+        Uuid::parse_str("db5cd9c7-1658-4214-896e-8213678d3534")?,
+        "Custom points",
+        "custom-points",
         uh_data.clone(),
         seed_users_result,
     )

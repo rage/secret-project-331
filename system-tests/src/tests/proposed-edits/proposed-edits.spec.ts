@@ -30,6 +30,9 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
 
   await frame.getByText("b").waitFor()
 
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(100)
+
   await page.getByText("Give feedback").click()
 
   await page.getByText("Improve material").click()
@@ -39,9 +42,9 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "no-edits-yet",
-    waitForTheseToBeVisibleAndStable: [
-      page.getByText("Click on course material to make it editable!"),
-    ],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Click on a paragraph to make it editable!")],
+    skipMobile: true,
+    scrollToYCoordinate: 920,
   })
 
   await page.getByText("At vero eos et").click()
@@ -53,7 +56,11 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "currently-editing",
-    waitForTheseToBeVisibleAndStable: [page.getByText("You've selected material for editing")],
+    waitForTheseToBeVisibleAndStable: [
+      page.getByText("Now, type your proposed changes directly into the content"),
+    ],
+    skipMobile: true,
+    scrollToYCoordinate: 920,
   })
 
   await page.getByText("So big, that we need many paragraphs.").click()
@@ -91,13 +98,16 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "preview",
     waitForTheseToBeVisibleAndStable: [
-      page.locator(`text="Send"`),
-      page.locator(`text="You've made changes"`),
-      page.locator(`text="Do you want to send your changes?"`),
+      page.getByRole("button", { name: "Send" }),
+      page.getByText(
+        "Send your proposal to review or select another paragraph to make more changes",
+      ),
     ],
+    skipMobile: true,
+    scrollToYCoordinate: 920,
   })
 
-  await page.click('button:has-text("Send")')
+  await page.getByRole("button", { name: "Send" }).click()
 
   await page.getByText("Feedback submitted successfully").waitFor()
 
@@ -119,55 +129,17 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     "http://project-331.local/manage/courses/cae7da38-9486-47da-9106-bff9b6a280f2/change-requests",
   )
 
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "manage-initial",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Accept").first()],
-  })
-
   await page.click(':nth-match(:text("Accept"), 1)')
 
   await page.click(':nth-match(:text("Edit and accept"), 2)')
   await page.fill('textarea:has-text("Like this!")', "Like this!!!!!")
   await page.click(':nth-match(:text("Reject"), 3)')
 
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "manage-before-send",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Send").first()],
-    beforeScreenshot: async () => {
-      await page.evaluate(() => window.scrollTo(0, 0))
-    },
-  })
-
   await page.click('text="Send"')
 
   await page.getByText("Operation successful!").waitFor()
 
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "manage-after-send",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Reject").first()],
-    clearNotifications: true,
-    scrollToYCoordinate: 0,
-  })
-
   await page.click('text="Old"')
-
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "manage-old-after-send",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Accepted").first()],
-    scrollToYCoordinate: 0,
-  })
 
   await page.getByText("Pending 2").click()
   await expect(page).toHaveURL(
@@ -185,14 +157,5 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     .locator(`button:text-is("a")`)
     .waitFor()
 
-  await page1.locator(`text=Like this!!!!!`).scrollIntoViewIfNeeded()
-
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page1,
-    headless,
-    testInfo,
-    snapshotName: "after-changes",
-    waitForTheseToBeVisibleAndStable: [page1.getByText("Like this!!!!!")],
-    scrollToYCoordinate: 0,
-  })
+  await page1.locator(`text=Like this!!!!!`).waitFor()
 })

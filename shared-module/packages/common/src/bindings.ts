@@ -912,6 +912,21 @@ export interface ExerciseStatusSummaryForUser {
 
 export type GradingProgress = "Failed" | "NotReady" | "PendingManual" | "Pending" | "FullyGraded"
 
+export interface ExerciseResetLog {
+  id: string
+  reset_by: string
+  reset_by_first_name: string | null
+  reset_by_last_name: string | null
+  reset_for: string
+  exercise_id: string
+  exercise_name: string
+  course_id: string
+  reset_at: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+}
+
 export interface Feedback {
   id: string
   user_id: string | null
@@ -1200,6 +1215,7 @@ export interface ManualCompletionPreviewUser {
 export interface TeacherManualCompletion {
   user_id: string
   grade: number | null
+  passed: boolean
   completion_date: string | null
 }
 
@@ -1521,6 +1537,7 @@ export interface PageSearchResult {
   rank: number | null
   content_headline: string | null
   url_path: string
+  chapter_name: string | null
 }
 
 export interface PageWithExercises {

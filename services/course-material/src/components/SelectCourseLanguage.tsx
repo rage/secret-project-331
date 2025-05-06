@@ -1,13 +1,12 @@
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import React, { useCallback, useContext, useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
 import PageContext from "../contexts/PageContext"
-import { fetchCourseLanguageVersions } from "../services/backend"
 
 import { GetLanguageFlag, getLanguageName } from "./modals/ChooseCourseLanguage"
 
+import useCourseLanguageVersions from "@/hooks/useCourseLanguageVersions"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import {
@@ -35,11 +34,9 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
   const { t } = useTranslation("course-material", { lng: dialogLanguage })
   const pageState = useContext(PageContext)
   const currentCourseId = pageState.pageData?.course_id
-  const useCourseLanguageVersionsList = useQuery({
-    queryKey: [formatLanguageVersionsQueryKey(currentCourseId ?? ""), currentCourseId],
-    queryFn: () => fetchCourseLanguageVersions(currentCourseId ?? ""),
-  })
-  const courseVersionsList = useCourseLanguageVersionsList.data
+  const courseLanguageVersionsQuery = useCourseLanguageVersions(currentCourseId)
+
+  const courseVersionsList = courseLanguageVersionsQuery.data
 
   const langCode = courseVersionsList?.find(
     (course) => course.id === selectedLangCourseId,
@@ -80,12 +77,12 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
     }
   }, [currentCourseId, courseVersionsList, langCode, setDialogLanguage])
 
-  if (useCourseLanguageVersionsList.isPending) {
+  if (courseLanguageVersionsQuery.isPending) {
     return <Spinner variant="medium" />
   }
 
-  if (useCourseLanguageVersionsList.isError) {
-    return <ErrorBanner variant="readOnly" error={useCourseLanguageVersionsList.error} />
+  if (courseLanguageVersionsQuery.isError) {
+    return <ErrorBanner variant="readOnly" error={courseLanguageVersionsQuery.error} />
   }
 
   if (courseVersionsList && courseVersionsList.length < 2) {
@@ -142,11 +139,6 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
       </div>
     </div>
   )
-}
-
-export const formatLanguageVersionsQueryKey = (courseId: string): string => {
-  // eslint-disable-next-line i18next/no-literal-string
-  return `course-${courseId}-language-versions`
 }
 
 export default withErrorBoundary(SelectCourseLanguage)

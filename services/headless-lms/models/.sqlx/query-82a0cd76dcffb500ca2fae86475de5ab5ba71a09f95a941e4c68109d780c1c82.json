@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from,\n  hidden,\n  page_language_group_id\nFROM pages p\nWHERE p.chapter_id = $1\n  AND p.deleted_at IS NULL\n  AND p.hidden IS FALSE\n  AND p.id NOT IN (\n    SELECT front_page_id\n    FROM chapters c\n    WHERE c.front_page_id = p.id\n  );\n    ",
+  "query": "\nSELECT pages.id,\n  pages.created_at,\n  pages.updated_at,\n  pages.course_id,\n  pages.exam_id,\n  pages.chapter_id,\n  pages.url_path,\n  pages.title,\n  pages.deleted_at,\n  pages.content,\n  pages.order_number,\n  pages.copied_from,\n  pages.hidden,\n  pages.page_language_group_id\nFROM pages\nWHERE course_id = $1\nAND pages.deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -94,5 +94,5 @@
       true
     ]
   },
-  "hash": "4256d21bbc321fc1c7412ce81714f8241585f941f96f37bd962aa712631a710a"
+  "hash": "82a0cd76dcffb500ca2fae86475de5ab5ba71a09f95a941e4c68109d780c1c82"
 }

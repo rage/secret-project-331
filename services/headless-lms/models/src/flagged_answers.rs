@@ -55,7 +55,7 @@ pub struct NewFlaggedAnswerWithToken {
 pub async fn insert_flagged_answer_and_move_to_manual_review_if_needed(
     conn: &mut PgConnection,
     flagged_answer: NewFlaggedAnswerWithToken,
-    user_id: Uuid,
+    giver_user_id: Uuid,
 ) -> ModelResult<FlaggedAnswer> {
     let mut tx = conn.begin().await.map_err(|_| {
         ModelError::new(
@@ -87,7 +87,7 @@ pub async fn insert_flagged_answer_and_move_to_manual_review_if_needed(
     let new_flagged_answer = NewFlaggedAnswer {
         submission_id: flagged_answer.submission_id,
         flagged_user: Some(flagged_user),
-        flagged_by: Some(user_id),
+        flagged_by: Some(giver_user_id),
         reason: flagged_answer.reason,
         description: flagged_answer.description.clone(),
     };
@@ -140,6 +140,14 @@ pub async fn insert_flagged_answer_and_move_to_manual_review_if_needed(
             }
         }
     }
+    // Make sure the user who flagged this is allowed to get a new answer to review
+    crate::offered_answers_to_peer_review_temporary::delete_saved_submissions_for_user(
+        &mut tx,
+        flagged_submission_data.exercise_id,
+        giver_user_id,
+    )
+    .await?;
+
     tx.commit().await.map_err(|_| {
         ModelError::new(
             ModelErrorType::Generic,

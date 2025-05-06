@@ -33,16 +33,16 @@ const HeroSectionEditor: React.FC<
 
   const backgroundVerticalAlignment = alignBottom ? "bottom" : "center"
 
-  const WHITE = "#FFFFFF"
+  const DEFAULT_BACKGROUND_COLOR = baseTheme.colors.clear[100]
 
   useEffect(() => {
     if (!attributes.fontColor) {
       setAttributes({ fontColor: baseTheme.colors.gray[700] })
     }
     if (!attributes.backgroundColor) {
-      setAttributes({ backgroundColor: WHITE })
+      setAttributes({ backgroundColor: DEFAULT_BACKGROUND_COLOR })
     }
-  }, [attributes.backgroundColor, attributes.fontColor, setAttributes])
+  }, [DEFAULT_BACKGROUND_COLOR, attributes.backgroundColor, attributes.fontColor, setAttributes])
 
   return (
     <BlockWrapper id={clientId}>

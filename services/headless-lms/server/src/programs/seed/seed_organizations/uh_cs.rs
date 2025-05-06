@@ -49,7 +49,7 @@ pub async fn seed_organization_uh_cs(
 ) -> anyhow::Result<SeedOrganizationUhCsResult> {
     info!("inserting organization uh-cs");
     let SeedUsersResult {
-        admin_user_id,
+        admin_user_id: _,
         teacher_user_id,
         language_teacher_user_id,
         material_viewer_user_id,
@@ -94,7 +94,7 @@ pub async fn seed_organization_uh_cs(
     let cs_data = CommonCourseData {
         db_pool: db_pool.clone(),
         organization_id: uh_cs_organization_id,
-        admin_user_id,
+        teacher_user_id,
         student_user_id: student_3_user_id,
         langs_user_id,
         example_normal_user_ids: Arc::new(example_normal_user_ids.to_vec()),
@@ -306,13 +306,14 @@ pub async fn seed_organization_uh_cs(
         course_instances::get_default_by_course_id(&mut conn, manual_completions_id).await?;
     library::progressing::add_manual_completions(
         &mut conn,
-        admin_user_id,
+        teacher_user_id,
         &manual_default_instance,
         &TeacherManualCompletionRequest {
             course_module_id: manual_default_module.id,
             new_completions: vec![TeacherManualCompletion {
                 user_id: *example_normal_user_ids.first().unwrap(),
                 grade: Some(4),
+                passed: true,
                 completion_date: Some(Utc.with_ymd_and_hms(2022, 9, 1, 0, 0, 0).unwrap()),
             }],
             skip_duplicate_completions: true,
@@ -463,7 +464,7 @@ pub async fn seed_organization_uh_cs(
     let _cs_design = seed_cs_course_material(
         &db_pool,
         uh_cs_organization_id,
-        admin_user_id,
+        teacher_user_id,
         langs_user_id,
         base_url,
     )
@@ -495,7 +496,7 @@ pub async fn seed_organization_uh_cs(
                 )?,
             }),
             new_course,
-            admin_user_id,
+            teacher_user_id,
             get_seed_spec_fetcher(),
             models_requests::fetch_service_info,
         )

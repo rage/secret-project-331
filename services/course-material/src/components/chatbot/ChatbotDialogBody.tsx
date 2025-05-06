@@ -274,7 +274,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
       <div
         className={css`
           flex-grow: 1;
-          overflow-y: scroll;
+          overflow-y: auto;
           display: flex;
           flex-direction: column;
           padding: 1rem;

@@ -32,7 +32,6 @@ const getPreStyles = (fontSizePx: number, allowFullWidth: boolean) => css`
   line-height: 1.75rem;
   white-space: pre-wrap;
   overflow-wrap: break-word;
-  padding: 16px;
   ${allowFullWidth &&
   `
     margin-top: -1.5rem;

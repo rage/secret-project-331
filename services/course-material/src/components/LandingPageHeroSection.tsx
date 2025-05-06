@@ -11,6 +11,7 @@ import Button from "@/shared-module/common/components/Button"
 import DefaultSVG from "@/shared-module/common/img/hero-default-bg-image.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM } from "@/utils/constants"
 
 export const CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING =
   "chapter-grid-scrolling-destination"
@@ -102,6 +103,7 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
         border-radius: 1px;
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         padding: 5em 1em;
+        margin-top: -${COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM}rem;
         ${backgroundColor && `background-color: ${backgroundColor};`}
         ${backgroundImage &&
         `background-image: url(${backgroundImage});

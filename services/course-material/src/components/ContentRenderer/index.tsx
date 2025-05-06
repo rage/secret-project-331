@@ -72,7 +72,6 @@ import TableBox from "./moocfi/TableBox"
 import TerminologyBlock from "./moocfi/TerminologyBlock"
 import TopLevelPageBlock from "./moocfi/TopLevelPagesBlock/index"
 
-import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
 import { BreakFromCenteredDisabledContext } from "@/shared-module/common/components/Centering/BreakFromCentered"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -82,9 +81,6 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 /** The props that this component receives */
 export interface ContentRendererProps {
   data: Block<unknown>[]
-  editing: boolean
-  selectedBlockId: string | null
-  setEdits: React.Dispatch<React.SetStateAction<Map<string, NewProposedBlockEdit>>>
   isExam: boolean
   /// This wrapper div providing styles must be skipped for innerblocks because list block's inner blocks cannot contain any div elements. See: https://dequeuniversity.com/rules/axe/4.4/list
   dontAddWrapperDivMeantForMostOutermostContentRenderer?: boolean
@@ -198,9 +194,6 @@ const defaultBlockMargin = css`
 
 const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> = ({
   data,
-  editing,
-  selectedBlockId,
-  setEdits,
   isExam,
   dontAddWrapperDivMeantForMostOutermostContentRenderer,
   dontAllowBlockToBeWiderThanContainerWidth = true,
@@ -277,9 +270,6 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
               key={block.clientId}
               id={block.clientId}
               data={block}
-              editing={editing}
-              selectedBlockId={selectedBlockId}
-              setEdits={setEdits}
               isExam={isExam}
               wrapperClassName={wrapperClassName}
               dontAllowBlockToBeWiderThanContainerWidth={dontAllowBlockToBeWiderThanContainerWidth}
@@ -292,9 +282,6 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
             <Component
               id={block.clientId}
               data={block}
-              editing={editing}
-              selectedBlockId={selectedBlockId}
-              setEdits={setEdits}
               isExam={isExam}
               wrapperClassName={wrapperClassName}
               dontAllowBlockToBeWiderThanContainerWidth={dontAllowBlockToBeWiderThanContainerWidth}

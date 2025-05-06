@@ -37,11 +37,18 @@ use models::{
 };
 
 use crate::{
-    controllers::ControllerResult,
-    models::{self, courses::NewCourse},
+    domain::models_requests::{self, JwtKey},
     prelude::*,
 };
+
 use headless_lms_models::course_language_groups;
+
+use crate::domain::csv_export::course_instance_export::CourseInstancesExportOperation;
+use crate::domain::csv_export::course_research_form_questions_answers_export::CourseResearchFormExportOperation;
+use crate::domain::csv_export::exercise_tasks_export::CourseExerciseTasksExportOperation;
+use crate::domain::csv_export::general_export;
+use crate::domain::csv_export::submissions::CourseSubmissionExportOperation;
+use crate::domain::csv_export::users_export::UsersExportOperation;
 
 /**
 GET `/api/v0/main-frontend/courses/:course_id` - Get course.

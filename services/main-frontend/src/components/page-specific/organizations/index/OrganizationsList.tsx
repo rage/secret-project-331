@@ -7,8 +7,8 @@ import useAllOrganizationsQuery from "../../../../hooks/useAllOrganizationsQuery
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-import UHNoBG from "@/shared-module/common/img/uh_without_background.svg"
-import { baseTheme, typography } from "@/shared-module/common/styles"
+import ApartmentBuilding from "@/shared-module/common/img/apartment-building.svg"
+import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { organizationCoursesPageHref } from "@/shared-module/common/utils/cross-routing"
 
@@ -117,25 +117,16 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
                     }
                   `}
                 >
-                  {organization.organization_image_url ? (
-                    <img
-                      alt={organization.name}
-                      className={css`
-                        width: auto;
-                        height: auto;
-                        display: block;
-                        object-fit: contain;
-                      `}
-                      src={organization.organization_image_url}
-                    />
-                  ) : (
-                    <UHNoBG
-                      className={css`
-                        margin: 0 auto;
-                        display: block;
-                      `}
-                    />
-                  )}
+                  <ApartmentBuilding
+                    className={css`
+                      width: 21px;
+                      height: 20px;
+                      color: white;
+                      display: block;
+                      margin: auto;
+                      object-fit: contain;
+                    `}
+                  />
                 </div>
                 <div
                   className={css`

@@ -38,6 +38,7 @@ interface FormFields extends Omit<NewCourse, "organization_id"> {
   courseId: string
   useExistingLanguageGroup: boolean
   targetCourseId: string
+  createAsLanguageVersion: boolean
 }
 
 const AMERICAN_ENGLISH_LANGUAGE_CODE = "en-US"
@@ -85,6 +86,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
       ask_marketing_consent: false,
       useExistingLanguageGroup: false,
       targetCourseId: "",
+      createAsLanguageVersion: false,
     },
   })
 
@@ -98,6 +100,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
   }, [name, setValue])
 
   const createDuplicate = watch("createDuplicate")
+  const createAsLanguageVersion = watch("createAsLanguageVersion")
 
   const handleDuplicateMenu = (courseId: string) => {
     const findCourse = courses?.find((course) => course.id === courseId)
@@ -133,17 +136,37 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
           },
         })
       } else if (createDuplicate && data.courseId) {
-        if (onSubmitDuplicateCourseForm) {
-          await onSubmitDuplicateCourseForm(data.courseId, newCourse)
-        } else {
+        if (data.createAsLanguageVersion) {
+          // Create as language version when duplicating
+          let mode: CopyCourseMode
+          if (data.useExistingLanguageGroup && data.targetCourseId) {
+            // eslint-disable-next-line i18next/no-literal-string
+            mode = { mode: "existing_language_group", target_course_id: data.targetCourseId }
+          } else {
+            // eslint-disable-next-line i18next/no-literal-string
+            mode = { mode: "same_language_group" }
+          }
+
           await createCourseCopyMutation.mutateAsync({
             courseId: data.courseId,
             data: {
               ...newCourse,
-              // eslint-disable-next-line i18next/no-literal-string
-              mode: { mode: "duplicate" },
+              mode,
             },
           })
+        } else {
+          if (onSubmitDuplicateCourseForm) {
+            await onSubmitDuplicateCourseForm(data.courseId, newCourse)
+          } else {
+            await createCourseCopyMutation.mutateAsync({
+              courseId: data.courseId,
+              data: {
+                ...newCourse,
+                // eslint-disable-next-line i18next/no-literal-string
+                mode: { mode: "duplicate" },
+              },
+            })
+          }
         }
       } else {
         if (onSubmitNewCourseForm) {
@@ -266,6 +289,31 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
                 })}
               />
             </FieldContainer>
+            <FieldContainer>
+              <CheckBox
+                label={t("new-course-is-a-language-version")}
+                {...register("createAsLanguageVersion")}
+              ></CheckBox>
+            </FieldContainer>
+            {createAsLanguageVersion && (
+              <div>
+                <FieldContainer>
+                  <CheckBox
+                    label={t("resulting-course-should-be-a-language-version-of-a-different-course")}
+                    {...register("useExistingLanguageGroup")}
+                  ></CheckBox>
+                </FieldContainer>
+                {useExistingLanguageGroup && (
+                  <FieldContainer>
+                    <TextField
+                      required
+                      label={t("target-course-id")}
+                      {...register("targetCourseId")}
+                    />
+                  </FieldContainer>
+                )}
+              </div>
+            )}
             <FieldContainer>
               <CheckBox
                 label={t("grant-access-to-users-with-permissions-to-original-course")}

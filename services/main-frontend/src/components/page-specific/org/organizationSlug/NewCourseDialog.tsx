@@ -1,7 +1,7 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import NewCourseForm from "../../../forms/NewCourseForm"
+import NewCourseForm from "../../../NewCourseForm"
 
 import { Course, NewCourse } from "@/shared-module/common/bindings"
 import StandardDialog from "@/shared-module/common/components/StandardDialog"

@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next"
 
-import NewCourseForm from "../../../../../forms/NewCourseForm"
+import NewCourseForm from "../../../../../NewCourseForm"
 
 import StandardDialog from "@/shared-module/common/components/StandardDialog"
 

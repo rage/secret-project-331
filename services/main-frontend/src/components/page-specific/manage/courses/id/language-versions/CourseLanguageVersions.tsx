@@ -1,10 +1,8 @@
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
-import { getCourse } from "../../../../../../services/backend/courses"
 
 import CourseLanguageVersionsList from "./CourseLanguageVersionsList"
 import NewCourseLanguageVersionDialog from "./NewCourseLanguageVersionDialog"
@@ -25,13 +23,16 @@ const CourseLanguageVersionsPage: React.FC<React.PropsWithChildren<CourseManagem
   const { t } = useTranslation()
   const [showNewLanguageVersionForm, setShowNewLanguageVersionForm] = useState(false)
   const getCourseQuery = useCourseQuery(courseId)
-  const createCourseCopyMutation = useCreateCourseCopy(courseId)
+  const createCourseCopyMutation = useCreateCourseCopy()
 
   const handleCreateNewLanguageVersion = async (newCourse: NewCourse) => {
     await createCourseCopyMutation.mutateAsync({
-      ...newCourse,
-      // eslint-disable-next-line i18next/no-literal-string
-      mode: { mode: "same_language_group" },
+      courseId,
+      data: {
+        ...newCourse,
+        // eslint-disable-next-line i18next/no-literal-string
+        mode: { mode: "same_language_group" },
+      },
     })
     await getCourseQuery.refetch()
     setShowNewLanguageVersionForm(false)

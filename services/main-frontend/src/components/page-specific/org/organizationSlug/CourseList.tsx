@@ -36,8 +36,7 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
   const paginationInfo = usePaginationInfo()
   const [newCourseFormOpen, setNewCourseFormOpen] = useState(false)
   const loginStateContext = useContext(LoginStateContext)
-  const [courseToDuplicate, setCourseToDuplicate] = useState<string | null>(null)
-  const createCourseCopyMutation = useCreateCourseCopy(courseToDuplicate ?? "")
+  const createCourseCopyMutation = useCreateCourseCopy()
 
   const getOrgCourses = useQuery({
     queryKey: [`organization-courses`, paginationInfo.page, paginationInfo.limit, organizationId],
@@ -77,16 +76,17 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
   }
 
   const handleSubmitDuplicateCourse = async (oldCourseId: string, newCourse: NewCourse) => {
-    setCourseToDuplicate(oldCourseId)
     await createCourseCopyMutation.mutateAsync({
-      ...newCourse,
-      // eslint-disable-next-line i18next/no-literal-string
-      mode: { mode: "duplicate" },
+      courseId: oldCourseId,
+      data: {
+        ...newCourse,
+        // eslint-disable-next-line i18next/no-literal-string
+        mode: { mode: "duplicate" },
+      },
     })
     await getOrgCourses.refetch()
     await getOrgCourseCount.refetch()
     setNewCourseFormOpen(false)
-    setCourseToDuplicate(null)
   }
 
   if (getOrgCourses.isError) {

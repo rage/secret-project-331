@@ -2,21 +2,20 @@ import { useTranslation } from "react-i18next"
 
 import NewCourseForm from "../../../../../forms/NewCourseForm"
 
-import { NewCourse } from "@/shared-module/common/bindings"
 import StandardDialog from "@/shared-module/common/components/StandardDialog"
 
 interface NewCourseLanguageVersionDialogProps {
   showNewLanguageVersionForm: boolean
   courseName: string
   organizationId: string
-  handleSubmit: (newCourse: NewCourse) => Promise<void>
+  onSuccess: () => void
   onClose: () => void
   courseId: string
 }
 
 const NewCourseLanguageVersionDialog: React.FC<
   React.PropsWithChildren<NewCourseLanguageVersionDialogProps>
-> = ({ showNewLanguageVersionForm, courseName, handleSubmit, onClose, organizationId }) => {
+> = ({ showNewLanguageVersionForm, courseName, onSuccess, onClose, organizationId, courseId }) => {
   const { t } = useTranslation()
   return (
     <StandardDialog
@@ -26,7 +25,9 @@ const NewCourseLanguageVersionDialog: React.FC<
     >
       <NewCourseForm
         organizationId={organizationId}
-        onSubmitNewCourseForm={handleSubmit}
+        courseId={courseId}
+        isLanguageVersion={true}
+        onSuccess={onSuccess}
         onClose={onClose}
       />
     </StandardDialog>

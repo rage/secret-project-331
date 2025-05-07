@@ -9,8 +9,6 @@ import NewCourseLanguageVersionDialog from "./NewCourseLanguageVersionDialog"
 
 import { formatLanguageVersionsQueryKey } from "@/hooks/useCourseLanguageVersions"
 import useCourseQuery from "@/hooks/useCourseQuery"
-import { useCreateCourseCopy } from "@/hooks/useCreateCourseCopy"
-import { NewCourse } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -23,21 +21,13 @@ const CourseLanguageVersionsPage: React.FC<React.PropsWithChildren<CourseManagem
   const { t } = useTranslation()
   const [showNewLanguageVersionForm, setShowNewLanguageVersionForm] = useState(false)
   const getCourseQuery = useCourseQuery(courseId)
-  const createCourseCopyMutation = useCreateCourseCopy()
 
-  const handleCreateNewLanguageVersion = async (newCourse: NewCourse) => {
-    await createCourseCopyMutation.mutateAsync({
-      courseId,
-      data: {
-        ...newCourse,
-        // eslint-disable-next-line i18next/no-literal-string
-        mode: { mode: "same_language_group" },
-      },
-    })
+  const handleSuccess = async () => {
     await getCourseQuery.refetch()
     setShowNewLanguageVersionForm(false)
     queryClient.invalidateQueries({ queryKey: [formatLanguageVersionsQueryKey(courseId)] })
   }
+
   return (
     <>
       {getCourseQuery.isError && <ErrorBanner error={getCourseQuery.error} variant={"readOnly"} />}
@@ -49,7 +39,7 @@ const CourseLanguageVersionsPage: React.FC<React.PropsWithChildren<CourseManagem
               showNewLanguageVersionForm={showNewLanguageVersionForm}
               courseName={getCourseQuery.data.name}
               organizationId={getCourseQuery.data.organization_id}
-              handleSubmit={handleCreateNewLanguageVersion}
+              onSuccess={handleSuccess}
               onClose={() => setShowNewLanguageVersionForm(false)}
               courseId={courseId}
             />

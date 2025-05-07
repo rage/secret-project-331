@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/router"
-import React, { useContext, useEffect, useState } from "react"
+import React, { useContext, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { GlossaryContext, GlossaryState } from "../contexts/GlossaryContext"
@@ -122,11 +122,11 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
 
   const userDetailsQuery = useUserDetails()
 
-  useEffect(() => {
+  useMemo(() => {
     if (
       userDetailsQuery.data?.country === null ||
       userDetailsQuery.data?.first_name === null ||
-      userDetailsQuery.data?.last_name
+      userDetailsQuery.data?.last_name === null
     ) {
       setShouldAnswerMissingInfoForm(true)
     }

@@ -66,7 +66,7 @@ pub async fn get_user_country_by_ip(
     let country = ip
         .and_then(|ip| ip_to_country_mapper.map_ip_to_country(&ip))
         .map(|c| c.to_string())
-        .unwrap_or_else(|| "".to_string());
+        .unwrap_or_default();
 
     let token = skip_authorize();
     token.authorized_ok(country.to_string())

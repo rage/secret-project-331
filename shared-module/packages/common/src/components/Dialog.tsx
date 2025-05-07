@@ -1,4 +1,4 @@
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useDialog } from "@react-aria/dialog"
 import { FocusScope } from "@react-aria/focus"
 import { DismissButton, OverlayContainer, useModal, useOverlay } from "@react-aria/overlays"
@@ -34,7 +34,7 @@ const Dialog: React.FC<DialogProps> = ({
       isOpen: open,
       onClose,
       isDismissable: closeable,
-      shouldCloseOnBlur: false,
+      shouldCloseOnBlur: closeable,
     },
     ref,
   )
@@ -67,25 +67,28 @@ const Dialog: React.FC<DialogProps> = ({
             {...dialogProps}
             {...modalProps}
             ref={ref}
-            className={css`
-              background: white;
-              border-radius: 5px;
-              width: 95%;
-              max-width: ${width === "normal" ? "700px" : "1200px"};
-              ${disableContentScroll && "overflow: hidden;"}
-              outline: none;
+            className={cx(
+              props.className,
+              css`
+                background: white;
+                border-radius: 5px;
+                width: 95%;
+                max-width: ${width === "normal" ? "700px" : "1200px"};
+                ${disableContentScroll && "overflow: hidden;"}
+                outline: none;
 
-              h1 {
-                font-size: ${typography.h5};
-              }
-              h2,
-              h3,
-              h4,
-              h5,
-              h6 {
-                font-size: ${typography.h6};
-              }
-            `}
+                h1 {
+                  font-size: ${typography.h5};
+                }
+                h2,
+                h3,
+                h4,
+                h5,
+                h6 {
+                  font-size: ${typography.h6};
+                }
+              `,
+            )}
           >
             <div
               className={css`

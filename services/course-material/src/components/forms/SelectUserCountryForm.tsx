@@ -36,11 +36,12 @@ export const SelectUserCountryForm: React.FC<SelectUserCountryFormProps> = ({
 
   const {
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
     control,
     reset,
     register,
-  } = useForm<SelectUserCountryFormFields>()
+    // eslint-disable-next-line i18next/no-literal-string
+  } = useForm<SelectUserCountryFormFields>({ mode: "onChange" })
 
   const countriesOptions = Object.entries(countries).map(([code]) => ({
     value: code,
@@ -53,10 +54,14 @@ export const SelectUserCountryForm: React.FC<SelectUserCountryFormProps> = ({
   })
 
   useEffect(() => {
-    if (country != null) {
-      reset({ country: country })
-    } else if (preFillCountry.data) {
-      reset({ country: preFillCountry.data })
+    const currentCountry = country ?? preFillCountry.data
+    if (currentCountry) {
+      reset((prevValues) => {
+        if (prevValues.country !== currentCountry) {
+          return { ...prevValues, country: currentCountry }
+        }
+        return prevValues
+      })
     }
   }, [country, preFillCountry.data, reset])
 
@@ -76,78 +81,80 @@ export const SelectUserCountryForm: React.FC<SelectUserCountryFormProps> = ({
       },
     },
   )
+
   if (!shouldAnswerMissingInfoForm) {
     return null
   }
 
   return (
     <>
-      {shouldAnswerMissingInfoForm && (
-        <StandardDialog
-          showCloseButton={false}
-          open={shouldAnswerMissingInfoForm}
-          onClose={() => setShouldAnswerMissingInfoForm(false)}
-          aria-label={t("enter-country-question")}
-          // eslint-disable-next-line i18next/no-literal-string
-          title={"Please fill missing information"}
-          buttons={[
-            {
-              type: "submit",
-              disabled: postUserCountryMutation.isPending,
-              // eslint-disable-next-line i18next/no-literal-string
-              className: "primary-button",
-              // eslint-disable-next-line i18next/no-literal-string
-              variant: "primary",
-              children: t("save"),
-            },
-          ]}
+      <StandardDialog
+        showCloseButton={false}
+        closeable={false}
+        open={shouldAnswerMissingInfoForm}
+        onClose={() => setShouldAnswerMissingInfoForm(false)}
+        aria-label={t("enter-country-question")}
+        title={t("title-fill-missing-information")}
+        buttons={[
+          {
+            type: "submit",
+            disabled: postUserCountryMutation.isPending || !isValid,
+            // eslint-disable-next-line i18next/no-literal-string
+            className: "primary-button",
+            // eslint-disable-next-line i18next/no-literal-string
+            variant: "primary",
+            children: t("save"),
+            onClick: handleSubmit((data) => postUserCountryMutation.mutate(data)),
+          },
+        ]}
+      >
+        <form
+          onSubmit={handleSubmit(async (data, event) => {
+            event?.preventDefault()
+            postUserCountryMutation.mutate(data)
+          })}
         >
-          <form
-            onSubmit={handleSubmit(async (data, event) => {
-              event?.preventDefault()
-              postUserCountryMutation.mutate(data)
+          <TextField
+            label={t("first-name")}
+            defaultValue={firstName}
+            placeholder={t("enter-first-name")}
+            {...register("first_name", {
+              required: t("required-field"),
             })}
-          >
-            <TextField
-              label={t("first-name")}
-              defaultValue={firstName}
-              placeholder={t("enter-first-name")}
-              {...register("first_name", {
-                required: t("required-field"),
-              })}
-              required={true}
-              error={errors.first_name}
-            />
+            required={true}
+            error={errors.first_name}
+          />
 
-            <TextField
-              label={t("last-name")}
-              defaultValue={lastName}
-              placeholder={t("enter-last-name")}
-              {...register("last_name", {
-                required: t("required-field"),
-              })}
-              required={true}
-              error={errors.last_name}
-            />
+          <TextField
+            label={t("last-name")}
+            defaultValue={lastName}
+            placeholder={t("enter-last-name")}
+            {...register("last_name", {
+              required: t("required-field"),
+            })}
+            required={true}
+            error={errors.last_name}
+          />
 
-            <Controller
-              // eslint-disable-next-line i18next/no-literal-string
-              name="country"
-              control={control}
-              rules={{ required: t("required-field") }}
-              render={({ field }) => (
-                <SearchableSelectField
-                  label={t("enter-country-question")}
-                  options={countriesOptions}
-                  onChangeByValue={field.onChange}
-                  value={field.value}
-                  error={errors.country?.message}
-                />
-              )}
-            />
-          </form>
-        </StandardDialog>
-      )}
+          <Controller
+            // eslint-disable-next-line i18next/no-literal-string
+            name="country"
+            control={control}
+            rules={{ required: t("required-field") }}
+            render={({ field }) => (
+              <SearchableSelectField
+                label={t("enter-country-question")}
+                options={countriesOptions}
+                onChangeByValue={field.onChange}
+                value={field.value}
+                error={errors.country?.message}
+                required={true}
+                placeholder={t("select-a-country")}
+              />
+            )}
+          />
+        </form>
+      </StandardDialog>
     </>
   )
 }

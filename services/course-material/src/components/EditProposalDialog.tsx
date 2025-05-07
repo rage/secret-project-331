@@ -10,6 +10,8 @@ import {
   selectedBlockIdAtom,
 } from "../stores/materialFeedbackStore"
 
+import { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
+
 import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -137,6 +139,7 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId
           max-height: 60vh;
         }
       `}
+      id={FEEDBACK_DIALOG_CONTENT_ID}
     >
       <div
         className={css`

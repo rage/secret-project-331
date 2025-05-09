@@ -125,6 +125,7 @@ const SearchableSelectField = forwardRef<HTMLSelectElement, SearchableSelectProp
               >
                 {isPlaceholder && placeholder ? placeholder : defaultChildren}
                 <MovementArrowsUpDown
+                  size={14}
                   className={css`
                     color: ${baseTheme.colors.gray[400]};
                   `}
@@ -164,7 +165,7 @@ const SearchableSelectField = forwardRef<HTMLSelectElement, SearchableSelectProp
                 margin: 0.25rem;
 
                 &:focus-within {
-                  border-color: #38bdf8;
+                  border-color: ${baseTheme.colors.green[400]};
                 }
               `}
             >
@@ -259,7 +260,7 @@ const SearchableSelectField = forwardRef<HTMLSelectElement, SearchableSelectProp
                     color: ${baseTheme.colors.primary[200]};
 
                     &:hover {
-                      background-color: #0284c7;
+                      background-color: ${baseTheme.colors.green[600]};
                       color: white;
                     }
                     &:hover .icon {

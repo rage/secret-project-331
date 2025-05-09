@@ -1,4 +1,5 @@
 import { injectGlobal } from "@emotion/css"
+import { OverlayProvider } from "@react-aria/overlays"
 import type { AppProps } from "next/app"
 import Head from "next/head"
 import React, { useEffect } from "react"
@@ -48,7 +49,9 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
       )}
       <>
         <GlobalStyles />
-        <Component {...pageProps} />
+        <OverlayProvider>
+          <Component {...pageProps} />
+        </OverlayProvider>
       </>
     </>
   )

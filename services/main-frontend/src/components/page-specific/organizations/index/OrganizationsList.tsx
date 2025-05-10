@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import { ApartmentBuilding } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -7,7 +8,6 @@ import useAllOrganizationsQuery from "../../../../hooks/useAllOrganizationsQuery
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-import ApartmentBuilding from "@/shared-module/common/img/apartment-building.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { organizationCoursesPageHref } from "@/shared-module/common/utils/cross-routing"

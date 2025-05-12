@@ -6,20 +6,24 @@ import LanguageVersionOptions from "./LanguageVersionOptions"
 
 import { FieldContainer, FormFields } from "."
 
+import { useOrganizationDuplicatableCourses } from "@/hooks/useOrganizationDuplicatableCourses"
 import { Course } from "@/shared-module/common/bindings"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 
 interface DuplicateOptionsProps {
   form: UseFormReturn<FormFields>
-  courses: Course[] | undefined
+  organizationId: string
 }
 
-const DuplicateOptions: React.FC<DuplicateOptionsProps> = ({ form, courses }) => {
+const DuplicateOptions: React.FC<DuplicateOptionsProps> = ({ form, organizationId }) => {
   const { t } = useTranslation()
   const { register, watch } = form
   const createDuplicate = watch("createDuplicate")
   const createAsLanguageVersion = watch("createAsLanguageVersion")
+
+  const coursesQuery = useOrganizationDuplicatableCourses(organizationId)
+  const courses = coursesQuery.data
 
   const handleDuplicateMenu = (courseId: string) => {
     const findCourse = courses?.find((course: Course) => course.id === courseId)

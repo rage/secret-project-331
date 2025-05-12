@@ -10,7 +10,7 @@ import BasicCourseInfo from "./BasicCourseInfo"
 import DuplicateOptions from "./DuplicateOptions"
 import LanguageSelection from "./LanguageSelection"
 
-import { CopyCourseMode, Course, NewCourse } from "@/shared-module/common/bindings"
+import { CopyCourseMode, NewCourse } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
@@ -21,7 +21,6 @@ export interface NewCourseFormProps {
   organizationId: string
   courseId?: string
   isLanguageVersion?: boolean
-  courses?: Course[]
   onClose: () => void
   onSuccess?: () => void
   onSubmitNewCourseForm?: (newCourse: NewCourse) => Promise<void>
@@ -49,7 +48,6 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
   organizationId,
   courseId,
   isLanguageVersion = false,
-  courses,
   onClose,
   onSuccess,
   onSubmitNewCourseForm,
@@ -65,7 +63,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
       language_code: DEFAULT_LANGUAGE_CODE,
       copy_user_permissions: false,
       createDuplicate: false,
-      courseId: courses?.[0]?.id ?? "",
+      courseId: courseId,
       is_draft: true,
       is_test_mode: false,
       is_unlisted: false,
@@ -199,7 +197,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
 
         <BasicCourseInfo form={useFormReturn} />
 
-        {!courses && (
+        {!isLanguageVersion && (
           <FieldContainer>
             <CheckBox
               label={t("grant-access-to-users-with-permissions-to-original-course")}
@@ -208,8 +206,8 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
           </FieldContainer>
         )}
 
-        {courses && !isLanguageVersion && (
-          <DuplicateOptions form={useFormReturn} courses={courses} />
+        {isLanguageVersion && !isLanguageVersion && (
+          <DuplicateOptions form={useFormReturn} organizationId={organizationId} />
         )}
 
         <LanguageSelection form={useFormReturn} />

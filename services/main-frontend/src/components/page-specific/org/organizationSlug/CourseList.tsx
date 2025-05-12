@@ -142,7 +142,6 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
         open={newCourseFormOpen}
         onClose={() => setNewCourseFormOpen(false)}
         organizationId={organizationId}
-        courses={getOrgCourses.data}
         onSubmitNewCourse={handleSubmitNewCourse}
         onSubmitDuplicateCourse={handleSubmitDuplicateCourse}
       />

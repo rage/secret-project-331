@@ -9,7 +9,6 @@ import { useCreateCourseCopy } from "../../hooks/useCreateCourseCopy"
 import BasicCourseInfo from "./BasicCourseInfo"
 import DuplicateOptions from "./DuplicateOptions"
 import LanguageSelection from "./LanguageSelection"
-import LanguageVersionOptions from "./LanguageVersionOptions"
 
 import { CopyCourseMode, Course, NewCourse } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"

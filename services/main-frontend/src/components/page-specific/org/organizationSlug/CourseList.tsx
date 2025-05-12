@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query"
 import { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { postNewCourse } from "../../../../services/backend/courses"
+import { createNewCourse } from "../../../../services/backend/courses"
 import {
   fetchOrganizationCourseCount,
   fetchOrganizationCourses,
@@ -12,7 +12,7 @@ import {
 import { CourseComponent, CourseGrid } from "./CourseCard"
 import NewCourseDialog from "./NewCourseDialog"
 
-import { useCreateCourseCopy } from "@/hooks/useCreateCourseCopy"
+import { useCreateCourseCopy } from "@/hooks/useCreateCourse"
 import { NewCourse } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -69,7 +69,7 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
   )
 
   const handleSubmitNewCourse = async (newCourse: NewCourse) => {
-    await postNewCourse(newCourse)
+    await createNewCourse(newCourse)
     await getOrgCourses.refetch()
     await getOrgCourseCount.refetch()
     setNewCourseFormOpen(false)

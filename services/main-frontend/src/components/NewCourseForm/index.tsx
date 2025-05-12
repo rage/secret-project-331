@@ -4,7 +4,7 @@ import React, { useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { useCreateCourseCopy } from "../../hooks/useCreateCourseCopy"
+import { useCreateCourseCopy, useCreateNewCourse } from "../../hooks/useCreateCourse"
 
 import BasicCourseInfo from "./BasicCourseInfo"
 import DuplicateOptions from "./DuplicateOptions"
@@ -14,7 +14,6 @@ import { CopyCourseMode, NewCourse } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { normalizeIETFLanguageTag } from "@/shared-module/common/utils/strings"
 
 export interface NewCourseFormProps {
@@ -23,8 +22,6 @@ export interface NewCourseFormProps {
   isLanguageVersion?: boolean
   onClose: () => void
   onSuccess?: () => void
-  onSubmitNewCourseForm?: (newCourse: NewCourse) => Promise<void>
-  onSubmitDuplicateCourseForm?: (oldCourseId: string, newCourse: NewCourse) => Promise<void>
 }
 
 export interface FormFields extends Omit<NewCourse, "organization_id"> {
@@ -50,13 +47,12 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
   isLanguageVersion = false,
   onClose,
   onSuccess,
-  onSubmitNewCourseForm,
-  onSubmitDuplicateCourseForm,
 }) => {
   const { t } = useTranslation()
   const formRef = useRef<HTMLFormElement>(null)
   const [submitDisabled, setSubmitDisabled] = useState(false)
   const createCourseCopyMutation = useCreateCourseCopy()
+  const createNewCourseMutation = useCreateNewCourse()
 
   const useFormReturn = useForm<FormFields>({
     defaultValues: {
@@ -86,17 +82,34 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
 
   const createDuplicate = watch("createDuplicate")
 
-  const mutation = useToastMutation(
-    async (data: FormFields) => {
-      try {
-        const normalizedLanguageCode = normalizeIETFLanguageTag(data.language_code)
-        const newCourse: NewCourse = {
-          ...data,
-          organization_id: organizationId,
-          language_code: normalizedLanguageCode,
+  const handleFormSubmit = async (data: FormFields) => {
+    try {
+      const normalizedLanguageCode = normalizeIETFLanguageTag(data.language_code)
+      const newCourse: NewCourse = {
+        ...data,
+        organization_id: organizationId,
+        language_code: normalizedLanguageCode,
+      }
+
+      if (isLanguageVersion && courseId) {
+        let mode: CopyCourseMode
+        if (data.useExistingLanguageGroup && data.targetCourseId) {
+          // eslint-disable-next-line i18next/no-literal-string
+          mode = { mode: "existing_language_group", target_course_id: data.targetCourseId }
+        } else {
+          // eslint-disable-next-line i18next/no-literal-string
+          mode = { mode: "same_language_group" }
         }
 
-        if (isLanguageVersion && courseId) {
+        await createCourseCopyMutation.mutateAsync({
+          courseId,
+          data: {
+            ...newCourse,
+            mode,
+          },
+        })
+      } else if (createDuplicate && data.courseId) {
+        if (data.createAsLanguageVersion) {
           let mode: CopyCourseMode
           if (data.useExistingLanguageGroup && data.targetCourseId) {
             // eslint-disable-next-line i18next/no-literal-string
@@ -107,85 +120,42 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
           }
 
           await createCourseCopyMutation.mutateAsync({
-            courseId,
+            courseId: data.courseId,
             data: {
               ...newCourse,
               mode,
             },
           })
-        } else if (createDuplicate && data.courseId) {
-          if (data.createAsLanguageVersion) {
-            let mode: CopyCourseMode
-            if (data.useExistingLanguageGroup && data.targetCourseId) {
-              // eslint-disable-next-line i18next/no-literal-string
-              mode = { mode: "existing_language_group", target_course_id: data.targetCourseId }
-            } else {
-              // eslint-disable-next-line i18next/no-literal-string
-              mode = { mode: "same_language_group" }
-            }
-
-            await createCourseCopyMutation.mutateAsync({
-              courseId: data.courseId,
-              data: {
-                ...newCourse,
-                mode,
-              },
-            })
-          } else {
-            if (onSubmitDuplicateCourseForm) {
-              await onSubmitDuplicateCourseForm(data.courseId, newCourse)
-            } else {
-              await createCourseCopyMutation.mutateAsync({
-                courseId: data.courseId,
-                data: {
-                  ...newCourse,
-                  // eslint-disable-next-line i18next/no-literal-string
-                  mode: { mode: "duplicate" },
-                },
-              })
-            }
-          }
         } else {
-          if (onSubmitNewCourseForm) {
-            await onSubmitNewCourseForm(newCourse)
-          } else {
-            const response = await fetch("/api/courses", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(newCourse),
-            })
-
-            if (!response.ok) {
-              throw new Error("Failed to create course")
-            }
-          }
+          await createCourseCopyMutation.mutateAsync({
+            courseId: data.courseId,
+            data: {
+              ...newCourse,
+              // eslint-disable-next-line i18next/no-literal-string
+              mode: { mode: "duplicate" },
+            },
+          })
         }
-
-        if (onSuccess) {
-          onSuccess()
-        }
-        onClose()
-      } catch (e: unknown) {
-        setFormError("root", { message: e?.toString() })
-        throw e
+      } else {
+        await createNewCourseMutation.mutateAsync(newCourse)
       }
-    },
-    {
-      notify: true,
-      method: "POST",
-      successMessage: t("course-created-successfully"),
-      errorMessage: t("error-creating-course"),
-    },
-  )
+
+      if (onSuccess) {
+        onSuccess()
+      }
+      onClose()
+    } catch (e: unknown) {
+      setFormError("root", { message: e?.toString() })
+      throw e
+    }
+  }
 
   return (
     <form
       ref={formRef}
       onSubmit={handleSubmit((data) => {
         setSubmitDisabled(true)
-        mutation.mutate(data)
+        handleFormSubmit(data)
       })}
     >
       <div

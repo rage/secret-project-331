@@ -60,11 +60,6 @@ export const getCourseBreadCrumbInfo = async (courseId: string): Promise<CourseB
   return validateResponse(response, isCourseBreadcrumbInfo)
 }
 
-export const postNewCourse = async (data: NewCourse): Promise<Course> => {
-  const response = await mainFrontendClient.post("/courses", data)
-  return validateResponse(response, isCourse)
-}
-
 export const deleteCourse = async (courseId: string): Promise<Course> => {
   const response = await mainFrontendClient.delete(`/courses/${courseId}`)
   return validateResponse(response, isCourse)
@@ -330,5 +325,10 @@ export const createCourseCopy = async (
   data: CopyCourseRequest,
 ): Promise<Course> => {
   const response = await mainFrontendClient.post(`/courses/${courseId}/create-copy`, data)
+  return validateResponse(response, isCourse)
+}
+
+export const createNewCourse = async (data: NewCourse): Promise<Course> => {
+  const response = await mainFrontendClient.post("/courses", data)
   return validateResponse(response, isCourse)
 }

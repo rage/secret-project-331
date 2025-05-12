@@ -227,6 +227,7 @@
   "error-creating-course": "Error creating course",
   "error-fetching-service-info": "Error fetching service info",
   "error-loading-organizations": "Error loading organizations.",
+  "error-min-length": "{{field}} must be at least {{count}} characters.",
   "error-modules-chapter-not-in-module": "Chapter {{ chapterNumber }}: {{ chapterName }} does not belong to any module",
   "error-modules-default-noncontinuous-chapters": "Default module has missing chapters between {{ prevChapter }} and {{ currChapter }}",
   "error-modules-empty-module": "Module {{ moduleName }} is empty",

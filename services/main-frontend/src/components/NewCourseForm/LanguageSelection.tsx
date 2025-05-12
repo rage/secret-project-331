@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useId, useState } from "react"
 import { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -19,6 +19,7 @@ interface LanguageSelectionProps {
 }
 
 const LanguageSelection: React.FC<LanguageSelectionProps> = ({ form }) => {
+  const courseLanguageHeading = useId()
   const { t } = useTranslation()
   const { register, setValue } = form
   const [showCustomLanguageCode, setShowCustomLanguageCode] = useState(false)
@@ -37,8 +38,8 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({ form }) => {
 
   return (
     <>
-      <div>{t("course-language")}</div>
-      <FieldContainer aria-labelledby={t("course-version-selection")}>
+      <div id={courseLanguageHeading}>{t("course-language")}</div>
+      <FieldContainer aria-labelledby={courseLanguageHeading}>
         <RadioButton
           key={AMERICAN_ENGLISH_LANGUAGE_CODE}
           label={t("english")}
@@ -78,7 +79,11 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({ form }) => {
 
       {showCustomLanguageCode && (
         <>
-          <div>{languageCodeValidationError}</div>
+          {languageCodeValidationError && (
+            <div role="alert" aria-live="assertive">
+              {languageCodeValidationError}
+            </div>
+          )}
           <FieldContainer>
             <TextField
               required

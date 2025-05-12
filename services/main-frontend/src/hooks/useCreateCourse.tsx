@@ -6,42 +6,104 @@ import { createCourseCopy, createNewCourse } from "../services/backend/courses"
 import { formatLanguageVersionsQueryKey } from "./useCourseLanguageVersions"
 import { formatCourseQueryKey } from "./useCourseQuery"
 
-import { CopyCourseRequest, Course, NewCourse } from "@/shared-module/common/bindings"
+import { CopyCourseMode, Course, NewCourse } from "@/shared-module/common/bindings"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { normalizeIETFLanguageTag } from "@/shared-module/common/utils/strings"
 
-export const useCreateCourseCopy = () => {
-  const queryClient = useQueryClient()
-  const { t } = useTranslation()
-
-  return useToastMutation<Course, unknown, { courseId: string; data: CopyCourseRequest }>(
-    ({ courseId, data }) => createCourseCopy(courseId, data),
-    {
-      notify: true,
-      method: "POST",
-      successMessage: t("course-created-successfully"),
-    },
-    {
-      onSuccess: async (_, { courseId }) => {
-        invalidateCourseQueries(queryClient, courseId)
-      },
-    },
-  )
+export interface CreateCourseParams {
+  organizationId: string
+  courseId?: string
+  isLanguageVersion?: boolean
+  createDuplicate?: boolean
+  createAsLanguageVersion?: boolean
+  useExistingLanguageGroup?: boolean
+  targetCourseId?: string
+  data: Omit<NewCourse, "organization_id" | "language_code">
+  language_code: string
+  onSuccess?: () => void
+  onClose: () => void
 }
 
-export const useCreateNewCourse = () => {
+export const useCreateCourse = () => {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
 
-  return useToastMutation<Course, unknown, NewCourse>(
-    (data) => createNewCourse(data),
+  return useToastMutation<Course, unknown, CreateCourseParams>(
+    async (params) => {
+      const {
+        organizationId,
+        courseId,
+        isLanguageVersion,
+        createDuplicate,
+        createAsLanguageVersion,
+        useExistingLanguageGroup,
+        targetCourseId,
+        data,
+        language_code,
+      } = params
+
+      const normalizedLanguageCode = normalizeIETFLanguageTag(language_code)
+      const newCourse: NewCourse = {
+        ...data,
+        organization_id: organizationId,
+        language_code: normalizedLanguageCode,
+      }
+
+      if (isLanguageVersion && courseId) {
+        let mode: CopyCourseMode
+        if (useExistingLanguageGroup && targetCourseId) {
+          // eslint-disable-next-line i18next/no-literal-string
+          mode = { mode: "existing_language_group", target_course_id: targetCourseId }
+        } else {
+          // eslint-disable-next-line i18next/no-literal-string
+          mode = { mode: "same_language_group" }
+        }
+
+        return createCourseCopy(courseId, {
+          ...newCourse,
+          mode,
+        })
+      }
+
+      if (createDuplicate && courseId) {
+        if (createAsLanguageVersion) {
+          let mode: CopyCourseMode
+          if (useExistingLanguageGroup && targetCourseId) {
+            // eslint-disable-next-line i18next/no-literal-string
+            mode = { mode: "existing_language_group", target_course_id: targetCourseId }
+          } else {
+            // eslint-disable-next-line i18next/no-literal-string
+            mode = { mode: "same_language_group" }
+          }
+
+          return createCourseCopy(courseId, {
+            ...newCourse,
+            mode,
+          })
+        }
+
+        return createCourseCopy(courseId, {
+          ...newCourse,
+          // eslint-disable-next-line i18next/no-literal-string
+          mode: { mode: "duplicate" },
+        })
+      }
+
+      return createNewCourse(newCourse)
+    },
     {
       notify: true,
       method: "POST",
       successMessage: t("course-created-successfully"),
+      errorMessage: t("error-creating-course"),
     },
     {
-      onSuccess: async (newCourse) => {
+      onSuccess: async (newCourse, params) => {
         invalidateCourseQueries(queryClient, newCourse.id)
+        if (params.onSuccess) {
+          params.onSuccess()
+        }
+        params.onClose()
       },
     },
   )

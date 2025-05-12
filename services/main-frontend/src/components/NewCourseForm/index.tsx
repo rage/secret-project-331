@@ -1,20 +1,19 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { useRef, useState } from "react"
+import React, { useRef } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { useCreateCourseCopy, useCreateNewCourse } from "../../hooks/useCreateCourse"
+import { useCreateCourse } from "../../hooks/useCreateCourse"
 
 import BasicCourseInfo from "./BasicCourseInfo"
 import DuplicateOptions from "./DuplicateOptions"
 import LanguageSelection from "./LanguageSelection"
 
-import { CopyCourseMode, NewCourse } from "@/shared-module/common/bindings"
+import { NewCourse } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import { normalizeIETFLanguageTag } from "@/shared-module/common/utils/strings"
 
 export interface NewCourseFormProps {
   organizationId: string
@@ -50,9 +49,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
 }) => {
   const { t } = useTranslation()
   const formRef = useRef<HTMLFormElement>(null)
-  const [submitDisabled, setSubmitDisabled] = useState(false)
-  const createCourseCopyMutation = useCreateCourseCopy()
-  const createNewCourseMutation = useCreateNewCourse()
+  const createCourseMutation = useCreateCourse()
 
   const useFormReturn = useForm<FormFields>({
     defaultValues: {
@@ -77,85 +74,29 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
     handleSubmit,
     formState: { errors },
     watch,
-    setError: setFormError,
   } = useFormReturn
 
   const createDuplicate = watch("createDuplicate")
-
-  const handleFormSubmit = async (data: FormFields) => {
-    try {
-      const normalizedLanguageCode = normalizeIETFLanguageTag(data.language_code)
-      const newCourse: NewCourse = {
-        ...data,
-        organization_id: organizationId,
-        language_code: normalizedLanguageCode,
-      }
-
-      if (isLanguageVersion && courseId) {
-        let mode: CopyCourseMode
-        if (data.useExistingLanguageGroup && data.targetCourseId) {
-          // eslint-disable-next-line i18next/no-literal-string
-          mode = { mode: "existing_language_group", target_course_id: data.targetCourseId }
-        } else {
-          // eslint-disable-next-line i18next/no-literal-string
-          mode = { mode: "same_language_group" }
-        }
-
-        await createCourseCopyMutation.mutateAsync({
-          courseId,
-          data: {
-            ...newCourse,
-            mode,
-          },
-        })
-      } else if (createDuplicate && data.courseId) {
-        if (data.createAsLanguageVersion) {
-          let mode: CopyCourseMode
-          if (data.useExistingLanguageGroup && data.targetCourseId) {
-            // eslint-disable-next-line i18next/no-literal-string
-            mode = { mode: "existing_language_group", target_course_id: data.targetCourseId }
-          } else {
-            // eslint-disable-next-line i18next/no-literal-string
-            mode = { mode: "same_language_group" }
-          }
-
-          await createCourseCopyMutation.mutateAsync({
-            courseId: data.courseId,
-            data: {
-              ...newCourse,
-              mode,
-            },
-          })
-        } else {
-          await createCourseCopyMutation.mutateAsync({
-            courseId: data.courseId,
-            data: {
-              ...newCourse,
-              // eslint-disable-next-line i18next/no-literal-string
-              mode: { mode: "duplicate" },
-            },
-          })
-        }
-      } else {
-        await createNewCourseMutation.mutateAsync(newCourse)
-      }
-
-      if (onSuccess) {
-        onSuccess()
-      }
-      onClose()
-    } catch (e: unknown) {
-      setFormError("root", { message: e?.toString() })
-      throw e
-    }
-  }
 
   return (
     <form
       ref={formRef}
       onSubmit={handleSubmit((data) => {
-        setSubmitDisabled(true)
-        handleFormSubmit(data)
+        createCourseMutation.mutate({
+          organizationId,
+          courseId: data.courseId,
+          isLanguageVersion,
+          createDuplicate,
+          createAsLanguageVersion: data.createAsLanguageVersion,
+          useExistingLanguageGroup: data.useExistingLanguageGroup,
+          targetCourseId: data.targetCourseId,
+          data: {
+            ...data,
+          },
+          language_code: data.language_code,
+          onSuccess,
+          onClose,
+        })
       })}
     >
       <div
@@ -163,7 +104,12 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
           margin-bottom: 2rem;
         `}
       >
-        {errors.root && <ErrorBanner error={errors.root.message} variant="readOnly" />}
+        {(errors.root || Boolean(createCourseMutation.error)) && (
+          <ErrorBanner
+            error={createCourseMutation.error || errors.root?.message}
+            variant="readOnly"
+          />
+        )}
 
         <BasicCourseInfo form={useFormReturn} />
 
@@ -191,7 +137,13 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
           margin-top: 2rem;
         `}
       >
-        <Button type="submit" variant="primary" size="medium" disabled={submitDisabled} fullWidth>
+        <Button
+          type="submit"
+          variant="primary"
+          size="medium"
+          disabled={createCourseMutation.isPending}
+          fullWidth
+        >
           {t("button-text-create")}
         </Button>
       </div>

@@ -940,7 +940,11 @@ pub async fn authenticate_test_user(
     } else if email == "student-without-research-consent@example.com"
         && password == "student-without-research-consent"
     {
-        models::users::get_by_email(conn, "student-without-research-consent@example.com").await?
+        models::users::get_by_email(conn, "teaching-and-learning-services@example.com").await?
+    } else if email == "student-without-country@example.com"
+        && password == "student-without-country"
+    {
+        models::users::get_by_email(conn, "student-without-country@example.com").await?
     } else if email == "langs@example.com" && password == "langs" {
         models::users::get_by_email(conn, "langs@example.com").await?
     } else {

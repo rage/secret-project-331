@@ -39,11 +39,7 @@ const BasicCourseInfo: React.FC<BasicCourseInfoProps> = ({ form }) => {
             required: t("required-field"),
             minLength: {
               value: 3,
-              message:
-                t("text-field-label-name") +
-                  ": " +
-                  t("error-min-length", { count: 3, field: t("text-field-label-name") }) ||
-                `${t("text-field-label-name")} must be at least 3 characters.`,
+              message: t("error-min-length", { count: 3, field: t("text-field-label-name") }),
             },
           })}
         />
@@ -61,14 +57,10 @@ const BasicCourseInfo: React.FC<BasicCourseInfoProps> = ({ form }) => {
             },
             minLength: {
               value: 3,
-              message:
-                t("text-field-label-or-header-slug-or-short-name") +
-                  ": " +
-                  t("error-min-length", {
-                    count: 3,
-                    field: t("text-field-label-or-header-slug-or-short-name"),
-                  }) ||
-                `${t("text-field-label-or-header-slug-or-short-name")} must be at least 3 characters.`,
+              message: t("error-min-length", {
+                count: 3,
+                field: t("text-field-label-or-header-slug-or-short-name"),
+              }),
             },
           })}
         />
@@ -82,11 +74,7 @@ const BasicCourseInfo: React.FC<BasicCourseInfoProps> = ({ form }) => {
             required: t("required-field"),
             minLength: {
               value: 2,
-              message:
-                t("teacher-in-charge-name") +
-                  ": " +
-                  t("error-min-length", { count: 2, field: t("teacher-in-charge-name") }) ||
-                `${t("teacher-in-charge-name")} must be at least 2 characters.`,
+              message: t("error-min-length", { count: 2, field: t("teacher-in-charge-name") }),
             },
           })}
         />

@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { ApartmentBuilding } from "@vectopus/atlas-icons-react"
+import { ApartmentBuilding, Gear } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -149,32 +149,68 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
                     {organization.name}
                   </h2>
                 </div>
-                <button
-                  onClick={() =>
-                    (window.location.href = organizationCoursesPageHref(organization.slug))
-                  }
+                <div
                   className={css`
                     margin-left: auto;
                     margin-right: 1rem;
-                    background-color: rgba(237, 238, 240, 1);
-                    color: rgba(26, 35, 51, 1);
-                    border: none;
-                    border-radius: 0px;
-                    padding: 0.4rem 0.8rem;
-                    font-family: Inter;
-                    font-weight: 400;
-                    font-size: 18px;
-                    line-height: 100%;
-                    letter-spacing: 0;
-                    cursor: pointer;
-                    &:hover {
-                      background-color: rgb(216, 216, 216);
-                      cursor: pointer;
-                    }
+                    display: flex;
+                    align-items: center;
                   `}
                 >
-                  {t("Select", { defaultValue: "Select" })}
-                </button>
+                  <button
+                    onClick={() => {
+                      /* Cogwheel */
+                    }}
+                    className={css`
+                      width: 25px;
+                      height: 25px;
+                      border-radius: 50%;
+                      background-color: rgba(237, 238, 240, 1);
+                      border: none;
+                      margin-right: 0.5rem;
+                      cursor: pointer;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+
+                      &:hover {
+                        background-color: rgb(216, 216, 216);
+                      }
+                    `}
+                  >
+                    <Gear
+                      className={css`
+                        width: 14px;
+                        height: 13px;
+                        color: rgba(26, 35, 51, 1);
+                      `}
+                    />
+                  </button>
+
+                  <button
+                    onClick={() =>
+                      (window.location.href = organizationCoursesPageHref(organization.slug))
+                    }
+                    className={css`
+                      background-color: rgba(237, 238, 240, 1);
+                      color: rgba(26, 35, 51, 1);
+                      border: none;
+                      border-radius: 0px;
+                      padding: 0.4rem 0.8rem;
+                      font-family: Inter;
+                      font-weight: 400;
+                      font-size: 18px;
+                      line-height: 100%;
+                      letter-spacing: 0;
+                      cursor: pointer;
+                      &:hover {
+                        background-color: rgb(216, 216, 216);
+                      }
+                    `}
+                  >
+                    {t("Select", { defaultValue: "Select" })}
+                  </button>
+                </div>
               </div>
             </div>
           ))}

@@ -108,7 +108,8 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
                     width: 27px;
                     min-width: 27px;
                     height: 26px;
-                    padding: 0;
+                    padding: 4px;
+                    border-radius: 4px;
                     margin-left: 0.75rem;
 
                     ${respondToOrLarger.lg} {
@@ -141,9 +142,9 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
                       font-family: Inter;
                       font-weight: 400;
                       font-size: 18px;
-                      line-height: 100%;
+                      line-height: 1.3;
                       letter-spacing: 0;
-                      text-transform: uppercase;
+                      text-transform: capitalize;
                     `}
                   >
                     {organization.name}

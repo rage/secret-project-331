@@ -229,6 +229,7 @@ WHERE id = $2;
     copy_peer_or_self_review_configs(&mut tx, copied_course.id, src_course_id).await?;
     copy_peer_or_self_review_questions(&mut tx, copied_course.id, src_course_id).await?;
     copy_material_references(&mut tx, copied_course.id, src_course_id).await?;
+    copy_glossary_entries(&mut tx, copied_course.id, src_course_id).await?;
 
     tx.commit().await?;
 
@@ -898,6 +899,35 @@ AND deleted_at IS NULL;
     ",
         namespace_id,
         parent_id,
+    )
+    .execute(&mut *tx)
+    .await?;
+    Ok(())
+}
+
+async fn copy_glossary_entries(
+    tx: &mut PgConnection,
+    new_course_id: Uuid,
+    old_course_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+INSERT INTO glossary (
+    id,
+    course_id,
+    term,
+    definition
+  )
+SELECT uuid_generate_v5($1, id::text),
+  $1,
+  term,
+  definition
+FROM glossary
+WHERE course_id = $2
+  AND deleted_at IS NULL;
+        ",
+        new_course_id,
+        old_course_id,
     )
     .execute(&mut *tx)
     .await?;

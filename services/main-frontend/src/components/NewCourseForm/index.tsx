@@ -110,7 +110,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
 
         <BasicCourseInfo form={useFormReturn} />
 
-        {(isLanguageVersion || createDuplicate) && (
+        {isLanguageVersion && (
           <FieldContainer>
             <CheckBox
               label={t("grant-access-to-users-with-permissions-to-original-course")}

@@ -28,7 +28,6 @@ const NewCourseLanguageVersionDialog: React.FC<
         courseId={courseId}
         isLanguageVersion={true}
         onSuccess={onSuccess}
-        onClose={onClose}
       />
     </StandardDialog>
   )

@@ -1,18 +1,15 @@
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { useCreateCourse } from "../../../../hooks/useCreateCourse"
+import { useOrganizationCourseCount } from "../../../../hooks/useOrganizationCourseCount"
+import { useOrganizationCourses } from "../../../../hooks/useOrganizationCourses"
 import { createNewCourse } from "../../../../services/backend/courses"
-import {
-  fetchOrganizationCourseCount,
-  fetchOrganizationCourses,
-} from "../../../../services/backend/organizations"
 
 import { CourseComponent, CourseGrid } from "./CourseCard"
 import NewCourseDialog from "./NewCourseDialog"
 
-import { useCreateCourseCopy } from "@/hooks/useCreateCourse"
 import { NewCourse } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -36,58 +33,20 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
   const paginationInfo = usePaginationInfo()
   const [newCourseFormOpen, setNewCourseFormOpen] = useState(false)
   const loginStateContext = useContext(LoginStateContext)
-  const createCourseCopyMutation = useCreateCourseCopy()
 
-  const getOrgCourses = useQuery({
-    queryKey: [`organization-courses`, paginationInfo.page, paginationInfo.limit, organizationId],
-    queryFn: () => {
-      if (organizationId) {
-        return fetchOrganizationCourses(organizationId, paginationInfo.page, paginationInfo.limit)
-      } else {
-        return Promise.reject(new Error("Organization ID undefined"))
-      }
-    },
-    enabled: !!organizationId,
-  })
+  const getOrgCourses = useOrganizationCourses(
+    organizationId,
+    paginationInfo.page,
+    paginationInfo.limit,
+  )
 
-  const getOrgCourseCount = useQuery({
-    queryKey: [`organization-courses-count`, organizationSlug, organizationId],
-    queryFn: () => {
-      if (organizationId) {
-        return fetchOrganizationCourseCount(organizationId)
-      } else {
-        return Promise.reject(new Error("Organization ID undefined"))
-      }
-    },
-    enabled: !!organizationId,
-  })
+  const getOrgCourseCount = useOrganizationCourseCount(organizationId)
 
   const canMangeCourse = useAuthorizeMultiple(
     getOrgCourses.data?.map((course) => {
       return { action: { type: "teach" }, resource: { type: "course", id: course.id } }
     }) ?? [],
   )
-
-  const handleSubmitNewCourse = async (newCourse: NewCourse) => {
-    await createNewCourse(newCourse)
-    await getOrgCourses.refetch()
-    await getOrgCourseCount.refetch()
-    setNewCourseFormOpen(false)
-  }
-
-  const handleSubmitDuplicateCourse = async (oldCourseId: string, newCourse: NewCourse) => {
-    await createCourseCopyMutation.mutateAsync({
-      courseId: oldCourseId,
-      data: {
-        ...newCourse,
-        // eslint-disable-next-line i18next/no-literal-string
-        mode: { mode: "duplicate" },
-      },
-    })
-    await getOrgCourses.refetch()
-    await getOrgCourseCount.refetch()
-    setNewCourseFormOpen(false)
-  }
 
   if (getOrgCourses.isError) {
     return <ErrorBanner variant={"readOnly"} error={getOrgCourses.error} />
@@ -142,8 +101,6 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
         open={newCourseFormOpen}
         onClose={() => setNewCourseFormOpen(false)}
         organizationId={organizationId}
-        onSubmitNewCourse={handleSubmitNewCourse}
-        onSubmitDuplicateCourse={handleSubmitDuplicateCourse}
       />
 
       <br />

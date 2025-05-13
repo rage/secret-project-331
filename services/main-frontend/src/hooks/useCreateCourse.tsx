@@ -3,8 +3,10 @@ import { useTranslation } from "react-i18next"
 
 import { createCourseCopy, createNewCourse } from "../services/backend/courses"
 
-import { formatLanguageVersionsQueryKey } from "./useCourseLanguageVersions"
-import { formatCourseQueryKey } from "./useCourseQuery"
+import { invalidateCourseLanguageVersions } from "./useCourseLanguageVersions"
+import { invalidateCourseQuery } from "./useCourseQuery"
+import { invalidateOrganizationCourseCount } from "./useOrganizationCourseCount"
+import { invalidateOrganizationCourses } from "./useOrganizationCourses"
 
 import { CopyCourseMode, Course, NewCourse } from "@/shared-module/common/bindings"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -21,7 +23,6 @@ export interface CreateCourseParams {
   data: Omit<NewCourse, "organization_id" | "language_code">
   language_code: string
   onSuccess?: () => void
-  onClose: () => void
 }
 
 export const useCreateCourse = () => {
@@ -85,19 +86,24 @@ export const useCreateCourse = () => {
     },
     {
       onSuccess: async (newCourse, params) => {
-        invalidateCourseQueries(queryClient, newCourse.id)
+        invalidateCourseQueries(queryClient, newCourse.id, params.organizationId)
         if (params.onSuccess) {
           params.onSuccess()
         }
-        params.onClose()
       },
     },
   )
 }
 
-function invalidateCourseQueries(queryClient: QueryClient, courseId: string) {
-  queryClient.invalidateQueries({ queryKey: formatCourseQueryKey(courseId) })
-  queryClient.invalidateQueries({ queryKey: [formatLanguageVersionsQueryKey(courseId)] })
+function invalidateCourseQueries(
+  queryClient: QueryClient,
+  courseId: string,
+  organizationId: string,
+) {
+  invalidateCourseQuery(queryClient, courseId)
+  invalidateCourseLanguageVersions(queryClient, courseId)
+  invalidateOrganizationCourses(queryClient, organizationId)
+  invalidateOrganizationCourseCount(queryClient, organizationId)
 }
 
 function createLanguageVersionMode(

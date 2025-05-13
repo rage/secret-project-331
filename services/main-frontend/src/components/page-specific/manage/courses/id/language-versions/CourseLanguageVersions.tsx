@@ -8,7 +8,7 @@ import CourseLanguageVersionsList from "./CourseLanguageVersionsList"
 import NewCourseLanguageVersionDialog from "./NewCourseLanguageVersionDialog"
 
 import { formatLanguageVersionsQueryKey } from "@/hooks/useCourseLanguageVersions"
-import useCourseQuery from "@/hooks/useCourseQuery"
+import { useCourseQuery } from "@/hooks/useCourseQuery"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"

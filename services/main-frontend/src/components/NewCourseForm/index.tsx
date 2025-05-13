@@ -19,7 +19,6 @@ export interface NewCourseFormProps {
   organizationId: string
   courseId?: string
   isLanguageVersion?: boolean
-  onClose: () => void
   onSuccess?: () => void
 }
 
@@ -44,7 +43,6 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
   organizationId,
   courseId,
   isLanguageVersion = false,
-  onClose,
   onSuccess,
 }) => {
   const { t } = useTranslation()
@@ -95,7 +93,6 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
           },
           language_code: data.language_code,
           onSuccess,
-          onClose,
         })
       })}
     >

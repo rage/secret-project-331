@@ -2,15 +2,12 @@ import { css } from "@emotion/css"
 import { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useCreateCourse } from "../../../../hooks/useCreateCourse"
 import { useOrganizationCourseCount } from "../../../../hooks/useOrganizationCourseCount"
 import { useOrganizationCourses } from "../../../../hooks/useOrganizationCourses"
-import { createNewCourse } from "../../../../services/backend/courses"
 
 import { CourseComponent, CourseGrid } from "./CourseCard"
 import NewCourseDialog from "./NewCourseDialog"
 
-import { NewCourse } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
@@ -34,7 +31,7 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
   const [newCourseFormOpen, setNewCourseFormOpen] = useState(false)
   const loginStateContext = useContext(LoginStateContext)
 
-  const getOrgCourses = useOrganizationCourses(
+  const organizationCoursesQuery = useOrganizationCourses(
     organizationId,
     paginationInfo.page,
     paginationInfo.limit,
@@ -43,26 +40,26 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
   const getOrgCourseCount = useOrganizationCourseCount(organizationId)
 
   const canMangeCourse = useAuthorizeMultiple(
-    getOrgCourses.data?.map((course) => {
+    organizationCoursesQuery.data?.map((course) => {
       return { action: { type: "teach" }, resource: { type: "course", id: course.id } }
     }) ?? [],
   )
 
-  if (getOrgCourses.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getOrgCourses.error} />
+  if (organizationCoursesQuery.isError) {
+    return <ErrorBanner variant={"readOnly"} error={organizationCoursesQuery.error} />
   }
 
   if (getOrgCourseCount.isError) {
     return <ErrorBanner variant={"readOnly"} error={getOrgCourseCount.error} />
   }
 
-  if (getOrgCourses.isPending || getOrgCourseCount.isPending) {
+  if (organizationCoursesQuery.isPending || getOrgCourseCount.isPending) {
     return <Spinner variant={"medium"} />
   }
 
   const courseCount = getOrgCourseCount.data.count
 
-  const courses = getOrgCourses.data.map((course, n) => {
+  const courses = organizationCoursesQuery.data.map((course, n) => {
     return (
       <CourseComponent
         key={course.id}

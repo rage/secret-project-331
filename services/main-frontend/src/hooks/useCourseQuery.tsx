@@ -6,7 +6,7 @@ import { Course } from "@/shared-module/common/bindings"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 // eslint-disable-next-line i18next/no-literal-string
-export const formatCourseQueryKey = (courseId: string) => [`course-${courseId}`]
+export const formatCourseQueryKey = (courseId: string) => [`course`, courseId]
 
 export const invalidateCourseQuery = (queryClient: QueryClient, courseId: string) => {
   queryClient.invalidateQueries({ queryKey: formatCourseQueryKey(courseId) })

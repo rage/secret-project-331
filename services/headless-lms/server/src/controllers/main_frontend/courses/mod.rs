@@ -487,6 +487,14 @@ pub async fn create_course_copy(
         }
         CopyCourseMode::ExistingLanguageGroup { target_course_id } => {
             let target_course = models::courses::get_course(&mut tx, *target_course_id).await?;
+            // Verify that the user has permissions also to the course of the custom language group
+            authorize(
+                &mut tx,
+                Act::Duplicate,
+                Some(user.id),
+                Res::Course(*target_course_id),
+            )
+            .await?;
             models::library::copying::copy_course_with_language_group(
                 &mut tx,
                 *course_id,

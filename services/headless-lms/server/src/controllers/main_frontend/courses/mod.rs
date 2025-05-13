@@ -462,10 +462,12 @@ pub async fn create_course_copy(
     )
     .await?;
 
+    let mut tx = conn.begin().await?;
+
     let copied_course = match &payload.mode {
         CopyCourseMode::Duplicate => {
             models::library::copying::copy_course(
-                &mut conn,
+                &mut tx,
                 *course_id,
                 &payload.new_course,
                 false,
@@ -475,7 +477,7 @@ pub async fn create_course_copy(
         }
         CopyCourseMode::SameLanguageGroup => {
             models::library::copying::copy_course(
-                &mut conn,
+                &mut tx,
                 *course_id,
                 &payload.new_course,
                 true,
@@ -484,9 +486,9 @@ pub async fn create_course_copy(
             .await?
         }
         CopyCourseMode::ExistingLanguageGroup { target_course_id } => {
-            let target_course = models::courses::get_course(&mut conn, *target_course_id).await?;
+            let target_course = models::courses::get_course(&mut tx, *target_course_id).await?;
             models::library::copying::copy_course_with_language_group(
-                &mut conn,
+                &mut tx,
                 *course_id,
                 target_course.course_language_group_id,
                 &payload.new_course,
@@ -495,10 +497,9 @@ pub async fn create_course_copy(
             .await?
         }
         CopyCourseMode::NewLanguageGroup => {
-            let new_clg_id =
-                course_language_groups::insert(&mut conn, PKeyPolicy::Generate).await?;
+            let new_clg_id = course_language_groups::insert(&mut tx, PKeyPolicy::Generate).await?;
             models::library::copying::copy_course_with_language_group(
-                &mut conn,
+                &mut tx,
                 *course_id,
                 new_clg_id,
                 &payload.new_course,
@@ -509,12 +510,14 @@ pub async fn create_course_copy(
     };
 
     models::roles::insert(
-        &mut conn,
+        &mut tx,
         user.id,
         models::roles::UserRole::Teacher,
         models::roles::RoleDomain::Course(copied_course.id),
     )
     .await?;
+
+    tx.commit().await?;
 
     token.authorized_ok(web::Json(copied_course))
 }

@@ -50,14 +50,7 @@ export const useCreateCourse = () => {
       }
 
       if (isLanguageVersion && courseId) {
-        let mode: CopyCourseMode
-        if (useExistingLanguageGroup && targetCourseId) {
-          // eslint-disable-next-line i18next/no-literal-string
-          mode = { mode: "existing_language_group", target_course_id: targetCourseId }
-        } else {
-          // eslint-disable-next-line i18next/no-literal-string
-          mode = { mode: "same_language_group" }
-        }
+        const mode = createLanguageVersionMode(Boolean(useExistingLanguageGroup), targetCourseId)
 
         return createCourseCopy(courseId, {
           ...newCourse,
@@ -67,14 +60,7 @@ export const useCreateCourse = () => {
 
       if (createDuplicate && courseId) {
         if (createAsLanguageVersion) {
-          let mode: CopyCourseMode
-          if (useExistingLanguageGroup && targetCourseId) {
-            // eslint-disable-next-line i18next/no-literal-string
-            mode = { mode: "existing_language_group", target_course_id: targetCourseId }
-          } else {
-            // eslint-disable-next-line i18next/no-literal-string
-            mode = { mode: "same_language_group" }
-          }
+          const mode = createLanguageVersionMode(Boolean(useExistingLanguageGroup), targetCourseId)
 
           return createCourseCopy(courseId, {
             ...newCourse,
@@ -112,4 +98,17 @@ export const useCreateCourse = () => {
 function invalidateCourseQueries(queryClient: QueryClient, courseId: string) {
   queryClient.invalidateQueries({ queryKey: formatCourseQueryKey(courseId) })
   queryClient.invalidateQueries({ queryKey: [formatLanguageVersionsQueryKey(courseId)] })
+}
+
+function createLanguageVersionMode(
+  useExistingLanguageGroup: boolean,
+  targetCourseId?: string,
+): CopyCourseMode {
+  if (useExistingLanguageGroup && targetCourseId) {
+    // eslint-disable-next-line i18next/no-literal-string
+    return { mode: "existing_language_group", target_course_id: targetCourseId }
+  } else {
+    // eslint-disable-next-line i18next/no-literal-string
+    return { mode: "same_language_group" }
+  }
 }

@@ -122,7 +122,7 @@ const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPag
   // Or should we implement 404 Not Found page and router push there or return that page?
   const pageToRender = selectPageToRender(path)
 
-  console.log("path", path)
+  console.log("pageToRender", pageToRender)
 
   return (
     <>

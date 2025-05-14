@@ -30,7 +30,8 @@
 <a href="#29" id="29">29</a>
 <a href="#30" id="30">30</a>
 <a href="#31" id="31">31</a>
-<a href="#32" id="32">32</a></pre></div><pre class="rust"><code><span class="doccomment">//! Re-exports commonly used types for convenient use across the crate.
+<a href="#32" id="32">32</a>
+<a href="#33" id="33">33</a></pre></div><pre class="rust"><code><span class="doccomment">//! Re-exports commonly used types for convenient use across the crate.
 //! Intended to be glob-imported like `use crate::prelude::*;`.
 
 </span><span class="kw">pub use </span><span class="kw">crate</span>::controllers::helpers::file_uploading::{
@@ -44,6 +45,7 @@
 <span class="kw">pub use </span><span class="kw">crate</span>::domain::{
     <span class="self">self</span>,
     error::{ControllerError, ControllerErrorType, ControllerResult},
+    request_id::RequestId,
 };
 <span class="kw">pub use </span><span class="kw">crate</span>::generated_docs;
 <span class="kw">pub use </span>actix_multipart::Multipart;

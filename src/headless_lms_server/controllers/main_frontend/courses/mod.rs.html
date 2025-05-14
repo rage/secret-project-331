@@ -1790,7 +1790,57 @@
 <a href="#1789" id="1789">1789</a>
 <a href="#1790" id="1790">1790</a>
 <a href="#1791" id="1791">1791</a>
-<a href="#1792" id="1792">1792</a></pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/courses`.
+<a href="#1792" id="1792">1792</a>
+<a href="#1793" id="1793">1793</a>
+<a href="#1794" id="1794">1794</a>
+<a href="#1795" id="1795">1795</a>
+<a href="#1796" id="1796">1796</a>
+<a href="#1797" id="1797">1797</a>
+<a href="#1798" id="1798">1798</a>
+<a href="#1799" id="1799">1799</a>
+<a href="#1800" id="1800">1800</a>
+<a href="#1801" id="1801">1801</a>
+<a href="#1802" id="1802">1802</a>
+<a href="#1803" id="1803">1803</a>
+<a href="#1804" id="1804">1804</a>
+<a href="#1805" id="1805">1805</a>
+<a href="#1806" id="1806">1806</a>
+<a href="#1807" id="1807">1807</a>
+<a href="#1808" id="1808">1808</a>
+<a href="#1809" id="1809">1809</a>
+<a href="#1810" id="1810">1810</a>
+<a href="#1811" id="1811">1811</a>
+<a href="#1812" id="1812">1812</a>
+<a href="#1813" id="1813">1813</a>
+<a href="#1814" id="1814">1814</a>
+<a href="#1815" id="1815">1815</a>
+<a href="#1816" id="1816">1816</a>
+<a href="#1817" id="1817">1817</a>
+<a href="#1818" id="1818">1818</a>
+<a href="#1819" id="1819">1819</a>
+<a href="#1820" id="1820">1820</a>
+<a href="#1821" id="1821">1821</a>
+<a href="#1822" id="1822">1822</a>
+<a href="#1823" id="1823">1823</a>
+<a href="#1824" id="1824">1824</a>
+<a href="#1825" id="1825">1825</a>
+<a href="#1826" id="1826">1826</a>
+<a href="#1827" id="1827">1827</a>
+<a href="#1828" id="1828">1828</a>
+<a href="#1829" id="1829">1829</a>
+<a href="#1830" id="1830">1830</a>
+<a href="#1831" id="1831">1831</a>
+<a href="#1832" id="1832">1832</a>
+<a href="#1833" id="1833">1833</a>
+<a href="#1834" id="1834">1834</a>
+<a href="#1835" id="1835">1835</a>
+<a href="#1836" id="1836">1836</a>
+<a href="#1837" id="1837">1837</a>
+<a href="#1838" id="1838">1838</a>
+<a href="#1839" id="1839">1839</a>
+<a href="#1840" id="1840">1840</a>
+<a href="#1841" id="1841">1841</a>
+<a href="#1842" id="1842">1842</a></pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/courses`.
 
 </span><span class="kw">pub mod </span>stats;
 
@@ -1829,18 +1879,18 @@
 };
 
 <span class="kw">use crate</span>::{
-    domain::{
-        csv_export::{
-            course_instance_export::CourseInstancesExportOperation,
-            course_research_form_questions_answers_export::CourseResearchFormExportOperation,
-            exercise_tasks_export::CourseExerciseTasksExportOperation, general_export,
-            submissions::CourseSubmissionExportOperation, users_export::UsersExportOperation,
-        },
-        models_requests::{<span class="self">self</span>, JwtKey},
-        request_id::RequestId,
-    },
+    domain::models_requests::{<span class="self">self</span>, JwtKey},
     prelude::<span class="kw-2">*</span>,
 };
+
+<span class="kw">use </span>headless_lms_models::course_language_groups;
+
+<span class="kw">use </span><span class="kw">crate</span>::domain::csv_export::course_instance_export::CourseInstancesExportOperation;
+<span class="kw">use </span><span class="kw">crate</span>::domain::csv_export::course_research_form_questions_answers_export::CourseResearchFormExportOperation;
+<span class="kw">use </span><span class="kw">crate</span>::domain::csv_export::exercise_tasks_export::CourseExerciseTasksExportOperation;
+<span class="kw">use </span><span class="kw">crate</span>::domain::csv_export::general_export;
+<span class="kw">use </span><span class="kw">crate</span>::domain::csv_export::submissions::CourseSubmissionExportOperation;
+<span class="kw">use </span><span class="kw">crate</span>::domain::csv_export::users_export::UsersExportOperation;
 
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/courses/:course_id` - Get course.
@@ -2173,29 +2223,76 @@ Content-Type: application/json
     token.authorized_ok(web::Json(language_versions))
 }
 
+<span class="attr">#[derive(Deserialize, Debug)]
+#[serde(tag = <span class="string">"mode"</span>, rename_all = <span class="string">"snake_case"</span>)]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
+</span><span class="kw">pub enum </span>CopyCourseMode {
+    <span class="doccomment">/// Create a completely separate copy with a new course language group
+    </span>Duplicate,
+    <span class="doccomment">/// Create a new language version within the same language group as the source
+    </span>SameLanguageGroup,
+    <span class="doccomment">/// Create a new language version in a specified language group
+    </span>ExistingLanguageGroup { target_course_id: Uuid },
+    <span class="doccomment">/// Create a new language version in a new language group
+    </span>NewLanguageGroup,
+}
+
+<span class="attr">#[derive(Deserialize, Debug)]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
+</span><span class="kw">pub struct </span>CopyCourseRequest {
+    <span class="attr">#[serde(flatten)]
+    </span><span class="kw">pub </span>new_course: NewCourse,
+    <span class="kw">pub </span>mode: CopyCourseMode,
+}
+
 <span class="doccomment">/**
-POST `/api/v0/main-frontend/courses/:id/language-versions` - Post new course as a new language version of existing one.
+POST `/api/v0/main-frontend/courses/:id/create-copy` - Create a copy of a course with specified mode.
+
+Different copy modes:
+- `duplicate`: Creates a completely separate copy with new language group
+- `same_language_group`: Creates a new language version within the same language group
+- `existing_language_group`: Creates a new language version in the specified language group
+- `new_language_group`: Creates a new language version in a new language group
 
 # Example
 
 Request:
 ```http
-POST /api/v0/main-frontend/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/language-versions HTTP/1.1
+POST /api/v0/main-frontend/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/create-copy HTTP/1.1
 Content-Type: application/json
 
 {
   "name": "Johdatus kaikkeen",
   "slug": "johdatus-kaikkeen",
   "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
-  "language_code": "fi-FI"
+  "language_code": "fi-FI",
+  "mode": "duplicate"
+}
+```
+
+Or with an existing language group:
+```http
+POST /api/v0/main-frontend/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/create-copy HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Johdatus kaikkeen",
+  "slug": "johdatus-kaikkeen",
+  "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
+  "language_code": "fi-FI",
+  "mode": {
+    "existing_language_group": {
+      "target_course_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec"
+    }
+  }
 }
 ```
 */
 </span><span class="attr">#[instrument(skip(pool))]
-</span><span class="kw">pub async fn </span>post_new_course_language_version(
+</span><span class="kw">pub async fn </span>create_course_copy(
     pool: web::Data&lt;PgPool&gt;,
     course_id: web::Path&lt;Uuid&gt;,
-    payload: web::Json&lt;NewCourse&gt;,
+    payload: web::Json&lt;CopyCourseRequest&gt;,
     user: AuthUser,
 ) -&gt; ControllerResult&lt;web::Json&lt;Course&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
@@ -2207,64 +2304,71 @@ Content-Type: application/json
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>copied_course =
-        models::library::copying::copy_course(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id, <span class="kw-2">&amp;</span>payload.<span class="number">0</span>, <span class="bool-val">true</span>, user.id)
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>copied_course = <span class="kw">match </span><span class="kw-2">&amp;</span>payload.mode {
+        CopyCourseMode::Duplicate =&gt; {
+            models::library::copying::copy_course(
+                <span class="kw-2">&amp;mut </span>tx,
+                <span class="kw-2">*</span>course_id,
+                <span class="kw-2">&amp;</span>payload.new_course,
+                <span class="bool-val">false</span>,
+                user.id,
+            )
+            .<span class="kw">await</span><span class="question-mark">?
+        </span>}
+        CopyCourseMode::SameLanguageGroup =&gt; {
+            models::library::copying::copy_course(
+                <span class="kw-2">&amp;mut </span>tx,
+                <span class="kw-2">*</span>course_id,
+                <span class="kw-2">&amp;</span>payload.new_course,
+                <span class="bool-val">true</span>,
+                user.id,
+            )
+            .<span class="kw">await</span><span class="question-mark">?
+        </span>}
+        CopyCourseMode::ExistingLanguageGroup { target_course_id } =&gt; {
+            <span class="kw">let </span>target_course = models::courses::get_course(<span class="kw-2">&amp;mut </span>tx, <span class="kw-2">*</span>target_course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="comment">// Verify that the user has permissions also to the course of the custom language group
+            </span>authorize(
+                <span class="kw-2">&amp;mut </span>tx,
+                Act::Duplicate,
+                <span class="prelude-val">Some</span>(user.id),
+                Res::Course(<span class="kw-2">*</span>target_course_id),
+            )
             .<span class="kw">await</span><span class="question-mark">?</span>;
+            models::library::copying::copy_course_with_language_group(
+                <span class="kw-2">&amp;mut </span>tx,
+                <span class="kw-2">*</span>course_id,
+                target_course.course_language_group_id,
+                <span class="kw-2">&amp;</span>payload.new_course,
+                user.id,
+            )
+            .<span class="kw">await</span><span class="question-mark">?
+        </span>}
+        CopyCourseMode::NewLanguageGroup =&gt; {
+            <span class="kw">let </span>new_clg_id = course_language_groups::insert(<span class="kw-2">&amp;mut </span>tx, PKeyPolicy::Generate).<span class="kw">await</span><span class="question-mark">?</span>;
+            models::library::copying::copy_course_with_language_group(
+                <span class="kw-2">&amp;mut </span>tx,
+                <span class="kw-2">*</span>course_id,
+                new_clg_id,
+                <span class="kw-2">&amp;</span>payload.new_course,
+                user.id,
+            )
+            .<span class="kw">await</span><span class="question-mark">?
+        </span>}
+    };
+
     models::roles::insert(
-        <span class="kw-2">&amp;mut </span>conn,
+        <span class="kw-2">&amp;mut </span>tx,
         user.id,
         models::roles::UserRole::Teacher,
         models::roles::RoleDomain::Course(copied_course.id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    token.authorized_ok(web::Json(copied_course))
-}
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
 
-<span class="doccomment">/**
-POST `/api/v0/main-frontend/courses/:id/duplicate` - Post new course as a copy from existing one.
-
-# Example
-
-Request:
-```http
-POST /api/v0/main-frontend/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/duplicate HTTP/1.1
-Content-Type: application/json
-
-{
-  "name": "Johdatus kaikkeen",
-  "slug": "johdatus-kaikkeen",
-  "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
-  "language_code": "fi-FI"
-}
-```
-*/
-</span><span class="attr">#[instrument(skip(pool))]
-</span><span class="kw">pub async fn </span>post_new_course_duplicate(
-    pool: web::Data&lt;PgPool&gt;,
-    course_id: web::Path&lt;Uuid&gt;,
-    payload: web::Json&lt;NewCourse&gt;,
-    user: AuthUser,
-) -&gt; ControllerResult&lt;web::Json&lt;Course&gt;&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = authorize(
-        <span class="kw-2">&amp;mut </span>conn,
-        Act::Duplicate,
-        <span class="prelude-val">Some</span>(user.id),
-        Res::Course(<span class="kw-2">*</span>course_id),
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>copied_course =
-        models::library::copying::copy_course(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id, <span class="kw-2">&amp;</span>payload.<span class="number">0</span>, <span class="bool-val">false</span>, user.id)
-            .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    models::roles::insert(
-        <span class="kw-2">&amp;mut </span>conn,
-        user.id,
-        models::roles::UserRole::Teacher,
-        models::roles::RoleDomain::Course(copied_course.id),
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
     token.authorized_ok(web::Json(copied_course))
 }
 
@@ -2696,7 +2800,7 @@ Creates redirects if url_path changes.
 }
 
 <span class="doccomment">/**
-POST `/api/v0/main-frontend/courses/{course_id}/update-peer-review-queue-reviews-received`
+POST `/api/v0/main-frontend/courses/${course_id}/update-peer-review-queue-reviews-received`
 
 Updates reviews received for all the students in the peer review queue for a specific course. Updates only entries that have not received enough peer reviews in the table. Only available to admins.
 */
@@ -3421,12 +3525,8 @@ We add the routes by calling the route method instead of using the route annotat
             web::get().to(get_all_course_language_versions),
         )
         .route(
-            <span class="string">"/{course_id}/language-versions"</span>,
-            web::post().to(post_new_course_language_version),
-        )
-        .route(
-            <span class="string">"/{course_id}/duplicate"</span>,
-            web::post().to(post_new_course_duplicate),
+            <span class="string">"/{course_id}/create-copy"</span>,
+            web::post().to(create_course_copy),
         )
         .route(<span class="string">"/{course_id}/upload"</span>, web::post().to(add_media_for_course))
         .route(

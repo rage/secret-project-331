@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold\nFROM courses\nWHERE courses.deleted_at IS NULL\n  AND (\n    id IN (\n      SELECT course_id\n      FROM roles\n      WHERE deleted_at IS NULL\n        AND user_id = $1\n        AND course_id IS NOT NULL\n    )\n    OR (\n      id IN (\n        SELECT ci.course_id\n        FROM course_instances ci\n          JOIN ROLES r ON r.course_instance_id = ci.id\n        WHERE r.user_id = $1\n          AND r.deleted_at IS NULL\n          AND ci.deleted_at IS NULL\n      )\n    )\n  ) ",
+  "query": "\nUPDATE courses\nSET name = $1,\n  description = $2,\n  is_draft = $3,\n  is_test_mode = $4,\n  can_add_chatbot = $5,\n  is_unlisted = $6,\n  is_joinable_by_code_only = $7,\n  ask_marketing_consent = $8,\n  flagged_answers_threshold = $9\nWHERE id = $10\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  closed_at,\n  new_course_id,\n  closed_course_additional_message\n    ",
   "describe": {
     "columns": [
       {
@@ -107,10 +107,25 @@
         "ordinal": 20,
         "name": "flagged_answers_threshold",
         "type_info": "Int4"
+      },
+      {
+        "ordinal": 21,
+        "name": "closed_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 22,
+        "name": "new_course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 23,
+        "name": "closed_course_additional_message",
+        "type_info": "Text"
       }
     ],
     "parameters": {
-      "Left": ["Uuid"]
+      "Left": ["Varchar", "Text", "Bool", "Bool", "Bool", "Bool", "Bool", "Bool", "Int4", "Uuid"]
     },
     "nullable": [
       false,
@@ -133,8 +148,11 @@
       false,
       true,
       false,
-      false
+      false,
+      true,
+      true,
+      true
     ]
   },
-  "hash": "0020f8d1577d278505f750f314f45dd74fd18a15546339eb2694d0f5285d8c72"
+  "hash": "756c3e25365e2311a6efdef7805335a566089a43af7ecc61800ca05e240c8e66"
 }

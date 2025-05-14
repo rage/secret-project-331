@@ -91,6 +91,9 @@ pub async fn seed_organization_uh_mathstat(
         join_code: None,
         ask_marketing_consent: false,
         flagged_answers_threshold: Some(3),
+        closed_at: None,
+        new_course_id: None,
+        closed_course_additional_message: None,
     };
     let (
         statistics_course,
@@ -141,6 +144,9 @@ pub async fn seed_organization_uh_mathstat(
         join_code: None,
         ask_marketing_consent: false,
         flagged_answers_threshold: Some(3),
+        closed_at: None,
+        new_course_id: None,
+        closed_course_additional_message: None,
     };
     library::content_management::create_new_course(
         &mut conn,
@@ -179,6 +185,9 @@ pub async fn seed_organization_uh_mathstat(
             ),
             ask_marketing_consent: false,
             flagged_answers_threshold: Some(3),
+            closed_at: None,
+            new_course_id: None,
+            closed_course_additional_message: None,
         },
         teacher_user_id,
         get_seed_spec_fetcher(),
@@ -232,6 +241,9 @@ pub async fn seed_organization_uh_mathstat(
             join_code: None,
             ask_marketing_consent: false,
             flagged_answers_threshold: Some(3),
+            closed_at: None,
+            new_course_id: None,
+            closed_course_additional_message: None,
         },
         true,
         teacher_user_id,

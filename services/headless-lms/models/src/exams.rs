@@ -99,7 +99,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  new_course_id,
+  closed_course_additional_message
 FROM courses
   JOIN course_exams ON courses.id = course_exams.course_id
 WHERE course_exams.exam_id = $1

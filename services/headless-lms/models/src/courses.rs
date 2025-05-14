@@ -50,6 +50,9 @@ pub struct Course {
     pub join_code: Option<String>,
     pub ask_marketing_consent: bool,
     pub flagged_answers_threshold: Option<i32>,
+    pub closed_at: Option<DateTime<Utc>>,
+    pub new_course_id: Option<Uuid>,
+    pub closed_course_additional_message: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -84,6 +87,12 @@ pub struct NewCourse {
     pub join_code: Option<String>,
     pub ask_marketing_consent: bool,
     pub flagged_answers_threshold: Option<i32>,
+    /// When the course was closed, if it has been closed
+    pub closed_at: Option<DateTime<Utc>>,
+    /// ID of the new course that replaces this one, if this course has been closed
+    pub new_course_id: Option<Uuid>,
+    /// Additional message to show when the course is closed
+    pub closed_course_additional_message: Option<String>,
 }
 
 pub async fn insert(
@@ -172,7 +181,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  new_course_id,
+  closed_course_additional_message
 FROM courses
 WHERE deleted_at IS NULL;
 "#
@@ -209,7 +221,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  new_course_id,
+  closed_course_additional_message
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND id IN (
@@ -253,7 +268,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  new_course_id,
+  closed_course_additional_message
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND (
@@ -309,7 +327,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  new_course_id,
+  closed_course_additional_message
 FROM courses
 WHERE course_language_group_id = $1
 AND deleted_at IS NULL
@@ -350,7 +371,10 @@ SELECT
     c.is_joinable_by_code_only,
     c.join_code,
     c.ask_marketing_consent,
-    c.flagged_answers_threshold
+    c.flagged_answers_threshold,
+    c.closed_at,
+    c.new_course_id,
+    c.closed_course_additional_message
 FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
 WHERE
@@ -416,7 +440,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  new_course_id,
+  closed_course_additional_message
 FROM courses
 WHERE id = $1;
     "#,
@@ -524,7 +551,10 @@ SELECT courses.id,
   courses.is_joinable_by_code_only,
   courses.join_code,
   courses.ask_marketing_consent,
-  courses.flagged_answers_threshold
+  courses.flagged_answers_threshold,
+  courses.closed_at,
+  courses.new_course_id,
+  courses.closed_course_additional_message
 FROM courses
 WHERE courses.organization_id = $1
   AND (
@@ -631,7 +661,10 @@ RETURNING id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  new_course_id,
+  closed_course_additional_message
     "#,
         course_update.name,
         course_update.description,
@@ -696,7 +729,10 @@ RETURNING id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  new_course_id,
+  closed_course_additional_message
     "#,
         course_id
     )
@@ -729,7 +765,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  new_course_id,
+  closed_course_additional_message
 FROM courses
 WHERE slug = $1
   AND deleted_at IS NULL
@@ -821,7 +860,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  new_course_id,
+  closed_course_additional_message
 FROM courses
 WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
   ",
@@ -859,7 +901,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  new_course_id,
+  closed_course_additional_message
 FROM courses
 WHERE organization_id = $1
   AND deleted_at IS NULL
@@ -918,7 +963,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  new_course_id,
+  closed_course_additional_message
 FROM courses
 WHERE join_code = $1
   AND deleted_at IS NULL;
@@ -1035,6 +1083,9 @@ mod test {
                 join_code: None,
                 ask_marketing_consent: false,
                 flagged_answers_threshold: Some(3),
+                closed_at: None,
+                new_course_id: None,
+                closed_course_additional_message: None,
             }
         }
     }

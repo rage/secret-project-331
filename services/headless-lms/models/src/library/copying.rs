@@ -74,9 +74,12 @@ INSERT INTO courses (
     is_unlisted,
     is_joinable_by_code_only,
     join_code,
-    ask_marketing_consent
+    ask_marketing_consent,
+    closed_at,
+    new_course_id,
+    closed_course_additional_message
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
 RETURNING id,
   name,
   created_at,
@@ -97,7 +100,10 @@ RETURNING id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  new_course_id,
+  closed_course_additional_message
         "#,
         new_course.name,
         new_course.organization_id,
@@ -112,7 +118,10 @@ RETURNING id,
         new_course.is_unlisted,
         new_course.is_joinable_by_code_only,
         new_course.join_code,
-        new_course.ask_marketing_consent
+        new_course.ask_marketing_consent,
+        new_course.closed_at,
+        new_course.new_course_id,
+        new_course.closed_course_additional_message
     )
     .fetch_one(&mut *tx)
     .await?;
@@ -1333,6 +1342,9 @@ mod tests {
             join_code: None,
             ask_marketing_consent: false,
             flagged_answers_threshold: Some(3),
+            closed_at: None,
+            new_course_id: None,
+            closed_course_additional_message: None,
         }
     }
 }

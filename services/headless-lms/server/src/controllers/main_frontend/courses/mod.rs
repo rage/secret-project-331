@@ -37,18 +37,18 @@ use models::{
 };
 
 use crate::{
-    domain::{
-        csv_export::{
-            course_instance_export::CourseInstancesExportOperation,
-            course_research_form_questions_answers_export::CourseResearchFormExportOperation,
-            exercise_tasks_export::CourseExerciseTasksExportOperation, general_export,
-            submissions::CourseSubmissionExportOperation, users_export::UsersExportOperation,
-        },
-        models_requests::{self, JwtKey},
-        request_id::RequestId,
-    },
+    domain::models_requests::{self, JwtKey},
     prelude::*,
 };
+
+use headless_lms_models::course_language_groups;
+
+use crate::domain::csv_export::course_instance_export::CourseInstancesExportOperation;
+use crate::domain::csv_export::course_research_form_questions_answers_export::CourseResearchFormExportOperation;
+use crate::domain::csv_export::exercise_tasks_export::CourseExerciseTasksExportOperation;
+use crate::domain::csv_export::general_export;
+use crate::domain::csv_export::submissions::CourseSubmissionExportOperation;
+use crate::domain::csv_export::users_export::UsersExportOperation;
 
 /**
 GET `/api/v0/main-frontend/courses/:course_id` - Get course.
@@ -381,29 +381,76 @@ async fn get_all_course_language_versions(
     token.authorized_ok(web::Json(language_versions))
 }
 
+#[derive(Deserialize, Debug)]
+#[serde(tag = "mode", rename_all = "snake_case")]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub enum CopyCourseMode {
+    /// Create a completely separate copy with a new course language group
+    Duplicate,
+    /// Create a new language version within the same language group as the source
+    SameLanguageGroup,
+    /// Create a new language version in a specified language group
+    ExistingLanguageGroup { target_course_id: Uuid },
+    /// Create a new language version in a new language group
+    NewLanguageGroup,
+}
+
+#[derive(Deserialize, Debug)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CopyCourseRequest {
+    #[serde(flatten)]
+    pub new_course: NewCourse,
+    pub mode: CopyCourseMode,
+}
+
 /**
-POST `/api/v0/main-frontend/courses/:id/language-versions` - Post new course as a new language version of existing one.
+POST `/api/v0/main-frontend/courses/:id/create-copy` - Create a copy of a course with specified mode.
+
+Different copy modes:
+- `duplicate`: Creates a completely separate copy with new language group
+- `same_language_group`: Creates a new language version within the same language group
+- `existing_language_group`: Creates a new language version in the specified language group
+- `new_language_group`: Creates a new language version in a new language group
 
 # Example
 
 Request:
 ```http
-POST /api/v0/main-frontend/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/language-versions HTTP/1.1
+POST /api/v0/main-frontend/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/create-copy HTTP/1.1
 Content-Type: application/json
 
 {
   "name": "Johdatus kaikkeen",
   "slug": "johdatus-kaikkeen",
   "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
-  "language_code": "fi-FI"
+  "language_code": "fi-FI",
+  "mode": "duplicate"
+}
+```
+
+Or with an existing language group:
+```http
+POST /api/v0/main-frontend/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/create-copy HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Johdatus kaikkeen",
+  "slug": "johdatus-kaikkeen",
+  "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
+  "language_code": "fi-FI",
+  "mode": {
+    "existing_language_group": {
+      "target_course_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec"
+    }
+  }
 }
 ```
 */
 #[instrument(skip(pool))]
-pub async fn post_new_course_language_version(
+pub async fn create_course_copy(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
-    payload: web::Json<NewCourse>,
+    payload: web::Json<CopyCourseRequest>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
@@ -415,64 +462,71 @@ pub async fn post_new_course_language_version(
     )
     .await?;
 
-    let copied_course =
-        models::library::copying::copy_course(&mut conn, *course_id, &payload.0, true, user.id)
+    let mut tx = conn.begin().await?;
+
+    let copied_course = match &payload.mode {
+        CopyCourseMode::Duplicate => {
+            models::library::copying::copy_course(
+                &mut tx,
+                *course_id,
+                &payload.new_course,
+                false,
+                user.id,
+            )
+            .await?
+        }
+        CopyCourseMode::SameLanguageGroup => {
+            models::library::copying::copy_course(
+                &mut tx,
+                *course_id,
+                &payload.new_course,
+                true,
+                user.id,
+            )
+            .await?
+        }
+        CopyCourseMode::ExistingLanguageGroup { target_course_id } => {
+            let target_course = models::courses::get_course(&mut tx, *target_course_id).await?;
+            // Verify that the user has permissions also to the course of the custom language group
+            authorize(
+                &mut tx,
+                Act::Duplicate,
+                Some(user.id),
+                Res::Course(*target_course_id),
+            )
             .await?;
+            models::library::copying::copy_course_with_language_group(
+                &mut tx,
+                *course_id,
+                target_course.course_language_group_id,
+                &payload.new_course,
+                user.id,
+            )
+            .await?
+        }
+        CopyCourseMode::NewLanguageGroup => {
+            let new_clg_id = course_language_groups::insert(&mut tx, PKeyPolicy::Generate).await?;
+            models::library::copying::copy_course_with_language_group(
+                &mut tx,
+                *course_id,
+                new_clg_id,
+                &payload.new_course,
+                user.id,
+            )
+            .await?
+        }
+    };
+
     models::roles::insert(
-        &mut conn,
+        &mut tx,
         user.id,
         models::roles::UserRole::Teacher,
         models::roles::RoleDomain::Course(copied_course.id),
     )
     .await?;
 
-    token.authorized_ok(web::Json(copied_course))
-}
+    tx.commit().await?;
 
-/**
-POST `/api/v0/main-frontend/courses/:id/duplicate` - Post new course as a copy from existing one.
-
-# Example
-
-Request:
-```http
-POST /api/v0/main-frontend/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/duplicate HTTP/1.1
-Content-Type: application/json
-
-{
-  "name": "Johdatus kaikkeen",
-  "slug": "johdatus-kaikkeen",
-  "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
-  "language_code": "fi-FI"
-}
-```
-*/
-#[instrument(skip(pool))]
-pub async fn post_new_course_duplicate(
-    pool: web::Data<PgPool>,
-    course_id: web::Path<Uuid>,
-    payload: web::Json<NewCourse>,
-    user: AuthUser,
-) -> ControllerResult<web::Json<Course>> {
-    let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::Duplicate,
-        Some(user.id),
-        Res::Course(*course_id),
-    )
-    .await?;
-    let copied_course =
-        models::library::copying::copy_course(&mut conn, *course_id, &payload.0, false, user.id)
-            .await?;
-
-    models::roles::insert(
-        &mut conn,
-        user.id,
-        models::roles::UserRole::Teacher,
-        models::roles::RoleDomain::Course(copied_course.id),
-    )
-    .await?;
     token.authorized_ok(web::Json(copied_course))
 }
 
@@ -904,7 +958,7 @@ async fn get_course_default_peer_review(
 }
 
 /**
-POST `/api/v0/main-frontend/courses/{course_id}/update-peer-review-queue-reviews-received`
+POST `/api/v0/main-frontend/courses/${course_id}/update-peer-review-queue-reviews-received`
 
 Updates reviews received for all the students in the peer review queue for a specific course. Updates only entries that have not received enough peer reviews in the table. Only available to admins.
 */
@@ -1629,12 +1683,8 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_all_course_language_versions),
         )
         .route(
-            "/{course_id}/language-versions",
-            web::post().to(post_new_course_language_version),
-        )
-        .route(
-            "/{course_id}/duplicate",
-            web::post().to(post_new_course_duplicate),
+            "/{course_id}/create-copy",
+            web::post().to(create_course_copy),
         )
         .route("/{course_id}/upload", web::post().to(add_media_for_course))
         .route(

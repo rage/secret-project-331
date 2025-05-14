@@ -37,7 +37,7 @@ import TopUtmCampaigns from "./visualizations/visitors/TopUtmCampaigns"
 import TopUtmSources from "./visualizations/visitors/TopUtmSources"
 
 import useCourseInstancesQuery from "@/hooks/useCourseInstancesQuery"
-import useCourseLanguageVersionsQuery from "@/hooks/useCourseLanguageVersions"
+import useCourseLanguageVersions from "@/hooks/useCourseLanguageVersions"
 import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
 import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"
 import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/TabLinkPanel"
@@ -70,7 +70,7 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
   const router = useRouter()
   const [activeTab, setActiveTab] = useState(TAB_OVERVIEW)
 
-  const courseLanguageVersions = useCourseLanguageVersionsQuery(courseId)
+  const courseLanguageVersions = useCourseLanguageVersions(courseId)
   const courseInstances = useCourseInstancesQuery(courseId)
 
   useEffect(() => {

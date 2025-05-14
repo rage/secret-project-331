@@ -1,7 +1,7 @@
 import Link from "next/link"
 import React from "react"
 
-import useCourseLanguageVersionsQuery from "@/hooks/useCourseLanguageVersions"
+import useCourseLanguageVersions from "@/hooks/useCourseLanguageVersions"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 
@@ -12,7 +12,7 @@ export interface CourseTranslationsListProps {
 const CourseLanguageVersionsList: React.FC<
   React.PropsWithChildren<CourseTranslationsListProps>
 > = ({ courseId }) => {
-  const getCourseLanguageVersions = useCourseLanguageVersionsQuery(courseId)
+  const getCourseLanguageVersions = useCourseLanguageVersions(courseId)
   return (
     <>
       {getCourseLanguageVersions.isError && (

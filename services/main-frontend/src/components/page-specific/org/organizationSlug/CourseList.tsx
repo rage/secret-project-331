@@ -1,18 +1,13 @@
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { postNewCourse, postNewCourseDuplicate } from "../../../../services/backend/courses"
-import {
-  fetchOrganizationCourseCount,
-  fetchOrganizationCourses,
-} from "../../../../services/backend/organizations"
+import { useOrganizationCourseCount } from "../../../../hooks/useOrganizationCourseCount"
+import { useOrganizationCourses } from "../../../../hooks/useOrganizationCourses"
 
 import { CourseComponent, CourseGrid } from "./CourseCard"
 import NewCourseDialog from "./NewCourseDialog"
 
-import { NewCourse } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
@@ -36,65 +31,35 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
   const [newCourseFormOpen, setNewCourseFormOpen] = useState(false)
   const loginStateContext = useContext(LoginStateContext)
 
-  const getOrgCourses = useQuery({
-    queryKey: [`organization-courses`, paginationInfo.page, paginationInfo.limit, organizationId],
-    queryFn: () => {
-      if (organizationId) {
-        return fetchOrganizationCourses(organizationId, paginationInfo.page, paginationInfo.limit)
-      } else {
-        return Promise.reject(new Error("Organization ID undefined"))
-      }
-    },
-    enabled: !!organizationId,
-  })
+  const organizationCoursesQuery = useOrganizationCourses(
+    organizationId,
+    paginationInfo.page,
+    paginationInfo.limit,
+  )
 
-  const getOrgCourseCount = useQuery({
-    queryKey: [`organization-courses-count`, organizationSlug, organizationId],
-    queryFn: () => {
-      if (organizationId) {
-        return fetchOrganizationCourseCount(organizationId)
-      } else {
-        return Promise.reject(new Error("Organization ID undefined"))
-      }
-    },
-    enabled: !!organizationId,
-  })
+  const getOrgCourseCount = useOrganizationCourseCount(organizationId)
 
   const canMangeCourse = useAuthorizeMultiple(
-    getOrgCourses.data?.map((course) => {
+    organizationCoursesQuery.data?.map((course) => {
       return { action: { type: "teach" }, resource: { type: "course", id: course.id } }
     }) ?? [],
   )
 
-  const handleSubmitNewCourse = async (newCourse: NewCourse) => {
-    await postNewCourse(newCourse)
-    await getOrgCourses.refetch()
-    await getOrgCourseCount.refetch()
-    setNewCourseFormOpen(false)
-  }
-
-  const handleSubmitDuplicateCourse = async (oldCourseId: string, newCourse: NewCourse) => {
-    await postNewCourseDuplicate(oldCourseId, newCourse)
-    await getOrgCourses.refetch()
-    await getOrgCourseCount.refetch()
-    setNewCourseFormOpen(false)
-  }
-
-  if (getOrgCourses.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getOrgCourses.error} />
+  if (organizationCoursesQuery.isError) {
+    return <ErrorBanner variant={"readOnly"} error={organizationCoursesQuery.error} />
   }
 
   if (getOrgCourseCount.isError) {
     return <ErrorBanner variant={"readOnly"} error={getOrgCourseCount.error} />
   }
 
-  if (getOrgCourses.isPending || getOrgCourseCount.isPending) {
+  if (organizationCoursesQuery.isPending || getOrgCourseCount.isPending) {
     return <Spinner variant={"medium"} />
   }
 
   const courseCount = getOrgCourseCount.data.count
 
-  const courses = getOrgCourses.data.map((course, n) => {
+  const courses = organizationCoursesQuery.data.map((course, n) => {
     return (
       <CourseComponent
         key={course.id}
@@ -133,9 +98,6 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
         open={newCourseFormOpen}
         onClose={() => setNewCourseFormOpen(false)}
         organizationId={organizationId}
-        courses={getOrgCourses.data}
-        onSubmitNewCourse={handleSubmitNewCourse}
-        onSubmitDuplicateCourse={handleSubmitDuplicateCourse}
       />
 
       <br />

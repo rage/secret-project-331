@@ -3,7 +3,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import useCourseInstancesQuery from "@/hooks/useCourseInstancesQuery"
-import useCourseQuery from "@/hooks/useCourseQuery"
+import { useCourseQuery } from "@/hooks/useCourseQuery"
 import { useUserDetails } from "@/hooks/useUserDetails"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"

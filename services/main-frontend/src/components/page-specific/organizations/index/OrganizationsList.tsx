@@ -159,7 +159,7 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
                 >
                   <button
                     onClick={() => {
-                      /* Cogwheel */
+                      window.location.href = `/manage/organizations/${organization.id}`
                     }}
                     className={css`
                       width: 25px;

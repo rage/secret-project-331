@@ -166,6 +166,9 @@ async fn insert_data(
                 join_code: None,
                 ask_marketing_consent: false,
                 flagged_answers_threshold: Some(3),
+                closed_at: None,
+                new_course_id: None,
+                closed_course_additional_message: None,
             },
             user_1,
             models_requests::make_spec_fetcher(

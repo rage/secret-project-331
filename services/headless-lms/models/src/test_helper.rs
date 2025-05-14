@@ -177,7 +177,10 @@ macro_rules! insert_data {
                 is_joinable_by_code_only: false,
                 join_code: None,
                 ask_marketing_consent:false,
-                flagged_answers_threshold: Some(3)
+                flagged_answers_threshold: Some(3),
+                closed_at: None,
+                new_course_id: None,
+                closed_course_additional_message: None,
             },
             $user,
             |_, _, _| unimplemented!(),

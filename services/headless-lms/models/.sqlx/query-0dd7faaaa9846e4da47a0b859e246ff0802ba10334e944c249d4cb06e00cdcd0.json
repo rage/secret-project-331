@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold\nFROM courses\nWHERE courses.deleted_at IS NULL\n  AND id IN (\n    SELECT current_course_id\n    FROM user_course_settings\n    WHERE deleted_at IS NULL\n      AND user_id = $1\n  )\n",
+  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  closed_at,\n  new_course_id,\n  closed_course_additional_message\nFROM courses\nWHERE id IN (SELECT * FROM UNNEST($1::uuid[]))\n  ",
   "describe": {
     "columns": [
       {
@@ -75,18 +75,18 @@
       },
       {
         "ordinal": 14,
-        "name": "is_unlisted",
+        "name": "can_add_chatbot",
         "type_info": "Bool"
       },
       {
         "ordinal": 15,
-        "name": "base_module_completion_requires_n_submodule_completions",
-        "type_info": "Int4"
+        "name": "is_unlisted",
+        "type_info": "Bool"
       },
       {
         "ordinal": 16,
-        "name": "can_add_chatbot",
-        "type_info": "Bool"
+        "name": "base_module_completion_requires_n_submodule_completions",
+        "type_info": "Int4"
       },
       {
         "ordinal": 17,
@@ -107,10 +107,25 @@
         "ordinal": 20,
         "name": "flagged_answers_threshold",
         "type_info": "Int4"
+      },
+      {
+        "ordinal": 21,
+        "name": "closed_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 22,
+        "name": "new_course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 23,
+        "name": "closed_course_additional_message",
+        "type_info": "Text"
       }
     ],
     "parameters": {
-      "Left": ["Uuid"]
+      "Left": ["UuidArray"]
     },
     "nullable": [
       false,
@@ -133,8 +148,11 @@
       false,
       true,
       false,
-      false
+      false,
+      true,
+      true,
+      true
     ]
   },
-  "hash": "049f398260c49db909c2fb054a9beca4f06d3b2d921ce78dd9f52ce0fdf9ac06"
+  "hash": "0dd7faaaa9846e4da47a0b859e246ff0802ba10334e944c249d4cb06e00cdcd0"
 }

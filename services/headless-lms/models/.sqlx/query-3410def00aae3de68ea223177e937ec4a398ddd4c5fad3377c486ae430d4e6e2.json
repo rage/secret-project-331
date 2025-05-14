@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold\nFROM courses\nWHERE slug = $1\n  AND deleted_at IS NULL\n",
+  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  closed_at,\n  new_course_id,\n  closed_course_additional_message\nFROM courses\nWHERE join_code = $1\n  AND deleted_at IS NULL;\n    ",
   "describe": {
     "columns": [
       {
@@ -107,6 +107,21 @@
         "ordinal": 20,
         "name": "flagged_answers_threshold",
         "type_info": "Int4"
+      },
+      {
+        "ordinal": 21,
+        "name": "closed_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 22,
+        "name": "new_course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 23,
+        "name": "closed_course_additional_message",
+        "type_info": "Text"
       }
     ],
     "parameters": {
@@ -133,8 +148,11 @@
       false,
       true,
       false,
-      false
+      false,
+      true,
+      true,
+      true
     ]
   },
-  "hash": "4df8e4be76b9f6575e6abcd0bb74895bd3576071d702d184e8cdd8c0e366d1e0"
+  "hash": "3410def00aae3de68ea223177e937ec4a398ddd4c5fad3377c486ae430d4e6e2"
 }

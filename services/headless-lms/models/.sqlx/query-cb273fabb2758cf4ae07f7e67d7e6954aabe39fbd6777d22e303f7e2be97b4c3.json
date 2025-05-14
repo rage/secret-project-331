@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n    DISTINCT(c.id),\n    c.name,\n    c.created_at,\n    c.updated_at,\n    c.organization_id,\n    c.deleted_at,\n    c.slug,\n    c.content_search_language::text,\n    c.language_code,\n    c.copied_from,\n    c.course_language_group_id,\n    c.description,\n    c.is_draft,\n    c.is_test_mode,\n    c.base_module_completion_requires_n_submodule_completions,\n    can_add_chatbot,\n    c.is_unlisted,\n    c.is_joinable_by_code_only,\n    c.join_code,\n    c.ask_marketing_consent,\n    c.flagged_answers_threshold\nFROM courses as c\n    LEFT JOIN course_instances as ci on c.id = ci.course_id\nWHERE\n    c.organization_id = $1 AND\n    ci.starts_at < NOW() AND ci.ends_at > NOW() AND\n    c.deleted_at IS NULL AND ci.deleted_at IS NULL\n    LIMIT $2 OFFSET $3;\n        ",
+  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  closed_at,\n  new_course_id,\n  closed_course_additional_message\nFROM courses\nWHERE courses.deleted_at IS NULL\n  AND (\n    id IN (\n      SELECT course_id\n      FROM roles\n      WHERE deleted_at IS NULL\n        AND user_id = $1\n        AND course_id IS NOT NULL\n    )\n    OR (\n      id IN (\n        SELECT ci.course_id\n        FROM course_instances ci\n          JOIN ROLES r ON r.course_instance_id = ci.id\n        WHERE r.user_id = $1\n          AND r.deleted_at IS NULL\n          AND ci.deleted_at IS NULL\n      )\n    )\n  ) ",
   "describe": {
     "columns": [
       {
@@ -75,18 +75,18 @@
       },
       {
         "ordinal": 14,
-        "name": "base_module_completion_requires_n_submodule_completions",
-        "type_info": "Int4"
-      },
-      {
-        "ordinal": 15,
         "name": "can_add_chatbot",
         "type_info": "Bool"
       },
       {
-        "ordinal": 16,
+        "ordinal": 15,
         "name": "is_unlisted",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 16,
+        "name": "base_module_completion_requires_n_submodule_completions",
+        "type_info": "Int4"
       },
       {
         "ordinal": 17,
@@ -107,10 +107,25 @@
         "ordinal": 20,
         "name": "flagged_answers_threshold",
         "type_info": "Int4"
+      },
+      {
+        "ordinal": 21,
+        "name": "closed_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 22,
+        "name": "new_course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 23,
+        "name": "closed_course_additional_message",
+        "type_info": "Text"
       }
     ],
     "parameters": {
-      "Left": ["Uuid", "Int8", "Int8"]
+      "Left": ["Uuid"]
     },
     "nullable": [
       false,
@@ -133,8 +148,11 @@
       false,
       true,
       false,
-      false
+      false,
+      true,
+      true,
+      true
     ]
   },
-  "hash": "9cb1870d45712289597e4b0b278bfb502a864aa907e9bbcfb0b113f0e68f75bd"
+  "hash": "cb273fabb2758cf4ae07f7e67d7e6954aabe39fbd6777d22e303f7e2be97b4c3"
 }

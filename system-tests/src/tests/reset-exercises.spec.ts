@@ -40,6 +40,7 @@ test("Can manually reset exercises", async () => {
   await student1Page.getByRole("button", { name: "Try again" }).waitFor({ state: "visible" })
 
   await student1Page.getByRole("link", { name: "Next page: Page" }).click()
+  await student1Page.getByText("Everything is a big topic.").waitFor({ state: "hidden" })
   await student1Page
     .locator('iframe[title="Exercise 1\\, task 1 content"]')
     .first()
@@ -48,6 +49,8 @@ test("Can manually reset exercises", async () => {
     .click()
   await student1Page.getByRole("button", { name: "Submit" }).first().click()
   await student1Page.getByRole("button", { name: "Try again" }).waitFor({ state: "visible" })
+  await student1Page.getByRole("button", { name: "Try again" }).click()
+  await student1Page.getByRole("button", { name: "Try again" }).waitFor({ state: "hidden" })
 
   await student1Page
     .locator('iframe[title="Exercise 1\\, task 1 content"]')

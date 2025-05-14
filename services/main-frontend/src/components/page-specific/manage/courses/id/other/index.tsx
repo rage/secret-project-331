@@ -6,7 +6,7 @@ import {
   TabPage,
 } from "../../../../../../pages/manage/courses/[id]/[...path]"
 
-import useCourseQuery from "@/hooks/useCourseQuery"
+import { useCourseQuery } from "@/hooks/useCourseQuery"
 import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
 import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"
 import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/TabLinkPanel"

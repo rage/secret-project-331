@@ -12,6 +12,7 @@ pub use crate::domain::authorization::{
 pub use crate::domain::{
     self,
     error::{ControllerError, ControllerErrorType, ControllerResult},
+    request_id::RequestId,
 };
 pub use crate::generated_docs;
 pub use actix_multipart::Multipart;

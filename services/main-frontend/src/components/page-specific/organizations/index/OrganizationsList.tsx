@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import { ApartmentBuilding } from "@vectopus/atlas-icons-react"
+import { useRouter } from "next/router"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -10,12 +11,13 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { organizationCoursesPageHref } from "@/shared-module/common/utils/cross-routing"
+import { organizationFrontPageRoute } from "@/shared-module/common/utils/routes"
 
 const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
 
   const allOrganizationsQuery = useAllOrganizationsQuery()
+  const router = useRouter()
 
   return (
     <div
@@ -109,12 +111,12 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
                     min-width: 27px;
                     height: 26px;
                     padding: 4px;
-                    border-radius: 4px;
+                    border-radius: 2px;
                     margin-left: 0.75rem;
 
                     ${respondToOrLarger.lg} {
                       width: 27px;
-                      height: 26px;
+                      height: 27px;
                     }
                   `}
                 >
@@ -126,13 +128,13 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
                       display: block;
                       margin: auto;
                       object-fit: contain;
+                      padding: 1px;
                     `}
                   />
                 </div>
                 <div
                   className={css`
                     width: 80%;
-                    margin: 1em;
                     padding: 0.5rem 1rem;
                   `}
                 >
@@ -151,9 +153,7 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
                   </h2>
                 </div>
                 <button
-                  onClick={() =>
-                    (window.location.href = organizationCoursesPageHref(organization.slug))
-                  }
+                  onClick={() => router.push(organizationFrontPageRoute(organization.slug))}
                   className={css`
                     margin-left: auto;
                     margin-right: 1rem;

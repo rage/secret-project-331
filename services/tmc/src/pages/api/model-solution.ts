@@ -15,14 +15,17 @@ import {
 import { ExerciseFile, ModelSolutionSpec, PrivateSpec } from "../../util/stateInterfaces"
 
 import { RepositoryExercise, SpecRequest } from "@/shared-module/common/bindings"
+import { isSpecRequest } from "@/shared-module/common/bindings.guard"
 import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/common/utils/exerciseServices"
 import { isObjectMap } from "@/shared-module/common/utils/fetching"
 
 export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
   try {
+    if (!isSpecRequest(req.body)) {
+      throw new Error("Request was not valid.")
+    }
     const specRequest = req.body as SpecRequest
     const requestId = specRequest.request_id.slice(0, 4)
-
     if (req.method !== "POST") {
       return badRequest(requestId, res, "Wrong method")
     }
@@ -48,18 +51,18 @@ const processModelSolution = async (
     log(requestId, "Processing model solution")
 
     const { private_spec, upload_url } = specRequest
-    const privateSpec = private_spec as PrivateSpec | null
-    if (privateSpec === null) {
-      return badRequest(requestId, res, "Private spec cannot be null")
+    if (private_spec === null || private_spec === undefined) {
+      return badRequest(requestId, res, "Missing private spec")
     }
-    if (upload_url === null) {
+    if (upload_url === null || upload_url == undefined) {
       return badRequest(requestId, res, "Missing upload URL")
     }
+    const privateSpec = private_spec as PrivateSpec
 
     // create model solution
     debug(requestId, "downloading template")
     const templateArchive = temporaryFile()
-    await downloadStream(privateSpec.repositoryExercise.download_url, templateArchive)
+    await downloadStream(privateSpec.repository_exercise.download_url, templateArchive)
 
     debug(requestId, "extracting template")
     const extractedProjectDir = temporaryDirectory()
@@ -78,7 +81,7 @@ const processModelSolution = async (
       modelSolutionSpec = await prepareEditorModelSolution(
         requestId,
         solutionDir,
-        privateSpec.repositoryExercise,
+        privateSpec.repository_exercise,
         upload_url,
         uploadClaim,
       )
@@ -111,7 +114,7 @@ const prepareBrowserModelSolution = async (
 
   return {
     type: "browser",
-    solutionFiles,
+    solution_files: solutionFiles,
   }
 }
 
@@ -141,7 +144,7 @@ const prepareEditorModelSolution = async (
     const solutionDownloadUrl = res.data[archiveName]
     return {
       type: "editor",
-      downloadUrl: solutionDownloadUrl,
+      download_url: solutionDownloadUrl,
     }
   } else {
     throw new Error(`Unexpected response data: ${JSON.stringify(res.data)}`)

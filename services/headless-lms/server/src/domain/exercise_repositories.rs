@@ -15,7 +15,7 @@ use std::{
 use uuid::Uuid;
 use walkdir::{DirEntry, WalkDir};
 
-pub struct RepositoryExercise {
+pub struct StoredRepositoryExercise {
     pub url: String,
 }
 
@@ -28,7 +28,7 @@ pub async fn process(
     deploy_key: Option<&str>,
     file_store: &dyn FileStore,
     app_conf: &ApplicationConfiguration,
-) -> anyhow::Result<Vec<RepositoryExercise>> {
+) -> anyhow::Result<Vec<StoredRepositoryExercise>> {
     let mut stored_files = vec![];
     match process_inner(
         conn,
@@ -69,7 +69,7 @@ async fn process_inner(
     file_store: &dyn FileStore,
     stored_files: &mut Vec<PathBuf>,
     app_conf: &ApplicationConfiguration,
-) -> anyhow::Result<Vec<RepositoryExercise>> {
+) -> anyhow::Result<Vec<StoredRepositoryExercise>> {
     let mut tx = conn.begin().await?;
 
     // clone repo to temp dir
@@ -108,7 +108,7 @@ async fn process_inner(
         .await?;
         let url = file_store.get_direct_download_url(&path).await?;
         stored_files.push(path);
-        repository_exercises.push(RepositoryExercise { url });
+        repository_exercises.push(StoredRepositoryExercise { url });
     }
 
     tx.commit().await?;

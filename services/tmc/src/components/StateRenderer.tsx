@@ -31,24 +31,24 @@ export const StateRenderer: React.FC<React.PropsWithChildren<Props>> = ({
     return <>{t("waiting-for-content")}</>
   }
 
-  if (state.viewType === "exercise-editor") {
+  if (state.view_type === "exercise-editor") {
     return (
       <div id={EXERCISE_SERVICE_CONTENT_ID}>
         <ExerciseEditor state={state} setState={setState} />
       </div>
     )
-  } else if (state.viewType === "answer-exercise") {
+  } else if (state.view_type === "answer-exercise") {
     return (
       <div id={EXERCISE_SERVICE_CONTENT_ID}>
         <AnswerExercise
-          initialPublicSpec={state.initialPublicSpec}
+          initialPublicSpec={state.initial_public_spec}
           setState={setState}
           sendFileUploadMessage={sendFileUploadMessage}
           fileUploadResponse={fileUploadResponse}
         />
       </div>
     )
-  } else if (state.viewType === "view-submission") {
+  } else if (state.view_type === "view-submission") {
     return (
       <div id={EXERCISE_SERVICE_CONTENT_ID}>
         <ViewSubmission state={state} />

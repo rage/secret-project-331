@@ -37,6 +37,14 @@ run_command npx ts-auto-guard --export-all --paths ./shared-module/packages/comm
 run_command sed -i '1s;^;/* eslint-disable @typescript-eslint/no-explicit-any */\n/* eslint-disable @typescript-eslint/explicit-module-boundary-types */\n\n;' shared-module/packages/common/src/exercise-service-protocol-types.guard.ts
 run_command npx eslint --fix shared-module/packages/common/src/exercise-service-protocol-types.guard.ts
 
+if [ -f "./services/tmc/src/tmc/cli.guard.ts" ]; then
+  run_command rm "./services/tmc/src/tmc/cli.guard.ts"
+fi
+
+run_command npx ts-auto-guard --paths "./services/tmc/src/tmc/cli.d.ts" --project services/tmc/tsconfig.json
+run_command sed -i '1s;^;/* eslint-disable @typescript-eslint/no-explicit-any */\n/* eslint-disable @typescript-eslint/explicit-module-boundary-types */\n\n;' "./services/tmc/src/tmc/cli.guard.ts"
+run_command npx eslint --fix "./services/tmc/src/tmc/cli.guard.ts"
+
 # Post-update for shared module
 
 run_command npm run postinstall

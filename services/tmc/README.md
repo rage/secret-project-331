@@ -2,12 +2,11 @@ The TestMyCode exercise service is used for programming exercises. Handles exerc
 
 ## Setup
 
-1. Run `bin/download-tmc-langs` in the project root directory.
+Run `bin/tmc-langs-setup` in the project root directory.
 
-## Update to langs version using 0.25.1 as an example
+## Update langs
 
-1. Update the contents of the `tmc-langs-version` file to `0.25.1`
-2. Run `bin/download-tmc-langs` in the project root directory.
+Run `bin/tmc-langs-update {version}` in the project root directory, for example `bin/tmc-langs-update 0.25.1`.
 
 ## Sample private spec
 

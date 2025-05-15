@@ -541,7 +541,9 @@
 <a href="#540" id="540">540</a>
 <a href="#541" id="541">541</a>
 <a href="#542" id="542">542</a>
-<a href="#543" id="543">543</a></pre></div><pre class="rust"><code><span class="doccomment">//! Helper functions related to uploading to file storage.
+<a href="#543" id="543">543</a>
+<a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a></pre></div><pre class="rust"><code><span class="doccomment">//! Helper functions related to uploading to file storage.
 
 </span><span class="kw">pub use </span><span class="kw">crate</span>::domain::authorization::AuthorizationToken;
 <span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
@@ -554,6 +556,7 @@
 <span class="kw">use </span>headless_lms_utils::{
     file_store::file_utils::get_extension_from_filename, strings::generate_random_string,
 };
+<span class="kw">use </span>mime::Mime;
 <span class="kw">use </span>models::exercise_slides::ExerciseSlide;
 <span class="kw">use </span>models::exercise_tasks::ExerciseTask;
 <span class="kw">use </span>models::exercises::Exercise;
@@ -818,6 +821,7 @@
     file: GenericPayload,
     file_store: <span class="kw-2">&amp;</span><span class="kw">dyn </span>FileStore,
     exercise: ExerciseTaskInfo&lt;<span class="lifetime">'_</span>&gt;,
+    mime: Mime,
     uploader: Uuid,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(Uuid, PathBuf), ControllerError&gt; {
     <span class="kw">let </span>file_name = <span class="kw-2">&amp;</span>exercise.exercise.name;
@@ -832,7 +836,7 @@
             <span class="kw-2">&amp;</span>exercise.exercise_task.id.to_string(),
             file_name,
         ],
-        FileType::Image,
+        FileType::File,
         StoreKind::Course(exercise.course_id),
     );
     <span class="kw">let </span>safe_path = make_filename_safe(<span class="kw-2">&amp;</span>path);
@@ -840,7 +844,7 @@
         conn,
         <span class="kw-2">&amp;</span>safe_path,
         file_name,
-        <span class="string">"image/svg+xml"</span>,
+        mime.as_ref(),
         file,
         file_store,
         <span class="prelude-val">Some</span>(uploader),

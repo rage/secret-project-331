@@ -320,7 +320,13 @@
 <a href="#319" id="319">319</a>
 <a href="#320" id="320">320</a>
 <a href="#321" id="321">321</a>
-<a href="#322" id="322">322</a></pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::controllers::helpers::file_uploading;
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a></pre></div><pre class="rust"><code><span class="doccomment">/*!
+Handlers for HTTP requests to `/api/v0/langs`. Contains endpoints for the use of tmc-langs.
+
+*/
+</span><span class="kw">use </span><span class="kw">crate</span>::controllers::helpers::file_uploading;
 <span class="kw">use </span><span class="kw">crate</span>::domain::langs::{convert::Convert, token::AuthToken};
 <span class="kw">use </span><span class="kw">crate</span>::domain::models_requests::{<span class="self">self</span>, JwtKey};
 <span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
@@ -490,22 +496,27 @@
 }
 
 <span class="attr">#[derive(MultipartForm)]
-</span><span class="kw">struct </span>UploadForm {
-    metadata: MultipartJson&lt;api::UploadMetadata&gt;,
+</span><span class="kw">struct </span>SubmissionForm {
+    submission: MultipartJson&lt;api::ExerciseSlideSubmission&gt;,
     file: TempFile,
 }
 
-<span class="kw">async fn </span>upload_exercise(
+<span class="doccomment">/**
+ * POST /api/v0/langs/exercises/:id/submit
+ *
+ * Accepts an exercise submission from the user.
+ */
+</span><span class="kw">async fn </span>submit_exercise(
     pool: web::Data&lt;PgPool&gt;,
     file_store: web::Data&lt;<span class="kw">dyn </span>FileStore&gt;,
+    jwt_key: web::Data&lt;JwtKey&gt;,
     exercise_id: web::Path&lt;Uuid&gt;,
-    upload: MultipartForm&lt;UploadForm&gt;,
+    submission: MultipartForm&lt;SubmissionForm&gt;,
     user: AuthToken,
     app_conf: web::Data&lt;ApplicationConfiguration&gt;,
-) -&gt; ControllerResult&lt;web::Json&lt;api::UploadResult&gt;&gt; {
+) -&gt; ControllerResult&lt;web::Json&lt;api::ExerciseTaskSubmissionResult&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="comment">// if the user can view an exercise, they should be able to upload their attempt
-    </span><span class="kw">let </span>token = authorize(
+    <span class="kw">let </span>token = authorize(
         <span class="kw-2">&amp;mut </span>conn,
         Act::View,
         <span class="prelude-val">Some</span>(user.id),
@@ -513,17 +524,26 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
+    <span class="comment">// first get all the relevant data
+    </span><span class="kw">let </span>submission_form = submission.into_inner();
+    <span class="kw">let </span>submission = submission_form.submission.into_inner();
+    <span class="kw">let </span>temp_file = submission_form.file;
     <span class="kw">let </span>exercise = models::exercises::get_by_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>course_id = exercise
         .course_id
-        .ok_or_else(|| <span class="macro">anyhow::anyhow!</span>(<span class="string">"Cannot upload non-course exercises"</span>))<span class="question-mark">?</span>;
+        .ok_or_else(|| <span class="macro">anyhow::anyhow!</span>(<span class="string">"Cannot answer non-course exercises"</span>))<span class="question-mark">?</span>;
     <span class="kw">let </span>exercise_slide =
-        models::exercise_slides::get_exercise_slide(<span class="kw-2">&amp;mut </span>conn, upload.metadata.slide_id).<span class="kw">await</span><span class="question-mark">?</span>;
+        models::exercise_slides::get_exercise_slide(<span class="kw-2">&amp;mut </span>conn, submission.exercise_slide_id)
+            .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>exercise_task =
-        models::exercise_tasks::get_exercise_task_by_id(<span class="kw-2">&amp;mut </span>conn, upload.metadata.task_id).<span class="kw">await</span><span class="question-mark">?</span>;
+        models::exercise_tasks::get_exercise_task_by_id(<span class="kw-2">&amp;mut </span>conn, submission.exercise_task_id)
+            .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>upload = upload.into_inner();
-    <span class="kw">let </span>(file, _temp_path) = upload.file.file.into_parts();
+    <span class="comment">// upload the exercise file
+    </span><span class="kw">let </span>file = temp_file.file.into_file();
+    <span class="kw">let </span>mime = temp_file
+        .content_type
+        .ok_or_else(|| <span class="macro">anyhow::anyhow!</span>(<span class="string">"Missing content-type header"</span>))<span class="question-mark">?</span>;
     <span class="kw">let </span>contents = file_utils::file_to_payload(file);
     <span class="kw">let </span>(_upload_id, upload_path) = file_uploading::upload_exercise_archive(
         <span class="kw-2">&amp;mut </span>conn,
@@ -535,33 +555,18 @@
             exercise_slide: <span class="kw-2">&amp;</span>exercise_slide,
             exercise_task: <span class="kw-2">&amp;</span>exercise_task,
         },
+        mime,
         user.id,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>download_url = file_store.get_download_url(<span class="kw-2">&amp;</span>upload_path, <span class="kw-2">&amp;</span>app_conf);
-    <span class="kw">let </span>upload_result = api::UploadResult { download_url };
-    token.authorized_ok(web::Json(upload_result))
-}
-
-<span class="kw">async fn </span>submit_exercise(
-    pool: web::Data&lt;PgPool&gt;,
-    jwt_key: web::Data&lt;JwtKey&gt;,
-    exercise_id: web::Path&lt;Uuid&gt;,
-    submission: web::Json&lt;api::ExerciseSlideSubmission&gt;,
-    user: AuthToken,
-) -&gt; ControllerResult&lt;web::Json&lt;api::ExerciseTaskSubmissionResult&gt;&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = authorize(
-        <span class="kw-2">&amp;mut </span>conn,
-        Act::View,
-        <span class="prelude-val">Some</span>(user.id),
-        Res::Exercise(<span class="kw-2">*</span>exercise_id),
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="kw">let </span>submission = submission.into_inner();
-    <span class="kw">let </span>exercise = models::exercises::get_by_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// send submission to the exercise service
+    </span><span class="kw">let </span>download_url = file_store.get_download_url(<span class="kw-2">&amp;</span>upload_path, app_conf.as_ref());
+    <span class="comment">// `services/tmc/src/util/stateInterfaces.ts/EditorAnswer
+    </span><span class="kw">let </span>data_json = <span class="macro">serde_json::json!</span>({
+        <span class="string">"type"</span>: <span class="string">"editor"</span>,
+        <span class="string">"archive_download_url"</span>: download_url
+    });
     <span class="kw">let </span>result = domain::exercises::process_submission(
         <span class="kw-2">&amp;mut </span>conn,
         user.id,
@@ -570,7 +575,7 @@
             exercise_slide_id: submission.exercise_slide_id,
             exercise_task_submissions: <span class="macro">vec!</span>[StudentExerciseTaskSubmission {
                 exercise_task_id: submission.exercise_task_id,
-                data_json: submission.data_json,
+                data_json,
             }],
         },
         jwt_key.into_inner(),
@@ -635,7 +640,6 @@
             web::get().to(get_course_instance_exercises),
         )
         .route(<span class="string">"/exercises/{id}"</span>, web::get().to(get_exercise))
-        .route(<span class="string">"/exercises/{id}/upload"</span>, web::post().to(upload_exercise))
         .route(<span class="string">"/exercises/{id}/submit"</span>, web::post().to(submit_exercise))
         .route(
             <span class="string">"/submissions/{id}/grading"</span>,

@@ -454,7 +454,7 @@
 <span class="kw">use </span>uuid::Uuid;
 <span class="kw">use </span>walkdir::{DirEntry, WalkDir};
 
-<span class="kw">pub struct </span>RepositoryExercise {
+<span class="kw">pub struct </span>StoredRepositoryExercise {
     <span class="kw">pub </span>url: String,
 }
 
@@ -467,7 +467,7 @@
     deploy_key: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
     file_store: <span class="kw-2">&amp;</span><span class="kw">dyn </span>FileStore,
     app_conf: <span class="kw-2">&amp;</span>ApplicationConfiguration,
-) -&gt; anyhow::Result&lt;Vec&lt;RepositoryExercise&gt;&gt; {
+) -&gt; anyhow::Result&lt;Vec&lt;StoredRepositoryExercise&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>stored_files = <span class="macro">vec!</span>[];
     <span class="kw">match </span>process_inner(
         conn,
@@ -508,7 +508,7 @@
     file_store: <span class="kw-2">&amp;</span><span class="kw">dyn </span>FileStore,
     stored_files: <span class="kw-2">&amp;mut </span>Vec&lt;PathBuf&gt;,
     app_conf: <span class="kw-2">&amp;</span>ApplicationConfiguration,
-) -&gt; anyhow::Result&lt;Vec&lt;RepositoryExercise&gt;&gt; {
+) -&gt; anyhow::Result&lt;Vec&lt;StoredRepositoryExercise&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// clone repo to temp dir
@@ -547,7 +547,7 @@
         .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">let </span>url = file_store.get_direct_download_url(<span class="kw-2">&amp;</span>path).<span class="kw">await</span><span class="question-mark">?</span>;
         stored_files.push(path);
-        repository_exercises.push(RepositoryExercise { url });
+        repository_exercises.push(StoredRepositoryExercise { url });
     }
 
     tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;

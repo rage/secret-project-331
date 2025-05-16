@@ -9,7 +9,6 @@ interface OpenChatbotButtonProps {
   setDialogOpen: (dialogOpen: boolean) => void
 }
 
-// eslint-disable-next-line i18next/no-literal-string
 const buttonStyle = css`
   position: fixed;
   bottom: 62px;

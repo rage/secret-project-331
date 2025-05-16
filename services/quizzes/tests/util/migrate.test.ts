@@ -1,5 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
-
 import { migrateQuiz } from "../../src/util/migrate"
 
 describe("private spec migration", () => {

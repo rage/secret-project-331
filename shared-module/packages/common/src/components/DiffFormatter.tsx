@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import { useId } from "react"
 import { useTranslation } from "react-i18next"
 
 /**
@@ -20,21 +21,24 @@ interface DiffFormatterProps {
 /**
  * Formats the diff object from the diff npm package. Remember to wrap this inside a container like a div or a p.
  */
-const DiffFormatter: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<DiffFormatterProps>>
-> = ({ changes, dontShowAdded, dontShowRemoved }) => {
+const DiffFormatter: React.FC<React.PropsWithChildren<DiffFormatterProps>> = ({
+  changes,
+  dontShowAdded,
+  dontShowRemoved,
+}) => {
   const { t } = useTranslation()
+  const id = useId()
 
   return (
     <>
-      {changes.map((change) => {
+      {changes.map((change, n) => {
         if (change.added) {
           if (dontShowAdded) {
             return null
           }
           return (
             <mark
-              key={JSON.stringify(change)}
+              key={id + JSON.stringify(change) + n}
               role="note"
               aria-label={t("added-text")}
               className={css`
@@ -51,7 +55,7 @@ const DiffFormatter: React.FC<
           }
           return (
             <mark
-              key={JSON.stringify(change)}
+              key={id + JSON.stringify(change) + n}
               role="note"
               aria-label={t("removed-text")}
               className={css`
@@ -63,7 +67,7 @@ const DiffFormatter: React.FC<
             </mark>
           )
         } else {
-          return <span key={JSON.stringify(change)}>{change.value}</span>
+          return <span key={id + JSON.stringify(change) + n}>{change.value}</span>
         }
       })}
     </>

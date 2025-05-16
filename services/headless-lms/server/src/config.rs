@@ -73,12 +73,10 @@ impl ServerConfigBuilder {
             .await?;
         let db_pool = Data::new(db_pool);
 
-        let oauth_client = BasicClient::new(
-            ClientId::new(self.oauth_application_id),
-            Some(ClientSecret::new(self.oauth_secret)),
-            AuthUrl::from_url(self.auth_url.clone()),
-            Some(TokenUrl::from_url(self.auth_url)),
-        );
+        let oauth_client: OAuthClient = BasicClient::new(ClientId::new(self.oauth_application_id))
+            .set_client_secret(ClientSecret::new(self.oauth_secret))
+            .set_auth_uri(AuthUrl::from_url(self.auth_url.clone()))
+            .set_token_uri(TokenUrl::from_url(self.auth_url));
         let oauth_client = Data::new(oauth_client);
 
         let icu4x_blob = Icu4xBlob::new(&self.icu4x_postcard_path)?;
@@ -89,7 +87,7 @@ impl ServerConfigBuilder {
         let ip_to_country_mapper = IpToCountryMapper::new(&app_conf)?;
         let ip_to_country_mapper = Data::new(ip_to_country_mapper);
 
-        let cache = Cache::new(&self.redis_url).await;
+        let cache = Cache::new(&self.redis_url)?;
         let cache = Data::new(cache);
 
         let jwt_key = JwtKey::new(&self.jwt_password)?;

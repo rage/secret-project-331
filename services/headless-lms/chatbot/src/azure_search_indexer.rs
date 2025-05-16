@@ -250,7 +250,7 @@ pub async fn check_search_indexer_status(
         let last_result_in_progress = indexer_status
             .last_result
             .as_ref()
-            .map_or(false, |lr| lr.status.eq_ignore_ascii_case("inprogress"));
+            .is_some_and(|lr| lr.status.eq_ignore_ascii_case("inprogress"));
 
         if !is_running {
             info!("Indexer '{}' is not running normally.", indexer_name);

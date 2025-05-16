@@ -1,4 +1,4 @@
-import AxeBuilder from "@axe-core/playwright"
+import { AxeBuilder } from "@axe-core/playwright"
 import { CheckResult } from "axe-core"
 import { Console } from "console"
 import { Page } from "playwright"

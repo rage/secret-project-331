@@ -23,7 +23,6 @@ export const BackgroundStyles = ({ bg }: BackgroundProps) => {
   return CARD_BACKGROUND_STYLES
 }
 
-// eslint-disable-next-line i18next/no-literal-string
 const CardContentWrapper = styled.div`
   display: flex;
   height: 100%;
@@ -53,7 +52,7 @@ const CardContentWrapper = styled.div`
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & CardExtraProps
 
-const IllustrationCard: React.FC<React.PropsWithChildren<React.PropsWithChildren<CardProps>>> = ({
+const IllustrationCard: React.FC<React.PropsWithChildren<CardProps>> = ({
   title,
   chapterNumber,
   bg,

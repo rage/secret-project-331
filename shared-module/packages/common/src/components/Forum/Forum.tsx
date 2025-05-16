@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 import RadioButton from "../InputFields/RadioButton"
 import TextAreaField from "../InputFields/TextAreaField"
 
-import Thread from "./Thread"
+import ThreadComponent from "./Thread"
 
 const placeholder = `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has
 been the industry's standard dummy text ever since the 1500s, when an unknown printer took
@@ -123,10 +123,10 @@ const Forum = () => {
   return (
     <Wrapper>
       <Head>
-        <Thread state={authorObject} author={"Henrik Ngyren"} />
+        <ThreadComponent state={authorObject} author={"Henrik Ngyren"} />
       </Head>
       {state?.map((obj) => (
-        <Thread
+        <ThreadComponent
           key={obj.id}
           state={obj}
           author={visibility === "hide" ? "Anonymous" : "Sebastien"}

@@ -1,5 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
-/* eslint-disable @typescript-eslint/no-var-requires */
 const express = require("express")
 const { createProxyMiddleware } = require("http-proxy-middleware")
 const next = require("next")

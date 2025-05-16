@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO glossary (\n    id,\n    course_id,\n    term,\n    definition\n  )\nSELECT uuid_generate_v5($1, id::text),\n  $1,\n  term,\n  definition\nFROM glossary\nWHERE course_id = $2\n  AND deleted_at IS NULL;\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "3cc1a5456567cfa5f1be1fc14ff1510b8df066a2d8e7c713e06015362f3762e7"
+}

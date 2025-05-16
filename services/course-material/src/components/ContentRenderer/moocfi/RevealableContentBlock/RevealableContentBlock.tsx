@@ -10,6 +10,7 @@ import BreakFromCentered from "@/shared-module/common/components/Centering/Break
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface RevealableContentProps {}
 
 const RevealableContentBlock: React.FC<
@@ -38,16 +39,7 @@ const RevealableContentBlock: React.FC<
       >
         <Centered variant={"narrow"}>
           {reveleadContent.map((content) => (
-            <ContentRenderer
-              key={content.clientId}
-              data={[content]}
-              editing={false}
-              selectedBlockId={null}
-              setEdits={function (): void {
-                throw new Error("Function not implemented.")
-              }}
-              isExam={false}
-            />
+            <ContentRenderer key={content.clientId} data={[content]} isExam={false} />
           ))}
           {!open && (
             <Button
@@ -61,16 +53,7 @@ const RevealableContentBlock: React.FC<
           )}
           {open &&
             hiddenContent.map((content) => (
-              <ContentRenderer
-                key={content.clientId}
-                data={[content]}
-                editing={false}
-                selectedBlockId={null}
-                setEdits={function (): void {
-                  throw new Error("Function not implemented.")
-                }}
-                isExam={false}
-              />
+              <ContentRenderer key={content.clientId} data={[content]} isExam={false} />
             ))}
         </Centered>
       </div>

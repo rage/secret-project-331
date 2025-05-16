@@ -33,7 +33,7 @@ export const Deprecated1: BlockDeprecation<Deprecated1InfoBoxComponentProps> = {
   isEligible: (attributes) => {
     return Boolean(attributes.title || attributes.bodyText)
   },
-  // @ts-ignore: wat
+  // @ts-expect-error: wat
   migrate: (attributes, innerBlocks) => {
     const newInnerBlocks = [...innerBlocks]
     if (attributes.title && attributes.title.trim() !== "") {

@@ -10,11 +10,11 @@ import MultipleChoiceDropdownEditor from "./multiple-choice-dropdown"
 import ScaleEditor from "./scale"
 import TimelineEditor from "./timeline"
 
-interface QuizEditor {
+interface QuizEditorProps {
   quizItem: PrivateSpecQuizItem
 }
 
-const QuizEditor: React.FC<QuizEditor> = ({ quizItem }) => {
+const QuizEditor: React.FC<QuizEditorProps> = ({ quizItem }) => {
   switch (quizItem.type) {
     case "multiple-choice":
       return <MultipleChoiceEditor quizItemId={quizItem.id} />

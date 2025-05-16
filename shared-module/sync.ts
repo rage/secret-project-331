@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import watcher from "@parcel/watcher"
 import { exec as execOriginal } from "child_process"
 import { readdir, stat } from "fs/promises"
@@ -54,7 +53,7 @@ async function main() {
   })
 
   // Loop to make sure restarts work
-  // eslint-disable-next-line no-constant-condition
+
   while (true) {
     await runSync(restarted)
     restarted = true
@@ -124,7 +123,7 @@ async function runSync(restarted: boolean) {
   )
 
   console.log("Watching...")
-  // eslint-disable-next-line no-constant-condition
+
   while (true) {
     await new Promise((resolve) => setTimeout(resolve, 300_000))
     if (Date.now() - startTime > 3_600_000) {

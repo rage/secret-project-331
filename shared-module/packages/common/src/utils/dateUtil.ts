@@ -31,6 +31,5 @@ export const makeDateStringTimezoneErrorsLessLikely = (dateString: string): stri
     // The date string specifies something other than a date. We won't do anything in this case.
     return input
   }
-  // eslint-disable-next-line i18next/no-literal-string
   return `${input}T12:00:00+00:00`
 }

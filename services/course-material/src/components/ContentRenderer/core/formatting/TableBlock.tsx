@@ -48,7 +48,6 @@ const TableBlock: React.FC<
 
   const fetchAlignment = (align: string | undefined) => {
     if (align) {
-      // eslint-disable-next-line i18next/no-literal-string
       return css`
         text-align: ${align};
       `
@@ -59,7 +58,8 @@ const TableBlock: React.FC<
   return (
     <div
       className={css`
-        overflow-x: scroll;
+        overflow-x: auto;
+        overflow-y: hidden;
       `}
     >
       <table

@@ -32,6 +32,7 @@ pub mod ended_processed_exams;
 pub mod exams;
 pub mod exercise_language_groups;
 pub mod exercise_repositories;
+pub mod exercise_reset_logs;
 pub mod exercise_service_info;
 pub mod exercise_services;
 pub mod exercise_slide_submissions;

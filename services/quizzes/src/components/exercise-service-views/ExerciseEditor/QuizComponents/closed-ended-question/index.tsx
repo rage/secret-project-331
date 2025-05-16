@@ -134,7 +134,7 @@ const RegexTestTable: React.FC<TestTableProps> = ({ quizItem, testStrings }) => 
           format: formatRegExp.test(string),
         }
       })
-    } catch (e) {
+    } catch (_e) {
       /* NOP */
       /* This occurs when there's incomplete regex */
     }
@@ -182,7 +182,6 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
 
   const { selected, updateState } =
     useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemClosedEndedQuestion>((quiz) => {
-      // eslint-disable-next-line i18next/no-literal-string
       return findQuizItem<PrivateSpecQuizItemClosedEndedQuestion>(
         quiz,
         quizItemId,
@@ -310,7 +309,7 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
         </>
       )}
 
-      <Accordion variant="detail" title={t("advanced-options")}>
+      <Accordion title={t("advanced-options")}>
         <details>
           <summary> {t("advanced-options")} </summary>
           <TestButtonContainer>

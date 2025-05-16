@@ -27,7 +27,8 @@ async function makeSureNecessaryProgramsAreInstalled(config: FullConfig) {
 async function makeSureNpmCiHasBeenRan() {
   // Make sure the user has ran npm ci after Playwright has been updated.
   // Using an older vesion might not work or might generate sligtly wrong screenshots.
-  const requiredPlaywrightVersion = systemTestsPackageLockJson.dependencies.playwright.version
+  const requiredPlaywrightVersion =
+    systemTestsPackageLockJson.packages["node_modules/playwright"].version
   const installedPlaywrightVersion = playWrightPackageJson.version
   if (installedPlaywrightVersion !== requiredPlaywrightVersion) {
     throw new Error(
@@ -39,8 +40,8 @@ async function makeSureNpmCiHasBeenRan() {
 // Download the langs CLI binary for the TMC exercise service to work.
 async function downloadTmcLangsCli() {
   try {
-    console.time("download-tmc-langs")
-    const downloadTmcLangsPath = path.join(__dirname, "../../../bin/download-tmc-langs")
+    console.time("tmc-langs-setup")
+    const downloadTmcLangsPath = path.join(__dirname, "../../../bin/tmc-langs-setup")
     console.log("Downloading langs CLI.")
     const res = spawnSync(downloadTmcLangsPath, { stdio: "inherit" })
     if (res.status != 0) {
@@ -53,7 +54,7 @@ async function downloadTmcLangsCli() {
     }
     console.log("Successfully downloaded langs CLI.")
   } finally {
-    console.timeEnd("download-tmc-langs")
+    console.timeEnd("tmc-langs-setup")
   }
 }
 

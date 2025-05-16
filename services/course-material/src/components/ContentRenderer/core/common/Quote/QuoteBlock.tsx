@@ -18,7 +18,7 @@ const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes & ExtraAttributes>
   const { terms } = useContext(GlossaryContext)
 
   const styleLeftDefault = css`
-    padding: 0.5rem 2rem;
+    padding: 0.4rem 1rem;
     margin: 2.5rem 0;
     max-width: 100%;
     border-left: 7px solid #bdc7d1;
@@ -49,7 +49,7 @@ const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes & ExtraAttributes>
       >
         <div>
           {value && (!props.data.innerBlocks || props.data.innerBlocks.length === 0) && value}
-          <InnerBlocks parentBlockProps={props} />
+          <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
         </div>
         <cite
           className={css`

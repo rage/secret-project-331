@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import * as k8s from "@kubernetes/client-node"
 import axios from "axios"
 import * as fs from "fs"

@@ -11,7 +11,7 @@ pub async fn try_to_restore_previously_given_exercise_slide_submission(
     course_id: Uuid,
 ) -> ModelResult<Option<ExerciseSlideSubmission>> {
     // Sometimes clean up the table to keep the table small and fast
-    if rand::thread_rng().gen_range(0..10) == 0 {
+    if rand::rng().random_range(0..10) == 0 {
         delete_expired_records(&mut *conn).await?;
     }
 
@@ -93,17 +93,16 @@ pub async fn delete_saved_submissions_for_user(
     conn: &mut PgConnection,
     exercise_id: Uuid,
     user_id: Uuid,
-    course_id: Uuid,
 ) -> ModelResult<()> {
     info!("Deleting expired records from offered_answers_to_peer_review_temporary");
     let _res = sqlx::query!(
         "
 DELETE FROM offered_answers_to_peer_review_temporary
-WHERE exercise_id = $1 AND user_id = $2 AND course_id = $3
+WHERE exercise_id = $1
+  AND user_id = $2
 ",
         exercise_id,
-        user_id,
-        course_id
+        user_id
     )
     .execute(&mut *conn)
     .await?;

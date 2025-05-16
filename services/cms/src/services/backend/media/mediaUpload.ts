@@ -15,9 +15,19 @@ export function mediaUploadBuilder(
   uploadType: MediaUpload,
 ): (props: MediaUploadProps) => Promise<void> {
   const mediaUpload = async (props: MediaUploadProps): Promise<void> => {
-    // 10 MB = 10485760 B
-    const maxUploadFileSize = 10485760
-    await uploadMedia({ ...props, maxUploadFileSize, uploadType })
+    console.info("[MediaUpload] Starting media upload with props:", {
+      allowedTypes: props.allowedTypes,
+      filesCount: props.filesList.length,
+      uploadType,
+    })
+
+    try {
+      await uploadMedia({ ...props, uploadType })
+      console.info("[MediaUpload] Upload completed successfully")
+    } catch (error) {
+      console.error("[MediaUpload] Upload failed:", error)
+      throw error
+    }
   }
   return mediaUpload
 }

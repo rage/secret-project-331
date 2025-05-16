@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import * as k8s from "@kubernetes/client-node"
 import axios from "axios"
 import { createReadStream, createWriteStream, promises as fs } from "fs"
@@ -20,6 +19,7 @@ import { PrivateSpec, UserAnswer } from "../../util/stateInterfaces"
 
 import { ExerciseTaskGradingResult, GradingProgress } from "@/shared-module/common/bindings"
 import { GradingRequest } from "@/shared-module/common/exercise-service-protocol-types-2"
+import { isNonGenericGradingRequest } from "@/shared-module/common/exercise-service-protocol-types.guard"
 import { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER } from "@/shared-module/common/utils/exerciseServices"
 
 const DEFAULT_TASK_TIMEOUT_MS = 60000
@@ -29,11 +29,14 @@ export default async (
   res: NextApiResponse<ExerciseTaskGradingResult | ClientErrorResponse>,
 ): Promise<void> => {
   try {
-    const specRequest = req.body as TmcGradingRequest
-
     if (req.method !== "POST") {
       return badRequest(res, "Wrong method")
     }
+    if (!isNonGenericGradingRequest(req.body)) {
+      throw new Error("Invalid grading request")
+    }
+
+    const specRequest = req.body as TmcGradingRequest
     let gradingUpdateClaim: string | null = null
     const gradingUpdateClaimHeader = req.headers[EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER]
     if (typeof gradingUpdateClaimHeader === "string") {
@@ -61,7 +64,7 @@ const processGrading = async (
     let extractSubmissionNaively: boolean
     if (exercise_spec.type === "editor" && submission_data.type === "editor") {
       debug("grading editor submission")
-      const archiveDownloadUrl = submission_data.archiveDownloadUrl
+      const archiveDownloadUrl = submission_data.archive_download_url
       await downloadStream(archiveDownloadUrl, submissionArchivePath)
       extractSubmissionNaively = false
       // todo: support other compression methods? for now we just assume .tar.zstd
@@ -84,7 +87,7 @@ const processGrading = async (
 
     debug("downloading exercise template")
     const templateArchivePath = temporaryFile()
-    await downloadStream(exercise_spec.repositoryExercise.download_url, templateArchivePath)
+    await downloadStream(exercise_spec.repository_exercise.download_url, templateArchivePath)
 
     debug("extracting template")
     const extractedTemplatePath = temporaryDirectory()
@@ -143,12 +146,12 @@ const processGrading = async (
         await axios.post(grading_update_url, errorGradingResult, {
           headers,
         })
-      } catch (err) {
+      } catch (_err) {
         error("Failed to send failed grading update")
       }
     }
-  } catch (err) {
-    return internalServerError(res, "Error while processing grading", err)
+  } catch (e) {
+    return internalServerError(res, "Error while processing grading", e)
   }
 }
 
@@ -205,7 +208,7 @@ const gradeInPod = async (
   log(`deleting pod ${podName}`)
   try {
     await kubeApi.deleteNamespacedPod({ name: podName, namespace: "default", pretty: "true" })
-  } catch (e) {
+  } catch (_e) {
     error("failed to delete pod")
   }
 
@@ -228,14 +231,18 @@ const gradeInPodInner = async (
 
   // start pod and wait for it to start
   log("starting sandbox image", sandboxImage)
-  await kubeApi.createNamespacedPod({ body: pod, namespace: "default", pretty: "true" })
+  await kubeApi.createNamespacedPod({ namespace: "default", body: pod, pretty: "true" })
   let podPhase = null
   while (podPhase !== "Running") {
     // poll once per 500 ms
     const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
     await delay(500)
 
-    const podStatus = await kubeApi.readNamespacedPodStatus({ name: podName, namespace: "default" })
+    const podStatus = await kubeApi.readNamespacedPodStatus({
+      namespace: "default",
+      name: podName,
+      pretty: "true",
+    })
     podPhase = podStatus.status?.phase
     if (podPhase !== "Pending" && podPhase !== "Running") {
       // may indicate a problem like the pod crashing

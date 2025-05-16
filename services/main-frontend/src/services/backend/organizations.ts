@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { mainFrontendClient } from "../mainFrontendClient"
 
 import { Course, CourseCount, Organization } from "@/shared-module/common/bindings"
@@ -66,14 +65,22 @@ export const fetchOrganizationActiveCourses = async (
   return validateResponse(response, isArray(isCourse))
 }
 
+export const fetchOrganizationDuplicatableCourses = async (
+  organizationId: string,
+): Promise<Array<Course>> => {
+  const response = await mainFrontendClient.get(
+    `/organizations/${organizationId}/courses/duplicatable`,
+  )
+  return validateResponse(response, isArray(isCourse))
+}
+
 export const setOrganizationImage = async (
   organizationId: string,
   file: File,
 ): Promise<Organization> => {
-  // eslint-disable-next-line i18next/no-literal-string
   validateFile(file, ["image"])
   const data = new FormData()
-  // eslint-disable-next-line i18next/no-literal-string
+
   data.append("file", file, file.name || "unknown")
   const response = await mainFrontendClient.put(`/organizations/${organizationId}/image`, data, {
     headers: { "Content-Type": "multipart/form-data" },

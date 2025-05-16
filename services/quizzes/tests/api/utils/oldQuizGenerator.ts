@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { COLUMN } from "../../../src/util/constants"
 import {
   oldMultipleChoiceMultipleOptionsGradingPolicy,

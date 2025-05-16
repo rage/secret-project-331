@@ -33,7 +33,6 @@ const optionButtonColumn = css`
   }
 `
 
-// eslint-disable-next-line i18next/no-literal-string
 const optionButtonSelected = css`
   ${TWO_DIMENSIONAL_BUTTON_SELECTED}
 `

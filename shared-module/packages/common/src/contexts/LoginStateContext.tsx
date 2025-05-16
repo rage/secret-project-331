@@ -46,11 +46,12 @@ export const LoginStateContextProvider: React.FC<React.PropsWithChildren<unknown
   return <LoginStateContext.Provider value={loginState}>{children}</LoginStateContext.Provider>
 }
 
+const DEFAULT_DISPLAY_NAME = "Component"
+
 export function withSignedIn<T>(
   Component: ComponentType<React.PropsWithChildren<T>>,
 ): React.FC<React.PropsWithChildren<T>> {
-  // eslint-disable-next-line i18next/no-literal-string
-  const displayName = Component.displayName || Component.name || "Component"
+  const displayName = Component.displayName || Component.name || DEFAULT_DISPLAY_NAME
 
   const InnerComponent: React.FC<React.PropsWithChildren<T>> = (props) => {
     const { t } = useTranslation()
@@ -62,16 +63,15 @@ export function withSignedIn<T>(
 
     if (!loginStateContext.signedIn) {
       const returnTo = encodeURIComponent(window.location.pathname)
-      // eslint-disable-next-line i18next/no-literal-string
       window.location.replace(`/login?return_to=${returnTo}`)
       return <div>{t("please-sign-in-to-view-this-page")}</div>
     }
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore: Shared module might have a diffrerent react version
     return <Component {...props} />
   }
 
-  // eslint-disable-next-line i18next/no-literal-string
   InnerComponent.displayName = `withSignedIn(${displayName})`
   return InnerComponent
 }

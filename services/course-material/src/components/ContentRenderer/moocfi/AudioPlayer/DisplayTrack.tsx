@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import React, { RefObject, useContext, useMemo } from "react"
+import { RefObject, useContext, useMemo } from "react"
 
 import PageContext from "../../../../contexts/PageContext"
 import { AudioFile } from "../../../Page"
@@ -8,9 +8,9 @@ import { headingFont } from "@/shared-module/common/styles"
 
 interface DisplayTrackProps {
   tracks: AudioFile[]
-  audioRef: RefObject<HTMLAudioElement> | null
+  audioRef: RefObject<HTMLAudioElement | null>
   setDuration: (T: number) => void
-  progressBarRef: RefObject<HTMLInputElement> | null
+  progressBarRef: RefObject<HTMLInputElement | null>
 }
 
 const DisplayTrack = ({ tracks, audioRef, setDuration, progressBarRef }: DisplayTrackProps) => {
@@ -18,7 +18,9 @@ const DisplayTrack = ({ tracks, audioRef, setDuration, progressBarRef }: Display
   const onLoadedMetadata = () => {
     if (audioRef?.current && progressBarRef?.current) {
       const seconds = audioRef?.current?.duration
-      seconds && setDuration(seconds)
+      if (seconds) {
+        setDuration(seconds)
+      }
       progressBarRef.current.max = String(seconds)
     }
   }

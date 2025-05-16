@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next"
 
 import { baseTheme, headingFont } from "../../styles"
 
-// eslint-disable-next-line i18next/no-literal-string
 const BannerWrapper = styled.div`
   height: 300px;
   position: relative;
@@ -87,9 +86,9 @@ const StyledLink = styled.a`
 `
 export type ContributeProps = React.HTMLAttributes<HTMLDivElement>
 
-const Contribute: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<ContributeProps>>
-> = () => {
+const GITHUB_REPO = "https://github.com/rage/secret-project-331"
+
+const Contribute: React.FC<React.PropsWithChildren<ContributeProps>> = () => {
   const { t } = useTranslation()
   return (
     <BannerWrapper>
@@ -99,7 +98,7 @@ const Contribute: React.FC<
         <Text>
           <div>{t("about-this-project-description")}</div>
         </Text>
-        <StyledLink href="https://github.com/rage/secret-project-331">
+        <StyledLink href={GITHUB_REPO}>
           <span>{t("project-github")}</span>
         </StyledLink>
       </Content>

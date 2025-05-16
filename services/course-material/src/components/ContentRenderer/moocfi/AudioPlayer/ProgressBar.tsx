@@ -1,6 +1,6 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { RefObject } from "react"
+import { RefObject } from "react"
 
 import { styledRangeInput } from "./RangeComponentStyle"
 
@@ -22,8 +22,8 @@ const time = css`
 `
 
 interface ProgressBarProps {
-  progressBarRef: RefObject<HTMLInputElement> | null
-  audioRef: RefObject<HTMLAudioElement> | null
+  progressBarRef: RefObject<HTMLInputElement | null>
+  audioRef: RefObject<HTMLAudioElement | null>
   timeProgress: number
   duration: number
 }

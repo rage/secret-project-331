@@ -1,5 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
-/* eslint-disable @typescript-eslint/no-var-requires */
 const generateNormalResponseHeaders =
   require("./src/shared-module/common/utils/responseHeaders").generateNormalResponseHeaders
 const svgoConfig = require("./src/shared-module/common/utils/svgoConfig")
@@ -9,7 +7,6 @@ const normalResponseHeaders = generateNormalResponseHeaders({ requireTrustedType
 
 /** @type {import('next').NextConfig} */
 const config = {
-  swcMinify: true,
   eslint: {
     ignoreDuringBuilds: true,
   },

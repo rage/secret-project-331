@@ -12,7 +12,6 @@ interface AuthorBlockAttributes {
   backgroundColor: string
 }
 
-// eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`
   background: #f7f8f9;
   padding: 1.25rem 1.4rem 0.4rem 1.4rem;
@@ -71,7 +70,7 @@ const AuthorBlock: React.FC<React.PropsWithChildren<BlockRendererProps<AuthorBlo
     <Wrapper>
       <h3>{t("author")}</h3>
       <div>
-        <InnerBlocks parentBlockProps={props} />
+        <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
       </div>
     </Wrapper>
   )

@@ -73,7 +73,7 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
       } else {
         setStartTimeWarning(null)
       }
-    } catch (e) {
+    } catch (_e) {
       // Invalid date format, clear warning
       setStartTimeWarning(null)
     }
@@ -121,7 +121,7 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
     try {
       parseISO(data.startsAt).toISOString()
       parseISO(data.endsAt).toISOString()
-    } catch (e) {
+    } catch (_e) {
       setError("startsAt", { message: t("invalid-date-format") })
       setError("endsAt", { message: t("invalid-date-format") })
       isValid = false

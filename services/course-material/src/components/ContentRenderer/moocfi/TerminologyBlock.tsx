@@ -65,7 +65,7 @@ const TerminologyBlock: React.FC<
         }}
       />
       <Centered variant="narrow">
-        <InnerBlocks parentBlockProps={props} />
+        <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
       </Centered>
     </div>
   )

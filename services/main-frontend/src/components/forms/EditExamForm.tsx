@@ -32,7 +32,7 @@ interface EditExamFields {
 const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
   initialData,
   onEditExam,
-  onCancel,
+  onCancel: _onCancel,
   organizationId,
 }) => {
   const { t } = useTranslation()

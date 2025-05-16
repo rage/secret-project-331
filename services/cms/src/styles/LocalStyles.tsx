@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { css, injectGlobal } from "@emotion/css"
 
 import {
@@ -32,6 +31,7 @@ const localCss = css`
   }
 `
 
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 injectGlobal`
 ${localCss}
 `

@@ -71,7 +71,7 @@ const AsideWithImageBlock: React.FC<
         }
       `}
     >
-      <InnerBlocks parentBlockProps={props} />
+      <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
       <div>
         <h4
           dangerouslySetInnerHTML={{

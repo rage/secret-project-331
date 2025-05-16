@@ -8,10 +8,9 @@ import { validateResponse } from "@/shared-module/common/utils/fetching"
 import { validateFile } from "@/shared-module/common/utils/files"
 
 export const postPageAudioFile = async (pageId: string, file: File): Promise<boolean> => {
-  // eslint-disable-next-line i18next/no-literal-string
   validateFile(file, ["audio"])
   const data = new FormData()
-  // eslint-disable-next-line i18next/no-literal-string
+
   data.append("file", file, file.name || "unknown")
   const response = await mainFrontendClient.post(`/page_audio/${pageId}`, data, {
     headers: {

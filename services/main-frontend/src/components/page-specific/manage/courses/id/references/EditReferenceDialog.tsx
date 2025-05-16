@@ -36,7 +36,7 @@ const EditReferenceDialog: React.FC<React.PropsWithChildren<EditReferenceDialogP
     }) => postReferenceUpdate(courseId, id, reference),
     {
       notify: true,
-      successMessage: t("reference-updated-succesfully"),
+      successMessage: t("reference-updated-successfully"),
       method: "POST",
     },
     {
@@ -51,7 +51,7 @@ const EditReferenceDialog: React.FC<React.PropsWithChildren<EditReferenceDialogP
     ({ courseId, id }: { courseId: string; id: string }) => deleteReference(courseId, id),
     {
       notify: true,
-      successMessage: t("reference-deleted-succesfully"),
+      successMessage: t("reference-deleted-successfully"),
       method: "DELETE",
     },
     {

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { css } from "@emotion/css"
 import React, { useEffect, useState } from "react"
 

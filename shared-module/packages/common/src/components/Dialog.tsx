@@ -6,10 +6,12 @@ import { typography } from "../styles"
 
 interface DialogProps extends React.HTMLAttributes<HTMLDialogElement> {
   open: boolean
-  onClose?: () => void
+  onClose?: (e: React.MouseEvent) => void
   closeable?: boolean
   noPadding?: boolean
   width?: "normal" | "wide"
+  disableContentScroll?: boolean
+  preventBackgroundScroll?: boolean
 }
 
 const Dialog: React.FC<DialogProps> = ({
@@ -19,6 +21,8 @@ const Dialog: React.FC<DialogProps> = ({
   closeable = true,
   noPadding = false,
   width = "normal",
+  disableContentScroll = false,
+  preventBackgroundScroll = false,
   ...rest
 }) => {
   const ref = useRef<HTMLDialogElement>(null)
@@ -26,9 +30,9 @@ const Dialog: React.FC<DialogProps> = ({
 
   useEffect(() => {
     const current = ref.current
-    const closeCallback = () => {
+    const closeCallback = (e: Event) => {
       if (onClose) {
-        onClose()
+        onClose(e as unknown as React.MouseEvent)
       }
     }
     current?.addEventListener("close", closeCallback)
@@ -78,6 +82,22 @@ const Dialog: React.FC<DialogProps> = ({
     open,
   )
 
+  // Add effect to handle body scroll
+  useEffect(() => {
+    if (preventBackgroundScroll) {
+      if (open) {
+        // eslint-disable-next-line i18next/no-literal-string
+        document.body.style.overflow = "hidden"
+      } else {
+        document.body.style.overflow = ""
+      }
+    }
+
+    return () => {
+      document.body.style.overflow = ""
+    }
+  }, [open, preventBackgroundScroll])
+
   if (!open) {
     return null
   }
@@ -92,6 +112,7 @@ const Dialog: React.FC<DialogProps> = ({
         padding: 0;
         width: 95%;
         max-width: ${width === "normal" ? "700px" : "1200px"};
+        ${disableContentScroll && "overflow: hidden;"}
 
         h1 {
           font-size: ${typography.h5};

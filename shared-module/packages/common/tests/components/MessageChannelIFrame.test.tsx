@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { render, waitFor } from "@testing-library/react"
 import { http, HttpResponse } from "msw"
 import { setupServer } from "msw/node"
@@ -18,7 +17,7 @@ afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 
 test("It renders", async () => {
-  // @ts-ignore: jsdom does not have MessageChannel
+  // @ts-expect-error: jsdom does not have MessageChannel
   window.MessageChannel = jest
     .fn()
     .mockReturnValue({ port1: { postMessage: jest.fn() }, port2: {} })

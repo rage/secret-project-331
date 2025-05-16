@@ -1,8 +1,6 @@
-/* eslint-disable i18next/no-literal-string */
-/* eslint-disable @typescript-eslint/no-var-requires */
-const express = require("express")
-const { createProxyMiddleware } = require("http-proxy-middleware")
-const next = require("next")
+import express from "express"
+import { createProxyMiddleware } from "http-proxy-middleware"
+import next from "next"
 
 const port = process.env.PORT || 3000
 const dev = process.env.NODE_ENV !== "production"

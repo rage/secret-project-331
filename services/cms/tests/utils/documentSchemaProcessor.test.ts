@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { deepStrictEqual } from "assert"
 
 import { ExerciseAttributes } from "../../src/blocks/Exercise"

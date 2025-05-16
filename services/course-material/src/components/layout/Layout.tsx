@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import dynamic from "next/dynamic"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import React, { ReactNode, useEffect, useMemo, useState } from "react"
@@ -30,6 +29,7 @@ import {
   NavItems,
 } from "@/shared-module/common/components/Navigation/NavBar"
 import { getDir } from "@/shared-module/common/hooks/useLanguage"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 
@@ -39,9 +39,8 @@ interface LayoutProps {
   children: ReactNode
 }
 
-const DynamicToaster = dynamic(
+const DynamicToaster = dynamicImport(
   () => import("@/shared-module/common/components/Notifications/ToasterNotifications"),
-  { ssr: false },
 )
 
 const DEFAULT_TITLE = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331"
@@ -114,9 +113,8 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
       return
     }
     setTimeout(() => {
-      // eslint-disable-next-line i18next/no-literal-string
       htmlElement.setAttribute("lang", currentLanguageCode)
-      // eslint-disable-next-line i18next/no-literal-string
+
       htmlElement.setAttribute("dir", getDir(currentLanguageCode))
     }, 100)
   }, [currentLanguageCode, i18n])

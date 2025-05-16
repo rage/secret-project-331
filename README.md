@@ -1,9 +1,27 @@
-# Secret Project 331
+![Secret Project 331](./img/secret-project-readme-banner.png)
 
-Secret Project 331 is a Learning Management System (LMS) developed by the MOOC Center of the University of Helsinki. It's deployed at [https://courses.mooc.fi](https://courses.mooc.fi). This document contains technical information intended for developers. If you're not a developer, you might find these links helpful instead:
+> [!IMPORTANT]
+> This document contains technical information intended for software developers. If you're not a software developer, you might find these resources helpful instead:
+>
+> - To learn more about the courses, visit [https://www.mooc.fi](https://www.mooc.fi).
+> - For teacher documentation, refer to the **Wiki** tab in this repository.
 
-- To learn more about the courses, visit [https://www.mooc.fi](https://www.mooc.fi).
-- For teacher documentation, refer to the **Wiki** tab in this repository.
+Secret Project 331 is a Learning Management System (LMS) developed by the MOOC Center of the University of Helsinki. It's deployed at [https://courses.mooc.fi](https://courses.mooc.fi). It includes:
+
+- A visual, no-code course material editor based on blocks (text, media, embeds, exercises, etc.)
+- Exercises are created directly within the material editor — no need to context-switch to a separate tool
+- Multiple exercise types including multiple-choice, essay, short answer, and timelines
+  - New exercise types can be added via plugins. Plugins can be developed by third parties and installed without changes to the core system
+- Automatic progress tracking, pass/fail logic, and certificate generation
+- Built-in glossary, citation manager, course statistics, and inline student feedback tools
+- Support for multilingual courses
+- Integration with the Open University of the University of Helsinki for official completion registration
+
+> [!NOTE]
+> The system builds on years of dedicated work on Massive Open Online Courses (MOOCs) at the Computer Science Department of the University of Helsinki.
+> It was developed by a team led by [Henrik Nygren](https://github.com/nygrenh), who also designed the core features and software architecture.
+>
+> You can check out the rest of the contributors [here](https://github.com/rage/secret-project-331/graphs/contributors).
 
 ## Development Environment Setup
 

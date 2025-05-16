@@ -80,11 +80,9 @@ const CourseObjectiveSectionEditor: React.FC<
         >
           <RichText
             className="has-text-align-center wp-block-heading"
-            // eslint-disable-next-line i18next/no-literal-string
             tagName="h2"
             value={title}
             onChange={(value: string) => setAttributes({ title: value })}
-            // eslint-disable-next-line i18next/no-literal-string
             placeholder={"In this course you'll..."}
           />
           <InnerBlocks

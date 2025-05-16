@@ -11,13 +11,13 @@ fi
 COMMAND=$*
 
 run_command npx concurrently \
-  -n "cms,course-material,main-frontend,example-exercise,shared-module,quizzes,tmc" \
+  -n "cms,course-material,main-frontend,example-exercise,shared-module/common,quizzes,tmc" \
   -c "green.bold,red.bold,blue.bold,yellow.bold,purple.bold,magenta.bold,cyan.bold" \
   "bash -c 'cd services/cms/ && npm ${COMMAND}'" \
   "bash -c 'cd services/course-material/ && npm ${COMMAND}'" \
   "bash -c 'cd services/main-frontend && npm ${COMMAND}'" \
   "bash -c 'cd services/example-exercise && npm ${COMMAND}'" \
-  "bash -c 'cd shared-module && npm ${COMMAND}'" \
+  "bash -c 'cd shared-module/packages/common && npm ${COMMAND}'" \
   "bash -c 'cd services/quizzes/ && npm ${COMMAND}'" \
   "bash -c 'cd services/tmc/ && npm ${COMMAND}'"
 

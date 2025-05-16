@@ -47,7 +47,6 @@ export type Resource =
   | { type: "user" }
   | { type: "playground_example" }
   | { type: "exercise_service" }
-  | { type: "material_reference" }
 
 export type ErrorData = { block_id: string }
 
@@ -381,7 +380,7 @@ export interface CourseModuleCompletion {
   passed: boolean
   prerequisite_modules_completed: boolean
   completion_granter_user_id: string | null
-  needs_to_be_reviewed: boolean | null
+  needs_to_be_reviewed: boolean
 }
 
 export interface CourseModuleCompletionWithRegistrationInfo {
@@ -813,38 +812,6 @@ export interface PeerOrSelfReviewsReceived {
   peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmission>
 }
 
-export interface FlaggedAnswer {
-  id: string
-  submission_id: string
-  flagged_user: string
-  flagged_by: string
-  reason: ReportReason
-  description: string | null
-  created_at: string
-  updated_at: string
-  deleted_at: string | null
-}
-
-export type ReportReason = "Spam" | "HarmfulContent" | "AiGenerated"
-
-export interface NewFlaggedAnswer {
-  submission_id: string
-  flagged_user: string | null
-  flagged_by: string | null
-  reason: ReportReason
-  description: string | null
-}
-
-export interface NewFlaggedAnswerWithToken {
-  submission_id: string
-  flagged_user: string | null
-  flagged_by: string | null
-  reason: ReportReason
-  description: string | null
-  peer_or_self_review_config_id: string
-  token: string
-}
-
 export interface CourseMaterialExerciseTask {
   id: string
   exercise_service_slug: string
@@ -941,6 +908,21 @@ export interface ExerciseStatusSummaryForUser {
 
 export type GradingProgress = "Failed" | "NotReady" | "PendingManual" | "Pending" | "FullyGraded"
 
+export interface ExerciseResetLog {
+  id: string
+  reset_by: string
+  reset_by_first_name: string | null
+  reset_by_last_name: string | null
+  reset_for: string
+  exercise_id: string
+  exercise_name: string
+  course_id: string
+  reset_at: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+}
+
 export interface Feedback {
   id: string
   user_id: string | null
@@ -973,6 +955,38 @@ export interface NewFeedback {
   page_id: string
 }
 
+export interface FlaggedAnswer {
+  id: string
+  submission_id: string
+  flagged_user: string
+  flagged_by: string
+  reason: ReportReason
+  description: string | null
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+}
+
+export interface NewFlaggedAnswer {
+  submission_id: string
+  flagged_user: string | null
+  flagged_by: string | null
+  reason: ReportReason
+  description: string | null
+}
+
+export interface NewFlaggedAnswerWithToken {
+  submission_id: string
+  flagged_user: string | null
+  flagged_by: string | null
+  reason: ReportReason
+  description: string | null
+  peer_or_self_review_config_id: string
+  token: string
+}
+
+export type ReportReason = "Spam" | "HarmfulContent" | "AiGenerated"
+
 export interface GeneratedCertificate {
   id: string
   created_at: string
@@ -993,6 +1007,23 @@ export interface Term {
 export interface TermUpdate {
   term: string
   definition: string
+}
+
+export interface AverageMetric {
+  period: string | null
+  average: number | null
+}
+
+export interface CohortActivity {
+  cohort_start: string | null
+  activity_period: string | null
+  offset: number | null
+  active_users: number
+}
+
+export interface CountResult {
+  period: string | null
+  count: number
 }
 
 export interface CustomViewExerciseSubmissions {
@@ -1032,6 +1063,33 @@ export interface CustomViewExerciseTasks {
   task_gradings: Array<CustomViewExerciseTaskGrading>
 }
 
+export interface CourseCompletionStats {
+  course_id: string
+  course_name: string
+  total_completions: number
+  unique_users: number
+  registered_completion_percentage: number | null
+  registered_completions: number
+  not_registered_completions: number
+  users_with_some_registered_completions: number
+  users_with_some_unregistered_completions: number
+  registered_ects_credits: number
+  not_registered_ects_credits: number
+}
+
+export interface DomainCompletionStats {
+  email_domain: string
+  total_completions: number
+  unique_users: number
+  registered_completion_percentage: number | null
+  registered_completions: number
+  not_registered_completions: number
+  users_with_some_registered_completions: number
+  users_with_some_unregistered_completions: number
+  registered_ects_credits: number
+  not_registered_ects_credits: number
+}
+
 export interface GlobalCourseModuleStatEntry {
   course_name: string
   course_id: string
@@ -1049,9 +1107,12 @@ export interface GlobalStatEntry {
   course_id: string
   organization_id: string
   organization_name: string
-  year: string
+  year: number
+  month: number | null
   value: number
 }
+
+export type TimeGranularity = "Year" | "Month" | "Day"
 
 export interface AnswerRequiringAttentionWithTasks {
   id: string
@@ -1150,6 +1211,7 @@ export interface ManualCompletionPreviewUser {
 export interface TeacherManualCompletion {
   user_id: string
   grade: number | null
+  passed: boolean
   completion_date: string | null
 }
 
@@ -1471,6 +1533,7 @@ export interface PageSearchResult {
   rank: number | null
   content_headline: string | null
   url_path: string
+  chapter_name: string | null
 }
 
 export interface PageWithExercises {
@@ -2114,6 +2177,31 @@ export interface GetFeedbackQuery {
   page: number | undefined
   limit: number | undefined
 }
+
+export interface CopyCourseRequest {
+  name: string
+  slug: string
+  organization_id: string
+  language_code: string
+  teacher_in_charge_name: string
+  teacher_in_charge_email: string
+  description: string
+  is_draft: boolean
+  is_test_mode: boolean
+  is_unlisted: boolean
+  copy_user_permissions: boolean
+  is_joinable_by_code_only: boolean
+  join_code: string | null
+  ask_marketing_consent: boolean
+  flagged_answers_threshold: number | null
+  mode: CopyCourseMode
+}
+
+export type CopyCourseMode =
+  | { mode: "duplicate" }
+  | { mode: "same_language_group" }
+  | { mode: "existing_language_group"; target_course_id: string }
+  | { mode: "new_language_group" }
 
 export interface ExamCourseInfo {
   course_id: string

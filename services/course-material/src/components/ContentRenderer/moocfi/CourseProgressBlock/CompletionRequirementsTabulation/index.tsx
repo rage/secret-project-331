@@ -8,6 +8,7 @@ import { baseTheme } from "@/shared-module/common/styles"
 const HighlightContainer = styled.div`
   display: flex;
   flex-direction: row;
+  padding: 1rem 0;
 `
 
 export interface CompletionRequirementsTabulationProps {
@@ -29,7 +30,7 @@ const CompletionRequirementsTabulation: React.FC<
             highlightText={pointsRequiredForCompletion}
           />
         )}
-        {attemptedExercisesRequiredForCompletion && (
+        {!!attemptedExercisesRequiredForCompletion && (
           <HighlightItem
             highlightColor={baseTheme.colors.gradient["blue"]}
             highlightDescription={t("attempted-exercises-required-for-completion")}

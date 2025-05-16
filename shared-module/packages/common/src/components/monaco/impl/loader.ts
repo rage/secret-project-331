@@ -1,8 +1,8 @@
-/* eslint-disable i18next/no-literal-string */
 import { loader } from "@monaco-editor/react"
 
 loader.config({
   paths: {
-    vs: "/monaco-editor/vs",
+    // See https://github.com/microsoft/monaco-editor/issues/4778
+    vs: window.location.origin + "/monaco-editor/min/vs",
   },
 })

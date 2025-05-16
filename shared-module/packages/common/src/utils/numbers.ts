@@ -6,7 +6,6 @@
 export function roundDown(n: number, maxDecimals?: number): string {
   const actualMaxDecimals = maxDecimals || 0
   if (actualMaxDecimals > 20) {
-    // eslint-disable-next-line
     throw "maxDecimals cannot be higher than 20"
   }
   const fixed = n.toFixed(20).toString()
@@ -56,11 +55,33 @@ export function stringToNumberOrPlaceholder<T>(
   let res: number
   try {
     res = Number(s)
-  } catch (e) {
+  } catch (_e) {
     return missingNumberSubstitute
   }
   if (isNaN(res)) {
     return missingNumberSubstitute
   }
   return res
+}
+
+/**
+ * Formats a number with thousands separators according to the provided locale.
+ * Falls back to English ('en') if the provided locale is invalid.
+ *
+ * @param num - The number to format
+ * @param locale - The locale to use for formatting (e.g., 'en', 'fi', 'de')
+ * @returns A formatted string representation of the number
+ *
+ * Examples:
+ * formatNumber(5000000, 'en') => "5,000,000"
+ * formatNumber(5000000, 'fi') => "5 000 000"
+ * formatNumber(5000000, 'de') => "5.000.000"
+ */
+export function formatNumber(num: number, locale?: string): string {
+  try {
+    return new Intl.NumberFormat(locale).format(num)
+  } catch (_error) {
+    // If the locale is invalid or causes an error, fall back to English
+    return new Intl.NumberFormat("en").format(num)
+  }
 }

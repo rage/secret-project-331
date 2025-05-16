@@ -15,7 +15,6 @@ interface CircleBoxProps {
 export type CircularProgressBarProps = React.HTMLAttributes<HTMLDivElement> &
   CircularProgressBarExtraProps
 
-// eslint-disable-next-line i18next/no-literal-string
 const CircleBox = styled.div`
   width: 60px;
   height: 60px;
@@ -59,9 +58,10 @@ const CircleBox = styled.div`
 `
 // To get the appropriate stroke-dasharray; It is 2 * PI * radius = 131
 
-const CircularProgressBar: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<CircularProgressBarProps>>
-> = ({ scoreMaximum, userPoints }) => {
+const CircularProgressBar: React.FC<React.PropsWithChildren<CircularProgressBarProps>> = ({
+  scoreMaximum,
+  userPoints,
+}) => {
   const complete = userPoints / scoreMaximum
   return (
     <CircleBox point={complete}>

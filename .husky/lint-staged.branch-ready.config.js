@@ -1,20 +1,17 @@
 // Runs when you run bin/git-run-branch-ready-checks.
 // These checks are slower and more likely to fail than the precommit checks.
 // See lint-staged.precommit.config.js for precommit checks.
- module.exports = {
+export default {
   "*.{js,jsx,ts,tsx}": ["eslint --cache --fix", "stylelint --fix lax"],
   "services/example-exercise/src/**/*.{js,jsx,ts,tsx}": () =>
     "npx tsc -p services/example-exercise/ --noEmit",
-  "services/cms/src/**/*.{js,jsx,ts,tsx}": () =>
-    "npx tsc -p services/cms/ --noEmit",
+  "services/cms/src/**/*.{js,jsx,ts,tsx}": () => "npx tsc -p services/cms/ --noEmit",
   "services/main-frontend/src/**/*.{js,jsx,ts,tsx}": () =>
     "npx tsc -p services/main-frontend/ --noEmit",
   "services/course-material/src/**/*.{js,jsx,ts,tsx}": () =>
     "npx tsc -p services/course-material/ --noEmit",
-  "services/quizzes/src/**/*.{js,jsx,ts,tsx}": () =>
-    "npx tsc -p services/quizzes/ --noEmit",
-  "services/tmc/src/**/*.{js,jsx,ts,tsx}": () =>
-    "npx tsc -p services/tmc/ --noEmit",
+  "services/quizzes/src/**/*.{js,jsx,ts,tsx}": () => "npx tsc -p services/quizzes/ --noEmit",
+  "services/tmc/src/**/*.{js,jsx,ts,tsx}": () => "npx tsc -p services/tmc/ --noEmit",
   "*.{md,json,scss,css}": "prettier --write",
   "*.rs": () => [
     "cargo fmt --manifest-path services/headless-lms/Cargo.toml --all -- --files-with-diff",

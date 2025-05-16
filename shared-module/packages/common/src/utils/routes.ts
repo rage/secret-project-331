@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { PageInfo } from "../bindings"
 
 export function pageRoute(pageInfo: PageInfo, urlPath: string): string {
@@ -37,6 +36,14 @@ export function globalStatsRoute() {
   return "/stats"
 }
 
+export function domainStatsRoute() {
+  return "/domain-stats"
+}
+
+export function courseStatsRoute(courseId: string) {
+  return `/manage/courses/${courseId}/stats`
+}
+
 export function allOrganizationsRoute() {
   return "/organizations"
 }
@@ -51,4 +58,8 @@ export function regradingsRoute() {
 
 export function codeGiveawayRoute(codeGiveawayId: string) {
   return `/manage/code-giveaways/${codeGiveawayId}`
+}
+
+export function manageCourseExercisesRoute(courseId: string) {
+  return `/manage/courses/${courseId}/exercises`
 }

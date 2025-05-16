@@ -40,7 +40,7 @@ const isOldQuiz = (
   if (!quiz) {
     return false
   }
-  // eslint-disable-next-line i18next/no-literal-string
+
   return !Object.prototype.hasOwnProperty.call(quiz, "version")
 }
 
@@ -48,7 +48,7 @@ const isOldUserAnswer = (userAnswer: UserAnswer | OldQuizAnswer): boolean => {
   if (!userAnswer) {
     return false
   }
-  // eslint-disable-next-line i18next/no-literal-string
+
   return !Object.prototype.hasOwnProperty.call(userAnswer, "version")
 }
 

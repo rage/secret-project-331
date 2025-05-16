@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import DOMPurify from "dompurify"
 
 import { StringWithHTML } from "../../types"

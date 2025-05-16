@@ -35,12 +35,10 @@ export function validateReturnToRouteOrDefault(
 
   // Parse the path we're about to return to double check we return only paths and not urls which could redirect to other sites.
   try {
-    // eslint-disable-next-line i18next/no-literal-string
     const parsedUrl = new URL(res, "https://example.com")
     // Pathname only. Also drops query parameters.
     return parsedUrl.pathname
   } catch (e) {
-    // eslint-disable-next-line i18next/no-literal-string
     console.error(`Could not parse return_to path: ${res}`, e)
   }
   return "/"

@@ -116,7 +116,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
             }
             try {
               draft.n = parseInt(value)
-            } catch (e) {
+            } catch (_e) {
               /* NOP */
             }
           })
@@ -195,7 +195,6 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                 return
               }
 
-              // eslint-disable-next-line i18next/no-literal-string
               draft.options = [
                 ...draft.options,
                 {
@@ -221,7 +220,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
 
       {/* Advanced options */}
       <br />
-      <Accordion variant="detail" title={t("advanced-options")}>
+      <Accordion title={t("advanced-options")}>
         <details>
           <summary> {t("advanced-options")} </summary>
           <AdvancedOptionsContainer>

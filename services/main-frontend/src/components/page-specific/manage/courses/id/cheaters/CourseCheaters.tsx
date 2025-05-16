@@ -174,7 +174,7 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
           {t("set-threshold")}
         </Button>
       </div>
-      {/* eslint-disable-next-line i18next/no-literal-string */}
+      {}
       <TabLinkNavigation>
         <TabLink
           url={{ pathname: router.pathname, query: { ...router.query, archive: false } }}

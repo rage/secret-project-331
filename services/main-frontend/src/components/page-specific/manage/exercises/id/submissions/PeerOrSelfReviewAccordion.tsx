@@ -83,7 +83,7 @@ const PeerReviewAccordion: React.FC<PeerReviewAccordionProps> = ({ peerOrSelfRev
   }, [peerOrSelfReviews, userInfo.data?.user_id])
 
   return (
-    <Accordion variant="detail">
+    <Accordion>
       <details>
         <summary>
           {title}{" "}

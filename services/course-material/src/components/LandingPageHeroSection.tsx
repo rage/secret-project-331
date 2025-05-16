@@ -11,6 +11,7 @@ import Button from "@/shared-module/common/components/Button"
 import DefaultSVG from "@/shared-module/common/img/hero-default-bg-image.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM } from "@/utils/constants"
 
 export const CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING =
   "chapter-grid-scrolling-destination"
@@ -19,7 +20,6 @@ interface TextBoxProps {
   fontColor?: string
 }
 
-// eslint-disable-next-line i18next/no-literal-string
 //const HeroWrapper = styled.div``
 
 const TextBox = styled.div<TextBoxProps>`
@@ -86,9 +86,14 @@ export interface LandingPageHeroSectionProps {
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & LandingPageHeroSectionProps
 
-const LandingPageHeroSection: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<CardProps>>
-> = ({ title, children, backgroundImage, backgroundColor, backgroundRepeatX, fontColor }) => {
+const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
+  title,
+  children,
+  backgroundImage,
+  backgroundColor,
+  backgroundRepeatX,
+  fontColor,
+}) => {
   const { t } = useTranslation()
   const { terms } = useContext(GlossaryContext)
   return (
@@ -98,6 +103,7 @@ const LandingPageHeroSection: React.FC<
         border-radius: 1px;
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         padding: 5em 1em;
+        margin-top: -${COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM}rem;
         ${backgroundColor && `background-color: ${backgroundColor};`}
         ${backgroundImage &&
         `background-image: url(${backgroundImage});
@@ -125,7 +131,6 @@ const LandingPageHeroSection: React.FC<
               CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING,
             )[0]
             if (!firstChapterGrid) {
-              // eslint-disable-next-line i18next/no-literal-string
               console.warn("Cannot find scroll destination")
               return
             }

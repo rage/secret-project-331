@@ -176,8 +176,12 @@ async fn user_is_eligible_for_automatic_completion(
             if eligible {
                 if requirements.requires_exam {
                     info!("To complete this module automatically, the user must pass an exam.");
-                    user_has_passed_exam_for_the_course(conn, user_id, course_module.course_id)
-                        .await
+                    user_has_passed_exam_for_the_course_based_on_points(
+                        conn,
+                        user_id,
+                        course_module.course_id,
+                    )
+                    .await
                 } else {
                     Ok(true)
                 }
@@ -238,7 +242,7 @@ pub async fn user_can_take_exam(
 
 /// Returns true if there is at least one exam associated with the course, that has ended and the
 /// user has received enough points from it.
-async fn user_has_passed_exam_for_the_course(
+async fn user_has_passed_exam_for_the_course_based_on_points(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,
@@ -248,7 +252,7 @@ async fn user_has_passed_exam_for_the_course(
     for exam_id in exam_ids {
         let exam = exams::get(conn, exam_id).await?;
         // A minimum points threshold of 0 indicates that the "Related courses can be completed automatically" option has not been enabled by the teacher. If you wish to remove this condition, please first store this information in a separate column in the exams table.
-        if exam.minimum_points_treshold == 0 {
+        if exam.minimum_points_treshold == 0 || exam.grade_manually {
             continue;
         }
         if exam.ended_at_or(now, false) {
@@ -487,6 +491,7 @@ pub struct TeacherManualCompletionRequest {
 pub struct TeacherManualCompletion {
     pub user_id: Uuid,
     pub grade: Option<i32>,
+    pub passed: bool,
     pub completion_date: Option<DateTime<Utc>>,
 }
 
@@ -551,8 +556,11 @@ pub async fn add_manual_completions(
                     eligible_for_ects: true,
                     email: completion_receiver_user_details.email,
                     grade: completion.grade,
-                    // False if grade is Some(0), otherwise true.
-                    passed: completion.grade.unwrap_or(1) > 0,
+                    passed: if completion.grade == Some(0) {
+                        false
+                    } else {
+                        completion.passed
+                    },
                 },
                 CourseModuleCompletionGranter::User(completion_giver_user_id),
             )
@@ -617,7 +625,7 @@ pub async fn get_manual_completion_result_preview(
             first_name: user_details.first_name,
             last_name: user_details.last_name,
             grade: completion.grade,
-            passed: true,
+            passed: completion.passed,
         };
         let enrollment = course_instance_enrollments::get_by_user_and_course_instance_id(
             conn,
@@ -771,14 +779,13 @@ pub async fn get_user_module_completion_statuses_for_course(
                 passed,
                 grade: completion.and_then(|x| x.grade),
                 prerequisite_modules_completed: completion
-                    .map_or(false, |x| x.prerequisite_modules_completed),
+                    .is_some_and(|x| x.prerequisite_modules_completed),
                 enable_registering_completion_to_uh_open_university: module
                     .enable_registering_completion_to_uh_open_university,
                 certification_enabled: module.certification_enabled,
                 certificate_configuration_id,
                 needs_to_be_reviewed: completion
-                .and_then(|x| x.needs_to_be_reviewed)
-                .unwrap_or(false),
+                    .is_some_and(|x| x.needs_to_be_reviewed)
             }
         })
         .collect();

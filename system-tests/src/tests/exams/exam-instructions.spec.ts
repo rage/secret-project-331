@@ -44,25 +44,15 @@ test("Editing exam instructions works", async ({ page, headless }, testInfo) => 
 
   await page.getByText("List").click()
 
-  await page
-    .locator('[aria-label="Block\\:\\ List item"]')
-    .locator(`[aria-label="List text"]`)
-    .click()
-  await page
-    .locator('[aria-label="Block\\:\\ List item"]')
-    .locator(`[aria-label="List text"]`)
-    .type("One")
-  await page
-    .locator('[aria-label="Block\\:\\ List item"]')
-    .locator(`[aria-label="List text"]`)
-    .press("Enter")
-  await page
-    .locator('[aria-label="Block\\:\\ List item"]')
-    .nth(1)
-    .locator(`[aria-label="List text"]`)
-    .type("Two")
+  await page.getByRole("textbox", { name: "List text" }).click()
+  await page.getByRole("textbox", { name: "List text" }).fill("One")
+  await page.getByRole("textbox", { name: "List text" }).press("Enter")
+  await page.getByRole("textbox", { name: "List text" }).nth(1).fill("Two")
 
   await page.locator(`button:text-is("Save")`).click()
+
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(200)
 
   await page.goto("http://project-331.local/org/uh-cs")
 

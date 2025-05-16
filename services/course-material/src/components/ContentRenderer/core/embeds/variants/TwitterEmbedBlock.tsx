@@ -13,7 +13,7 @@ export const TwitterEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes
       <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
       `,
     ],
-    // eslint-disable-next-line i18next/no-literal-string
+
     { type: "text/html" },
   )
 

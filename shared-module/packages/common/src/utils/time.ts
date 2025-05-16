@@ -1,5 +1,4 @@
-/* eslint-disable i18next/no-literal-string */
-import { format } from "date-fns"
+import { format, formatDistanceToNow, parse } from "date-fns"
 import { toZonedTime } from "date-fns-tz"
 
 export const dateToString = (date: Date | string, timeZone = true): string => {
@@ -7,7 +6,7 @@ export const dateToString = (date: Date | string, timeZone = true): string => {
     const datePart = `${format(date, "yyyy-MM-dd HH:mm:ss")}`
     const timeZonePart = ` UTC${format(date, `xxx`)}`
     return datePart + (timeZone ? timeZonePart : "")
-  } catch (e) {
+  } catch (_e) {
     return "Invalid date"
   }
 }
@@ -15,7 +14,7 @@ export const dateToString = (date: Date | string, timeZone = true): string => {
 export const dateToDateTimeLocalString = (date: Date | string): string => {
   try {
     return `${format(date, "yyyy-MM-dd")}T${format(date, "HH:mm:ss")}`
-  } catch (e) {
+  } catch (_e) {
     return "Invalid date"
   }
 }
@@ -58,4 +57,27 @@ export const dateToUsersLocalTimeZone = (date: Date | string | null | undefined)
 
   const timeZone = getLocalTimeZone()
   return toZonedTime(date, timeZone)
+}
+
+/**
+ * Gets the localized month name for a given month number (1-12)
+ * @param month - Month number (1-12)
+ * @param locale - Locale string (e.g. 'en', 'fi')
+ * @returns Localized month name, falls back to English if locale not supported
+ */
+export const getLocalizedMonthName = (month: string | number, locale: string): string => {
+  const date = new Date(2024, Number(month) - 1, 1)
+  try {
+    return new Intl.DateTimeFormat(locale, { month: "long" }).format(date)
+  } catch {
+    // Fallback to English if locale not supported
+    return new Intl.DateTimeFormat("en", { month: "long" }).format(date)
+  }
+}
+
+export const relativeTimeFromTimestamp = (timestamp: string): string => {
+  const cleanTimestamp = timestamp.replace(/ UTC[+-]\d{2}:\d{2}/, "")
+  const parsedDate = parse(cleanTimestamp, "yyyy-MM-dd HH:mm:ss", new Date())
+
+  return formatDistanceToNow(parsedDate, { addSuffix: true })
 }

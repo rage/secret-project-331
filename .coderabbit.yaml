@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+reviews:
+  suggested_labels: true
+  auto_apply_labels: true
+  labeling_instructions:
+    - label: bug
+      instructions: Apply when the PR fixes a bug or regression, includes test changes that verify a fix, or references a bug in the title or description.
+    - label: feature
+      instructions: Apply when the PR adds new functionality, features, or capabilities.
+    - label: refactor
+      instructions: Apply when the PR restructures code without changing external behavior, such as simplifying logic or improving readability.
+    - label: test
+      instructions: Apply when the PR adds or updates tests, especially in test directories or files with `.spec.` or `.test.` in the name.
+    - label: docs
+      instructions: Apply when the PR modifies markdown, READMEs, or documentation content.
+    - label: chore
+      instructions: Apply when the PR makes non-functional changes like build updates, dependency bumps, or CI tweaks.
+  path_instructions:
+    - path: "system-tests/**/*"
+      instructions: >
+        For Playwright system tests, make sure each test that triggers a backend mutation (e.g., clicking a save button)
+        waits for a UI confirmation element that proves the request completed successfully before proceeding.
+        Otherwise, the test might continue before the operation finishes.
+
+        Also if someone navigates to a course page, and clicks continue on a dialog straight away, make sure its done with the
+        `selectCourseInstanceIfPrompted` function.
+
+    - path: "**/*.tsx"
+      instructions: >
+        Make sure to use the `useTranslation` hook for all text that is visible to the user.
+
+        If a component uses colors, use colors from the theme if possible. Example: import { baseTheme } from "@/shared-module/common/styles" ... background: ${baseTheme.colors.clear[100]};
+
+        If a component uses media queries, use the respondToOrLarger function. Example: import { respondToOrLarger } from "@/shared-module/common/styles/respond" ... ${respondToOrLarger.sm} { ... }
+
+        If component sends requests to server, use either useQuery, or useToastMutation hooks, or use hooks wrapping those hooks.
+
+        If there is a form of any kind, make sure it uses useForm from react-hook-form, and make sure the form is integrated with the useToastMutation and useQuery hooks.
+
+        For loading and error states, use the Spinner and ErrorBanner components from the shared module.

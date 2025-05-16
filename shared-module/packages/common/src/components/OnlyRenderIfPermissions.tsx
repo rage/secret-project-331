@@ -11,9 +11,12 @@ interface ComponentProps {
   elseRender?: React.ReactNode
 }
 
-const OnlyRenderIfPermissions: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<ComponentProps>>
-> = ({ action, resource, children, elseRender }) => {
+const OnlyRenderIfPermissions: React.FC<React.PropsWithChildren<ComponentProps>> = ({
+  action,
+  resource,
+  children,
+  elseRender,
+}) => {
   const loginState = useContext(LoginStateContext)
   const data = useQuery({
     queryKey: [

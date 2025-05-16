@@ -18,12 +18,14 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
   await page.getByRole("button", { name: "Open menu" }).click()
   await page.getByRole("button", { name: "Settings", exact: true }).click()
 
+  await page.getByText("Choose your preferred language").first().waitFor()
+  await page.getByRole("heading", { name: "Course settings" }).click()
+
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "course-lang-selection-eng-to-fi",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Choose your preferred language")],
   })
   const value = page.locator("#changeLanguage")
   await value?.selectOption({ label: "Suomi" })
@@ -55,7 +57,8 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
   const value1 = page.locator("#changeLanguage")
   await value1?.selectOption({ label: "English" })
   await page.getByText("Choose your preferred language").first().waitFor()
-
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(200)
   await page.getByText("Default").first().click()
   // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(200)

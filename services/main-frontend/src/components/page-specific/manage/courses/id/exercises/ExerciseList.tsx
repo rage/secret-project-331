@@ -4,9 +4,8 @@ import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import useCourseExercisesAndCountAnswersRequitingAttentionQuery from "../../../../../../hooks/useCourseExercisesAndCountAnswersRequitingAttentionQuery"
-import { useCourseStructure } from "../../../../../../hooks/useCourseStructure"
-
+import useCourseExercisesAndCountAnswersRequitingAttentionQuery from "@/hooks/useCourseExercisesAndCountAnswersRequitingAttentionQuery"
+import { useCourseStructure } from "@/hooks/useCourseStructure"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, fontWeights, monospaceFont, primaryFont } from "@/shared-module/common/styles"
@@ -37,7 +36,6 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
   )
 
   const chapters = courseStructure.data.chapters.sort((a, b) => a.chapter_number - b.chapter_number)
-  console.log
 
   return (
     <>

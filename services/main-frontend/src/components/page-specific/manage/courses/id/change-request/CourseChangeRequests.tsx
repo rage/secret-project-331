@@ -3,11 +3,11 @@ import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import createPendingChangeRequestCountHook from "../../../../../../hooks/count/usePendingChangeRequestCount"
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 
 import EditProposalList from "./EditProposalList"
 
+import createPendingChangeRequestCountHook from "@/hooks/count/usePendingChangeRequestCount"
 import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
 import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"
 import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/TabLinkPanel"
@@ -38,7 +38,7 @@ const ChangeRequestsPage: React.FC<React.PropsWithChildren<CourseManagementPages
       >
         {t("title-change-requests")}
       </h3>
-      {/* eslint-disable-next-line i18next/no-literal-string */}
+      {}
       <TabLinkNavigation>
         <TabLink
           url={{ pathname: router.pathname, query: { ...router.query, pending: true } }}

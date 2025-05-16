@@ -111,23 +111,22 @@ const DetailTag = styled.div`
 `
 
 export interface BannerExtraProps {
-  variant: "text" | "link" | "readOnly"
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  variant?: "text" | "link" | "readOnly"
   error: unknown | string
 }
 
 export type BannerProps = React.HTMLAttributes<HTMLDivElement> & BannerExtraProps
 
-const ErrorBanner: React.FC<React.PropsWithChildren<React.PropsWithChildren<BannerProps>>> = (
-  props,
-) => {
+const ErrorBanner: React.FC<React.PropsWithChildren<BannerProps>> = (props) => {
   const { t } = useTranslation()
 
-  const { error: unknownError } = props
+  // Default the variant to "text" if not provided
+  const { variant: __variant = "text", error: unknownError } = props
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const anyError = unknownError as any
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [error, setError] = useState<any>(undefined)
+
   useEffect(() => {
     if (typeof anyError === "object" && anyError !== null && anyError.data instanceof Blob) {
       const blob: Blob = anyError.data
@@ -147,7 +146,7 @@ const ErrorBanner: React.FC<React.PropsWithChildren<React.PropsWithChildren<Bann
   }, [anyError])
 
   if (error === undefined) {
-    // error data is blob and haven't read it yet, this should practically never be shown
+    // error data is blob and hasn't been read yet, this should practically never be shown
     return <Spinner variant="medium" />
   }
 
@@ -170,8 +169,7 @@ const ErrorBanner: React.FC<React.PropsWithChildren<React.PropsWithChildren<Bann
       let linkComponent = <></>
       if (isErrorData(errorData)) {
         const url = window.location.href.replace(location.hash, "")
-        // eslint-disable-next-line i18next/no-literal-string
-        linkComponent = <a href={`${url}#${errorData.block_id}`}>Go to error</a>
+        linkComponent = <a href={`${url}#${errorData.block_id}`}>{t("go-to-error")}</a>
       }
 
       return (

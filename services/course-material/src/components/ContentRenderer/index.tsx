@@ -1,7 +1,6 @@
 /* eslint-disable i18next/no-literal-string */
 import { css, cx } from "@emotion/css"
 import DOMPurify from "dompurify"
-import dynamic from "next/dynamic"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -72,19 +71,16 @@ import TableBox from "./moocfi/TableBox"
 import TerminologyBlock from "./moocfi/TerminologyBlock"
 import TopLevelPageBlock from "./moocfi/TopLevelPagesBlock/index"
 
-import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
 import { BreakFromCenteredDisabledContext } from "@/shared-module/common/components/Centering/BreakFromCentered"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import { baseTheme } from "@/shared-module/common/styles"
 import { linkWithExtraIconClass } from "@/shared-module/common/styles/constants"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 /** The props that this component receives */
 export interface ContentRendererProps {
   data: Block<unknown>[]
-  editing: boolean
-  selectedBlockId: string | null
-  setEdits: React.Dispatch<React.SetStateAction<Map<string, NewProposedBlockEdit>>>
   isExam: boolean
   /// This wrapper div providing styles must be skipped for innerblocks because list block's inner blocks cannot contain any div elements. See: https://dequeuniversity.com/rules/axe/4.4/list
   dontAddWrapperDivMeantForMostOutermostContentRenderer?: boolean
@@ -103,7 +99,7 @@ export type BlockRendererProps<T> = {
   wrapperClassName?: string
 } & Omit<ContentRendererProps, "data">
 
-const LatexBlock = dynamic(() => import("./moocfi/LatexBlock"))
+const LatexBlock = dynamicImport(() => import("./moocfi/LatexBlock"))
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const blockToRendererMap: { [blockName: string]: any } = {
@@ -196,16 +192,21 @@ const defaultBlockMargin = css`
   margin: ${COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM}rem 0;
 `
 
-const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> = (props) => {
+const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> = ({
+  data,
+  isExam,
+  dontAddWrapperDivMeantForMostOutermostContentRenderer,
+  dontAllowBlockToBeWiderThanContainerWidth = true,
+}) => {
   const highlightBlocks = useQueryParameter("highlight-blocks")
     .split(",")
     .filter((id) => id !== "")
   const { t } = useTranslation()
-  if (props.data.constructor !== Array) {
+  if (data.constructor !== Array) {
     return (
       <div>
         <p>{t("error-page-data-in-invalid-format")}</p>
-        <pre>{JSON.stringify(props.data, undefined, 2)}</pre>
+        <pre>{JSON.stringify(data, undefined, 2)}</pre>
       </div>
     )
   }
@@ -249,7 +250,7 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
 
   const content = (
     <>
-      {props.data.map((block) => {
+      {data.map((block) => {
         const Component = blockToRendererMap[block.name] ?? DefaultBlock
         const isHighlighted = highlightBlocks.includes(block.clientId)
         const dontUseDefaultBlockMargin = Component.dontUseDefaultBlockMargin === true
@@ -269,14 +270,9 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
               key={block.clientId}
               id={block.clientId}
               data={block}
-              editing={props.editing}
-              selectedBlockId={props.selectedBlockId}
-              setEdits={props.setEdits}
-              isExam={props.isExam}
+              isExam={isExam}
               wrapperClassName={wrapperClassName}
-              dontAllowBlockToBeWiderThanContainerWidth={
-                props.dontAllowBlockToBeWiderThanContainerWidth
-              }
+              dontAllowBlockToBeWiderThanContainerWidth={dontAllowBlockToBeWiderThanContainerWidth}
             />
           )
         }
@@ -286,14 +282,9 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
             <Component
               id={block.clientId}
               data={block}
-              editing={props.editing}
-              selectedBlockId={props.selectedBlockId}
-              setEdits={props.setEdits}
-              isExam={props.isExam}
+              isExam={isExam}
               wrapperClassName={wrapperClassName}
-              dontAllowBlockToBeWiderThanContainerWidth={
-                props.dontAllowBlockToBeWiderThanContainerWidth
-              }
+              dontAllowBlockToBeWiderThanContainerWidth={dontAllowBlockToBeWiderThanContainerWidth}
             />
           </div>
         )
@@ -301,19 +292,15 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
     </>
   )
 
-  if (props.dontAddWrapperDivMeantForMostOutermostContentRenderer) {
+  if (dontAddWrapperDivMeantForMostOutermostContentRenderer) {
     return (
-      <BreakFromCenteredDisabledContext.Provider
-        value={props.dontAllowBlockToBeWiderThanContainerWidth ?? false}
-      >
+      <BreakFromCenteredDisabledContext.Provider value={dontAllowBlockToBeWiderThanContainerWidth}>
         {content}
       </BreakFromCenteredDisabledContext.Provider>
     )
   }
   return (
-    <BreakFromCenteredDisabledContext.Provider
-      value={props.dontAllowBlockToBeWiderThanContainerWidth ?? false}
-    >
+    <BreakFromCenteredDisabledContext.Provider value={dontAllowBlockToBeWiderThanContainerWidth}>
       <div
         className={css`
           font-size: 20px;
@@ -330,6 +317,19 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
             &:visited {
               color: #8050f2;
             }
+          }
+
+          /* Styling for inline code elements */
+          code:not(pre code) {
+            background: #e5e5e5;
+            padding: 0 0.4rem 0.2rem 0.4rem;
+            border-radius: 3px;
+          }
+
+          /* Styling for highlighted text */
+          mark {
+            padding: 0 0.4rem 0.2rem 0.4rem;
+            border-radius: 3px;
           }
         `}
       >

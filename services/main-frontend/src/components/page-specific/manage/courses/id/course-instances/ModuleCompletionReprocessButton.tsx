@@ -26,7 +26,7 @@ const ModuleCompletionReprocessButton: React.FC<
   return (
     <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
       <Button
-        variant="primary"
+        variant="secondary"
         size="medium"
         onClick={() => {
           if (confirm(t("message-are-you-sure-you-want-to-reprocess-submissions"))) {

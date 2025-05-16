@@ -137,12 +137,10 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
         }
 
         if (pageState.refetchPage) {
-          // eslint-disable-next-line i18next/no-literal-string
           console.info("Refetching page because the course instance has changed")
           await pageState.refetchPage()
         } else {
           console.warn(
-            // eslint-disable-next-line i18next/no-literal-string
             "No refetching the page because there's no refetchPage function in the page context.",
           )
         }

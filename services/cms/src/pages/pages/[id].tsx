@@ -1,6 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import dynamic from "next/dynamic"
-import React, { useState } from "react"
+import { useState } from "react"
 
 import PageContext from "../../contexts/PageContext"
 import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"
@@ -14,18 +13,14 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface PagesProps {
   query: SimplifiedUrlQuery<"id">
 }
 
-const EditorLoading = <Spinner variant="medium" />
-
-const PageEditor = dynamic(() => import("../../components/editors/PageEditor"), {
-  ssr: false,
-  loading: () => EditorLoading,
-})
+const PageEditor = dynamicImport(() => import("../../components/editors/PageEditor"))
 
 const Pages = ({ query }: PagesProps) => {
   const { id } = query

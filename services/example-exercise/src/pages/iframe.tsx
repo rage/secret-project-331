@@ -66,14 +66,12 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
             grading: messageData.data.grading,
           })
         } else {
-          // eslint-disable-next-line i18next/no-literal-string
           console.error("Unknown view type received from parent")
         }
       })
     } else if (isSetLanguageMessage(messageData)) {
       i18n.changeLanguage(messageData.data)
     } else {
-      // eslint-disable-next-line i18next/no-literal-string
       console.error("Frame received an unknown message from message port")
     }
   })

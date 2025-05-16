@@ -1,8 +1,9 @@
 use crate::{domain::models_requests, prelude::*};
-use headless_lms_models::exercise_slide_submissions::ExerciseSlideSubmissionInfo;
+use headless_lms_models::{
+    exercise_slide_submissions::ExerciseSlideSubmissionInfo, library::user_exercise_state_updater,
+};
 use models::{
     exercises::get_exercise_by_id,
-    library::user_exercise_state_updater,
     teacher_grading_decisions::{
         NewTeacherGradingDecision, TeacherDecisionType, TeacherGradingDecision,
     },
@@ -218,12 +219,11 @@ async fn add_teacher_grading(
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{submission_id}/info", web::get().to(get_submission_info))
         .route(
-            "/update-answer-requiring-attention",
-            web::put().to(update_answer_requiring_attention),
-        )
-        .route(
             "/{exam_id}/user-exercise-state-info",
             web::get().to(get_user_exercise_state_info),
         )
-        .route("/add-teacher-grading", web::put().to(add_teacher_grading));
+        .route(
+            "/add-teacher-grading-for-exam-submission",
+            web::put().to(add_teacher_grading),
+        );
 }

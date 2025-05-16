@@ -17,7 +17,6 @@ interface Props {
   port: MessagePort
 }
 
-// eslint-disable-next-line i18next/no-literal-string
 const ButtonWrapper = styled.div`
   padding: 1rem 0;
 `

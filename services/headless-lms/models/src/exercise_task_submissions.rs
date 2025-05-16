@@ -572,6 +572,7 @@ WHERE exercise_slide_submission_id IN (
     FROM exercise_slide_submissions
     WHERE exercise_id = $1
 )
+AND deleted_at IS NULL
 ",
         &exercise_id
     )

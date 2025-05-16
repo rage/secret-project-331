@@ -8,10 +8,82 @@ RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 run_command cd "$RELATIVE_PATH" || exit
 
 VERSION=$(head -n1 ./src/tmc/cli.d.ts | cut -d= -f2)
-LANGS_FILENAME="tmc-langs-cli-x86_64-unknown-linux-gnu-$VERSION"
+
+# Detect system architecture
+ARCH=""
+case "$OSTYPE" in
+    "linux-gnu"*)
+        case "$(uname -m)" in
+            "x86_64")
+                ARCH="x86_64-unknown-linux-gnu"
+                ;;
+            "i686")
+                ARCH="i686-unknown-linux-gnu"
+                ;;
+            "aarch64")
+                ARCH="aarch64-unknown-linux-gnu"
+                ;;
+            "armv7l")
+                ARCH="armv7-unknown-linux-gnueabihf"
+                ;;
+            *)
+                echo "Unsupported Linux architecture: $(uname -m)"
+                exit 1
+                ;;
+        esac
+        ;;
+    "darwin"*)
+        case "$(uname -m)" in
+            "x86_64")
+                ARCH="x86_64-apple-darwin"
+                ;;
+            "arm64")
+                ARCH="aarch64-apple-darwin"
+                ;;
+            *)
+                echo "Unsupported macOS architecture: $(uname -m)"
+                exit 1
+                ;;
+        esac
+        ;;
+    "msys"*|"cygwin"*)
+        # For Windows, we can use the PROCESSOR_ARCHITECTURE environment variable
+        case "$PROCESSOR_ARCHITECTURE" in
+            "AMD64")
+                ARCH="x86_64-pc-windows-msvc"
+                ;;
+            "x86")
+                ARCH="i686-pc-windows-msvc"
+                ;;
+            *)
+                echo "Unsupported Windows architecture: $PROCESSOR_ARCHITECTURE"
+                exit 1
+                ;;
+        esac
+        ;;
+    *)
+        echo "Unsupported OS type: $OSTYPE"
+        exit 1
+        ;;
+esac
+
+if [ -z "$ARCH" ]; then
+    echo "Could not determine architecture"
+    exit 1
+fi
+
+# Set file extension based on OS
+EXT=""
+case "$OSTYPE" in
+    "msys"*|"cygwin"*)
+        EXT=".exe"
+        ;;
+esac
+
+LANGS_FILENAME="tmc-langs-cli-$ARCH-$VERSION$EXT"
 LANGS_PATH="./bin/$LANGS_FILENAME"
 
-echo "Setup TMC langs version: $VERSION"
+echo "Setup TMC langs version: $VERSION for architecture: $ARCH"
 
 echo "Removing old CLI versions if any"
 run_command mkdir -p ./bin

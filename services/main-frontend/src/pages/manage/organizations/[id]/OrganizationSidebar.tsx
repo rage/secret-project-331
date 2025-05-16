@@ -25,13 +25,17 @@ const OrganizationSidebar: React.FC = () => {
           position: absolute;
           top: 27px;
           right: -12px;
-          width: 23px;
-          height: 23px;
+          width: 24px;
+          height: 24px;
           border: 1px solid #afafaf;
+          border-radius: 50%;
           background: #fff;
           font-size: 14px;
           line-height: 0;
           cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         `}
       >
         {isOpen ? "<" : ">"}
@@ -67,12 +71,20 @@ const OrganizationSidebar: React.FC = () => {
 }
 
 const menuItemStyle = css`
+  height: 36px;
   background: #e5e8ed;
-  padding: 8px 12px;
-  border-radius: 2px;
-  margin-bottom: 0.75rem;
-  font-weight: 400;
+  border-radius: 2px 2px 0 0;
+  display: flex;
+  align-items: center;
+  padding-left: 12px;
+  font-family: Inter;
+  font-size: 14px;
+  color: #1a2333;
   cursor: pointer;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid #e5e8ed;
+  }
 `
 
 export default OrganizationSidebar

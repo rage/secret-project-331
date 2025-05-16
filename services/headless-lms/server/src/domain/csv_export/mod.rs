@@ -359,10 +359,10 @@ mod test {
         )
         .await
         .unwrap();
-        submit_and_grade(tx.as_mut(), exercise, slide, task, user, instance.id, 12.34).await;
-        submit_and_grade(tx.as_mut(), e2, s2, et2, user, instance.id, 23.45).await;
-        submit_and_grade(tx.as_mut(), e2, s2, et2, u2, instance.id, 34.56).await;
-        submit_and_grade(tx.as_mut(), e3, s3, et3, u2, instance.id, 45.67).await;
+        submit_and_grade(tx.as_mut(), exercise, slide, task, user, course, 12.34).await;
+        submit_and_grade(tx.as_mut(), e2, s2, et2, user, course, 23.45).await;
+        submit_and_grade(tx.as_mut(), e2, s2, et2, u2, course, 34.56).await;
+        submit_and_grade(tx.as_mut(), e3, s3, et3, u2, course, 45.67).await;
 
         let buf = vec![];
         let buf = export_course_instance_points(tx.as_mut(), instance.id, buf)
@@ -396,27 +396,32 @@ mod test {
         ex_slide: Uuid,
         et: Uuid,
         u: Uuid,
-        ci: Uuid,
+        course_id: Uuid,
         score_given: f32,
     ) {
         let exercise = exercises::get_by_id(tx, ex).await.unwrap();
-        user_exercise_states::get_or_create_user_exercise_state(tx, u, ex, Some(ci), None)
+        user_exercise_states::get_or_create_user_exercise_state(tx, u, ex, Some(course_id), None)
             .await
             .unwrap();
         user_exercise_states::upsert_selected_exercise_slide_id(
             tx,
             u,
             ex,
-            Some(ci),
+            Some(course_id),
             None,
             Some(ex_slide),
         )
         .await
         .unwrap();
-        let user_exercise_state =
-            user_exercise_states::get_or_create_user_exercise_state(tx, u, ex, Some(ci), None)
-                .await
-                .unwrap();
+        let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
+            tx,
+            u,
+            ex,
+            Some(course_id),
+            None,
+        )
+        .await
+        .unwrap();
         let mut exercise_with_user_state =
             ExerciseWithUserState::new(exercise, user_exercise_state).unwrap();
         let jwt_key = Arc::new(JwtKey::test_key());

@@ -422,7 +422,7 @@ pub async fn submit_and_grade(
         conn,
         user_id,
         exercise_id,
-        Some(course_instance_id),
+        Some(course_id),
         None,
     )
     .await?;
@@ -431,7 +431,7 @@ pub async fn submit_and_grade(
         conn,
         user_id,
         exercise_id,
-        Some(course_instance_id),
+        Some(course_id),
         None,
         Some(exercise_slide_id),
     )

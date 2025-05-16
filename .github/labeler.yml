@@ -1,57 +1,74 @@
 root:
-  - "*"
+  - changed-files:
+      - any-glob-to-any-file: "*"
 
 docs:
-  - docs/**/*
+  - changed-files:
+      - any-glob-to-any-file: "docs/**/*"
 
 shared-module:
-  - shared-module/**/*
+  - changed-files:
+      - any-glob-to-any-file: "shared-module/**/*"
 
 system-tests:
-  - system-tests/**/*
+  - changed-files:
+      - any-glob-to-any-file: "system-tests/**/*"
 
 cms:
-  - services/cms/**/*
+  - changed-files:
+      - any-glob-to-any-file: "services/cms/**/*"
 
 course-material:
-  - services/course-material/**/*
+  - changed-files:
+      - any-glob-to-any-file: "services/course-material/**/*"
 
 example-exercise:
-  - services/example-exercise/**/*
+  - changed-files:
+      - any-glob-to-any-file: "services/example-exercise/**/*"
 
 headless-lms:
-  - services/headless-lms/**/*
+  - changed-files:
+      - any-glob-to-any-file: "services/headless-lms/**/*"
 
 seed:
-  - services/headless-lms/server/src/programs/seed/**/*
+  - changed-files:
+      - any-glob-to-any-file: "services/headless-lms/server/src/programs/seed/**/*"
 
 db-migrations:
-  - services/headless-lms/migrations/**/*
+  - changed-files:
+      - any-glob-to-any-file: "services/headless-lms/migrations/**/*"
 
 main-frontend:
-  - services/main-frontend/**/*
+  - changed-files:
+      - any-glob-to-any-file: "services/main-frontend/**/*"
 
 quizzes:
-  - services/quizzes/**/*
+  - changed-files:
+      - any-glob-to-any-file: "services/quizzes/**/*"
 
 tmc:
-  - services/tmc/**/*
+  - changed-files:
+      - any-glob-to-any-file: "services/tmc/**/*"
 
 sqlx-data:
-  - services/headless-lms/models/sqlx-data.json
+  - changed-files:
+      - any-glob-to-any-file: "services/headless-lms/models/sqlx-data.json"
 
 deployments:
-  - skaffold.yaml
-  - skaffold.production.yaml
-  - "**/Dockerfile"
-  - "**/*.dockerfile"
-  - kubernetes/**/*
+  - changed-files:
+      - any-glob-to-any-file: "skaffold.yaml"
+      - any-glob-to-any-file: "skaffold.production.yaml"
+      - any-glob-to-any-file: "**/Dockerfile"
+      - any-glob-to-any-file: "**/*.dockerfile"
+      - any-glob-to-any-file: "kubernetes/**/*"
 
 scripts:
-  - bin/**/*
+  - changed-files:
+      - any-glob-to-any-file: "bin/**/*"
 
 dependencies:
-  - "**/package.json"
-  - "**/package.lock.json"
-  - "**/Cargo.lock"
-  - "**/Cargo.toml"
+  - changed-files:
+      - any-glob-to-any-file: "**/package.json"
+      - any-glob-to-any-file: "**/package.lock.json"
+      - any-glob-to-any-file: "**/Cargo.lock"
+      - any-glob-to-any-file: "**/Cargo.toml"

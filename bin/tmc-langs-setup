@@ -82,6 +82,8 @@ esac
 
 LANGS_FILENAME="tmc-langs-cli-$ARCH-$VERSION$EXT"
 LANGS_PATH="./bin/$LANGS_FILENAME"
+CHECKSUM_FILENAME="$LANGS_FILENAME.sha256"
+CHECKSUM_PATH="./bin/$CHECKSUM_FILENAME"
 
 echo "Setup TMC langs version: $VERSION for architecture: $ARCH"
 
@@ -89,6 +91,48 @@ echo "Removing old CLI versions if any"
 run_command mkdir -p ./bin
 run_command find ./bin -maxdepth 1 -type f -name 'tmc-langs-cli-*' -delete
 
+verify_checksum() {
+    local file=$1
+    local checksum_file=$2
+
+    case "$OSTYPE" in
+        "msys"*|"cygwin"*)
+            # Windows: Use PowerShell's Get-FileHash
+            local expected_hash
+            local actual_hash
+            expected_hash=$(cat "$checksum_file")
+            actual_hash=$(powershell -Command "(Get-FileHash -Path '$file' -Algorithm SHA256).Hash")
+            [ "$expected_hash" = "$actual_hash" ]
+            ;;
+        *)
+            # Linux/macOS: Use sha256sum
+            sha256sum --status -c "$checksum_file"
+            ;;
+    esac
+}
+
+# Check if file exists and verify checksum
+if [ -f "$LANGS_PATH" ] && [ -f "$CHECKSUM_PATH" ]; then
+    echo "Found existing CLI binary, verifying checksum..."
+    if verify_checksum "$LANGS_PATH" "$CHECKSUM_PATH"; then
+        echo "Checksum verified, skipping download"
+        run_command chmod +x "$LANGS_PATH"
+        exit 0
+    else
+        echo "Checksum verification failed, will download again"
+    fi
+fi
+
 echo "Downloading CLI to $LANGS_PATH"
 run_command curl "https://download.mooc.fi/tmc-langs-rust/${LANGS_FILENAME}" --output "$LANGS_PATH"
+
+echo "Downloading checksum"
+run_command curl "https://download.mooc.fi/tmc-langs-rust/${CHECKSUM_FILENAME}" --output "$CHECKSUM_PATH"
+
+echo "Verifying checksum"
+if ! verify_checksum "$LANGS_PATH" "$CHECKSUM_PATH"; then
+    echo "Checksum verification failed"
+    exit 1
+fi
+
 run_command chmod +x "$LANGS_PATH"

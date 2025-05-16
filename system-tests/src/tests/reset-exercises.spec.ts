@@ -39,6 +39,8 @@ test("Can manually reset exercises", async () => {
   await student1Page.getByRole("button", { name: "Submit" }).click()
   await student1Page.getByRole("button", { name: "Try again" }).waitFor({ state: "visible" })
 
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await student1Page.waitForTimeout(100)
   await student1Page.getByRole("link", { name: "Next page: Page" }).click()
   await student1Page.getByText("Everything is a big topic.").waitFor({ state: "hidden" })
   await student1Page

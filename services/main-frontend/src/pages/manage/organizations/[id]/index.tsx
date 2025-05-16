@@ -6,6 +6,8 @@ import { useTranslation } from "react-i18next"
 import OrganizationImageWidget from "../../../../components/page-specific/org/organizationSlug/OrganizationImageWidget"
 import { fetchOrganization } from "../../../../services/backend/organizations"
 
+import OrganizationSidebar from "./OrganizationSidebar"
+
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -48,10 +50,17 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
   return (
     <div
       className={css`
-        margin-bottom: 1rem;
+        display: flex;
       `}
     >
-      {contents}
+      <OrganizationSidebar />
+      <div
+        className={css`
+          flex-grow: 1;
+        `}
+      >
+        {contents}
+      </div>
     </div>
   )
 }

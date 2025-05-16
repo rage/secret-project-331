@@ -294,12 +294,12 @@ pub async fn get_course_material_peer_or_self_review_data(
     .await?;
 
     let user_exercise_state = match instance_or_exam_id {
-        Some(course_instance_or_exam_id) => {
+        Some(course_or_exam_id) => {
             user_exercise_states::get_user_exercise_state_if_exists(
                 conn,
                 user_id,
                 exercise.id,
-                course_instance_or_exam_id,
+                course_or_exam_id,
             )
             .await?
         }

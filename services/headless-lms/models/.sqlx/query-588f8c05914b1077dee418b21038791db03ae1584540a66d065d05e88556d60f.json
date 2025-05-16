@@ -110,7 +110,18 @@
       }
     ],
     "parameters": {
-      "Left": ["Varchar", "Text", "Bool", "Bool", "Bool", "Bool", "Bool", "Bool", "Int4", "Uuid"]
+      "Left": [
+        "Varchar",
+        "Text",
+        "Bool",
+        "Bool",
+        "Bool",
+        "Bool",
+        "Bool",
+        "Bool",
+        "Int4",
+        "Uuid"
+      ]
     },
     "nullable": [
       false,

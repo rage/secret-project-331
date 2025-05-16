@@ -3,9 +3,10 @@
 use futures::future;
 
 use headless_lms_models::exercises::Exercise;
+use headless_lms_models::CourseOrExamId;
 use models::{
     exercise_slide_submissions::ExerciseSlideSubmission,
-    library::grading::AnswersRequiringAttention, CourseOrExamId,
+    library::grading::AnswersRequiringAttention,
 };
 
 use crate::{domain::models_requests, prelude::*};

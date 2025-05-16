@@ -4,7 +4,6 @@ use crate::{
     course_modules,
     pages::{PageMetadata, PageWithExercises},
     prelude::*,
-    user_exercise_states::get_user_course_instance_chapter_metrics,
 };
 use headless_lms_utils::{
     file_store::FileStore, numbers::option_f32_to_f32_two_decimals_with_none_as_zero,
@@ -487,14 +486,20 @@ pub async fn get_user_course_instance_chapter_progress(
     chapter_id: Uuid,
     user_id: Uuid,
 ) -> ModelResult<UserCourseInstanceChapterProgress> {
+    let course_instance =
+        crate::course_instances::get_course_instance(conn, course_instance_id).await?;
     let mut exercises = crate::exercises::get_exercises_by_chapter_id(conn, chapter_id).await?;
 
     let exercise_ids: Vec<Uuid> = exercises.iter_mut().map(|e| e.id).collect();
     let score_maximum: i32 = exercises.into_iter().map(|e| e.score_maximum).sum();
 
-    let user_chapter_metrics =
-        get_user_course_instance_chapter_metrics(conn, course_instance_id, &exercise_ids, user_id)
-            .await?;
+    let user_chapter_metrics = crate::user_exercise_states::get_user_course_chapter_metrics(
+        conn,
+        course_instance.course_id,
+        &exercise_ids,
+        user_id,
+    )
+    .await?;
 
     let result = UserCourseInstanceChapterProgress {
         score_given: option_f32_to_f32_two_decimals_with_none_as_zero(

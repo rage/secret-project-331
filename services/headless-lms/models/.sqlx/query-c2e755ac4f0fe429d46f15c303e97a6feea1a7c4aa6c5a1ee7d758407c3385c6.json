@@ -18,13 +18,21 @@
           "Custom": {
             "name": "grading_progress",
             "kind": {
-              "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+              "Enum": [
+                "fully-graded",
+                "pending",
+                "pending-manual",
+                "failed",
+                "not-ready"
+              ]
             }
           }
         }
       ]
     },
-    "nullable": [false]
+    "nullable": [
+      false
+    ]
   },
   "hash": "c2e755ac4f0fe429d46f15c303e97a6feea1a7c4aa6c5a1ee7d758407c3385c6"
 }

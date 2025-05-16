@@ -38,9 +38,22 @@ impl CertificateAllRequirements {
     ) -> ModelResult<bool> {
         let all_users_completions =
             crate::course_module_completions::get_all_by_user_id(conn, user_id).await?;
-        let all_completed_course_instance_ids = all_users_completions
+        let all_completed_course_ids = all_users_completions
             .iter()
-            .map(|o| o.course_instance_id)
+            .filter(|o| o.passed)
+            .map(|o| o.course_id)
+            .collect::<Vec<_>>();
+        let all_settings =
+            crate::user_course_settings::get_all_by_user_and_multiple_current_courses(
+                conn,
+                &all_completed_course_ids,
+                user_id,
+            )
+            .await?;
+
+        let all_completed_course_instance_ids = all_settings
+            .iter()
+            .map(|o| o.current_course_instance_id)
             .collect::<Vec<_>>();
         let all_completed_course_module_ids = all_users_completions
             .iter()

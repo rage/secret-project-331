@@ -78,12 +78,9 @@ JOIN users u
   ON u.id = ud.user_id
 JOIN user_exercise_states ues
   ON ud.user_id = ues.user_id
-JOIN course_instances ci
-  ON ci.id = ues.course_instance_id
-WHERE ci.course_id = $1
+WHERE ues.course_id = $1
   AND u.deleted_at IS NULL
   AND ues.deleted_at IS NULL
-  AND ci.deleted_at IS NULL;
         ",
         course_id
     )

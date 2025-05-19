@@ -23,7 +23,7 @@ const OrganizationSidebar: React.FC = () => {
         onClick={() => setIsOpen(!isOpen)}
         className={css`
           position: absolute;
-          top: 27px;
+          top: 60px;
           right: -12px;
           width: 24px;
           height: 24px;

@@ -20,6 +20,7 @@ use headless_lms_chatbot::{
         run_search_indexer_now,
     },
     azure_skillset::{create_skillset, does_skillset_exist},
+    content_cleaner::convert_material_blocks_to_markdown_with_llm,
 };
 use headless_lms_models::{
     page_history::PageHistory,
@@ -188,7 +189,16 @@ async fn sync_pages(
 
         let pages = headless_lms_models::pages::get_by_ids(conn, &page_ids).await?;
 
-        sync_pages_batch(conn, &pages, &latest_histories, blob_client, &base_url).await?;
+        sync_pages_batch(
+            conn,
+            &pages,
+            &latest_histories,
+            blob_client,
+            &base_url,
+            &config.app_configuration,
+        )
+        .await?;
+
         delete_old_files(conn, *course_id, blob_client).await?;
 
         run_search_indexer_now(&index_name, &config.app_configuration).await?;
@@ -231,6 +241,7 @@ async fn sync_pages_batch(
     latest_histories: &HashMap<Uuid, PageHistory>,
     blob_client: &AzureBlobClient,
     base_url: &Url,
+    app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<()> {
     let course_id = pages
         .first()
@@ -256,6 +267,24 @@ async fn sync_pages_batch(
         let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page.content.clone())?;
         let sanitized_content = remove_sensitive_attributes(parsed_content);
         let content_string = serde_json::to_string(&sanitized_content)?;
+
+        // Clean the content using LLM utility function
+        let content_to_upload = match convert_material_blocks_to_markdown_with_llm(
+            &content_string,
+            app_config,
+        )
+        .await
+        {
+            Ok(markdown) => {
+                info!("Successfully cleaned content for page {}", page.id);
+                markdown
+            }
+            Err(e) => {
+                warn!("Failed to clean content with LLM for page {}: {}. Using sanitized content instead.", page.id, e);
+                content_string // Fallback to original content
+            }
+        };
+
         let blob_path = generate_blob_path(page)?;
 
         allowed_file_paths.push(blob_path.clone());
@@ -264,7 +293,7 @@ async fn sync_pages_batch(
         metadata.insert("title".to_string(), page.title.to_string().into());
 
         if let Err(e) = blob_client
-            .upload_file(&blob_path, content_string.as_bytes(), Some(metadata))
+            .upload_file(&blob_path, content_to_upload.as_bytes(), Some(metadata))
             .await
         {
             warn!("Failed to upload file {}: {:?}", blob_path, e);

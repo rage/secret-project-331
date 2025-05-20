@@ -265,12 +265,11 @@ async fn sync_pages_batch(
         info!("Syncing page id: {}.", page.id);
 
         let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page.content.clone())?;
-        let sanitized_content = remove_sensitive_attributes(parsed_content);
-        let content_string = serde_json::to_string(&sanitized_content)?;
+        let sanitized_blocks = remove_sensitive_attributes(parsed_content);
 
-        // Clean the content using LLM utility function
+        // Clean the content using LLM utility function with block processing support
         let content_to_upload = match convert_material_blocks_to_markdown_with_llm(
-            &content_string,
+            &sanitized_blocks,
             app_config,
         )
         .await
@@ -280,8 +279,9 @@ async fn sync_pages_batch(
                 markdown
             }
             Err(e) => {
-                warn!("Failed to clean content with LLM for page {}: {}. Using sanitized content instead.", page.id, e);
-                content_string // Fallback to original content
+                warn!("Failed to clean content with LLM for page {}: {}. Using serialized sanitized content instead.", page.id, e);
+                // Fallback to original content
+                serde_json::to_string(&sanitized_blocks)?
             }
         };
 

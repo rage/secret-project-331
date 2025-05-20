@@ -7,10 +7,21 @@ use serde::{Deserialize, Serialize};
 // API version for Azure OpenAI calls
 pub const LLM_API_VERSION: &str = "2024-06-01";
 
+/// Role of a message in a conversation
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum MessageRole {
+    #[serde(rename = "system")]
+    System,
+    #[serde(rename = "user")]
+    User,
+    #[serde(rename = "assistant")]
+    Assistant,
+}
+
 /// Common message structure used for LLM requests
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Message {
-    pub role: String,
+    pub role: MessageRole,
     pub content: String,
 }
 

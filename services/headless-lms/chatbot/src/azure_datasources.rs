@@ -44,7 +44,6 @@ pub async fn does_azure_datasource_exist(
 pub async fn create_azure_datasource(
     datasource_name: &str,
     container_name: &str,
-    query: &str,
     app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<()> {
     // Retrieve Azure configurations from the application configuration
@@ -71,7 +70,6 @@ pub async fn create_azure_datasource(
         "type": "azureblob",
         "container": {
             "name": container_name,
-            "query": query,
         },
         "credentials": {
             "connectionString": connection_string,

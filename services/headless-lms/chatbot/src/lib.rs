@@ -6,5 +6,7 @@ pub mod azure_datasources;
 pub mod azure_search_index;
 pub mod azure_search_indexer;
 pub mod azure_skillset;
+pub mod content_cleaner;
+pub mod llm_utils;
 
 pub(crate) mod prelude;

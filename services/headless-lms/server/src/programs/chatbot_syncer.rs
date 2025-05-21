@@ -151,6 +151,21 @@ async fn sync_pages(
         )
         .await?;
 
+    let shared_index_name = format!("{}-all-courses", config.name_prefix);
+    ensure_search_index_exists(
+        &shared_index_name,
+        &config.app_configuration,
+        &blob_client.container_name,
+    )
+    .await?;
+
+    if !check_search_indexer_status(&shared_index_name, &config.app_configuration).await? {
+        warn!("Search indexer is not ready to index. Skipping synchronization.");
+        return Ok(());
+    }
+
+    let mut any_changes = false;
+
     for (course_id, statuses) in sync_statuses.iter() {
         let outdated_statuses: Vec<_> = statuses
             .iter()
@@ -165,6 +180,7 @@ async fn sync_pages(
             continue;
         }
 
+        any_changes = true;
         info!(
             "Syncing {} pages for course id: {}.",
             outdated_statuses.len(),
@@ -172,21 +188,6 @@ async fn sync_pages(
         );
 
         let page_ids: Vec<Uuid> = outdated_statuses.iter().map(|s| s.page_id).collect();
-
-        let index_name = format!("{}-{}", config.name_prefix, course_id);
-        ensure_search_index_exists(
-            &index_name,
-            *course_id,
-            &config.app_configuration,
-            &blob_client.container_name,
-        )
-        .await?;
-
-        if !check_search_indexer_status(&index_name, &config.app_configuration).await? {
-            warn!("Search indexer is not ready to index. Skipping synchronization.");
-            return Ok(());
-        }
-
         let pages = headless_lms_models::pages::get_by_ids(conn, &page_ids).await?;
 
         sync_pages_batch(
@@ -200,12 +201,13 @@ async fn sync_pages(
         .await?;
 
         delete_old_files(conn, *course_id, blob_client).await?;
+    }
 
-        run_search_indexer_now(&index_name, &config.app_configuration).await?;
-        info!(
-            "New files have been synced and the search indexer has been started for course id: {}.",
-            course_id
-        );
+    if any_changes {
+        run_search_indexer_now(&shared_index_name, &config.app_configuration).await?;
+        info!("New files have been synced and the search indexer has been started.");
+    } else {
+        info!("No changes were made, skipping search indexer run.");
     }
 
     Ok(())
@@ -214,7 +216,6 @@ async fn sync_pages(
 /// Ensures that the specified search index exists, creating it if necessary.
 async fn ensure_search_index_exists(
     name: &str,
-    course_id: Uuid,
     app_config: &ApplicationConfiguration,
     container_name: &str,
 ) -> anyhow::Result<()> {
@@ -225,7 +226,7 @@ async fn ensure_search_index_exists(
         create_skillset(name, name, app_config).await?;
     }
     if !does_azure_datasource_exist(name, app_config).await? {
-        create_azure_datasource(name, container_name, &course_id.to_string(), app_config).await?;
+        create_azure_datasource(name, container_name, app_config).await?;
     }
     if !does_search_indexer_exist(name, app_config).await? {
         create_search_indexer(name, name, name, name, app_config).await?;
@@ -325,7 +326,7 @@ fn generate_blob_path(page: &Page) -> anyhow::Result<String> {
         url_path = "index".to_string();
     }
 
-    Ok(format!("{}/{}.json", course_id, url_path))
+    Ok(format!("courses/{}/{}.json", course_id, url_path))
 }
 
 /// Deletes files from blob storage that are no longer associated with any page.

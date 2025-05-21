@@ -3,12 +3,11 @@ use serde_json::json;
 
 const API_VERSION: &str = "2024-07-01";
 
-/// For parsing indexer status.
 #[derive(Debug, Deserialize)]
 struct IndexerStatusResponse {
     pub status: String,
     #[serde(rename = "lastResult")]
-    pub last_result: Option<LastResult>, // Changed to optional
+    pub last_result: Option<LastResult>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -82,7 +81,6 @@ pub async fn create_search_indexer(
     target_index_name: &str,
     app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<()> {
-    // Retrieve Azure configurations from the application configuration
     let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
         anyhow::anyhow!("Azure configuration is missing from the application configuration")
     })?;
@@ -91,12 +89,10 @@ pub async fn create_search_indexer(
         anyhow::anyhow!("Azure search configuration is missing from the Azure configuration")
     })?;
 
-    // Construct the URL for the Azure Search Service API
     let mut url = search_config.search_endpoint.clone();
     url.set_path(&format!("indexers/{}", indexer_name));
     url.set_query(Some(&format!("api-version={}", API_VERSION)));
 
-    // Build the JSON body for the indexer
     let indexer_definition = json!({
         "name": indexer_name,
         "description": null,
@@ -126,11 +122,22 @@ pub async fn create_search_indexer(
                 "mappingFunction": null
             }
         ],
-        "outputFieldMappings": [],
+        "outputFieldMappings": [
+            {
+                "sourceFieldName": "metadata_storage_path",
+                "targetFieldName": "course_id",
+                "mappingFunction": {
+                    "name": "regex",
+                    "parameters": {
+                        "pattern": "^courses/([^/]+)/.*$",
+                        "groupIndex": 1
+                    }
+                }
+            }
+        ],
         "encryptionKey": null
     });
 
-    // Send the PUT request to create the indexer
     let response = REQWEST_CLIENT
         .put(url)
         .header("Content-Type", "application/json")
@@ -139,7 +146,6 @@ pub async fn create_search_indexer(
         .send()
         .await?;
 
-    // Handle the response
     if response.status().is_success() {
         Ok(())
     } else {

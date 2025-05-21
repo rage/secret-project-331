@@ -173,7 +173,7 @@ impl ChatRequest {
                         auth_type: "api_key".to_string(),
                         key: search_config.search_api_key.clone(),
                     },
-                    index_name: format!("{}-{}", index_name_prefix, configuration.course_id),
+                    index_name: format!("{}-shared", index_name_prefix),
                     query_type: query_type.to_string(),
                     semantic_configuration: "default".to_string(),
                     embedding_dependency: EmbeddingDependency {
@@ -183,6 +183,7 @@ impl ChatRequest {
                     in_scope: false,
                     top_n_documents: 5,
                     strictness: 3,
+                    filters: Some(vec![format!("course_id eq '{}'", configuration.course_id)]),
                     fields_mapping: FieldsMapping {
                         content_fields_separator: ",".to_string(),
                         content_fields: vec!["chunk".to_string()],
@@ -235,6 +236,8 @@ pub struct DataSourceParameters {
     pub in_scope: bool,
     pub top_n_documents: i32,
     pub strictness: i32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub filters: Option<Vec<String>>,
     pub fields_mapping: FieldsMapping,
     pub semantic_configuration: String,
 }

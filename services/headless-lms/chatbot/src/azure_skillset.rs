@@ -75,7 +75,7 @@ pub async fn create_skillset(
                 "textSplitMode": "pages",
                 "maximumPageLength": 2000,
                 "pageOverlapLength": 500,
-                "maximumPagesToTake": 0,
+                "maximumPagesToTake": 1,
                 "inputs": [
                     {
                         "name": "text",

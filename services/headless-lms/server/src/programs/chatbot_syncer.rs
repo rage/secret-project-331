@@ -268,7 +268,6 @@ async fn sync_pages_batch(
         let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page.content.clone())?;
         let sanitized_blocks = remove_sensitive_attributes(parsed_content);
 
-        // Clean the content using LLM utility function with block processing support
         let content_to_upload = match convert_material_blocks_to_markdown_with_llm(
             &sanitized_blocks,
             app_config,

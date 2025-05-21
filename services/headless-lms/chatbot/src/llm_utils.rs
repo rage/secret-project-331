@@ -110,7 +110,6 @@ async fn make_llm_request(
         max_tokens,
     };
 
-    // We don't use streaming for simple requests
     let request = AzureCompletionRequest {
         base: base_request,
         stream: false,
@@ -118,7 +117,6 @@ async fn make_llm_request(
 
     let headers = build_llm_headers(api_key)?;
 
-    // Call the LLM API
     let response = REQWEST_CLIENT
         .post(endpoint.clone())
         .headers(headers)
@@ -170,7 +168,6 @@ pub async fn make_streaming_llm_request(
         max_tokens,
     };
 
-    // Enable streaming
     let request = AzureCompletionRequest {
         base: base_request,
         stream: true,
@@ -178,7 +175,6 @@ pub async fn make_streaming_llm_request(
 
     let headers = build_llm_headers(&chatbot_config.api_key)?;
 
-    // Call the LLM API
     let response = REQWEST_CLIENT
         .post(chatbot_config.api_endpoint.clone())
         .headers(headers)

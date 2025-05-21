@@ -129,7 +129,7 @@ pub async fn create_search_indexer(
                 "mappingFunction": {
                     "name": "regex",
                     "parameters": {
-                        "pattern": "^courses/([^/]+)/.*$",
+                        "pattern": ".*/courses/([^/]+)/.*$",
                         "groupIndex": 1
                     }
                 }

@@ -99,7 +99,7 @@ impl ChatRequest {
         message: &str,
         app_config: &ApplicationConfiguration,
     ) -> anyhow::Result<(Self, ChatbotConversationMessage, i32)> {
-        let index_name_prefix = Url::parse(&app_config.base_url)?
+        let index_name = Url::parse(&app_config.base_url)?
             .host_str()
             .expect("BASE_URL must have a host")
             .replace(".", "-");
@@ -173,7 +173,7 @@ impl ChatRequest {
                         auth_type: "api_key".to_string(),
                         key: search_config.search_api_key.clone(),
                     },
-                    index_name: format!("{}-shared", index_name_prefix),
+                    index_name,
                     query_type: query_type.to_string(),
                     semantic_configuration: "default".to_string(),
                     embedding_dependency: EmbeddingDependency {

@@ -77,7 +77,7 @@ fn initialize_environment() -> anyhow::Result<()> {
 
 struct SyncerConfig {
     database_url: String,
-    name_prefix: String,
+    name: String,
     app_configuration: ApplicationConfiguration,
 }
 
@@ -88,7 +88,7 @@ async fn initialize_configuration() -> anyhow::Result<SyncerConfig> {
     let base_url = Url::parse(&env::var("BASE_URL").expect("BASE_URL must be defined"))
         .expect("BASE_URL must be a valid URL");
 
-    let name_prefix = base_url
+    let name = base_url
         .host_str()
         .expect("BASE_URL must have a host")
         .replace(".", "-");
@@ -97,7 +97,7 @@ async fn initialize_configuration() -> anyhow::Result<SyncerConfig> {
 
     Ok(SyncerConfig {
         database_url,
-        name_prefix,
+        name,
         app_configuration,
     })
 }
@@ -115,7 +115,7 @@ async fn initialize_database_pool(database_url: &str) -> anyhow::Result<PgPool> 
 
 /// Initializes the Azure Blob Storage client.
 async fn initialize_blob_client(config: &SyncerConfig) -> anyhow::Result<AzureBlobClient> {
-    let blob_client = AzureBlobClient::new(&config.app_configuration, &config.name_prefix).await?;
+    let blob_client = AzureBlobClient::new(&config.app_configuration, &config.name).await?;
     blob_client.ensure_container_exists().await?;
     Ok(blob_client)
 }
@@ -151,7 +151,7 @@ async fn sync_pages(
         )
         .await?;
 
-    let shared_index_name = format!("{}-all-courses", config.name_prefix);
+    let shared_index_name = config.name.clone();
     ensure_search_index_exists(
         &shared_index_name,
         &config.app_configuration,

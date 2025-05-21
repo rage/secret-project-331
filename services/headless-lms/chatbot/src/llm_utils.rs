@@ -30,7 +30,7 @@ pub struct Message {
 pub struct BaseLlmRequest {
     pub messages: Vec<Message>,
     pub temperature: f32,
-    pub max_tokens: i32,
+    pub max_tokens: Option<i32>,
 }
 
 /// Simple completion-focused LLM request for Azure OpenAI
@@ -100,7 +100,7 @@ pub fn estimate_tokens(text: &str) -> i32 {
 async fn make_llm_request(
     messages: Vec<Message>,
     temperature: f32,
-    max_tokens: i32,
+    max_tokens: Option<i32>,
     endpoint: &url::Url,
     api_key: &str,
 ) -> anyhow::Result<LlmCompletionResponse> {
@@ -151,7 +151,7 @@ async fn process_llm_response(response: Response) -> anyhow::Result<LlmCompletio
 pub async fn make_streaming_llm_request(
     messages: Vec<Message>,
     temperature: f32,
-    max_tokens: i32,
+    max_tokens: Option<i32>,
     app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<Response> {
     let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
@@ -201,7 +201,7 @@ pub async fn make_streaming_llm_request(
 pub async fn make_blocking_llm_request(
     messages: Vec<Message>,
     temperature: f32,
-    max_tokens: i32,
+    max_tokens: Option<i32>,
     app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<LlmCompletionResponse> {
     let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {

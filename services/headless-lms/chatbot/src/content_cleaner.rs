@@ -6,8 +6,6 @@ use headless_lms_utils::document_schema_processor::GutenbergBlock;
 pub const MAX_CONTEXT_WINDOW: i32 = 16000;
 /// Maximum percentage of context window to use in a single request
 pub const MAX_CONTEXT_UTILIZATION: f32 = 0.75;
-/// Token limit for reponses
-pub const MAX_RESPONSE_TOKENS: i32 = 800000;
 /// Temperature for requests, low for deterministic results
 pub const REQUEST_TEMPERATURE: f32 = 0.1;
 
@@ -60,8 +58,8 @@ pub fn calculate_safe_token_limit(context_window: i32, utilization: f32) -> i32 
 pub fn split_blocks_into_chunks(
     blocks: &[GutenbergBlock],
     max_content_tokens: i32,
-) -> anyhow::Result<Vec<Vec<GutenbergBlock>>> {
-    let mut chunks: Vec<Vec<GutenbergBlock>> = Vec::new();
+) -> anyhow::Result<Vec<String>> {
+    let mut chunks: Vec<String> = Vec::new();
     let mut current_chunk: Vec<GutenbergBlock> = Vec::new();
     let mut current_chunk_tokens = 0;
 
@@ -69,19 +67,22 @@ pub fn split_blocks_into_chunks(
         let block_json = serde_json::to_string(block)?;
         let block_tokens = estimate_tokens(&block_json);
 
-        // If this block alone exceeds the limit, start a new chunk
+        // If this block alone exceeds the limit, split it into smaller chunks
         if block_tokens > max_content_tokens {
+            // Add any accumulated blocks as a chunk
             if !current_chunk.is_empty() {
-                chunks.push(current_chunk);
+                chunks.push(serde_json::to_string(&current_chunk)?);
                 current_chunk = Vec::new();
                 current_chunk_tokens = 0;
             }
-            chunks.push(vec![block.clone()]);
+
+            // Then we do some crude splitting for the oversized block
+            split_oversized_block(&block_json, max_content_tokens, &mut chunks)?;
             continue;
         }
 
         if current_chunk_tokens + block_tokens > max_content_tokens {
-            chunks.push(current_chunk);
+            chunks.push(serde_json::to_string(&current_chunk)?);
             current_chunk = Vec::new();
             current_chunk_tokens = 0;
         }
@@ -91,10 +92,44 @@ pub fn split_blocks_into_chunks(
     }
 
     if !current_chunk.is_empty() {
-        chunks.push(current_chunk);
+        chunks.push(serde_json::to_string(&current_chunk)?);
     }
 
     Ok(chunks)
+}
+
+/// Splits an oversized block into smaller string chunks
+fn split_oversized_block(
+    block_json: &str,
+    max_tokens: i32,
+    chunks: &mut Vec<String>,
+) -> anyhow::Result<()> {
+    let total_tokens = estimate_tokens(block_json);
+    // Make a very conservative estimate of the number of chunks we need
+    let num_chunks = (total_tokens as f32 / (max_tokens as f32 * 0.5)).ceil() as usize;
+
+    if num_chunks <= 1 {
+        chunks.push(block_json.to_string());
+        return Ok(());
+    }
+
+    let chars_per_chunk = block_json.len() / num_chunks;
+
+    let mut start = 0;
+    while start < block_json.len() {
+        let end = if start + chars_per_chunk >= block_json.len() {
+            block_json.len()
+        } else {
+            start + chars_per_chunk
+        };
+
+        let chunk = &block_json[start..end];
+        chunks.push(chunk.to_string());
+
+        start = end;
+    }
+
+    Ok(())
 }
 
 /// Appends markdown content to a result string with proper newline separators
@@ -112,7 +147,7 @@ pub fn append_markdown_with_separator(result: &mut String, new_content: &str) {
 
 /// Process all chunks and combine the results
 async fn process_chunks(
-    chunks: &[Vec<GutenbergBlock>],
+    chunks: &[String],
     system_message: &Message,
     app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<String> {
@@ -129,21 +164,19 @@ async fn process_chunks(
 
 /// Process a subset of blocks in a single LLM request
 async fn process_block_chunk(
-    blocks: &[GutenbergBlock],
+    chunk: &str,
     system_message: &Message,
     app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<String> {
-    let messages = prepare_llm_messages(blocks, system_message)?;
+    let messages = prepare_llm_messages(chunk, system_message)?;
 
-    info!("Processing chunk with {} blocks", blocks.len());
+    info!(
+        "Processing chunk of approximately {} tokens",
+        estimate_tokens(chunk)
+    );
 
-    let completion = make_blocking_llm_request(
-        messages,
-        REQUEST_TEMPERATURE,
-        MAX_RESPONSE_TOKENS,
-        app_config,
-    )
-    .await?;
+    let completion =
+        make_blocking_llm_request(messages, REQUEST_TEMPERATURE, None, app_config).await?;
 
     let cleaned_content = completion
         .choices
@@ -157,19 +190,14 @@ async fn process_block_chunk(
 }
 
 /// Prepare messages for the LLM request
-pub fn prepare_llm_messages(
-    blocks: &[GutenbergBlock],
-    system_message: &Message,
-) -> anyhow::Result<Vec<Message>> {
-    let blocks_json = serde_json::to_string(blocks)?;
-
+pub fn prepare_llm_messages(chunk: &str, system_message: &Message) -> anyhow::Result<Vec<Message>> {
     let messages = vec![
         system_message.clone(),
         Message {
             role: MessageRole::User,
             content: format!(
                 "{}\n\n{}{}\n{}",
-                USER_PROMPT_START, JSON_BEGIN_MARKER, blocks_json, JSON_END_MARKER
+                USER_PROMPT_START, JSON_BEGIN_MARKER, chunk, JSON_END_MARKER
             ),
         },
     ];
@@ -227,14 +255,23 @@ mod tests {
         // Test with a limit that fits all blocks
         let chunks = split_blocks_into_chunks(&blocks, t1 + t2 + t3 + 10)?;
         assert_eq!(chunks.len(), 1);
-        assert_eq!(chunks[0].len(), 3);
+
+        let deserialized_chunk: Vec<GutenbergBlock> = serde_json::from_str(&chunks[0])?;
+        assert_eq!(deserialized_chunk.len(), 3);
 
         // Test with a limit that requires splitting after the first block
         let chunks = split_blocks_into_chunks(&blocks, t1 + 1)?;
-        assert_eq!(chunks.len(), 3);
-        assert_eq!(chunks[0].len(), 1);
-        assert_eq!(chunks[1].len(), 1);
-        assert_eq!(chunks[2].len(), 1);
+
+        // First chunk should be a valid JSON array with one block
+        let first_chunk: Vec<GutenbergBlock> = serde_json::from_str(&chunks[0])?;
+        assert_eq!(first_chunk.len(), 1);
+        assert_eq!(first_chunk[0].client_id, block1.client_id);
+
+        // Remaining chunks might be split JSON strings, so we can't deserialize them
+        // Just verify they're not empty
+        for chunk in &chunks[1..] {
+            assert!(!chunk.is_empty());
+        }
 
         Ok(())
     }
@@ -242,12 +279,13 @@ mod tests {
     #[test]
     fn test_prepare_llm_messages() -> anyhow::Result<()> {
         let blocks = vec![create_test_block("Test content")];
+        let blocks_json = serde_json::to_string(&blocks)?;
         let system_message = Message {
             role: MessageRole::System,
             content: "System prompt".to_string(),
         };
 
-        let messages = prepare_llm_messages(&blocks, &system_message)?;
+        let messages = prepare_llm_messages(&blocks_json, &system_message)?;
 
         assert_eq!(messages.len(), 2);
         assert_eq!(messages[0].role, MessageRole::System);

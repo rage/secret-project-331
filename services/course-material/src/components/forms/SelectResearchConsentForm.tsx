@@ -97,7 +97,12 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
   }
   return (
     <div>
-      <Dialog open={shouldAnswerResearchForm || editForm} noPadding={true} closeable={false}>
+      <Dialog
+        open={shouldAnswerResearchForm || editForm}
+        noPadding={true}
+        closeable={false}
+        aria-label={t("title-reseach-consent-form")}
+      >
         <div
           className={css`
             display: flex;

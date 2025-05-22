@@ -42,8 +42,8 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
         </Head>
       )}
       <QueryClientProvider client={queryClient}>
-        <GlobalStyles />
         <OverlayProvider>
+          <GlobalStyles />
           <Component {...pageProps} />
         </OverlayProvider>
       </QueryClientProvider>

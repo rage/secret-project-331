@@ -173,7 +173,7 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
         PKeyPolicy::Fixed(Uuid::parse_str("c60ca874-bab9-452a-895f-02597cf60886")?),
         "langs@example.com",
         Some("langs"),
-        None,
+        Some("Langs"),
     )
     .await?;
     user_details::update_user_country(&mut conn, langs_user_id, "fi").await?;
@@ -211,7 +211,7 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
             PKeyPolicy::Fixed(Uuid::parse_str("8d7d6c8c-4c31-48ae-8e20-c68fa95c25cc")?),
             "user_2@example.com",
             Some("User2"),
-            Some("User1"),
+            Some("User2"),
         )
         .await?,
         users::insert(
@@ -219,7 +219,7 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
             PKeyPolicy::Fixed(Uuid::parse_str("fbeb9286-3dd8-4896-a6b8-3faffa3fabd6")?),
             "user_3@example.com",
             Some("User3"),
-            Some("User1"),
+            Some("User3"),
         )
         .await?,
         users::insert(
@@ -227,7 +227,7 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
             PKeyPolicy::Fixed(Uuid::parse_str("3524d694-7fa8-4e73-aa1a-de9a20fd514b")?),
             "user_4@example.com",
             Some("User4"),
-            Some("User1"),
+            Some("User4"),
         )
         .await?,
     ];

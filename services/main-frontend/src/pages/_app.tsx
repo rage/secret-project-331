@@ -80,14 +80,14 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
       </Script>
 
       <QueryClientProvider client={queryClient}>
-        <GlobalStyles />
-        <LoginStateContextProvider>
-          <OverlayProvider>
+        <OverlayProvider>
+          <GlobalStyles />
+          <LoginStateContextProvider>
             <Layout noVisibleLayout={noVisibleLayout}>
               <Component {...pageProps} />
             </Layout>
-          </OverlayProvider>
-        </LoginStateContextProvider>
+          </LoginStateContextProvider>
+        </OverlayProvider>
       </QueryClientProvider>
     </>
   )

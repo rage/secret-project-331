@@ -48,8 +48,8 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
         </Head>
       )}
       <>
-        <GlobalStyles />
         <OverlayProvider>
+          <GlobalStyles />
           <Component {...pageProps} />
         </OverlayProvider>
       </>

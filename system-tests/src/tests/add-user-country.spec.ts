@@ -18,13 +18,17 @@ test("User can add missing country information", async ({ page }) => {
     await page.getByLabel("Suggestions").getByText("Andorra").click()
     await page.getByRole("button", { name: "Save" }).click()
     await expect(page.getByText("Success", { exact: true })).toBeVisible()
+    await selectCourseInstanceIfPrompted(page)
+    await expect(page.getByText("Success", { exact: true })).toBeVisible()
+
+    await page.getByRole("button", { name: "Open menu" }).click()
+    await page.getByRole("button", { name: "Log out" }).click()
   })
 
   await test.step("Add country when creating a new user and see that pop-up form doesn't show", async () => {
     await page.goto(
       "http://project-331.local/signup?return_to=%2Forg%2Fuh-cs%2Fcourses%2Fadvanced-course-instance-management&lang=en-US",
     )
-    await page.getByRole("button", { name: "Create new account" }).click()
     await page.getByRole("textbox", { name: "First name (Required)" }).fill("User")
     await page.getByRole("textbox", { name: "Last name (Required)" }).fill("User")
     await page.getByRole("button", { name: "Select an item Where do you" }).click()

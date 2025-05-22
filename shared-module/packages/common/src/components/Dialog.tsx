@@ -58,6 +58,7 @@ const Dialog: React.FC<DialogProps> = ({
           align-items: center;
           justify-content: center;
           z-index: 1000;
+          overflow-y: auto;
         `}
       >
         {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
@@ -89,6 +90,7 @@ const Dialog: React.FC<DialogProps> = ({
                 }
               `,
             )}
+            data-testid="dialog"
           >
             <div
               className={css`

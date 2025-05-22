@@ -366,10 +366,12 @@ export const postSubmission = async (
 export const searchPagesWithPhrase = async (
   searchRequest: SearchRequest,
   courseId: string,
+  signal?: AbortSignal,
 ): Promise<Array<PageSearchResult>> => {
   const response = await courseMaterialClient.post(
     `/courses/${courseId}/search-pages-with-phrase`,
     searchRequest,
+    { signal },
   )
   return validateResponse(response, isArray(isPageSearchResult))
 }
@@ -377,10 +379,12 @@ export const searchPagesWithPhrase = async (
 export const searchPagesWithWords = async (
   searchRequest: SearchRequest,
   courseId: string,
+  signal?: AbortSignal,
 ): Promise<Array<PageSearchResult>> => {
   const response = await courseMaterialClient.post(
     `/courses/${courseId}/search-pages-with-words`,
     searchRequest,
+    { signal },
   )
   return validateResponse(response, isArray(isPageSearchResult))
 }

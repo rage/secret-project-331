@@ -1536,6 +1536,7 @@ export interface PageSearchResult {
   rank: number | null
   content_headline: string | null
   url_path: string
+  chapter_name: string | null
 }
 
 export interface PageWithExercises {
@@ -2179,6 +2180,31 @@ export interface GetFeedbackQuery {
   page: number | undefined
   limit: number | undefined
 }
+
+export interface CopyCourseRequest {
+  name: string
+  slug: string
+  organization_id: string
+  language_code: string
+  teacher_in_charge_name: string
+  teacher_in_charge_email: string
+  description: string
+  is_draft: boolean
+  is_test_mode: boolean
+  is_unlisted: boolean
+  copy_user_permissions: boolean
+  is_joinable_by_code_only: boolean
+  join_code: string | null
+  ask_marketing_consent: boolean
+  flagged_answers_threshold: number | null
+  mode: CopyCourseMode
+}
+
+export type CopyCourseMode =
+  | { mode: "duplicate" }
+  | { mode: "same_language_group" }
+  | { mode: "existing_language_group"; target_course_id: string }
+  | { mode: "new_language_group" }
 
 export interface ExamCourseInfo {
   course_id: string

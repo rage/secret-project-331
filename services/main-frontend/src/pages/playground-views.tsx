@@ -64,7 +64,7 @@ const StyledPre = styled.pre<{ fullWidth: boolean }>`
   font-size: 13px;
   max-width: ${(props) => (props.fullWidth ? FULL_WIDTH : HALF_WIDTH)};
   max-height: 700px;
-  overflow: scroll;
+  overflow: auto;
   white-space: pre-wrap;
   resize: vertical;
 

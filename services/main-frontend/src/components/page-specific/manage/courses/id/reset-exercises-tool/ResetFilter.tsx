@@ -55,14 +55,13 @@ const ResetFilter: React.FC<ResetFilterProps> = ({
           disabled={!thresholdCheckBox}
           onChange={(e) => {
             let value = e.target.value === "" ? null : Number(e.target.value)
-            // Ensure value is non-negative integer if present
             if (value !== null && (isNaN(value) || value < 0)) {
               value = 0
             }
             setThreshold(value)
           }}
         />
-        <p> {t("label-points").toLowerCase()}</p>
+        <p> {t("label-points-from-the-exercise").toLowerCase()}</p>
       </div>
       <CheckBox
         label={t("label-reset-only-if-less-than-max-points")}

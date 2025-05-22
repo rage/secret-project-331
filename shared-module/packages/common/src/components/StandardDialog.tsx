@@ -9,7 +9,7 @@ import Dialog from "./Dialog"
 
 interface StandardDialogProps {
   open: boolean
-  onClose?: () => void
+  onClose?: (e: React.MouseEvent) => void
   title: string | React.ReactNode
   children: React.ReactNode
   buttons?: Omit<ButtonProps, "size">[]

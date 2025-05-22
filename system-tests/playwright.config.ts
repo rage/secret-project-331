@@ -40,7 +40,9 @@ const config: PlaywrightTestConfig = {
   testDir: "./src/tests",
   snapshotPathTemplate: "./src/__screenshots__/{testFilePath}/{arg}{ext}",
 
-  workers: process.env.SECRET_PROJECT_SYSTEM_TEST_WORKERS ?? defaultWorkersAmount,
+  workers: process.env.SECRET_PROJECT_SYSTEM_TEST_WORKERS
+    ? Number(process.env.SECRET_PROJECT_SYSTEM_TEST_WORKERS)
+    : defaultWorkersAmount,
   use: {
     navigationTimeout: 15000,
     actionTimeout: 15000,

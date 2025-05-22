@@ -3,7 +3,7 @@ import { useDialog } from "@react-aria/dialog"
 import { FocusScope } from "@react-aria/focus"
 import { DismissButton, OverlayContainer, useModal, useOverlay } from "@react-aria/overlays"
 import { AriaDialogProps } from "@react-types/dialog"
-import React, { useRef } from "react"
+import React, { useEffect, useRef } from "react"
 
 import { typography } from "../styles"
 interface DialogProps extends AriaDialogProps {
@@ -13,6 +13,7 @@ interface DialogProps extends AriaDialogProps {
   noPadding?: boolean
   width?: "normal" | "wide"
   disableContentScroll?: boolean
+  preventBackgroundScroll?: boolean
   children: React.ReactNode
   className?: string
 }
@@ -25,6 +26,7 @@ const Dialog: React.FC<DialogProps> = ({
   noPadding = false,
   width = "normal",
   disableContentScroll = false,
+  preventBackgroundScroll = false,
   ...props
 }) => {
   const ref = useRef(null)
@@ -41,6 +43,17 @@ const Dialog: React.FC<DialogProps> = ({
 
   const { modalProps } = useModal()
   const { dialogProps } = useDialog(props, ref)
+
+  useEffect(() => {
+    if (open && preventBackgroundScroll) {
+      const originalOverflow = document.body.style.overflow
+      // eslint-disable-next-line i18next/no-literal-string
+      document.body.style.overflow = "hidden"
+      return () => {
+        document.body.style.overflow = originalOverflow
+      }
+    }
+  }, [open, preventBackgroundScroll])
 
   if (!open) {
     return null

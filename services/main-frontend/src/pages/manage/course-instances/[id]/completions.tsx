@@ -12,6 +12,7 @@ import UserCompletionRow, {
 } from "../../../../components/page-specific/manage/course-instances/id/UserCompletionRow"
 import CompletionsExportButton from "../../../../components/page-specific/manage/course-instances/id/completions/CompletionsExportButton"
 import FullWidthTable from "../../../../components/tables/FullWidthTable"
+import CaretDownIcon from "../../../../imgs/caret-down.svg"
 import {
   getCompletions,
   postCompletions,
@@ -35,7 +36,6 @@ import dontRenderUntilQueryParametersReady, {
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-const DOWN_ARROW = "▼"
 const EMAIL = "email"
 const NAME = "name"
 const NUMBER = "number"
@@ -223,20 +223,32 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
               >
                 <th rowSpan={2}>
                   {t("label-user-id")}{" "}
-                  <a href="#number" onClick={() => setSorting({ type: NUMBER, data: null })}>
-                    {DOWN_ARROW}
+                  <a
+                    href="#number"
+                    onClick={() => setSorting({ type: NUMBER, data: null })}
+                    aria-label={t("sort-by-column", { column: t("label-user-id") })}
+                  >
+                    <CaretDownIcon />
                   </a>
                 </th>
                 <th rowSpan={2}>
                   {t("student-name")}{" "}
-                  <a href="#name" onClick={() => setSorting({ type: NAME, data: null })}>
-                    {DOWN_ARROW}
+                  <a
+                    href="#name"
+                    onClick={() => setSorting({ type: NAME, data: null })}
+                    aria-label={t("sort-by-column", { column: t("student-name") })}
+                  >
+                    <CaretDownIcon />
                   </a>
                 </th>
                 <th rowSpan={2}>
                   {t("label-email")}{" "}
-                  <a href="#email" onClick={() => setSorting({ type: EMAIL, data: null })}>
-                    {DOWN_ARROW}
+                  <a
+                    href="#email"
+                    onClick={() => setSorting({ type: EMAIL, data: null })}
+                    aria-label={t("sort-by-column", { column: t("label-email") })}
+                  >
+                    <CaretDownIcon />
                   </a>
                 </th>
                 {getCompletionsList.data.sortedCourseModules
@@ -255,8 +267,11 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
                           <a
                             href={moduleSorting}
                             onClick={() => setSorting({ type: moduleSorting, data: module.id })}
+                            aria-label={t("sort-by-column", {
+                              column: module.name ?? t("label-default"),
+                            })}
                           >
-                            {DOWN_ARROW}
+                            <CaretDownIcon />
                           </a>
                         </div>
                       </th>

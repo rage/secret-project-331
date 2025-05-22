@@ -25,8 +25,12 @@ test.describe(() => {
       .getByRole("row", { name: "Glossary /chapter-1 Edit page Dropdown menu" })
       .getByRole("button", { name: "Edit page" })
       .click()
+
     await page.getByRole("button", { name: "Add block" }).waitFor()
     await waitForFooterTranslationsToLoad(page)
+
+    // eslint-disable-next-line playwright/no-networkidle
+    await page.waitForLoadState("networkidle")
     await page.getByRole("button", { name: "Add block" }).click()
     await page.getByRole("option", { name: "Paragraph" }).click()
     await page

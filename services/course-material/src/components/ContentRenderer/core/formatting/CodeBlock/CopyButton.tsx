@@ -30,8 +30,8 @@ interface CopyButtonProps {
 
 const buttonStyles = css`
   position: absolute;
-  top: 24px;
-  right: 24px;
+  top: 10px;
+  right: 10px;
   background: transparent;
   border: none;
   cursor: pointer;

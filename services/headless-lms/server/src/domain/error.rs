@@ -263,8 +263,15 @@ impl error::ResponseError for ControllerError {
             None
         };
 
-        let source = self.source();
-        let source_message = source.map(|o| o.to_string());
+        let source_message = if let Some(anyhow_err) = &self.source {
+            if let Some(controller_err) = anyhow_err.downcast_ref::<ControllerError>() {
+                Some(controller_err.message.clone())
+            } else {
+                Some(anyhow_err.to_string())
+            }
+        } else {
+            None
+        };
 
         let error_response = ErrorResponse {
             title: status

@@ -1,16 +1,14 @@
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
-import { getCourse, postNewCourseTranslation } from "../../../../../../services/backend/courses"
 
 import CourseLanguageVersionsList from "./CourseLanguageVersionsList"
 import NewCourseLanguageVersionDialog from "./NewCourseLanguageVersionDialog"
 
 import { formatLanguageVersionsQueryKey } from "@/hooks/useCourseLanguageVersions"
-import { NewCourse } from "@/shared-module/common/bindings"
+import { useCourseQuery } from "@/hooks/useCourseQuery"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -22,17 +20,14 @@ const CourseLanguageVersionsPage: React.FC<React.PropsWithChildren<CourseManagem
 }) => {
   const { t } = useTranslation()
   const [showNewLanguageVersionForm, setShowNewLanguageVersionForm] = useState(false)
-  const getCourseQuery = useQuery({
-    queryKey: [`course-${courseId}`],
-    queryFn: () => getCourse(courseId),
-  })
+  const getCourseQuery = useCourseQuery(courseId)
 
-  const handleCreateNewLanguageVersion = async (newCourse: NewCourse) => {
-    await postNewCourseTranslation(courseId, newCourse)
+  const handleSuccess = async () => {
     await getCourseQuery.refetch()
     setShowNewLanguageVersionForm(false)
     queryClient.invalidateQueries({ queryKey: [formatLanguageVersionsQueryKey(courseId)] })
   }
+
   return (
     <>
       {getCourseQuery.isError && <ErrorBanner error={getCourseQuery.error} variant={"readOnly"} />}
@@ -44,7 +39,7 @@ const CourseLanguageVersionsPage: React.FC<React.PropsWithChildren<CourseManagem
               showNewLanguageVersionForm={showNewLanguageVersionForm}
               courseName={getCourseQuery.data.name}
               organizationId={getCourseQuery.data.organization_id}
-              handleSubmit={handleCreateNewLanguageVersion}
+              onSuccess={handleSuccess}
               onClose={() => setShowNewLanguageVersionForm(false)}
               courseId={courseId}
             />

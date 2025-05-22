@@ -10,13 +10,13 @@ import StandardDialog from "@/shared-module/common/components/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import countries from "@/shared-module/common/locales/en/countries.json"
 
-type SelectUserCountryFormFields = {
+type SelectUserInfoFormFields = {
   first_name: string
   last_name: string
   country: string
 }
 
-type SelectUserCountryFormProps = {
+type SelectUserInfoFormProps = {
   shouldAnswerMissingInfoForm: boolean
   setShouldAnswerMissingInfoForm: (shouldAnswerMissingInfoForm: boolean) => void
   firstName: string
@@ -24,7 +24,7 @@ type SelectUserCountryFormProps = {
   country: string | null
 }
 
-export const SelectUserCountryForm: React.FC<SelectUserCountryFormProps> = ({
+export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
   shouldAnswerMissingInfoForm,
   setShouldAnswerMissingInfoForm,
   firstName,
@@ -41,7 +41,7 @@ export const SelectUserCountryForm: React.FC<SelectUserCountryFormProps> = ({
     reset,
     register,
     // eslint-disable-next-line i18next/no-literal-string
-  } = useForm<SelectUserCountryFormFields>({ mode: "onChange" })
+  } = useForm<SelectUserInfoFormFields>({ mode: "onChange" })
 
   const countriesOptions = Object.entries(countries).map(([code]) => ({
     value: code,
@@ -65,7 +65,7 @@ export const SelectUserCountryForm: React.FC<SelectUserCountryFormProps> = ({
     }
   }, [country, preFillCountry.data, reset])
 
-  const postUserCountryMutation = useToastMutation<unknown, unknown, SelectUserCountryFormFields>(
+  const postUserCountryMutation = useToastMutation<unknown, unknown, SelectUserInfoFormFields>(
     async (data) => {
       const { first_name, last_name, country } = data
       await updateUserInfo(first_name, last_name, country)
@@ -159,4 +159,4 @@ export const SelectUserCountryForm: React.FC<SelectUserCountryFormProps> = ({
   )
 }
 
-export default SelectUserCountryForm
+export default SelectUserInformationForm

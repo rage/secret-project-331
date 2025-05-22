@@ -43,10 +43,14 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
     // eslint-disable-next-line i18next/no-literal-string
   } = useForm<SelectUserInfoFormFields>({ mode: "onChange" })
 
-  const countriesOptions = Object.entries(countries).map(([code]) => ({
-    value: code,
-    label: tCountries(code as keyof typeof countries),
-  }))
+  const countriesOptions = React.useMemo(
+    () =>
+      Object.entries(countries).map(([code]) => ({
+        value: code,
+        label: tCountries(code as keyof typeof countries),
+      })),
+    [tCountries],
+  )
 
   const preFillCountry = useQuery({
     queryKey: [`users-ip-country`],
@@ -108,12 +112,7 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
           },
         ]}
       >
-        <form
-          onSubmit={handleSubmit(async (data, event) => {
-            event?.preventDefault()
-            postUserCountryMutation.mutate(data)
-          })}
-        >
+        <form onSubmit={handleSubmit((data) => postUserCountryMutation.mutate(data))}>
           <TextField
             label={t("first-name")}
             defaultValue={firstName}

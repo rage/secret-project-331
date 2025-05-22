@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { css, cx } from "@emotion/css"
 import { CheckCircle, MovementArrowsUpDown, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { forwardRef, InputHTMLAttributes, SetStateAction, useState } from "react"
@@ -40,6 +39,7 @@ export interface SearchableSelectProps extends InputHTMLAttributes<HTMLSelectEle
 
 const SearchableSelectField = forwardRef<HTMLSelectElement, SearchableSelectProps>(
   ({ value, label, options, onChangeByValue, placeholder, required }) => {
+    // eslint-disable-next-line i18next/no-literal-string
     const { contains } = useFilter({ sensitivity: "base" })
     const [, setIsOpen] = useState(false)
     const [searchInput, setSearchInput] = useState("")
@@ -153,7 +153,7 @@ const SearchableSelectField = forwardRef<HTMLSelectElement, SearchableSelectProp
         >
           <Autocomplete filter={contains}>
             <SearchField
-              aria-label="Search"
+              aria-label={t("label-search")}
               // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus
               className={css`

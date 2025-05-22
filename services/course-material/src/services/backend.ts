@@ -826,14 +826,14 @@ export const getUserDetails = async (): Promise<UserDetail> => {
 }
 
 export const updateUserInfo = async (
-  first_name: string,
-  last_name: string,
+  firstName: string,
+  lastName: string,
   country: string,
 ): Promise<boolean> => {
   const response = await courseMaterialClient.post(`/user-details/update-user-info`, {
     country: country,
-    first_name: first_name,
-    last_name: last_name,
+    first_name: firstName,
+    last_name: lastName,
   })
   return validateResponse(response, isBoolean)
 }

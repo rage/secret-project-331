@@ -6,7 +6,7 @@ use models::user_details::UserDetail;
 use crate::prelude::*;
 
 /**
-GET `/api/v0/course-material/user]` - Find user details by user id
+GET `/api/v0/course-material/user-details/user` - Find user details by user id
 */
 #[instrument(skip(pool))]
 pub async fn get_user_details(
@@ -31,7 +31,7 @@ pub struct UserInfoPayload {
 }
 
 /**
-POST `/api/v0/course-material/update-user-info` - Updates the users first and last name and country to what they have selected
+POST `/api/v0/course-material/user-details/update-user-info` - Updates the users first and last name and country to what they have selected
 */
 #[instrument(skip(pool))]
 pub async fn update_user_info(
@@ -53,6 +53,9 @@ pub async fn update_user_info(
     token.authorized_ok(web::Json(true))
 }
 
+/**
+GET `/api/v0/course-material/user-details/users-ip-country` - Find users country by their IP  address
+*/
 pub async fn get_user_country_by_ip(
     req: HttpRequest,
     ip_to_country_mapper: web::Data<IpToCountryMapper>,

@@ -101,7 +101,7 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
         open={shouldAnswerResearchForm || editForm}
         noPadding={true}
         closeable={false}
-        aria-label={t("title-reseach-consent-form")}
+        aria-label={t("title-research-consent-form")}
       >
         <div
           className={css`

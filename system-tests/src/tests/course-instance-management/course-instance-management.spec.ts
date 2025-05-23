@@ -51,7 +51,7 @@ test("Managing course instances works", async ({ page }) => {
   const usersCsvContents = await downloadToString(usersDownload)
   expect(usersCsvContents).toContain("user_id,created_at,updated_at,first_name,last_name,email")
   expect(usersCsvContents).toContain("3524d694-7fa8-4e73-aa1a-de9a20fd514b,")
-  expect(usersCsvContents).toContain(",User4,,user_4@example.com")
+  expect(usersCsvContents).toContain(",User4,User4,user_4@example.com")
 
   await Promise.all([page.getByRole("tab", { name: "Course instances" }).click()])
   await page.getByRole("heading", { name: "All course instances" }).waitFor()

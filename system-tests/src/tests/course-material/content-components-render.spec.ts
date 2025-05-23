@@ -9,9 +9,9 @@ test("blocks render correctly", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.click(
-      '[id="__next"] div >> :nth-match(div:has-text("University of Helsinki, Department of Computer ScienceOrganization for Computer "), 4)',
-    ),
+    page
+      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
+      .click(),
   ])
 
   await page.click(`div:text-is("Introduction to Course Material")`)

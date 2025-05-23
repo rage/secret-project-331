@@ -663,6 +663,7 @@
   "score-given": "Annettu arvosana",
   "select-course-module": "Valitse kurssimoduuli",
   "select-module-start-end-chapters": "Valitse luvut jotka kuuluvat moduuliin",
+  "select-organization": "Valitse organisaatio",
   "selected-text": "Valittu teksti:",
   "sent-by": "Lähetettäjä: {{user}}",
   "service-info-url": "Palvelun tiedot URL",

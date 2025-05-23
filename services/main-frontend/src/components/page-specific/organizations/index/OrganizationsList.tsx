@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 import { ApartmentBuilding } from "@vectopus/atlas-icons-react"
-import { useRouter } from "next/router"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -9,7 +8,8 @@ import useAllOrganizationsQuery from "../../../../hooks/useAllOrganizationsQuery
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-import { baseTheme } from "@/shared-module/common/styles"
+import UnstyledA from "@/shared-module/common/components/UnstyledA"
+import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { organizationFrontPageRoute } from "@/shared-module/common/utils/routes"
 
@@ -17,7 +17,6 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
 
   const allOrganizationsQuery = useAllOrganizationsQuery()
-  const router = useRouter()
 
   return (
     <div
@@ -28,7 +27,7 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
       <h1
         className={css`
           text-align: center;
-          font-family: Inter;
+          font-family: ${primaryFont};
           font-weight: 500;
           font-size: 30px;
           line-height: 100%;
@@ -42,8 +41,7 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
       <p
         className={css`
           text-align: center;
-          font-family: Inter;
-          font-weight: 400;
+          font-family: ${primaryFont};
           font-size: 16px;
           line-height: 100%;
           letter-spacing: 0;
@@ -51,7 +49,7 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
           color: #555;
         `}
       >
-        {t("select-organization", { defaultValue: "Select an organization" })}
+        {t("select-organization")}
       </p>
       {allOrganizationsQuery.isError && (
         <ErrorBanner variant={"readOnly"} error={allOrganizationsQuery.error} />
@@ -141,8 +139,7 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
                   <h2
                     className={css`
                       color: #333;
-                      font-family: Inter;
-                      font-weight: 400;
+                      font-family: ${primaryFont};
                       font-size: 18px;
                       line-height: 1.3;
                       letter-spacing: 0;
@@ -152,30 +149,39 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
                     {organization.name}
                   </h2>
                 </div>
-                <button
-                  onClick={() => router.push(organizationFrontPageRoute(organization.slug))}
+                <div
                   className={css`
-                    margin-left: auto;
+                    display: flex;
+                    justify-content: flex-end;
+                    gap: 0.5rem;
                     margin-right: 1rem;
-                    background-color: rgba(237, 238, 240, 1);
-                    color: rgba(26, 35, 51, 1);
-                    border: none;
-                    border-radius: 0px;
-                    padding: 0.4rem 0.8rem;
-                    font-family: Inter;
-                    font-weight: 400;
-                    font-size: 18px;
-                    line-height: 100%;
-                    letter-spacing: 0;
-                    cursor: pointer;
-                    &:hover {
-                      background-color: rgb(216, 216, 216);
-                      cursor: pointer;
-                    }
+                    margin-left: auto;
                   `}
                 >
-                  {t("Select", { defaultValue: "Select" })}
-                </button>
+                  <UnstyledA href={organizationFrontPageRoute(organization.slug)}>
+                    <button
+                      className={css`
+                        background-color: rgba(237, 238, 240, 1);
+                        color: rgba(26, 35, 51, 1);
+                        border: none;
+                        border-radius: 0px;
+                        padding: 0.4rem 0.8rem;
+                        font-family: ${primaryFont};
+                        font-size: 18px;
+                        line-height: 100%;
+                        letter-spacing: 0;
+                        cursor: pointer;
+
+                        &:hover {
+                          transition: background-color 0.3s;
+                          background-color: rgb(216, 216, 216);
+                        }
+                      `}
+                    >
+                      {t("label-select")}
+                    </button>
+                  </UnstyledA>
+                </div>
               </div>
             </div>
           ))}

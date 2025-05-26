@@ -110,31 +110,8 @@ pub async fn create_search_indexer(
                 "dataToExtract": "contentAndMetadata"
             }
         },
-        "fieldMappings": [
-            {
-                "sourceFieldName": "title",
-                "targetFieldName": "title",
-                "mappingFunction": null
-            },
-            {
-                "sourceFieldName": "url",
-                "targetFieldName": "url",
-                "mappingFunction": null
-            }
-        ],
-        "outputFieldMappings": [
-            {
-                "sourceFieldName": "metadata_storage_path",
-                "targetFieldName": "course_id",
-                "mappingFunction": {
-                    "name": "regex",
-                    "parameters": {
-                        "pattern": ".*/courses/([^/]+)/.*$",
-                        "groupIndex": 1
-                    }
-                }
-            }
-        ],
+        "fieldMappings": [],
+        "outputFieldMappings": [],
         "encryptionKey": null
     });
 

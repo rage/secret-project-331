@@ -206,8 +206,6 @@ async fn sync_pages(
     if any_changes {
         run_search_indexer_now(&shared_index_name, &config.app_configuration).await?;
         info!("New files have been synced and the search indexer has been started.");
-    } else {
-        info!("No changes were made, skipping search indexer run.");
     }
 
     Ok(())
@@ -254,8 +252,8 @@ async fn sync_pages_batch(
     let organization =
         headless_lms_models::organizations::get_organization(conn, course.organization_id).await?;
 
-    let mut url = base_url.clone();
-    url.set_path(&format!(
+    let mut base_url = base_url.clone();
+    base_url.set_path(&format!(
         "/org/{}/courses/{}",
         organization.slug, course.slug
     ));
@@ -264,6 +262,9 @@ async fn sync_pages_batch(
 
     for page in pages {
         info!("Syncing page id: {}.", page.id);
+
+        let mut page_url = base_url.clone();
+        page_url.set_path(&format!("{}{}", base_url.path(), page.url_path));
 
         let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page.content.clone())?;
         let sanitized_blocks = remove_sensitive_attributes(parsed_content);
@@ -276,7 +277,13 @@ async fn sync_pages_batch(
         {
             Ok(markdown) => {
                 info!("Successfully cleaned content for page {}", page.id);
-                markdown
+                // Check if the markdown is empty, or if it just contains all spaces or newlines
+                if markdown.trim().is_empty() {
+                    warn!("Markdown is empty for page {}. Generating fallback content with a fake heading.", page.id);
+                    format!("# {}", page.title)
+                } else {
+                    markdown
+                }
             }
             Err(e) => {
                 warn!("Failed to clean content with LLM for page {}: {}. Using serialized sanitized content instead.", page.id, e);
@@ -289,8 +296,16 @@ async fn sync_pages_batch(
 
         allowed_file_paths.push(blob_path.clone());
         let mut metadata = HashMap::new();
-        metadata.insert("url".to_string(), url.to_string().into());
+        metadata.insert("url".to_string(), page_url.to_string().into());
         metadata.insert("title".to_string(), page.title.to_string().into());
+        metadata.insert(
+            "course_id".to_string(),
+            page.course_id.unwrap_or(Uuid::nil()).to_string().into(),
+        );
+        metadata.insert(
+            "language".to_string(),
+            course.language_code.to_string().into(),
+        );
 
         if let Err(e) = blob_client
             .upload_file(&blob_path, content_to_upload.as_bytes(), Some(metadata))
@@ -325,7 +340,7 @@ fn generate_blob_path(page: &Page) -> anyhow::Result<String> {
         url_path = "index".to_string();
     }
 
-    Ok(format!("courses/{}/{}.json", course_id, url_path))
+    Ok(format!("courses/{}/{}.md", course_id, url_path))
 }
 
 /// Deletes files from blob storage that are no longer associated with any page.

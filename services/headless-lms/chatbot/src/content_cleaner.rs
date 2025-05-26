@@ -1,6 +1,7 @@
 use crate::llm_utils::{estimate_tokens, make_blocking_llm_request, Message, MessageRole};
 use crate::prelude::*;
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
+use tracing::{debug, error, info, instrument, warn};
 
 /// Maximum context window size for LLM in tokens
 pub const MAX_CONTEXT_WINDOW: i32 = 16000;
@@ -22,6 +23,8 @@ const SYSTEM_PROMPT: &str = r#"You are given course material in an abstract JSON
 * Preserve heading levels (e.g., level 2 → `##`, level 3 → `###`).
 * Include text content from any block type, even non-standard ones, if it appears user-visible.
 * For exercise blocks, include the exercise name, and assignment instructions. You may also include text from the exercise specification (public spec), if it can be formatted into markdown.
+* If you encounter blocks that don't have any visible text in the JSON but are likely still user-visible (placeholder blocks) — e.g. `glossary`, `exercises-in-this-chapter`, `course-progress` — generate a fake heading representing the expected content (e.g. `## Glossary`).
+* Do not generate headings for placeholder blocks that are not user-visible — e.g. `conditionally-visible-content`, `spacer`, `divider`.
 * Exclude all purely stylistic attributes (e.g. colors, alignment, font sizes).
 * Do not include any metadata, HTML tags (other than for formatting), or non-visible fields.
 * Output **only the Markdown content**, and nothing else.
@@ -32,10 +35,12 @@ const USER_PROMPT_START: &str =
     "Convert this JSON content to clean markdown. Output only the markdown, nothing else.";
 
 /// Cleans content by converting the material blocks to clean markdown using an LLM
+#[instrument(skip(blocks, app_config), fields(num_blocks = blocks.len()))]
 pub async fn convert_material_blocks_to_markdown_with_llm(
     blocks: &[GutenbergBlock],
     app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<String> {
+    debug!("Starting content conversion with {} blocks", blocks.len());
     let system_message = Message {
         role: MessageRole::System,
         content: SYSTEM_PROMPT.to_string(),
@@ -45,7 +50,13 @@ pub async fn convert_material_blocks_to_markdown_with_llm(
     let safe_token_limit = calculate_safe_token_limit(MAX_CONTEXT_WINDOW, MAX_CONTEXT_UTILIZATION);
     let max_content_tokens = safe_token_limit - system_message_tokens;
 
+    debug!(
+        "Token limits - system: {}, safe: {}, max content: {}",
+        system_message_tokens, safe_token_limit, max_content_tokens
+    );
+
     let chunks = split_blocks_into_chunks(blocks, max_content_tokens)?;
+    debug!("Split content into {} chunks", chunks.len());
     process_chunks(&chunks, &system_message, app_config).await
 }
 
@@ -55,10 +66,12 @@ pub fn calculate_safe_token_limit(context_window: i32, utilization: f32) -> i32 
 }
 
 /// Split blocks into chunks that fit within token limits
+#[instrument(skip(blocks), fields(max_content_tokens))]
 pub fn split_blocks_into_chunks(
     blocks: &[GutenbergBlock],
     max_content_tokens: i32,
 ) -> anyhow::Result<Vec<String>> {
+    debug!("Starting to split {} blocks into chunks", blocks.len());
     let mut chunks: Vec<String> = Vec::new();
     let mut current_chunk: Vec<GutenbergBlock> = Vec::new();
     let mut current_chunk_tokens = 0;
@@ -66,9 +79,17 @@ pub fn split_blocks_into_chunks(
     for block in blocks {
         let block_json = serde_json::to_string(block)?;
         let block_tokens = estimate_tokens(&block_json);
+        debug!(
+            "Processing block {} with {} tokens",
+            block.client_id, block_tokens
+        );
 
         // If this block alone exceeds the limit, split it into smaller chunks
         if block_tokens > max_content_tokens {
+            warn!(
+                "Block {} exceeds max token limit ({} > {})",
+                block.client_id, block_tokens, max_content_tokens
+            );
             // Add any accumulated blocks as a chunk
             if !current_chunk.is_empty() {
                 chunks.push(serde_json::to_string(&current_chunk)?);
@@ -82,6 +103,11 @@ pub fn split_blocks_into_chunks(
         }
 
         if current_chunk_tokens + block_tokens > max_content_tokens {
+            debug!(
+                "Creating new chunk after {} blocks ({} tokens)",
+                current_chunk.len(),
+                current_chunk_tokens
+            );
             chunks.push(serde_json::to_string(&current_chunk)?);
             current_chunk = Vec::new();
             current_chunk_tokens = 0;
@@ -92,6 +118,11 @@ pub fn split_blocks_into_chunks(
     }
 
     if !current_chunk.is_empty() {
+        debug!(
+            "Adding final chunk with {} blocks ({} tokens)",
+            current_chunk.len(),
+            current_chunk_tokens
+        );
         chunks.push(serde_json::to_string(&current_chunk)?);
     }
 
@@ -99,12 +130,18 @@ pub fn split_blocks_into_chunks(
 }
 
 /// Splits an oversized block into smaller string chunks
+#[instrument(skip(block_json, chunks), fields(max_tokens))]
 fn split_oversized_block(
     block_json: &str,
     max_tokens: i32,
     chunks: &mut Vec<String>,
 ) -> anyhow::Result<()> {
     let total_tokens = estimate_tokens(block_json);
+    debug!(
+        "Splitting oversized block with {} tokens into chunks of max {} tokens",
+        total_tokens, max_tokens
+    );
+
     // Make a very conservative estimate of the number of chunks we need
     let num_chunks = (total_tokens as f32 / (max_tokens as f32 * 0.5)).ceil() as usize;
 
@@ -114,6 +151,10 @@ fn split_oversized_block(
     }
 
     let chars_per_chunk = block_json.len() / num_chunks;
+    debug!(
+        "Splitting into {} chunks of approximately {} chars each",
+        num_chunks, chars_per_chunk
+    );
 
     let mut start = 0;
     while start < block_json.len() {
@@ -146,14 +187,17 @@ pub fn append_markdown_with_separator(result: &mut String, new_content: &str) {
 }
 
 /// Process all chunks and combine the results
+#[instrument(skip(chunks, system_message, app_config), fields(num_chunks = chunks.len()))]
 async fn process_chunks(
     chunks: &[String],
     system_message: &Message,
     app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<String> {
+    debug!("Processing {} chunks", chunks.len());
     let mut result = String::new();
 
-    for chunk in chunks {
+    for (i, chunk) in chunks.iter().enumerate() {
+        debug!("Processing chunk {}/{}", i + 1, chunks.len());
         let chunk_markdown = process_block_chunk(chunk, system_message, app_config).await?;
         append_markdown_with_separator(&mut result, &chunk_markdown);
     }
@@ -163,6 +207,7 @@ async fn process_chunks(
 }
 
 /// Process a subset of blocks in a single LLM request
+#[instrument(skip(chunk, system_message, app_config), fields(chunk_tokens = estimate_tokens(chunk)))]
 async fn process_block_chunk(
     chunk: &str,
     system_message: &Message,
@@ -176,12 +221,21 @@ async fn process_block_chunk(
     );
 
     let completion =
-        make_blocking_llm_request(messages, REQUEST_TEMPERATURE, None, app_config).await?;
+        match make_blocking_llm_request(messages, REQUEST_TEMPERATURE, None, app_config).await {
+            Ok(completion) => completion,
+            Err(e) => {
+                error!("Failed to process chunk: {}", e);
+                return Err(e);
+            }
+        };
 
     let cleaned_content = completion
         .choices
         .first()
-        .ok_or_else(|| anyhow::anyhow!("No content returned from LLM"))?
+        .ok_or_else(|| {
+            error!("No content returned from LLM");
+            anyhow::anyhow!("No content returned from LLM")
+        })?
         .message
         .content
         .clone();

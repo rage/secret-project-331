@@ -79,9 +79,11 @@ pub async fn create_skillset(
                 "inputs": [
                     {
                         "name": "text",
-                        "source": "/document/content",
-                        "sourceContext": null,
-                        "inputs": []
+                        "source": "/document/content"
+                    },
+                    {
+                        "name": "languageCode",
+                        "source": "/document/language"
                     }
                 ],
                 "outputs": [
@@ -150,7 +152,19 @@ pub async fn create_skillset(
                           "source": "/document/url",
                           "sourceContext": null,
                           "inputs": []
-                      }
+                        },
+                        {
+                          "name": "course_id",
+                          "source": "/document/course_id",
+                          "sourceContext": null,
+                          "inputs": []
+                        },
+                        {
+                          "name": "language",
+                          "source": "/document/language",
+                          "sourceContext": null,
+                          "inputs": []
+                        }
                     ]
                 }
             ],

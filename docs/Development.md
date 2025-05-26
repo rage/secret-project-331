@@ -17,6 +17,8 @@ This document outlines the steps required to set up a development environment fo
 
 ### Setting Up on Linux
 
+**Recommended**: It is recommended to have 200GB free space before setting up the environment.
+
 **Note**: After installing all required tools, run `bin/print-versions` to confirm that dependencies are correctly installed.
 
 #### DevOps Tools
@@ -286,3 +288,5 @@ In this section you can find useful information to get started with developing, 
 - **Bin-commands** [Commands](../bin)
 - **Figma design** [Figma](https://www.figma.com/design/7SCSdeHG5FnLNZLfd6SnBI/Teacher-redesign)
 - **Routes helper functions** [Routes](../shared-module/packages/common/src/utils/routes.ts)
+
+### Common problems

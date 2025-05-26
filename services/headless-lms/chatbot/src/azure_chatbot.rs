@@ -19,6 +19,7 @@ use url::Url;
 
 use crate::llm_utils::{build_llm_headers, estimate_tokens, LLM_API_VERSION};
 use crate::prelude::*;
+use crate::search_filter::SearchFilter;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ContentFilterResults {
@@ -183,7 +184,10 @@ impl ChatRequest {
                     in_scope: false,
                     top_n_documents: 5,
                     strictness: 3,
-                    filters: Some(vec![format!("course_id eq '{}'", configuration.course_id)]),
+                    filter: Some(
+                        SearchFilter::eq("course_id", configuration.course_id.to_string())
+                            .to_odata(),
+                    ),
                     fields_mapping: FieldsMapping {
                         content_fields_separator: ",".to_string(),
                         content_fields: vec!["chunk".to_string()],
@@ -237,7 +241,7 @@ pub struct DataSourceParameters {
     pub top_n_documents: i32,
     pub strictness: i32,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub filters: Option<Vec<String>>,
+    pub filter: Option<String>,
     pub fields_mapping: FieldsMapping,
     pub semantic_configuration: String,
 }

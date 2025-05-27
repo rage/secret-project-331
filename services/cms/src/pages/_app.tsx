@@ -1,3 +1,4 @@
+import { OverlayProvider } from "@react-aria/overlays"
 import { QueryClientProvider } from "@tanstack/react-query"
 import type { AppProps } from "next/app"
 import Script from "next/script"
@@ -79,16 +80,18 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
       </Script>
 
       <QueryClientProvider client={queryClient}>
-        <GlobalStyles />
-        <LocalStyles />
-        <LoginStateContextProvider>
-          <Layout
-            /* @ts-expect-error: hideBreadcrumbs is an addtional property on Component */
-            hideBreadcrumbs={Component.hideBreadcrumbs}
-          >
-            <Component {...pageProps} />
-          </Layout>
-        </LoginStateContextProvider>
+        <OverlayProvider>
+          <GlobalStyles />
+          <LocalStyles />
+          <LoginStateContextProvider>
+            <Layout
+              /* @ts-expect-error: hideBreadcrumbs is an addtional property on Component */
+              hideBreadcrumbs={Component.hideBreadcrumbs}
+            >
+              <Component {...pageProps} />
+            </Layout>
+          </LoginStateContextProvider>
+        </OverlayProvider>
       </QueryClientProvider>
     </>
   )

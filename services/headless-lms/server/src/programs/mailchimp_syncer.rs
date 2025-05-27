@@ -635,6 +635,7 @@ pub async fn send_users_to_mailchimp(
                         "COURSEID": user.course_id,
                         "LANGGRPID": user.course_language_group_id,
                         "RESEARCH" : if user.research_consent.unwrap_or(false) { "allowed" } else { "disallowed" },
+                        "COUNTRY" : user.country.clone().unwrap_or("".to_string()),
                     },
                    "tags": tag_objects.iter().map(|tag| tag["name"].clone()).collect::<Vec<_>>()
                 });

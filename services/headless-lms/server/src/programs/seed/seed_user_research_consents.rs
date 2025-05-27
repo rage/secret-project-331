@@ -19,6 +19,7 @@ pub async fn seed_user_research_consents(
         example_normal_user_ids,
         teaching_and_learning_services_user_id,
         student_without_research_consent: _,
+        student_without_country,
         material_viewer_user_id,
         user_user_id,
         student_1_user_id,
@@ -74,6 +75,13 @@ pub async fn seed_user_research_consents(
         &mut conn,
         PKeyPolicy::Generate,
         material_viewer_user_id,
+        true,
+    )
+    .await?;
+    user_research_consents::upsert(
+        &mut conn,
+        PKeyPolicy::Generate,
+        student_without_country,
         true,
     )
     .await?;

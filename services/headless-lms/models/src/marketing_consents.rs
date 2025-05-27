@@ -40,6 +40,7 @@ pub struct UserMarketingConsentWithDetails {
     pub locale: Option<String>,
     pub completed_course_at: Option<DateTime<Utc>>,
     pub research_consent: Option<bool>,
+    pub country: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -151,6 +152,7 @@ pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_group
         umc.synced_to_mailchimp_at,
         u.first_name AS first_name,
         u.last_name AS last_name,
+        u.country AS country,
         u.email AS email,
         c.name AS course_name,
         c.language_code AS locale,
@@ -174,6 +176,7 @@ pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_group
         OR csfa.updated_at > umc.synced_to_mailchimp_at
         OR urc.updated_at > umc.synced_to_mailchimp_at
         OR cmc.updated_at > umc.synced_to_mailchimp_at
+        OR u.updated_at > umc.synced_to_mailchimp_at
         OR EXISTS (
             SELECT 1
             FROM mailchimp_course_tags

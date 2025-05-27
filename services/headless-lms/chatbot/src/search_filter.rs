@@ -276,6 +276,30 @@ impl SearchFilter {
         self.to_odata_internal()
     }
 
+    /// Helper function to format a filter operand, adding parentheses only when necessary.
+    /// Simple expressions (comparisons, raw, field, etc.) don't need parentheses,
+    /// but complex logical expressions do.
+    fn format_operand(filter: &SearchFilter) -> String {
+        match filter {
+            // Simple expressions that don't need parentheses
+            SearchFilter::Parentheses(_)
+            | SearchFilter::Raw(_)
+            | SearchFilter::Field(_)
+            | SearchFilter::Eq(_, _)
+            | SearchFilter::Ne(_, _)
+            | SearchFilter::Gt(_, _)
+            | SearchFilter::Lt(_, _)
+            | SearchFilter::Ge(_, _)
+            | SearchFilter::Le(_, _)
+            | SearchFilter::In(_, _)
+            | SearchFilter::InWithDelimiter(_, _, _)
+            | SearchFilter::Any(_, _)
+            | SearchFilter::All(_, _) => filter.to_odata_internal(),
+            // Complex expressions that need parentheses
+            _ => format!("({})", filter.to_odata_internal()),
+        }
+    }
+
     fn to_odata_internal(&self) -> String {
         match self {
             // Comparison operators - no parentheses needed
@@ -297,74 +321,13 @@ impl SearchFilter {
 
             // Logical operators - always wrap operands in parentheses for clarity
             SearchFilter::And(a, b) => {
-                let left = match a.as_ref() {
-                    // Don't double-wrap if already parentheses or simple expressions
-                    SearchFilter::Parentheses(_)
-                    | SearchFilter::Raw(_)
-                    | SearchFilter::Field(_)
-                    | SearchFilter::Eq(_, _)
-                    | SearchFilter::Ne(_, _)
-                    | SearchFilter::Gt(_, _)
-                    | SearchFilter::Lt(_, _)
-                    | SearchFilter::Ge(_, _)
-                    | SearchFilter::Le(_, _)
-                    | SearchFilter::In(_, _)
-                    | SearchFilter::InWithDelimiter(_, _, _)
-                    | SearchFilter::Any(_, _)
-                    | SearchFilter::All(_, _) => a.to_odata_internal(),
-                    _ => format!("({})", a.to_odata_internal()),
-                };
-                let right = match b.as_ref() {
-                    SearchFilter::Parentheses(_)
-                    | SearchFilter::Raw(_)
-                    | SearchFilter::Field(_)
-                    | SearchFilter::Eq(_, _)
-                    | SearchFilter::Ne(_, _)
-                    | SearchFilter::Gt(_, _)
-                    | SearchFilter::Lt(_, _)
-                    | SearchFilter::Ge(_, _)
-                    | SearchFilter::Le(_, _)
-                    | SearchFilter::In(_, _)
-                    | SearchFilter::InWithDelimiter(_, _, _)
-                    | SearchFilter::Any(_, _)
-                    | SearchFilter::All(_, _) => b.to_odata_internal(),
-                    _ => format!("({})", b.to_odata_internal()),
-                };
+                let left = SearchFilter::format_operand(a.as_ref());
+                let right = SearchFilter::format_operand(b.as_ref());
                 format!("{} and {}", left, right)
             }
             SearchFilter::Or(a, b) => {
-                let left = match a.as_ref() {
-                    SearchFilter::Parentheses(_)
-                    | SearchFilter::Raw(_)
-                    | SearchFilter::Field(_)
-                    | SearchFilter::Eq(_, _)
-                    | SearchFilter::Ne(_, _)
-                    | SearchFilter::Gt(_, _)
-                    | SearchFilter::Lt(_, _)
-                    | SearchFilter::Ge(_, _)
-                    | SearchFilter::Le(_, _)
-                    | SearchFilter::In(_, _)
-                    | SearchFilter::InWithDelimiter(_, _, _)
-                    | SearchFilter::Any(_, _)
-                    | SearchFilter::All(_, _) => a.to_odata_internal(),
-                    _ => format!("({})", a.to_odata_internal()),
-                };
-                let right = match b.as_ref() {
-                    SearchFilter::Parentheses(_)
-                    | SearchFilter::Raw(_)
-                    | SearchFilter::Field(_)
-                    | SearchFilter::Eq(_, _)
-                    | SearchFilter::Ne(_, _)
-                    | SearchFilter::Gt(_, _)
-                    | SearchFilter::Lt(_, _)
-                    | SearchFilter::Ge(_, _)
-                    | SearchFilter::Le(_, _)
-                    | SearchFilter::In(_, _)
-                    | SearchFilter::InWithDelimiter(_, _, _)
-                    | SearchFilter::Any(_, _)
-                    | SearchFilter::All(_, _) => b.to_odata_internal(),
-                    _ => format!("({})", b.to_odata_internal()),
-                };
+                let left = SearchFilter::format_operand(a.as_ref());
+                let right = SearchFilter::format_operand(b.as_ref());
                 format!("{} or {}", left, right)
             }
 

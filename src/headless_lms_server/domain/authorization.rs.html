@@ -1220,7 +1220,11 @@
 <a href="#1219" id="1219">1219</a>
 <a href="#1220" id="1220">1220</a>
 <a href="#1221" id="1221">1221</a>
-<a href="#1222" id="1222">1222</a></pre></div><pre class="rust"><code><span class="doccomment">//! Common functionality related to authorization
+<a href="#1222" id="1222">1222</a>
+<a href="#1223" id="1223">1223</a>
+<a href="#1224" id="1224">1224</a>
+<a href="#1225" id="1225">1225</a>
+<a href="#1226" id="1226">1226</a></pre></div><pre class="rust"><code><span class="doccomment">//! Common functionality related to authorization
 
 </span><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::OAuthClient;
@@ -2220,6 +2224,10 @@ query ($upstreamId: Int) {
         </span>&amp;&amp; password == <span class="string">"student-without-research-consent"
     </span>{
         models::users::get_by_email(conn, <span class="string">"student-without-research-consent@example.com"</span>).<span class="kw">await</span><span class="question-mark">?
+    </span>} <span class="kw">else if </span>email == <span class="string">"student-without-country@example.com"
+        </span>&amp;&amp; password == <span class="string">"student-without-country"
+    </span>{
+        models::users::get_by_email(conn, <span class="string">"student-without-country@example.com"</span>).<span class="kw">await</span><span class="question-mark">?
     </span>} <span class="kw">else if </span>email == <span class="string">"langs@example.com" </span>&amp;&amp; password == <span class="string">"langs" </span>{
         models::users::get_by_email(conn, <span class="string">"langs@example.com"</span>).<span class="kw">await</span><span class="question-mark">?
     </span>} <span class="kw">else </span>{

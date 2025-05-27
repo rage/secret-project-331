@@ -131,9 +131,33 @@
 <a href="#130" id="130">130</a>
 <a href="#131" id="131">131</a>
 <a href="#132" id="132">132</a>
-<a href="#133" id="133">133</a></pre></div><pre class="rust"><code><span class="kw">use </span>models::{pages::SearchRequest, user_details::UserDetail};
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a></pre></div><pre class="rust"><code><span class="kw">use </span>models::{pages::SearchRequest, user_details::UserDetail};
 
 <span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>headless_lms_utils::ip_to_country::IpToCountryMapper;
+<span class="kw">use </span>std::net::IpAddr;
 
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/user-details/[id]` - Find user details by user id
@@ -248,6 +272,25 @@ GET `/api/v0/main-frontend/user-details/get-users-by-course-id` - Get user detai
     token.authorized_ok(web::Json(res))
 }
 
+<span class="kw">pub async fn </span>get_user_country_by_ip(
+    req: HttpRequest,
+    ip_to_country_mapper: web::Data&lt;IpToCountryMapper&gt;,
+) -&gt; ControllerResult&lt;String&gt; {
+    <span class="kw">let </span>connection_info = req.connection_info();
+
+    <span class="kw">let </span>ip: <span class="prelude-ty">Option</span>&lt;IpAddr&gt; = connection_info
+        .realip_remote_addr()
+        .and_then(|ip| ip.parse::&lt;IpAddr&gt;().ok());
+
+    <span class="kw">let </span>country = ip
+        .and_then(|ip| ip_to_country_mapper.map_ip_to_country(<span class="kw-2">&amp;</span>ip))
+        .map(|c| c.to_string())
+        .unwrap_or_default();
+
+    <span class="kw">let </span>token = skip_authorize();
+    token.authorized_ok(country)
+}
+
 <span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
     cfg.route(<span class="string">"/search-by-email"</span>, web::post().to(search_users_by_email))
         .route(
@@ -258,7 +301,8 @@ GET `/api/v0/main-frontend/user-details/get-users-by-course-id` - Get user detai
             <span class="string">"/search-fuzzy-match"</span>,
             web::post().to(search_users_fuzzy_match),
         )
-        .route(<span class="string">"/{user_id}"</span>, web::get().to(get_user_details))
+        .route(<span class="string">"/user/{user_id}"</span>, web::get().to(get_user_details))
+        .route(<span class="string">"/users-ip-country"</span>, web::get().to(get_user_country_by_ip))
         .route(
             <span class="string">"/{course_id}/get-users-by-course-id"</span>,
             web::get().to(get_users_by_course_id),

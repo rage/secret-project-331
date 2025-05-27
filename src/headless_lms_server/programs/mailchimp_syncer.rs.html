@@ -863,7 +863,8 @@
 <a href="#862" id="862">862</a>
 <a href="#863" id="863">863</a>
 <a href="#864" id="864">864</a>
-<a href="#865" id="865">865</a></pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::setup_tracing;
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a></pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::setup_tracing;
 <span class="kw">use </span>dotenv::dotenv;
 <span class="kw">use </span>headless_lms_models::marketing_consents::MarketingMailingListAccessToken;
 <span class="kw">use </span>headless_lms_models::marketing_consents::UserEmailSubscription;
@@ -1500,6 +1501,7 @@
                         <span class="string">"COURSEID"</span>: user.course_id,
                         <span class="string">"LANGGRPID"</span>: user.course_language_group_id,
                         <span class="string">"RESEARCH" </span>: <span class="kw">if </span>user.research_consent.unwrap_or(<span class="bool-val">false</span>) { <span class="string">"allowed" </span>} <span class="kw">else </span>{ <span class="string">"disallowed" </span>},
+                        <span class="string">"COUNTRY" </span>: user.country.clone().unwrap_or(<span class="string">""</span>.to_string()),
                     },
                    <span class="string">"tags"</span>: tag_objects.iter().map(|tag| tag[<span class="string">"name"</span>].clone()).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
                 });

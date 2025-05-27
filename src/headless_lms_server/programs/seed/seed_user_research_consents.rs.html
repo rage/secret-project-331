@@ -84,7 +84,15 @@
 <a href="#83" id="83">83</a>
 <a href="#84" id="84">84</a>
 <a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a></pre></div><pre class="rust"><code><span class="kw">use </span>headless_lms_models::{user_research_consents, PKeyPolicy};
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a></pre></div><pre class="rust"><code><span class="kw">use </span>headless_lms_models::{user_research_consents, PKeyPolicy};
 <span class="kw">use </span>sqlx::{Pool, Postgres};
 
 <span class="kw">use </span><span class="kw">super</span>::seed_users::SeedUsersResult;
@@ -105,6 +113,7 @@
         example_normal_user_ids,
         teaching_and_learning_services_user_id,
         student_without_research_consent: <span class="kw">_</span>,
+        student_without_country,
         material_viewer_user_id,
         user_user_id,
         student_1_user_id,
@@ -160,6 +169,13 @@
         <span class="kw-2">&amp;mut </span>conn,
         PKeyPolicy::Generate,
         material_viewer_user_id,
+        <span class="bool-val">true</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    user_research_consents::upsert(
+        <span class="kw-2">&amp;mut </span>conn,
+        PKeyPolicy::Generate,
+        student_without_country,
         <span class="bool-val">true</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;

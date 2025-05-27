@@ -446,7 +446,10 @@
 <a href="#445" id="445">445</a>
 <a href="#446" id="446">446</a>
 <a href="#447" id="447">447</a>
-<a href="#448" id="448">448</a></pre></div><pre class="rust"><code><span class="kw">use </span>itertools::multiunzip;
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a></pre></div><pre class="rust"><code><span class="kw">use </span>itertools::multiunzip;
 <span class="kw">use </span>serde_json::json;
 
 <span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
@@ -488,6 +491,7 @@
     <span class="kw">pub </span>locale: <span class="prelude-ty">Option</span>&lt;String&gt;,
     <span class="kw">pub </span>completed_course_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
     <span class="kw">pub </span>research_consent: <span class="prelude-ty">Option</span>&lt;bool&gt;,
+    <span class="kw">pub </span>country: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -599,6 +603,7 @@
         umc.synced_to_mailchimp_at,
         u.first_name AS first_name,
         u.last_name AS last_name,
+        u.country AS country,
         u.email AS email,
         c.name AS course_name,
         c.language_code AS locale,
@@ -622,6 +627,7 @@
         OR csfa.updated_at &gt; umc.synced_to_mailchimp_at
         OR urc.updated_at &gt; umc.synced_to_mailchimp_at
         OR cmc.updated_at &gt; umc.synced_to_mailchimp_at
+        OR u.updated_at &gt; umc.synced_to_mailchimp_at
         OR EXISTS (
             SELECT 1
             FROM mailchimp_course_tags

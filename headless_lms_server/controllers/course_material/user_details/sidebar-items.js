@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_user_country_by_ip","get_user_details","update_user_info"],"struct":["UserInfoPayload"]};

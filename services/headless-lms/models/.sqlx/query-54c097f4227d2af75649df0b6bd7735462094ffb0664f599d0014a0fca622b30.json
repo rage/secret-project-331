@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT distinct (ud.user_id),\n ud.created_at,\n ud.updated_at,\n ud.first_name,\n ud.last_name,\n ud.email,\n ud.search_helper\nFROM user_details ud\nJOIN users u\n  ON u.id = ud.user_id\nJOIN user_exercise_states ues\n  ON ud.user_id = ues.user_id\nJOIN course_instances ci\n  ON ci.id = ues.course_instance_id\nWHERE ci.course_id = $1\n  AND u.deleted_at IS NULL\n  AND ues.deleted_at IS NULL\n  AND ci.deleted_at IS NULL;\n        ",
+  "query": "\nSELECT distinct (ud.user_id),\n ud.created_at,\n ud.updated_at,\n ud.first_name,\n ud.last_name,\n ud.email,\n ud.search_helper,\n ud.country\nFROM user_details ud\nJOIN users u\n  ON u.id = ud.user_id\nJOIN user_exercise_states ues\n  ON ud.user_id = ues.user_id\nJOIN course_instances ci\n  ON ci.id = ues.course_instance_id\nWHERE ci.course_id = $1\n  AND u.deleted_at IS NULL\n  AND ues.deleted_at IS NULL\n  AND ci.deleted_at IS NULL;\n        ",
   "describe": {
     "columns": [
       {
@@ -37,12 +37,17 @@
         "ordinal": 6,
         "name": "search_helper",
         "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "country",
+        "type_info": "Varchar"
       }
     ],
     "parameters": {
       "Left": ["Uuid"]
     },
-    "nullable": [false, false, false, true, true, false, true]
+    "nullable": [false, false, false, true, true, false, true, true]
   },
-  "hash": "8c911d4dc7a5e9807eb77cb2ce423a266d6249a5880cf618cccf0639ddfd8539"
+  "hash": "54c097f4227d2af75649df0b6bd7735462094ffb0664f599d0014a0fca622b30"
 }

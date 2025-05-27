@@ -75,13 +75,15 @@ pub async fn create_skillset(
                 "textSplitMode": "pages",
                 "maximumPageLength": 2000,
                 "pageOverlapLength": 500,
-                "maximumPagesToTake": 0,
+                "maximumPagesToTake": 1,
                 "inputs": [
                     {
                         "name": "text",
-                        "source": "/document/content",
-                        "sourceContext": null,
-                        "inputs": []
+                        "source": "/document/content"
+                    },
+                    {
+                        "name": "languageCode",
+                        "source": "/document/language"
                     }
                 ],
                 "outputs": [
@@ -150,7 +152,19 @@ pub async fn create_skillset(
                           "source": "/document/url",
                           "sourceContext": null,
                           "inputs": []
-                      }
+                        },
+                        {
+                          "name": "course_id",
+                          "source": "/document/course_id",
+                          "sourceContext": null,
+                          "inputs": []
+                        },
+                        {
+                          "name": "language",
+                          "source": "/document/language",
+                          "sourceContext": null,
+                          "inputs": []
+                        }
                     ]
                 }
             ],

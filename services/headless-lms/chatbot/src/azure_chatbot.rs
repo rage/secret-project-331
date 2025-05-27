@@ -186,7 +186,7 @@ impl ChatRequest {
                     strictness: 3,
                     filter: Some(
                         SearchFilter::eq("course_id", configuration.course_id.to_string())
-                            .to_odata(),
+                            .to_odata()?,
                     ),
                     fields_mapping: FieldsMapping {
                         content_fields_separator: ",".to_string(),

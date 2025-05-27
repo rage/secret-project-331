@@ -28,33 +28,56 @@
 //! # Examples
 //!
 //! ```rust
-//! use headless_lms_chatbot::search_filter::SearchFilter;
+//! use headless_lms_chatbot::search_filter::{SearchFilter, SearchFilterError};
 //!
-//! // Simple comparison
-//! let filter = SearchFilter::eq("Rating", 5);
-//! assert_eq!(filter.to_odata(), "Rating eq 5");
+//! fn example() -> Result<(), SearchFilterError> {
+//!     // Simple comparison
+//!     let filter = SearchFilter::eq("Rating", 5);
+//!     assert_eq!(filter.to_odata()?, "Rating eq 5");
 //!
-//! // Using operators for logical combinations (note the explicit parentheses)
-//! let filter = SearchFilter::eq("Category", "Luxury")
-//!     | SearchFilter::eq("ParkingIncluded", true)
-//!     & SearchFilter::eq("Rating", 5);
-//! assert_eq!(filter.to_odata(), "(Category eq 'Luxury' or (ParkingIncluded eq true and Rating eq 5))");
+//!     // Using operators for logical combinations (note the explicit parentheses)
+//!     let filter = SearchFilter::eq("Category", "Luxury")
+//!         | SearchFilter::eq("ParkingIncluded", true)
+//!         & SearchFilter::eq("Rating", 5);
+//!     assert_eq!(filter.to_odata()?, "(Category eq 'Luxury' or (ParkingIncluded eq true and Rating eq 5))");
 //!
-//! // Using negation operator
-//! let filter = !SearchFilter::eq("Deleted", true) & SearchFilter::eq("Status", "active");
-//! assert_eq!(filter.to_odata(), "((not (Deleted eq true)) and Status eq 'active')");
+//!     // Using negation operator
+//!     let filter = !SearchFilter::eq("Deleted", true) & SearchFilter::eq("Status", "active");
+//!     assert_eq!(filter.to_odata()?, "((not (Deleted eq true)) and Status eq 'active')");
 //!
-//! // Collection operations
-//! let filter = SearchFilter::any_with_filter(
-//!     "Rooms",
-//!     SearchFilter::raw("room: room/BaseRate lt 200.0")
-//! );
-//! assert_eq!(filter.to_odata(), "Rooms/any(room: room/BaseRate lt 200.0)");
+//!     // Collection operations
+//!     let filter = SearchFilter::any_with_filter(
+//!         "Rooms",
+//!         SearchFilter::raw("room: room/BaseRate lt 200.0")
+//!     );
+//!     assert_eq!(filter.to_odata()?, "Rooms/any(room: room/BaseRate lt 200.0)");
+//!     Ok(())
+//! }
+//! # example().unwrap();
 //! ```
 
 use std::fmt;
 use std::ops;
 use uuid::Uuid;
+
+/// Error type for search filter operations.
+#[derive(Debug, Clone, PartialEq)]
+pub enum SearchFilterError {
+    /// List values can only be used with search.in operations, not as direct OData literals
+    ListNotSupportedInOData,
+}
+
+impl fmt::Display for SearchFilterError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            SearchFilterError::ListNotSupportedInOData => {
+                write!(f, "List values can only be used with search.in operations, not as direct OData literals")
+            }
+        }
+    }
+}
+
+impl std::error::Error for SearchFilterError {}
 
 /// A strongly-typed OData filter value.
 ///
@@ -80,20 +103,29 @@ impl SearchFilterValue {
     /// # Examples
     ///
     /// ```
-    /// # use headless_lms_chatbot::search_filter::SearchFilterValue;
-    /// assert_eq!(SearchFilterValue::Str("abc".into()).to_odata(), "'abc'");
-    /// assert_eq!(SearchFilterValue::Int(42).to_odata(), "42");
-    /// assert_eq!(SearchFilterValue::Bool(false).to_odata(), "false");
-    /// assert_eq!(SearchFilterValue::Null.to_odata(), "null");
+    /// # use headless_lms_chatbot::search_filter::{SearchFilterValue, SearchFilterError};
+    /// # fn example() -> Result<(), SearchFilterError> {
+    /// assert_eq!(SearchFilterValue::Str("abc".into()).to_odata()?, "'abc'");
+    /// assert_eq!(SearchFilterValue::Int(42).to_odata()?, "42");
+    /// assert_eq!(SearchFilterValue::Bool(false).to_odata()?, "false");
+    /// assert_eq!(SearchFilterValue::Null.to_odata()?, "null");
+    /// # Ok(())
+    /// # }
+    /// # example().unwrap();
     /// ```
-    pub fn to_odata(&self) -> String {
+    ///
+    /// # Errors
+    ///
+    /// Returns `SearchFilterError::ListNotSupportedInOData` if called on a `List` variant,
+    /// as lists can only be used with `search.in` operations.
+    pub fn to_odata(&self) -> Result<String, SearchFilterError> {
         match self {
-            SearchFilterValue::Str(s) => format!("'{}'", s.replace('\'', "''")),
-            SearchFilterValue::Bool(b) => b.to_string(),
-            SearchFilterValue::Int(i) => i.to_string(),
-            SearchFilterValue::Float(f) => f.to_string(),
-            SearchFilterValue::List(_) => panic!("List only supported via `search_in`"),
-            SearchFilterValue::Null => "null".to_string(),
+            SearchFilterValue::Str(s) => Ok(format!("'{}'", s.replace('\'', "''"))),
+            SearchFilterValue::Bool(b) => Ok(b.to_string()),
+            SearchFilterValue::Int(i) => Ok(i.to_string()),
+            SearchFilterValue::Float(f) => Ok(f.to_string()),
+            SearchFilterValue::List(_) => Err(SearchFilterError::ListNotSupportedInOData),
+            SearchFilterValue::Null => Ok("null".to_string()),
         }
     }
 }
@@ -272,14 +304,19 @@ impl SearchFilter {
     }
 
     /// Serialize this filter into a complete OData `$filter` string.
-    pub fn to_odata(&self) -> String {
+    ///
+    /// # Errors
+    ///
+    /// Returns `SearchFilterError::ListNotSupportedInOData` if any filter value
+    /// contains a `List` variant that cannot be serialized to OData.
+    pub fn to_odata(&self) -> Result<String, SearchFilterError> {
         self.to_odata_internal()
     }
 
     /// Helper function to format a filter operand, adding parentheses only when necessary.
     /// Simple expressions (comparisons, raw, field, etc.) don't need parentheses,
     /// but complex logical expressions do.
-    fn format_operand(filter: &SearchFilter) -> String {
+    fn format_operand(filter: &SearchFilter) -> Result<String, SearchFilterError> {
         match filter {
             // Simple expressions that don't need parentheses
             SearchFilter::Parentheses(_)
@@ -296,56 +333,54 @@ impl SearchFilter {
             | SearchFilter::Any(_, _)
             | SearchFilter::All(_, _) => filter.to_odata_internal(),
             // Complex expressions that need parentheses
-            _ => format!("({})", filter.to_odata_internal()),
+            _ => Ok(format!("({})", filter.to_odata_internal()?)),
         }
     }
 
-    fn to_odata_internal(&self) -> String {
+    fn to_odata_internal(&self) -> Result<String, SearchFilterError> {
         match self {
             // Comparison operators - no parentheses needed
-            SearchFilter::Eq(f, v) => format!("{} eq {}", f, v.to_odata()),
-            SearchFilter::Ne(f, v) => format!("{} ne {}", f, v.to_odata()),
-            SearchFilter::Gt(f, v) => format!("{} gt {}", f, v.to_odata()),
-            SearchFilter::Lt(f, v) => format!("{} lt {}", f, v.to_odata()),
-            SearchFilter::Ge(f, v) => format!("{} ge {}", f, v.to_odata()),
-            SearchFilter::Le(f, v) => format!("{} le {}", f, v.to_odata()),
-            SearchFilter::In(f, vs) => format!("search.in({}, '{}', ',')", f, vs.join(",")),
-            SearchFilter::InWithDelimiter(f, vs, delimiter) => {
-                format!(
-                    "search.in({}, '{}', '{}')",
-                    f,
-                    vs.join(delimiter),
-                    delimiter
-                )
-            }
+            SearchFilter::Eq(f, v) => Ok(format!("{} eq {}", f, v.to_odata()?)),
+            SearchFilter::Ne(f, v) => Ok(format!("{} ne {}", f, v.to_odata()?)),
+            SearchFilter::Gt(f, v) => Ok(format!("{} gt {}", f, v.to_odata()?)),
+            SearchFilter::Lt(f, v) => Ok(format!("{} lt {}", f, v.to_odata()?)),
+            SearchFilter::Ge(f, v) => Ok(format!("{} ge {}", f, v.to_odata()?)),
+            SearchFilter::Le(f, v) => Ok(format!("{} le {}", f, v.to_odata()?)),
+            SearchFilter::In(f, vs) => Ok(format!("search.in({}, '{}', ',')", f, vs.join(","))),
+            SearchFilter::InWithDelimiter(f, vs, delimiter) => Ok(format!(
+                "search.in({}, '{}', '{}')",
+                f,
+                vs.join(delimiter),
+                delimiter
+            )),
 
             // Logical operators - always wrap operands in parentheses for clarity
             SearchFilter::And(a, b) => {
-                let left = SearchFilter::format_operand(a.as_ref());
-                let right = SearchFilter::format_operand(b.as_ref());
-                format!("{} and {}", left, right)
+                let left = SearchFilter::format_operand(a.as_ref())?;
+                let right = SearchFilter::format_operand(b.as_ref())?;
+                Ok(format!("{} and {}", left, right))
             }
             SearchFilter::Or(a, b) => {
-                let left = SearchFilter::format_operand(a.as_ref());
-                let right = SearchFilter::format_operand(b.as_ref());
-                format!("{} or {}", left, right)
+                let left = SearchFilter::format_operand(a.as_ref())?;
+                let right = SearchFilter::format_operand(b.as_ref())?;
+                Ok(format!("{} or {}", left, right))
             }
 
             // Not always needs parentheses around its operand
-            SearchFilter::Not(i) => format!("not ({})", i.to_odata_internal()),
+            SearchFilter::Not(i) => Ok(format!("not ({})", i.to_odata_internal()?)),
 
             // Explicit parentheses
-            SearchFilter::Parentheses(f) => format!("({})", f.to_odata_internal()),
+            SearchFilter::Parentheses(f) => Ok(format!("({})", f.to_odata_internal()?)),
 
             // High precedence expressions - no parentheses needed
-            SearchFilter::Raw(s) => s.clone(),
-            SearchFilter::Field(f) => f.clone(),
+            SearchFilter::Raw(s) => Ok(s.clone()),
+            SearchFilter::Field(f) => Ok(f.clone()),
             SearchFilter::Any(f, Some(filter)) => {
-                format!("{}/any({})", f, filter.to_odata_internal())
+                Ok(format!("{}/any({})", f, filter.to_odata_internal()?))
             }
-            SearchFilter::Any(f, None) => format!("{}/any()", f),
+            SearchFilter::Any(f, None) => Ok(format!("{}/any()", f)),
             SearchFilter::All(f, filter) => {
-                format!("{}/all({})", f, filter.to_odata_internal())
+                Ok(format!("{}/all({})", f, filter.to_odata_internal()?))
             }
         }
     }
@@ -353,7 +388,10 @@ impl SearchFilter {
 
 impl fmt::Display for SearchFilter {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.to_odata())
+        match self.to_odata() {
+            Ok(odata) => write!(f, "{}", odata),
+            Err(err) => write!(f, "Error: {}", err),
+        }
     }
 }
 
@@ -386,24 +424,37 @@ mod tests {
     use super::*;
 
     #[test]
-    fn value_to_odata_literals() {
+    fn value_to_odata_literals() -> Result<(), SearchFilterError> {
         assert_eq!(
-            SearchFilterValue::Str("o'neil".into()).to_odata(),
+            SearchFilterValue::Str("o'neil".into()).to_odata()?,
             "'o''neil'"
         );
-        assert_eq!(SearchFilterValue::Int(123).to_odata(), "123");
-        assert_eq!(SearchFilterValue::Bool(true).to_odata(), "true");
-        assert_eq!(SearchFilterValue::Float(3.5).to_odata(), "3.5");
-        assert_eq!(SearchFilterValue::Null.to_odata(), "null");
+        assert_eq!(SearchFilterValue::Int(123).to_odata()?, "123");
+        assert_eq!(SearchFilterValue::Bool(true).to_odata()?, "true");
+        assert_eq!(SearchFilterValue::Float(3.5).to_odata()?, "3.5");
+        assert_eq!(SearchFilterValue::Null.to_odata()?, "null");
+        Ok(())
     }
 
     #[test]
-    fn uuid_into_value() {
+    fn list_value_error() {
+        let list_value = SearchFilterValue::List(vec!["a".to_string(), "b".to_string()]);
+        let result = list_value.to_odata();
+        assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err(),
+            SearchFilterError::ListNotSupportedInOData
+        );
+    }
+
+    #[test]
+    fn uuid_into_value() -> Result<(), SearchFilterError> {
         let id = Uuid::parse_str("11111111-2222-3333-4444-555555555555").unwrap();
         assert_eq!(
-            SearchFilterValue::from(id).to_odata(),
+            SearchFilterValue::from(id).to_odata()?,
             "'11111111-2222-3333-4444-555555555555'"
         );
+        Ok(())
     }
 
     #[test]
@@ -415,11 +466,11 @@ mod tests {
     }
 
     #[test]
-    fn logical_combinations() {
+    fn logical_combinations() -> Result<(), SearchFilterError> {
         let a = SearchFilter::eq("x", 1);
         let b = SearchFilter::ne("y", false);
         let c = a.clone().and(b.clone());
-        assert_eq!(c.to_odata(), "x eq 1 and y ne false");
+        assert_eq!(c.to_odata()?, "x eq 1 and y ne false");
         let d = c.or(SearchFilter::raw(
             "geo.distance(loc, geography'POINT(0 0)') le 5",
         ));
@@ -427,13 +478,15 @@ mod tests {
             d.to_string(),
             "(x eq 1 and y ne false) or geo.distance(loc, geography'POINT(0 0)') le 5"
         );
+        Ok(())
     }
 
     #[test]
-    fn search_in_multiple_values() {
+    fn search_in_multiple_values() -> Result<(), SearchFilterError> {
         let vals = vec!["a".into(), "b".into(), "c".into()];
         let f = SearchFilter::search_in("tags", vals);
-        assert_eq!(f.to_odata(), "search.in(tags, 'a,b,c', ',')");
+        assert_eq!(f.to_odata()?, "search.in(tags, 'a,b,c', ',')");
+        Ok(())
     }
 
     #[test]
@@ -443,19 +496,20 @@ mod tests {
     }
 
     #[test]
-    fn not_operator_trait() {
+    fn not_operator_trait() -> Result<(), SearchFilterError> {
         // Test that both the method and the ! operator work
         let filter = SearchFilter::eq("status", "open");
         let method_result = filter.clone().not();
         let operator_result = !filter;
 
-        assert_eq!(method_result.to_odata(), "not (status eq 'open')");
-        assert_eq!(operator_result.to_odata(), "not (status eq 'open')");
-        assert_eq!(method_result.to_odata(), operator_result.to_odata());
+        assert_eq!(method_result.to_odata()?, "not (status eq 'open')");
+        assert_eq!(operator_result.to_odata()?, "not (status eq 'open')");
+        assert_eq!(method_result.to_odata()?, operator_result.to_odata()?);
+        Ok(())
     }
 
     #[test]
-    fn bitand_operator_trait() {
+    fn bitand_operator_trait() -> Result<(), SearchFilterError> {
         // Test that both the method and the & operator work
         let left = SearchFilter::eq("status", "active");
         let right = SearchFilter::gt("rating", 4);
@@ -464,18 +518,19 @@ mod tests {
         let operator_result = left & right;
 
         assert_eq!(
-            method_result.to_odata(),
+            method_result.to_odata()?,
             "status eq 'active' and rating gt 4"
         );
         assert_eq!(
-            operator_result.to_odata(),
+            operator_result.to_odata()?,
             "(status eq 'active' and rating gt 4)"
         );
         // Note: operator version has explicit parentheses for clarity
+        Ok(())
     }
 
     #[test]
-    fn bitor_operator_trait() {
+    fn bitor_operator_trait() -> Result<(), SearchFilterError> {
         // Test that both the method and the | operator work
         let left = SearchFilter::eq("category", "luxury");
         let right = SearchFilter::eq("parking", true);
@@ -484,18 +539,19 @@ mod tests {
         let operator_result = left | right;
 
         assert_eq!(
-            method_result.to_odata(),
+            method_result.to_odata()?,
             "category eq 'luxury' or parking eq true"
         );
         assert_eq!(
-            operator_result.to_odata(),
+            operator_result.to_odata()?,
             "(category eq 'luxury' or parking eq true)"
         );
         // Note: operator version has explicit parentheses for clarity
+        Ok(())
     }
 
     #[test]
-    fn combined_operators() {
+    fn combined_operators() -> Result<(), SearchFilterError> {
         // Test combining multiple operators: !a & b | c
         let a = SearchFilter::eq("deleted", true);
         let b = SearchFilter::eq("status", "active");
@@ -503,13 +559,14 @@ mod tests {
 
         let result = !a & b | c;
         assert_eq!(
-            result.to_odata(),
+            result.to_odata()?,
             "(((not (deleted eq true)) and status eq 'active') or featured eq true)"
         );
+        Ok(())
     }
 
     #[test]
-    fn operator_precedence_demonstration() {
+    fn operator_precedence_demonstration() -> Result<(), SearchFilterError> {
         // Demonstrate that Rust's operator precedence applies:
         // & has higher precedence than |, so a | b & c is parsed as a | (b & c)
         let a = SearchFilter::eq("a", 1);
@@ -517,7 +574,7 @@ mod tests {
         let c = SearchFilter::eq("c", 3);
 
         let result = a | b & c;
-        assert_eq!(result.to_odata(), "(a eq 1 or (b eq 2 and c eq 3))");
+        assert_eq!(result.to_odata()?, "(a eq 1 or (b eq 2 and c eq 3))");
 
         // To get (a | b) & c, you need explicit parentheses:
         let a = SearchFilter::eq("a", 1);
@@ -525,50 +582,54 @@ mod tests {
         let c = SearchFilter::eq("c", 3);
 
         let result = (a | b) & c;
-        assert_eq!(result.to_odata(), "((a eq 1 or b eq 2) and c eq 3)");
+        assert_eq!(result.to_odata()?, "((a eq 1 or b eq 2) and c eq 3)");
+        Ok(())
     }
 
     #[test]
-    fn nested_mix() {
+    fn nested_mix() -> Result<(), SearchFilterError> {
         let f = SearchFilter::eq("id", "abc")
             .and(SearchFilter::search_in("cat", vec!["x".into(), "y".into()]))
             .or(SearchFilter::raw("search.ismatchscoring('foo')"));
         assert_eq!(
-            f.to_odata(),
+            f.to_odata()?,
             "(id eq 'abc' and search.in(cat, 'x,y', ',')) or search.ismatchscoring('foo')"
         );
+        Ok(())
     }
 
     #[test]
-    fn null_comparisons() {
+    fn null_comparisons() -> Result<(), SearchFilterError> {
         let f = SearchFilter::eq("Description", SearchFilterValue::null());
-        assert_eq!(f.to_odata(), "Description eq null");
+        assert_eq!(f.to_odata()?, "Description eq null");
 
         let f = SearchFilter::ne("Title", SearchFilterValue::null());
-        assert_eq!(f.to_odata(), "Title ne null");
+        assert_eq!(f.to_odata()?, "Title ne null");
+        Ok(())
     }
 
     #[test]
-    fn boolean_field_expressions() {
+    fn boolean_field_expressions() -> Result<(), SearchFilterError> {
         let f = SearchFilter::field("IsEnabled");
-        assert_eq!(f.to_odata(), "IsEnabled");
+        assert_eq!(f.to_odata()?, "IsEnabled");
 
         let f = SearchFilter::field("ParkingIncluded").and(SearchFilter::eq("Rating", 5));
-        assert_eq!(f.to_odata(), "ParkingIncluded and Rating eq 5");
+        assert_eq!(f.to_odata()?, "ParkingIncluded and Rating eq 5");
+        Ok(())
     }
 
     #[test]
-    fn collection_any_operator() {
+    fn collection_any_operator() -> Result<(), SearchFilterError> {
         // Simple any() without filter
         let f = SearchFilter::any("Rooms");
-        assert_eq!(f.to_odata(), "Rooms/any()");
+        assert_eq!(f.to_odata()?, "Rooms/any()");
 
         // any() with filter
         let f = SearchFilter::any_with_filter(
             "Rooms",
             SearchFilter::raw("room: room/BaseRate lt 200.0"),
         );
-        assert_eq!(f.to_odata(), "Rooms/any(room: room/BaseRate lt 200.0)");
+        assert_eq!(f.to_odata()?, "Rooms/any(room: room/BaseRate lt 200.0)");
 
         // Complex example from docs: Find all hotels with at least one room with base rate < $200 and rating >= 4
         let f = SearchFilter::any_with_filter(
@@ -577,16 +638,17 @@ mod tests {
         )
         .and(SearchFilter::ge("Rating", 4));
         assert_eq!(
-            f.to_odata(),
+            f.to_odata()?,
             "Rooms/any(room: room/BaseRate lt 200.0) and Rating ge 4"
         );
+        Ok(())
     }
 
     #[test]
-    fn collection_all_operator() {
+    fn collection_all_operator() -> Result<(), SearchFilterError> {
         // all() with filter
         let f = SearchFilter::all("Rooms", SearchFilter::raw("room: not room/SmokingAllowed"));
-        assert_eq!(f.to_odata(), "Rooms/all(room: not room/SmokingAllowed)");
+        assert_eq!(f.to_odata()?, "Rooms/all(room: not room/SmokingAllowed)");
 
         // Complex example from docs: Find hotels with parking and all rooms non-smoking
         let f = SearchFilter::field("ParkingIncluded").and(SearchFilter::all(
@@ -594,44 +656,47 @@ mod tests {
             SearchFilter::raw("room: not room/SmokingAllowed"),
         ));
         assert_eq!(
-            f.to_odata(),
+            f.to_odata()?,
             "ParkingIncluded and Rooms/all(room: not room/SmokingAllowed)"
         );
+        Ok(())
     }
 
     #[test]
-    fn operator_precedence_examples() {
+    fn operator_precedence_examples() -> Result<(), SearchFilterError> {
         // Example from docs: Rating gt 0 and Rating lt 3 or Rating gt 7 and Rating lt 10
         // Should be equivalent to: ((Rating gt 0) and (Rating lt 3)) or ((Rating gt 7) and (Rating lt 10))
         let f = SearchFilter::gt("Rating", 0)
             .and(SearchFilter::lt("Rating", 3))
             .or(SearchFilter::gt("Rating", 7).and(SearchFilter::lt("Rating", 10)));
         assert_eq!(
-            f.to_odata(),
+            f.to_odata()?,
             "(Rating gt 0 and Rating lt 3) or (Rating gt 7 and Rating lt 10)"
         );
+        Ok(())
     }
 
     #[test]
-    fn not_operator_precedence() {
+    fn not_operator_precedence() -> Result<(), SearchFilterError> {
         // Example from docs: not (Rating gt 5) - parentheses are required
         let f = SearchFilter::gt("Rating", 5).not();
-        assert_eq!(f.to_odata(), "not (Rating gt 5)");
+        assert_eq!(f.to_odata()?, "not (Rating gt 5)");
 
         // Test with collection operator
         let f = SearchFilter::any("Rooms").not();
-        assert_eq!(f.to_odata(), "not (Rooms/any())");
+        assert_eq!(f.to_odata()?, "not (Rooms/any())");
+        Ok(())
     }
 
     #[test]
-    fn complex_real_world_examples() {
+    fn complex_real_world_examples() -> Result<(), SearchFilterError> {
         // Example from docs: Find hotels that are Luxury or include parking and have rating of 5
         // With our simplified approach, method chaining gives us the correct result
         let f = SearchFilter::eq("Category", "Luxury")
             .or(SearchFilter::eq("ParkingIncluded", true))
             .and(SearchFilter::eq("Rating", 5));
         assert_eq!(
-            f.to_odata(),
+            f.to_odata()?,
             "(Category eq 'Luxury' or ParkingIncluded eq true) and Rating eq 5"
         );
 
@@ -641,20 +706,21 @@ mod tests {
             "2010-01-01T00:00:00Z",
         ));
         assert_eq!(
-            f.to_odata(),
+            f.to_odata()?,
             "HotelName ne 'Sea View Motel' and LastRenovationDate ge '2010-01-01T00:00:00Z'"
         );
+        Ok(())
     }
 
     #[test]
-    fn search_in_with_different_delimiters() {
+    fn search_in_with_different_delimiters() -> Result<(), SearchFilterError> {
         // Example from docs with comma delimiter
         let f = SearchFilter::search_in(
             "HotelName",
             vec!["Sea View motel".into(), "Budget hotel".into()],
         );
         assert_eq!(
-            f.to_odata(),
+            f.to_odata()?,
             "search.in(HotelName, 'Sea View motel,Budget hotel', ',')"
         );
 
@@ -665,7 +731,7 @@ mod tests {
             "|",
         );
         assert_eq!(
-            f.to_odata(),
+            f.to_odata()?,
             "search.in(HotelName, 'Sea View motel|Budget hotel', '|')"
         );
 
@@ -673,13 +739,14 @@ mod tests {
         let vals = vec!["heated towel racks".into(), "hairdryer included".into()];
         let f = SearchFilter::search_in("Tags", vals);
         assert_eq!(
-            f.to_odata(),
+            f.to_odata()?,
             "search.in(Tags, 'heated towel racks,hairdryer included', ',')"
         );
+        Ok(())
     }
 
     #[test]
-    fn documentation_examples_comprehensive() {
+    fn documentation_examples_comprehensive() -> Result<(), SearchFilterError> {
         // Example 1: Find all hotels with at least one room with a base rate less than $200 that are rated at or above 4
         let f = SearchFilter::any_with_filter(
             "Rooms",
@@ -687,7 +754,7 @@ mod tests {
         )
         .and(SearchFilter::ge("Rating", 4));
         assert_eq!(
-            f.to_odata(),
+            f.to_odata()?,
             "Rooms/any(room: room/BaseRate lt 200.0) and Rating ge 4"
         );
 
@@ -697,14 +764,14 @@ mod tests {
             "2010-01-01T00:00:00Z",
         ));
         assert_eq!(
-            f.to_odata(),
+            f.to_odata()?,
             "HotelName ne 'Sea View Motel' and LastRenovationDate ge '2010-01-01T00:00:00Z'"
         );
 
         // Example 3: Find all hotels that were renovated in 2010 or later with timezone
         let f = SearchFilter::ge("LastRenovationDate", "2010-01-01T00:00:00-08:00");
         assert_eq!(
-            f.to_odata(),
+            f.to_odata()?,
             "LastRenovationDate ge '2010-01-01T00:00:00-08:00'"
         );
 
@@ -714,7 +781,7 @@ mod tests {
             SearchFilter::raw("room: not room/SmokingAllowed"),
         ));
         assert_eq!(
-            f.to_odata(),
+            f.to_odata()?,
             "ParkingIncluded and Rooms/all(room: not room/SmokingAllowed)"
         );
 
@@ -724,7 +791,7 @@ mod tests {
             SearchFilter::raw("room: room/SmokingAllowed eq false"),
         ));
         assert_eq!(
-            f.to_odata(),
+            f.to_odata()?,
             "ParkingIncluded eq true and Rooms/all(room: room/SmokingAllowed eq false)"
         );
 
@@ -735,30 +802,31 @@ mod tests {
             .or(SearchFilter::eq("ParkingIncluded", true))
             .and(SearchFilter::eq("Rating", 5));
         assert_eq!(
-            f.to_odata(),
+            f.to_odata()?,
             "(Category eq 'Luxury' or ParkingIncluded eq true) and Rating eq 5"
         );
+        Ok(())
     }
 
     #[test]
-    fn nested_collection_operations() {
+    fn nested_collection_operations() -> Result<(), SearchFilterError> {
         // Example: Find all hotels with the tag "wifi" in at least one room
         let f = SearchFilter::any_with_filter(
             "Rooms",
             SearchFilter::raw("room: room/Tags/any(tag: tag eq 'wifi')"),
         );
         assert_eq!(
-            f.to_odata(),
+            f.to_odata()?,
             "Rooms/any(room: room/Tags/any(tag: tag eq 'wifi'))"
         );
 
         // Example: Find all hotels with any rooms
         let f = SearchFilter::any("Rooms");
-        assert_eq!(f.to_odata(), "Rooms/any()");
+        assert_eq!(f.to_odata()?, "Rooms/any()");
 
         // Example: Find all hotels that don't have rooms
         let f = SearchFilter::any("Rooms").not();
-        assert_eq!(f.to_odata(), "not (Rooms/any())");
+        assert_eq!(f.to_odata()?, "not (Rooms/any())");
 
         // Example: Find all hotels where all rooms have the tag 'wifi' or 'tub'
         let f = SearchFilter::any_with_filter(
@@ -766,19 +834,20 @@ mod tests {
             SearchFilter::raw("room: room/Tags/any(tag: search.in(tag, 'wifi, tub'))"),
         );
         assert_eq!(
-            f.to_odata(),
+            f.to_odata()?,
             "Rooms/any(room: room/Tags/any(tag: search.in(tag, 'wifi, tub')))"
         );
+        Ok(())
     }
 
     #[test]
-    fn geospatial_examples() {
+    fn geospatial_examples() -> Result<(), SearchFilterError> {
         // Example: Find all hotels within 10 kilometers of a given reference point
         let f = SearchFilter::raw(
             "geo.distance(Location, geography'POINT(-122.131577 47.678581)') le 10",
         );
         assert_eq!(
-            f.to_odata(),
+            f.to_odata()?,
             "geo.distance(Location, geography'POINT(-122.131577 47.678581)') le 10"
         );
 
@@ -787,16 +856,17 @@ mod tests {
             "geo.intersects(Location, geography'POLYGON((-122.031577 47.578581, -122.031577 47.678581, -122.131577 47.678581, -122.031577 47.578581))')"
         );
         assert_eq!(
-            f.to_odata(),
+            f.to_odata()?,
             "geo.intersects(Location, geography'POLYGON((-122.031577 47.578581, -122.031577 47.678581, -122.131577 47.678581, -122.031577 47.578581))')"
         );
+        Ok(())
     }
 
     #[test]
-    fn full_text_search_examples() {
+    fn full_text_search_examples() -> Result<(), SearchFilterError> {
         // Example: Find documents with the word "waterfront"
         let f = SearchFilter::raw("search.ismatchscoring('waterfront')");
-        assert_eq!(f.to_odata(), "search.ismatchscoring('waterfront')");
+        assert_eq!(f.to_odata()?, "search.ismatchscoring('waterfront')");
 
         // Example: Find documents with the word "hostel" and rating >= 4, or "motel" and rating = 5
         let f = SearchFilter::raw("search.ismatchscoring('hostel')")
@@ -804,20 +874,20 @@ mod tests {
             .or(SearchFilter::raw("search.ismatchscoring('motel')")
                 .and(SearchFilter::eq("rating", 5)));
         assert_eq!(
-            f.to_odata(),
+            f.to_odata()?,
             "(search.ismatchscoring('hostel') and rating ge 4) or (search.ismatchscoring('motel') and rating eq 5)"
         );
 
         // Example: Find documents without the word "luxury"
         let f = SearchFilter::raw("search.ismatch('luxury')").not();
-        assert_eq!(f.to_odata(), "not (search.ismatch('luxury'))");
+        assert_eq!(f.to_odata()?, "not (search.ismatch('luxury'))");
 
         // Example: Find documents with phrase "ocean view" or rating = 5
         let f =
             SearchFilter::raw("search.ismatchscoring('\"ocean view\"', 'Description,HotelName')")
                 .or(SearchFilter::eq("Rating", 5));
         assert_eq!(
-            f.to_odata(),
+            f.to_odata()?,
             "search.ismatchscoring('\"ocean view\"', 'Description,HotelName') or Rating eq 5"
         );
 
@@ -830,34 +900,36 @@ mod tests {
                 .not(),
         );
         assert_eq!(
-            f.to_odata(),
+            f.to_odata()?,
             "search.ismatch('\"hotel airport\"~5', 'Description', 'full', 'any') and (not (Rooms/any(room: room/SmokingAllowed)))"
         );
 
         // Example: Prefix search
         let f = SearchFilter::raw("search.ismatch('lux*', 'Description')");
-        assert_eq!(f.to_odata(), "search.ismatch('lux*', 'Description')");
+        assert_eq!(f.to_odata()?, "search.ismatch('lux*', 'Description')");
+        Ok(())
     }
 
     #[test]
-    fn operator_precedence_documentation_examples() {
+    fn operator_precedence_documentation_examples() -> Result<(), SearchFilterError> {
         // The key example from docs: Rating gt 0 and Rating lt 3 or Rating gt 7 and Rating lt 10
         // Should be equivalent to: ((Rating gt 0) and (Rating lt 3)) or ((Rating gt 7) and (Rating lt 10))
         let f = SearchFilter::gt("Rating", 0)
             .and(SearchFilter::lt("Rating", 3))
             .or(SearchFilter::gt("Rating", 7).and(SearchFilter::lt("Rating", 10)));
         assert_eq!(
-            f.to_odata(),
+            f.to_odata()?,
             "(Rating gt 0 and Rating lt 3) or (Rating gt 7 and Rating lt 10)"
         );
 
         // Test that 'and' has higher precedence than 'or'
         let f = SearchFilter::eq("A", 1).or(SearchFilter::eq("B", 2).and(SearchFilter::eq("C", 3)));
-        assert_eq!(f.to_odata(), "A eq 1 or (B eq 2 and C eq 3)");
+        assert_eq!(f.to_odata()?, "A eq 1 or (B eq 2 and C eq 3)");
+        Ok(())
     }
 
     #[test]
-    fn explicit_parentheses_for_precedence_override() {
+    fn explicit_parentheses_for_precedence_override() -> Result<(), SearchFilterError> {
         // Example from docs that requires explicit parentheses:
         // $filter=(Category eq 'Luxury' or ParkingIncluded eq true) and Rating eq 5
         let f = SearchFilter::eq("Category", "Luxury")
@@ -865,7 +937,7 @@ mod tests {
             .parentheses()
             .and(SearchFilter::eq("Rating", 5));
         assert_eq!(
-            f.to_odata(),
+            f.to_odata()?,
             "(Category eq 'Luxury' or ParkingIncluded eq true) and Rating eq 5"
         );
 
@@ -874,13 +946,14 @@ mod tests {
             .or(SearchFilter::eq("ParkingIncluded", true))
             .and(SearchFilter::eq("Rating", 5));
         assert_eq!(
-            f_no_parens.to_odata(),
+            f_no_parens.to_odata()?,
             "(Category eq 'Luxury' or ParkingIncluded eq true) and Rating eq 5"
         );
+        Ok(())
     }
 
     #[test]
-    fn odata_specification_compliance() {
+    fn odata_specification_compliance() -> Result<(), SearchFilterError> {
         // Test cases based on the official OData specification examples
 
         // Example: "Find all hotels other than 'Sea View Motel' that have been renovated since 2010"
@@ -890,7 +963,7 @@ mod tests {
             "2010-01-01T00:00:00Z",
         ));
         assert_eq!(
-            filter.to_odata(),
+            filter.to_odata()?,
             "HotelName ne 'Sea View Motel' and LastRenovationDate ge '2010-01-01T00:00:00Z'"
         );
 
@@ -901,7 +974,7 @@ mod tests {
             .or(SearchFilter::eq("ParkingIncluded", true))
             .and(SearchFilter::eq("Rating", 5));
         assert_eq!(
-            filter.to_odata(),
+            filter.to_odata()?,
             "(Category eq 'Luxury' or ParkingIncluded eq true) and Rating eq 5"
         );
 
@@ -912,19 +985,19 @@ mod tests {
             SearchFilter::raw("room: not room/SmokingAllowed"),
         ));
         assert_eq!(
-            filter.to_odata(),
+            filter.to_odata()?,
             "ParkingIncluded and Rooms/all(room: not room/SmokingAllowed)"
         );
 
         // Example: "Find all hotels that don't have rooms"
         // Expected: $filter=not Rooms/any()
         let filter = SearchFilter::any("Rooms").not();
-        assert_eq!(filter.to_odata(), "not (Rooms/any())");
+        assert_eq!(filter.to_odata()?, "not (Rooms/any())");
 
         // Example: "Find all hotels where 'Description' field is null"
         // Expected: $filter=Description eq null
         let filter = SearchFilter::eq("Description", SearchFilterValue::null());
-        assert_eq!(filter.to_odata(), "Description eq null");
+        assert_eq!(filter.to_odata()?, "Description eq null");
 
         // Example: search.in function
         // Expected: $filter=search.in(HotelName, 'Sea View motel,Budget hotel', ',')
@@ -933,7 +1006,7 @@ mod tests {
             vec!["Sea View motel".into(), "Budget hotel".into()],
         );
         assert_eq!(
-            filter.to_odata(),
+            filter.to_odata()?,
             "search.in(HotelName, 'Sea View motel,Budget hotel', ',')"
         );
 
@@ -944,8 +1017,9 @@ mod tests {
             .and(SearchFilter::lt("Rating", 3))
             .or(SearchFilter::gt("Rating", 7).and(SearchFilter::lt("Rating", 10)));
         assert_eq!(
-            filter.to_odata(),
+            filter.to_odata()?,
             "(Rating gt 0 and Rating lt 3) or (Rating gt 7 and Rating lt 10)"
         );
+        Ok(())
     }
 }

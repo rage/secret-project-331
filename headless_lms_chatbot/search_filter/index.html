@@ -1,0 +1,50 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A small DSL for building OData `$filter` expressions against Azure AI Search. See: https://learn.microsoft.com/en-us/azure/search/search-query-odata-filter"><title>headless_lms_chatbot::search_filter - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_chatbot" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../headless_lms_chatbot/index.html">headless_<wbr>lms_<wbr>chatbot</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module search_<wbr>filter</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#operator-support" title="Operator Support">Operator Support</a></li><li><a href="#examples" title="Examples">Examples</a></li></ul><h3><a href="#enums">Module Items</a></h3><ul class="block"><li><a href="#enums" title="Enums">Enums</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate headless_<wbr>lms_<wbr>chatbot</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><span class="rustdoc-breadcrumbs"><a href="../index.html">headless_lms_chatbot</a></span><h1>Module <span>search_filter</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/headless_lms_chatbot/search_filter.rs.html#1-1025">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A small DSL for building OData <code>$filter</code> expressions against Azure AI Search.
+See: <a href="https://learn.microsoft.com/en-us/azure/search/search-query-odata-filter">https://learn.microsoft.com/en-us/azure/search/search-query-odata-filter</a></p>
+<p>This implementation is <strong>fully compliant</strong> with the OData specification for Azure AI Search.
+It uses a simplified approach to operator precedence by adding parentheses around logical
+operations for clarity. This ensures predictable behavior and generates valid OData that
+Azure AI Search accepts, even if it includes extra parentheses that aren’t strictly necessary.</p>
+<h2 id="operator-support"><a class="doc-anchor" href="#operator-support">§</a>Operator Support</h2>
+<p>This module implements several <code>std::ops</code> traits to provide ergonomic operator syntax:</p>
+<ul>
+<li><code>!</code> (Not): Logical negation - <code>!filter</code> is equivalent to <code>filter.not()</code></li>
+<li><code>&amp;</code> (BitAnd): Logical AND - <code>filter1 &amp; filter2</code> is equivalent to <code>filter1.and(filter2)</code> but with explicit parentheses</li>
+<li><code>|</code> (BitOr): Logical OR - <code>filter1 | filter2</code> is equivalent to <code>filter1.or(filter2)</code> but with explicit parentheses</li>
+</ul>
+<p><strong>Note</strong>: The operator implementations always add explicit parentheses to avoid any ambiguity
+about precedence, ensuring the generated OData expressions are unambiguous.</p>
+<p><strong>Operator Precedence</strong>: Rust’s standard operator precedence applies:</p>
+<ul>
+<li><code>!</code> (highest precedence)</li>
+<li><code>&amp;</code></li>
+<li><code>|</code> (lowest precedence)</li>
+</ul>
+<p>This means <code>a | b &amp; c</code> is parsed as <code>a | (b &amp; c)</code>, not <code>(a | b) &amp; c</code>.
+Use explicit parentheses <code>(a | b) &amp; c</code> if you need different grouping.</p>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>headless_lms_chatbot::search_filter::{SearchFilter, SearchFilterError};
+
+<span class="kw">fn </span>example() -&gt; <span class="prelude-ty">Result</span>&lt;(), SearchFilterError&gt; {
+    <span class="comment">// Simple comparison
+    </span><span class="kw">let </span>filter = SearchFilter::eq(<span class="string">"Rating"</span>, <span class="number">5</span>);
+    <span class="macro">assert_eq!</span>(filter.to_odata()<span class="question-mark">?</span>, <span class="string">"Rating eq 5"</span>);
+
+    <span class="comment">// Using operators for logical combinations (note the explicit parentheses)
+    </span><span class="kw">let </span>filter = SearchFilter::eq(<span class="string">"Category"</span>, <span class="string">"Luxury"</span>)
+        | SearchFilter::eq(<span class="string">"ParkingIncluded"</span>, <span class="bool-val">true</span>)
+        &amp; SearchFilter::eq(<span class="string">"Rating"</span>, <span class="number">5</span>);
+    <span class="macro">assert_eq!</span>(filter.to_odata()<span class="question-mark">?</span>, <span class="string">"(Category eq 'Luxury' or (ParkingIncluded eq true and Rating eq 5))"</span>);
+
+    <span class="comment">// Using negation operator
+    </span><span class="kw">let </span>filter = !SearchFilter::eq(<span class="string">"Deleted"</span>, <span class="bool-val">true</span>) &amp; SearchFilter::eq(<span class="string">"Status"</span>, <span class="string">"active"</span>);
+    <span class="macro">assert_eq!</span>(filter.to_odata()<span class="question-mark">?</span>, <span class="string">"((not (Deleted eq true)) and Status eq 'active')"</span>);
+
+    <span class="comment">// Collection operations
+    </span><span class="kw">let </span>filter = SearchFilter::any_with_filter(
+        <span class="string">"Rooms"</span>,
+        SearchFilter::raw(<span class="string">"room: room/BaseRate lt 200.0"</span>)
+    );
+    <span class="macro">assert_eq!</span>(filter.to_odata()<span class="question-mark">?</span>, <span class="string">"Rooms/any(room: room/BaseRate lt 200.0)"</span>);
+    <span class="prelude-val">Ok</span>(())
+}</code></pre></div>
+</div></details><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="enum" href="enum.SearchFilter.html" title="enum headless_lms_chatbot::search_filter::SearchFilter">Search<wbr>Filter</a></div><div class="desc docblock-short">A composable OData boolean expression.</div></li><li><div class="item-name"><a class="enum" href="enum.SearchFilterError.html" title="enum headless_lms_chatbot::search_filter::SearchFilterError">Search<wbr>Filter<wbr>Error</a></div><div class="desc docblock-short">Error type for search filter operations.</div></li><li><div class="item-name"><a class="enum" href="enum.SearchFilterValue.html" title="enum headless_lms_chatbot::search_filter::SearchFilterValue">Search<wbr>Filter<wbr>Value</a></div><div class="desc docblock-short">A strongly-typed OData filter value.</div></li></ul></section></div></main></body></html>

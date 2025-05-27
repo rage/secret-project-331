@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["LLM_API_VERSION"],"enum":["MessageRole"],"fn":["build_llm_headers","estimate_tokens","make_blocking_llm_request","make_llm_request","make_streaming_llm_request","prepare_azure_endpoint","process_llm_response"],"struct":["AzureCompletionRequest","BaseLlmRequest","LlmChoice","LlmCompletionResponse","Message"]};

@@ -307,35 +307,17 @@
 <a href="#306" id="306">306</a>
 <a href="#307" id="307">307</a>
 <a href="#308" id="308">308</a>
-<a href="#309" id="309">309</a>
-<a href="#310" id="310">310</a>
-<a href="#311" id="311">311</a>
-<a href="#312" id="312">312</a>
-<a href="#313" id="313">313</a>
-<a href="#314" id="314">314</a>
-<a href="#315" id="315">315</a>
-<a href="#316" id="316">316</a>
-<a href="#317" id="317">317</a>
-<a href="#318" id="318">318</a>
-<a href="#319" id="319">319</a>
-<a href="#320" id="320">320</a>
-<a href="#321" id="321">321</a>
-<a href="#322" id="322">322</a>
-<a href="#323" id="323">323</a>
-<a href="#324" id="324">324</a>
-<a href="#325" id="325">325</a>
-<a href="#326" id="326">326</a></pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
+<a href="#309" id="309">309</a></pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>serde_json::json;
 
 <span class="kw">const </span>API_VERSION: <span class="kw-2">&amp;</span>str = <span class="string">"2024-07-01"</span>;
 
-<span class="doccomment">/// For parsing indexer status.
-</span><span class="attr">#[derive(Debug, Deserialize)]
+<span class="attr">#[derive(Debug, Deserialize)]
 </span><span class="kw">struct </span>IndexerStatusResponse {
     <span class="kw">pub </span>status: String,
     <span class="attr">#[serde(rename = <span class="string">"lastResult"</span>)]
-    </span><span class="kw">pub </span>last_result: <span class="prelude-ty">Option</span>&lt;LastResult&gt;, <span class="comment">// Changed to optional
-</span>}
+    </span><span class="kw">pub </span>last_result: <span class="prelude-ty">Option</span>&lt;LastResult&gt;,
+}
 
 <span class="attr">#[derive(Debug, Deserialize)]
 </span><span class="kw">struct </span>LastResult {
@@ -408,8 +390,7 @@
     target_index_name: <span class="kw-2">&amp;</span>str,
     app_config: <span class="kw-2">&amp;</span>ApplicationConfiguration,
 ) -&gt; anyhow::Result&lt;()&gt; {
-    <span class="comment">// Retrieve Azure configurations from the application configuration
-    </span><span class="kw">let </span>azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
+    <span class="kw">let </span>azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
         <span class="macro">anyhow::anyhow!</span>(<span class="string">"Azure configuration is missing from the application configuration"</span>)
     })<span class="question-mark">?</span>;
 
@@ -417,13 +398,11 @@
         <span class="macro">anyhow::anyhow!</span>(<span class="string">"Azure search configuration is missing from the Azure configuration"</span>)
     })<span class="question-mark">?</span>;
 
-    <span class="comment">// Construct the URL for the Azure Search Service API
-    </span><span class="kw">let </span><span class="kw-2">mut </span>url = search_config.search_endpoint.clone();
+    <span class="kw">let </span><span class="kw-2">mut </span>url = search_config.search_endpoint.clone();
     url.set_path(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"indexers/{}"</span>, indexer_name));
     url.set_query(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"api-version={}"</span>, API_VERSION)));
 
-    <span class="comment">// Build the JSON body for the indexer
-    </span><span class="kw">let </span>indexer_definition = <span class="macro">json!</span>({
+    <span class="kw">let </span>indexer_definition = <span class="macro">json!</span>({
         <span class="string">"name"</span>: indexer_name,
         <span class="string">"description"</span>: null,
         <span class="string">"dataSourceName"</span>: data_source_name,
@@ -440,24 +419,12 @@
                 <span class="string">"dataToExtract"</span>: <span class="string">"contentAndMetadata"
             </span>}
         },
-        <span class="string">"fieldMappings"</span>: [
-            {
-                <span class="string">"sourceFieldName"</span>: <span class="string">"title"</span>,
-                <span class="string">"targetFieldName"</span>: <span class="string">"title"</span>,
-                <span class="string">"mappingFunction"</span>: null
-            },
-            {
-                <span class="string">"sourceFieldName"</span>: <span class="string">"url"</span>,
-                <span class="string">"targetFieldName"</span>: <span class="string">"url"</span>,
-                <span class="string">"mappingFunction"</span>: null
-            }
-        ],
+        <span class="string">"fieldMappings"</span>: [],
         <span class="string">"outputFieldMappings"</span>: [],
         <span class="string">"encryptionKey"</span>: null
     });
 
-    <span class="comment">// Send the PUT request to create the indexer
-    </span><span class="kw">let </span>response = REQWEST_CLIENT
+    <span class="kw">let </span>response = REQWEST_CLIENT
         .put(url)
         .header(<span class="string">"Content-Type"</span>, <span class="string">"application/json"</span>)
         .header(<span class="string">"api-key"</span>, search_config.search_api_key.clone())
@@ -465,8 +432,7 @@
         .send()
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// Handle the response
-    </span><span class="kw">if </span>response.status().is_success() {
+    <span class="kw">if </span>response.status().is_success() {
         <span class="prelude-val">Ok</span>(())
     } <span class="kw">else </span>{
         <span class="kw">let </span>status = response.status();

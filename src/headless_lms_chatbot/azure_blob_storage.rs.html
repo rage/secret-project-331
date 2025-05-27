@@ -132,7 +132,7 @@
 <span class="kw">impl </span>AzureBlobClient {
     <span class="kw">pub async fn </span>new(
         app_config: <span class="kw-2">&amp;</span>ApplicationConfiguration,
-        container_name_prefix: <span class="kw-2">&amp;</span>str,
+        container_name: <span class="kw-2">&amp;</span>str,
     ) -&gt; anyhow::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>azure_configuration = app_config
             .azure_configuration
@@ -146,7 +146,7 @@
             .clone()
             .context(<span class="string">"Azure Blob Storage configuration is missing"</span>)<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>container_name = <span class="macro">format!</span>(<span class="string">"{}-chatbot"</span>, container_name_prefix);
+        <span class="kw">let </span>container_name = container_name.to_string();
 
         <span class="kw">let </span>storage_credentials = StorageCredentials::access_key(<span class="kw-2">&amp;</span>storage_account, access_key);
         <span class="kw">let </span>blob_service_client = BlobServiceClient::new(storage_account, storage_credentials);

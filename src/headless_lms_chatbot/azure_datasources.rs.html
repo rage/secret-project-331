@@ -96,9 +96,7 @@
 <a href="#95" id="95">95</a>
 <a href="#96" id="96">96</a>
 <a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a></pre></div><pre class="rust"><code><span class="kw">use </span>serde_json::json;
+<a href="#98" id="98">98</a></pre></div><pre class="rust"><code><span class="kw">use </span>serde_json::json;
 
 <span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 
@@ -144,7 +142,6 @@
 <span class="kw">pub async fn </span>create_azure_datasource(
     datasource_name: <span class="kw-2">&amp;</span>str,
     container_name: <span class="kw-2">&amp;</span>str,
-    query: <span class="kw-2">&amp;</span>str,
     app_config: <span class="kw-2">&amp;</span>ApplicationConfiguration,
 ) -&gt; anyhow::Result&lt;()&gt; {
     <span class="comment">// Retrieve Azure configurations from the application configuration
@@ -171,7 +168,6 @@
         <span class="string">"type"</span>: <span class="string">"azureblob"</span>,
         <span class="string">"container"</span>: {
             <span class="string">"name"</span>: container_name,
-            <span class="string">"query"</span>: query,
         },
         <span class="string">"credentials"</span>: {
             <span class="string">"connectionString"</span>: connection_string,

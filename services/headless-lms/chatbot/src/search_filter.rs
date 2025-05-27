@@ -236,6 +236,7 @@ impl SearchFilter {
     }
 
     /// `not (expr)`
+    #[allow(clippy::should_implement_trait)] // We do implement std::ops::Not, this method is for convenience
     pub fn not(self) -> Self {
         SearchFilter::Not(Box::new(self))
     }
@@ -429,7 +430,7 @@ mod tests {
         );
         assert_eq!(SearchFilterValue::Int(123).to_odata(), "123");
         assert_eq!(SearchFilterValue::Bool(true).to_odata(), "true");
-        assert_eq!(SearchFilterValue::Float(3.14).to_odata(), "3.14");
+        assert_eq!(SearchFilterValue::Float(3.5).to_odata(), "3.5");
         assert_eq!(SearchFilterValue::Null.to_odata(), "null");
     }
 

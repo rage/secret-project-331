@@ -20,6 +20,7 @@ use headless_lms_chatbot::{
         run_search_indexer_now,
     },
     azure_skillset::{create_skillset, does_skillset_exist},
+    content_cleaner::convert_material_blocks_to_markdown_with_llm,
 };
 use headless_lms_models::{
     page_history::PageHistory,
@@ -76,7 +77,7 @@ fn initialize_environment() -> anyhow::Result<()> {
 
 struct SyncerConfig {
     database_url: String,
-    name_prefix: String,
+    name: String,
     app_configuration: ApplicationConfiguration,
 }
 
@@ -87,7 +88,7 @@ async fn initialize_configuration() -> anyhow::Result<SyncerConfig> {
     let base_url = Url::parse(&env::var("BASE_URL").expect("BASE_URL must be defined"))
         .expect("BASE_URL must be a valid URL");
 
-    let name_prefix = base_url
+    let name = base_url
         .host_str()
         .expect("BASE_URL must have a host")
         .replace(".", "-");
@@ -96,7 +97,7 @@ async fn initialize_configuration() -> anyhow::Result<SyncerConfig> {
 
     Ok(SyncerConfig {
         database_url,
-        name_prefix,
+        name,
         app_configuration,
     })
 }
@@ -114,7 +115,7 @@ async fn initialize_database_pool(database_url: &str) -> anyhow::Result<PgPool> 
 
 /// Initializes the Azure Blob Storage client.
 async fn initialize_blob_client(config: &SyncerConfig) -> anyhow::Result<AzureBlobClient> {
-    let blob_client = AzureBlobClient::new(&config.app_configuration, &config.name_prefix).await?;
+    let blob_client = AzureBlobClient::new(&config.app_configuration, &config.name).await?;
     blob_client.ensure_container_exists().await?;
     Ok(blob_client)
 }
@@ -150,6 +151,21 @@ async fn sync_pages(
         )
         .await?;
 
+    let shared_index_name = config.name.clone();
+    ensure_search_index_exists(
+        &shared_index_name,
+        &config.app_configuration,
+        &blob_client.container_name,
+    )
+    .await?;
+
+    if !check_search_indexer_status(&shared_index_name, &config.app_configuration).await? {
+        warn!("Search indexer is not ready to index. Skipping synchronization.");
+        return Ok(());
+    }
+
+    let mut any_changes = false;
+
     for (course_id, statuses) in sync_statuses.iter() {
         let outdated_statuses: Vec<_> = statuses
             .iter()
@@ -164,6 +180,7 @@ async fn sync_pages(
             continue;
         }
 
+        any_changes = true;
         info!(
             "Syncing {} pages for course id: {}.",
             outdated_statuses.len(),
@@ -171,31 +188,24 @@ async fn sync_pages(
         );
 
         let page_ids: Vec<Uuid> = outdated_statuses.iter().map(|s| s.page_id).collect();
+        let pages = headless_lms_models::pages::get_by_ids(conn, &page_ids).await?;
 
-        let index_name = format!("{}-{}", config.name_prefix, course_id);
-        ensure_search_index_exists(
-            &index_name,
-            *course_id,
+        sync_pages_batch(
+            conn,
+            &pages,
+            &latest_histories,
+            blob_client,
+            &base_url,
             &config.app_configuration,
-            &blob_client.container_name,
         )
         .await?;
 
-        if !check_search_indexer_status(&index_name, &config.app_configuration).await? {
-            warn!("Search indexer is not ready to index. Skipping synchronization.");
-            return Ok(());
-        }
-
-        let pages = headless_lms_models::pages::get_by_ids(conn, &page_ids).await?;
-
-        sync_pages_batch(conn, &pages, &latest_histories, blob_client, &base_url).await?;
         delete_old_files(conn, *course_id, blob_client).await?;
+    }
 
-        run_search_indexer_now(&index_name, &config.app_configuration).await?;
-        info!(
-            "New files have been synced and the search indexer has been started for course id: {}.",
-            course_id
-        );
+    if any_changes {
+        run_search_indexer_now(&shared_index_name, &config.app_configuration).await?;
+        info!("New files have been synced and the search indexer has been started.");
     }
 
     Ok(())
@@ -204,7 +214,6 @@ async fn sync_pages(
 /// Ensures that the specified search index exists, creating it if necessary.
 async fn ensure_search_index_exists(
     name: &str,
-    course_id: Uuid,
     app_config: &ApplicationConfiguration,
     container_name: &str,
 ) -> anyhow::Result<()> {
@@ -215,7 +224,7 @@ async fn ensure_search_index_exists(
         create_skillset(name, name, app_config).await?;
     }
     if !does_azure_datasource_exist(name, app_config).await? {
-        create_azure_datasource(name, container_name, &course_id.to_string(), app_config).await?;
+        create_azure_datasource(name, container_name, app_config).await?;
     }
     if !does_search_indexer_exist(name, app_config).await? {
         create_search_indexer(name, name, name, name, app_config).await?;
@@ -231,6 +240,7 @@ async fn sync_pages_batch(
     latest_histories: &HashMap<Uuid, PageHistory>,
     blob_client: &AzureBlobClient,
     base_url: &Url,
+    app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<()> {
     let course_id = pages
         .first()
@@ -242,8 +252,8 @@ async fn sync_pages_batch(
     let organization =
         headless_lms_models::organizations::get_organization(conn, course.organization_id).await?;
 
-    let mut url = base_url.clone();
-    url.set_path(&format!(
+    let mut base_url = base_url.clone();
+    base_url.set_path(&format!(
         "/org/{}/courses/{}",
         organization.slug, course.slug
     ));
@@ -253,18 +263,52 @@ async fn sync_pages_batch(
     for page in pages {
         info!("Syncing page id: {}.", page.id);
 
+        let mut page_url = base_url.clone();
+        page_url.set_path(&format!("{}{}", base_url.path(), page.url_path));
+
         let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page.content.clone())?;
-        let sanitized_content = remove_sensitive_attributes(parsed_content);
-        let content_string = serde_json::to_string(&sanitized_content)?;
+        let sanitized_blocks = remove_sensitive_attributes(parsed_content);
+
+        let content_to_upload = match convert_material_blocks_to_markdown_with_llm(
+            &sanitized_blocks,
+            app_config,
+        )
+        .await
+        {
+            Ok(markdown) => {
+                info!("Successfully cleaned content for page {}", page.id);
+                // Check if the markdown is empty, or if it just contains all spaces or newlines
+                if markdown.trim().is_empty() {
+                    warn!("Markdown is empty for page {}. Generating fallback content with a fake heading.", page.id);
+                    format!("# {}", page.title)
+                } else {
+                    markdown
+                }
+            }
+            Err(e) => {
+                warn!("Failed to clean content with LLM for page {}: {}. Using serialized sanitized content instead.", page.id, e);
+                // Fallback to original content
+                serde_json::to_string(&sanitized_blocks)?
+            }
+        };
+
         let blob_path = generate_blob_path(page)?;
 
         allowed_file_paths.push(blob_path.clone());
         let mut metadata = HashMap::new();
-        metadata.insert("url".to_string(), url.to_string().into());
+        metadata.insert("url".to_string(), page_url.to_string().into());
         metadata.insert("title".to_string(), page.title.to_string().into());
+        metadata.insert(
+            "course_id".to_string(),
+            page.course_id.unwrap_or(Uuid::nil()).to_string().into(),
+        );
+        metadata.insert(
+            "language".to_string(),
+            course.language_code.to_string().into(),
+        );
 
         if let Err(e) = blob_client
-            .upload_file(&blob_path, content_string.as_bytes(), Some(metadata))
+            .upload_file(&blob_path, content_to_upload.as_bytes(), Some(metadata))
             .await
         {
             warn!("Failed to upload file {}: {:?}", blob_path, e);
@@ -296,7 +340,7 @@ fn generate_blob_path(page: &Page) -> anyhow::Result<String> {
         url_path = "index".to_string();
     }
 
-    Ok(format!("{}/{}.json", course_id, url_path))
+    Ok(format!("courses/{}/{}.md", course_id, url_path))
 }
 
 /// Deletes files from blob storage that are no longer associated with any page.

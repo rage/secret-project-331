@@ -9,12 +9,15 @@ This document outlines the steps required to set up a development environment fo
    - [Windows Setup](#setting-up-on-windows)
    - [macOS Setup](#setting-up-on-macos)
 2. [Running the Development Environment](#running-the-development-environment)
+3. [Developer Resources](#developer-resources)
 
 ---
 
 ## Setting Up the Environment
 
 ### Setting Up on Linux
+
+**Recommended**: It is recommended to have 200GB free space before setting up the environment.
 
 **Note**: After installing all required tools, run `bin/print-versions` to confirm that dependencies are correctly installed.
 
@@ -180,6 +183,14 @@ Set up the environment variables for `headless-lms`:
 cp services/headless-lms/models/.env.example services/headless-lms/models/.env
 ```
 
+### Seeding the database
+
+Populate the database with testing data:
+
+```bash
+bin/seed
+```
+
 ### Starting Minikube
 
 Before running Minikube, check for any setup issues:
@@ -265,3 +276,17 @@ Verify your setup with:
 ```bash
 bin/detect-dev-env-problems
 ```
+
+## Developer Resources
+
+In this section you can find useful information to get started with developing, once your project is running.
+
+### Links
+
+- **Login accounts** [Accounts](https://github.com/rage/secret-project-331/blob/894468ce4864b8c95208baf0f594f01fbd20d254/services/headless-lms/server/src/domain/authorization.rs#L966-L1000)
+- **Localization data** [Localizations](../shared-module/packages/common/src/locales/en/main-frontend.json)
+- **Bin-commands** [Commands](../bin)
+- **Figma design** [Figma](https://www.figma.com/design/7SCSdeHG5FnLNZLfd6SnBI/Teacher-redesign)
+- **Routes helper functions** [Routes](../shared-module/packages/common/src/utils/routes.ts)
+
+### Common problems

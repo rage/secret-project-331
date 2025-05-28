@@ -779,6 +779,20 @@ pub struct UserModuleCompletionStatus {
     pub needs_to_be_reviewed: bool,
 }
 
+pub fn grade_rank(passed: bool, grade: Option<i32>) -> i32 {
+    match (passed, grade) {
+        (false, _) => 0,
+        (true, Some(0)) => 1,
+        (true, None) => 2,
+        (true, Some(1)) => 3,
+        (true, Some(2)) => 4,
+        (true, Some(3)) => 5,
+        (true, Some(4)) => 6,
+        (true, Some(5)) => 7,
+        _ => -1,
+    }
+}
+
 /// Gets course modules with user's completion status for the given instance.
 pub async fn get_user_module_completion_statuses_for_course_instance(
     conn: &mut PgConnection,
@@ -789,16 +803,30 @@ pub async fn get_user_module_completion_statuses_for_course_instance(
     let course = courses::get_course(conn, course_id).await?;
     let course_modules = course_modules::get_by_course_id(conn, course_id).await?;
     let course_module_ids = course_modules.iter().map(|x| x.id).collect::<Vec<_>>();
-    let course_module_completions: HashMap<Uuid, CourseModuleCompletion> =
+
+    let course_module_completions_raw =
         course_module_completions::get_all_by_course_instance_and_user_id(
             conn,
             course_instance_id,
             user_id,
         )
-        .await?
-        .into_iter()
-        .map(|x| (x.course_module_id, x))
-        .collect();
+        .await?;
+
+    let mut course_module_completions: HashMap<Uuid, CourseModuleCompletion> = HashMap::new();
+
+    // Get the best grade if student has multiple module compeltions
+    for completion in course_module_completions_raw {
+        course_module_completions
+            .entry(completion.course_module_id)
+            .and_modify(|existing| {
+                let new_rank = grade_rank(completion.passed, completion.grade);
+                let existing_rank = grade_rank(existing.passed, existing.grade);
+                if new_rank > existing_rank {
+                    *existing = completion.clone();
+                }
+            })
+            .or_insert(completion.clone());
+    }
 
     let all_default_certificate_configurations = crate::certificate_configurations::get_default_certificate_configurations_and_requirements_by_course_instance(conn, course_instance_id).await?;
     let all_certifcate_configurations_requiring_only_one_module_and_no_course_instance = crate::certificate_configurations::get_all_certifcate_configurations_requiring_only_one_module_and_no_course_instance(conn, &course_module_ids).await?;

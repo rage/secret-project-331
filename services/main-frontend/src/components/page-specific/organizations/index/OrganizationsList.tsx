@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import { ApartmentBuilding } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -7,10 +8,10 @@ import useAllOrganizationsQuery from "../../../../hooks/useAllOrganizationsQuery
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-import UHNoBG from "@/shared-module/common/img/uh_without_background.svg"
-import { baseTheme, typography } from "@/shared-module/common/styles"
+import UnstyledA from "@/shared-module/common/components/UnstyledA"
+import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { organizationCoursesPageHref } from "@/shared-module/common/utils/cross-routing"
+import { organizationFrontPageRoute } from "@/shared-module/common/utils/routes"
 
 const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
@@ -26,14 +27,30 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
       <h1
         className={css`
           text-align: center;
-          font-weight: 600;
-          font-size: ${typography.h2};
-          margin: 2em 0em 1em 0em;
+          font-family: ${primaryFont};
+          font-weight: 500;
+          font-size: 30px;
+          line-height: 100%;
+          letter-spacing: 0;
+          margin: 2em 0em 0.5em 0em;
           color: #333;
         `}
       >
         {t("organizations-heading")}
       </h1>
+      <p
+        className={css`
+          text-align: center;
+          font-family: ${primaryFont};
+          font-size: 16px;
+          line-height: 100%;
+          letter-spacing: 0;
+          margin-bottom: 2.5rem;
+          color: #555;
+        `}
+      >
+        {t("select-organization")}
+      </p>
       {allOrganizationsQuery.isError && (
         <ErrorBanner variant={"readOnly"} error={allOrganizationsQuery.error} />
       )}
@@ -41,13 +58,16 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
       {allOrganizationsQuery.isSuccess && (
         <div
           className={css`
-            margin-bottom: 1rem;
+            background-color: rgba(26, 35, 51, 0.05);
+            padding: 2rem 1rem;
+            border-radius: 0.5rem;
+            margin: 2rem auto;
+            max-width: 900px;
           `}
         >
           {allOrganizationsQuery.data.map((organization) => (
-            <a
+            <div
               key={organization.id}
-              href={organizationCoursesPageHref(organization.slug)}
               aria-label={organization.name}
               className={css`
                 padding: 0em 1em;
@@ -69,15 +89,11 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
                   flex-direction: column;
                   display: flex;
                   align-items: center;
-                  background-color: #f5f6f7;
-                  margin-bottom: 1em;
+                  background-color: rgb(255, 255, 255);
+                  margin-bottom: 0.5em;
 
-                  &:hover {
-                    cursor: pointer;
-                    background-color: #ebedee;
-                  }
                   ${respondToOrLarger.lg} {
-                    height: 15rem;
+                    height: 3.5rem;
                     flex-direction: row;
                     max-height: 20rem;
                   }
@@ -88,63 +104,86 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
                     background: #1a2333;
                     display: flex;
                     align-items: center;
-                    width: 100%;
-                    height: auto;
-                    padding: 1em 1em;
+                    justify-content: center;
+                    width: 27px;
+                    min-width: 27px;
+                    height: 26px;
+                    padding: 4px;
+                    border-radius: 2px;
+                    margin-left: 0.75rem;
+
                     ${respondToOrLarger.lg} {
-                      width: 20%;
-                      height: 100%;
+                      width: 27px;
+                      height: 27px;
                     }
                   `}
                 >
-                  {organization.organization_image_url ? (
-                    <img
-                      alt={organization.name}
-                      className={css`
-                        margin: 0 auto;
-                        display: block;
-                        max-height: 10rem;
-                      `}
-                      src={organization.organization_image_url}
-                    />
-                  ) : (
-                    <UHNoBG
-                      className={css`
-                        margin: 0 auto;
-                        display: block;
-                      `}
-                    />
-                  )}
+                  <ApartmentBuilding
+                    className={css`
+                      width: 21px;
+                      height: 20px;
+                      color: white;
+                      display: block;
+                      margin: auto;
+                      object-fit: contain;
+                      padding: 1px;
+                    `}
+                  />
                 </div>
                 <div
                   className={css`
                     width: 80%;
-                    margin: 1em;
                     padding: 0.5rem 1rem;
                   `}
                 >
                   <h2
                     className={css`
                       color: #333;
-                      font-weight: 600;
-                      font-size: clamp(1.4rem, 3vw, 1.8rem);
-                      text-transform: uppercase;
+                      font-family: ${primaryFont};
+                      font-size: 18px;
+                      line-height: 1.3;
+                      letter-spacing: 0;
+                      text-transform: capitalize;
                     `}
                   >
                     {organization.name}
                   </h2>
-                  <span
-                    className={css`
-                      font-size: clamp(16px, 2vw, 20px);
-                      color: #333;
-                      opacity: 0.8;
-                    `}
-                  >
-                    {organization.description}
-                  </span>
+                </div>
+                <div
+                  className={css`
+                    display: flex;
+                    justify-content: flex-end;
+                    gap: 0.5rem;
+                    margin-right: 1rem;
+                    margin-left: auto;
+                  `}
+                >
+                  <UnstyledA href={organizationFrontPageRoute(organization.slug)}>
+                    <button
+                      className={css`
+                        background-color: rgba(237, 238, 240, 1);
+                        color: rgba(26, 35, 51, 1);
+                        border: none;
+                        border-radius: 0px;
+                        padding: 0.4rem 0.8rem;
+                        font-family: ${primaryFont};
+                        font-size: 18px;
+                        line-height: 100%;
+                        letter-spacing: 0;
+                        cursor: pointer;
+
+                        &:hover {
+                          transition: background-color 0.3s;
+                          background-color: rgb(216, 216, 216);
+                        }
+                      `}
+                    >
+                      {t("label-select")}
+                    </button>
+                  </UnstyledA>
                 </div>
               </div>
-            </a>
+            </div>
           ))}
         </div>
       )}

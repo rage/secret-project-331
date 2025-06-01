@@ -21,6 +21,8 @@ To start the test environment, run the following commands in the project root:
 bin/test
 ```
 
+Note: You may get the error: "BuildKit is enabled but the buildx component is missing or broken" if it did not install along with docker properly, in which case you must install buildx separately.
+
 ### Running Tests
 
 To run all system tests, use:

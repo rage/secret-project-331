@@ -288,5 +288,6 @@ In this section you can find useful information to get started with developing, 
 - **Bin-commands** [Commands](../bin)
 - **Figma design** [Figma](https://www.figma.com/design/7SCSdeHG5FnLNZLfd6SnBI/Teacher-redesign)
 - **Routes helper functions** [Routes](../shared-module/packages/common/src/utils/routes.ts)
+- **Testing guide** [Testing](../docs/tests.md)
 
 ### Common problems

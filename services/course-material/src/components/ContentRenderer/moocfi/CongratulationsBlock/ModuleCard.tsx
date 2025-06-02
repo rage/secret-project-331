@@ -91,12 +91,18 @@ const ModuleCard: React.FC<React.PropsWithChildren<ModuleCardProps>> = ({
   const { t } = useTranslation()
   const { grade, passed, prerequisite_modules_completed } = module
   const numericGrade = grade?.toString()
-  const passOrFAilGrade = passed ? <PassedIcon /> : <StyledFailedIcon />
+  const passOrFAilGrade = passed ? (
+    <PassedIcon aria-label={t("passed")} />
+  ) : (
+    <StyledFailedIcon aria-label={t("failed")} />
+  )
 
   return (
     <Wrapper>
       {prerequisite_modules_completed && (
-        <BadgeWrapper>
+        <BadgeWrapper
+          aria-label={`${t("grade")}: ${numericGrade ?? t(passed ? "passed" : "failed")}`}
+        >
           <Badge />
           <span className="grade">{t("grade")}</span>
           <div className="points">{numericGrade == undefined ? passOrFAilGrade : numericGrade}</div>

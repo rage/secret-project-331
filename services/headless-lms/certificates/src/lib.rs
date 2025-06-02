@@ -13,7 +13,8 @@ use headless_lms_utils::file_store::FileStore;
 use headless_lms_utils::icu4x::Icu4xBlob;
 use headless_lms_utils::prelude::{UtilError, UtilErrorType, UtilResult};
 use icu::calendar::Gregorian;
-use icu::datetime::TypedDateTimeFormatter;
+use icu::datetime::DateTimeFormatter;
+use icu::locale::Locale;
 use resvg::tiny_skia;
 use std::{io, path::Path};
 use std::{sync::Arc, time::Instant};
@@ -22,8 +23,6 @@ use usvg::fontdb;
 use quick_xml::{Writer, events::BytesText};
 use std::io::Cursor;
 
-use icu::datetime::options::length;
-use icu::{calendar::DateTime, locid::Locale};
 use icu_provider::DataLocale;
 use icu_provider_blob::BlobDataProvider;
 use tracing::log::info;
@@ -245,7 +244,7 @@ fn get_date_as_localized_string(
     certificate_date: NaiveDate,
     icu4x_blob: Icu4xBlob,
 ) -> UtilResult<String> {
-    let options = length::Bag::from_date_style(length::Date::Long).into();
+    let options = Bag::from_date_style(Date::Long).into();
     let provider = BlobDataProvider::try_new_from_static_blob(icu4x_blob.get()).unwrap();
     let locale = locale.parse::<Locale>().map_err(|original_error| {
         UtilError::new(
@@ -254,7 +253,7 @@ fn get_date_as_localized_string(
             Some(original_error.into()),
         )
     })?;
-    let dtf = TypedDateTimeFormatter::<Gregorian>::try_new_with_buffer_provider(
+    let dtf = DateTimeFormatter::<Gregorian>::try_new_with_buffer_provider(
         &provider,
         &DataLocale::from(locale),
         options,
@@ -262,7 +261,7 @@ fn get_date_as_localized_string(
     .map_err(|original_error| {
         UtilError::new(
             UtilErrorType::Other,
-            "Failed to create TypedDateTimeFormatter instance.".to_string(),
+            "Failed to create DateTimeFormatter instance.".to_string(),
             Some(original_error.into()),
         )
     })?;

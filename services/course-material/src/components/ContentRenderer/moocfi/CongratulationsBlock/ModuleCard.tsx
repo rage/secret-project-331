@@ -92,9 +92,9 @@ const ModuleCard: React.FC<React.PropsWithChildren<ModuleCardProps>> = ({
   const { grade, passed, prerequisite_modules_completed } = module
   const numericGrade = grade?.toString()
   const passOrFAilGrade = passed ? (
-    <PassedIcon aria-label={t("passed")} />
+    <PassedIcon role="img" aria-label={t("passed")} />
   ) : (
-    <StyledFailedIcon aria-label={t("failed")} />
+    <StyledFailedIcon role="img" aria-label={t("failed")} />
   )
 
   return (

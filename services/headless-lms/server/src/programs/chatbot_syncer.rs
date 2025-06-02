@@ -280,14 +280,20 @@ async fn sync_pages_batch(
                 info!("Successfully cleaned content for page {}", page.id);
                 // Check if the markdown is empty, or if it just contains all spaces or newlines
                 if markdown.trim().is_empty() {
-                    warn!("Markdown is empty for page {}. Generating fallback content with a fake heading.", page.id);
+                    warn!(
+                        "Markdown is empty for page {}. Generating fallback content with a fake heading.",
+                        page.id
+                    );
                     format!("# {}", page.title)
                 } else {
                     markdown
                 }
             }
             Err(e) => {
-                warn!("Failed to clean content with LLM for page {}: {}. Using serialized sanitized content instead.", page.id, e);
+                warn!(
+                    "Failed to clean content with LLM for page {}: {}. Using serialized sanitized content instead.",
+                    page.id, e
+                );
                 // Fallback to original content
                 serde_json::to_string(&sanitized_blocks)?
             }

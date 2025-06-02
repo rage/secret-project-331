@@ -17,7 +17,7 @@ use tokio::{io::AsyncBufReadExt, sync::Mutex};
 use tokio_util::io::StreamReader;
 use url::Url;
 
-use crate::llm_utils::{build_llm_headers, estimate_tokens, LLM_API_VERSION};
+use crate::llm_utils::{LLM_API_VERSION, build_llm_headers, estimate_tokens};
 use crate::prelude::*;
 use crate::search_filter::SearchFilter;
 

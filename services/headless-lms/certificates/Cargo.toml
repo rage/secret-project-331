@@ -19,7 +19,7 @@ xmlwriter = "0.1.0"
 # High performance xml reader and writer
 quick-xml = "0.37.5"
 # International Components for Unicode
-icu = { version = "2.0.0", features = ["std", "serde"] }
+icu = { version = "2.0.0", features = ["serde"] }
 # Trait and struct definitions for the ICU data provider
 icu_provider = "2.0.0"
 # Single assignment cells and lazy values.

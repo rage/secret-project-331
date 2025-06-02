@@ -24,7 +24,7 @@ const createPageWithAnExerciseBlock = async (page: Page) => {
     await page.click('input[type="radio"]')
 
     // Fill input[type="text"]
-    await page.fill("text=Name", "exercise test")
+    await page.getByRole("textbox", { name: "Name (Required)", exact: true }).fill("exercise test")
 
     await page.fill("text=Teacher in charge name", "teacher")
     await page.fill("text=Teacher in charge email", "teacher@example.com")

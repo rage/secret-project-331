@@ -1,12 +1,14 @@
 import { expect, test } from "@playwright/test"
 
+import { selectOrganization } from "../../utils/organizationUtils"
+
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
 test("Editing exam works", async ({ page }) => {
   await page.goto("http://project-331.local/organizations")
-  await page.getByLabel("University of Helsinki, Department of Computer Science").click()
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   //Create exam
   await page.getByRole("button", { name: "Create" }).nth(1).click()
   await page.getByLabel("Name", { exact: true }).fill("Test exam")

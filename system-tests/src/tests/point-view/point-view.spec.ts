@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-
+import { selectOrganization } from "../utils/organizationUtils"
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
@@ -12,7 +12,7 @@ test("Points view works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.getByText("University of Helsinki, Department of Computer Science").click(),
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
@@ -34,7 +34,7 @@ test("Points view works", async ({ page, headless }, testInfo) => {
 
   await page.goto("http://project-331.local/organizations")
 
-  await page.getByText("University of Helsinki, Department of Computer Science").click()
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await page.locator("[aria-label=\"Manage course 'Point view for teachers'\"] svg").click()

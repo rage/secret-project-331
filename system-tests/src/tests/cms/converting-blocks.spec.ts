@@ -1,14 +1,15 @@
 import { test } from "@playwright/test"
 
+import { selectOrganization } from "../../utils/organizationUtils"
+
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
 test("Can convert blocks", async ({ page }) => {
   await page.goto("http://project-331.local/organizations")
-  await page
-    .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-    .click()
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
+
   await page.getByRole("link", { name: "Manage course 'Permission management'" }).click()
   await page.getByRole("tab", { name: "Pages" }).click()
   await page.getByRole("button", { name: "New page" }).nth(2).click()

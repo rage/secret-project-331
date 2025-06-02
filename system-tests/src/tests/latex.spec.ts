@@ -3,6 +3,7 @@ import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectUrlPathWithRandomUuid from "../utils/expect"
+import { selectOrganization } from "../utils/organizationUtils"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.use({
@@ -13,9 +14,10 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    await page
-      .getByText("University of Helsinki, Department of Mathematics and Statistics")
-      .click(),
+    await selectOrganization(
+      page,
+      "University of Helsinki, Department of Mathematics and Statistics",
+    ),
   ])
 
   await page.getByRole("button", { name: "Create", exact: true }).first().click()

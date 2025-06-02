@@ -4,6 +4,8 @@ import { tmpdir } from "os"
 import path from "path"
 import tar from "tar-fs"
 
+import { selectOrganization } from "../utils/organizationUtils"
+
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
@@ -11,9 +13,11 @@ test.use({
 test("course export", async ({ page }) => {
   await test.step("Upload an image to be backed up", async () => {
     await page.goto("http://project-331.local/organizations")
-    await page
-      .getByLabel("University of Helsinki, Department of Mathematics and Statistics")
-      .click()
+    await selectOrganization(
+      page,
+      "University of Helsinki, Department of Mathematics and Statistics",
+    )
+
     await page.getByLabel("Manage course 'Change path'").click()
     await page.getByRole("tab", { name: "Pages" }).click()
     await page
@@ -34,9 +38,10 @@ test("course export", async ({ page }) => {
 
   await test.step("Export the course", async () => {
     await page.goto("http://project-331.local/organizations")
-    await page
-      .getByLabel("University of Helsinki, Department of Mathematics and Statistics")
-      .click()
+    await selectOrganization(
+      page,
+      "University of Helsinki, Department of Mathematics and Statistics",
+    )
     await page.getByLabel("Manage course 'Change path'").click()
     await page.goto(
       "http://project-331.local/cms/courses/c783777b-426e-4cfd-9a5f-4a36b2da503a/export",

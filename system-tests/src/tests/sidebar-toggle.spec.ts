@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { selectOrganization } from "../utils/organizationUtils"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.use({
@@ -18,7 +19,10 @@ test("Changing view in the cms sidebar works", async ({ page, headless }, testIn
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.getByText("University of Helsinki, Department of Mathematics and Statistics").click(),
+    await selectOrganization(
+      page,
+      "University of Helsinki, Department of Mathematics and Statistics",
+    ),
   ])
 
   await page

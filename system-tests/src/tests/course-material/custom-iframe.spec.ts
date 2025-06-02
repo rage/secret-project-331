@@ -1,6 +1,7 @@
 import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
+import { selectOrganization } from "../../utils/organizationUtils"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 test.use({
@@ -16,9 +17,7 @@ test("Custom iframe blocks work", async ({ page, headless }, testInfo) => {
     }),
   )
   await page.goto("http://project-331.local/organizations")
-  await page
-    .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-    .click()
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await page.getByRole("link", { name: "Manage course 'Permission management'" }).click()
   await page.getByRole("tab", { name: "Pages" }).click()
   await page.getByRole("button", { name: "New page" }).nth(1).click()

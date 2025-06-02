@@ -1,5 +1,6 @@
 import { test } from "@playwright/test"
 
+import { selectOrganization } from "../../utils/organizationUtils"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 test.use({
@@ -9,9 +10,8 @@ test.use({
 test("Configuring certificates works", async ({ page, headless }, testInfo) => {
   // go to config page
   await page.goto("http://project-331.local/organizations")
-  await page
-    .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-    .click()
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
+
   await page.getByRole("link", { name: "Manage course 'Certificates'" }).click()
   await page.getByRole("tab", { name: "Course instances" }).click()
   await page

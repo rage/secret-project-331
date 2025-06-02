@@ -1,5 +1,6 @@
 import { test } from "@playwright/test"
 
+import { selectOrganization } from "../../utils/organizationUtils"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 import { waitForFooterTranslationsToLoad } from "../../utils/waitingUtils"
 
@@ -16,9 +17,7 @@ test.describe(() => {
     headless,
   }, testInfo) => {
     await page.goto("http://project-331.local/organizations")
-    await page
-      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-      .click()
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await page.getByRole("link", { name: "Manage course 'Glossary Tooltip'" }).click()
     await page.getByRole("tab", { name: "Pages" }).click()
     await page

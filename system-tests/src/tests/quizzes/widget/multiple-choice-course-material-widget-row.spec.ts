@@ -2,8 +2,8 @@ import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
 import { getLocatorForNthExerciseServiceIframe } from "../../../utils/iframeLocators"
+import { selectOrganization } from "../../../utils/organizationUtils"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
-
 test.use({
   storageState: "src/states/user@example.com.json",
 })
@@ -13,7 +13,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.getByText("University of Helsinki, Department of Computer Science").click(),
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
   ])
 
   await page.locator(`div:text-is("Introduction to Course Material")`).click()

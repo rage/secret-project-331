@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { selectOrganization } from "../../utils/organizationUtils"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 test.use({
@@ -10,7 +11,7 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
   test.slow()
   // navigate to module page
   await page.goto("http://project-331.local/organizations")
-  await page.getByText("University of Helsinki, Department of Computer Science").click()
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
   await page.locator("[aria-label=\"Manage course \\'Course Modules\\'\"] path").click()
   await expect(page).toHaveURL(

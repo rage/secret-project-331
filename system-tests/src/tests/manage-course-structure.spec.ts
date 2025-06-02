@@ -1,5 +1,6 @@
 import { expect, Page, test } from "@playwright/test"
 
+import { selectOrganization } from "../utils/organizationUtils"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 import { hideToasts } from "@/utils/notificationUtils"
@@ -95,7 +96,7 @@ async function verifyElementOrder(page: Page, firstElement: string, secondElemen
 test("manage course structure works", async ({ page, headless }, testInfo) => {
   await test.step("Navigate to course structure page", async () => {
     await page.goto("http://project-331.local/organizations")
-    await page.getByText("University of Helsinki, Department of Computer Science").click()
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await page.getByLabel("Manage course 'Course Structure'").click()
     await page.getByText("Pages").click()
 

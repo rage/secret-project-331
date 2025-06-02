@@ -8,6 +8,7 @@ import {
   getLocatorForNthExerciseServiceIframe,
   scrollLocatorsParentIframeToViewIfNeeded,
 } from "../../utils/iframeLocators"
+import { selectOrganization } from "../../utils/organizationUtils"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 test.use({
@@ -18,7 +19,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    await page.getByText("University of Helsinki, Department of Computer Science").click(),
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 

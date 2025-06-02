@@ -1,6 +1,7 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
+import { selectOrganization } from "../../utils/organizationUtils"
 
 test.describe("An exercise that has self review but no peer review works", () => {
   let context1: BrowserContext
@@ -20,9 +21,10 @@ test.describe("An exercise that has self review but no peer review works", () =>
     await test.step("Teacher configures an exercise that has a self review using the inline editor", async () => {
       await teacherPage.goto("http://project-331.local/")
       await teacherPage.getByRole("link", { name: "All organizations" }).click()
-      await teacherPage
-        .getByLabel("University of Helsinki, Department of Mathematics and Statistics")
-        .click()
+      await selectOrganization(
+        teacherPage,
+        "University of Helsinki, Department of Mathematics and Statistics",
+      )
       await teacherPage.getByLabel("Manage course 'Self review'").click()
       await teacherPage.getByRole("tab", { name: "Pages" }).click()
       await teacherPage

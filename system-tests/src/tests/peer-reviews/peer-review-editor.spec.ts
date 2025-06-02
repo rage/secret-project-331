@@ -1,6 +1,7 @@
 import { test } from "@playwright/test"
 
 import { showNextToastsInfinitely, showToastsNormally } from "../../utils/notificationUtils"
+import { selectOrganization } from "../../utils/organizationUtils"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -9,7 +10,7 @@ test("create peer review", async ({ page }) => {
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.getByText("University of Helsinki, Department of Computer Science").click(),
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
   ])
 
   await page.locator("[aria-label=\"Manage course \\'Introduction to everything\\'\"] svg").click()

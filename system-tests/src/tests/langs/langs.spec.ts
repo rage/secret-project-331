@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
+import { selectOrganization } from "../../utils/organizationUtils"
 
 test.use({
   storageState: "src/states/langs@example.com.json",
@@ -26,9 +27,7 @@ test("get course instances with tmc exercises", async ({ page, request }) => {
 
   // enroll to a course with no tmc exercises
   await page.goto("http://project-331.local/organizations")
-  await page
-    .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-    .click()
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await page
     .getByRole("link", { name: "Navigate to course 'Introduction to Computer Science'" })
     .click()

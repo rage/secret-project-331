@@ -1,5 +1,7 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
+import { selectOrganization } from "../utils/organizationUtils"
+
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 
 test.describe("test teacher changing grade behavior", () => {
@@ -24,11 +26,10 @@ test.describe("test teacher changing grade behavior", () => {
     await test.step("student submits exercise", async () => {
       await studentPage.goto("http://project-331.local/")
       await studentPage.getByRole("link", { name: "All organizations" }).click()
-      await studentPage
-        .getByRole("link", {
-          name: "University of Helsinki, Department of Mathematics and Statistics",
-        })
-        .click()
+      await selectOrganization(
+        studentPage,
+        "University of Helsinki, Department of Mathematics and Statistics",
+      )
 
       await studentPage.getByRole("link", { name: "Navigate to course 'Custom" }).click()
       await selectCourseInstanceIfPrompted(studentPage)

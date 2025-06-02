@@ -1,6 +1,7 @@
 import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
+import { selectOrganization } from "../utils/organizationUtils"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 import { waitForFooterTranslationsToLoad } from "../utils/waitingUtils"
 
@@ -13,7 +14,7 @@ test("glossary test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.getByText("University of Helsinki, Department of Computer Science").click(),
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
   ])
 
   await page.getByText("Glossary course").click()
@@ -33,7 +34,7 @@ test("glossary test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.getByText("University of Helsinki, Department of Computer Science").click(),
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
   ])
 
   await page.locator("[aria-label=\"Manage course 'Glossary course'\"] svg").click()

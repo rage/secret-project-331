@@ -5,6 +5,7 @@ import expectUrlPathWithRandomUuid from "../../utils/expect"
 import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
 import { login } from "../../utils/login"
 import { logout } from "../../utils/logout"
+import { selectOrganization } from "../../utils/organizationUtils"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 import { feedbackTooltipClass } from "@/shared-module/common/styles/constants"
@@ -17,7 +18,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    await page.getByText("University of Helsinki, Department of Computer Science").click(),
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 

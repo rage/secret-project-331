@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
+import { selectOrganization } from "../utils/organizationUtils"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.use({
@@ -11,7 +12,7 @@ test("headings navigation works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.getByText("University of Helsinki, Department of Computer Science").click(),
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
   ])
 
   await page.getByText("Introduction to Course Material").first().click()

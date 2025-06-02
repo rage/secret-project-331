@@ -1,8 +1,8 @@
 import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
+import { selectOrganization } from "../utils/organizationUtils"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
-
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
@@ -12,7 +12,10 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.getByText("University of Helsinki, Department of Mathematics and Statistics").click(),
+    await selectOrganization(
+      page,
+      "University of Helsinki, Department of Mathematics and Statistics",
+    ),
   ])
 
   await page.locator("[aria-label=\"Manage course \\'Introduction to citations\\'\"] svg").click()

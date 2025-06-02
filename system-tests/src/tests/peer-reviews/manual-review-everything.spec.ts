@@ -1,9 +1,9 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
 import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
+import { selectOrganization } from "../../utils/organizationUtils"
 
 import { answerExercise, fillPeerReview } from "./peer_review_utils"
-
 const TEST_PAGE = "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1/page-1"
 
 test.describe("test ManualReviewEverything behavior", () => {
@@ -79,9 +79,7 @@ test.describe("test ManualReviewEverything behavior", () => {
 
     // Teacher reviews answers
     await teacherPage.goto("http://project-331.local/organizations")
-    await teacherPage
-      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-      .click()
+    await selectOrganization(teacherPage, "University of Helsinki, Department of Computer Science")
     await teacherPage.getByRole("link", { name: "Navigate to course 'Peer review Course'" }).click()
     await teacherPage.goto("http://project-331.local/org/uh-cs")
     await teacherPage.getByRole("link", { name: "Manage course 'Peer review Course'" }).click()

@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
+import { selectOrganization } from "../utils/organizationUtils"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.use({
@@ -9,13 +10,7 @@ test.use({
 
 test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
-
-  await page
-    .getByRole("heading", { name: "University of Helsinki, Department of Computer Science" })
-    .locator("..")
-    .locator("..")
-    .getByRole("button", { name: "Select" })
-    .click()
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
 
   await page.getByText("Automatic Completions").click()
 
@@ -67,10 +62,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   await page.waitForURL("https://www.example.com", { waitUntil: "commit" })
 
   await page.goto("http://project-331.local/organizations")
-
-  await page
-    .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-    .click()
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
 
   await Promise.all([
     page.getByRole("link", { name: "Manage course 'Automatic Completions'" }).click(),
@@ -99,10 +91,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   await page.getByRole("button", { name: "Save changes" }).click()
 
   await page.goto("http://project-331.local/organizations")
-
-  await page
-    .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-    .click()
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
 
   await page.getByText("Automatic Completions").click()
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs/courses/automatic-completions")

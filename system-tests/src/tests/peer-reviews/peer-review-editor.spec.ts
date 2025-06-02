@@ -38,11 +38,7 @@ test("create peer review", async ({ page }) => {
 test("default peer review editing", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
-  await page
-    .locator(
-      "text=University of Helsinki, Department of Computer ScienceOrganization for Computer ",
-    )
-    .click()
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
 
   await page.locator("[aria-label=\"Manage course \\'Introduction to everything\\'\"] path").click()
 

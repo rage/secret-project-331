@@ -9,7 +9,10 @@ test.describe("anonymous user", () => {
     await page.goto("http://project-331.local/organizations")
 
     await Promise.all([
-      page.getByText("University of Helsinki, Department of Mathematics and Statistics").click(),
+      await selectOrganization(
+        page,
+        "University of Helsinki, Department of Mathematics and Statistics",
+      ),
     ])
 
     await expect(page.getByText("Introduction to Statistics")).toBeVisible()

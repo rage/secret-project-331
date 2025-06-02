@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
+import { selectOrganization } from "../../utils/organizationUtils"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -9,9 +10,7 @@ test("blocks render correctly", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.click(
-      '[id="__next"] div >> :nth-match(div:has-text("University of Helsinki, Department of Computer ScienceOrganization for Computer "), 4)',
-    ),
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
   ])
 
   await page.click(`div:text-is("Introduction to Course Material")`)

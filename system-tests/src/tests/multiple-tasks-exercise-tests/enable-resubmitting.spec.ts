@@ -2,7 +2,7 @@ import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import { scrollLocatorsParentIframeToViewIfNeeded } from "../../utils/iframeLocators"
-
+import { selectOrganization } from "../../utils/organizationUtils"
 test.use({
   storageState: "src/states/user@example.com.json",
 })
@@ -11,9 +11,7 @@ test("quizzes, after wrong answer modify only the incorrect choice and resubmit"
   page,
 }) => {
   await page.goto("http://project-331.local/organizations")
-  await page
-    .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-    .click()
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await page.getByRole("link", { name: "Navigate to course 'Advanced exercise states'" }).click()
   await selectCourseInstanceIfPrompted(page)
   await page.getByRole("link", { name: "Chapter 1 The Basics" }).click()

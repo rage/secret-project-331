@@ -45,16 +45,16 @@ const Wrapper = styled.div`
 
 const BadgeWrapper = styled.div`
   position: absolute;
-  top: 14px;
+  top: 6px;
   right: 18px;
   width: auto;
   height: auto;
-  transform: rotate(-30deg);
 
   .grade {
+    transform: rotate(-20deg);
     position: absolute;
     top: 18px;
-    left: 23px;
+    left: 18px;
     font-family: ${monospaceFont};
     font-size: 10px;
     color: #535a66;
@@ -76,6 +76,7 @@ const BadgeWrapper = styled.div`
 
 const StyledFailedIcon = styled(FailedIcon)`
   margin-top: 3px;
+  transform: rotate(10deg);
 `
 
 export interface ModuleCardProps {
@@ -90,12 +91,18 @@ const ModuleCard: React.FC<React.PropsWithChildren<ModuleCardProps>> = ({
   const { t } = useTranslation()
   const { grade, passed, prerequisite_modules_completed } = module
   const numericGrade = grade?.toString()
-  const passOrFAilGrade = passed ? <PassedIcon /> : <StyledFailedIcon />
+  const passOrFAilGrade = passed ? (
+    <PassedIcon role="img" aria-label={t("passed")} />
+  ) : (
+    <StyledFailedIcon role="img" aria-label={t("failed")} />
+  )
 
   return (
     <Wrapper>
       {prerequisite_modules_completed && (
-        <BadgeWrapper>
+        <BadgeWrapper
+          aria-label={`${t("grade")}: ${numericGrade ?? t(passed ? "passed" : "failed")}`}
+        >
           <Badge />
           <span className="grade">{t("grade")}</span>
           <div className="points">{numericGrade == undefined ? passOrFAilGrade : numericGrade}</div>

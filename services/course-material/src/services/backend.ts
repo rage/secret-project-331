@@ -1,5 +1,5 @@
 import { RawAxiosRequestHeaders } from "axios"
-import { Dictionary } from "lodash"
+import { Dictionary, isBoolean } from "lodash"
 
 import { courseMaterialClient } from "./courseMaterialClient"
 
@@ -53,6 +53,7 @@ import {
   UserCourseInstanceChapterProgress,
   UserCourseInstanceProgress,
   UserCourseSettings,
+  UserDetail,
   UserMarketingConsent,
   UserModuleCompletionStatus,
 } from "@/shared-module/common/bindings"
@@ -95,6 +96,7 @@ import {
   isUserCourseInstanceChapterProgress,
   isUserCourseInstanceProgress,
   isUserCourseSettings,
+  isUserDetail,
   isUserMarketingConsent,
   isUserModuleCompletionStatus,
 } from "@/shared-module/common/bindings.guard"
@@ -366,10 +368,12 @@ export const postSubmission = async (
 export const searchPagesWithPhrase = async (
   searchRequest: SearchRequest,
   courseId: string,
+  signal?: AbortSignal,
 ): Promise<Array<PageSearchResult>> => {
   const response = await courseMaterialClient.post(
     `/courses/${courseId}/search-pages-with-phrase`,
     searchRequest,
+    { signal },
   )
   return validateResponse(response, isArray(isPageSearchResult))
 }
@@ -377,10 +381,12 @@ export const searchPagesWithPhrase = async (
 export const searchPagesWithWords = async (
   searchRequest: SearchRequest,
   courseId: string,
+  signal?: AbortSignal,
 ): Promise<Array<PageSearchResult>> => {
   const response = await courseMaterialClient.post(
     `/courses/${courseId}/search-pages-with-words`,
     searchRequest,
+    { signal },
   )
   return validateResponse(response, isArray(isPageSearchResult))
 }
@@ -812,4 +818,27 @@ export const fetchCustomPrivacyPolicyCheckboxTexts = async (
     { responseType: "json" },
   )
   return validateResponse(response, isArray(isCourseCustomPrivacyPolicyCheckboxText))
+}
+
+export const getUserDetails = async (): Promise<UserDetail> => {
+  const response = await courseMaterialClient.get(`/user-details/user`)
+  return validateResponse(response, isUserDetail)
+}
+
+export const updateUserInfo = async (
+  firstName: string,
+  lastName: string,
+  country: string,
+): Promise<boolean> => {
+  const response = await courseMaterialClient.post(`/user-details/update-user-info`, {
+    country: country,
+    first_name: firstName,
+    last_name: lastName,
+  })
+  return validateResponse(response, isBoolean)
+}
+
+export const fetchCountryFromIP = async (): Promise<string> => {
+  const response = await courseMaterialClient.get(`/user-details/users-ip-country`)
+  return validateResponse(response, isString)
 }

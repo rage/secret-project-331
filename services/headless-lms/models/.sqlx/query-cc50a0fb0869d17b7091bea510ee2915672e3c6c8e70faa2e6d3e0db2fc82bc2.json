@@ -1,0 +1,73 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT erl.id,\n  erl.reset_by,\n  ud.first_name AS reset_by_first_name,\n  ud.last_name AS reset_by_last_name,\n  erl.reset_for,\n  erl.exercise_id,\n  e.name AS exercise_name,\n  erl.course_id,\n  erl.reset_at,\n  erl.created_at,\n  erl.updated_at,\n  erl.deleted_at\nFROM exercise_reset_logs erl\n  JOIN exercises e ON erl.exercise_id = e.id\n  JOIN user_details ud ON erl.reset_by = ud.user_id\nWHERE erl.reset_for = $1\nORDER BY erl.reset_at DESC",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "reset_by",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "reset_by_first_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "reset_by_last_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "reset_for",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "exercise_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "exercise_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "reset_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 11,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false, false, true, true, false, false, false, false, false, false, false, true]
+  },
+  "hash": "cc50a0fb0869d17b7091bea510ee2915672e3c6c8e70faa2e6d3e0db2fc82bc2"
+}

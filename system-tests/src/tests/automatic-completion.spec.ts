@@ -61,7 +61,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   })
 
   await page.getByText("To the registration form").click()
-  await expect(page).toHaveURL("https://www.example.com")
+  await page.waitForURL("https://www.example.com", { waitUntil: "commit" })
 
   await page.goto("http://project-331.local/organizations")
 

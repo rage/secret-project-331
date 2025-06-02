@@ -12,6 +12,7 @@ pub use crate::domain::authorization::{
 pub use crate::domain::{
     self,
     error::{ControllerError, ControllerErrorType, ControllerResult},
+    request_id::RequestId,
 };
 pub use crate::generated_docs;
 pub use actix_multipart::Multipart;
@@ -23,7 +24,7 @@ pub use headless_lms_models::PKeyPolicy;
 pub use headless_lms_models::error::TryToOptional;
 pub use headless_lms_utils::error::backend_error::BackendError;
 pub use headless_lms_utils::{
-    ApplicationConfiguration, file_store::FileStore, pagination::Pagination,
+    ApplicationConfiguration, cache::Cache, file_store::FileStore, pagination::Pagination,
 };
 pub use serde::{Deserialize, Serialize};
 pub use sqlx::{Connection, FromRow, PgConnection, PgPool, Pool, Postgres, Type};

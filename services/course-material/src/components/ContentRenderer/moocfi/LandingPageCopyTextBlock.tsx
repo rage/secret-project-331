@@ -92,7 +92,7 @@ const LandingPageCopyTextBlock: React.FC<React.PropsWithChildren<BlockRendererPr
           <div className="line bottom"></div>
           <div className="line right"></div>
           <div className="line left"></div>
-          <InnerBlocks parentBlockProps={props} />
+          <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
         </Wrapper>
       </Centered>
     </BreakFromCentered>

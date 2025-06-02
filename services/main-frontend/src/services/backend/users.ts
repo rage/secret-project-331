@@ -3,12 +3,14 @@ import { mainFrontendClient } from "../mainFrontendClient"
 import {
   Course,
   CourseInstanceEnrollmentsInfo,
+  ExerciseResetLog,
   ResearchFormQuestionAnswer,
   UserResearchConsent,
 } from "@/shared-module/common/bindings"
 import {
   isCourse,
   isCourseInstanceEnrollmentsInfo,
+  isExerciseResetLog,
   isResearchFormQuestionAnswer,
   isUserResearchConsent,
 } from "@/shared-module/common/bindings.guard"
@@ -41,4 +43,11 @@ export const getAllResearchConsentAnswersByUserId = async (): Promise<
 export const getMyCourses = async (): Promise<Course[]> => {
   const response = await mainFrontendClient.get("/users/my-courses")
   return validateResponse(response, isArray(isCourse))
+}
+
+export const getUserResetExerciseLogs = async (
+  userId: string,
+): Promise<Array<ExerciseResetLog>> => {
+  const response = await mainFrontendClient.get(`/users/${userId}/user-reset-exercise-logs`)
+  return validateResponse(response, isArray(isExerciseResetLog))
 }

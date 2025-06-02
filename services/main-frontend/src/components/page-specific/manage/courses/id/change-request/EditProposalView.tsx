@@ -1,13 +1,11 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { useQuery } from "@tanstack/react-query"
 import { parseISO } from "date-fns"
 import { diffChars } from "diff"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchPageInfo } from "../../../../../../services/backend/pages"
-
+import { usePageInfo } from "@/hooks/usePageInfo"
 import {
   BlockProposal,
   BlockProposalAction,
@@ -22,7 +20,7 @@ import TextArea from "@/shared-module/common/components/InputFields/TextAreaFiel
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { primaryFont, typography } from "@/shared-module/common/styles"
+import { baseTheme, primaryFont, typography } from "@/shared-module/common/styles"
 import { pageRoute } from "@/shared-module/common/utils/routes"
 
 const ImportantText = styled.div`
@@ -32,6 +30,31 @@ const ImportantText = styled.div`
   margin: 0;
   font-family: ${primaryFont};
 `
+
+const ProposalExplanation = styled.p`
+  margin-top: 0.5rem;
+  font-weight: 500;
+  color: ${baseTheme.colors.gray[600]};
+  font-size: 0.9rem;
+  line-height: 1.4;
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+  border-left: 3px solid #6c757d;
+  border-radius: 0 4px 4px 0;
+`
+
+/**
+ * Return true when the student's proposal exactly matches the text that will
+ * finally appear on the page – i.e. there is nothing extra to show.
+ */
+const isProposedTextRedundant = (block: BlockProposal) => {
+  if (isEditedBlockStillExistsData(block)) {
+    // During the "pending" phase we compare the proposal against the current accept preview.
+    return block.changed_text === (block.accept_preview ?? "")
+  }
+  // For other block types, we don't need to show the proposed text
+  return true
+}
 
 export interface Props {
   proposal: PageProposal
@@ -50,15 +73,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
   const [blockActions, setBlockActions] = useState<Map<string, BlockProposalAction>>(new Map())
   const [editingBlocks, setEditingBlocks] = useState<Set<string>>(new Set())
 
-  const pageInfo = useQuery({
-    queryKey: [`page-info-id-${proposal.page_id}`],
-    queryFn: () => {
-      if (!proposal.page_id) {
-        return null
-      }
-      return fetchPageInfo(proposal.page_id)
-    },
-  })
+  const pageInfo = usePageInfo(proposal.page_id)
 
   const sendMutation = useToastMutation(
     () => {
@@ -94,9 +109,14 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
                 <DiffFormatter dontShowAdded changes={diffChanges} />
               </ImportantText>
             </div>
-            <div>
-              {t("label-proposed-text")} <ImportantText>{block.changed_text}</ImportantText>
-            </div>
+            {!isProposedTextRedundant(block) && (
+              <div>
+                <ProposalExplanation>{t("proposal-edited-explanation")}</ProposalExplanation>
+                <div>
+                  {t("label-proposed-text")} <ImportantText>{block.changed_text}</ImportantText>
+                </div>
+              </div>
+            )}
             <div>
               {t("label-result-after-merging")}
               <ImportantText>
@@ -109,9 +129,14 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
             <div>
               {t("label-original-text")} <ImportantText>{block.original_text}</ImportantText>
             </div>
-            <div>
-              {t("label-proposed-text")} <ImportantText>{block.changed_text}</ImportantText>
-            </div>
+            {!isProposedTextRedundant(block) && (
+              <div>
+                <ProposalExplanation>{t("proposal-edited-explanation")}</ProposalExplanation>
+                <div>
+                  {t("label-proposed-text")} <ImportantText>{block.changed_text}</ImportantText>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -230,12 +255,17 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
                 <DiffFormatter dontShowAdded changes={diffChanges} />
               </ImportantText>
             </div>
-            <div>
-              {t("label-proposed-text")}
-              <ImportantText>
-                <DiffFormatter dontShowRemoved changes={diffChanges} />
-              </ImportantText>
-            </div>
+            {!isProposedTextRedundant(block) && (
+              <div>
+                <ProposalExplanation>{t("proposal-edited-explanation")}</ProposalExplanation>
+                <div>
+                  {t("label-proposed-text")}
+                  <ImportantText>
+                    <DiffFormatter dontShowRemoved changes={diffChanges} />
+                  </ImportantText>
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <div>
@@ -250,10 +280,15 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
               {t("label-original-text")}
               <ImportantText>{block.original_text}</ImportantText>
             </div>
-            <div>
-              {t("label-proposed-text")}
-              <ImportantText>{block.changed_text} </ImportantText>
-            </div>
+            {!isProposedTextRedundant(block) && (
+              <div>
+                <ProposalExplanation>{t("proposal-edited-explanation")}</ProposalExplanation>
+                <div>
+                  {t("label-proposed-text")}
+                  <ImportantText>{block.changed_text} </ImportantText>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </>

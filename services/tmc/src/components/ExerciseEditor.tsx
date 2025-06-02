@@ -16,25 +16,25 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({ state, setSt
   const { t } = useTranslation()
 
   // cms editor view
-  if (state.privateSpec == null) {
+  if (state.private_spec == null) {
     // no exercise selected yet
     return (
       <>
         <div>{t("select-repository-exercise")}</div>
         <ul>
-          {state.repositoryExercises?.map((re) => (
+          {state.repository_exercises?.map((re) => (
             <li key={re.id}>
               <Button
                 variant="primary"
                 size="medium"
                 onClick={() =>
                   setState((state) => {
-                    if (state?.viewType === "exercise-editor") {
+                    if (state?.view_type === "exercise-editor") {
                       return {
                         ...state,
-                        privateSpec: {
+                        private_spec: {
                           type: "editor",
-                          repositoryExercise: re,
+                          repository_exercise: re,
                         },
                       }
                     } else {
@@ -52,7 +52,7 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({ state, setSt
     )
   } else {
     // exercise selected
-    const repositoryExercise = state.privateSpec.repositoryExercise
+    const repositoryExercise = state.private_spec.repository_exercise
     return (
       <div>
         {t("selected-repository-exercise")}
@@ -63,19 +63,19 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({ state, setSt
         <br />
         {repositoryExercise.download_url}
         <br />
-        {state.privateSpec?.type}
+        {state.private_spec?.type}
         <br />
         <CheckBox
           label={t("solve-in-editor-label")}
-          checked={state.privateSpec?.type === "editor"}
+          checked={state.private_spec?.type === "editor"}
           onChange={() =>
             setState((old) => {
               if (old) {
                 return {
                   ...old,
-                  privateSpec: {
+                  private_spec: {
                     type: "editor",
-                    repositoryExercise: repositoryExercise,
+                    repository_exercise: repositoryExercise,
                   },
                 }
               } else {
@@ -86,15 +86,15 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({ state, setSt
         />
         <CheckBox
           label={t("solve-in-browser")}
-          checked={state.privateSpec?.type === "browser"}
+          checked={state.private_spec?.type === "browser"}
           onChange={() =>
             setState((old) => {
               if (old) {
                 return {
                   ...old,
-                  privateSpec: {
+                  private_spec: {
                     type: "browser",
-                    repositoryExercise: repositoryExercise,
+                    repository_exercise: repositoryExercise,
                   },
                 }
               } else {
@@ -109,7 +109,7 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({ state, setSt
           onClick={() =>
             setState((old) => {
               if (old) {
-                return { ...old, privateSpec: null }
+                return { ...old, private_spec: null }
               } else {
                 return null
               }

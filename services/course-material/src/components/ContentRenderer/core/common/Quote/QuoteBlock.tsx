@@ -49,7 +49,7 @@ const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes & ExtraAttributes>
       >
         <div>
           {value && (!props.data.innerBlocks || props.data.innerBlocks.length === 0) && value}
-          <InnerBlocks parentBlockProps={props} />
+          <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
         </div>
         <cite
           className={css`

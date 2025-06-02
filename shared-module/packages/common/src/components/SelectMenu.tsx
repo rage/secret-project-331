@@ -16,6 +16,7 @@ interface SelectMenuExtraProps {
   options: SelectOption[]
   onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void
   className?: string
+  showDefaultOption?: boolean
 }
 
 const DEFAULT_VALUE_KEY = "default-value"
@@ -41,6 +42,7 @@ const SelectMenu = ({
   defaultValue,
   options,
   className,
+  showDefaultOption = true,
   ...rest
 }: SelectMenuExtraProps) => {
   const { t } = useTranslation()
@@ -113,9 +115,11 @@ const SelectMenu = ({
           defaultValue={defaultValue ?? DEFAULT_VALUE_KEY}
           {...rest}
         >
-          <option value={DEFAULT_VALUE_KEY} key={DEFAULT_VALUE_KEY} disabled>
-            {t("please-choose-a-value")}
-          </option>
+          {showDefaultOption && (
+            <option value={DEFAULT_VALUE_KEY} key={DEFAULT_VALUE_KEY} disabled>
+              {t("please-choose-a-value")}
+            </option>
+          )}
           {options.map((o) => (
             <option value={o.value} key={o.value}>
               {o.label}

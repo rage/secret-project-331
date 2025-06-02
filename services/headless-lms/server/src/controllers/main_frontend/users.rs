@@ -1,8 +1,8 @@
 use crate::prelude::*;
 use models::{
     course_instance_enrollments::CourseInstanceEnrollmentsInfo, courses::Course,
-    research_forms::ResearchFormQuestionAnswer, user_research_consents::UserResearchConsent,
-    users::User,
+    exercise_reset_logs::ExerciseResetLog, research_forms::ResearchFormQuestionAnswer,
+    user_research_consents::UserResearchConsent, users::User,
 };
 
 /**
@@ -142,6 +142,29 @@ async fn get_my_courses(
     token.authorized_ok(web::Json(combined))
 }
 
+/**
+GET `/api/v0/main-frontend/users/:id/user-reset-exercise-logs` - Get all logs of reset exercises for a user
+*/
+#[instrument(skip(pool))]
+pub async fn get_user_reset_exercise_logs(
+    user_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    auth_user: AuthUser,
+) -> ControllerResult<web::Json<Vec<ExerciseResetLog>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewUserProgressOrDetails,
+        Some(auth_user.id),
+        Res::GlobalPermissions,
+    )
+    .await?;
+    let res =
+        models::exercise_reset_logs::get_exercise_reset_logs_for_user(&mut conn, *user_id).await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route(
         "/user-research-form-question-answers",
@@ -160,5 +183,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route(
         "/user-research-consents",
         web::post().to(post_user_consents),
+    )
+    .route(
+        "/{user_id}/user-reset-exercise-logs",
+        web::get().to(get_user_reset_exercise_logs),
     );
 }

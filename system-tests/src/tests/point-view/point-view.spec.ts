@@ -50,7 +50,7 @@ test("Points view works", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "point-view-top",
-    waitForTheseToBeVisibleAndStable: [page.getByText("TOTAL POINT DASHBOARD")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Another chapter").first()],
     screenshotTarget: page,
   })
 

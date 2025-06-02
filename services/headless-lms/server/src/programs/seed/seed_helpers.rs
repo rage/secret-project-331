@@ -1,7 +1,7 @@
-use anyhow::Result;
+use anyhow::{Result, anyhow};
 use chrono::{DateTime, Utc};
 use headless_lms_models::{
-    PKeyPolicy, course_exams,
+    PKeyPolicy, SpecFetcher, course_exams,
     exams::{self, NewExam},
     exercise_slide_submissions,
     exercise_task_gradings::{self, ExerciseTaskGradingResult, UserPointsUpdateStrategy},
@@ -17,6 +17,7 @@ use headless_lms_models::{
     user_exercise_slide_states, user_exercise_states,
 };
 use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
+use once_cell::sync::OnceCell;
 use serde_json::Value;
 use sqlx::PgConnection;
 use std::collections::HashMap;
@@ -24,14 +25,38 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::domain::models_requests::{self, JwtKey};
+
+// Static holder for our cached spec fetcher
+static SEED_SPEC_FETCHER: OnceCell<Box<dyn SpecFetcher + Send + Sync>> = OnceCell::new();
+
+/// Initialize the global spec fetcher for seeding. Must be called once before any seeding operations.
+pub fn init_seed_spec_fetcher(base_url: String, jwt_key: Arc<JwtKey>) -> Result<()> {
+    let fetcher = Box::new(models_requests::make_seed_spec_fetcher_with_cache(
+        base_url,
+        Uuid::new_v4(),
+        jwt_key,
+    ));
+
+    SEED_SPEC_FETCHER
+        .set(fetcher)
+        .map_err(|_| anyhow!("Seed spec fetcher already initialized"))?;
+    Ok(())
+}
+
+/// Get the global spec fetcher for seeding. Panics if not initialized.
+pub fn get_seed_spec_fetcher() -> &'static (dyn SpecFetcher + Send + Sync) {
+    // We can use unwrap here since this is a fatal error during seeding
+    SEED_SPEC_FETCHER
+        .get()
+        .unwrap_or_else(|| panic!("Seed spec fetcher not initialized"))
+}
+
 pub async fn create_page(
     conn: &mut PgConnection,
     course_id: Uuid,
     author: Uuid,
     chapter_id: Option<Uuid>,
     page_data: CmsPageUpdate,
-    base_url: String,
-    jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
     let new_page = NewPage {
         content: Value::Array(vec![]),
@@ -50,7 +75,7 @@ pub async fn create_page(
         conn,
         new_page,
         author,
-        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key)),
+        get_seed_spec_fetcher(),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -72,7 +97,7 @@ pub async fn create_page(
             history_change_reason: HistoryChangeReason::PageSaved,
             is_exam_page: false,
         },
-        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key)),
+        get_seed_spec_fetcher(),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -470,8 +495,6 @@ pub async fn create_exam(
     exam_id: Uuid,
     teacher: Uuid,
     minimum_points_treshold: i32,
-    base_url: String,
-    jwt_key: Arc<JwtKey>,
     grade_manually: bool,
 ) -> Result<Uuid> {
     let new_exam_id = exams::insert(
@@ -553,7 +576,7 @@ pub async fn create_exam(
             content_search_language: None,
         },
         teacher,
-        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), jwt_key),
+        get_seed_spec_fetcher(),
         models_requests::fetch_service_info,
     )
     .await?;

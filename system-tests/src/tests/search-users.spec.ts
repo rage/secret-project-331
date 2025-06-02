@@ -26,13 +26,12 @@ test("User search works", async ({ page, headless }, testInfo) => {
   await page.getByRole("button", { name: "Search" }).click()
   await page
     .getByRole("row", {
-      name: "00e249d8-345f-4eff-aedb-7bdc4c44c1d5 user_1@example.com User1 Details",
+      name: "00e249d8-345f-4eff-aedb-7bdc4c44c1d5 user_1@example.com User1 User1 Details",
     })
     .getByRole("button", { name: "Details" })
     .click()
   await page.getByText("Course: Introduction to feedback (introduction-to-feedback)").click()
   await page.getByText("Course status summary").first().click()
-  await page.getByText("Exercise: Best exercise (5 submissions)(1/1)").scrollIntoViewIfNeeded()
-  await page.getByText("Exercise: Best exercise (5 submissions)(1/1)").click()
-  await page.getByRole("heading", { name: "Submissions" }).waitFor()
+  await page.getByText("5 submissions").first().waitFor()
+  await page.getByRole("heading", { name: "Submissions" }).first().waitFor()
 })

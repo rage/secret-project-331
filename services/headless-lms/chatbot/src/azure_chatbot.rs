@@ -11,16 +11,15 @@ use futures::{Stream, TryStreamExt};
 use headless_lms_models::chatbot_conversation_messages::ChatbotConversationMessage;
 use headless_lms_utils::{ApplicationConfiguration, http::REQWEST_CLIENT};
 use pin_project::pin_project;
-use reqwest::header::HeaderMap;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use tokio::{io::AsyncBufReadExt, sync::Mutex};
 use tokio_util::io::StreamReader;
 use url::Url;
 
+use crate::llm_utils::{build_llm_headers, estimate_tokens, LLM_API_VERSION};
 use crate::prelude::*;
-
-pub const CHATBOT_AZURE_API_VERSION: &str = "2024-06-01";
+use crate::search_filter::SearchFilter;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ContentFilterResults {
@@ -101,7 +100,7 @@ impl ChatRequest {
         message: &str,
         app_config: &ApplicationConfiguration,
     ) -> anyhow::Result<(Self, ChatbotConversationMessage, i32)> {
-        let index_name_prefix = Url::parse(&app_config.base_url)?
+        let index_name = Url::parse(&app_config.base_url)?
             .host_str()
             .expect("BASE_URL must have a host")
             .replace(".", "-");
@@ -175,7 +174,7 @@ impl ChatRequest {
                         auth_type: "api_key".to_string(),
                         key: search_config.search_api_key.clone(),
                     },
-                    index_name: format!("{}-{}", index_name_prefix, configuration.course_id),
+                    index_name,
                     query_type: query_type.to_string(),
                     semantic_configuration: "default".to_string(),
                     embedding_dependency: EmbeddingDependency {
@@ -185,6 +184,10 @@ impl ChatRequest {
                     in_scope: false,
                     top_n_documents: 5,
                     strictness: 3,
+                    filter: Some(
+                        SearchFilter::eq("course_id", configuration.course_id.to_string())
+                            .to_odata()?,
+                    ),
                     fields_mapping: FieldsMapping {
                         content_fields_separator: ",".to_string(),
                         content_fields: vec!["chunk".to_string()],
@@ -237,6 +240,8 @@ pub struct DataSourceParameters {
     pub in_scope: bool,
     pub top_n_documents: i32,
     pub strictness: i32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub filter: Option<String>,
     pub fields_mapping: FieldsMapping,
     pub semantic_configuration: String,
 }
@@ -382,9 +387,9 @@ pub async fn send_chat_request_and_parse_stream(
     let mut url = chatbot_config.api_endpoint.clone();
 
     // Always set the API version so that we actually use the API that the code is written for
-    url.set_query(Some(&format!("api-version={}", CHATBOT_AZURE_API_VERSION)));
+    url.set_query(Some(&format!("api-version={}", LLM_API_VERSION)));
 
-    let headers = build_headers(&api_key)?;
+    let headers = build_llm_headers(&api_key)?;
 
     let response_order_number = new_message.order_number + 1;
 
@@ -493,72 +498,4 @@ pub async fn send_chat_request_and_parse_stream(
 
     // Box and pin the GuardedStream to satisfy the Unpin requirement
     Ok(Box::pin(guarded_stream))
-}
-
-/// Build the headers for the API request.
-fn build_headers(api_key: &str) -> anyhow::Result<HeaderMap> {
-    let mut headers = HeaderMap::new();
-    headers.insert(
-        "api-key",
-        api_key
-            .parse()
-            .map_err(|_e| anyhow::anyhow!("Invalid API key"))?,
-    );
-    headers.insert(
-        "content-type",
-        "application/json"
-            .to_string()
-            .parse()
-            .map_err(|_e| anyhow::anyhow!("Internal error"))?,
-    );
-    Ok(headers)
-}
-
-/// Estimate the number of tokens in a given text. We use this for example to estimate the expense of a chat request. The result is not accurate but it is cheap to calculate.
-pub fn estimate_tokens(text: &str) -> i32 {
-    // Counting text length by taking into account how much space each unicode character takes. This makes more complex characters more expensive.
-    let text_length = text.chars().fold(0, |acc, c| {
-        let mut len = c.len_utf8() as i32;
-        if len > 1 {
-            // The longer the character is, the more likely the text around is taking up more tokens. This is because our estimate of 4 characters per token is only valid for English and non-English languages tend to have more complex characters.
-            len *= 2;
-        }
-        if c.is_ascii_punctuation() {
-            // Punctuation is less common and is thus less likely to be part of a token.
-            len *= 2;
-        }
-        acc + len
-    });
-    // A token is roughly 4 characters
-    text_length / 4
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_estimate_tokens() {
-        // The real number is 4
-        assert_eq!(estimate_tokens("Hello, world!"), 3);
-        assert_eq!(estimate_tokens(""), 0);
-        // The real number is 9
-        assert_eq!(
-            estimate_tokens("This is a longer sentence with several words."),
-            11
-        );
-        // The real number is 7
-        assert_eq!(estimate_tokens("Hyvää päivää!"), 7);
-        // The real number is 9
-        assert_eq!(estimate_tokens("トークンは楽しい"), 12);
-        // The real number is 52
-        assert_eq!(
-            estimate_tokens("🙂🙃😀😃😄😁😆😅😂🤣😊😇🙂🙃😀😃😄😁😆😅😂🤣😊😇"),
-            48
-        );
-        // The real number is 18
-        assert_eq!(estimate_tokens("ฉันใช้โทเค็นทุกวัน"), 27);
-        // The real number is 17
-        assert_eq!(estimate_tokens("Жетони роблять мене щасливим"), 25);
-    }
 }

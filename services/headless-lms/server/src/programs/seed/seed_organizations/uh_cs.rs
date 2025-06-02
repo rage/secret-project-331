@@ -26,7 +26,7 @@ use crate::{
             seed_peer_review_course_without_submissions, seed_sample_course,
         },
         seed_file_storage::SeedFileStorageResult,
-        seed_helpers::create_exam,
+        seed_helpers::{create_exam, get_seed_spec_fetcher},
     },
 };
 
@@ -48,7 +48,7 @@ pub async fn seed_organization_uh_cs(
 ) -> anyhow::Result<SeedOrganizationUhCsResult> {
     info!("inserting organization uh-cs");
     let SeedUsersResult {
-        admin_user_id,
+        admin_user_id: _,
         teacher_user_id,
         language_teacher_user_id,
         material_viewer_user_id,
@@ -57,6 +57,7 @@ pub async fn seed_organization_uh_cs(
         example_normal_user_ids,
         teaching_and_learning_services_user_id: _,
         student_without_research_consent: _,
+        student_without_country: _,
         user_user_id: _,
         student_1_user_id: _,
         student_2_user_id: _,
@@ -93,7 +94,7 @@ pub async fn seed_organization_uh_cs(
     let cs_data = CommonCourseData {
         db_pool: db_pool.clone(),
         organization_id: uh_cs_organization_id,
-        admin_user_id,
+        teacher_user_id,
         student_user_id: student_3_user_id,
         langs_user_id,
         example_normal_user_ids: Arc::new(example_normal_user_ids.to_vec()),
@@ -305,13 +306,14 @@ pub async fn seed_organization_uh_cs(
         course_instances::get_default_by_course_id(&mut conn, manual_completions_id).await?;
     library::progressing::add_manual_completions(
         &mut conn,
-        admin_user_id,
+        teacher_user_id,
         &manual_default_instance,
         &TeacherManualCompletionRequest {
             course_module_id: manual_default_module.id,
             new_completions: vec![TeacherManualCompletion {
                 user_id: *example_normal_user_ids.first().unwrap(),
                 grade: Some(4),
+                passed: true,
                 completion_date: Some(Utc.with_ymd_and_hms(2022, 9, 1, 0, 0, 0).unwrap()),
             }],
             skip_duplicate_completions: true,
@@ -363,8 +365,6 @@ pub async fn seed_organization_uh_cs(
         Uuid::parse_str("7d6ed843-2a94-445b-8ced-ab3c67290ad0")?,
         teacher_user_id,
         0,
-        base_url.clone(),
-        Arc::clone(&jwt_key),
         false,
     )
     .await?;
@@ -379,8 +379,6 @@ pub async fn seed_organization_uh_cs(
         Uuid::parse_str("6959e7af-6b78-4d37-b381-eef5b7aaad6c")?,
         teacher_user_id,
         0,
-        base_url.clone(),
-        Arc::clone(&jwt_key),
         false,
     )
     .await?;
@@ -395,8 +393,6 @@ pub async fn seed_organization_uh_cs(
         Uuid::parse_str("8e202d37-3a26-4181-b9e4-0560b90c0ccb")?,
         teacher_user_id,
         0,
-        base_url.clone(),
-        Arc::clone(&jwt_key),
         false,
     )
     .await?;
@@ -412,8 +408,6 @@ pub async fn seed_organization_uh_cs(
         Uuid::parse_str("fee8bb0c-8629-477c-86eb-1785005143ae")?,
         teacher_user_id,
         0,
-        base_url.clone(),
-        Arc::clone(&jwt_key),
         true,
     )
     .await?;
@@ -428,8 +422,6 @@ pub async fn seed_organization_uh_cs(
         Uuid::parse_str("65f5c3f3-b5fd-478d-8858-a45cdcb16b86")?,
         teacher_user_id,
         0,
-        base_url.clone(),
-        Arc::clone(&jwt_key),
         false,
     )
     .await?;
@@ -444,8 +436,6 @@ pub async fn seed_organization_uh_cs(
         Uuid::parse_str("5c4fca1f-f0d6-471f-a0fd-eac552f5fb84")?,
         teacher_user_id,
         0,
-        base_url.clone(),
-        Arc::clone(&jwt_key),
         false,
     )
     .await?;
@@ -460,8 +450,6 @@ pub async fn seed_organization_uh_cs(
         Uuid::parse_str("b2168b2f-f721-4771-a35d-ca75ca0937b1")?,
         teacher_user_id,
         0,
-        base_url.clone(),
-        Arc::clone(&jwt_key),
         false,
     )
     .await?;
@@ -476,10 +464,9 @@ pub async fn seed_organization_uh_cs(
     let _cs_design = seed_cs_course_material(
         &db_pool,
         uh_cs_organization_id,
-        admin_user_id,
+        teacher_user_id,
         langs_user_id,
-        base_url.clone(),
-        Arc::clone(&jwt_key),
+        base_url,
     )
     .await?;
     let new_course = NewCourse {
@@ -509,12 +496,8 @@ pub async fn seed_organization_uh_cs(
                 )?,
             }),
             new_course,
-            admin_user_id,
-            models_requests::make_spec_fetcher(
-                base_url.clone(),
-                Uuid::new_v4(),
-                Arc::clone(&jwt_key),
-            ),
+            teacher_user_id,
+            get_seed_spec_fetcher(),
             models_requests::fetch_service_info,
         )
         .await?;

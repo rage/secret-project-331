@@ -10,7 +10,8 @@ This document details the setup process for the VDI environment specifically req
 2. Choose **Basic Linux** as the desktop type.
 3. Enter your university username as the name for the virtual desktop.
 4. For the WBS number, please ask **redande** or **hn** in the MOOC Center Slack channel.
-5. To receive sufficient resources and an external disk necessary for development, contact the university's helpdesk. The MOOC Center has an ongoing email thread for these requests; ask **redande** or **hn** to add your request to this thread.
+5. In the open text field **Describe the intended use of the virtual desktop**, you should describe that you need the virtual desktop for your work at the university's MOOC-center.
+6. To receive sufficient resources and an external disk necessary for development, contact the university's helpdesk. The MOOC Center has an ongoing email thread for these requests; ask **redande** or **hn** to add your request to this thread.
 
 ## Install and Set Up Omnissa Horizon Client
 

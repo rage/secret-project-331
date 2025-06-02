@@ -12,6 +12,8 @@ const GenericInfobox: React.FC<React.PropsWithChildren<unknown>> = ({ children }
         border-radius: 8px;
         display: flex;
         align-items: center;
+
+        overflow-x: auto;
       `}
     >
       <InfoCircle

@@ -1,0 +1,63 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH deduped_completions AS (\nSELECT *\nFROM (\n    SELECT cmc.*,\n      CASE\n        WHEN cmr.course_module_completion_id IS NOT NULL THEN 1\n        ELSE 0\n      END AS is_registered,\n      ROW_NUMBER() OVER (\n        PARTITION BY cmc.user_id,\n        cmc.course_module_id\n        ORDER BY CASE\n            WHEN cmr.course_module_completion_id IS NOT NULL THEN 1\n            ELSE 0\n          END DESC,\n          cmc.created_at DESC\n      ) AS rn\n    FROM course_module_completions cmc\n      LEFT JOIN course_module_completion_registered_to_study_registries cmr ON cmc.id = cmr.course_module_completion_id\n      AND cmr.deleted_at IS NULL\n    WHERE cmc.deleted_at IS NULL\n      AND (\n        $1::int IS NULL\n        OR EXTRACT(\n          YEAR\n          FROM cmc.completion_date\n        ) = $1\n      )\n  ) sub\nWHERE rn = 1\n),\nunique_registrations AS (\nSELECT DISTINCT course_module_completion_id\nFROM course_module_completion_registered_to_study_registries cmr\nWHERE cmr.deleted_at IS NULL\n)\nSELECT u.email_domain AS \"email_domain!\",\nCOUNT(DISTINCT d.id) AS \"total_completions!\",\nCOUNT(DISTINCT d.user_id) AS \"unique_users!\",\nROUND(\n  (\n    SUM(\n      CASE\n        WHEN ur.course_module_completion_id IS NOT NULL THEN 1\n        ELSE 0\n      END\n    ) * 100.0\n  ) / NULLIF(COUNT(DISTINCT d.id), 0),\n  2\n)::float8 AS \"registered_completion_percentage\",\nSUM(\n  CASE\n    WHEN ur.course_module_completion_id IS NOT NULL THEN 1\n    ELSE 0\n  END\n) AS \"registered_completions!\",\nSUM(\n  CASE\n    WHEN ur.course_module_completion_id IS NULL THEN 1\n    ELSE 0\n  END\n) AS \"not_registered_completions!\",\nCOUNT(\n  DISTINCT CASE\n    WHEN ur.course_module_completion_id IS NOT NULL THEN d.user_id\n  END\n) AS \"users_with_some_registered_completions!\",\nCOUNT(\n  DISTINCT CASE\n    WHEN ur.course_module_completion_id IS NULL THEN d.user_id\n  END\n) AS \"users_with_some_unregistered_completions!\",\nCOALESCE(\n  SUM(\n    CASE\n      WHEN ur.course_module_completion_id IS NOT NULL THEN cm.ects_credits\n      ELSE 0\n    END\n  ),\n  0\n) AS \"registered_ects_credits!\",\nCOALESCE(\n  SUM(\n    CASE\n      WHEN ur.course_module_completion_id IS NULL THEN cm.ects_credits\n      ELSE 0\n    END\n  ),\n  0\n) AS \"not_registered_ects_credits!\"\nFROM deduped_completions d\nJOIN users u ON d.user_id = u.id\nAND u.deleted_at IS NULL\nLEFT JOIN unique_registrations ur ON d.id = ur.course_module_completion_id\nJOIN courses c ON d.course_id = c.id\nAND c.deleted_at IS NULL\nJOIN course_modules cm ON d.course_module_id = cm.id\nAND cm.deleted_at IS NULL\nWHERE d.prerequisite_modules_completed = TRUE\nAND c.is_draft = FALSE\nAND c.is_test_mode = FALSE\nAND cm.enable_registering_completion_to_uh_open_university = TRUE\nAND cm.ects_credits IS NOT NULL\nAND cm.ects_credits > 0\nGROUP BY u.email_domain\nORDER BY \"total_completions!\" DESC,\nemail_domain\n      ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "email_domain!",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 1,
+        "name": "total_completions!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "unique_users!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 3,
+        "name": "registered_completion_percentage",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 4,
+        "name": "registered_completions!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 5,
+        "name": "not_registered_completions!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 6,
+        "name": "users_with_some_registered_completions!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 7,
+        "name": "users_with_some_unregistered_completions!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 8,
+        "name": "registered_ects_credits!",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 9,
+        "name": "not_registered_ects_credits!",
+        "type_info": "Float4"
+      }
+    ],
+    "parameters": {
+      "Left": ["Int4"]
+    },
+    "nullable": [true, null, null, null, null, null, null, null, null, null]
+  },
+  "hash": "a1b1f769f3eb8dff96ebc1efef5ffffc4de7326bc391e994197cb6d194d96fc4"
+}

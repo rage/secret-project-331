@@ -1,6 +1,5 @@
 {
   "recommendations": [
-    "stylelint.vscode-stylelint",
     "dbaeumer.vscode-eslint",
     "editorconfig.editorconfig",
     "rust-lang.rust-analyzer",

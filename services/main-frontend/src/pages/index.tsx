@@ -8,6 +8,7 @@ import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRende
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import {
   allOrganizationsRoute,
+  domainStatsRoute,
   globalPermissionsRoute,
   globalStatsRoute,
   manageExerciseServicesRoute,
@@ -111,6 +112,18 @@ const FrontPage = () => {
             `}
           >
             {t("link-text-global-stats")}
+          </Link>
+        </div>
+        <div>
+          <Link
+            href={domainStatsRoute()}
+            className={css`
+              cursor: pointer;
+              color: blue;
+              text-decoration: underline;
+            `}
+          >
+            {t("domain-stats-link")}
           </Link>
         </div>
       </OnlyRenderIfPermissions>

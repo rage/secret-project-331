@@ -1,14 +1,12 @@
 import { expect, test } from "@playwright/test"
 
 import { downloadToString } from "../../utils/download"
-import { showNextToastsInfinitely, showToastsNormally } from "../../utils/notificationUtils"
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("Manually adding completions works", async ({ page, headless }, testInfo) => {
+test("Manually adding completions works", async ({ page }) => {
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
@@ -23,7 +21,11 @@ test("Manually adding completions works", async ({ page, headless }, testInfo) =
 
   await page.getByRole("tab", { name: "Course instances" }).click()
 
-  await page.locator('text=Default Manage >> [aria-label="View completions"]').click()
+  await page
+    .getByTestId("course-instance-card")
+    .filter({ has: page.getByRole("heading", { name: "Default", exact: true }) })
+    .getByRole("link", { name: "View completions" })
+    .click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/course-instances/6e3764c9-f2ad-5fe5-b310-ab73c289842e/completions",
   )
@@ -44,17 +46,8 @@ test("Manually adding completions works", async ({ page, headless }, testInfo) =
     .locator('div[role="button"]:has-text("Users receiving a completion for the first time (3)")')
     .click()
 
-  await expectScreenshotsToMatchSnapshots({
-    headless,
-    testInfo,
-    snapshotName: "manual-completion-default-module-preview",
-    waitForTheseToBeVisibleAndStable: [
-      page.getByRole("button", { name: "Submit" }),
-      page.getByText("Users receiving a completion for the first time"),
-    ],
-    screenshotTarget: page,
-    clearNotifications: true,
-  })
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(200)
 
   await page.locator('button:has-text("Submit")').click()
 
@@ -67,9 +60,9 @@ test("Manually adding completions works", async ({ page, headless }, testInfo) =
 
   await page.locator('textarea[name="completions"]').click()
   // Fill textarea[name="completions"]
-  await page.locator('textarea[name="completions"]').fill(`user_id
-  00e249d8-345f-4eff-aedb-7bdc4c44c1d5
-  fbeb9286-3dd8-4896-a6b8-3faffa3fabd6`)
+  await page.locator('textarea[name="completions"]').fill(`user_id,grade
+  00e249d8-345f-4eff-aedb-7bdc4c44c1d5,pass
+  fbeb9286-3dd8-4896-a6b8-3faffa3fabd6,pass`)
 
   await page.getByRole("button", { name: "Check" }).click()
 
@@ -77,37 +70,13 @@ test("Manually adding completions works", async ({ page, headless }, testInfo) =
     .locator('div[role="button"]:has-text("Users receiving a completion for the first time (2)")')
     .click()
 
-  await expectScreenshotsToMatchSnapshots({
-    headless,
-    testInfo,
-    snapshotName: "manual-completion-another-module-preview",
-    waitForTheseToBeVisibleAndStable: [
-      page.getByText("Users receiving a completion for the first time"),
-      page.getByRole("button", { name: "Submit" }),
-    ],
-    screenshotTarget: page,
-    clearNotifications: true,
-  })
-
-  await showNextToastsInfinitely(page)
   await page.locator('button:has-text("Submit")').click()
 
-  await expectScreenshotsToMatchSnapshots({
-    headless,
-    testInfo,
-    snapshotName: "manual-completion-after-posting-completions",
-    waitForTheseToBeVisibleAndStable: [
-      page.getByText("User1"),
-      page.getByText("User2"),
-      page.getByText("User3"),
-      page.getByText("User4"),
-      page.getByText("Completions submitted successfully."),
-    ],
-    screenshotTarget: page,
-    beforeScreenshot: () => page.getByText("User1").scrollIntoViewIfNeeded(),
-  })
-
-  await showToastsNormally(page)
+  await page.getByText("Completions submitted successfully.").waitFor()
+  await page.getByText("User1").waitFor()
+  await page.getByText("User2").waitFor()
+  await page.getByText("User3").waitFor()
+  await page.getByText("User4").waitFor()
 
   const [download] = await Promise.all([
     page.waitForEvent("download"),

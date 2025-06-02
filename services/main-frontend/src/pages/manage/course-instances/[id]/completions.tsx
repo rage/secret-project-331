@@ -66,7 +66,6 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
     },
   })
 
-  console.log(getCompletionsList.data)
   const [showForm, setShowForm] = useState(false)
   const [sorting, setSorting] = useState<Sorting>({ type: NAME, data: null })
   const [completionFormData, setCompletionFormData] =

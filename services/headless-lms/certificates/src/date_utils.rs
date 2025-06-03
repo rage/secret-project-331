@@ -113,10 +113,7 @@ mod tests {
 
     /// Helper function to create an Icu4xBlob for testing if the `ICU4X_POSTCARD_PATH` environment variable is set
     fn try_create_test_icu4x_blob() -> Option<Icu4xBlob> {
-        match Icu4xBlob::try_from_env() {
-            Ok(blob) => Some(blob),
-            Err(_) => None,
-        }
+        Icu4xBlob::try_from_env().ok()
     }
 
     #[test]

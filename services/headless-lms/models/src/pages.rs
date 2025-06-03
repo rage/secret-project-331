@@ -1353,9 +1353,7 @@ async fn upsert_exercises(
 ) -> ModelResult<HashMap<Uuid, Exercise>> {
     let mut remapped_exercises = HashMap::new();
     for exercise_update in exercise_updates.iter() {
-        let exercise_exists = existing_exercise_ids
-            .iter()
-            .any(|id| *id == exercise_update.id);
+        let exercise_exists = existing_exercise_ids.contains(&exercise_update.id);
         let safe_for_db_exercise_id = if retain_exercise_ids || exercise_exists {
             exercise_update.id
         } else {
@@ -1474,7 +1472,7 @@ async fn upsert_exercise_slides(
 ) -> ModelResult<HashMap<Uuid, CmsPageExerciseSlide>> {
     let mut remapped_exercise_slides = HashMap::new();
     for slide_update in slide_updates.iter() {
-        let slide_exists = existing_slide_ids.iter().any(|id| *id == slide_update.id);
+        let slide_exists = existing_slide_ids.contains(&slide_update.id);
         let safe_for_db_slide_id = if retain_exercise_ids || slide_exists {
             slide_update.id
         } else {
@@ -1677,7 +1675,7 @@ pub async fn upsert_peer_or_self_review_configs(
         let mut illegal_exercise_id = None;
 
         sql.push_values(peer_reviews.iter().take(1000), |mut x, pr| {
-            let peer_review_exists = existing_peer_reviews.iter().any(|id| *id == pr.id);
+            let peer_review_exists = existing_peer_reviews.contains(&pr.id);
             let safe_for_db_peer_or_self_review_config_id = if retain_ids || peer_review_exists {
                 pr.id
             } else {
@@ -1826,9 +1824,8 @@ pub async fn upsert_peer_or_self_review_questions(
         sql.push_values(
             peer_or_self_review_questions,
             |mut x, (prq, peer_or_self_review_config_id)| {
-                let peer_review_question_exists = existing_peer_or_self_review_questions
-                    .iter()
-                    .any(|id| *id == prq.id);
+                let peer_review_question_exists =
+                    existing_peer_or_self_review_questions.contains(&prq.id);
                 let safe_for_db_peer_or_self_review_question_id =
                     if retain_ids || peer_review_question_exists {
                         prq.id

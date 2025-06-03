@@ -201,10 +201,9 @@ impl GutenbergBlock {
 }
 
 pub fn contains_blocks_not_allowed_in_top_level_pages(input: &[GutenbergBlock]) -> bool {
-    let res = input
+    input
         .iter()
-        .any(|block| DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES.contains(&block.name.as_str()));
-    res
+        .any(|block| DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES.contains(&block.name.as_str()))
 }
 
 pub fn remap_ids_in_content(

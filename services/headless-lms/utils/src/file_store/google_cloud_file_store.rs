@@ -119,7 +119,7 @@ impl FileStore for GoogleCloudFileStore {
                     .collect::<Result<Vec<_>, _>>();
                 with_combined_result
                     .map(Bytes::from)
-                    .map_err(|err| std::io::Error::new(std::io::ErrorKind::Other, err))
+                    .map_err(std::io::Error::other)
             });
         Ok(Box::new(stream_with_corrected_type))
     }

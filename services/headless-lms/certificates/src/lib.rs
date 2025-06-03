@@ -291,10 +291,7 @@ fn generate_text_svg(
                     .write_text_content(BytesText::from_escaped(&text.text))
                     .map_err(|_original_error| {
                         // Might not be optimal but that's the Error type of the closure that comes from the library and we don't want to unwrap here and potentially crash the process.
-                        io::Error::new(
-                            io::ErrorKind::Other,
-                            "Could not write text to svg".to_string(),
-                        )
+                        io::Error::other("Could not write text to svg".to_string())
                     })?;
 
                 if debug_show_anchoring_points {
@@ -307,10 +304,7 @@ fn generate_text_svg(
                         .write_empty()
                         .map_err(|_original_error| {
                             // Might not be optimal but that's the Error type of the closure that comes from the library and we don't want to unwrap here and potentially crash the process.
-                            io::Error::new(
-                                io::ErrorKind::Other,
-                                "Could not write debug point to svg".to_string(),
-                            )
+                            io::Error::other("Could not write debug point to svg".to_string())
                         })?;
                     writer
                         .create_element("circle")
@@ -321,10 +315,7 @@ fn generate_text_svg(
                         .write_empty()
                         .map_err(|_original_error| {
                             // Might not be optimal but that's the Error type of the closure that comes from the library and we don't want to unwrap here and potentially crash the process.
-                            io::Error::new(
-                                io::ErrorKind::Other,
-                                "Could not write debug point to svg".to_string(),
-                            )
+                            io::Error::other("Could not write debug point to svg".to_string())
                         })?;
                 }
             }

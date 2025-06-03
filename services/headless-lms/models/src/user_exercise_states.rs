@@ -1284,7 +1284,7 @@ pub fn stream_user_exercise_states_for_course<'a>(
     conn: &'a mut PgConnection,
     course_instance_ids: &'a [Uuid],
 ) -> impl Stream<Item = sqlx::Result<ExportedUserExerciseState>> + 'a {
-    let res = sqlx::query_as!(
+    sqlx::query_as!(
         ExportedUserExerciseState,
         r#"
 SELECT id,
@@ -1304,8 +1304,7 @@ WHERE course_instance_id = ANY($1)
         "#,
         course_instance_ids
     )
-    .fetch(conn);
-    res
+    .fetch(conn)
 }
 
 #[cfg(test)]

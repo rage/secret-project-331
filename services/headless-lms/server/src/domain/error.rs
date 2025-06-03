@@ -126,9 +126,9 @@ pub struct ControllerError {
     /// Original error that caused this error.
     source: Option<anyhow::Error>,
     /// A trace of tokio tracing spans, generated automatically when the error is generated.
-    span_trace: SpanTrace,
+    span_trace: Box<SpanTrace>,
     /// Stack trace, generated automatically when the error is created.
-    backtrace: Backtrace,
+    backtrace: Box<Backtrace>,
 }
 
 /// Custom formatter so that errors that get printed to the console are easy-to-read with proper context where the error is coming from.
@@ -214,8 +214,8 @@ impl BackendError for ControllerError {
             error_type,
             message: message.into(),
             source: source_error.into(),
-            span_trace,
-            backtrace,
+            span_trace: Box::new(span_trace),
+            backtrace: Box::new(backtrace),
         }
     }
 }

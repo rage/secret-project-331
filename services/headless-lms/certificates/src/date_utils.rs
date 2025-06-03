@@ -104,3 +104,144 @@ fn naive_date_to_icu_datetime(date: NaiveDate) -> UtilResult<DateTime<Gregorian>
         )
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use chrono::NaiveDate;
+    use icu::locale::subtags::{Language, Region};
+
+    /// Helper function to create an Icu4xBlob for testing if the `ICU4X_POSTCARD_PATH` environment variable is set
+    fn try_create_test_icu4x_blob() -> Option<Icu4xBlob> {
+        match Icu4xBlob::try_from_env() {
+            Ok(blob) => Some(blob),
+            Err(_) => None,
+        }
+    }
+
+    #[test]
+    fn test_get_date_as_localized_string_english() {
+        let Some(icu4x_blob) = try_create_test_icu4x_blob() else {
+            println!("Skipping test: ICU4X_POSTCARD_PATH not defined");
+            return;
+        };
+
+        let test_date = NaiveDate::from_ymd_opt(2024, 1, 15).unwrap();
+        let result = get_date_as_localized_string("en-US", test_date, icu4x_blob);
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "January 15, 2024");
+    }
+
+    #[test]
+    fn test_get_date_as_localized_string_finnish() {
+        let Some(icu4x_blob) = try_create_test_icu4x_blob() else {
+            println!("Skipping test: ICU4X_POSTCARD_PATH not defined");
+            return;
+        };
+
+        let test_date = NaiveDate::from_ymd_opt(2024, 1, 15).unwrap();
+        let result = get_date_as_localized_string("fi-FI", test_date, icu4x_blob);
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "15. tammikuuta 2024");
+    }
+
+    #[test]
+    fn test_get_date_as_localized_string_german() {
+        let Some(icu4x_blob) = try_create_test_icu4x_blob() else {
+            println!("Skipping test: ICU4X_POSTCARD_PATH not defined");
+            return;
+        };
+
+        let test_date = NaiveDate::from_ymd_opt(2024, 12, 25).unwrap();
+        let result = get_date_as_localized_string("de-DE", test_date, icu4x_blob);
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "25. Dezember 2024");
+    }
+
+    #[test]
+    fn test_get_date_as_localized_string_edge_dates() {
+        let Some(icu4x_blob) = try_create_test_icu4x_blob() else {
+            println!("Skipping test: ICU4X_POSTCARD_PATH not defined");
+            return;
+        };
+
+        // Test leap year date
+        let leap_year_date = NaiveDate::from_ymd_opt(2024, 2, 29).unwrap();
+        let result = get_date_as_localized_string("en-US", leap_year_date, icu4x_blob);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "February 29, 2024");
+
+        // Test New Year's Day
+        let new_year = NaiveDate::from_ymd_opt(2025, 1, 1).unwrap();
+        let result = get_date_as_localized_string("en-US", new_year, icu4x_blob);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "January 1, 2025");
+
+        // Test end of year
+        let year_end = NaiveDate::from_ymd_opt(2024, 12, 31).unwrap();
+        let result = get_date_as_localized_string("en-US", year_end, icu4x_blob);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "December 31, 2024");
+    }
+
+    #[test]
+    fn test_invalid_locale() {
+        let Some(icu4x_blob) = try_create_test_icu4x_blob() else {
+            println!("Skipping test: ICU4X_POSTCARD_PATH not defined");
+            return;
+        };
+
+        let test_date = NaiveDate::from_ymd_opt(2024, 1, 15).unwrap();
+        let result = get_date_as_localized_string("invalid-locale", test_date, icu4x_blob);
+
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_parse_locale_valid() {
+        let result = parse_locale("en-US");
+        assert!(result.is_ok());
+
+        let result = parse_locale("fi-FI");
+        assert!(result.is_ok());
+
+        let result = parse_locale("de-DE");
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_locale_invalid() {
+        let result = parse_locale("invalid");
+        assert!(result.is_err());
+
+        let result = parse_locale("");
+        assert!(result.is_err());
+
+        let result = parse_locale("en_US_INVALID_LONG");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_naive_date_to_icu_datetime() {
+        let test_date = NaiveDate::from_ymd_opt(2024, 6, 15).unwrap();
+        let result = naive_date_to_icu_datetime(test_date);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_create_formatter_preferences() {
+        let locale = "en-US".parse::<Locale>().unwrap();
+        let preferences = create_formatter_preferences(&locale);
+        assert_eq!(
+            preferences.locale_preferences.language(),
+            Language::try_from_str("en").unwrap()
+        );
+        assert_eq!(
+            preferences.locale_preferences.region(),
+            Some(Region::try_from_str("US").unwrap())
+        );
+    }
+}

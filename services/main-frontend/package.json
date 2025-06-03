@@ -61,7 +61,6 @@
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",
     "@testing-library/jest-dom": "^6.6.3",
-    "@types/diff": "^8.0.0",
     "@types/jest": "^29.5.14",
     "@types/lodash": "^4.17.16",
     "@types/node": "^22.13.8",

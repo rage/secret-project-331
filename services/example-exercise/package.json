@@ -22,6 +22,7 @@
     "@monaco-editor/react": "^4.7.0",
     "@popperjs/core": "^2.11.8",
     "@react-aria/dialog": "^3.5.25",
+    "@tanstack/react-query": "^5.79.2",
     "@vectopus/atlas-icons-react": "github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",

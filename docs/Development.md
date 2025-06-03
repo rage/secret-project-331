@@ -201,7 +201,6 @@ bin/minikube-start
 
 <details>
 <summary>Linux</summary>
-#### Linux
 
 Retrieve the Minikube IP address:
 
@@ -219,7 +218,6 @@ Add this IP to your `/etc/hosts` file:
 
 <details>
 <summary>macOS</summary>
-#### macOS
 
 Similar to Linux, use `minikube ip` to retrieve the IP, then add it to `/etc/hosts`.
 
@@ -231,7 +229,6 @@ Ensure Minikube is running, then:
 
 <details>
 <summary>Windows</summary>
-#### Windows
 
 Use the Minikube IP obtained from `minikube ip` and add a hosts entry:
 
@@ -247,7 +244,6 @@ Hosts file location: `C:\Windows\System32\drivers\etc\hosts`
 
 <details>
 <summary>Linux</summary>
-#### Linux
 
 In the root of the repository:
 
@@ -259,7 +255,6 @@ bin/dev
 
 <details>
 <summary>macOS</summary>
-#### macOS
 
 In the root of the repository:
 
@@ -271,7 +266,6 @@ bin/dev
 
 <details>
 <summary>Windows</summary>
-#### Windows
 
 Use **Cygwin** in Windows Terminal, navigate to the root of the repository:
 

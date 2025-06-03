@@ -41,14 +41,15 @@ Install these packages on your Linux system:
 
 Optional utilities:
 
-- [Stern](https://github.com/wercker/stern) for logs aggregation
+- [Stern](https://github.com/stern/stern) for logs aggregation
 - [Kubectx](https://github.com/ahmetb/kubectx) for easy Kubernetes context switching
+- [Kubens](https://github.com/ahmetb/kubectx) for easy Kubernetes namespace switching
 
 Other essential commands required by scripts (`bc`, `find`, `jq`, `rsync`, `sponge`):
 
 ```bash
 # Ubuntu
-sudo apt install bc find jq rsync moreutils
+sudo apt install bc findutils jq rsync moreutils
 
 # Arch Linux
 sudo pacman -Syu bc find jq rsync moreutils

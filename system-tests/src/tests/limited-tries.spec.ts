@@ -44,7 +44,7 @@ test("Limited tries work", async ({ page }) => {
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.getByText("University of Helsinki, Department of Computer Science").click(),
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
   ])
 
   await page.getByText("Limited tries").click()

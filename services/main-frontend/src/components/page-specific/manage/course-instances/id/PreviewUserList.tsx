@@ -118,6 +118,7 @@ const PreviewUserList: React.FC<PreviewUserListProps> = ({ users }) => {
                   border: 1px solid
                     ${user.passed ? baseTheme.colors.green[200] : baseTheme.colors.red[200]};
                 `}
+                aria-label={`${t("label-new-grade")} ${mapGradeToText(user.grade, user.passed)}`}
               >
                 {mapGradeToText(user.grade, user.passed)}
               </div>

@@ -63,7 +63,7 @@ Run the following commands in the root of the repo:
 bin/extract-gutenberg-types
 ```
 
-Then, assuming you still have the `bin/dev-only-db` open in another terminal, run:
+Then, assuming you still have the `bin/dev` or `bin/dev-only-db` open in another terminal, run:
 
 ```bash
 bin/generate-bindings

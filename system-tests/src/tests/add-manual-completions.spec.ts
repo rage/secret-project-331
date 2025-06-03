@@ -63,7 +63,7 @@ test("Teacher can manually add completions with validations", async ({ page }) =
     await expect(page.getByText("Completions submitted")).toBeVisible()
   })
 
-  await test.step("Dublicate submission", async () => {
+  await test.step("Duplicate submission", async () => {
     await page.getByRole("button", { name: "Manually add completions" }).click()
 
     await page.getByLabel("date").fill("2024-02-21")
@@ -72,7 +72,7 @@ test("Teacher can manually add completions with validations", async ({ page }) =
       .fill("user_id,grade\nd7d6246c-45a8-4ff4-bf4d-31dedfaac159,5")
     await page.getByRole("button", { name: "Check" }).click()
     await page.getByRole("button", { name: "Hide" }).nth(2).click()
-    await expect(page.getByText("Previous grade: 3")).toBeVisible
+    await expect(page.getByText("Previous grade: 3")).toBeVisible()
     await page.getByRole("button", { name: "Submit" }).click()
     await expect(page.getByText("Completions submitted")).toBeVisible()
   })

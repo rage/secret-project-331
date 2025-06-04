@@ -4,7 +4,7 @@ import { tmpdir } from "os"
 import path from "path"
 import tar from "tar-fs"
 
-import { selectOrganization } from "../utils/organizationUtils"
+import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",

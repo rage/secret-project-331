@@ -2,7 +2,8 @@ import { expect, test } from "@playwright/test"
 
 import { downloadToString } from "../../utils/download"
 import { showNextToastsInfinitely, showToastsNormally } from "../../utils/notificationUtils"
-import { selectOrganization } from "../../utils/organizationUtils"
+
+import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/admin@example.com.json",

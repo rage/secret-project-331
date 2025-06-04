@@ -2,8 +2,9 @@ import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
 import { getLocatorForNthExerciseServiceIframe } from "../../../utils/iframeLocators"
-import { selectOrganization } from "../../../utils/organizationUtils"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
+
+import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/user@example.com.json",
 })

@@ -1,7 +1,8 @@
 import { test } from "@playwright/test"
 
 import expectUrlPathWithRandomUuid from "../../utils/expect"
-import { selectOrganization } from "../../utils/organizationUtils"
+
+import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/admin@example.com.json",
 })

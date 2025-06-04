@@ -1,9 +1,9 @@
 import { expect, Page, test } from "@playwright/test"
 
-import { selectOrganization } from "../utils/organizationUtils"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 import { hideToasts } from "@/utils/notificationUtils"
+import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/admin@example.com.json",

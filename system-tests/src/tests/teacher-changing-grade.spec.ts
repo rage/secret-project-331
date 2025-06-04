@@ -1,8 +1,7 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
-import { selectOrganization } from "../utils/organizationUtils"
-
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import { selectOrganization } from "@/utils/organizationUtils"
 
 test.describe("test teacher changing grade behavior", () => {
   let studentContext: BrowserContext

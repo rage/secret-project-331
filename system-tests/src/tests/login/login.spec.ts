@@ -7,7 +7,8 @@ import {
 } from "@playwright/test"
 
 import { logout } from "../../utils/logout"
-import { selectOrganization } from "../../utils/organizationUtils"
+
+import { selectOrganization } from "@/utils/organizationUtils"
 
 test.describe("Login session with Playwright", () => {
   /// Login state to use

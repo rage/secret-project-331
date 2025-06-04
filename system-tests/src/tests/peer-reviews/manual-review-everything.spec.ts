@@ -1,9 +1,11 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
 import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
-import { selectOrganization } from "../../utils/organizationUtils"
 
 import { answerExercise, fillPeerReview } from "./peer_review_utils"
+
+import { selectOrganization } from "@/utils/organizationUtils"
+
 const TEST_PAGE = "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1/page-1"
 
 test.describe("test ManualReviewEverything behavior", () => {

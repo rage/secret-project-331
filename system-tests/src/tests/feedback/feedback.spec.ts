@@ -5,10 +5,10 @@ import expectUrlPathWithRandomUuid from "../../utils/expect"
 import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
 import { login } from "../../utils/login"
 import { logout } from "../../utils/logout"
-import { selectOrganization } from "../../utils/organizationUtils"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 import { feedbackTooltipClass } from "@/shared-module/common/styles/constants"
+import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/user@example.com.json",

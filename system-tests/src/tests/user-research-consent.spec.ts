@@ -1,8 +1,9 @@
 import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
-import { selectOrganization } from "../utils/organizationUtils"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
+
+import { selectOrganization } from "@/utils/organizationUtils"
 test("Research consent form is visible on login, if not yet answered", async ({
   page,
   headless,

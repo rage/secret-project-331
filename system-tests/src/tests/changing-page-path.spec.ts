@@ -1,12 +1,15 @@
 import { test } from "@playwright/test"
 
+import { selectOrganization } from "@/utils/organizationUtils"
+
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
 test("Chaning page path works and redirects correctly", async ({ page }) => {
   await page.goto("http://project-331.local/organizations")
-  await page.getByLabel("University of Helsinki, Department of Mathematics and Statistics").click()
+
+  await selectOrganization(page, "University of Helsinki, Department of Mathematics and Statistics")
   await page.getByLabel("Manage course 'Change Path'").click()
   await page.getByRole("tab", { name: "Pages" }).click()
   await page.getByText("New page").nth(1).click()

@@ -702,6 +702,7 @@
   "score-given": "Score given",
   "select-course-module": "Select course module",
   "select-module-start-end-chapters": "Select starting chapter and ending chapter",
+  "select-organization": "Select an organization",
   "selected-text": "Selected text:",
   "sent-by": "Sent by: {{user}}",
   "service-info-url": "Service info URL",

@@ -1,6 +1,7 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
 import { scrollLocatorsParentIframeToViewIfNeeded } from "@/utils/iframeLocators"
+import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -104,7 +105,8 @@ test("Grade exams manually", async ({}) => {
 
   // Teacher goes to the grading page and grades the students submissions
   await teacherPage.goto("http://project-331.local/organizations")
-  await teacherPage.getByLabel("University of Helsinki, Department of Computer Science").click()
+  await selectOrganization(teacherPage, "University of Helsinki, Department of Computer Science")
+
   await teacherPage
     .getByTestId("exam-list-item")
     .filter({ hasText: "Exam for manual grading" })

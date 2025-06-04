@@ -2,6 +2,7 @@ import { test } from "@playwright/test"
 
 import expectUrlPathWithRandomUuid from "../../utils/expect"
 
+import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
@@ -10,9 +11,7 @@ test("exam list renders, can create exam", async ({ page }) => {
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.click(
-      '[aria-label="University of Helsinki, Department of Computer Science"] div:has-text("University of Helsinki, Department of Computer ScienceOrganization for Computer ")',
-    ),
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
   ])
 
   await page.getByText("Exams").nth(1).click()

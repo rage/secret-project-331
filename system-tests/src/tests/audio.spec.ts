@@ -2,6 +2,7 @@ import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 
+import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
@@ -9,7 +10,7 @@ test.use({
 test("Can upload audio files to pages", async ({ page }) => {
   await page.goto("http://project-331.local/")
   await page.getByRole("link", { name: "All organizations" }).click()
-  await page.getByLabel("University of Helsinki, Department of Mathematics and Statistics").click()
+  await selectOrganization(page, "University of Helsinki, Department of Mathematics and Statistics")
   await page.getByLabel("Manage course 'Audio course'").click()
   await page.getByRole("tab", { name: "Pages" }).click()
   await page

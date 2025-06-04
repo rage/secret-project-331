@@ -17,9 +17,7 @@ test.use({
 test("feedback test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await page.getByText("Introduction to feedback").click()
@@ -79,9 +77,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
   await logout(page)
   await login("admin@example.com", "admin", page, true)
 
-  await Promise.all([
-    await page.getByText("University of Helsinki, Department of Computer Science").click(),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
   await page.locator("[aria-label=\"Manage course 'Introduction to feedback'\"] svg").click()

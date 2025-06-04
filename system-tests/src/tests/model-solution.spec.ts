@@ -12,9 +12,8 @@ test.describe("Model solutions", () => {
   test("model-solutions are displayed in submissions", async ({ page, headless }, testInfo) => {
     await page.goto("http://project-331.local/organizations")
 
-    await Promise.all([
-      await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-    ])
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science")
+
     await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
     await page.locator("[aria-label=\"Manage course 'Model solutions'\"] svg").click()
@@ -64,9 +63,8 @@ test.describe("Model solutions", () => {
   }, testInfo) => {
     await page.goto("http://project-331.local/organizations")
 
-    await Promise.all([
-      await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-    ])
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science")
+
     await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
     await page.getByText("Model solutions").click()

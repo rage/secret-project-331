@@ -11,12 +11,7 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
   test.slow()
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(
-      page,
-      "University of Helsinki, Department of Mathematics and Statistics",
-    ),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Mathematics and Statistics")
 
   await page.locator("[aria-label=\"Manage course \\'Introduction to citations\\'\"] svg").click()
   await page.getByRole("tab", { name: "Other" }).click()

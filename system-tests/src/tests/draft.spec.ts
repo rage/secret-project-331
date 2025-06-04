@@ -8,12 +8,10 @@ test.describe("anonymous user", () => {
   test("cannot see draft course", async ({ page }) => {
     await page.goto("http://project-331.local/organizations")
 
-    await Promise.all([
-      await selectOrganization(
-        page,
-        "University of Helsinki, Department of Mathematics and Statistics",
-      ),
-    ])
+    await selectOrganization(
+      page,
+      "University of Helsinki, Department of Mathematics and Statistics",
+    )
 
     await expect(page.getByText("Introduction to Statistics")).toBeVisible()
     await expect(page.getByText("Introduction to Drafts")).toBeHidden()
@@ -27,12 +25,10 @@ test.describe("user", () => {
   test("cannot see draft course", async ({ page }) => {
     await page.goto("http://project-331.local/organizations")
 
-    await Promise.all([
-      await selectOrganization(
-        page,
-        "University of Helsinki, Department of Mathematics and Statistics",
-      ),
-    ])
+    await selectOrganization(
+      page,
+      "University of Helsinki, Department of Mathematics and Statistics",
+    )
 
     await expect(page.getByText("Introduction to Statistics")).toBeVisible()
     await expect(page.getByText("Introduction to Drafts")).toBeHidden()
@@ -51,12 +47,10 @@ test.describe("admin", () => {
   test("can see draft course", async ({ page }) => {
     await page.goto("http://project-331.local/organizations")
 
-    await Promise.all([
-      await selectOrganization(
-        page,
-        "University of Helsinki, Department of Mathematics and Statistics",
-      ),
-    ])
+    await selectOrganization(
+      page,
+      "University of Helsinki, Department of Mathematics and Statistics",
+    )
 
     await expect(page.getByText("Introduction to Statistics")).toBeVisible()
     await expect(page.getByText("Introduction to Drafts")).toBeVisible()
@@ -67,12 +61,10 @@ test.describe("admin", () => {
   }, testInfo) => {
     await page.goto("http://project-331.local/organizations")
 
-    await Promise.all([
-      await selectOrganization(
-        page,
-        "University of Helsinki, Department of Mathematics and Statistics",
-      ),
-    ])
+    await selectOrganization(
+      page,
+      "University of Helsinki, Department of Mathematics and Statistics",
+    )
 
     await page.click(`button:text("Create")`)
     // Fill input

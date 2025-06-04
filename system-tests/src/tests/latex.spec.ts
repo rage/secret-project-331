@@ -13,12 +13,7 @@ test.use({
 test("latex-block renders", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(
-      page,
-      "University of Helsinki, Department of Mathematics and Statistics",
-    ),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Mathematics and Statistics")
 
   await page.getByRole("button", { name: "Create", exact: true }).first().click()
 

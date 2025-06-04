@@ -58,6 +58,7 @@ pub async fn seed_organization_uh_cs(
         example_normal_user_ids,
         teaching_and_learning_services_user_id: _,
         student_without_research_consent: _,
+        student_without_country: _,
         user_user_id: _,
         student_1_user_id: _,
         student_2_user_id: _,

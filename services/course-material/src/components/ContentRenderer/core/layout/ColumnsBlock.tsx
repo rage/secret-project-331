@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import { SetStateAction } from "react"
 
 import { BlockRendererProps } from "../.."
 import { ColumnAttributes, ColumnsAttributes } from "../../../../../types/GutenbergBlockAttributes"
@@ -7,7 +6,6 @@ import { Block } from "../../../../services/backend"
 
 import ColumnBlock from "./ColumnBlock"
 
-import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -55,19 +53,7 @@ const ColumnsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnsA
       `}
     >
       {innerBlocks.map((block) => {
-        return (
-          <ColumnBlock
-            key={block.clientId}
-            data={block}
-            editing={false}
-            selectedBlockId={null}
-            setEdits={function (_value: SetStateAction<Map<string, NewProposedBlockEdit>>): void {
-              throw new Error("Function not implemented.")
-            }}
-            id={block.clientId}
-            isExam={isExam}
-          />
-        )
+        return <ColumnBlock key={block.clientId} data={block} id={block.clientId} isExam={isExam} />
       })}
     </div>
   )

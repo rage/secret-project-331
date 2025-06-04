@@ -18,6 +18,7 @@ pub mod oembed;
 pub mod page_audio_files;
 pub mod pages;
 pub mod proposed_edits;
+pub mod user_details;
 
 use actix_web::web::{self, ServiceConfig};
 
@@ -35,5 +36,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/course-modules").configure(course_modules::_add_routes))
         .service(web::scope("/page_audio").configure(page_audio_files::_add_routes))
         .service(web::scope("/chatbot").configure(chatbot::_add_routes))
-        .service(web::scope("/code-giveaways").configure(code_giveaways::_add_routes));
+        .service(web::scope("/code-giveaways").configure(code_giveaways::_add_routes))
+        .service(web::scope("/user-details").configure(user_details::_add_routes));
 }

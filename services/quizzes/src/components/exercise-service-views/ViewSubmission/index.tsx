@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { BullhornMegaphone } from "@vectopus/atlas-icons-react"
+import { BullhornMegaphone, InfoCircle } from "@vectopus/atlas-icons-react"
 import React, { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -123,14 +123,18 @@ const FlexItem = styled.div`
 const SubmissionFeedback: React.FC<{
   itemFeedback: ItemAnswerFeedback
   itemModelSolution: ModelSolutionQuizItem | null
-}> = ({ itemFeedback, itemModelSolution }) => {
+  questionType: QuizItemType
+}> = ({ itemFeedback, itemModelSolution, questionType }) => {
   const { t } = useTranslation()
 
   let backgroundColor = "#fffaf1"
   let textColor = "#C25100"
 
   const userScore = itemFeedback.correctnessCoefficient ?? itemFeedback.score
-  if (userScore == 1) {
+  if (questionType === "closed-ended-question") {
+    backgroundColor = "#F2F2F2"
+    textColor = "#57606F"
+  } else if (userScore == 1) {
     backgroundColor = "#D5EADF"
     textColor = "#246F46"
   } else if (userScore == 0) {
@@ -173,7 +177,7 @@ const SubmissionFeedback: React.FC<{
       className={css`
         background: ${backgroundColor};
         box-sizing: border-box;
-        border-radius: 0.25rem;
+        border-radius: ${questionType === "closed-ended-question" ? "0.5rem" : "0.25rem"};
         color: ${textColor};
         margin: 1.5rem 0rem 1.5rem 0rem;
         margin-bottom: 0;
@@ -181,11 +185,24 @@ const SubmissionFeedback: React.FC<{
         max-width: 100%;
         display: flex;
         font-size: 1.125rem;
-        line-height: 1.125rem;
-        column-gap: 0.8rem;
+        line-height: 1.5rem;
+        column-gap: 1rem;
       `}
     >
-      <BullhornMegaphone size={20} weight="bold" color="7A3F75" />{" "}
+      <span
+        className={css`
+          position: relative;
+          top: 2px;
+          min-width: 1rem;
+        `}
+      >
+        {questionType === "closed-ended-question" ? (
+          <InfoCircle size={20} weight="bold" color="7A3F75" />
+        ) : (
+          <BullhornMegaphone size={20} weight="bold" color="7A3F75" />
+        )}
+      </span>
+
       <span>
         {mapScoreToFeedback(userScore)}{" "}
         <ParsedText inline parseLatex parseMarkdown addDotToEnd text={customItemFeedback} />
@@ -238,6 +255,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
               <SubmissionFeedback
                 itemFeedback={itemAnswerFeedback}
                 itemModelSolution={itemModelSolution}
+                questionType={item.type as QuizItemType}
               />
             )
           const missingQuizItemAnswer = !quizItemAnswer && (

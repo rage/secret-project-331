@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next"
 
 import { GlossaryContext, GlossaryState } from "../contexts/GlossaryContext"
 import PageContext from "../contexts/PageContext"
-import useSelectedBlockId from "../hooks/useSelectedBlockId"
 import {
   Block,
   fetchGlossary,
@@ -27,10 +26,11 @@ import HeadingsNavigation from "./HeadingsNavigation"
 import ReferenceList from "./ReferencesList"
 import Chatbot from "./chatbot"
 import SelectResearchConsentForm from "./forms/SelectResearchConsentForm"
+// import SelectUserInformationForm from "./forms/SelectUserInformationForm"
 import CourseSettingsModal from "./modals/CourseSettingsModal"
 import UserOnWrongCourseNotification from "./notifications/UserOnWrongCourseNotification"
 
-import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
+// import { useUserDetails } from "@/hooks/useUserDetails"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
@@ -60,16 +60,12 @@ const AudioNotification = styled.div`
 `
 
 const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizationSlug }) => {
-  // block id -> new block contents
-  const [edits, setEdits] = useState<Map<string, NewProposedBlockEdit>>(new Map())
   const pageContext = useContext(PageContext)
-  const [editingMaterial, setEditingMaterial] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
 
   const courseId = pageContext?.pageData?.course_id
   const pageId = pageContext?.pageData?.id
-  const isMaterialPage = pageContext.pageData?.content && Boolean(pageContext.pageData?.chapter_id)
-  const [selectedBlockId, clearSelectedBlockId] = useSelectedBlockId()
+  const isMaterialPage = Boolean(pageContext.pageData?.content && pageContext.pageData?.chapter_id)
 
   const tracks: AudioFile[] = []
 
@@ -78,6 +74,8 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
 
   const [showResearchConsentForm, setShowResearchConsentForm] = useState<boolean>(false)
   const [shouldAnswerResearchForm, setShouldAnswerResearchForm] = useState<boolean>(false)
+  // const [shouldAnswerMissingInfoForm, setShouldAnswerMissingInfoForm] = useState<boolean>(false)
+
   const [hasAnsweredForm, setHasAnsweredForm] = useState<boolean>(false)
   const researchFormQueryParam = useQueryParameter("show_research_form")
   const loginContext = useContext(LoginStateContext)
@@ -115,6 +113,25 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
     queryFn: () => getChatbotConfigurationForCourse(assertNotNullOrUndefined(courseId)),
     enabled: loginContext.signedIn === true && Boolean(courseId),
   })
+
+  /*
+  const userDetailsQuery = useUserDetails()
+
+
+  useMemo(() => {
+    if (
+      userDetailsQuery.data?.country === null ||
+      userDetailsQuery.data?.first_name === null ||
+      userDetailsQuery.data?.last_name === null
+    ) {
+      setShouldAnswerMissingInfoForm(true)
+    }
+  }, [
+    userDetailsQuery.data?.country,
+    userDetailsQuery.data?.first_name,
+    userDetailsQuery.data?.last_name,
+  ])
+  */
 
   useEffect(() => {
     if (
@@ -202,6 +219,16 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
               }}
             />
           )}
+
+        {/* {shouldAnswerMissingInfoForm && (
+          <SelectUserInformationForm
+            shouldAnswerMissingInfoForm={shouldAnswerMissingInfoForm}
+            setShouldAnswerMissingInfoForm={setShouldAnswerMissingInfoForm}
+            firstName={userDetailsQuery.data?.first_name ?? ""}
+            lastName={userDetailsQuery.data?.last_name ?? ""}
+            country={userDetailsQuery.data?.country ?? null}
+          />
+        )}*/}
         {getPageAudioFiles.isSuccess && tracks.length !== 0 && (
           <AudioNotification>
             <p>{t("audio-notification-description")}</p>
@@ -245,9 +272,6 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
           <div id="content" className={inlineColorStyles}>
             <ContentRenderer
               data={(pageContext.pageData?.content as Array<Block<unknown>>) ?? []}
-              editing={editingMaterial}
-              selectedBlockId={selectedBlockId}
-              setEdits={setEdits}
               isExam={pageContext.exam !== null}
               dontAllowBlockToBeWiderThanContainerWidth={false}
             />
@@ -269,20 +293,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
             {chatbotConfiguration.data && (
               <Chatbot chatbotConfigurationId={chatbotConfiguration.data} />
             )}
-            <FeedbackHandler
-              courseId={courseId}
-              pageId={pageId}
-              onEnterEditProposalMode={() => {
-                setEditingMaterial(true)
-              }}
-              onExitEditProposalMode={() => {
-                setEditingMaterial(false)
-                setEdits(new Map())
-              }}
-              selectedBlockId={selectedBlockId}
-              clearSelectedBlockId={clearSelectedBlockId}
-              edits={edits}
-            />
+            <FeedbackHandler courseId={courseId} pageId={pageId} />
           </>
         )}
       </>

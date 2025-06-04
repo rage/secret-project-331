@@ -4,6 +4,7 @@ import { mainFrontendClient } from "../../mainFrontendClient"
 
 import {
   Chapter,
+  CopyCourseRequest,
   Course,
   CourseBreadcrumbInfo,
   CourseInstance,
@@ -59,11 +60,6 @@ export const getCourseBreadCrumbInfo = async (courseId: string): Promise<CourseB
   return validateResponse(response, isCourseBreadcrumbInfo)
 }
 
-export const postNewCourse = async (data: NewCourse): Promise<Course> => {
-  const response = await mainFrontendClient.post("/courses", data)
-  return validateResponse(response, isCourse)
-}
-
 export const deleteCourse = async (courseId: string): Promise<Course> => {
   const response = await mainFrontendClient.delete(`/courses/${courseId}`)
   return validateResponse(response, isCourse)
@@ -72,22 +68,6 @@ export const deleteCourse = async (courseId: string): Promise<Course> => {
 export const fetchCourseLanguageVersions = async (courseId: string): Promise<Array<Course>> => {
   const response = await mainFrontendClient.get(`/courses/${courseId}/language-versions`)
   return validateResponse(response, isArray(isCourse))
-}
-
-export const postNewCourseTranslation = async (
-  courseId: string,
-  data: NewCourse,
-): Promise<Course> => {
-  const response = await mainFrontendClient.post(`/courses/${courseId}/language-versions`, data)
-  return validateResponse(response, isCourse)
-}
-
-export const postNewCourseDuplicate = async (
-  courseId: string,
-  data: NewCourse,
-): Promise<Course> => {
-  const response = await mainFrontendClient.post(`/courses/${courseId}/duplicate`, data)
-  return validateResponse(response, isCourse)
 }
 
 export const updateCourse = async (courseId: string, data: CourseUpdate): Promise<Course> => {
@@ -338,4 +318,17 @@ export const fetchPartnersBlock = async (courseId: string): Promise<PartnersBloc
 
 export const deletePartnersBlock = async (courseId: string): Promise<void> => {
   await mainFrontendClient.delete(`/courses/${courseId}/partners-block`)
+}
+
+export const createCourseCopy = async (
+  courseId: string,
+  data: CopyCourseRequest,
+): Promise<Course> => {
+  const response = await mainFrontendClient.post(`/courses/${courseId}/create-copy`, data)
+  return validateResponse(response, isCourse)
+}
+
+export const createNewCourse = async (data: NewCourse): Promise<Course> => {
+  const response = await mainFrontendClient.post("/courses", data)
+  return validateResponse(response, isCourse)
 }

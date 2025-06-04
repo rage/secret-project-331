@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import dynamic from "next/dynamic"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import React, { ReactNode } from "react"
@@ -15,6 +14,7 @@ import {
   NavItems,
 } from "@/shared-module/common/components/Navigation/NavBar"
 import Menu from "@/shared-module/common/components/Navigation/NavBar/Menu/Menu"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 
 const LANGUAGE_SELECTION_PLACEMENTPLACEMENT = "bottom-end"
@@ -24,9 +24,8 @@ type LayoutProps = {
   noVisibleLayout?: boolean
 }
 
-const DynamicToaster = dynamic(
+const DynamicToaster = dynamicImport<Record<string, never>>(
   () => import("@/shared-module/common/components/Notifications/ToasterNotifications"),
-  { ssr: false },
 )
 
 const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({

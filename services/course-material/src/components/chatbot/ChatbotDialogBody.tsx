@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
 import { ChatbotDialogProps } from "./ChatbotDialog"
+import ErrorDisplay from "./ErrorDisplay"
 import MessageBubble from "./MessageBubble"
 
 import { newChatbotConversation, sendChatbotMessage } from "@/services/backend"
@@ -274,7 +275,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
       <div
         className={css`
           flex-grow: 1;
-          overflow-y: scroll;
+          overflow-y: auto;
           display: flex;
           flex-direction: column;
           padding: 1rem;
@@ -290,19 +291,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
           />
         ))}
       </div>
-      {error && (
-        <div
-          className={css`
-            padding: 10px;
-            background-color: ${baseTheme.colors.red[100]};
-            color: ${baseTheme.colors.red[500]};
-            margin: 10px;
-            border-radius: 5px;
-          `}
-        >
-          {t("failed-to-send-message")}: {error.message}
-        </div>
-      )}
+      {error && <ErrorDisplay error={error} />}
       <div
         className={css`
           display: flex;

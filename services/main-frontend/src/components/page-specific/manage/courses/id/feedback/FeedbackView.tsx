@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import { markAsRead } from "../../../../../../services/backend/feedback"
 
+import { usePageInfo } from "@/hooks/usePageInfo"
 import { Feedback } from "@/shared-module/common/bindings"
 import Accordion from "@/shared-module/common/components/Accordion"
 import Button from "@/shared-module/common/components/Button"
@@ -13,6 +14,7 @@ import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { primaryFont, typography } from "@/shared-module/common/styles"
+import { pageRoute } from "@/shared-module/common/utils/routes"
 
 export interface FeedbackViewProps {
   feedback: Feedback
@@ -37,6 +39,8 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
 }) => {
   const { t } = useTranslation()
 
+  const pageInfo = usePageInfo(feedback.page_id)
+
   const markAsReadMutation = useToastMutation(
     () => {
       const toggled = !feedback.marked_as_read
@@ -59,6 +63,24 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
         padding: 1rem;
       `}
     >
+      {feedback.page_url_path && pageInfo.data && (
+        <a
+          className={css`
+            display: block;
+            float: right;
+          `}
+          href={`${pageRoute(
+            pageInfo.data,
+            feedback.page_url_path,
+          )}${feedback.blocks.length > 0 ? `?highlight-blocks=${feedback.blocks.map((b) => b.id).join(",")}` : ""}`}
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          <Button variant="secondary" size="medium">
+            {t("open-page-in-new-tab")}
+          </Button>
+        </a>
+      )}
       <h2
         className={css`
           font-size: ${typography.h6};

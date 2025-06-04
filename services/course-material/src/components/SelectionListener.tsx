@@ -1,80 +1,129 @@
+import { useSetAtom } from "jotai"
 import { useEffect } from "react"
 
+import { selectedBlockIdAtom, selectionAtom } from "../stores/materialFeedbackStore"
 import { courseMaterialBlockClass } from "../utils/constants"
 
-interface Props {
-  onSelectionChange: (selection: string, rect: DOMRect | null) => void
-  updateSelectionPosition: (pos: { x: number; y: number }) => void
-}
+import { FEEDBACK_TOOLTIP_ID } from "./FeedbackTooltip"
 
-const SelectionListener: React.FC<React.PropsWithChildren<Props>> = ({
-  onSelectionChange,
-  updateSelectionPosition,
-}) => {
-  function isChildOfCourseMaterialBlock(node: Node | null | undefined): boolean {
-    if (node === null || node === undefined) {
-      return false
-    }
-    let element
-    if (node.nodeType === Node.ELEMENT_NODE) {
-      element = node as Element
-    } else {
-      // probably a text node
-      element = node.parentElement
-    }
-    const closest = element?.closest(`.${courseMaterialBlockClass}`)
-    return closest !== null && closest !== undefined
-  }
+export const FEEDBACK_DIALOG_CONTENT_ID = "feedback-dialog-content"
 
-  function getRect(selection: Selection): DOMRect | null {
-    if (selection.rangeCount === 0) {
-      return null
-    }
-    const range = selection.getRangeAt(0)
-    const rects = range?.getClientRects()
-    const rect = rects !== undefined && rects.length > 0 ? rects[0] : null
-    return rect
-  }
-
-  function selectedCourseBlocks(selection: Selection): boolean {
-    const firstNode = selection.anchorNode
-    const lastNode = selection.focusNode
-    return isChildOfCourseMaterialBlock(firstNode) && isChildOfCourseMaterialBlock(lastNode)
-  }
-
-  function selectionHandler(this: Document) {
-    const selection = this.getSelection()
-    if (selection && selectedCourseBlocks(selection)) {
-      const newSelection = selection.toString()
-      const rect = getRect(selection)
-      onSelectionChange(newSelection, rect)
-    } else {
-      onSelectionChange("", null)
-    }
-  }
-
-  function handleWindowChange(this: Document) {
-    const selection = this.getSelection()
-    if (selection && selectedCourseBlocks(selection)) {
-      const rect = getRect(selection)
-      if (rect) {
-        updateSelectionPosition({ x: rect.x, y: rect.y })
-      }
-    }
-  }
+const useSelectionTracking = (): void => {
+  const setSelection = useSetAtom(selectionAtom)
+  const setSelectedBlockId = useSetAtom(selectedBlockIdAtom)
 
   useEffect(() => {
-    document.addEventListener("selectionchange", selectionHandler)
-    window.addEventListener("scroll", handleWindowChange)
-    window.addEventListener("resize", handleWindowChange)
-    return () => {
-      document.removeEventListener("selectionchange", selectionHandler)
-      window.removeEventListener("scroll", handleWindowChange)
-      window.removeEventListener("resize", handleWindowChange)
-    }
-  })
+    const abortController = new AbortController()
 
-  return <div hidden={true}></div>
+    function isChildOfCourseMaterialBlock(node: Node | null | undefined): boolean {
+      if (node === null || node === undefined) {
+        return false
+      }
+      let element
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        element = node as Element
+      } else {
+        // probably a text node
+        element = node.parentElement
+      }
+      const closest = element?.closest(`.${courseMaterialBlockClass}`)
+      return closest !== null && closest !== undefined
+    }
+
+    /** Tells whether the click or selection change is within a container within which we don't want to update the block ID */
+    function isWithinIgnoredContainer(node: Node | null | undefined): boolean {
+      if (node === null || node === undefined) {
+        return false
+      }
+      let element
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        element = node as Element
+      } else {
+        element = node.parentElement
+      }
+      const dialogContent = element?.closest(
+        `#${FEEDBACK_DIALOG_CONTENT_ID}, #${FEEDBACK_TOOLTIP_ID}`,
+      )
+      return dialogContent !== null && dialogContent !== undefined
+    }
+
+    function selectedCourseBlocks(selection: Selection): boolean {
+      const firstNode = selection.anchorNode
+      const lastNode = selection.focusNode
+      return (
+        isChildOfCourseMaterialBlock(firstNode) &&
+        isChildOfCourseMaterialBlock(lastNode) &&
+        !isWithinIgnoredContainer(firstNode) &&
+        !isWithinIgnoredContainer(lastNode)
+      )
+    }
+
+    function selectionHandler(this: Document) {
+      const selection = this.getSelection()
+      if (selection && selectedCourseBlocks(selection)) {
+        const newSelection = selection.toString()
+        if (selection.rangeCount === 0) {
+          return
+        }
+        const range = selection.getRangeAt(0)
+        const rect = range.getBoundingClientRect()
+        const centerX = rect.left + rect.width / 2
+        const element = range.commonAncestorContainer.parentElement ?? undefined
+        setSelection(
+          newSelection,
+          {
+            x: centerX + window.scrollX,
+            y: rect.top + window.scrollY,
+          },
+          element,
+        )
+      } else {
+        setSelection("", undefined, undefined)
+      }
+    }
+
+    function handleClick(ev: MouseEvent): void {
+      // Skip updating block ID if text is selected
+      const selectedText = window.getSelection()?.toString() || ""
+      if (selectedText.trim().length > 0) {
+        return
+      }
+
+      if (ev.target instanceof Element) {
+        // Skip if click is within feedback dialog
+        if (isWithinIgnoredContainer(ev.target)) {
+          return
+        }
+
+        let newBlockId = null
+        let element: Element | null = ev.target
+        while (element !== null) {
+          if (element.classList.contains(courseMaterialBlockClass)) {
+            newBlockId = element.id
+            break
+          }
+          element = element.parentElement
+        }
+        setSelectedBlockId(newBlockId)
+      } else {
+        setSelectedBlockId(null)
+      }
+    }
+
+    document.addEventListener("selectionchange", selectionHandler, {
+      signal: abortController.signal,
+    })
+    document.addEventListener("click", handleClick, { signal: abortController.signal })
+
+    return () => {
+      abortController.abort()
+    }
+  }, [setSelection, setSelectedBlockId])
+}
+
+const SelectionListener: React.FC = () => {
+  useSelectionTracking()
+  return null
 }
 
 export default SelectionListener

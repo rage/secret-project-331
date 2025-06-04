@@ -340,7 +340,7 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
         onClose={closeModal}
         noPadding
         preventBackgroundScroll
-        aria-labelledby="search-dialog-title"
+        aria-label={t("title-search-dialog")}
       >
         <SearchContainer $hasContent={hasContent}>
           <SearchInputContainer>

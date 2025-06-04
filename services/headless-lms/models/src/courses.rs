@@ -832,6 +832,46 @@ WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
     Ok(courses)
 }
 
+pub async fn get_by_organization_id(
+    conn: &mut PgConnection,
+    organization_id: Uuid,
+) -> ModelResult<Vec<Course>> {
+    let courses = sqlx::query_as!(
+        Course,
+        r#"
+SELECT id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language::text,
+  language_code,
+  copied_from,
+  course_language_group_id,
+  description,
+  is_draft,
+  is_test_mode,
+  can_add_chatbot,
+  is_unlisted,
+  base_module_completion_requires_n_submodule_completions,
+  is_joinable_by_code_only,
+  join_code,
+  ask_marketing_consent,
+  flagged_answers_threshold
+FROM courses
+WHERE organization_id = $1
+  AND deleted_at IS NULL
+ORDER BY name
+        "#,
+        organization_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(courses)
+}
+
 pub async fn set_join_code_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,

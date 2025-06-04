@@ -643,6 +643,7 @@ pub struct ManualCompletionPreviewUser {
     pub last_name: Option<String>,
     pub grade: Option<i32>,
     pub passed: bool,
+    pub previous_best_grade: Option<i32>,
 }
 
 /// Gets a preview of changes that will occur to completions with the given manual completion data.
@@ -672,6 +673,7 @@ pub async fn get_manual_completion_result_preview(
             last_name: user_details.last_name,
             grade: completion.grade,
             passed: completion.passed,
+            previous_best_grade: None,
         };
         let enrollment = course_instance_enrollments::get_by_user_and_course_instance_id(
             conn,

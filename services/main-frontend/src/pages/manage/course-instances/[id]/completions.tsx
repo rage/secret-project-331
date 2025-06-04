@@ -65,6 +65,7 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
       }
     },
   })
+
   const [showForm, setShowForm] = useState(false)
   const [sorting, setSorting] = useState<Sorting>({ type: NAME, data: null })
   const [completionFormData, setCompletionFormData] =
@@ -105,7 +106,42 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
   ): Promise<void> => {
     setCompletionFormData(data)
     const previewDataFromBackend = await postCompletionsPreview(courseInstanceId, data)
-    setPreviewData(previewDataFromBackend)
+
+    const updatedAlreadyCompletedUsers = previewDataFromBackend.already_completed_users.map(
+      (user) => {
+        const existingUser = getCompletionsList.data?.users.find((u) => u.userId === user.user_id)
+        if (!existingUser) {
+          return { ...user, previous_best_grade: null }
+        }
+
+        const completions = existingUser.moduleCompletions.get(data.course_module_id ?? "")
+        const bestGrade = completions
+          ? completions.reduce((max, curr) => {
+              let gradeValue: number
+
+              if (curr.grade !== null) {
+                gradeValue = curr.grade
+              } else if (curr.passed) {
+                gradeValue = 0.5 // "pass"
+              } else {
+                gradeValue = -1 // "fail"
+              }
+
+              return gradeValue > max ? gradeValue : max
+            }, -1)
+          : null
+
+        return {
+          ...user,
+          previous_best_grade: bestGrade,
+        }
+      },
+    )
+
+    setPreviewData({
+      ...previewDataFromBackend,
+      already_completed_users: updatedAlreadyCompletedUsers,
+    })
   }
 
   return (

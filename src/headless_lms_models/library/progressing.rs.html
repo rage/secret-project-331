@@ -1339,7 +1339,9 @@
 <a href="#1338" id="1338">1338</a>
 <a href="#1339" id="1339">1339</a>
 <a href="#1340" id="1340">1340</a>
-<a href="#1341" id="1341">1341</a></pre></div><pre class="rust"><code><span class="kw">use </span>chrono::{DateTime, Utc};
+<a href="#1341" id="1341">1341</a>
+<a href="#1342" id="1342">1342</a>
+<a href="#1343" id="1343">1343</a></pre></div><pre class="rust"><code><span class="kw">use </span>chrono::{DateTime, Utc};
 <span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>std::collections::HashMap;
 
@@ -1984,6 +1986,7 @@
     <span class="kw">pub </span>last_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
     <span class="kw">pub </span>grade: <span class="prelude-ty">Option</span>&lt;i32&gt;,
     <span class="kw">pub </span>passed: bool,
+    <span class="kw">pub </span>previous_best_grade: <span class="prelude-ty">Option</span>&lt;i32&gt;,
 }
 
 <span class="doccomment">/// Gets a preview of changes that will occur to completions with the given manual completion data.
@@ -2013,6 +2016,7 @@
             last_name: user_details.last_name,
             grade: completion.grade,
             passed: completion.passed,
+            previous_best_grade: <span class="prelude-val">None</span>,
         };
         <span class="kw">let </span>enrollment = course_instance_enrollments::get_by_user_and_course_instance_id(
             conn,

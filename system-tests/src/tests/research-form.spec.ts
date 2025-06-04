@@ -45,9 +45,7 @@ test("User can create and respond to research form in a course", async ({
 }, testInfo) => {
   await test.step("Can create a new research form for a course", async () => {
     await page.goto("http://project-331.local/organizations")
-    await page
-      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-      .click()
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await page
       .getByRole("link", { name: "Manage course 'Advanced course instance management'" })
       .click()

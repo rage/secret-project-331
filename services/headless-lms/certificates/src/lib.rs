@@ -71,22 +71,24 @@ pub async fn generate_certificate(
     .await
     .transpose()?;
 
-    let mut grade = "".to_string();
-    if let Some(grade_value) = certificate.grade.clone() {
+    let grade = certificate.grade.as_ref().and_then(|grade_value| {
+        let trimmed = grade_value.trim();
+        if trimmed.is_empty() {
+            return None; // Skip rendering empty grades
+        }
+
         rust_i18n::set_locale(&config.certificate_locale);
 
         let grade_label = t!("grade");
 
-        grade = match grade_value.as_str() {
-            "true" => {
-                format!("{} {}", grade_label, t!("passed"))
-            }
-            "false" => {
-                format!("{} {}", grade_label, t!("failed"))
-            }
+        let grade_text = match trimmed.to_lowercase().as_str() {
+            "true" => format!("{} {}", grade_label, t!("passed")),
+            "false" => format!("{} {}", grade_label, t!("failed")),
             numeral_grade => format!("{} {}", grade_label, numeral_grade),
         };
-    }
+
+        Some(grade_text)
+    });
 
     let fontdb = font_loader::get_font_database_with_fonts(&mut *conn, file_store).await?;
     let url = if debug {
@@ -104,7 +106,7 @@ pub async fn generate_certificate(
     } else {
         certificate.created_at.date_naive()
     };
-    let texts_to_render = vec![
+    let mut texts_to_render = vec![
         TextToRender {
             text: certificate.name_on_certificate.to_string(),
             y_pos: config.certificate_owner_name_y_pos,
@@ -132,8 +134,10 @@ pub async fn generate_certificate(
             text_color: config.certificate_date_text_color,
             ..Default::default()
         },
-        TextToRender {
-            text: grade,
+    ];
+    if let Some(grade_text) = grade {
+        texts_to_render.push(TextToRender {
+            text: grade_text,
             x_pos: config.certificate_grade_x_pos.clone().unwrap_or_default(),
             y_pos: config.certificate_grade_y_pos.clone().unwrap_or_default(),
             font_size: config
@@ -148,8 +152,8 @@ pub async fn generate_certificate(
                 .clone()
                 .unwrap_or_default(),
             ..Default::default()
-        },
-    ];
+        });
+    }
     let paper_size = config.paper_size;
 
     let res = generate_certificate_impl(

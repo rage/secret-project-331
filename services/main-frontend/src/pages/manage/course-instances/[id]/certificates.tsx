@@ -97,7 +97,13 @@ const CertificationsPage: React.FC<Props> = ({ query }) => {
         background_svg_file_name: backgroundSvg?.name ?? null,
         overlay_svg_file_name: overlaySvg?.name ?? null,
         clear_overlay_svg_file: fields.clearCurrentOverlaySvg,
+        certificate_grade_y_pos: fields.gradePosY,
+        certificate_grade_x_pos: fields.gradePosX,
+        certificate_grade_font_size: fields.gradeFontSize,
+        certificate_grade_text_color: fields.gradeTextColor,
+        certificate_grade_text_anchor: fields.gradeTextAnchor,
       }
+
       return updateCertificateConfiguration(update, backgroundSvg, overlaySvg)
     },
     { method: "POST", notify: true },

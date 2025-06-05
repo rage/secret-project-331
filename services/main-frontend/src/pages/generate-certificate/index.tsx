@@ -77,10 +77,11 @@ const ModuleCertificate: React.FC<React.PropsWithChildren<void>> = () => {
     if (!userGrade.data?.module) {
       return ""
     }
-    if (userGrade.data?.module.grade !== null) {
-      return String(userGrade.data?.module.grade)
+    const moduleData = userGrade.data?.module
+    if (moduleData.grade !== null) {
+      return String(moduleData.grade)
     } else {
-      return String(userGrade.data?.module.passed)
+      return String(moduleData.passed)
     }
   }, [userGrade.data?.module])
 
@@ -101,7 +102,10 @@ const ModuleCertificate: React.FC<React.PropsWithChildren<void>> = () => {
       {courseAndModule.isError && (
         <ErrorBanner error={courseAndModule.error} variant={"readOnly"} />
       )}
-      {userInfo.isPending || (courseAndModule.isPending && <Spinner variant={"medium"} />)}
+      {userGrade.isError && <ErrorBanner error={userGrade.error} variant={"readOnly"} />}
+      {(userInfo.isPending || courseAndModule.isPending || userGrade.isPending) && (
+        <Spinner variant={"medium"} />
+      )}
       {courseAndModule.isSuccess && (
         <>
           <h2>{getHeaderContent(t, courseAndModule, moduleId)}</h2>
@@ -116,7 +120,7 @@ const ModuleCertificate: React.FC<React.PropsWithChildren<void>> = () => {
           <Button
             size="medium"
             variant="primary"
-            disabled={!nameOnCertificate}
+            disabled={!nameOnCertificate || userGrade.isPending}
             onClick={() => {
               if (
                 window.confirm(

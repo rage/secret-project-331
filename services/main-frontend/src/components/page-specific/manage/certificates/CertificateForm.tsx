@@ -45,11 +45,11 @@ export interface CertificateFields {
   backgroundSvg: FileList
   overlaySvg: FileList
   clearCurrentOverlaySvg: boolean
-  gradePosX: string | undefined
-  gradePosY: string | undefined
-  gradeFontSize: string | undefined
-  gradeTextColor: string | undefined
-  gradeTextAnchor: CertificateTextAnchor
+  gradePosX: string | null
+  gradePosY: string | null
+  gradeFontSize: string | null
+  gradeTextColor: string | null
+  gradeTextAnchor: CertificateTextAnchor | null
 }
 
 const ANCHOR_OPTIONS: { value: CertificateTextAnchor; label: string }[] = [
@@ -74,6 +74,7 @@ const CertificateForm: React.FC<Props> = ({
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<CertificateFields>({
     mode: "onChange",
     defaultValues: {
@@ -97,11 +98,11 @@ const CertificateForm: React.FC<Props> = ({
       backgroundSvg: undefined,
       overlaySvg: undefined,
       clearCurrentOverlaySvg: false,
-      gradePosX: configuration?.certificate_grade_x_pos ?? undefined,
-      gradePosY: configuration?.certificate_grade_y_pos ?? undefined,
-      gradeFontSize: configuration?.certificate_grade_font_size ?? undefined,
-      gradeTextColor: configuration?.certificate_grade_text_color ?? undefined,
-      gradeTextAnchor: configuration?.certificate_grade_text_anchor ?? "middle",
+      gradePosX: configuration?.certificate_grade_x_pos ?? null,
+      gradePosY: configuration?.certificate_grade_y_pos ?? null,
+      gradeFontSize: configuration?.certificate_grade_font_size ?? null,
+      gradeTextColor: configuration?.certificate_grade_text_color ?? null,
+      gradeTextAnchor: configuration?.certificate_grade_text_anchor ?? null,
     },
   })
   /* eslint-enable i18next/no-literal-string */
@@ -109,7 +110,7 @@ const CertificateForm: React.FC<Props> = ({
     onClickSave(data)
   })
 
-  const [showGradeFields, setShowGradeFields] = useState(false)
+  const [showGradeFields, setShowGradeFields] = useState(!!configuration?.certificate_grade_x_pos)
 
   return (
     <form
@@ -282,7 +283,17 @@ const CertificateForm: React.FC<Props> = ({
         id="enableGrade"
         label={t("label-grade")}
         checked={showGradeFields}
-        onChange={(e) => setShowGradeFields(e.target.checked)}
+        onChange={(e) => {
+          const checked = e.target.checked
+          setShowGradeFields(checked)
+          if (!checked) {
+            setValue("gradePosX", "")
+            setValue("gradePosY", "")
+            setValue("gradeFontSize", "")
+            setValue("gradeTextColor", "")
+            setValue("gradeTextAnchor", null)
+          }
+        }}
       />
       {showGradeFields && (
         <>
@@ -294,7 +305,7 @@ const CertificateForm: React.FC<Props> = ({
               error={errors.gradePosX}
               label={t("label-position-x")}
               {...register("gradePosX", {
-                required: showGradeFields ? t("required-field") : false,
+                required: showGradeFields ? t("required-field") : undefined,
               })}
             />
             <TextField
@@ -302,7 +313,7 @@ const CertificateForm: React.FC<Props> = ({
               error={errors.gradePosY}
               label={t("label-position-y")}
               {...register("gradePosY", {
-                required: showGradeFields ? t("required-field") : false,
+                required: showGradeFields ? t("required-field") : undefined,
               })}
             />
             <TextField
@@ -310,7 +321,7 @@ const CertificateForm: React.FC<Props> = ({
               error={errors.gradeFontSize}
               label={t("label-font-size")}
               {...register("gradeFontSize", {
-                required: showGradeFields ? t("required-field") : false,
+                required: showGradeFields ? t("required-field") : undefined,
               })}
             />
             <TextField
@@ -318,7 +329,7 @@ const CertificateForm: React.FC<Props> = ({
               error={errors.gradeTextColor}
               label={t("label-text-color")}
               {...register("gradeTextColor", {
-                required: showGradeFields ? t("required-field") : false,
+                required: showGradeFields ? t("required-field") : undefined,
               })}
             />
             <SelectField

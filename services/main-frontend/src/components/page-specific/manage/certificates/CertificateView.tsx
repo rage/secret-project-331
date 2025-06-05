@@ -116,6 +116,7 @@ const CertificateView: React.FC<Props> = ({
           {t("text-anchor")}: {configuration.certificate_date_text_anchor}
         </div>
       </div>
+      <hr />
       <div>
         <h3>{t("label-grade")}</h3>
         <div>

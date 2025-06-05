@@ -23,9 +23,8 @@ function updateHeight(
     // set the height as auto to set the height based on content length
     // eslint-disable-next-line i18next/no-literal-string
     ref.current.style.height = "auto"
-    const contentHeight = ref.current.style.height
-    // if changes, then call the scrolltobotton
-    // doesn't work yet
+    // eslint-disable-next-line i18next/no-literal-string
+    const contentHeight = `${ref.current.scrollHeight + 5}px`
 
     if (maxHeightPx && ref.current.scrollHeight > maxHeightPx) {
       // eslint-disable-next-line i18next/no-literal-string
@@ -34,7 +33,7 @@ function updateHeight(
       // eslint-disable-next-line i18next/no-literal-string
       ref.current.style.height = `${ref.current.scrollHeight + 5}px`
     }
-    if (currentHeight != contentHeight && onAutoResized) {
+    if (onAutoResized && currentHeight !== contentHeight) {
       onAutoResized()
     }
   }
@@ -74,6 +73,7 @@ const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaProps>(
   ) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     const combinedRef = useCombinedRefs(ref, textareaRef)
+    const prevValueRef = useRef<string | number | readonly string[] | undefined>(rest.value)
 
     const handleOnChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
       if (onChangeByValue) {
@@ -96,6 +96,16 @@ const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaProps>(
       }
       updateHeight(textareaRef, onAutoResized, autoResizeMaxHeightPx)
     }, [autoResize, onAutoResized, autoResizeMaxHeightPx])
+
+    useEffect(() => {
+      if (!autoResize) {
+        return
+      }
+      if (prevValueRef.current && rest.value != prevValueRef.current) {
+        updateHeight(textareaRef, onAutoResized, autoResizeMaxHeightPx)
+      }
+      prevValueRef.current = rest.value
+    })
 
     useEffect(() => {
       // When a peer review editor is rendered in an exercise, this component is rendered in a hidden state. Thus, the element scrollHeight is 0. We use an intersection observer to detect when the element is visible and then update the height.

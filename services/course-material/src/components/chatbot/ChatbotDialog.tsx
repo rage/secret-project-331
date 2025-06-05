@@ -5,6 +5,8 @@ import React, { useEffect, useState } from "react"
 import ChatbotDialogBody from "./ChatbotDialogBody"
 import ChatbotDialogHeader from "./ChatbotDialogHeader"
 
+import { CHATBOX_HEIGHT_PX, CHATBOX_WIDTH_PX } from "."
+
 import { getChatbotCurrentConversationInfo } from "@/services/backend"
 
 export interface ChatbotDialogProps {
@@ -65,9 +67,9 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
   return (
     <div
       className={css`
-        width: 500px;
+        width: ${CHATBOX_WIDTH_PX}px;
         max-width: 90vw;
-        height: 700px;
+        height: ${CHATBOX_HEIGHT_PX}px;
         max-height: 90vh;
         position: fixed;
         bottom: 70px;

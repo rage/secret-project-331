@@ -9,6 +9,8 @@ import { ChatbotDialogProps } from "./ChatbotDialog"
 import ErrorDisplay from "./ErrorDisplay"
 import MessageBubble from "./MessageBubble"
 
+import { CHATBOX_HEIGHT_PX } from "."
+
 import { newChatbotConversation, sendChatbotMessage } from "@/services/backend"
 import { ChatbotConversationInfo } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
@@ -330,7 +332,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
             resize={"none"}
             autoResize={true}
             onAutoResized={scrollToBottom}
-            autoResizeMaxHeightPx={250}
+            autoResizeMaxHeightPx={CHATBOX_HEIGHT_PX * 0.4}
             placeholder={t("label-message")}
           />
         </div>

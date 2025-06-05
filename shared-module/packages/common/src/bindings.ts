@@ -95,6 +95,11 @@ export interface CertificateConfiguration {
   background_svg_file_upload_id: string
   overlay_svg_path: string | null
   overlay_svg_file_upload_id: string | null
+  certificate_grade_y_pos: string | null
+  certificate_grade_x_pos: string | null
+  certificate_grade_font_size: string | null
+  certificate_grade_text_color: string | null
+  certificate_grade_text_anchor: CertificateTextAnchor | null
 }
 
 export interface CertificateConfigurationAndRequirements {
@@ -999,6 +1004,7 @@ export interface GeneratedCertificate {
   name_on_certificate: string
   verification_id: string
   certificate_configuration_id: string
+  grade: string | null
 }
 
 export interface Term {
@@ -2175,6 +2181,11 @@ export interface CertificateConfigurationUpdate {
   background_svg_file_name: string | null
   overlay_svg_file_name: string | null
   clear_overlay_svg_file: boolean
+  certificate_grade_y_pos: string | null
+  certificate_grade_x_pos: string | null
+  certificate_grade_font_size: string | null
+  certificate_grade_text_color: string | null
+  certificate_grade_text_anchor: CertificateTextAnchor | null
 }
 
 export interface GetFeedbackQuery {

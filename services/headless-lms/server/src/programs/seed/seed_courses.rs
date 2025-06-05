@@ -1950,6 +1950,11 @@ pub async fn seed_sample_course(
         background_svg_file_upload_id,
         overlay_svg_path: None,
         overlay_svg_file_upload_id: None,
+        certificate_grade_y_pos: None,
+        certificate_grade_x_pos: None,
+        certificate_grade_font_size: None,
+        certificate_grade_text_color: None,
+        certificate_grade_text_anchor: None,
     };
     let database_configuration =
         certificate_configurations::insert(&mut conn, &configuration).await?;

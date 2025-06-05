@@ -263,7 +263,19 @@ export function isCertificateConfiguration(obj: unknown): obj is CertificateConf
         (typedObj["overlay_svg_path"] === null ||
             typeof typedObj["overlay_svg_path"] === "string") &&
         (typedObj["overlay_svg_file_upload_id"] === null ||
-            typeof typedObj["overlay_svg_file_upload_id"] === "string")
+            typeof typedObj["overlay_svg_file_upload_id"] === "string") &&
+        (typedObj["certificate_grade_y_pos"] === null ||
+            typeof typedObj["certificate_grade_y_pos"] === "string") &&
+        (typedObj["certificate_grade_x_pos"] === null ||
+            typeof typedObj["certificate_grade_x_pos"] === "string") &&
+        (typedObj["certificate_grade_font_size"] === null ||
+            typeof typedObj["certificate_grade_font_size"] === "string") &&
+        (typedObj["certificate_grade_text_color"] === null ||
+            typeof typedObj["certificate_grade_text_color"] === "string") &&
+        (typedObj["certificate_grade_text_anchor"] === null ||
+            typedObj["certificate_grade_text_anchor"] === "start" ||
+            typedObj["certificate_grade_text_anchor"] === "middle" ||
+            typedObj["certificate_grade_text_anchor"] === "end")
     )
 }
 
@@ -2077,7 +2089,9 @@ export function isGeneratedCertificate(obj: unknown): obj is GeneratedCertificat
         typeof typedObj["user_id"] === "string" &&
         typeof typedObj["name_on_certificate"] === "string" &&
         typeof typedObj["verification_id"] === "string" &&
-        typeof typedObj["certificate_configuration_id"] === "string"
+        typeof typedObj["certificate_configuration_id"] === "string" &&
+        (typedObj["grade"] === null ||
+            typeof typedObj["grade"] === "string")
     )
 }
 
@@ -4462,7 +4476,19 @@ export function isCertificateConfigurationUpdate(obj: unknown): obj is Certifica
             typeof typedObj["background_svg_file_name"] === "string") &&
         (typedObj["overlay_svg_file_name"] === null ||
             typeof typedObj["overlay_svg_file_name"] === "string") &&
-        typeof typedObj["clear_overlay_svg_file"] === "boolean"
+        typeof typedObj["clear_overlay_svg_file"] === "boolean" &&
+        (typedObj["certificate_grade_y_pos"] === null ||
+            typeof typedObj["certificate_grade_y_pos"] === "string") &&
+        (typedObj["certificate_grade_x_pos"] === null ||
+            typeof typedObj["certificate_grade_x_pos"] === "string") &&
+        (typedObj["certificate_grade_font_size"] === null ||
+            typeof typedObj["certificate_grade_font_size"] === "string") &&
+        (typedObj["certificate_grade_text_color"] === null ||
+            typeof typedObj["certificate_grade_text_color"] === "string") &&
+        (typedObj["certificate_grade_text_anchor"] === null ||
+            typedObj["certificate_grade_text_anchor"] === "start" ||
+            typedObj["certificate_grade_text_anchor"] === "middle" ||
+            typedObj["certificate_grade_text_anchor"] === "end")
     )
 }
 

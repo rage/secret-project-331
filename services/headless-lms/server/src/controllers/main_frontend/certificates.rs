@@ -35,6 +35,11 @@ pub struct CertificateConfigurationUpdate {
     pub background_svg_file_name: Option<String>,
     pub overlay_svg_file_name: Option<String>,
     pub clear_overlay_svg_file: bool,
+    pub certificate_grade_y_pos: Option<String>,
+    pub certificate_grade_x_pos: Option<String>,
+    pub certificate_grade_font_size: Option<String>,
+    pub certificate_grade_text_color: Option<String>,
+    pub certificate_grade_text_anchor: Option<CertificateTextAnchor>,
 }
 
 #[derive(Debug, MultipartForm)]
@@ -278,6 +283,11 @@ async fn update_certificate_configuration_inner(
         background_svg_file_upload_id,
         overlay_svg_path: overlay_svg_file_path,
         overlay_svg_file_upload_id: overlay_svg_file_id,
+        certificate_grade_y_pos: metadata.certificate_grade_y_pos,
+        certificate_grade_x_pos: metadata.certificate_grade_x_pos,
+        certificate_grade_font_size: metadata.certificate_grade_font_size,
+        certificate_grade_text_color: metadata.certificate_grade_text_color,
+        certificate_grade_text_anchor: metadata.certificate_grade_text_anchor,
     };
     if let Some(existing_configuration) = existing_configuration {
         // update existing config
@@ -302,6 +312,7 @@ async fn update_certificate_configuration_inner(
 pub struct CertificateGenerationRequest {
     pub certificate_configuration_id: Uuid,
     pub name_on_certificate: String,
+    pub grade: Option<String>,
 }
 
 /**
@@ -341,6 +352,7 @@ pub async fn generate_generated_certificate(
         user.id,
         &request.name_on_certificate,
         request.certificate_configuration_id,
+        request.grade.clone(),
     )
     .await?;
 
@@ -416,6 +428,7 @@ pub async fn get_cerficate_by_verification_id(
                 certificate_configuration_id: test_certificate_configuration_id,
                 name_on_certificate: "Example user".to_string(),
                 verification_id: "test".to_string(),
+                grade: Some("5".to_string()),
             }
         } else {
             models::generated_certificates::get_certificate_by_verification_id(

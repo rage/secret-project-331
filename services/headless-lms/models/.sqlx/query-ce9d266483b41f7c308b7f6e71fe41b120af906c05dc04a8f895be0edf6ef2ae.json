@@ -42,12 +42,17 @@
         "ordinal": 7,
         "name": "certificate_configuration_id",
         "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "grade",
+        "type_info": "Text"
       }
     ],
     "parameters": {
       "Left": ["Text"]
     },
-    "nullable": [false, false, false, true, false, false, false, false]
+    "nullable": [false, false, false, true, false, false, false, false, true]
   },
   "hash": "ce9d266483b41f7c308b7f6e71fe41b120af906c05dc04a8f895be0edf6ef2ae"
 }

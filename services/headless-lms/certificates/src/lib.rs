@@ -28,6 +28,9 @@ use icu_provider::DataLocale;
 use icu_provider_blob::BlobDataProvider;
 use tracing::log::info;
 
+use rust_i18n::{i18n, t};
+i18n!("locales");
+
 /**
 Generates a certificate as a png.
 
@@ -67,6 +70,23 @@ pub async fn generate_certificate(
     )
     .await
     .transpose()?;
+
+    let mut grade = "".to_string();
+    if let Some(grade_value) = certificate.grade.clone() {
+        rust_i18n::set_locale(&config.certificate_locale);
+
+        let grade_label = t!("grade");
+
+        grade = match grade_value.as_str() {
+            "true" => {
+                format!("{} {}", grade_label, t!("passed"))
+            }
+            "false" => {
+                format!("{} {}", grade_label, t!("failed"))
+            }
+            numeral_grade => format!("{} {}", grade_label, numeral_grade),
+        };
+    }
 
     let fontdb = font_loader::get_font_database_with_fonts(&mut *conn, file_store).await?;
     let url = if debug {
@@ -110,6 +130,23 @@ pub async fn generate_certificate(
             font_size: config.certificate_date_font_size,
             text_anchor: config.certificate_date_text_anchor,
             text_color: config.certificate_date_text_color,
+            ..Default::default()
+        },
+        TextToRender {
+            text: grade,
+            x_pos: config.certificate_grade_x_pos.clone().unwrap_or_default(),
+            y_pos: config.certificate_grade_y_pos.clone().unwrap_or_default(),
+            font_size: config
+                .certificate_grade_font_size
+                .clone()
+                .unwrap_or_default(),
+            text_anchor: config
+                .certificate_grade_text_anchor
+                .unwrap_or(CertificateTextAnchor::Middle),
+            text_color: config
+                .certificate_grade_text_color
+                .clone()
+                .unwrap_or_default(),
             ..Default::default()
         },
     ];

@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -44,6 +45,11 @@ export interface CertificateFields {
   backgroundSvg: FileList
   overlaySvg: FileList
   clearCurrentOverlaySvg: boolean
+  gradePosX: string | undefined
+  gradePosY: string | undefined
+  gradeFontSize: string | undefined
+  gradeTextColor: string | undefined
+  gradeTextAnchor: CertificateTextAnchor
 }
 
 const ANCHOR_OPTIONS: { value: CertificateTextAnchor; label: string }[] = [
@@ -91,12 +97,19 @@ const CertificateForm: React.FC<Props> = ({
       backgroundSvg: undefined,
       overlaySvg: undefined,
       clearCurrentOverlaySvg: false,
+      gradePosX: configuration?.certificate_grade_x_pos ?? undefined,
+      gradePosY: configuration?.certificate_grade_y_pos ?? undefined,
+      gradeFontSize: configuration?.certificate_grade_font_size ?? undefined,
+      gradeTextColor: configuration?.certificate_grade_text_color ?? undefined,
+      gradeTextAnchor: configuration?.certificate_grade_text_anchor ?? "middle",
     },
   })
   /* eslint-enable i18next/no-literal-string */
   const onSubmitWrapper = handleSubmit((data) => {
     onClickSave(data)
   })
+
+  const [showGradeFields, setShowGradeFields] = useState(false)
 
   return (
     <form
@@ -264,7 +277,59 @@ const CertificateForm: React.FC<Props> = ({
           {...register("dateTextAnchor")}
         />
       </div>
-
+      <hr />
+      <CheckBox
+        id="enableGrade"
+        label={t("label-grade")}
+        checked={showGradeFields}
+        onChange={(e) => setShowGradeFields(e.target.checked)}
+      />
+      {showGradeFields && (
+        <>
+          <hr />
+          <div>
+            <h3>{t("grade")}</h3>
+            <TextField
+              id={"gradePosX"}
+              error={errors.gradePosX}
+              label={t("label-position-x")}
+              {...register("gradePosX", {
+                required: showGradeFields ? t("required-field") : false,
+              })}
+            />
+            <TextField
+              id={"gradePosY"}
+              error={errors.gradePosY}
+              label={t("label-position-y")}
+              {...register("gradePosY", {
+                required: showGradeFields ? t("required-field") : false,
+              })}
+            />
+            <TextField
+              id={"gradeFontSize"}
+              error={errors.gradeFontSize}
+              label={t("label-font-size")}
+              {...register("gradeFontSize", {
+                required: showGradeFields ? t("required-field") : false,
+              })}
+            />
+            <TextField
+              id={"gradeTextColor"}
+              error={errors.gradeTextColor}
+              label={t("label-text-color")}
+              {...register("gradeTextColor", {
+                required: showGradeFields ? t("required-field") : false,
+              })}
+            />
+            <SelectField
+              id={"gradeTextAnchor"}
+              options={ANCHOR_OPTIONS}
+              label={t("label-text-anchor")}
+              {...register("gradeTextAnchor")}
+            />
+          </div>
+        </>
+      )}
       <Button variant="primary" size="medium" type="submit">
         {t("button-text-save")}
       </Button>

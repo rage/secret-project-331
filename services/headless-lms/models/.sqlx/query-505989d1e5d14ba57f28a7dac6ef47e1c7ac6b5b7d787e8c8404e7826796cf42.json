@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO public.certificate_configurations (\n    certificate_owner_name_y_pos,\n    certificate_owner_name_x_pos,\n    certificate_owner_name_font_size,\n    certificate_owner_name_text_color,\n    certificate_owner_name_text_anchor,\n    certificate_validate_url_y_pos,\n    certificate_validate_url_x_pos,\n    certificate_validate_url_font_size,\n    certificate_validate_url_text_color,\n    certificate_validate_url_text_anchor,\n    certificate_date_y_pos,\n    certificate_date_x_pos,\n    certificate_date_font_size,\n    certificate_date_text_color,\n    certificate_date_text_anchor,\n    certificate_locale,\n    paper_size,\n    background_svg_path,\n    background_svg_file_upload_id,\n    overlay_svg_path,\n    overlay_svg_file_upload_id\n  )\nVALUES (\n    $1,\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7,\n    $8,\n    $9,\n    $10,\n    $11,\n    $12,\n    $13,\n    $14,\n    $15,\n    $16,\n    $17,\n    $18,\n    $19,\n    $20,\n    $21\n  )\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  certificate_owner_name_y_pos,\n  certificate_owner_name_x_pos,\n  certificate_owner_name_font_size,\n  certificate_owner_name_text_color,\n  certificate_owner_name_text_anchor as \"certificate_owner_name_text_anchor: _\",\n  certificate_validate_url_y_pos,\n  certificate_validate_url_x_pos,\n  certificate_validate_url_font_size,\n  certificate_validate_url_text_color,\n  certificate_validate_url_text_anchor as \"certificate_validate_url_text_anchor: _\",\n  certificate_date_y_pos,\n  certificate_date_x_pos,\n  certificate_date_font_size,\n  certificate_date_text_color,\n  certificate_date_text_anchor as \"certificate_date_text_anchor: _\",\n  certificate_locale,\n  paper_size as \"paper_size: _\",\n  background_svg_path,\n  background_svg_file_upload_id,\n  overlay_svg_path,\n  overlay_svg_file_upload_id\n",
+  "query": "\nINSERT INTO public.certificate_configurations (\n    certificate_owner_name_y_pos,\n    certificate_owner_name_x_pos,\n    certificate_owner_name_font_size,\n    certificate_owner_name_text_color,\n    certificate_owner_name_text_anchor,\n    certificate_validate_url_y_pos,\n    certificate_validate_url_x_pos,\n    certificate_validate_url_font_size,\n    certificate_validate_url_text_color,\n    certificate_validate_url_text_anchor,\n    certificate_date_y_pos,\n    certificate_date_x_pos,\n    certificate_date_font_size,\n    certificate_date_text_color,\n    certificate_date_text_anchor,\n    certificate_locale,\n    paper_size,\n    background_svg_path,\n    background_svg_file_upload_id,\n    overlay_svg_path,\n    overlay_svg_file_upload_id,\n    certificate_grade_y_pos,\n    certificate_grade_x_pos,\n    certificate_grade_font_size,\n    certificate_grade_text_color,\n    certificate_grade_text_anchor\n  )\nVALUES (\n    $1,\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7,\n    $8,\n    $9,\n    $10,\n    $11,\n    $12,\n    $13,\n    $14,\n    $15,\n    $16,\n    $17,\n    $18,\n    $19,\n    $20,\n    $21,\n    $22,\n    $23,\n    $24,\n    $25,\n    $26\n  )\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  certificate_owner_name_y_pos,\n  certificate_owner_name_x_pos,\n  certificate_owner_name_font_size,\n  certificate_owner_name_text_color,\n  certificate_owner_name_text_anchor as \"certificate_owner_name_text_anchor: _\",\n  certificate_validate_url_y_pos,\n  certificate_validate_url_x_pos,\n  certificate_validate_url_font_size,\n  certificate_validate_url_text_color,\n  certificate_validate_url_text_anchor as \"certificate_validate_url_text_anchor: _\",\n  certificate_date_y_pos,\n  certificate_date_x_pos,\n  certificate_date_font_size,\n  certificate_date_text_color,\n  certificate_date_text_anchor as \"certificate_date_text_anchor: _\",\n  certificate_locale,\n  paper_size as \"paper_size: _\",\n  background_svg_path,\n  background_svg_file_upload_id,\n  overlay_svg_path,\n  overlay_svg_file_upload_id,\n  certificate_grade_y_pos,\n  certificate_grade_x_pos,\n  certificate_grade_font_size,\n  certificate_grade_text_color,\n  certificate_grade_text_anchor as \"certificate_grade_text_anchor: _\"\n",
   "describe": {
     "columns": [
       {
@@ -155,6 +155,38 @@
         "ordinal": 24,
         "name": "overlay_svg_file_upload_id",
         "type_info": "Uuid"
+      },
+      {
+        "ordinal": 25,
+        "name": "certificate_grade_y_pos",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 26,
+        "name": "certificate_grade_x_pos",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 27,
+        "name": "certificate_grade_font_size",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 28,
+        "name": "certificate_grade_text_color",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 29,
+        "name": "certificate_grade_text_anchor: _",
+        "type_info": {
+          "Custom": {
+            "name": "certificate_text_anchor",
+            "kind": {
+              "Enum": ["start", "middle", "end"]
+            }
+          }
+        }
       }
     ],
     "parameters": {
@@ -207,7 +239,19 @@
         "Varchar",
         "Uuid",
         "Varchar",
-        "Uuid"
+        "Uuid",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        {
+          "Custom": {
+            "name": "certificate_text_anchor",
+            "kind": {
+              "Enum": ["start", "middle", "end"]
+            }
+          }
+        }
       ]
     },
     "nullable": [
@@ -235,8 +279,13 @@
       false,
       false,
       true,
+      true,
+      true,
+      true,
+      true,
+      true,
       true
     ]
   },
-  "hash": "6491949eca5c1e065396a2afe016e240f08240309219f56ed8bc570ff8f92d90"
+  "hash": "505989d1e5d14ba57f28a7dac6ef47e1c7ac6b5b7d787e8c8404e7826796cf42"
 }

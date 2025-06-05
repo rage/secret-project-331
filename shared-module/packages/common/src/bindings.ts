@@ -1215,6 +1215,7 @@ export interface ManualCompletionPreviewUser {
   last_name: string | null
   grade: number | null
   passed: boolean
+  previous_best_grade: number | null
 }
 
 export interface TeacherManualCompletion {

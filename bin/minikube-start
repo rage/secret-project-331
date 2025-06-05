@@ -1,5 +1,9 @@
 #!/bin/bash
 set -euo pipefail
+
+# Add error handler
+trap 'echo -e "\n${RED}Error: Something went wrong while starting minikube. You can run ${CURSIVE}bin/detect-dev-env-problems${RESET_EVERYTHING}${RED} to detect some common problems.${RESET_EVERYTHING}"' ERR
+
 source "$(dirname "$0")/.common"
 
 disallow_running_as_root

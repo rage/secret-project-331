@@ -8,15 +8,35 @@ export interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElemen
   error?: string | FieldError
   onChangeByValue?: (value: string, name?: string) => void
   autoResize?: boolean
+  onAutoResized?: () => void
+  autoResizeMaxHeightPx?: number
   resize?: "none" | "both" | "horizontal" | "vertical" | "block" | "inline"
 }
 
-function updateHeight(ref: React.RefObject<HTMLTextAreaElement | null>) {
+function updateHeight(
+  ref: React.RefObject<HTMLTextAreaElement | null>,
+  onAutoResized?: () => void,
+  maxHeightPx?: number,
+) {
   if (ref.current) {
+    const currentHeight = ref.current.style.height
+    // set the height as auto to set the height based on content length
     // eslint-disable-next-line i18next/no-literal-string
     ref.current.style.height = "auto"
-    // eslint-disable-next-line i18next/no-literal-string
-    ref.current.style.height = `${ref.current.scrollHeight + 5}px`
+    const contentHeight = ref.current.style.height
+    // if changes, then call the scrolltobotton
+    // doesn't work yet
+
+    if (maxHeightPx && ref.current.scrollHeight > maxHeightPx) {
+      // eslint-disable-next-line i18next/no-literal-string
+      ref.current.style.height = `${maxHeightPx}px`
+    } else {
+      // eslint-disable-next-line i18next/no-literal-string
+      ref.current.style.height = `${ref.current.scrollHeight + 5}px`
+    }
+    if (currentHeight != contentHeight && onAutoResized) {
+      onAutoResized()
+    }
   }
 }
 
@@ -46,6 +66,8 @@ const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaProps>(
       className,
       autoResize,
       resize = "vertical",
+      onAutoResized,
+      autoResizeMaxHeightPx,
       ...rest
     }: TextAreaProps,
     ref,
@@ -64,7 +86,7 @@ const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaProps>(
         onChange(event)
       }
       if (autoResize) {
-        updateHeight(textareaRef)
+        updateHeight(textareaRef, onAutoResized, autoResizeMaxHeightPx)
       }
     }
 
@@ -72,15 +94,15 @@ const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaProps>(
       if (!autoResize) {
         return
       }
-      updateHeight(textareaRef)
-    }, [autoResize])
+      updateHeight(textareaRef, onAutoResized, autoResizeMaxHeightPx)
+    }, [autoResize, onAutoResized, autoResizeMaxHeightPx])
 
     useEffect(() => {
       // When a peer review editor is rendered in an exercise, this component is rendered in a hidden state. Thus, the element scrollHeight is 0. We use an intersection observer to detect when the element is visible and then update the height.
       const observer = new IntersectionObserver((entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting && textareaRef.current) {
-            updateHeight(textareaRef)
+            updateHeight(textareaRef, onAutoResized, autoResizeMaxHeightPx)
             break
           }
         }
@@ -97,7 +119,7 @@ const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaProps>(
           observer.disconnect()
         }
       }
-    }, [])
+    }, [onAutoResized, autoResizeMaxHeightPx])
 
     return (
       <div

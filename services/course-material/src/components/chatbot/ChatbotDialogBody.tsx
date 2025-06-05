@@ -13,6 +13,7 @@ import { newChatbotConversation, sendChatbotMessage } from "@/services/backend"
 import { ChatbotConversationInfo } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -305,7 +306,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
             flex-grow: 1;
           `}
         >
-          <textarea
+          <TextAreaField
             className={css`
               width: 100%;
               padding: 0.5rem;
@@ -325,6 +326,11 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
                 }
               }
             }}
+            // eslint-disable-next-line i18next/no-literal-string
+            resize={"none"}
+            autoResize={true}
+            onAutoResized={scrollToBottom}
+            autoResizeMaxHeightPx={250}
             placeholder={t("label-message")}
           />
         </div>

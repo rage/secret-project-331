@@ -159,6 +159,7 @@ test.describe("Peer review followed by self review works", () => {
         .nth(1)
         .click()
       await student3Page.getByRole("button", { name: "Submit" }).click()
+      await student3Page.getByText("Operation successful!").waitFor()
       await student3Page
         .locator("div")
         .filter({ hasText: /^Agree$/ })

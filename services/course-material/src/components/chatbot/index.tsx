@@ -4,7 +4,7 @@ import ChatbotDialog from "./ChatbotDialog"
 import OpenChatbotButton from "./OpenChatbotButton"
 
 export const CHATBOX_WIDTH_PX = 500
-export const CHATBOX_HEIGHT_PX = 700
+export const CHATBOX_HEIGHT_PX = 900
 
 interface ChatbotProps {
   chatbotConfigurationId: string

@@ -1,9 +1,11 @@
 import { css } from "@emotion/css"
 import React, { useMemo } from "react"
+import { Remarkable } from "remarkable"
 
 import ThinkingIndicator from "./ThinkingIndicator"
 
 import { baseTheme } from "@/shared-module/common/styles"
+import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
 
 interface MessageBubbleProps {
   message: string
@@ -38,14 +40,16 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   hideCitations,
 }) => {
   const processedMessage = useMemo(() => {
+    let md = new Remarkable()
     if (hideCitations) {
       return message.replace(/\[.*?\]/g, "")
     }
-    return message
+    return sanitizeCourseMaterialHtml(md.render(message))
   }, [hideCitations, message])
+  console.log(message)
   return (
     <div className={bubbleStyle(isFromChatbot)}>
-      <span>{processedMessage}</span>
+      <span dangerouslySetInnerHTML={{ __html: processedMessage }}></span>
       {isPending && <ThinkingIndicator />}
     </div>
   )

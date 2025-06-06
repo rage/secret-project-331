@@ -23,6 +23,8 @@ import { baseTheme } from "@/shared-module/common/styles"
 interface ChatbotDialogBodyProps extends ChatbotDialogProps {
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
   newConversation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
+  newMessage: string
+  setNewMessage: React.Dispatch<React.SetStateAction<string>>
   error: Error | null
   setError: (error: Error | null) => void
 }
@@ -54,13 +56,14 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
   currentConversationInfo,
   newConversation,
   chatbotConfigurationId,
+  newMessage,
+  setNewMessage,
   error,
   setError,
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
 
-  const [newMessage, setNewMessage] = React.useState("")
   const [messageState, dispatch] = useReducer(messageReducer, {
     optimisticMessage: null,
     streamingMessage: null,
@@ -254,7 +257,6 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
           variant="secondary"
           onClick={() => {
             newConversation.mutate()
-            // WORKS?
             dispatch({ type: "RESET_MESSAGES" })
           }}
         >

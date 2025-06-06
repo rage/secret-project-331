@@ -7,6 +7,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 const useNewConversationMutation = (
   chatbotConfigurationId: string,
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>,
+  setNewMessage: React.Dispatch<React.SetStateAction<string>>,
   setError: React.Dispatch<React.SetStateAction<Error | null>>,
 ) => {
   return useToastMutation(
@@ -15,6 +16,7 @@ const useNewConversationMutation = (
     {
       onSuccess: () => {
         currentConversationInfo.refetch()
+        setNewMessage("")
         setError(null) // Clear any existing errors when starting a new conversation
       },
     },

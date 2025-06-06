@@ -41,12 +41,14 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
   const { dialogOpen, chatbotConfigurationId } = props
   const [shouldRender, setShouldRender] = useState(dialogOpen)
 
+  const [newMessage, setNewMessage] = React.useState("")
   const [error, setError] = useState<Error | null>(null)
 
   const currentConversationInfoQuery = useCurrentConversationInfo(chatbotConfigurationId)
   const newConversationMutation = useNewConversationMutation(
     chatbotConfigurationId,
     currentConversationInfoQuery,
+    setNewMessage,
     setError,
   )
 
@@ -97,6 +99,8 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
         {...props}
         currentConversationInfo={currentConversationInfoQuery}
         newConversation={newConversationMutation}
+        newMessage={newMessage}
+        setNewMessage={setNewMessage}
         error={error}
         setError={setError}
       />

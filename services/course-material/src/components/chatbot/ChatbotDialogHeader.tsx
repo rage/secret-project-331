@@ -1,19 +1,18 @@
 import { css, cx } from "@emotion/css"
-import { UseQueryResult } from "@tanstack/react-query"
+import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { Account, AddMessage } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { ChatbotDialogProps } from "./ChatbotDialog"
 
-import { newChatbotConversation } from "@/services/backend"
-import { ChatbotConversationInfo } from "@/shared-module/common/bindings"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { ChatbotConversation, ChatbotConversationInfo } from "@/shared-module/common/bindings"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 
 interface ChatbotDialogHeaderProps extends ChatbotDialogProps {
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
+  newConversation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
 }
 
 const headerContainerStyle = css`
@@ -65,19 +64,9 @@ const buttonsWrapper = css`
 const ChatbotDialogHeader: React.FC<ChatbotDialogHeaderProps> = ({
   setDialogOpen,
   currentConversationInfo,
-  chatbotConfigurationId,
+  newConversation,
 }) => {
   const { t } = useTranslation()
-
-  const newConversationMutation = useToastMutation(
-    () => newChatbotConversation(chatbotConfigurationId),
-    { notify: false },
-    {
-      onSuccess: () => {
-        currentConversationInfo.refetch()
-      },
-    },
-  )
 
   return (
     <div className={headerContainerStyle}>
@@ -87,8 +76,8 @@ const ChatbotDialogHeader: React.FC<ChatbotDialogHeaderProps> = ({
       <h1 className={titleStyle}>{currentConversationInfo.data?.chatbot_name}</h1>
       <div className={buttonsWrapper}>
         <button
-          onClick={() => newConversationMutation.mutate()}
-          disabled={newConversationMutation.isPending}
+          onClick={() => newConversation.mutate()}
+          disabled={newConversation.isPending}
           className={buttonStyle}
           aria-label={t("new-conversation")}
         >

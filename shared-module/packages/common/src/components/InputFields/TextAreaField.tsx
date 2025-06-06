@@ -105,7 +105,7 @@ const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaProps>(
         updateHeight(textareaRef, onAutoResized, autoResizeMaxHeightPx)
       }
       prevValueRef.current = rest.value
-    })
+    }, [rest.value, autoResize, onAutoResized, autoResizeMaxHeightPx])
 
     useEffect(() => {
       // When a peer review editor is rendered in an exercise, this component is rendered in a hidden state. Thus, the element scrollHeight is 0. We use an intersection observer to detect when the element is visible and then update the height.

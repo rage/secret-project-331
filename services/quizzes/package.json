@@ -2,7 +2,7 @@
   "name": "quizzes-dashboard",
   "version": "0.1.0",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --port 3004",
     "build": "NODE_ENV=production next build",
     "export": "next export",
     "start": "NODE_ENV=production PORT=3004 node .next/standalone/server.js",

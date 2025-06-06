@@ -35,6 +35,7 @@ pub struct CertificateConfigurationUpdate {
     pub background_svg_file_name: Option<String>,
     pub overlay_svg_file_name: Option<String>,
     pub clear_overlay_svg_file: bool,
+    pub render_certificate_grade: bool,
     pub certificate_grade_y_pos: Option<String>,
     pub certificate_grade_x_pos: Option<String>,
     pub certificate_grade_font_size: Option<String>,
@@ -283,6 +284,7 @@ async fn update_certificate_configuration_inner(
         background_svg_file_upload_id,
         overlay_svg_path: overlay_svg_file_path,
         overlay_svg_file_upload_id: overlay_svg_file_id,
+        render_certificate_grade: metadata.render_certificate_grade,
         certificate_grade_y_pos: metadata.certificate_grade_y_pos,
         certificate_grade_x_pos: metadata.certificate_grade_x_pos,
         certificate_grade_font_size: metadata.certificate_grade_font_size,
@@ -352,7 +354,6 @@ pub async fn generate_generated_certificate(
         user.id,
         &request.name_on_certificate,
         request.certificate_configuration_id,
-        request.grade.clone(),
     )
     .await?;
 
@@ -428,7 +429,6 @@ pub async fn get_cerficate_by_verification_id(
                 certificate_configuration_id: test_certificate_configuration_id,
                 name_on_certificate: "Example user".to_string(),
                 verification_id: "test".to_string(),
-                grade: Some("5".to_string()),
             }
         } else {
             models::generated_certificates::get_certificate_by_verification_id(

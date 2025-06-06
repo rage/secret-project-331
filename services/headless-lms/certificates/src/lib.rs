@@ -71,24 +71,59 @@ pub async fn generate_certificate(
     .await
     .transpose()?;
 
-    let grade = certificate.grade.as_ref().and_then(|grade_value| {
-        let trimmed = grade_value.trim();
-        if trimmed.is_empty() {
-            return None; // Skip rendering empty grades
+    let grade = if config.render_certificate_grade {
+        let requirements = headless_lms_models::certificate_configuration_to_requirements::get_all_requirements_for_certificate_configuration(
+        conn,
+        certificate.certificate_configuration_id,
+    )
+    .await
+    .map_err(|original_error| {
+        UtilError::new(
+            UtilErrorType::Other,
+            "No certificate conf requirements".to_string(),
+            Some(original_error.into()),
+        )
+    })?;
+
+        if let Some(course_module_id) = requirements.course_module_ids.first() {
+            let grade_option = headless_lms_models::course_module_completions::get_best_completion_by_user_and_course_module_id(
+            conn,
+            certificate.user_id,
+            *course_module_id,
+        )
+        .await
+        .map_err(|original_error| {
+            UtilError::new(
+                UtilErrorType::Other,
+                "No certificate conf requirements".to_string(),
+                Some(original_error.into()),
+            )
+        })?;
+            rust_i18n::set_locale(&config.certificate_locale);
+            let grade_label = t!("grade");
+
+            let grade_text = if let Some(grade) = grade_option {
+                if let Some(numeral_grade) = grade.grade {
+                    Some(format!("{} {}", grade_label, numeral_grade))
+                } else {
+                    let passed_text = if grade.passed {
+                        t!("passed")
+                    } else {
+                        t!("failed")
+                    };
+                    Some(format!("{} {}", grade_label, passed_text))
+                }
+            } else {
+                None
+            };
+
+            grade_text
+        } else {
+            None
         }
-
-        rust_i18n::set_locale(&config.certificate_locale);
-
-        let grade_label = t!("grade");
-
-        let grade_text = match trimmed.to_lowercase().as_str() {
-            "true" => format!("{} {}", grade_label, t!("passed")),
-            "false" => format!("{} {}", grade_label, t!("failed")),
-            numeral_grade => format!("{} {}", grade_label, numeral_grade),
-        };
-
-        Some(grade_text)
-    });
+    } else {
+        None
+    };
 
     let fontdb = font_loader::get_font_database_with_fonts(&mut *conn, file_store).await?;
     let url = if debug {

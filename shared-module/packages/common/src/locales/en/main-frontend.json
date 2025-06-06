@@ -461,6 +461,7 @@
   "label-selected-users": "Selected users",
   "label-send-model-solution-spec": "Send model solution spec (happens when one has ran out of tries or gotten full points from the exercise)",
   "label-send-previous-submission": "Send previous submission (happens when one has answered the exercise previously and tries to answer it again)",
+  "label-show-grade-in-cerfiticate": "Show grade in certificate",
   "label-starts-at": "Starts at",
   "label-student": "Student",
   "label-submission-being-reviewed": "Submission being reviewed",

@@ -264,6 +264,7 @@ export function isCertificateConfiguration(obj: unknown): obj is CertificateConf
             typeof typedObj["overlay_svg_path"] === "string") &&
         (typedObj["overlay_svg_file_upload_id"] === null ||
             typeof typedObj["overlay_svg_file_upload_id"] === "string") &&
+        typeof typedObj["render_certificate_grade"] === "boolean" &&
         (typedObj["certificate_grade_y_pos"] === null ||
             typeof typedObj["certificate_grade_y_pos"] === "string") &&
         (typedObj["certificate_grade_x_pos"] === null ||
@@ -2089,9 +2090,7 @@ export function isGeneratedCertificate(obj: unknown): obj is GeneratedCertificat
         typeof typedObj["user_id"] === "string" &&
         typeof typedObj["name_on_certificate"] === "string" &&
         typeof typedObj["verification_id"] === "string" &&
-        typeof typedObj["certificate_configuration_id"] === "string" &&
-        (typedObj["grade"] === null ||
-            typeof typedObj["grade"] === "string")
+        typeof typedObj["certificate_configuration_id"] === "string"
     )
 }
 
@@ -4479,6 +4478,7 @@ export function isCertificateConfigurationUpdate(obj: unknown): obj is Certifica
         (typedObj["overlay_svg_file_name"] === null ||
             typeof typedObj["overlay_svg_file_name"] === "string") &&
         typeof typedObj["clear_overlay_svg_file"] === "boolean" &&
+        typeof typedObj["render_certificate_grade"] === "boolean" &&
         (typedObj["certificate_grade_y_pos"] === null ||
             typeof typedObj["certificate_grade_y_pos"] === "string") &&
         (typedObj["certificate_grade_x_pos"] === null ||

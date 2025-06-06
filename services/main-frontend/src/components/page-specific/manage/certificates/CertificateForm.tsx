@@ -45,6 +45,7 @@ export interface CertificateFields {
   backgroundSvg: FileList
   overlaySvg: FileList
   clearCurrentOverlaySvg: boolean
+  renderGrade: boolean
   gradePosX: string | null
   gradePosY: string | null
   gradeFontSize: string | null
@@ -74,7 +75,6 @@ const CertificateForm: React.FC<Props> = ({
     register,
     handleSubmit,
     formState: { errors },
-    setValue,
   } = useForm<CertificateFields>({
     mode: "onChange",
     defaultValues: {
@@ -98,6 +98,7 @@ const CertificateForm: React.FC<Props> = ({
       backgroundSvg: undefined,
       overlaySvg: undefined,
       clearCurrentOverlaySvg: false,
+      renderGrade: configuration?.render_certificate_grade ?? false,
       gradePosX: configuration?.certificate_grade_x_pos ?? null,
       gradePosY: configuration?.certificate_grade_y_pos ?? null,
       gradeFontSize: configuration?.certificate_grade_font_size ?? null,
@@ -286,18 +287,16 @@ const CertificateForm: React.FC<Props> = ({
         onChange={(e) => {
           const checked = e.target.checked
           setShowGradeFields(checked)
-          if (!checked) {
-            setValue("gradePosX", "")
-            setValue("gradePosY", "")
-            setValue("gradeFontSize", "")
-            setValue("gradeTextColor", "")
-            setValue("gradeTextAnchor", null)
-          }
         }}
       />
       {showGradeFields && (
         <>
           <hr />
+          <CheckBox
+            id="renderGrade"
+            label={t("label-show-grade-in-cerfiticate")}
+            {...register("renderGrade")}
+          />
           <div>
             <h3>{t("grade")}</h3>
             <TextField

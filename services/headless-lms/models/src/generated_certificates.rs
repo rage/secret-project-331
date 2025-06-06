@@ -12,7 +12,6 @@ pub struct GeneratedCertificate {
     pub name_on_certificate: String,
     pub verification_id: String,
     pub certificate_configuration_id: Uuid,
-    pub grade: Option<String>,
 }
 
 pub async fn get_certificate_for_user(
@@ -42,7 +41,6 @@ pub async fn generate_and_insert(
     user_id: Uuid,
     name_on_certificate: &str,
     certificate_configuration_id: Uuid,
-    grade: Option<String>,
 ) -> ModelResult<GeneratedCertificate> {
     let requirements = crate::certificate_configuration_to_requirements::get_all_requirements_for_certificate_configuration(conn, certificate_configuration_id).await?;
     // Verify that the user has completed the module in the course instance
@@ -90,17 +88,15 @@ INSERT INTO generated_certificates (
     user_id,
     certificate_configuration_id,
     name_on_certificate,
-    verification_id,
-    grade
+    verification_id
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4)
 RETURNING *
 ",
         user_id,
         certificate_configuration_id,
         name_on_certificate,
         verification_id,
-        grade
     )
     .fetch_one(conn)
     .await?;

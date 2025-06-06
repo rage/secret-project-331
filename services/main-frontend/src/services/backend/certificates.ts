@@ -10,10 +10,12 @@ import { isArray, validateResponse } from "@/shared-module/common/utils/fetching
 export const generateCertificate = async (
   certificateConfigurationId: string,
   nameOnCertificate: string,
+  grade: string,
 ): Promise<void> => {
   const data = {
     certificate_configuration_id: certificateConfigurationId,
     name_on_certificate: nameOnCertificate,
+    grade: grade,
   }
   await mainFrontendClient.post(`/certificates/generate`, data)
 }

@@ -1,3 +1,4 @@
+use headless_lms_models::course_module_completions::CourseModuleCompletion;
 use models::{
     course_modules::{self, CourseModule},
     library::progressing::{CompletionRegistrationLink, UserCompletionInformation},
@@ -111,6 +112,38 @@ async fn enable_or_disable_certificate_generation(
 }
 
 /**
+GET `/api/v0/main-frontend/course-modules/{course_module_id}/course-module-completion`
+
+Gets users's best completion for the course.
+*/
+#[instrument(skip(pool))]
+async fn get_best_course_module_completion_for_user(
+    course_module_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Option<CourseModuleCompletion>>> {
+    let mut conn = pool.acquire().await?;
+    let course_module = course_modules::get_by_id(&mut conn, *course_module_id).await?;
+
+    let token = authorize(
+        &mut conn,
+        Act::View,
+        Some(user.id),
+        Res::Course(course_module.course_id),
+    )
+    .await?;
+
+    let information =
+        models::course_module_completions::get_best_completion_by_user_and_course_module_id(
+            &mut conn,
+            user.id,
+            *course_module_id,
+        )
+        .await?;
+    token.authorized_ok(web::Json(information))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -130,5 +163,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_module_id}/set-certificate-generation/{enabled}",
             web::post().to(enable_or_disable_certificate_generation),
+        )
+        .route(
+            "/{course_module_id}/course-module-completion",
+            web::get().to(get_best_course_module_completion_for_user),
         );
 }

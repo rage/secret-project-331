@@ -28,6 +28,9 @@ use icu_provider::DataLocale;
 use icu_provider_blob::BlobDataProvider;
 use tracing::log::info;
 
+use rust_i18n::{i18n, t};
+i18n!("locales");
+
 /**
 Generates a certificate as a png.
 
@@ -68,6 +71,60 @@ pub async fn generate_certificate(
     .await
     .transpose()?;
 
+    let grade = if config.render_certificate_grade {
+        let requirements = headless_lms_models::certificate_configuration_to_requirements::get_all_requirements_for_certificate_configuration(
+        conn,
+        certificate.certificate_configuration_id,
+    )
+    .await
+    .map_err(|original_error| {
+        UtilError::new(
+            UtilErrorType::Other,
+            "No certificate conf requirements".to_string(),
+            Some(original_error.into()),
+        )
+    })?;
+
+        if let Some(course_module_id) = requirements.course_module_ids.first() {
+            let grade_option = headless_lms_models::course_module_completions::get_best_completion_by_user_and_course_module_id(
+            conn,
+            certificate.user_id,
+            *course_module_id,
+        )
+        .await
+        .map_err(|original_error| {
+            UtilError::new(
+                UtilErrorType::Other,
+                "No certificate conf requirements".to_string(),
+                Some(original_error.into()),
+            )
+        })?;
+            rust_i18n::set_locale(&config.certificate_locale);
+            let grade_label = t!("grade");
+
+            let grade_text = if let Some(grade) = grade_option {
+                if let Some(numeral_grade) = grade.grade {
+                    Some(format!("{} {}", grade_label, numeral_grade))
+                } else {
+                    let passed_text = if grade.passed {
+                        t!("passed")
+                    } else {
+                        t!("failed")
+                    };
+                    Some(format!("{} {}", grade_label, passed_text))
+                }
+            } else {
+                None
+            };
+
+            grade_text
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+
     let fontdb = font_loader::get_font_database_with_fonts(&mut *conn, file_store).await?;
     let url = if debug {
         "https://courses.mooc.fi/certificates/validate/debug".to_string()
@@ -84,7 +141,7 @@ pub async fn generate_certificate(
     } else {
         certificate.created_at.date_naive()
     };
-    let texts_to_render = vec![
+    let mut texts_to_render = vec![
         TextToRender {
             text: certificate.name_on_certificate.to_string(),
             y_pos: config.certificate_owner_name_y_pos,
@@ -113,6 +170,25 @@ pub async fn generate_certificate(
             ..Default::default()
         },
     ];
+    if let Some(grade_text) = grade {
+        texts_to_render.push(TextToRender {
+            text: grade_text,
+            x_pos: config.certificate_grade_x_pos.clone().unwrap_or_default(),
+            y_pos: config.certificate_grade_y_pos.clone().unwrap_or_default(),
+            font_size: config
+                .certificate_grade_font_size
+                .clone()
+                .unwrap_or_default(),
+            text_anchor: config
+                .certificate_grade_text_anchor
+                .unwrap_or(CertificateTextAnchor::Middle),
+            text_color: config
+                .certificate_grade_text_color
+                .clone()
+                .unwrap_or_default(),
+            ..Default::default()
+        });
+    }
     let paper_size = config.paper_size;
 
     let res = generate_certificate_impl(

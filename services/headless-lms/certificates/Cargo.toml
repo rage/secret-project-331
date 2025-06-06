@@ -9,6 +9,7 @@ license.workspace = true
 [dependencies]
 headless-lms-utils = { path = "../utils" }
 headless-lms-models = { path = "../models" }
+rust-i18n = "3.1.5"
 
 # An SVG rendering library.
 resvg = "0.44.0"

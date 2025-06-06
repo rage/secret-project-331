@@ -1,5 +1,4 @@
 import { css, keyframes } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 
 import ChatbotDialogBody from "./ChatbotDialogBody"
@@ -7,7 +6,8 @@ import ChatbotDialogHeader from "./ChatbotDialogHeader"
 
 import { CHATBOX_HEIGHT_PX, CHATBOX_WIDTH_PX } from "."
 
-import { getChatbotCurrentConversationInfo } from "@/services/backend"
+import useNewConversationMutation from "@/hooks/chatbot/newConversationMutation"
+import useCurrentConversationInfo from "@/hooks/chatbot/useCurrentConversationInfo"
 
 export interface ChatbotDialogProps {
   dialogOpen: boolean
@@ -43,10 +43,12 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
 
   const [error, setError] = useState<Error | null>(null)
 
-  const currentConversationInfoQuery = useQuery({
-    queryKey: ["currentConversationInfo", chatbotConfigurationId],
-    queryFn: () => getChatbotCurrentConversationInfo(chatbotConfigurationId),
-  })
+  const currentConversationInfoQuery = useCurrentConversationInfo(chatbotConfigurationId)
+  const newConversationMutation = useNewConversationMutation(
+    chatbotConfigurationId,
+    currentConversationInfoQuery,
+    setError,
+  )
 
   useEffect(() => {
     if (dialogOpen) {
@@ -86,10 +88,15 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
       aria-hidden={!dialogOpen}
       onAnimationEnd={handleAnimationEnd}
     >
-      <ChatbotDialogHeader {...props} currentConversationInfo={currentConversationInfoQuery} />
+      <ChatbotDialogHeader
+        {...props}
+        currentConversationInfo={currentConversationInfoQuery}
+        newConversation={newConversationMutation}
+      />
       <ChatbotDialogBody
         {...props}
         currentConversationInfo={currentConversationInfoQuery}
+        newConversation={newConversationMutation}
         error={error}
         setError={setError}
       />

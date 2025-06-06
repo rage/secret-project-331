@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { UseQueryResult } from "@tanstack/react-query"
+import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { PaperAirplane } from "@vectopus/atlas-icons-react"
 import React, { useCallback, useEffect, useMemo, useReducer, useRef } from "react"
 import { useTranslation } from "react-i18next"
@@ -11,8 +11,8 @@ import MessageBubble from "./MessageBubble"
 
 import { CHATBOX_HEIGHT_PX } from "."
 
-import { newChatbotConversation, sendChatbotMessage } from "@/services/backend"
-import { ChatbotConversationInfo } from "@/shared-module/common/bindings"
+import { sendChatbotMessage } from "@/services/backend"
+import { ChatbotConversation, ChatbotConversationInfo } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
@@ -22,6 +22,7 @@ import { baseTheme } from "@/shared-module/common/styles"
 
 interface ChatbotDialogBodyProps extends ChatbotDialogProps {
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
+  newConversation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
   error: Error | null
   setError: (error: Error | null) => void
 }
@@ -51,6 +52,7 @@ const messageReducer = (state: MessageState, action: MessageAction): MessageStat
 
 const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
   currentConversationInfo,
+  newConversation,
   chatbotConfigurationId,
   error,
   setError,
@@ -63,18 +65,6 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
     optimisticMessage: null,
     streamingMessage: null,
   })
-
-  const newConversationMutation = useToastMutation(
-    () => newChatbotConversation(chatbotConfigurationId),
-    { notify: false },
-    {
-      onSuccess: () => {
-        currentConversationInfo.refetch()
-        dispatch({ type: "RESET_MESSAGES" })
-        setError(null) // Clear any existing errors when starting a new conversation
-      },
-    },
-  )
 
   const newMessageMutation = useToastMutation(
     async () => {
@@ -259,7 +249,15 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
             </li>
           </ul>
         </div>
-        <Button size="medium" variant="secondary" onClick={() => newConversationMutation.mutate()}>
+        <Button
+          size="medium"
+          variant="secondary"
+          onClick={() => {
+            newConversation.mutate()
+            // WORKS?
+            dispatch({ type: "RESET_MESSAGES" })
+          }}
+        >
           {t("button-text-agree")}
         </Button>
       </div>

@@ -33,6 +33,27 @@ const bubbleStyle = (isFromChatbot: boolean) => css`
     `}
 `
 
+const messageStyle = () => css`
+  table {
+    margin: 20px 0 20px 0;
+    border-collapse: collapse;
+  }
+  thead {
+    background-color: ${baseTheme.colors.clear[200]};
+  }
+  tbody td {
+    text-align: center;
+    padding: 5px;
+  }
+  tbody tr:nth-child(odd) {
+    background-color: #ffffff;
+  }
+
+  tbody tr:nth-child(even) {
+    background-color: ${baseTheme.colors.clear[200]};
+  }
+`
+
 const MessageBubble: React.FC<MessageBubbleProps> = ({
   message,
   isFromChatbot,
@@ -49,7 +70,10 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   console.log(message)
   return (
     <div className={bubbleStyle(isFromChatbot)}>
-      <span dangerouslySetInnerHTML={{ __html: processedMessage }}></span>
+      <span
+        className={messageStyle()}
+        dangerouslySetInnerHTML={{ __html: processedMessage }}
+      ></span>
       {isPending && <ThinkingIndicator />}
     </div>
   )

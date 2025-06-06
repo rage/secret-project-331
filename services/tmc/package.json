@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "scripts": {
     "build": "NODE_ENV=production next build",
-    "dev": "node server.js",
+    "dev": "next dev",
     "export": "next export",
-    "start": "NODE_ENV=production PORT=3005 node server.js"
+    "start": "NODE_ENV=production PORT=3005 node .next/standalone/server.js"
   },
   "dependencies": {
     "@emotion/css": "^11.13.5",

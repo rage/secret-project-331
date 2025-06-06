@@ -2,10 +2,10 @@
   "name": "course-material",
   "version": "1.0.0",
   "scripts": {
-    "dev": "node server.js",
+    "dev": "next dev",
     "build": "NODE_ENV=production next build",
     "export": "next export",
-    "start": "NODE_ENV=production PORT=3003 node server.js",
+    "start": "NODE_ENV=production PORT=3003 node .next/standalone/server.js",
     "test": "jest"
   },
   "dependencies": {

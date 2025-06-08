@@ -4,39 +4,9 @@ import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 import { selectOrganization } from "@/utils/organizationUtils"
+
 test.use({
   storageState: "src/states/admin@example.com.json",
-})
-
-test("Can create a new research form for a course", async ({ page }) => {
-  await page.goto("http://project-331.local/organizations")
-  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
-  await page
-    .getByRole("link", { name: "Manage course 'Advanced course instance management'" })
-    .click()
-  await page.getByRole("button", { name: "Create or edit research form" }).click()
-  await page.getByRole("button", { name: "create" }).click()
-  await page.getByRole("button", { name: "Add block" }).click()
-  await page.getByRole("option", { name: "Heading" }).click()
-  await page.getByRole("document", { name: "Block: Heading" }).fill("Research form")
-  await page.getByRole("combobox", { name: "Toggle view" }).selectOption("block-menu")
-  await page.getByRole("option", { name: "Paragraph" }).click()
-  await page
-    .getByRole("document", {
-      name: "Empty block; start writing or type forward slash to choose a block",
-    })
-    .fill("This course does research")
-  await page.getByRole("option", { name: "Research Form Question" }).click()
-  await page
-    .getByRole("document", { name: "Block: Research Form Question" })
-    .locator("div")
-    .nth(1)
-    .click()
-  await page.getByRole("textbox").fill("I want to take part in reseach")
-  await page.getByRole("textbox").press("ArrowLeft")
-  await page.getByRole("textbox").fill("I want to take part in research")
-  await page.getByRole("button", { name: "Save" }).click()
-  await page.getByText("Operation successful!").waitFor()
 })
 
 test("User can create and respond to research form in a course", async ({

@@ -56,8 +56,9 @@ const messageStyle = () => css`
   pre {
     /*the pre element corresponds to md raw text, this property
     will force long strings in it to wrap and not overflow */
-    white-space: wrap;
+    white-space: pre-wrap;
   }
+  white-space: pre-wrap;
 `
 
 const MessageBubble: React.FC<MessageBubbleProps> = ({
@@ -68,11 +69,15 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 }) => {
   const processedMessage = useMemo(() => {
     let md = new Remarkable()
+    let renderedMessage = message
     if (hideCitations) {
-      return message.replace(/\[.*?\]/g, "")
+      renderedMessage = renderedMessage.replace(/\[.*?\]/g, "")
     }
-    return sanitizeCourseMaterialHtml(md.render(message))
-  }, [hideCitations, message])
+    if (isFromChatbot) {
+      renderedMessage = sanitizeCourseMaterialHtml(md.render(renderedMessage).trim())
+    }
+    return renderedMessage
+  }, [hideCitations, message, isFromChatbot])
   return (
     <div className={bubbleStyle(isFromChatbot)}>
       <span

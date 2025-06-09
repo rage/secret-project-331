@@ -111,10 +111,12 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
                     padding: 4px;
                     border-radius: 2px;
                     margin-left: 0.75rem;
+                    margin-top: 0.5rem;
 
                     ${respondToOrLarger.lg} {
                       width: 27px;
                       height: 27px;
+                      margin-top: 0rem;
                     }
                   `}
                 >
@@ -132,18 +134,31 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
                 </div>
                 <div
                   className={css`
-                    width: 80%;
-                    padding: 0.5rem 1rem;
+                    width: 100%;
+                    padding: 0.5rem 0.5rem;
+                    text-align: center;
+
+                    ${respondToOrLarger.lg} {
+                      width: 80%;
+                      padding: 0.5rem 1rem;
+                    }
                   `}
                 >
                   <h2
                     className={css`
                       color: #333;
                       font-family: ${primaryFont};
-                      font-size: 18px;
-                      line-height: 1.3;
+                      font-size: 15px;
+                      line-height: 1;
                       letter-spacing: 0;
                       text-transform: capitalize;
+                      text-align: center;
+
+                      ${respondToOrLarger.lg} {
+                        font-size: 18px;
+                        line-height: 1.3;
+                        text-align: left;
+                      }
                     `}
                   >
                     {organization.name}
@@ -152,10 +167,16 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
                 <div
                   className={css`
                     display: flex;
-                    justify-content: flex-end;
                     gap: 0.5rem;
-                    margin-right: 1rem;
-                    margin-left: auto;
+                    justify-content: flex-center;
+                    margin-bottom: 0.5rem;
+
+                    ${respondToOrLarger.lg} {
+                      justify-content: flex-end;
+                      margin-right: 1rem;
+                      margin-left: auto;
+                      margin-bottom: 0rem;
+                    }
                   `}
                 >
                   <UnstyledA href={organizationFrontPageRoute(organization.slug)}>
@@ -167,7 +188,7 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
                         border-radius: 0px;
                         padding: 0.4rem 0.8rem;
                         font-family: ${primaryFont};
-                        font-size: 18px;
+                        font-size: 15px;
                         line-height: 100%;
                         letter-spacing: 0;
                         cursor: pointer;
@@ -175,6 +196,11 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
                         &:hover {
                           transition: background-color 0.3s;
                           background-color: rgb(216, 216, 216);
+                        }
+
+                        ${respondToOrLarger.lg} {
+                          font-size: 18px;
+                          padding: 0.4rem 0.8rem;
                         }
                       `}
                     >

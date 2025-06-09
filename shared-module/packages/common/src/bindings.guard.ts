@@ -2542,7 +2542,9 @@ export function isManualCompletionPreviewUser(obj: unknown): obj is ManualComple
             typeof typedObj["last_name"] === "string") &&
         (typedObj["grade"] === null ||
             typeof typedObj["grade"] === "number") &&
-        typeof typedObj["passed"] === "boolean"
+        typeof typedObj["passed"] === "boolean" &&
+        (typedObj["previous_best_grade"] === null ||
+            typeof typedObj["previous_best_grade"] === "number")
     )
 }
 

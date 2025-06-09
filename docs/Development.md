@@ -41,14 +41,15 @@ Install these packages on your Linux system:
 
 Optional utilities:
 
-- [Stern](https://github.com/wercker/stern) for logs aggregation
+- [Stern](https://github.com/stern/stern) for logs aggregation
 - [Kubectx](https://github.com/ahmetb/kubectx) for easy Kubernetes context switching
+- [Kubens](https://github.com/ahmetb/kubectx) for easy Kubernetes namespace switching
 
 Other essential commands required by scripts (`bc`, `find`, `jq`, `rsync`, `sponge`):
 
 ```bash
 # Ubuntu
-sudo apt install bc find jq rsync moreutils
+sudo apt install bc findutils jq rsync moreutils
 
 # Arch Linux
 sudo pacman -Syu bc find jq rsync moreutils
@@ -183,14 +184,6 @@ Set up the environment variables for `headless-lms`:
 cp services/headless-lms/models/.env.example services/headless-lms/models/.env
 ```
 
-### Seeding the database
-
-Populate the database with testing data:
-
-```bash
-bin/seed
-```
-
 ### Starting Minikube
 
 Before running Minikube, check for any setup issues:
@@ -207,7 +200,8 @@ bin/minikube-start
 
 ### Setting Up a Local Domain
 
-#### Linux
+<details>
+<summary>Linux</summary>
 
 Retrieve the Minikube IP address:
 
@@ -221,7 +215,21 @@ Add this IP to your `/etc/hosts` file:
 <minikube-ip>    project-331.local
 ```
 
-#### Windows
+</details>
+
+<details>
+<summary>macOS</summary>
+
+Similar to Linux, use `minikube ip` to retrieve the IP, then add it to `/etc/hosts`.
+
+### Starting the Application
+
+Ensure Minikube is running, then:
+
+</details>
+
+<details>
+<summary>Windows</summary>
 
 Use the Minikube IP obtained from `minikube ip` and add a hosts entry:
 
@@ -231,15 +239,12 @@ Use the Minikube IP obtained from `minikube ip` and add a hosts entry:
 
 Hosts file location: `C:\Windows\System32\drivers\etc\hosts`
 
-#### macOS
+</details>
 
-Similar to Linux, use `minikube ip` to retrieve the IP, then add it to `/etc/hosts`.
+### Starting up the development environment
 
-### Starting the Application
-
-Ensure Minikube is running, then:
-
-#### Linux
+<details>
+<summary>Linux</summary>
 
 In the root of the repository:
 
@@ -247,7 +252,21 @@ In the root of the repository:
 bin/dev
 ```
 
-#### Windows
+</details>
+
+<details>
+<summary>macOS</summary>
+
+In the root of the repository:
+
+```bash
+bin/dev
+```
+
+</details>
+
+<details>
+<summary>Windows</summary>
 
 Use **Cygwin** in Windows Terminal, navigate to the root of the repository:
 
@@ -255,12 +274,14 @@ Use **Cygwin** in Windows Terminal, navigate to the root of the repository:
 bin/dev
 ```
 
-#### macOS
+</details>
 
-In the root of the repository:
+### Seeding the database
+
+Populate the database with testing data:
 
 ```bash
-bin/dev
+bin/seed
 ```
 
 ### Recommended Terminal Tools for Multi-Window Management

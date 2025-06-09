@@ -1,10 +1,10 @@
 import { css } from "@emotion/css"
 import React, { useMemo } from "react"
-import { Remarkable } from "remarkable"
 
 import ThinkingIndicator from "./ThinkingIndicator"
 
 import { baseTheme } from "@/shared-module/common/styles"
+import { getRemarkable } from "@/utils/getRemarkable"
 import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
 
 interface MessageBubbleProps {
@@ -60,7 +60,8 @@ const messageStyle = () => css`
   }
   white-space: pre-wrap;
 `
-let md = new Remarkable()
+
+let md = getRemarkable()
 
 const MessageBubble: React.FC<MessageBubbleProps> = ({
   message,

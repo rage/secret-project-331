@@ -60,6 +60,7 @@ const messageStyle = () => css`
   }
   white-space: pre-wrap;
 `
+let md = new Remarkable()
 
 const MessageBubble: React.FC<MessageBubbleProps> = ({
   message,
@@ -68,7 +69,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   hideCitations,
 }) => {
   const processedMessage = useMemo(() => {
-    let md = new Remarkable()
     let renderedMessage = message
     if (hideCitations) {
       renderedMessage = renderedMessage.replace(/\[.*?\]/g, "")

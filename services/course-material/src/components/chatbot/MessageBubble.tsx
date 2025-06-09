@@ -18,6 +18,8 @@ const bubbleStyle = (isFromChatbot: boolean) => css`
   padding: 1rem;
   border-radius: 10px;
   width: fit-content;
+  max-width: stretch;
+  overflow-wrap: break-word;
   margin: 0.5rem 0;
   ${isFromChatbot
     ? `
@@ -48,9 +50,13 @@ const messageStyle = () => css`
   tbody tr:nth-child(odd) {
     background-color: #ffffff;
   }
-
   tbody tr:nth-child(even) {
     background-color: ${baseTheme.colors.clear[200]};
+  }
+  pre {
+    /*the pre element corresponds to md raw text, this property
+    will force long strings in it to wrap and not overflow */
+    white-space: wrap;
   }
 `
 
@@ -67,7 +73,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     }
     return sanitizeCourseMaterialHtml(md.render(message))
   }, [hideCitations, message])
-  console.log(message)
   return (
     <div className={bubbleStyle(isFromChatbot)}>
       <span

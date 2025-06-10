@@ -17,13 +17,14 @@ if [ "$NUMBER_OF_CARGO_FILES" -ne "0" ]; then
   exit 255
 fi
 
-RANDOM_DATABASE_NAME="temporary_database_$(date --iso-8601=ns | sha256sum | cut -d ' ' -f 1 | cut -c -10)"
+wait_for_postgres_pod || { echo "The postgres pod did not start in time. I cannot continue as the database is not running."; exit 1; }
 
 run_command kubectl exec -it "$POD_NAME" -- wait-for-it --timeout=120 postgres:5432
 
 run_command cd "$RELATIVE_PATH" || exit
 
 # Create new database with a random name
+RANDOM_DATABASE_NAME="temporary_database_$(date --iso-8601=ns | sha256sum | cut -d ' ' -f 1 | cut -c -10)"
 run_command kubectl exec -it "$POD_NAME" -- sqlx database setup --database-url "postgres://headless-lms:only-for-local-development-intentionally-public@postgres:5432/$RANDOM_DATABASE_NAME"
 # Drop old headless_lms_test database (if it exists)
 run_command kubectl exec -it "$POD_NAME" -- env PGPASSWORD=only-for-local-development-intentionally-public dropdb --host=postgres --port=5432 --username=headless-lms --no-password --if-exists --force headless_lms_test

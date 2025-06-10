@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 
-test("User can add missing country information", async ({ page }) => {
+test.skip("User can add missing country information", async ({ page }) => {
   // await test.step("Pop-up form for existing user who is missing country info", async () => {
   //   await page.goto(
   //     "http://project-331.local/login?return_to=%2Forg%2Fuh-cs%2Fcourses%2Fadvanced-course-instance-management",

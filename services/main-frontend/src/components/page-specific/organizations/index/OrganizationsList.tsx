@@ -1,17 +1,16 @@
 import { css } from "@emotion/css"
-import { ApartmentBuilding } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import useAllOrganizationsQuery from "../../../../hooks/useAllOrganizationsQuery"
 
+import OrganizationBanner from "./components/OrganizationBanner"
+
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-import UnstyledA from "@/shared-module/common/components/UnstyledA"
-import { baseTheme, primaryFont } from "@/shared-module/common/styles"
+import { primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { organizationFrontPageRoute } from "@/shared-module/common/utils/routes"
 
 const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
@@ -59,157 +58,26 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
         <div
           className={css`
             background-color: rgba(26, 35, 51, 0.05);
-            padding: 2rem 1rem;
+            padding: 2rem 0rem;
             border-radius: 0.5rem;
-            margin: 2rem auto;
-            max-width: 900px;
+            width: 95vw;
+            position: relative;
+            left: 50%;
+            right: 50%;
+            transform: translateX(-50%);
+            ${respondToOrLarger.lg} {
+              width: auto;
+              max-width: 900px;
+              left: auto;
+              right: auto;
+              transform: none;
+              margin: 2rem auto;
+              padding: 2rem 1rem;
+            }
           `}
         >
           {allOrganizationsQuery.data.map((organization) => (
-            <div
-              key={organization.id}
-              aria-label={organization.name}
-              className={css`
-                padding: 0em 1em;
-                text-decoration: none;
-                color: #656565;
-
-                &:focus-visible > div {
-                  outline: 2px solid ${baseTheme.colors.green[500]};
-                  outline-offset: 2px;
-                }
-
-                &:focus {
-                  outline: none;
-                }
-              `}
-            >
-              <div
-                className={css`
-                  flex-direction: column;
-                  display: flex;
-                  align-items: center;
-                  background-color: rgb(255, 255, 255);
-                  margin-bottom: 0.5em;
-
-                  ${respondToOrLarger.lg} {
-                    height: 3.5rem;
-                    flex-direction: row;
-                    max-height: 20rem;
-                  }
-                `}
-              >
-                <div
-                  className={css`
-                    background: #1a2333;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    width: 27px;
-                    min-width: 27px;
-                    height: 26px;
-                    padding: 4px;
-                    border-radius: 2px;
-                    margin-left: 0.75rem;
-                    margin-top: 0.5rem;
-
-                    ${respondToOrLarger.lg} {
-                      width: 27px;
-                      height: 27px;
-                      margin-top: 0rem;
-                    }
-                  `}
-                >
-                  <ApartmentBuilding
-                    className={css`
-                      width: 21px;
-                      height: 20px;
-                      color: white;
-                      display: block;
-                      margin: auto;
-                      object-fit: contain;
-                      padding: 1px;
-                    `}
-                  />
-                </div>
-                <div
-                  className={css`
-                    width: 100%;
-                    padding: 0.5rem 0.5rem;
-                    text-align: center;
-
-                    ${respondToOrLarger.lg} {
-                      width: 80%;
-                      padding: 0.5rem 1rem;
-                    }
-                  `}
-                >
-                  <h2
-                    className={css`
-                      color: #333;
-                      font-family: ${primaryFont};
-                      font-size: 15px;
-                      line-height: 1;
-                      letter-spacing: 0;
-                      text-transform: capitalize;
-                      text-align: center;
-
-                      ${respondToOrLarger.lg} {
-                        font-size: 18px;
-                        line-height: 1.3;
-                        text-align: left;
-                      }
-                    `}
-                  >
-                    {organization.name}
-                  </h2>
-                </div>
-                <div
-                  className={css`
-                    display: flex;
-                    gap: 0.5rem;
-                    justify-content: flex-center;
-                    margin-bottom: 0.5rem;
-
-                    ${respondToOrLarger.lg} {
-                      justify-content: flex-end;
-                      margin-right: 1rem;
-                      margin-left: auto;
-                      margin-bottom: 0rem;
-                    }
-                  `}
-                >
-                  <UnstyledA href={organizationFrontPageRoute(organization.slug)}>
-                    <button
-                      className={css`
-                        background-color: rgba(237, 238, 240, 1);
-                        color: rgba(26, 35, 51, 1);
-                        border: none;
-                        border-radius: 0px;
-                        padding: 0.4rem 0.8rem;
-                        font-family: ${primaryFont};
-                        font-size: 15px;
-                        line-height: 100%;
-                        letter-spacing: 0;
-                        cursor: pointer;
-
-                        &:hover {
-                          transition: background-color 0.3s;
-                          background-color: rgb(216, 216, 216);
-                        }
-
-                        ${respondToOrLarger.lg} {
-                          font-size: 18px;
-                          padding: 0.4rem 0.8rem;
-                        }
-                      `}
-                    >
-                      {t("label-select")}
-                    </button>
-                  </UnstyledA>
-                </div>
-              </div>
-            </div>
+            <OrganizationBanner key={organization.id} organization={organization} />
           ))}
         </div>
       )}

@@ -35,7 +35,7 @@ const bubbleStyle = (isFromChatbot: boolean) => css`
     `}
 `
 
-const messageStyle = () => css`
+const messageStyle = css`
   table {
     margin: 20px 0 20px 0;
     border-collapse: collapse;
@@ -81,10 +81,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   }, [hideCitations, message, isFromChatbot])
   return (
     <div className={bubbleStyle(isFromChatbot)}>
-      <span
-        className={messageStyle()}
-        dangerouslySetInnerHTML={{ __html: processedMessage }}
-      ></span>
+      <span className={messageStyle} dangerouslySetInnerHTML={{ __html: processedMessage }}></span>
       {isPending && <ThinkingIndicator />}
     </div>
   )

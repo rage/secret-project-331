@@ -58,13 +58,17 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
         <div
           className={css`
             background-color: rgba(26, 35, 51, 0.05);
-            padding: 2rem 0rem;
+            padding: 0.5rem 0rem;
             border-radius: 0.5rem;
             width: 95vw;
             position: relative;
             left: 50%;
             right: 50%;
             transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5em;
+
             ${respondToOrLarger.lg} {
               width: auto;
               max-width: 900px;

@@ -45,9 +45,8 @@ const OrganizationBanner: React.FC<Props> = ({ organization }) => {
           align-items: center;
           justify-content: space-between;
           background-color: rgb(255, 255, 255);
-          padding: 0.5rem 0.5rem;
-          margin-bottom: 0.5em;
-          gap: 0.2rem;
+          padding: 0.25rem 0.5rem;
+          gap: 0.3rem;
           width: 100%;
 
           ${respondToOrLarger.lg} {
@@ -103,7 +102,7 @@ const OrganizationText: React.FC<{ name: string }> = ({ name }) => (
     className={css`
       flex-grow: 1;
       min-width: 0;
-      padding: 0.5rem 0.2rem;
+      padding: 0.5rem 0.5rem;
 
       ${respondToOrLarger.lg} {
         padding: 0.5rem 1rem;

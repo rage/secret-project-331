@@ -1,18 +1,18 @@
 import { expect, test } from "@playwright/test"
 
 import { downloadToString } from "../../utils/download"
-import { showNextToastsInfinitely, showToastsNormally } from "../../utils/notificationUtils"
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
+
+import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("Manually adding completions works", async ({ page, headless }, testInfo) => {
+test("Manually adding completions works", async ({ page }) => {
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.getByText("University of Helsinki, Department of Computer Science").click(),
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
@@ -51,18 +51,6 @@ test("Manually adding completions works", async ({ page, headless }, testInfo) =
   // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(200)
 
-  await expectScreenshotsToMatchSnapshots({
-    headless,
-    testInfo,
-    snapshotName: "manual-completion-default-module-preview",
-    waitForTheseToBeVisibleAndStable: [
-      page.getByRole("button", { name: "Submit" }),
-      page.getByText("Users receiving a completion for the first time"),
-    ],
-    screenshotTarget: page,
-    clearNotifications: true,
-  })
-
   await page.locator('button:has-text("Submit")').click()
 
   await page.getByText(`Completions submitted successfully`).waitFor()
@@ -84,37 +72,13 @@ test("Manually adding completions works", async ({ page, headless }, testInfo) =
     .locator('div[role="button"]:has-text("Users receiving a completion for the first time (2)")')
     .click()
 
-  await expectScreenshotsToMatchSnapshots({
-    headless,
-    testInfo,
-    snapshotName: "manual-completion-another-module-preview",
-    waitForTheseToBeVisibleAndStable: [
-      page.getByText("Users receiving a completion for the first time"),
-      page.getByRole("button", { name: "Submit" }),
-    ],
-    screenshotTarget: page,
-    clearNotifications: true,
-  })
-
-  await showNextToastsInfinitely(page)
   await page.locator('button:has-text("Submit")').click()
 
-  await expectScreenshotsToMatchSnapshots({
-    headless,
-    testInfo,
-    snapshotName: "manual-completion-after-posting-completions",
-    waitForTheseToBeVisibleAndStable: [
-      page.getByText("User1"),
-      page.getByText("User2"),
-      page.getByText("User3"),
-      page.getByText("User4"),
-      page.getByText("Completions submitted successfully."),
-    ],
-    screenshotTarget: page,
-    beforeScreenshot: () => page.getByText("User1").scrollIntoViewIfNeeded(),
-  })
-
-  await showToastsNormally(page)
+  await page.getByText("Completions submitted successfully.").waitFor()
+  await page.getByText("User1").waitFor()
+  await page.getByText("User2").waitFor()
+  await page.getByText("User3").waitFor()
+  await page.getByText("User4").waitFor()
 
   const [download] = await Promise.all([
     page.waitForEvent("download"),

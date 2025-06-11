@@ -10,15 +10,13 @@ pub struct ExerciseTaskInfo {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "type")]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "lowercase")]
 pub enum PublicSpec {
     Browser {
         files: Vec<ExerciseFile>,
     },
     Editor {
-        #[serde(rename = "archiveName")]
         archive_name: String,
-        #[serde(rename = "archiveDownloadUrl")]
         archive_download_url: String,
     },
 }
@@ -30,6 +28,8 @@ pub struct ExerciseFile {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(tag = "type")]
+#[serde(rename_all = "lowercase")]
 pub enum ModelSolutionSpec {
     Browser {
         files: Vec<ExerciseFile>,
@@ -69,8 +69,8 @@ mod test {
         let editor_task = r#"
 {
     "type": "editor",
-    "archiveName": "1",
-    "archiveDownloadUrl": "2"
+    "archive_name": "1",
+    "archive_download_url": "2"
 }
 "#;
         serde_json::from_str::<PublicSpec>(editor_task).unwrap();

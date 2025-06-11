@@ -1,6 +1,8 @@
 use models::{pages::SearchRequest, user_details::UserDetail};
 
 use crate::prelude::*;
+use headless_lms_utils::ip_to_country::IpToCountryMapper;
+use std::net::IpAddr;
 
 /**
 GET `/api/v0/main-frontend/user-details/[id]` - Find user details by user id
@@ -108,11 +110,30 @@ pub async fn get_users_by_course_id(
         &mut conn,
         Act::ViewUserProgressOrDetails,
         Some(user.id),
-        Res::GlobalPermissions,
+        Res::Course(*course_id),
     )
     .await?;
     let res = models::user_details::get_users_by_course_id(&mut conn, *course_id).await?;
     token.authorized_ok(web::Json(res))
+}
+
+pub async fn get_user_country_by_ip(
+    req: HttpRequest,
+    ip_to_country_mapper: web::Data<IpToCountryMapper>,
+) -> ControllerResult<String> {
+    let connection_info = req.connection_info();
+
+    let ip: Option<IpAddr> = connection_info
+        .realip_remote_addr()
+        .and_then(|ip| ip.parse::<IpAddr>().ok());
+
+    let country = ip
+        .and_then(|ip| ip_to_country_mapper.map_ip_to_country(&ip))
+        .map(|c| c.to_string())
+        .unwrap_or_default();
+
+    let token = skip_authorize();
+    token.authorized_ok(country)
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
@@ -125,7 +146,8 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/search-fuzzy-match",
             web::post().to(search_users_fuzzy_match),
         )
-        .route("/{user_id}", web::get().to(get_user_details))
+        .route("/user/{user_id}", web::get().to(get_user_details))
+        .route("/users-ip-country", web::get().to(get_user_country_by_ip))
         .route(
             "/{course_id}/get-users-by-course-id",
             web::get().to(get_users_by_course_id),

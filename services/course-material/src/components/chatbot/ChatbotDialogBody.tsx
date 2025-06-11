@@ -1,23 +1,30 @@
 import { css } from "@emotion/css"
-import { UseQueryResult } from "@tanstack/react-query"
+import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { PaperAirplane } from "@vectopus/atlas-icons-react"
 import React, { useCallback, useEffect, useMemo, useReducer, useRef } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
 import { ChatbotDialogProps } from "./ChatbotDialog"
+import ErrorDisplay from "./ErrorDisplay"
 import MessageBubble from "./MessageBubble"
 
-import { newChatbotConversation, sendChatbotMessage } from "@/services/backend"
-import { ChatbotConversationInfo } from "@/shared-module/common/bindings"
+import { CHATBOX_HEIGHT_PX } from "."
+
+import { sendChatbotMessage } from "@/services/backend"
+import { ChatbotConversation, ChatbotConversationInfo } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
 
 interface ChatbotDialogBodyProps extends ChatbotDialogProps {
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
+  newConversation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
+  newMessage: string
+  setNewMessage: React.Dispatch<React.SetStateAction<string>>
   error: Error | null
   setError: (error: Error | null) => void
 }
@@ -47,30 +54,20 @@ const messageReducer = (state: MessageState, action: MessageAction): MessageStat
 
 const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
   currentConversationInfo,
+  newConversation,
   chatbotConfigurationId,
+  newMessage,
+  setNewMessage,
   error,
   setError,
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
 
-  const [newMessage, setNewMessage] = React.useState("")
   const [messageState, dispatch] = useReducer(messageReducer, {
     optimisticMessage: null,
     streamingMessage: null,
   })
-
-  const newConversationMutation = useToastMutation(
-    () => newChatbotConversation(chatbotConfigurationId),
-    { notify: false },
-    {
-      onSuccess: () => {
-        currentConversationInfo.refetch()
-        dispatch({ type: "RESET_MESSAGES" })
-        setError(null) // Clear any existing errors when starting a new conversation
-      },
-    },
-  )
 
   const newMessageMutation = useToastMutation(
     async () => {
@@ -255,7 +252,14 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
             </li>
           </ul>
         </div>
-        <Button size="medium" variant="secondary" onClick={() => newConversationMutation.mutate()}>
+        <Button
+          size="medium"
+          variant="secondary"
+          onClick={() => {
+            newConversation.mutate()
+            dispatch({ type: "RESET_MESSAGES" })
+          }}
+        >
           {t("button-text-agree")}
         </Button>
       </div>
@@ -274,7 +278,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
       <div
         className={css`
           flex-grow: 1;
-          overflow-y: scroll;
+          overflow-y: auto;
           display: flex;
           flex-direction: column;
           padding: 1rem;
@@ -290,19 +294,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
           />
         ))}
       </div>
-      {error && (
-        <div
-          className={css`
-            padding: 10px;
-            background-color: ${baseTheme.colors.red[100]};
-            color: ${baseTheme.colors.red[500]};
-            margin: 10px;
-            border-radius: 5px;
-          `}
-        >
-          {t("failed-to-send-message")}: {error.message}
-        </div>
-      )}
+      {error && <ErrorDisplay error={error} />}
       <div
         className={css`
           display: flex;
@@ -316,7 +308,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
             flex-grow: 1;
           `}
         >
-          <textarea
+          <TextAreaField
             className={css`
               width: 100%;
               padding: 0.5rem;
@@ -336,6 +328,11 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
                 }
               }
             }}
+            // eslint-disable-next-line i18next/no-literal-string
+            resize={"none"}
+            autoResize={true}
+            onAutoResized={scrollToBottom}
+            autoResizeMaxHeightPx={CHATBOX_HEIGHT_PX * 0.4}
             placeholder={t("label-message")}
           />
         </div>

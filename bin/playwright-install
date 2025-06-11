@@ -8,4 +8,4 @@ RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 
 run_command cd "$RELATIVE_PATH" || exit
 
-run_command npx playwright install "$@"
+run_command npx playwright install chromium "$@"

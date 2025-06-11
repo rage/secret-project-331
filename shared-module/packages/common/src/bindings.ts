@@ -47,7 +47,6 @@ export type Resource =
   | { type: "user" }
   | { type: "playground_example" }
   | { type: "exercise_service" }
-  | { type: "material_reference" }
 
 export type ErrorData = { block_id: string }
 
@@ -1210,6 +1209,7 @@ export interface ManualCompletionPreviewUser {
   last_name: string | null
   grade: number | null
   passed: boolean
+  previous_best_grade: number | null
 }
 
 export interface TeacherManualCompletion {
@@ -2010,6 +2010,7 @@ export interface UserDetail {
   first_name: string | null
   last_name: string | null
   search_helper: string | null
+  country: string | null
 }
 
 export interface ExerciseUserCounts {
@@ -2093,6 +2094,7 @@ export interface CreateAccountDetails {
   language: string
   password: string
   password_confirmation: string
+  country: string
 }
 
 export interface Login {
@@ -2181,6 +2183,31 @@ export interface GetFeedbackQuery {
   page: number | undefined
   limit: number | undefined
 }
+
+export interface CopyCourseRequest {
+  name: string
+  slug: string
+  organization_id: string
+  language_code: string
+  teacher_in_charge_name: string
+  teacher_in_charge_email: string
+  description: string
+  is_draft: boolean
+  is_test_mode: boolean
+  is_unlisted: boolean
+  copy_user_permissions: boolean
+  is_joinable_by_code_only: boolean
+  join_code: string | null
+  ask_marketing_consent: boolean
+  flagged_answers_threshold: number | null
+  mode: CopyCourseMode
+}
+
+export type CopyCourseMode =
+  | { mode: "duplicate" }
+  | { mode: "same_language_group" }
+  | { mode: "existing_language_group"; target_course_id: string }
+  | { mode: "new_language_group" }
 
 export interface ExamCourseInfo {
   course_id: string

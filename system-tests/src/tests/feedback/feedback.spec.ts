@@ -7,7 +7,8 @@ import { login } from "../../utils/login"
 import { logout } from "../../utils/logout"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
-import { feedbackTooltipClass } from "@/shared-module/common/styles/constants"
+import { feedbackTooltipTestId } from "@/shared-module/common/styles/constants"
+import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/user@example.com.json",
@@ -16,9 +17,7 @@ test.use({
 test("feedback test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await page.getByText("University of Helsinki, Department of Computer Science").click(),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await page.getByText("Introduction to feedback").click()
@@ -50,12 +49,12 @@ test("feedback test", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "feedback-tooltip",
-    waitForTheseToBeVisibleAndStable: [page.locator(`.${feedbackTooltipClass}`)],
+    waitForTheseToBeVisibleAndStable: [page.getByTestId(feedbackTooltipTestId)],
   })
 
-  await page.click(':nth-match(:text("Give feedback"), 2)')
+  await page.getByTestId(feedbackTooltipTestId).getByText("Give feedback").click()
 
-  await page.locator("textarea").click()
+  await page.getByText("Give written feedback").click()
 
   // Fill textarea
   await page.fill(
@@ -78,9 +77,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
   await logout(page)
   await login("admin@example.com", "admin", page, true)
 
-  await Promise.all([
-    await page.getByText("University of Helsinki, Department of Computer Science").click(),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
   await page.locator("[aria-label=\"Manage course 'Introduction to feedback'\"] svg").click()

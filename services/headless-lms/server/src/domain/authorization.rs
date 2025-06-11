@@ -680,7 +680,10 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
         TeachingAndLearningServices => {
             matches!(
                 action,
-                View | ViewMaterial | ViewUserProgressOrDetails | ViewInternalCourseStructure
+                View | ViewMaterial
+                    | ViewUserProgressOrDetails
+                    | ViewInternalCourseStructure
+                    | ViewStats
             )
         }
         StatsViewer => matches!(action, ViewStats),
@@ -995,6 +998,10 @@ pub async fn authenticate_test_user(
         && password == "student-without-research-consent"
     {
         models::users::get_by_email(conn, "student-without-research-consent@example.com").await?
+    } else if email == "student-without-country@example.com"
+        && password == "student-without-country"
+    {
+        models::users::get_by_email(conn, "student-without-country@example.com").await?
     } else if email == "langs@example.com" && password == "langs" {
         models::users::get_by_email(conn, "langs@example.com").await?
     } else {

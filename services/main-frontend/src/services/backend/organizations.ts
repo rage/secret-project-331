@@ -65,6 +65,15 @@ export const fetchOrganizationActiveCourses = async (
   return validateResponse(response, isArray(isCourse))
 }
 
+export const fetchOrganizationDuplicatableCourses = async (
+  organizationId: string,
+): Promise<Array<Course>> => {
+  const response = await mainFrontendClient.get(
+    `/organizations/${organizationId}/courses/duplicatable`,
+  )
+  return validateResponse(response, isArray(isCourse))
+}
+
 export const setOrganizationImage = async (
   organizationId: string,
   file: File,

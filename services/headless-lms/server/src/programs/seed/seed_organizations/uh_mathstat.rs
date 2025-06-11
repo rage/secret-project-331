@@ -346,6 +346,7 @@ pub async fn seed_organization_uh_mathstat(
             maintain_azure_search_index: false,
             hide_citations: false,
             use_semantic_reranking: false,
+            default_chatbot: true,
         },
     )
     .await?;

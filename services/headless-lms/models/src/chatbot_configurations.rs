@@ -1,6 +1,7 @@
 use crate::prelude::*;
 
 #[derive(Clone, PartialEq, Deserialize, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChatbotConfiguration {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -22,6 +23,41 @@ pub struct ChatbotConfiguration {
     pub maintain_azure_search_index: bool,
     pub hide_citations: bool,
     pub use_semantic_reranking: bool,
+    pub default_chatbot: bool,
+}
+
+impl Default for ChatbotConfiguration {
+    fn default() -> Self {
+        Self {
+            id: Uuid::nil(),
+            created_at: Default::default(),
+            updated_at: Default::default(),
+            deleted_at: None,
+            course_id: Default::default(),
+            enabled_to_students: false,
+            chatbot_name: Default::default(),
+            prompt: Default::default(),
+            initial_message: Default::default(),
+            weekly_tokens_per_user: Default::default(),
+            daily_tokens_per_user: Default::default(),
+            temperature: 0.7,
+            top_p: 1.0,
+            frequency_penalty: Default::default(),
+            presence_penalty: Default::default(),
+            response_max_tokens: 500,
+            use_azure_search: false,
+            maintain_azure_search_index: false,
+            hide_citations: false,
+            use_semantic_reranking: false,
+            default_chatbot: false,
+        }
+    }
+}
+
+#[derive(Clone, PartialEq, Deserialize, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct NewChatbotConf {
+    pub chatbot_name: String,
 }
 
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ChatbotConfiguration> {

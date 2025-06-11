@@ -371,6 +371,7 @@ const config = [
               "animated",
               "useTransition",
               "createPopper",
+              "closest",
             ],
           },
           "object-properties": {

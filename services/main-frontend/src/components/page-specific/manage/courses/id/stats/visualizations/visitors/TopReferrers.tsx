@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { InstructionBox } from "../../CourseStatsPage"
+import { DEFAULT_CHART_HEIGHT, InstructionBox } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
 
@@ -16,8 +16,6 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 export interface TopReferrersProps {
   courseId: string
 }
-
-const DEFAULT_CHART_HEIGHT = 300
 
 const containerStyles = css`
   margin-bottom: 2rem;

@@ -66,7 +66,6 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
             font-family: ${headingFont};
             color: #4c5868;
             p {
-              margin-top: 0 !important;
               opacity: 0.9;
               font-size: 1.125rem !important;
               font-weight: 500;
@@ -84,52 +83,55 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
           )}
           <ContentRenderer
             data={currentExerciseTaskAssignment}
-            editing={false}
-            selectedBlockId={null}
-            setEdits={(map) => map}
             isExam={isExam}
             dontAllowBlockToBeWiderThanContainerWidth={true}
           />
         </div>
       )}
-      {cannotAnswerButNoSubmission && <div>{t("no-submission-received-for-this-exercise")}</div>}
-      {!cannotAnswerButNoSubmission &&
-        (url ? (
-          <ExerciseTaskIframe
-            exerciseServiceSlug={exerciseTask.exercise_service_slug}
-            postThisStateToIFrame={postThisStateToIFrame}
-            url={url}
-            setAnswer={setAnswer}
-            title={t("exercise-task-content", {
-              "exercise-number": exerciseNumber + 1,
-              "task-number": exerciseTask.order_number + 1,
-            })}
-          />
-        ) : (
-          t("dont-know-how-to-render-this-assignment")
-        ))}
-      {feedbackText && (
-        <div
-          className={css`
-            margin: 1rem 0;
-            background: white;
-            font-weight: 400;
-            color: ${baseTheme.colors.gray[500]};
-            padding: 0.75rem 1rem;
-            align-items: center;
-            display: flex;
-            font-size: 1rem;
+      <div
+        className={css`
+          margin-top: 2rem;
+        `}
+      >
+        {cannotAnswerButNoSubmission && <div>{t("no-submission-received-for-this-exercise")}</div>}
+        {!cannotAnswerButNoSubmission &&
+          (url ? (
+            <ExerciseTaskIframe
+              exerciseServiceSlug={exerciseTask.exercise_service_slug}
+              postThisStateToIFrame={postThisStateToIFrame}
+              url={url}
+              setAnswer={setAnswer}
+              title={t("exercise-task-content", {
+                "exercise-number": exerciseNumber + 1,
+                "task-number": exerciseTask.order_number + 1,
+              })}
+            />
+          ) : (
+            t("dont-know-how-to-render-this-assignment")
+          ))}
+        {feedbackText && (
+          <div
+            className={css`
+              margin: 1rem 0;
+              background: white;
+              font-weight: 400;
+              color: ${baseTheme.colors.gray[500]};
+              padding: 0.75rem 1rem;
+              align-items: center;
+              display: flex;
+              font-size: 1rem;
 
-            svg {
-              margin-right: 0.5rem;
-              color: ${baseTheme.colors.blue[500]};
-            }
-          `}
-        >
-          <InfoCircle size={20} />
-          {feedbackText}
-        </div>
-      )}
+              svg {
+                margin-right: 0.5rem;
+                color: ${baseTheme.colors.blue[500]};
+              }
+            `}
+          >
+            <InfoCircle size={20} />
+            {feedbackText}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

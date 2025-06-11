@@ -53,7 +53,12 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
 
   return (
     <div>
-      <Dialog open={researchConsentFormOpen} noPadding={true} closeable={false}>
+      <Dialog
+        open={researchConsentFormOpen}
+        noPadding={true}
+        closeable={false}
+        aria-label={t("title-reseach-consent-form")}
+      >
         <div
           className={css`
             display: flex;

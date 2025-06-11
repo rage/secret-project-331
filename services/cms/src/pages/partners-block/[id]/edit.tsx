@@ -1,4 +1,3 @@
-import dynamic from "next/dynamic"
 import React from "react"
 
 import CourseContext from "../../../contexts/CourseContext"
@@ -12,16 +11,11 @@ import useStateQuery from "@/shared-module/common/hooks/useStateQuery"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-const EditorLoading = <Spinner variant="medium" />
-
-const PartnersBlockEditor = dynamic(
+const PartnersBlockEditor = dynamicImport(
   () => import("../../../components/editors/PartnersBlockEditor"),
-  {
-    ssr: false,
-    loading: () => EditorLoading,
-  },
 )
 
 export interface PartnersBlockProps {

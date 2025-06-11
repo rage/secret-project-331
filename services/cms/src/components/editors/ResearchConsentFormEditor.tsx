@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 import { BlockInstance } from "@wordpress/blocks"
-import dynamic from "next/dynamic"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -16,7 +15,7 @@ import SerializeGutenbergModal from "../SerializeGutenbergModal"
 import { NewResearchForm, ResearchForm } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import Spinner from "@/shared-module/common/components/Spinner"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 interface ResearchFormEditorProps {
@@ -26,12 +25,7 @@ interface ResearchFormEditorProps {
   setNeedToRunMigrationsAndValidations: React.Dispatch<boolean>
 }
 
-const EditorLoading = <Spinner variant="medium" />
-
-const GutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
-  ssr: false,
-  loading: () => EditorLoading,
-})
+const GutenbergEditor = dynamicImport(() => import("./GutenbergEditor"))
 
 const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorProps>> = ({
   data,

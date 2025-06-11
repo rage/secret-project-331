@@ -8,6 +8,8 @@ import {
 
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
+import { selectOrganization } from "@/utils/organizationUtils"
+
 test.describe("Uploading media as admin", () => {
   // As Admin
   test.use({
@@ -28,6 +30,7 @@ test.describe("Uploading media as admin", () => {
 
   test("Uploading images in the image block works", async ({ page, headless }, testInfo) => {
     await page.getByText("University of Helsinki, Department of Computer Science").click()
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science")
 
     await page.locator("[aria-label=\"Manage course 'Introduction to everything'\"] svg").click()
 

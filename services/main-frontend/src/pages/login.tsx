@@ -102,8 +102,18 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
             margin-bottom: 2rem;
           `}
         >
-          {/* eslint-disable-next-line i18next/no-literal-string */}
-          {t("login-description")} <a href="https://mooc.fi">mooc.fi</a> {t("login-description2")}
+          {}
+          {t("login-description")}{" "}
+          <a
+            className={css`
+              color: ${baseTheme.colors.blue[500]}!important;
+            `}
+            href="https://mooc.fi"
+            // eslint-disable-next-line i18next/no-literal-string
+          >
+            mooc.fi
+          </a>{" "}
+          {t("login-description2")}
         </div>
         <TextField
           label={t("label-email")}
@@ -155,21 +165,40 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
             display: none;
           `}
         >
-          <Link href="/sign-up">{t("create-new-account")}</Link>
+          <Link
+            className={css`
+              color: ${baseTheme.colors.blue[500]}!important;
+            `}
+            href="/sign-up"
+          >
+            {t("create-new-account")}
+          </Link>
         </div>
         <div
           className={css`
             margin-bottom: 1.5rem;
           `}
         >
-          <a href="https://tmc.mooc.fi/password_reset_keys/new">{t("forgot-password")}</a>
+          <a
+            className={css`
+              color: ${baseTheme.colors.blue[500]}!important;
+            `}
+            href="https://tmc.mooc.fi/password_reset_keys/new"
+          >
+            {t("forgot-password")}
+          </a>
         </div>
         <div
           className={css`
             margin-bottom: 1.5rem;
           `}
         >
-          <a href={`/signup?return_to=${encodeURIComponent(returnToForLinkToSignupPage)}`}>
+          <a
+            className={css`
+              color: ${baseTheme.colors.blue[500]}!important;
+            `}
+            href={`/signup?return_to=${encodeURIComponent(returnToForLinkToSignupPage)}`}
+          >
             {t("create-an-acount")}
           </a>
         </div>

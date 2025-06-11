@@ -1,7 +1,8 @@
 use actix_web::http::header::ContentType;
 use chrono::Utc;
 
-use headless_lms_chatbot::azure_chatbot::{estimate_tokens, send_chat_request_and_parse_stream};
+use headless_lms_chatbot::azure_chatbot::send_chat_request_and_parse_stream;
+use headless_lms_chatbot::llm_utils::estimate_tokens;
 use headless_lms_models::chatbot_conversations::{
     self, ChatbotConversation, ChatbotConversationInfo,
 };

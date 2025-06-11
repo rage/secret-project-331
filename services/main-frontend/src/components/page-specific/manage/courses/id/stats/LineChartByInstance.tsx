@@ -5,7 +5,7 @@ import { ZRColor } from "echarts/types/src/util/types"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { InstructionBox } from "./CourseStatsPage"
+import { DEFAULT_CHART_HEIGHT, InstructionBox } from "./CourseStatsPage"
 import Echarts from "./Echarts"
 import { DAILY_PERIOD, MONTHLY_PERIOD, Period } from "./LineChart"
 import StatsHeader from "./StatsHeader"
@@ -79,7 +79,7 @@ const chartContainer = css`
   border: 3px solid ${baseTheme.colors.clear[200]};
   border-radius: 6px;
   padding: 1rem;
-  min-height: 300px;
+  min-height: ${DEFAULT_CHART_HEIGHT}px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -365,7 +365,7 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
         ) : isDataEmpty ? (
           <div>{t("no-data")}</div>
         ) : (
-          <Echarts options={chartOptions} height={300} />
+          <Echarts options={chartOptions} height={DEFAULT_CHART_HEIGHT} />
         )}
       </div>
     </>

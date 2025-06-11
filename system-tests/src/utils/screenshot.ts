@@ -147,7 +147,7 @@ export default async function expectScreenshotsToMatchSnapshots({
         if (clearNotifications) {
           await page.evaluate(() => {
             for (const notif of Array.from(
-              document.querySelectorAll<HTMLElement>("#give-feedback-button"),
+              document.querySelectorAll<HTMLElement>('[data-testid="give-feedback-button"]'),
             )) {
               notif.style.display = "none"
             }
@@ -192,7 +192,7 @@ export default async function expectScreenshotsToMatchSnapshots({
         if (clearNotifications) {
           await page.evaluate(() => {
             for (const notif of Array.from(
-              document.querySelectorAll<HTMLElement>("#give-feedback-button"),
+              document.querySelectorAll<HTMLElement>('[data-testid="give-feedback-button"]'),
             )) {
               notif.style.display = "block"
             }

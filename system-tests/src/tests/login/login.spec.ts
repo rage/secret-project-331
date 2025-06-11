@@ -8,6 +8,8 @@ import {
 
 import { logout } from "../../utils/logout"
 
+import { selectOrganization } from "@/utils/organizationUtils"
+
 test.describe("Login session with Playwright", () => {
   /// Login state to use
   test.use({ storageState: "src/states/admin@example.com.json" })
@@ -69,7 +71,7 @@ test.describe("Login return_to", () => {
 
   test("works after succesful login", async ({ page }) => {
     await Promise.all([
-      page.getByText("University of Helsinki, Department of Computer Science").click(),
+      await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
     ])
     await page.waitForURL(/http:\/\/project-331\.local\/org\/.*/)
 

@@ -3,6 +3,8 @@ import { expect, test } from "@playwright/test"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
+import { selectOrganization } from "@/utils/organizationUtils"
+
 test.use({
   storageState: "src/states/language.teacher@example.com.json",
 })
@@ -11,7 +13,7 @@ test("Creating a new language version works", async ({ page, headless }, testInf
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.getByText("University of Helsinki, Department of Computer Science").click(),
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
@@ -37,7 +39,7 @@ test("Creating a new language version works", async ({ page, headless }, testInf
 
   await page.fill('textarea:below(:text("Description"))', "Course description")
 
-  await page.click(`button:text("Create")`)
+  await page.getByRole("button", { name: "Create" }).click()
   await page.getByText("Course created successfully").waitFor()
 
   await page.goto("http://project-331.local/org/uh-cs")
@@ -77,7 +79,7 @@ test("creator of the language version has permissions to the new version", async
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.getByText("University of Helsinki, Department of Computer Science").click(),
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
@@ -90,9 +92,7 @@ test("creator of new language version can grant permissions to same users as the
   page,
 }) => {
   await page.goto("http://project-331.local/organizations")
-  await page
-    .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-    .click()
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await page.getByRole("link", { name: "Manage course 'Introduction to localizing'" }).click()
   await page.getByRole("tab", { name: "Permissions" }).click()
   //add new permission to assistant

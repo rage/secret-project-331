@@ -329,6 +329,8 @@ fn controllers(target: &mut File) {
 
             certificates::CertificateConfigurationUpdate,
             courses::GetFeedbackQuery,
+            courses::CopyCourseRequest,
+            courses::CopyCourseMode,
             exams::ExamCourseInfo,
             exercise_repositories::NewExerciseRepository,
             exercises::ExerciseSubmissions,

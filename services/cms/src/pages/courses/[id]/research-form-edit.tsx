@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
 import { BlockInstance } from "@wordpress/blocks"
-import dynamic from "next/dynamic"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -19,12 +18,12 @@ import {
 } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -37,14 +36,9 @@ interface ResearchContent {
   clientId: string
   attributes: { content: string }
 }
-const EditorLoading = <Spinner variant="medium" />
 
-const ResearchFormEditor = dynamic(
+const ResearchFormEditor = dynamicImport(
   () => import("../../../components/editors/ResearchConsentFormEditor"),
-  {
-    ssr: false,
-    loading: () => EditorLoading,
-  },
 )
 
 const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ query }) => {

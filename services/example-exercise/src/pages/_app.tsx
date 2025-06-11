@@ -1,3 +1,4 @@
+import { OverlayProvider } from "@react-aria/overlays"
 import { QueryClientProvider } from "@tanstack/react-query"
 import type { AppProps } from "next/app"
 import Head from "next/head"
@@ -41,8 +42,10 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
         </Head>
       )}
       <QueryClientProvider client={queryClient}>
-        <GlobalStyles />
-        <Component {...pageProps} />
+        <OverlayProvider>
+          <GlobalStyles />
+          <Component {...pageProps} />
+        </OverlayProvider>
       </QueryClientProvider>
     </>
   )

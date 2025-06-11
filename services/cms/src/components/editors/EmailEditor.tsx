@@ -1,5 +1,4 @@
 import { BlockInstance } from "@wordpress/blocks"
-import dynamic from "next/dynamic"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -12,7 +11,7 @@ import UpdateEmailDetailsForm from "../forms/UpdateEmailDetailsForm"
 
 import { EmailTemplate, EmailTemplateUpdate } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
-import Spinner from "@/shared-module/common/components/Spinner"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 
 interface EmailEditorProps {
   data: EmailTemplate
@@ -21,12 +20,7 @@ interface EmailEditorProps {
   setNeedToRunMigrationsAndValidations: React.Dispatch<boolean>
 }
 
-const EditorLoading = <Spinner variant="medium" />
-
-const EmailGutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
-  ssr: false,
-  loading: () => EditorLoading,
-})
+const EmailGutenbergEditor = dynamicImport(() => import("./GutenbergEditor"))
 
 const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
   data,

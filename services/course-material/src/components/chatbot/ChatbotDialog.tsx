@@ -1,11 +1,13 @@
 import { css, keyframes } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 
 import ChatbotDialogBody from "./ChatbotDialogBody"
 import ChatbotDialogHeader from "./ChatbotDialogHeader"
 
-import { getChatbotCurrentConversationInfo } from "@/services/backend"
+import { CHATBOX_HEIGHT_PX, CHATBOX_WIDTH_PX } from "."
+
+import useNewConversationMutation from "@/hooks/chatbot/newConversationMutation"
+import useCurrentConversationInfo from "@/hooks/chatbot/useCurrentConversationInfo"
 
 export interface ChatbotDialogProps {
   dialogOpen: boolean
@@ -39,12 +41,16 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
   const { dialogOpen, chatbotConfigurationId } = props
   const [shouldRender, setShouldRender] = useState(dialogOpen)
 
+  const [newMessage, setNewMessage] = React.useState("")
   const [error, setError] = useState<Error | null>(null)
 
-  const currentConversationInfoQuery = useQuery({
-    queryKey: ["currentConversationInfo", chatbotConfigurationId],
-    queryFn: () => getChatbotCurrentConversationInfo(chatbotConfigurationId),
-  })
+  const currentConversationInfoQuery = useCurrentConversationInfo(chatbotConfigurationId)
+  const newConversationMutation = useNewConversationMutation(
+    chatbotConfigurationId,
+    currentConversationInfoQuery,
+    setNewMessage,
+    setError,
+  )
 
   useEffect(() => {
     if (dialogOpen) {
@@ -65,9 +71,9 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
   return (
     <div
       className={css`
-        width: 500px;
+        width: ${CHATBOX_WIDTH_PX}px;
         max-width: 90vw;
-        height: 700px;
+        height: ${CHATBOX_HEIGHT_PX}px;
         max-height: 90vh;
         position: fixed;
         bottom: 70px;
@@ -84,10 +90,17 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
       aria-hidden={!dialogOpen}
       onAnimationEnd={handleAnimationEnd}
     >
-      <ChatbotDialogHeader {...props} currentConversationInfo={currentConversationInfoQuery} />
+      <ChatbotDialogHeader
+        {...props}
+        currentConversationInfo={currentConversationInfoQuery}
+        newConversation={newConversationMutation}
+      />
       <ChatbotDialogBody
         {...props}
         currentConversationInfo={currentConversationInfoQuery}
+        newConversation={newConversationMutation}
+        newMessage={newMessage}
+        setNewMessage={setNewMessage}
         error={error}
         setError={setError}
       />

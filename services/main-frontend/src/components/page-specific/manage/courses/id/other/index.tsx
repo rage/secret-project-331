@@ -5,17 +5,12 @@ import {
   CourseManagementPagesProps,
   TabPage,
 } from "../../../../../../pages/manage/courses/[id]/[...path]"
-import ChatBotPage from "../chatbot/ChatbotPage"
-import CourseCheaters from "../cheaters/CourseCheaters"
-import CodeGiveawayPage from "../code-giveaway/CodeGiveawayPage"
-import CourseGlossary from "../glossary/CourseGlossary"
-import References from "../references"
-import ResetExercises from "../reset-exercises-tool/ResetExercises"
 
-import useCourseQuery from "@/hooks/useCourseQuery"
+import { useCourseQuery } from "@/hooks/useCourseQuery"
 import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
 import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"
 import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/TabLinkPanel"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 
 type AdditionalProps = {
   activeSubtab: string
@@ -24,12 +19,16 @@ type AdditionalProps = {
 const Subtabs: {
   [key: string]: TabPage
 } = {
-  references: References,
-  glossary: CourseGlossary,
-  chatbot: ChatBotPage,
-  cheaters: CourseCheaters,
-  "code-giveaways": CodeGiveawayPage,
-  "exercise-reset-tool": ResetExercises,
+  references: dynamicImport<CourseManagementPagesProps>(() => import("../references")),
+  glossary: dynamicImport<CourseManagementPagesProps>(() => import("../glossary/CourseGlossary")),
+  chatbot: dynamicImport<CourseManagementPagesProps>(() => import("../chatbot/ChatbotPage")),
+  cheaters: dynamicImport<CourseManagementPagesProps>(() => import("../cheaters/CourseCheaters")),
+  "code-giveaways": dynamicImport<CourseManagementPagesProps>(
+    () => import("../code-giveaway/CodeGiveawayPage"),
+  ),
+  "exercise-reset-tool": dynamicImport<CourseManagementPagesProps>(
+    () => import("../reset-exercises-tool/ResetExercises"),
+  ),
 }
 
 const Other: React.FC<React.PropsWithChildren<CourseManagementPagesProps & AdditionalProps>> = ({

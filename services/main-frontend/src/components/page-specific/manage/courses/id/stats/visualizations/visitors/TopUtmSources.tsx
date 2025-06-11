@@ -2,12 +2,11 @@ import { css } from "@emotion/css"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { InstructionBox } from "../../CourseStatsPage"
+import { DEFAULT_CHART_HEIGHT, InstructionBox } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
 
 import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
-import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -17,8 +16,6 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 export interface TopUTMSourcesProps {
   courseId: string
 }
-
-const DEFAULT_CHART_HEIGHT = 300
 
 const containerStyles = css`
   margin-bottom: 2rem;

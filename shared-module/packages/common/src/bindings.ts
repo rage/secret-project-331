@@ -185,6 +185,33 @@ export interface UserCourseInstanceChapterProgress {
   attempted_exercises: number | null
 }
 
+export interface ChatbotConfiguration {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  course_id: string
+  enabled_to_students: boolean
+  chatbot_name: string
+  prompt: string
+  initial_message: string
+  weekly_tokens_per_user: number
+  daily_tokens_per_user: number
+  temperature: number
+  top_p: number
+  frequency_penalty: number
+  presence_penalty: number
+  response_max_tokens: number
+  use_azure_search: boolean
+  maintain_azure_search_index: boolean
+  hide_citations: boolean
+  use_semantic_reranking: boolean
+}
+
+export interface NewChatbotConf {
+  chatbot_name: string
+}
+
 export interface ChatbotConversationMessage {
   id: string
   created_at: string

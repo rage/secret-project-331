@@ -68,6 +68,7 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
             display: flex;
             flex-direction: column;
             gap: 0.5em;
+            margin-bottom: 0.2rem;
 
             ${respondToOrLarger.lg} {
               width: auto;

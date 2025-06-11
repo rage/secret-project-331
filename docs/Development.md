@@ -10,6 +10,7 @@ This document outlines the steps required to set up a development environment fo
    - [macOS Setup](#setting-up-on-macos)
 2. [Running the Development Environment](#running-the-development-environment)
 3. [Developer Resources](#developer-resources)
+4. [Troubleshoot](#troubleshoot)
 
 ---
 
@@ -284,6 +285,10 @@ Populate the database with testing data:
 bin/seed
 ```
 
+### Using the website
+
+You may now connect to the website using the following link (http://project-331.local/). In order to login, you can find them here: [Accounts](https://github.com/rage/secret-project-331/blob/894468ce4864b8c95208baf0f594f01fbd20d254/services/headless-lms/server/src/domain/authorization.rs#L966-L1000)
+
 ### Recommended Terminal Tools for Multi-Window Management
 
 For efficient workflow, use a terminal with split-window support. Recommended options:
@@ -300,14 +305,20 @@ bin/detect-dev-env-problems
 
 ## Developer Resources
 
-In this section you can find useful information to get started with developing, once your project is running.
+You can find a lot of useful information in [Index](./index.md)
 
-### Links
+### Troubleshoot:
 
-- **Login accounts** [Accounts](https://github.com/rage/secret-project-331/blob/894468ce4864b8c95208baf0f594f01fbd20d254/services/headless-lms/server/src/domain/authorization.rs#L966-L1000)
-- **Localization data** [Localizations](../shared-module/packages/common/src/locales/en/main-frontend.json)
-- **Bin-commands** [Commands](../bin)
-- **Figma design** [Figma](https://www.figma.com/design/7SCSdeHG5FnLNZLfd6SnBI/Teacher-redesign)
-- **Routes helper functions** [Routes](../shared-module/packages/common/src/utils/routes.ts)
+## bin/dev step
 
-### Common problems
+If postgres pod does not enter ready state, which you can find out this by using the following command:
+
+```bash
+bin/pods
+```
+
+In these cases it may help to run the command below, which sets up a new database:
+
+```bash
+postgres-remove-data
+```

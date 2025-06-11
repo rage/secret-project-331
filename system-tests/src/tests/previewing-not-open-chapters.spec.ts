@@ -2,6 +2,8 @@ import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 
+import { selectOrganization } from "@/utils/organizationUtils"
+
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
@@ -9,9 +11,7 @@ test.use({
 test("Teachers can preview chapters that are not open yet", async ({ page, browser }) => {
   // Teachers can preview chapters that are not open yet
   await page.goto("http://project-331.local/organizations")
-  await page
-    .getByRole("link", { name: "University of Helsinki, Department of Mathematics and Statistics" })
-    .click()
+  await selectOrganization(page, "University of Helsinki, Department of Mathematics and Statistics")
   await page.getByRole("link", { name: "Manage course 'Preview unopened chapters'" }).click()
   await page.getByRole("tab", { name: "Pages" }).click()
   await page

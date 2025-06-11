@@ -14,6 +14,8 @@ test("Organization list renders", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "frontpage-organizations-list",
-    waitForTheseToBeVisibleAndStable: [page.getByText("learn the basics in Computer Science")],
+    waitForTheseToBeVisibleAndStable: [
+      page.getByText("University of Helsinki, Department of Computer Science"),
+    ],
   })
 })

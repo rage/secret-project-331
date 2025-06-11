@@ -6,6 +6,8 @@ import {
   scrollElementInsideIframeToView,
 } from "../../utils/iframeLocators"
 
+import { selectOrganization } from "@/utils/organizationUtils"
+
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
@@ -15,7 +17,7 @@ const createPageWithAnExerciseBlock = async (page: Page) => {
     await page.goto("http://project-331.local/organizations")
 
     await Promise.all([
-      await page.getByText("University of Helsinki, Department of Computer Science").click(),
+      await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
     ])
     await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 

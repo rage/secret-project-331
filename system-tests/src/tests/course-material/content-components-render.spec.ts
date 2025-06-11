@@ -2,17 +2,15 @@ import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
+
+import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
 test("blocks render correctly", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    page
-      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-      .click(),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
 
   await page.click(`div:text-is("Introduction to Course Material")`)
 

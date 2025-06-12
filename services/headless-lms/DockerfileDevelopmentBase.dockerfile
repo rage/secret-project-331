@@ -54,6 +54,15 @@ RUN icu4x-datagen \
   --format blob \
   --out /icu4x.postcard
 
+# Generate v2 of the file so that we can temporarily use the other one for compatibility
+# TODO: Remove this in the next release
+RUN icu4x-datagen \
+  --keys all \
+  --locales fi \
+  --locales en \
+  --format blob2 \
+  --out /icu4x.postcard.2
+
 COPY --from=dep-builder /ips-to-country /ips-to-country
 
 WORKDIR /app

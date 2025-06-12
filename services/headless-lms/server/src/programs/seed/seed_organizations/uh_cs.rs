@@ -101,6 +101,7 @@ pub async fn seed_organization_uh_cs(
         example_normal_user_ids: Arc::new(example_normal_user_ids.to_vec()),
         jwt_key: Arc::clone(&jwt_key),
         base_url: base_url.clone(),
+        can_add_chatbot: false,
     };
     let (
         cs_intro,
@@ -482,6 +483,7 @@ pub async fn seed_organization_uh_cs(
         is_test_mode: false,
         is_unlisted: false,
         copy_user_permissions: false,
+        can_add_chatbot: false,
         is_joinable_by_code_only: false,
         join_code: None,
         ask_marketing_consent: false,

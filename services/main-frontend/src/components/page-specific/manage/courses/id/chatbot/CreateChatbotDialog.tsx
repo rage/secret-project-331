@@ -11,14 +11,14 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 interface CreateChatbotDialogProps {
   courseId: string
-  //getChatbotsList: UseQueryResult<ChatbotConfiguration[], unknown>
+  getChatbotsList: UseQueryResult<ChatbotConfiguration[], unknown>
   open: boolean
   close: () => void
 }
 
 const CreateChatbotDialog: React.FC<React.PropsWithChildren<CreateChatbotDialogProps>> = ({
   courseId,
-  //getChatbotsList,
+  getChatbotsList,
   open,
   close,
 }) => {
@@ -32,7 +32,7 @@ const CreateChatbotDialog: React.FC<React.PropsWithChildren<CreateChatbotDialogP
     },
     {
       onSuccess: async () => {
-        //await getChatbotsList.refetch()
+        getChatbotsList.refetch()
         close()
       },
     },
@@ -47,12 +47,9 @@ const CreateChatbotDialog: React.FC<React.PropsWithChildren<CreateChatbotDialogP
     <StandardDialog open={open} onClose={onClose} title={"test"}>
       <CreateChatbotForm
         courseId={courseId}
-        onCreateNewChatbot={
-          // mutate
-          (newChatbot) => {
-            createChatbotMutation.mutate(newChatbot)
-          }
-        }
+        onCreateNewChatbot={(newChatbot) => {
+          createChatbotMutation.mutate(newChatbot)
+        }}
       />
     </StandardDialog>
   )

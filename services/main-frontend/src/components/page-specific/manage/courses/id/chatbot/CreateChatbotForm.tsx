@@ -26,9 +26,26 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({ onCreateNewChatbot, c
     setError,
   } = useForm<CreateChatbotFields>()
 
+  const validateForm = (data: CreateChatbotFields): boolean => {
+    // not needed
+    let isValid = true
+    clearErrors(["name"])
+
+    if (data.name.length < 1) {
+      setError("name", {
+        message: t("error-min-length", { count: 1, field: t("text-field-label-name") }),
+      })
+      isValid = false
+    }
+    return isValid
+  }
+
   const onCreateNewChatbotWrapper = handleSubmit((data) => {
+    if (!validateForm(data)) {
+      return
+    }
     onCreateNewChatbot({
-      chatbot_name: "",
+      chatbot_name: data.name,
     })
   })
 
@@ -36,7 +53,12 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({ onCreateNewChatbot, c
     <div>
       <h1>#</h1>
       <form onSubmit={onCreateNewChatbotWrapper}>
-        <TextField id="name" label={t("label-name")} />
+        <TextField
+          id={"name"}
+          error={errors.name?.message}
+          label={t("label-name")}
+          {...register("name", { required: t("required-field") })}
+        />
         <Button type="submit" size="medium" variant="primary">
           {t("save")}
         </Button>

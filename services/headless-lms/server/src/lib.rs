@@ -48,7 +48,9 @@ settings that have been set with RUST_LOG, for example:
 
 ```no_run
 use std::env;
-env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn");
+unsafe {
+    env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn");
+}
 ```
 */
 pub fn setup_tracing() -> Result<()> {

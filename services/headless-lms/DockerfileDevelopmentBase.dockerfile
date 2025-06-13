@@ -26,6 +26,20 @@ RUN location update \
   && location export --directory /ips-to-country \
   && gzip /ips-to-country/*
 
+FROM rust:bookworm as icu4x-builder
+
+RUN cargo install icu4x-datagen
+
+
+# Generate v2 of the file so that we can temporarily use the other one for compatibility
+# TODO: Remove this in the next release
+RUN icu4x-datagen \
+  --markers all \
+  --locales fi \
+  --locales en \
+  --format blob \
+  --out /icu4x.postcard.2
+
 FROM rust:bookworm
 
 COPY --from=dep-builder /mold/build /usr/local/bin/
@@ -54,14 +68,7 @@ RUN icu4x-datagen \
   --format blob \
   --out /icu4x.postcard
 
-# Generate v2 of the file so that we can temporarily use the other one for compatibility
-# TODO: Remove this in the next release
-RUN icu4x-datagen \
-  --keys all \
-  --locales fi \
-  --locales en \
-  --format blob2 \
-  --out /icu4x.postcard.2
+COPY --from=icu4x-builder /icu4x.postcard.2 /icu4x.postcard.2
 
 COPY --from=dep-builder /ips-to-country /ips-to-country
 

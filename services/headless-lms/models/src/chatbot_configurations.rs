@@ -78,6 +78,7 @@ pub async fn insert(
     conn: &mut PgConnection,
     input: ChatbotConfiguration,
 ) -> ModelResult<ChatbotConfiguration> {
+    // check course can add chatbot
     let res = sqlx::query_as!(
         ChatbotConfiguration,
         r#"
@@ -115,7 +116,17 @@ RETURNING *
     .await?;
     Ok(res)
 }
-
+/*
+pub async fn edit(
+    conn: &mut PgConnection,
+    input: NewChatbotConf,
+) -> ModelResult<ChatbotConfiguration> {
+    let res = sqlx::query_as!(ChatbotConfiguration, r#"a"#, input.chatbot_name)
+        .fetch_one(conn)
+        .await?;
+    Ok(res)
+}
+ */
 pub async fn get_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,

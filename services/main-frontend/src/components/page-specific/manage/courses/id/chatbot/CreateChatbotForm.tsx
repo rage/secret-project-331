@@ -9,13 +9,18 @@ import TextField from "@/shared-module/common/components/InputFields/TextField"
 interface CreateChatbotProps {
   onCreateNewChatbot: (bot: NewChatbotConf) => void // wrap for validation
   courseId: string
+  chatbotName: string | null
 }
 
 interface CreateChatbotFields {
   name: string
 }
 
-const CreateChatbotForm: React.FC<CreateChatbotProps> = ({ onCreateNewChatbot, courseId }) => {
+const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
+  onCreateNewChatbot,
+  courseId,
+  chatbotName,
+}) => {
   const { t } = useTranslation()
   const {
     register,

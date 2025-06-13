@@ -13,7 +13,7 @@ interface CreateChatbotDialogProps {
   courseId: string
   getChatbotsList: UseQueryResult<ChatbotConfiguration[], unknown>
   open: boolean
-  close: () => void
+  close: (url_id: string) => void
 }
 
 const CreateChatbotDialog: React.FC<React.PropsWithChildren<CreateChatbotDialogProps>> = ({
@@ -24,22 +24,22 @@ const CreateChatbotDialog: React.FC<React.PropsWithChildren<CreateChatbotDialogP
 }) => {
   const { t } = useTranslation()
   const createChatbotMutation = useToastMutation(
-    (bot: NewChatbotConf) => createChatbot(courseId, bot),
+    async (bot: NewChatbotConf) => await createChatbot(courseId, bot),
     {
       notify: true,
       method: "POST",
       successMessage: t("default-toast-success-message"),
     },
     {
-      onSuccess: async () => {
+      onSuccess: async (data) => {
         getChatbotsList.refetch()
-        close()
+        close(data.id)
       },
     },
   )
   const onClose = () => {
     createChatbotMutation.reset()
-    close()
+    //close()
   }
 
   return (
@@ -47,6 +47,7 @@ const CreateChatbotDialog: React.FC<React.PropsWithChildren<CreateChatbotDialogP
     <StandardDialog open={open} onClose={onClose} title={"test"}>
       <CreateChatbotForm
         courseId={courseId}
+        chatbotName={null}
         onCreateNewChatbot={(newChatbot) => {
           createChatbotMutation.mutate(newChatbot)
         }}

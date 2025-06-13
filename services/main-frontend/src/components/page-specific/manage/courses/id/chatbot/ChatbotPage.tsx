@@ -1,6 +1,8 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
+import Link from "next/link"
+import { useRouter } from "next/router"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -24,11 +26,19 @@ const StyledUl = styled.ul`
   gap: 1rem;
   border-radius: 8px;
 `
+const StyledLi = styled.li`
+  margin: 0.5rem 0;
+  padding: 1.5rem;
+  background-color: ${baseTheme.colors.primary[100]};
+  border: 1px solid ${baseTheme.colors.clear[300]};
+  border-radius: 6px;
+`
 
 const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   const { t } = useTranslation()
+  const router = useRouter()
 
-  const [customizeChatbotVisible, setCustomizeChatbotVisible] = useState(false)
+  //const [customizeChatbotVisible, setCustomizeChatbotVisible] = useState(false)
   const [createChatbotVisible, setCreateChatbotVisible] = useState(false)
 
   const getChatbotsList = useQuery({
@@ -43,6 +53,13 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
     enabled: !!courseId,
   })
 
+  const closeDialog = (id: string) => {
+    setCreateChatbotVisible(false)
+    //setCustomizeChatbotVisible(true)
+    /* eslint-disable i18next/no-literal-string */
+    router.push(`/manage/chatbots/${id}`)
+  }
+
   if (getChatbotsList.isError) {
     return <ErrorBanner variant={"readOnly"} error={getChatbotsList.error} />
   }
@@ -51,58 +68,66 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
     return <Spinner variant={"medium"} />
   }
 
-  if (customizeChatbotVisible) {
-    return (
-      <>
-        <ChatbotConfigurationForm
-          closeEditor={() => {
-            setCustomizeChatbotVisible(false)
-          }}
-        />
-      </>
-    )
-  }
-
   return (
     <>
-      <h1
+      <div
         className={css`
-          font-size: ${typography.h4};
-          color: ${baseTheme.colors.gray[700]};
-          font-family: ${headingFont};
-          font-weight: bold;
+          margin-bottom: 2.5rem;
+          .heading {
+            font-size: ${typography.h4};
+            color: ${baseTheme.colors.gray[700]};
+            font-family: ${headingFont};
+            font-weight: bold;
+          }
         `}
       >
-        {t("chatbots")}
-      </h1>
-      <StyledUl>
-        {getChatbotsList.data?.map((bot) => <li key={bot.id}>{bot.chatbot_name}</li>)}
-      </StyledUl>
-
-      <Button
-        size="medium"
-        variant="secondary"
-        onClick={() => {
-          setCreateChatbotVisible(true)
-        }}
-      >
-        {t("create-chatbot")}
-      </Button>
+        <h1 className="heading">{t("chatbots")}</h1>
+        <Button
+          size="medium"
+          variant="secondary"
+          onClick={() => {
+            setCreateChatbotVisible(true)
+          }}
+        >
+          {t("create-chatbot")}
+        </Button>
+      </div>
+      <div>
+        <h3>{t("customize-chatbot")}</h3>
+        <StyledUl>
+          {getChatbotsList.data?.map((bot) => (
+            <StyledLi key={bot.id}>
+              <h4
+                className={css`
+                  margin: 5px;
+                `}
+              >
+                {bot.chatbot_name}
+              </h4>
+              <Link href={`/manage/chatbots/${bot.id}`} aria-label={`${t("customize-chatbot")}`}>
+                <Button
+                  size="medium"
+                  variant="primary"
+                  onClick={() => {
+                    //setCustomizeChatbotVisible(true)
+                  }}
+                >
+                  {t("edit")}
+                </Button>
+              </Link>
+              <Button size="medium" variant="tertiary">
+                {t("delete")}
+              </Button>
+            </StyledLi>
+          ))}
+        </StyledUl>
+      </div>
       <CreateChatbotDialog
         courseId={courseId}
         getChatbotsList={getChatbotsList}
         open={createChatbotVisible}
-        close={() => setCreateChatbotVisible(false)}
+        close={closeDialog}
       />
-      <Button
-        size="medium"
-        variant="secondary"
-        onClick={() => {
-          setCustomizeChatbotVisible(true)
-        }}
-      >
-        {t("customize-chatbot")}
-      </Button>
     </>
   )
 }

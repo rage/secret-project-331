@@ -3,14 +3,14 @@ use crate::{
     setup_tracing,
 };
 use actix_session::{
+    SessionMiddleware,
     config::{CookieContentSecurity, PersistentSession, SessionLifecycle, TtlExtensionPolicy},
     storage::CookieSessionStore,
-    SessionMiddleware,
 };
 use actix_web::{
+    App, HttpServer,
     cookie::{Key, SameSite},
     middleware::Logger,
-    App, HttpServer,
 };
 use dotenv::dotenv;
 use listenfd::ListenFd;

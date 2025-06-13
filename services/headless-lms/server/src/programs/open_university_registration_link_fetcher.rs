@@ -15,7 +15,8 @@ const OPEN_UNIVERSITY_COURSE_URL: &str = "OPEN_UNIVERSITY_COURSE_URL";
 const OPEN_UNIVERSITY_TOKEN: &str = "OPEN_UNIVERSITY_TOKEN";
 
 pub async fn main() -> anyhow::Result<()> {
-    env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn");
+    // TODO: Audit that the environment access only happens in single-threaded code.
+    unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
     dotenv().ok();
     setup_tracing()?;
     let database_url = env::var("DATABASE_URL")
@@ -66,25 +67,34 @@ async fn fetch_and_update_completion_links(
         // TODO: Handle error if no info found for single course code
         let infos =
             get_open_university_info_for_course_code(&client, &url, open_university_token).await;
-        if let Ok(infos) = infos {
-            // Select link that has already started and has the latest end date.
-            let best_candidate = select_best_candidate(now, infos);
-            if let Some(open_university_info) = best_candidate {
-                // Only update link if there is a new one.
-                let res =
-                    update_course_registration_link(conn, &uh_course_code, &open_university_info)
-                        .await;
-                if res.is_err() {
-                    tracing::error!("Failed to update link for course code {}", &uh_course_code);
-                } else {
-                    updates += 1;
+        match infos {
+            Ok(infos) => {
+                // Select link that has already started and has the latest end date.
+                let best_candidate = select_best_candidate(now, infos);
+                if let Some(open_university_info) = best_candidate {
+                    // Only update link if there is a new one.
+                    let res = update_course_registration_link(
+                        conn,
+                        &uh_course_code,
+                        &open_university_info,
+                    )
+                    .await;
+                    if res.is_err() {
+                        tracing::error!(
+                            "Failed to update link for course code {}",
+                            &uh_course_code
+                        );
+                    } else {
+                        updates += 1;
+                    }
                 }
             }
-        } else {
-            tracing::error!(
-                "Failed to get completion registration info for course code '{}'.",
-                uh_course_code,
-            );
+            _ => {
+                tracing::error!(
+                    "Failed to get completion registration info for course code '{}'.",
+                    uh_course_code,
+                );
+            }
         }
     }
     Ok(updates)

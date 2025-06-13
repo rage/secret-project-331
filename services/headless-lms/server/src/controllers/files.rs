@@ -168,7 +168,7 @@ async fn upload_from_exercise_service(
                     ControllerErrorType::BadRequest,
                     "Not logged in or missing upload claim".to_string(),
                     None,
-                ))
+                ));
             }
         }
     }

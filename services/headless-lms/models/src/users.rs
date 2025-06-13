@@ -19,7 +19,7 @@ pub async fn insert(
     last_name: Option<&str>,
 ) -> ModelResult<Uuid> {
     let mut tx = conn.begin().await?;
-    let email_domain = email.trim().split('@').last();
+    let email_domain = email.trim().split('@').next_back();
     let res = sqlx::query!(
         "
 INSERT INTO users (id, email_domain)
@@ -57,7 +57,7 @@ pub async fn insert_with_upstream_id_and_moocfi_id(
     moocfi_id: Uuid,
 ) -> ModelResult<User> {
     info!("The user is not in the database yet, inserting");
-    let email_domain = email.trim().split('@').last();
+    let email_domain = email.trim().split('@').next_back();
     let mut tx = conn.begin().await?;
     let user = sqlx::query_as!(
         User,
@@ -238,7 +238,7 @@ pub async fn update_email_for_user(
     .execute(&mut *tx)
     .await?;
 
-    let email_domain = new_email.trim().split('@').last();
+    let email_domain = new_email.trim().split('@').next_back();
     sqlx::query!(
         "UPDATE users SET email_domain = $1 WHERE id = $2",
         email_domain,

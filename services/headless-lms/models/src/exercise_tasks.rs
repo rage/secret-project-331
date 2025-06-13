@@ -1,11 +1,12 @@
 use std::collections::{HashMap, HashSet};
 
-use futures::{future::BoxFuture, Stream, TryStreamExt};
+use futures::{Stream, TryStreamExt, future::BoxFuture};
 
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 use url::Url;
 
 use crate::{
+    CourseOrExamId,
     exercise_service_info::{self, ExerciseServiceInfoApi},
     exercise_services,
     exercise_slides::{self, CourseMaterialExerciseSlide},
@@ -14,7 +15,6 @@ use crate::{
     library::custom_view_exercises::CustomViewExerciseTaskSpec,
     prelude::*,
     user_exercise_states::{self, CourseInstanceOrExamId},
-    CourseOrExamId,
 };
 
 /// Information necessary for the frontend to render an exercise task

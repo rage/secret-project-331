@@ -3,14 +3,14 @@ Handlers for HTTP requests to `/api/v0/auth`.
 */
 
 use crate::{
+    OAuthClient,
     domain::{
         authorization::{
-            self, authorize_with_fetched_list_of_roles, skip_authorize, ActionOnResource,
+            self, ActionOnResource, authorize_with_fetched_list_of_roles, skip_authorize,
         },
         rate_limit_middleware_builder::build_rate_limiting_middleware,
     },
     prelude::*,
-    OAuthClient,
 };
 use actix_session::Session;
 use reqwest::Client;
@@ -36,14 +36,13 @@ pub async fn authorize_action_on_resource(
     let mut conn = pool.acquire().await?;
     let data = payload.0;
     if let Some(user) = user {
-        if let Ok(true_token) =
-            authorize(&mut conn, data.action, Some(user.id), data.resource).await
-        {
-            true_token.authorized_ok(web::Json(true))
-        } else {
-            // We went to return success message even if the authorization fails.
-            let false_token = skip_authorize();
-            false_token.authorized_ok(web::Json(false))
+        match authorize(&mut conn, data.action, Some(user.id), data.resource).await {
+            Ok(true_token) => true_token.authorized_ok(web::Json(true)),
+            _ => {
+                // We went to return success message even if the authorization fails.
+                let false_token = skip_authorize();
+                false_token.authorized_ok(web::Json(false))
+            }
         }
     } else {
         // Never authorize anonymous user

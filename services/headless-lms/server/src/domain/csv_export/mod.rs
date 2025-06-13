@@ -10,7 +10,7 @@ pub mod users_export;
 use anyhow::{Context, Result};
 use bytes::Bytes;
 use csv::Writer;
-use futures::{stream::FuturesUnordered, Stream, StreamExt};
+use futures::{Stream, StreamExt, stream::FuturesUnordered};
 
 use async_trait::async_trait;
 
@@ -150,7 +150,7 @@ impl Write for CSVExportAdapter {
         let token = self.authorization_token;
         self.sender
             .send(token.authorized_ok(bytes))
-            .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
+            .map_err(|e| io::Error::other(e.to_string()))?;
         Ok(buf.len())
     }
 }

@@ -2,7 +2,7 @@ use std::fmt;
 
 use crate::{
     certificate_configuration_to_requirements::{
-        get_all_requirements_for_certificate_configuration, CertificateAllRequirements,
+        CertificateAllRequirements, get_all_requirements_for_certificate_configuration,
     },
     prelude::*,
 };

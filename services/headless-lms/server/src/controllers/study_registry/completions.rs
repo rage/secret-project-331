@@ -14,7 +14,7 @@
 use actix_web::http::header::ContentType;
 use bytes::Bytes;
 
-use futures::{future, StreamExt};
+use futures::{StreamExt, future};
 use models::course_modules::CourseModule;
 use tokio_stream::wrappers::UnboundedReceiverStream;
 

@@ -27,8 +27,8 @@ use headless_lms_models::{
     pages::{Page, PageVisibility},
 };
 use headless_lms_utils::{
-    document_schema_processor::{remove_sensitive_attributes, GutenbergBlock},
     ApplicationConfiguration,
+    document_schema_processor::{GutenbergBlock, remove_sensitive_attributes},
 };
 
 const SYNC_INTERVAL_SECS: u64 = 10;
@@ -69,7 +69,8 @@ pub async fn main() -> anyhow::Result<()> {
 }
 
 fn initialize_environment() -> anyhow::Result<()> {
-    env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn");
+    // TODO: Audit that the environment access only happens in single-threaded code.
+    unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
     dotenv().ok();
     setup_tracing()?;
     Ok(())
@@ -279,14 +280,20 @@ async fn sync_pages_batch(
                 info!("Successfully cleaned content for page {}", page.id);
                 // Check if the markdown is empty, or if it just contains all spaces or newlines
                 if markdown.trim().is_empty() {
-                    warn!("Markdown is empty for page {}. Generating fallback content with a fake heading.", page.id);
+                    warn!(
+                        "Markdown is empty for page {}. Generating fallback content with a fake heading.",
+                        page.id
+                    );
                     format!("# {}", page.title)
                 } else {
                     markdown
                 }
             }
             Err(e) => {
-                warn!("Failed to clean content with LLM for page {}: {}. Using serialized sanitized content instead.", page.id, e);
+                warn!(
+                    "Failed to clean content with LLM for page {}: {}. Using serialized sanitized content instead.",
+                    page.id, e
+                );
                 // Fallback to original content
                 serde_json::to_string(&sanitized_blocks)?
             }

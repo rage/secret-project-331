@@ -3,6 +3,7 @@ use headless_lms_utils::document_schema_processor::GutenbergBlock;
 use url::Url;
 
 use crate::{
+    SpecFetcher,
     chapters::{self, DatabaseChapter, NewChapter},
     course_instances::{CourseInstance, NewCourseInstance},
     course_language_groups,
@@ -12,7 +13,6 @@ use crate::{
     pages::{self, NewPage, Page},
     peer_or_self_review_questions::CmsPeerOrSelfReviewQuestion,
     prelude::*,
-    SpecFetcher,
 };
 
 #[derive(Debug, Clone)]

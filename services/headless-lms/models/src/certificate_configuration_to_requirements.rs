@@ -70,7 +70,10 @@ impl CertificateAllRequirements {
                 .collect::<Vec<_>>();
             warn!(
                 "User {} has not completed all requirements for certificate configuration {}. Missing course instance ids: {:?}, missing course module ids: {:?}.",
-                user_id, self.certificate_configuration_id, missing_course_instance_ids, missing_course_module_ids
+                user_id,
+                self.certificate_configuration_id,
+                missing_course_instance_ids,
+                missing_course_module_ids
             )
         }
         Ok(result)

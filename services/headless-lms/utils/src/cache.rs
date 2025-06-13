@@ -1,8 +1,8 @@
 //! Redis cache wrapper.
 
 use crate::prelude::*;
-use redis::{aio::ConnectionManager, AsyncCommands, Client, ToRedisArgs};
-use serde::{de::DeserializeOwned, Serialize};
+use redis::{AsyncCommands, Client, ToRedisArgs, aio::ConnectionManager};
+use serde::{Serialize, de::DeserializeOwned};
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::OnceCell;

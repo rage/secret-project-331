@@ -1,22 +1,22 @@
 //! Functionality for configuring the server
 
 use crate::{
-    domain::{models_requests::JwtKey, request_span_middleware::RequestSpan},
     OAuthClient,
+    domain::{models_requests::JwtKey, request_span_middleware::RequestSpan},
 };
-use actix_http::{body::MessageBody, StatusCode};
+use actix_http::{StatusCode, body::MessageBody};
 use actix_web::{
+    HttpResponse,
     error::InternalError,
     web::{self, Data, PayloadConfig, ServiceConfig},
-    HttpResponse,
 };
 use anyhow::Context;
 use headless_lms_utils::{
-    cache::Cache, file_store::FileStore, icu4x::Icu4xBlob, ip_to_country::IpToCountryMapper,
-    ApplicationConfiguration,
+    ApplicationConfiguration, cache::Cache, file_store::FileStore, icu4x::Icu4xBlob,
+    ip_to_country::IpToCountryMapper,
 };
-use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, TokenUrl};
-use sqlx::{postgres::PgPoolOptions, PgPool};
+use oauth2::{AuthUrl, ClientId, ClientSecret, TokenUrl, basic::BasicClient};
+use sqlx::{PgPool, postgres::PgPoolOptions};
 use std::{env, sync::Arc};
 use url::Url;
 

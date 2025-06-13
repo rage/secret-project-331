@@ -146,7 +146,7 @@ use headless_lms_models::{
     user_research_consents::UserResearchConsent,
 };
 use serde::Serialize;
-use serde_json::{json, ser::PrettyFormatter, Serializer, Value};
+use serde_json::{Serializer, Value, json, ser::PrettyFormatter};
 use std::{collections::HashMap, fs};
 #[cfg(feature = "ts_rs")]
 use ts_rs::TS;
@@ -161,7 +161,7 @@ fn ex<T: Example>() -> T {
 
 #[macro_export]
 macro_rules! doc_path {
-    ($filename:expr, $extension:expr) => {{
+    ($filename:expr_2021, $extension:expr_2021) => {{
         let windows_safe_filename = $filename
             .replace('<', "(")
             .replace('>', ")")
@@ -234,7 +234,7 @@ macro_rules! doc {
         doc!(Vec<$i>, Example::example());
     };
     // writes the actual docs
-    ($t:ty, $e:expr) => {{
+    ($t:ty, $e:expr_2021) => {{
         let expr: $t = $e;
 
         let json_path = $crate::doc_path!(

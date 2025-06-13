@@ -4,11 +4,7 @@ pub fn f32_approx_eq(first: f32, second: f32) -> bool {
 }
 
 pub fn f32_max(first: f32, second: f32) -> f32 {
-    if first > second {
-        first
-    } else {
-        second
-    }
+    if first > second { first } else { second }
 }
 
 pub fn option_f32_to_f32_two_decimals_with_none_as_zero(value: Option<f32>) -> f32 {

@@ -169,7 +169,8 @@ pub async fn main() -> anyhow::Result<()> {
 
 /// Initializes environment variables, logging, and tracing setup.
 fn initialize_environment() -> anyhow::Result<()> {
-    env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn");
+    // TODO: Audit that the environment access only happens in single-threaded code.
+    unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
     dotenv().ok();
     setup_tracing()?;
     Ok(())
@@ -216,7 +217,7 @@ async fn ensure_mailchimp_schema(
                 .any(|r| r.tag == field.field_name.as_str())
                 && !FIELDS_EXCLUDED_FROM_REMOVING.contains(&field.field_name.as_str())
             {
-                if let Err(e) = remove_field_from_mailchimp(
+                match remove_field_from_mailchimp(
                     list_id,
                     &field.field_id,
                     server_prefix,
@@ -224,9 +225,12 @@ async fn ensure_mailchimp_schema(
                 )
                 .await
                 {
-                    warn!("Could not remove field '{}': {}", field.field_name, e);
-                } else {
-                    info!("Removed field '{}'", field.field_name);
+                    Err(e) => {
+                        warn!("Could not remove field '{}': {}", field.field_name, e);
+                    }
+                    _ => {
+                        info!("Removed field '{}'", field.field_name);
+                    }
                 }
             }
         }
@@ -238,18 +242,20 @@ async fn ensure_mailchimp_schema(
             .iter()
             .any(|f| f.field_name == required_field.tag)
         {
-            if let Err(e) =
-                add_field_to_mailchimp(list_id, required_field, server_prefix, access_token).await
+            match add_field_to_mailchimp(list_id, required_field, server_prefix, access_token).await
             {
-                warn!(
-                    "Failed to add required field '{}': {}",
-                    required_field.name, e
-                );
-            } else {
-                info!(
-                    "Successfully added required field '{}'",
-                    required_field.name
-                );
+                Err(e) => {
+                    warn!(
+                        "Failed to add required field '{}': {}",
+                        required_field.name, e
+                    );
+                }
+                _ => {
+                    info!(
+                        "Successfully added required field '{}'",
+                        required_field.name
+                    );
+                }
             }
         } else {
             info!(

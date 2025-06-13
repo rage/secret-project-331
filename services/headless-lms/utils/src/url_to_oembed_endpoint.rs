@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use percent_encoding::{percent_decode_str, utf8_percent_encode, NON_ALPHANUMERIC};
+use percent_encoding::{NON_ALPHANUMERIC, percent_decode_str, utf8_percent_encode};
 use url::Url;
 
 use serde::{Deserialize, Serialize};
@@ -355,7 +355,8 @@ mod tests {
                 "https://www.thinglink.com/card/1205257932048957445".to_string(),
                 Some("http://project-331.local".to_string())
             )
-            .unwrap().to_string(),
+            .unwrap()
+            .to_string(),
             "http://project-331.local/api/v0/cms/gutenberg/oembed/thinglink?url=https%3A%2F%2Fwww%2Ethinglink%2Ecom%2Fcard%2F1205257932048957445"
         )
     }
@@ -367,7 +368,8 @@ mod tests {
                 "https://vimeo.com/275255674".to_string(),
                 Some("http://project-331.local".to_string())
             )
-            .unwrap().to_string(),
+            .unwrap()
+            .to_string(),
             "http://project-331.local/api/v0/cms/gutenberg/oembed/vimeo?url=https%3A%2F%2Fvimeo%2Ecom%2F275255674"
         )
     }

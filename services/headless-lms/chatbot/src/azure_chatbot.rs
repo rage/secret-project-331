@@ -1,7 +1,7 @@
 use std::pin::Pin;
 use std::sync::{
-    atomic::{self, AtomicBool},
     Arc,
+    atomic::{self, AtomicBool},
 };
 use std::task::{Context, Poll};
 
@@ -9,7 +9,7 @@ use bytes::Bytes;
 use chrono::Utc;
 use futures::{Stream, TryStreamExt};
 use headless_lms_models::chatbot_conversation_messages::ChatbotConversationMessage;
-use headless_lms_utils::{http::REQWEST_CLIENT, ApplicationConfiguration};
+use headless_lms_utils::{ApplicationConfiguration, http::REQWEST_CLIENT};
 use pin_project::pin_project;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
@@ -17,7 +17,7 @@ use tokio::{io::AsyncBufReadExt, sync::Mutex};
 use tokio_util::io::StreamReader;
 use url::Url;
 
-use crate::llm_utils::{build_llm_headers, estimate_tokens, LLM_API_VERSION};
+use crate::llm_utils::{LLM_API_VERSION, build_llm_headers, estimate_tokens};
 use crate::prelude::*;
 use crate::search_filter::SearchFilter;
 
@@ -439,9 +439,7 @@ pub async fn send_chat_request_and_parse_stream(
         ));
     }
 
-    let stream = response
-        .bytes_stream()
-        .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e));
+    let stream = response.bytes_stream().map_err(std::io::Error::other);
     let reader = StreamReader::new(stream);
     let mut lines = reader.lines();
 

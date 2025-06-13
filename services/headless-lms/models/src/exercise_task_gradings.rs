@@ -5,8 +5,8 @@ use headless_lms_utils::numbers::f32_to_three_decimals;
 use url::Url;
 
 use crate::{
-    exams,
-    exercise_service_info::{get_service_info_by_exercise_type, ExerciseServiceInfoApi},
+    CourseOrExamId, exams,
+    exercise_service_info::{ExerciseServiceInfoApi, get_service_info_by_exercise_type},
     exercise_services::{get_exercise_service_by_exercise_type, get_internal_grade_url},
     exercise_task_submissions::ExerciseTaskSubmission,
     exercise_tasks::{self, ExerciseTask},
@@ -14,7 +14,6 @@ use crate::{
     library::custom_view_exercises::CustomViewExerciseTaskGrading,
     prelude::*,
     user_exercise_states::UserExerciseState,
-    CourseOrExamId,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]

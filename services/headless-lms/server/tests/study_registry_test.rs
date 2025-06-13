@@ -1,16 +1,16 @@
 use std::sync::Arc;
 
-use actix_http::{body, Method};
+use actix_http::{Method, body};
 use actix_web::test;
 use chrono::{TimeZone, Utc};
 use headless_lms_models::{
+    PKeyPolicy,
     course_module_completion_registered_to_study_registries::RegisteredCompletion,
     course_module_completions::{
         CourseModuleCompletionGranter, NewCourseModuleCompletion, StudyRegistryCompletion,
     },
     courses::NewCourse,
     library::content_management::CreateNewCourseFixedIds,
-    PKeyPolicy,
 };
 use headless_lms_server::domain::models_requests::{self, JwtKey};
 use sqlx::PgConnection;

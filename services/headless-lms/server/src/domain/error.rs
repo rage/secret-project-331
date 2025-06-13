@@ -6,9 +6,8 @@ use std::{error::Error, fmt::Write};
 
 use crate::domain::authorization::AuthorizedResponse;
 use actix_web::{
-    error,
-    http::{header::ContentType, StatusCode},
-    HttpResponse, HttpResponseBuilder,
+    HttpResponse, HttpResponseBuilder, error,
+    http::{StatusCode, header::ContentType},
 };
 use backtrace::Backtrace;
 use derive_more::Display;
@@ -127,9 +126,9 @@ pub struct ControllerError {
     /// Original error that caused this error.
     source: Option<anyhow::Error>,
     /// A trace of tokio tracing spans, generated automatically when the error is generated.
-    span_trace: SpanTrace,
+    span_trace: Box<SpanTrace>,
     /// Stack trace, generated automatically when the error is created.
-    backtrace: Backtrace,
+    backtrace: Box<Backtrace>,
 }
 
 /// Custom formatter so that errors that get printed to the console are easy-to-read with proper context where the error is coming from.
@@ -215,8 +214,8 @@ impl BackendError for ControllerError {
             error_type,
             message: message.into(),
             source: source_error.into(),
-            span_trace,
-            backtrace,
+            span_trace: Box::new(span_trace),
+            backtrace: Box::new(backtrace),
         }
     }
 }
@@ -366,13 +365,11 @@ impl From<actix_multipart::MultipartError> for ControllerError {
 
 impl From<ModelError> for ControllerError {
     fn from(err: ModelError) -> Self {
-        let backtrace: Backtrace = if let Some(backtrace) =
-            headless_lms_utils::error::backend_error::BackendError::backtrace(&err)
-        {
-            backtrace.clone()
-        } else {
-            Backtrace::new()
-        };
+        let backtrace: Backtrace =
+            match headless_lms_utils::error::backend_error::BackendError::backtrace(&err) {
+                Some(backtrace) => backtrace.clone(),
+                _ => Backtrace::new(),
+            };
         let span_trace = err.span_trace().clone();
         match err.error_type() {
             ModelErrorType::RecordNotFound => Self::new_with_traces(
@@ -432,13 +429,11 @@ impl From<ModelError> for ControllerError {
 
 impl From<UtilError> for ControllerError {
     fn from(err: UtilError) -> Self {
-        let backtrace: Backtrace = if let Some(backtrace) =
-            headless_lms_utils::error::backend_error::BackendError::backtrace(&err)
-        {
-            backtrace.clone()
-        } else {
-            Backtrace::new()
-        };
+        let backtrace: Backtrace =
+            match headless_lms_utils::error::backend_error::BackendError::backtrace(&err) {
+                Some(backtrace) => backtrace.clone(),
+                _ => Backtrace::new(),
+            };
         let span_trace = err.span_trace().clone();
         Self::new_with_traces(
             ControllerErrorType::InternalServerError,

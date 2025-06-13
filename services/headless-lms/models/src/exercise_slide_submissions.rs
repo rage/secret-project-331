@@ -6,6 +6,7 @@ use rand::prelude::SliceRandom;
 use url::Url;
 
 use crate::{
+    CourseOrExamId,
     courses::Course,
     exams::{self, ExamEnrollment},
     exercise_service_info::ExerciseServiceInfoApi,
@@ -15,7 +16,6 @@ use crate::{
     prelude::*,
     teacher_grading_decisions::{self, TeacherGradingDecision},
     user_exercise_states::{self, CourseInstanceOrExamId, UserExerciseState},
-    CourseOrExamId,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]

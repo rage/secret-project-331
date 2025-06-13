@@ -363,7 +363,9 @@ fn calculate_average_received_peer_review_score(
         })
         .collect::<Vec<_>>();
     if answers_considered.is_empty() {
-        warn!("No peer review question submissions for this answer with number data. Assuming score is 0.");
+        warn!(
+            "No peer review question submissions for this answer with number data. Assuming score is 0."
+        );
         return 0.0;
     }
     answers_considered.iter().sum::<f32>() / answers_considered.len() as f32
@@ -606,8 +608,8 @@ mod tests {
             use super::*;
 
             #[test]
-            fn peer_review_automatically_accept_or_manual_review_by_average_works_gives_full_points(
-            ) {
+            fn peer_review_automatically_accept_or_manual_review_by_average_works_gives_full_points()
+             {
                 let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
                 let exercise = create_exercise(CourseOrExamId::Course(id), true, false, true);
                 let user_exercise_state = create_user_exercise_state(
@@ -648,8 +650,8 @@ mod tests {
             }
 
             #[test]
-            fn peer_review_automatically_accept_or_manual_review_by_average_works_puts_the_answer_to_manual_review(
-            ) {
+            fn peer_review_automatically_accept_or_manual_review_by_average_works_puts_the_answer_to_manual_review()
+             {
                 let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
                 let exercise = create_exercise(CourseOrExamId::Course(id), true, false, true);
                 let user_exercise_state = create_user_exercise_state(
@@ -695,8 +697,8 @@ mod tests {
             use super::*;
 
             #[test]
-            fn peer_review_manual_review_everything_works_does_not_give_full_points_to_passing_answer_and_puts_to_manual_review(
-            ) {
+            fn peer_review_manual_review_everything_works_does_not_give_full_points_to_passing_answer_and_puts_to_manual_review()
+             {
                 let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
                 let exercise = create_exercise(CourseOrExamId::Course(id), true, false, true);
                 let user_exercise_state = create_user_exercise_state(
@@ -737,8 +739,8 @@ mod tests {
             }
 
             #[test]
-            fn peer_review_manual_review_everything_works_puts_failing_answer_the_answer_to_manual_review(
-            ) {
+            fn peer_review_manual_review_everything_works_puts_failing_answer_the_answer_to_manual_review()
+             {
                 let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
                 let exercise = create_exercise(CourseOrExamId::Course(id), true, false, true);
                 let user_exercise_state = create_user_exercise_state(

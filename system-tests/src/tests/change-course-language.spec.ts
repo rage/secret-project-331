@@ -3,15 +3,16 @@ import { expect, test } from "@playwright/test"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
+import { selectOrganization } from "@/utils/organizationUtils"
+
 test.use({
   storageState: "src/states/user@example.com.json",
 })
 
 test("Changing course language works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
-  await page
-    .getByRole("link", { name: "University of Helsinki, Department of Mathematics and Statistics" })
-    .click()
+  await selectOrganization(page, "University of Helsinki, Department of Mathematics and Statistics")
+
   await page.getByRole("link", { name: "Navigate to course 'Introduction to citations'" }).click()
   await selectCourseInstanceIfPrompted(page)
 

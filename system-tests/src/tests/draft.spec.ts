@@ -3,13 +3,16 @@ import { expect, test } from "@playwright/test"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
+import { selectOrganization } from "@/utils/organizationUtils"
+
 test.describe("anonymous user", () => {
   test("cannot see draft course", async ({ page }) => {
     await page.goto("http://project-331.local/organizations")
 
-    await Promise.all([
-      page.getByText("University of Helsinki, Department of Mathematics and Statistics").click(),
-    ])
+    await selectOrganization(
+      page,
+      "University of Helsinki, Department of Mathematics and Statistics",
+    )
 
     await expect(page.getByText("Introduction to Statistics")).toBeVisible()
     await expect(page.getByText("Introduction to Drafts")).toBeHidden()
@@ -23,9 +26,10 @@ test.describe("user", () => {
   test("cannot see draft course", async ({ page }) => {
     await page.goto("http://project-331.local/organizations")
 
-    await Promise.all([
-      page.getByText("University of Helsinki, Department of Mathematics and Statistics").click(),
-    ])
+    await selectOrganization(
+      page,
+      "University of Helsinki, Department of Mathematics and Statistics",
+    )
 
     await expect(page.getByText("Introduction to Statistics")).toBeVisible()
     await expect(page.getByText("Introduction to Drafts")).toBeHidden()
@@ -44,9 +48,10 @@ test.describe("admin", () => {
   test("can see draft course", async ({ page }) => {
     await page.goto("http://project-331.local/organizations")
 
-    await Promise.all([
-      page.getByText("University of Helsinki, Department of Mathematics and Statistics").click(),
-    ])
+    await selectOrganization(
+      page,
+      "University of Helsinki, Department of Mathematics and Statistics",
+    )
 
     await expect(page.getByText("Introduction to Statistics")).toBeVisible()
     await expect(page.getByText("Introduction to Drafts")).toBeVisible()
@@ -57,9 +62,10 @@ test.describe("admin", () => {
   }, testInfo) => {
     await page.goto("http://project-331.local/organizations")
 
-    await Promise.all([
-      page.getByText("University of Helsinki, Department of Mathematics and Statistics").click(),
-    ])
+    await selectOrganization(
+      page,
+      "University of Helsinki, Department of Mathematics and Statistics",
+    )
 
     await page.click(`button:text("Create")`)
     // Fill input
@@ -108,9 +114,7 @@ test.describe("Teacher", () => {
 
   test("Can give students access to the draft course", async ({ page, browser }) => {
     await page.goto("http://project-331.local/organizations")
-    await page
-      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-      .click()
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await page.getByRole("button", { name: "Create" }).first().click()
     await page.getByLabel("Name  *", { exact: true }).fill("Best draft course")
     await page.getByLabel("Teacher in charge name  *").fill("Draft Teacher")
@@ -138,9 +142,7 @@ test.describe("Teacher", () => {
 
   test("teacher gets permissions to new course when copying a course", async ({ page }) => {
     await page.goto("http://project-331.local/organizations")
-    await page
-      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-      .click()
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await page.getByRole("button", { name: "Create" }).first().click()
     await page.getByLabel("Teacher in charge name  *").fill("Draft Teacher")
     await page.getByLabel("Teacher in charge email  *").fill("draft@example.com")
@@ -165,9 +167,7 @@ test.describe("Teacher", () => {
     page,
   }) => {
     await page.goto("http://project-331.local/organizations")
-    await page
-      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-      .click()
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await page.getByRole("button", { name: "Create" }).first().click()
     await page.getByLabel("Teacher in charge name  *").fill("Draft Teacher")
     await page.getByLabel("Teacher in charge email  *").fill("draft@example.com")

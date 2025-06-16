@@ -57,7 +57,21 @@ impl Default for ChatbotConfiguration {
 #[derive(Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewChatbotConf {
+    pub enabled_to_students: bool,
     pub chatbot_name: String,
+    pub prompt: String,
+    pub initial_message: String,
+    pub weekly_tokens_per_user: i32,
+    pub daily_tokens_per_user: i32,
+    pub temperature: f32,
+    pub top_p: f32,
+    pub frequency_penalty: f32,
+    pub presence_penalty: f32,
+    pub response_max_tokens: i32,
+    pub use_azure_search: bool,
+    pub hide_citations: bool,
+    pub use_semantic_reranking: bool,
+    pub default_chatbot: bool,
 }
 
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ChatbotConfiguration> {
@@ -124,8 +138,42 @@ pub async fn edit(
 ) -> ModelResult<ChatbotConfiguration> {
     let res = sqlx::query_as!(
         ChatbotConfiguration,
-        r#"UPDATE chatbot_configurations AS cc SET chatbot_name = $1 WHERE cc.id = $2 RETURNING *"#,
+        r#"
+UPDATE chatbot_configurations AS cc
+SET
+    enabled_to_students = $1,
+    chatbot_name = $2,
+    prompt = $3,
+    initial_message = $4,
+    weekly_tokens_per_user = $5,
+    daily_tokens_per_user = $6,
+    temperature = $7,
+    top_p = $8,
+    frequency_penalty = $9,
+    presence_penalty = $10,
+    response_max_tokens = $11,
+    use_azure_search = $12,
+    maintain_azure_search_index = $12,
+    hide_citations = $13,
+    use_semantic_reranking = $14,
+    default_chatbot = $15
+WHERE cc.id = $16
+RETURNING *"#,
+        input.enabled_to_students,
         input.chatbot_name,
+        input.prompt,
+        input.initial_message,
+        input.weekly_tokens_per_user,
+        input.daily_tokens_per_user,
+        input.temperature,
+        input.top_p,
+        input.frequency_penalty,
+        input.presence_penalty,
+        input.response_max_tokens,
+        input.use_azure_search,
+        input.hide_citations,
+        input.use_semantic_reranking,
+        input.default_chatbot,
         chatbot_id
     )
     .fetch_one(conn)

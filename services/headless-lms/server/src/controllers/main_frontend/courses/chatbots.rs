@@ -1,7 +1,7 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/{course_id}/chatbots`.
 use crate::prelude::*;
 
-use models::chatbot_configurations::{ChatbotConfiguration, NewChatbotConf};
+use models::chatbot_configurations::ChatbotConfiguration;
 
 /// GET `/api/v0/main-frontend/courses/{course_id}/chatbots`
 #[instrument(skip(pool))]
@@ -22,7 +22,7 @@ async fn get_chatbots(
 #[instrument(skip(pool, payload))]
 async fn create_chatbot(
     course_id: web::Path<Uuid>,
-    payload: web::Json<NewChatbotConf>,
+    payload: web::Json<String>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<ChatbotConfiguration>> {
@@ -32,7 +32,7 @@ async fn create_chatbot(
     let configuration = models::chatbot_configurations::insert(
         &mut conn,
         ChatbotConfiguration {
-            chatbot_name: payload.into_inner().chatbot_name,
+            chatbot_name: payload.into_inner(),
             course_id: *course_id,
             ..Default::default()
         },

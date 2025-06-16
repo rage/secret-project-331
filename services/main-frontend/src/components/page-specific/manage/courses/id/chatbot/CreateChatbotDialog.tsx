@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 import CreateChatbotForm from "./CreateChatbotForm"
 
 import { createChatbot } from "@/services/backend/courses/chatbots"
-import { ChatbotConfiguration, NewChatbotConf } from "@/shared-module/common/bindings"
+import { ChatbotConfiguration } from "@/shared-module/common/bindings"
 import StandardDialog from "@/shared-module/common/components/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
@@ -26,7 +26,7 @@ const CreateChatbotDialog: React.FC<React.PropsWithChildren<CreateChatbotDialogP
 }) => {
   const { t } = useTranslation()
   const createChatbotMutation = useToastMutation(
-    async (bot: NewChatbotConf) => await createChatbot(courseId, bot),
+    async (botName: string) => await createChatbot(courseId, botName),
     {
       notify: true,
       method: "POST",

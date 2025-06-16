@@ -206,10 +206,25 @@ export interface ChatbotConfiguration {
   maintain_azure_search_index: boolean
   hide_citations: boolean
   use_semantic_reranking: boolean
+  default_chatbot: boolean
 }
 
 export interface NewChatbotConf {
+  enabled_to_students: boolean
   chatbot_name: string
+  prompt: string
+  initial_message: string
+  weekly_tokens_per_user: number
+  daily_tokens_per_user: number
+  temperature: number
+  top_p: number
+  frequency_penalty: number
+  presence_penalty: number
+  response_max_tokens: number
+  use_azure_search: boolean
+  hide_citations: boolean
+  use_semantic_reranking: boolean
+  default_chatbot: boolean
 }
 
 export interface ChatbotConversationMessage {
@@ -558,6 +573,7 @@ export interface NewCourse {
   is_test_mode: boolean
   is_unlisted: boolean
   copy_user_permissions: boolean
+  can_add_chatbot: boolean
   is_joinable_by_code_only: boolean
   join_code: string | null
   ask_marketing_consent: boolean
@@ -2223,6 +2239,7 @@ export interface CopyCourseRequest {
   is_test_mode: boolean
   is_unlisted: boolean
   copy_user_permissions: boolean
+  can_add_chatbot: boolean
   is_joinable_by_code_only: boolean
   join_code: string | null
   ask_marketing_consent: boolean

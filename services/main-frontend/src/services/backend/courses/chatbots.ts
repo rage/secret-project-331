@@ -11,7 +11,7 @@ export const getCourseChatbots = async (courseId: string): Promise<Array<Chatbot
 
 export const createChatbot = async (
   courseId: string,
-  data: NewChatbotConf,
+  data: string,
 ): Promise<ChatbotConfiguration> => {
   const response = await mainFrontendClient.post(`/courses/${courseId}/chatbots`, data)
   return validateResponse(response, isChatbotConfiguration)

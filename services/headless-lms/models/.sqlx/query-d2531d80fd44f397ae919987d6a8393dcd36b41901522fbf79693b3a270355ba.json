@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "UPDATE chatbot_configurations AS cc SET chatbot_name = $1 WHERE cc.id = $2 RETURNING *",
+  "query": "\nUPDATE chatbot_configurations AS cc\nSET\n    enabled_to_students = $1,\n    chatbot_name = $2,\n    prompt = $3,\n    initial_message = $4,\n    weekly_tokens_per_user = $5,\n    daily_tokens_per_user = $6,\n    temperature = $7,\n    top_p = $8,\n    frequency_penalty = $9,\n    presence_penalty = $10,\n    response_max_tokens = $11,\n    use_azure_search = $12,\n    maintain_azure_search_index = $12,\n    hide_citations = $13,\n    use_semantic_reranking = $14,\n    default_chatbot = $15\nWHERE cc.id = $16\nRETURNING *",
   "describe": {
     "columns": [
       {
@@ -110,7 +110,24 @@
       }
     ],
     "parameters": {
-      "Left": ["Varchar", "Uuid"]
+      "Left": [
+        "Bool",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Int4",
+        "Int4",
+        "Float4",
+        "Float4",
+        "Float4",
+        "Float4",
+        "Int4",
+        "Bool",
+        "Bool",
+        "Bool",
+        "Bool",
+        "Uuid"
+      ]
     },
     "nullable": [
       false,
@@ -136,5 +153,5 @@
       false
     ]
   },
-  "hash": "35c000b9236c9c551a3c8b62e11b061a15fc252c4ce0aa656d8126ebc78b33ce"
+  "hash": "d2531d80fd44f397ae919987d6a8393dcd36b41901522fbf79693b3a270355ba"
 }

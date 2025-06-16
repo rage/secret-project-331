@@ -720,6 +720,7 @@
   "selected-text": "Selected text:",
   "sent-by": "Sent by: {{user}}",
   "service-info-url": "Service info URL",
+  "set-default-chatbot": "Set as the default chatbot for the course",
   "set-threshold": "Set threshold",
   "show-ended-exams": "Show Ended Exams",
   "show-iframe-borders": "Show IFrame borders",

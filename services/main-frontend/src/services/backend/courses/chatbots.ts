@@ -21,3 +21,8 @@ export const getChatbotConfiguration = async (chatbotId: string) => {
   const response = await mainFrontendClient.get(`/chatbots/${chatbotId}`)
   return validateResponse(response, isChatbotConfiguration)
 }
+
+export const configureChatbot = async (chatbotId: string, data: NewChatbotConf) => {
+  const response = await mainFrontendClient.post(`/chatbots/${chatbotId}`, data)
+  return validateResponse(response, isChatbotConfiguration)
+}

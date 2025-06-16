@@ -116,17 +116,23 @@ RETURNING *
     .await?;
     Ok(res)
 }
-/*
+
 pub async fn edit(
     conn: &mut PgConnection,
     input: NewChatbotConf,
+    chatbot_id: Uuid,
 ) -> ModelResult<ChatbotConfiguration> {
-    let res = sqlx::query_as!(ChatbotConfiguration, r#"a"#, input.chatbot_name)
-        .fetch_one(conn)
-        .await?;
+    let res = sqlx::query_as!(
+        ChatbotConfiguration,
+        r#"UPDATE chatbot_configurations AS cc SET chatbot_name = $1 WHERE cc.id = $2 RETURNING *"#,
+        input.chatbot_name,
+        chatbot_id
+    )
+    .fetch_one(conn)
+    .await?;
     Ok(res)
 }
- */
+
 pub async fn get_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,

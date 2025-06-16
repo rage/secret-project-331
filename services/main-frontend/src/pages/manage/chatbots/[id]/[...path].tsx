@@ -4,6 +4,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import MainFrontendBreadCrumbs from "@/components/MainFrontendBreadCrumbs"
+import ChatbotConfigurationForm from "@/components/page-specific/manage/courses/id/chatbot/ChatbotConfigurationForm"
 import { getChatbotConfiguration } from "@/services/backend/courses/chatbots"
 import { ChatbotConfiguration } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
@@ -39,19 +40,21 @@ const CustomizeChatbotPage = () => {
   }
 
   return (
-    <>
+    <div>
       <MainFrontendBreadCrumbs organizationSlug={null} courseId={chatbot.course_id} />
       <h1>{chatbot.chatbot_name}</h1>
-      <Button
-        size="medium"
-        variant="secondary"
-        onClick={() => {
-          router.back() //works?
-        }}
-      >
-        {t("button-text-cancel")}
-      </Button>
-    </>
+      <div>
+        <ChatbotConfigurationForm
+          oldChatbotConf={chatbot}
+          onConfigureChatbot={(newChatbot) => {
+            //mutate
+          }}
+          closeEditor={() => {
+            router.back()
+          }}
+        />
+      </div>
+    </div>
   )
 }
 

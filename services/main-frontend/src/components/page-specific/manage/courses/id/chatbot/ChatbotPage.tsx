@@ -6,7 +6,6 @@ import { useRouter } from "next/router"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ChatbotConfigurationForm from "./ChatbotConfigurationForm"
 import CreateChatbotDialog from "./CreateChatbotDialog"
 
 import { CourseManagementPagesProps } from "@/pages/manage/courses/[id]/[...path]"

@@ -31,7 +31,7 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
     setError,
   } = useForm<CreateChatbotFields>()
 
-  const validateForm = (data: CreateChatbotFields): boolean => {
+  /*   const validateForm = (data: CreateChatbotFields): boolean => {
     // not needed
     let isValid = true
     clearErrors(["name"])
@@ -43,12 +43,12 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
       isValid = false
     }
     return isValid
-  }
+  } */
 
   const onCreateNewChatbotWrapper = handleSubmit((data) => {
-    if (!validateForm(data)) {
+    /*     if (!validateForm(data)) {
       return
-    }
+    } */
     onCreateNewChatbot({
       chatbot_name: data.name,
     })

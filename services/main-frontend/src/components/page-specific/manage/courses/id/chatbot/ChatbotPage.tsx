@@ -37,7 +37,6 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   const { t } = useTranslation()
   const router = useRouter()
 
-  //const [customizeChatbotVisible, setCustomizeChatbotVisible] = useState(false)
   const [createChatbotVisible, setCreateChatbotVisible] = useState(false)
 
   const getChatbotsList = useQuery({
@@ -52,11 +51,13 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
     enabled: !!courseId,
   })
 
-  const closeDialog = (id: string) => {
+  const closeDialogOpenEdit = (id: string) => {
     setCreateChatbotVisible(false)
-    //setCustomizeChatbotVisible(true)
     /* eslint-disable i18next/no-literal-string */
     router.push(`/manage/chatbots/${id}`)
+  }
+  const closeDialog = () => {
+    setCreateChatbotVisible(false)
   }
 
   if (getChatbotsList.isError) {
@@ -94,31 +95,27 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
       <div>
         <h3>{t("customize-chatbot")}</h3>
         <StyledUl>
-          {getChatbotsList.data?.map((bot) => (
-            <StyledLi key={bot.id}>
-              <h4
-                className={css`
-                  margin: 5px;
-                `}
-              >
-                {bot.chatbot_name}
-              </h4>
-              <Link href={`/manage/chatbots/${bot.id}`} aria-label={`${t("customize-chatbot")}`}>
-                <Button
-                  size="medium"
-                  variant="primary"
-                  onClick={() => {
-                    //setCustomizeChatbotVisible(true)
-                  }}
+          {getChatbotsList.data
+            ?.sort((a, b) => a.chatbot_name.localeCompare(b.chatbot_name))
+            .map((bot) => (
+              <StyledLi key={bot.id}>
+                <h4
+                  className={css`
+                    margin: 5px;
+                  `}
                 >
-                  {t("edit")}
+                  {bot.chatbot_name}
+                </h4>
+                <Link href={`/manage/chatbots/${bot.id}`} aria-label={`${t("customize-chatbot")}`}>
+                  <Button size="medium" variant="primary">
+                    {t("edit")}
+                  </Button>
+                </Link>
+                <Button size="medium" variant="tertiary">
+                  {t("delete")}
                 </Button>
-              </Link>
-              <Button size="medium" variant="tertiary">
-                {t("delete")}
-              </Button>
-            </StyledLi>
-          ))}
+              </StyledLi>
+            ))}
         </StyledUl>
       </div>
       <CreateChatbotDialog
@@ -126,6 +123,7 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
         getChatbotsList={getChatbotsList}
         open={createChatbotVisible}
         close={closeDialog}
+        closeEdit={closeDialogOpenEdit}
       />
     </>
   )

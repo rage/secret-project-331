@@ -34,6 +34,7 @@ const CustomizeChatbotPage = () => {
     {
       notify: true,
       method: "POST",
+      successMessage: t("default-toast-success-message"),
     },
     {
       onSuccess: () => {
@@ -65,6 +66,7 @@ const CustomizeChatbotPage = () => {
           onConfigureChatbot={(newChatbot) => {
             mutation.mutate(newChatbot)
           }}
+          onCancel={() => router.back()}
         />
       </div>
     </div>

@@ -65,9 +65,6 @@ const CustomizeChatbotPage = () => {
           onConfigureChatbot={(newChatbot) => {
             mutation.mutate(newChatbot)
           }}
-          closeEditor={() => {
-            router.back()
-          }}
         />
       </div>
     </div>

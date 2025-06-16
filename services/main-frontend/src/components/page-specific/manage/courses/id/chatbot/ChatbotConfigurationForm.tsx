@@ -12,7 +12,6 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 interface Props {
   onConfigureChatbot: (bot: NewChatbotConf) => void
-  closeEditor: () => void
   oldChatbotConf: ChatbotConfiguration
 }
 
@@ -43,11 +42,7 @@ const textFieldCss = css`
   width: auto;
 `
 
-const ChatbotConfigurationForm: React.FC<Props> = ({
-  onConfigureChatbot,
-  closeEditor,
-  oldChatbotConf,
-}) => {
+const ChatbotConfigurationForm: React.FC<Props> = ({ onConfigureChatbot, oldChatbotConf }) => {
   const { t } = useTranslation()
   const {
     register,
@@ -208,9 +203,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
 
         <Button type="submit" size="medium" variant="primary">
           {t("save")}
-        </Button>
-        <Button size="medium" variant="secondary" onClick={closeEditor}>
-          {t("button-text-cancel")}
         </Button>
       </form>
     </div>

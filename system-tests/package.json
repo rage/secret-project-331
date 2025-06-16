@@ -29,15 +29,15 @@
   },
   "keywords": [],
   "devDependencies": {
-    "@playwright/browser-chromium": "^1.52.0",
-    "@playwright/test": "^1.52.0",
-    "@types/node": "^22.13.8",
+    "@playwright/browser-chromium": "^1.53.0",
+    "@playwright/test": "^1.53.0",
+    "@types/node": "^24.0.1",
     "@types/tar-fs": "^2.0.4",
-    "playwright": "^1.52.0",
+    "playwright": "^1.53.0",
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "@axe-core/playwright": "^4.10.1",
+    "@axe-core/playwright": "^4.10.2",
     "@types/which": "^3.0.4",
     "axe-core": "^4.10.3",
     "png-metadata": "^1.0.2",

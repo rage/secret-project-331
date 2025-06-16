@@ -72,9 +72,9 @@ ipnet = "2.11.0"
 # Flexible concrete Error type built on std::error::Error
 anyhow = "1.0.98"
 # DEFLATE compression and decompression exposed as Read/BufRead/Write streams.
-flate2 = "1.1.1"
+flate2 = "1.1.2"
 # higher level HTTP client library
-reqwest = { version = "0.12.18", features = [
+reqwest = { version = "0.12.20", features = [
   "brotli",
   "gzip",
   "json",
@@ -83,7 +83,7 @@ reqwest = { version = "0.12.18", features = [
   "stream",
 ] }
 # Redis driver for Rust.
-redis = { version = "0.31.0", features = [
+redis = { version = "0.32.0", features = [
   "aio",
   "tokio-comp",
   "connection-manager",

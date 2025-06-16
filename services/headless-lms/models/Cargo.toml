@@ -51,7 +51,7 @@ ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "94bf3c040ece6627b69f
   "uuid-impl",
 ], optional = true }
 # Email client
-lettre = "0.11.16"
+lettre = "0.11.17"
 # Random number generators and other randomness functionality.
 rand = "0.9.1"
 # Flexible concrete Error type built on std::error::Error

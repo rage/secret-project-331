@@ -60,7 +60,7 @@ blake3 = "1.8.2"
 # Recursively walk a directory.
 walkdir = "2.5.0"
 # higher level HTTP client library
-reqwest = { version = "0.12.18", features = ["brotli", "gzip", "json", "http2", "rustls-tls", "stream"] }
+reqwest = { version = "0.12.20", features = ["brotli", "gzip", "json", "http2", "rustls-tls", "stream"] }
 # Sessions for Actix web
 actix-session = { version = "0.10.1", features = ["cookie-session"] }
 # An extensible, strongly-typed implementation of OAuth2
@@ -92,7 +92,7 @@ actix-http = "3.11.0"
 # Fast CSV parsing with support for serde.
 csv = "1.3.1"
 # Email client
-lettre = "0.11.16"
+lettre = "0.11.17"
 # An implementation of regular expressions for Rust.
 regex = "1.11.1"
 # Single assignment cells and lazy values.

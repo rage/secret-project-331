@@ -15,3 +15,5 @@ RUN apt-get update \
 COPY --from=source /usr/local/cargo/bin/sqlx /usr/local/bin/sqlx
 COPY --from=source /ips-to-country /ips-to-country
 COPY --from=source /icu4x.postcard /icu4x.postcard
+# TODO: Remove this in the next release, this is a temporary file for compatibility
+COPY --from=source /icu4x.postcard.2 /icu4x.postcard.2

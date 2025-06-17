@@ -1,4 +1,4 @@
-use crate::llm_utils::{estimate_tokens, make_blocking_llm_request, Message, MessageRole};
+use crate::llm_utils::{Message, MessageRole, estimate_tokens, make_blocking_llm_request};
 use crate::prelude::*;
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 use tracing::{debug, error, info, instrument, warn};

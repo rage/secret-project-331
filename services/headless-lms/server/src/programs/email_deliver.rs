@@ -2,11 +2,11 @@ use std::{env, time::Duration};
 
 use anyhow::{Context, Result};
 use futures::{FutureExt, StreamExt};
-use headless_lms_models::email_deliveries::{fetch_emails, mark_as_sent, save_err_to_email, Email};
+use headless_lms_models::email_deliveries::{Email, fetch_emails, mark_as_sent, save_err_to_email};
 use headless_lms_utils::email_processor::{self, EmailGutenbergBlock};
 use lettre::{
-    message::{header, MultiPart, SinglePart},
     Message, SmtpTransport, Transport,
+    message::{MultiPart, SinglePart, header},
 };
 use once_cell::sync::Lazy;
 use sqlx::PgPool;

@@ -5,11 +5,11 @@ use anyhow::Result;
 use dotenv::dotenv;
 use futures::stream::{self, StreamExt};
 use headless_lms_models::{
-    exercise_service_info::{fetch_and_upsert_service_info, ExerciseServiceInfo},
+    exercise_service_info::{ExerciseServiceInfo, fetch_and_upsert_service_info},
     exercise_services::ExerciseService,
 };
 use sqlx::PgPool;
-use tokio::time::{sleep, Duration};
+use tokio::time::{Duration, sleep};
 use tracing::info;
 
 const N: usize = 10;
@@ -18,7 +18,8 @@ pub async fn main() -> anyhow::Result<()> {
     // Setting the sqlx log level to warn stops sql statements being printed to the console.
     // This is useful here since this is being run in a loop in background and the sql statements
     // would create a lot of noise to the log.
-    env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn");
+    // TODO: Audit that the environment access only happens in single-threaded code.
+    unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
     dotenv().ok();
     setup_tracing()?;
 

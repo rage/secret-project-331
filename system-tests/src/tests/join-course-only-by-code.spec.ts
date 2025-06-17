@@ -57,10 +57,9 @@ test("Join course by code only", async ({}) => {
     await teacherPage.getByText("Operation successful").waitFor()
 
     const joinCodeElement = teacherPage.getByRole("link", { name: "/join?code=" }).first()
-    const joinCodeText = await joinCodeElement.textContent()
+    const joinCodeHref = await joinCodeElement.getAttribute("href")
     // eslint-disable-next-line playwright/no-conditional-in-test
-    joinCode = joinCodeText?.replace("/join?code=", "").trim() || ""
-
+    joinCode = joinCodeHref?.replace("/join?code=", "").trim() || ""
     expect(joinCode).not.toBe("")
   })
 

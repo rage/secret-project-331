@@ -6,8 +6,9 @@ use crate::{
     exercises::{self, Exercise},
     library::{self, peer_or_self_reviewing::CourseMaterialPeerOrSelfReviewData},
     peer_or_self_review_questions::{
+        CmsPeerOrSelfReviewQuestion,
         delete_peer_or_self_review_questions_by_peer_or_self_review_config_ids,
-        upsert_multiple_peer_or_self_review_questions, CmsPeerOrSelfReviewQuestion,
+        upsert_multiple_peer_or_self_review_questions,
     },
     prelude::*,
     user_exercise_states::{self, ReviewingStage},

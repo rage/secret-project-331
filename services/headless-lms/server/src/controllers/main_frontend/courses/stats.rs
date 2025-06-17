@@ -1,8 +1,8 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/{course_id}/stats`.
 
 use crate::{domain::authorization::authorize, prelude::*};
-use headless_lms_models::library::TimeGranularity;
 use headless_lms_models::ModelError;
+use headless_lms_models::library::TimeGranularity;
 use headless_lms_utils::prelude::{UtilError, UtilErrorType};
 use models::library::course_stats::{AverageMetric, CohortActivity, CountResult};
 use std::collections::HashMap;

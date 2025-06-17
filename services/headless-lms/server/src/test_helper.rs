@@ -2,7 +2,7 @@ use crate::{
     config::{ServerConfig, ServerConfigBuilder},
     setup_tracing,
 };
-use headless_lms_utils::{file_store::local_file_store::LocalFileStore, ApplicationConfiguration};
+use headless_lms_utils::{ApplicationConfiguration, file_store::local_file_store::LocalFileStore};
 use sqlx::{Connection, PgConnection, Postgres, Transaction};
 use std::{env, sync::Arc};
 use tokio::sync::Mutex;
@@ -15,7 +15,7 @@ postgres://headless-lms:only-for-local-development-intentionally-public@postgres
         oauth_application_id: "some-id".to_string(),
         oauth_secret: "some-secret".to_string(),
         auth_url: "http://example.com".parse().unwrap(),
-        icu4x_postcard_path: "/icu4x.postcard".to_string(),
+        icu4x_postcard_path: "/icu4x.postcard.2".to_string(),
         file_store: Arc::new(futures::executor::block_on(async {
             LocalFileStore::new("uploads".into(), "http://localhost:3000".to_string())
                 .expect("Failed to initialize test file store")

@@ -2,9 +2,11 @@
 //!
 //! This is a subcrate because the certificate rendering has its own unique set of dependencies and splitting it makes sense for compilation performance.
 //!
+pub mod date_utils;
 pub mod font_loader;
 
-use chrono::{Datelike, NaiveDate};
+use chrono::NaiveDate;
+use date_utils::get_date_as_localized_string;
 use futures::future::OptionFuture;
 use headless_lms_models::certificate_configurations::{CertificateTextAnchor, PaperSize};
 use headless_lms_models::generated_certificates::GeneratedCertificate;
@@ -12,20 +14,15 @@ use headless_lms_models::prelude::{BackendError, PgConnection};
 use headless_lms_utils::file_store::FileStore;
 use headless_lms_utils::icu4x::Icu4xBlob;
 use headless_lms_utils::prelude::{UtilError, UtilErrorType, UtilResult};
-use icu::calendar::Gregorian;
-use icu::datetime::TypedDateTimeFormatter;
+
 use resvg::tiny_skia;
 use std::{io, path::Path};
 use std::{sync::Arc, time::Instant};
 use usvg::fontdb;
 
-use quick_xml::{events::BytesText, Writer};
+use quick_xml::{Writer, events::BytesText};
 use std::io::Cursor;
 
-use icu::datetime::options::length;
-use icu::{calendar::DateTime, locid::Locale};
-use icu_provider::DataLocale;
-use icu_provider_blob::BlobDataProvider;
 use tracing::log::info;
 
 /**
@@ -240,52 +237,6 @@ fn generate_certificate_impl(
     Ok(png)
 }
 
-fn get_date_as_localized_string(
-    locale: &str,
-    certificate_date: NaiveDate,
-    icu4x_blob: Icu4xBlob,
-) -> UtilResult<String> {
-    let options = length::Bag::from_date_style(length::Date::Long).into();
-    let provider = BlobDataProvider::try_new_from_static_blob(icu4x_blob.get()).unwrap();
-    let locale = locale.parse::<Locale>().map_err(|original_error| {
-        UtilError::new(
-            UtilErrorType::Other,
-            "Could not parse locale".to_string(),
-            Some(original_error.into()),
-        )
-    })?;
-    let dtf = TypedDateTimeFormatter::<Gregorian>::try_new_with_buffer_provider(
-        &provider,
-        &DataLocale::from(locale),
-        options,
-    )
-    .map_err(|original_error| {
-        UtilError::new(
-            UtilErrorType::Other,
-            "Failed to create TypedDateTimeFormatter instance.".to_string(),
-            Some(original_error.into()),
-        )
-    })?;
-
-    let date = DateTime::try_new_gregorian_datetime(
-        certificate_date.year(),
-        certificate_date.month() as u8,
-        certificate_date.day() as u8,
-        12,
-        35,
-        0,
-    )
-    .map_err(|original_error| {
-        UtilError::new(
-            UtilErrorType::Other,
-            "Failed to parse date.".to_string(),
-            Some(original_error.into()),
-        )
-    })?;
-    let formatted_date = dtf.format(&date);
-    Ok(formatted_date.to_string())
-}
-
 pub struct TextToRender {
     pub text: String,
     pub font_family: String,
@@ -340,10 +291,7 @@ fn generate_text_svg(
                     .write_text_content(BytesText::from_escaped(&text.text))
                     .map_err(|_original_error| {
                         // Might not be optimal but that's the Error type of the closure that comes from the library and we don't want to unwrap here and potentially crash the process.
-                        io::Error::new(
-                            io::ErrorKind::Other,
-                            "Could not write text to svg".to_string(),
-                        )
+                        io::Error::other("Could not write text to svg".to_string())
                     })?;
 
                 if debug_show_anchoring_points {
@@ -356,10 +304,7 @@ fn generate_text_svg(
                         .write_empty()
                         .map_err(|_original_error| {
                             // Might not be optimal but that's the Error type of the closure that comes from the library and we don't want to unwrap here and potentially crash the process.
-                            io::Error::new(
-                                io::ErrorKind::Other,
-                                "Could not write debug point to svg".to_string(),
-                            )
+                            io::Error::other("Could not write debug point to svg".to_string())
                         })?;
                     writer
                         .create_element("circle")
@@ -370,10 +315,7 @@ fn generate_text_svg(
                         .write_empty()
                         .map_err(|_original_error| {
                             // Might not be optimal but that's the Error type of the closure that comes from the library and we don't want to unwrap here and potentially crash the process.
-                            io::Error::new(
-                                io::ErrorKind::Other,
-                                "Could not write debug point to svg".to_string(),
-                            )
+                            io::Error::other("Could not write debug point to svg".to_string())
                         })?;
                 }
             }

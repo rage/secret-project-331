@@ -157,7 +157,7 @@ pub async fn stream_given_code_giveaway_codes<'a>(
     conn: &'a mut PgConnection,
     code_giveaway_id: Uuid,
 ) -> impl Stream<Item = sqlx::Result<CodeGiveawayCode>> + 'a {
-    let stream = sqlx::query_as!(
+    sqlx::query_as!(
         CodeGiveawayCode,
         r#"
 SELECT *
@@ -168,9 +168,7 @@ WHERE code_giveaway_id = $1
             "#,
         code_giveaway_id
     )
-    .fetch(conn);
-
-    stream
+    .fetch(conn)
 }
 
 pub async fn delete_by_id(conn: &mut PgConnection, code_id: Uuid) -> ModelResult<CodeGiveawayCode> {

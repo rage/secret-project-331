@@ -42,14 +42,14 @@ async fn set_page_audio(
                     ControllerErrorType::InternalServerError,
                     error.to_string(),
                     None,
-                ))
+                ));
             }
             None => {
                 return Err(ControllerError::new(
                     ControllerErrorType::BadRequest,
                     "Didn't upload any files",
                     None,
-                ))
+                ));
             }
         };
 
@@ -65,7 +65,7 @@ async fn set_page_audio(
                     ControllerErrorType::BadRequest,
                     format!("Unsupported audio Mime type: {}", unsupported),
                     None,
-                ))
+                ));
             }
         };
 

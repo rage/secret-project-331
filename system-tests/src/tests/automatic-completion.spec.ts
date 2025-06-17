@@ -103,6 +103,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
     .getByRole("button", { name: "Register" })
     .click()
 
+  await page.getByText("Use this email address").first().waitFor()
   await page.getByText("To the registration form").click()
   // Wait for the redirection
   await page.waitForURL("https://www.example.com/override", { waitUntil: "commit" })

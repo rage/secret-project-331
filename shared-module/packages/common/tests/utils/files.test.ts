@@ -48,11 +48,11 @@ describe("validateFile util", () => {
 
   test("throws if file is empty", () => {
     const emptyFile = new File([], "empty")
-    expect(() => validateFile(emptyFile, [])).toThrowError()
+    expect(() => validateFile(emptyFile, [])).toThrow()
   })
 
   test("throws if file is too big", () => {
-    expect(() => validateFile(image, [], 1)).toThrowError()
+    expect(() => validateFile(image, [], 1)).toThrow()
   })
 
   test("allows a valid file", () => {

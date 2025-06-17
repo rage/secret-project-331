@@ -95,9 +95,9 @@ pub struct ModelError {
     /// Original error that caused this error.
     source: Option<anyhow::Error>,
     /// A trace of tokio tracing spans, generated automatically when the error is generated.
-    span_trace: SpanTrace,
+    span_trace: Box<SpanTrace>,
     /// Stack trace, generated automatically when the error is created.
-    backtrace: Backtrace,
+    backtrace: Box<Backtrace>,
 }
 
 impl std::error::Error for ModelError {
@@ -160,8 +160,8 @@ impl BackendError for ModelError {
             error_type,
             message: message.into(),
             source: source_error.into(),
-            span_trace,
-            backtrace,
+            span_trace: Box::new(span_trace),
+            backtrace: Box::new(backtrace),
         }
     }
 }
@@ -277,7 +277,7 @@ mod test {
     use uuid::Uuid;
 
     use super::*;
-    use crate::{email_templates::EmailTemplateNew, test_helper::*, PKeyPolicy};
+    use crate::{PKeyPolicy, email_templates::EmailTemplateNew, test_helper::*};
 
     #[tokio::test]
     async fn email_templates_check() {
@@ -293,10 +293,13 @@ mod test {
         )
         .await
         .unwrap_err();
-        if let ModelErrorType::DatabaseConstraint { constraint, .. } = err.error_type {
-            assert_eq!(constraint, "email_templates_subject_check");
-        } else {
-            panic!("wrong error variant")
+        match err.error_type {
+            ModelErrorType::DatabaseConstraint { constraint, .. } => {
+                assert_eq!(constraint, "email_templates_subject_check");
+            }
+            _ => {
+                panic!("wrong error variant")
+            }
         }
     }
 
@@ -313,10 +316,13 @@ mod test {
         )
         .await
         .unwrap_err();
-        if let ModelErrorType::DatabaseConstraint { constraint, .. } = err.error_type {
-            assert_eq!(constraint, "user_details_email_check");
-        } else {
-            panic!("wrong error variant")
+        match err.error_type {
+            ModelErrorType::DatabaseConstraint { constraint, .. } => {
+                assert_eq!(constraint, "user_details_email_check");
+            }
+            _ => {
+                panic!("wrong error variant")
+            }
         }
     }
 }

@@ -111,9 +111,6 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
                     {t("edit")}
                   </Button>
                 </Link>
-                <Button size="medium" variant="tertiary">
-                  {t("delete")}
-                </Button>
               </StyledLi>
             ))}
         </StyledUl>

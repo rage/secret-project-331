@@ -4,7 +4,11 @@ import { useTranslation } from "react-i18next"
 
 import MainFrontendBreadCrumbs from "@/components/MainFrontendBreadCrumbs"
 import ChatbotConfigurationForm from "@/components/page-specific/manage/courses/id/chatbot/ChatbotConfigurationForm"
-import { configureChatbot, getChatbotConfiguration } from "@/services/backend/courses/chatbots"
+import {
+  configureChatbot,
+  deleteChatbot,
+  getChatbotConfiguration,
+} from "@/services/backend/chatbots"
 import { ChatbotConfiguration, NewChatbotConf } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -25,7 +29,7 @@ const CustomizeChatbotPage = () => {
     enabled: !!id,
   })
 
-  const mutation = useToastMutation(
+  const configureChatbotMutation = useToastMutation(
     async (bot: NewChatbotConf) => {
       if (chatbot === null) {
         throw new Error("Chatbot undefined")
@@ -36,6 +40,25 @@ const CustomizeChatbotPage = () => {
       notify: true,
       method: "POST",
       successMessage: t("default-toast-success-message"),
+    },
+    {
+      onSuccess: () => {
+        chatbotQuery.refetch()
+      },
+    },
+  )
+
+  const deleteChatbotMutation = useToastMutation(
+    async (chatbotId: string) => await deleteChatbot(chatbotId),
+    {
+      method: "DELETE",
+      notify: true,
+      successMessage: t("default-toast-success-message"),
+    },
+    {
+      onSuccess: () => {
+        router.back()
+      },
     },
   )
 
@@ -63,7 +86,12 @@ const CustomizeChatbotPage = () => {
         <ChatbotConfigurationForm
           oldChatbotConf={chatbot}
           onConfigureChatbot={(newChatbot) => {
-            mutation.mutate(newChatbot)
+            configureChatbotMutation.mutate(newChatbot)
+          }}
+          onDeleteChatbot={(chatbotId, chatbotName) => {
+            if (window.confirm(t("delete-chatbot-confirmation", { name: chatbotName }))) {
+              deleteChatbotMutation.mutate(chatbotId)
+            }
           }}
         />
       </div>

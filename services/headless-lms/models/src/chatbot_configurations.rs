@@ -181,6 +181,20 @@ RETURNING *"#,
     Ok(res)
 }
 
+pub async fn delete(conn: &mut PgConnection, chatbot_id: Uuid) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE chatbot_configurations
+SET deleted_at = now()
+WHERE id = $1
+        ",
+        chatbot_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 pub async fn get_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,

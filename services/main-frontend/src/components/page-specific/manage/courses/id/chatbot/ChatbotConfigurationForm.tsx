@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { ChatbotConfiguration, NewChatbotConf } from "@/shared-module/common/bindings"
-import Accordion from "@/shared-module/common/components/Accordion"
+//import Accordion from "@/shared-module/common/components/Accordion"
 import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
@@ -13,6 +13,7 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 interface Props {
   onConfigureChatbot: (bot: NewChatbotConf) => void
+  onDeleteChatbot: (botId: string, botName: string) => void
   oldChatbotConf: ChatbotConfiguration
 }
 
@@ -44,14 +45,17 @@ const textFieldCss = css`
   width: auto;
 `
 
-const ChatbotConfigurationForm: React.FC<Props> = ({ onConfigureChatbot, oldChatbotConf }) => {
+const ChatbotConfigurationForm: React.FC<Props> = ({
+  onConfigureChatbot,
+  onDeleteChatbot,
+  oldChatbotConf,
+}) => {
   const { t } = useTranslation()
   const {
     register,
     handleSubmit,
     formState: { errors },
     clearErrors,
-    watch,
     setError,
   } = useForm<ConfigureChatbotFields>({
     defaultValues: {
@@ -262,9 +266,19 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ onConfigureChatbot, oldChat
           </div>
         </div>
 
-        <Button type="submit" size="medium" variant="primary">
-          {t("save")}
-        </Button>
+        <div>
+          <Button type="submit" size="medium" variant="primary">
+            {t("save")}
+          </Button>
+          <Button
+            type="button"
+            size="medium"
+            variant="tertiary"
+            onClick={() => onDeleteChatbot(oldChatbotConf.id, oldChatbotConf.chatbot_name)}
+          >
+            {t("delete")}
+          </Button>
+        </div>
       </form>
     </div>
   )

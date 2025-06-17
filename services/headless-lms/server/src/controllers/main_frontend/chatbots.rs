@@ -45,7 +45,29 @@ async fn edit_chatbot(
     token.authorized_ok(web::Json(configuration))
 }
 
+/// DELETE `/api/v0/main-frontend/chatbots/{chatbot_id}`
+#[instrument(skip(pool))]
+async fn delete_chatbot(
+    chatbot_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let chatbot = models::chatbot_configurations::get_by_id(&mut conn, *chatbot_id).await?;
+    let token = authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::CourseInstance(chatbot.course_id),
+    )
+    .await?;
+    models::chatbot_configurations::delete(&mut conn, *chatbot_id).await?;
+
+    token.authorized_ok(web::Json(()))
+}
+
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     cfg.route("/{id}", web::get().to(get_chatbot))
-        .route("/{id}", web::post().to(edit_chatbot));
+        .route("/{id}", web::post().to(edit_chatbot))
+        .route("/{id}", web::delete().to(delete_chatbot));
 }

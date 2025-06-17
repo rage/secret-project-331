@@ -44,13 +44,21 @@ For non-developers:
 
 - Write and execute tests: [Testing](./tests.md)
 
+## 📋 Requirements
+
+- Frontend should be designed with a minimum viable width of 320 pixels.
+
 ## 🔄 Updating Dependencies
 
 - [Updating Dependencies Guide](./updating-dependencies.md)
 
-## 📚 Additional Documentation
+## 📚 Additional Documentation and links
 
 - Additional notes: [Miscellaneous Notes](./etc.md)
+- Localization data: [Localizations](../shared-module/packages/common/src/locales/en/main-frontend.json)
+- Bin-commands: [Commands](../bin)
+- Figma design: [Figma](https://www.figma.com/design/7SCSdeHG5FnLNZLfd6SnBI/Teacher-redesign)
+- Routes helper functions: [Routes](../shared-module/packages/common/src/utils/routes.ts)
 
 ## 📞 Support and Contributions
 

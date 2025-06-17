@@ -123,22 +123,24 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
                     margin: 5px;
                   `}
                 >
-                  {bot.chatbot_name} <em>{bot.default_chatbot ? "(default)" : ""}</em>
+                  {bot.chatbot_name} <em>{bot.default_chatbot ? `(${t("label-default")})` : ""}</em>
                 </h4>
                 <Link href={`/manage/chatbots/${bot.id}`} aria-label={`${t("customize-chatbot")}`}>
                   <Button size="medium" variant="primary">
                     {t("edit")}
                   </Button>
                 </Link>
-                <Button
-                  size="medium"
-                  variant="secondary"
-                  onClick={() => {
-                    setDefaultChatbotMutation.mutate(bot.id)
-                  }}
-                >
-                  set as default
-                </Button>
+                {!bot.default_chatbot && (
+                  <Button
+                    size="medium"
+                    variant="secondary"
+                    onClick={() => {
+                      setDefaultChatbotMutation.mutate(bot.id)
+                    }}
+                  >
+                    {t("set-as-default-chatbot")}
+                  </Button>
+                )}
               </StyledLi>
             ))}
         </StyledUl>

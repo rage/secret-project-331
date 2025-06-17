@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["AnyCalendar","AnyCalendarKind","EthiopianEraStyle","HijriTabularEpoch","HijriTabularLeapYears"],"mod":["scaffold"],"struct":["Buddhist","Chinese","Coptic","Dangi","Ethiopian","Gregorian","Hebrew","HijriSimulated","HijriTabular","HijriUmmAlQura","Indian","Iso","Japanese","JapaneseExtended","Julian","Persian","Roc"]};

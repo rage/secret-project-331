@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Comparing strings according to language-dependent conventions."><title>icu_collator - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="icu_collator" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.1 (e71f9a9a9 2025-01-27)" data-channel="1.84.1" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../static.files/storage-59e33391.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../icu_collator/index.html">icu_<wbr>collator</a><span class="version">1.5.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#examples" title="Examples">Examples</a><ul><li><a href="#examples-of-collatoroptions" title="Examples of `CollatorOptions`">Examples of <code>CollatorOptions</code></a></li><li><a href="#strength" title="Strength">Strength</a></li><li><a href="#alternate-handling" title="Alternate Handling">Alternate Handling</a></li><li><a href="#case-level" title="Case Level">Case Level</a></li><li><a href="#case-first" title="Case First">Case First</a></li><li><a href="#backward-second-level" title="Backward second level">Backward second level</a></li><li><a href="#numeric" title="Numeric">Numeric</a></li></ul></li></ul><h3><a href="#reexports">Crate Items</a></h3><ul class="block"><li><a href="#reexports" title="Re-exports">Re-exports</a></li><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>icu_collator</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/icu_collator/lib.rs.html#10-299">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Comparing strings according to language-dependent conventions.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Comparing strings according to language-dependent conventions."><title>icu_collator - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="icu_collator" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../static.files/storage-82c7156e.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../icu_collator/index.html">icu_<wbr>collator</a><span class="version">2.0.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#examples" title="Examples">Examples</a><ul><li><a href="#examples-of-collatoroptions" title="Examples of `CollatorOptions`">Examples of <code>CollatorOptions</code></a></li><li><a href="#strength" title="Strength">Strength</a></li><li><a href="#alternate-handling" title="Alternate Handling">Alternate Handling</a></li><li><a href="#case-level" title="Case Level">Case Level</a></li><li><a href="#backward-second-level" title="Backward second level">Backward second level</a></li><li><a href="#examples-of-collatorpreferences" title="Examples of `CollatorPreferences`">Examples of <code>CollatorPreferences</code></a></li><li><a href="#case-first" title="Case First">Case First</a></li><li><a href="#numeric" title="Numeric">Numeric</a></li></ul></li></ul><h3><a href="#modules">Crate Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#structs" title="Structs">Structs</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>icu_collator</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/icu_collator/lib.rs.html#10-339">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Comparing strings according to language-dependent conventions.</p>
 <p>This module is published as its own crate (<a href="https://docs.rs/icu_collator/latest/icu_collator/"><code>icu_collator</code></a>)
 and as part of the <a href="https://docs.rs/icu/latest/icu/"><code>icu</code></a> crate. See the latter for more details on the ICU4X project.
 <code>Collator</code> is the main structure of the component. It accepts a set of arguments
@@ -11,39 +11,38 @@ instantiated, can be used to compare strings.</p>
 <p>As its most basic purpose, <code>Collator</code> offers locale-aware ordering:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>core::cmp::Ordering;
-<span class="kw">use </span>icu::collator::<span class="kw-2">*</span>;
-<span class="kw">use </span>icu::locid::locale;
+<span class="kw">use </span>icu::collator::{options::<span class="kw-2">*</span>, <span class="kw-2">*</span>};
+<span class="kw">use </span>icu::locale::locale;
 
-<span class="kw">let </span>locale_es = <span class="macro">locale!</span>(<span class="string">"es-u-co-trad"</span>).into();
-<span class="kw">let </span><span class="kw-2">mut </span>options = CollatorOptions::new();
+<span class="kw">let </span><span class="kw-2">mut </span>options = CollatorOptions::default();
 options.strength = <span class="prelude-val">Some</span>(Strength::Primary);
-<span class="kw">let </span>collator_es: Collator = Collator::try_new(<span class="kw-2">&amp;</span>locale_es, options).unwrap();
+<span class="kw">let </span>collator_es =
+    Collator::try_new(<span class="macro">locale!</span>(<span class="string">"es-u-co-trad"</span>).into(), options).unwrap();
 
 <span class="comment">// "pollo" &gt; "polvo" in traditional Spanish
 </span><span class="macro">assert_eq!</span>(collator_es.compare(<span class="string">"pollo"</span>, <span class="string">"polvo"</span>), Ordering::Greater);
 
-<span class="kw">let </span>locale_en = <span class="macro">locale!</span>(<span class="string">"en"</span>).into();
-<span class="kw">let </span><span class="kw-2">mut </span>options = CollatorOptions::new();
+<span class="kw">let </span><span class="kw-2">mut </span>options = CollatorOptions::default();
 options.strength = <span class="prelude-val">Some</span>(Strength::Primary);
-<span class="kw">let </span>collator_en: Collator = Collator::try_new(<span class="kw-2">&amp;</span>locale_en, options).unwrap();
+<span class="kw">let </span>collator_en = Collator::try_new(<span class="macro">locale!</span>(<span class="string">"en"</span>).into(), options).unwrap();
 
 <span class="comment">// "pollo" &lt; "polvo" according to English rules
 </span><span class="macro">assert_eq!</span>(collator_en.compare(<span class="string">"pollo"</span>, <span class="string">"polvo"</span>), Ordering::Less);</code></pre></div>
 <h3 id="examples-of-collatoroptions"><a class="doc-anchor" href="#examples-of-collatoroptions">§</a>Examples of <code>CollatorOptions</code></h3>
-<p>The <a href="struct.CollatorOptions.html" title="struct icu_collator::CollatorOptions"><code>CollatorOptions</code></a> struct configures specific custom behavior for the <code>Collator</code>.  See docs
-for <a href="struct.CollatorOptions.html" title="struct icu_collator::CollatorOptions"><code>CollatorOptions</code></a> for more details.  Some basic descriptions and examples are below.</p>
+<p>The <a href="options/struct.CollatorOptions.html" title="struct icu_collator::options::CollatorOptions"><code>CollatorOptions</code></a> struct configures specific custom behavior for the <code>Collator</code>.  See docs
+for <a href="options/struct.CollatorOptions.html" title="struct icu_collator::options::CollatorOptions"><code>CollatorOptions</code></a> for more details.  Some basic descriptions and examples are below.</p>
 <h3 id="strength"><a class="doc-anchor" href="#strength">§</a>Strength</h3>
 <p>The degree of sensitivity in how to determine that strings are distinct.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>core::cmp::Ordering;
-<span class="kw">use </span>icu::collator::<span class="kw-2">*</span>;
+<span class="kw">use </span>icu::collator::{options::<span class="kw-2">*</span>, <span class="kw-2">*</span>};
 
 <span class="comment">// Primary Level
 
-</span><span class="kw">let </span><span class="kw-2">mut </span>options_l1 = CollatorOptions::new();
+</span><span class="kw">let </span><span class="kw-2">mut </span>options_l1 = CollatorOptions::default();
 options_l1.strength = <span class="prelude-val">Some</span>(Strength::Primary);
-<span class="kw">let </span>collator_l1: Collator =
-    Collator::try_new(<span class="kw-2">&amp;</span>Default::default(), options_l1).unwrap();
+<span class="kw">let </span>collator_l1 =
+    Collator::try_new(Default::default(), options_l1).unwrap();
 
 <span class="macro">assert_eq!</span>(collator_l1.compare(<span class="string">"a"</span>, <span class="string">"b"</span>), Ordering::Less); <span class="comment">// primary
 </span><span class="macro">assert_eq!</span>(collator_l1.compare(<span class="string">"as"</span>, <span class="string">"às"</span>), Ordering::Equal); <span class="comment">// secondary
@@ -54,10 +53,10 @@ options_l1.strength = <span class="prelude-val">Some</span>(Strength::Primary);
 
 <span class="comment">// Secondary Level
 
-</span><span class="kw">let </span><span class="kw-2">mut </span>options_l2 = CollatorOptions::new();
+</span><span class="kw">let </span><span class="kw-2">mut </span>options_l2 = CollatorOptions::default();
 options_l2.strength = <span class="prelude-val">Some</span>(Strength::Secondary);
-<span class="kw">let </span>collator_l2: Collator =
-    Collator::try_new(<span class="kw-2">&amp;</span>Default::default(), options_l2).unwrap();
+<span class="kw">let </span>collator_l2 =
+    Collator::try_new(Default::default(), options_l2).unwrap();
 
 <span class="macro">assert_eq!</span>(collator_l2.compare(<span class="string">"a"</span>, <span class="string">"b"</span>), Ordering::Less); <span class="comment">// primary
 </span><span class="macro">assert_eq!</span>(collator_l2.compare(<span class="string">"as"</span>, <span class="string">"às"</span>), Ordering::Less); <span class="comment">// secondary
@@ -68,10 +67,10 @@ options_l2.strength = <span class="prelude-val">Some</span>(Strength::Secondary)
 
 <span class="comment">// Tertiary Level
 
-</span><span class="kw">let </span><span class="kw-2">mut </span>options_l3 = CollatorOptions::new();
+</span><span class="kw">let </span><span class="kw-2">mut </span>options_l3 = CollatorOptions::default();
 options_l3.strength = <span class="prelude-val">Some</span>(Strength::Tertiary);
-<span class="kw">let </span>collator_l3: Collator =
-    Collator::try_new(<span class="kw-2">&amp;</span>Default::default(), options_l3).unwrap();
+<span class="kw">let </span>collator_l3 =
+    Collator::try_new(Default::default(), options_l3).unwrap();
 
 <span class="macro">assert_eq!</span>(collator_l3.compare(<span class="string">"a"</span>, <span class="string">"b"</span>), Ordering::Less); <span class="comment">// primary
 </span><span class="macro">assert_eq!</span>(collator_l3.compare(<span class="string">"as"</span>, <span class="string">"às"</span>), Ordering::Less); <span class="comment">// secondary
@@ -89,16 +88,16 @@ unimplemented. The default is <code>AlternateHandling::NonIgnorable</code>, exce
 for Thai, whose default is <code>AlternateHandling::Shifted</code>.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>core::cmp::Ordering;
-<span class="kw">use </span>icu::collator::<span class="kw-2">*</span>;
+<span class="kw">use </span>icu::collator::{<span class="kw-2">*</span>, options::<span class="kw-2">*</span>};
 
 <span class="comment">// If alternate handling is set to `NonIgnorable`, then differences among
 // these characters are of the same importance as differences among letters.
 
-</span><span class="kw">let </span><span class="kw-2">mut </span>options_3n = CollatorOptions::new();
+</span><span class="kw">let </span><span class="kw-2">mut </span>options_3n = CollatorOptions::default();
 options_3n.strength = <span class="prelude-val">Some</span>(Strength::Tertiary);
 options_3n.alternate_handling = <span class="prelude-val">Some</span>(AlternateHandling::NonIgnorable);
-<span class="kw">let </span>collator_3n: Collator =
-    Collator::try_new(<span class="kw-2">&amp;</span>Default::default(), options_3n).unwrap();
+<span class="kw">let </span>collator_3n =
+    Collator::try_new(Default::default(), options_3n).unwrap();
 
 <span class="macro">assert_eq!</span>(collator_3n.compare(<span class="string">"di Silva"</span>, <span class="string">"Di Silva"</span>), Ordering::Less);
 <span class="macro">assert_eq!</span>(collator_3n.compare(<span class="string">"Di Silva"</span>, <span class="string">"diSilva"</span>), Ordering::Less);
@@ -109,22 +108,22 @@ options_3n.alternate_handling = <span class="prelude-val">Some</span>(AlternateH
 // importance. The Shifted value is often used in combination with Strength
 // set to Quaternary.
 
-</span><span class="kw">let </span><span class="kw-2">mut </span>options_3s = CollatorOptions::new();
+</span><span class="kw">let </span><span class="kw-2">mut </span>options_3s = CollatorOptions::default();
 options_3s.strength = <span class="prelude-val">Some</span>(Strength::Tertiary);
 options_3s.alternate_handling = <span class="prelude-val">Some</span>(AlternateHandling::Shifted);
-<span class="kw">let </span>collator_3s: Collator =
-    Collator::try_new(<span class="kw-2">&amp;</span>Default::default(), options_3s).unwrap();
+<span class="kw">let </span>collator_3s =
+    Collator::try_new(Default::default(), options_3s).unwrap();
 
 <span class="macro">assert_eq!</span>(collator_3s.compare(<span class="string">"di Silva"</span>, <span class="string">"diSilva"</span>), Ordering::Equal);
 <span class="macro">assert_eq!</span>(collator_3s.compare(<span class="string">"diSilva"</span>, <span class="string">"Di Silva"</span>), Ordering::Less);
 <span class="macro">assert_eq!</span>(collator_3s.compare(<span class="string">"Di Silva"</span>, <span class="string">"U.S.A."</span>), Ordering::Less);
 <span class="macro">assert_eq!</span>(collator_3s.compare(<span class="string">"U.S.A."</span>, <span class="string">"USA"</span>), Ordering::Equal);
 
-<span class="kw">let </span><span class="kw-2">mut </span>options_4s = CollatorOptions::new();
+<span class="kw">let </span><span class="kw-2">mut </span>options_4s = CollatorOptions::default();
 options_4s.strength = <span class="prelude-val">Some</span>(Strength::Quaternary);
 options_4s.alternate_handling = <span class="prelude-val">Some</span>(AlternateHandling::Shifted);
-<span class="kw">let </span>collator_4s: Collator =
-    Collator::try_new(<span class="kw-2">&amp;</span>Default::default(), options_4s).unwrap();
+<span class="kw">let </span>collator_4s =
+    Collator::try_new(Default::default(), options_4s).unwrap();
 
 <span class="macro">assert_eq!</span>(collator_4s.compare(<span class="string">"di Silva"</span>, <span class="string">"diSilva"</span>), Ordering::Less);
 <span class="macro">assert_eq!</span>(collator_4s.compare(<span class="string">"diSilva"</span>, <span class="string">"Di Silva"</span>), Ordering::Less);
@@ -135,15 +134,15 @@ options_4s.alternate_handling = <span class="prelude-val">Some</span>(AlternateH
 without having to use tertiary level just to enable case level differences.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>core::cmp::Ordering;
-<span class="kw">use </span>icu::collator::<span class="kw-2">*</span>;
+<span class="kw">use </span>icu::collator::{<span class="kw-2">*</span>, options::<span class="kw-2">*</span>};
 
 <span class="comment">// Primary
 
-</span><span class="kw">let </span><span class="kw-2">mut </span>options = CollatorOptions::new();
+</span><span class="kw">let </span><span class="kw-2">mut </span>options = CollatorOptions::default();
 options.strength = <span class="prelude-val">Some</span>(Strength::Primary);
 options.case_level = <span class="prelude-val">Some</span>(CaseLevel::Off);
 <span class="kw">let </span>primary =
-  Collator::try_new(<span class="kw-2">&amp;</span>Default::default(),
+  Collator::try_new(Default::default(),
                     options).unwrap();
 
 <span class="macro">assert_eq!</span>(primary.compare(<span class="string">"ⓓⓔⓐⓛ"</span>, <span class="string">"DEAL"</span>), Ordering::Equal);
@@ -155,7 +154,7 @@ options.case_level = <span class="prelude-val">Some</span>(CaseLevel::Off);
 </span>options.strength = <span class="prelude-val">Some</span>(Strength::Primary);
 options.case_level = <span class="prelude-val">Some</span>(CaseLevel::On);
 <span class="kw">let </span>primary_and_case =
-  Collator::try_new(<span class="kw-2">&amp;</span>Default::default(),
+  Collator::try_new(Default::default(),
                     options).unwrap();
 
 <span class="macro">assert_eq!</span>(primary_and_case.compare(<span class="string">"ⓓⓔⓐⓛ"</span>, <span class="string">"DEAL"</span>), Ordering::Less);
@@ -167,7 +166,7 @@ options.case_level = <span class="prelude-val">Some</span>(CaseLevel::On);
 </span>options.strength = <span class="prelude-val">Some</span>(Strength::Secondary);
 options.case_level = <span class="prelude-val">Some</span>(CaseLevel::On);
 <span class="kw">let </span>secondary_and_case =
-  Collator::try_new(<span class="kw-2">&amp;</span>Default::default(),
+  Collator::try_new(Default::default(),
                     options).unwrap();
 
 <span class="macro">assert_eq!</span>(secondary_and_case.compare(<span class="string">"ⓓⓔⓐⓛ"</span>, <span class="string">"DEAL"</span>), Ordering::Less);
@@ -179,46 +178,74 @@ options.case_level = <span class="prelude-val">Some</span>(CaseLevel::On);
 </span>options.strength = <span class="prelude-val">Some</span>(Strength::Tertiary);
 options.case_level = <span class="prelude-val">Some</span>(CaseLevel::Off);
 <span class="kw">let </span>tertiary =
-  Collator::try_new(<span class="kw-2">&amp;</span>Default::default(),
+  Collator::try_new(Default::default(),
                     options).unwrap();
 
 <span class="macro">assert_eq!</span>(tertiary.compare(<span class="string">"ⓓⓔⓐⓛ"</span>, <span class="string">"DEAL"</span>), Ordering::Less);
 <span class="macro">assert_eq!</span>(tertiary.compare(<span class="string">"dejavu"</span>, <span class="string">"dejAvu"</span>), Ordering::Less);
 <span class="macro">assert_eq!</span>(tertiary.compare(<span class="string">"dejavu"</span>, <span class="string">"déjavu"</span>), Ordering::Less);</code></pre></div>
-<h3 id="case-first"><a class="doc-anchor" href="#case-first">§</a>Case First</h3>
-<p>Whether to swap the ordering of uppercase and lowercase.</p>
 <h3 id="backward-second-level"><a class="doc-anchor" href="#backward-second-level">§</a>Backward second level</h3>
 <p>Compare the second level in backward order. The default is <code>false</code> (off), except for Canadian
 French.</p>
+<h3 id="examples-of-collatorpreferences"><a class="doc-anchor" href="#examples-of-collatorpreferences">§</a>Examples of <code>CollatorPreferences</code></h3>
+<p>The <a href="struct.CollatorPreferences.html" title="struct icu_collator::CollatorPreferences"><code>CollatorPreferences</code></a> struct configures specific custom behavior for the <code>Collator</code>, like
+<a href="options/struct.CollatorOptions.html" title="struct icu_collator::options::CollatorOptions"><code>CollatorOptions</code></a>. However, unlike <code>CollatorOptions</code>, this set of preferences can also be set
+implicitly by the locale. See docs for <a href="struct.CollatorPreferences.html" title="struct icu_collator::CollatorPreferences"><code>CollatorPreferences</code></a> for more details.
+Some basic descriptions and examples are below.</p>
+<h3 id="case-first"><a class="doc-anchor" href="#case-first">§</a>Case First</h3>
+<p>Whether to swap the ordering of uppercase and lowercase.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>core::cmp::Ordering;
+<span class="kw">use </span>icu::collator::preferences::<span class="kw-2">*</span>;
+<span class="kw">use </span>icu::collator::{options::<span class="kw-2">*</span>, <span class="kw-2">*</span>};
+
+<span class="comment">// Use the locale's default.
+
+</span><span class="kw">let </span><span class="kw-2">mut </span>prefs_no_case = CollatorPreferences::default();
+prefs_no_case.case_first = <span class="prelude-val">Some</span>(CollationCaseFirst::False);
+<span class="kw">let </span>collator_no_case =
+    Collator::try_new(prefs_no_case, Default::default()).unwrap();
+<span class="macro">assert_eq!</span>(collator_no_case.compare(<span class="string">"ab"</span>, <span class="string">"AB"</span>), Ordering::Less);
+
+<span class="comment">// Lowercase is less
+
+</span><span class="kw">let </span><span class="kw-2">mut </span>prefs_lower_less = CollatorPreferences::default();
+prefs_lower_less.case_first = <span class="prelude-val">Some</span>(CollationCaseFirst::Lower);
+<span class="kw">let </span>collator_lower_less =
+    Collator::try_new(prefs_lower_less, Default::default()).unwrap();
+<span class="macro">assert_eq!</span>(collator_lower_less.compare(<span class="string">"ab"</span>, <span class="string">"AB"</span>), Ordering::Less);
+
+<span class="comment">// Uppercase is less
+
+</span><span class="kw">let </span><span class="kw-2">mut </span>prefs_upper_greater = CollatorPreferences::default();
+prefs_upper_greater.case_first = <span class="prelude-val">Some</span>(CollationCaseFirst::Upper);
+<span class="kw">let </span>collator_upper_greater =
+    Collator::try_new(prefs_upper_greater, Default::default()).unwrap();
+<span class="macro">assert_eq!</span>(collator_upper_greater.compare(<span class="string">"AB"</span>, <span class="string">"ab"</span>), Ordering::Less);</code></pre></div>
 <h3 id="numeric"><a class="doc-anchor" href="#numeric">§</a>Numeric</h3>
 <p>When set to <code>true</code> (on), any sequence of decimal
 digits is sorted at a primary level according to the
 numeric value.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>core::cmp::Ordering;
-<span class="kw">use </span>icu::collator::<span class="kw-2">*</span>;
+<span class="kw">use </span>icu::collator::preferences::<span class="kw-2">*</span>;
+<span class="kw">use </span>icu::collator::{options::<span class="kw-2">*</span>, <span class="kw-2">*</span>};
 
 <span class="comment">// Numerical sorting off
 
-</span><span class="kw">let </span><span class="kw-2">mut </span>options_num_off = CollatorOptions::new();
-options_num_off.numeric = <span class="prelude-val">Some</span>(Numeric::Off);
-<span class="kw">let </span>collator_num_off: Collator =
-    Collator::try_new(<span class="kw-2">&amp;</span>Default::default(), options_num_off).unwrap();
+</span><span class="kw">let </span><span class="kw-2">mut </span>prefs_num_off = CollatorPreferences::default();
+prefs_num_off.numeric_ordering = <span class="prelude-val">Some</span>(CollationNumericOrdering::False);
+<span class="kw">let </span>collator_num_off =
+    Collator::try_new(prefs_num_off, Default::default()).unwrap();
 <span class="macro">assert_eq!</span>(collator_num_off.compare(<span class="string">"a10b"</span>, <span class="string">"a2b"</span>), Ordering::Less);
 
 <span class="comment">// Numerical sorting on
 
-</span><span class="kw">let </span><span class="kw-2">mut </span>options_num_on = CollatorOptions::new();
-options_num_on.numeric = <span class="prelude-val">Some</span>(Numeric::On);
-<span class="kw">let </span>collator_num_on: Collator =
-    Collator::try_new(<span class="kw-2">&amp;</span>Default::default(), options_num_on).unwrap();
+</span><span class="kw">let </span><span class="kw-2">mut </span>prefs_num_on = CollatorPreferences::default();
+prefs_num_on.numeric_ordering = <span class="prelude-val">Some</span>(CollationNumericOrdering::True);
+<span class="kw">let </span>collator_num_on =
+    Collator::try_new(prefs_num_on, Default::default()).unwrap();
 <span class="macro">assert_eq!</span>(collator_num_on.compare(<span class="string">"a10b"</span>, <span class="string">"a2b"</span>), Ordering::Greater);</code></pre></div>
-</div></details><h2 id="reexports" class="section-header">Re-exports<a href="#reexports" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name" id="reexport.Error"><code>pub use <a class="enum" href="enum.CollatorError.html" title="enum icu_collator::CollatorError">CollatorError</a> as Error;</code></div></li></ul><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="mod" href="docs/index.html" title="mod icu_collator::docs">docs</a></div><div class="desc docblock-short">This module exists to contain implementation docs and notes for people who want to contribute.</div></li><li><div class="item-name"><a class="mod" href="provider/index.html" title="mod icu_collator::provider">provider</a></div><div class="desc docblock-short">🚧 [Unstable] Data provider struct definitions for this ICU4X component.</div></li></ul><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="struct" href="struct.Collator.html" title="struct icu_collator::Collator">Collator</a></div><div class="desc docblock-short">Compares strings according to culturally-relevant ordering.</div></li><li><div class="item-name"><a class="struct" href="struct.CollatorOptions.html" title="struct icu_collator::CollatorOptions">Collator<wbr>Options</a></div><div class="desc docblock-short">Options settable by the user of the API.</div></li><li><div class="item-name"><a class="struct" href="struct.ResolvedCollatorOptions.html" title="struct icu_collator::ResolvedCollatorOptions">Resolved<wbr>Collator<wbr>Options</a></div><div class="desc docblock-short">The resolved (actually used) options used by the collator.</div></li></ul><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="enum" href="enum.AlternateHandling.html" title="enum icu_collator::AlternateHandling">Alternate<wbr>Handling</a></div><div class="desc docblock-short">What to do about characters whose comparison level can be
-varied dynamically.</div></li><li><div class="item-name"><a class="enum" href="enum.BackwardSecondLevel.html" title="enum icu_collator::BackwardSecondLevel">Backward<wbr>Second<wbr>Level</a></div><div class="desc docblock-short">Whether second level compares the last accent difference
-instead of the first accent difference.</div></li><li><div class="item-name"><a class="enum" href="enum.CaseFirst.html" title="enum icu_collator::CaseFirst">Case<wbr>First</a></div><div class="desc docblock-short">Treatment of case. (Large and small kana
-differences are treated as case differences.)</div></li><li><div class="item-name"><a class="enum" href="enum.CaseLevel.html" title="enum icu_collator::CaseLevel">Case<wbr>Level</a></div><div class="desc docblock-short">Whether to distinguish case in sorting, even for sorting levels higher
-than tertiary, without having to use tertiary level just to enable case level differences.</div></li><li><div class="item-name"><a class="enum" href="enum.CollatorError.html" title="enum icu_collator::CollatorError">Collator<wbr>Error</a></div><div class="desc docblock-short">A list of error outcomes for various operations in this module.</div></li><li><div class="item-name"><a class="enum" href="enum.MaxVariable.html" title="enum icu_collator::MaxVariable">MaxVariable</a></div><div class="desc docblock-short">What characters get shifted to the quaternary level
-with <code>AlternateHandling::Shifted</code>.</div></li><li><div class="item-name"><a class="enum" href="enum.Numeric.html" title="enum icu_collator::Numeric">Numeric</a></div><div class="desc docblock-short">When set to <code>On</code>, any sequence of decimal digits is sorted at a primary level according to the numeric value.</div></li><li><div class="item-name"><a class="enum" href="enum.Strength.html" title="enum icu_collator::Strength">Strength</a></div><div class="desc docblock-short">The collation strength that indicates how many levels to compare.
-If an earlier level isn’t equal, the earlier level is decisive.
-If the result is equal on a level, but the strength is higher,
-the comparison proceeds to the next level.</div></li></ul></section></div></main></body></html>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="docs/index.html" title="mod icu_collator::docs">docs</a></dt><dd>This module exists to contain implementation docs and notes for people who want to contribute.</dd><dt><a class="mod" href="options/index.html" title="mod icu_collator::options">options</a></dt><dd>This module contains the types that are part of the API for setting
+the options for the collator.</dd><dt><a class="mod" href="preferences/index.html" title="mod icu_collator::preferences">preferences</a></dt><dd>Locale preferences used by this crate</dd><dt><a class="mod" href="provider/index.html" title="mod icu_collator::provider">provider</a></dt><dd>🚧 [Unstable] Data provider struct definitions for this ICU4X component.</dd></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.Collator.html" title="struct icu_collator::Collator">Collator</a></dt><dd>Compares strings according to culturally-relevant ordering.</dd><dt><a class="struct" href="struct.CollatorBorrowed.html" title="struct icu_collator::CollatorBorrowed">Collator<wbr>Borrowed</a></dt><dd>Compares strings according to culturally-relevant ordering,
+borrowed version.</dd><dt><a class="struct" href="struct.CollatorPreferences.html" title="struct icu_collator::CollatorPreferences">Collator<wbr>Preferences</a></dt><dd>The preferences for collation.</dd></dl></section></div></main></body></html>

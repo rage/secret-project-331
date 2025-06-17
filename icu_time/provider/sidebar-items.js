@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["iana","windows"],"struct":["Baked","TimeZoneVariantULE","TimezoneVariantsOffsetsV1"]};

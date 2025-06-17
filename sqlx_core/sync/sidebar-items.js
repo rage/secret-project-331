@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["AsyncMutex","AsyncMutexGuard","AsyncSemaphore","AsyncSemaphoreReleaser"]};
+window.SIDEBAR_ITEMS = {"struct":["AsyncSemaphore","AsyncSemaphoreReleaser"]};

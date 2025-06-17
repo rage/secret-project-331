@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["IsoWeekday"],"struct":["DayOfMonth","DayOfWeekInMonth","DayOfYearInfo","Era","FormattableMonth","FormattableYear","IsoHour","IsoMinute","IsoSecond","MonthCode","NanoSecond","Time","WeekOfMonth","WeekOfYear"]};
+window.SIDEBAR_ITEMS = {"enum":["Weekday","YearAmbiguity","YearInfo"],"struct":["CyclicYear","DayOfMonth","DayOfWeekInMonth","DayOfYear","EraYear","IsoWeekOfYear","MonthCode","MonthInfo"]};

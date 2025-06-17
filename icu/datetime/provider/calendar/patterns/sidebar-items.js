@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["GenericLengthPatternsV1","GenericPatternV1","LengthPatternsV1"]};
+window.SIDEBAR_ITEMS = {"enum":["FullLongMediumShort"],"struct":["GenericLengthPatterns","LengthPatterns"]};

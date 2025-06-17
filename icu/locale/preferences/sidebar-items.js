@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["extensions"],"struct":["LocalePreferences"],"trait":["PreferenceKey"]};

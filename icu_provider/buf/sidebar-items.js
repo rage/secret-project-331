@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["BufferFormat"],"struct":["BufferMarker"],"trait":["BufferProvider"]};
+window.SIDEBAR_ITEMS = {"enum":["BufferFormat"],"struct":["BufferMarker","DeserializingBufferProvider"],"trait":["AsDeserializingBufferProvider","BufferProvider"]};

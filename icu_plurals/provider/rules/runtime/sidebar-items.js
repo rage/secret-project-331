@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["test_rule"],"mod":["ast"]};

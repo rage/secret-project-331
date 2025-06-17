@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["TimeZoneVariant"],"mod":["iana","models","windows"],"struct":["InvalidOffsetError","TimeZone","TimeZoneInfo","UtcOffset","VariantOffsets","VariantOffsetsCalculator","VariantOffsetsCalculatorBorrowed","ZoneNameTimestamp"]};

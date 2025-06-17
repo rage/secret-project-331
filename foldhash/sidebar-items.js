@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["fast","quality"]};
+window.SIDEBAR_ITEMS = {"mod":["fast","quality"],"struct":["SharedSeed"],"trait":["HashMapExt","HashSetExt"],"type":["HashMap","HashSet"]};

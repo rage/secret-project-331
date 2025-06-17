@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["FallbackFormat","IsoFormat","IsoMinutes","IsoSeconds"],"struct":["TimeZoneFormatter","TimeZoneFormatterOptions"]};

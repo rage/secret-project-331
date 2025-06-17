@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["chinese_based","islamic"],"struct":["Baked","EraStartDate","EraStartDateULE","JapaneseErasV1","JapaneseErasV1Marker","JapaneseExtendedErasV1Marker","WeekDataV1","WeekDataV1Marker","WeekDataV2","WeekDataV2Marker","WeekdaySet"]};
+window.SIDEBAR_ITEMS = {"mod":["chinese_based","hijri"],"struct":["Baked","CalendarJapaneseExtendedV1","CalendarJapaneseModernV1","CalendarWeekV1","EraStartDate","EraStartDateULE","JapaneseEras","WeekData","WeekdaySet"]};

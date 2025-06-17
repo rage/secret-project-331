@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["GenericPattern","Pattern","PatternMetadata","PatternULE"]};

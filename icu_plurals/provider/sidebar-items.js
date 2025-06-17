@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Baked","CardinalV1Marker","OrdinalV1Marker","PluralRulesV1"]};
+window.SIDEBAR_ITEMS = {"mod":["rules"],"struct":["Baked","FourBitMetadata","PluralElementsPackedCow","PluralElementsPackedULE","PluralRulesData","PluralsCardinalV1","PluralsOrdinalV1"]};

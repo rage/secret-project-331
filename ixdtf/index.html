@@ -1,0 +1,300 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Parsers for extended date time string and Duration parsing."><title>ixdtf - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="ixdtf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../static.files/storage-82c7156e.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../ixdtf/index.html">ixdtf</a><span class="version">0.5.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#date-time-extended-examples" title="Date Time Extended Examples">Date Time Extended Examples</a><ul><li><a href="#example-usage" title="Example Usage">Example Usage</a></li><li><a href="#datetime-strings" title="Date/Time Strings">Date/Time Strings</a></li><li><a href="#updates-to-zulu-interpretation-from-rfc-3339" title="Updates to Zulu interpretation from RFC 3339">Updates to Zulu interpretation from RFC 3339</a></li><li><a href="#ixdtf-extensions-a-deeper-look" title="IXDTF Extensions: A Deeper Look">IXDTF Extensions: A Deeper Look</a></li><li><a href="#additional-grammar-resources" title="Additional grammar resources">Additional grammar resources</a></li><li><a href="#additional-feature" title="Additional Feature">Additional Feature</a></li></ul></li></ul><h3><a href="#modules">Crate Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#macros" title="Macros">Macros</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>ixdtf</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/ixdtf/lib.rs.html#5-399">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Parsers for extended date time string and Duration parsing.</p>
+<p>The <a href="https://datatracker.ietf.org/doc/rfc9557/">Internet Extended Date/Time Fmt (IXDTF)</a> is laid out by RFC 9557. RFC 9557
+builds on RFC 3339’s time stamp specification and ISO 8601 to provide an optional extension
+syntax for date/time strings.</p>
+<p>RFC 9557 also updates the interpretation of <code>Z</code> from RFC 3339.</p>
+<h2 id="date-time-extended-examples"><a class="doc-anchor" href="#date-time-extended-examples">§</a>Date Time Extended Examples</h2>
+<ul>
+<li><code>2024-03-02T08:48:00-05:00[America/New_York]</code></li>
+<li><code>2024-03-02T08:48:00-05:00[-05:00]</code></li>
+<li><code>2024-03-02T08:48:00-05:00[u-ca=iso8601]</code></li>
+</ul>
+<h3 id="example-usage"><a class="doc-anchor" href="#example-usage">§</a>Example Usage</h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>ixdtf::parsers::{
+    records::{Sign, TimeZoneRecord},
+    IxdtfParser,
+};
+
+<span class="kw">let </span>ixdtf_str = <span class="string">"2024-03-02T08:48:00-05:00[America/New_York]"</span>;
+
+<span class="kw">let </span>result = IxdtfParser::from_str(ixdtf_str).parse().unwrap();
+
+<span class="kw">let </span>date = result.date.unwrap();
+<span class="kw">let </span>time = result.time.unwrap();
+<span class="kw">let </span>offset = result.offset.unwrap().resolve_rfc_9557();
+<span class="kw">let </span>tz_annotation = result.tz.unwrap();
+
+<span class="macro">assert_eq!</span>(date.year, <span class="number">2024</span>);
+<span class="macro">assert_eq!</span>(date.month, <span class="number">3</span>);
+<span class="macro">assert_eq!</span>(date.day, <span class="number">2</span>);
+<span class="macro">assert_eq!</span>(time.hour, <span class="number">8</span>);
+<span class="macro">assert_eq!</span>(time.minute, <span class="number">48</span>);
+<span class="macro">assert_eq!</span>(offset.sign(), Sign::Negative);
+<span class="macro">assert_eq!</span>(offset.hour(), <span class="number">5</span>);
+<span class="macro">assert_eq!</span>(offset.minute(), <span class="number">0</span>);
+<span class="macro">assert_eq!</span>(offset.second(), <span class="prelude-val">None</span>);
+<span class="macro">assert_eq!</span>(offset.fraction(), <span class="prelude-val">None</span>);
+<span class="macro">assert!</span>(!tz_annotation.critical);
+<span class="macro">assert_eq!</span>(
+    tz_annotation.tz,
+    TimeZoneRecord::Name(<span class="string">"America/New_York"</span>.as_bytes())
+);</code></pre></div>
+<h3 id="datetime-strings"><a class="doc-anchor" href="#datetime-strings">§</a>Date/Time Strings</h3>
+<p>The extended suffixes laid out by RFC 9557 are optional, so the <code>IxdtfParser</code>
+will also still parse any valid date time strings described by RFC3339.</p>
+<p>Example Valid Date Time Strings:</p>
+<ul>
+<li><code>2024-03-02</code></li>
+<li><code>+002024-03-02</code></li>
+<li><code>20240302</code></li>
+<li><code>+0020240302</code></li>
+<li><code>2024-03-02T08:48:00</code></li>
+<li><code>2024-03-02T08:48:00</code></li>
+</ul>
+<h3 id="updates-to-zulu-interpretation-from-rfc-3339"><a class="doc-anchor" href="#updates-to-zulu-interpretation-from-rfc-3339">§</a>Updates to Zulu interpretation from RFC 3339</h3>
+<p>RFC 3339 interpreted both <code>+00:00</code> and <code>Z</code> “UTC is the preferred reference point for the
+specified time”; meanwhile, <code>-00:00</code> expressed “the time in UTC is known, but the local
+time is unknown”.</p>
+<p>RFC 9557 updates the interpretation of <code>Z</code> to align with <code>-00:00</code>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>ixdtf::parsers::{
+    records::{Sign, TimeZoneRecord},
+    IxdtfParser,
+};
+
+<span class="kw">let </span>ixdtf_str = <span class="string">"2024-03-02T08:48:00Z[America/New_York]"</span>;
+
+<span class="kw">let </span>result = IxdtfParser::from_str(ixdtf_str).parse().unwrap();
+
+<span class="kw">let </span>date = result.date.unwrap();
+<span class="kw">let </span>time = result.time.unwrap();
+<span class="kw">let </span>offset = result.offset.unwrap().resolve_rfc_9557();
+<span class="kw">let </span>tz_annotation = result.tz.unwrap();
+
+<span class="macro">assert_eq!</span>(date.year, <span class="number">2024</span>);
+<span class="macro">assert_eq!</span>(date.month, <span class="number">3</span>);
+<span class="macro">assert_eq!</span>(date.day, <span class="number">2</span>);
+<span class="macro">assert_eq!</span>(time.hour, <span class="number">8</span>);
+<span class="macro">assert_eq!</span>(time.minute, <span class="number">48</span>);
+<span class="macro">assert_eq!</span>(offset.sign(), Sign::Negative);
+<span class="macro">assert_eq!</span>(offset.hour(), <span class="number">0</span>);
+<span class="macro">assert_eq!</span>(offset.minute(), <span class="number">0</span>);
+<span class="macro">assert_eq!</span>(offset.second(), <span class="prelude-val">None</span>);
+<span class="macro">assert_eq!</span>(offset.fraction(), <span class="prelude-val">None</span>);
+<span class="macro">assert!</span>(!tz_annotation.critical);
+<span class="macro">assert_eq!</span>(
+    tz_annotation.tz,
+    TimeZoneRecord::Name(<span class="string">"America/New_York"</span>.as_bytes())
+);</code></pre></div>
+<p>For more information on the update to RFC 3339, please see RFC 9557, Section 2.</p>
+<p>For more information on <code>Z</code> along with time zone annotations, please see the Annotations
+with Application Defined Behavior section below.</p>
+<h3 id="ixdtf-extensions-a-deeper-look"><a class="doc-anchor" href="#ixdtf-extensions-a-deeper-look">§</a>IXDTF Extensions: A Deeper Look</h3>
+<p>The suffix extensions come in two primary kinds: a time zone annotation and a key-value
+annotation. The suffixes may also be flagged as critical with a <code>!</code> as a leading flag
+character.</p>
+<h4 id="time-zone-annotations"><a class="doc-anchor" href="#time-zone-annotations">§</a>Time Zone Annotations</h4>
+<p>Time zone annotations can be either a valid IANA time zone name or numeric
+offset.</p>
+<h5 id="valid-time-zone-annotations"><a class="doc-anchor" href="#valid-time-zone-annotations">§</a>Valid Time Zone Annotations</h5>
+<ul>
+<li><code>2024-03-02T08:48:00-5:00[America/New_York]</code></li>
+<li><code>2024-03-02T08:48:00-5:00[-05:00]</code></li>
+<li><code>2024-03-02T08:48:00Z[America/New_York]</code></li>
+</ul>
+<h6 id="time-zone-consistency"><a class="doc-anchor" href="#time-zone-consistency">§</a>Time Zone Consistency</h6>
+<p>With the update to RFC 3339, when <code>Z</code> is provided as a datetime offset along side a time zone
+annotation, the IXDTF string is not considered inconsistent as <code>Z</code> does not assert any local
+time. Instead, an application may decide to calculate the time with the rules of the time
+zone annotation if it is provided.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>ixdtf::parsers::{
+    records::{Sign, TimeZoneRecord},
+    IxdtfParser,
+};
+
+<span class="kw">let </span>zulu_offset = <span class="string">"2024-03-02T08:48:00Z[!America/New_York]"</span>;
+
+<span class="kw">let </span>result = IxdtfParser::from_str(zulu_offset).parse().unwrap();
+
+<span class="kw">let </span>tz_annotation = result.tz.unwrap();
+<span class="kw">let </span>offset = result.offset.unwrap().resolve_rfc_9557();
+
+<span class="comment">// The offset is `Z`/`-00:00`, so the application can use the rules of
+// "America/New_York" to calculate the time for IXDTF string.
+</span><span class="macro">assert_eq!</span>(offset.sign(), Sign::Negative);
+<span class="macro">assert_eq!</span>(offset.hour(), <span class="number">0</span>);
+<span class="macro">assert_eq!</span>(offset.minute(), <span class="number">0</span>);
+<span class="macro">assert_eq!</span>(offset.second(), <span class="prelude-val">None</span>);
+<span class="macro">assert_eq!</span>(offset.fraction(), <span class="prelude-val">None</span>);
+<span class="macro">assert!</span>(tz_annotation.critical);
+<span class="macro">assert_eq!</span>(
+    tz_annotation.tz,
+    TimeZoneRecord::Name(<span class="string">"America/New_York"</span>.as_bytes())
+);</code></pre></div>
+<h4 id="key-value-annotations"><a class="doc-anchor" href="#key-value-annotations">§</a>Key-Value Annotations</h4>
+<p>Key-value pair annotations are any key and value string separated by a ‘=’ character.
+Key-value pairs are can include any information. Keys may be permanently registered,
+provisionally registered, or unknown; however, only permanent keys are acted on by
+<code>IxdtfParser</code>.</p>
+<p>If duplicate registered keys are provided the first key will be returned, unless one
+of the duplicate annotations is marked as critical, in which case an error may be
+thrown by the <code>ixdtf</code> (See <a href="#invalid-annotations">Invalid Annotations</a> for more
+information).</p>
+<h5 id="permanent-registered-keys"><a class="doc-anchor" href="#permanent-registered-keys">§</a>Permanent Registered Keys</h5>
+<ul>
+<li><code>u-ca</code></li>
+</ul>
+<h5 id="valid-annotations"><a class="doc-anchor" href="#valid-annotations">§</a>Valid Annotations</h5>
+<ul>
+<li>(1) <code>2024-03-02T08:48:00-05:00[America/New_York][u-ca=iso8601]</code></li>
+<li>(2) <code>2024-03-02T08:48:00-05:00[u-ca=iso8601][u-ca=japanese]</code></li>
+<li>(3) <code>2024-03-02T08:48:00-05:00[u-ca=iso8601][!u-ca=iso8601]</code></li>
+<li>(4) <code>2024-03-02T08:48:00-05:00[u-ca=iso8601][answer-to-universe=fortytwo]</code></li>
+</ul>
+<h6 id="example-1"><a class="doc-anchor" href="#example-1">§</a>Example 1</h6>
+<p>This is a basic annotation string that has a Time Zone and calendar annotation.</p>
+<h6 id="example-2"><a class="doc-anchor" href="#example-2">§</a>Example 2</h6>
+<p>This example is duplicate and different calendar annotations, but neither calendar
+is flagged as critical so the first calendar is returned while the second calendar
+is ignored.</p>
+<h6 id="example-3"><a class="doc-anchor" href="#example-3">§</a>Example 3</h6>
+<p>This example is a duplicate and identical calendar annotations with one annotation flagged
+as critical. As the annotations are identical values, there is no ambiguity with the use of
+the critical flag that may cause an error. Thus, the first annotation is returned, and the
+second is ignored (See <a href="#annotations-with-application-defined-behavior">Annotations with Application Defined
+Behavior</a>).</p>
+<h6 id="example-4"><a class="doc-anchor" href="#example-4">§</a>Example 4</h6>
+<p>This example contains an unknown annotation. The annotation is not marked as critical
+so the value is ignored (See <a href="#implementing-annotation-handlers">Implementing Annotation Handlers</a>).</p>
+<h5 id="invalid-annotations"><a class="doc-anchor" href="#invalid-annotations">§</a>Invalid Annotations</h5>
+<p>The below <code>ixdtf</code> strings have invalid annotations that will cause an error
+to be thrown (NOTE: these are not to be confused with potentially invalid
+annotations with application defined behavior).</p>
+<ul>
+<li>(1) <code>2024-03-02T08:48:00-05:00[u-ca=iso8601][America/New_York]</code></li>
+<li>(2) <code>2024-03-02T08:48:00-05:00[u-ca=iso8601][!u-ca=japanese]</code></li>
+<li>(3) <code>2024-03-02T08:48:00-05:00[u-ca=iso8601][!answer-to-universe=fortytwo]</code></li>
+</ul>
+<h6 id="example-1-1"><a class="doc-anchor" href="#example-1-1">§</a>Example 1</h6>
+<p>This example shows a Time Zone annotation that is not currently in the correct
+order with the key value. When parsing this invalid annotation, <code>ixdtf</code>
+will attempt to parse the Time Zone annotation as a key-value annotation.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>ixdtf::{parsers::IxdtfParser, ParseError};
+
+<span class="kw">let </span>example_one =
+    <span class="string">"2024-03-02T08:48:00-05:00[u-ca=iso8601][America/New_York]"</span>;
+
+<span class="kw">let </span>result = IxdtfParser::from_str(example_one).parse();
+
+<span class="macro">assert_eq!</span>(result, <span class="prelude-val">Err</span>(ParseError::AnnotationKeyLeadingChar));</code></pre></div>
+<h6 id="example-2-1"><a class="doc-anchor" href="#example-2-1">§</a>Example 2</h6>
+<p>This example shows a duplicate registered key; however, in this case, one
+of the registered keys is flagged as critical, which throws an error as
+the ixdtf string must be treated as erroneous</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>ixdtf::{parsers::IxdtfParser, ParseError};
+
+<span class="kw">let </span>example_two = <span class="string">"2024-03-02T08:48:00-05:00[u-ca=iso8601][!u-ca=japanese]"</span>;
+
+<span class="kw">let </span>result = IxdtfParser::from_str(example_two).parse();
+
+<span class="macro">assert_eq!</span>(result, <span class="prelude-val">Err</span>(ParseError::CriticalDuplicateCalendar));</code></pre></div>
+<h6 id="example-3-1"><a class="doc-anchor" href="#example-3-1">§</a>Example 3</h6>
+<p>This example shows an unknown key flagged as critical. <code>ixdtf</code> will return an
+error on an unknown flag being flagged as critical.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>ixdtf::{parsers::IxdtfParser, ParseError};
+
+<span class="kw">let </span>example_three =
+    <span class="string">"2024-03-02T08:48:00-05:00[u-ca=iso8601][!answer-to-universe=fortytwo]"</span>;
+
+<span class="kw">let </span>result = IxdtfParser::from_str(example_three).parse();
+
+<span class="macro">assert_eq!</span>(result, <span class="prelude-val">Err</span>(ParseError::UnrecognizedCritical));</code></pre></div>
+<h5 id="annotations-with-application-defined-behavior"><a class="doc-anchor" href="#annotations-with-application-defined-behavior">§</a>Annotations with Application Defined Behavior</h5>
+<p>The below options may be viewed as valid or invalid depending on application defined
+behavior. Where user defined behavior might be required, the <code>ixdtf</code> crate applies
+the logic in the least restrictive interpretation and provides optional callbacks
+for the user to define stricter behavior.</p>
+<ul>
+<li>(1) <code>2024-03-02T08:48:00-05:00[u-ca=japanese][!u-ca=japanese]</code></li>
+<li>(2) <code>2024-03-02T08:48:00+01:00[America/New_York]</code></li>
+</ul>
+<h6 id="example-1-2"><a class="doc-anchor" href="#example-1-2">§</a>Example 1</h6>
+<p>This example shows a critical duplicate calendar where the annotation value is identical. RFC 9557 is
+ambiguous on whether this should be rejected for inconsistency. <code>ixdtf</code> treats these values
+as consistent, and, therefore, okay. However, an application may wish to handle this duplicate
+critical calendar value as inconsistent (See <a href="#implementing-annotation-handlers">Implementing Annotation Handlers</a>).</p>
+<h6 id="example-2-2"><a class="doc-anchor" href="#example-2-2">§</a>Example 2</h6>
+<p>This example shows an ambiguous Time Zone caused by a misalignment
+of the offset and the Time Zone annotation. It is up to the user to handle this ambiguity
+between the offset and annotation.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>ixdtf::parsers::{IxdtfParser, records::TimeZoneRecord};
+
+<span class="kw">let </span>example_two = <span class="string">"2024-03-02T08:48:00+01:00[!America/New_York]"</span>;
+
+<span class="kw">let </span>result = IxdtfParser::from_str(example_two).parse().unwrap();
+
+<span class="kw">let </span>tz_annotation = result.tz.unwrap();
+<span class="kw">let </span>offset = result.offset.unwrap().resolve_rfc_9557();
+
+<span class="comment">// The time zone annotation and offset conflict with each other, and must therefore be
+// resolved by the user.
+</span><span class="macro">assert!</span>(tz_annotation.critical);
+<span class="macro">assert_eq!</span>(tz_annotation.tz, TimeZoneRecord::Name(<span class="string">"America/New_York"</span>.as_bytes()));
+<span class="macro">assert_eq!</span>(offset.hour(), <span class="number">1</span>);</code></pre></div>
+<h5 id="implementing-annotation-handlers"><a class="doc-anchor" href="#implementing-annotation-handlers">§</a>Implementing Annotation Handlers</h5>
+<p>As mentioned in the prior section, there may be times where an application may
+need to implement application defined behavior for user defined functionality.
+In this instance, <code>ixdtf</code> provides a <code>*_with_annotation_handler</code> method that
+allows to the user to provide a callback.</p>
+<p>A handler is defined as <code>handler: impl FnMut(Annotation&lt;'a&gt;) -&gt; Option&lt;Annotation&lt;'a&gt;&gt;</code>
+where <code>ixdtf</code> provides visibility to an annotation to the user. The call to this callback
+occurs prior to the <code>ixdtf</code>’s processing of the annotation, and will only occur if the
+annotation is provided back to <code>ixdtf</code>.</p>
+<p>If the user wishes to ignore any <code>ixdtf</code>’s errors, then they may return <code>None</code>, which
+results in a no-op for that annotation.</p>
+<p>Unless the user’s application has a specific reason to bypass action on an annotation,
+such as, custom unknown key handling or superceding a calendar based on it’s critical
+flag, it is recommended to return the annotation value.</p>
+<h6 id="handler-example"><a class="doc-anchor" href="#handler-example">§</a>Handler Example</h6>
+<p>A user may wish to implement a custom key in an annotation set. This can be completed
+with custom handler.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>ixdtf::parsers::IxdtfParser;
+
+<span class="kw">let </span>example_with_custom_key = <span class="string">"2024-03-02T08:48:00-05:00[u-ca=iso8601][!answer-to-universe=fortytwo]"</span>;
+
+<span class="kw">let </span><span class="kw-2">mut </span>answer = <span class="prelude-val">None</span>;
+
+<span class="kw">let _ </span>= IxdtfParser::from_str(example_with_custom_key).parse_with_annotation_handler(|annotation| {
+    <span class="kw">if </span>annotation.key == <span class="string">"answer-to-universe"</span>.as_bytes() {
+        answer.get_or_insert(annotation);
+        <span class="comment">// Found our value! We don't need `ixdtf` to handle this annotation.
+        </span><span class="kw">return </span><span class="prelude-val">None
+    </span>}
+    <span class="comment">// The annotation is not our custom annotation, so we return
+    // the value back for regular logic.
+    </span><span class="prelude-val">Some</span>(annotation)
+}).unwrap();
+
+<span class="kw">let </span>answer = answer.unwrap();
+
+<span class="macro">assert!</span>(answer.critical);
+<span class="macro">assert_eq!</span>(answer.value, <span class="string">"fortytwo"</span>.as_bytes());</code></pre></div>
+<p>It is worth noting that in the above example the annotation above found is a critically flagged
+unknown key. RFC 9557 and <code>ixdtf</code> considers unknown critical keys as invalid. However, handlers
+allow the user to define any known keys of their own and therefore also handle the logic around
+criticality.</p>
+<h3 id="additional-grammar-resources"><a class="doc-anchor" href="#additional-grammar-resources">§</a>Additional grammar resources</h3>
+<p>Additional resources for Date and Time string grammar can be found in <a href="https://datatracker.ietf.org/doc/html/rfc3339">RFC3339</a>
+and the <a href="https://tc39.es/proposal-temporal/#sec-temporal-iso8601grammar">Temporal proposal</a>.</p>
+<h3 id="additional-feature"><a class="doc-anchor" href="#additional-feature">§</a>Additional Feature</h3>
+<p>The <code>ixdtf</code> crate also implements an ISO8601 Duration parser (<code>IsoDurationParser</code>) that is available under
+the <code>duration</code> feature flag. The API for <code>IsoDurationParser</code> is the same as <code>IxdtfParser</code>, but
+parses duration strings over date/time strings.</p>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="parsers/index.html" title="mod ixdtf::parsers">parsers</a></dt><dd>The parser module contains the implementation details for <code>IxdtfParser</code> and <code>IsoDurationParser</code></dd></dl><h2 id="macros" class="section-header">Macros<a href="#macros" class="anchor">§</a></h2><dl class="item-table"><dt><a class="macro" href="macro.assert_syntax.html" title="macro ixdtf::assert_syntax">assert_<wbr>syntax</a></dt><dd><code>assert_syntax!</code> is a parser specific utility macro for asserting a syntax test, and returning the
+the provided provided error if the assertion fails.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.ParseError.html" title="enum ixdtf::ParseError">Parse<wbr>Error</a></dt><dd>The error returned by <code>ixdtf</code>’s parsers.</dd></dl><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><dl class="item-table"><dt><a class="type" href="type.ParserResult.html" title="type ixdtf::ParserResult">Parser<wbr>Result</a></dt><dd>The <code>ixdtf</code> crate’s Result type.</dd></dl></section></div></main></body></html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/icu_datetime-2.0.0/src/format/input.rs`."><title>input.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../static.files/storage-82c7156e.js"></script><script defer src="../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">icu_datetime/format/</div>input.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
+<a href=#2 id=2 data-nosnippet>2</a>// called LICENSE at the top level of the ICU4X source tree
+<a href=#3 id=3 data-nosnippet>3</a>// (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
+<a href=#4 id=4 data-nosnippet>4</a>
+<a href=#5 id=5 data-nosnippet>5</a></span><span class="doccomment">//! A collection of utilities for representing and working with dates as an input to
+<a href=#6 id=6 data-nosnippet>6</a>//! formatting operations.
+<a href=#7 id=7 data-nosnippet>7</a>
+<a href=#8 id=8 data-nosnippet>8</a></span><span class="kw">use </span><span class="kw">crate</span>::scaffold::<span class="kw-2">*</span>;
+<a href=#9 id=9 data-nosnippet>9</a><span class="kw">use </span>icu_calendar::types::DayOfYear;
+<a href=#10 id=10 data-nosnippet>10</a><span class="kw">use </span>icu_calendar::{AsCalendar, Calendar};
+<a href=#11 id=11 data-nosnippet>11</a><span class="kw">use </span>icu_time::scaffold::IntoOption;
+<a href=#12 id=12 data-nosnippet>12</a><span class="kw">use </span>icu_time::zone::ZoneNameTimestamp;
+<a href=#13 id=13 data-nosnippet>13</a><span class="kw">use </span>icu_time::{zone::TimeZoneVariant, Hour, Minute, Nanosecond, Second};
+<a href=#14 id=14 data-nosnippet>14</a>
+<a href=#15 id=15 data-nosnippet>15</a><span class="kw">use </span>icu_calendar::Date;
+<a href=#16 id=16 data-nosnippet>16</a><span class="kw">use </span>icu_time::{zone::UtcOffset, Time, TimeZone};
+<a href=#17 id=17 data-nosnippet>17</a>
+<a href=#18 id=18 data-nosnippet>18</a><span class="comment">// TODO(#2630) fix up imports to directly import from icu_calendar
+<a href=#19 id=19 data-nosnippet>19</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>icu_calendar::types::{DayOfMonth, MonthInfo, Weekday, YearInfo};
+<a href=#20 id=20 data-nosnippet>20</a>
+<a href=#21 id=21 data-nosnippet>21</a><span class="attr">#[cfg(doc)]
+<a href=#22 id=22 data-nosnippet>22</a></span><span class="kw">use </span><span class="kw">crate</span>::input::<span class="kw-2">*</span>;
+<a href=#23 id=23 data-nosnippet>23</a>
+<a href=#24 id=24 data-nosnippet>24</a><span class="doccomment">/// An input bag with all possible datetime input fields.
+<a href=#25 id=25 data-nosnippet>25</a>///
+<a href=#26 id=26 data-nosnippet>26</a>/// Each input field may or may not be required, depending on the field set
+<a href=#27 id=27 data-nosnippet>27</a>/// and the options.
+<a href=#28 id=28 data-nosnippet>28</a></span><span class="attr">#[derive(Debug, Copy, Clone, Default)]
+<a href=#29 id=29 data-nosnippet>29</a>#[non_exhaustive]
+<a href=#30 id=30 data-nosnippet>30</a></span><span class="kw">pub struct </span>DateTimeInputUnchecked {
+<a href=#31 id=31 data-nosnippet>31</a>    <span class="doccomment">/// The year, required for field sets with years (`Y`).
+<a href=#32 id=32 data-nosnippet>32</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) year: <span class="prelude-ty">Option</span>&lt;YearInfo&gt;,
+<a href=#33 id=33 data-nosnippet>33</a>    <span class="doccomment">/// The month, required for field sets with months (`M`)
+<a href=#34 id=34 data-nosnippet>34</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) month: <span class="prelude-ty">Option</span>&lt;MonthInfo&gt;,
+<a href=#35 id=35 data-nosnippet>35</a>    <span class="doccomment">/// The day-of-month, required for field sets with days (`D`).
+<a href=#36 id=36 data-nosnippet>36</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) day_of_month: <span class="prelude-ty">Option</span>&lt;DayOfMonth&gt;,
+<a href=#37 id=37 data-nosnippet>37</a>    <span class="doccomment">/// The weekday, required for field sets with weekdays (`E`).
+<a href=#38 id=38 data-nosnippet>38</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) iso_weekday: <span class="prelude-ty">Option</span>&lt;Weekday&gt;,
+<a href=#39 id=39 data-nosnippet>39</a>    <span class="doccomment">/// The day-of-year, required for field sets with weeks.
+<a href=#40 id=40 data-nosnippet>40</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) day_of_year: <span class="prelude-ty">Option</span>&lt;DayOfYear&gt;,
+<a href=#41 id=41 data-nosnippet>41</a>    <span class="doccomment">/// The hour, required for field sets with times (`T`).
+<a href=#42 id=42 data-nosnippet>42</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) hour: <span class="prelude-ty">Option</span>&lt;Hour&gt;,
+<a href=#43 id=43 data-nosnippet>43</a>    <span class="doccomment">/// The minute, required for field sets with times (`T`).
+<a href=#44 id=44 data-nosnippet>44</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) minute: <span class="prelude-ty">Option</span>&lt;Minute&gt;,
+<a href=#45 id=45 data-nosnippet>45</a>    <span class="doccomment">/// The second, required for field sets with times (`T`).
+<a href=#46 id=46 data-nosnippet>46</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) second: <span class="prelude-ty">Option</span>&lt;Second&gt;,
+<a href=#47 id=47 data-nosnippet>47</a>    <span class="doccomment">/// The subsecond, required for field sets with times (`T`).
+<a href=#48 id=48 data-nosnippet>48</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) subsecond: <span class="prelude-ty">Option</span>&lt;Nanosecond&gt;,
+<a href=#49 id=49 data-nosnippet>49</a>    <span class="doccomment">/// The time zone ID, required for field sets with
+<a href=#50 id=50 data-nosnippet>50</a>    /// certain time zone styles.
+<a href=#51 id=51 data-nosnippet>51</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) zone_id: <span class="prelude-ty">Option</span>&lt;TimeZone&gt;,
+<a href=#52 id=52 data-nosnippet>52</a>    <span class="doccomment">/// The time zone UTC offset, required for field sets with
+<a href=#53 id=53 data-nosnippet>53</a>    /// certain time zone styles.
+<a href=#54 id=54 data-nosnippet>54</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) zone_offset: <span class="prelude-ty">Option</span>&lt;UtcOffset&gt;,
+<a href=#55 id=55 data-nosnippet>55</a>    <span class="doccomment">/// The time zone variant, required for field sets with
+<a href=#56 id=56 data-nosnippet>56</a>    /// certain time zone styles.
+<a href=#57 id=57 data-nosnippet>57</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) zone_variant: <span class="prelude-ty">Option</span>&lt;TimeZoneVariant&gt;,
+<a href=#58 id=58 data-nosnippet>58</a>    <span class="doccomment">/// The local ISO time, required for field sets with
+<a href=#59 id=59 data-nosnippet>59</a>    /// certain time zone styles.
+<a href=#60 id=60 data-nosnippet>60</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) zone_name_timestamp: <span class="prelude-ty">Option</span>&lt;ZoneNameTimestamp&gt;,
+<a href=#61 id=61 data-nosnippet>61</a>}
+<a href=#62 id=62 data-nosnippet>62</a>
+<a href=#63 id=63 data-nosnippet>63</a><span class="kw">impl </span>DateTimeInputUnchecked {
+<a href=#64 id=64 data-nosnippet>64</a>    <span class="doccomment">/// Sets all fields from a [`Date`] input.
+<a href=#65 id=65 data-nosnippet>65</a>    ///
+<a href=#66 id=66 data-nosnippet>66</a>    /// This method does not check the calendar of the date! The caller is
+<a href=#67 id=67 data-nosnippet>67</a>    /// responsible for making sure the calendar matches the formatter.
+<a href=#68 id=68 data-nosnippet>68</a>    </span><span class="kw">pub fn </span>set_date_fields_unchecked&lt;C: Calendar, A: AsCalendar&lt;Calendar = C&gt;&gt;(
+<a href=#69 id=69 data-nosnippet>69</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#70 id=70 data-nosnippet>70</a>        date_in_calendar: Date&lt;A&gt;,
+<a href=#71 id=71 data-nosnippet>71</a>    ) {
+<a href=#72 id=72 data-nosnippet>72</a>        <span class="self">self</span>.year = <span class="prelude-val">Some</span>(date_in_calendar.year());
+<a href=#73 id=73 data-nosnippet>73</a>        <span class="self">self</span>.month = <span class="prelude-val">Some</span>(date_in_calendar.month());
+<a href=#74 id=74 data-nosnippet>74</a>        <span class="self">self</span>.day_of_month = <span class="prelude-val">Some</span>(date_in_calendar.day_of_month());
+<a href=#75 id=75 data-nosnippet>75</a>        <span class="self">self</span>.iso_weekday = <span class="prelude-val">Some</span>(date_in_calendar.day_of_week());
+<a href=#76 id=76 data-nosnippet>76</a>        <span class="self">self</span>.day_of_year = <span class="prelude-val">Some</span>(date_in_calendar.day_of_year());
+<a href=#77 id=77 data-nosnippet>77</a>    }
+<a href=#78 id=78 data-nosnippet>78</a>
+<a href=#79 id=79 data-nosnippet>79</a>    <span class="doccomment">/// Sets all fields from a [`Time`] input.
+<a href=#80 id=80 data-nosnippet>80</a>    </span><span class="kw">pub fn </span>set_time_fields(<span class="kw-2">&amp;mut </span><span class="self">self</span>, time: Time) {
+<a href=#81 id=81 data-nosnippet>81</a>        <span class="self">self</span>.hour = <span class="prelude-val">Some</span>(time.hour);
+<a href=#82 id=82 data-nosnippet>82</a>        <span class="self">self</span>.minute = <span class="prelude-val">Some</span>(time.minute);
+<a href=#83 id=83 data-nosnippet>83</a>        <span class="self">self</span>.second = <span class="prelude-val">Some</span>(time.second);
+<a href=#84 id=84 data-nosnippet>84</a>        <span class="self">self</span>.subsecond = <span class="prelude-val">Some</span>(time.subsecond);
+<a href=#85 id=85 data-nosnippet>85</a>    }
+<a href=#86 id=86 data-nosnippet>86</a>
+<a href=#87 id=87 data-nosnippet>87</a>    <span class="doccomment">/// Sets the time zone UTC offset.
+<a href=#88 id=88 data-nosnippet>88</a>    </span><span class="kw">pub fn </span>set_time_zone_utc_offset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, utc_offset: UtcOffset) {
+<a href=#89 id=89 data-nosnippet>89</a>        <span class="self">self</span>.zone_offset = <span class="prelude-val">Some</span>(utc_offset);
+<a href=#90 id=90 data-nosnippet>90</a>    }
+<a href=#91 id=91 data-nosnippet>91</a>
+<a href=#92 id=92 data-nosnippet>92</a>    <span class="doccomment">/// Sets the time zone ID.
+<a href=#93 id=93 data-nosnippet>93</a>    </span><span class="kw">pub fn </span>set_time_zone_id(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: TimeZone) {
+<a href=#94 id=94 data-nosnippet>94</a>        <span class="self">self</span>.zone_id = <span class="prelude-val">Some</span>(id);
+<a href=#95 id=95 data-nosnippet>95</a>    }
+<a href=#96 id=96 data-nosnippet>96</a>
+<a href=#97 id=97 data-nosnippet>97</a>    <span class="doccomment">/// Sets the local time for time zone name resolution.
+<a href=#98 id=98 data-nosnippet>98</a>    </span><span class="kw">pub fn </span>set_time_zone_name_timestamp(<span class="kw-2">&amp;mut </span><span class="self">self</span>, local_time: ZoneNameTimestamp) {
+<a href=#99 id=99 data-nosnippet>99</a>        <span class="self">self</span>.zone_name_timestamp = <span class="prelude-val">Some</span>(local_time);
+<a href=#100 id=100 data-nosnippet>100</a>    }
+<a href=#101 id=101 data-nosnippet>101</a>
+<a href=#102 id=102 data-nosnippet>102</a>    <span class="doccomment">/// Sets the time zone variant.
+<a href=#103 id=103 data-nosnippet>103</a>    </span><span class="kw">pub fn </span>set_time_zone_variant(<span class="kw-2">&amp;mut </span><span class="self">self</span>, zone_variant: TimeZoneVariant) {
+<a href=#104 id=104 data-nosnippet>104</a>        <span class="self">self</span>.zone_variant = <span class="prelude-val">Some</span>(zone_variant);
+<a href=#105 id=105 data-nosnippet>105</a>    }
+<a href=#106 id=106 data-nosnippet>106</a>
+<a href=#107 id=107 data-nosnippet>107</a>    <span class="doccomment">/// Construct given neo date input instances.
+<a href=#108 id=108 data-nosnippet>108</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>extract_from_neo_input&lt;D, T, Z, I&gt;(input: <span class="kw-2">&amp;</span>I) -&gt; <span class="self">Self
+<a href=#109 id=109 data-nosnippet>109</a>    </span><span class="kw">where
+<a href=#110 id=110 data-nosnippet>110</a>        </span>D: DateInputMarkers,
+<a href=#111 id=111 data-nosnippet>111</a>        T: TimeMarkers,
+<a href=#112 id=112 data-nosnippet>112</a>        Z: ZoneMarkers,
+<a href=#113 id=113 data-nosnippet>113</a>        I: <span class="question-mark">?</span>Sized
+<a href=#114 id=114 data-nosnippet>114</a>            + GetField&lt;D::YearInput&gt;
+<a href=#115 id=115 data-nosnippet>115</a>            + GetField&lt;D::MonthInput&gt;
+<a href=#116 id=116 data-nosnippet>116</a>            + GetField&lt;D::DayOfMonthInput&gt;
+<a href=#117 id=117 data-nosnippet>117</a>            + GetField&lt;D::DayOfWeekInput&gt;
+<a href=#118 id=118 data-nosnippet>118</a>            + GetField&lt;D::DayOfYearInput&gt;
+<a href=#119 id=119 data-nosnippet>119</a>            + GetField&lt;T::HourInput&gt;
+<a href=#120 id=120 data-nosnippet>120</a>            + GetField&lt;T::MinuteInput&gt;
+<a href=#121 id=121 data-nosnippet>121</a>            + GetField&lt;T::SecondInput&gt;
+<a href=#122 id=122 data-nosnippet>122</a>            + GetField&lt;T::NanosecondInput&gt;
+<a href=#123 id=123 data-nosnippet>123</a>            + GetField&lt;Z::TimeZoneIdInput&gt;
+<a href=#124 id=124 data-nosnippet>124</a>            + GetField&lt;Z::TimeZoneOffsetInput&gt;
+<a href=#125 id=125 data-nosnippet>125</a>            + GetField&lt;Z::TimeZoneVariantInput&gt;
+<a href=#126 id=126 data-nosnippet>126</a>            + GetField&lt;Z::TimeZoneNameTimestampInput&gt;,
+<a href=#127 id=127 data-nosnippet>127</a>    {
+<a href=#128 id=128 data-nosnippet>128</a>        <span class="self">Self </span>{
+<a href=#129 id=129 data-nosnippet>129</a>            year: GetField::&lt;D::YearInput&gt;::get_field(input).into_option(),
+<a href=#130 id=130 data-nosnippet>130</a>            month: GetField::&lt;D::MonthInput&gt;::get_field(input).into_option(),
+<a href=#131 id=131 data-nosnippet>131</a>            day_of_month: GetField::&lt;D::DayOfMonthInput&gt;::get_field(input).into_option(),
+<a href=#132 id=132 data-nosnippet>132</a>            iso_weekday: GetField::&lt;D::DayOfWeekInput&gt;::get_field(input).into_option(),
+<a href=#133 id=133 data-nosnippet>133</a>            day_of_year: GetField::&lt;D::DayOfYearInput&gt;::get_field(input).into_option(),
+<a href=#134 id=134 data-nosnippet>134</a>            hour: GetField::&lt;T::HourInput&gt;::get_field(input).into_option(),
+<a href=#135 id=135 data-nosnippet>135</a>            minute: GetField::&lt;T::MinuteInput&gt;::get_field(input).into_option(),
+<a href=#136 id=136 data-nosnippet>136</a>            second: GetField::&lt;T::SecondInput&gt;::get_field(input).into_option(),
+<a href=#137 id=137 data-nosnippet>137</a>            subsecond: GetField::&lt;T::NanosecondInput&gt;::get_field(input).into_option(),
+<a href=#138 id=138 data-nosnippet>138</a>            zone_id: GetField::&lt;Z::TimeZoneIdInput&gt;::get_field(input).into_option(),
+<a href=#139 id=139 data-nosnippet>139</a>            zone_offset: GetField::&lt;Z::TimeZoneOffsetInput&gt;::get_field(input).into_option(),
+<a href=#140 id=140 data-nosnippet>140</a>            zone_variant: GetField::&lt;Z::TimeZoneVariantInput&gt;::get_field(input).into_option(),
+<a href=#141 id=141 data-nosnippet>141</a>            zone_name_timestamp: GetField::&lt;Z::TimeZoneNameTimestampInput&gt;::get_field(input)
+<a href=#142 id=142 data-nosnippet>142</a>                .into_option(),
+<a href=#143 id=143 data-nosnippet>143</a>        }
+<a href=#144 id=144 data-nosnippet>144</a>    }
+<a href=#145 id=145 data-nosnippet>145</a>}</code></pre></div></section></main></body></html>

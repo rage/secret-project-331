@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["SymbolsV1"],"struct":["ContextsV1","FormatWidthsV1","StandAloneWidthsV1"]};
+window.SIDEBAR_ITEMS = {"enum":["Symbols"],"struct":["Contexts","FormatWidths","StandAloneWidths"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["GroupingStrategy"],"struct":["FixedDecimalFormatterOptions"]};
+window.SIDEBAR_ITEMS = {"enum":["GroupingStrategy"],"struct":["DecimalFormatterOptions"]};

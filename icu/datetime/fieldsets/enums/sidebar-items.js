@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CalendarPeriodFieldSet","CompositeDateTimeFieldSet","CompositeFieldSet","DateAndTimeFieldSet","DateFieldSet","TimeFieldSet","ZoneFieldSet"],"type":["ZonedDateAndTimeFieldSet","ZonedDateFieldSet","ZonedTimeFieldSet"]};

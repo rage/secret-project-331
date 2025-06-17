@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["DayPeriodNameLength","FormattedDateTimePatternError","MonthNameLength","PatternLoadError","WeekdayNameLength","YearNameLength"],"struct":["DateTimeNames","DateTimePattern","DateTimePatternFormatter","ErrorField","FixedCalendarDateTimeNames","FormattedDateTimePattern","UnsupportedCalendarError"]};

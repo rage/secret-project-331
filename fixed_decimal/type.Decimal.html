@@ -1,0 +1,701 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A Type containing a `UnsignedDecimal` and a `Sign` to represent a signed decimal number."><title>Decimal in fixed_decimal - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="fixed_decimal" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../static.files/storage-82c7156e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc type"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../fixed_decimal/index.html">fixed_<wbr>decimal</a><span class="version">0.7.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Decimal</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#data-types" title="Data Types">Data Types</a></li><li><a href="#examples" title="Examples">Examples</a></li></ul><h3><a href="#aliased-type">Aliased Type</a></h3><h3><a href="#fields">Fields</a></h3><ul class="block field"><li><a href="#structfield.absolute" title="absolute">absolute</a></li><li><a href="#structfield.sign" title="sign">sign</a></li></ul><h3><a href="#implementations">Methods</a></h3><ul class="block method"><li><a href="#method.apply_sign_display" title="apply_sign_display">apply_sign_display</a></li><li><a href="#method.ceil" title="ceil">ceil</a></li><li><a href="#method.ceiled" title="ceiled">ceiled</a></li><li><a href="#method.expand" title="expand">expand</a></li><li><a href="#method.expanded" title="expanded">expanded</a></li><li><a href="#method.floor" title="floor">floor</a></li><li><a href="#method.floored" title="floored">floored</a></li><li><a href="#method.new" title="new">new</a></li><li><a href="#method.round" title="round">round</a></li><li><a href="#method.round_with_mode" title="round_with_mode">round_with_mode</a></li><li><a href="#method.round_with_mode_and_increment" title="round_with_mode_and_increment">round_with_mode_and_increment</a></li><li><a href="#method.rounded" title="rounded">rounded</a></li><li><a href="#method.rounded_with_mode" title="rounded_with_mode">rounded_with_mode</a></li><li><a href="#method.rounded_with_mode_and_increment" title="rounded_with_mode_and_increment">rounded_with_mode_and_increment</a></li><li><a href="#method.to_string" title="to_string">to_string</a></li><li><a href="#method.trunc" title="trunc">trunc</a></li><li><a href="#method.trunced" title="trunced">trunced</a></li><li><a href="#method.try_from_str" title="try_from_str">try_from_str</a></li><li><a href="#method.try_from_utf8" title="try_from_utf8">try_from_utf8</a></li><li><a href="#method.with_sign_display" title="with_sign_display">with_sign_display</a></li></ul><h3><a href="#deref-methods-UnsignedDecimal">Methods from Deref&lt;<wbr>Target=<wbr>Unsigned<wbr>Decimal&gt;</a></h3><ul class="block deref-methods"><li><a href="#method.concatenate_end" title="concatenate_end">concatenate_end</a></li><li><a href="#method.digit_at" title="digit_at">digit_at</a></li><li><a href="#method.expand-1" title="expand">expand</a></li><li><a href="#method.is_zero" title="is_zero">is_zero</a></li><li><a href="#method.magnitude_range" title="magnitude_range">magnitude_range</a></li><li><a href="#method.multiply_pow10" title="multiply_pow10">multiply_pow10</a></li><li><a href="#method.nonzero_magnitude_end" title="nonzero_magnitude_end">nonzero_magnitude_end</a></li><li><a href="#method.nonzero_magnitude_start" title="nonzero_magnitude_start">nonzero_magnitude_start</a></li><li><a href="#method.pad_end" title="pad_end">pad_end</a></li><li><a href="#method.pad_start" title="pad_start">pad_start</a></li><li><a href="#method.round-1" title="round">round</a></li><li><a href="#method.round_with_mode-1" title="round_with_mode">round_with_mode</a></li><li><a href="#method.round_with_mode_and_increment-1" title="round_with_mode_and_increment">round_with_mode_and_increment</a></li><li><a href="#method.set_max_position" title="set_max_position">set_max_position</a></li><li><a href="#method.to_string-1" title="to_string">to_string</a></li><li><a href="#method.trim_end" title="trim_end">trim_end</a></li><li><a href="#method.trim_end_if_integer" title="trim_end_if_integer">trim_end_if_integer</a></li><li><a href="#method.trim_start" title="trim_start">trim_start</a></li><li><a href="#method.trunc-1" title="trunc">trunc</a></li></ul><h3><a href="#trait-implementations">Trait Implementations</a></h3><ul class="block trait-implementation"><li><a href="#impl-Deref-for-Signed%3CUnsignedDecimal%3E" title="Deref">Deref</a></li><li><a href="#impl-DerefMut-for-Signed%3CUnsignedDecimal%3E" title="DerefMut">DerefMut</a></li><li><a href="#impl-Display-for-Signed%3CUnsignedDecimal%3E" title="Display">Display</a></li><li><a href="#impl-From%3CFixedInteger%3E-for-Signed%3CUnsignedDecimal%3E" title="From&#60;FixedInteger&#62;">From&#60;FixedInteger&#62;</a></li><li><a href="#impl-From%3Ci8%3E-for-Signed%3CUnsignedDecimal%3E" title="From&#60;i8&#62;">From&#60;i8&#62;</a></li><li><a href="#impl-From%3Ci16%3E-for-Signed%3CUnsignedDecimal%3E" title="From&#60;i16&#62;">From&#60;i16&#62;</a></li><li><a href="#impl-From%3Ci32%3E-for-Signed%3CUnsignedDecimal%3E" title="From&#60;i32&#62;">From&#60;i32&#62;</a></li><li><a href="#impl-From%3Ci64%3E-for-Signed%3CUnsignedDecimal%3E" title="From&#60;i64&#62;">From&#60;i64&#62;</a></li><li><a href="#impl-From%3Ci128%3E-for-Signed%3CUnsignedDecimal%3E" title="From&#60;i128&#62;">From&#60;i128&#62;</a></li><li><a href="#impl-From%3Cisize%3E-for-Signed%3CUnsignedDecimal%3E" title="From&#60;isize&#62;">From&#60;isize&#62;</a></li><li><a href="#impl-From%3Cu8%3E-for-Signed%3CUnsignedDecimal%3E" title="From&#60;u8&#62;">From&#60;u8&#62;</a></li><li><a href="#impl-From%3Cu16%3E-for-Signed%3CUnsignedDecimal%3E" title="From&#60;u16&#62;">From&#60;u16&#62;</a></li><li><a href="#impl-From%3Cu32%3E-for-Signed%3CUnsignedDecimal%3E" title="From&#60;u32&#62;">From&#60;u32&#62;</a></li><li><a href="#impl-From%3Cu64%3E-for-Signed%3CUnsignedDecimal%3E" title="From&#60;u64&#62;">From&#60;u64&#62;</a></li><li><a href="#impl-From%3Cu128%3E-for-Signed%3CUnsignedDecimal%3E" title="From&#60;u128&#62;">From&#60;u128&#62;</a></li><li><a href="#impl-From%3Cusize%3E-for-Signed%3CUnsignedDecimal%3E" title="From&#60;usize&#62;">From&#60;usize&#62;</a></li><li><a href="#impl-FromStr-for-Signed%3CUnsignedDecimal%3E" title="FromStr">FromStr</a></li><li><a href="#impl-Writeable-for-Signed%3CUnsignedDecimal%3E" title="Writeable">Writeable</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="index.html">In crate fixed_<wbr>decimal</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="index.html">fixed_decimal</a></div><h1>Type Alias <span class="type">Decimal</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/fixed_decimal/signed_decimal.rs.html#47">Source</a> </span></div><pre class="rust item-decl"><code>pub type Decimal = <a class="struct" href="struct.Signed.html" title="struct fixed_decimal::Signed">Signed</a>&lt;<a class="struct" href="struct.UnsignedDecimal.html" title="struct fixed_decimal::UnsignedDecimal">UnsignedDecimal</a>&gt;;</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A Type containing a <a href="struct.UnsignedDecimal.html" title="struct fixed_decimal::UnsignedDecimal"><code>UnsignedDecimal</code></a> and a <a href="enum.Sign.html" title="enum fixed_decimal::Sign"><code>Sign</code></a> to represent a signed decimal number.</p>
+<p>Supports a mantissa of non-zero digits and a number of leading and trailing
+zeros, as well as an optional sign; used for formatting and plural selection.</p>
+<h2 id="data-types"><a class="doc-anchor" href="#data-types">§</a>Data Types</h2>
+<p>The following types can be converted to a <code>Decimal</code>:</p>
+<ul>
+<li>Integers, signed and unsigned</li>
+<li>Strings representing an arbitrary-precision decimal</li>
+<li>Floating point values (using the <code>ryu</code> feature)</li>
+</ul>
+<p>To create a <a href="type.Decimal.html" title="type fixed_decimal::Decimal"><code>Decimal</code></a> with fractional digits, you have several options:</p>
+<ul>
+<li>Create it from an integer and then call <a href="struct.UnsignedDecimal.html#method.multiply_pow10" title="method fixed_decimal::UnsignedDecimal::multiply_pow10"><code>UnsignedDecimal::multiply_pow10</code></a> (you can also call <code>multiply_pow10</code> directly on the <a href="type.Decimal.html" title="type fixed_decimal::Decimal"><code>Decimal</code></a>).</li>
+<li>Create it from a string.</li>
+<li>When the <code>ryu</code> feature is enabled, create it from a floating point value using [<code>Decimal::try_from_f64</code>].</li>
+</ul>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::Decimal;
+
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from(<span class="number">250</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"250"</span>, dec.to_string());
+
+dec.multiply_pow10(-<span class="number">2</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"2.50"</span>, dec.to_string());</code></pre></div>
+</div></details><h2 id="aliased-type" class="section-header">Aliased Type<a href="#aliased-type" class="anchor">§</a></h2><pre class="rust item-decl"><code>struct Decimal {
+    pub sign: <a class="enum" href="enum.Sign.html" title="enum fixed_decimal::Sign">Sign</a>,
+    pub absolute: <a class="struct" href="struct.UnsignedDecimal.html" title="struct fixed_decimal::UnsignedDecimal">UnsignedDecimal</a>,
+}</code></pre><h2 id="fields" class="fields section-header">Fields<a href="#fields" class="anchor">§</a></h2><span id="structfield.sign" class="structfield section-header"><a href="#structfield.sign" class="anchor field">§</a><code>sign: <a class="enum" href="enum.Sign.html" title="enum fixed_decimal::Sign">Sign</a></code></span><span id="structfield.absolute" class="structfield section-header"><a href="#structfield.absolute" class="anchor field">§</a><code>absolute: <a class="struct" href="struct.UnsignedDecimal.html" title="struct fixed_decimal::UnsignedDecimal">UnsignedDecimal</a></code></span><h2 id="implementations" class="section-header">Implementations<a href="#implementations" class="anchor">§</a></h2><div id="implementations-list"><details class="toggle implementors-toggle" open><summary><section id="impl-Signed%3CUnsignedDecimal%3E" class="impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#49-150">Source</a><a href="#impl-Signed%3CUnsignedDecimal%3E" class="anchor">§</a><h3 class="code-header">impl <a class="type" href="type.Decimal.html" title="type fixed_decimal::Decimal">Decimal</a></h3></section></summary><div class="impl-items"><section id="method.new" class="method"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#50-52">Source</a><h4 class="code-header">pub fn <a href="#method.new" class="fn">new</a>(sign: <a class="enum" href="enum.Sign.html" title="enum fixed_decimal::Sign">Sign</a>, absolute: <a class="struct" href="struct.UnsignedDecimal.html" title="struct fixed_decimal::UnsignedDecimal">UnsignedDecimal</a>) -&gt; Self</h4></section><details class="toggle method-toggle" open><summary><section id="method.try_from_str" class="method"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#56-58">Source</a><h4 class="code-header">pub fn <a href="#method.try_from_str" class="fn">try_from_str</a>(s: &amp;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.str.html">str</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.87.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;Self, <a class="enum" href="enum.ParseError.html" title="enum fixed_decimal::ParseError">ParseError</a>&gt;</h4></section></summary><div class="docblock"><p>Parses a <a href="type.Decimal.html" title="type fixed_decimal::Decimal"><code>Decimal</code></a>.</p>
+</div></details><section id="method.try_from_utf8" class="method"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#60-87">Source</a><h4 class="code-header">pub fn <a href="#method.try_from_utf8" class="fn">try_from_utf8</a>(input_str: &amp;[<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.u8.html">u8</a>]) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.87.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;Self, <a class="enum" href="enum.ParseError.html" title="enum fixed_decimal::ParseError">ParseError</a>&gt;</h4></section><details class="toggle method-toggle" open><summary><section id="method.apply_sign_display" class="method"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#102-129">Source</a><h4 class="code-header">pub fn <a href="#method.apply_sign_display" class="fn">apply_sign_display</a>(&amp;mut self, sign_display: <a class="enum" href="enum.SignDisplay.html" title="enum fixed_decimal::SignDisplay">SignDisplay</a>)</h4></section></summary><div class="docblock"><p>Sets the sign of this number according to the given sign display strategy.</p>
+<h5 id="examples-1"><a class="doc-anchor" href="#examples-1">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::Decimal;
+<span class="kw">use </span>fixed_decimal::SignDisplay::<span class="kw-2">*</span>;
+
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from(<span class="number">1729</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"1729"</span>, dec.to_string());
+dec.apply_sign_display(Always);
+<span class="macro">assert_eq!</span>(<span class="string">"+1729"</span>, dec.to_string());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.with_sign_display" class="method"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#146-149">Source</a><h4 class="code-header">pub fn <a href="#method.with_sign_display" class="fn">with_sign_display</a>(self, sign_display: <a class="enum" href="enum.SignDisplay.html" title="enum fixed_decimal::SignDisplay">SignDisplay</a>) -&gt; Self</h4></section></summary><div class="docblock"><p>Returns this number with its sign set according to the given sign display strategy.</p>
+<h5 id="examples-2"><a class="doc-anchor" href="#examples-2">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::Decimal;
+<span class="kw">use </span>fixed_decimal::SignDisplay::<span class="kw-2">*</span>;
+
+<span class="macro">assert_eq!</span>(
+    <span class="string">"+1729"</span>,
+    Decimal::from(<span class="number">1729</span>)
+        .with_sign_display(ExceptZero)
+        .to_string()
+);</code></pre></div>
+</div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-Signed%3CUnsignedDecimal%3E-1" class="impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#280-854">Source</a><a href="#impl-Signed%3CUnsignedDecimal%3E-1" class="anchor">§</a><h3 class="code-header">impl <a class="type" href="type.Decimal.html" title="type fixed_decimal::Decimal">Decimal</a></h3><div class="docblock"><p>All the rounding and rounding related logic is implmented in this implmentation block.</p>
+</div></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.round" class="method"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#308-310">Source</a><h4 class="code-header">pub fn <a href="#method.round" class="fn">round</a>(&amp;mut self, position: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a>)</h4></section></summary><div class="docblock"><p>Rounds this number at a particular digit position.</p>
+<p>This uses half to even rounding, which rounds to the nearest integer and resolves ties by
+selecting the nearest even integer to the original value.</p>
+<h5 id="examples-3"><a class="doc-anchor" href="#examples-3">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::Decimal;
+
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"-1.5"</span>).unwrap();
+dec.round(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"-2"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"0.4"</span>).unwrap();
+dec.round(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"0"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"0.5"</span>).unwrap();
+dec.round(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"0"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"0.6"</span>).unwrap();
+dec.round(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"1"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"1.5"</span>).unwrap();
+dec.round(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"2"</span>, dec.to_string());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.rounded" class="method"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#334-337">Source</a><h4 class="code-header">pub fn <a href="#method.rounded" class="fn">rounded</a>(self, position: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a>) -&gt; Self</h4></section></summary><div class="docblock"><p>Returns this number rounded at a particular digit position.</p>
+<p>This uses half to even rounding by default, which rounds to the nearest integer and
+resolves ties by selecting the nearest even integer to the original value.</p>
+<h5 id="examples-4"><a class="doc-anchor" href="#examples-4">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::Decimal;
+
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"-1.5"</span>).unwrap();
+<span class="macro">assert_eq!</span>(<span class="string">"-2"</span>, dec.rounded(<span class="number">0</span>).to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"0.4"</span>).unwrap();
+<span class="macro">assert_eq!</span>(<span class="string">"0"</span>, dec.rounded(<span class="number">0</span>).to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"0.5"</span>).unwrap();
+<span class="macro">assert_eq!</span>(<span class="string">"0"</span>, dec.rounded(<span class="number">0</span>).to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"0.6"</span>).unwrap();
+<span class="macro">assert_eq!</span>(<span class="string">"1"</span>, dec.rounded(<span class="number">0</span>).to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"1.5"</span>).unwrap();
+<span class="macro">assert_eq!</span>(<span class="string">"2"</span>, dec.rounded(<span class="number">0</span>).to_string());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.ceil" class="method"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#364-366">Source</a><h4 class="code-header">pub fn <a href="#method.ceil" class="fn">ceil</a>(&amp;mut self, position: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a>)</h4></section></summary><div class="docblock"><p>Rounds this number towards positive infinity at a particular digit position.</p>
+<h5 id="examples-5"><a class="doc-anchor" href="#examples-5">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::Decimal;
+
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"-1.5"</span>).unwrap();
+dec.ceil(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"-1"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"0.4"</span>).unwrap();
+dec.ceil(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"1"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"0.5"</span>).unwrap();
+dec.ceil(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"1"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"0.6"</span>).unwrap();
+dec.ceil(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"1"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"1.5"</span>).unwrap();
+dec.ceil(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"2"</span>, dec.to_string());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.ceiled" class="method"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#387-390">Source</a><h4 class="code-header">pub fn <a href="#method.ceiled" class="fn">ceiled</a>(self, position: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a>) -&gt; Self</h4></section></summary><div class="docblock"><p>Returns this number rounded towards positive infinity at a particular digit position.</p>
+<h5 id="examples-6"><a class="doc-anchor" href="#examples-6">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::Decimal;
+
+<span class="kw">let </span>dec = Decimal::from_str(<span class="string">"-1.5"</span>).unwrap();
+<span class="macro">assert_eq!</span>(<span class="string">"-1"</span>, dec.ceiled(<span class="number">0</span>).to_string());
+<span class="kw">let </span>dec = Decimal::from_str(<span class="string">"0.4"</span>).unwrap();
+<span class="macro">assert_eq!</span>(<span class="string">"1"</span>, dec.ceiled(<span class="number">0</span>).to_string());
+<span class="kw">let </span>dec = Decimal::from_str(<span class="string">"0.5"</span>).unwrap();
+<span class="macro">assert_eq!</span>(<span class="string">"1"</span>, dec.ceiled(<span class="number">0</span>).to_string());
+<span class="kw">let </span>dec = Decimal::from_str(<span class="string">"0.6"</span>).unwrap();
+<span class="macro">assert_eq!</span>(<span class="string">"1"</span>, dec.ceiled(<span class="number">0</span>).to_string());
+<span class="kw">let </span>dec = Decimal::from_str(<span class="string">"1.5"</span>).unwrap();
+<span class="macro">assert_eq!</span>(<span class="string">"2"</span>, dec.ceiled(<span class="number">0</span>).to_string());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.expand" class="method"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#417-419">Source</a><h4 class="code-header">pub fn <a href="#method.expand" class="fn">expand</a>(&amp;mut self, position: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a>)</h4></section></summary><div class="docblock"><p>Rounds this number away from zero at a particular digit position.</p>
+<h5 id="examples-7"><a class="doc-anchor" href="#examples-7">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::Decimal;
+
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"-1.5"</span>).unwrap();
+dec.expand(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"-2"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"0.4"</span>).unwrap();
+dec.expand(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"1"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"0.5"</span>).unwrap();
+dec.expand(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"1"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"0.6"</span>).unwrap();
+dec.expand(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"1"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"1.5"</span>).unwrap();
+dec.expand(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"2"</span>, dec.to_string());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.expanded" class="method"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#440-443">Source</a><h4 class="code-header">pub fn <a href="#method.expanded" class="fn">expanded</a>(self, position: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a>) -&gt; Self</h4></section></summary><div class="docblock"><p>Returns this number rounded away from zero at a particular digit position.</p>
+<h5 id="examples-8"><a class="doc-anchor" href="#examples-8">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::Decimal;
+
+<span class="kw">let </span>dec = Decimal::from_str(<span class="string">"-1.5"</span>).unwrap();
+<span class="macro">assert_eq!</span>(<span class="string">"-2"</span>, dec.expanded(<span class="number">0</span>).to_string());
+<span class="kw">let </span>dec = Decimal::from_str(<span class="string">"0.4"</span>).unwrap();
+<span class="macro">assert_eq!</span>(<span class="string">"1"</span>, dec.expanded(<span class="number">0</span>).to_string());
+<span class="kw">let </span>dec = Decimal::from_str(<span class="string">"0.5"</span>).unwrap();
+<span class="macro">assert_eq!</span>(<span class="string">"1"</span>, dec.expanded(<span class="number">0</span>).to_string());
+<span class="kw">let </span>dec = Decimal::from_str(<span class="string">"0.6"</span>).unwrap();
+<span class="macro">assert_eq!</span>(<span class="string">"1"</span>, dec.expanded(<span class="number">0</span>).to_string());
+<span class="kw">let </span>dec = Decimal::from_str(<span class="string">"1.5"</span>).unwrap();
+<span class="macro">assert_eq!</span>(<span class="string">"2"</span>, dec.expanded(<span class="number">0</span>).to_string());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.floor" class="method"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#470-472">Source</a><h4 class="code-header">pub fn <a href="#method.floor" class="fn">floor</a>(&amp;mut self, position: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a>)</h4></section></summary><div class="docblock"><p>Rounds this number towards negative infinity at a particular digit position.</p>
+<h5 id="examples-9"><a class="doc-anchor" href="#examples-9">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::Decimal;
+
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"-1.5"</span>).unwrap();
+dec.floor(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"-2"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"0.4"</span>).unwrap();
+dec.floor(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"0"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"0.5"</span>).unwrap();
+dec.floor(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"0"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"0.6"</span>).unwrap();
+dec.floor(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"0"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"1.5"</span>).unwrap();
+dec.floor(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"1"</span>, dec.to_string());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.floored" class="method"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#493-496">Source</a><h4 class="code-header">pub fn <a href="#method.floored" class="fn">floored</a>(self, position: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a>) -&gt; Self</h4></section></summary><div class="docblock"><p>Returns this number rounded towards negative infinity at a particular digit position.</p>
+<h5 id="examples-10"><a class="doc-anchor" href="#examples-10">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::Decimal;
+
+<span class="kw">let </span>dec = Decimal::from_str(<span class="string">"-1.5"</span>).unwrap();
+<span class="macro">assert_eq!</span>(<span class="string">"-2"</span>, dec.floored(<span class="number">0</span>).to_string());
+<span class="kw">let </span>dec = Decimal::from_str(<span class="string">"0.4"</span>).unwrap();
+<span class="macro">assert_eq!</span>(<span class="string">"0"</span>, dec.floored(<span class="number">0</span>).to_string());
+<span class="kw">let </span>dec = Decimal::from_str(<span class="string">"0.5"</span>).unwrap();
+<span class="macro">assert_eq!</span>(<span class="string">"0"</span>, dec.floored(<span class="number">0</span>).to_string());
+<span class="kw">let </span>dec = Decimal::from_str(<span class="string">"0.6"</span>).unwrap();
+<span class="macro">assert_eq!</span>(<span class="string">"0"</span>, dec.floored(<span class="number">0</span>).to_string());
+<span class="kw">let </span>dec = Decimal::from_str(<span class="string">"1.5"</span>).unwrap();
+<span class="macro">assert_eq!</span>(<span class="string">"1"</span>, dec.floored(<span class="number">0</span>).to_string());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.trunc" class="method"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#525-527">Source</a><h4 class="code-header">pub fn <a href="#method.trunc" class="fn">trunc</a>(&amp;mut self, position: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a>)</h4></section></summary><div class="docblock"><p>Rounds this number towards zero at a particular digit position.</p>
+<p>Also see <a href="struct.UnsignedDecimal.html#method.pad_end" title="method fixed_decimal::UnsignedDecimal::pad_end"><code>UnsignedDecimal::pad_end()</code></a>.</p>
+<h5 id="examples-11"><a class="doc-anchor" href="#examples-11">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::Decimal;
+
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"-1.5"</span>).unwrap();
+dec.trunc(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"-1"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"0.4"</span>).unwrap();
+dec.trunc(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"0"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"0.5"</span>).unwrap();
+dec.trunc(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"0"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"0.6"</span>).unwrap();
+dec.trunc(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"0"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"1.5"</span>).unwrap();
+dec.trunc(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"1"</span>, dec.to_string());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.trunced" class="method"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#550-553">Source</a><h4 class="code-header">pub fn <a href="#method.trunced" class="fn">trunced</a>(self, position: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a>) -&gt; Self</h4></section></summary><div class="docblock"><p>Returns this number rounded towards zero at a particular digit position.</p>
+<p>Also see <a href="struct.UnsignedDecimal.html#method.padded_end" title="method fixed_decimal::UnsignedDecimal::padded_end"><code>UnsignedDecimal::padded_end()</code></a>.</p>
+<h5 id="examples-12"><a class="doc-anchor" href="#examples-12">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::Decimal;
+
+<span class="kw">let </span>dec = Decimal::from_str(<span class="string">"-1.5"</span>).unwrap();
+<span class="macro">assert_eq!</span>(<span class="string">"-1"</span>, dec.trunced(<span class="number">0</span>).to_string());
+<span class="kw">let </span>dec = Decimal::from_str(<span class="string">"0.4"</span>).unwrap();
+<span class="macro">assert_eq!</span>(<span class="string">"0"</span>, dec.trunced(<span class="number">0</span>).to_string());
+<span class="kw">let </span>dec = Decimal::from_str(<span class="string">"0.5"</span>).unwrap();
+<span class="macro">assert_eq!</span>(<span class="string">"0"</span>, dec.trunced(<span class="number">0</span>).to_string());
+<span class="kw">let </span>dec = Decimal::from_str(<span class="string">"0.6"</span>).unwrap();
+<span class="macro">assert_eq!</span>(<span class="string">"0"</span>, dec.trunced(<span class="number">0</span>).to_string());
+<span class="kw">let </span>dec = Decimal::from_str(<span class="string">"1.5"</span>).unwrap();
+<span class="macro">assert_eq!</span>(<span class="string">"1"</span>, dec.trunced(<span class="number">0</span>).to_string());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.round_with_mode" class="method"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#588-614">Source</a><h4 class="code-header">pub fn <a href="#method.round_with_mode" class="fn">round_with_mode</a>(&amp;mut self, position: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a>, mode: <a class="enum" href="enum.SignedRoundingMode.html" title="enum fixed_decimal::SignedRoundingMode">SignedRoundingMode</a>)</h4></section></summary><div class="docblock"><p>Rounds this number at a particular digit position, using the specified rounding mode.</p>
+<h5 id="examples-13"><a class="doc-anchor" href="#examples-13">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::{Decimal, SignedRoundingMode, UnsignedRoundingMode};
+
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"-3.5"</span>).unwrap();
+dec.round_with_mode(<span class="number">0</span>, SignedRoundingMode::Floor);
+<span class="macro">assert_eq!</span>(<span class="string">"-4"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"-3.5"</span>).unwrap();
+dec.round_with_mode(<span class="number">0</span>, SignedRoundingMode::Ceil);
+<span class="macro">assert_eq!</span>(<span class="string">"-3"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"5.455"</span>).unwrap();
+dec.round_with_mode(
+    -<span class="number">2</span>,
+    SignedRoundingMode::Unsigned(UnsignedRoundingMode::HalfExpand),
+);
+<span class="macro">assert_eq!</span>(<span class="string">"5.46"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"-7.235"</span>).unwrap();
+dec.round_with_mode(
+    -<span class="number">2</span>,
+    SignedRoundingMode::Unsigned(UnsignedRoundingMode::HalfTrunc),
+);
+<span class="macro">assert_eq!</span>(<span class="string">"-7.23"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"9.75"</span>).unwrap();
+dec.round_with_mode(
+    -<span class="number">1</span>,
+    SignedRoundingMode::Unsigned(UnsignedRoundingMode::HalfEven),
+);
+<span class="macro">assert_eq!</span>(<span class="string">"9.8"</span>, dec.to_string());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.rounded_with_mode" class="method"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#664-667">Source</a><h4 class="code-header">pub fn <a href="#method.rounded_with_mode" class="fn">rounded_with_mode</a>(self, position: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a>, mode: <a class="enum" href="enum.SignedRoundingMode.html" title="enum fixed_decimal::SignedRoundingMode">SignedRoundingMode</a>) -&gt; Self</h4></section></summary><div class="docblock"><p>Returns this number rounded at a particular digit position, using the specified rounding mode.</p>
+<h5 id="examples-14"><a class="doc-anchor" href="#examples-14">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::{Decimal, SignedRoundingMode, UnsignedRoundingMode};
+
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"-3.5"</span>).unwrap();
+<span class="macro">assert_eq!</span>(
+    <span class="string">"-4"</span>,
+    dec.rounded_with_mode(<span class="number">0</span>, SignedRoundingMode::Floor)
+        .to_string()
+);
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"-3.5"</span>).unwrap();
+<span class="macro">assert_eq!</span>(
+    <span class="string">"-3"</span>,
+    dec.rounded_with_mode(<span class="number">0</span>, SignedRoundingMode::Ceil)
+        .to_string()
+);
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"5.455"</span>).unwrap();
+<span class="macro">assert_eq!</span>(
+    <span class="string">"5.46"</span>,
+    dec.rounded_with_mode(
+        -<span class="number">2</span>,
+        SignedRoundingMode::Unsigned(UnsignedRoundingMode::HalfExpand)
+    )
+    .to_string()
+);
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"-7.235"</span>).unwrap();
+<span class="macro">assert_eq!</span>(
+    <span class="string">"-7.23"</span>,
+    dec.rounded_with_mode(
+        -<span class="number">2</span>,
+        SignedRoundingMode::Unsigned(UnsignedRoundingMode::HalfTrunc)
+    )
+    .to_string()
+);
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"9.75"</span>).unwrap();
+<span class="macro">assert_eq!</span>(
+    <span class="string">"9.8"</span>,
+    dec.rounded_with_mode(
+        -<span class="number">1</span>,
+        SignedRoundingMode::Unsigned(UnsignedRoundingMode::HalfEven)
+    )
+    .to_string()
+);</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.round_with_mode_and_increment" class="method"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#715-746">Source</a><h4 class="code-header">pub fn <a href="#method.round_with_mode_and_increment" class="fn">round_with_mode_and_increment</a>(
+    &amp;mut self,
+    position: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a>,
+    mode: <a class="enum" href="enum.SignedRoundingMode.html" title="enum fixed_decimal::SignedRoundingMode">SignedRoundingMode</a>,
+    increment: <a class="enum" href="enum.RoundingIncrement.html" title="enum fixed_decimal::RoundingIncrement">RoundingIncrement</a>,
+)</h4></section></summary><div class="docblock"><p>Rounds this number at a particular digit position and increment, using the specified rounding mode.</p>
+<h5 id="examples-15"><a class="doc-anchor" href="#examples-15">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::{
+    Decimal, RoundingIncrement, SignedRoundingMode, UnsignedRoundingMode,
+};
+
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"-3.5"</span>).unwrap();
+dec.round_with_mode_and_increment(
+    <span class="number">0</span>,
+    SignedRoundingMode::Floor,
+    RoundingIncrement::MultiplesOf1,
+);
+<span class="macro">assert_eq!</span>(<span class="string">"-4"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"-3.59"</span>).unwrap();
+dec.round_with_mode_and_increment(
+    -<span class="number">1</span>,
+    SignedRoundingMode::Ceil,
+    RoundingIncrement::MultiplesOf2,
+);
+<span class="macro">assert_eq!</span>(<span class="string">"-3.4"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"5.455"</span>).unwrap();
+dec.round_with_mode_and_increment(
+    -<span class="number">2</span>,
+    SignedRoundingMode::Unsigned(UnsignedRoundingMode::HalfExpand),
+    RoundingIncrement::MultiplesOf5,
+);
+<span class="macro">assert_eq!</span>(<span class="string">"5.45"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"-7.235"</span>).unwrap();
+dec.round_with_mode_and_increment(
+    -<span class="number">2</span>,
+    SignedRoundingMode::Unsigned(UnsignedRoundingMode::HalfTrunc),
+    RoundingIncrement::MultiplesOf25,
+);
+<span class="macro">assert_eq!</span>(<span class="string">"-7.25"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"9.75"</span>).unwrap();
+dec.round_with_mode_and_increment(
+    -<span class="number">1</span>,
+    SignedRoundingMode::Unsigned(UnsignedRoundingMode::HalfEven),
+    RoundingIncrement::MultiplesOf5,
+);
+<span class="macro">assert_eq!</span>(<span class="string">"10.0"</span>, dec.to_string());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.rounded_with_mode_and_increment" class="method"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#809-817">Source</a><h4 class="code-header">pub fn <a href="#method.rounded_with_mode_and_increment" class="fn">rounded_with_mode_and_increment</a>(
+    self,
+    position: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a>,
+    mode: <a class="enum" href="enum.SignedRoundingMode.html" title="enum fixed_decimal::SignedRoundingMode">SignedRoundingMode</a>,
+    increment: <a class="enum" href="enum.RoundingIncrement.html" title="enum fixed_decimal::RoundingIncrement">RoundingIncrement</a>,
+) -&gt; Self</h4></section></summary><div class="docblock"><p>Returns this number rounded at a particular digit position and increment, using the specified rounding mode.</p>
+<h5 id="examples-16"><a class="doc-anchor" href="#examples-16">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::{
+    Decimal, RoundingIncrement, SignedRoundingMode, UnsignedRoundingMode,
+};
+
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"-3.5"</span>).unwrap();
+<span class="macro">assert_eq!</span>(
+    <span class="string">"-4"</span>,
+    dec.rounded_with_mode_and_increment(
+        <span class="number">0</span>,
+        SignedRoundingMode::Floor,
+        RoundingIncrement::MultiplesOf1
+    )
+    .to_string()
+);
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"-3.59"</span>).unwrap();
+<span class="macro">assert_eq!</span>(
+    <span class="string">"-3.4"</span>,
+    dec.rounded_with_mode_and_increment(
+        -<span class="number">1</span>,
+        SignedRoundingMode::Ceil,
+        RoundingIncrement::MultiplesOf2
+    )
+    .to_string()
+);
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"5.455"</span>).unwrap();
+<span class="macro">assert_eq!</span>(
+    <span class="string">"5.45"</span>,
+    dec.rounded_with_mode_and_increment(
+        -<span class="number">2</span>,
+        SignedRoundingMode::Unsigned(UnsignedRoundingMode::HalfExpand),
+        RoundingIncrement::MultiplesOf5
+    )
+    .to_string()
+);
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"-7.235"</span>).unwrap();
+<span class="macro">assert_eq!</span>(
+    <span class="string">"-7.25"</span>,
+    dec.rounded_with_mode_and_increment(
+        -<span class="number">2</span>,
+        SignedRoundingMode::Unsigned(UnsignedRoundingMode::HalfTrunc),
+        RoundingIncrement::MultiplesOf25
+    )
+    .to_string()
+);
+<span class="kw">let </span><span class="kw-2">mut </span>dec = Decimal::from_str(<span class="string">"9.75"</span>).unwrap();
+<span class="macro">assert_eq!</span>(
+    <span class="string">"10.0"</span>,
+    dec.rounded_with_mode_and_increment(
+        -<span class="number">1</span>,
+        SignedRoundingMode::Unsigned(UnsignedRoundingMode::HalfEven),
+        RoundingIncrement::MultiplesOf5
+    )
+    .to_string()
+);</code></pre></div>
+</div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-Signed%3CUnsignedDecimal%3E-2" class="impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#888">Source</a><a href="#impl-Signed%3CUnsignedDecimal%3E-2" class="anchor">§</a><h3 class="code-header">impl <a class="type" href="type.Decimal.html" title="type fixed_decimal::Decimal">Decimal</a></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.to_string" class="method"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#888">Source</a><h4 class="code-header">pub fn <a href="#method.to_string" class="fn">to_string</a>(&amp;self) -&gt; <a class="struct" href="https://doc.rust-lang.org/1.87.0/alloc/string/struct.String.html" title="struct alloc::string::String">String</a></h4></section></summary><div class="docblock"><p>Converts the given value to a <code>String</code>.</p>
+<p>Under the hood, this uses an efficient [<code>Writeable</code>] implementation.
+However, in order to avoid allocating a string, it is more efficient
+to use [<code>Writeable</code>] directly.</p>
+</div></details></div></details></div><details class="toggle big-toggle" open><summary><h2 id="deref-methods-UnsignedDecimal" class="section-header"><span>Methods from <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/ops/deref/trait.Deref.html" title="trait core::ops::deref::Deref">Deref</a>&lt;Target = <a class="struct" href="struct.UnsignedDecimal.html" title="struct fixed_decimal::UnsignedDecimal">UnsignedDecimal</a>&gt;</span><a href="#deref-methods-UnsignedDecimal" class="anchor">§</a></h2></summary><div id="deref-methods-UnsignedDecimal-1" class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.digit_at" class="method"><a class="src rightside" href="../src/fixed_decimal/decimal.rs.html#217-230">Source</a><h4 class="code-header">pub fn <a href="#method.digit_at" class="fn">digit_at</a>(&amp;self, magnitude: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.u8.html">u8</a></h4></section></summary><div class="docblock"><p>Gets the digit at the specified order of magnitude. Returns 0 if the magnitude is out of
+range of the currently visible digits.</p>
+<h5 id="examples-17"><a class="doc-anchor" href="#examples-17">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::UnsignedDecimal;
+
+<span class="kw">let </span>dec = UnsignedDecimal::from(<span class="number">945u32</span>);
+<span class="macro">assert_eq!</span>(<span class="number">0</span>, dec.digit_at(-<span class="number">1</span>));
+<span class="macro">assert_eq!</span>(<span class="number">5</span>, dec.digit_at(<span class="number">0</span>));
+<span class="macro">assert_eq!</span>(<span class="number">4</span>, dec.digit_at(<span class="number">1</span>));
+<span class="macro">assert_eq!</span>(<span class="number">9</span>, dec.digit_at(<span class="number">2</span>));
+<span class="macro">assert_eq!</span>(<span class="number">0</span>, dec.digit_at(<span class="number">3</span>));</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.magnitude_range" class="method"><a class="src rightside" href="../src/fixed_decimal/decimal.rs.html#436-438">Source</a><h4 class="code-header">pub fn <a href="#method.magnitude_range" class="fn">magnitude_range</a>(&amp;self) -&gt; <a class="struct" href="https://doc.rust-lang.org/1.87.0/core/ops/range/struct.RangeInclusive.html" title="struct core::ops::range::RangeInclusive">RangeInclusive</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a>&gt;</h4></section></summary><div class="docblock"><p>Gets the visible range of digit magnitudes, in ascending order of magnitude. Call <code>.rev()</code>
+on the return value to get the range in descending order. Magnitude 0 is always included,
+even if the number has leading or trailing zeros.</p>
+<h5 id="examples-18"><a class="doc-anchor" href="#examples-18">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::UnsignedDecimal;
+
+<span class="kw">let </span>dec: UnsignedDecimal = <span class="string">"012.340"</span>.parse().expect(<span class="string">"valid syntax"</span>);
+<span class="macro">assert_eq!</span>(-<span class="number">3</span>..=<span class="number">2</span>, dec.magnitude_range());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.nonzero_magnitude_start" class="method"><a class="src rightside" href="../src/fixed_decimal/decimal.rs.html#452-454">Source</a><h4 class="code-header">pub fn <a href="#method.nonzero_magnitude_start" class="fn">nonzero_magnitude_start</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a></h4></section></summary><div class="docblock"><p>Gets the magnitude of the largest nonzero digit. If the number is zero, 0 is returned.</p>
+<h5 id="examples-19"><a class="doc-anchor" href="#examples-19">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::UnsignedDecimal;
+
+<span class="kw">let </span>dec: UnsignedDecimal = <span class="string">"012.340"</span>.parse().expect(<span class="string">"valid syntax"</span>);
+<span class="macro">assert_eq!</span>(<span class="number">1</span>, dec.nonzero_magnitude_start());
+
+<span class="macro">assert_eq!</span>(<span class="number">0</span>, UnsignedDecimal::from(<span class="number">0u32</span>).nonzero_magnitude_start());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.nonzero_magnitude_end" class="method"><a class="src rightside" href="../src/fixed_decimal/decimal.rs.html#468-474">Source</a><h4 class="code-header">pub fn <a href="#method.nonzero_magnitude_end" class="fn">nonzero_magnitude_end</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a></h4></section></summary><div class="docblock"><p>Gets the magnitude of the smallest nonzero digit. If the number is zero, 0 is returned.</p>
+<h5 id="examples-20"><a class="doc-anchor" href="#examples-20">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::UnsignedDecimal;
+
+<span class="kw">let </span>dec: UnsignedDecimal = <span class="string">"012.340"</span>.parse().expect(<span class="string">"valid syntax"</span>);
+<span class="macro">assert_eq!</span>(-<span class="number">2</span>, dec.nonzero_magnitude_end());
+
+<span class="macro">assert_eq!</span>(<span class="number">0</span>, UnsignedDecimal::from(<span class="number">0u32</span>).nonzero_magnitude_end());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.is_zero" class="method"><a class="src rightside" href="../src/fixed_decimal/decimal.rs.html#487-489">Source</a><h4 class="code-header">pub fn <a href="#method.is_zero" class="fn">is_zero</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Returns whether the number has a numeric value of zero.</p>
+<h5 id="examples-21"><a class="doc-anchor" href="#examples-21">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::UnsignedDecimal;
+
+<span class="kw">let </span>dec: UnsignedDecimal = <span class="string">"000.000"</span>.parse().expect(<span class="string">"valid syntax"</span>);
+<span class="macro">assert!</span>(dec.is_zero());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.multiply_pow10" class="method"><a class="src rightside" href="../src/fixed_decimal/decimal.rs.html#520-559">Source</a><h4 class="code-header">pub fn <a href="#method.multiply_pow10" class="fn">multiply_pow10</a>(&amp;mut self, delta: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a>)</h4></section></summary><div class="docblock"><p>Shift the digits of this number by a power of 10.</p>
+<p>Leading or trailing zeros may be added to keep the digit at magnitude 0 (the last digit
+before the decimal separator) visible.</p>
+<p>NOTE: if the operation causes overflow, the number will be set to zero.</p>
+<h5 id="examples-22"><a class="doc-anchor" href="#examples-22">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::UnsignedDecimal;
+
+<span class="kw">let </span><span class="kw-2">mut </span>dec = UnsignedDecimal::from(<span class="number">42u32</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"42"</span>, dec.to_string());
+
+dec.multiply_pow10(<span class="number">3</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"42000"</span>, dec.to_string());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.trim_start" class="method"><a class="src rightside" href="../src/fixed_decimal/decimal.rs.html#626-630">Source</a><h4 class="code-header">pub fn <a href="#method.trim_start" class="fn">trim_start</a>(&amp;mut self)</h4></section></summary><div class="docblock"><p>Removes the leading zeroes of this number.</p>
+<h5 id="examples-23"><a class="doc-anchor" href="#examples-23">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::UnsignedDecimal;
+
+<span class="kw">let </span><span class="kw-2">mut </span>dec = UnsignedDecimal::from(<span class="number">123400u32</span>)
+    .multiplied_pow10(-<span class="number">4</span>)
+    .padded_start(<span class="number">4</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"0012.3400"</span>, dec.to_string());
+
+dec.trim_start();
+<span class="macro">assert_eq!</span>(<span class="string">"12.3400"</span>, dec.to_string());</code></pre></div>
+<p>There is no effect if the most significant digit has magnitude less than zero</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span><span class="kw-2">mut </span>dec = UnsignedDecimal::from(<span class="number">22u32</span>).multiplied_pow10(-<span class="number">4</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"0.0022"</span>, dec.to_string());
+
+dec.trim_start();
+<span class="macro">assert_eq!</span>(<span class="string">"0.0022"</span>, dec.to_string());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.trim_end" class="method"><a class="src rightside" href="../src/fixed_decimal/decimal.rs.html#677-681">Source</a><h4 class="code-header">pub fn <a href="#method.trim_end" class="fn">trim_end</a>(&amp;mut self)</h4></section></summary><div class="docblock"><p>Removes the trailing zeros of this number.</p>
+<h5 id="examples-24"><a class="doc-anchor" href="#examples-24">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::UnsignedDecimal;
+
+<span class="kw">let </span><span class="kw-2">mut </span>dec = UnsignedDecimal::from(<span class="number">123400u32</span>)
+    .multiplied_pow10(-<span class="number">4</span>)
+    .padded_start(<span class="number">4</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"0012.3400"</span>, dec.to_string());
+
+dec.trim_end();
+<span class="macro">assert_eq!</span>(<span class="string">"0012.34"</span>, dec.to_string());</code></pre></div>
+<p>There is no effect if the least significant digit has magnitude more than zero:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span><span class="kw-2">mut </span>dec = UnsignedDecimal::from(<span class="number">2200u32</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"2200"</span>, dec.to_string());
+
+dec.trim_end();
+<span class="macro">assert_eq!</span>(<span class="string">"2200"</span>, dec.to_string());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.trim_end_if_integer" class="method"><a class="src rightside" href="../src/fixed_decimal/decimal.rs.html#733-739">Source</a><h4 class="code-header">pub fn <a href="#method.trim_end_if_integer" class="fn">trim_end_if_integer</a>(&amp;mut self)</h4></section></summary><div class="docblock"><p>Removes the trailing zeros of this number,
+but only if the number is an integer</p>
+<h5 id="examples-25"><a class="doc-anchor" href="#examples-25">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::UnsignedDecimal;
+
+<span class="kw">let </span><span class="kw-2">mut </span>dec = UnsignedDecimal::from(<span class="number">12340000u32</span>).multiplied_pow10(-<span class="number">2</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"123400.00"</span>, dec.to_string());
+
+dec.trim_end_if_integer();
+<span class="macro">assert_eq!</span>(<span class="string">"123400"</span>, dec.to_string());
+
+<span class="comment">// No effect on trailing zeros in the integer:
+</span>dec.trim_end_if_integer();
+<span class="macro">assert_eq!</span>(<span class="string">"123400"</span>, dec.to_string());
+
+<span class="comment">// No effect if there are nonzero fractional digits:
+</span>dec.multiply_pow10(-<span class="number">4</span>);
+dec.pad_start(<span class="number">4</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"0012.3400"</span>, dec.to_string());
+
+dec.trim_end_if_integer();
+<span class="macro">assert_eq!</span>(<span class="string">"0012.3400"</span>, dec.to_string());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.pad_start" class="method"><a class="src rightside" href="../src/fixed_decimal/decimal.rs.html#793-805">Source</a><h4 class="code-header">pub fn <a href="#method.pad_start" class="fn">pad_start</a>(&amp;mut self, position: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a>)</h4></section></summary><div class="docblock"><p>Pads this number with leading zeros on a particular position.</p>
+<p>Negative position numbers have no effect.</p>
+<p>Also see <a href="struct.UnsignedDecimal.html#method.set_max_position" title="method fixed_decimal::UnsignedDecimal::set_max_position"><code>UnsignedDecimal::set_max_position()</code></a>.</p>
+<h5 id="examples-26"><a class="doc-anchor" href="#examples-26">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::UnsignedDecimal;
+
+<span class="kw">let </span><span class="kw-2">mut </span>dec = UnsignedDecimal::from(<span class="number">42u32</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"42"</span>, dec.to_string());
+
+dec.pad_start(<span class="number">4</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"0042"</span>, dec.to_string());
+
+dec.pad_start(<span class="number">3</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"042"</span>, dec.to_string());
+
+dec.pad_start(<span class="number">2</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"42"</span>, dec.to_string());
+
+dec.pad_start(<span class="number">1</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"42"</span>, dec.to_string());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.pad_end" class="method"><a class="src rightside" href="../src/fixed_decimal/decimal.rs.html#862-875">Source</a><h4 class="code-header">pub fn <a href="#method.pad_end" class="fn">pad_end</a>(&amp;mut self, position: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a>)</h4></section></summary><div class="docblock"><p>Pads this number with trailing zeros on a particular (non-positive) position. Will truncate
+trailing zeros if necessary, but will not truncate other digits.</p>
+<p>Positive position numbers have no effect.</p>
+<p>Also see <a href="struct.UnsignedDecimal.html#method.trunc" title="method fixed_decimal::UnsignedDecimal::trunc"><code>UnsignedDecimal::trunc()</code></a>.</p>
+<h5 id="examples-27"><a class="doc-anchor" href="#examples-27">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::UnsignedDecimal;
+
+<span class="kw">let </span><span class="kw-2">mut </span>dec = UnsignedDecimal::from_str(<span class="string">"123.456"</span>).unwrap();
+<span class="macro">assert_eq!</span>(<span class="string">"123.456"</span>, dec.to_string());
+
+dec.pad_end(-<span class="number">2</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"123.456"</span>, dec.to_string());
+
+dec.pad_end(-<span class="number">6</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"123.456000"</span>, dec.to_string());
+
+<span class="kw">let </span><span class="kw-2">mut </span>dec = UnsignedDecimal::from_str(<span class="string">"123.000"</span>).unwrap();
+dec.pad_end(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"123"</span>, dec.to_string());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.set_max_position" class="method"><a class="src rightside" href="../src/fixed_decimal/decimal.rs.html#943-965">Source</a><h4 class="code-header">pub fn <a href="#method.set_max_position" class="fn">set_max_position</a>(&amp;mut self, position: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a>)</h4></section></summary><div class="docblock"><p>Truncates the leading significant digits of this number to a particular position, deleting
+digits if necessary.</p>
+<p>Also see <a href="struct.UnsignedDecimal.html#method.pad_start" title="method fixed_decimal::UnsignedDecimal::pad_start"><code>UnsignedDecimal::pad_start()</code></a>.</p>
+<h5 id="examples-28"><a class="doc-anchor" href="#examples-28">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::UnsignedDecimal;
+
+<span class="kw">let </span><span class="kw-2">mut </span>dec = UnsignedDecimal::from(<span class="number">4235970u32</span>).multiplied_pow10(-<span class="number">3</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"4235.970"</span>, dec.to_string());
+
+dec.set_max_position(<span class="number">5</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"04235.970"</span>, dec.to_string());
+
+dec.set_max_position(<span class="number">2</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"35.970"</span>, dec.to_string());
+
+dec.set_max_position(<span class="number">1</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"5.970"</span>, dec.to_string());
+
+dec.set_max_position(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"0.970"</span>, dec.to_string());
+
+dec.set_max_position(-<span class="number">1</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"0.070"</span>, dec.to_string());
+
+dec.set_max_position(-<span class="number">2</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"0.000"</span>, dec.to_string());
+
+dec.set_max_position(-<span class="number">4</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"0.0000"</span>, dec.to_string());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.round-1" class="method"><a class="src rightside" href="../src/fixed_decimal/decimal.rs.html#991-993">Source</a><h4 class="code-header">pub fn <a href="#method.round-1" class="fn">round</a>(&amp;mut self, position: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a>)</h4></section></summary><div class="docblock"><p>Rounds this number at a particular digit position.</p>
+<p>This uses half to even rounding, which rounds to the nearest integer and resolves ties by
+selecting the nearest even integer to the original value.</p>
+<h5 id="examples-29"><a class="doc-anchor" href="#examples-29">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::UnsignedDecimal;
+
+<span class="kw">let </span><span class="kw-2">mut </span>dec = UnsignedDecimal::from_str(<span class="string">"0.4"</span>).unwrap();
+dec.round(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"0"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = UnsignedDecimal::from_str(<span class="string">"0.5"</span>).unwrap();
+dec.round(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"0"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = UnsignedDecimal::from_str(<span class="string">"0.6"</span>).unwrap();
+dec.round(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"1"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = UnsignedDecimal::from_str(<span class="string">"1.5"</span>).unwrap();
+dec.round(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"2"</span>, dec.to_string());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.expand-1" class="method"><a class="src rightside" href="../src/fixed_decimal/decimal.rs.html#1042-1044">Source</a><h4 class="code-header">pub fn <a href="#method.expand-1" class="fn">expand</a>(&amp;mut self, position: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a>)</h4></section></summary><div class="docblock"><p>Rounds this number away from zero at a particular digit position.</p>
+<h5 id="examples-30"><a class="doc-anchor" href="#examples-30">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::UnsignedDecimal;
+
+<span class="kw">let </span><span class="kw-2">mut </span>dec = UnsignedDecimal::from_str(<span class="string">"0.4"</span>).unwrap();
+dec.expand(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"1"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = UnsignedDecimal::from_str(<span class="string">"0.5"</span>).unwrap();
+dec.expand(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"1"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = UnsignedDecimal::from_str(<span class="string">"0.6"</span>).unwrap();
+dec.expand(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"1"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = UnsignedDecimal::from_str(<span class="string">"1.5"</span>).unwrap();
+dec.expand(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"2"</span>, dec.to_string());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.trunc-1" class="method"><a class="src rightside" href="../src/fixed_decimal/decimal.rs.html#1092-1094">Source</a><h4 class="code-header">pub fn <a href="#method.trunc-1" class="fn">trunc</a>(&amp;mut self, position: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a>)</h4></section></summary><div class="docblock"><p>Rounds this number towards zero at a particular digit position.</p>
+<p>Also see <a href="struct.UnsignedDecimal.html#method.pad_end" title="method fixed_decimal::UnsignedDecimal::pad_end"><code>UnsignedDecimal::pad_end()</code></a>.</p>
+<h5 id="examples-31"><a class="doc-anchor" href="#examples-31">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::UnsignedDecimal;
+
+<span class="kw">let </span><span class="kw-2">mut </span>dec = UnsignedDecimal::from_str(<span class="string">"0.4"</span>).unwrap();
+dec.trunc(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"0"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = UnsignedDecimal::from_str(<span class="string">"0.5"</span>).unwrap();
+dec.trunc(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"0"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = UnsignedDecimal::from_str(<span class="string">"0.6"</span>).unwrap();
+dec.trunc(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"0"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = UnsignedDecimal::from_str(<span class="string">"1.5"</span>).unwrap();
+dec.trunc(<span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="string">"1"</span>, dec.to_string());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.round_with_mode-1" class="method"><a class="src rightside" href="../src/fixed_decimal/decimal.rs.html#1135-1151">Source</a><h4 class="code-header">pub fn <a href="#method.round_with_mode-1" class="fn">round_with_mode</a>(&amp;mut self, position: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a>, mode: <a class="enum" href="enum.UnsignedRoundingMode.html" title="enum fixed_decimal::UnsignedRoundingMode">UnsignedRoundingMode</a>)</h4></section></summary><div class="docblock"><p>Rounds this number at a particular digit position, using the specified rounding mode.</p>
+<h5 id="examples-32"><a class="doc-anchor" href="#examples-32">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::{UnsignedDecimal, UnsignedRoundingMode};
+
+<span class="kw">let </span><span class="kw-2">mut </span>dec = UnsignedDecimal::from_str(<span class="string">"5.455"</span>).unwrap();
+dec.round_with_mode(-<span class="number">2</span>, UnsignedRoundingMode::HalfExpand);
+<span class="macro">assert_eq!</span>(<span class="string">"5.46"</span>, dec.to_string());
+<span class="kw">let </span><span class="kw-2">mut </span>dec = UnsignedDecimal::from_str(<span class="string">"9.75"</span>).unwrap();
+dec.round_with_mode(-<span class="number">1</span>, UnsignedRoundingMode::HalfEven);
+<span class="macro">assert_eq!</span>(<span class="string">"9.8"</span>, dec.to_string());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.round_with_mode_and_increment-1" class="method"><a class="src rightside" href="../src/fixed_decimal/decimal.rs.html#1205-1224">Source</a><h4 class="code-header">pub fn <a href="#method.round_with_mode_and_increment-1" class="fn">round_with_mode_and_increment</a>(
+    &amp;mut self,
+    position: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a>,
+    mode: <a class="enum" href="enum.UnsignedRoundingMode.html" title="enum fixed_decimal::UnsignedRoundingMode">UnsignedRoundingMode</a>,
+    increment: <a class="enum" href="enum.RoundingIncrement.html" title="enum fixed_decimal::RoundingIncrement">RoundingIncrement</a>,
+)</h4></section></summary><div class="docblock"><p>Rounds this number at a particular digit position and increment, using the specified rounding mode.</p>
+<h5 id="examples-33"><a class="doc-anchor" href="#examples-33">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::{
+    RoundingIncrement, UnsignedDecimal, UnsignedRoundingMode,
+};
+
+<span class="kw">let </span><span class="kw-2">mut </span>dec = UnsignedDecimal::from_str(<span class="string">"5.455"</span>).unwrap();
+dec.round_with_mode_and_increment(
+    -<span class="number">2</span>,
+    UnsignedRoundingMode::HalfExpand,
+    RoundingIncrement::MultiplesOf5,
+);
+<span class="macro">assert_eq!</span>(<span class="string">"5.45"</span>, dec.to_string());
+
+<span class="kw">let </span><span class="kw-2">mut </span>dec = UnsignedDecimal::from_str(<span class="string">"9.75"</span>).unwrap();
+dec.round_with_mode_and_increment(
+    -<span class="number">1</span>,
+    UnsignedRoundingMode::HalfEven,
+    RoundingIncrement::MultiplesOf5,
+);
+<span class="macro">assert_eq!</span>(<span class="string">"10.0"</span>, dec.to_string());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.concatenate_end" class="method"><a class="src rightside" href="../src/fixed_decimal/decimal.rs.html#1780-1802">Source</a><h4 class="code-header">pub fn <a href="#method.concatenate_end" class="fn">concatenate_end</a>(
+    &amp;mut self,
+    other: <a class="struct" href="struct.UnsignedDecimal.html" title="struct fixed_decimal::UnsignedDecimal">UnsignedDecimal</a>,
+) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.87.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.unit.html">()</a>, <a class="struct" href="struct.UnsignedDecimal.html" title="struct fixed_decimal::UnsignedDecimal">UnsignedDecimal</a>&gt;</h4></section></summary><div class="docblock"><p>Concatenate another <a href="struct.UnsignedDecimal.html" title="struct fixed_decimal::UnsignedDecimal"><code>UnsignedDecimal</code></a> into the end of this <a href="struct.UnsignedDecimal.html" title="struct fixed_decimal::UnsignedDecimal"><code>UnsignedDecimal</code></a>.</p>
+<p>All nonzero digits in <code>other</code> must have lower magnitude than nonzero digits in <code>self</code>.
+If the two decimals represent overlapping ranges of magnitudes, an <code>Err</code> is returned,
+passing ownership of <code>other</code> back to the caller.</p>
+<p>The magnitude range of <code>self</code> will be increased if <code>other</code> covers a larger range.</p>
+<h5 id="examples-34"><a class="doc-anchor" href="#examples-34">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>fixed_decimal::UnsignedDecimal;
+
+<span class="kw">let </span><span class="kw-2">mut </span>integer = UnsignedDecimal::from(<span class="number">123u32</span>);
+<span class="kw">let </span>fraction = UnsignedDecimal::from(<span class="number">456u32</span>).multiplied_pow10(-<span class="number">3</span>);
+
+integer.concatenate_end(fraction);
+
+<span class="macro">assert_eq!</span>(<span class="string">"123.456"</span>, integer.to_string());</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.to_string-1" class="method"><a class="src rightside" href="../src/fixed_decimal/decimal.rs.html#1885">Source</a><h4 class="code-header">pub fn <a href="#method.to_string-1" class="fn">to_string</a>(&amp;self) -&gt; <a class="struct" href="https://doc.rust-lang.org/1.87.0/alloc/string/struct.String.html" title="struct alloc::string::String">String</a></h4></section></summary><div class="docblock"><p>Converts the given value to a <code>String</code>.</p>
+<p>Under the hood, this uses an efficient [<code>Writeable</code>] implementation.
+However, in order to avoid allocating a string, it is more efficient
+to use [<code>Writeable</code>] directly.</p>
+</div></details></div></details><h2 id="trait-implementations" class="section-header">Trait Implementations<a href="#trait-implementations" class="anchor">§</a></h2><div id="trait-implementations-list"><details class="toggle implementors-toggle" open><summary><section id="impl-Deref-for-Signed%3CUnsignedDecimal%3E" class="impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#266-271">Source</a><a href="#impl-Deref-for-Signed%3CUnsignedDecimal%3E" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/ops/deref/trait.Deref.html" title="trait core::ops::deref::Deref">Deref</a> for <a class="type" href="type.Decimal.html" title="type fixed_decimal::Decimal">Decimal</a></h3></section></summary><div class="impl-items"><details class="toggle" open><summary><section id="associatedtype.Target" class="associatedtype trait-impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#267">Source</a><a href="#associatedtype.Target" class="anchor">§</a><h4 class="code-header">type <a href="https://doc.rust-lang.org/1.87.0/core/ops/deref/trait.Deref.html#associatedtype.Target" class="associatedtype">Target</a> = <a class="struct" href="struct.UnsignedDecimal.html" title="struct fixed_decimal::UnsignedDecimal">UnsignedDecimal</a></h4></section></summary><div class='docblock'>The resulting type after dereferencing.</div></details><details class="toggle method-toggle" open><summary><section id="method.deref" class="method trait-impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#268-270">Source</a><a href="#method.deref" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/ops/deref/trait.Deref.html#tymethod.deref" class="fn">deref</a>(&amp;self) -&gt; &amp;Self::<a class="associatedtype" href="https://doc.rust-lang.org/1.87.0/core/ops/deref/trait.Deref.html#associatedtype.Target" title="type core::ops::deref::Deref::Target">Target</a></h4></section></summary><div class='docblock'>Dereferences the value.</div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-DerefMut-for-Signed%3CUnsignedDecimal%3E" class="impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#273-277">Source</a><a href="#impl-DerefMut-for-Signed%3CUnsignedDecimal%3E" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/ops/deref/trait.DerefMut.html" title="trait core::ops::deref::DerefMut">DerefMut</a> for <a class="type" href="type.Decimal.html" title="type fixed_decimal::Decimal">Decimal</a></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.deref_mut" class="method trait-impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#274-276">Source</a><a href="#method.deref_mut" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/ops/deref/trait.DerefMut.html#tymethod.deref_mut" class="fn">deref_mut</a>(&amp;mut self) -&gt; &amp;mut Self::<a class="associatedtype" href="https://doc.rust-lang.org/1.87.0/core/ops/deref/trait.Deref.html#associatedtype.Target" title="type core::ops::deref::Deref::Target">Target</a></h4></section></summary><div class='docblock'>Mutably dereferences the value.</div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-Display-for-Signed%3CUnsignedDecimal%3E" class="impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#888">Source</a><a href="#impl-Display-for-Signed%3CUnsignedDecimal%3E" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/fmt/trait.Display.html" title="trait core::fmt::Display">Display</a> for <a class="type" href="type.Decimal.html" title="type fixed_decimal::Decimal">Decimal</a></h3><div class="docblock"><p>This trait is implemented for compatibility with <a href="alloc::fmt"><code>fmt!</code></a>.
+To create a string, [<code>Writeable::write_to_string</code>] is usually more efficient.</p>
+</div></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.fmt" class="method trait-impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#888">Source</a><a href="#method.fmt" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/fmt/trait.Display.html#tymethod.fmt" class="fn">fmt</a>(&amp;self, f: &amp;mut <a class="struct" href="https://doc.rust-lang.org/1.87.0/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>&lt;'_&gt;) -&gt; <a class="type" href="https://doc.rust-lang.org/1.87.0/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></h4></section></summary><div class='docblock'>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/1.87.0/core/fmt/trait.Display.html#tymethod.fmt">Read more</a></div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-From%3CFixedInteger%3E-for-Signed%3CUnsignedDecimal%3E" class="impl"><a class="src rightside" href="../src/fixed_decimal/integer.rs.html#42-46">Source</a><a href="#impl-From%3CFixedInteger%3E-for-Signed%3CUnsignedDecimal%3E" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;<a class="struct" href="struct.FixedInteger.html" title="struct fixed_decimal::FixedInteger">FixedInteger</a>&gt; for <a class="type" href="type.Decimal.html" title="type fixed_decimal::Decimal">Decimal</a></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.from" class="method trait-impl"><a class="src rightside" href="../src/fixed_decimal/integer.rs.html#43-45">Source</a><a href="#method.from" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html#tymethod.from" class="fn">from</a>(value: <a class="struct" href="struct.FixedInteger.html" title="struct fixed_decimal::FixedInteger">FixedInteger</a>) -&gt; Self</h4></section></summary><div class='docblock'>Converts to this type from the input type.</div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-From%3Ci128%3E-for-Signed%3CUnsignedDecimal%3E" class="impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#181">Source</a><a href="#impl-From%3Ci128%3E-for-Signed%3CUnsignedDecimal%3E" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i128.html">i128</a>&gt; for <a class="type" href="type.Decimal.html" title="type fixed_decimal::Decimal">Decimal</a></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.from-2" class="method trait-impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#181">Source</a><a href="#method.from-2" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html#tymethod.from" class="fn">from</a>(value: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i128.html">i128</a>) -&gt; Self</h4></section></summary><div class='docblock'>Converts to this type from the input type.</div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-From%3Ci16%3E-for-Signed%3CUnsignedDecimal%3E" class="impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#184">Source</a><a href="#impl-From%3Ci16%3E-for-Signed%3CUnsignedDecimal%3E" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a>&gt; for <a class="type" href="type.Decimal.html" title="type fixed_decimal::Decimal">Decimal</a></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.from-5" class="method trait-impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#184">Source</a><a href="#method.from-5" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html#tymethod.from" class="fn">from</a>(value: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i16.html">i16</a>) -&gt; Self</h4></section></summary><div class='docblock'>Converts to this type from the input type.</div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-From%3Ci32%3E-for-Signed%3CUnsignedDecimal%3E" class="impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#183">Source</a><a href="#impl-From%3Ci32%3E-for-Signed%3CUnsignedDecimal%3E" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i32.html">i32</a>&gt; for <a class="type" href="type.Decimal.html" title="type fixed_decimal::Decimal">Decimal</a></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.from-4" class="method trait-impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#183">Source</a><a href="#method.from-4" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html#tymethod.from" class="fn">from</a>(value: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i32.html">i32</a>) -&gt; Self</h4></section></summary><div class='docblock'>Converts to this type from the input type.</div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-From%3Ci64%3E-for-Signed%3CUnsignedDecimal%3E" class="impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#182">Source</a><a href="#impl-From%3Ci64%3E-for-Signed%3CUnsignedDecimal%3E" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i64.html">i64</a>&gt; for <a class="type" href="type.Decimal.html" title="type fixed_decimal::Decimal">Decimal</a></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.from-3" class="method trait-impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#182">Source</a><a href="#method.from-3" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html#tymethod.from" class="fn">from</a>(value: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i64.html">i64</a>) -&gt; Self</h4></section></summary><div class='docblock'>Converts to this type from the input type.</div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-From%3Ci8%3E-for-Signed%3CUnsignedDecimal%3E" class="impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#185">Source</a><a href="#impl-From%3Ci8%3E-for-Signed%3CUnsignedDecimal%3E" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i8.html">i8</a>&gt; for <a class="type" href="type.Decimal.html" title="type fixed_decimal::Decimal">Decimal</a></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.from-6" class="method trait-impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#185">Source</a><a href="#method.from-6" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html#tymethod.from" class="fn">from</a>(value: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i8.html">i8</a>) -&gt; Self</h4></section></summary><div class='docblock'>Converts to this type from the input type.</div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-From%3Cisize%3E-for-Signed%3CUnsignedDecimal%3E" class="impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#180">Source</a><a href="#impl-From%3Cisize%3E-for-Signed%3CUnsignedDecimal%3E" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.isize.html">isize</a>&gt; for <a class="type" href="type.Decimal.html" title="type fixed_decimal::Decimal">Decimal</a></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.from-1" class="method trait-impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#180">Source</a><a href="#method.from-1" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html#tymethod.from" class="fn">from</a>(value: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.isize.html">isize</a>) -&gt; Self</h4></section></summary><div class='docblock'>Converts to this type from the input type.</div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-From%3Cu128%3E-for-Signed%3CUnsignedDecimal%3E" class="impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#203">Source</a><a href="#impl-From%3Cu128%3E-for-Signed%3CUnsignedDecimal%3E" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.u128.html">u128</a>&gt; for <a class="type" href="type.Decimal.html" title="type fixed_decimal::Decimal">Decimal</a></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.from-8" class="method trait-impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#203">Source</a><a href="#method.from-8" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html#tymethod.from" class="fn">from</a>(value: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.u128.html">u128</a>) -&gt; Self</h4></section></summary><div class='docblock'>Converts to this type from the input type.</div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-From%3Cu16%3E-for-Signed%3CUnsignedDecimal%3E" class="impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#206">Source</a><a href="#impl-From%3Cu16%3E-for-Signed%3CUnsignedDecimal%3E" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.u16.html">u16</a>&gt; for <a class="type" href="type.Decimal.html" title="type fixed_decimal::Decimal">Decimal</a></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.from-11" class="method trait-impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#206">Source</a><a href="#method.from-11" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html#tymethod.from" class="fn">from</a>(value: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.u16.html">u16</a>) -&gt; Self</h4></section></summary><div class='docblock'>Converts to this type from the input type.</div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-From%3Cu32%3E-for-Signed%3CUnsignedDecimal%3E" class="impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#205">Source</a><a href="#impl-From%3Cu32%3E-for-Signed%3CUnsignedDecimal%3E" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.u32.html">u32</a>&gt; for <a class="type" href="type.Decimal.html" title="type fixed_decimal::Decimal">Decimal</a></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.from-10" class="method trait-impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#205">Source</a><a href="#method.from-10" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html#tymethod.from" class="fn">from</a>(value: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.u32.html">u32</a>) -&gt; Self</h4></section></summary><div class='docblock'>Converts to this type from the input type.</div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-From%3Cu64%3E-for-Signed%3CUnsignedDecimal%3E" class="impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#204">Source</a><a href="#impl-From%3Cu64%3E-for-Signed%3CUnsignedDecimal%3E" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.u64.html">u64</a>&gt; for <a class="type" href="type.Decimal.html" title="type fixed_decimal::Decimal">Decimal</a></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.from-9" class="method trait-impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#204">Source</a><a href="#method.from-9" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html#tymethod.from" class="fn">from</a>(value: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.u64.html">u64</a>) -&gt; Self</h4></section></summary><div class='docblock'>Converts to this type from the input type.</div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-From%3Cu8%3E-for-Signed%3CUnsignedDecimal%3E" class="impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#207">Source</a><a href="#impl-From%3Cu8%3E-for-Signed%3CUnsignedDecimal%3E" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.u8.html">u8</a>&gt; for <a class="type" href="type.Decimal.html" title="type fixed_decimal::Decimal">Decimal</a></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.from-12" class="method trait-impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#207">Source</a><a href="#method.from-12" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html#tymethod.from" class="fn">from</a>(value: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.u8.html">u8</a>) -&gt; Self</h4></section></summary><div class='docblock'>Converts to this type from the input type.</div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-From%3Cusize%3E-for-Signed%3CUnsignedDecimal%3E" class="impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#202">Source</a><a href="#impl-From%3Cusize%3E-for-Signed%3CUnsignedDecimal%3E" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.usize.html">usize</a>&gt; for <a class="type" href="type.Decimal.html" title="type fixed_decimal::Decimal">Decimal</a></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.from-7" class="method trait-impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#202">Source</a><a href="#method.from-7" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html#tymethod.from" class="fn">from</a>(value: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.usize.html">usize</a>) -&gt; Self</h4></section></summary><div class='docblock'>Converts to this type from the input type.</div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-FromStr-for-Signed%3CUnsignedDecimal%3E" class="impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#152-157">Source</a><a href="#impl-FromStr-for-Signed%3CUnsignedDecimal%3E" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/str/traits/trait.FromStr.html" title="trait core::str::traits::FromStr">FromStr</a> for <a class="type" href="type.Decimal.html" title="type fixed_decimal::Decimal">Decimal</a></h3></section></summary><div class="impl-items"><details class="toggle" open><summary><section id="associatedtype.Err" class="associatedtype trait-impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#153">Source</a><a href="#associatedtype.Err" class="anchor">§</a><h4 class="code-header">type <a href="https://doc.rust-lang.org/1.87.0/core/str/traits/trait.FromStr.html#associatedtype.Err" class="associatedtype">Err</a> = <a class="enum" href="enum.ParseError.html" title="enum fixed_decimal::ParseError">ParseError</a></h4></section></summary><div class='docblock'>The associated error which can be returned from parsing.</div></details><details class="toggle method-toggle" open><summary><section id="method.from_str" class="method trait-impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#154-156">Source</a><a href="#method.from_str" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/str/traits/trait.FromStr.html#tymethod.from_str" class="fn">from_str</a>(s: &amp;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.str.html">str</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.87.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;Self, Self::<a class="associatedtype" href="https://doc.rust-lang.org/1.87.0/core/str/traits/trait.FromStr.html#associatedtype.Err" title="type core::str::traits::FromStr::Err">Err</a>&gt;</h4></section></summary><div class='docblock'>Parses a string <code>s</code> to return a value of this type. <a href="https://doc.rust-lang.org/1.87.0/core/str/traits/trait.FromStr.html#tymethod.from_str">Read more</a></div></details></div></details><details class="toggle implementors-toggle" open><summary><section id="impl-Writeable-for-Signed%3CUnsignedDecimal%3E" class="impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#866-886">Source</a><a href="#impl-Writeable-for-Signed%3CUnsignedDecimal%3E" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="../writeable/trait.Writeable.html" title="trait writeable::Writeable">Writeable</a> for <a class="type" href="type.Decimal.html" title="type fixed_decimal::Decimal">Decimal</a></h3><div class="docblock"><p>Render the <a href="type.Decimal.html" title="type fixed_decimal::Decimal"><code>Decimal</code></a> as a string of ASCII digits with a possible decimal point.</p>
+</div></section></summary><div class="docblock"><h4 id="examples-35"><a class="doc-anchor" href="#examples-35">§</a>Examples</h4>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro">assert_writeable_eq!</span>(Decimal::from(<span class="number">42</span>), <span class="string">"42"</span>);</code></pre></div>
+</div><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.write_to" class="method trait-impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#867-881">Source</a><a href="#method.write_to" class="anchor">§</a><h4 class="code-header">fn <a href="../writeable/trait.Writeable.html#method.write_to" class="fn">write_to</a>&lt;W: <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/fmt/trait.Write.html" title="trait core::fmt::Write">Write</a> + ?<a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>&gt;(&amp;self, sink: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.reference.html">&amp;mut W</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/1.87.0/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></h4></section></summary><div class='docblock'>Writes a string to the given sink. Errors from the sink are bubbled up.
+The default implementation delegates to <code>write_to_parts</code>, and discards any
+<code>Part</code> annotations.</div></details><details class="toggle method-toggle" open><summary><section id="method.writeable_length_hint" class="method trait-impl"><a class="src rightside" href="../src/fixed_decimal/signed_decimal.rs.html#883-885">Source</a><a href="#method.writeable_length_hint" class="anchor">§</a><h4 class="code-header">fn <a href="../writeable/trait.Writeable.html#method.writeable_length_hint" class="fn">writeable_length_hint</a>(&amp;self) -&gt; <a class="struct" href="../writeable/struct.LengthHint.html" title="struct writeable::LengthHint">LengthHint</a></h4></section></summary><div class='docblock'>Returns a hint for the number of UTF-8 bytes that will be written to the sink. <a href="../writeable/trait.Writeable.html#method.writeable_length_hint">Read more</a></div></details><details class="toggle method-toggle" open><summary><section id="method.write_to_parts" class="method trait-impl"><a class="src rightside" href="../src/writeable/lib.rs.html#255">Source</a><a href="#method.write_to_parts" class="anchor">§</a><h4 class="code-header">fn <a href="../writeable/trait.Writeable.html#method.write_to_parts" class="fn">write_to_parts</a>&lt;S&gt;(&amp;self, sink: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.reference.html">&amp;mut S</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.87.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.unit.html">()</a>, <a class="struct" href="https://doc.rust-lang.org/1.87.0/core/fmt/struct.Error.html" title="struct core::fmt::Error">Error</a>&gt;<div class="where">where
+    S: <a class="trait" href="../writeable/trait.PartsWrite.html" title="trait writeable::PartsWrite">PartsWrite</a> + ?<a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>,</div></h4></section></summary><div class='docblock'>Write bytes and <code>Part</code> annotations to the given sink. Errors from the
+sink are bubbled up. The default implementation delegates to <code>write_to</code>,
+and doesn’t produce any <code>Part</code> annotations.</div></details><details class="toggle method-toggle" open><summary><section id="method.write_to_string" class="method trait-impl"><a class="src rightside" href="../src/writeable/lib.rs.html#305">Source</a><a href="#method.write_to_string" class="anchor">§</a><h4 class="code-header">fn <a href="../writeable/trait.Writeable.html#method.write_to_string" class="fn">write_to_string</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.87.0/alloc/borrow/enum.Cow.html" title="enum alloc::borrow::Cow">Cow</a>&lt;'_, <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.str.html">str</a>&gt;</h4></section></summary><div class='docblock'>Creates a new <code>String</code> with the data from this <code>Writeable</code>. Like <code>ToString</code>,
+but smaller and faster. <a href="../writeable/trait.Writeable.html#method.write_to_string">Read more</a></div></details></div></details></div><script src="../type.impl/fixed_decimal/struct.Signed.js" data-self-path="fixed_decimal::signed_decimal::Decimal" async></script></section></div></main></body></html>

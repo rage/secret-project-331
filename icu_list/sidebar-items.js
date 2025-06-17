@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["ListError","ListLength"],"mod":["parts","provider"],"struct":["FormattedList","ListFormatter"]};
+window.SIDEBAR_ITEMS = {"mod":["options","parts","provider"],"struct":["FormattedList","ListFormatter","ListFormatterPreferences"]};

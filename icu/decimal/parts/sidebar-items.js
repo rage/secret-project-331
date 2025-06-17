@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["DECIMAL","FRACTION","GROUP","INTEGER","MINUS_SIGN","PLUS_SIGN"]};

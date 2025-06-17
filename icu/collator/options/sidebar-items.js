@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["AlternateHandling","CaseLevel","MaxVariable","Strength"],"struct":["CollatorOptions","ResolvedCollatorOptions"]};

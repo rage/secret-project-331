@@ -1,0 +1,104 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="🚧 [Unstable] APIs and Data Structures for Plural Rules"><title>icu_plurals::provider::rules - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_plurals" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../static.files/storage-82c7156e.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../icu_plurals/index.html">icu_<wbr>plurals</a><span class="version">2.0.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module rules</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#examples" title="Examples">Examples</a></li><li><a href="#summary" title="Summary">Summary</a></li><li><a href="#difference-between-category-and-number" title="Difference between Category and Number">Difference between Category and Number</a></li><li><a href="#runtime-vs-resolver-rules" title="Runtime vs. Resolver Rules">Runtime vs. Resolver Rules</a></li></ul><h3><a href="#modules">Module Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In icu_<wbr>plurals::<wbr>provider</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">icu_plurals</a>::<wbr><a href="../index.html">provider</a></div><h1>Module <span>rules</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/icu_plurals/provider/rules/mod.rs.html#5-158">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>🚧 [Unstable] APIs and Data Structures for Plural Rules</p>
+<p>A single Plural Rule is an expression which tests the value of <a href="../../struct.PluralOperands.html" title="struct icu_plurals::PluralOperands"><code>PluralOperands</code></a>
+against a condition. If the condition is truthful, then the <a href="../../enum.PluralCategory.html" title="enum icu_plurals::PluralCategory"><code>PluralCategory</code></a>
+to which the Rule is assigned should be used.</p>
+<div class="stab unstable">
+🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
+including in SemVer minor releases. In particular, the `DataProvider` implementations are only
+guaranteed to match with this version's `*_unstable` providers. Use with caution.
+</div>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2>
+<p>In this example we’re going to examine the AST, parsing and resolving of a
+set of English Cardinal Plural Rules.</p>
+<p>A CLDR JSON source contains the following entry:</p>
+<div class="example-wrap"><pre class="language-json"><code>{
+  &quot;one&quot;: &quot;i = 1 and v = 0 @integer 1&quot;,
+  &quot;other&quot;: &quot; @integer 0, 2~16, 100, 1000, 10000, 100000, 1000000, … @decimal 0.0~1.5, 10.0, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0, …&quot;
+}</code></pre></div>
+<p>When the user provides a number for which the <a href="../../enum.PluralCategory.html" title="enum icu_plurals::PluralCategory"><code>PluralCategory</code></a> is to be selected,
+the system will examine a rule for each category in order, and stop on the first
+category which matches.</p>
+<p>In our example, the user provided an input value <code>1</code>.
+That value expanded into <a href="../../struct.PluralOperands.html" title="struct icu_plurals::PluralOperands"><code>PluralOperands</code></a> might look something like this, in its
+internal representation of plural operand values, or something logically equivalent:</p>
+<div class="example-wrap"><pre class="language-text"><code>PluralOperands {
+    i: 1,
+    v: 0,
+    w: 0,
+    f: 0,
+    t: 0,
+    c: 0,
+};</code></pre></div>
+<p>Now, the system will parse the first rule, assigned to <a href="../../enum.PluralCategory.html#variant.One" title="variant icu_plurals::PluralCategory::One"><code>PluralCategory::One</code></a>, and
+test if it matches.</p>
+<p>The value of the rule is:</p>
+<div class="example-wrap"><pre class="language-text"><code>i = 1 and v = 0 @integer 1</code></pre></div>
+<p>The <a href="reference/ast/struct.Rule.html" title="struct icu_plurals::provider::rules::reference::ast::Rule"><code>Rule</code></a> contains a <a href="reference/ast/struct.Condition.html" title="struct icu_plurals::provider::rules::reference::ast::Condition"><code>Condition</code></a> <code>i = 1 and v = 0</code> and a <a href="reference/ast/struct.Samples.html" title="struct icu_plurals::provider::rules::reference::ast::Samples"><code>Sample</code></a> <code>@integer 1</code>.</p>
+<p>When parsed, the resulting <a href="reference/ast/index.html" title="mod icu_plurals::provider::rules::reference::ast"><code>AST</code></a> will look like this:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>icu::plurals::provider::rules::reference::ast::<span class="kw-2">*</span>;
+<span class="kw">use </span>icu::plurals::provider::rules::reference::parse_condition;
+
+<span class="kw">let </span>input = <span class="string">"i = 1 and v = 0 @integer 1"</span>;
+
+<span class="kw">let </span>ast = parse_condition(input.as_bytes()).expect(<span class="string">"Parsing failed."</span>);
+<span class="macro">assert_eq!</span>(
+    ast,
+    Condition(<span class="macro">vec!</span>[AndCondition(<span class="macro">vec!</span>[
+        Relation {
+            expression: Expression {
+                operand: Operand::I,
+                modulus: <span class="prelude-val">None</span>,
+            },
+            operator: Operator::Eq,
+            range_list: RangeList(<span class="macro">vec!</span>[RangeListItem::Value(Value(<span class="number">1</span>))])
+        },
+        Relation {
+            expression: Expression {
+                operand: Operand::V,
+                modulus: <span class="prelude-val">None</span>,
+            },
+            operator: Operator::Eq,
+            range_list: RangeList(<span class="macro">vec!</span>[RangeListItem::Value(Value(<span class="number">0</span>))])
+        },
+    ]),])
+);</code></pre></div>
+<p>Finally, we can pass this <a href="reference/ast/index.html" title="mod icu_plurals::provider::rules::reference::ast"><code>AST</code></a> (in fact, just the <a href="reference/ast/struct.Condition.html" title="struct icu_plurals::provider::rules::reference::ast::Condition"><code>Condition</code></a> node),
+to a resolver alongside the <a href="../../struct.PluralOperands.html" title="struct icu_plurals::PluralOperands"><code>PluralOperands</code></a> to test if the Rule
+matches:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>icu::plurals::provider::rules::reference::parse_condition;
+<span class="kw">use </span>icu::plurals::provider::rules::reference::test_condition;
+<span class="kw">use </span>icu::plurals::PluralOperands;
+
+<span class="kw">let </span>input = <span class="string">"i = 1 and v = 0 @integer 1"</span>;
+
+<span class="kw">let </span>operands = PluralOperands::from(<span class="number">1_u32</span>);
+
+<span class="kw">let </span>ast = parse_condition(input.as_bytes()).expect(<span class="string">"Parsing failed."</span>);
+
+<span class="macro">assert!</span>(test_condition(<span class="kw-2">&amp;</span>ast, <span class="kw-2">&amp;</span>operands));</code></pre></div>
+<p>Since the rule for <a href="../../enum.PluralCategory.html#variant.One" title="variant icu_plurals::PluralCategory::One"><code>PluralCategory::One</code></a> matches, we will return this category.
+Otherwise, we’d test the next rule, in this case <a href="../../enum.PluralCategory.html#variant.Other" title="variant icu_plurals::PluralCategory::Other"><code>PluralCategory::Other</code></a>, which has an
+empty <a href="reference/ast/struct.Condition.html" title="struct icu_plurals::provider::rules::reference::ast::Condition"><code>Condition</code></a>, meaning that it’ll match all operands.</p>
+<h2 id="summary"><a class="doc-anchor" href="#summary">§</a>Summary</h2>
+<p>For <a href="../../enum.PluralRuleType.html#variant.Cardinal" title="variant icu_plurals::PluralRuleType::Cardinal"><code>PluralRuleType::Cardinal</code></a> in English, we can restate the rule’s logic as:</p>
+<p>When the <code>PluralOperands::i</code> is <code>1</code> and <code>PluralOperands::v</code> is <code>0</code> (or equivalent thereof), <a href="../../enum.PluralCategory.html#variant.One" title="variant icu_plurals::PluralCategory::One"><code>PluralCategory::One</code></a>
+should be used, otherwise <a href="../../enum.PluralCategory.html#variant.Other" title="variant icu_plurals::PluralCategory::Other"><code>PluralCategory::Other</code></a> should be used.</p>
+<p>For other locales, there are different/more <a href="../../enum.PluralCategory.html" title="enum icu_plurals::PluralCategory"><code>PluralCategories</code></a> defined in the <code>PluralRules</code> (see <a href="../../struct.PluralRules.html#method.categories" title="method icu_plurals::PluralRules::categories"><code>PluralRules::categories</code></a>),
+and possibly more complicated <a href="reference/ast/struct.Rule.html" title="struct icu_plurals::provider::rules::reference::ast::Rule"><code>Rules</code></a> therein.</p>
+<h2 id="difference-between-category-and-number"><a class="doc-anchor" href="#difference-between-category-and-number">§</a>Difference between Category and Number</h2>
+<p>While in English <a href="../../enum.PluralCategory.html#variant.One" title="variant icu_plurals::PluralCategory::One"><code>PluralCategory::One</code></a> overlaps with an integer value <code>1</code>,
+in other languages, the category may be used for other numbers as well.</p>
+<p>For example, in Russian <a href="../../enum.PluralCategory.html#variant.One" title="variant icu_plurals::PluralCategory::One"><code>PluralCategory::One</code></a> matches numbers such as <code>11</code>, <code>21</code>, <code>121</code> etc.</p>
+<h2 id="runtime-vs-resolver-rules"><a class="doc-anchor" href="#runtime-vs-resolver-rules">§</a>Runtime vs. Resolver Rules</h2>
+<p><code>ICU4X</code> provides two sets of rules AST and APIs to manage it:</p>
+<ul>
+<li><code>reference</code> is the canonical implementation of the specification intended for
+tooling and testing to use.
+This module provides APIs for parsing, editing and serialization of the rules.</li>
+<li><code>runtime</code> is a non-public, non-mutable runtime version optimized for
+performance and low memory overhead. This version provides
+runtime resolver used by the <code>PluralRules</code> itself.</li>
+</ul>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="reference/index.html" title="mod icu_plurals::provider::rules::reference">reference</a></dt><dd>Reference version of the Plural Rules parser, AST and serializer.</dd><dt><a class="mod" href="runtime/index.html" title="mod icu_plurals::provider::rules::runtime">runtime</a></dt><dd>Runtime version of the Plural Rules parser, AST and serializer.</dd></dl></section></div></main></body></html>

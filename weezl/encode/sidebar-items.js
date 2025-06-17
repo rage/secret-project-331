@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Encoder","IntoStream","IntoVec"]};
+window.SIDEBAR_ITEMS = {"struct":["Configuration","Encoder","IntoStream","IntoVec"]};

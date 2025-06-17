@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["KEY_LEN","OUT_LEN"],"fn":["derive_key","hash","keyed_hash"],"struct":["Hash","Hasher","HexError","OutputReader"]};
+window.SIDEBAR_ITEMS = {"constant":["BLOCK_LEN","CHUNK_LEN","KEY_LEN","OUT_LEN"],"fn":["derive_key","hash","keyed_hash"],"mod":["hazmat"],"struct":["Hash","Hasher","HexError","OutputReader"]};

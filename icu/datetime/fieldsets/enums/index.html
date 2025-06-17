@@ -1,0 +1,65 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Enumerations over field sets."><title>icu::datetime::fieldsets::enums - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="icu" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../../static.files/storage-82c7156e.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../icu/index.html">icu</a><span class="version">2.0.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module enums</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#examples" title="Examples">Examples</a></li></ul><h3><a href="#enums">Module Items</a></h3><ul class="block"><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In icu::<wbr>datetime::<wbr>fieldsets</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">icu</a>::<wbr><a href="../../index.html">datetime</a>::<wbr><a href="../index.html">fieldsets</a></div><h1>Module <span>enums</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../../src/icu_datetime/fieldsets.rs.html#55">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Enumerations over <a href="../index.html" title="mod icu::datetime::fieldsets">field sets</a>.</p>
+<p>These enumerations can be used when the field set is not known at compile time. However,
+they may contribute negatively to the binary size of the formatters.</p>
+<p>The most general type is <a href="enum.CompositeFieldSet.html" title="enum icu::datetime::fieldsets::enums::CompositeFieldSet"><code>CompositeFieldSet</code></a>, which supports all field
+sets in a single enumeration. <a href="enum.CompositeDateTimeFieldSet.html" title="enum icu::datetime::fieldsets::enums::CompositeDateTimeFieldSet"><code>CompositeDateTimeFieldSet</code></a> is a good
+choice when you don’t need to format time zones.</p>
+<p>Summary of all the types:</p>
+<div><table><thead><tr><th>Type</th><th>Supported Field Sets</th></tr></thead><tbody>
+<tr><td><a href="enum.DateFieldSet.html" title="enum icu::datetime::fieldsets::enums::DateFieldSet"><code>DateFieldSet</code></a></td><td>Date</td></tr>
+<tr><td><a href="enum.CalendarPeriodFieldSet.html" title="enum icu::datetime::fieldsets::enums::CalendarPeriodFieldSet"><code>CalendarPeriodFieldSet</code></a></td><td>Calendar Period</td></tr>
+<tr><td><a href="enum.TimeFieldSet.html" title="enum icu::datetime::fieldsets::enums::TimeFieldSet"><code>TimeFieldSet</code></a></td><td>Time</td></tr>
+<tr><td><a href="enum.ZoneFieldSet.html" title="enum icu::datetime::fieldsets::enums::ZoneFieldSet"><code>ZoneFieldSet</code></a></td><td>Zone</td></tr>
+<tr><td><a href="enum.DateAndTimeFieldSet.html" title="enum icu::datetime::fieldsets::enums::DateAndTimeFieldSet"><code>DateAndTimeFieldSet</code></a></td><td>Date + Time</td></tr>
+<tr><td><a href="enum.CompositeDateTimeFieldSet.html" title="enum icu::datetime::fieldsets::enums::CompositeDateTimeFieldSet"><code>CompositeDateTimeFieldSet</code></a></td><td>Date, Calendar Period, Time, Date + Time</td></tr>
+<tr><td><a href="enum.CompositeFieldSet.html" title="enum icu::datetime::fieldsets::enums::CompositeFieldSet"><code>CompositeFieldSet</code></a></td><td>All</td></tr>
+</tbody></table>
+</div><h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2>
+<p>Format with the time display depending on a runtime boolean:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>icu::calendar::Date;
+<span class="kw">use </span>icu::datetime::fieldsets;
+<span class="kw">use </span>icu::datetime::fieldsets::enums::CompositeDateTimeFieldSet;
+<span class="kw">use </span>icu::datetime::input::{DateTime, Time};
+<span class="kw">use </span>icu::datetime::DateTimeFormatter;
+<span class="kw">use </span>icu::locale::locale;
+<span class="kw">use </span>writeable::Writeable;
+
+<span class="kw">fn </span>composite_field_set(
+    should_display_time: bool,
+) -&gt; CompositeDateTimeFieldSet {
+    <span class="kw">if </span>should_display_time {
+        <span class="kw">let </span>field_set_with_options = fieldsets::MD::medium().with_time_hm();
+        CompositeDateTimeFieldSet::DateTime(
+            fieldsets::enums::DateAndTimeFieldSet::MDT(
+                field_set_with_options,
+            ),
+        )
+    } <span class="kw">else </span>{
+        <span class="kw">let </span>field_set_with_options = fieldsets::MD::medium();
+        CompositeDateTimeFieldSet::Date(fieldsets::enums::DateFieldSet::MD(
+            field_set_with_options,
+        ))
+    }
+}
+
+<span class="kw">let </span>datetime = DateTime {
+    date: Date::try_new_iso(<span class="number">2025</span>, <span class="number">1</span>, <span class="number">15</span>).unwrap(),
+    time: Time::try_new(<span class="number">16</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap(),
+};
+
+<span class="kw">let </span>with_time = DateTimeFormatter::try_new(
+    <span class="macro">locale!</span>(<span class="string">"en-US"</span>).into(),
+    composite_field_set(<span class="bool-val">true</span>),
+)
+.unwrap();
+<span class="kw">let </span>without_time = DateTimeFormatter::try_new(
+    <span class="macro">locale!</span>(<span class="string">"en-US"</span>).into(),
+    composite_field_set(<span class="bool-val">false</span>),
+)
+.unwrap();
+
+<span class="macro">assert_eq!</span>(with_time.format(<span class="kw-2">&amp;</span>datetime).to_string(), <span class="string">"Jan 15, 4:00 PM"</span>);
+<span class="macro">assert_eq!</span>(without_time.format(<span class="kw-2">&amp;</span>datetime).to_string(), <span class="string">"Jan 15"</span>);</code></pre></div>
+</div></details><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.CalendarPeriodFieldSet.html" title="enum icu::datetime::fieldsets::enums::CalendarPeriodFieldSet">Calendar<wbr>Period<wbr>Field<wbr>Set</a></dt><dd>An enumeration over all possible calendar period field sets.</dd><dt><a class="enum" href="enum.CompositeDateTimeFieldSet.html" title="enum icu::datetime::fieldsets::enums::CompositeDateTimeFieldSet">Composite<wbr>Date<wbr>Time<wbr>Field<wbr>Set</a></dt><dd>An enum supporting date, calendar period, time, and date+time field sets
+and options.</dd><dt><a class="enum" href="enum.CompositeFieldSet.html" title="enum icu::datetime::fieldsets::enums::CompositeFieldSet">Composite<wbr>Field<wbr>Set</a></dt><dd>An enum supporting all possible field sets and options.</dd><dt><a class="enum" href="enum.DateAndTimeFieldSet.html" title="enum icu::datetime::fieldsets::enums::DateAndTimeFieldSet">Date<wbr>AndTime<wbr>Field<wbr>Set</a></dt><dd>An enumeration over all possible date+time composite field sets.</dd><dt><a class="enum" href="enum.DateFieldSet.html" title="enum icu::datetime::fieldsets::enums::DateFieldSet">Date<wbr>Field<wbr>Set</a></dt><dd>An enumeration over all possible date field sets.</dd><dt><a class="enum" href="enum.TimeFieldSet.html" title="enum icu::datetime::fieldsets::enums::TimeFieldSet">Time<wbr>Field<wbr>Set</a></dt><dd>An enumeration over all possible time field sets.</dd><dt><a class="enum" href="enum.ZoneFieldSet.html" title="enum icu::datetime::fieldsets::enums::ZoneFieldSet">Zone<wbr>Field<wbr>Set</a></dt><dd>An enumeration over all possible zone field sets.</dd></dl><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><dl class="item-table"><dt><a class="type" href="type.ZonedDateAndTimeFieldSet.html" title="type icu::datetime::fieldsets::enums::ZonedDateAndTimeFieldSet">Zoned<wbr>Date<wbr>AndTime<wbr>Field<wbr>Set</a></dt><dd>Type alias representing all possible date + time + time zone field sets.</dd><dt><a class="type" href="type.ZonedDateFieldSet.html" title="type icu::datetime::fieldsets::enums::ZonedDateFieldSet">Zoned<wbr>Date<wbr>Field<wbr>Set</a></dt><dd>Type alias representing all possible date + time zone field sets.</dd><dt><a class="type" href="type.ZonedTimeFieldSet.html" title="type icu::datetime::fieldsets::enums::ZonedTimeFieldSet">Zoned<wbr>Time<wbr>Field<wbr>Set</a></dt><dd>Type alias representing all possible time + time zone field sets.</dd></dl></section></div></main></body></html>

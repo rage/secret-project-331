@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CalendarAlgorithm","HijriCalendarAlgorithm","HourCycle"],"struct":["NumberingSystem"]};

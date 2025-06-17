@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["AffixesV1","Baked","DecimalSymbolsV1","DecimalSymbolsV1Marker","GroupingSizesV1"]};
+window.SIDEBAR_ITEMS = {"struct":["Baked","DecimalDigitsV1","DecimalSymbolStrsBuilder","DecimalSymbols","DecimalSymbolsStrs","DecimalSymbolsV1","GroupingSizes"]};

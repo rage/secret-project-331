@@ -1,0 +1,86 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Builder APIs for dynamic field sets."><title>icu_datetime::fieldsets::builder - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../static.files/storage-82c7156e.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../icu_datetime/index.html">icu_<wbr>datetime</a><span class="version">2.0.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module builder</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#examples" title="Examples">Examples</a></li></ul><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In icu_<wbr>datetime::<wbr>fieldsets</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">icu_datetime</a>::<wbr><a href="../index.html">fieldsets</a></div><h1>Module <span>builder</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/icu_datetime/builder.rs.html#5-956">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Builder APIs for <a href="../enums/index.html" title="mod icu_datetime::fieldsets::enums">dynamic field sets</a>.</p>
+<p>These APIs are designed for when the field set is not known at compile time. This could
+happen if:</p>
+<ol>
+<li>The field set is sent over the network or read from a data file</li>
+<li>Implementing another interface with different types</li>
+</ol>
+<p>If the field set is known at compile time, use the static fieldset APIs instead of the
+builder exported in this module.</p>
+<p>A field set builder can be serialized with the right set of Cargo features.</p>
+<p>All examples below will show both ways to build a field set.</p>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>icu::datetime::fieldsets;
+<span class="kw">use </span>icu::datetime::fieldsets::builder::<span class="kw-2">*</span>;
+<span class="kw">use </span>icu::datetime::fieldsets::enums::<span class="kw-2">*</span>;
+<span class="kw">use </span>icu::datetime::options::<span class="kw-2">*</span>;
+
+<span class="comment">// Year, Month, Day
+// Medium length
+// Always display the era
+
+</span><span class="kw">let </span>static_field_set =
+    fieldsets::YMD::medium().with_year_style(YearStyle::WithEra);
+
+<span class="kw">let </span><span class="kw-2">mut </span>builder = FieldSetBuilder::new();
+builder.date_fields = <span class="prelude-val">Some</span>(DateFields::YMD);
+builder.length = <span class="prelude-val">Some</span>(Length::Medium);
+builder.year_style = <span class="prelude-val">Some</span>(YearStyle::WithEra);
+<span class="kw">let </span>dynamic_field_set = builder.build_date().unwrap();
+
+<span class="macro">assert_eq!</span>(dynamic_field_set, DateFieldSet::YMD(static_field_set),);
+
+<span class="comment">// Standalone Month
+// Long length
+
+</span><span class="kw">let </span>static_field_set = fieldsets::M::long();
+
+<span class="kw">let </span><span class="kw-2">mut </span>builder = FieldSetBuilder::new();
+builder.length = <span class="prelude-val">Some</span>(Length::Long);
+builder.date_fields = <span class="prelude-val">Some</span>(DateFields::M);
+<span class="kw">let </span>dynamic_field_set = builder.build_calendar_period().unwrap();
+
+<span class="macro">assert_eq!</span>(
+    dynamic_field_set,
+    CalendarPeriodFieldSet::M(static_field_set),
+);
+
+<span class="comment">// Weekday and Time of day
+// Medium length, implicit in the builder
+// Display time to the minute
+
+</span><span class="kw">let </span>static_field_set =
+    fieldsets::ET::medium().with_time_precision(TimePrecision::Minute);
+
+<span class="kw">let </span><span class="kw-2">mut </span>builder = FieldSetBuilder::new();
+builder.date_fields = <span class="prelude-val">Some</span>(DateFields::E);
+builder.time_precision = <span class="prelude-val">Some</span>(TimePrecision::Minute);
+<span class="kw">let </span>dynamic_field_set = builder.build_date_and_time().unwrap();
+
+<span class="macro">assert_eq!</span>(dynamic_field_set, DateAndTimeFieldSet::ET(static_field_set),);
+
+<span class="comment">// Time and Time Zone
+// Short length
+// Long specific non-location time zone
+// Display time to the millisecond
+// Render for column alignment
+
+</span><span class="kw">let </span>static_field_set = fieldsets::T::short()
+    .with_time_precision(TimePrecision::Subsecond(SubsecondDigits::S3))
+    .with_alignment(Alignment::Column)
+    .with_zone(fieldsets::zone::SpecificLong);
+
+<span class="kw">let </span><span class="kw-2">mut </span>builder = FieldSetBuilder::new();
+builder.length = <span class="prelude-val">Some</span>(Length::Short);
+builder.time_precision =
+    <span class="prelude-val">Some</span>(TimePrecision::Subsecond(SubsecondDigits::S3));
+builder.alignment = <span class="prelude-val">Some</span>(Alignment::Column);
+builder.zone_style = <span class="prelude-val">Some</span>(ZoneStyle::SpecificLong);
+<span class="kw">let </span>dynamic_field_set = builder.build_composite().unwrap();
+
+<span class="macro">assert_eq!</span>(
+    dynamic_field_set,
+    CompositeFieldSet::TimeZone(static_field_set.into_enums()),
+);</code></pre></div>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.FieldSetBuilder.html" title="struct icu_datetime::fieldsets::builder::FieldSetBuilder">Field<wbr>SetBuilder</a></dt><dd>A builder for <a href="../enums/index.html" title="mod icu_datetime::fieldsets::enums">dynamic field sets</a>.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.BuilderError.html" title="enum icu_datetime::fieldsets::builder::BuilderError">Builder<wbr>Error</a></dt><dd>An error that occurs when creating a <a href="../index.html" title="mod icu_datetime::fieldsets">field set</a> from a builder.</dd><dt><a class="enum" href="enum.DateFields.html" title="enum icu_datetime::fieldsets::builder::DateFields">Date<wbr>Fields</a></dt><dd>An enumeration over all possible date and calendar period field sets
+without options.</dd><dt><a class="enum" href="enum.ZoneStyle.html" title="enum icu_datetime::fieldsets::builder::ZoneStyle">Zone<wbr>Style</a></dt><dd>An enumeration over all possible time zone styles.</dd></dl></section></div></main></body></html>

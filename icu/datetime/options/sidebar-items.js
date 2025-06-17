@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["DateTimeFormatterOptions"],"mod":["length"]};
+window.SIDEBAR_ITEMS = {"enum":["Alignment","Length","SubsecondDigits","TimePrecision","YearStyle"]};

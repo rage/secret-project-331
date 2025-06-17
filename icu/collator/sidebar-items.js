@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["AlternateHandling","BackwardSecondLevel","CaseFirst","CaseLevel","CollatorError","Error","MaxVariable","Numeric","Strength"],"mod":["provider"],"struct":["Collator","CollatorOptions","ResolvedCollatorOptions"]};
+window.SIDEBAR_ITEMS = {"mod":["options","preferences","provider"],"struct":["Collator","CollatorBorrowed","CollatorPreferences"]};

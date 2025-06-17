@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CoarseHourCycle","GenericPatternItem","PatternError","PatternItem","TimeGranularity"],"mod":["reference","runtime"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":["DateInput","DateTimeInput","IsoTimeInput","LocalizedDateTimeInput","TimeZoneInput"]};
+window.SIDEBAR_ITEMS = {"struct":["Date","DateTime","Time","TimeZone","TimeZoneInfo","UtcOffset","ZonedDateTime"]};

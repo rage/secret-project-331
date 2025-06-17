@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, punctuated::Punctuated, token::Colon, Expr, PathSegment};
+use syn::{Expr, PathSegment, parse_macro_input, punctuated::Punctuated, token::Colon};
 
 pub fn example_impl(input: TokenStream) -> TokenStream {
     let derive_input = parse_macro_input!(input as Expr);

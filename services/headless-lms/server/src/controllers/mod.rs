@@ -23,8 +23,8 @@ pub mod tmc_server;
 
 use crate::domain::error::{ControllerError, ControllerErrorType};
 use actix_web::{
-    web::{self, ServiceConfig},
     HttpRequest, HttpResponse, ResponseError,
+    web::{self, ServiceConfig},
 };
 use headless_lms_utils::prelude::*;
 use serde::{Deserialize, Serialize};

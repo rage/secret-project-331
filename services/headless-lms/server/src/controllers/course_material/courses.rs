@@ -5,7 +5,7 @@ use std::{collections::HashMap, net::IpAddr, path::Path};
 use actix_http::header::{self, X_FORWARDED_FOR};
 use actix_web::web::Json;
 use chrono::Utc;
-use futures::{future::OptionFuture, FutureExt};
+use futures::{FutureExt, future::OptionFuture};
 use headless_lms_models::{
     course_custom_privacy_policy_checkbox_texts::CourseCustomPrivacyPolicyCheckboxText,
     marketing_consents::UserMarketingConsent,
@@ -25,7 +25,7 @@ use models::{
     material_references::MaterialReference,
     page_visit_datum::NewPageVisitDatum,
     page_visit_datum_daily_visit_hashing_keys::{
-        generate_anonymous_identifier, GenerateAnonymousIdentifierInput,
+        GenerateAnonymousIdentifierInput, generate_anonymous_identifier,
     },
     pages::{CoursePageWithUserData, Page, PageSearchResult, PageVisibility, SearchRequest},
     proposed_page_edits::{self, NewProposedPageEdits},

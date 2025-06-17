@@ -88,7 +88,6 @@ pub async fn seed_organization_uh_mathstat(
         is_test_mode: false,
         is_unlisted: false,
         copy_user_permissions: false,
-        can_add_chatbot: false,
         is_joinable_by_code_only: false,
         join_code: None,
         ask_marketing_consent: false,
@@ -139,7 +138,6 @@ pub async fn seed_organization_uh_mathstat(
         is_test_mode: false,
         is_unlisted: false,
         copy_user_permissions: false,
-        can_add_chatbot: false,
         is_joinable_by_code_only: false,
         join_code: None,
         ask_marketing_consent: false,
@@ -176,7 +174,6 @@ pub async fn seed_organization_uh_mathstat(
             is_test_mode: false,
             is_unlisted: false,
             copy_user_permissions: false,
-            can_add_chatbot: false,
             is_joinable_by_code_only: true,
             join_code: Some(
                 "zARvZARjYhESMPVceEgZyJGQZZuUHVVgcUepyzEqzSqCMdbSCDrTaFhkJTxBshWU".to_string(),
@@ -207,7 +204,6 @@ pub async fn seed_organization_uh_mathstat(
         example_normal_user_ids: Arc::new(example_normal_user_ids.to_vec()),
         jwt_key: Arc::clone(&jwt_key),
         base_url,
-        can_add_chatbot: false,
     };
     let introduction_to_citations = seed_sample_course(
         Uuid::parse_str("049061ba-ac30-49f1-aa9d-b7566dc22b78")?,
@@ -233,7 +229,6 @@ pub async fn seed_organization_uh_mathstat(
             is_test_mode: false,
             is_unlisted: false,
             copy_user_permissions: false,
-            can_add_chatbot: false,
             is_joinable_by_code_only: false,
             join_code: None,
             ask_marketing_consent: false,
@@ -323,10 +318,7 @@ pub async fn seed_organization_uh_mathstat(
         Uuid::parse_str("c7753361-5b78-4307-aad6-f139ea3865d4")?,
         "Chatbot",
         "chatbot",
-        CommonCourseData {
-            can_add_chatbot: true,
-            ..uh_data.clone()
-        },
+        uh_data.clone(),
         seed_users_result,
     )
     .await?;

@@ -59,7 +59,6 @@ pub struct CommonCourseData {
     pub example_normal_user_ids: Arc<Vec<Uuid>>,
     pub jwt_key: Arc<JwtKey>,
     pub base_url: String,
-    pub can_add_chatbot: bool,
 }
 
 pub async fn seed_sample_course(
@@ -78,7 +77,6 @@ pub async fn seed_sample_course(
         example_normal_user_ids: users,
         jwt_key: _jwt_key,
         base_url: _base_url,
-        can_add_chatbot,
     } = common_course_data;
     let spec_fetcher = get_seed_spec_fetcher();
     info!("inserting sample course {}", course_name);
@@ -96,7 +94,6 @@ pub async fn seed_sample_course(
         is_test_mode: false,
         is_unlisted: false,
         copy_user_permissions: false,
-        can_add_chatbot,
         is_joinable_by_code_only: false,
         join_code: None,
         ask_marketing_consent: false,
@@ -1989,7 +1986,6 @@ pub async fn create_glossary_course(
         example_normal_user_ids: _,
         jwt_key: _jwt_key,
         base_url: _base_url,
-        can_add_chatbot,
     } = common_course_data;
     let mut conn = db_pool.acquire().await?;
 
@@ -2006,7 +2002,6 @@ pub async fn create_glossary_course(
         is_test_mode: false,
         is_unlisted: false,
         copy_user_permissions: false,
-        can_add_chatbot,
         is_joinable_by_code_only: false,
         join_code: None,
         ask_marketing_consent: false,
@@ -2127,7 +2122,6 @@ pub async fn seed_cs_course_material(
         is_test_mode: false,
         is_unlisted: false,
         copy_user_permissions: false,
-        can_add_chatbot: false,
         is_joinable_by_code_only: false,
         join_code: None,
         ask_marketing_consent: false,
@@ -2978,7 +2972,6 @@ pub async fn seed_peer_review_course_without_submissions(
         example_normal_user_ids: _,
         jwt_key: _jwt_key,
         base_url: _base_url,
-        can_add_chatbot,
     } = common_course_data;
     let spec_fetcher = get_seed_spec_fetcher();
     info!("inserting sample course {}", course_name);
@@ -2995,7 +2988,6 @@ pub async fn seed_peer_review_course_without_submissions(
         is_test_mode: false,
         is_unlisted: false,
         copy_user_permissions: false,
-        can_add_chatbot,
         is_joinable_by_code_only: false,
         join_code: None,
         ask_marketing_consent: false,

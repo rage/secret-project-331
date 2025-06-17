@@ -80,7 +80,6 @@ pub struct NewCourse {
     pub is_unlisted: bool,
     /// If true, copies all user permissions from the original course to the new one.
     pub copy_user_permissions: bool,
-    pub can_add_chatbot: bool,
     pub is_joinable_by_code_only: bool,
     pub join_code: Option<String>,
     pub ask_marketing_consent: bool,
@@ -105,7 +104,6 @@ INSERT INTO courses(
     course_language_group_id,
     is_draft,
     is_test_mode,
-    can_add_chatbot,
     is_joinable_by_code_only,
     join_code
   )
@@ -120,8 +118,7 @@ VALUES(
     $8,
     $9,
     $10,
-    $11,
-    $12
+    $11
   )
 RETURNING id
         ",
@@ -134,7 +131,6 @@ RETURNING id
         course_language_group_id,
         new_course.is_draft,
         new_course.is_test_mode,
-        new_course.can_add_chatbot,
         new_course.is_joinable_by_code_only,
         new_course.join_code
     )
@@ -349,7 +345,7 @@ SELECT
     c.is_draft,
     c.is_test_mode,
     c.base_module_completion_requires_n_submodule_completions,
-    can_add_chatbot,
+    c.can_add_chatbot,
     c.is_unlisted,
     c.is_joinable_by_code_only,
     c.join_code,
@@ -1035,7 +1031,6 @@ mod test {
                 is_test_mode: false,
                 is_unlisted: false,
                 copy_user_permissions: false,
-                can_add_chatbot: false,
                 is_joinable_by_code_only: false,
                 join_code: None,
                 ask_marketing_consent: false,

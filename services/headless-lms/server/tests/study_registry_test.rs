@@ -162,7 +162,6 @@ async fn insert_data(
                 is_test_mode: false,
                 is_unlisted: false,
                 copy_user_permissions: false,
-                can_add_chatbot: false,
                 is_joinable_by_code_only: false,
                 join_code: None,
                 ask_marketing_consent: false,

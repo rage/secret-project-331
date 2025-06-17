@@ -107,7 +107,15 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
         <h3>{t("customize-chatbot")}</h3>
         <StyledUl>
           {getChatbotsList.data
-            ?.sort((a, b) => a.chatbot_name.localeCompare(b.chatbot_name))
+            ?.sort((a, b) => {
+              if (a.default_chatbot) {
+                return -100000
+              } else if (b.default_chatbot) {
+                return 100000
+              } else {
+                return a.chatbot_name.localeCompare(b.chatbot_name)
+              }
+            })
             .map((bot) => (
               <StyledLi key={bot.id}>
                 <h4
@@ -126,9 +134,7 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
                   size="medium"
                   variant="secondary"
                   onClick={() => {
-                    if (window.confirm("are you sure")) {
-                      setDefaultChatbotMutation.mutate(bot.id)
-                    }
+                    setDefaultChatbotMutation.mutate(bot.id)
                   }}
                 >
                   set as default

@@ -50,6 +50,9 @@ pub struct Course {
     pub join_code: Option<String>,
     pub ask_marketing_consent: bool,
     pub flagged_answers_threshold: Option<i32>,
+    pub closed_at: Option<DateTime<Utc>>,
+    pub closed_additional_message: Option<String>,
+    pub closed_successor_course_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -172,7 +175,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  closed_additional_message,
+  closed_successor_course_id
 FROM courses
 WHERE deleted_at IS NULL;
 "#
@@ -209,7 +215,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  closed_additional_message,
+  closed_successor_course_id
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND id IN (
@@ -253,7 +262,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  closed_additional_message,
+  closed_successor_course_id
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND (
@@ -309,7 +321,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  closed_additional_message,
+  closed_successor_course_id
 FROM courses
 WHERE course_language_group_id = $1
 AND deleted_at IS NULL
@@ -350,7 +365,10 @@ SELECT
     c.is_joinable_by_code_only,
     c.join_code,
     c.ask_marketing_consent,
-    c.flagged_answers_threshold
+    c.flagged_answers_threshold,
+    c.closed_at,
+    c.closed_additional_message,
+    c.closed_successor_course_id
 FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
 WHERE
@@ -416,7 +434,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  closed_additional_message,
+  closed_successor_course_id
 FROM courses
 WHERE id = $1;
     "#,
@@ -524,7 +545,10 @@ SELECT courses.id,
   courses.is_joinable_by_code_only,
   courses.join_code,
   courses.ask_marketing_consent,
-  courses.flagged_answers_threshold
+  courses.flagged_answers_threshold,
+  courses.closed_at,
+  courses.closed_additional_message,
+  courses.closed_successor_course_id
 FROM courses
 WHERE courses.organization_id = $1
   AND (
@@ -631,7 +655,10 @@ RETURNING id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  closed_additional_message,
+  closed_successor_course_id
     "#,
         course_update.name,
         course_update.description,
@@ -696,7 +723,10 @@ RETURNING id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  closed_additional_message,
+  closed_successor_course_id
     "#,
         course_id
     )
@@ -729,7 +759,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  closed_additional_message,
+  closed_successor_course_id
 FROM courses
 WHERE slug = $1
   AND deleted_at IS NULL
@@ -821,7 +854,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  closed_additional_message,
+  closed_successor_course_id
 FROM courses
 WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
   ",
@@ -859,7 +895,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  closed_additional_message,
+  closed_successor_course_id
 FROM courses
 WHERE organization_id = $1
   AND deleted_at IS NULL
@@ -918,7 +957,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  closed_additional_message,
+  closed_successor_course_id
 FROM courses
 WHERE join_code = $1
   AND deleted_at IS NULL;

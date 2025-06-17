@@ -1,12 +1,12 @@
 use headless_lms_utils::{
-    file_store::FileStore, language_tag_to_name::LANGUAGE_TAG_TO_NAME, ApplicationConfiguration,
+    ApplicationConfiguration, file_store::FileStore, language_tag_to_name::LANGUAGE_TAG_TO_NAME,
 };
 
 use crate::{
-    chapters::{course_chapters, Chapter},
+    chapters::{Chapter, course_chapters},
     course_modules::CourseModule,
     pages::Page,
-    pages::{get_all_by_course_id_and_visibility, PageVisibility},
+    pages::{PageVisibility, get_all_by_course_id_and_visibility},
     prelude::*,
 };
 

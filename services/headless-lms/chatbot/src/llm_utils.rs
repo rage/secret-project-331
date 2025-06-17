@@ -1,7 +1,7 @@
 use crate::prelude::*;
 use headless_lms_utils::ApplicationConfiguration;
-use reqwest::header::HeaderMap;
 use reqwest::Response;
+use reqwest::header::HeaderMap;
 use serde::{Deserialize, Serialize};
 use tracing::{debug, error, instrument, trace, warn};
 

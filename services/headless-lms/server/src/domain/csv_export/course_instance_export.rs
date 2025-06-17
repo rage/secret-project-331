@@ -18,7 +18,7 @@ use crate::prelude::*;
 
 use super::{
     super::authorization::{AuthorizationToken, AuthorizedResponse},
-    course_module_completion_info_to_grade_string, CSVExportAdapter, CsvExportDataLoader,
+    CSVExportAdapter, CsvExportDataLoader, course_module_completion_info_to_grade_string,
 };
 
 pub struct CompletionsExportOperation {

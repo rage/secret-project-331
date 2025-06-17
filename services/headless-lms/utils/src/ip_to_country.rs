@@ -84,7 +84,9 @@ impl IpToCountryMapper {
                 "Loaded ip to country mappings"
             );
             if some_lists_skipped {
-                warn!("Some ip to country lists were skipped to speed up loading. This should not happen in production.");
+                warn!(
+                    "Some ip to country lists were skipped to speed up loading. This should not happen in production."
+                );
             }
         } else {
             warn!(

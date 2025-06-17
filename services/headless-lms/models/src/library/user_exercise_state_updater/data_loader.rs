@@ -275,7 +275,9 @@ fn normalize_weights(
     let number_of_questions = allowed_to_have_weight.len();
     let sum_of_weights = allowed_to_have_weight.iter().map(|q| q.weight).sum::<f32>();
     if sum_of_weights < 0.000001 {
-        info!("All weights are zero, setting all weights to 1/number_of_questions so that they sum to 1.");
+        info!(
+            "All weights are zero, setting all weights to 1/number_of_questions so that they sum to 1."
+        );
         for question in &mut allowed_to_have_weight {
             question.weight = 1.0 / number_of_questions as f32;
         }
@@ -324,7 +326,9 @@ async fn load_latest_exercise_slide_submission_received_peer_or_self_review_ques
         latest_exercise_slide_submission_received_peer_or_self_review_question_submissions,
     ) = latest_exercise_slide_submission_received_peer_or_self_review_question_submissions
     {
-        info!("Using already loaded latest exercise slide submission received peer review question submissions");
+        info!(
+            "Using already loaded latest exercise slide submission received peer review question submissions"
+        );
         Ok(latest_exercise_slide_submission_received_peer_or_self_review_question_submissions)
     } else {
         info!("Loading latest exercise slide submission received peer review question submissions");

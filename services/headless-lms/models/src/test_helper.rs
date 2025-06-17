@@ -4,7 +4,7 @@ use std::error::Error;
 use tokio::sync::Mutex;
 use tracing_error::ErrorLayer;
 use tracing_log::LogTracer;
-use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
+use tracing_subscriber::{EnvFilter, layer::SubscriberExt};
 
 pub fn setup_tracing() -> Result<(), Box<dyn Error>> {
     let subscriber = tracing_subscriber::Registry::default()

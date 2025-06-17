@@ -13,7 +13,6 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 interface Props {
   onConfigureChatbot: (bot: NewChatbotConf) => void
-  onCancel: () => void
   oldChatbotConf: ChatbotConfiguration
 }
 
@@ -45,11 +44,7 @@ const textFieldCss = css`
   width: auto;
 `
 
-const ChatbotConfigurationForm: React.FC<Props> = ({
-  onConfigureChatbot,
-  onCancel,
-  oldChatbotConf,
-}) => {
+const ChatbotConfigurationForm: React.FC<Props> = ({ onConfigureChatbot, oldChatbotConf }) => {
   const { t } = useTranslation()
   const {
     register,
@@ -58,18 +53,54 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
     clearErrors,
     watch,
     setError,
-  } = useForm<ConfigureChatbotFields>()
+  } = useForm<ConfigureChatbotFields>({
+    defaultValues: {
+      name: oldChatbotConf.chatbot_name,
+      enabledStudents: oldChatbotConf.enabled_to_students,
+      prompt: oldChatbotConf.prompt,
+      initialMessage: oldChatbotConf.initial_message,
+      weeklyTokenUser: oldChatbotConf.weekly_tokens_per_user,
+      dailyTokenUser: oldChatbotConf.daily_tokens_per_user,
+      temperature: oldChatbotConf.temperature,
+      topP: oldChatbotConf.top_p,
+      freqPenalty: oldChatbotConf.frequency_penalty,
+      presPenalty: oldChatbotConf.presence_penalty,
+      maxTokens: oldChatbotConf.response_max_tokens,
+      azureSearch: oldChatbotConf.use_azure_search,
+      hideCitations: oldChatbotConf.hide_citations,
+      semanticReranking: oldChatbotConf.use_semantic_reranking,
+      defaultChatbot: oldChatbotConf.default_chatbot,
+    },
+  })
 
   const validateForm = (data: ConfigureChatbotFields): boolean => {
+    clearErrors(["freqPenalty", "presPenalty", "temperature", "topP"])
     let isValid = true
-    /* clearErrors([""])
 
-    if (data.name.length < 1) {
-      setError("", {
-        message: t("error-min-length", { count: 1, field: t("text-field-label-name") }),
+    if (data.freqPenalty > 1 || data.freqPenalty < 0) {
+      setError("freqPenalty", {
+        message: "Frequency penalty must be a value between 0 and 1",
       })
       isValid = false
-    } */
+    }
+    if (data.presPenalty > 1 || data.presPenalty < 0) {
+      setError("presPenalty", {
+        message: "Presence penalty must be a value between 0 and 1",
+      })
+      isValid = false
+    }
+    if (data.temperature > 1 || data.temperature < 0) {
+      setError("temperature", {
+        message: "Temperature must be a value between 0 and 1",
+      })
+      isValid = false
+    }
+    if (data.topP > 1 || data.topP < 0) {
+      setError("topP", {
+        message: "Top p must be a value between 0 and 1",
+      })
+      isValid = false
+    }
     return isValid
   }
 
@@ -77,8 +108,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
     if (!validateForm(data)) {
       return
     }
-    console.log(oldChatbotConf)
-    console.log(data)
+
     onConfigureChatbot({
       chatbot_name: data.name,
       enabled_to_students: data.enabledStudents,
@@ -105,7 +135,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
         <TextField
           id={"name"}
           error={errors.name?.message}
-          defaultValue={oldChatbotConf.chatbot_name}
           label={t("label-name")}
           {...register("name", { required: t("required-field") })}
         />
@@ -114,36 +143,23 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
             flex: 1;
           `}
           label={t("prompt")}
-          defaultValue={oldChatbotConf.prompt}
+          autoResize={true}
+          autoResizeMaxHeightPx={900}
           {...register("prompt")}
         />
         <TextField
           id={"initial-message"}
           label={t("initial-message")}
-          defaultValue={oldChatbotConf.initial_message}
           {...register("initialMessage")}
         />
         <div
-          // css?
           className={css`
             flex-direction: row;
           `}
         >
-          <CheckBox
-            label={t("enabled-to-students")}
-            defaultChecked={oldChatbotConf.enabled_to_students}
-            {...register("enabledStudents")}
-          />
-          <CheckBox
-            label={t("hide-citations")}
-            defaultChecked={oldChatbotConf.hide_citations}
-            {...register("hideCitations")}
-          />
-          <CheckBox
-            label={t("set-default-chatbot")}
-            defaultChecked={oldChatbotConf.default_chatbot}
-            {...register("defaultChatbot")}
-          />
+          <CheckBox label={t("enabled-to-students")} {...register("enabledStudents")} />
+          <CheckBox label={t("hide-citations")} {...register("hideCitations")} />
+          <CheckBox label={t("set-default-chatbot")} {...register("defaultChatbot")} />
         </div>
 
         <h3>{t("advanced-settings")}</h3>
@@ -172,7 +188,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
                 className={textFieldCss}
                 id={"daily-token"}
                 type="number"
-                defaultValue={oldChatbotConf.daily_tokens_per_user}
                 label={t("daily-token-user")}
                 {...register("dailyTokenUser")}
               />
@@ -180,7 +195,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
                 className={textFieldCss}
                 id={"weekly-token"}
                 type="number"
-                defaultValue={oldChatbotConf.weekly_tokens_per_user}
                 label={t("weekly-token-user")}
                 {...register("weeklyTokenUser")}
               />
@@ -188,7 +202,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
                 className={textFieldCss}
                 id={"max-tokens"}
                 type="number"
-                defaultValue={oldChatbotConf.response_max_tokens}
                 label={t("max-token-response")}
                 {...register("maxTokens")}
               />
@@ -199,7 +212,8 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
                 className={textFieldCss}
                 id={"freq-penalty"}
                 type="number"
-                defaultValue={oldChatbotConf.frequency_penalty}
+                error={errors.freqPenalty}
+                step="0.01"
                 label={t("frequency-penalty")}
                 {...register("freqPenalty")}
               />
@@ -207,7 +221,8 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
                 className={textFieldCss}
                 id={"pres-penalty"}
                 type="number"
-                defaultValue={oldChatbotConf.presence_penalty}
+                error={errors.presPenalty}
+                step="0.01"
                 label={t("presence-penalty")}
                 {...register("presPenalty")}
               />
@@ -218,7 +233,8 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
                 className={textFieldCss}
                 id={"temperature"}
                 type="number"
-                defaultValue={oldChatbotConf.temperature}
+                error={errors.temperature}
+                step="0.01"
                 label={t("temperature")}
                 {...register("temperature")}
               />
@@ -226,7 +242,8 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
                 className={textFieldCss}
                 id={"top-p"}
                 type="number"
-                defaultValue={oldChatbotConf.top_p}
+                error={errors.topP}
+                step="0.01"
                 label={t("top-p")}
                 {...register("topP")}
               />
@@ -238,16 +255,8 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
                   margin: 20px 20px;
                 `}
               >
-                <CheckBox
-                  label={t("use-azure-search")}
-                  defaultChecked={oldChatbotConf.use_azure_search}
-                  {...register("azureSearch")}
-                />
-                <CheckBox
-                  label={t("use-semantic-reranking")}
-                  defaultChecked={oldChatbotConf.use_semantic_reranking}
-                  {...register("semanticReranking")}
-                />
+                <CheckBox label={t("use-azure-search")} {...register("azureSearch")} />
+                <CheckBox label={t("use-semantic-reranking")} {...register("semanticReranking")} />
               </div>
             </div>
           </div>
@@ -255,9 +264,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
 
         <Button type="submit" size="medium" variant="primary">
           {t("save")}
-        </Button>
-        <Button type="button" size="medium" variant="secondary" onClick={onCancel}>
-          {t("button-text-cancel")}
         </Button>
       </form>
     </div>

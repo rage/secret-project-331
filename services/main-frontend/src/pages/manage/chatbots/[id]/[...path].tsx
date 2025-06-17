@@ -6,6 +6,7 @@ import MainFrontendBreadCrumbs from "@/components/MainFrontendBreadCrumbs"
 import ChatbotConfigurationForm from "@/components/page-specific/manage/courses/id/chatbot/ChatbotConfigurationForm"
 import { configureChatbot, getChatbotConfiguration } from "@/services/backend/courses/chatbots"
 import { ChatbotConfiguration, NewChatbotConf } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -36,11 +37,6 @@ const CustomizeChatbotPage = () => {
       method: "POST",
       successMessage: t("default-toast-success-message"),
     },
-    {
-      onSuccess: () => {
-        router.back()
-      },
-    },
   )
 
   if (chatbotQuery.isLoading) {
@@ -59,6 +55,9 @@ const CustomizeChatbotPage = () => {
   return (
     <div>
       <MainFrontendBreadCrumbs organizationSlug={null} courseId={chatbot.course_id} />
+      <Button type="button" size="medium" variant="secondary" onClick={() => router.back()}>
+        {t("back")}
+      </Button>
       <h1>{chatbot.chatbot_name}</h1>
       <div>
         <ChatbotConfigurationForm
@@ -66,7 +65,6 @@ const CustomizeChatbotPage = () => {
           onConfigureChatbot={(newChatbot) => {
             mutation.mutate(newChatbot)
           }}
-          onCancel={() => router.back()}
         />
       </div>
     </div>

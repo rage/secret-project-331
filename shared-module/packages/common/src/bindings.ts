@@ -486,6 +486,9 @@ export interface Course {
   join_code: string | null
   ask_marketing_consent: boolean
   flagged_answers_threshold: number | null
+  closed_at: string | null
+  closed_additional_message: string | null
+  closed_successor_course_id: string | null
 }
 
 export interface CourseBreadcrumbInfo {

@@ -1067,7 +1067,13 @@ export function isCourse(obj: unknown): obj is Course {
             typeof typedObj["join_code"] === "string") &&
         typeof typedObj["ask_marketing_consent"] === "boolean" &&
         (typedObj["flagged_answers_threshold"] === null ||
-            typeof typedObj["flagged_answers_threshold"] === "number")
+            typeof typedObj["flagged_answers_threshold"] === "number") &&
+        (typedObj["closed_at"] === null ||
+            typeof typedObj["closed_at"] === "string") &&
+        (typedObj["closed_additional_message"] === null ||
+            typeof typedObj["closed_additional_message"] === "string") &&
+        (typedObj["closed_successor_course_id"] === null ||
+            typeof typedObj["closed_successor_course_id"] === "string")
     )
 }
 

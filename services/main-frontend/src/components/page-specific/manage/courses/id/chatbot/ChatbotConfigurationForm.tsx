@@ -32,7 +32,6 @@ interface ConfigureChatbotFields {
   topP: number
   azureSearch: boolean
   semanticReranking: boolean
-  defaultChatbot: boolean
 }
 
 const itemCss = css`
@@ -73,7 +72,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
       azureSearch: oldChatbotConf.use_azure_search,
       hideCitations: oldChatbotConf.hide_citations,
       semanticReranking: oldChatbotConf.use_semantic_reranking,
-      defaultChatbot: oldChatbotConf.default_chatbot,
     },
   })
 
@@ -128,7 +126,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
       use_azure_search: data.azureSearch,
       hide_citations: data.hideCitations,
       use_semantic_reranking: data.semanticReranking,
-      default_chatbot: data.defaultChatbot,
+      default_chatbot: oldChatbotConf.default_chatbot, // preserve old default
     })
   })
 
@@ -163,7 +161,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
         >
           <CheckBox label={t("enabled-to-students")} {...register("enabledStudents")} />
           <CheckBox label={t("hide-citations")} {...register("hideCitations")} />
-          <CheckBox label={t("set-default-chatbot")} {...register("defaultChatbot")} />
         </div>
 
         <h3>{t("advanced-settings")}</h3>

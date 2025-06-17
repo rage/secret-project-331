@@ -183,11 +183,11 @@ RETURNING *"#,
 
 pub async fn delete(conn: &mut PgConnection, chatbot_id: Uuid) -> ModelResult<()> {
     sqlx::query!(
-        "
+        r#"
 UPDATE chatbot_configurations
 SET deleted_at = now()
 WHERE id = $1
-        ",
+        "#,
         chatbot_id
     )
     .execute(conn)
@@ -201,12 +201,12 @@ pub async fn get_for_course(
 ) -> ModelResult<Vec<ChatbotConfiguration>> {
     let res = sqlx::query_as!(
         ChatbotConfiguration,
-        "
+        r#"
 SELECT * FROM
 chatbot_configurations
 WHERE course_id = $1
 AND deleted_at IS NULL
-",
+"#,
         course_id
     )
     .fetch_all(conn)
@@ -219,14 +219,52 @@ pub async fn get_for_azure_search_maintenance(
 ) -> ModelResult<Vec<ChatbotConfiguration>> {
     let res = sqlx::query_as!(
         ChatbotConfiguration,
-        "
+        r#"
 SELECT * FROM
 chatbot_configurations
 WHERE maintain_azure_search_index = true
 AND deleted_at IS NULL
-",
+"#,
     )
     .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn remove_default_chatbot_from_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<ChatbotConfiguration> {
+    let res = sqlx::query_as!(
+        ChatbotConfiguration,
+        r#"
+UPDATE chatbot_configurations
+SET default_chatbot = false
+WHERE course_id = $1 AND id = (SELECT id FROM chatbot_configurations WHERE default_chatbot = true AND course_id = $1 AND deleted_at IS NULL)
+RETURNING *
+"#,
+        course_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn set_default_chatbot_for_course(
+    conn: &mut PgConnection,
+    chatbot_id: Uuid,
+) -> ModelResult<ChatbotConfiguration> {
+    let res = sqlx::query_as!(
+        ChatbotConfiguration,
+        r#"
+UPDATE chatbot_configurations
+SET default_chatbot = true
+WHERE id = $1
+RETURNING *
+"#,
+        chatbot_id,
+    )
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }

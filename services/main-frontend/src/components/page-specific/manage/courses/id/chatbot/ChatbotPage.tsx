@@ -9,10 +9,11 @@ import { useTranslation } from "react-i18next"
 import CreateChatbotDialog from "./CreateChatbotDialog"
 
 import { CourseManagementPagesProps } from "@/pages/manage/courses/[id]/[...path]"
-import { getCourseChatbots } from "@/services/backend/courses/chatbots"
+import { getCourseChatbots, setAsDefaultChatbot } from "@/services/backend/courses/chatbots"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
 
 // copypasted from ExamList, maybe refactor
@@ -50,6 +51,16 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
     },
     enabled: !!courseId,
   })
+
+  const setDefaultChatbotMutation = useToastMutation(
+    async (chatbotId: string) => await setAsDefaultChatbot(courseId, chatbotId),
+    {
+      method: "POST",
+      notify: true,
+      successMessage: t("default-toast-success-message"),
+    },
+    { onSuccess: () => getChatbotsList.refetch() },
+  )
 
   const closeDialogOpenEdit = (id: string) => {
     setCreateChatbotVisible(false)
@@ -104,13 +115,24 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
                     margin: 5px;
                   `}
                 >
-                  {bot.chatbot_name}
+                  {bot.chatbot_name} <em>{bot.default_chatbot ? "(default)" : ""}</em>
                 </h4>
                 <Link href={`/manage/chatbots/${bot.id}`} aria-label={`${t("customize-chatbot")}`}>
                   <Button size="medium" variant="primary">
                     {t("edit")}
                   </Button>
                 </Link>
+                <Button
+                  size="medium"
+                  variant="secondary"
+                  onClick={() => {
+                    if (window.confirm("are you sure")) {
+                      setDefaultChatbotMutation.mutate(bot.id)
+                    }
+                  }}
+                >
+                  set as default
+                </Button>
               </StyledLi>
             ))}
         </StyledUl>

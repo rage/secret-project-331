@@ -97,7 +97,7 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     cfg.route("", web::get().to(get_chatbots))
         .route("", web::post().to(create_chatbot))
         .route(
-            "/${chatbot_configuration_id}/set_as_default",
+            "/{chatbot_configuration_id}/set_as_default",
             web::post().to(set_default_chatbot),
         );
 }

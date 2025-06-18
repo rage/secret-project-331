@@ -62,14 +62,11 @@ const CustomizeChatbotPage = () => {
     },
   )
 
-  if (chatbotQuery.isLoading) {
+  if (chatbotQuery.isLoading || chatbotQuery.data === undefined) {
     return <Spinner variant="medium" />
   }
   if (chatbotQuery.isError) {
     return <ErrorBanner variant="readOnly" error={chatbotQuery.error} />
-  }
-  if (chatbotQuery.data === undefined) {
-    return <ErrorBanner variant="readOnly" error={t("error-title")} />
   }
 
   return (

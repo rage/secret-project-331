@@ -22,8 +22,7 @@ export const setAsDefaultChatbot = async (
   chatbotConfigurationId: string,
 ): Promise<ChatbotConfiguration> => {
   const response = await mainFrontendClient.post(
-    `/courses/${courseId}/chatbots/default`,
-    chatbotConfigurationId,
+    `/courses/${courseId}/chatbots/${chatbotConfigurationId}/set_as_default`,
   )
   return validateResponse(response, isChatbotConfiguration)
 }

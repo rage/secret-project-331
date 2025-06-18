@@ -55,6 +55,56 @@ pub struct Course {
     pub closed_successor_course_id: Option<Uuid>,
 }
 
+/** A subset of the `Course` struct that contains the fields that are allowed to be shown to all students on the course materials. */
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CourseMaterialCourse {
+    pub id: Uuid,
+    pub slug: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub organization_id: Uuid,
+    pub language_code: String,
+    pub copied_from: Option<Uuid>,
+    pub content_search_language: Option<String>,
+    pub course_language_group_id: Uuid,
+    pub is_draft: bool,
+    pub is_test_mode: bool,
+    pub is_unlisted: bool,
+    pub base_module_completion_requires_n_submodule_completions: i32,
+    pub is_joinable_by_code_only: bool,
+    pub ask_marketing_consent: bool,
+    pub closed_at: Option<DateTime<Utc>>,
+    pub closed_additional_message: Option<String>,
+    pub closed_successor_course_id: Option<Uuid>,
+}
+
+impl From<Course> for CourseMaterialCourse {
+    fn from(course: Course) -> Self {
+        CourseMaterialCourse {
+            id: course.id,
+            slug: course.slug,
+            name: course.name,
+            description: course.description,
+            organization_id: course.organization_id,
+            language_code: course.language_code,
+            copied_from: course.copied_from,
+            content_search_language: course.content_search_language,
+            course_language_group_id: course.course_language_group_id,
+            is_draft: course.is_draft,
+            is_test_mode: course.is_test_mode,
+            is_unlisted: course.is_unlisted,
+            base_module_completion_requires_n_submodule_completions: course
+                .base_module_completion_requires_n_submodule_completions,
+            is_joinable_by_code_only: course.is_joinable_by_code_only,
+            ask_marketing_consent: course.ask_marketing_consent,
+            closed_at: course.closed_at,
+            closed_additional_message: course.closed_additional_message,
+            closed_successor_course_id: course.closed_successor_course_id,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseBreadcrumbInfo {

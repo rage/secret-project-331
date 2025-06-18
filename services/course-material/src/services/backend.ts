@@ -12,6 +12,7 @@ import {
   CourseBackgroundQuestionsAndAnswers,
   CourseCustomPrivacyPolicyCheckboxText,
   CourseInstance,
+  CourseMaterialCourse,
   CourseMaterialExercise,
   CourseMaterialPeerOrSelfReviewDataWithToken,
   CourseMaterialPeerOrSelfReviewSubmission,
@@ -66,6 +67,7 @@ import {
   isCourseBackgroundQuestionsAndAnswers,
   isCourseCustomPrivacyPolicyCheckboxText,
   isCourseInstance,
+  isCourseMaterialCourse,
   isCourseMaterialExercise,
   isCourseMaterialPeerOrSelfReviewDataWithToken,
   isCourseModuleCompletion,
@@ -111,7 +113,7 @@ import {
   validateResponse,
 } from "@/shared-module/common/utils/fetching"
 
-export const fetchCourseById = async (courseId: string): Promise<Course> => {
+export const fetchCourseById = async (courseId: string): Promise<CourseMaterialCourse> => {
   const response = await courseMaterialClient.get(`/courses/${courseId}`, { responseType: "json" })
   return validateResponse(response, isCourse)
 }
@@ -537,11 +539,13 @@ export const fetchPageAudioFiles = async (pageId: string): Promise<PageAudioFile
   return validateResponse(response, isArray(isPageAudioFile))
 }
 
-export const fetchCourseLanguageVersions = async (courseId: string): Promise<Array<Course>> => {
+export const fetchCourseLanguageVersions = async (
+  courseId: string,
+): Promise<Array<CourseMaterialCourse>> => {
   const response = await courseMaterialClient.get(`/courses/${courseId}/language-versions`, {
     responseType: "json",
   })
-  return validateResponse(response, isArray(isCourse))
+  return validateResponse(response, isArray(isCourseMaterialCourse))
 }
 
 export const postStudentCountry = async (

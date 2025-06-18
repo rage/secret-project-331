@@ -491,6 +491,27 @@ export interface Course {
   closed_successor_course_id: string | null
 }
 
+export interface CourseMaterialCourse {
+  id: string
+  slug: string
+  name: string
+  description: string | null
+  organization_id: string
+  language_code: string
+  copied_from: string | null
+  content_search_language: string | null
+  course_language_group_id: string
+  is_draft: boolean
+  is_test_mode: boolean
+  is_unlisted: boolean
+  base_module_completion_requires_n_submodule_completions: number
+  is_joinable_by_code_only: boolean
+  ask_marketing_consent: boolean
+  closed_at: string | null
+  closed_additional_message: string | null
+  closed_successor_course_id: string | null
+}
+
 export interface CourseBreadcrumbInfo {
   course_id: string
   course_name: string

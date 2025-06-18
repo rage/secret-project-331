@@ -70,7 +70,6 @@ async fn set_default_chatbot(
 
     models::chatbot_configurations::remove_default_chatbot_from_course(&mut tx, course_id).await?;
 
-    // check if chatbot belongs in course
     let chatbot =
         models::chatbot_configurations::get_by_id(&mut tx, chatbot_configuration_id).await?;
 

@@ -65,7 +65,6 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
     {
       method: "POST",
       notify: true,
-      successMessage: t("default-toast-success-message"),
     },
     { onSuccess: () => getChatbotsList.refetch() },
   )

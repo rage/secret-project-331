@@ -136,7 +136,7 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
                     setDefaultChatbotMutation.mutate(bot.id)
                   }}
                 >
-                  {t("set-as-default-chatbot")}
+                  {t("set-default-chatbot")}
                 </Button>
               )}
             </StyledLi>

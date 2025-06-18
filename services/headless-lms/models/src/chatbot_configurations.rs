@@ -38,8 +38,8 @@ impl Default for ChatbotConfiguration {
             chatbot_name: Default::default(),
             prompt: Default::default(),
             initial_message: Default::default(),
-            weekly_tokens_per_user: Default::default(),
-            daily_tokens_per_user: Default::default(),
+            weekly_tokens_per_user: 20000 * 5,
+            daily_tokens_per_user: 20000,
             temperature: 0.7,
             top_p: 1.0,
             frequency_penalty: Default::default(),
@@ -78,24 +78,25 @@ pub struct NewChatbotConf {
 
 impl Default for NewChatbotConf {
     fn default() -> Self {
+        let chatbot_conf: ChatbotConfiguration = ChatbotConfiguration::default();
         Self {
-            course_id: Default::default(),
-            enabled_to_students: false,
-            chatbot_name: Default::default(),
-            prompt: Default::default(),
-            initial_message: Default::default(),
-            weekly_tokens_per_user: Default::default(),
-            daily_tokens_per_user: Default::default(),
-            temperature: 0.7,
-            top_p: 1.0,
-            frequency_penalty: Default::default(),
-            presence_penalty: Default::default(),
-            response_max_tokens: 500,
-            use_azure_search: false,
-            maintain_azure_search_index: false,
-            hide_citations: false,
-            use_semantic_reranking: false,
-            default_chatbot: false,
+            course_id: chatbot_conf.course_id,
+            enabled_to_students: chatbot_conf.enabled_to_students,
+            chatbot_name: chatbot_conf.chatbot_name,
+            prompt: chatbot_conf.prompt,
+            initial_message: chatbot_conf.initial_message,
+            weekly_tokens_per_user: chatbot_conf.weekly_tokens_per_user,
+            daily_tokens_per_user: chatbot_conf.daily_tokens_per_user,
+            temperature: chatbot_conf.temperature,
+            top_p: chatbot_conf.top_p,
+            frequency_penalty: chatbot_conf.frequency_penalty,
+            presence_penalty: chatbot_conf.presence_penalty,
+            response_max_tokens: chatbot_conf.response_max_tokens,
+            use_azure_search: chatbot_conf.use_azure_search,
+            maintain_azure_search_index: chatbot_conf.maintain_azure_search_index,
+            hide_citations: chatbot_conf.hide_citations,
+            use_semantic_reranking: chatbot_conf.use_semantic_reranking,
+            default_chatbot: chatbot_conf.default_chatbot,
         }
     }
 }

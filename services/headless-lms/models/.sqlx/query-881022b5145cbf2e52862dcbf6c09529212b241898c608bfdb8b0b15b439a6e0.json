@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO chatbot_configurations (\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    response_max_tokens\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)\nRETURNING *\n        ",
+  "query": "\nUPDATE chatbot_configurations\nSET default_chatbot = true\nWHERE id = $1\nRETURNING *\n",
   "describe": {
     "columns": [
       {
@@ -110,20 +110,7 @@
       }
     ],
     "parameters": {
-      "Left": [
-        "Uuid",
-        "Bool",
-        "Varchar",
-        "Varchar",
-        "Varchar",
-        "Int4",
-        "Int4",
-        "Float4",
-        "Float4",
-        "Float4",
-        "Float4",
-        "Int4"
-      ]
+      "Left": ["Uuid"]
     },
     "nullable": [
       false,
@@ -149,5 +136,5 @@
       false
     ]
   },
-  "hash": "5c4cfe506f694ba4f331c19c04ee0544bb9bb77706c6ae88d37007435fa52415"
+  "hash": "881022b5145cbf2e52862dcbf6c09529212b241898c608bfdb8b0b15b439a6e0"
 }

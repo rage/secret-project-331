@@ -39,7 +39,6 @@ const CustomizeChatbotPage = () => {
     {
       notify: true,
       method: "POST",
-      successMessage: t("default-toast-success-message"),
     },
     {
       onSuccess: () => {
@@ -53,7 +52,6 @@ const CustomizeChatbotPage = () => {
     {
       method: "DELETE",
       notify: true,
-      successMessage: t("default-toast-success-message"),
     },
     {
       onSuccess: () => {

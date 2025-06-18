@@ -55,7 +55,7 @@ async fn create_chatbot(
     token.authorized_ok(web::Json(configuration))
 }
 
-/// POST `/api/v0/main-frontend/courses/{course_id}/chatbots/{chatbot_configuration_id}/set_as_default`
+/// POST `/api/v0/main-frontend/courses/{course_id}/chatbots/{chatbot_configuration_id}/set-as-default`
 #[instrument(skip(pool))]
 async fn set_default_chatbot(
     ids: web::Path<(Uuid, Uuid)>,
@@ -66,7 +66,6 @@ async fn set_default_chatbot(
     let (course_id, chatbot_configuration_id) = *ids;
 
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
-    // rename chatbot_configuration_id chatbot_configuration_id
     let mut tx = conn.begin().await?;
 
     models::chatbot_configurations::remove_default_chatbot_from_course(&mut tx, course_id).await?;
@@ -97,7 +96,7 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     cfg.route("", web::get().to(get_chatbots))
         .route("", web::post().to(create_chatbot))
         .route(
-            "/{chatbot_configuration_id}/set_as_default",
+            "/{chatbot_configuration_id}/set-as-default",
             web::post().to(set_default_chatbot),
         );
 }

@@ -1,3 +1,4 @@
+//! Controllers for requests starting with `/api/v0/main-frontend/chatbots/`.
 use crate::prelude::*;
 
 use models::chatbot_configurations::{ChatbotConfiguration, NewChatbotConf};
@@ -27,7 +28,7 @@ async fn get_chatbot(
 #[instrument(skip(pool, payload))]
 async fn edit_chatbot(
     chatbot_configuration_id: web::Path<Uuid>,
-    payload: web::Json<NewChatbotConf>, // are the fields correct???
+    payload: web::Json<NewChatbotConf>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<ChatbotConfiguration>> {
@@ -40,7 +41,7 @@ async fn edit_chatbot(
         Some(user.id),
         Res::Course(chatbot.course_id),
     )
-    .await?; // set azure fiekds and explain
+    .await?;
 
     let configuration: ChatbotConfiguration = models::chatbot_configurations::edit(
         &mut conn,

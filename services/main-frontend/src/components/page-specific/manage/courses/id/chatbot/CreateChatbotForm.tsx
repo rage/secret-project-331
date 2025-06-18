@@ -38,7 +38,6 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
     {
       notify: true,
       method: "POST",
-      successMessage: t("default-toast-success-message"),
     },
     {
       onSuccess: async (data) => {

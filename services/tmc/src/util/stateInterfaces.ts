@@ -42,6 +42,8 @@ export type PublicSpec = BrowserExercisePublicSpec | EditorExercisePublicSpec
 
 export interface BrowserExercisePublicSpec {
   type: "browser"
+  archive_download_url: string
+  checksum: string
   files: Array<ExerciseFile>
 }
 

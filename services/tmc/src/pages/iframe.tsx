@@ -1,6 +1,7 @@
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import _ from "lodash"
+import { orderBy } from "natural-orderby"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
 import ReactDOM from "react-dom"
@@ -24,11 +25,13 @@ import { UploadResultMessage } from "@/shared-module/common/exercise-service-pro
 import { isMessageToIframe } from "@/shared-module/common/exercise-service-protocol-types.guard"
 import useExerciseServiceParentConnection from "@/shared-module/common/hooks/useExerciseServiceParentConnection"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { ExerciseFile, RunResult } from "@/tmc/cli"
 
 const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
   const iframeId = v4().slice(0, 4)
 
   const [state, setState] = useState<ExerciseIframeState | null>(null)
+  const [testRequestResponse, setTestRequestResponse] = useState<RunResult | null>(null)
   const [fileUploadResponse, setFileUploadResponse] = useState<UploadResultMessage | null>(null)
   const router = useRouter()
   const rawMaxWidth = router?.query?.width
@@ -125,6 +128,21 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
         } else {
           error(iframeId, "Failed to upload:", messageData.error)
         }
+      } else if (messageData.message == "repository-exercises") {
+        setState((oldState) => {
+          if (oldState && oldState.view_type === "exercise-editor") {
+            const sorted = orderBy(messageData.repository_exercises, (re) => re.part + re.name)
+            return {
+              ...oldState,
+              repository_exercises: sorted,
+            }
+          } else {
+            return oldState
+          }
+        })
+      } else if (messageData.message === "test-results") {
+        // start task to monitor test results
+        setTestRequestResponse(messageData.test_result as RunResult)
       } else {
         error(iframeId, "Unexpected message from parent")
       }
@@ -145,12 +163,20 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
         <StateRenderer
           setState={(updater) => setStateAndSend(port, updater)}
           state={state}
+          sendTestRequestMessage={(archiveDownloadUrl, files) => {
+            sendTestRequestMessage(port, archiveDownloadUrl, files)
+          }}
+          testRequestResponse={testRequestResponse}
+          resetTestRequestResponse={() => {}}
           sendFileUploadMessage={(filename, file) => {
             const files = new Map()
             files.set(filename, file)
             sendFileUploadMessage(port, files)
           }}
           fileUploadResponse={fileUploadResponse}
+          requestRepositoryExercises={() => {
+            requestRepositoryExercises(port)
+          }}
         />
       </div>
     </HeightTrackingContainer>
@@ -169,6 +195,22 @@ const sendSpecToParent = (port: MessagePort, data: CurrentStateMessageData) => {
   port.postMessage(currentStateMessage)
 }
 
+const sendTestRequestMessage = (
+  port: MessagePort | null,
+  archiveDownloadUrl: string,
+  files: Array<ExerciseFile>,
+) => {
+  if (port) {
+    const testRequest: MessageToParent = {
+      message: "test-request",
+      archiveDownloadUrl: archiveDownloadUrl,
+      files,
+    }
+    console.info("Posting message to parent", testRequest)
+    port.postMessage(testRequest)
+  }
+}
+
 const sendFileUploadMessage = (port: MessagePort | null, files: Map<string, string | Blob>) => {
   if (port) {
     const fileUploadRequest: MessageToParent = {
@@ -176,6 +218,15 @@ const sendFileUploadMessage = (port: MessagePort | null, files: Map<string, stri
       files,
     }
     port.postMessage(fileUploadRequest)
+  }
+}
+
+const requestRepositoryExercises = (port: MessagePort | null) => {
+  if (port) {
+    const requestRepositoryExercises: MessageToParent = {
+      message: "request-repository-exercises",
+    }
+    port.postMessage(requestRepositoryExercises)
   }
 }
 

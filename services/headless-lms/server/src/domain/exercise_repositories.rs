@@ -1,6 +1,9 @@
 use anyhow::Context;
 use blake3::Hash;
-use git2::{Cred, FetchOptions, RemoteCallbacks, Repository, build::RepoBuilder};
+use git2::{
+    CertificateCheckStatus, Cred, FetchOptions, RemoteCallbacks, Repository, build::RepoBuilder,
+    build::RepoBuilder,
+};
 use headless_lms_models::{exercise_repositories, repository_exercises};
 use headless_lms_utils::{
     ApplicationConfiguration,
@@ -26,6 +29,7 @@ pub async fn process(
     conn: &mut PgConnection,
     repository_id: Uuid,
     url: &str,
+    public_key: Option<&str>,
     deploy_key: Option<&str>,
     file_store: &dyn FileStore,
     app_conf: &ApplicationConfiguration,
@@ -35,6 +39,7 @@ pub async fn process(
         conn,
         repository_id,
         url,
+        public_key,
         deploy_key,
         file_store,
         &mut stored_files,
@@ -68,6 +73,7 @@ async fn process_inner(
     conn: &mut PgConnection,
     repository_id: Uuid,
     url: &str,
+    public_key: Option<&str>,
     deploy_key: Option<&str>,
     file_store: &dyn FileStore,
     stored_files: &mut Vec<PathBuf>,
@@ -78,40 +84,111 @@ async fn process_inner(
     // clone repo to temp dir
     let temp = tempfile::tempdir()?;
     let mut fetch_opts = FetchOptions::new();
+    let mut remote_cbs = RemoteCallbacks::new();
     if let Some(deploy_key) = deploy_key {
-        let mut remote_cbs = RemoteCallbacks::new();
-        remote_cbs.credentials(|_, username, credential_type| {
-            if credential_type.is_ssh_memory() {
-                Cred::ssh_key_from_memory(username.unwrap_or("git"), None, deploy_key, None)
-            } else {
-                Err(git2::Error::from_str(
-                    "The git server does not support the SSH_MEMORY credential type",
-                ))
-            }
-        });
-        fetch_opts.remote_callbacks(remote_cbs);
+        remote_cbs
+            .certificate_check(|_, _| Ok(CertificateCheckStatus::CertificateOk))
+            .credentials(|_, username, credential_type| {
+                if credential_type.is_ssh_memory() {
+                    Cred::ssh_key_from_memory(
+                        username.unwrap_or("git"),
+                        public_key,
+                        deploy_key,
+                        None,
+                    )
+                } else {
+                    Err(git2::Error::from_str(
+                        "The git server does not support the SSH_MEMORY credential type",
+                    ))
+                }
+            });
     }
+    fetch_opts.remote_callbacks(remote_cbs);
+    info!("Cloning {url} to {:?}", temp.path());
     RepoBuilder::new()
         .fetch_options(fetch_opts)
         .clone(url, temp.path())?;
+    info!("Finished cloning {url} to {:?}", temp.path());
 
     // create exercises in db and store them in file store
-    let new_exercises = find_exercise_directories(temp.path()).await?;
+    let found_exercises = find_exercise_directories(temp.path()).await?;
     let mut repository_exercises = vec![];
-    for ex in &new_exercises {
-        let new_exercise_id = Uuid::new_v4();
-        let path = create_and_upload_exercise(
-            &mut tx,
-            repository_id,
-            new_exercise_id,
-            ex,
-            file_store,
-            app_conf,
-        )
-        .await?;
-        let url = file_store.get_direct_download_url(&path).await?;
-        stored_files.push(path);
-        repository_exercises.push(StoredRepositoryExercise { url });
+    // (part, name) => exercise
+    let existing_exercises =
+        repository_exercises::get_for_repository(&mut tx, repository_id).await?;
+
+    // we try both the path and the checksum to find existing exercises
+    // these are the only attributes found in the exercise repositories, so if both
+    // the path and checksum change there's no way to detect that it's supposed to be an updated old exercise
+    // rather than a new one
+    // this way we can accommodate both renaming/relocating exercises and changing them, though not at the same time...
+    let existing_exercises_path_map = existing_exercises
+        .iter()
+        .map(|ex| ((&ex.part, &ex.name), ex))
+        .collect::<HashMap<_, _>>();
+    let existing_exercises_checksum_map = existing_exercises
+        .iter()
+        .map(|ex| (ex.checksum.as_slice(), ex))
+        .collect::<HashMap<_, _>>();
+    for fe in &found_exercises {
+        // check if the exercise is new
+        match (
+            existing_exercises_path_map.get(&(&fe.part, &fe.name)),
+            existing_exercises_checksum_map.get(fe.checksum.as_bytes().as_slice()),
+        ) {
+            (Some(_), Some(_)) => {
+                // both the path and checksum are unchanged, no-op
+            }
+            (Some(existing_exercise_by_path), None) => {
+                // found exercise by path but the checksum has changed, exercise has been updated
+                let path = update_exercise(
+                    &mut tx,
+                    repository_id,
+                    existing_exercise_by_path.id,
+                    fe,
+                    file_store,
+                    app_conf,
+                )
+                .await?;
+                stored_files.push(path.clone());
+                let url = file_store.get_direct_download_url(&path).await?;
+                repository_exercises.push(StoredRepositoryExercise { url });
+                repository_exercises::update_checksum(
+                    &mut tx,
+                    existing_exercise_by_path.id,
+                    fe.checksum.as_bytes(),
+                )
+                .await?;
+                // todo: uploaded files get cleaned up on an error, which means that if the refreshing fails
+                // the exercise data will be missing entirely...
+            }
+            (None, Some(existing_exercise_by_checksum)) => {
+                // found exercise by checksum but the path has changed, update path
+                repository_exercises::update_part_and_name(
+                    &mut tx,
+                    existing_exercise_by_checksum.id,
+                    &fe.part,
+                    &fe.name,
+                )
+                .await?;
+            }
+            (None, None) => {
+                // new exercise
+                let new_exercise_id = uuid::Uuid::new_v4();
+                let path = create_and_upload_exercise(
+                    &mut tx,
+                    repository_id,
+                    new_exercise_id,
+                    fe,
+                    file_store,
+                    app_conf,
+                )
+                .await?;
+                stored_files.push(path.clone());
+                let url = file_store.get_direct_download_url(&path).await?;
+                repository_exercises.push(StoredRepositoryExercise { url });
+            }
+        }
     }
 
     tx.commit().await?;
@@ -254,7 +331,45 @@ async fn create_and_upload_exercise(
     conn: &mut PgConnection,
     repository: Uuid,
     exercise_id: Uuid,
-    exercise: &NewExercise,
+    exercise: &FoundExercise,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
+) -> anyhow::Result<PathBuf> {
+    // archive and compress
+    let cursor = Cursor::new(vec![]);
+    let mut tar = tar::Builder::new(cursor);
+    tar.append_dir_all(".", &exercise.path)?;
+    let mut tar = tar.into_inner()?;
+    // rewind cursor back to the beginning
+    tar.set_position(0);
+    let tar_zstd = zstd::encode_all(tar, 0)?;
+
+    // upload
+    let path = file_store::repository_exercise_path(repository, exercise_id);
+    file_store
+        .upload(&path, tar_zstd, "application/zstd")
+        .await?;
+    let url = file_store.get_download_url(&path, app_conf);
+
+    // create
+    repository_exercises::new(
+        conn,
+        exercise_id,
+        repository,
+        &exercise.part,
+        &exercise.name,
+        exercise.checksum.as_bytes(),
+        &url,
+    )
+    .await?;
+    Ok(path)
+}
+
+async fn update_exercise(
+    conn: &mut PgConnection,
+    repository: Uuid,
+    exercise_id: Uuid,
+    exercise: &FoundExercise,
     file_store: &dyn FileStore,
     app_conf: &ApplicationConfiguration,
 ) -> anyhow::Result<PathBuf> {
@@ -289,14 +404,14 @@ async fn create_and_upload_exercise(
 }
 
 #[derive(Debug)]
-struct NewExercise {
+struct FoundExercise {
     part: String,
     name: String,
     checksum: Hash,
     path: PathBuf,
 }
 
-async fn find_exercise_directories(clone_path: &Path) -> anyhow::Result<Vec<NewExercise>> {
+async fn find_exercise_directories(clone_path: &Path) -> anyhow::Result<Vec<FoundExercise>> {
     info!("finding exercise directories in {}", clone_path.display());
 
     let mut exercises = vec![];
@@ -309,7 +424,8 @@ async fn find_exercise_directories(clone_path: &Path) -> anyhow::Result<Vec<NewE
         .max_depth(2)
         .into_iter()
         .filter_entry(|e| {
-            e.file_name() != "private"
+            e.file_type().is_dir()
+                && e.file_name() != "private"
                 && !is_hidden_dir(e)
                 && !contains_tmcignore(e)
                 && !is_in_git_dir(e.path())
@@ -333,7 +449,7 @@ async fn find_exercise_directories(clone_path: &Path) -> anyhow::Result<Vec<NewE
             .to_str()
             .context("Invalid directory name in repository")?
             .to_string();
-        exercises.push(NewExercise {
+        exercises.push(FoundExercise {
             part,
             name,
             checksum,

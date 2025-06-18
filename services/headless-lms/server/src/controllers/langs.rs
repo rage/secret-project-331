@@ -309,6 +309,8 @@ async fn get_submission_grading(
     token.authorized_ok(web::Json(status))
 }
 
+async fn get_course_instance_repository_exercises() {}
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/course-instances", web::get().to(get_course_instances))
         .route(

@@ -106,6 +106,15 @@ const ExerciseRepositories: React.FC<Props> = ({ courseId, examId }) => {
                 <Button size="medium" variant="tertiary" onClick={() => setEditingRepo(er.id)}>
                   {t("edit")}
                 </Button>
+                <Button
+                  size="medium"
+                  variant="tertiary"
+                  onClick={() => {
+                    // todo refresh repo
+                  }}
+                >
+                  {"refresh"}
+                </Button>
               </>
             )}
           </li>

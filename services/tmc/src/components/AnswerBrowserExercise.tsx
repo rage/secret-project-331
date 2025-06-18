@@ -6,22 +6,28 @@ import { useTranslation } from "react-i18next"
 import { ExerciseFile, ExerciseIframeState, PublicSpec } from "../util/stateInterfaces"
 
 import Button from "@/shared-module/common/components/Button"
+import { RunResult } from "@/tmc/cli"
 
 interface Props {
   initialPublicSpec: PublicSpec & { type: "browser" }
+  sendTestRequestMessage: (archiveDownloadUrl: string, editorFiles: Array<ExerciseFile>) => void
+  testRequestResponse: RunResult | null
   setState: (updater: (state: ExerciseIframeState | null) => ExerciseIframeState | null) => void
 }
 
 const AnswerBrowserExercise: React.FC<React.PropsWithChildren<Props>> = ({
   initialPublicSpec,
+  sendTestRequestMessage,
+  testRequestResponse,
   setState,
 }) => {
   const { t } = useTranslation()
 
-  const initialEditorState = initialPublicSpec.files
-  const [editorState, _setEditorState] = useState(initialEditorState)
+  console.log("spec", initialPublicSpec)
+  const initialEditorFiles = initialPublicSpec.files
+  const [editorFiles, setEditorFiles] = useState(initialEditorFiles)
   const setEditorState = (files: Array<ExerciseFile>) => {
-    _setEditorState(files)
+    setEditorFiles(files)
     setState((old) => {
       if (old?.view_type == "answer-exercise") {
         return { ...old, user_answer: { type: "browser", files } }
@@ -33,7 +39,7 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<Props>> = ({
 
   // "inline" exercise, solved in the browser
   // todo: support multiple files
-  const { filepath, contents } = editorState[0]
+  const { filepath, contents } = editorFiles[0]
   return (
     <>
       <div>{filepath}</div>
@@ -44,7 +50,7 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<Props>> = ({
         value={contents}
         onChange={(newContents) => {
           if (newContents !== undefined) {
-            const newState = _.cloneDeep(editorState)
+            const newState = _.cloneDeep(editorFiles)
             const changed = newState.find((ef) => ef.filepath == filepath)
             if (changed) {
               changed.contents = newContents
@@ -53,12 +59,28 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<Props>> = ({
           }
         }}
       />
+      {testRequestResponse && <div>{testRequestResponse.status}</div>}
+      <Button
+        variant="primary"
+        size="medium"
+        onClick={async () => {
+          sendTestRequestMessage(initialPublicSpec.archive_download_url, editorFiles)
+        }}
+      >
+        {"Test"}
+      </Button>
+      <Button variant="primary" size="medium" onClick={() => {}}>
+        {"Submit"}
+      </Button>
       <Button
         variant="primary"
         size="medium"
         onClick={() => {
-          // cloneDeep prevents setState from changing the initial spec (??)
-          setEditorState(_.cloneDeep(initialEditorState))
+          const res = confirm("Are you sure?")
+          if (res) {
+            // cloneDeep prevents setState from changing the initial spec (??)
+            setEditorState(_.cloneDeep(initialEditorFiles))
+          }
         }}
       >
         {t("reset")}

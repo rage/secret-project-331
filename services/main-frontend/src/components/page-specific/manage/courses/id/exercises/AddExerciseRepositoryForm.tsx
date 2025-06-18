@@ -18,6 +18,7 @@ interface Props {
 
 interface Fields {
   gitUrl: string
+  publicKey: string
   deployKey: string
 }
 
@@ -35,7 +36,8 @@ const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSucces
     defaultValues: { gitUrl: "" },
   })
   const mutation = useToastMutation(
-    (fields: Fields) => addExerciseRepository(courseId, examId, fields.gitUrl, fields.deployKey),
+    (fields: Fields) =>
+      addExerciseRepository(courseId, examId, fields.gitUrl, fields.publicKey, fields.deployKey),
     {
       notify: true,
       method: "POST",
@@ -58,13 +60,14 @@ const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSucces
         {...register("gitUrl", { required: t("required-field") })}
       />
       <TextAreaField
+        label={"public key"}
+        placeholder="ssh-ed25519 ..."
+        {...register("publicKey")}
+        errorMessage={errors["publicKey"]?.message}
+      />
+      <TextAreaField
         label={t("exercise-repositories-deploy-key")}
-        // eslint-disable-next-line i18next/no-literal-string
-        placeholder="\
------BEGIN OPENSSH PRIVATE KEY-----
-...
------END OPENSSH PRIVATE KEY-----
-"
+        placeholder="-----BEGIN OPENSSH PRIVATE KEY----- ..."
         {...register("deployKey")}
         errorMessage={errors["deployKey"]?.message}
       />

@@ -1,4 +1,4 @@
-use headless_lms_models::{user_details, users, PKeyPolicy};
+use headless_lms_models::{PKeyPolicy, user_details, users};
 use sqlx::{Pool, Postgres};
 use uuid::Uuid;
 

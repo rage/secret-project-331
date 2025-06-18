@@ -81,25 +81,41 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
 
     if (data.freqPenalty > 1 || data.freqPenalty < 0) {
       setError("freqPenalty", {
-        message: "Frequency penalty must be a value between 0 and 1",
+        message: t("error-field-value-between", {
+          field: "Frequency penalty",
+          lower: "0",
+          upper: "1",
+        }),
       })
       isValid = false
     }
     if (data.presPenalty > 1 || data.presPenalty < 0) {
       setError("presPenalty", {
-        message: "Presence penalty must be a value between 0 and 1",
+        message: t("error-field-value-between", {
+          field: "Presence penalty",
+          lower: "0",
+          upper: "1",
+        }),
       })
       isValid = false
     }
     if (data.temperature > 1 || data.temperature < 0) {
       setError("temperature", {
-        message: "Temperature must be a value between 0 and 1",
+        message: t("error-field-value-between", {
+          field: "Temperature",
+          lower: "0",
+          upper: "1",
+        }),
       })
       isValid = false
     }
     if (data.topP > 1 || data.topP < 0) {
       setError("topP", {
-        message: "Top p must be a value between 0 and 1",
+        message: t("error-field-value-between", {
+          field: "Top p",
+          lower: "0",
+          upper: "1",
+        }),
       })
       isValid = false
     }
@@ -112,6 +128,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
     }
 
     onConfigureChatbot({
+      course_id: oldChatbotConf.course_id, // keep the old course id
       chatbot_name: data.name,
       enabled_to_students: data.enabledStudents,
       prompt: data.prompt,
@@ -124,9 +141,12 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
       presence_penalty: +data.presPenalty,
       response_max_tokens: +data.maxTokens,
       use_azure_search: data.azureSearch,
+      // right now use_azure_search requires the next field to be true and there is no need for it to
+      // be true if azure search is false, so set them as the same value
+      maintain_azure_search_index: data.azureSearch,
       hide_citations: data.hideCitations,
       use_semantic_reranking: data.semanticReranking,
-      default_chatbot: oldChatbotConf.default_chatbot, // preserve old default
+      default_chatbot: oldChatbotConf.default_chatbot, // keep the old default value
     })
   })
 
@@ -213,7 +233,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
                 className={textFieldCss}
                 id={"freq-penalty"}
                 type="number"
-                error={errors.freqPenalty}
+                error={errors.freqPenalty?.message}
                 step="0.01"
                 label={t("frequency-penalty")}
                 {...register("freqPenalty")}
@@ -222,7 +242,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
                 className={textFieldCss}
                 id={"pres-penalty"}
                 type="number"
-                error={errors.presPenalty}
+                error={errors.presPenalty?.message}
                 step="0.01"
                 label={t("presence-penalty")}
                 {...register("presPenalty")}
@@ -234,7 +254,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
                 className={textFieldCss}
                 id={"temperature"}
                 type="number"
-                error={errors.temperature}
+                error={errors.temperature?.message}
                 step="0.01"
                 label={t("temperature")}
                 {...register("temperature")}
@@ -243,7 +263,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
                 className={textFieldCss}
                 id={"top-p"}
                 type="number"
-                error={errors.topP}
+                error={errors.topP?.message}
                 step="0.01"
                 label={t("top-p")}
                 {...register("topP")}

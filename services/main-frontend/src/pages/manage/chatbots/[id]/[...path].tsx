@@ -25,16 +25,16 @@ const CustomizeChatbotPage = () => {
 
   const chatbotQuery = useQuery<ChatbotConfiguration>({
     queryKey: [`chatbot`, id],
-    queryFn: () => getChatbotConfiguration(assertNotNullOrUndefined(id!.toString())),
+    queryFn: () => getChatbotConfiguration(assertNotNullOrUndefined(id?.toString())),
     enabled: !!id,
   })
 
   const configureChatbotMutation = useToastMutation(
     async (bot: NewChatbotConf) => {
-      if (chatbot === null) {
+      if (chatbotQuery.data === null) {
         throw new Error("Chatbot undefined")
       }
-      await configureChatbot(chatbot.id, bot)
+      await configureChatbot(assertNotNullOrUndefined(chatbotQuery.data?.id), bot)
     },
     {
       notify: true,
@@ -49,7 +49,7 @@ const CustomizeChatbotPage = () => {
   )
 
   const deleteChatbotMutation = useToastMutation(
-    async (chatbotId: string) => await deleteChatbot(chatbotId),
+    async (chatbotConfigurationId: string) => await deleteChatbot(chatbotConfigurationId),
     {
       method: "DELETE",
       notify: true,
@@ -68,29 +68,26 @@ const CustomizeChatbotPage = () => {
   if (chatbotQuery.isError) {
     return <ErrorBanner variant="readOnly" error={chatbotQuery.error} />
   }
-  let chatbot: ChatbotConfiguration | null = null
   if (chatbotQuery.data === undefined) {
     return <ErrorBanner variant="readOnly" error={t("error-title")} />
-  } else {
-    chatbot = chatbotQuery.data
   }
 
   return (
     <div>
-      <MainFrontendBreadCrumbs organizationSlug={null} courseId={chatbot.course_id} />
+      <MainFrontendBreadCrumbs organizationSlug={null} courseId={chatbotQuery.data.course_id} />
       <Button type="button" size="medium" variant="secondary" onClick={() => router.back()}>
         {t("back")}
       </Button>
-      <h1>{chatbot.chatbot_name}</h1>
+      <h1>{chatbotQuery.data.chatbot_name}</h1>
       <div>
         <ChatbotConfigurationForm
-          oldChatbotConf={chatbot}
+          oldChatbotConf={chatbotQuery.data}
           onConfigureChatbot={(newChatbot) => {
             configureChatbotMutation.mutate(newChatbot)
           }}
-          onDeleteChatbot={(chatbotId, chatbotName) => {
+          onDeleteChatbot={(chatbotConfigurationId, chatbotName) => {
             if (window.confirm(t("delete-chatbot-confirmation", { name: chatbotName }))) {
-              deleteChatbotMutation.mutate(chatbotId)
+              deleteChatbotMutation.mutate(chatbotConfigurationId)
             }
           }}
         />

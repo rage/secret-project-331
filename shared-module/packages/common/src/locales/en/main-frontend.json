@@ -238,6 +238,7 @@
   "error-could-not-find-edit-history-for-page": "Could not find any edit history for the page",
   "error-creating-course": "Error creating course",
   "error-fetching-service-info": "Error fetching service info",
+  "error-field-value-between": "{{field}} should be a value between {{lower}} and {{upper}}.",
   "error-loading-organizations": "Error loading organizations.",
   "error-min-length": "{{field}} must be at least {{count}} characters.",
   "error-modules-chapter-not-in-module": "Chapter {{ chapterNumber }}: {{ chapterName }} does not belong to any module",

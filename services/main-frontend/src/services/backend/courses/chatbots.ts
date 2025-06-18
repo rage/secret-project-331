@@ -11,16 +11,19 @@ export const getCourseChatbots = async (courseId: string): Promise<Array<Chatbot
 
 export const createChatbot = async (
   courseId: string,
-  data: string,
+  chatbotName: string,
 ): Promise<ChatbotConfiguration> => {
-  const response = await mainFrontendClient.post(`/courses/${courseId}/chatbots`, data)
+  const response = await mainFrontendClient.post(`/courses/${courseId}/chatbots`, chatbotName)
   return validateResponse(response, isChatbotConfiguration)
 }
 
 export const setAsDefaultChatbot = async (
   courseId: string,
-  chatbotId: string,
+  chatbotConfigurationId: string,
 ): Promise<ChatbotConfiguration> => {
-  const response = await mainFrontendClient.post(`/courses/${courseId}/chatbots/default`, chatbotId)
+  const response = await mainFrontendClient.post(
+    `/courses/${courseId}/chatbots/default`,
+    chatbotConfigurationId,
+  )
   return validateResponse(response, isChatbotConfiguration)
 }

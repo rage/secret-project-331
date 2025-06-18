@@ -210,6 +210,7 @@ export interface ChatbotConfiguration {
 }
 
 export interface NewChatbotConf {
+  course_id: string
   enabled_to_students: boolean
   chatbot_name: string
   prompt: string
@@ -222,6 +223,7 @@ export interface NewChatbotConf {
   presence_penalty: number
   response_max_tokens: number
   use_azure_search: boolean
+  maintain_azure_search_index: boolean
   hide_citations: boolean
   use_semantic_reranking: boolean
   default_chatbot: boolean

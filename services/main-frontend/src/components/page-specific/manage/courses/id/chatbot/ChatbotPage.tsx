@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import { useRouter } from "next/router"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import CreateChatbotDialog from "./CreateChatbotDialog"
@@ -15,6 +15,7 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 // copypasted from ExamList, maybe refactor
 const StyledUl = styled.ul`
@@ -42,18 +43,25 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
 
   const getChatbotsList = useQuery({
     queryKey: ["course-chatbots", courseId],
-    queryFn: () => {
-      if (courseId) {
-        return getCourseChatbots(courseId)
-      } else {
-        return Promise.reject(new Error("Course ID undefined"))
-      }
-    },
+    queryFn: () => getCourseChatbots(assertNotNullOrUndefined(courseId)),
     enabled: !!courseId,
   })
 
+  const sortedChatbotsList = useMemo(() => {
+    return [...(getChatbotsList.data ?? [])].sort((a, b) => {
+      if (a.default_chatbot) {
+        return -1
+      }
+      if (b.default_chatbot) {
+        return 1
+      }
+      return a.chatbot_name.localeCompare(b.chatbot_name)
+    })
+  }, [getChatbotsList.data])
+
   const setDefaultChatbotMutation = useToastMutation(
-    async (chatbotId: string) => await setAsDefaultChatbot(courseId, chatbotId),
+    async (chatbotConfigurationId: string) =>
+      await setAsDefaultChatbot(courseId, chatbotConfigurationId),
     {
       method: "POST",
       notify: true,
@@ -78,7 +86,7 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   if (getChatbotsList.isPending) {
     return <Spinner variant={"medium"} />
   }
-
+  // use memo for sorting to sort once
   return (
     <>
       <div
@@ -106,43 +114,33 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
       <div>
         <h3>{t("customize-chatbot")}</h3>
         <StyledUl>
-          {getChatbotsList.data
-            ?.sort((a, b) => {
-              if (a.default_chatbot) {
-                return -100000
-              } else if (b.default_chatbot) {
-                return 100000
-              } else {
-                return a.chatbot_name.localeCompare(b.chatbot_name)
-              }
-            })
-            .map((bot) => (
-              <StyledLi key={bot.id}>
-                <h4
-                  className={css`
-                    margin: 5px;
-                  `}
+          {sortedChatbotsList.map((bot) => (
+            <StyledLi key={bot.id}>
+              <h4
+                className={css`
+                  margin: 5px;
+                `}
+              >
+                {bot.chatbot_name} <em>{bot.default_chatbot ? `(${t("label-default")})` : ""}</em>
+              </h4>
+              <Link href={`/manage/chatbots/${bot.id}`} aria-label={`${t("customize-chatbot")}`}>
+                <Button size="medium" variant="primary">
+                  {t("edit")}
+                </Button>
+              </Link>
+              {!bot.default_chatbot && (
+                <Button
+                  size="medium"
+                  variant="secondary"
+                  onClick={() => {
+                    setDefaultChatbotMutation.mutate(bot.id)
+                  }}
                 >
-                  {bot.chatbot_name} <em>{bot.default_chatbot ? `(${t("label-default")})` : ""}</em>
-                </h4>
-                <Link href={`/manage/chatbots/${bot.id}`} aria-label={`${t("customize-chatbot")}`}>
-                  <Button size="medium" variant="primary">
-                    {t("edit")}
-                  </Button>
-                </Link>
-                {!bot.default_chatbot && (
-                  <Button
-                    size="medium"
-                    variant="secondary"
-                    onClick={() => {
-                      setDefaultChatbotMutation.mutate(bot.id)
-                    }}
-                  >
-                    {t("set-as-default-chatbot")}
-                  </Button>
-                )}
-              </StyledLi>
-            ))}
+                  {t("set-as-default-chatbot")}
+                </Button>
+              )}
+            </StyledLi>
+          ))}
         </StyledUl>
       </div>
       <CreateChatbotDialog

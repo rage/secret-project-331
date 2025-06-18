@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use headless_lms_models::{
     PKeyPolicy,
-    chatbot_configurations::{self, ChatbotConfiguration},
+    chatbot_configurations::{self, NewChatbotConf},
     course_instances::{self, NewCourseInstance},
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy},
     courses::NewCourse,
@@ -325,11 +325,7 @@ pub async fn seed_organization_uh_mathstat(
 
     chatbot_configurations::insert(
         &mut conn,
-        ChatbotConfiguration {
-            id: Uuid::parse_str("d13daa6e-7a14-40b9-92a9-58bd5793d2de")?,
-            created_at: chrono::Utc::now(),
-            updated_at: chrono::Utc::now(),
-            deleted_at: None,
+        NewChatbotConf {
             course_id: chatbot_course_id,
             enabled_to_students: true,
             chatbot_name: "Genetic Lifeform and Disk Operating System".to_string(),

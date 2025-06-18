@@ -484,6 +484,7 @@ export function isNewChatbotConf(obj: unknown): obj is NewChatbotConf {
         (typedObj !== null &&
             typeof typedObj === "object" ||
             typeof typedObj === "function") &&
+        typeof typedObj["course_id"] === "string" &&
         typeof typedObj["enabled_to_students"] === "boolean" &&
         typeof typedObj["chatbot_name"] === "string" &&
         typeof typedObj["prompt"] === "string" &&
@@ -496,6 +497,7 @@ export function isNewChatbotConf(obj: unknown): obj is NewChatbotConf {
         typeof typedObj["presence_penalty"] === "number" &&
         typeof typedObj["response_max_tokens"] === "number" &&
         typeof typedObj["use_azure_search"] === "boolean" &&
+        typeof typedObj["maintain_azure_search_index"] === "boolean" &&
         typeof typedObj["hide_citations"] === "boolean" &&
         typeof typedObj["use_semantic_reranking"] === "boolean" &&
         typeof typedObj["default_chatbot"] === "boolean"

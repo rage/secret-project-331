@@ -1,4 +1,5 @@
 {
+  "are-you-sure": "Are you sure?",
   "download-exercise": "Download exercise",
   "download-submission-button": "Download",
   "file-upload-save-failure": "Failed to save file upload",
@@ -15,6 +16,7 @@
   "solve-in-editor-label": "Solve in an external editor",
   "submission-archive-download-label": "The submitted archive can be downloaded from the following link",
   "submit": "Submit",
+  "test": "Test",
   "upload-solution-instructions": "Upload solution archive. Supported archive types: .tar.zst",
   "waiting-for-content": "Waiting for content...",
   "waiting-for-port": "Waiting for port..."

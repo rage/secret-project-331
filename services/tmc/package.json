@@ -36,6 +36,7 @@
     "immer": "^10.1.1",
     "lodash": "^4.17.21",
     "monaco-editor": "^0.52.2",
+    "natural-orderby": "^5.0.0",
     "next": "^15.2.0",
     "react": "^19.0.0",
     "react-aria-components": "^1.10.1",

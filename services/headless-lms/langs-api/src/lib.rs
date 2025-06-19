@@ -79,3 +79,20 @@ pub enum GradingProgress {
     /// The grading process is completed; the score value, if any, represents the current Final Grade;
     FullyGraded,
 }
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ExerciseUpdatesRequest<'a> {
+    pub exercises: &'a [ExerciseUpdateData<'a>],
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ExerciseUpdateData<'a> {
+    pub id: Uuid,
+    pub checksum: &'a str,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ExerciseUpdates {
+    pub updated_exercises: Vec<Uuid>,
+    pub deleted_exercises: Vec<Uuid>,
+}

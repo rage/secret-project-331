@@ -6,11 +6,16 @@ import { v5 } from "uuid"
 import { SIDEBAR_WIDTH_PX } from "../../../components/Layout"
 import CourseContext from "../../../contexts/CourseContext"
 
+import PageContext from "@/contexts/PageContext"
+import { getRepositoryExercises } from "@/services/backend/repository-exercises"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import MessageChannelIFrame from "@/shared-module/common/components/MessageChannelIFrame"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
-import { ExerciseIframeState } from "@/shared-module/common/exercise-service-protocol-types"
+import {
+  ExerciseIframeState,
+  MessageToIframe,
+} from "@/shared-module/common/exercise-service-protocol-types"
 import { isMessageFromIframe } from "@/shared-module/common/exercise-service-protocol-types.guard"
 import useMedia from "@/shared-module/common/hooks/useMedia"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
@@ -36,6 +41,7 @@ const ExerciseTaskIFrameEditor: React.FC<
   const loginStateContext = useContext(LoginStateContext)
   const userInfo = useUserInfo()
   const userId = userInfo.data?.user_id || getGuestPseudonymousUserId()
+  const courseId = useContext(PageContext)?.page.course_id
   const courseContext = useContext(CourseContext)
 
   const largeScreen = useMedia(respondToOrLarger.xl)
@@ -69,11 +75,31 @@ const ExerciseTaskIFrameEditor: React.FC<
     <MessageChannelIFrame
       url={url}
       postThisStateToIFrame={postThisStateToIFrame}
-      onMessageFromIframe={async (messageContainer, _responsePort) => {
+      onMessageFromIframe={async (messageContainer, responsePort) => {
         if (isMessageFromIframe(messageContainer)) {
           if (messageContainer.message === "current-state") {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             onPrivateSpecChange(JSON.stringify((messageContainer.data as any).private_spec))
+          }
+          if (messageContainer.message === "request-repository-exercises") {
+            if (courseId) {
+              const repositoryExercises = await getRepositoryExercises(courseId)
+              const message: MessageToIframe = {
+                // eslint-disable-next-line i18next/no-literal-string
+                message: "repository-exercises",
+                repository_exercises: repositoryExercises,
+              }
+              responsePort.postMessage(message)
+            } else {
+              console.warn("Missing page context")
+              // todo: handle missing page context properly?
+              const message: MessageToIframe = {
+                // eslint-disable-next-line i18next/no-literal-string
+                message: "repository-exercises",
+                repository_exercises: [],
+              }
+              responsePort.postMessage(message)
+            }
           }
         } else {
           console.error(UNEXPECTED_MESSAGE_ERROR)

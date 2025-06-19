@@ -46,18 +46,20 @@ pub async fn new(
     id: Uuid,
     course_or_exam_id: CourseOrExamId,
     url: &str,
+    public_key: Option<&str>,
     deploy_key: Option<&str>,
 ) -> ModelResult<()> {
     let (course_id, exam_id) = course_or_exam_id.to_course_and_exam_ids();
     sqlx::query!(
         "
-INSERT INTO exercise_repositories (id, course_id, exam_id, url, deploy_key)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO exercise_repositories (id, course_id, exam_id, url, public_key, deploy_key)
+VALUES ($1, $2, $3, $4, $5, $6)
 ",
         id,
         course_id,
         exam_id,
         url,
+        public_key,
         deploy_key
     )
     .execute(conn)

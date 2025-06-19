@@ -61,7 +61,13 @@ async function processPublicSpec(
     let publicSpec: PublicSpec
     if (privateSpec.type === "browser") {
       debug(requestId, "preparing browser exercise")
-      publicSpec = await prepareBrowserExercise(requestId, stubDir)
+      publicSpec = await prepareBrowserExercise(
+        requestId,
+        stubDir,
+        privateSpec.repository_exercise,
+        upload_url,
+        uploadClaim,
+      )
     } else if (privateSpec.type === "editor") {
       debug(requestId, "preparing editor exercise")
       publicSpec = await prepareEditorExercise(
@@ -94,8 +100,16 @@ const prepareStubDir = async (requestId: string, downloadUrl: string): Promise<s
   return stubDir
 }
 
-const prepareBrowserExercise = async (requestId: string, stubDir: string): Promise<PublicSpec> => {
-  log(requestId, "browser exercise, saving student files to public spec")
+const prepareBrowserExercise = async (
+  requestId: string,
+  stubDir: string,
+  exercise: RepositoryExercise,
+  uploadUrl: string,
+  uploadClaim: string | null,
+): Promise<PublicSpec> => {
+  log(requestId, "browser exercise")
+
+  // getting student files
   const config = await getExercisePackagingConfiguration(stubDir, makeLog(requestId))
   const files = []
   for (const filepath of config.student_file_paths) {
@@ -104,9 +118,34 @@ const prepareBrowserExercise = async (requestId: string, stubDir: string): Promi
     const contents = await fs.promises.readFile(resolved)
     files.push({ filepath, contents: contents.toString() })
   }
-  return {
-    type: "browser",
-    files,
+
+  // preparing full stub
+  const stubArchive = temporaryFile()
+  debug(requestId, "compressing stub to", stubArchive)
+  const checksum = await compressProject(stubDir, stubArchive, "zstd", true, makeLog(requestId))
+
+  debug(requestId, "uploading stub to", uploadUrl)
+  const form = new FormData()
+  const archiveName = exercise.part + "/" + exercise.name + ".tar.zst"
+  form.append(archiveName, fs.createReadStream(stubArchive))
+  const headers: Record<string, string> = {}
+  if (uploadClaim) {
+    headers[EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER] = uploadClaim
+  }
+  const res = await axios.post(uploadUrl, form, {
+    headers,
+  })
+
+  if (isObjectMap<string>(res.data)) {
+    const archiveDownloadPath = res.data[archiveName]
+    return {
+      type: "browser",
+      archive_download_url: archiveDownloadPath,
+      files,
+      checksum,
+    }
+  } else {
+    throw new Error(`Unexpected response data: ${JSON.stringify(res.data)}`)
   }
 }
 
@@ -117,7 +156,7 @@ const prepareEditorExercise = async (
   uploadUrl: string,
   uploadClaim: string | null,
 ): Promise<PublicSpec> => {
-  log(requestId, "editor exercise, uploading archive to server and saving the URL to public spec")
+  log(requestId, "editor exercise")
   const stubArchive = temporaryFile()
   debug(requestId, "compressing stub to", stubArchive)
   const checksum = await compressProject(stubDir, stubArchive, "zstd", true, makeLog(requestId))

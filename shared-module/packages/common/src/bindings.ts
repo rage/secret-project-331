@@ -2217,6 +2217,7 @@ export interface NewExerciseRepository {
   course_id: string | null
   exam_id: string | null
   git_url: string
+  public_key: string | null
   deploy_key: string | null
 }
 

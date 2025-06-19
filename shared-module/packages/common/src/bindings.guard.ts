@@ -4553,6 +4553,8 @@ export function isNewExerciseRepository(obj: unknown): obj is NewExerciseReposit
         (typedObj["exam_id"] === null ||
             typeof typedObj["exam_id"] === "string") &&
         typeof typedObj["git_url"] === "string" &&
+        (typedObj["public_key"] === null ||
+            typeof typedObj["public_key"] === "string") &&
         (typedObj["deploy_key"] === null ||
             typeof typedObj["deploy_key"] === "string")
     )

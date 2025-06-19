@@ -19,7 +19,7 @@ env:
 
 jobs:
   build:
-    runs-on: ubicloud-standard-16
+    runs-on: ubicloud-standard-8
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4

@@ -231,11 +231,7 @@ export const runBrowserTest = async (
 
   const exerciseDir = temporaryDirectory()
   // todo check extractresults
-  const extractResults = await execute(
-    "extract-project",
-    ["--archive-path", "", "--output-path", exerciseDir],
-    log,
-  )
+  await execute("extract-project", ["--archive-path", "", "--output-path", exerciseDir], log)
   // write user input
   await fs.writeFile(path.join(exerciseDir, filepath), filedata)
 

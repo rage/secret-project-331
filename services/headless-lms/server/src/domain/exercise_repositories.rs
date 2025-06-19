@@ -34,16 +34,16 @@ pub async fn process(
     app_conf: &ApplicationConfiguration,
 ) -> anyhow::Result<Vec<StoredRepositoryExercise>> {
     let mut stored_files = vec![];
-    match process_inner(
+    match process_inner(InnerArgs {
         conn,
         repository_id,
         url,
         public_key,
         deploy_key,
         file_store,
-        &mut stored_files,
+        stored_files: &mut stored_files,
         app_conf,
-    )
+    })
     .await
     {
         Ok(res) => {
@@ -67,16 +67,29 @@ pub async fn process(
     }
 }
 
+struct InnerArgs<'a> {
+    conn: &'a mut PgConnection,
+    repository_id: Uuid,
+    url: &'a str,
+    public_key: Option<&'a str>,
+    deploy_key: Option<&'a str>,
+    file_store: &'a dyn FileStore,
+    stored_files: &'a mut Vec<PathBuf>,
+    app_conf: &'a ApplicationConfiguration,
+}
+
 // implements the logic for process so that we can conveniently handle all errors in process
 async fn process_inner(
-    conn: &mut PgConnection,
-    repository_id: Uuid,
-    url: &str,
-    public_key: Option<&str>,
-    deploy_key: Option<&str>,
-    file_store: &dyn FileStore,
-    stored_files: &mut Vec<PathBuf>,
-    app_conf: &ApplicationConfiguration,
+    InnerArgs {
+        conn,
+        repository_id,
+        url,
+        public_key,
+        deploy_key,
+        file_store,
+        stored_files,
+        app_conf,
+    }: InnerArgs<'_>,
 ) -> anyhow::Result<Vec<StoredRepositoryExercise>> {
     let mut tx = conn.begin().await?;
 

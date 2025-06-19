@@ -18,7 +18,6 @@ interface Props {
   setState: (updater: (state: ExerciseIframeState | null) => ExerciseIframeState | null) => void
   sendTestRequestMessage: (archiveDownloadUrl: string, editorFiles: Array<ExerciseFile>) => void
   testRequestResponse: RunResult | null
-  resetTestRequestResponse: () => void
   sendFileUploadMessage: (filename: string, file: File) => void
   requestRepositoryExercises: () => void
   fileUploadResponse: UploadResultMessage | null
@@ -29,7 +28,6 @@ export const StateRenderer: React.FC<React.PropsWithChildren<Props>> = ({
   setState,
   sendTestRequestMessage,
   testRequestResponse,
-  resetTestRequestResponse,
   requestRepositoryExercises,
   sendFileUploadMessage,
   fileUploadResponse,
@@ -58,7 +56,6 @@ export const StateRenderer: React.FC<React.PropsWithChildren<Props>> = ({
           setState={setState}
           sendTestRequestMessage={sendTestRequestMessage}
           testRequestResponse={testRequestResponse}
-          resetTestRequestResponse={resetTestRequestResponse}
           sendFileUploadMessage={sendFileUploadMessage}
           fileUploadResponse={fileUploadResponse}
         />

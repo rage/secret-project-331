@@ -167,7 +167,6 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
             sendTestRequestMessage(port, archiveDownloadUrl, files)
           }}
           testRequestResponse={testRequestResponse}
-          resetTestRequestResponse={() => {}}
           sendFileUploadMessage={(filename, file) => {
             const files = new Map()
             files.set(filename, file)

@@ -60,7 +60,7 @@ const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSucces
         {...register("gitUrl", { required: t("required-field") })}
       />
       <TextAreaField
-        label={"public key"}
+        label={t("public-key")}
         placeholder="ssh-ed25519 ..."
         {...register("publicKey")}
         errorMessage={errors["publicKey"]?.message}

@@ -67,16 +67,16 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<Props>> = ({
           sendTestRequestMessage(initialPublicSpec.archive_download_url, editorFiles)
         }}
       >
-        {"Test"}
+        {t("test")}
       </Button>
       <Button variant="primary" size="medium" onClick={() => {}}>
-        {"Submit"}
+        {t("submit")}
       </Button>
       <Button
         variant="primary"
         size="medium"
         onClick={() => {
-          const res = confirm("Are you sure?")
+          const res = confirm(t("are-you-sure"))
           if (res) {
             // cloneDeep prevents setState from changing the initial spec (??)
             setEditorState(_.cloneDeep(initialEditorFiles))

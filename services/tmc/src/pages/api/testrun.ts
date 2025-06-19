@@ -35,14 +35,6 @@ const badRequest = (
   errorResponse(res, 400, contextMessage, error)
 }
 
-const internalServerError = (
-  res: NextApiResponse<ClientErrorResponse>,
-  contextMessage: string,
-  err?: unknown,
-): void => {
-  errorResponse(res, 500, contextMessage, err)
-}
-
 const errorResponse = (
   res: NextApiResponse<ClientErrorResponse>,
   statusCode: number,
@@ -67,14 +59,6 @@ const errorResponse = (
 }
 
 // logging helpers
-
-const log = (message: string, ...optionalParams: unknown[]): void => {
-  console.log(`[testrun]`, message, ...optionalParams)
-}
-
-const debug = (message: string, ...optionalParams: unknown[]): void => {
-  console.debug(`[testrun]`, message, ...optionalParams)
-}
 
 const error = (message: string, ...optionalParams: unknown[]): void => {
   console.error(`[testrun]`, message, ...optionalParams)

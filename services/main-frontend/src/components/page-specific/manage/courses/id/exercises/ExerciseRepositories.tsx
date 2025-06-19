@@ -113,7 +113,7 @@ const ExerciseRepositories: React.FC<Props> = ({ courseId, examId }) => {
                     // todo refresh repo
                   }}
                 >
-                  {"refresh"}
+                  {t("refresh")}
                 </Button>
               </>
             )}

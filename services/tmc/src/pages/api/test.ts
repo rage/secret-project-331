@@ -92,14 +92,6 @@ const errorResponse = (
 
 // logging helpers
 
-const log = (message: string, ...optionalParams: unknown[]): void => {
-  console.log(`[test]`, message, ...optionalParams)
-}
-
-const debug = (message: string, ...optionalParams: unknown[]): void => {
-  console.debug(`[test]`, message, ...optionalParams)
-}
-
 const error = (message: string, ...optionalParams: unknown[]): void => {
   console.error(`[test]`, message, ...optionalParams)
 }

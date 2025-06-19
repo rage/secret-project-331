@@ -8,10 +8,8 @@ use crate::programs::seed::seed_helpers::{
 use anyhow::Result;
 use chrono::{TimeZone, Utc};
 
-use headless_lms_models::certificate_configuration_to_requirements;
-use headless_lms_models::{CourseOrExamId, certificate_configuration_to_requirements};
 use headless_lms_models::{
-    PKeyPolicy, certificate_configurations, chapters,
+    PKeyPolicy, certificate_configuration_to_requirements, certificate_configurations, chapters,
     chapters::NewChapter,
     course_instance_enrollments,
     course_instance_enrollments::NewCourseInstanceEnrollment,

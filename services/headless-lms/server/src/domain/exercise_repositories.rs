@@ -2,7 +2,6 @@ use anyhow::Context;
 use blake3::Hash;
 use git2::{
     CertificateCheckStatus, Cred, FetchOptions, RemoteCallbacks, Repository, build::RepoBuilder,
-    build::RepoBuilder,
 };
 use headless_lms_models::{exercise_repositories, repository_exercises};
 use headless_lms_utils::{

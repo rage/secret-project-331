@@ -345,7 +345,7 @@ SELECT
     c.is_draft,
     c.is_test_mode,
     c.base_module_completion_requires_n_submodule_completions,
-    can_add_chatbot,
+    c.can_add_chatbot,
     c.is_unlisted,
     c.is_joinable_by_code_only,
     c.join_code,

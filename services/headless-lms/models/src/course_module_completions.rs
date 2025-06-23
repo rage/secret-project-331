@@ -428,6 +428,37 @@ WHERE user_id = $1
     Ok(best_grade)
 }
 
+/// Finds the best grade
+pub fn select_best_completion(
+    completions: Vec<CourseModuleCompletion>,
+) -> Option<CourseModuleCompletion> {
+    completions.into_iter().max_by(|a, b| {
+        let score_a = match a.grade {
+            Some(grade) => grade as f32,
+            None => {
+                if a.passed {
+                    0.5
+                } else {
+                    -1.0
+                }
+            }
+        };
+        let score_b = match b.grade {
+            Some(grade) => grade as f32,
+            None => {
+                if b.passed {
+                    0.5
+                } else {
+                    -1.0
+                }
+            }
+        };
+        score_a
+            .partial_cmp(&score_b)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    })
+}
+
 /// Get the number of students that have completed the course
 pub async fn get_count_of_distinct_completors_by_course_id(
     conn: &mut PgConnection,

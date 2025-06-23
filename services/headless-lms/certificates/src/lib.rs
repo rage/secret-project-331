@@ -83,38 +83,38 @@ pub async fn generate_certificate(
     })?;
 
         if let Some(course_module_id) = requirements.course_module_ids.first() {
-            let grade_option = headless_lms_models::course_module_completions::get_best_completion_by_user_and_course_module_id(
-            conn,
-            certificate.user_id,
-            *course_module_id,
+            let completions = headless_lms_models::course_module_completions::get_all_by_user_id_and_course_module_id(
+        conn,
+        certificate.user_id,
+        *course_module_id,
+    )
+    .await
+    .map_err(|original_error| {
+        UtilError::new(
+            UtilErrorType::Other,
+            "No completion found for user".to_string(),
+            Some(original_error.into()),
         )
-        .await
-        .map_err(|original_error| {
-            UtilError::new(
-                UtilErrorType::Other,
-                "No certificate conf requirements".to_string(),
-                Some(original_error.into()),
-            )
-        })?;
+    })?;
+
+            let grade_option =
+                headless_lms_models::course_module_completions::select_best_completion(completions);
+
             rust_i18n::set_locale(&config.certificate_locale);
             let grade_label = t!("grade");
 
-            let grade_text = if let Some(grade) = grade_option {
+            grade_option.map(|grade| {
                 if let Some(numeral_grade) = grade.grade {
-                    Some(format!("{} {}", grade_label, numeral_grade))
+                    format!("{} {}", grade_label, numeral_grade)
                 } else {
                     let passed_text = if grade.passed {
                         t!("passed")
                     } else {
                         t!("failed")
                     };
-                    Some(format!("{} {}", grade_label, passed_text))
+                    format!("{} {}", grade_label, passed_text)
                 }
-            } else {
-                None
-            };
-
-            grade_text
+            })
         } else {
             None
         }

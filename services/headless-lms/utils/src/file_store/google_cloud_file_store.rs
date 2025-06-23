@@ -4,10 +4,10 @@ use crate::prelude::*;
 use async_trait::async_trait;
 use bytes::Bytes;
 use cloud_storage::Client;
-use futures::{future::try_join, StreamExt};
+use futures::{StreamExt, future::try_join};
 use tokio_stream::wrappers::ReceiverStream;
 
-use super::{generate_cache_folder_dir, path_to_str, FileStore, GenericPayload};
+use super::{FileStore, GenericPayload, generate_cache_folder_dir, path_to_str};
 
 const BUFFER_SIZE: usize = 512;
 
@@ -119,7 +119,7 @@ impl FileStore for GoogleCloudFileStore {
                     .collect::<Result<Vec<_>, _>>();
                 with_combined_result
                     .map(Bytes::from)
-                    .map_err(|err| std::io::Error::new(std::io::ErrorKind::Other, err))
+                    .map_err(std::io::Error::other)
             });
         Ok(Box::new(stream_with_corrected_type))
     }

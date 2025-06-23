@@ -71,7 +71,10 @@ impl fmt::Display for SearchFilterError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             SearchFilterError::ListNotSupportedInOData => {
-                write!(f, "List values can only be used with search.in operations, not as direct OData literals")
+                write!(
+                    f,
+                    "List values can only be used with search.in operations, not as direct OData literals"
+                )
             }
         }
     }
@@ -853,7 +856,7 @@ mod tests {
 
         // Example: Find all hotels within a given viewport described as a polygon
         let f = SearchFilter::raw(
-            "geo.intersects(Location, geography'POLYGON((-122.031577 47.578581, -122.031577 47.678581, -122.131577 47.678581, -122.031577 47.578581))')"
+            "geo.intersects(Location, geography'POLYGON((-122.031577 47.578581, -122.031577 47.678581, -122.131577 47.678581, -122.031577 47.578581))')",
         );
         assert_eq!(
             f.to_odata()?,

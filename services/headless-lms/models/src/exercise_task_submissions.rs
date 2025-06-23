@@ -1,10 +1,11 @@
 use std::collections::HashSet;
 
-use futures::{future::BoxFuture, Stream};
+use futures::{Stream, future::BoxFuture};
 use serde_json::Value;
 use url::Url;
 
 use crate::{
+    CourseOrExamId,
     exercise_service_info::{self, ExerciseServiceInfoApi},
     exercise_services, exercise_slide_submissions,
     exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
@@ -13,7 +14,6 @@ use crate::{
     peer_or_self_review_questions::PeerOrSelfReviewQuestion,
     peer_or_self_review_submissions::PeerOrSelfReviewSubmission,
     prelude::*,
-    CourseOrExamId,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]

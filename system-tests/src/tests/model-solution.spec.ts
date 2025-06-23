@@ -5,6 +5,7 @@ import expectUrlPathWithRandomUuid from "../utils/expect"
 import { getLocatorForNthExerciseServiceIframe } from "../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
+import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
@@ -12,9 +13,8 @@ test.describe("Model solutions", () => {
   test("model-solutions are displayed in submissions", async ({ page, headless }, testInfo) => {
     await page.goto("http://project-331.local/organizations")
 
-    await Promise.all([
-      await page.getByText("University of Helsinki, Department of Computer Science").click(),
-    ])
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science")
+
     await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
     await page.locator("[aria-label=\"Manage course 'Model solutions'\"] svg").click()
@@ -64,9 +64,8 @@ test.describe("Model solutions", () => {
   }, testInfo) => {
     await page.goto("http://project-331.local/organizations")
 
-    await Promise.all([
-      await page.getByText("University of Helsinki, Department of Computer Science").click(),
-    ])
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science")
+
     await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
     await page.getByText("Model solutions").click()

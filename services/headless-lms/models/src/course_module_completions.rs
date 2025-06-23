@@ -692,7 +692,8 @@ pub fn stream_by_course_module_id<'a>(
         .clone()
         .map(|o| o.id)
         .unwrap_or(Uuid::nil());
-    let res = sqlx::query_as!(
+
+    sqlx::query_as!(
         CourseModuleCompletion,
         r#"
 SELECT *
@@ -713,8 +714,7 @@ WHERE course_module_id = ANY($1)
         study_module_registrar_id,
     )
     .map(StudyRegistryCompletion::from)
-    .fetch(conn);
-    res
+    .fetch(conn)
 }
 
 pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {

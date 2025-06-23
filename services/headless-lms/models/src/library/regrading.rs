@@ -14,16 +14,15 @@ use sqlx::PgConnection;
 use url::Url;
 
 use crate::{
-    self as models,
+    self as models, ModelResult,
     exercise_service_info::ExerciseServiceInfo,
-    exercise_services::{get_internal_grade_url, ExerciseService},
+    exercise_services::{ExerciseService, get_internal_grade_url},
     exercise_task_gradings::{ExerciseTaskGrading, ExerciseTaskGradingResult},
     exercise_task_regrading_submissions::ExerciseTaskRegradingSubmission,
     exercise_task_submissions::ExerciseTaskSubmission,
     exercise_tasks::ExerciseTask,
     exercises::{Exercise, GradingProgress},
     prelude::*,
-    ModelResult,
 };
 
 type GradingFutures =
@@ -202,7 +201,9 @@ async fn do_single_regrading(
                 .await?;
         let exercise = models::exercises::get_by_id(&mut *conn, exercise_slide.exercise_id).await?;
         if exercise.exam_id.is_some() {
-            info!("Submission being regraded is from an exam, making sure we only give points from the last submission.");
+            info!(
+                "Submission being regraded is from an exam, making sure we only give points from the last submission."
+            );
             let exercise_slide_submission = models::exercise_slide_submissions::get_by_id(
                 &mut *conn,
                 submission.exercise_slide_submission_id,
@@ -216,7 +217,9 @@ async fn do_single_regrading(
                 )
                 .await?;
             if exercise_slide_submission.id != latest_submission.id {
-                info!("Exam submission being regraded is not the latest submission, refusing to grade it.");
+                info!(
+                    "Exam submission being regraded is not the latest submission, refusing to grade it."
+                );
                 models::exercise_task_gradings::set_grading_progress(
                     &mut *conn,
                     regrading_submission.id,

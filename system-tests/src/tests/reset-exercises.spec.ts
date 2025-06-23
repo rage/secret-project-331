@@ -1,6 +1,7 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import { scrollLocatorsParentIframeToViewIfNeeded } from "@/utils/iframeLocators"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -53,6 +54,14 @@ test("Can manually reset exercises", async () => {
   await student1Page.getByRole("button", { name: "Try again" }).waitFor({ state: "visible" })
   await student1Page.getByRole("button", { name: "Try again" }).click()
   await student1Page.getByRole("button", { name: "Try again" }).waitFor({ state: "hidden" })
+
+  await scrollLocatorsParentIframeToViewIfNeeded(
+    student1Page
+      .locator('iframe[title="Exercise 1\\, task 1 content"]')
+      .nth(1)
+      .contentFrame()
+      .getByRole("checkbox", { name: "b" }),
+  )
 
   await student1Page
     .locator('iframe[title="Exercise 1\\, task 1 content"]')

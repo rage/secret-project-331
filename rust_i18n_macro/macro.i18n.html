@@ -1,0 +1,32 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Init I18n translations."><title>i18n in rust_i18n_macro - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="rust_i18n_macro" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../static.files/storage-82c7156e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../rust_i18n_macro/index.html">rust_<wbr>i18n_<wbr>macro</a><span class="version">3.1.5</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">i18n</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#attributes" title="Attributes">Attributes</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="index.html">In crate rust_<wbr>i18n_<wbr>macro</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="index.html">rust_i18n_macro</a></div><h1>Macro <span class="macro">i18n</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/rust_i18n_macro/lib.rs.html#249-268">Source</a> </span></div><pre class="rust item-decl"><code>i18n!() { <span class="comment">/* proc-macro */</span> }</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Init I18n translations.</p>
+<p>This will load all translations by glob <code>**/*.yml</code> from the given path, default: <code>${CARGO_MANIFEST_DIR}/locales</code>.</p>
+<h2 id="attributes"><a class="doc-anchor" href="#attributes">§</a>Attributes</h2>
+<ul>
+<li><code>fallback</code> for set the fallback locale, if present <a href="macro.t.html"><code>t!</code></a> macro will use it as the fallback locale.</li>
+<li><code>backend</code> for set the backend, if present <a href="macro.t.html"><code>t!</code></a> macro will use it as the backend.</li>
+<li><code>metadata</code> to enable/disable loading of the [package.metadata.i18n] config from Cargo.toml, default: <code>true</code>.</li>
+<li><code>minify_key</code> for enable/disable minify key, default: <a href="constant.DEFAULT_MINIFY_KEY.html"><code>DEFAULT_MINIFY_KEY</code></a>.</li>
+<li><code>minify_key_len</code> for set the minify key length, default: <a href="constant.DEFAULT_MINIFY_KEY_LEN.html"><code>DEFAULT_MINIFY_KEY_LEN</code></a>,
+<ul>
+<li>The range of available values is from <code>0</code> to <code>24</code>.</li>
+</ul>
+</li>
+<li><code>minify_key_prefix</code> for set the minify key prefix, default: <a href="constant.DEFAULT_MINIFY_KEY_PREFIX.html"><code>DEFAULT_MINIFY_KEY_PREFIX</code></a>.</li>
+<li><code>minify_key_thresh</code> for set the minify key threshold, default: <a href="constant.DEFAULT_MINIFY_KEY_THRESH.html"><code>DEFAULT_MINIFY_KEY_THRESH</code></a>.
+<ul>
+<li>If the length of the value is less than or equal to this value, the value will not be minified.</li>
+</ul>
+</li>
+</ul>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro">i18n!</span>();
+<span class="macro">i18n!</span>(<span class="string">"locales"</span>);
+<span class="macro">i18n!</span>(<span class="string">"locales"</span>, fallback = <span class="string">"en"</span>);
+<span class="macro">i18n!</span>(<span class="string">"locales"</span>, fallback = [<span class="string">"en"</span>, <span class="string">"es"</span>]);
+<span class="macro">i18n!</span>(<span class="string">"locales"</span>, fallback = [<span class="string">"en"</span>, <span class="string">"es"</span>],
+      minify_key = <span class="bool-val">true</span>,
+      minify_key_len = <span class="number">12</span>,
+      minify_key_prefix = <span class="string">"t_"</span>,
+      minify_key_thresh = <span class="number">64</span>);
+<span class="macro">i18n!</span>();</code></pre></div>
+</div></details></section></div></main></body></html>

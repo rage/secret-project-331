@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["generate_certificate","generate_certificate_impl","generate_text_svg"],"mod":["date_utils","font_loader"],"struct":["TextToRender"]};
+window.SIDEBAR_ITEMS = {"fn":["generate_certificate","generate_certificate_impl","generate_text_svg"],"mod":["date_utils","font_loader"],"static":["_RUST_I18N_BACKEND","_RUST_I18N_FALLBACK_LOCALE","_RUST_I18N_MINIFY_KEY","_RUST_I18N_MINIFY_KEY_LEN","_RUST_I18N_MINIFY_KEY_PREFIX","_RUST_I18N_MINIFY_KEY_THRESH"],"struct":["TextToRender"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","enable_or_disable_certificate_generation","get_course_module","get_course_module_completion_information_for_user","get_course_module_completion_registration_link"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","enable_or_disable_certificate_generation","get_best_course_module_completion_for_user","get_course_module","get_course_module_completion_information_for_user","get_course_module_completion_registration_link"]};

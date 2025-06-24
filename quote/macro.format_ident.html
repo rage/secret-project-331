@@ -23,12 +23,12 @@ default. This trait is like <code>Display</code>, with a few differences:</p>
 <ul>
 <li><code>IdentFragment</code> is only implemented for a limited set of types, such as
 unsigned integers and strings.</li>
-<li><a href="../proc_macro2/struct.Ident.html" title="struct proc_macro2::Ident"><code>Ident</code></a> arguments will have their <code>r#</code> prefixes stripped, if present.</li>
+<li><a href="https://docs.rs/proc-macro2/1.0.95/proc_macro2/struct.Ident.html" title="struct proc_macro2::Ident"><code>Ident</code></a> arguments will have their <code>r#</code> prefixes stripped, if present.</li>
 </ul>
 <br>
 <h2 id="hygiene"><a class="doc-anchor" href="#hygiene">§</a>Hygiene</h2>
-<p>The <a href="../proc_macro2/struct.Span.html" title="struct proc_macro2::Span"><code>Span</code></a> of the first <code>Ident</code> argument is used as the span of the final
-identifier, falling back to <a href="../proc_macro2/struct.Span.html#method.call_site" title="associated function proc_macro2::Span::call_site"><code>Span::call_site</code></a> when no identifiers are
+<p>The <a href="https://docs.rs/proc-macro2/1.0.95/proc_macro2/struct.Span.html" title="struct proc_macro2::Span"><code>Span</code></a> of the first <code>Ident</code> argument is used as the span of the final
+identifier, falling back to <a href="https://docs.rs/proc-macro2/1.0.95/proc_macro2/struct.Span.html#method.call_site" title="associated function proc_macro2::Span::call_site"><code>Span::call_site</code></a> when no identifiers are
 provided.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">// If `ident` is an Ident, the span of `my_ident` will be inherited from it.

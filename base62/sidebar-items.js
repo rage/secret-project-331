@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["DecodeError","EncodeError"],"fn":["decode","decode_alternative","encode","encode_alternative","encode_alternative_buf","encode_alternative_bytes","encode_buf","encode_bytes","encode_fmt","encode_fmt_alt"]};

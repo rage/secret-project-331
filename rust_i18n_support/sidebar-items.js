@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["DEFAULT_MINIFY_KEY","DEFAULT_MINIFY_KEY_LEN","DEFAULT_MINIFY_KEY_PREFIX","DEFAULT_MINIFY_KEY_THRESH"],"fn":["is_debug","load_locales","minify_key"],"struct":["AtomicStr","CowStr","I18nConfig","SimpleBackend"],"trait":["Backend","BackendExt","MinifyKey"]};

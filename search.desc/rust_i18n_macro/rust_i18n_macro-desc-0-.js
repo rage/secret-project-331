@@ -1,0 +1,1 @@
+searchState.loadedDescShard("rust_i18n_macro", 0, "Init I18n translations.")

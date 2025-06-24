@@ -1,0 +1,325 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Rust I18n"><title>rust_i18n - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="rust_i18n" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../static.files/storage-82c7156e.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../rust_i18n/index.html">rust_<wbr>i18n</a><span class="version">3.1.5</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#rust-i18n" title="Rust I18n">Rust I18n</a><ul><li><a href="#features" title="Features">Features</a></li><li><a href="#usage" title="Usage">Usage</a></li><li><a href="#locale-file" title="Locale file">Locale file</a></li><li><a href="#example" title="Example">Example</a></li><li><a href="#i18n-ally" title="I18n Ally">I18n Ally</a></li><li><a href="#extractor" title="Extractor">Extractor</a></li><li><a href="#debugging-the-codegen-process" title="Debugging the Codegen Process">Debugging the Codegen Process</a></li><li><a href="#benchmark" title="Benchmark">Benchmark</a></li><li><a href="#use-cases" title="Use Cases">Use Cases</a></li><li><a href="#license" title="License">License</a></li></ul></li></ul><h3><a href="#macros">Crate Items</a></h3><ul class="block"><li><a href="#macros" title="Macros">Macros</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#constants" title="Constants">Constants</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>rust_i18n</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/rust_i18n/lib.rs.html#1-213">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="rust-i18n"><a class="doc-anchor" href="#rust-i18n">§</a>Rust I18n</h2>
+<p><a href="https://github.com/longbridge/rust-i18n/actions/workflows/ci.yml"><img src="https://github.com/longbridge/rust-i18n/actions/workflows/ci.yml/badge.svg" alt="CI" /></a> <a href="https://docs.rs/rust-i18n/"><img src="https://docs.rs/rust-i18n/badge.svg" alt="Docs" /></a> <a href="https://crates.io/crates/rust-i18n"><img src="https://img.shields.io/crates/v/rust-i18n.svg" alt="Crates.io" /></a></p>
+<blockquote>
+<p>🎯 Let’s make I18n things to easy!</p>
+</blockquote>
+<p>Rust I18n is a crate for loading localized text from a set of (YAML, JSON or TOML) mapping files. The mappings are converted into data readable by Rust programs at compile time, and then localized text can be loaded by simply calling the provided <a href="macro.t.html" title="macro rust_i18n::t"><code>t!</code></a> macro.</p>
+<p>Unlike other I18n libraries, Rust I18n’s goal is to provide a simple and easy-to-use API.</p>
+<p>The API of this crate is inspired by <a href="https://github.com/ruby-i18n/i18n">ruby-i18n</a> and <a href="https://guides.rubyonrails.org/i18n.html">Rails I18n</a>.</p>
+<h3 id="features"><a class="doc-anchor" href="#features">§</a>Features</h3>
+<ul>
+<li>Codegen on compile time for includes translations into binary.</li>
+<li>Global <a href="macro.t.html" title="macro rust_i18n::t"><code>t!</code></a> macro for loading localized text in everywhere.</li>
+<li>Use YAML (default), JSON or TOML format for mapping localized text, and support mutiple files merging.</li>
+<li><code>cargo i18n</code> Command line tool for checking and extract untranslated texts into YAML files.</li>
+<li>Support all localized texts in one file, or split into difference files by locale.</li>
+<li>Supports specifying a chain of fallback locales for missing translations.</li>
+<li>Supports automatic lookup of language territory for fallback locale. For instance, if <code>zh-CN</code> is not available, it will fallback to <code>zh</code>. (Since v2.4.0)</li>
+<li>Support short hashed keys for optimize memory usage and lookup speed. (Since v3.1.0)</li>
+<li>Support format variables in <a href="macro.t.html" title="macro rust_i18n::t"><code>t!</code></a>, and support format variables with <a href="https://doc.rust-lang.org/std/fmt/"><code>std::fmt</code></a> syntax. (Since v3.1.0)</li>
+<li>Support for log missing translations at the warning level with <code>log-miss-tr</code> feature, the feature requires the <code>log</code> crate. (Since v3.1.0)</li>
+</ul>
+<h3 id="usage"><a class="doc-anchor" href="#usage">§</a>Usage</h3>
+<p>Add crate dependencies in your Cargo.toml and setup I18n config:</p>
+<div class="example-wrap"><pre class="language-toml"><code>[dependencies]
+rust-i18n = &quot;3&quot;</code></pre></div>
+<p>Load macro and init translations in <code>lib.rs</code> or <code>main.rs</code>:</p>
+
+<div class="example-wrap compile_fail"><a href="#" class="tooltip" title="This example deliberately fails to compile">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="comment">// Load I18n macro, for allow you use `t!` macro in anywhere.
+</span><span class="attr">#[macro_use]
+</span><span class="kw">extern crate </span>rust_i18n;
+
+<span class="comment">// Init translations for current crate.
+// This will load Configuration using the `[package.metadata.i18n]` section in `Cargo.toml` if exists.
+// Or you can pass arguments by `i18n!` to override it.
+</span><span class="macro">i18n!</span>(<span class="string">"locales"</span>);
+
+<span class="comment">// Config fallback missing translations to "en" locale.
+// Use `fallback` option to set fallback locale.
+//
+</span><span class="macro">i18n!</span>(<span class="string">"locales"</span>, fallback = <span class="string">"en"</span>);
+
+<span class="comment">// Or more than one fallback with priority.
+//
+</span><span class="macro">i18n!</span>(<span class="string">"locales"</span>, fallback = [<span class="string">"en"</span>, <span class="string">"es"</span>]);
+
+<span class="comment">// Use a short hashed key as an identifier for long string literals
+// to optimize memory usage and lookup speed.
+// The key generation algorithm is `${Prefix}${Base62(SipHash13("msg"))}`.
+</span><span class="macro">i18n!</span>(<span class="string">"locales"</span>, minify_key = <span class="bool-val">true</span>);
+<span class="comment">//
+// Alternatively, you can customize the key length, prefix,
+// and threshold for the short hashed key.
+</span><span class="macro">i18n!</span>(<span class="string">"locales"</span>,
+      minify_key = <span class="bool-val">true</span>,
+      minify_key_len = <span class="number">12</span>,
+      minify_key_prefix = <span class="string">"t_"</span>,
+      minify_key_thresh = <span class="number">64
+</span>);
+<span class="comment">// Now, if the message length exceeds 64, the `t!` macro will automatically generate
+// a 12-byte short hashed key with a "t_" prefix for it, if not, it will use the original.
+
+// If no any argument, use config from Cargo.toml or default.
+</span><span class="macro">i18n!</span>();</code></pre></div>
+<p>Or you can import by use directly:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">// You must import in each files when you wants use `t!` macro.
+</span><span class="kw">use </span>rust_i18n::t;
+
+<span class="macro">rust_i18n::i18n!</span>(<span class="string">"locales"</span>);
+
+<span class="kw">fn </span>main() {
+    <span class="comment">// Find the translation for the string literal `Hello` using the manually provided key `hello`.
+    </span><span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="macro">t!</span>(<span class="string">"hello"</span>));
+
+    <span class="comment">// Use `available_locales!` method to get all available locales.
+    </span><span class="macro">println!</span>(<span class="string">"{:?}"</span>, <span class="macro">rust_i18n::available_locales!</span>());
+}</code></pre></div>
+<h3 id="locale-file"><a class="doc-anchor" href="#locale-file">§</a>Locale file</h3>
+<p>You can use <code>_version</code> key to specify the version (This version is the locale file version, not the rust-i18n version) of the locale file, and the default value is <code>1</code>.</p>
+<p>rust-i18n supports two style of config file, and those versions will always be keeping.</p>
+<ul>
+<li><code>_version: 1</code> - Split each locale into difference files, it is useful when your project wants to split to translate work.</li>
+<li><code>_version: 2</code> - Put all localized text into same file, it is easy to translate quickly by AI (e.g.: GitHub Copilot). When you write original text, just press Enter key, then AI will suggest you the translation text for other languages.</li>
+</ul>
+<p>You can choose as you like.</p>
+<h4 id="split-localized-texts-into-difference-files"><a class="doc-anchor" href="#split-localized-texts-into-difference-files">§</a>Split Localized Texts into Difference Files</h4>
+<blockquote>
+<p>_version: 1</p>
+</blockquote>
+<p>You can also split the each language into difference files, and you can choose (YAML, JSON, TOML), for example: <code>en.json</code>:</p>
+<div class="example-wrap"><pre class="language-bash"><code>.
+├── Cargo.lock
+├── Cargo.toml
+├── locales
+│   ├── zh-CN.yml
+│   ├── en.yml
+└── src
+│   └── main.rs</code></pre></div><div class="example-wrap"><pre class="language-yml"><code>_version: 1
+hello: &quot;Hello world&quot;
+messages.hello: &quot;Hello, %{name}&quot;
+t_4Cct6Q289b12SkvF47dXIx: &quot;Hello, %{name}&quot;</code></pre></div>
+<p>Or use JSON or TOML format, just rename the file to <code>en.json</code> or <code>en.toml</code>, and the content is like this:</p>
+<div class="example-wrap"><pre class="language-json"><code>{
+  &quot;_version&quot;: 1,
+  &quot;hello&quot;: &quot;Hello world&quot;,
+  &quot;messages.hello&quot;: &quot;Hello, %{name}&quot;,
+  &quot;t_4Cct6Q289b12SkvF47dXIx&quot;: &quot;Hello, %{name}&quot;
+}</code></pre></div><div class="example-wrap"><pre class="language-toml"><code>hello = &quot;Hello world&quot;
+t_4Cct6Q289b12SkvF47dXIx = &quot;Hello, %{name}&quot;
+
+[messages]
+hello = &quot;Hello, %{name}&quot;</code></pre></div><h4 id="all-localized-texts-in-one-file"><a class="doc-anchor" href="#all-localized-texts-in-one-file">§</a>All Localized Texts in One File</h4>
+<blockquote>
+<p>_version: 2</p>
+</blockquote>
+<p>Make sure all localized files (containing the localized mappings) are located in the <code>locales/</code> folder of the project root directory:</p>
+<div class="example-wrap"><pre class="language-bash"><code>.
+├── Cargo.lock
+├── Cargo.toml
+├── locales
+│   ├── app.yml
+│   ├── some-module.yml
+└── src
+│   └── main.rs
+└── sub_app
+│   └── locales
+│   │   └── app.yml
+│   └── src
+│   │   └── main.rs
+│   └── Cargo.toml</code></pre></div>
+<p>In the localized files, specify the localization keys and their corresponding values, for example, in <code>app.yml</code>:</p>
+<div class="example-wrap"><pre class="language-yml"><code>_version: 2
+hello:
+  en: Hello world
+  zh-CN: 你好世界
+messages.hello:
+  en: Hello, %{name}
+  zh-CN: 你好，%{name}
+# Generate short hashed keys using `minify_key=true, minify_key_thresh=10`
+t_4Cct6Q289b12SkvF47dXIx:
+  en: Hello, %{name}
+  zh-CN: 你好，%{name}</code></pre></div>
+<p>This is useful when you use <a href="https://github.com/features/copilot">GitHub Copilot</a>, after you write a first translated text, then Copilot will auto generate other locale’s translations for you.</p>
+<img src="https://user-images.githubusercontent.com/5518/262332592-7b6cf058-7ef4-4ec7-8dea-0aa3619ce6eb.gif" width="446" />
+<h4 id="get-localized-strings-in-rust"><a class="doc-anchor" href="#get-localized-strings-in-rust">§</a>Get Localized Strings in Rust</h4>
+<p>Import the <a href="macro.t.html" title="macro rust_i18n::t"><code>t!</code></a> macro from this crate into your current scope:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>rust_i18n::t;</code></pre></div>
+<p>Then, simply use it wherever a localized string is needed:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">// use rust_i18n::t;
+</span><span class="macro">t!</span>(<span class="string">"hello"</span>);
+<span class="comment">// =&gt; "Hello world"
+
+</span><span class="macro">t!</span>(<span class="string">"hello"</span>, locale = <span class="string">"zh-CN"</span>);
+<span class="comment">// =&gt; "你好世界"
+
+</span><span class="macro">t!</span>(<span class="string">"messages.hello"</span>, name = <span class="string">"world"</span>);
+<span class="comment">// =&gt; "Hello, world"
+
+</span><span class="macro">t!</span>(<span class="string">"messages.hello"</span>, <span class="string">"name" </span>=&gt; <span class="string">"world"</span>);
+<span class="comment">// =&gt; "Hello, world"
+
+</span><span class="macro">t!</span>(<span class="string">"messages.hello"</span>, locale = <span class="string">"zh-CN"</span>, name = <span class="string">"Jason"</span>, count = <span class="number">2</span>);
+<span class="comment">// =&gt; "你好，Jason (2)"
+
+</span><span class="macro">t!</span>(<span class="string">"messages.hello"</span>, locale = <span class="string">"zh-CN"</span>, <span class="string">"name" </span>=&gt; <span class="string">"Jason"</span>, <span class="string">"count" </span>=&gt; <span class="number">3 </span>+ <span class="number">2</span>);
+<span class="comment">// =&gt; "你好，Jason (5)"
+
+</span><span class="macro">t!</span>(<span class="string">"Hello, %{name}, you serial number is: %{sn}"</span>, name = <span class="string">"Jason"</span>, sn = <span class="number">123 </span>: {:<span class="number">08</span>});
+<span class="comment">// =&gt; "Hello, Jason, you serial number is: 000000123"</span></code></pre></div>
+<h4 id="current-locale"><a class="doc-anchor" href="#current-locale">§</a>Current Locale</h4>
+<p>You can use <a href="fn.set_locale.html" title="fn rust_i18n::set_locale"><code>rust_i18n::set_locale()</code></a> to set the global locale at runtime, so that you don’t have to specify the locale on each <a href="macro.t.html" title="macro rust_i18n::t"><code>t!</code></a> invocation.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code>rust_i18n::set_locale(<span class="string">"zh-CN"</span>);
+
+<span class="kw">let </span>locale = rust_i18n::locale();
+<span class="macro">assert_eq!</span>(<span class="kw-2">&amp;*</span>locale, <span class="string">"zh-CN"</span>);</code></pre></div>
+<h4 id="extend-backend"><a class="doc-anchor" href="#extend-backend">§</a>Extend Backend</h4>
+<p>Since v2.0.0 rust-i18n support extend backend for cusomize your translation implementation.</p>
+<p>For example, you can use HTTP API for load translations from remote server:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>rust_i18n::Backend;
+
+<span class="kw">pub struct </span>RemoteI18n {
+    trs: HashMap&lt;String, HashMap&lt;String, String&gt;&gt;,
+}
+
+<span class="kw">impl </span>RemoteI18n {
+    <span class="kw">fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="comment">// fetch translations from remote URL
+        </span><span class="kw">let </span>response = reqwest::blocking::get(<span class="string">"https://your-host.com/assets/locales.yml"</span>).unwrap();
+        <span class="kw">let </span>trs = serde_yaml::from_str::&lt;HashMap&lt;String, HashMap&lt;String, String&gt;&gt;&gt;(<span class="kw-2">&amp;</span>response.text().unwrap()).unwrap();
+
+        <span class="kw">return </span><span class="self">Self </span>{
+            trs
+        };
+    }
+}
+
+<span class="kw">impl </span>Backend <span class="kw">for </span>RemoteI18n {
+    <span class="kw">fn </span>available_locales(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="kw">return </span><span class="self">self</span>.trs.keys().map(|k| k.as_str()).collect();
+    }
+
+    <span class="kw">fn </span>translate(<span class="kw-2">&amp;</span><span class="self">self</span>, locale: <span class="kw-2">&amp;</span>str, key: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="comment">// Write your own lookup logic here.
+        // For example load from database
+        </span><span class="kw">return </span><span class="self">self</span>.trs.get(locale)<span class="question-mark">?</span>.get(key).map(|k| k.as_str());
+    }
+}</code></pre></div>
+<p>Now you can init rust_i18n by extend your own backend:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro">rust_i18n::i18n!</span>(<span class="string">"locales"</span>, backend = RemoteI18n::new());</code></pre></div>
+<p>This also will load local translates from ./locales path, but your own <code>RemoteI18n</code> will priority than it.</p>
+<p>Now you call <a href="macro.t.html" title="macro rust_i18n::t"><code>t!</code></a> will lookup translates from your own backend first, if not found, will lookup from local files.</p>
+<h3 id="example"><a class="doc-anchor" href="#example">§</a>Example</h3>
+<p>A minimal example of using rust-i18n can be found <a href="https://github.com/longbridge/rust-i18n/tree/main/examples">here</a>.</p>
+<h3 id="i18n-ally"><a class="doc-anchor" href="#i18n-ally">§</a>I18n Ally</h3>
+<p>I18n Ally is a VS Code extension for helping you translate your Rust project.</p>
+<p>You can add <a href="https://github.com/longbridge/rust-i18n/blob/main/.vscode/i18n-ally-custom-framework.yml">i18n-ally-custom-framework.yml</a> to your project <code>.vscode</code> directory, and then use I18n Ally can parse <code>t!</code> marco to show translate text in VS Code editor.</p>
+<h3 id="extractor"><a class="doc-anchor" href="#extractor">§</a>Extractor</h3>
+<blockquote>
+<p><strong>Experimental</strong></p>
+</blockquote>
+<p>We provided a <code>cargo i18n</code> command line tool for help you extract the untranslated texts from the source code and then write into YAML file.</p>
+<blockquote>
+<p>In current only output YAML, and use <code>_version: 2</code> format.</p>
+</blockquote>
+<p>You can install it via <code>cargo install rust-i18n-cli</code>, then you get <code>cargo i18n</code> command.</p>
+<div class="example-wrap"><pre class="language-bash"><code>$ cargo install rust-i18n-cli</code></pre></div><h4 id="extractor-config"><a class="doc-anchor" href="#extractor-config">§</a>Extractor Config</h4>
+<p>💡 NOTE: <code>package.metadata.i18n</code> config section in Cargo.toml is just work for <code>cargo i18n</code> command, if you don’t use that, you don’t need this config.</p>
+<div class="example-wrap"><pre class="language-toml"><code>[package.metadata.i18n]
+# The available locales for your application, default: [&quot;en&quot;].
+# available-locales = [&quot;en&quot;, &quot;zh-CN&quot;]
+
+# The default locale, default: &quot;en&quot;.
+# default-locale = &quot;en&quot;
+
+# Path for your translations YAML file, default: &quot;locales&quot;.
+# This config for let `cargo i18n` command line tool know where to find your translations.
+# You must keep this path same as the one you pass to method `rust_i18n::i18n!`.
+# load-path = &quot;locales&quot;</code></pre></div>
+<p>Rust I18n providered a <code>i18n</code> bin for help you extract the untranslated texts from the source code and then write into YAML file.</p>
+<div class="example-wrap"><pre class="language-bash"><code>$ cargo install rust-i18n-cli
+# Now you have `cargo i18n` command</code></pre></div>
+<p>After that the untranslated texts will be extracted and saved into <code>locales/TODO.en.yml</code> file.</p>
+<p>You also can special the locale by use <code>--locale</code> option:</p>
+<div class="example-wrap"><pre class="language-bash"><code>$ cd your_project_root_directory
+$ cargo i18n
+
+Checking [en] and generating untranslated texts...
+Found 1 new texts need to translate.
+----------------------------------------
+Writing to TODO.en.yml
+
+Checking [fr] and generating untranslated texts...
+Found 11 new texts need to translate.
+----------------------------------------
+Writing to TODO.fr.yml
+
+Checking [zh-CN] and generating untranslated texts...
+All thing done.
+
+Checking [zh-HK] and generating untranslated texts...
+Found 11 new texts need to translate.
+----------------------------------------
+Writing to TODO.zh-HK.yml</code></pre></div>
+<p>Run <code>cargo i18n -h</code> to see details.</p>
+<div class="example-wrap"><pre class="language-bash"><code>$ cargo i18n -h
+cargo-i18n 3.1.0
+---------------------------------------
+Rust I18n command to help you extract all untranslated texts from source code.
+
+It will iterate all Rust files in the source directory and extract all untranslated texts that used `t!` macro. Then it will generate a YAML file and merge with the existing translations.
+
+https://github.com/longbridge/rust-i18n
+
+Usage: cargo i18n [OPTIONS] [-- &lt;SOURCE&gt;]
+
+Arguments:
+  [SOURCE]
+          Extract all untranslated I18n texts from source code
+
+          [default: ./]
+
+Options:
+  -t, --translate &lt;TEXT&gt;...
+          Manually add a translation to the localization file.
+
+          This is useful for non-literal values in the `t!` macro.
+
+          For example, if you have `t!(format!(&quot;Hello, {}!&quot;, &quot;world&quot;))` in your code,
+          you can add a translation for it using `-t &quot;Hello, world!&quot;`,
+          or provide a translated message using `-t &quot;Hello, world! =&gt; Hola, world!&quot;`.
+
+          NOTE: The whitespace before and after the key and value will be trimmed.
+
+  -h, --help
+          Print help (see a summary with &#39;-h&#39;)
+
+  -V, --version
+          Print version</code></pre></div><h3 id="debugging-the-codegen-process"><a class="doc-anchor" href="#debugging-the-codegen-process">§</a>Debugging the Codegen Process</h3>
+<p>The <code>RUST_I18N_DEBUG</code> environment variable can be used to print out some debugging infos when code is being generated at compile time.</p>
+<div class="example-wrap"><pre class="language-bash"><code>$ RUST_I18N_DEBUG=1 cargo build</code></pre></div><h3 id="benchmark"><a class="doc-anchor" href="#benchmark">§</a>Benchmark</h3>
+<p>Benchmark <a href="macro.t.html" title="macro rust_i18n::t"><code>t!</code></a> method, result on MacBook Pro (2023, Apple M3):</p>
+<div class="example-wrap"><pre class="language-bash"><code>t                       time:   [32.637 ns 33.139 ns 33.613 ns]
+t_with_locale           time:   [24.616 ns 24.812 ns 25.071 ns]
+t_with_args             time:   [128.70 ns 128.97 ns 129.24 ns]
+t_with_args (str)       time:   [129.48 ns 130.08 ns 130.76 ns]
+t_with_args (many)      time:   [370.28 ns 374.46 ns 380.56 ns]
+t_with_threads          time:   [38.619 ns 39.506 ns 40.419 ns]
+t_lorem_ipsum           time:   [33.867 ns 34.286 ns 34.751 ns]</code></pre></div>
+<p>The result <code>101 ns (0.0001 ms)</code> means if there have <strong>10K</strong> translate texts, it will cost <code>1ms</code>.</p>
+<h3 id="use-cases"><a class="doc-anchor" href="#use-cases">§</a>Use Cases</h3>
+<ul>
+<li><a href="https://github.com/longbridge/longbridge-terminal">longbridge-terminal</a></li>
+<li><a href="https://github.com/topgrade-rs/topgrade">topgrade</a></li>
+<li><a href="https://github.com/fujiapple852/trippy">trippy</a></li>
+<li><a href="https://github.com/juspay/hyperswitch">hyperswitch</a></li>
+<li><a href="https://github.com/MirrorX-Desktop/MirrorX">MirrorX</a></li>
+</ul>
+<h3 id="license"><a class="doc-anchor" href="#license">§</a>License</h3>
+<p>MIT</p>
+</div></details><h2 id="macros" class="section-header">Macros<a href="#macros" class="anchor">§</a></h2><dl class="item-table"><dt><a class="macro" href="macro.available_locales.html" title="macro rust_i18n::available_locales">available_<wbr>locales</a></dt><dd>Get available locales</dd><dt><a class="macro" href="macro.t.html" title="macro rust_i18n::t">t</a></dt><dd>Get I18n text</dd><dt><a class="macro" href="macro.tkv.html" title="macro rust_i18n::tkv">tkv</a></dt><dd>A macro that generates a translation key and corresponding value pair from a given input value.</dd></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.AtomicStr.html" title="struct rust_i18n::AtomicStr">Atomic<wbr>Str</a></dt><dd>A thread-safe atomically reference-counting string.</dd><dt><a class="struct" href="struct.CowStr.html" title="struct rust_i18n::CowStr">CowStr</a></dt><dd>A wrapper for <code>Cow&lt;'a, str&gt;</code> that is specifically designed for use with the <code>t!</code> macro.</dd><dt><a class="struct" href="struct.SimpleBackend.html" title="struct rust_i18n::SimpleBackend">Simple<wbr>Backend</a></dt><dd>Simple KeyValue storage backend</dd></dl><h2 id="constants" class="section-header">Constants<a href="#constants" class="anchor">§</a></h2><dl class="item-table"><dt><a class="constant" href="constant.DEFAULT_MINIFY_KEY.html" title="constant rust_i18n::DEFAULT_MINIFY_KEY">DEFAULT_<wbr>MINIFY_<wbr>KEY</a></dt><dd>The default value of <code>minify_key</code> feature.</dd><dt><a class="constant" href="constant.DEFAULT_MINIFY_KEY_LEN.html" title="constant rust_i18n::DEFAULT_MINIFY_KEY_LEN">DEFAULT_<wbr>MINIFY_<wbr>KEY_<wbr>LEN</a></dt><dd>The length of auto-generated translation key</dd><dt><a class="constant" href="constant.DEFAULT_MINIFY_KEY_PREFIX.html" title="constant rust_i18n::DEFAULT_MINIFY_KEY_PREFIX">DEFAULT_<wbr>MINIFY_<wbr>KEY_<wbr>PREFIX</a></dt><dd>The prefix of auto-generated translation key</dd><dt><a class="constant" href="constant.DEFAULT_MINIFY_KEY_THRESH.html" title="constant rust_i18n::DEFAULT_MINIFY_KEY_THRESH">DEFAULT_<wbr>MINIFY_<wbr>KEY_<wbr>THRESH</a></dt><dd>The minimum length of the value to be generated the translation key</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.Backend.html" title="trait rust_i18n::Backend">Backend</a></dt><dd>I18n backend trait</dd><dt><a class="trait" href="trait.BackendExt.html" title="trait rust_i18n::BackendExt">Backend<wbr>Ext</a></dt><dt><a class="trait" href="trait.MinifyKey.html" title="trait rust_i18n::MinifyKey">Minify<wbr>Key</a></dt><dd>A trait for generating translation key from a value.</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.locale.html" title="fn rust_i18n::locale">locale</a></dt><dd>Get current locale</dd><dt><a class="fn" href="fn.replace_patterns.html" title="fn rust_i18n::replace_patterns">replace_<wbr>patterns</a></dt><dd>Replace patterns and return a new string.</dd><dt><a class="fn" href="fn.set_locale.html" title="fn rust_i18n::set_locale">set_<wbr>locale</a></dt><dd>Set current locale</dd></dl></section></div></main></body></html>

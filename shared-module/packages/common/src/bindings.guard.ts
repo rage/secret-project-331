@@ -4286,7 +4286,8 @@ export function isCreateAccountDetails(obj: unknown): obj is CreateAccountDetail
         typeof typedObj["language"] === "string" &&
         typeof typedObj["password"] === "string" &&
         typeof typedObj["password_confirmation"] === "string" &&
-        typeof typedObj["country"] === "string"
+        typeof typedObj["country"] === "string" &&
+        typeof typedObj["email_communication_consent"] === "boolean"
     )
 }
 

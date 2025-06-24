@@ -206,6 +206,7 @@
   "edit-reference": "Edit reference",
   "edit-role": "Edit role",
   "edited-by-on": "Edited by {{user}} on {{time}}",
+  "email-communication-consent-checkbox-text": "I consent to receiving email communication related to MOOC.fi courses and the development of the learning environment. Such communication may include, for example, notifications about new courses and services, newsletters, or invitations to user surveys.",
   "email-domain": "Email Domain",
   "enable-automatic-completion": "Enable automatic completion",
   "enable-generating-certificates": "Enable generating certificates",

@@ -217,6 +217,25 @@ WHERE user_id = $2
     Ok(())
 }
 
+pub async fn update_user_email_commucation_consent(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    email_communication_consent: bool,
+) -> Result<(), sqlx::Error> {
+    sqlx::query!(
+        r#"
+UPDATE user_details
+SET email_communication_consent = $1
+WHERE user_id = $2
+"#,
+        email_communication_consent,
+        user_id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 pub async fn update_user_info(
     conn: &mut PgConnection,
     user_id: Uuid,

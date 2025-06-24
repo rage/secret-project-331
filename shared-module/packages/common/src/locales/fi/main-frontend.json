@@ -200,6 +200,7 @@
   "edit-reference": "Muokkaa lähdeviitettä",
   "edit-role": "Muuta roolia",
   "edited-by-on": "Muokattu käyttäjän {{user}} toimesta {{time}}",
+  "email-communication-consent-checkbox-text": "Suostun siihen, että minulle lähetetään sähköpostitse viestintää, joka koskee MOOC.fi-palvelun kursseja ja oppimisympäristön kehittämistä. Viestintä voi sisältää esimerkiksi tiedotteita uusista kursseista ja palveluista, uutiskirjeitä tai kutsuja käyttäjäkyselyihin.",
   "email-domain": "Sähköpostidomain",
   "enable-automatic-completion": "Enable automatic completion",
   "enable-generating-certificates": "Salli sertifikaattien luonti",

@@ -61,6 +61,7 @@ pub struct CreateAccountDetails {
     pub password: String,
     pub password_confirmation: String,
     pub country: String,
+    pub email_communication_consent: bool,
 }
 
 /**
@@ -77,25 +78,70 @@ Content-Type: application/json
   "last_name": "Doe",
   "language": "en",
   "password": "hunter42",
-  "password_confirmation": "hunter42"
-  "country" : "Finland"
+  "password_confirmation": "hunter42",
+  "country" : "Finland",
+  "email_communication_consent": true
 }
 ```
 */
-#[instrument(skip(session, pool, client, payload))]
+#[instrument(skip(session, pool, client, payload, app_conf))]
 pub async fn signup(
     session: Session,
     payload: web::Json<CreateAccountDetails>,
     pool: web::Data<PgPool>,
     client: web::Data<OAuthClient>,
     user: Option<AuthUser>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<HttpResponse> {
+    let user_details = payload.0;
+    let mut conn = pool.acquire().await?;
+
+    if app_conf.test_mode {
+        warn!("Handling signup in test mode. No real account is created.");
+
+        let success = authorization::authenticate_test_user(
+            &mut conn,
+            &user_details.email,
+            &user_details.password,
+            &app_conf,
+        )
+        .await
+        .map_err(|e| {
+            ControllerError::new(
+                ControllerErrorType::Unauthorized,
+                "Could not find the test user. Have you seeded the database?".to_string(),
+                e,
+            )
+        })?;
+
+        if success {
+            let user = models::users::get_by_email(&mut conn, &user_details.email).await?;
+            // Update optional profile info
+            models::user_details::update_user_country(&mut conn, user.id, &user_details.country)
+                .await?;
+            models::user_details::update_user_email_commucation_consent(
+                &mut conn,
+                user.id,
+                user_details.email_communication_consent.clone(),
+            )
+            .await?;
+
+            authorization::remember(&session, user)?;
+            let token = skip_authorize();
+            return token.authorized_ok(HttpResponse::Ok().finish());
+        } else {
+            return Err(ControllerError::new(
+                ControllerErrorType::Unauthorized,
+                "Test user credentials are incorrect.".to_string(),
+                None,
+            ));
+        }
+    }
+
     if user.is_none() {
         // First create the actual user to tmc.mooc.fi and then fetch it from mooc.fi
-        let user_details = payload.0;
         post_new_user_to_moocfi(&user_details).await?;
 
-        let mut conn = pool.acquire().await?;
         let auth_result = authorization::authenticate_moocfi_user(
             &mut conn,
             &client,
@@ -107,6 +153,13 @@ pub async fn signup(
         if let Some((user, _token)) = auth_result {
             let country = user_details.country.clone();
             models::user_details::update_user_country(&mut conn, user.id, &country).await?;
+            let email_communication_consent = user_details.email_communication_consent.clone();
+            models::user_details::update_user_email_commucation_consent(
+                &mut conn,
+                user.id,
+                email_communication_consent,
+            )
+            .await?;
 
             let token = skip_authorize();
             authorization::remember(&session, user)?;

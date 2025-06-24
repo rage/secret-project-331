@@ -2102,6 +2102,7 @@ export interface CreateAccountDetails {
   password: string
   password_confirmation: string
   country: string
+  email_communication_consent: boolean
 }
 
 export interface Login {

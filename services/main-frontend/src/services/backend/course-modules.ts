@@ -3,6 +3,7 @@ import { mainFrontendClient } from "../mainFrontendClient"
 import {
   CompletionRegistrationLink,
   CourseModule,
+  CourseModuleCompletion,
   ModifiedModule,
   ModuleUpdates,
   NewModule,
@@ -11,6 +12,7 @@ import {
 import {
   isCompletionRegistrationLink,
   isCourseModule,
+  isCourseModuleCompletion,
   isUserCompletionInformation,
 } from "@/shared-module/common/bindings.guard"
 import { validateResponse } from "@/shared-module/common/utils/fetching"
@@ -62,4 +64,13 @@ export const setCertificationGeneration = async (id: string, enable: boolean): P
   } else {
     await mainFrontendClient.post(`/course-modules/${id}/set-certificate-generation/false`)
   }
+}
+
+export const fetchUserCourseModuleCompletion = async (
+  courseModuleId: string,
+): Promise<CourseModuleCompletion> => {
+  const response = await mainFrontendClient.get(
+    `/course-modules/${courseModuleId}/course-module-completion`,
+  )
+  return validateResponse(response, isCourseModuleCompletion)
 }

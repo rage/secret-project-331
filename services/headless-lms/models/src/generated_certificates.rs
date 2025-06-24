@@ -96,7 +96,7 @@ RETURNING *
         user_id,
         certificate_configuration_id,
         name_on_certificate,
-        verification_id
+        verification_id,
     )
     .fetch_one(conn)
     .await?;

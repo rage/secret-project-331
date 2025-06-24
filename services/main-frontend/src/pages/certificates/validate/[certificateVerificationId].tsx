@@ -41,6 +41,7 @@ const ModuleCertificateVerification: React.FC<React.PropsWithChildren<Props>> = 
     // This is expensive, so it doesn't make sense to retry
     retry: false,
   })
+
   return (
     <>
       {certificate.isError && <ErrorBanner error={certificate.error} variant={"readOnly"} />}

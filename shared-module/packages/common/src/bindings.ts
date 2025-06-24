@@ -2017,6 +2017,7 @@ export interface UserDetail {
   last_name: string | null
   search_helper: string | null
   country: string | null
+  email_communication_consent: boolean | null
 }
 
 export interface ExerciseUserCounts {

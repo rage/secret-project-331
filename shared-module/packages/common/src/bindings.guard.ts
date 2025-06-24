@@ -4133,7 +4133,10 @@ export function isUserDetail(obj: unknown): obj is UserDetail {
         (typedObj["search_helper"] === null ||
             typeof typedObj["search_helper"] === "string") &&
         (typedObj["country"] === null ||
-            typeof typedObj["country"] === "string")
+            typeof typedObj["country"] === "string") &&
+        (typedObj["email_communication_consent"] === null ||
+            typedObj["email_communication_consent"] === false ||
+            typedObj["email_communication_consent"] === true)
     )
 }
 

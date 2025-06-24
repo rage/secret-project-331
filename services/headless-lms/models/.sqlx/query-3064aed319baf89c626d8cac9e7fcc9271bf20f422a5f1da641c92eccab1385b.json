@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE user_details\nSET first_name = $1,\n  last_name = $2,\n  country = $3,\n  email_communication_consent = $4\nWHERE user_id = $5\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Varchar", "Varchar", "Varchar", "Bool", "Uuid"]
+    },
+    "nullable": []
+  },
+  "hash": "3064aed319baf89c626d8cac9e7fcc9271bf20f422a5f1da641c92eccab1385b"
+}

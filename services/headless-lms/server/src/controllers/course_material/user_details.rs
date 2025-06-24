@@ -27,6 +27,7 @@ pub struct UserInfoPayload {
     pub first_name: String,
     pub last_name: String,
     pub country: String,
+    pub email_communication_consent: bool,
 }
 
 /**
@@ -45,6 +46,7 @@ pub async fn update_user_info(
         &payload.first_name,
         &payload.last_name,
         &payload.country,
+        payload.email_communication_consent,
     )
     .await?;
 

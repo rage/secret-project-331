@@ -15,6 +15,7 @@ pub struct UserDetail {
     pub last_name: Option<String>,
     pub search_helper: Option<String>,
     pub country: Option<String>,
+    pub email_communication_consent: Option<bool>,
 }
 
 pub async fn get_user_details_by_user_id(
@@ -74,7 +75,8 @@ SELECT distinct (ud.user_id),
  ud.last_name,
  ud.email,
  ud.search_helper,
- ud.country
+ ud.country,
+ ud.email_communication_consent
 FROM user_details ud
 JOIN users u
   ON u.id = ud.user_id
@@ -148,7 +150,8 @@ SELECT user_id,
   first_name,
   last_name,
   search_helper,
-  country
+  country,
+  email_communication_consent
 FROM (
     SELECT *,
       LOWER($1) <<->search_helper AS dist
@@ -180,7 +183,8 @@ SELECT d.user_id,
   d.first_name,
   d.last_name,
   d.search_helper,
-  d.country
+  d.country,
+  d.email_communication_consent
 FROM course_instance_enrollments e
   JOIN user_details d ON e.user_id = d.user_id
 WHERE e.course_id = $1
@@ -219,18 +223,21 @@ pub async fn update_user_info(
     first_name: &str,
     last_name: &str,
     country: &str,
+    email_communication_consent: bool,
 ) -> Result<(), sqlx::Error> {
     sqlx::query!(
         r#"
 UPDATE user_details
 SET first_name = $1,
   last_name = $2,
-  country = $3
-WHERE user_id = $4
+  country = $3,
+  email_communication_consent = $4
+WHERE user_id = $5
 "#,
         first_name,
         last_name,
         country,
+        email_communication_consent,
         user_id,
     )
     .execute(conn)

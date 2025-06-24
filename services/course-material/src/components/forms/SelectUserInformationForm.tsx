@@ -1,9 +1,11 @@
+import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React, { useEffect } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { fetchCountryFromIP, updateUserInfo } from "@/services/backend"
+import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import SearchableSelectField from "@/shared-module/common/components/InputFields/SearchableSelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import StandardDialog from "@/shared-module/common/components/StandardDialog"
@@ -14,6 +16,7 @@ type SelectUserInfoFormFields = {
   first_name: string
   last_name: string
   country: string
+  emailCommunicationConsent: boolean
 }
 
 type SelectUserInfoFormProps = {
@@ -22,6 +25,7 @@ type SelectUserInfoFormProps = {
   firstName: string
   lastName: string
   country: string | null
+  emailCommunicationConsent: boolean
 }
 
 export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
@@ -30,6 +34,7 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
   firstName,
   lastName,
   country,
+  emailCommunicationConsent,
 }) => {
   const { t } = useTranslation()
   const { t: tCountries } = useTranslation("countries")
@@ -71,8 +76,8 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
 
   const postUserCountryMutation = useToastMutation<unknown, unknown, SelectUserInfoFormFields>(
     async (data) => {
-      const { first_name, last_name, country } = data
-      await updateUserInfo(first_name, last_name, country)
+      const { first_name, last_name, country, emailCommunicationConsent } = data
+      await updateUserInfo(first_name, last_name, country, emailCommunicationConsent)
     },
 
     {
@@ -152,6 +157,15 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
               />
             )}
           />
+
+          <CheckBox
+            className={css`
+              margin-top: 1rem;
+            `}
+            label={t("email-communication-consent-checkbox-text")}
+            defaultChecked={emailCommunicationConsent}
+            {...register("emailCommunicationConsent")}
+          ></CheckBox>
         </form>
       </StandardDialog>
     </>

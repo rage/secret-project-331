@@ -829,11 +829,13 @@ export const updateUserInfo = async (
   firstName: string,
   lastName: string,
   country: string,
+  emailCommunicationConsent: boolean,
 ): Promise<boolean> => {
   const response = await courseMaterialClient.post(`/user-details/update-user-info`, {
     country: country,
     first_name: firstName,
     last_name: lastName,
+    email_communication_consent: emailCommunicationConsent,
   })
   return validateResponse(response, isBoolean)
 }

@@ -239,27 +239,33 @@ WHERE user_id = $2
 pub async fn update_user_info(
     conn: &mut PgConnection,
     user_id: Uuid,
+    email: &str,
     first_name: &str,
     last_name: &str,
     country: &str,
     email_communication_consent: bool,
-) -> Result<(), sqlx::Error> {
-    sqlx::query!(
+) -> Result<UserDetail, sqlx::Error> {
+    let updated_user = sqlx::query_as!(
+        UserDetail,
         r#"
 UPDATE user_details
-SET first_name = $1,
-  last_name = $2,
-  country = $3,
-  email_communication_consent = $4
-WHERE user_id = $5
+SET email = $1,
+  first_name = $2,
+  last_name = $3,
+  country = $4,
+  email_communication_consent = $5
+WHERE user_id = $6
+RETURNING *
 "#,
+        email,
         first_name,
         last_name,
         country,
         email_communication_consent,
         user_id,
     )
-    .execute(conn)
+    .fetch_one(conn)
     .await?;
-    Ok(())
+
+    Ok(updated_user)
 }

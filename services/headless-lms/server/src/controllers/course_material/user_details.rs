@@ -24,6 +24,7 @@ pub async fn get_user_details(
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserInfoPayload {
+    pub email: String,
     pub first_name: String,
     pub last_name: String,
     pub country: String,
@@ -31,18 +32,19 @@ pub struct UserInfoPayload {
 }
 
 /**
-POST `/api/v0/course-material/user-details/update-user-info` - Updates the users first and last name and country to what they have selected
+POST `/api/v0/course-material/user-details/update-user-info` - Updates the users information such as email, name, country and email communication consent
 */
 #[instrument(skip(pool))]
 pub async fn update_user_info(
     user: AuthUser,
     pool: web::Data<PgPool>,
     payload: web::Json<UserInfoPayload>,
-) -> ControllerResult<web::Json<bool>> {
+) -> ControllerResult<web::Json<UserDetail>> {
     let mut conn = pool.acquire().await?;
-    models::user_details::update_user_info(
+    let res = models::user_details::update_user_info(
         &mut conn,
         user.id,
+        &payload.email,
         &payload.first_name,
         &payload.last_name,
         &payload.country,
@@ -51,7 +53,7 @@ pub async fn update_user_info(
     .await?;
 
     let token = skip_authorize();
-    token.authorized_ok(web::Json(true))
+    token.authorized_ok(web::Json(res))
 }
 
 /**

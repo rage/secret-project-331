@@ -221,6 +221,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
           <SelectUserInformationForm
             shouldAnswerMissingInfoForm={shouldAnswerMissingInfoForm}
             setShouldAnswerMissingInfoForm={setShouldAnswerMissingInfoForm}
+            email={userDetailsQuery.data?.email ?? ""}
             firstName={userDetailsQuery.data?.first_name ?? ""}
             lastName={userDetailsQuery.data?.last_name ?? ""}
             country={userDetailsQuery.data?.country ?? null}

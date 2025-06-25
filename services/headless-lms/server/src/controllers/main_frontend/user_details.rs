@@ -117,6 +117,22 @@ pub async fn get_users_by_course_id(
     token.authorized_ok(web::Json(res))
 }
 
+/**
+GET `/api/v0/main-frontend/user-details/[id]` - Find user details by user id
+*/
+#[instrument(skip(pool))]
+pub async fn get_user_details_for_user(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<UserDetail>> {
+    let mut conn = pool.acquire().await?;
+
+    let token = skip_authorize();
+    let user_id = user.id;
+    let res = models::user_details::get_user_details_by_user_id(&mut conn, user_id).await?;
+    token.authorized_ok(web::Json(res))
+}
+
 pub async fn get_user_country_by_ip(
     req: HttpRequest,
     ip_to_country_mapper: web::Data<IpToCountryMapper>,
@@ -136,6 +152,41 @@ pub async fn get_user_country_by_ip(
     token.authorized_ok(country)
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct UserInfoPayload {
+    pub email: String,
+    pub first_name: String,
+    pub last_name: String,
+    pub country: String,
+    pub email_communication_consent: bool,
+}
+
+/**
+POST `/api/v0/main-frontend/user-details/update-user-info` - Updates the users information such as email, name, country and email communication consent
+*/
+#[instrument(skip(pool))]
+pub async fn update_user_info(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    payload: web::Json<UserInfoPayload>,
+) -> ControllerResult<web::Json<UserDetail>> {
+    let mut conn = pool.acquire().await?;
+    let res = models::user_details::update_user_info(
+        &mut conn,
+        user.id,
+        &payload.email,
+        &payload.first_name,
+        &payload.last_name,
+        &payload.country,
+        payload.email_communication_consent,
+    )
+    .await?;
+
+    let token = skip_authorize();
+    token.authorized_ok(web::Json(res))
+}
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/search-by-email", web::post().to(search_users_by_email))
         .route(
@@ -148,6 +199,11 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route("/user/{user_id}", web::get().to(get_user_details))
         .route("/users-ip-country", web::get().to(get_user_country_by_ip))
+        .route(
+            "/user-details-for-user",
+            web::get().to(get_user_details_for_user),
+        )
+        .route("/update-user-info", web::post().to(update_user_info))
         .route(
             "/{course_id}/get-users-by-course-id",
             web::get().to(get_users_by_course_id),

@@ -116,13 +116,12 @@ pub async fn signup(
 
         if success {
             let user = models::users::get_by_email(&mut conn, &user_details.email).await?;
-            // Update optional profile info
             models::user_details::update_user_country(&mut conn, user.id, &user_details.country)
                 .await?;
             models::user_details::update_user_email_commucation_consent(
                 &mut conn,
                 user.id,
-                user_details.email_communication_consent.clone(),
+                user_details.email_communication_consent,
             )
             .await?;
 
@@ -153,11 +152,10 @@ pub async fn signup(
         if let Some((user, _token)) = auth_result {
             let country = user_details.country.clone();
             models::user_details::update_user_country(&mut conn, user.id, &country).await?;
-            let email_communication_consent = user_details.email_communication_consent.clone();
             models::user_details::update_user_email_commucation_consent(
                 &mut conn,
                 user.id,
-                email_communication_consent,
+                user_details.email_communication_consent,
             )
             .await?;
 

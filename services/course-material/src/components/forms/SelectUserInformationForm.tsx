@@ -13,6 +13,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import countries from "@/shared-module/common/locales/en/countries.json"
 
 type SelectUserInfoFormFields = {
+  email: string
   first_name: string
   last_name: string
   country: string
@@ -22,6 +23,7 @@ type SelectUserInfoFormFields = {
 type SelectUserInfoFormProps = {
   shouldAnswerMissingInfoForm: boolean
   setShouldAnswerMissingInfoForm: (shouldAnswerMissingInfoForm: boolean) => void
+  email: string
   firstName: string
   lastName: string
   country: string | null
@@ -31,6 +33,7 @@ type SelectUserInfoFormProps = {
 export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
   shouldAnswerMissingInfoForm,
   setShouldAnswerMissingInfoForm,
+  email,
   firstName,
   lastName,
   country,
@@ -45,6 +48,7 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
     control,
     reset,
     register,
+    setValue,
     // eslint-disable-next-line i18next/no-literal-string
   } = useForm<SelectUserInfoFormFields>({ mode: "onChange" })
 
@@ -56,11 +60,16 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
       })),
     [tCountries],
   )
+  const selectedCountry = countriesOptions.find((opt) => opt.value === country)?.label
 
   const preFillCountry = useQuery({
     queryKey: [`users-ip-country`],
     queryFn: () => fetchCountryFromIP(),
   })
+
+  useEffect(() => {
+    setValue("email", email)
+  }, [email, setValue])
 
   useEffect(() => {
     const currentCountry = country ?? preFillCountry.data
@@ -73,11 +82,10 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
       })
     }
   }, [country, preFillCountry.data, reset])
-
   const postUserCountryMutation = useToastMutation<unknown, unknown, SelectUserInfoFormFields>(
     async (data) => {
-      const { first_name, last_name, country, emailCommunicationConsent } = data
-      await updateUserInfo(first_name, last_name, country, emailCommunicationConsent)
+      const { email, first_name, last_name, country, emailCommunicationConsent } = data
+      await updateUserInfo(email, first_name, last_name, country, emailCommunicationConsent)
     },
 
     {
@@ -153,7 +161,7 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
                 value={field.value}
                 error={errors.country?.message}
                 required={true}
-                placeholder={t("select-a-country")}
+                placeholder={selectedCountry ?? t("select-a-country")}
               />
             )}
           />

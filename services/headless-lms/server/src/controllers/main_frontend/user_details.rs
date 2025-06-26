@@ -1,6 +1,6 @@
 use models::{pages::SearchRequest, user_details::UserDetail};
 
-use crate::prelude::*;
+use crate::{controllers, prelude::*};
 use headless_lms_utils::ip_to_country::IpToCountryMapper;
 use std::net::IpAddr;
 
@@ -171,9 +171,9 @@ pub async fn update_user_info(
     pool: web::Data<PgPool>,
     payload: web::Json<UserInfoPayload>,
 ) -> ControllerResult<web::Json<UserDetail>> {
-    let mut conn = pool.acquire().await?;
-    let res = models::user_details::update_user_info(
-        &mut conn,
+    let mut tx = pool.begin().await?;
+    let updated_user = models::user_details::update_user_info(
+        &mut tx,
         user.id,
         &payload.email,
         &payload.first_name,
@@ -181,10 +181,20 @@ pub async fn update_user_info(
         &payload.country,
         payload.email_communication_consent,
     )
-    .await?;
+    .await
+    .context("Failed to update database")?;
 
+    controllers::auth::update_user_information_to_moocfi(
+        payload.first_name.clone(),
+        payload.last_name.clone(),
+        payload.email.clone(),
+    )
+    .await
+    .context("Failed to update user info to MOOC.fi")?;
+
+    tx.commit().await?;
     let token = skip_authorize();
-    token.authorized_ok(web::Json(res))
+    token.authorized_ok(web::Json(updated_user))
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

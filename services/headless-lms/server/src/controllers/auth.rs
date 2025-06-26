@@ -382,6 +382,56 @@ pub async fn post_new_user_to_moocfi(user_details: &CreateAccountDetails) -> any
     }
 }
 
+/// Puts updated user information to tmc.mooc.fi.
+pub async fn update_user_information_to_moocfi(
+    first_name: String,
+    last_name: String,
+    email: String,
+) -> anyhow::Result<()> {
+    let tmc_api_url = "https://tmc.mooc.fi/api/v8/users/current";
+    let access_token = env::var("TMC_ACCESS_TOKEN").expect("TMC_ACCESS_TOKEN must be defined");
+
+    let ratelimit_api_key = env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
+        .expect("RATELIMIT_PROTECTION_SAFE_API_KEY must be defined");
+
+    let tmc_client = Client::default();
+
+    let json = serde_json::json!({
+        "user": {
+            "email": email,
+        },
+        "user_field": {
+            "first_name": first_name,
+            "last_name": last_name
+        },
+    });
+
+    let res = tmc_client
+        .put(tmc_api_url)
+        .bearer_auth(access_token)
+        .header("RATELIMIT-PROTECTION-SAFE-API-KEY", ratelimit_api_key)
+        .header(reqwest::header::CONTENT_TYPE, "application/json")
+        .header(reqwest::header::ACCEPT, "application/json")
+        .json(&json)
+        .send()
+        .await
+        .context("Failed to send request to https://tmc.mooc.fi")?;
+
+    if res.status().is_success() {
+        Ok(())
+    } else {
+        let status = res.status();
+        let error_text = res
+            .text()
+            .await
+            .unwrap_or_else(|e| format!("(Failed to read error body: {e})"));
+
+        Err(anyhow::anyhow!(
+            "MOOC.fi update failed with status {status}: {error_text}"
+        ))
+    }
+}
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.service(
         web::resource("/signup")

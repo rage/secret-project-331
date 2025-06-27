@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT user_id,\n  created_at,\n  updated_at,\n  email,\n  first_name,\n  last_name,\n  search_helper,\n  country\nFROM (\n    SELECT *,\n      LOWER($1) <<->search_helper AS dist\n    FROM user_details\n    ORDER BY dist, LENGTH(search_helper)\n    LIMIT 100\n  ) search\nWHERE dist < 0.7;\n",
+  "query": "\nUPDATE user_details\nSET email = $1,\n  first_name = $2,\n  last_name = $3,\n  country = $4,\n  email_communication_consent = $5\nWHERE user_id = $6\nRETURNING *\n",
   "describe": {
     "columns": [
       {
@@ -20,17 +20,17 @@
       },
       {
         "ordinal": 3,
-        "name": "email",
-        "type_info": "Varchar"
-      },
-      {
-        "ordinal": 4,
         "name": "first_name",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 5,
+        "ordinal": 4,
         "name": "last_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "email",
         "type_info": "Varchar"
       },
       {
@@ -42,12 +42,17 @@
         "ordinal": 7,
         "name": "country",
         "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "email_communication_consent",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
-      "Left": ["Text"]
+      "Left": ["Varchar", "Varchar", "Varchar", "Varchar", "Bool", "Uuid"]
     },
-    "nullable": [false, false, false, false, true, true, true, true]
+    "nullable": [false, false, false, true, true, false, true, true, false]
   },
-  "hash": "e956c8b9bac1bfdc72331806c764602bc164d9c90513053ad79a2a667c7b241f"
+  "hash": "324f84dc27091de9c28374ab2b9bdbc77567c3d0bef342b50ae4b0d68a922ea0"
 }

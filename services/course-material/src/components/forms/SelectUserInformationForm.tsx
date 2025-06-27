@@ -1,9 +1,11 @@
+import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React, { useEffect } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { fetchCountryFromIP, updateUserInfo } from "@/services/backend"
+import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import SearchableSelectField from "@/shared-module/common/components/InputFields/SearchableSelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import StandardDialog from "@/shared-module/common/components/StandardDialog"
@@ -11,25 +13,31 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import countries from "@/shared-module/common/locales/en/countries.json"
 
 type SelectUserInfoFormFields = {
+  email: string
   first_name: string
   last_name: string
   country: string
+  emailCommunicationConsent: boolean
 }
 
 type SelectUserInfoFormProps = {
   shouldAnswerMissingInfoForm: boolean
   setShouldAnswerMissingInfoForm: (shouldAnswerMissingInfoForm: boolean) => void
+  email: string
   firstName: string
   lastName: string
   country: string | null
+  emailCommunicationConsent: boolean
 }
 
 export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
   shouldAnswerMissingInfoForm,
   setShouldAnswerMissingInfoForm,
+  email,
   firstName,
   lastName,
   country,
+  emailCommunicationConsent,
 }) => {
   const { t } = useTranslation()
   const { t: tCountries } = useTranslation("countries")
@@ -40,6 +48,7 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
     control,
     reset,
     register,
+    setValue,
     // eslint-disable-next-line i18next/no-literal-string
   } = useForm<SelectUserInfoFormFields>({ mode: "onChange" })
 
@@ -51,11 +60,16 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
       })),
     [tCountries],
   )
+  const selectedCountry = countriesOptions.find((opt) => opt.value === country)?.label
 
   const preFillCountry = useQuery({
     queryKey: [`users-ip-country`],
     queryFn: () => fetchCountryFromIP(),
   })
+
+  useEffect(() => {
+    setValue("email", email)
+  }, [email, setValue])
 
   useEffect(() => {
     const currentCountry = country ?? preFillCountry.data
@@ -68,11 +82,10 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
       })
     }
   }, [country, preFillCountry.data, reset])
-
   const postUserCountryMutation = useToastMutation<unknown, unknown, SelectUserInfoFormFields>(
     async (data) => {
-      const { first_name, last_name, country } = data
-      await updateUserInfo(first_name, last_name, country)
+      const { email, first_name, last_name, country, emailCommunicationConsent } = data
+      await updateUserInfo(email, first_name, last_name, country, emailCommunicationConsent)
     },
 
     {
@@ -148,10 +161,19 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
                 value={field.value}
                 error={errors.country?.message}
                 required={true}
-                placeholder={t("select-a-country")}
+                placeholder={selectedCountry ?? t("select-a-country")}
               />
             )}
           />
+
+          <CheckBox
+            className={css`
+              margin-top: 1rem;
+            `}
+            label={t("email-communication-consent-checkbox-text")}
+            defaultChecked={emailCommunicationConsent}
+            {...register("emailCommunicationConsent")}
+          ></CheckBox>
         </form>
       </StandardDialog>
     </>

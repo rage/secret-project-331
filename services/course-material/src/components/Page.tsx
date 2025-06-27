@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/router"
-import React, { useContext, useEffect, useState } from "react"
+import React, { useContext, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { GlossaryContext, GlossaryState } from "../contexts/GlossaryContext"
@@ -26,11 +26,11 @@ import HeadingsNavigation from "./HeadingsNavigation"
 import ReferenceList from "./ReferencesList"
 import Chatbot from "./chatbot"
 import SelectResearchConsentForm from "./forms/SelectResearchConsentForm"
-// import SelectUserInformationForm from "./forms/SelectUserInformationForm"
+import SelectUserInformationForm from "./forms/SelectUserInformationForm"
 import CourseSettingsModal from "./modals/CourseSettingsModal"
 import UserOnWrongCourseNotification from "./notifications/UserOnWrongCourseNotification"
 
-// import { useUserDetails } from "@/hooks/useUserDetails"
+import { useUserDetails } from "@/hooks/useUserDetails"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
@@ -74,7 +74,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
 
   const [showResearchConsentForm, setShowResearchConsentForm] = useState<boolean>(false)
   const [shouldAnswerResearchForm, setShouldAnswerResearchForm] = useState<boolean>(false)
-  // const [shouldAnswerMissingInfoForm, setShouldAnswerMissingInfoForm] = useState<boolean>(false)
+  const [shouldAnswerMissingInfoForm, setShouldAnswerMissingInfoForm] = useState<boolean>(false)
 
   const [hasAnsweredForm, setHasAnsweredForm] = useState<boolean>(false)
   const researchFormQueryParam = useQueryParameter("show_research_form")
@@ -114,9 +114,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
     enabled: loginContext.signedIn === true && Boolean(courseId),
   })
 
-  /*
   const userDetailsQuery = useUserDetails()
-
 
   useMemo(() => {
     if (
@@ -131,7 +129,6 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
     userDetailsQuery.data?.first_name,
     userDetailsQuery.data?.last_name,
   ])
-  */
 
   useEffect(() => {
     if (
@@ -220,15 +217,17 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
             />
           )}
 
-        {/* {shouldAnswerMissingInfoForm && (
+        {shouldAnswerMissingInfoForm && (
           <SelectUserInformationForm
             shouldAnswerMissingInfoForm={shouldAnswerMissingInfoForm}
             setShouldAnswerMissingInfoForm={setShouldAnswerMissingInfoForm}
+            email={userDetailsQuery.data?.email ?? ""}
             firstName={userDetailsQuery.data?.first_name ?? ""}
             lastName={userDetailsQuery.data?.last_name ?? ""}
             country={userDetailsQuery.data?.country ?? null}
+            emailCommunicationConsent={userDetailsQuery.data?.email_communication_consent ?? false}
           />
-        )}*/}
+        )}
         {getPageAudioFiles.isSuccess && tracks.length !== 0 && (
           <AudioNotification>
             <p>{t("audio-notification-description")}</p>

@@ -552,15 +552,25 @@ const permissionContent = (
     <div
       className={css`
         display: flex;
-        justify-content: space-between;
-        align-items: center;
+        flex-direction: column;
+        align-items: flex-start;
         margin-bottom: 24px;
+
+        ${respondToOrLarger.lg} {
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: center;
+        }
       `}
     >
       <h2
         className={css`
           font-size: 18px;
           margin-bottom: 16px;
+
+          ${respondToOrLarger.lg} {
+            margin-bottom: 0;
+          }
         `}
       >
         Organization Permissions
@@ -572,85 +582,28 @@ const permissionContent = (
 
     <div
       className={css`
-        display: grid;
-        grid-template-columns: 1fr 2fr 2fr 1fr;
-        font-size: 14px;
-        margin-bottom: 16px;
-        opacity: 0.8;
+        overflow-x: auto;
+        width: 100%;
       `}
     >
-      <div>Name</div>
-      <div>Email</div>
-      <div>Role</div>
-      <div>Actions</div>
-    </div>
-
-    <hr
-      className={css`
-        border: 1px solid #ced1d7;
-        margin-bottom: 16px;
-      `}
-    />
-
-    {users.map((user, index) => (
-      <div key={index}>
+      <div
+        className={css`
+          min-width: 600px; /* Or adjust based on your grid */
+        `}
+      >
         <div
           className={css`
             display: grid;
-            grid-template-columns: 1fr 2fr 2fr auto;
+            grid-template-columns: 1fr 2fr 2fr 1fr;
             font-size: 14px;
             margin-bottom: 16px;
             opacity: 0.8;
-            column-gap: 4px;
-            ${respondToOrLarger.lg} {
-              grid-template-columns: 1fr 2fr 2fr 1fr;
-            }
           `}
         >
-          <div
-            className={css`
-              overflow-x: auto;
-              white-space: nowrap;
-            `}
-          >
-            {user.name}
-          </div>
-          <div
-            className={css`
-              overflow-x: auto;
-              white-space: nowrap;
-            `}
-          >
-            {user.email}
-          </div>
-          <div
-            className={css`
-              overflow-x: auto;
-              white-space: nowrap;
-            `}
-          >
-            {user.role}
-          </div>
-
-          <div
-            className={css`
-              display: flex;
-              gap: 0px;
-              justify-content: flex-end;
-              ${respondToOrLarger.lg} {
-                gap: 8px;
-                justify-content: unset;
-              }
-            `}
-          >
-            <button className={actionButtonStyle} onClick={() => handleEdit(user)}>
-              <PencilBox width={16} height={16} />
-            </button>
-
-            <button className={actionButtonStyle} onClick={() => handleDelete(user)}>
-              <Trash width={16} height={16} />
-            </button>
-          </div>
+          <div>Name</div>
+          <div>Email</div>
+          <div>Role</div>
+          <div>Actions</div>
         </div>
 
         <hr
@@ -659,8 +612,56 @@ const permissionContent = (
             margin-bottom: 16px;
           `}
         />
+
+        {users.map((user, index) => (
+          <div key={index}>
+            <div
+              className={css`
+                display: grid;
+                grid-template-columns: 1fr 2fr 2fr auto;
+                font-size: 14px;
+                margin-bottom: 16px;
+                opacity: 0.8;
+                column-gap: 4px;
+                ${respondToOrLarger.lg} {
+                  grid-template-columns: 1fr 2fr 2fr 1fr;
+                }
+              `}
+            >
+              <div>{user.name}</div>
+              <div>{user.email}</div>
+              <div>{user.role}</div>
+              <div
+                className={css`
+                  display: flex;
+                  gap: 0px;
+                  justify-content: flex-end;
+                  ${respondToOrLarger.lg} {
+                    gap: 8px;
+                    justify-content: unset;
+                  }
+                `}
+              >
+                <button className={actionButtonStyle} onClick={() => handleEdit(user)}>
+                  <PencilBox width={16} height={16} />
+                </button>
+
+                <button className={actionButtonStyle} onClick={() => handleDelete(user)}>
+                  <Trash width={16} height={16} />
+                </button>
+              </div>
+            </div>
+
+            <hr
+              className={css`
+                border: 1px solid #ced1d7;
+                margin-bottom: 16px;
+              `}
+            />
+          </div>
+        ))}
       </div>
-    ))}
+    </div>
   </div>
 )
 

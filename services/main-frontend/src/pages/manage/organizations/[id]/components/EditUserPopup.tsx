@@ -27,7 +27,8 @@ const EditUserPopup: React.FC<EditUserPopupProps> = ({
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
-    width: "843px",
+    width: "90%",
+    maxWidth: "843px",
     background: "#ffffff",
     boxShadow: "0px 8px 40px rgba(0, 0, 0, 0.1)",
     borderRadius: "3px",
@@ -86,80 +87,101 @@ const EditUserPopup: React.FC<EditUserPopupProps> = ({
           margin-bottom: 32px;
         `}
       >
-        Change the role for <strong>{name}</strong> ({email}).
+        You can change the role of this user. Email and name are shown for reference.
       </p>
 
       <div
         className={css`
           display: flex;
+          flex-direction: column;
           gap: 24px;
           margin-bottom: 32px;
         `}
       >
+        {/* Name Row */}
         <div
           className={css`
-            flex: 1;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            margin-bottom: 12px;
+            gap: 12px;
           `}
         >
-          <label>Name</label>
-          <div
+          <label
             className={css`
-              padding: 8px 12px;
               font-size: 14px;
-              border: 1.6px solid #e4e5e8;
-              border-radius: 2px;
-              background: #f5f5f5;
+              width: 60px;
+            `}
+          >
+            Name
+          </label>
+          <span
+            className={css`
+              font-size: 14px;
+              word-break: break-word;
             `}
           >
             {name}
-          </div>
+          </span>
         </div>
 
+        {/* Email Row */}
         <div
           className={css`
-            flex: 1;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            margin-bottom: 12px;
+            gap: 12px;
           `}
         >
-          <label>Email</label>
-          <div
+          <label
             className={css`
-              padding: 8px 12px;
               font-size: 14px;
-              border: 1.6px solid #e4e5e8;
-              border-radius: 2px;
-              background: #f5f5f5;
-              word-break: break-all;
+              width: 60px;
+            `}
+          >
+            Email
+          </label>
+          <span
+            className={css`
+              font-size: 14px;
+              word-break: break-word;
             `}
           >
             {email}
-          </div>
+          </span>
         </div>
-      </div>
 
-      <div
-        className={css`
-          margin-bottom: 32px;
-          display: flex;
-          flex-direction: column;
-        `}
-      >
-        <label>New Role</label>
-        <input
-          type="text"
-          placeholder="Select role"
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
+        {/* Role */}
+        <div
           className={css`
-            border: 1.6px solid #e4e5e8;
-            border-radius: 2px;
-            padding: 8px 12px;
-            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
           `}
-        />
+        >
+          <label
+            className={css`
+              font-size: 14px;
+              width: 60px;
+            `}
+          >
+            Role
+          </label>
+          <input
+            type="text"
+            placeholder="Select role"
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            className={css`
+              border: 1.6px solid #e4e5e8;
+              border-radius: 2px;
+              padding: 8px 12px;
+              font-size: 14px;
+              flex: 1;
+            `}
+          />
+        </div>
       </div>
 
       <div
@@ -172,7 +194,6 @@ const EditUserPopup: React.FC<EditUserPopupProps> = ({
         <button onClick={handleSave} className={primaryButton}>
           Save
         </button>
-
         <button
           onClick={() => setShow(false)}
           className={css`

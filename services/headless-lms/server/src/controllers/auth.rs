@@ -13,7 +13,7 @@ use crate::{
     prelude::*,
 };
 use actix_session::Session;
-use reqwest::Client;
+use headless_lms_utils::tmc::TmcClient;
 use std::{env, time::Duration};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
@@ -92,6 +92,7 @@ pub async fn signup(
     client: web::Data<OAuthClient>,
     user: Option<AuthUser>,
     app_conf: web::Data<ApplicationConfiguration>,
+    tmc_client: web::Data<TmcClient>,
 ) -> ControllerResult<HttpResponse> {
     let user_details = payload.0;
     let mut conn = pool.acquire().await?;
@@ -118,7 +119,7 @@ pub async fn signup(
             let user = models::users::get_by_email(&mut conn, &user_details.email).await?;
             models::user_details::update_user_country(&mut conn, user.id, &user_details.country)
                 .await?;
-            models::user_details::update_user_email_commucation_consent(
+            models::user_details::update_user_email_communication_consent(
                 &mut conn,
                 user.id,
                 user_details.email_communication_consent,
@@ -152,7 +153,7 @@ pub async fn signup(
         if let Some((user, _token)) = auth_result {
             let country = user_details.country.clone();
             models::user_details::update_user_country(&mut conn, user.id, &country).await?;
-            models::user_details::update_user_email_commucation_consent(
+            models::user_details::update_user_email_communication_consent(
                 &mut conn,
                 user.id,
                 user_details.email_communication_consent,
@@ -345,12 +346,11 @@ pub async fn user_info(
 ///
 /// Based on implementation from <https://github.com/rage/mooc.fi/blob/fb9a204f4dbf296b35ec82b2442e1e6ae0641fe9/frontend/lib/account.ts>
 pub async fn post_new_user_to_moocfi(user_details: &CreateAccountDetails) -> anyhow::Result<()> {
-    let tmc_api_url = "https://tmc.mooc.fi/api/v8";
     let origin = env::var("TMC_ACCOUNT_CREATION_ORIGIN")
         .expect("TMC_ACCOUNT_CREATION_ORIGIN must be defined");
-    let ratelimit_api_key = env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
-        .expect("RATELIMIT_PROTECTION_SAFE_API_KEY must be defined");
-    let tmc_client = Client::default();
+
+    let tmc = TmcClient::new_from_env()?;
+
     let json = serde_json::json!({
         "user": {
             "email": user_details.email,
@@ -366,15 +366,9 @@ pub async fn post_new_user_to_moocfi(user_details: &CreateAccountDetails) -> any
         "origin": origin,
         "language": user_details.language
     });
-    let res = tmc_client
-        .post(format!("{}/users", tmc_api_url))
-        .header("RATELIMIT-PROTECTION-SAFE-API-KEY", ratelimit_api_key)
-        .header(reqwest::header::CONTENT_TYPE, "application/json")
-        .header(reqwest::header::ACCEPT, "application/json")
-        .json(&json)
-        .send()
-        .await
-        .context("Failed to send request to https://tmc.mooc.fi")?;
+
+    let res = tmc.post_json_with_auth(&json).await?;
+
     if res.status().is_success() {
         Ok(())
     } else {
@@ -383,18 +377,12 @@ pub async fn post_new_user_to_moocfi(user_details: &CreateAccountDetails) -> any
 }
 
 /// Puts updated user information to tmc.mooc.fi.
-pub async fn update_user_information_to_moocfi(
+pub async fn update_user_information_to_tmc(
     first_name: String,
     last_name: String,
     email: String,
 ) -> anyhow::Result<()> {
-    let tmc_api_url = "https://tmc.mooc.fi/api/v8/users/current";
-    let access_token = env::var("TMC_ACCESS_TOKEN").expect("TMC_ACCESS_TOKEN must be defined");
-
-    let ratelimit_api_key = env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
-        .expect("RATELIMIT_PROTECTION_SAFE_API_KEY must be defined");
-
-    let tmc_client = Client::default();
+    let tmc = TmcClient::new_from_env()?;
 
     let json = serde_json::json!({
         "user": {
@@ -406,16 +394,7 @@ pub async fn update_user_information_to_moocfi(
         },
     });
 
-    let res = tmc_client
-        .put(tmc_api_url)
-        .bearer_auth(access_token)
-        .header("RATELIMIT-PROTECTION-SAFE-API-KEY", ratelimit_api_key)
-        .header(reqwest::header::CONTENT_TYPE, "application/json")
-        .header(reqwest::header::ACCEPT, "application/json")
-        .json(&json)
-        .send()
-        .await
-        .context("Failed to send request to https://tmc.mooc.fi")?;
+    let res = tmc.put_json_with_auth(&json).await?;
 
     if res.status().is_success() {
         Ok(())
@@ -425,7 +404,10 @@ pub async fn update_user_information_to_moocfi(
             .text()
             .await
             .unwrap_or_else(|e| format!("(Failed to read error body: {e})"));
-
+        warn!(
+            "MOOC.fi update failed with status {}: {}",
+            status, error_text
+        );
         Err(anyhow::anyhow!(
             "MOOC.fi update failed with status {status}: {error_text}"
         ))

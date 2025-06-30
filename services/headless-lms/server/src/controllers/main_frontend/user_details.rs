@@ -184,13 +184,13 @@ pub async fn update_user_info(
     .await
     .context("Failed to update database")?;
 
-    controllers::auth::update_user_information_to_moocfi(
+    controllers::auth::update_user_information_to_tmc(
         payload.first_name.clone(),
         payload.last_name.clone(),
         payload.email.clone(),
     )
     .await
-    .context("Failed to update user info to MOOC.fi")?;
+    .context("Failed to update user info to tmc")?;
 
     tx.commit().await?;
     let token = skip_authorize();

@@ -13,7 +13,7 @@ use actix_web::{
 use anyhow::Context;
 use headless_lms_utils::{
     ApplicationConfiguration, cache::Cache, file_store::FileStore, icu4x::Icu4xBlob,
-    ip_to_country::IpToCountryMapper,
+    ip_to_country::IpToCountryMapper, tmc::TmcClient,
 };
 use oauth2::{AuthUrl, ClientId, ClientSecret, TokenUrl, basic::BasicClient};
 use sqlx::{PgPool, postgres::PgPoolOptions};
@@ -30,6 +30,7 @@ pub struct ServerConfigBuilder {
     pub app_conf: ApplicationConfiguration,
     pub redis_url: String,
     pub jwt_password: String,
+    pub tmc_client: TmcClient,
 }
 
 impl ServerConfigBuilder {
@@ -48,6 +49,7 @@ impl ServerConfigBuilder {
             app_conf: ApplicationConfiguration::try_from_env()?,
             redis_url: env::var("REDIS_URL").context("REDIS_URL must be defined")?,
             jwt_password: env::var("JWT_PASSWORD").context("JWT_PASSWORD must be defined")?,
+            tmc_client: TmcClient::new_from_env()?,
         })
     }
 
@@ -93,6 +95,8 @@ impl ServerConfigBuilder {
         let jwt_key = JwtKey::new(&self.jwt_password)?;
         let jwt_key = Data::new(jwt_key);
 
+        let tmc_client = Data::new(self.tmc_client);
+
         let config = ServerConfig {
             json_config,
             db_pool,
@@ -104,6 +108,7 @@ impl ServerConfigBuilder {
             jwt_key,
             cache,
             payload_config,
+            tmc_client,
         };
         Ok(config)
     }
@@ -121,6 +126,7 @@ pub struct ServerConfig {
     pub app_conf: Data<ApplicationConfiguration>,
     pub cache: Data<Cache>,
     pub jwt_key: Data<JwtKey>,
+    pub tmc_client: Data<TmcClient>,
 }
 
 /// Common configuration that is used by both production and testing.
@@ -136,6 +142,7 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         jwt_key,
         cache,
         payload_config,
+        tmc_client,
     } = server_config;
     // turns file_store from `dyn FileStore + Send + Sync` to `dyn FileStore` to match controllers
     // Not using Data::new for file_store to avoid double wrapping it in a arc
@@ -151,6 +158,7 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         .app_data(app_conf)
         .app_data(jwt_key)
         .app_data(cache)
+        .app_data(tmc_client)
         .service(
             web::scope("/api/v0")
                 .wrap(RequestSpan)

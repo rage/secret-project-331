@@ -217,7 +217,7 @@ WHERE user_id = $2
     Ok(())
 }
 
-pub async fn update_user_email_commucation_consent(
+pub async fn update_user_email_communication_consent(
     conn: &mut PgConnection,
     user_id: Uuid,
     email_communication_consent: bool,

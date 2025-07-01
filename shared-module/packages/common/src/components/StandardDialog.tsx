@@ -1,137 +1,186 @@
-import React from "react"
-import StandardDialog from "@/shared-module/common/components/StandardDialog"
 import { css } from "@emotion/css"
+import React, { useEffect, useId, useRef } from "react"
+import { useTranslation } from "react-i18next"
 
-interface EditUserPopupProps {
-  show: boolean
-  setShow: React.Dispatch<React.SetStateAction<boolean>>
-  name: string
-  email: string
-  role: string
-  setRole: React.Dispatch<React.SetStateAction<string>>
-  handleSave: () => void
+import { typography } from "../styles"
+
+import Button, { ButtonProps } from "./Button"
+import Dialog from "./Dialog"
+
+interface StandardDialogProps {
+  open: boolean
+  onClose?: () => void
+  title: string | React.ReactNode
+  children: React.ReactNode
+  buttons?: Omit<ButtonProps, "size">[]
+  showCloseButton?: boolean
+  width?: "normal" | "wide"
+  noPadding?: boolean
+  className?: string
+  backgroundColor?: string
+  actionButtons?: React.ReactNode
+  disableContentScroll?: boolean
+  leftAlignTitle?: boolean
+  closeable?: boolean
 }
 
-const EditUserPopup: React.FC<EditUserPopupProps> = ({
-  show,
-  setShow,
-  name,
-  email,
-  role,
-  setRole,
-  handleSave,
+const CLOSE_SYMBOL = "×"
+
+const StandardDialog: React.FC<StandardDialogProps> = ({
+  open,
+  onClose,
+  title,
+  children,
+  buttons,
+  showCloseButton = true,
+  width = "normal",
+  noPadding = false,
+  className,
+  backgroundColor,
+  actionButtons,
+  disableContentScroll = false,
+  leftAlignTitle = false,
+  closeable = true,
 }) => {
+  const { t } = useTranslation()
+  const titleId = useId()
+  const dialogRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (open && dialogRef.current) {
+      // Focuses the dialog by default so that the close button is not focused by default
+      dialogRef.current.focus()
+    }
+  }, [open])
+
   return (
-    <StandardDialog
-      open={show}
-      onClose={() => setShow(false)}
-      title="Edit User Role"
-      buttons={[
-        {
-          children: "Cancel",
-          variant: "secondary",
-          onClick: () => setShow(false),
-        },
-        {
-          children: "Save",
-          variant: "primary",
-          onClick: handleSave,
-        },
-      ]}
+    <Dialog
+      open={open}
+      onClose={onClose}
+      width={width}
+      noPadding={true}
+      className={className}
+      role="dialog"
+      aria-labelledby={titleId}
+      disableContentScroll={disableContentScroll}
+      closeable={closeable}
     >
-      <p
-        className={css`
-          font-size: 16px;
-          margin-bottom: 32px;
-        `}
-      >
-        You can change the role of this user. Email and name are shown for reference.
-      </p>
-
-      {/* Name */}
       <div
-        className={css`
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          margin-bottom: 16px;
-        `}
-      >
-        <label
-          className={css`
-            font-size: 14px;
-            width: 60px;
-          `}
-        >
-          Name
-        </label>
-        <span
-          className={css`
-            font-size: 14px;
-            word-break: break-word;
-          `}
-        >
-          {name}
-        </span>
-      </div>
-
-      {/* Email */}
-      <div
-        className={css`
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          margin-bottom: 16px;
-        `}
-      >
-        <label
-          className={css`
-            font-size: 14px;
-            width: 60px;
-          `}
-        >
-          Email
-        </label>
-        <span
-          className={css`
-            font-size: 14px;
-            word-break: break-word;
-          `}
-        >
-          {email}
-        </span>
-      </div>
-
-      {/* Role input */}
-      <div
+        ref={dialogRef}
+        tabIndex={-1}
         className={css`
           display: flex;
           flex-direction: column;
+          height: 100%;
+          position: relative;
+          ${backgroundColor && `background-color: ${backgroundColor};`}
+          &:focus {
+            outline: none;
+          }
         `}
       >
-        <label
+        {((showCloseButton && onClose) || actionButtons) && (
+          <div
+            className={css`
+              position: absolute;
+              top: 1rem;
+              right: 1rem;
+              display: flex;
+              gap: 1rem;
+              align-items: center;
+            `}
+          >
+            {actionButtons}
+            {showCloseButton && onClose && (
+              <button
+                onClick={onClose}
+                className={css`
+                  background: none;
+                  border: none;
+                  padding: 0.5rem;
+                  cursor: pointer;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  border-radius: 50%;
+                  transition:
+                    background-color 0.2s ease,
+                    box-shadow 0.2s ease;
+                  font-size: 24px;
+                  line-height: 1;
+                  width: 40px;
+                  height: 40px;
+                  color: #000;
+                  ${leftAlignTitle &&
+                  `
+                    margin-top: -6px;
+                  `}
+                  &:hover {
+                    background-color: #f0f0f0;
+                  }
+
+                  &:focus {
+                    outline: none;
+                    box-shadow:
+                      0 0 0 2px #fff,
+                      0 0 0 4px #e0e0e0;
+                  }
+                `}
+                aria-label={t("close")}
+              >
+                {CLOSE_SYMBOL}
+              </button>
+            )}
+          </div>
+        )}
+
+        <div
           className={css`
-            font-size: 14px;
-            margin-bottom: 4px;
+            padding: ${leftAlignTitle ? "1rem 2rem" : "1.5rem 2rem"};
+            border-bottom: 1px solid #eaeaea;
+            text-align: ${leftAlignTitle ? "left" : "center"};
           `}
         >
-          Role
-        </label>
-        <input
-          type="text"
-          placeholder="Select role"
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
+          <h2
+            id={titleId}
+            className={css`
+              font-size: ${typography.h5};
+              margin: 0;
+              font-weight: 600;
+            `}
+          >
+            {title}
+          </h2>
+        </div>
+
+        <div
           className={css`
-            border: 1.6px solid #e4e5e8;
-            border-radius: 2px;
-            padding: 8px 12px;
-            font-size: 14px;
+            flex: 1;
+            ${!noPadding && `padding: 1rem 2rem;`}
+            ${!disableContentScroll && "overflow-y: auto;"}
           `}
-        />
+        >
+          {children}
+        </div>
+
+        {buttons && buttons.length > 0 && (
+          <div
+            className={css`
+              padding: 1rem 2rem;
+              padding-top: 0;
+              display: flex;
+              justify-content: flex-end;
+              gap: 1rem;
+            `}
+          >
+            {buttons.map((button, index) => (
+              <Button key={index} fullWidth {...button} size="medium" />
+            ))}
+          </div>
+        )}
       </div>
-    </StandardDialog>
+    </Dialog>
   )
 }
 
-export default EditUserPopup
+export default StandardDialog

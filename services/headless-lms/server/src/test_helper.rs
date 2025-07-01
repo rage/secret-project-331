@@ -2,7 +2,9 @@ use crate::{
     config::{ServerConfig, ServerConfigBuilder},
     setup_tracing,
 };
-use headless_lms_utils::{ApplicationConfiguration, file_store::local_file_store::LocalFileStore};
+use headless_lms_utils::{
+    ApplicationConfiguration, file_store::local_file_store::LocalFileStore, tmc::TmcClient,
+};
 use sqlx::{Connection, PgConnection, Postgres, Transaction};
 use std::{env, sync::Arc};
 use tokio::sync::Mutex;
@@ -29,6 +31,7 @@ postgres://headless-lms:only-for-local-development-intentionally-public@postgres
         redis_url: "redis://example.com".to_string(),
         jwt_password: "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS"
             .to_string(),
+        tmc_client: TmcClient::new_from_env().expect("Failed to create TmcClient from env"),
     }
     .build()
     .await

@@ -12,7 +12,9 @@ use headless_lms_server::{
     domain::models_requests::JwtKey,
     setup_tracing,
 };
-use headless_lms_utils::{ApplicationConfiguration, file_store::local_file_store::LocalFileStore};
+use headless_lms_utils::{
+    ApplicationConfiguration, file_store::local_file_store::LocalFileStore, tmc::TmcClient,
+};
 use sqlx::{Connection, PgConnection, PgPool, Postgres, migrate::MigrateDatabase};
 use tokio::sync::Mutex;
 use uuid::Uuid;
@@ -80,6 +82,7 @@ pub async fn test_config() -> ServerConfig {
         redis_url: "redis://example.com".to_string(),
         jwt_password: "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS"
             .to_string(),
+        tmc_client: TmcClient::new_from_env().expect("Failed to create TmcClient from env"),
     }
     .build()
     .await

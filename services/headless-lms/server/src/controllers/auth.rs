@@ -14,6 +14,7 @@ use crate::{
 };
 use actix_session::Session;
 use anyhow::Error;
+use anyhow::anyhow;
 use headless_lms_utils::tmc::TmcClient;
 use std::time::Duration;
 use tracing_log::log;
@@ -102,42 +103,37 @@ pub async fn signup(
     if app_conf.test_mode {
         warn!("Handling signup in test mode. No real account is created.");
 
-        let success = authorization::authenticate_test_user(
+        let user_id = models::users::insert(
             &mut conn,
+            PKeyPolicy::Generate,
             &user_details.email,
-            &user_details.password,
-            &app_conf,
+            Some(&user_details.first_name),
+            Some(&user_details.last_name),
         )
         .await
         .map_err(|e| {
             ControllerError::new(
-                ControllerErrorType::Unauthorized,
-                "Could not find the test user. Have you seeded the database?".to_string(),
-                e,
+                ControllerErrorType::InternalServerError,
+                "Failed to insert test user.".to_string(),
+                Some(anyhow!(e)),
             )
         })?;
 
-        if success {
-            let user = models::users::get_by_email(&mut conn, &user_details.email).await?;
-            models::user_details::update_user_country(&mut conn, user.id, &user_details.country)
-                .await?;
-            models::user_details::update_user_email_communication_consent(
-                &mut conn,
-                user.id,
-                user_details.email_communication_consent,
-            )
+        models::user_details::update_user_country(&mut conn, user_id, &user_details.country)
             .await?;
 
-            authorization::remember(&session, user)?;
-            let token = skip_authorize();
-            return token.authorized_ok(HttpResponse::Ok().finish());
-        } else {
-            return Err(ControllerError::new(
-                ControllerErrorType::Unauthorized,
-                "Test user credentials are incorrect.".to_string(),
-                None,
-            ));
-        }
+        models::user_details::update_user_email_communication_consent(
+            &mut conn,
+            user_id,
+            user_details.email_communication_consent,
+        )
+        .await?;
+
+        let user = models::users::get_by_email(&mut conn, &user_details.email).await?;
+        authorization::remember(&session, user)?;
+
+        let token = skip_authorize();
+        return token.authorized_ok(HttpResponse::Ok().finish());
     }
 
     if user.is_none() {

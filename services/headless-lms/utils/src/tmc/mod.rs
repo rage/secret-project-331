@@ -13,12 +13,21 @@ const TMC_API_URL: &str = "https://tmc.mooc.fi/api/v8/users";
 
 impl TmcClient {
     pub fn new_from_env() -> Result<Self> {
+        let access_token =
+            std::env::var("TMC_ACCESS_TOKEN").context("TMC_ACCESS_TOKEN must be defined")?;
+        let ratelimit_api_key = std::env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
+            .context("RATELIMIT_PROTECTION_SAFE_API_KEY must be defined")?;
+
+        if access_token.trim().is_empty() {
+            anyhow::bail!("TMC_ACCESS_TOKEN cannot be empty");
+        }
+        if ratelimit_api_key.trim().is_empty() {
+            anyhow::bail!("RATELIMIT_PROTECTION_SAFE_API_KEY cannot be empty");
+        }
         Ok(Self {
             client: Client::default(),
-            access_token: std::env::var("TMC_ACCESS_TOKEN")
-                .context("TMC_ACCESS_TOKEN must be defined")?,
-            ratelimit_api_key: std::env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
-                .context("RATELIMIT_PROTECTION_SAFE_API_KEY must be defined")?,
+            access_token,
+            ratelimit_api_key,
         })
     }
 
@@ -123,7 +132,20 @@ impl TmcClient {
         if res.status().is_success() {
             Ok(())
         } else {
-            Err(anyhow::anyhow!("Failed to get current user from Mooc.fi"))
+            let status = res.status();
+            let error_text = res
+                .text()
+                .await
+                .unwrap_or_else(|e| format!("(Failed to read error body: {e})"));
+
+            warn!(
+                "MOOC.fi user creation failed with status {}: {}",
+                status, error_text
+            );
+
+            Err(anyhow::anyhow!(
+                "MOOC.fi user creation failed with status {status}: {error_text}"
+            ))
         }
     }
 }

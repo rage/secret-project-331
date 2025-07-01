@@ -13,8 +13,10 @@ use crate::{
     prelude::*,
 };
 use actix_session::Session;
+use anyhow::Error;
 use headless_lms_utils::tmc::TmcClient;
-use std::{env, time::Duration};
+use std::time::Duration;
+use tracing_log::log;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -140,7 +142,7 @@ pub async fn signup(
 
     if user.is_none() {
         // First create the actual user to tmc.mooc.fi and then fetch it from mooc.fi
-        post_new_user_to_moocfi(&user_details).await?;
+        post_new_user_to_moocfi(&user_details, tmc_client).await?;
 
         let auth_result = authorization::authenticate_moocfi_user(
             &mut conn,
@@ -345,73 +347,36 @@ pub async fn user_info(
 /// Posts new user account to tmc.mooc.fi.
 ///
 /// Based on implementation from <https://github.com/rage/mooc.fi/blob/fb9a204f4dbf296b35ec82b2442e1e6ae0641fe9/frontend/lib/account.ts>
-pub async fn post_new_user_to_moocfi(user_details: &CreateAccountDetails) -> anyhow::Result<()> {
-    let origin = env::var("TMC_ACCOUNT_CREATION_ORIGIN")
-        .expect("TMC_ACCOUNT_CREATION_ORIGIN must be defined");
-
-    let tmc = TmcClient::new_from_env()?;
-
-    let json = serde_json::json!({
-        "user": {
-            "email": user_details.email,
-            "first_name": user_details.first_name,
-            "last_name": user_details.last_name,
-            "password": user_details.password,
-            "password_confirmation": user_details.password_confirmation
-        },
-        "user_field": {
-            "first_name": user_details.first_name,
-            "last_name": user_details.last_name
-        },
-        "origin": origin,
-        "language": user_details.language
-    });
-
-    let res = tmc.post_json_with_auth(&json).await?;
-
-    if res.status().is_success() {
-        Ok(())
-    } else {
-        Err(anyhow::anyhow!("Failed to get current user from Mooc.fi"))
-    }
+pub async fn post_new_user_to_moocfi(
+    user_details: &CreateAccountDetails,
+    tmc_client: web::Data<TmcClient>,
+) -> anyhow::Result<()> {
+    tmc_client
+        .post_new_user_to_moocfi(
+            user_details.first_name.clone(),
+            user_details.last_name.clone(),
+            user_details.email.clone(),
+            user_details.password.clone(),
+            user_details.password_confirmation.clone(),
+            user_details.language.clone(),
+        )
+        .await
 }
 
-/// Puts updated user information to tmc.mooc.fi.
 pub async fn update_user_information_to_tmc(
     first_name: String,
     last_name: String,
     email: String,
-) -> anyhow::Result<()> {
-    let tmc = TmcClient::new_from_env()?;
-
-    let json = serde_json::json!({
-        "user": {
-            "email": email,
-        },
-        "user_field": {
-            "first_name": first_name,
-            "last_name": last_name
-        },
-    });
-
-    let res = tmc.put_json_with_auth(&json).await?;
-
-    if res.status().is_success() {
-        Ok(())
-    } else {
-        let status = res.status();
-        let error_text = res
-            .text()
-            .await
-            .unwrap_or_else(|e| format!("(Failed to read error body: {e})"));
-        warn!(
-            "MOOC.fi update failed with status {}: {}",
-            status, error_text
-        );
-        Err(anyhow::anyhow!(
-            "MOOC.fi update failed with status {status}: {error_text}"
-        ))
-    }
+    tmc_client: web::Data<TmcClient>,
+) -> Result<(), Error> {
+    tmc_client
+        .update_user_information(first_name, last_name, email)
+        .await
+        .map_err(|e| {
+            log::warn!("TMC user update failed: {:?}", e);
+            anyhow::anyhow!("TMC user update failed: {}", e)
+        })?;
+    Ok(())
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

@@ -67,7 +67,6 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
   const postUserCountryMutation = useToastMutation<UserDetail, unknown, SelectUserInfoFormFields>(
     async (data) => {
       const { email, first_name, last_name, country, emailCommunicationConsent } = data
-      console.log(data)
       const result = await updateUserInfo(
         email,
         first_name,
@@ -81,11 +80,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
       method: "POST",
       notify: true,
     },
-    {
-      onSuccess: (data) => {
-        console.log(data)
-      },
-    },
+    {},
   )
 
   return (
@@ -122,8 +117,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
             onChangeByValue={field.onChange}
             value={field.value}
             error={errors.country?.message}
-            // eslint-disable-next-line i18next/no-literal-string
-            placeholder={"Select a country"}
+            placeholder={t("label-select-country")}
           />
         )}
       />

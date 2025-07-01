@@ -454,6 +454,7 @@
   "label-role": "Rooli",
   "label-search-results": "Hakutulokset",
   "label-select": "Valitse",
+  "label-select-country": "Valitse maa",
   "label-selected-exercise-ids": "Valitut tehtävien Id:t",
   "label-selected-users": "Valitut käyttäjät",
   "label-send-model-solution-spec": "Lähetä model solution spec (tapahtuu kun yritykset on loppu tai käyttäjä on saanut täydet pisteet tehtävästä)",

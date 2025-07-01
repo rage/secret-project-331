@@ -458,6 +458,7 @@
   "label-role": "Role",
   "label-search-results": "Search Results",
   "label-select": "Select",
+  "label-select-country": "Select country",
   "label-selected-exercise-ids": "Selected exercise Ids",
   "label-selected-users": "Selected users",
   "label-send-model-solution-spec": "Send model solution spec (happens when one has ran out of tries or gotten full points from the exercise)",

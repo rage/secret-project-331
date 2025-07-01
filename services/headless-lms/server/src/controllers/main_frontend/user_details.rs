@@ -1,7 +1,7 @@
 use models::{pages::SearchRequest, user_details::UserDetail};
 
 use crate::{controllers, prelude::*};
-use headless_lms_utils::ip_to_country::IpToCountryMapper;
+use headless_lms_utils::{ip_to_country::IpToCountryMapper, tmc::TmcClient};
 use std::net::IpAddr;
 
 /**
@@ -118,7 +118,7 @@ pub async fn get_users_by_course_id(
 }
 
 /**
-GET `/api/v0/main-frontend/user-details/[id]` - Find user details by user id
+GET `/api/v0/main-frontend/user-details/user-details-for-user` - Get authenticated user's own details
 */
 #[instrument(skip(pool))]
 pub async fn get_user_details_for_user(
@@ -170,6 +170,7 @@ pub async fn update_user_info(
     user: AuthUser,
     pool: web::Data<PgPool>,
     payload: web::Json<UserInfoPayload>,
+    tmc_client: web::Data<TmcClient>,
 ) -> ControllerResult<web::Json<UserDetail>> {
     let mut tx = pool.begin().await?;
     let updated_user = models::user_details::update_user_info(
@@ -188,6 +189,7 @@ pub async fn update_user_info(
         payload.first_name.clone(),
         payload.last_name.clone(),
         payload.email.clone(),
+        tmc_client.clone(),
     )
     .await
     .context("Failed to update user info to tmc")?;

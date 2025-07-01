@@ -1,8 +1,8 @@
 use anyhow::{Context, Result};
-use reqwest::{Client, Response};
-use serde_json::Value;
+use reqwest::Client;
+use serde_json::json;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TmcClient {
     client: Client,
     access_token: String,
@@ -22,32 +22,108 @@ impl TmcClient {
         })
     }
 
-    pub async fn put_json_with_auth(&self, json_body: &Value) -> Result<Response> {
-        let url = format!("{}/current", TMC_API_URL);
-        self.client
-            .put(url)
-            .bearer_auth(&self.access_token)
+    fn request_with_headers(
+        &self,
+        method: reqwest::Method,
+        url: &str,
+        use_auth: bool,
+    ) -> reqwest::RequestBuilder {
+        let builder = self
+            .client
+            .request(method, url)
             .header("RATELIMIT-PROTECTION-SAFE-API-KEY", &self.ratelimit_api_key)
             .header(reqwest::header::CONTENT_TYPE, "application/json")
-            .header(reqwest::header::ACCEPT, "application/json")
-            .json(json_body)
-            .send()
-            .await
-            .context(format!(
-                "Failed to send PUT request to {TMC_API_URL}/current"
-            ))
+            .header(reqwest::header::ACCEPT, "application/json");
+
+        if use_auth {
+            builder.bearer_auth(&self.access_token)
+        } else {
+            builder
+        }
     }
 
-    pub async fn post_json_with_auth(&self, json_body: &Value) -> Result<Response> {
-        self.client
-            .post(TMC_API_URL)
-            .bearer_auth(&self.access_token)
-            .header("RATELIMIT-PROTECTION-SAFE-API-KEY", &self.ratelimit_api_key)
-            .header(reqwest::header::CONTENT_TYPE, "application/json")
-            .header(reqwest::header::ACCEPT, "application/json")
-            .json(json_body)
+    pub async fn update_user_information(
+        &self,
+        first_name: String,
+        last_name: String,
+        email: String,
+    ) -> Result<()> {
+        let payload = json!({
+            "user": { "email": email },
+            "user_field": {
+                "first_name": first_name,
+                "last_name": last_name
+            }
+        });
+
+        let url = format!("{}/current", TMC_API_URL);
+
+        let res = self
+            .request_with_headers(reqwest::Method::PUT, &url, true)
+            .json(&payload)
             .send()
             .await
-            .context(format!("Failed to send POST request to {TMC_API_URL}"))
+            .context("Failed to send request to https://tmc.mooc.fi")?;
+
+        if res.status().is_success() {
+            Ok(())
+        } else {
+            let status = res.status();
+            let error_text = res
+                .text()
+                .await
+                .unwrap_or_else(|e| format!("(Failed to read error body: {e})"));
+
+            warn!(
+                "MOOC.fi update failed with status {}: {}",
+                status, error_text
+            );
+
+            Err(anyhow::anyhow!(
+                "MOOC.fi update failed with status {status}: {error_text}"
+            ))
+        }
+    }
+
+    pub async fn post_new_user_to_moocfi(
+        &self,
+        first_name: String,
+        last_name: String,
+        email: String,
+        password: String,
+        password_confirmation: String,
+        language: String,
+    ) -> Result<()> {
+        let origin = std::env::var("TMC_ACCOUNT_CREATION_ORIGIN")
+            .context("TMC_ACCOUNT_CREATION_ORIGIN must be defined")?;
+
+        let payload = json!({
+            "user": {
+                "email": email,
+                "first_name": first_name,
+                "last_name": last_name,
+                "password": password,
+                "password_confirmation": password_confirmation
+            },
+            "user_field": {
+                "first_name": first_name,
+                "last_name": last_name
+            },
+            "origin": origin,
+            "language": language
+        });
+
+        let res = self
+            .request_with_headers(reqwest::Method::POST, TMC_API_URL, false)
+            .json(&payload)
+            .send()
+            .await
+            .context("Failed to send request to https://tmc.mooc.fi")?;
+
+        if res.status().is_success() {
+            Ok(())
+        } else {
+            Err(anyhow::anyhow!("Failed to get current user from Mooc.fi"))
+        }
     }
 }

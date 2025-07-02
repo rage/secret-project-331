@@ -165,12 +165,13 @@ pub struct UserInfoPayload {
 /**
 POST `/api/v0/main-frontend/user-details/update-user-info` - Updates the users information such as email, name, country and email communication consent
 */
-#[instrument(skip(pool))]
+#[instrument(skip(pool, app_conf))]
 pub async fn update_user_info(
     user: AuthUser,
     pool: web::Data<PgPool>,
     payload: web::Json<UserInfoPayload>,
     tmc_client: web::Data<TmcClient>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<UserDetail>> {
     let mut tx = pool.begin().await?;
     let updated_user = models::user_details::update_user_info(
@@ -190,6 +191,7 @@ pub async fn update_user_info(
         payload.last_name.clone(),
         payload.email.clone(),
         tmc_client.clone(),
+        app_conf,
     )
     .await
     .context("Failed to update user info to tmc")?;

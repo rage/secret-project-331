@@ -101,44 +101,12 @@ pub async fn signup(
     let mut conn = pool.acquire().await?;
 
     if app_conf.test_mode {
-        warn!("Handling signup in test mode. No real account is created.");
-
-        let user_id = models::users::insert(
-            &mut conn,
-            PKeyPolicy::Generate,
-            &user_details.email,
-            Some(&user_details.first_name),
-            Some(&user_details.last_name),
-        )
-        .await
-        .map_err(|e| {
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                "Failed to insert test user.".to_string(),
-                Some(anyhow!(e)),
-            )
-        })?;
-
-        models::user_details::update_user_country(&mut conn, user_id, &user_details.country)
-            .await?;
-
-        models::user_details::update_user_email_communication_consent(
-            &mut conn,
-            user_id,
-            user_details.email_communication_consent,
-        )
-        .await?;
-
-        let user = models::users::get_by_email(&mut conn, &user_details.email).await?;
-        authorization::remember(&session, user)?;
-
-        let token = skip_authorize();
-        return token.authorized_ok(HttpResponse::Ok().finish());
+        return handle_test_mode_signup(&mut conn, &session, &user_details, &app_conf).await;
     }
 
     if user.is_none() {
         // First create the actual user to tmc.mooc.fi and then fetch it from mooc.fi
-        post_new_user_to_moocfi(&user_details, tmc_client).await?;
+        post_new_user_to_moocfi(&user_details, tmc_client, &app_conf).await?;
 
         let auth_result = authorization::authenticate_moocfi_user(
             &mut conn,
@@ -175,6 +143,50 @@ pub async fn signup(
             None,
         ))
     }
+}
+
+async fn handle_test_mode_signup(
+    conn: &mut PgConnection,
+    session: &Session,
+    user_details: &CreateAccountDetails,
+    app_conf: &ApplicationConfiguration,
+) -> ControllerResult<HttpResponse> {
+    assert!(
+        app_conf.test_mode,
+        "handle_test_mode_signup called outside test mode"
+    );
+
+    warn!("Handling signup in test mode. No real account is created.");
+
+    let user_id = models::users::insert(
+        conn,
+        PKeyPolicy::Generate,
+        &user_details.email,
+        Some(&user_details.first_name),
+        Some(&user_details.last_name),
+    )
+    .await
+    .map_err(|e| {
+        ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            "Failed to insert test user.".to_string(),
+            Some(anyhow!(e)),
+        )
+    })?;
+
+    models::user_details::update_user_country(conn, user_id, &user_details.country).await?;
+    models::user_details::update_user_email_communication_consent(
+        conn,
+        user_id,
+        user_details.email_communication_consent,
+    )
+    .await?;
+
+    let user = models::users::get_by_email(conn, &user_details.email).await?;
+    authorization::remember(session, user)?;
+
+    let token = skip_authorize();
+    token.authorized_ok(HttpResponse::Ok().finish())
 }
 
 /**
@@ -346,6 +358,7 @@ pub async fn user_info(
 pub async fn post_new_user_to_moocfi(
     user_details: &CreateAccountDetails,
     tmc_client: web::Data<TmcClient>,
+    app_conf: &ApplicationConfiguration,
 ) -> anyhow::Result<()> {
     tmc_client
         .post_new_user_to_moocfi(
@@ -355,6 +368,7 @@ pub async fn post_new_user_to_moocfi(
             user_details.password.clone(),
             user_details.password_confirmation.clone(),
             user_details.language.clone(),
+            app_conf,
         )
         .await
 }
@@ -364,7 +378,11 @@ pub async fn update_user_information_to_tmc(
     last_name: String,
     email: String,
     tmc_client: web::Data<TmcClient>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> Result<(), Error> {
+    if app_conf.test_mode {
+        return Ok(());
+    }
     tmc_client
         .update_user_information(first_name, last_name, email)
         .await

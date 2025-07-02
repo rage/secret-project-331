@@ -2,6 +2,8 @@ use anyhow::{Context, Result};
 use reqwest::Client;
 use serde_json::json;
 
+use crate::ApplicationConfiguration;
+
 #[derive(Debug, Clone)]
 pub struct TmcClient {
     client: Client,
@@ -31,13 +33,14 @@ impl TmcClient {
         })
     }
 
-    fn request_with_headers(
+    async fn request_with_headers(
         &self,
         method: reqwest::Method,
         url: &str,
         use_auth: bool,
-    ) -> reqwest::RequestBuilder {
-        let builder = self
+        body: Option<serde_json::Value>,
+    ) -> Result<reqwest::Response> {
+        let mut builder = self
             .client
             .request(method, url)
             .header("RATELIMIT-PROTECTION-SAFE-API-KEY", &self.ratelimit_api_key)
@@ -45,9 +48,37 @@ impl TmcClient {
             .header(reqwest::header::ACCEPT, "application/json");
 
         if use_auth {
-            builder.bearer_auth(&self.access_token)
+            builder = builder.bearer_auth(&self.access_token);
+        }
+
+        if let Some(json_body) = body {
+            builder = builder.json(&json_body);
+        }
+
+        let res = builder
+            .send()
+            .await
+            .context("Failed to send HTTP request")?;
+
+        if res.status().is_success() {
+            Ok(res)
         } else {
-            builder
+            let status = res.status();
+            let error_text = res
+                .text()
+                .await
+                .unwrap_or_else(|e| format!("(Failed to read error body: {e})"));
+
+            warn!(
+                "Request to {} failed with status {}: {}",
+                url, status, error_text
+            );
+
+            Err(anyhow::anyhow!(
+                "Request failed with status {}: {}",
+                status,
+                error_text
+            ))
         }
     }
 
@@ -67,31 +98,9 @@ impl TmcClient {
 
         let url = format!("{}/current", TMC_API_URL);
 
-        let res = self
-            .request_with_headers(reqwest::Method::PUT, &url, true)
-            .json(&payload)
-            .send()
+        self.request_with_headers(reqwest::Method::PUT, &url, true, Some(payload))
             .await
-            .context("Failed to send request to https://tmc.mooc.fi")?;
-
-        if res.status().is_success() {
-            Ok(())
-        } else {
-            let status = res.status();
-            let error_text = res
-                .text()
-                .await
-                .unwrap_or_else(|e| format!("(Failed to read error body: {e})"));
-
-            warn!(
-                "MOOC.fi update failed with status {}: {}",
-                status, error_text
-            );
-
-            Err(anyhow::anyhow!(
-                "MOOC.fi update failed with status {status}: {error_text}"
-            ))
-        }
+            .map(|_| ())
     }
 
     pub async fn post_new_user_to_moocfi(
@@ -102,50 +111,34 @@ impl TmcClient {
         password: String,
         password_confirmation: String,
         language: String,
+        app_conf: &ApplicationConfiguration,
     ) -> Result<()> {
-        let origin = std::env::var("TMC_ACCOUNT_CREATION_ORIGIN")
-            .context("TMC_ACCOUNT_CREATION_ORIGIN must be defined")?;
-
         let payload = json!({
             "user": {
                 "email": email,
                 "first_name": first_name,
                 "last_name": last_name,
-                "password": password,
+                "password":password,
                 "password_confirmation": password_confirmation
             },
             "user_field": {
                 "first_name": first_name,
                 "last_name": last_name
             },
-            "origin": origin,
+            "origin": app_conf.tmc_account_creation_origin,
             "language": language
         });
 
-        let res = self
-            .request_with_headers(reqwest::Method::POST, TMC_API_URL, false)
-            .json(&payload)
-            .send()
+        self.request_with_headers(reqwest::Method::POST, TMC_API_URL, false, Some(payload))
             .await
-            .context("Failed to send request to https://tmc.mooc.fi")?;
+            .map(|_| ())
+    }
 
-        if res.status().is_success() {
-            Ok(())
-        } else {
-            let status = res.status();
-            let error_text = res
-                .text()
-                .await
-                .unwrap_or_else(|e| format!("(Failed to read error body: {e})"));
-
-            warn!(
-                "MOOC.fi user creation failed with status {}: {}",
-                status, error_text
-            );
-
-            Err(anyhow::anyhow!(
-                "MOOC.fi user creation failed with status {status}: {error_text}"
-            ))
+    pub fn mock_for_test() -> Self {
+        Self {
+            client: Client::default(),
+            access_token: "mock-token".to_string(),
+            ratelimit_api_key: "mock-api-key".to_string(),
         }
     }
 }

@@ -78,11 +78,12 @@ pub async fn test_config() -> ServerConfig {
             base_url: "http://project-331.local".to_string(),
             development_uuid_login: false,
             azure_configuration: None,
+            tmc_account_creation_origin: None,
         },
         redis_url: "redis://example.com".to_string(),
         jwt_password: "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS"
             .to_string(),
-        tmc_client: TmcClient::new_from_env().expect("Failed to create TmcClient from env"),
+        tmc_client: TmcClient::mock_for_test(),
     }
     .build()
     .await

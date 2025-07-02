@@ -33,6 +33,7 @@ pub struct ApplicationConfiguration {
     pub test_mode: bool,
     pub development_uuid_login: bool,
     pub azure_configuration: Option<AzureConfiguration>,
+    pub tmc_account_creation_origin: Option<String>,
 }
 
 impl ApplicationConfiguration {
@@ -44,11 +45,17 @@ impl ApplicationConfiguration {
 
         let azure_configuration = AzureConfiguration::try_from_env()?;
 
+        let tmc_account_creation_origin = Some(
+            env::var("TMC_ACCOUNT_CREATION_ORIGIN")
+                .context("TMC_ACCOUNT_CREATION_ORIGIN must be defined")?,
+        );
+
         Ok(Self {
             base_url,
             test_mode,
             development_uuid_login,
             azure_configuration,
+            tmc_account_creation_origin,
         })
     }
 }

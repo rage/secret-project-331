@@ -88,21 +88,34 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
       <TextField
         label={t("email")}
         placeholder={t("email")}
-        {...register("email", {})}
+        {...register("email", {
+          required: t("required-field"),
+          validate: {
+            isValidEmail: (value) =>
+              value.split("").indexOf("@") !== -1 || t("enter-a-valid-email"),
+          },
+        })}
+        required
         error={errors.email}
       />
 
       <TextField
         label={t("first-name")}
         placeholder={t("enter-first-name")}
-        {...register("first_name", {})}
+        {...register("first_name", {
+          required: t("required-field"),
+        })}
+        required
         error={errors.first_name}
       />
 
       <TextField
         label={t("last-name")}
         placeholder={t("enter-last-name")}
-        {...register("last_name", {})}
+        {...register("last_name", {
+          required: t("required-field"),
+        })}
+        required
         error={errors.last_name}
       />
 
@@ -110,12 +123,14 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
         // eslint-disable-next-line i18next/no-literal-string
         name="country"
         control={control}
+        rules={{ required: t("required-field") }}
         render={({ field }) => (
           <SearchableSelectField
             label={t("enter-country-question")}
             options={countriesOptions}
             onChangeByValue={field.onChange}
             value={field.value}
+            required={true}
             error={errors.country?.message}
             placeholder={t("label-select-country")}
           />

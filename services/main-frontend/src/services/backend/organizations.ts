@@ -91,3 +91,14 @@ export const setOrganizationImage = async (
 export const removeOrganizationImage = async (organizationId: string): Promise<void> => {
   await mainFrontendClient.delete(`/organizations/${organizationId}/image`)
 }
+
+export const updateOrganization = async (
+  organizationId: string,
+  name: string,
+  hidden: boolean,
+): Promise<void> => {
+  await mainFrontendClient.put(`/organizations/${organizationId}`, {
+    name,
+    hidden,
+  })
+}

@@ -296,6 +296,45 @@ async fn get_organization(
 }
 
 /**
+PUT `/api/v0/main-frontend/organizations/{organization_id}` - Updates an organization's name and hidden status.
+*/
+
+#[derive(Debug, Deserialize)]
+struct OrganizationUpdatePayload {
+    name: String,
+    hidden: bool,
+}
+
+#[instrument(skip(pool))]
+async fn update_organization(
+    organization_id: web::Path<Uuid>,
+    payload: web::Json<OrganizationUpdatePayload>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let organization = models::organizations::get_organization(&mut conn, *organization_id).await?;
+
+    let token = authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::Organization(organization.id),
+    )
+    .await?;
+
+    models::organizations::update_name_and_hidden(
+        &mut conn,
+        *organization_id,
+        &payload.name,
+        payload.hidden,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(()))
+}
+
+/**
 GET `/api/v0/main-frontend/organizations/{organization_id}/course_exams` - Returns an organizations exams in CourseExam form.
 */
 #[instrument(skip(pool))]
@@ -407,6 +446,7 @@ We add the routes by calling the route method instead of using the route annotat
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("", web::get().to(get_all_organizations))
         .route("/{organization_id}", web::get().to(get_organization))
+        .route("/{organization_id}", web::put().to(update_organization))
         .route(
             "/{organization_id}/courses",
             web::get().to(get_organization_courses),

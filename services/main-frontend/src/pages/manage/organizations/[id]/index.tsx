@@ -5,7 +5,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import OrganizationImageWidget from "../../../../components/page-specific/org/organizationSlug/OrganizationImageWidget"
-import { fetchOrganization } from "../../../../services/backend/organizations"
+import { fetchOrganization, updateOrganization } from "../../../../services/backend/organizations"
 
 import OrganizationSidebar from "./OrganizationSidebar"
 import AddUserPopup from "./components/AddUserPopup"
@@ -33,31 +33,20 @@ interface Props {
   query: SimplifiedUrlQuery<"id">
 }
 
-interface ActionButtonProps {
-  icon: React.ReactNode
-  onClick: () => void
-}
-
-const ActionButton: React.FC<ActionButtonProps> = ({ icon, onClick }) => (
-  <button onClick={onClick} className={actionButtonStyle}>
-    {icon}
-  </button>
-)
-
 const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query }) => {
   const { t } = useTranslation()
-  const [activeTab, setActiveTab] = React.useState<"general" | "permissions">("permissions")
+  const [activeTab, setActiveTab] = React.useState<"general" | "permissions">("general")
   const [showAddUserPopup, setShowAddUserPopup] = React.useState(false)
   const [editMode, setEditMode] = React.useState(false)
   const [users, setUsers] = React.useState<RoleUser[]>([])
   const [email, setEmail] = React.useState("")
   const [role, setRole] = React.useState("")
   const [mutationError, setMutationError] = React.useState<unknown | null>(null)
-  const [name, setName] = React.useState("Example Organization")
   const [hidden, setHidden] = React.useState(false)
   const [showEditPopup, setShowEditPopup] = React.useState(false)
   const [editUser, setEditUser] = React.useState<RoleUser | null>(null)
   const [editRole, setEditRole] = React.useState("")
+  const [editedName, setEditedName] = React.useState("")
 
   const addMutation = useToastMutation(
     () => {
@@ -87,41 +76,6 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
         })
     }
   }
-  /*
-  const handleEdit = (userToEdit: RoleUser) => {
-    const newRole = window.prompt(`Enter new role for ${userToEdit.email}:`, userToEdit.role)
-
-    if (!newRole || newRole.trim() === "" || newRole === userToEdit.role) {
-      return
-    }
-
-    if (
-      ![
-        "Admin",
-        "Assistant",
-        "Reviewer",
-        "Teacher",
-        "CourseOrExamCreator",
-        "MaterialViewer",
-        "TeachingAndLearningServices",
-        "StatsViewer",
-      ].includes(newRole)
-    ) {
-      alert("Invalid role. Please enter a valid role name.")
-      return
-    }
-
-    void removeRole(userToEdit.email, userToEdit.role, { tag: "Organization", id: query.id })
-      .then(() =>
-        giveRole(userToEdit.email, newRole as UserRole, { tag: "Organization", id: query.id }),
-      )
-      .then(() => roleQuery.refetch())
-      .catch((error) => {
-        console.error("Failed to update role", error)
-        alert("Something went wrong while updating the role.")
-      })
-  }
-  */
 
   const handleEdit = (userToEdit: RoleUser) => {
     setEditUser(userToEdit)
@@ -168,6 +122,18 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
       })
   }
 
+  const updateOrgMutation = useToastMutation(
+    (newData: { name: string; hidden: boolean }) =>
+      updateOrganization(query.id, newData.name, newData.hidden),
+    { notify: true, method: "PUT" },
+    {
+      onSuccess: () => {
+        setEditMode(false)
+        organization.refetch()
+      },
+    },
+  )
+
   const domain: RoleDomain = { tag: "Organization", id: query.id }
 
   const roleQuery = useQuery({
@@ -201,6 +167,12 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
     setShowAddUserPopup(false)
   }, [activeTab])
 
+  React.useEffect(() => {
+    if (organization.data && !editMode) {
+      setEditedName(organization.data.name)
+    }
+  }, [organization.data, editMode])
+
   if (roleQuery.isLoading) {
     return <div>Loading users…</div>
   }
@@ -224,10 +196,11 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
       users,
       handleDelete,
       handleEdit,
-      name,
-      setName,
+      editedName,
+      setEditedName,
       hidden,
       setHidden,
+      updateOrgMutation,
     )
   }
 
@@ -281,10 +254,11 @@ const content = (
   users: { name: string; email: string; role: string }[],
   handleDelete: (user: { name: string; email: string; role: string }) => void,
   handleEdit: (user: { id: number; name: string; email: string; role: string }) => void,
-  name: string,
-  setName: React.Dispatch<React.SetStateAction<string>>,
+  editedName: string,
+  setEditedName: React.Dispatch<React.SetStateAction<string>>,
   hidden: boolean,
   setHidden: React.Dispatch<React.SetStateAction<boolean>>,
+  updateOrgMutation: ReturnType<typeof useToastMutation>,
 ) => (
   <div
     className={css`
@@ -307,7 +281,7 @@ const content = (
         }
       `}
     >
-      Manage Organization
+      Manage Organization – {editedName}
     </div>
 
     <div
@@ -353,7 +327,15 @@ const content = (
     </div>
 
     {activeTab === "general"
-      ? designContent(editMode, setEditMode, name, setName, hidden, setHidden)
+      ? designContent(
+          editMode,
+          setEditMode,
+          editedName,
+          setEditedName,
+          hidden,
+          setHidden,
+          updateOrgMutation,
+        ) //designContent(editMode, setEditMode, name, setName, hidden, setHidden)
       : permissionContent(setShowAddUserPopup, users, handleDelete, handleEdit)}
   </div>
 )
@@ -361,10 +343,11 @@ const content = (
 const designContent = (
   editMode: boolean,
   setEditMode: React.Dispatch<React.SetStateAction<boolean>>,
-  name: string,
-  setName: React.Dispatch<React.SetStateAction<string>>,
+  editedName: string,
+  setEditedName: React.Dispatch<React.SetStateAction<string>>,
   hidden: boolean,
   setHidden: React.Dispatch<React.SetStateAction<boolean>>,
+  updateOrgMutation: ReturnType<typeof useToastMutation>,
 ) => {
   return (
     <div className={containerBase}>
@@ -424,8 +407,8 @@ const designContent = (
           {editMode ? (
             <input
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={editedName}
+              onChange={(e) => setEditedName(e.target.value)}
               className={css`
                 width: 70%;
                 border: 2px solid #e4e5e8;
@@ -443,7 +426,7 @@ const designContent = (
                 font-size: 14px;
               `}
             >
-              {name}
+              {editedName}
             </span>
           )}
         </div>
@@ -522,7 +505,13 @@ const designContent = (
         >
           {editMode ? (
             <>
-              <button className={primaryButton}>Save</button>
+              <button
+                className={primaryButton}
+                onClick={() => updateOrgMutation.mutate({ name: editedName, hidden })}
+              >
+                Save
+              </button>
+
               <button
                 className={css`
                   background: transparent;

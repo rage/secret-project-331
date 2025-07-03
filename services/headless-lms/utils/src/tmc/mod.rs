@@ -11,21 +11,48 @@ pub struct TmcClient {
     ratelimit_api_key: String,
 }
 
+pub struct NewUserInfo {
+    pub first_name: String,
+    pub last_name: String,
+    pub email: String,
+    pub password: String,
+    pub password_confirmation: String,
+    pub language: String,
+}
+
 const TMC_API_URL: &str = "https://tmc.mooc.fi/api/v8/users";
 
 impl TmcClient {
     pub fn new_from_env() -> Result<Self> {
-        let access_token =
-            std::env::var("TMC_ACCESS_TOKEN").context("TMC_ACCESS_TOKEN must be defined")?;
-        let ratelimit_api_key = std::env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
-            .context("RATELIMIT_PROTECTION_SAFE_API_KEY must be defined")?;
+        let is_dev =
+            cfg!(debug_assertions) || std::env::var("APP_ENV").map_or(true, |v| v == "development");
 
-        if access_token.trim().is_empty() {
-            anyhow::bail!("TMC_ACCESS_TOKEN cannot be empty");
+        let access_token = std::env::var("TMC_ACCESS_TOKEN").unwrap_or_else(|_| {
+            if is_dev {
+                "mock-access-token".to_string()
+            } else {
+                panic!("TMC_ACCESS_TOKEN must be defined in production")
+            }
+        });
+
+        let ratelimit_api_key =
+            std::env::var("RATELIMIT_PROTECTION_SAFE_API_KEY").unwrap_or_else(|_| {
+                if is_dev {
+                    "mock-api-key".to_string()
+                } else {
+                    panic!("RATELIMIT_PROTECTION_SAFE_API_KEY must be defined in production")
+                }
+            });
+
+        if !is_dev {
+            if access_token.trim().is_empty() {
+                anyhow::bail!("TMC_ACCESS_TOKEN cannot be empty");
+            }
+            if ratelimit_api_key.trim().is_empty() {
+                anyhow::bail!("RATELIMIT_PROTECTION_SAFE_API_KEY cannot be empty");
+            }
         }
-        if ratelimit_api_key.trim().is_empty() {
-            anyhow::bail!("RATELIMIT_PROTECTION_SAFE_API_KEY cannot be empty");
-        }
+
         Ok(Self {
             client: Client::default(),
             access_token,
@@ -105,28 +132,23 @@ impl TmcClient {
 
     pub async fn post_new_user_to_moocfi(
         &self,
-        first_name: String,
-        last_name: String,
-        email: String,
-        password: String,
-        password_confirmation: String,
-        language: String,
+        user_info: NewUserInfo,
         app_conf: &ApplicationConfiguration,
     ) -> Result<()> {
         let payload = json!({
             "user": {
-                "email": email,
-                "first_name": first_name,
-                "last_name": last_name,
-                "password":password,
-                "password_confirmation": password_confirmation
+                "email": user_info.email,
+                "first_name": user_info.first_name,
+                "last_name": user_info.last_name,
+                "password": user_info.password,
+                "password_confirmation": user_info.password_confirmation
             },
             "user_field": {
-                "first_name": first_name,
-                "last_name": last_name
+                "first_name": user_info.first_name,
+                "last_name": user_info.last_name
             },
             "origin": app_conf.tmc_account_creation_origin,
-            "language": language
+            "language": user_info.language
         });
 
         self.request_with_headers(reqwest::Method::POST, TMC_API_URL, false, Some(payload))

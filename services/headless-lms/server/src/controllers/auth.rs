@@ -15,7 +15,7 @@ use crate::{
 use actix_session::Session;
 use anyhow::Error;
 use anyhow::anyhow;
-use headless_lms_utils::tmc::TmcClient;
+use headless_lms_utils::tmc::{NewUserInfo, TmcClient};
 use std::time::Duration;
 use tracing_log::log;
 
@@ -362,12 +362,14 @@ pub async fn post_new_user_to_moocfi(
 ) -> anyhow::Result<()> {
     tmc_client
         .post_new_user_to_moocfi(
-            user_details.first_name.clone(),
-            user_details.last_name.clone(),
-            user_details.email.clone(),
-            user_details.password.clone(),
-            user_details.password_confirmation.clone(),
-            user_details.language.clone(),
+            NewUserInfo {
+                first_name: user_details.first_name.clone(),
+                last_name: user_details.last_name.clone(),
+                email: user_details.email.clone(),
+                password: user_details.password.clone(),
+                password_confirmation: user_details.password_confirmation.clone(),
+                language: user_details.language.clone(),
+            },
             app_conf,
         )
         .await

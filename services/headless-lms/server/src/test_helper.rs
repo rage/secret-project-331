@@ -2,6 +2,7 @@ use crate::{
     config::{ServerConfig, ServerConfigBuilder},
     setup_tracing,
 };
+
 use headless_lms_utils::{
     ApplicationConfiguration, file_store::local_file_store::LocalFileStore, tmc::TmcClient,
 };

@@ -87,13 +87,13 @@ const UserSettings: React.FC<React.PropsWithChildren<Slug>> = () => {
           />
         )}
       </div>
-      <h1
+      <h2
         className={css`
           padding-top: 1rem;
         `}
       >
         {t("title-research-consents")}
-      </h1>
+      </h2>
 
       <div
         className={css`
@@ -110,7 +110,13 @@ const UserSettings: React.FC<React.PropsWithChildren<Slug>> = () => {
             padding: 1rem 1rem 0rem 1rem;
           `}
         >
-          <h3>{t("title-general-research-consent")}:</h3>
+          <p
+            className={css`
+              font-size: ${baseTheme.fontSizes[2]}px;
+            `}
+          >
+            {t("title-general-research-consent")}:
+          </p>
           <Button size="medium" variant="primary" onClick={handleGeneralResearchFormButton}>
             {t("edit")}
           </Button>
@@ -125,14 +131,13 @@ const UserSettings: React.FC<React.PropsWithChildren<Slug>> = () => {
 
         {courseBreadcrumbInfos.length !== 0 && (
           <div>
-            <h2
+            <h3
               className={css`
-                font-weight: 400;
                 padding: 1rem 1rem 0px 0px;
               `}
             >
               {t("title-course-specific-research-consents")}
-            </h2>
+            </h3>
 
             <div
               className={css`
@@ -150,7 +155,13 @@ const UserSettings: React.FC<React.PropsWithChildren<Slug>> = () => {
                     padding: 1rem 1rem 0rem 1rem;
                   `}
                 >
-                  <h3>{course.data?.course_name}:</h3>
+                  <p
+                    className={css`
+                      font-size: ${baseTheme.fontSizes[2]}px;
+                    `}
+                  >
+                    {course.data?.course_name}:
+                  </p>
                   <a
                     href={`org/${course.data?.organization_slug}/courses/${course.data?.course_slug}/?show_research_form=1`}
                   >

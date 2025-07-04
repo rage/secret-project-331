@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","authorize_action_on_resource","authorize_multiple_actions_on_resources","logged_in","login","logout","post_new_user_to_moocfi","signup","user_info"],"struct":["CreateAccountDetails","Login","UserInfo"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","authorize_action_on_resource","authorize_multiple_actions_on_resources","handle_test_mode_signup","logged_in","login","logout","post_new_user_to_moocfi","signup","update_user_information_to_tmc","user_info"],"struct":["CreateAccountDetails","Login","UserInfo"]};

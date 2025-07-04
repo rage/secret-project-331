@@ -29,6 +29,7 @@ pub async fn seed_user_research_consents(
         student_5_user_id,
         student_6_user_id,
         langs_user_id,
+        sign_up_user,
     } = seed_users_result;
 
     user_research_consents::upsert(&mut conn, PKeyPolicy::Generate, admin_user_id, true).await?;
@@ -85,6 +86,7 @@ pub async fn seed_user_research_consents(
         true,
     )
     .await?;
+    user_research_consents::upsert(&mut conn, PKeyPolicy::Generate, sign_up_user, true).await?;
 
     for user_id in example_normal_user_ids {
         user_research_consents::upsert(&mut conn, PKeyPolicy::Generate, user_id, true).await?;

@@ -65,6 +65,7 @@ const SearchableSelectField = forwardRef<HTMLSelectElement, SearchableSelectProp
           flex-direction: column;
           gap: 0.25rem;
           width: 250px;
+          margin-bottom: 1rem;
         `}
       >
         <Label

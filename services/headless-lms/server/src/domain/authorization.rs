@@ -999,6 +999,8 @@ pub async fn authenticate_test_user(
         models::users::get_by_email(conn, "student-without-country@example.com").await?
     } else if email == "langs@example.com" && password == "langs" {
         models::users::get_by_email(conn, "langs@example.com").await?
+    } else if email == "sign-up-user@example.com" && password == "sign-up-user" {
+        models::users::get_by_email(conn, "sign-up-user@example.com").await?
     } else {
         info!("Authentication failed: incorrect test credentials");
         return Ok(false);

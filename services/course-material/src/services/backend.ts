@@ -1,5 +1,5 @@
 import { RawAxiosRequestHeaders } from "axios"
-import { Dictionary, isBoolean } from "lodash"
+import { Dictionary } from "lodash"
 
 import { courseMaterialClient } from "./courseMaterialClient"
 
@@ -826,16 +826,20 @@ export const getUserDetails = async (): Promise<UserDetail> => {
 }
 
 export const updateUserInfo = async (
+  email: string,
   firstName: string,
   lastName: string,
   country: string,
-): Promise<boolean> => {
+  emailCommunicationConsent: boolean,
+): Promise<UserDetail> => {
   const response = await courseMaterialClient.post(`/user-details/update-user-info`, {
-    country: country,
+    email: email,
     first_name: firstName,
     last_name: lastName,
+    country: country,
+    email_communication_consent: emailCommunicationConsent,
   })
-  return validateResponse(response, isBoolean)
+  return validateResponse(response, isUserDetail)
 }
 
 export const fetchCountryFromIP = async (): Promise<string> => {

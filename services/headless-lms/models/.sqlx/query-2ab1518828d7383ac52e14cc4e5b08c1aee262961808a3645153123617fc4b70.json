@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE organizations\n        SET name = $1, deleted_at = CASE WHEN $2 THEN NOW() ELSE NULL END\n        WHERE id = $3\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Varchar", "Bool", "Uuid"]
+    },
+    "nullable": []
+  },
+  "hash": "2ab1518828d7383ac52e14cc4e5b08c1aee262961808a3645153123617fc4b70"
+}

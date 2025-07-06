@@ -163,3 +163,25 @@ mod tests {
         assert_eq!(orgs_before.len() + 1, orgs_after.len());
     }
 }
+
+pub async fn update_name_and_hidden(
+    conn: &mut PgConnection,
+    id: Uuid,
+    name: &str,
+    hidden: bool,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+        UPDATE organizations
+        SET name = $1, deleted_at = CASE WHEN $2 THEN NOW() ELSE NULL END
+        WHERE id = $3
+        "#,
+        name,
+        hidden,
+        id
+    )
+    .execute(conn)
+    .await?;
+
+    Ok(())
+}

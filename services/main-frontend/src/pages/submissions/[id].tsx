@@ -53,9 +53,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
               })}
             />
           </h1>
-          {getSubmissionInfo.data.exercise.deleted_at !== null && (
-            <GenericInfobox>{t("message-this-exercise-has-been-deleted")}</GenericInfobox>
-          )}
+
           {
             <div
               className={css`
@@ -128,7 +126,12 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
           {getSubmissionInfo.data.tasks
             .sort((a, b) => a.order_number - b.order_number)
             .map((task) => (
-              <SubmissionIFrame key={task.id} coursematerialExerciseTask={task} />
+              <div key={task.id}>
+                <SubmissionIFrame coursematerialExerciseTask={task} />
+                {task.deleted_at !== null && (
+                  <GenericInfobox>{t("message-this-task-has-been-deleted")}</GenericInfobox>
+                )}
+              </div>
             ))}
         </>
       )}

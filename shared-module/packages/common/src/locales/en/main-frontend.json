@@ -551,7 +551,7 @@
   "message-please-confirm-your-email-address": "Please confirm your email address.",
   "message-saved-successfully": "Saved successfully",
   "message-saving-failed": "Something went wrong, couldn't complete saving",
-  "message-this-exercise-has-been-deleted": "This exercise has been deleted",
+  "message-this-task-has-been-deleted": "This task has been deleted",
   "message-this-submission-has-been-graded-automatically": "This submission has been graded automatically",
   "message-update-failed": "Something went wrong, couldn't complete updating",
   "message-update-succesful": "Update succesful",

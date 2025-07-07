@@ -168,7 +168,7 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
         password: password,
         password_confirmation: password_confirmation,
         country: country,
-        email_communication_consent: email_communication_consent,
+        email_communication_consent: Boolean(email_communication_consent),
       })
     },
     { notify: true, method: "POST" },

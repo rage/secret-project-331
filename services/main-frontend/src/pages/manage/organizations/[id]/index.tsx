@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { PencilBox, Trash } from "@vectopus/atlas-icons-react"
 import React from "react"
-import { useTranslation } from "react-i18next"
+import { type TFunction, useTranslation } from "react-i18next"
 
 import { fetchOrganization, updateOrganization } from "../../../../services/backend/organizations"
 
@@ -37,7 +37,7 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
   const [activeTab, setActiveTab] = React.useState<"general" | "permissions">("general")
   const [showAddUserPopup, setShowAddUserPopup] = React.useState(false)
   const [editMode, setEditMode] = React.useState(false)
-  const [users, setUsers] = React.useState<RoleUser[]>([])
+  const [users, setUsers] = React.useState<{ name: string; email: string; role: string }[]>([])
   const [email, setEmail] = React.useState("")
   const [role, setRole] = React.useState("")
   const [mutationError, setMutationError] = React.useState<unknown | null>(null)
@@ -99,12 +99,7 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
       "StatsViewer",
     ]
 
-    if (!validRoles.includes(editRole)) {
-      alert("Invalid role. Please enter a valid role name.")
-      return
-    }
-
-    void removeRole(editUser.email, editUser.role, { tag: "Organization", id: query.id })
+    void removeRole(editUser.email, editUser.role, { tag: t("organization"), id: query.id })
       .then(() =>
         giveRole(editUser.email, editRole as UserRole, {
           tag: t("organization"),
@@ -153,9 +148,9 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
   React.useEffect(() => {
     if (roleQuery.data) {
       setUsers(
-        roleQuery.data.map((user: any) => ({
+        roleQuery.data.map((user) => ({
           ...user,
-          name: `${user.first_name} ${user.last_name}`,
+          name: `${user.first_name ?? ""} ${user.last_name ?? ""}`.trim(),
         })),
       )
     }
@@ -179,6 +174,7 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
     contents = <ErrorBanner variant={"readOnly"} error={organization.error} />
   } else {
     contents = content(
+      t,
       activeTab,
       setActiveTab,
       setShowAddUserPopup,
@@ -225,7 +221,7 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
           <EditUserPopup
             show={showEditPopup}
             setShow={setShowEditPopup}
-            name={editUser.name}
+            name={`${editUser.first_name} ${editUser.last_name}`}
             email={editUser.email}
             role={editRole}
             setRole={setEditRole}
@@ -238,13 +234,14 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
 }
 
 const content = (
+  t: TFunction,
   activeTab: "general" | "permissions",
   setActiveTab: React.Dispatch<React.SetStateAction<"general" | "permissions">>,
   setShowAddUserPopup: React.Dispatch<React.SetStateAction<boolean>>,
   editMode: boolean,
   setEditMode: React.Dispatch<React.SetStateAction<boolean>>,
   users: { name: string; email: string; role: string }[],
-  handleDelete: (user: { name: string; email: string; role: string }) => void,
+  handleDelete: (user: RoleUser) => void,
   handleEdit: (user: { id: number; name: string; email: string; role: string }) => void,
   editedName: string,
   setEditedName: React.Dispatch<React.SetStateAction<string>>,
@@ -274,7 +271,7 @@ const content = (
         }
       `}
     >
-      Manage Organization – {organization.data?.name ?? ""}
+      {t("link-manage-organization")} – {organization.data?.name ?? ""}
     </div>
 
     <div
@@ -291,7 +288,16 @@ const content = (
       `}
     >
       <div
+        role="tab"
+        aria-selected={activeTab === "general"}
+        aria-controls="tab-panel-general"
+        tabIndex={0}
         onClick={() => setActiveTab("general")}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            setActiveTab("general")
+          }
+        }}
         className={css`
           padding-bottom: 8px;
           font-size: 16px;
@@ -304,10 +310,20 @@ const content = (
           }
         `}
       >
-        General
+        {t("button-general")}
       </div>
+
       <div
+        role="tab"
+        aria-selected={activeTab === "permissions"}
+        aria-controls="tab-panel-permissions"
+        tabIndex={0}
         onClick={() => setActiveTab("permissions")}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            setActiveTab("permissions")
+          }
+        }}
         className={css`
           padding-bottom: 8px;
           font-size: 16px;
@@ -315,7 +331,7 @@ const content = (
           cursor: pointer;
         `}
       >
-        Permissions
+        {t("link-permissions")}
       </div>
     </div>
 
@@ -329,7 +345,7 @@ const content = (
           setHidden,
           updateOrgMutation,
         ) //designContent(editMode, setEditMode, name, setName, hidden, setHidden)
-      : permissionContent(setShowAddUserPopup, users, handleDelete, handleEdit)}
+      : permissionContent(t, setShowAddUserPopup, users, handleDelete, handleEdit)}
   </div>
 )
 
@@ -525,6 +541,7 @@ const designContent = (
 }
 
 const permissionContent = (
+  t: TFunction,
   setShowAddUserPopup: React.Dispatch<React.SetStateAction<boolean>>,
   users: { name: string; email: string; role: string }[],
   handleDelete: (user: { name: string; email: string; role: string }) => void,
@@ -555,10 +572,10 @@ const permissionContent = (
           }
         `}
       >
-        Organization Permissions
+        {t("organization-permissions")}
       </h2>
       <button onClick={() => setShowAddUserPopup(true)} className={primaryButton}>
-        Add Users
+        {t("label-add-user")}
       </button>
     </div>
 
@@ -582,10 +599,10 @@ const permissionContent = (
             opacity: 0.8;
           `}
         >
-          <div>Name</div>
-          <div>Email</div>
-          <div>Role</div>
-          <div>Actions</div>
+          <div>{t("text-field-label-name")}</div>
+          <div>{t("label-email")}</div>
+          <div>{t("label-role")}</div>
+          <div>{t("actions")}</div>
         </div>
 
         <hr
@@ -625,11 +642,11 @@ const permissionContent = (
                 `}
               >
                 <button className={actionButtonStyle} onClick={() => handleEdit(user)}>
-                  <PencilBox width={16} height={16} />
+                  <PencilBox size={16} />
                 </button>
 
                 <button className={actionButtonStyle} onClick={() => handleDelete(user)}>
-                  <Trash width={16} height={16} />
+                  <Trash size={16} />
                 </button>
               </div>
             </div>

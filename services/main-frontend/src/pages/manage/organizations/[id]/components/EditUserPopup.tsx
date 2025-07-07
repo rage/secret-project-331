@@ -24,25 +24,6 @@ const EditUserPopup: React.FC<EditUserPopupProps> = ({
   setRole,
   handleSave,
 }) => {
-  const containerStyles = css({
-    position: "fixed",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: "90%",
-    maxWidth: "843px",
-    background: "#ffffff",
-    boxShadow: "0px 8px 40px rgba(0, 0, 0, 0.1)",
-    borderRadius: "3px",
-    padding: "32px",
-    zIndex: 9999,
-    fontFamily: "Inter, sans-serif",
-    color: "#1a2333",
-    opacity: show ? 1 : 0,
-    pointerEvents: show ? "auto" : "none",
-    transition: "opacity 0.3s ease",
-  })
-
   return (
     <StandardDialog
       open={show}

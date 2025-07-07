@@ -27,6 +27,7 @@ pub struct Organization {
     pub description: Option<String>,
     pub organization_image_url: Option<String>,
     pub deleted_at: Option<DateTime<Utc>>,
+    pub hidden: bool,
 }
 
 impl Organization {
@@ -48,6 +49,7 @@ impl Organization {
             deleted_at: organization.deleted_at,
             organization_image_url,
             description: organization.description,
+            hidden: organization.deleted_at.is_some(),
         }
     }
 }

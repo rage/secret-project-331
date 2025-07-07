@@ -181,7 +181,6 @@ pub async fn get_by_exercise_slide_submission_id(
 SELECT *
 FROM exercise_task_submissions
 WHERE exercise_slide_submission_id = $1
-  AND deleted_at IS NULL
         ",
         exercise_slide_submission_id
     )

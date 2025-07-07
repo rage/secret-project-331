@@ -9,6 +9,7 @@ import { fetchSubmissionInfo } from "../../services/backend/submissions"
 
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import Spinner from "@/shared-module/common/components/Spinner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -52,6 +53,9 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
               })}
             />
           </h1>
+          {getSubmissionInfo.data.exercise.deleted_at !== null && (
+            <GenericInfobox>{t("message-this-exercise-has-been-deleted")}</GenericInfobox>
+          )}
           {
             <div
               className={css`

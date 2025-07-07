@@ -547,6 +547,7 @@
   "message-please-confirm-your-email-address": "Please confirm your email address.",
   "message-saved-successfully": "Tallennus onnistui",
   "message-saving-failed": "Jotakin meni pieleen, tallennus ei onnistunut",
+  "message-this-exercise-has-been-deleted": "Tämä tehtävä on poistettu",
   "message-this-submission-has-been-graded-automatically": "Tämä palautus on arvosteltu automaattisesti",
   "message-update-failed": "Jotakin meni pieleen, päivitys ei onnistunut",
   "message-update-succesful": "Päivitys onnistui",

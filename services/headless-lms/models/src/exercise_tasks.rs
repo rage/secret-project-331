@@ -263,7 +263,6 @@ where
 SELECT *
 FROM exercise_tasks
 WHERE exercise_slide_id = $1
-  AND deleted_at IS NULL;
         ",
         exercise_slide_id,
     )

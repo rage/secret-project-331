@@ -4,10 +4,8 @@ import { PencilBox, Trash } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import OrganizationImageWidget from "../../../../components/page-specific/org/organizationSlug/OrganizationImageWidget"
 import { fetchOrganization, updateOrganization } from "../../../../services/backend/organizations"
 
-import OrganizationSidebar from "./OrganizationSidebar"
 import AddUserPopup from "./components/AddUserPopup"
 import EditUserPopup from "./components/EditUserPopup"
 import {
@@ -19,6 +17,7 @@ import {
 
 import { fetchRoles, giveRole, removeRole } from "@/services/backend/roles"
 import { RoleDomain, RoleQuery, RoleUser, UserRole } from "@/shared-module/common/bindings"
+import type { Organization } from "@/shared-module/common/bindings" // or correct path
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -50,7 +49,7 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
 
   const addMutation = useToastMutation(
     () => {
-      return giveRole(email, role as UserRole, { tag: "Organization", id: query.id })
+      return giveRole(email, role as UserRole, { tag: t("organization"), id: query.id })
     },
     { notify: true, method: "POST" },
     {
@@ -108,7 +107,7 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
     void removeRole(editUser.email, editUser.role, { tag: "Organization", id: query.id })
       .then(() =>
         giveRole(editUser.email, editRole as UserRole, {
-          tag: "Organization",
+          tag: t("organization"),
           id: query.id,
         }),
       )
@@ -118,7 +117,6 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
       })
       .catch((error) => {
         console.error("Failed to update role", error)
-        alert("Something went wrong while updating the role.")
       })
   }
 
@@ -134,14 +132,14 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
     },
   )
 
-  const domain: RoleDomain = { tag: "Organization", id: query.id }
+  const domain: RoleDomain = { tag: t("organization"), id: query.id }
 
   const roleQuery = useQuery({
-    queryKey: ["roles", domain],
+    queryKey: ["roles", domain, query.id],
     queryFn: () => fetchRoles({ organization_id: query.id }),
   })
 
-  const organization = useQuery({
+  const organization = useQuery<Organization>({
     queryKey: [`organization-${query.id}`],
     queryFn: () => fetchOrganization(query.id),
   })
@@ -168,18 +166,11 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
   }, [activeTab])
 
   React.useEffect(() => {
-    if (organization.data && !editMode) {
+    if (organization.data) {
       setEditedName(organization.data.name)
+      setHidden(organization.data.deleted_at !== null)
     }
-  }, [organization.data, editMode])
-
-  if (roleQuery.isLoading) {
-    return <div>Loading users…</div>
-  }
-
-  if (roleQuery.isError) {
-    return <div>Error loading users: {roleQuery.error.message}</div>
-  }
+  }, [organization.data])
 
   let contents
   if (organization.isPending) {
@@ -201,6 +192,7 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
       hidden,
       setHidden,
       updateOrgMutation,
+      organization,
     )
   }
 
@@ -259,6 +251,7 @@ const content = (
   hidden: boolean,
   setHidden: React.Dispatch<React.SetStateAction<boolean>>,
   updateOrgMutation: ReturnType<typeof useToastMutation>,
+  organization: ReturnType<typeof useQuery>,
 ) => (
   <div
     className={css`
@@ -281,7 +274,7 @@ const content = (
         }
       `}
     >
-      Manage Organization – {editedName}
+      Manage Organization – {organization.data?.name ?? ""}
     </div>
 
     <div

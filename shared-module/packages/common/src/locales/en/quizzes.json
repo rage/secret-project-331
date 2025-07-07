@@ -78,6 +78,7 @@
   "maximum": "Maximum",
   "message-after-submission-when-this-option-selected": "Message after submission when this option selected",
   "message-on-model-solution-when-this-option-selected": "Message on model solution when this option selected",
+  "message-the-exercise-type-has-changed": "The exercise type has changed and cannot be previewed, but your original answer is still saved.",
   "min": "min ",
   "min-words": "Min words",
   "minimum": "Minimum",

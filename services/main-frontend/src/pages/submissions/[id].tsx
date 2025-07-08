@@ -41,9 +41,10 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
       {getSubmissionInfo.isPending && <Spinner variant={"medium"} />}
       {getSubmissionInfo.isSuccess && (
         <>
-          {getSubmissionInfo.data.tasks[1].deleted_at !== null && (
+          {getSubmissionInfo.data.tasks.some((task) => task.deleted_at !== null) && (
             <GenericInfobox>{t("message-this-task-has-been-deleted")}</GenericInfobox>
           )}
+
           <h1
             className={css`
               margin-bottom: 2rem;

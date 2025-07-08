@@ -1,8 +1,10 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { PencilBox, Trash } from "@vectopus/atlas-icons-react"
+import type { TFunction } from "i18next"
 import React from "react"
-import { type TFunction, useTranslation } from "react-i18next"
+import { useTranslation } from "react-i18next"
 
 import { fetchOrganization, updateOrganization } from "../../../../services/backend/organizations"
 
@@ -16,8 +18,8 @@ import {
 } from "./styles/sharedStyles"
 
 import { fetchRoles, giveRole, removeRole } from "@/services/backend/roles"
-import { RoleDomain, RoleQuery, RoleUser, UserRole } from "@/shared-module/common/bindings"
-import type { Organization } from "@/shared-module/common/bindings" // or correct path
+import { RoleDomain, RoleUser, UserRole } from "@/shared-module/common/bindings"
+import type { Organization } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -28,19 +30,26 @@ import dontRenderUntilQueryParametersReady, {
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
+type NamedRoleUser = RoleUser & { name: string }
+
+const GENERAL_TAB = "general"
+const PERMISSIONS_TAB = "permissions"
+const DEFAULT_TAB = GENERAL_TAB
+
+type TabKey = typeof GENERAL_TAB | typeof PERMISSIONS_TAB
+
 interface Props {
   query: SimplifiedUrlQuery<"id">
 }
 
 const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query }) => {
   const { t } = useTranslation()
-  const [activeTab, setActiveTab] = React.useState<"general" | "permissions">("general")
+  const [activeTab, setActiveTab] = React.useState<TabKey>(DEFAULT_TAB)
   const [showAddUserPopup, setShowAddUserPopup] = React.useState(false)
   const [editMode, setEditMode] = React.useState(false)
-  const [users, setUsers] = React.useState<{ name: string; email: string; role: string }[]>([])
+  const [users, setUsers] = React.useState<NamedRoleUser[]>([])
   const [email, setEmail] = React.useState("")
   const [role, setRole] = React.useState("")
-  const [mutationError, setMutationError] = React.useState<unknown | null>(null)
   const [hidden, setHidden] = React.useState(false)
   const [showEditPopup, setShowEditPopup] = React.useState(false)
   const [editUser, setEditUser] = React.useState<RoleUser | null>(null)
@@ -59,24 +68,23 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
         setShowAddUserPopup(false)
         roleQuery.refetch()
       },
-      onError: setMutationError,
     },
   )
 
-  const handleDelete = (userToDelete: RoleUser) => {
-    if (window.confirm(`Are you sure you want to delete ${userToDelete.email}?`)) {
+  const handleDelete = (userToDelete: NamedRoleUser) => {
+    if (window.confirm(t("confirm-delete-user", { email: userToDelete.email }))) {
+      // eslint-disable-next-line i18next/no-literal-string
       removeRole(userToDelete.email, userToDelete.role, { tag: "Organization", id: query.id })
         .then(() => {
-          roleQuery.refetch() // Refresh the list after deletion
+          roleQuery.refetch()
         })
         .catch((error) => {
           console.error("Failed to delete user role:", error)
-          alert("Failed to delete user.")
         })
     }
   }
 
-  const handleEdit = (userToEdit: RoleUser) => {
+  const handleEdit = (userToEdit: NamedRoleUser) => {
     setEditUser(userToEdit)
     setEditRole(userToEdit.role)
     setShowEditPopup(true)
@@ -87,17 +95,6 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
       setShowEditPopup(false)
       return
     }
-
-    const validRoles = [
-      "Admin",
-      "Assistant",
-      "Reviewer",
-      "Teacher",
-      "CourseOrExamCreator",
-      "MaterialViewer",
-      "TeachingAndLearningServices",
-      "StatsViewer",
-    ]
 
     void removeRole(editUser.email, editUser.role, { tag: t("organization"), id: query.id })
       .then(() =>
@@ -127,7 +124,8 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
     },
   )
 
-  const domain: RoleDomain = { tag: t("organization"), id: query.id }
+  // eslint-disable-next-line i18next/no-literal-string
+  const domain: RoleDomain = { tag: "Organization", id: query.id }
 
   const roleQuery = useQuery({
     queryKey: ["roles", domain, query.id],
@@ -235,20 +233,20 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
 
 const content = (
   t: TFunction,
-  activeTab: "general" | "permissions",
-  setActiveTab: React.Dispatch<React.SetStateAction<"general" | "permissions">>,
+  activeTab: TabKey,
+  setActiveTab: React.Dispatch<React.SetStateAction<TabKey>>,
   setShowAddUserPopup: React.Dispatch<React.SetStateAction<boolean>>,
   editMode: boolean,
   setEditMode: React.Dispatch<React.SetStateAction<boolean>>,
-  users: { name: string; email: string; role: string }[],
-  handleDelete: (user: RoleUser) => void,
-  handleEdit: (user: { id: number; name: string; email: string; role: string }) => void,
+  users: NamedRoleUser[],
+  handleDelete: (user: NamedRoleUser) => void,
+  handleEdit: (user: NamedRoleUser) => void,
   editedName: string,
   setEditedName: React.Dispatch<React.SetStateAction<string>>,
   hidden: boolean,
   setHidden: React.Dispatch<React.SetStateAction<boolean>>,
-  updateOrgMutation: ReturnType<typeof useToastMutation>,
-  organization: ReturnType<typeof useQuery>,
+  updateOrgMutation: UseMutationResult<void, unknown, { name: string; hidden: boolean }, unknown>,
+  organization: UseQueryResult<Organization>,
 ) => (
   <div
     className={css`
@@ -271,7 +269,7 @@ const content = (
         }
       `}
     >
-      {t("link-manage-organization")} – {organization.data?.name ?? ""}
+      {t("link-manage-organization-with-name", { name: organization.data?.name ?? "" })}
     </div>
 
     <div
@@ -289,20 +287,20 @@ const content = (
     >
       <div
         role="tab"
-        aria-selected={activeTab === "general"}
+        aria-selected={activeTab === GENERAL_TAB}
         aria-controls="tab-panel-general"
         tabIndex={0}
-        onClick={() => setActiveTab("general")}
+        onClick={() => setActiveTab(GENERAL_TAB)}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
-            setActiveTab("general")
+            setActiveTab(GENERAL_TAB)
           }
         }}
         className={css`
           padding-bottom: 8px;
           font-size: 16px;
           margin-right: 0.5rem;
-          border-bottom: ${activeTab === "general" ? "2px solid #1A2333" : "none"};
+          border-bottom: ${activeTab === GENERAL_TAB ? "2px solid #1A2333" : "none"};
           cursor: pointer;
 
           ${respondToOrLarger.lg} {
@@ -310,24 +308,24 @@ const content = (
           }
         `}
       >
-        {t("button-general")}
+        {t("general")}
       </div>
 
       <div
         role="tab"
-        aria-selected={activeTab === "permissions"}
+        aria-selected={activeTab === PERMISSIONS_TAB}
         aria-controls="tab-panel-permissions"
         tabIndex={0}
-        onClick={() => setActiveTab("permissions")}
+        onClick={() => setActiveTab(PERMISSIONS_TAB)}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
-            setActiveTab("permissions")
+            setActiveTab(PERMISSIONS_TAB)
           }
         }}
         className={css`
           padding-bottom: 8px;
           font-size: 16px;
-          border-bottom: ${activeTab === "permissions" ? "2px solid #1A2333" : "none"};
+          border-bottom: ${activeTab === PERMISSIONS_TAB ? "2px solid #1A2333" : "none"};
           cursor: pointer;
         `}
       >
@@ -337,6 +335,7 @@ const content = (
 
     {activeTab === "general"
       ? designContent(
+          t,
           editMode,
           setEditMode,
           editedName,
@@ -344,19 +343,20 @@ const content = (
           hidden,
           setHidden,
           updateOrgMutation,
-        ) //designContent(editMode, setEditMode, name, setName, hidden, setHidden)
+        )
       : permissionContent(t, setShowAddUserPopup, users, handleDelete, handleEdit)}
   </div>
 )
 
 const designContent = (
+  t: TFunction,
   editMode: boolean,
   setEditMode: React.Dispatch<React.SetStateAction<boolean>>,
   editedName: string,
   setEditedName: React.Dispatch<React.SetStateAction<string>>,
   hidden: boolean,
   setHidden: React.Dispatch<React.SetStateAction<boolean>>,
-  updateOrgMutation: ReturnType<typeof useToastMutation>,
+  updateOrgMutation: UseMutationResult<void, unknown, { name: string; hidden: boolean }, unknown>,
 ) => {
   return (
     <div className={containerBase}>
@@ -370,7 +370,7 @@ const designContent = (
           height: 30px;
         `}
       >
-        <span>General</span>
+        <span>{t("general")}</span>
         <button
           onClick={() => setEditMode(true)}
           disabled={editMode}
@@ -383,7 +383,7 @@ const designContent = (
             `}
           `}
         >
-          Edit
+          {t("edit")}
         </button>
       </div>
 
@@ -410,7 +410,7 @@ const designContent = (
               flex-shrink: 0;
             `}
           >
-            Name
+            {t("label-name")}
           </span>
 
           {editMode ? (
@@ -455,7 +455,7 @@ const designContent = (
               flex-shrink: 0;
             `}
           >
-            Visibility
+            {t("visibility")}
           </span>
 
           {editMode ? (
@@ -479,10 +479,10 @@ const designContent = (
                   accent-color: #1a2333;
                 `}
               />
-              <span>Hide</span>
+              <span>{t("hide")}</span>
             </div>
           ) : (
-            <span>{hidden ? "Hidden" : "Visible"}</span>
+            <span>{hidden ? t("visibility-false") : t("visibility-true")}</span>
           )}
         </div>
 
@@ -499,7 +499,7 @@ const designContent = (
               width: 80px;
             `}
           >
-            Slug
+            {t("text-field-label-or-header-slug-or-short-name")}
           </span>
         </div>
 
@@ -518,7 +518,7 @@ const designContent = (
                 className={primaryButton}
                 onClick={() => updateOrgMutation.mutate({ name: editedName, hidden })}
               >
-                Save
+                {t("button-text-save")}
               </button>
 
               <button
@@ -530,7 +530,7 @@ const designContent = (
                 `}
                 onClick={() => setEditMode(false)}
               >
-                Cancel
+                {t("button-text-cancel")}
               </button>
             </>
           ) : null}
@@ -543,9 +543,9 @@ const designContent = (
 const permissionContent = (
   t: TFunction,
   setShowAddUserPopup: React.Dispatch<React.SetStateAction<boolean>>,
-  users: { name: string; email: string; role: string }[],
-  handleDelete: (user: { name: string; email: string; role: string }) => void,
-  handleEdit: (user: { id: number; name: string; email: string; role: string }) => void,
+  users: NamedRoleUser[],
+  handleDelete: (user: NamedRoleUser) => void,
+  handleEdit: (user: NamedRoleUser) => void,
 ) => (
   <div className={containerBase}>
     <div

@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
-import { primaryButton } from "../styles/sharedStyles"
-
+import { USER_ROLES } from "@/constants/roles"
 import StandardDialog from "@/shared-module/common/components/StandardDialog"
 
 interface EditUserPopupProps {
@@ -24,20 +24,24 @@ const EditUserPopup: React.FC<EditUserPopupProps> = ({
   setRole,
   handleSave,
 }) => {
+  const { t } = useTranslation("main-frontend") as { t: (key: string) => string }
+
   return (
     <StandardDialog
       open={show}
       onClose={() => setShow(false)}
-      title="Edit User Role"
+      title={t("edit-user-role")}
       buttons={[
         {
-          children: "Save",
+          children: t("save"),
           onClick: handleSave,
+          // eslint-disable-next-line i18next/no-literal-string
           variant: "primary",
         },
         {
-          children: "Cancel",
+          children: t("button-text-cancel"),
           onClick: () => setShow(false),
+          // eslint-disable-next-line i18next/no-literal-string
           variant: "secondary",
         },
       ]}
@@ -48,7 +52,7 @@ const EditUserPopup: React.FC<EditUserPopupProps> = ({
           margin-bottom: 32px;
         `}
       >
-        You can change the role of this user. Email and name are shown for reference.
+        {t("edit-user-description")}
       </p>
 
       <div
@@ -73,7 +77,7 @@ const EditUserPopup: React.FC<EditUserPopupProps> = ({
               width: 60px;
             `}
           >
-            Name
+            {t("label-name")}
           </label>
           <span
             className={css`
@@ -99,7 +103,7 @@ const EditUserPopup: React.FC<EditUserPopupProps> = ({
               width: 60px;
             `}
           >
-            Email
+            {t("label-email")}
           </label>
           <span
             className={css`
@@ -125,7 +129,7 @@ const EditUserPopup: React.FC<EditUserPopupProps> = ({
               width: 60px;
             `}
           >
-            Role
+            {t("label-role")}
           </label>
           <select
             value={role}
@@ -139,15 +143,11 @@ const EditUserPopup: React.FC<EditUserPopupProps> = ({
               background-color: white;
             `}
           >
-            <option value="">Select a role</option>
-            <option value="Admin">Admin</option>
-            <option value="Assistant">Assistant</option>
-            <option value="Reviewer">Reviewer</option>
-            <option value="Teacher">Teacher</option>
-            <option value="CourseOrExamCreator">Course or Exam Creator</option>
-            <option value="MaterialViewer">Material Viewer</option>
-            <option value="TeachingAndLearningServices">Teaching & Learning Services</option>
-            <option value="StatsViewer">Stats Viewer</option>
+            {USER_ROLES.map((role) => (
+              <option key={role.value} value={role.value}>
+                {t(role.translationKey)}
+              </option>
+            ))}
           </select>
         </div>
       </div>

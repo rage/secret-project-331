@@ -6,6 +6,8 @@
   "add": "Lisää",
   "add-course": "Lisää kurssi",
   "add-new-reference": "Lisää uusi lähde",
+  "add-user-description": "Lisää käyttäjä sähköpostilla ja roolilla kurssille",
+  "add-user-title": "Lisää käyttäjäoikeudet",
   "added-by-user": "Lisätty käyttäjän toimesta",
   "after-completion-has-been-registered-you-can-view-completed-credits-at-url": "Näet opintopisteesi suorituksen rekisteröimisen jälkeen Oma Opintopolku -palvelusta: <4>{{url}}</4> Huom! Suorituksen rekisteröimisen jälkeen kestää jonkin aikaa ennen kuin suoritus tulee näkyville Koskeen.",
   "all-language-versions-stats-description": "Kaikki tilastot tällä sivulla ovat yhteensä kaikille kurssin kieliversioille.",

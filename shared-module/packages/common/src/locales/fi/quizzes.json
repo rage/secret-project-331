@@ -78,7 +78,7 @@
   "maximum": "Maksimi",
   "message-after-submission-when-this-option-selected": "Valitun vaihtoehdon palaute palautuksen jälkeen",
   "message-on-model-solution-when-this-option-selected": "Valitun vaihtoehdon viesti mallivastauksessa",
-  "message-the-exercise-type-has-changed": "Tämän tehtävän tyyppi on muuttunut, eikä sitä voi esikatsella, mutta alkuperäinen vastauksesi on tallessa.",
+  "message-the-exercise-type-has-changed": "Tämän tehtävän tyyppi on muuttunut palautuksen jälkeen, mutta vastauksesi on tallessa.",
   "min": "minimi",
   "min-words": "Sanoja vähintään",
   "minimum": "Minimi",

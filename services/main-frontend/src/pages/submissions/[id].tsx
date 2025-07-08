@@ -41,6 +41,9 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
       {getSubmissionInfo.isPending && <Spinner variant={"medium"} />}
       {getSubmissionInfo.isSuccess && (
         <>
+          {getSubmissionInfo.data.tasks[1].deleted_at !== null && (
+            <GenericInfobox>{t("message-this-task-has-been-deleted")}</GenericInfobox>
+          )}
           <h1
             className={css`
               margin-bottom: 2rem;
@@ -126,12 +129,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
           {getSubmissionInfo.data.tasks
             .sort((a, b) => a.order_number - b.order_number)
             .map((task) => (
-              <div key={task.id}>
-                <SubmissionIFrame coursematerialExerciseTask={task} />
-                {task.deleted_at !== null && (
-                  <GenericInfobox>{t("message-this-task-has-been-deleted")}</GenericInfobox>
-                )}
-              </div>
+              <SubmissionIFrame key={task.id} coursematerialExerciseTask={task} />
             ))}
         </>
       )}

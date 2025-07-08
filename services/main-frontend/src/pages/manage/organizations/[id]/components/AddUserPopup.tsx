@@ -1,6 +1,8 @@
 import { css } from "@emotion/css"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
+import { USER_ROLES } from "@/constants/roles"
 import StandardDialog from "@/shared-module/common/components/StandardDialog"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
@@ -23,20 +25,24 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({
   setRole,
   handleSave,
 }) => {
+  const { t } = useTranslation("main-frontend") as { t: (key: string) => string }
+
   return (
     <StandardDialog
       open={show}
       onClose={() => setShow(false)}
-      title="Add User to Permission"
+      title={t("add-user-title")}
       buttons={[
         {
-          children: "Save",
+          children: t("save"),
           onClick: handleSave,
+          // eslint-disable-next-line i18next/no-literal-string
           variant: "primary",
         },
         {
-          children: "Cancel",
+          children: t("button-text-cancel"),
           onClick: () => setShow(false),
+          // eslint-disable-next-line i18next/no-literal-string
           variant: "secondary",
         },
       ]}
@@ -47,7 +53,7 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({
           margin-bottom: 32px;
         `}
       >
-        Select an email address and a role (e.g., Teachers) to assign to this course.
+        {t("add-user-description")}
       </p>
 
       <div
@@ -70,10 +76,9 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({
             flex-direction: column;
           `}
         >
-          <label>Email</label>
+          <label>{t("label-email")}</label>
           <input
             type="text"
-            placeholder="Enter email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className={css`
@@ -93,7 +98,7 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({
             flex-direction: column;
           `}
         >
-          <label>Role</label>
+          <label>{t("label-role")}</label>
           <select
             value={role}
             onChange={(e) => setRole(e.target.value)}
@@ -105,15 +110,12 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({
               background-color: white;
             `}
           >
-            <option value="">Select a role</option>
-            <option value="Admin">Admin</option>
-            <option value="Assistant">Assistant</option>
-            <option value="Reviewer">Reviewer</option>
-            <option value="Teacher">Teacher</option>
-            <option value="CourseOrExamCreator">Course or Exam Creator</option>
-            <option value="MaterialViewer">Material Viewer</option>
-            <option value="TeachingAndLearningServices">Teaching & Learning Services</option>
-            <option value="StatsViewer">Stats Viewer</option>
+            <option value="">{t("button-select-role")}</option>
+            {USER_ROLES.map((role) => (
+              <option key={role.value} value={role.value}>
+                {t(role.translationKey)}
+              </option>
+            ))}
           </select>
         </div>
       </div>

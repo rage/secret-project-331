@@ -165,7 +165,7 @@ pub struct UserInfoPayload {
 /**
 POST `/api/v0/main-frontend/user-details/update-user-info` - Updates the users information such as email, name, country and email communication consent
 */
-#[instrument(skip(pool, app_conf))]
+#[instrument(skip(pool, app_conf, tmc_client))]
 pub async fn update_user_info(
     user: AuthUser,
     pool: web::Data<PgPool>,
@@ -174,6 +174,11 @@ pub async fn update_user_info(
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<UserDetail>> {
     let mut tx = pool.begin().await?;
+
+    let existing_user = models::user_details::get_user_details_by_user_id(&mut tx, user.id)
+        .await
+        .context("Failed to fetch existing user data")?;
+
     let updated_user = models::user_details::update_user_info(
         &mut tx,
         user.id,
@@ -186,15 +191,35 @@ pub async fn update_user_info(
     .await
     .context("Failed to update database")?;
 
-    controllers::auth::update_user_information_to_tmc(
-        payload.first_name.clone(),
-        payload.last_name.clone(),
-        payload.email.clone(),
-        tmc_client.clone(),
-        app_conf,
-    )
-    .await
-    .context("Failed to update user info to tmc")?;
+    let email_changed = existing_user.email != payload.email;
+    let first_name_changed = existing_user.first_name != Some(payload.first_name.clone());
+    let last_name_changed = existing_user.last_name != Some(payload.last_name.clone());
+
+    if email_changed || first_name_changed || last_name_changed {
+        let email_opt = if email_changed {
+            Some(payload.email.clone())
+        } else {
+            None
+        };
+
+        controllers::auth::update_user_information_to_tmc(
+            payload.first_name.clone(),
+            payload.last_name.clone(),
+            email_opt,
+            tmc_client.clone(),
+            app_conf,
+        )
+        .await
+        .map_err(|e| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                "Failed to update user info to tmc",
+                e,
+            )
+        })?;
+    } else {
+        info!("User info unchanged, skipping update to TMC.");
+    }
 
     tx.commit().await?;
     let token = skip_authorize();

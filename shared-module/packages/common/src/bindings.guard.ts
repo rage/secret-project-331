@@ -1735,7 +1735,9 @@ export function isCourseMaterialExerciseTask(obj: unknown): obj is CourseMateria
             isExerciseTaskSubmission(typedObj["previous_submission"]) as boolean) &&
         (typedObj["previous_submission_grading"] === null ||
             isExerciseTaskGrading(typedObj["previous_submission_grading"]) as boolean) &&
-        typeof typedObj["order_number"] === "number"
+        typeof typedObj["order_number"] === "number" &&
+        (typedObj["deleted_at"] === null ||
+            typeof typedObj["deleted_at"] === "string")
     )
 }
 

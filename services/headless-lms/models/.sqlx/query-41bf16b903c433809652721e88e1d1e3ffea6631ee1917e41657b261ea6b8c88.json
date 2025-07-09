@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM exercise_task_submissions\nWHERE exercise_slide_submission_id = $1\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT *\nFROM exercise_task_submissions\nWHERE exercise_slide_submission_id = $1\n        ",
   "describe": {
     "columns": [
       {
@@ -59,5 +59,5 @@
     },
     "nullable": [false, false, false, true, false, true, true, true, false, false]
   },
-  "hash": "21f873be8ae7d46b9aafa8b49f108fd8fadacc2334da674241ac2a6e221b2719"
+  "hash": "41bf16b903c433809652721e88e1d1e3ffea6631ee1917e41657b261ea6b8c88"
 }

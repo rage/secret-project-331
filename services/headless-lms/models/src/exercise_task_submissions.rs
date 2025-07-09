@@ -181,7 +181,6 @@ pub async fn get_by_exercise_slide_submission_id(
 SELECT *
 FROM exercise_task_submissions
 WHERE exercise_slide_submission_id = $1
-  AND deleted_at IS NULL
         ",
         exercise_slide_submission_id
     )
@@ -468,6 +467,7 @@ pub async fn get_exercise_task_submission_info_by_exercise_slide_submission_id(
             previous_submission: Some(ts),
             previous_submission_grading: Some(grading.clone()),
             order_number: task.order_number,
+            deleted_at: task.deleted_at,
         };
         res.push(course_material_exercise_task);
     }

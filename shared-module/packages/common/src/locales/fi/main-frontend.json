@@ -548,6 +548,7 @@
   "message-saved-successfully": "Tallennus onnistui",
   "message-saving-failed": "Jotakin meni pieleen, tallennus ei onnistunut",
   "message-this-submission-has-been-graded-automatically": "Tämä palautus on arvosteltu automaattisesti",
+  "message-this-task-has-been-deleted": "Tämä tehtävän osa on poistettu",
   "message-update-failed": "Jotakin meni pieleen, päivitys ei onnistunut",
   "message-update-succesful": "Päivitys onnistui",
   "message-you-have-not-selected-an-action-for-every-change-yet": "Et ole vielä valinnut toimintoa jokaiselle muutokselle.",

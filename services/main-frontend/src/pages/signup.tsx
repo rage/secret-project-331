@@ -355,6 +355,7 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
             className={css`
               margin-top: 1rem;
             `}
+            defaultChecked={false}
             label={t("email-communication-consent-checkbox-text")}
             {...register("email_communication_consent")}
           ></CheckBox>

@@ -16,6 +16,7 @@ use actix_session::Session;
 use anyhow::Error;
 use anyhow::anyhow;
 use headless_lms_utils::tmc::{NewUserInfo, TmcClient};
+use secrecy::SecretString;
 use std::time::Duration;
 use tracing_log::log;
 
@@ -277,9 +278,27 @@ pub async fn login(
         success
     } else {
         let auth_result =
-            authorization::authenticate_moocfi_user(&mut conn, &client, email, password).await?;
+            authorization::authenticate_moocfi_user(&mut conn, &client, email, password.clone())
+                .await?;
 
         if let Some((user, _token)) = auth_result {
+            // If user is autenticated in tmc succesfully, hash password and save it to db
+            let password_secret = SecretString::new(password.clone().into());
+
+            let password_hash = models::user_passwords::hash_password(&password_secret)
+                .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
+
+            models::user_passwords::upsert_user_password(&pool, user.id, password_hash)
+                .await
+                .map_err(|e| {
+                    ControllerError::new(
+                        ControllerErrorType::InternalServerError,
+                        "Failed to add password to database".to_string(),
+                        anyhow!(e),
+                    )
+                })?;
+            // ?If upsert is succesfull then send some notification to TMC?
+
             authorization::remember(&session, user)?;
             true
         } else {

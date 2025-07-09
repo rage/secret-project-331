@@ -378,7 +378,7 @@ pub async fn post_new_user_to_moocfi(
 pub async fn update_user_information_to_tmc(
     first_name: String,
     last_name: String,
-    email: String,
+    email: Option<String>,
     tmc_client: web::Data<TmcClient>,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> Result<(), Error> {

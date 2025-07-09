@@ -833,6 +833,7 @@ export interface CourseMaterialExerciseTask {
   previous_submission: ExerciseTaskSubmission | null
   previous_submission_grading: ExerciseTaskGrading | null
   order_number: number
+  deleted_at: string | null
 }
 
 export interface ExerciseTask {

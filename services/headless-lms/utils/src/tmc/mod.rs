@@ -113,19 +113,40 @@ impl TmcClient {
         &self,
         first_name: String,
         last_name: String,
-        email: String,
+        email: Option<String>,
     ) -> Result<()> {
-        let payload = json!({
-            "user": { "email": email },
-            "user_field": {
-                "first_name": first_name,
-                "last_name": last_name
-            }
-        });
+        let mut user_obj = serde_json::Map::new();
+        let mut user_field_obj = serde_json::Map::new();
+
+        if let Some(email) = email {
+            user_obj.insert("email".to_string(), serde_json::Value::String(email));
+        }
+
+        user_field_obj.insert(
+            "first_name".to_string(),
+            serde_json::Value::String(first_name),
+        );
+        user_field_obj.insert(
+            "last_name".to_string(),
+            serde_json::Value::String(last_name),
+        );
+
+        let mut payload = serde_json::Map::new();
+
+        if !user_obj.is_empty() {
+            payload.insert("user".to_string(), serde_json::Value::Object(user_obj));
+        }
+
+        payload.insert(
+            "user_field".to_string(),
+            serde_json::Value::Object(user_field_obj),
+        );
+
+        let payload_value = serde_json::Value::Object(payload);
 
         let url = format!("{}/current", TMC_API_URL);
 
-        self.request_with_headers(reqwest::Method::PUT, &url, true, Some(payload))
+        self.request_with_headers(reqwest::Method::PUT, &url, true, Some(payload_value))
             .await
             .map(|_| ())
     }

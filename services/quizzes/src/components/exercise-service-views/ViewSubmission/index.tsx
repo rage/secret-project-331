@@ -50,6 +50,7 @@ import ScaleSubmissionViewComponent from "./impl-by-quiz-item-type/Scale"
 import Timeline from "./impl-by-quiz-item-type/Timeline"
 import Unsupported from "./impl-by-quiz-item-type/Unsupported"
 
+import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import { UserInformation } from "@/shared-module/common/exercise-service-protocol-types"
 import { baseTheme } from "@/shared-module/common/styles"
 
@@ -230,8 +231,21 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
     }
   })
 
+  const hasTypeChanged = React.useMemo(() => {
+    return user_answer.itemAnswers.some((userItem) => {
+      const matchingPublicItem = publicAlternatives.items.find(
+        (publicItem) => publicItem.id === userItem.quizItemId,
+      )
+
+      return !matchingPublicItem || userItem.type !== matchingPublicItem.type
+    })
+  }, [user_answer?.itemAnswers, publicAlternatives?.items])
+
   return (
     <FlexWrapper wideScreenDirection={direction}>
+      {hasTypeChanged && (
+        <GenericInfobox>{t("message-the-exercise-type-has-changed")}</GenericInfobox>
+      )}
       {publicAlternatives.items
         .sort((i1, i2) => i1.order - i2.order)
         .map((item) => {

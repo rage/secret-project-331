@@ -9,6 +9,7 @@ import { fetchSubmissionInfo } from "../../services/backend/submissions"
 
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import Spinner from "@/shared-module/common/components/Spinner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -40,6 +41,10 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
       {getSubmissionInfo.isPending && <Spinner variant={"medium"} />}
       {getSubmissionInfo.isSuccess && (
         <>
+          {getSubmissionInfo.data.tasks.some((task) => task.deleted_at !== null) && (
+            <GenericInfobox>{t("message-this-task-has-been-deleted")}</GenericInfobox>
+          )}
+
           <h1
             className={css`
               margin-bottom: 2rem;
@@ -52,6 +57,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
               })}
             />
           </h1>
+
           {
             <div
               className={css`

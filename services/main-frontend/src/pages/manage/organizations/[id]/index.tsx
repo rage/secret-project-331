@@ -343,8 +343,9 @@ const content = (
       </div>
     </div>
 
-    {activeTab === "general"
-      ? designContent(
+    {activeTab === "general" ? (
+      <div id="tab-panel-general" role="tabpanel" aria-labelledby="tab-general">
+        {designContent(
           t,
           editMode,
           setEditMode,
@@ -353,8 +354,13 @@ const content = (
           hidden,
           setHidden,
           updateOrgMutation,
-        )
-      : permissionContent(t, setShowAddUserPopup, users, handleDelete, handleEdit)}
+        )}
+      </div>
+    ) : (
+      <div id="tab-panel-permissions" role="tabpanel" aria-labelledby="tab-permissions">
+        {permissionContent(t, setShowAddUserPopup, users, handleDelete, handleEdit)}
+      </div>
+    )}
   </div>
 )
 
@@ -413,7 +419,8 @@ const designContent = (
             gap: 24px;
           `}
         >
-          <span
+          <label
+            htmlFor="organization-name"
             className={css`
               font-size: 14px;
               width: 80px;
@@ -421,10 +428,11 @@ const designContent = (
             `}
           >
             {t("label-name")}
-          </span>
+          </label>
 
           {editMode ? (
             <input
+              id="organization-name"
               type="text"
               value={editedName}
               onChange={(e) => setEditedName(e.target.value)}
@@ -476,20 +484,29 @@ const designContent = (
                 gap: 8px;
               `}
             >
-              <input
-                type="checkbox"
-                checked={hidden}
-                onChange={(e) => setHidden(e.target.checked)}
+              <label
                 className={css`
-                  width: 18px;
-                  height: 18px;
-                  border: 1px solid #1a2333;
-                  border-radius: 2px;
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
                   cursor: pointer;
-                  accent-color: #1a2333;
                 `}
-              />
-              <span>{t("hide")}</span>
+              >
+                <input
+                  type="checkbox"
+                  checked={hidden}
+                  onChange={(e) => setHidden(e.target.checked)}
+                  className={css`
+                    width: 18px;
+                    height: 18px;
+                    border: 1px solid #1a2333;
+                    border-radius: 2px;
+                    cursor: pointer;
+                    accent-color: #1a2333;
+                  `}
+                />
+                <span>{t("hide")}</span>
+              </label>
             </div>
           ) : (
             <span>{hidden ? t("visibility-false") : t("visibility-true")}</span>
@@ -651,11 +668,19 @@ const permissionContent = (
                   }
                 `}
               >
-                <button className={actionButtonStyle} onClick={() => handleEdit(user)}>
+                <button
+                  className={actionButtonStyle}
+                  onClick={() => handleEdit(user)}
+                  aria-label={t("edit-user", { name: user.name })}
+                >
                   <PencilBox size={16} />
                 </button>
 
-                <button className={actionButtonStyle} onClick={() => handleDelete(user)}>
+                <button
+                  className={actionButtonStyle}
+                  onClick={() => handleDelete(user)}
+                  aria-label={t("delete-user", { name: user.name })}
+                >
                   <Trash size={16} />
                 </button>
               </div>

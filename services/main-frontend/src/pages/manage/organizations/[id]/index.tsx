@@ -286,50 +286,60 @@ const content = (
       `}
     >
       <div
-        role="tab"
-        aria-selected={activeTab === GENERAL_TAB}
-        aria-controls="tab-panel-general"
-        tabIndex={0}
-        onClick={() => setActiveTab(GENERAL_TAB)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            setActiveTab(GENERAL_TAB)
-          }
-        }}
+        role="tablist"
         className={css`
-          padding-bottom: 8px;
-          font-size: 16px;
-          margin-right: 0.5rem;
-          border-bottom: ${activeTab === GENERAL_TAB ? "2px solid #1A2333" : "none"};
-          cursor: pointer;
-
-          ${respondToOrLarger.lg} {
-            margin-right: 2rem;
-          }
+          display: flex;
+          flex-direction: row;
+          align-items: flex-start;
         `}
       >
-        {t("general")}
-      </div>
+        <div
+          id="tab-general"
+          role="tab"
+          aria-selected={activeTab === GENERAL_TAB}
+          aria-controls="tab-panel-general"
+          tabIndex={0}
+          onClick={() => setActiveTab(GENERAL_TAB)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              setActiveTab(GENERAL_TAB)
+            }
+          }}
+          className={css`
+            padding-bottom: 8px;
+            font-size: 16px;
+            margin-right: 0.5rem;
+            border-bottom: ${activeTab === GENERAL_TAB ? "2px solid #1A2333" : "none"};
+            cursor: pointer;
 
-      <div
-        role="tab"
-        aria-selected={activeTab === PERMISSIONS_TAB}
-        aria-controls="tab-panel-permissions"
-        tabIndex={0}
-        onClick={() => setActiveTab(PERMISSIONS_TAB)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            setActiveTab(PERMISSIONS_TAB)
-          }
-        }}
-        className={css`
-          padding-bottom: 8px;
-          font-size: 16px;
-          border-bottom: ${activeTab === PERMISSIONS_TAB ? "2px solid #1A2333" : "none"};
-          cursor: pointer;
-        `}
-      >
-        {t("link-permissions")}
+            ${respondToOrLarger.lg} {
+              margin-right: 2rem;
+            }
+          `}
+        >
+          {t("general")}
+        </div>
+
+        <div
+          role="tab"
+          aria-selected={activeTab === PERMISSIONS_TAB}
+          aria-controls="tab-panel-permissions"
+          tabIndex={0}
+          onClick={() => setActiveTab(PERMISSIONS_TAB)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              setActiveTab(PERMISSIONS_TAB)
+            }
+          }}
+          className={css`
+            padding-bottom: 8px;
+            font-size: 16px;
+            border-bottom: ${activeTab === PERMISSIONS_TAB ? "2px solid #1A2333" : "none"};
+            cursor: pointer;
+          `}
+        >
+          {t("link-permissions")}
+        </div>
       </div>
     </div>
 

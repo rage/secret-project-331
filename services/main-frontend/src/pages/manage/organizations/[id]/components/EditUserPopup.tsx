@@ -82,7 +82,7 @@ const EditUserPopup: React.FC<EditUserPopupProps> = ({
           <span
             className={css`
               font-size: 14px;
-              word-break: break-word;
+              overflow-wrap: anywhere;
             `}
           >
             {name}
@@ -108,7 +108,7 @@ const EditUserPopup: React.FC<EditUserPopupProps> = ({
           <span
             className={css`
               font-size: 14px;
-              word-break: break-word;
+              overflow-wrap: anywhere;
             `}
           >
             {email}
@@ -124,6 +124,7 @@ const EditUserPopup: React.FC<EditUserPopupProps> = ({
           `}
         >
           <label
+            htmlFor="edit-user-role"
             className={css`
               font-size: 14px;
               width: 60px;
@@ -132,6 +133,7 @@ const EditUserPopup: React.FC<EditUserPopupProps> = ({
             {t("label-role")}
           </label>
           <select
+            id="edit-user-role"
             value={role}
             onChange={(e) => setRole(e.target.value)}
             className={css`

@@ -76,8 +76,9 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({
             flex-direction: column;
           `}
         >
-          <label>{t("label-email")}</label>
+          <label htmlFor="add-user-email">{t("label-email")}</label>
           <input
+            id="add-user-email"
             type="text"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -98,8 +99,9 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({
             flex-direction: column;
           `}
         >
-          <label>{t("label-role")}</label>
+          <label htmlFor="add-user-role">{t("label-role")}</label>
           <select
+            id="add-user-role"
             value={role}
             onChange={(e) => setRole(e.target.value)}
             className={css`

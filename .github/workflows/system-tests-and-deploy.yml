@@ -19,7 +19,7 @@ env:
 
 jobs:
   build:
-    runs-on: ubicloud-standard-8
+    runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -110,7 +110,7 @@ jobs:
 
   system-tests:
     needs: build
-    runs-on: ubicloud-standard-8
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         shard: [1, 2]

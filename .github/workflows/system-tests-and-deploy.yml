@@ -122,6 +122,10 @@ jobs:
         run: |
           kubectl patch configmap ingress-nginx-controller -p '{"data":{"allow-snippet-annotations":"true"}}' -n ingress-nginx --type merge
 
+      - name: Remove ingress nginx admission webhook
+        run: |
+          kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission
+
       - name: Debug kube-system
         run: |
           kubectl get pods --namespace kube-system

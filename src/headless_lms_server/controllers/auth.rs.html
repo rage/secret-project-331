@@ -379,51 +379,52 @@
 <a href=#379 id=379 data-nosnippet>379</a>    first_name: String,
 <a href=#380 id=380 data-nosnippet>380</a>    last_name: String,
 <a href=#381 id=381 data-nosnippet>381</a>    email: <span class="prelude-ty">Option</span>&lt;String&gt;,
-<a href=#382 id=382 data-nosnippet>382</a>    tmc_client: web::Data&lt;TmcClient&gt;,
-<a href=#383 id=383 data-nosnippet>383</a>    app_conf: web::Data&lt;ApplicationConfiguration&gt;,
-<a href=#384 id=384 data-nosnippet>384</a>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-<a href=#385 id=385 data-nosnippet>385</a>    <span class="kw">if </span>app_conf.test_mode {
-<a href=#386 id=386 data-nosnippet>386</a>        <span class="kw">return </span><span class="prelude-val">Ok</span>(());
-<a href=#387 id=387 data-nosnippet>387</a>    }
-<a href=#388 id=388 data-nosnippet>388</a>    tmc_client
-<a href=#389 id=389 data-nosnippet>389</a>        .update_user_information(first_name, last_name, email)
-<a href=#390 id=390 data-nosnippet>390</a>        .<span class="kw">await
-<a href=#391 id=391 data-nosnippet>391</a>        </span>.map_err(|e| {
-<a href=#392 id=392 data-nosnippet>392</a>            <span class="macro">log::warn!</span>(<span class="string">"TMC user update failed: {:?}"</span>, e);
-<a href=#393 id=393 data-nosnippet>393</a>            <span class="macro">anyhow::anyhow!</span>(<span class="string">"TMC user update failed: {}"</span>, e)
-<a href=#394 id=394 data-nosnippet>394</a>        })<span class="question-mark">?</span>;
-<a href=#395 id=395 data-nosnippet>395</a>    <span class="prelude-val">Ok</span>(())
-<a href=#396 id=396 data-nosnippet>396</a>}
-<a href=#397 id=397 data-nosnippet>397</a>
-<a href=#398 id=398 data-nosnippet>398</a><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
-<a href=#399 id=399 data-nosnippet>399</a>    cfg.service(
-<a href=#400 id=400 data-nosnippet>400</a>        web::resource(<span class="string">"/signup"</span>)
-<a href=#401 id=401 data-nosnippet>401</a>            .wrap(build_rate_limiting_middleware(Duration::from_secs(<span class="number">60</span>), <span class="number">15</span>))
-<a href=#402 id=402 data-nosnippet>402</a>            .wrap(build_rate_limiting_middleware(
-<a href=#403 id=403 data-nosnippet>403</a>                Duration::from_secs(<span class="number">60 </span>* <span class="number">60 </span>* <span class="number">24</span>),
-<a href=#404 id=404 data-nosnippet>404</a>                <span class="number">1000</span>,
-<a href=#405 id=405 data-nosnippet>405</a>            ))
-<a href=#406 id=406 data-nosnippet>406</a>            .to(signup),
-<a href=#407 id=407 data-nosnippet>407</a>    )
-<a href=#408 id=408 data-nosnippet>408</a>    .service(
-<a href=#409 id=409 data-nosnippet>409</a>        web::resource(<span class="string">"/login"</span>)
-<a href=#410 id=410 data-nosnippet>410</a>            .wrap(build_rate_limiting_middleware(Duration::from_secs(<span class="number">60</span>), <span class="number">20</span>))
-<a href=#411 id=411 data-nosnippet>411</a>            .wrap(build_rate_limiting_middleware(
-<a href=#412 id=412 data-nosnippet>412</a>                Duration::from_secs(<span class="number">60 </span>* <span class="number">60</span>),
-<a href=#413 id=413 data-nosnippet>413</a>                <span class="number">100</span>,
-<a href=#414 id=414 data-nosnippet>414</a>            ))
-<a href=#415 id=415 data-nosnippet>415</a>            .wrap(build_rate_limiting_middleware(
-<a href=#416 id=416 data-nosnippet>416</a>                Duration::from_secs(<span class="number">60 </span>* <span class="number">60 </span>* <span class="number">24</span>),
-<a href=#417 id=417 data-nosnippet>417</a>                <span class="number">500</span>,
-<a href=#418 id=418 data-nosnippet>418</a>            ))
-<a href=#419 id=419 data-nosnippet>419</a>            .to(login),
-<a href=#420 id=420 data-nosnippet>420</a>    )
-<a href=#421 id=421 data-nosnippet>421</a>    .route(<span class="string">"/logout"</span>, web::post().to(logout))
-<a href=#422 id=422 data-nosnippet>422</a>    .route(<span class="string">"/logged-in"</span>, web::get().to(logged_in))
-<a href=#423 id=423 data-nosnippet>423</a>    .route(<span class="string">"/authorize"</span>, web::post().to(authorize_action_on_resource))
-<a href=#424 id=424 data-nosnippet>424</a>    .route(
-<a href=#425 id=425 data-nosnippet>425</a>        <span class="string">"/authorize-multiple"</span>,
-<a href=#426 id=426 data-nosnippet>426</a>        web::post().to(authorize_multiple_actions_on_resources),
-<a href=#427 id=427 data-nosnippet>427</a>    )
-<a href=#428 id=428 data-nosnippet>428</a>    .route(<span class="string">"/user-info"</span>, web::get().to(user_info));
-<a href=#429 id=429 data-nosnippet>429</a>}</code></pre></div></section></main></body></html>
+<a href=#382 id=382 data-nosnippet>382</a>    user_upstream_id: String,
+<a href=#383 id=383 data-nosnippet>383</a>    tmc_client: web::Data&lt;TmcClient&gt;,
+<a href=#384 id=384 data-nosnippet>384</a>    app_conf: web::Data&lt;ApplicationConfiguration&gt;,
+<a href=#385 id=385 data-nosnippet>385</a>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+<a href=#386 id=386 data-nosnippet>386</a>    <span class="kw">if </span>app_conf.test_mode {
+<a href=#387 id=387 data-nosnippet>387</a>        <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+<a href=#388 id=388 data-nosnippet>388</a>    }
+<a href=#389 id=389 data-nosnippet>389</a>    tmc_client
+<a href=#390 id=390 data-nosnippet>390</a>        .update_user_information(first_name, last_name, email, user_upstream_id)
+<a href=#391 id=391 data-nosnippet>391</a>        .<span class="kw">await
+<a href=#392 id=392 data-nosnippet>392</a>        </span>.map_err(|e| {
+<a href=#393 id=393 data-nosnippet>393</a>            <span class="macro">log::warn!</span>(<span class="string">"TMC user update failed: {:?}"</span>, e);
+<a href=#394 id=394 data-nosnippet>394</a>            <span class="macro">anyhow::anyhow!</span>(<span class="string">"TMC user update failed: {}"</span>, e)
+<a href=#395 id=395 data-nosnippet>395</a>        })<span class="question-mark">?</span>;
+<a href=#396 id=396 data-nosnippet>396</a>    <span class="prelude-val">Ok</span>(())
+<a href=#397 id=397 data-nosnippet>397</a>}
+<a href=#398 id=398 data-nosnippet>398</a>
+<a href=#399 id=399 data-nosnippet>399</a><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
+<a href=#400 id=400 data-nosnippet>400</a>    cfg.service(
+<a href=#401 id=401 data-nosnippet>401</a>        web::resource(<span class="string">"/signup"</span>)
+<a href=#402 id=402 data-nosnippet>402</a>            .wrap(build_rate_limiting_middleware(Duration::from_secs(<span class="number">60</span>), <span class="number">15</span>))
+<a href=#403 id=403 data-nosnippet>403</a>            .wrap(build_rate_limiting_middleware(
+<a href=#404 id=404 data-nosnippet>404</a>                Duration::from_secs(<span class="number">60 </span>* <span class="number">60 </span>* <span class="number">24</span>),
+<a href=#405 id=405 data-nosnippet>405</a>                <span class="number">1000</span>,
+<a href=#406 id=406 data-nosnippet>406</a>            ))
+<a href=#407 id=407 data-nosnippet>407</a>            .to(signup),
+<a href=#408 id=408 data-nosnippet>408</a>    )
+<a href=#409 id=409 data-nosnippet>409</a>    .service(
+<a href=#410 id=410 data-nosnippet>410</a>        web::resource(<span class="string">"/login"</span>)
+<a href=#411 id=411 data-nosnippet>411</a>            .wrap(build_rate_limiting_middleware(Duration::from_secs(<span class="number">60</span>), <span class="number">20</span>))
+<a href=#412 id=412 data-nosnippet>412</a>            .wrap(build_rate_limiting_middleware(
+<a href=#413 id=413 data-nosnippet>413</a>                Duration::from_secs(<span class="number">60 </span>* <span class="number">60</span>),
+<a href=#414 id=414 data-nosnippet>414</a>                <span class="number">100</span>,
+<a href=#415 id=415 data-nosnippet>415</a>            ))
+<a href=#416 id=416 data-nosnippet>416</a>            .wrap(build_rate_limiting_middleware(
+<a href=#417 id=417 data-nosnippet>417</a>                Duration::from_secs(<span class="number">60 </span>* <span class="number">60 </span>* <span class="number">24</span>),
+<a href=#418 id=418 data-nosnippet>418</a>                <span class="number">500</span>,
+<a href=#419 id=419 data-nosnippet>419</a>            ))
+<a href=#420 id=420 data-nosnippet>420</a>            .to(login),
+<a href=#421 id=421 data-nosnippet>421</a>    )
+<a href=#422 id=422 data-nosnippet>422</a>    .route(<span class="string">"/logout"</span>, web::post().to(logout))
+<a href=#423 id=423 data-nosnippet>423</a>    .route(<span class="string">"/logged-in"</span>, web::get().to(logged_in))
+<a href=#424 id=424 data-nosnippet>424</a>    .route(<span class="string">"/authorize"</span>, web::post().to(authorize_action_on_resource))
+<a href=#425 id=425 data-nosnippet>425</a>    .route(
+<a href=#426 id=426 data-nosnippet>426</a>        <span class="string">"/authorize-multiple"</span>,
+<a href=#427 id=427 data-nosnippet>427</a>        web::post().to(authorize_multiple_actions_on_resources),
+<a href=#428 id=428 data-nosnippet>428</a>    )
+<a href=#429 id=429 data-nosnippet>429</a>    .route(<span class="string">"/user-info"</span>, web::get().to(user_info));
+<a href=#430 id=430 data-nosnippet>430</a>}</code></pre></div></section></main></body></html>

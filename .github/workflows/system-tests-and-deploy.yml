@@ -44,9 +44,11 @@ jobs:
       - name: Hide gcloud cli from skaffold
         run: sudo mv /usr/bin/gcloud /tmp/gcloud
 
-      - name: Install skaffold
+      - name: Install kustomize, kubectl & skaffold
         uses: yokawasa/action-setup-kube-tools@v0.11.1
         with:
+          kubectl: "1.30.3"
+          kustomize: "5.4.1"
           skaffold: "2.13.1"
 
       - name: Run npm ci so that shared module gets copied
@@ -96,13 +98,6 @@ jobs:
           # shellcheck disable=SC2016
           jq --raw-output '.builds[].tag' < skaffold-build-output.json | xargs -d $'\n' sh -c 'for arg do echo "> docker push $arg"; docker push "$arg"; done'
         if: ${{ github.ref == 'refs/heads/master' }}
-
-      - name: Install kustomize, kubectl & skaffold
-        uses: yokawasa/action-setup-kube-tools@v0.11.1
-        with:
-          kubectl: "1.30.3"
-          kustomize: "5.4.1"
-          skaffold: "2.13.1"
 
       - name: Workaround for kube-proxy set nf_conntrack_max permission denied
         run: |

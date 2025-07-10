@@ -245,6 +245,7 @@ pub async fn login(
     client: web::Data<OAuthClient>,
     app_conf: web::Data<ApplicationConfiguration>,
     payload: web::Json<Login>,
+    tmc_client: web::Data<TmcClient>,
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let Login { email, password } = payload.into_inner();
@@ -297,7 +298,21 @@ pub async fn login(
                         anyhow!(e),
                     )
                 })?;
-            // ?If upsert is succesfull then send some notification to TMC?
+
+            if let Some(upstream_id) = user.upstream_id {
+                tmc_client
+                    .set_user_password_managed_by_moocfi(upstream_id.to_string())
+                    .await
+                    .map_err(|e| {
+                        ControllerError::new(
+                            ControllerErrorType::InternalServerError,
+                            "Failed to notify TMC that user has password".to_string(),
+                            anyhow!(e),
+                        )
+                    })?;
+            } else {
+                warn!("User has no upstream_id; skipping notify to TMC");
+            }
 
             authorization::remember(&session, user)?;
             true

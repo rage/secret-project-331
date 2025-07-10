@@ -217,6 +217,9 @@ jobs:
           IPS=$(kubectl config view | grep server | tr -s ' ' | cut -d ' ' -f 3 | xargs echo)
           echo "::add-mask::$IPS"
 
+      - name: Make sure skaffold local env patch files exist
+        run: bin/make-sure-skaffold-local-env-patch-files-exists
+
       - name: Deploy with Skaffold
         run: skaffold deploy --force --filename ./skaffold.production.yaml -p production --build-artifacts=./skaffold-build-output/skaffold-build-output.json --namespace courses-moocfi
 

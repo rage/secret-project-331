@@ -60,6 +60,22 @@ jobs:
       - name: Make sure skaffold local env patch files exist
         run: bin/make-sure-skaffold-local-env-patch-files-exists
 
+      - name: Workaround for kube-proxy set nf_conntrack_max permission denied
+        run: |
+          # Workarounds this issue when starting up kube-system/kube-proxy:
+          # I0719 17:18:25.711233       1 conntrack.go:100] Set sysctl 'net/netfilter/nf_conntrack_max' to 131072
+          # F0719 17:18:25.711251       1 server.go:489] open /proc/sys/net/netfilter/nf_conntrack_max: permission denied
+          sudo sysctl net/netfilter/nf_conntrack_max=131072
+
+      - name: Install, start & configure minikube
+        uses: manusa/actions-setup-minikube@v2.13.0
+        with:
+          minikube version: "v1.33.1"
+          kubernetes version: "v1.30.0"
+          start args: "--addons ingress --memory 10g"
+          driver: "docker"
+          github token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build
         run: bin/skaffold-build-test-env-and-serialize-output
 
@@ -101,22 +117,6 @@ jobs:
           # shellcheck disable=SC2016
           jq --raw-output '.builds[].tag' < skaffold-build-output.json | xargs -d $'\n' sh -c 'for arg do echo "> docker push $arg"; docker push "$arg"; done'
         if: ${{ github.ref == 'refs/heads/master' }}
-
-      - name: Workaround for kube-proxy set nf_conntrack_max permission denied
-        run: |
-          # Workarounds this issue when starting up kube-system/kube-proxy:
-          # I0719 17:18:25.711233       1 conntrack.go:100] Set sysctl 'net/netfilter/nf_conntrack_max' to 131072
-          # F0719 17:18:25.711251       1 server.go:489] open /proc/sys/net/netfilter/nf_conntrack_max: permission denied
-          sudo sysctl net/netfilter/nf_conntrack_max=131072
-
-      - name: Install, start & configure minikube
-        uses: manusa/actions-setup-minikube@v2.13.0
-        with:
-          minikube version: "v1.33.1"
-          kubernetes version: "v1.30.0"
-          start args: "--addons ingress --memory 10g"
-          driver: "docker"
-          github token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Enable snippet directives
         run: |

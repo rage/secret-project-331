@@ -57,6 +57,9 @@ jobs:
       - name: Download tmc-langs
         run: bin/tmc-langs-setup
 
+      - name: Make sure skaffold local env patch files exist
+        run: bin/make-sure-skaffold-local-env-patch-files-exists
+
       - name: Build
         run: bin/skaffold-build-test-env-and-serialize-output
 

@@ -105,19 +105,6 @@ jobs:
           fi
         if: ${{ github.ref == 'refs/heads/master' }}
 
-      # These images are used for deployments and caching
-      - name: Push images if master
-        run: skaffold build -p push-images --filename ./skaffold.production.yaml
-        if: ${{ github.ref == 'refs/heads/master' }}
-      - name: Push latest images if master
-        run: skaffold build -p push-images,latest-tag --filename ./skaffold.production.yaml
-        if: ${{ github.ref == 'refs/heads/master' }}
-      - name: Push images tagged with sha if master
-        run: |
-          # shellcheck disable=SC2016
-          jq --raw-output '.builds[].tag' < skaffold-build-output.json | xargs -d $'\n' sh -c 'for arg do echo "> docker push $arg"; docker push "$arg"; done'
-        if: ${{ github.ref == 'refs/heads/master' }}
-
       - name: Enable snippet directives
         run: |
           kubectl patch configmap ingress-nginx-controller -p '{"data":{"allow-snippet-annotations":"true"}}' -n ingress-nginx --type merge
@@ -181,6 +168,22 @@ jobs:
           name: playwright-html-report
           path: ./system-tests/playwright-report/index.html
           if-no-files-found: ignore
+
+      # These images are used for deployments and caching
+      - name: Push images if master
+        run: skaffold build -p push-images --filename ./skaffold.production.yaml
+        if: ${{ github.ref == 'refs/heads/master' }}
+      - name: Push latest images if master
+        run: skaffold build -p push-images,latest-tag --filename ./skaffold.production.yaml
+        if: ${{ github.ref == 'refs/heads/master' }}
+      - name: Push images tagged with sha if master
+        run: |
+          # Point Docker CLI to minikube's Docker daemon since images are built there
+          eval "$(minikube -p minikube docker-env --shell bash)"
+          gcloud auth configure-docker -q
+          # shellcheck disable=SC2016
+          jq --raw-output '.builds[].tag' < skaffold-build-output.json | xargs -d $'\n' sh -c 'for arg do echo "> docker push $arg"; docker push "$arg"; done'
+        if: ${{ github.ref == 'refs/heads/master' }}
 
   deploy:
     needs: build-and-system-tests

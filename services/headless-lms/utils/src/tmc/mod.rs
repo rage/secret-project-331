@@ -177,34 +177,30 @@ impl TmcClient {
             .map(|_| ())
     }
 
+    pub async fn set_user_password_managed_by_courses_mooc_fi(
+        &self,
+        user_upstream_id: String,
+    ) -> Result<()> {
+        let url = format!(
+            "{}/{}/set_password_managed_by_courses-mooc-fi",
+            TMC_API_URL, user_upstream_id
+        );
+
+        self.request_with_headers(
+            reqwest::Method::POST,
+            &url,
+            true, // uses bearer auth
+            None,
+        )
+        .await
+        .map(|_| ())
+    }
+
     pub fn mock_for_test() -> Self {
         Self {
             client: Client::default(),
             access_token: "mock-token".to_string(),
             ratelimit_api_key: "mock-api-key".to_string(),
         }
-    }
-
-    pub async fn set_user_password_managed_by_moocfi(
-        &self,
-        user_upstream_id: String,
-    ) -> Result<()> {
-        let url = format!(
-            "{}/{}/set_password_managed_by_moocfi",
-            TMC_API_URL, user_upstream_id
-        );
-
-        let payload = serde_json::json!({
-            "set_password_managed_by_moocfi": true,
-        });
-
-        self.request_with_headers(
-            reqwest::Method::POST,
-            &url,
-            true, // uses bearer auth
-            Some(payload),
-        )
-        .await
-        .map(|_| ())
     }
 }

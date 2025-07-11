@@ -301,12 +301,13 @@ pub async fn login(
 
             if let Some(upstream_id) = user.upstream_id {
                 tmc_client
-                    .set_user_password_managed_by_moocfi(upstream_id.to_string())
+                    .set_user_password_managed_by_courses_mooc_fi(upstream_id.to_string())
                     .await
                     .map_err(|e| {
                         ControllerError::new(
                             ControllerErrorType::InternalServerError,
-                            "Failed to notify TMC that user has password".to_string(),
+                            "Failed to notify TMC that users password is saved in courses.mooc.fi"
+                                .to_string(),
                             anyhow!(e),
                         )
                     })?;

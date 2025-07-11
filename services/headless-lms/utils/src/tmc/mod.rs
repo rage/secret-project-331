@@ -178,6 +178,25 @@ impl TmcClient {
             .map(|_| ())
     }
 
+    pub async fn set_user_password_managed_by_courses_mooc_fi(
+        &self,
+        user_upstream_id: String,
+    ) -> Result<()> {
+        let url = format!(
+            "{}/{}/set_password_managed_by_courses-mooc-fi",
+            TMC_API_URL, user_upstream_id
+        );
+
+        self.request_with_headers(
+            reqwest::Method::POST,
+            &url,
+            true, // uses bearer auth
+            None,
+        )
+        .await
+        .map(|_| ())
+    }
+
     pub fn mock_for_test() -> Self {
         Self {
             client: Client::default(),

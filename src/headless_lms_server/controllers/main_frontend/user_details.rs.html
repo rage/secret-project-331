@@ -183,39 +183,39 @@
 <a href=#183 id=183 data-nosnippet>183</a>        .<span class="kw">await
 <a href=#184 id=184 data-nosnippet>184</a>        </span>.context(<span class="string">"Failed to fetch user"</span>)<span class="question-mark">?</span>;
 <a href=#185 id=185 data-nosnippet>185</a>
-<a href=#186 id=186 data-nosnippet>186</a>    <span class="kw">let </span>upstream_id = user
-<a href=#187 id=187 data-nosnippet>187</a>        .upstream_id
-<a href=#188 id=188 data-nosnippet>188</a>        .ok_or_else(|| {
-<a href=#189 id=189 data-nosnippet>189</a>            ControllerError::new(
-<a href=#190 id=190 data-nosnippet>190</a>                ControllerErrorType::InternalServerError,
-<a href=#191 id=191 data-nosnippet>191</a>                <span class="string">"Missing upstream_id"</span>.to_string(),
-<a href=#192 id=192 data-nosnippet>192</a>                <span class="prelude-val">None</span>,
-<a href=#193 id=193 data-nosnippet>193</a>            )
-<a href=#194 id=194 data-nosnippet>194</a>        })<span class="question-mark">?
-<a href=#195 id=195 data-nosnippet>195</a>        </span>.to_string();
-<a href=#196 id=196 data-nosnippet>196</a>
-<a href=#197 id=197 data-nosnippet>197</a>    <span class="kw">let </span>updated_user = models::user_details::update_user_info(
-<a href=#198 id=198 data-nosnippet>198</a>        <span class="kw-2">&amp;mut </span>tx,
-<a href=#199 id=199 data-nosnippet>199</a>        user.id,
-<a href=#200 id=200 data-nosnippet>200</a>        <span class="kw-2">&amp;</span>payload.email,
-<a href=#201 id=201 data-nosnippet>201</a>        <span class="kw-2">&amp;</span>payload.first_name,
-<a href=#202 id=202 data-nosnippet>202</a>        <span class="kw-2">&amp;</span>payload.last_name,
-<a href=#203 id=203 data-nosnippet>203</a>        <span class="kw-2">&amp;</span>payload.country,
-<a href=#204 id=204 data-nosnippet>204</a>        payload.email_communication_consent,
-<a href=#205 id=205 data-nosnippet>205</a>    )
-<a href=#206 id=206 data-nosnippet>206</a>    .<span class="kw">await
-<a href=#207 id=207 data-nosnippet>207</a>    </span>.context(<span class="string">"Failed to update database"</span>)<span class="question-mark">?</span>;
+<a href=#186 id=186 data-nosnippet>186</a>    <span class="kw">let </span>updated_user = models::user_details::update_user_info(
+<a href=#187 id=187 data-nosnippet>187</a>        <span class="kw-2">&amp;mut </span>tx,
+<a href=#188 id=188 data-nosnippet>188</a>        user.id,
+<a href=#189 id=189 data-nosnippet>189</a>        <span class="kw-2">&amp;</span>payload.email,
+<a href=#190 id=190 data-nosnippet>190</a>        <span class="kw-2">&amp;</span>payload.first_name,
+<a href=#191 id=191 data-nosnippet>191</a>        <span class="kw-2">&amp;</span>payload.last_name,
+<a href=#192 id=192 data-nosnippet>192</a>        <span class="kw-2">&amp;</span>payload.country,
+<a href=#193 id=193 data-nosnippet>193</a>        payload.email_communication_consent,
+<a href=#194 id=194 data-nosnippet>194</a>    )
+<a href=#195 id=195 data-nosnippet>195</a>    .<span class="kw">await
+<a href=#196 id=196 data-nosnippet>196</a>    </span>.context(<span class="string">"Failed to update database"</span>)<span class="question-mark">?</span>;
+<a href=#197 id=197 data-nosnippet>197</a>
+<a href=#198 id=198 data-nosnippet>198</a>    <span class="kw">let </span>email_changed = existing_user.email != payload.email;
+<a href=#199 id=199 data-nosnippet>199</a>    <span class="kw">let </span>first_name_changed = existing_user.first_name != <span class="prelude-val">Some</span>(payload.first_name.clone());
+<a href=#200 id=200 data-nosnippet>200</a>    <span class="kw">let </span>last_name_changed = existing_user.last_name != <span class="prelude-val">Some</span>(payload.last_name.clone());
+<a href=#201 id=201 data-nosnippet>201</a>
+<a href=#202 id=202 data-nosnippet>202</a>    <span class="kw">if </span>!app_conf.test_mode &amp;&amp; (email_changed || first_name_changed || last_name_changed) {
+<a href=#203 id=203 data-nosnippet>203</a>        <span class="kw">let </span>email_opt = <span class="kw">if </span>email_changed {
+<a href=#204 id=204 data-nosnippet>204</a>            <span class="prelude-val">Some</span>(payload.email.clone())
+<a href=#205 id=205 data-nosnippet>205</a>        } <span class="kw">else </span>{
+<a href=#206 id=206 data-nosnippet>206</a>            <span class="prelude-val">None
+<a href=#207 id=207 data-nosnippet>207</a>        </span>};
 <a href=#208 id=208 data-nosnippet>208</a>
-<a href=#209 id=209 data-nosnippet>209</a>    <span class="kw">let </span>email_changed = existing_user.email != payload.email;
-<a href=#210 id=210 data-nosnippet>210</a>    <span class="kw">let </span>first_name_changed = existing_user.first_name != <span class="prelude-val">Some</span>(payload.first_name.clone());
-<a href=#211 id=211 data-nosnippet>211</a>    <span class="kw">let </span>last_name_changed = existing_user.last_name != <span class="prelude-val">Some</span>(payload.last_name.clone());
-<a href=#212 id=212 data-nosnippet>212</a>
-<a href=#213 id=213 data-nosnippet>213</a>    <span class="kw">if </span>email_changed || first_name_changed || last_name_changed {
-<a href=#214 id=214 data-nosnippet>214</a>        <span class="kw">let </span>email_opt = <span class="kw">if </span>email_changed {
-<a href=#215 id=215 data-nosnippet>215</a>            <span class="prelude-val">Some</span>(payload.email.clone())
-<a href=#216 id=216 data-nosnippet>216</a>        } <span class="kw">else </span>{
-<a href=#217 id=217 data-nosnippet>217</a>            <span class="prelude-val">None
-<a href=#218 id=218 data-nosnippet>218</a>        </span>};
+<a href=#209 id=209 data-nosnippet>209</a>        <span class="kw">let </span>upstream_id = user
+<a href=#210 id=210 data-nosnippet>210</a>            .upstream_id
+<a href=#211 id=211 data-nosnippet>211</a>            .ok_or_else(|| {
+<a href=#212 id=212 data-nosnippet>212</a>                ControllerError::new(
+<a href=#213 id=213 data-nosnippet>213</a>                    ControllerErrorType::InternalServerError,
+<a href=#214 id=214 data-nosnippet>214</a>                    <span class="string">"Missing upstream_id"</span>.to_string(),
+<a href=#215 id=215 data-nosnippet>215</a>                    <span class="prelude-val">None</span>,
+<a href=#216 id=216 data-nosnippet>216</a>                )
+<a href=#217 id=217 data-nosnippet>217</a>            })<span class="question-mark">?
+<a href=#218 id=218 data-nosnippet>218</a>            </span>.to_string();
 <a href=#219 id=219 data-nosnippet>219</a>
 <a href=#220 id=220 data-nosnippet>220</a>        controllers::auth::update_user_information_to_tmc(
 <a href=#221 id=221 data-nosnippet>221</a>            payload.first_name.clone(),

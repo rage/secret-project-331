@@ -583,6 +583,7 @@
   "month": "Month",
   "monthly": "Monthly",
   "n-a": "N/A",
+  "name-not-empty": "Name can't be empty",
   "name-of-module": "Name of module",
   "new-course": "New course",
   "new-course-instance": "New course instance",

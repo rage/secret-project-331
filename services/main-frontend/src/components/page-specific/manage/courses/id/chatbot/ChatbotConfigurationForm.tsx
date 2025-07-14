@@ -39,8 +39,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
     register,
     handleSubmit,
     formState: { errors },
-    clearErrors,
-    setError,
   } = useForm<ConfigureChatbotFields>({
     defaultValues: {
       chatbot_name: oldChatbotConf.chatbot_name,
@@ -60,58 +58,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
     },
   })
 
-  const validateForm = (data: ConfigureChatbotFields): boolean => {
-    clearErrors(["frequency_penalty", "presence_penalty", "temperature", "top_p"])
-    let isValid = true
-
-    if (data.frequency_penalty > 1 || data.frequency_penalty < 0) {
-      setError("frequency_penalty", {
-        message: t("error-field-value-between", {
-          field: "Frequency penalty",
-          lower: "0",
-          upper: "1",
-        }),
-      })
-      isValid = false
-    }
-    if (data.presence_penalty > 1 || data.presence_penalty < 0) {
-      setError("presence_penalty", {
-        message: t("error-field-value-between", {
-          field: "Presence penalty",
-          lower: "0",
-          upper: "1",
-        }),
-      })
-      isValid = false
-    }
-    if (data.temperature > 1 || data.temperature < 0) {
-      setError("temperature", {
-        message: t("error-field-value-between", {
-          field: "Temperature",
-          lower: "0",
-          upper: "1",
-        }),
-      })
-      isValid = false
-    }
-    if (data.top_p > 1 || data.top_p < 0) {
-      setError("top_p", {
-        message: t("error-field-value-between", {
-          field: "Top p",
-          lower: "0",
-          upper: "1",
-        }),
-      })
-      isValid = false
-    }
-    return isValid
-  }
-
   const onConfigureChatbotWrapper = handleSubmit((data) => {
-    if (!validateForm(data)) {
-      return
-    }
-
     onConfigureChatbot({
       course_id: oldChatbotConf.course_id, // keep the old course id
       chatbot_name: data.chatbot_name,
@@ -140,7 +87,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
       <h2>{t("customize-chatbot")}</h2>
       <form onSubmit={onConfigureChatbotWrapper}>
         <TextField
-          id={"name"}
           error={errors.chatbot_name?.message}
           label={t("label-name")}
           {...register("chatbot_name", { required: t("required-field") })}
@@ -154,11 +100,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
           autoResizeMaxHeightPx={900}
           {...register("prompt")}
         />
-        <TextField
-          id={"initial-message"}
-          label={t("initial-message")}
-          {...register("initial_message")}
-        />
+        <TextField label={t("initial-message")} {...register("initial_message")} />
         <div
           className={css`
             flex-direction: row;
@@ -195,21 +137,18 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
                   <h4>{t("configure-tokens")}</h4>
                   <TextField
                     className={textFieldCss}
-                    id={"daily-token"}
                     type="number"
                     label={t("daily-token-user")}
                     {...register("daily_tokens_per_user")}
                   />
                   <TextField
                     className={textFieldCss}
-                    id={"weekly-token"}
                     type="number"
                     label={t("weekly-token-user")}
                     {...register("weekly_tokens_per_user")}
                   />
                   <TextField
                     className={textFieldCss}
-                    id={"max-tokens"}
                     type="number"
                     label={t("max-token-response")}
                     {...register("response_max_tokens")}
@@ -219,42 +158,110 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
                   <h4>{t("configure-penalty")}</h4>
                   <TextField
                     className={textFieldCss}
-                    id={"freq-penalty"}
                     type="number"
                     error={errors.frequency_penalty?.message}
                     step="0.01"
                     label={t("frequency-penalty")}
-                    {...register("frequency_penalty", { required: t("required-field") })}
+                    {...register("frequency_penalty", {
+                      required: t("required-field"),
+                      min: {
+                        value: 0,
+                        message: t("error-field-value-between", {
+                          field: t("frequency-penalty"),
+                          lower: "0",
+                          upper: "1",
+                        }),
+                      },
+                      max: {
+                        value: 1,
+                        message: t("error-field-value-between", {
+                          field: t("frequency-penalty"),
+                          lower: "0",
+                          upper: "1",
+                        }),
+                      },
+                    })}
                   />
                   <TextField
                     className={textFieldCss}
-                    id={"pres-penalty"}
                     type="number"
                     error={errors.presence_penalty?.message}
                     step="0.01"
                     label={t("presence-penalty")}
-                    {...register("presence_penalty", { required: t("required-field") })}
+                    {...register("presence_penalty", {
+                      required: t("required-field"),
+                      min: {
+                        value: 0,
+                        message: t("error-field-value-between", {
+                          field: t("presence-penalty"),
+                          lower: "0",
+                          upper: "1",
+                        }),
+                      },
+                      max: {
+                        value: 1,
+                        message: t("error-field-value-between", {
+                          field: t("presence-penalty"),
+                          lower: "0",
+                          upper: "1",
+                        }),
+                      },
+                    })}
                   />
                 </div>
                 <div className={itemCss}>
                   <h4>{t("configure-creativity")}</h4>
                   <TextField
                     className={textFieldCss}
-                    id={"temperature"}
                     type="number"
                     error={errors.temperature?.message}
                     step="0.01"
                     label={t("temperature")}
-                    {...register("temperature", { required: t("required-field") })}
+                    {...register("temperature", {
+                      required: t("required-field"),
+                      min: {
+                        value: 0,
+                        message: t("error-field-value-between", {
+                          field: t("temperature"),
+                          lower: "0",
+                          upper: "1",
+                        }),
+                      },
+                      max: {
+                        value: 1,
+                        message: t("error-field-value-between", {
+                          field: t("temperature"),
+                          lower: "0",
+                          upper: "1",
+                        }),
+                      },
+                    })}
                   />
                   <TextField
                     className={textFieldCss}
-                    id={"top-p"}
                     type="number"
                     error={errors.top_p?.message}
                     step="0.01"
                     label={t("top-p")}
-                    {...register("top_p", { required: t("required-field") })}
+                    {...register("top_p", {
+                      required: t("required-field"),
+                      min: {
+                        value: 0,
+                        message: t("error-field-value-between", {
+                          field: t("top-p"),
+                          lower: "0",
+                          upper: "1",
+                        }),
+                      },
+                      max: {
+                        value: 1,
+                        message: t("error-field-value-between", {
+                          field: t("top-p"),
+                          lower: "0",
+                          upper: "1",
+                        }),
+                      },
+                    })}
                   />
                 </div>
                 <div className={itemCss}>

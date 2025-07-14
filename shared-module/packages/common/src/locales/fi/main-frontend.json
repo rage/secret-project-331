@@ -575,6 +575,7 @@
   "month": "Kuukausi",
   "monthly": "Kuukausittain",
   "n-a": "Ei saatavilla",
+  "name-not-empty": "Nimi ei voi olla tyhjä",
   "name-of-module": "Moduulin nimi",
   "new-course": "Uusi kurssi",
   "new-course-instance": "Uusi kurssiversio",

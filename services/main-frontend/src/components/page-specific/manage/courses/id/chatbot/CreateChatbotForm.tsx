@@ -29,8 +29,6 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
     register,
     handleSubmit,
     formState: { errors },
-    clearErrors,
-    setError,
   } = useForm<CreateChatbotFields>()
 
   const createChatbotMutation = useToastMutation(
@@ -47,34 +45,24 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
     },
   )
 
-  const validateForm = (data: CreateChatbotFields): boolean => {
-    const trimmed_name = data.name.trim()
-    clearErrors(["name"])
-    let isValid = true
-
-    if (!trimmed_name) {
-      isValid = false
-      setError("name", { message: "name must contain characters" })
-    }
-    return isValid
-  }
-
-  const onCreateNewChatbotWrapper = handleSubmit((data) => {
-    if (!validateForm(data)) {
-      return
-    }
-
-    createChatbotMutation.mutate(data.name)
-  })
-
   return (
     <div>
-      <form onSubmit={onCreateNewChatbotWrapper}>
+      <form
+        onSubmit={handleSubmit((data) => {
+          createChatbotMutation.mutate(data.name.trim())
+        })}
+      >
         <TextField
-          id={"name"}
           error={errors.name?.message}
           label={t("label-name")}
-          {...register("name", { required: t("required-field") })}
+          {...register("name", {
+            required: t("required-field"),
+            validate: {
+              check: (name) => {
+                return name.trim() ? true : t("name-not-empty")
+              },
+            },
+          })}
         />
         <Button
           type="submit"

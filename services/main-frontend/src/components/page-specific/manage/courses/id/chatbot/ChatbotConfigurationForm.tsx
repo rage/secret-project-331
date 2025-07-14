@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { ChatbotConfiguration, NewChatbotConf } from "@/shared-module/common/bindings"
+import Accordion from "@/shared-module/common/components/Accordion"
 import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
@@ -167,108 +168,113 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
           <CheckBox label={t("hide-citations")} {...register("hide_citations")} />
         </div>
 
-        <h3>{t("advanced-settings")}</h3>
-
-        <div
-          className={css`
-            margin: 30px 0;
-          `}
-        >
-          <div
+        <Accordion>
+          <details
             className={css`
-              display: flex;
-              gap: 20px;
-              flex-direction: column;
-              margin: 20px 0;
-              ${respondToOrLarger.md} {
-                flex-direction: row;
-                flex-wrap: wrap;
-                justify-content: space-between;
-              }
+              margin: 20px 0px;
             `}
           >
-            <div className={itemCss}>
-              <h4>{t("configure-tokens")}</h4>
-              <TextField
-                className={textFieldCss}
-                id={"daily-token"}
-                type="number"
-                label={t("daily-token-user")}
-                {...register("daily_tokens_per_user")}
-              />
-              <TextField
-                className={textFieldCss}
-                id={"weekly-token"}
-                type="number"
-                label={t("weekly-token-user")}
-                {...register("weekly_tokens_per_user")}
-              />
-              <TextField
-                className={textFieldCss}
-                id={"max-tokens"}
-                type="number"
-                label={t("max-token-response")}
-                {...register("response_max_tokens")}
-              />
-            </div>
-            <div className={itemCss}>
-              <h4>{t("configure-penalty")}</h4>
-              <TextField
-                className={textFieldCss}
-                id={"freq-penalty"}
-                type="number"
-                error={errors.frequency_penalty?.message}
-                step="0.01"
-                label={t("frequency-penalty")}
-                {...register("frequency_penalty", { required: t("required-field") })}
-              />
-              <TextField
-                className={textFieldCss}
-                id={"pres-penalty"}
-                type="number"
-                error={errors.presence_penalty?.message}
-                step="0.01"
-                label={t("presence-penalty")}
-                {...register("presence_penalty", { required: t("required-field") })}
-              />
-            </div>
-            <div className={itemCss}>
-              <h4>{t("configure-creativity")}</h4>
-              <TextField
-                className={textFieldCss}
-                id={"temperature"}
-                type="number"
-                error={errors.temperature?.message}
-                step="0.01"
-                label={t("temperature")}
-                {...register("temperature", { required: t("required-field") })}
-              />
-              <TextField
-                className={textFieldCss}
-                id={"top-p"}
-                type="number"
-                error={errors.top_p?.message}
-                step="0.01"
-                label={t("top-p")}
-                {...register("top_p", { required: t("required-field") })}
-              />
-            </div>
-            <div className={itemCss}>
-              <h4>{t("configure-search")}</h4>
+            <summary>
+              <h4>{t("advanced-settings")}</h4>
+            </summary>
+            <div>
               <div
                 className={css`
-                  margin: 20px 20px;
+                  display: flex;
+                  gap: 20px;
+                  flex-direction: column;
+                  margin: 20px 0;
+                  ${respondToOrLarger.md} {
+                    flex-direction: row;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                  }
                 `}
               >
-                <CheckBox label={t("use-azure-search")} {...register("use_azure_search")} />
-                <CheckBox
-                  label={t("use-semantic-reranking")}
-                  {...register("use_semantic_reranking")}
-                />
+                <div className={itemCss}>
+                  <h4>{t("configure-tokens")}</h4>
+                  <TextField
+                    className={textFieldCss}
+                    id={"daily-token"}
+                    type="number"
+                    label={t("daily-token-user")}
+                    {...register("daily_tokens_per_user")}
+                  />
+                  <TextField
+                    className={textFieldCss}
+                    id={"weekly-token"}
+                    type="number"
+                    label={t("weekly-token-user")}
+                    {...register("weekly_tokens_per_user")}
+                  />
+                  <TextField
+                    className={textFieldCss}
+                    id={"max-tokens"}
+                    type="number"
+                    label={t("max-token-response")}
+                    {...register("response_max_tokens")}
+                  />
+                </div>
+                <div className={itemCss}>
+                  <h4>{t("configure-penalty")}</h4>
+                  <TextField
+                    className={textFieldCss}
+                    id={"freq-penalty"}
+                    type="number"
+                    error={errors.frequency_penalty?.message}
+                    step="0.01"
+                    label={t("frequency-penalty")}
+                    {...register("frequency_penalty", { required: t("required-field") })}
+                  />
+                  <TextField
+                    className={textFieldCss}
+                    id={"pres-penalty"}
+                    type="number"
+                    error={errors.presence_penalty?.message}
+                    step="0.01"
+                    label={t("presence-penalty")}
+                    {...register("presence_penalty", { required: t("required-field") })}
+                  />
+                </div>
+                <div className={itemCss}>
+                  <h4>{t("configure-creativity")}</h4>
+                  <TextField
+                    className={textFieldCss}
+                    id={"temperature"}
+                    type="number"
+                    error={errors.temperature?.message}
+                    step="0.01"
+                    label={t("temperature")}
+                    {...register("temperature", { required: t("required-field") })}
+                  />
+                  <TextField
+                    className={textFieldCss}
+                    id={"top-p"}
+                    type="number"
+                    error={errors.top_p?.message}
+                    step="0.01"
+                    label={t("top-p")}
+                    {...register("top_p", { required: t("required-field") })}
+                  />
+                </div>
+                <div className={itemCss}>
+                  <h4>{t("configure-search")}</h4>
+                  <div
+                    className={css`
+                      margin: 20px 20px;
+                    `}
+                  >
+                    <CheckBox label={t("use-azure-search")} {...register("use_azure_search")} />
+                    <CheckBox
+                      label={t("use-semantic-reranking")}
+                      {...register("use_semantic_reranking")}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+          </details>
+        </Accordion>
 
         <div>
           <Button type="submit" size="medium" variant="primary">

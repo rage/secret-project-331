@@ -254,7 +254,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
               />
             </div>
             <div className={itemCss}>
-              <h4>{t("search-configuration")}</h4>
+              <h4>{t("configure-search")}</h4>
               <div
                 className={css`
                   margin: 20px 20px;

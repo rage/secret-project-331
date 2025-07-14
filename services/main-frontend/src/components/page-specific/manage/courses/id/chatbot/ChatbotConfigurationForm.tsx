@@ -1,20 +1,24 @@
 import { css } from "@emotion/css"
+import { useRouter } from "next/router"
 import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { configureChatbot, deleteChatbot } from "@/services/backend/chatbots"
 import { ChatbotConfiguration, NewChatbotConf } from "@/shared-module/common/bindings"
 import Accordion from "@/shared-module/common/components/Accordion"
 import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { courseChatbotSettingsRoute } from "@/shared-module/common/utils/routes"
 
 interface Props {
-  onConfigureChatbot: (bot: NewChatbotConf) => void
-  onDeleteChatbot: (botId: string, botName: string) => void
   oldChatbotConf: ChatbotConfiguration
+  chatbotQueryRefetch: () => void
 }
 
 type ConfigureChatbotFields = Omit<NewChatbotConf, "course_id" | "maintain_azure_search_index">
@@ -29,12 +33,9 @@ const textFieldCss = css`
   width: auto;
 `
 
-const ChatbotConfigurationForm: React.FC<Props> = ({
-  onConfigureChatbot,
-  onDeleteChatbot,
-  oldChatbotConf,
-}) => {
+const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQueryRefetch }) => {
   const { t } = useTranslation()
+  const router = useRouter()
   const {
     register,
     handleSubmit,
@@ -58,8 +59,39 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
     },
   })
 
+  const configureChatbotMutation = useToastMutation(
+    async (bot: NewChatbotConf) => {
+      if (oldChatbotConf === null) {
+        throw new Error("Chatbot undefined")
+      }
+      await configureChatbot(assertNotNullOrUndefined(oldChatbotConf.id), bot)
+    },
+    {
+      notify: true,
+      method: "POST",
+    },
+    {
+      onSuccess: () => {
+        chatbotQueryRefetch()
+      },
+    },
+  )
+
+  const deleteChatbotMutation = useToastMutation(
+    async (chatbotConfigurationId: string) => await deleteChatbot(chatbotConfigurationId),
+    {
+      method: "DELETE",
+      notify: true,
+    },
+    {
+      onSuccess: () => {
+        router.push(courseChatbotSettingsRoute(assertNotNullOrUndefined(oldChatbotConf.course_id)))
+      },
+    },
+  )
+
   const onConfigureChatbotWrapper = handleSubmit((data) => {
-    onConfigureChatbot({
+    configureChatbotMutation.mutate({
       course_id: oldChatbotConf.course_id, // keep the old course id
       chatbot_name: data.chatbot_name,
       enabled_to_students: data.enabled_to_students,
@@ -284,14 +316,28 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
         </Accordion>
 
         <div>
-          <Button type="submit" size="medium" variant="primary">
+          <Button
+            type="submit"
+            size="medium"
+            variant="primary"
+            disabled={configureChatbotMutation.isPending}
+          >
             {t("save")}
           </Button>
           <Button
             type="button"
             size="medium"
             variant="tertiary"
-            onClick={() => onDeleteChatbot(oldChatbotConf.id, oldChatbotConf.chatbot_name)}
+            disabled={deleteChatbotMutation.isPending}
+            onClick={() => {
+              if (
+                window.confirm(
+                  t("delete-chatbot-confirmation", { name: oldChatbotConf.chatbot_name }),
+                )
+              ) {
+                deleteChatbotMutation.mutate(oldChatbotConf.id)
+              }
+            }}
           >
             {t("delete")}
           </Button>

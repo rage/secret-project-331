@@ -313,7 +313,8 @@ pub async fn authorize_access_to_course_material(
     Ok(token)
 }
 
-/**  Can be used to check whether user is allowed to view some course material */
+/** Checks the Authorization header against a secret from environment variables to verify if the request originates from the TMC server. Returns an authorization token if the secret matches, otherwise an unauthorized error.
+ */
 pub async fn authorize_access_to_tmc_server(
     request: &HttpRequest,
 ) -> Result<AuthorizationToken, ControllerError> {

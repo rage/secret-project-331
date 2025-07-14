@@ -182,18 +182,13 @@ impl TmcClient {
         user_upstream_id: String,
     ) -> Result<()> {
         let url = format!(
-            "{}/{}/set_password_managed_by_courses-mooc-fi",
+            "{}/{}/set_password_managed_by_courses_mooc_fi",
             TMC_API_URL, user_upstream_id
         );
 
-        self.request_with_headers(
-            reqwest::Method::POST,
-            &url,
-            true, // uses bearer auth
-            None,
-        )
-        .await
-        .map(|_| ())
+        self.request_with_headers(reqwest::Method::POST, &url, true, None)
+            .await
+            .map(|_| ())
     }
 
     pub fn mock_for_test() -> Self {

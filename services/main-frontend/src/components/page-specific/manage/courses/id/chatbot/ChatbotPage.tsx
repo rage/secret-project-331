@@ -1,10 +1,10 @@
 import { css } from "@emotion/css"
-import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
-import Link from "next/link"
 import { useRouter } from "next/router"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
+
+import { StyledLi, StyledUl } from "../../../../styles/styles"
 
 import CreateChatbotDialog from "./CreateChatbotDialog"
 
@@ -16,24 +16,7 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
-
-// copypasted from ExamList, maybe refactor
-const StyledUl = styled.ul`
-  margin: 1rem 0;
-  list-style: none;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  border-radius: 8px;
-`
-const StyledLi = styled.li`
-  margin: 0.5rem 0;
-  padding: 1.5rem;
-  background-color: ${baseTheme.colors.primary[100]};
-  border: 1px solid ${baseTheme.colors.clear[300]};
-  border-radius: 6px;
-`
+import { manageChatbotRoute } from "@/shared-module/common/utils/routes"
 
 const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   const { t } = useTranslation()
@@ -61,7 +44,7 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
 
   const setDefaultChatbotMutation = useToastMutation(
     async (chatbotConfigurationId: string) =>
-      await setAsDefaultChatbot(courseId, chatbotConfigurationId),
+      await setAsDefaultChatbot(assertNotNullOrUndefined(courseId), chatbotConfigurationId),
     {
       method: "POST",
       notify: true,
@@ -71,8 +54,7 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
 
   const closeDialogOpenEdit = (id: string) => {
     setCreateChatbotVisible(false)
-    /* eslint-disable i18next/no-literal-string */
-    router.push(`/manage/chatbots/${id}`)
+    router.push(manageChatbotRoute(id))
   }
   const closeDialog = () => {
     setCreateChatbotVisible(false)
@@ -122,11 +104,13 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
               >
                 {bot.chatbot_name} <em>{bot.default_chatbot ? `(${t("label-default")})` : ""}</em>
               </h4>
-              <Link href={`/manage/chatbots/${bot.id}`} aria-label={`${t("customize-chatbot")}`}>
-                <Button size="medium" variant="primary">
-                  {t("edit")}
-                </Button>
-              </Link>
+              <Button
+                size="medium"
+                variant="primary"
+                onClick={() => router.push(manageChatbotRoute(bot.id))}
+              >
+                {t("edit")}
+              </Button>
               {!bot.default_chatbot && (
                 <Button
                   size="medium"

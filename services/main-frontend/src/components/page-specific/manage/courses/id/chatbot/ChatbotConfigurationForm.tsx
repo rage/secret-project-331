@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { ChatbotConfiguration, NewChatbotConf } from "@/shared-module/common/bindings"
-//import Accordion from "@/shared-module/common/components/Accordion"
 import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
@@ -131,7 +130,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
       maintain_azure_search_index: data.use_azure_search,
       hide_citations: data.hide_citations,
       use_semantic_reranking: data.use_semantic_reranking,
-      default_chatbot: oldChatbotConf.default_chatbot, // keep the old default value
+      default_chatbot: oldChatbotConf.default_chatbot, // keep the old default_chatbot value
     })
   })
 
@@ -221,7 +220,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
                 error={errors.frequency_penalty?.message}
                 step="0.01"
                 label={t("frequency-penalty")}
-                {...register("frequency_penalty")}
+                {...register("frequency_penalty", { required: t("required-field") })}
               />
               <TextField
                 className={textFieldCss}
@@ -230,7 +229,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
                 error={errors.presence_penalty?.message}
                 step="0.01"
                 label={t("presence-penalty")}
-                {...register("presence_penalty")}
+                {...register("presence_penalty", { required: t("required-field") })}
               />
             </div>
             <div className={itemCss}>
@@ -242,7 +241,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
                 error={errors.temperature?.message}
                 step="0.01"
                 label={t("temperature")}
-                {...register("temperature")}
+                {...register("temperature", { required: t("required-field") })}
               />
               <TextField
                 className={textFieldCss}
@@ -251,7 +250,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({
                 error={errors.top_p?.message}
                 step="0.01"
                 label={t("top-p")}
-                {...register("top_p")}
+                {...register("top_p", { required: t("required-field") })}
               />
             </div>
             <div className={itemCss}>

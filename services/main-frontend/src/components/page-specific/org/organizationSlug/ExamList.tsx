@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { isPast } from "date-fns" // Added import
 import React, { useContext, useMemo, useState } from "react"
@@ -7,6 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import { fetchOrganizationExams } from "../../../../services/backend/exams"
 import NewExamDialog from "../../manage/courses/id/exams/NewExamDialog"
+import { StyledUl } from "../../styles/styles"
 
 import ExamListItem from "./ExamListItem"
 
@@ -15,16 +15,6 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
-
-const StyledUl = styled.ul`
-  margin: 1rem 0;
-  list-style: none;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  border-radius: 8px;
-`
 
 interface Props {
   organizationId: string

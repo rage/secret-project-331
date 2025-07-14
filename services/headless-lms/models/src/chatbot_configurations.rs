@@ -263,8 +263,7 @@ pub async fn remove_default_chatbot_from_course(
     conn: &mut PgConnection,
     course_id: Uuid,
 ) -> ModelResult<()> {
-    sqlx::query_as!(
-        ChatbotConfiguration,
+    sqlx::query!(
         r#"
 UPDATE chatbot_configurations
 SET default_chatbot = false

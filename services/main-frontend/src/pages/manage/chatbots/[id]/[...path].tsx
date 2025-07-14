@@ -16,6 +16,7 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { courseChatbotSettingsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const CustomizeChatbotPage = () => {
@@ -55,7 +56,9 @@ const CustomizeChatbotPage = () => {
     },
     {
       onSuccess: () => {
-        router.back()
+        router.push(
+          courseChatbotSettingsRoute(assertNotNullOrUndefined(chatbotQuery.data?.course_id)),
+        )
       },
     },
   )

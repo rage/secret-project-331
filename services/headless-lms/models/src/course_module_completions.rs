@@ -381,6 +381,84 @@ LIMIT 1
     Ok(res)
 }
 
+pub async fn get_best_completion_by_user_and_course_module_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_module_id: Uuid,
+) -> ModelResult<Option<CourseModuleCompletion>> {
+    let completions = sqlx::query_as!(
+        CourseModuleCompletion,
+        r#"
+SELECT *
+FROM course_module_completions
+WHERE user_id = $1
+  AND course_module_id = $2
+  AND deleted_at IS NULL
+        "#,
+        user_id,
+        course_module_id,
+    )
+    .fetch_all(conn)
+    .await?;
+
+    let best_grade = completions
+        .into_iter()
+        .max_by(|completion_a, completion_b| {
+            let score_a = match completion_a.grade {
+                Some(grade) => grade as f32,
+                None => match completion_a.passed {
+                    true => 0.5,
+                    false => -1.0,
+                },
+            };
+
+            let score_b = match completion_b.grade {
+                Some(grade) => grade as f32,
+                None => match completion_b.passed {
+                    true => 0.5,
+                    false => -1.0,
+                },
+            };
+
+            score_a
+                .partial_cmp(&score_b)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
+
+    Ok(best_grade)
+}
+
+/// Finds the best grade
+pub fn select_best_completion(
+    completions: Vec<CourseModuleCompletion>,
+) -> Option<CourseModuleCompletion> {
+    completions.into_iter().max_by(|a, b| {
+        let score_a = match a.grade {
+            Some(grade) => grade as f32,
+            None => {
+                if a.passed {
+                    0.5
+                } else {
+                    -1.0
+                }
+            }
+        };
+        let score_b = match b.grade {
+            Some(grade) => grade as f32,
+            None => {
+                if b.passed {
+                    0.5
+                } else {
+                    -1.0
+                }
+            }
+        };
+        score_a
+            .partial_cmp(&score_b)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    })
+}
+
 /// Get the number of students that have completed the course
 pub async fn get_count_of_distinct_completors_by_course_id(
     conn: &mut PgConnection,

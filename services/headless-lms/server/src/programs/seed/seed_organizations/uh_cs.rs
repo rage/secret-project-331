@@ -66,6 +66,7 @@ pub async fn seed_organization_uh_cs(
         student_5_user_id: _,
         student_6_user_id: _,
         langs_user_id,
+        sign_up_user: _,
     } = seed_users_result;
     let _ = seed_file_storage_result;
 
@@ -254,7 +255,14 @@ pub async fn seed_organization_uh_cs(
             "Peer review Course",
             "peer-review-course",
             cs_data.clone(),
-        ))
+        )),
+        run_parallelly(seed_sample_course(
+            Uuid::parse_str("557040ea-31bc-47ae-81bd-caeec45a08d0")?,
+            "TestMyCode",
+            "tmc-course",
+            cs_data.clone(),
+            seed_users_result
+        )),
     )?;
 
     // configure automatic completions

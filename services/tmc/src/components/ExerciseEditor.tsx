@@ -1,5 +1,5 @@
 /* eslint-disable i18next/no-literal-string */
-import React from "react"
+import React, { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
 import { ExerciseEditorState, ExerciseIframeState } from "../util/stateInterfaces"
@@ -10,17 +10,27 @@ import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 interface Props {
   state: ExerciseEditorState
   setState: (updater: (state: ExerciseIframeState | null) => ExerciseIframeState | null) => void
+  requestRepositoryExercises: () => void
 }
 
-const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({ state, setState }) => {
+const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({
+  state,
+  setState,
+  requestRepositoryExercises,
+}) => {
   const { t } = useTranslation()
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => requestRepositoryExercises(), [])
 
   // cms editor view
   if (state.private_spec == null) {
     // no exercise selected yet
+    const repositoryExercises = state.repository_exercises?.length ?? 0
     return (
       <>
-        <div>{t("select-repository-exercise")}</div>
+        {repositoryExercises > 0 && <div>{t("select-repository-exercise")}</div>}
+        {repositoryExercises == 0 && <div>No repository exercises found.</div>}
         <ul>
           {state.repository_exercises?.map((re) => (
             <li key={re.id}>

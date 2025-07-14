@@ -12,7 +12,9 @@ use headless_lms_server::{
     domain::models_requests::JwtKey,
     setup_tracing,
 };
-use headless_lms_utils::{ApplicationConfiguration, file_store::local_file_store::LocalFileStore};
+use headless_lms_utils::{
+    ApplicationConfiguration, file_store::local_file_store::LocalFileStore, tmc::TmcClient,
+};
 use sqlx::{Connection, PgConnection, PgPool, Postgres, migrate::MigrateDatabase};
 use tokio::sync::Mutex;
 use uuid::Uuid;
@@ -76,10 +78,12 @@ pub async fn test_config() -> ServerConfig {
             base_url: "http://project-331.local".to_string(),
             development_uuid_login: false,
             azure_configuration: None,
+            tmc_account_creation_origin: None,
         },
         redis_url: "redis://example.com".to_string(),
         jwt_password: "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS"
             .to_string(),
+        tmc_client: TmcClient::mock_for_test(),
     }
     .build()
     .await

@@ -8,12 +8,14 @@ export const addExerciseRepository = async (
   courseId: string | null,
   examId: string | null,
   gitUrl: string,
+  publicKey: string,
   deployKey: string,
 ): Promise<void> => {
   const data: NewExerciseRepository = {
     course_id: courseId,
     exam_id: examId,
     git_url: gitUrl,
+    public_key: publicKey.length > 0 ? publicKey : null,
     deploy_key: deployKey.length > 0 ? deployKey : null,
   }
   return mainFrontendClient.post(`/exercise-repositories/new`, data)

@@ -95,6 +95,12 @@ export interface CertificateConfiguration {
   background_svg_file_upload_id: string
   overlay_svg_path: string | null
   overlay_svg_file_upload_id: string | null
+  render_certificate_grade: boolean
+  certificate_grade_y_pos: string | null
+  certificate_grade_x_pos: string | null
+  certificate_grade_font_size: string | null
+  certificate_grade_text_color: string | null
+  certificate_grade_text_anchor: CertificateTextAnchor | null
 }
 
 export interface CertificateConfigurationAndRequirements {
@@ -871,6 +877,7 @@ export interface CourseMaterialExerciseTask {
   previous_submission: ExerciseTaskSubmission | null
   previous_submission_grading: ExerciseTaskGrading | null
   order_number: number
+  deleted_at: string | null
 }
 
 export interface ExerciseTask {
@@ -2055,6 +2062,7 @@ export interface UserDetail {
   last_name: string | null
   search_helper: string | null
   country: string | null
+  email_communication_consent: boolean | null
 }
 
 export interface ExerciseUserCounts {
@@ -2139,6 +2147,7 @@ export interface CreateAccountDetails {
   password: string
   password_confirmation: string
   country: string
+  email_communication_consent: boolean
 }
 
 export interface Login {
@@ -2220,6 +2229,12 @@ export interface CertificateConfigurationUpdate {
   background_svg_file_name: string | null
   overlay_svg_file_name: string | null
   clear_overlay_svg_file: boolean
+  render_certificate_grade: boolean
+  certificate_grade_y_pos: string | null
+  certificate_grade_x_pos: string | null
+  certificate_grade_font_size: string | null
+  certificate_grade_text_color: string | null
+  certificate_grade_text_anchor: CertificateTextAnchor | null
 }
 
 export interface GetFeedbackQuery {
@@ -2261,6 +2276,7 @@ export interface NewExerciseRepository {
   course_id: string | null
   exam_id: string | null
   git_url: string
+  public_key: string | null
   deploy_key: string | null
 }
 

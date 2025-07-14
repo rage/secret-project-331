@@ -234,7 +234,7 @@
   "error-could-not-find-edit-history-for-page": "Sivulle ei löytynyt muokkaushistoriaa",
   "error-creating-course": "Virhe kurssin luomisessa",
   "error-fetching-service-info": "Virhe haettaessa palvelun tietoja",
-  "error-field-value-between": "Kentän {{field}} arvon tulee olla vöhintään {{lower}} ja enintään {{upper}}.",
+  "error-field-value-between": "Kentän {{field}} arvon tulee olla vähintään {{lower}} ja enintään {{upper}}.",
   "error-loading-organizations": "Virhe organisaatioiden lataamisessa",
   "error-modules-chapter-not-in-module": "Luku {{ chapterNumber }}: {{ chapterName }} ei ole missään moduulissa",
   "error-modules-default-noncontinuous-chapters": "Oletusmoduulista puuttuu kappaleita kappaleiden {{ prevChapter }} ja {{ currChapter }} välistä",

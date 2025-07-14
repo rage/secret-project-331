@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import { fetchOrganizationExams } from "../../../../services/backend/exams"
 import NewExamDialog from "../../manage/courses/id/exams/NewExamDialog"
-import { StyledUl } from "../../styles/styles"
+import { CardList } from "../../styles/styles"
 
 import ExamListItem from "./ExamListItem"
 
@@ -64,20 +64,20 @@ const ExamList: React.FC<React.PropsWithChildren<Props>> = ({
 
   return (
     <div>
-      <StyledUl>
+      <CardList>
         {activeExams.map((exam) => (
           <ExamListItem key={exam.id} exam={exam} organizationSlug={organizationSlug} />
         ))}
-      </StyledUl>
+      </CardList>
       <Button variant="secondary" size="medium" onClick={() => setShowEnded(!showEnded)}>
         {showEnded ? t("hide-ended-exams") : t("show-ended-exams")}
       </Button>
       {showEnded && (
-        <StyledUl>
+        <CardList>
           {endedExams.map((exam) => (
             <ExamListItem key={exam.id} exam={exam} organizationSlug={organizationSlug} />
           ))}
-        </StyledUl>
+        </CardList>
       )}
       <div
         className={css`

@@ -4,7 +4,7 @@ import { useRouter } from "next/router"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { StyledLi, StyledUl } from "../../../../styles/styles"
+import { CardList, CardListItem } from "../../../../styles/styles"
 
 import CreateChatbotDialog from "./CreateChatbotDialog"
 
@@ -94,9 +94,9 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
       </div>
       <div>
         <h3>{t("customize-chatbot")}</h3>
-        <StyledUl>
+        <CardList>
           {sortedChatbotsList.map((bot) => (
-            <StyledLi key={bot.id}>
+            <CardListItem key={bot.id}>
               <h4
                 className={css`
                   margin: 5px;
@@ -122,9 +122,9 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
                   {t("set-default-chatbot")}
                 </Button>
               )}
-            </StyledLi>
+            </CardListItem>
           ))}
-        </StyledUl>
+        </CardList>
       </div>
       <CreateChatbotDialog
         courseId={courseId}

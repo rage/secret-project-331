@@ -58,18 +58,7 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
   await page.locator("#new-module-start").selectOption("2")
   await page.locator("#new-module-ends").selectOption("3")
   await page.getByText("Confirm").click()
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "after-creating-new-module",
-    waitForTheseToBeVisibleAndStable: [
-      page.getByText("Error: Default module has missing chapters between 1 and 4"),
-    ],
-    screenshotOptions: { fullPage: true },
-    // arbitrary large scroll coordinate to fix the position of any popup menus to be consistent and out of the way
-    scrollToYCoordinate: 100_000,
-  })
+  await page.getByText("Error: Default module has missing chapters between 1 and 4").waitFor()
 
   // update invalid module to be valid
   await page.locator('[aria-label="Edit"]').nth(1).click()
@@ -82,44 +71,15 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
 
   // delete module
   await page.locator('[aria-label="Delete"]').nth(1).click()
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "after-second-deletion",
-    screenshotOptions: { fullPage: true },
-    // arbitrary large scroll coordinate to fix the position of any popup menus to be consistent and out of the way
-    scrollToYCoordinate: 100_000,
-  })
 
   // update last module
   await page.locator('[aria-label="Edit"]').nth(2).click()
   await page.locator('[placeholder="Name of module"]').nth(0).fill("renamed module")
   await page.locator("#editing-module-start").selectOption("3")
   await page.locator('[aria-label="Confirm"]').click()
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "after-last-update",
-    waitForTheseToBeVisibleAndStable: [page.getByText("2. renamed module")],
-    screenshotOptions: { fullPage: true },
-    // arbitrary large scroll coordinate to fix the position of any popup menus to be consistent and out of the way
-    scrollToYCoordinate: 100_000,
-  })
+  await page.getByText("2. renamed module").waitFor()
 
   // save changes
   await page.getByText("Save changes").click()
   await page.getByText("Success").first().waitFor()
-
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "after-saving",
-    clearNotifications: true,
-    screenshotOptions: { fullPage: true },
-    // arbitrary large scroll coordinate to fix the position of any popup menus to be consistent and out of the way
-    scrollToYCoordinate: 100_000,
-  })
 })

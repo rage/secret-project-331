@@ -585,6 +585,7 @@ export interface NewCourse {
   join_code: string | null
   ask_marketing_consent: boolean
   flagged_answers_threshold: number | null
+  can_add_chatbot: boolean
 }
 
 export interface EmailTemplate {
@@ -2259,6 +2260,7 @@ export interface CopyCourseRequest {
   join_code: string | null
   ask_marketing_consent: boolean
   flagged_answers_threshold: number | null
+  can_add_chatbot: boolean
   mode: CopyCourseMode
 }
 

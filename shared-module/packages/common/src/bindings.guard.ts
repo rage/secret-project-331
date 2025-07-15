@@ -1228,7 +1228,8 @@ export function isNewCourse(obj: unknown): obj is NewCourse {
             typeof typedObj["join_code"] === "string") &&
         typeof typedObj["ask_marketing_consent"] === "boolean" &&
         (typedObj["flagged_answers_threshold"] === null ||
-            typeof typedObj["flagged_answers_threshold"] === "number")
+            typeof typedObj["flagged_answers_threshold"] === "number") &&
+        typeof typedObj["can_add_chatbot"] === "boolean"
     )
 }
 
@@ -4594,6 +4595,7 @@ export function isCopyCourseRequest(obj: unknown): obj is CopyCourseRequest {
         typeof typedObj["ask_marketing_consent"] === "boolean" &&
         (typedObj["flagged_answers_threshold"] === null ||
             typeof typedObj["flagged_answers_threshold"] === "number") &&
+        typeof typedObj["can_add_chatbot"] === "boolean" &&
         isCopyCourseMode(typedObj["mode"]) as boolean
     )
 }

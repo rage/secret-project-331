@@ -93,6 +93,7 @@ pub async fn seed_organization_uh_mathstat(
         join_code: None,
         ask_marketing_consent: false,
         flagged_answers_threshold: Some(3),
+        can_add_chatbot: false,
     };
     let (
         statistics_course,
@@ -143,6 +144,7 @@ pub async fn seed_organization_uh_mathstat(
         join_code: None,
         ask_marketing_consent: false,
         flagged_answers_threshold: Some(3),
+        can_add_chatbot: false,
     };
     library::content_management::create_new_course(
         &mut conn,
@@ -181,6 +183,7 @@ pub async fn seed_organization_uh_mathstat(
             ),
             ask_marketing_consent: false,
             flagged_answers_threshold: Some(3),
+            can_add_chatbot: false,
         },
         teacher_user_id,
         get_seed_spec_fetcher(),
@@ -211,6 +214,7 @@ pub async fn seed_organization_uh_mathstat(
         "Introduction to citations",
         "introduction-to-citations",
         uh_data.clone(),
+        false,
         seed_users_result,
     )
     .await?;
@@ -234,6 +238,7 @@ pub async fn seed_organization_uh_mathstat(
             join_code: None,
             ask_marketing_consent: false,
             flagged_answers_threshold: Some(3),
+            can_add_chatbot: false,
         },
         true,
         teacher_user_id,
@@ -245,6 +250,7 @@ pub async fn seed_organization_uh_mathstat(
         "Preview unopened chapters",
         "preview-unopened-chapters",
         uh_data.clone(),
+        false,
         seed_users_result,
     )
     .await?;
@@ -254,6 +260,7 @@ pub async fn seed_organization_uh_mathstat(
         "Reset progress",
         "reset-progress",
         uh_data.clone(),
+        false,
         seed_users_result,
     )
     .await?;
@@ -263,6 +270,7 @@ pub async fn seed_organization_uh_mathstat(
         "Change path",
         "change-path",
         uh_data.clone(),
+        false,
         seed_users_result,
     )
     .await?;
@@ -272,6 +280,7 @@ pub async fn seed_organization_uh_mathstat(
         "Self review",
         "self-review",
         uh_data.clone(),
+        false,
         seed_users_result,
     )
     .await?;
@@ -281,6 +290,7 @@ pub async fn seed_organization_uh_mathstat(
         "Audio course",
         "audio-course",
         uh_data.clone(),
+        false,
         seed_users_result,
     )
     .await?;
@@ -290,6 +300,7 @@ pub async fn seed_organization_uh_mathstat(
         "Course for Suspected Cheaters",
         "course-for-suspected-cheaters",
         uh_data.clone(),
+        false,
         seed_users_result,
     )
     .await?;
@@ -320,6 +331,7 @@ pub async fn seed_organization_uh_mathstat(
         "Chatbot",
         "chatbot",
         uh_data.clone(),
+        true,
         seed_users_result,
     )
     .await?;
@@ -353,6 +365,7 @@ pub async fn seed_organization_uh_mathstat(
         "Giveaway",
         "giveaway",
         uh_data.clone(),
+        false,
         seed_users_result,
     )
     .await?;
@@ -362,6 +375,7 @@ pub async fn seed_organization_uh_mathstat(
         "Custom points",
         "custom-points",
         uh_data.clone(),
+        false,
         seed_users_result,
     )
     .await?;

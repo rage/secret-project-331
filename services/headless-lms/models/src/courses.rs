@@ -84,6 +84,7 @@ pub struct NewCourse {
     pub join_code: Option<String>,
     pub ask_marketing_consent: bool,
     pub flagged_answers_threshold: Option<i32>,
+    pub can_add_chatbot: bool,
 }
 
 pub async fn insert(
@@ -105,7 +106,8 @@ INSERT INTO courses(
     is_draft,
     is_test_mode,
     is_joinable_by_code_only,
-    join_code
+    join_code,
+    can_add_chatbot
   )
 VALUES(
     $1,
@@ -118,7 +120,8 @@ VALUES(
     $8,
     $9,
     $10,
-    $11
+    $11,
+    $12
   )
 RETURNING id
         ",
@@ -132,7 +135,8 @@ RETURNING id
         new_course.is_draft,
         new_course.is_test_mode,
         new_course.is_joinable_by_code_only,
-        new_course.join_code
+        new_course.join_code,
+        new_course.can_add_chatbot,
     )
     .fetch_one(conn)
     .await?;
@@ -1035,6 +1039,7 @@ mod test {
                 join_code: None,
                 ask_marketing_consent: false,
                 flagged_answers_threshold: Some(3),
+                can_add_chatbot: false,
             }
         }
     }

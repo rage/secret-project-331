@@ -20,7 +20,7 @@ export interface CreateCourseParams {
   createAsLanguageVersion?: boolean
   useExistingLanguageGroup?: boolean
   targetCourseId?: string
-  data: Omit<NewCourse, "organization_id" | "language_code">
+  data: Omit<NewCourse, "organization_id" | "language_code" | "can_add_chatbot">
   language_code: string
   onSuccess?: () => void
 }
@@ -48,6 +48,7 @@ export const useCreateCourse = () => {
         ...data,
         organization_id: organizationId,
         language_code: normalizedLanguageCode,
+        can_add_chatbot: false,
       }
 
       if (isLanguageVersion && courseId) {

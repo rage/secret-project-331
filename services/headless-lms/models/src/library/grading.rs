@@ -554,6 +554,7 @@ pub async fn get_paginated_answers_requiring_attention_for_exercise(
             answer.submission_id,
             viewer_user_id,
             &fetch_service_info,
+            false,
         )
         .await?;
         let given_peer_reviews = if let Some(course_instance_id) = answer.course_instance_id {

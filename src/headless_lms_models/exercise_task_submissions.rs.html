@@ -385,222 +385,232 @@
 <a href=#385 id=385 data-nosnippet>385</a>    exercise_slide_submission_id: Uuid,
 <a href=#386 id=386 data-nosnippet>386</a>    viewer_user_id: Uuid,
 <a href=#387 id=387 data-nosnippet>387</a>    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
-<a href=#388 id=388 data-nosnippet>388</a>) -&gt; ModelResult&lt;Vec&lt;CourseMaterialExerciseTask&gt;&gt; {
-<a href=#389 id=389 data-nosnippet>389</a>    <span class="kw">let </span>task_submisssions = <span class="kw">crate</span>::exercise_task_submissions::get_by_exercise_slide_submission_id(
-<a href=#390 id=390 data-nosnippet>390</a>        <span class="kw-2">&amp;mut *</span>conn,
-<a href=#391 id=391 data-nosnippet>391</a>        exercise_slide_submission_id,
-<a href=#392 id=392 data-nosnippet>392</a>    )
-<a href=#393 id=393 data-nosnippet>393</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#394 id=394 data-nosnippet>394</a>    <span class="kw">let </span>exercise_task_gradings =
-<a href=#395 id=395 data-nosnippet>395</a>        <span class="kw">crate</span>::exercise_task_gradings::get_all_gradings_by_exercise_slide_submission_id(
-<a href=#396 id=396 data-nosnippet>396</a>            <span class="kw-2">&amp;mut *</span>conn,
-<a href=#397 id=397 data-nosnippet>397</a>            exercise_slide_submission_id,
-<a href=#398 id=398 data-nosnippet>398</a>        )
-<a href=#399 id=399 data-nosnippet>399</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#400 id=400 data-nosnippet>400</a>
-<a href=#401 id=401 data-nosnippet>401</a>    <span class="kw">let </span>exercise_tasks = <span class="kw">crate</span>::exercise_tasks::get_exercise_tasks_by_exercise_slide_id::&lt;
-<a href=#402 id=402 data-nosnippet>402</a>        Vec&lt;ExerciseTask&gt;,
-<a href=#403 id=403 data-nosnippet>403</a>    &gt;(<span class="kw-2">&amp;mut *</span>conn, <span class="kw-2">&amp;</span>task_submisssions[<span class="number">0</span>].exercise_slide_id)
-<a href=#404 id=404 data-nosnippet>404</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#405 id=405 data-nosnippet>405</a>    <span class="kw">let </span><span class="kw-2">mut </span>res = Vec::with_capacity(task_submisssions.len());
-<a href=#406 id=406 data-nosnippet>406</a>
-<a href=#407 id=407 data-nosnippet>407</a>    <span class="kw">let </span>unique_exercise_service_slugs = exercise_tasks
-<a href=#408 id=408 data-nosnippet>408</a>        .iter()
-<a href=#409 id=409 data-nosnippet>409</a>        .cloned()
-<a href=#410 id=410 data-nosnippet>410</a>        .map(|et| et.exercise_type)
-<a href=#411 id=411 data-nosnippet>411</a>        .collect::&lt;HashSet&lt;<span class="kw">_</span>&gt;&gt;()
-<a href=#412 id=412 data-nosnippet>412</a>        .into_iter()
-<a href=#413 id=413 data-nosnippet>413</a>        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-<a href=#414 id=414 data-nosnippet>414</a>    <span class="kw">let </span>exercise_service_slug_to_service_and_info =
-<a href=#415 id=415 data-nosnippet>415</a>        exercise_service_info::get_selected_exercise_services_by_type(
-<a href=#416 id=416 data-nosnippet>416</a>            <span class="kw-2">&amp;mut *</span>conn,
-<a href=#417 id=417 data-nosnippet>417</a>            <span class="kw-2">&amp;</span>unique_exercise_service_slugs,
-<a href=#418 id=418 data-nosnippet>418</a>            fetch_service_info,
-<a href=#419 id=419 data-nosnippet>419</a>        )
-<a href=#420 id=420 data-nosnippet>420</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#421 id=421 data-nosnippet>421</a>
-<a href=#422 id=422 data-nosnippet>422</a>    <span class="kw">for </span>ts <span class="kw">in </span>task_submisssions {
-<a href=#423 id=423 data-nosnippet>423</a>        <span class="kw">let </span>grading = exercise_task_gradings
-<a href=#424 id=424 data-nosnippet>424</a>            .iter()
-<a href=#425 id=425 data-nosnippet>425</a>            .find(|g| <span class="prelude-val">Some</span>(g.id) == ts.exercise_task_grading_id)
-<a href=#426 id=426 data-nosnippet>426</a>            .ok_or_else(|| {
-<a href=#427 id=427 data-nosnippet>427</a>                ModelError::new(
-<a href=#428 id=428 data-nosnippet>428</a>                    ModelErrorType::NotFound,
-<a href=#429 id=429 data-nosnippet>429</a>                    <span class="string">"Grading not found"</span>.to_string(),
-<a href=#430 id=430 data-nosnippet>430</a>                    <span class="prelude-val">None</span>,
-<a href=#431 id=431 data-nosnippet>431</a>                )
-<a href=#432 id=432 data-nosnippet>432</a>            })<span class="question-mark">?</span>;
-<a href=#433 id=433 data-nosnippet>433</a>        <span class="kw">let </span>task = exercise_tasks
+<a href=#388 id=388 data-nosnippet>388</a>    include_deleted_tasks: bool,
+<a href=#389 id=389 data-nosnippet>389</a>) -&gt; ModelResult&lt;Vec&lt;CourseMaterialExerciseTask&gt;&gt; {
+<a href=#390 id=390 data-nosnippet>390</a>    <span class="kw">let </span>task_submisssions = <span class="kw">crate</span>::exercise_task_submissions::get_by_exercise_slide_submission_id(
+<a href=#391 id=391 data-nosnippet>391</a>        <span class="kw-2">&amp;mut *</span>conn,
+<a href=#392 id=392 data-nosnippet>392</a>        exercise_slide_submission_id,
+<a href=#393 id=393 data-nosnippet>393</a>    )
+<a href=#394 id=394 data-nosnippet>394</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#395 id=395 data-nosnippet>395</a>    <span class="kw">let </span>exercise_task_gradings =
+<a href=#396 id=396 data-nosnippet>396</a>        <span class="kw">crate</span>::exercise_task_gradings::get_all_gradings_by_exercise_slide_submission_id(
+<a href=#397 id=397 data-nosnippet>397</a>            <span class="kw-2">&amp;mut *</span>conn,
+<a href=#398 id=398 data-nosnippet>398</a>            exercise_slide_submission_id,
+<a href=#399 id=399 data-nosnippet>399</a>        )
+<a href=#400 id=400 data-nosnippet>400</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#401 id=401 data-nosnippet>401</a>
+<a href=#402 id=402 data-nosnippet>402</a>    <span class="kw">let </span>exercise_tasks = <span class="kw">if </span>include_deleted_tasks {
+<a href=#403 id=403 data-nosnippet>403</a>        <span class="kw">crate</span>::exercise_tasks::get_exercise_tasks_by_exercise_slide_id_including_deleted::&lt;
+<a href=#404 id=404 data-nosnippet>404</a>            Vec&lt;ExerciseTask&gt;,
+<a href=#405 id=405 data-nosnippet>405</a>        &gt;(<span class="kw-2">&amp;mut *</span>conn, <span class="kw-2">&amp;</span>task_submisssions[<span class="number">0</span>].exercise_slide_id)
+<a href=#406 id=406 data-nosnippet>406</a>        .<span class="kw">await</span><span class="question-mark">?
+<a href=#407 id=407 data-nosnippet>407</a>    </span>} <span class="kw">else </span>{
+<a href=#408 id=408 data-nosnippet>408</a>        <span class="kw">crate</span>::exercise_tasks::get_exercise_tasks_by_exercise_slide_id::&lt;Vec&lt;ExerciseTask&gt;&gt;(
+<a href=#409 id=409 data-nosnippet>409</a>            <span class="kw-2">&amp;mut *</span>conn,
+<a href=#410 id=410 data-nosnippet>410</a>            <span class="kw-2">&amp;</span>task_submisssions[<span class="number">0</span>].exercise_slide_id,
+<a href=#411 id=411 data-nosnippet>411</a>        )
+<a href=#412 id=412 data-nosnippet>412</a>        .<span class="kw">await</span><span class="question-mark">?
+<a href=#413 id=413 data-nosnippet>413</a>    </span>};
+<a href=#414 id=414 data-nosnippet>414</a>
+<a href=#415 id=415 data-nosnippet>415</a>    <span class="kw">let </span><span class="kw-2">mut </span>res = Vec::with_capacity(task_submisssions.len());
+<a href=#416 id=416 data-nosnippet>416</a>
+<a href=#417 id=417 data-nosnippet>417</a>    <span class="kw">let </span>unique_exercise_service_slugs = exercise_tasks
+<a href=#418 id=418 data-nosnippet>418</a>        .iter()
+<a href=#419 id=419 data-nosnippet>419</a>        .cloned()
+<a href=#420 id=420 data-nosnippet>420</a>        .map(|et| et.exercise_type)
+<a href=#421 id=421 data-nosnippet>421</a>        .collect::&lt;HashSet&lt;<span class="kw">_</span>&gt;&gt;()
+<a href=#422 id=422 data-nosnippet>422</a>        .into_iter()
+<a href=#423 id=423 data-nosnippet>423</a>        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+<a href=#424 id=424 data-nosnippet>424</a>    <span class="kw">let </span>exercise_service_slug_to_service_and_info =
+<a href=#425 id=425 data-nosnippet>425</a>        exercise_service_info::get_selected_exercise_services_by_type(
+<a href=#426 id=426 data-nosnippet>426</a>            <span class="kw-2">&amp;mut *</span>conn,
+<a href=#427 id=427 data-nosnippet>427</a>            <span class="kw-2">&amp;</span>unique_exercise_service_slugs,
+<a href=#428 id=428 data-nosnippet>428</a>            fetch_service_info,
+<a href=#429 id=429 data-nosnippet>429</a>        )
+<a href=#430 id=430 data-nosnippet>430</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#431 id=431 data-nosnippet>431</a>
+<a href=#432 id=432 data-nosnippet>432</a>    <span class="kw">for </span>ts <span class="kw">in </span>task_submisssions {
+<a href=#433 id=433 data-nosnippet>433</a>        <span class="kw">let </span>grading = exercise_task_gradings
 <a href=#434 id=434 data-nosnippet>434</a>            .iter()
-<a href=#435 id=435 data-nosnippet>435</a>            .find(|t| t.id == ts.exercise_task_id)
+<a href=#435 id=435 data-nosnippet>435</a>            .find(|g| <span class="prelude-val">Some</span>(g.id) == ts.exercise_task_grading_id)
 <a href=#436 id=436 data-nosnippet>436</a>            .ok_or_else(|| {
 <a href=#437 id=437 data-nosnippet>437</a>                ModelError::new(
 <a href=#438 id=438 data-nosnippet>438</a>                    ModelErrorType::NotFound,
-<a href=#439 id=439 data-nosnippet>439</a>                    <span class="string">"Exercise task not found"</span>.to_string(),
+<a href=#439 id=439 data-nosnippet>439</a>                    <span class="string">"Grading not found"</span>.to_string(),
 <a href=#440 id=440 data-nosnippet>440</a>                    <span class="prelude-val">None</span>,
 <a href=#441 id=441 data-nosnippet>441</a>                )
 <a href=#442 id=442 data-nosnippet>442</a>            })<span class="question-mark">?</span>;
-<a href=#443 id=443 data-nosnippet>443</a>        <span class="kw">let </span>(exercise_service, service_info) = exercise_service_slug_to_service_and_info
-<a href=#444 id=444 data-nosnippet>444</a>            .get(<span class="kw-2">&amp;</span>task.exercise_type)
-<a href=#445 id=445 data-nosnippet>445</a>            .ok_or_else(|| {
-<a href=#446 id=446 data-nosnippet>446</a>                ModelError::new(
-<a href=#447 id=447 data-nosnippet>447</a>                    ModelErrorType::InvalidRequest,
-<a href=#448 id=448 data-nosnippet>448</a>                    <span class="string">"Exercise service not found"</span>.to_string(),
-<a href=#449 id=449 data-nosnippet>449</a>                    <span class="prelude-val">None</span>,
-<a href=#450 id=450 data-nosnippet>450</a>                )
-<a href=#451 id=451 data-nosnippet>451</a>            })<span class="question-mark">?</span>;
-<a href=#452 id=452 data-nosnippet>452</a>        <span class="kw">let </span><span class="kw-2">mut </span>exercise_iframe_url =
-<a href=#453 id=453 data-nosnippet>453</a>            exercise_services::get_exercise_service_externally_preferred_baseurl(exercise_service)<span class="question-mark">?</span>;
-<a href=#454 id=454 data-nosnippet>454</a>        exercise_iframe_url.set_path(<span class="kw-2">&amp;</span>service_info.user_interface_iframe_path);
-<a href=#455 id=455 data-nosnippet>455</a>        <span class="kw">let </span>course_material_exercise_task = CourseMaterialExerciseTask {
-<a href=#456 id=456 data-nosnippet>456</a>            id: task.id,
-<a href=#457 id=457 data-nosnippet>457</a>            exercise_service_slug: task.exercise_type.clone(),
-<a href=#458 id=458 data-nosnippet>458</a>            exercise_slide_id: task.exercise_slide_id,
-<a href=#459 id=459 data-nosnippet>459</a>            exercise_iframe_url: <span class="prelude-val">Some</span>(exercise_iframe_url.to_string()),
-<a href=#460 id=460 data-nosnippet>460</a>            pseudonumous_user_id: <span class="prelude-val">Some</span>(Uuid::new_v5(
-<a href=#461 id=461 data-nosnippet>461</a>                <span class="kw-2">&amp;</span>service_info.exercise_service_id,
-<a href=#462 id=462 data-nosnippet>462</a>                viewer_user_id.as_bytes(),
-<a href=#463 id=463 data-nosnippet>463</a>            )),
-<a href=#464 id=464 data-nosnippet>464</a>            assignment: task.assignment.clone(),
-<a href=#465 id=465 data-nosnippet>465</a>            public_spec: task.public_spec.clone(),
-<a href=#466 id=466 data-nosnippet>466</a>            model_solution_spec: task.model_solution_spec.clone(),
-<a href=#467 id=467 data-nosnippet>467</a>            previous_submission: <span class="prelude-val">Some</span>(ts),
-<a href=#468 id=468 data-nosnippet>468</a>            previous_submission_grading: <span class="prelude-val">Some</span>(grading.clone()),
-<a href=#469 id=469 data-nosnippet>469</a>            order_number: task.order_number,
-<a href=#470 id=470 data-nosnippet>470</a>            deleted_at: task.deleted_at,
-<a href=#471 id=471 data-nosnippet>471</a>        };
-<a href=#472 id=472 data-nosnippet>472</a>        res.push(course_material_exercise_task);
-<a href=#473 id=473 data-nosnippet>473</a>    }
-<a href=#474 id=474 data-nosnippet>474</a>    <span class="prelude-val">Ok</span>(res)
-<a href=#475 id=475 data-nosnippet>475</a>}
-<a href=#476 id=476 data-nosnippet>476</a>
-<a href=#477 id=477 data-nosnippet>477</a><span class="kw">pub async fn </span>get_user_custom_view_exercise_tasks_by_module_and_exercise_type(
-<a href=#478 id=478 data-nosnippet>478</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#479 id=479 data-nosnippet>479</a>    exercise_type: <span class="kw-2">&amp;</span>str,
-<a href=#480 id=480 data-nosnippet>480</a>    course_module_id: Uuid,
-<a href=#481 id=481 data-nosnippet>481</a>    user_id: Uuid,
-<a href=#482 id=482 data-nosnippet>482</a>    course_instance_id: Uuid,
-<a href=#483 id=483 data-nosnippet>483</a>) -&gt; ModelResult&lt;CustomViewExerciseTasks&gt; {
-<a href=#484 id=484 data-nosnippet>484</a>    <span class="kw">let </span>task_submissions =
-<a href=#485 id=485 data-nosnippet>485</a>        <span class="kw">crate</span>::exercise_task_submissions::get_user_latest_exercise_task_submissions_by_course_module_and_exercise_type(
-<a href=#486 id=486 data-nosnippet>486</a>            <span class="kw-2">&amp;mut *</span>conn,
-<a href=#487 id=487 data-nosnippet>487</a>            user_id,
-<a href=#488 id=488 data-nosnippet>488</a>            exercise_type,
-<a href=#489 id=489 data-nosnippet>489</a>            course_module_id,
-<a href=#490 id=490 data-nosnippet>490</a>            course_instance_id,
-<a href=#491 id=491 data-nosnippet>491</a>        )
-<a href=#492 id=492 data-nosnippet>492</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#493 id=493 data-nosnippet>493</a>    <span class="kw">let </span>task_gradings =
-<a href=#494 id=494 data-nosnippet>494</a>        <span class="kw">crate</span>::exercise_task_gradings::get_user_exercise_task_gradings_by_module_and_exercise_type(
-<a href=#495 id=495 data-nosnippet>495</a>            <span class="kw-2">&amp;mut *</span>conn,
-<a href=#496 id=496 data-nosnippet>496</a>            user_id,
-<a href=#497 id=497 data-nosnippet>497</a>            exercise_type,
-<a href=#498 id=498 data-nosnippet>498</a>            course_module_id,
-<a href=#499 id=499 data-nosnippet>499</a>            course_instance_id,
-<a href=#500 id=500 data-nosnippet>500</a>        )
-<a href=#501 id=501 data-nosnippet>501</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#502 id=502 data-nosnippet>502</a>
-<a href=#503 id=503 data-nosnippet>503</a>    <span class="kw">let </span>exercise_tasks = <span class="kw">crate</span>::exercise_tasks::get_all_exercise_tasks_by_module_and_exercise_type(
-<a href=#504 id=504 data-nosnippet>504</a>        <span class="kw-2">&amp;mut *</span>conn,
-<a href=#505 id=505 data-nosnippet>505</a>        exercise_type,
-<a href=#506 id=506 data-nosnippet>506</a>        course_module_id,
-<a href=#507 id=507 data-nosnippet>507</a>    )
-<a href=#508 id=508 data-nosnippet>508</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#509 id=509 data-nosnippet>509</a>    <span class="kw">let </span>res: CustomViewExerciseTasks = CustomViewExerciseTasks {
-<a href=#510 id=510 data-nosnippet>510</a>        exercise_tasks,
-<a href=#511 id=511 data-nosnippet>511</a>        task_submissions,
-<a href=#512 id=512 data-nosnippet>512</a>        task_gradings,
-<a href=#513 id=513 data-nosnippet>513</a>    };
-<a href=#514 id=514 data-nosnippet>514</a>    <span class="prelude-val">Ok</span>(res)
-<a href=#515 id=515 data-nosnippet>515</a>}
-<a href=#516 id=516 data-nosnippet>516</a>
-<a href=#517 id=517 data-nosnippet>517</a><span class="doccomment">/// get all submissions for user and course module and exercise type
-<a href=#518 id=518 data-nosnippet>518</a></span><span class="kw">pub async fn </span>get_user_latest_exercise_task_submissions_by_course_module_and_exercise_type(
-<a href=#519 id=519 data-nosnippet>519</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#520 id=520 data-nosnippet>520</a>    user_id: Uuid,
-<a href=#521 id=521 data-nosnippet>521</a>    exercise_type: <span class="kw-2">&amp;</span>str,
-<a href=#522 id=522 data-nosnippet>522</a>    module_id: Uuid,
-<a href=#523 id=523 data-nosnippet>523</a>    course_instance_id: Uuid,
-<a href=#524 id=524 data-nosnippet>524</a>) -&gt; ModelResult&lt;Vec&lt;CustomViewExerciseTaskSubmission&gt;&gt; {
-<a href=#525 id=525 data-nosnippet>525</a>    <span class="kw">let </span>res: Vec&lt;CustomViewExerciseTaskSubmission&gt; = <span class="macro">sqlx::query_as!</span>(
-<a href=#526 id=526 data-nosnippet>526</a>        CustomViewExerciseTaskSubmission,
-<a href=#527 id=527 data-nosnippet>527</a>        <span class="string">r#"
-<a href=#528 id=528 data-nosnippet>528</a>        SELECT DISTINCT ON (g.exercise_task_id)
-<a href=#529 id=529 data-nosnippet>529</a>        g.id,
-<a href=#530 id=530 data-nosnippet>530</a>        g.created_at,
-<a href=#531 id=531 data-nosnippet>531</a>        g.exercise_slide_submission_id,
-<a href=#532 id=532 data-nosnippet>532</a>        g.exercise_slide_id,
-<a href=#533 id=533 data-nosnippet>533</a>        g.exercise_task_id,
-<a href=#534 id=534 data-nosnippet>534</a>        g.exercise_task_grading_id,
-<a href=#535 id=535 data-nosnippet>535</a>        g.data_json
-<a href=#536 id=536 data-nosnippet>536</a>      FROM exercise_task_submissions g
-<a href=#537 id=537 data-nosnippet>537</a>        JOIN exercise_tasks et ON et.id = g.exercise_task_id
-<a href=#538 id=538 data-nosnippet>538</a>        JOIN exercise_slide_submissions ess ON ess.id = g.exercise_slide_submission_id
-<a href=#539 id=539 data-nosnippet>539</a>        JOIN exercises e ON e.id = ess.exercise_id
-<a href=#540 id=540 data-nosnippet>540</a>        JOIN chapters c ON c.id = e.chapter_id
-<a href=#541 id=541 data-nosnippet>541</a>      WHERE ess.user_id = $1
-<a href=#542 id=542 data-nosnippet>542</a>      AND ess.course_instance_id = $2
-<a href=#543 id=543 data-nosnippet>543</a>      AND et.exercise_type = $3
-<a href=#544 id=544 data-nosnippet>544</a>      AND c.course_module_id = $4
-<a href=#545 id=545 data-nosnippet>545</a>      AND g.deleted_at IS NULL
-<a href=#546 id=546 data-nosnippet>546</a>      AND et.deleted_at IS NULL
-<a href=#547 id=547 data-nosnippet>547</a>      AND ess.deleted_at IS NULL
-<a href=#548 id=548 data-nosnippet>548</a>      AND e.deleted_at IS NULL
-<a href=#549 id=549 data-nosnippet>549</a>      AND c.deleted_at IS NULL
-<a href=#550 id=550 data-nosnippet>550</a>      ORDER BY g.exercise_task_id, g.created_at DESC
-<a href=#551 id=551 data-nosnippet>551</a>      "#</span>,
-<a href=#552 id=552 data-nosnippet>552</a>        user_id,
-<a href=#553 id=553 data-nosnippet>553</a>        course_instance_id,
-<a href=#554 id=554 data-nosnippet>554</a>        exercise_type,
-<a href=#555 id=555 data-nosnippet>555</a>        module_id
-<a href=#556 id=556 data-nosnippet>556</a>    )
-<a href=#557 id=557 data-nosnippet>557</a>    .fetch_all(conn)
-<a href=#558 id=558 data-nosnippet>558</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#559 id=559 data-nosnippet>559</a>    <span class="prelude-val">Ok</span>(res)
-<a href=#560 id=560 data-nosnippet>560</a>}
-<a href=#561 id=561 data-nosnippet>561</a>
-<a href=#562 id=562 data-nosnippet>562</a><span class="kw">pub async fn </span>get_ids_by_exercise_id(
-<a href=#563 id=563 data-nosnippet>563</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#564 id=564 data-nosnippet>564</a>    exercise_id: Uuid,
-<a href=#565 id=565 data-nosnippet>565</a>) -&gt; ModelResult&lt;Vec&lt;Uuid&gt;&gt; {
-<a href=#566 id=566 data-nosnippet>566</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-<a href=#567 id=567 data-nosnippet>567</a>        <span class="string">"
-<a href=#568 id=568 data-nosnippet>568</a>SELECT id
-<a href=#569 id=569 data-nosnippet>569</a>FROM exercise_task_submissions
-<a href=#570 id=570 data-nosnippet>570</a>WHERE exercise_slide_submission_id IN (
-<a href=#571 id=571 data-nosnippet>571</a>    SELECT id
-<a href=#572 id=572 data-nosnippet>572</a>    FROM exercise_slide_submissions
-<a href=#573 id=573 data-nosnippet>573</a>    WHERE exercise_id = $1
-<a href=#574 id=574 data-nosnippet>574</a>)
-<a href=#575 id=575 data-nosnippet>575</a>AND deleted_at IS NULL
-<a href=#576 id=576 data-nosnippet>576</a>"</span>,
-<a href=#577 id=577 data-nosnippet>577</a>        <span class="kw-2">&amp;</span>exercise_id
-<a href=#578 id=578 data-nosnippet>578</a>    )
-<a href=#579 id=579 data-nosnippet>579</a>    .fetch_all(conn)
-<a href=#580 id=580 data-nosnippet>580</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#581 id=581 data-nosnippet>581</a>    <span class="prelude-val">Ok</span>(res.iter().map(|x| x.id).collect())
-<a href=#582 id=582 data-nosnippet>582</a>}
-<a href=#583 id=583 data-nosnippet>583</a>
-<a href=#584 id=584 data-nosnippet>584</a><span class="doccomment">/// Similar to get_ids_by_exercise_id but returns the record with the highest created_at for a user_id
-<a href=#585 id=585 data-nosnippet>585</a></span><span class="kw">pub async fn </span>get_latest_submission_ids_by_exercise_id(
-<a href=#586 id=586 data-nosnippet>586</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#587 id=587 data-nosnippet>587</a>    exercise_id: Uuid,
-<a href=#588 id=588 data-nosnippet>588</a>) -&gt; ModelResult&lt;Vec&lt;Uuid&gt;&gt; {
-<a href=#589 id=589 data-nosnippet>589</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-<a href=#590 id=590 data-nosnippet>590</a>        <span class="string">"
-<a href=#591 id=591 data-nosnippet>591</a>SELECT id
-<a href=#592 id=592 data-nosnippet>592</a>FROM exercise_task_submissions
-<a href=#593 id=593 data-nosnippet>593</a>WHERE exercise_slide_submission_id IN (SELECT id
-<a href=#594 id=594 data-nosnippet>594</a>    FROM (SELECT DISTINCT ON (user_id, exercise_id) *
-<a href=#595 id=595 data-nosnippet>595</a>        FROM exercise_slide_submissions
-<a href=#596 id=596 data-nosnippet>596</a>        WHERE exercise_id = $1
-<a href=#597 id=597 data-nosnippet>597</a>        AND deleted_at IS NULL
-<a href=#598 id=598 data-nosnippet>598</a>        ORDER BY user_id, exercise_id, created_at DESC) a )
-<a href=#599 id=599 data-nosnippet>599</a>    AND deleted_at IS NULL
-<a href=#600 id=600 data-nosnippet>600</a>"</span>,
-<a href=#601 id=601 data-nosnippet>601</a>        <span class="kw-2">&amp;</span>exercise_id
-<a href=#602 id=602 data-nosnippet>602</a>    )
-<a href=#603 id=603 data-nosnippet>603</a>    .fetch_all(conn)
-<a href=#604 id=604 data-nosnippet>604</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#605 id=605 data-nosnippet>605</a>    <span class="prelude-val">Ok</span>(res.iter().map(|x| x.id).collect())
-<a href=#606 id=606 data-nosnippet>606</a>}</code></pre></div></section></main></body></html>
+<a href=#443 id=443 data-nosnippet>443</a>        <span class="kw">let </span>task = exercise_tasks
+<a href=#444 id=444 data-nosnippet>444</a>            .iter()
+<a href=#445 id=445 data-nosnippet>445</a>            .find(|t| t.id == ts.exercise_task_id)
+<a href=#446 id=446 data-nosnippet>446</a>            .ok_or_else(|| {
+<a href=#447 id=447 data-nosnippet>447</a>                ModelError::new(
+<a href=#448 id=448 data-nosnippet>448</a>                    ModelErrorType::NotFound,
+<a href=#449 id=449 data-nosnippet>449</a>                    <span class="string">"Exercise task not found"</span>.to_string(),
+<a href=#450 id=450 data-nosnippet>450</a>                    <span class="prelude-val">None</span>,
+<a href=#451 id=451 data-nosnippet>451</a>                )
+<a href=#452 id=452 data-nosnippet>452</a>            })<span class="question-mark">?</span>;
+<a href=#453 id=453 data-nosnippet>453</a>        <span class="kw">let </span>(exercise_service, service_info) = exercise_service_slug_to_service_and_info
+<a href=#454 id=454 data-nosnippet>454</a>            .get(<span class="kw-2">&amp;</span>task.exercise_type)
+<a href=#455 id=455 data-nosnippet>455</a>            .ok_or_else(|| {
+<a href=#456 id=456 data-nosnippet>456</a>                ModelError::new(
+<a href=#457 id=457 data-nosnippet>457</a>                    ModelErrorType::InvalidRequest,
+<a href=#458 id=458 data-nosnippet>458</a>                    <span class="string">"Exercise service not found"</span>.to_string(),
+<a href=#459 id=459 data-nosnippet>459</a>                    <span class="prelude-val">None</span>,
+<a href=#460 id=460 data-nosnippet>460</a>                )
+<a href=#461 id=461 data-nosnippet>461</a>            })<span class="question-mark">?</span>;
+<a href=#462 id=462 data-nosnippet>462</a>        <span class="kw">let </span><span class="kw-2">mut </span>exercise_iframe_url =
+<a href=#463 id=463 data-nosnippet>463</a>            exercise_services::get_exercise_service_externally_preferred_baseurl(exercise_service)<span class="question-mark">?</span>;
+<a href=#464 id=464 data-nosnippet>464</a>        exercise_iframe_url.set_path(<span class="kw-2">&amp;</span>service_info.user_interface_iframe_path);
+<a href=#465 id=465 data-nosnippet>465</a>        <span class="kw">let </span>course_material_exercise_task = CourseMaterialExerciseTask {
+<a href=#466 id=466 data-nosnippet>466</a>            id: task.id,
+<a href=#467 id=467 data-nosnippet>467</a>            exercise_service_slug: task.exercise_type.clone(),
+<a href=#468 id=468 data-nosnippet>468</a>            exercise_slide_id: task.exercise_slide_id,
+<a href=#469 id=469 data-nosnippet>469</a>            exercise_iframe_url: <span class="prelude-val">Some</span>(exercise_iframe_url.to_string()),
+<a href=#470 id=470 data-nosnippet>470</a>            pseudonumous_user_id: <span class="prelude-val">Some</span>(Uuid::new_v5(
+<a href=#471 id=471 data-nosnippet>471</a>                <span class="kw-2">&amp;</span>service_info.exercise_service_id,
+<a href=#472 id=472 data-nosnippet>472</a>                viewer_user_id.as_bytes(),
+<a href=#473 id=473 data-nosnippet>473</a>            )),
+<a href=#474 id=474 data-nosnippet>474</a>            assignment: task.assignment.clone(),
+<a href=#475 id=475 data-nosnippet>475</a>            public_spec: task.public_spec.clone(),
+<a href=#476 id=476 data-nosnippet>476</a>            model_solution_spec: task.model_solution_spec.clone(),
+<a href=#477 id=477 data-nosnippet>477</a>            previous_submission: <span class="prelude-val">Some</span>(ts),
+<a href=#478 id=478 data-nosnippet>478</a>            previous_submission_grading: <span class="prelude-val">Some</span>(grading.clone()),
+<a href=#479 id=479 data-nosnippet>479</a>            order_number: task.order_number,
+<a href=#480 id=480 data-nosnippet>480</a>            deleted_at: task.deleted_at,
+<a href=#481 id=481 data-nosnippet>481</a>        };
+<a href=#482 id=482 data-nosnippet>482</a>        res.push(course_material_exercise_task);
+<a href=#483 id=483 data-nosnippet>483</a>    }
+<a href=#484 id=484 data-nosnippet>484</a>    <span class="prelude-val">Ok</span>(res)
+<a href=#485 id=485 data-nosnippet>485</a>}
+<a href=#486 id=486 data-nosnippet>486</a>
+<a href=#487 id=487 data-nosnippet>487</a><span class="kw">pub async fn </span>get_user_custom_view_exercise_tasks_by_module_and_exercise_type(
+<a href=#488 id=488 data-nosnippet>488</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#489 id=489 data-nosnippet>489</a>    exercise_type: <span class="kw-2">&amp;</span>str,
+<a href=#490 id=490 data-nosnippet>490</a>    course_module_id: Uuid,
+<a href=#491 id=491 data-nosnippet>491</a>    user_id: Uuid,
+<a href=#492 id=492 data-nosnippet>492</a>    course_instance_id: Uuid,
+<a href=#493 id=493 data-nosnippet>493</a>) -&gt; ModelResult&lt;CustomViewExerciseTasks&gt; {
+<a href=#494 id=494 data-nosnippet>494</a>    <span class="kw">let </span>task_submissions =
+<a href=#495 id=495 data-nosnippet>495</a>        <span class="kw">crate</span>::exercise_task_submissions::get_user_latest_exercise_task_submissions_by_course_module_and_exercise_type(
+<a href=#496 id=496 data-nosnippet>496</a>            <span class="kw-2">&amp;mut *</span>conn,
+<a href=#497 id=497 data-nosnippet>497</a>            user_id,
+<a href=#498 id=498 data-nosnippet>498</a>            exercise_type,
+<a href=#499 id=499 data-nosnippet>499</a>            course_module_id,
+<a href=#500 id=500 data-nosnippet>500</a>            course_instance_id,
+<a href=#501 id=501 data-nosnippet>501</a>        )
+<a href=#502 id=502 data-nosnippet>502</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#503 id=503 data-nosnippet>503</a>    <span class="kw">let </span>task_gradings =
+<a href=#504 id=504 data-nosnippet>504</a>        <span class="kw">crate</span>::exercise_task_gradings::get_user_exercise_task_gradings_by_module_and_exercise_type(
+<a href=#505 id=505 data-nosnippet>505</a>            <span class="kw-2">&amp;mut *</span>conn,
+<a href=#506 id=506 data-nosnippet>506</a>            user_id,
+<a href=#507 id=507 data-nosnippet>507</a>            exercise_type,
+<a href=#508 id=508 data-nosnippet>508</a>            course_module_id,
+<a href=#509 id=509 data-nosnippet>509</a>            course_instance_id,
+<a href=#510 id=510 data-nosnippet>510</a>        )
+<a href=#511 id=511 data-nosnippet>511</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#512 id=512 data-nosnippet>512</a>
+<a href=#513 id=513 data-nosnippet>513</a>    <span class="kw">let </span>exercise_tasks = <span class="kw">crate</span>::exercise_tasks::get_all_exercise_tasks_by_module_and_exercise_type(
+<a href=#514 id=514 data-nosnippet>514</a>        <span class="kw-2">&amp;mut *</span>conn,
+<a href=#515 id=515 data-nosnippet>515</a>        exercise_type,
+<a href=#516 id=516 data-nosnippet>516</a>        course_module_id,
+<a href=#517 id=517 data-nosnippet>517</a>    )
+<a href=#518 id=518 data-nosnippet>518</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#519 id=519 data-nosnippet>519</a>    <span class="kw">let </span>res: CustomViewExerciseTasks = CustomViewExerciseTasks {
+<a href=#520 id=520 data-nosnippet>520</a>        exercise_tasks,
+<a href=#521 id=521 data-nosnippet>521</a>        task_submissions,
+<a href=#522 id=522 data-nosnippet>522</a>        task_gradings,
+<a href=#523 id=523 data-nosnippet>523</a>    };
+<a href=#524 id=524 data-nosnippet>524</a>    <span class="prelude-val">Ok</span>(res)
+<a href=#525 id=525 data-nosnippet>525</a>}
+<a href=#526 id=526 data-nosnippet>526</a>
+<a href=#527 id=527 data-nosnippet>527</a><span class="doccomment">/// get all submissions for user and course module and exercise type
+<a href=#528 id=528 data-nosnippet>528</a></span><span class="kw">pub async fn </span>get_user_latest_exercise_task_submissions_by_course_module_and_exercise_type(
+<a href=#529 id=529 data-nosnippet>529</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#530 id=530 data-nosnippet>530</a>    user_id: Uuid,
+<a href=#531 id=531 data-nosnippet>531</a>    exercise_type: <span class="kw-2">&amp;</span>str,
+<a href=#532 id=532 data-nosnippet>532</a>    module_id: Uuid,
+<a href=#533 id=533 data-nosnippet>533</a>    course_instance_id: Uuid,
+<a href=#534 id=534 data-nosnippet>534</a>) -&gt; ModelResult&lt;Vec&lt;CustomViewExerciseTaskSubmission&gt;&gt; {
+<a href=#535 id=535 data-nosnippet>535</a>    <span class="kw">let </span>res: Vec&lt;CustomViewExerciseTaskSubmission&gt; = <span class="macro">sqlx::query_as!</span>(
+<a href=#536 id=536 data-nosnippet>536</a>        CustomViewExerciseTaskSubmission,
+<a href=#537 id=537 data-nosnippet>537</a>        <span class="string">r#"
+<a href=#538 id=538 data-nosnippet>538</a>        SELECT DISTINCT ON (g.exercise_task_id)
+<a href=#539 id=539 data-nosnippet>539</a>        g.id,
+<a href=#540 id=540 data-nosnippet>540</a>        g.created_at,
+<a href=#541 id=541 data-nosnippet>541</a>        g.exercise_slide_submission_id,
+<a href=#542 id=542 data-nosnippet>542</a>        g.exercise_slide_id,
+<a href=#543 id=543 data-nosnippet>543</a>        g.exercise_task_id,
+<a href=#544 id=544 data-nosnippet>544</a>        g.exercise_task_grading_id,
+<a href=#545 id=545 data-nosnippet>545</a>        g.data_json
+<a href=#546 id=546 data-nosnippet>546</a>      FROM exercise_task_submissions g
+<a href=#547 id=547 data-nosnippet>547</a>        JOIN exercise_tasks et ON et.id = g.exercise_task_id
+<a href=#548 id=548 data-nosnippet>548</a>        JOIN exercise_slide_submissions ess ON ess.id = g.exercise_slide_submission_id
+<a href=#549 id=549 data-nosnippet>549</a>        JOIN exercises e ON e.id = ess.exercise_id
+<a href=#550 id=550 data-nosnippet>550</a>        JOIN chapters c ON c.id = e.chapter_id
+<a href=#551 id=551 data-nosnippet>551</a>      WHERE ess.user_id = $1
+<a href=#552 id=552 data-nosnippet>552</a>      AND ess.course_instance_id = $2
+<a href=#553 id=553 data-nosnippet>553</a>      AND et.exercise_type = $3
+<a href=#554 id=554 data-nosnippet>554</a>      AND c.course_module_id = $4
+<a href=#555 id=555 data-nosnippet>555</a>      AND g.deleted_at IS NULL
+<a href=#556 id=556 data-nosnippet>556</a>      AND et.deleted_at IS NULL
+<a href=#557 id=557 data-nosnippet>557</a>      AND ess.deleted_at IS NULL
+<a href=#558 id=558 data-nosnippet>558</a>      AND e.deleted_at IS NULL
+<a href=#559 id=559 data-nosnippet>559</a>      AND c.deleted_at IS NULL
+<a href=#560 id=560 data-nosnippet>560</a>      ORDER BY g.exercise_task_id, g.created_at DESC
+<a href=#561 id=561 data-nosnippet>561</a>      "#</span>,
+<a href=#562 id=562 data-nosnippet>562</a>        user_id,
+<a href=#563 id=563 data-nosnippet>563</a>        course_instance_id,
+<a href=#564 id=564 data-nosnippet>564</a>        exercise_type,
+<a href=#565 id=565 data-nosnippet>565</a>        module_id
+<a href=#566 id=566 data-nosnippet>566</a>    )
+<a href=#567 id=567 data-nosnippet>567</a>    .fetch_all(conn)
+<a href=#568 id=568 data-nosnippet>568</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#569 id=569 data-nosnippet>569</a>    <span class="prelude-val">Ok</span>(res)
+<a href=#570 id=570 data-nosnippet>570</a>}
+<a href=#571 id=571 data-nosnippet>571</a>
+<a href=#572 id=572 data-nosnippet>572</a><span class="kw">pub async fn </span>get_ids_by_exercise_id(
+<a href=#573 id=573 data-nosnippet>573</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#574 id=574 data-nosnippet>574</a>    exercise_id: Uuid,
+<a href=#575 id=575 data-nosnippet>575</a>) -&gt; ModelResult&lt;Vec&lt;Uuid&gt;&gt; {
+<a href=#576 id=576 data-nosnippet>576</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
+<a href=#577 id=577 data-nosnippet>577</a>        <span class="string">"
+<a href=#578 id=578 data-nosnippet>578</a>SELECT id
+<a href=#579 id=579 data-nosnippet>579</a>FROM exercise_task_submissions
+<a href=#580 id=580 data-nosnippet>580</a>WHERE exercise_slide_submission_id IN (
+<a href=#581 id=581 data-nosnippet>581</a>    SELECT id
+<a href=#582 id=582 data-nosnippet>582</a>    FROM exercise_slide_submissions
+<a href=#583 id=583 data-nosnippet>583</a>    WHERE exercise_id = $1
+<a href=#584 id=584 data-nosnippet>584</a>)
+<a href=#585 id=585 data-nosnippet>585</a>AND deleted_at IS NULL
+<a href=#586 id=586 data-nosnippet>586</a>"</span>,
+<a href=#587 id=587 data-nosnippet>587</a>        <span class="kw-2">&amp;</span>exercise_id
+<a href=#588 id=588 data-nosnippet>588</a>    )
+<a href=#589 id=589 data-nosnippet>589</a>    .fetch_all(conn)
+<a href=#590 id=590 data-nosnippet>590</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#591 id=591 data-nosnippet>591</a>    <span class="prelude-val">Ok</span>(res.iter().map(|x| x.id).collect())
+<a href=#592 id=592 data-nosnippet>592</a>}
+<a href=#593 id=593 data-nosnippet>593</a>
+<a href=#594 id=594 data-nosnippet>594</a><span class="doccomment">/// Similar to get_ids_by_exercise_id but returns the record with the highest created_at for a user_id
+<a href=#595 id=595 data-nosnippet>595</a></span><span class="kw">pub async fn </span>get_latest_submission_ids_by_exercise_id(
+<a href=#596 id=596 data-nosnippet>596</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+<a href=#597 id=597 data-nosnippet>597</a>    exercise_id: Uuid,
+<a href=#598 id=598 data-nosnippet>598</a>) -&gt; ModelResult&lt;Vec&lt;Uuid&gt;&gt; {
+<a href=#599 id=599 data-nosnippet>599</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
+<a href=#600 id=600 data-nosnippet>600</a>        <span class="string">"
+<a href=#601 id=601 data-nosnippet>601</a>SELECT id
+<a href=#602 id=602 data-nosnippet>602</a>FROM exercise_task_submissions
+<a href=#603 id=603 data-nosnippet>603</a>WHERE exercise_slide_submission_id IN (SELECT id
+<a href=#604 id=604 data-nosnippet>604</a>    FROM (SELECT DISTINCT ON (user_id, exercise_id) *
+<a href=#605 id=605 data-nosnippet>605</a>        FROM exercise_slide_submissions
+<a href=#606 id=606 data-nosnippet>606</a>        WHERE exercise_id = $1
+<a href=#607 id=607 data-nosnippet>607</a>        AND deleted_at IS NULL
+<a href=#608 id=608 data-nosnippet>608</a>        ORDER BY user_id, exercise_id, created_at DESC) a )
+<a href=#609 id=609 data-nosnippet>609</a>    AND deleted_at IS NULL
+<a href=#610 id=610 data-nosnippet>610</a>"</span>,
+<a href=#611 id=611 data-nosnippet>611</a>        <span class="kw-2">&amp;</span>exercise_id
+<a href=#612 id=612 data-nosnippet>612</a>    )
+<a href=#613 id=613 data-nosnippet>613</a>    .fetch_all(conn)
+<a href=#614 id=614 data-nosnippet>614</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#615 id=615 data-nosnippet>615</a>    <span class="prelude-val">Ok</span>(res.iter().map(|x| x.id).collect())
+<a href=#616 id=616 data-nosnippet>616</a>}</code></pre></div></section></main></body></html>

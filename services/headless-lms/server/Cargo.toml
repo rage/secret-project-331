@@ -130,7 +130,7 @@ tokio-util = "0.7.15"
 # Asynchronous streams using async & await notation
 async-stream = "0.3.6"
 # Secret value wrapper to avoid leaking secrets in logs and memory
-secrecy = "0.10.3"
+secrecy = { version = "0.10.3", features = ["serde"] }
 # Password hashing using Argon2id
 argon2 = "0.5.3"
 

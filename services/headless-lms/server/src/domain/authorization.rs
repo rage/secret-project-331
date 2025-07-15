@@ -315,7 +315,7 @@ pub async fn authorize_access_to_course_material(
 
 /** Checks the Authorization header against a secret from environment variables to verify if the request originates from the TMC server. Returns an authorization token if the secret matches, otherwise an unauthorized error.
  */
-pub async fn authorize_access_to_tmc_server(
+pub async fn authorize_access_from_tmc_server_to_course_mooc_fi(
     request: &HttpRequest,
 ) -> Result<AuthorizationToken, ControllerError> {
     let tmc_server_secret_for_communicating_to_secret_project =

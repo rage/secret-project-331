@@ -265,6 +265,29 @@ where
 SELECT *
 FROM exercise_tasks
 WHERE exercise_slide_id = $1
+AND deleted_at IS NULL;
+        ",
+        exercise_slide_id,
+    )
+    .fetch(conn)
+    .try_collect()
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_exercise_tasks_by_exercise_slide_id_including_deleted<T>(
+    conn: &mut PgConnection,
+    exercise_slide_id: &Uuid,
+) -> ModelResult<T>
+where
+    T: Default + Extend<ExerciseTask> + FromIterator<ExerciseTask>,
+{
+    let res = sqlx::query_as!(
+        ExerciseTask,
+        "
+SELECT *
+FROM exercise_tasks
+WHERE exercise_slide_id = $1
         ",
         exercise_slide_id,
     )

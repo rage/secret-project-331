@@ -13,11 +13,11 @@ pub struct UserPassword {
 }
 
 pub async fn upsert_user_password(
-    pool: &sqlx::PgPool,
+    conn: &mut PgConnection,
     user_id: Uuid,
     password_hash: SecretString,
-) -> ModelResult<Uuid> {
-    sqlx::query!(
+) -> ModelResult<bool> {
+    let result = sqlx::query!(
         r#"
         INSERT INTO user_passwords (user_id, password_hash, created_at, updated_at)
 VALUES ($1, $2, NOW(), NOW()) ON CONFLICT (user_id) DO
@@ -28,10 +28,10 @@ SET password_hash = EXCLUDED.password_hash,
         user_id,
         password_hash.expose_secret()
     )
-    .execute(pool)
+    .execute(conn)
     .await?;
 
-    Ok(user_id)
+    Ok(result.rows_affected() > 0)
 }
 
 pub fn hash_password(

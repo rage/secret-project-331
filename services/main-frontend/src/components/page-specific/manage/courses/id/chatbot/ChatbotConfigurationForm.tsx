@@ -149,7 +149,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
             `}
           >
             <summary>
-              <h4>{t("advanced-settings")}</h4>
+              <h3>{t("advanced-settings")}</h3>
             </summary>
             <div>
               <div

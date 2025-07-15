@@ -93,17 +93,17 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
         </Button>
       </div>
       <div>
-        <h3>{t("customize-chatbot")}</h3>
+        <h2>{t("customize-chatbot")}</h2>
         <CardList>
           {sortedChatbotsList.map((bot) => (
             <CardListItem key={bot.id}>
-              <h4
+              <h3
                 className={css`
                   margin: 5px;
                 `}
               >
                 {bot.chatbot_name} <em>{bot.default_chatbot ? `(${t("label-default")})` : ""}</em>
-              </h4>
+              </h3>
               <Button
                 size="medium"
                 variant="primary"

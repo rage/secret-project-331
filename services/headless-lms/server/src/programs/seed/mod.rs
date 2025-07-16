@@ -43,10 +43,10 @@ pub async fn main() -> anyhow::Result<()> {
     // Not run parallely because waits another future that is not send.
     let seed_file_storage_result = seed_file_storage::seed_file_storage().await?;
 
-    let (uh_cs_organization_result, _uh_mathstat_organization_id) = try_join!(
+    let (uh_cs_organization_result, _uh_mathstat_organization_id, _no_users_organization_id) = try_join!(
         run_parallelly(seed_organizations::uh_cs::seed_organization_uh_cs(
             db_pool.clone(),
-            seed_users_result,
+            seed_users_result.clone(),
             base_url.clone(),
             Arc::clone(&jwt_key),
             seed_file_storage_result.clone()
@@ -54,12 +54,15 @@ pub async fn main() -> anyhow::Result<()> {
         run_parallelly(
             seed_organizations::uh_mathstat::seed_organization_uh_mathstat(
                 db_pool.clone(),
-                seed_users_result,
+                seed_users_result.clone(),
                 base_url.clone(),
                 Arc::clone(&jwt_key),
                 seed_file_storage_result.clone()
             )
-        )
+        ),
+        run_parallelly(seed_organizations::no_users::seed_organization_no_users(
+            db_pool.clone()
+        ))
     )?;
 
     try_join!(

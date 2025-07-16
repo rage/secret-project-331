@@ -153,6 +153,7 @@
   "course-version-selection": "Kurssin version valinta",
   "courses": "Kurssit",
   "courses-completed-by-users-from": "Käyttäjien suorittamat kurssit",
+  "create-a-new-organization": "Luo organisaatio",
   "create-an-acount": "Luo käyttäjätunnus",
   "create-certificate-configuration": "Luo sertifikaattikonfiguraatio",
   "create-configuration": "Luo konfiguraatio",
@@ -955,5 +956,11 @@
   "wiki-link-text": "Ohjeita kurssimateriaalien muokkaamiseen löydät",
   "year": "Vuosi",
   "you-are-being-redirected-to-completion-registration-page-if-nothing-happens-click-here": "Sinut ohjataan Avoimen yliopiston suoritusten kirjaamissivulle automaattisesti. Jos mitään ei tapahdu, <2>paina tästä</2>.",
-  "your-name": "Nimi"
+  "your-name": "Nimi",
+  "create-organization-title": "Luo uusi organisaatio",
+  "create-organization-description": "Lisää tiedot uudelle organisaatiolle",
+  "label-organization-name": "Organisaation nimi",
+  "label-visibility": "Näkyvyys",
+  "label-visible": "Näkyvä",
+  "create": "Create"
 }

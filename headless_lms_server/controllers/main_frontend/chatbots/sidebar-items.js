@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","delete_chatbot","edit_chatbot","get_chatbot"]};

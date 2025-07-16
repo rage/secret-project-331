@@ -25,6 +25,8 @@ reviews:
         Also if someone navigates to a course page, and clicks continue on a dialog straight away, make sure its done with the
         `selectCourseInstanceIfPrompted` function.
 
+        If someone write a tests that depends on a toast staying on the screen, make sure to use the `showNextToastsInfinitely`, and `showToastsNormally` functions. If those are used in conjunction with `expectScreenshotsToMatchSnapshots`, you should set its argument of `dontWaitForSpinnersToDisappear` to true.
+
     - path: "**/*.tsx"
       instructions: >
         Make sure to use the `useTranslation` hook for all text that is visible to the user.

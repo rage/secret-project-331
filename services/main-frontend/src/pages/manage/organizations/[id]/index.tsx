@@ -58,7 +58,8 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
 
   const addMutation = useToastMutation(
     () => {
-      return giveRole(email, role as UserRole, { tag: t("organization"), id: query.id })
+      // eslint-disable-next-line i18next/no-literal-string
+      return giveRole(email, role as UserRole, { tag: "Organization", id: query.id })
     },
     { notify: true, method: "POST" },
     {
@@ -96,10 +97,12 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
       return
     }
 
-    void removeRole(editUser.email, editUser.role, { tag: t("organization"), id: query.id })
+    // eslint-disable-next-line i18next/no-literal-string
+    void removeRole(editUser.email, editUser.role, { tag: "Organization", id: query.id })
       .then(() =>
         giveRole(editUser.email, editRole as UserRole, {
-          tag: t("organization"),
+          // eslint-disable-next-line i18next/no-literal-string
+          tag: "Organization",
           id: query.id,
         }),
       )

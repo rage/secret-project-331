@@ -334,6 +334,78 @@ async fn update_organization(
     token.authorized_ok(web::Json(()))
 }
 
+/// POST `/api/v0/main-frontend/organizations`
+/// Creates a new organization with the given name, slug, and visibility status.
+///
+/// # Request body (JSON)
+/// {
+///     "name": "Example Organization",
+///     "slug": "example-org",
+///     "hidden": false
+/// }
+///
+/// # Response
+/// Returns the created organization.
+///
+/// # Permissions
+/// Only users with the `Admin` role can access this endpoint.
+#[derive(Debug, Deserialize)]
+struct OrganizationCreatePayload {
+    name: String,
+    slug: String,
+    hidden: bool,
+}
+
+#[instrument(skip(pool, file_store, app_conf))]
+async fn create_organization(
+    payload: web::Json<OrganizationCreatePayload>,
+    pool: web::Data<PgPool>,
+    file_store: web::Data<dyn FileStore>,
+    app_conf: web::Data<ApplicationConfiguration>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Organization>> {
+    let mut conn = pool.acquire().await?;
+
+    // ✅ Check admin role manually
+    let user_roles = models::roles::get_roles(&mut conn, user.id).await?;
+    let is_admin = user_roles
+        .iter()
+        .any(|r| r.role == models::roles::UserRole::Admin);
+    if !is_admin {
+        return Err(ControllerError::new(
+            ControllerErrorType::Unauthorized,
+            "Admin access required".to_string(),
+            None,
+        ));
+    }
+
+    // Insert org (returns only ID)
+    let org_id = models::organizations::insert(
+        &mut conn,
+        PKeyPolicy::Generate,
+        &payload.name,
+        &payload.slug,
+        "", // Add real description later if needed
+    )
+    .await?;
+
+    // Set visibility if hidden
+    if payload.hidden {
+        models::organizations::update_name_and_hidden(&mut conn, org_id, &payload.name, true)
+            .await?;
+    }
+
+    // Fetch full DatabaseOrganization
+    let db_org = models::organizations::get_organization(&mut conn, org_id).await?;
+
+    // Convert for frontend
+    let org =
+        Organization::from_database_organization(db_org, file_store.as_ref(), app_conf.as_ref());
+
+    let token = skip_authorize();
+    token.authorized_ok(web::Json(org))
+}
+
 /**
 GET `/api/v0/main-frontend/organizations/{organization_id}/course_exams` - Returns an organizations exams in CourseExam form.
 */
@@ -445,6 +517,7 @@ We add the routes by calling the route method instead of using the route annotat
 */
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("", web::get().to(get_all_organizations))
+        .route("", web::post().to(create_organization))
         .route("/{organization_id}", web::get().to(get_organization))
         .route("/{organization_id}", web::put().to(update_organization))
         .route(

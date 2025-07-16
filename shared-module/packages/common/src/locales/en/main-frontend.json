@@ -160,6 +160,7 @@
   "course-where-to-copy-the-content": "Course where to copy the content",
   "courses": "Courses",
   "courses-completed-by-users-from": "Courses completed by users from",
+  "create-a-new-organization": "Create a new organization",
   "create-an-acount": "Create an account",
   "create-certificate-configuration": "Create certificate configuration",
   "create-configuration": "Create configuration",
@@ -964,5 +965,11 @@
   "wiki-link-text": "For instructions on how to edit your course materials, view the",
   "year": "Year",
   "you-are-being-redirected-to-completion-registration-page-if-nothing-happens-click-here": "You are automatically being redirected to Open University's completion registration page. If nothing happens, please <2>click here</2>.",
-  "your-name": "Your name"
+  "your-name": "Your name",
+  "create-organization-title": "Create a new organization",
+  "create-organization-description": "Enter the details for the new organization.",
+  "label-organization-name": "Organization name",
+  "label-visibility": "Visibility",
+  "label-visible": "Visible",
+  "create": "Create"
 }

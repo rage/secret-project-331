@@ -1,11 +1,15 @@
 import { css } from "@emotion/css"
+import axios from "axios"
+import { useRouter } from "next/router"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import useAllOrganizationsQuery from "../../../../hooks/useAllOrganizationsQuery"
 
+import CreateOrganizationPopup from "./CreateOrganizationPopup"
 import OrganizationBanner from "./components/OrganizationBanner"
 
+import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -14,8 +18,37 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
+  const [showCreatePopup, setShowCreatePopup] = React.useState(false)
+  const [orgName, setOrgName] = React.useState("")
+  const [newSlug, setNewSlug] = React.useState("")
+  // eslint-disable-next-line i18next/no-literal-string
+  const [newVisibility, setNewVisibility] = React.useState("public")
 
   const allOrganizationsQuery = useAllOrganizationsQuery()
+
+  const router = useRouter()
+
+  const handleCreate = async () => {
+    try {
+      const response = await axios.post("/api/v0/main-frontend/organizations", {
+        name: orgName,
+        slug: newSlug.trim().toLowerCase().replace(/\s+/g, "-"),
+        description: "",
+        hidden: newVisibility === "private",
+      })
+
+      // Close popup
+      setShowCreatePopup(false)
+
+      // Optionally show success or redirect
+      console.log("Created organization", response.data)
+      // For example, redirect to the new organization's page
+      // router.push(`/organizations/${response.data.slug}`)
+    } catch (error) {
+      console.error("Error creating organization", error)
+      alert("Failed to create organization. Are you an admin?")
+    }
+  }
 
   return (
     <div
@@ -50,6 +83,24 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
       >
         {t("select-organization")}
       </p>
+      <div
+        className={css`
+          display: flex;
+          justify-content: center;
+          margin-bottom: 2rem;
+        `}
+      >
+        <Button
+          variant="primary"
+          size="medium"
+          onClick={() => {
+            setShowCreatePopup(true)
+          }}
+        >
+          {t("create-a-new-organization")}
+        </Button>
+      </div>
+
       {allOrganizationsQuery.isError && (
         <ErrorBanner variant={"readOnly"} error={allOrganizationsQuery.error} />
       )}
@@ -86,6 +137,18 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
           ))}
         </div>
       )}
+      <CreateOrganizationPopup
+        show={showCreatePopup}
+        setShow={setShowCreatePopup}
+        name={orgName}
+        setName={setOrgName}
+        slug={newSlug}
+        setSlug={setNewSlug}
+        visibility={newVisibility}
+        setVisibility={setNewVisibility}
+        handleCreate={handleCreate}
+      />
+
       <DebugModal data={allOrganizationsQuery.data} />
     </div>
   )

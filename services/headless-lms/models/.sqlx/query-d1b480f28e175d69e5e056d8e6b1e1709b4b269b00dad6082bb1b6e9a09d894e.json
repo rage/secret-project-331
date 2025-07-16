@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n    DISTINCT(c.id),\n    c.name,\n    c.created_at,\n    c.updated_at,\n    c.organization_id,\n    c.deleted_at,\n    c.slug,\n    c.content_search_language::text,\n    c.language_code,\n    c.copied_from,\n    c.course_language_group_id,\n    c.description,\n    c.is_draft,\n    c.is_test_mode,\n    c.base_module_completion_requires_n_submodule_completions,\n    can_add_chatbot,\n    c.is_unlisted,\n    c.is_joinable_by_code_only,\n    c.join_code,\n    c.ask_marketing_consent,\n    c.flagged_answers_threshold\nFROM courses as c\n    LEFT JOIN course_instances as ci on c.id = ci.course_id\nWHERE\n    c.organization_id = $1 AND\n    ci.starts_at < NOW() AND ci.ends_at > NOW() AND\n    c.deleted_at IS NULL AND ci.deleted_at IS NULL\n    LIMIT $2 OFFSET $3;\n        ",
+  "query": "\nSELECT\n    DISTINCT(c.id),\n    c.name,\n    c.created_at,\n    c.updated_at,\n    c.organization_id,\n    c.deleted_at,\n    c.slug,\n    c.content_search_language::text,\n    c.language_code,\n    c.copied_from,\n    c.course_language_group_id,\n    c.description,\n    c.is_draft,\n    c.is_test_mode,\n    c.base_module_completion_requires_n_submodule_completions,\n    c.can_add_chatbot,\n    c.is_unlisted,\n    c.is_joinable_by_code_only,\n    c.join_code,\n    c.ask_marketing_consent,\n    c.flagged_answers_threshold\nFROM courses as c\n    LEFT JOIN course_instances as ci on c.id = ci.course_id\nWHERE\n    c.organization_id = $1 AND\n    ci.starts_at < NOW() AND ci.ends_at > NOW() AND\n    c.deleted_at IS NULL AND ci.deleted_at IS NULL\n    LIMIT $2 OFFSET $3;\n        ",
   "describe": {
     "columns": [
       {
@@ -136,5 +136,5 @@
       false
     ]
   },
-  "hash": "9cb1870d45712289597e4b0b278bfb502a864aa907e9bbcfb0b113f0e68f75bd"
+  "hash": "d1b480f28e175d69e5e056d8e6b1e1709b4b269b00dad6082bb1b6e9a09d894e"
 }

@@ -52,7 +52,7 @@ const Other: React.FC<React.PropsWithChildren<CourseManagementPagesProps & Addit
         </TabLink>
         {courseQuery.data?.can_add_chatbot === true && (
           <TabLink url={"other/chatbot"} isActive={activeSubtab === "chatbot"}>
-            {t("chatbot")}
+            {t("chatbots")}
           </TabLink>
         )}
         <TabLink url={"other/cheaters"} isActive={activeSubtab === "cheaters"}>

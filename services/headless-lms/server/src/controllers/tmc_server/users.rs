@@ -9,7 +9,7 @@ a valid authorization header.
 */
 
 use crate::domain::authorization::authorize_access_from_tmc_server_to_course_mooc_fi;
-use crate::prelude::models::user_details::search_for_user_details_by_email;
+use crate::prelude::models::users::get_by_email;
 use crate::prelude::*;
 use secrecy::SecretString;
 
@@ -40,17 +40,12 @@ pub async fn courses_moocfi_password_login(
 
     let PasswordRequest { email, password } = payload.into_inner();
 
-    let users = match search_for_user_details_by_email(&mut conn, &email).await {
-        Ok(u) => u,
+    let user = match get_by_email(&mut conn, &email).await {
+        Ok(user) => user,
         Err(_) => return token.authorized_ok(web::Json(false)),
     };
 
-    let user = match users.into_iter().next() {
-        Some(user) => user,
-        None => return token.authorized_ok(web::Json(false)),
-    };
-
-    let is_valid = models::user_passwords::verify_user_password(&mut conn, user.user_id, &password)
+    let is_valid = models::user_passwords::verify_user_password(&mut conn, user.id, &password)
         .await
         .unwrap_or(false);
 
@@ -62,7 +57,7 @@ POST `/api/v0/tmc-server/users/change-password`
 
 Endpoint called by the TMC server when a user's password is changed.
 
-The server first verifies that the request is authorized with a valid Authorization header.
+Only works if the authorization header is set to a valid shared secret between systems.
 */
 #[instrument(skip(pool))]
 pub async fn courses_moocfi_password_change(
@@ -76,17 +71,17 @@ pub async fn courses_moocfi_password_change(
 
     let PasswordRequest { email, password } = payload.into_inner();
 
-    let users = match search_for_user_details_by_email(&mut conn, &email).await {
-        Ok(u) => u,
+    let password_hash = match models::user_passwords::hash_password(&password) {
+        Ok(hash) => hash,
         Err(_) => return token.authorized_ok(web::Json(false)),
     };
 
-    let user = match users.into_iter().next() {
-        Some(user) => user,
-        None => return token.authorized_ok(web::Json(false)),
+    let user = match get_by_email(&mut conn, &email).await {
+        Ok(user) => user,
+        Err(_) => return token.authorized_ok(web::Json(false)),
     };
 
-    let update_ok = models::user_passwords::upsert_user_password(&mut conn, user.user_id, password)
+    let update_ok = models::user_passwords::upsert_user_password(&mut conn, user.id, password_hash)
         .await
         .unwrap_or(false);
 

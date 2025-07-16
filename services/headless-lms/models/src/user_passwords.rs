@@ -3,7 +3,6 @@ use argon2::password_hash::{SaltString, rand_core::OsRng};
 use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
 use secrecy::{ExposeSecret, SecretString};
 
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserPassword {
     pub user_id: Uuid,
     pub password_hash: SecretString,

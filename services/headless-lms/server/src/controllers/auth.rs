@@ -127,10 +127,10 @@ pub async fn signup(
             .await?;
 
             // Hash and save password to local database
-            let password_secret = SecretString::new(user_details.password.into());
-
-            let password_hash = models::user_passwords::hash_password(&password_secret)
-                .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
+            let password_hash = models::user_passwords::hash_password(&SecretString::new(
+                user_details.password.into(),
+            ))
+            .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
 
             models::user_passwords::upsert_user_password(&mut conn, user.id, password_hash)
                 .await
@@ -142,6 +142,7 @@ pub async fn signup(
                     )
                 })?;
 
+            // Notify tmc that the password is managed by courses.mooc.fi
             if let Some(upstream_id) = user.upstream_id {
                 tmc_client
                     .set_user_password_managed_by_courses_mooc_fi(upstream_id.to_string())
@@ -215,6 +216,21 @@ async fn handle_test_mode_signup(
     .await?;
 
     let user = models::users::get_by_email(conn, &user_details.email).await?;
+
+    let password_hash = models::user_passwords::hash_password(&SecretString::new(
+        user_details.password.clone().into(),
+    ))
+    .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
+
+    models::user_passwords::upsert_user_password(conn, user.id, password_hash)
+        .await
+        .map_err(|e| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                "Failed to add password to database".to_string(),
+                anyhow!(e),
+            )
+        })?;
     authorization::remember(session, user)?;
 
     let token = skip_authorize();
@@ -315,10 +331,9 @@ pub async fn login(
 
         if let Some((user, _token)) = auth_result {
             // If user is autenticated in tmc succesfully, hash password and save it to db
-            let password_secret = SecretString::new(password.clone().into());
-
-            let password_hash = models::user_passwords::hash_password(&password_secret)
-                .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
+            let password_hash =
+                models::user_passwords::hash_password(&SecretString::new(password.clone().into()))
+                    .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
 
             models::user_passwords::upsert_user_password(&mut conn, user.id, password_hash)
                 .await

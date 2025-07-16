@@ -65,6 +65,7 @@ pub async fn seed_sample_course(
     course_name: &str,
     course_slug: &str,
     common_course_data: CommonCourseData,
+    can_add_chatbot: bool,
     seed_users_result: SeedUsersResult,
 ) -> Result<Uuid> {
     let CommonCourseData {
@@ -97,6 +98,7 @@ pub async fn seed_sample_course(
         join_code: None,
         ask_marketing_consent: false,
         flagged_answers_threshold: Some(3),
+        can_add_chatbot,
     };
     let (course, _front_page, default_instance, default_module) =
         library::content_management::create_new_course(
@@ -2011,6 +2013,7 @@ pub async fn create_glossary_course(
         join_code: None,
         ask_marketing_consent: false,
         flagged_answers_threshold: Some(3),
+        can_add_chatbot: false,
     };
 
     let (course, _front_page, _default_instance, default_module) =
@@ -2131,6 +2134,7 @@ pub async fn seed_cs_course_material(
         join_code: None,
         ask_marketing_consent: false,
         flagged_answers_threshold: Some(3),
+        can_add_chatbot: false,
     };
     let (course, front_page, default_instance, default_module) =
         library::content_management::create_new_course(
@@ -2882,6 +2886,7 @@ pub async fn seed_peer_review_course_without_submissions(
         join_code: None,
         ask_marketing_consent: false,
         flagged_answers_threshold: Some(3),
+        can_add_chatbot: false,
     };
 
     let (course, _front_page, _, default_module) = library::content_management::create_new_course(

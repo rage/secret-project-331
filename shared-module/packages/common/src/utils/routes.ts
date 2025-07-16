@@ -63,3 +63,11 @@ export function codeGiveawayRoute(codeGiveawayId: string) {
 export function manageCourseExercisesRoute(courseId: string) {
   return `/manage/courses/${courseId}/exercises`
 }
+
+export function manageChatbotRoute(chatbotId: string) {
+  return `/manage/chatbots/${chatbotId}`
+}
+
+export function courseChatbotSettingsRoute(courseId: string) {
+  return `/manage/courses/${courseId}/other/chatbot`
+}

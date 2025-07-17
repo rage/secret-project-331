@@ -18,7 +18,7 @@ pub async fn upsert_user_password(
 ) -> ModelResult<bool> {
     let result = sqlx::query!(
         r#"
-        INSERT INTO user_passwords (user_id, password_hash, created_at, updated_at)
+INSERT INTO user_passwords (user_id, password_hash, created_at, updated_at)
 VALUES ($1, $2, NOW(), NOW()) ON CONFLICT (user_id) DO
 UPDATE
 SET password_hash = EXCLUDED.password_hash,
@@ -50,9 +50,10 @@ pub async fn verify_user_password(
 ) -> ModelResult<bool> {
     let user_password = match sqlx::query!(
         r#"
-        SELECT password_hash
-        FROM user_passwords
-        WHERE user_id = $1 AND deleted_at IS NULL
+SELECT password_hash
+FROM user_passwords
+WHERE user_id = $1
+  AND deleted_at IS NULL
         "#,
         user_id
     )
@@ -73,4 +74,23 @@ pub async fn verify_user_password(
         .is_ok();
 
     Ok(is_valid)
+}
+
+pub async fn check_if_users_password_is_stored(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<bool> {
+    let result = sqlx::query!(
+        r#"
+SELECT *
+FROM user_passwords
+WHERE user_id = $1
+  AND deleted_at IS NULL
+        "#,
+        user_id
+    )
+    .fetch_optional(conn)
+    .await?;
+
+    Ok(result.is_some())
 }

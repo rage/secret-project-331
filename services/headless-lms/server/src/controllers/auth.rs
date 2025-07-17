@@ -297,6 +297,7 @@ pub async fn login(
     let mut conn = pool.acquire().await?;
     let Login { email, password } = payload.into_inner();
 
+    // Development mode UUID login (allows logging in with a user ID string)
     if app_conf.development_uuid_login {
         warn!("Trying development mode UUID login");
         if let Ok(id) = Uuid::parse_str(&email) {
@@ -307,9 +308,12 @@ pub async fn login(
         };
     }
 
-    let success = if app_conf.test_mode {
+    // Test mode: authenticate using seeded test credentials or stored password
+    if app_conf.test_mode {
         warn!("Using test credentials. Normal accounts won't work.");
-        let success =
+
+        let user = models::users::get_by_email(&mut conn, &email).await?;
+        let mut is_authenticated =
             authorization::authenticate_test_user(&mut conn, &email, &password, &app_conf)
                 .await
                 .map_err(|e| {
@@ -319,18 +323,56 @@ pub async fn login(
                         e,
                     )
                 })?;
-        if success {
-            let user = models::users::get_by_email(&mut conn, &email).await?;
-            authorization::remember(&session, user)?;
+
+        if !is_authenticated {
+            is_authenticated = models::user_passwords::verify_user_password(
+                &mut conn,
+                user.id,
+                &SecretString::new(password.clone().into()),
+            )
+            .await?;
         }
-        success
-    } else {
+
+        if is_authenticated {
+            info!("Authentication successful");
+            authorization::remember(&session, user)?;
+        } else {
+            warn!("Authentication failed");
+        }
+
+        let token = skip_authorize();
+        return token.authorized_ok(web::Json(is_authenticated));
+    };
+
+    let mut is_authenticated = false;
+
+    // Try to authenticate using password stored in courses.mooc.fi database
+    if let Ok(user) = models::users::get_by_email(&mut conn, &email).await {
+        let is_password_stored =
+            models::user_passwords::check_if_users_password_is_stored(&mut conn, user.id).await?;
+        if is_password_stored {
+            is_authenticated = models::user_passwords::verify_user_password(
+                &mut conn,
+                user.id,
+                &SecretString::new(password.clone().into()),
+            )
+            .await?;
+
+            if is_authenticated {
+                info!("Authentication successful");
+                authorization::remember(&session, user)?;
+            }
+        }
+    }
+
+    // Try to authenticate via TMC and store password to courses.mooc.fi if successful
+    if !is_authenticated {
         let auth_result =
             authorization::authenticate_moocfi_user(&mut conn, &client, email, password.clone())
                 .await?;
 
         if let Some((user, _token)) = auth_result {
-            // If user is autenticated in tmc succesfully, hash password and save it to db
+            // If user is autenticated in TMC succesfully, hash password and save it to courses.mooc.fi database
             let password_hash =
                 models::user_passwords::hash_password(&SecretString::new(password.clone().into()))
                     .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
@@ -345,6 +387,7 @@ pub async fn login(
                     )
                 })?;
 
+            // Notify TMC that the password is now managed by courses.mooc.fi
             if let Some(upstream_id) = user.upstream_id {
                 tmc_client
                     .set_user_password_managed_by_courses_mooc_fi(upstream_id.to_string())
@@ -360,22 +403,19 @@ pub async fn login(
             } else {
                 warn!("User has no upstream_id; skipping notify to TMC");
             }
-
             authorization::remember(&session, user)?;
-            true
-        } else {
-            false
+            info!("Authentication successful");
+            is_authenticated = true;
         }
-    };
-
-    if success {
-        info!("Authentication successful");
-    } else {
-        warn!("Authentication failed");
     }
 
     let token = skip_authorize();
-    token.authorized_ok(web::Json(success))
+    if is_authenticated {
+        token.authorized_ok(web::Json(true))
+    } else {
+        warn!("Authentication failed");
+        token.authorized_ok(web::Json(false))
+    }
 }
 
 /**

@@ -57,3 +57,20 @@ WHERE conversation_message_id = $1
     .await?;
     Ok(res)
 }
+
+pub async fn get_by_conversation_id(
+    conn: &mut PgConnection,
+    conversation_id: Uuid,
+) -> ModelResult<Vec<ChatbotConversationMessageCitation>> {
+    let res = sqlx::query_as!(
+        ChatbotConversationMessageCitation,
+        r#"
+SELECT * FROM chatbot_conversation_messages_citations
+WHERE conversation_id = $1
+        "#,
+        conversation_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}

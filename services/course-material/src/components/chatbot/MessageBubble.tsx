@@ -3,6 +3,7 @@ import React, { useMemo } from "react"
 
 import ThinkingIndicator from "./ThinkingIndicator"
 
+import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
 import { baseTheme } from "@/shared-module/common/styles"
 import { getRemarkable } from "@/utils/getRemarkable"
 import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
@@ -11,6 +12,7 @@ interface MessageBubbleProps {
   message: string
   isFromChatbot: boolean
   isPending: boolean
+  citations: ChatbotConversationMessageCitation[] | undefined
   hideCitations?: boolean
 }
 
@@ -67,18 +69,28 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   message,
   isFromChatbot,
   isPending,
+  citations,
   hideCitations,
 }) => {
   const processedMessage = useMemo(() => {
     let renderedMessage = message
     if (hideCitations) {
       renderedMessage = renderedMessage.replace(/\[.*?\]/g, "")
+    } else if (citations) {
+      //renderedMessage = renderedMessage.replace(/\[.*?\]/g, `^${}`)
+      // eslint-disable-next-line i18next/no-literal-string
+      renderedMessage = renderedMessage.concat("\nReferences:\n")
+      citations.forEach((cit) => {
+        // TODO only show used referenes
+        // eslint-disable-next-line i18next/no-literal-string
+        renderedMessage = renderedMessage.concat(`\n${cit.title}\n`)
+      })
     }
     if (isFromChatbot) {
       renderedMessage = sanitizeCourseMaterialHtml(md.render(renderedMessage).trim())
     }
     return renderedMessage
-  }, [hideCitations, message, isFromChatbot])
+  }, [hideCitations, message, citations, isFromChatbot])
   return (
     <div className={bubbleStyle(isFromChatbot)}>
       <span className={messageStyle} dangerouslySetInnerHTML={{ __html: processedMessage }}></span>

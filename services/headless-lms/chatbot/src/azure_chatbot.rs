@@ -9,6 +9,7 @@ use bytes::Bytes;
 use chrono::Utc;
 use futures::{Stream, TryStreamExt};
 use headless_lms_models::chatbot_conversation_messages::ChatbotConversationMessage;
+use headless_lms_models::chatbot_conversation_messages_citations::ChatbotConversationMessageCitation;
 use headless_lms_utils::{ApplicationConfiguration, http::REQWEST_CLIENT};
 use pin_project::pin_project;
 use serde::{Deserialize, Serialize};
@@ -46,6 +47,21 @@ pub struct Choice {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Delta {
     pub content: Option<String>,
+    pub context: Option<DeltaContext>,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct DeltaContext {
+    pub citations: Vec<Citation>,
+    pub intent: String, //TODO a string that contains a vec, maybe not needed in our app?
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct Citation {
+    pub content: String,
+    pub title: String,
+    pub url: String,
+    //pub chunk_id: i32,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -444,6 +460,8 @@ pub async fn send_chat_request_and_parse_stream(
     let mut lines = reader.lines();
 
     let response_stream = async_stream::try_stream! {
+        // TODO the first line willl have delta.context which contains the citations.
+        // rest of the lines will habve delta.content
         while let Some(line) = lines.next_line().await? {
             if !line.starts_with("data: ") {
                 continue;
@@ -479,6 +497,26 @@ pub async fn send_chat_request_and_parse_stream(
                         let response_as_string = serde_json::to_string(&response)?;
                         yield Bytes::from(response_as_string);
                         yield Bytes::from("\n");
+                    }
+                    if let Some(context) = &delta.context {
+                        println!("\n!!!!! CONTEXR !!!!!!!!!!: {:?}\n", context.citations);
+
+                        let citation_message_id = response_message.id;
+                        let mut conn = pool.acquire().await?;
+                        for (idx, cit) in context.citations.iter().enumerate() {
+                            let content = if cit.content.len() < 255 {cit.content.clone()} else {cit.content[0..255].to_string()}; // TODO idk if w even needthe cit content
+                            models::chatbot_conversation_messages_citations::insert(
+                                &mut conn, ChatbotConversationMessageCitation {
+                                    id: Uuid::new_v4(),
+                                    conversation_message_id: citation_message_id,
+                                    conversation_id,
+                                    content,
+                                    title: cit.title.clone(), // TODO is it ugly to clone here?
+                                    document_url: cit.url.clone(),
+                                    citation_number: (idx+1) as i32, // TODO ugly? doc indexing starts from 1
+                                }
+                            ).await?;
+                        }
                     }
 
                 }

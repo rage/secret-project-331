@@ -299,85 +299,123 @@ pub async fn login(
 
     // Development mode UUID login (allows logging in with a user ID string)
     if app_conf.development_uuid_login {
-        warn!("Trying development mode UUID login");
-        if let Ok(id) = Uuid::parse_str(&email) {
-            let user = { models::users::get_by_id(&mut conn, id).await? };
-            let token = skip_authorize();
-            authorization::remember(&session, user)?;
-            return token.authorized_ok(web::Json(true));
-        };
+        return handle_uuid_login(&session, &mut conn, &email).await;
     }
 
     // Test mode: authenticate using seeded test credentials or stored password
     if app_conf.test_mode {
-        warn!("Using test credentials. Normal accounts won't work.");
-
-        let user = models::users::get_by_email(&mut conn, &email).await?;
-        let mut is_authenticated =
-            authorization::authenticate_test_user(&mut conn, &email, &password, &app_conf)
-                .await
-                .map_err(|e| {
-                    ControllerError::new(
-                        ControllerErrorType::Unauthorized,
-                        "Could not find the test user. Have you seeded the database?".to_string(),
-                        e,
-                    )
-                })?;
-
-        if !is_authenticated {
-            is_authenticated = models::user_passwords::verify_user_password(
-                &mut conn,
-                user.id,
-                &SecretString::new(password.clone().into()),
-            )
-            .await?;
-        }
-
-        if is_authenticated {
-            info!("Authentication successful");
-            authorization::remember(&session, user)?;
-        } else {
-            warn!("Authentication failed");
-        }
-
-        let token = skip_authorize();
-        return token.authorized_ok(web::Json(is_authenticated));
+        return handle_test_mode_login(&session, &mut conn, &email, &password, &app_conf).await;
     };
 
+    return handle_production_login(&session, &mut conn, &client, &tmc_client, &email, &password)
+        .await;
+}
+
+async fn handle_uuid_login(
+    session: &Session,
+    conn: &mut PgConnection,
+    email: &str,
+) -> ControllerResult<web::Json<bool>> {
+    warn!("Trying development mode UUID login");
+    let token = skip_authorize();
+
+    if let Ok(id) = Uuid::parse_str(email) {
+        let user = { models::users::get_by_id(conn, id).await? };
+        authorization::remember(session, user)?;
+        token.authorized_ok(web::Json(true))
+    } else {
+        warn!("Authentication failed");
+        token.authorized_ok(web::Json(false))
+    }
+}
+
+async fn handle_test_mode_login(
+    session: &Session,
+    conn: &mut PgConnection,
+    email: &str,
+    password: &str,
+    app_conf: &ApplicationConfiguration,
+) -> ControllerResult<web::Json<bool>> {
+    warn!("Using test credentials. Normal accounts won't work.");
+
+    let user = { models::users::get_by_email(conn, email).await? };
+    let mut is_authenticated =
+        authorization::authenticate_test_user(conn, email, password, app_conf)
+            .await
+            .map_err(|e| {
+                ControllerError::new(
+                    ControllerErrorType::Unauthorized,
+                    "Could not find the test user. Have you seeded the database?".to_string(),
+                    e,
+                )
+            })?;
+
+    if !is_authenticated {
+        is_authenticated = models::user_passwords::verify_user_password(
+            conn,
+            user.id,
+            &SecretString::new(password.into()),
+        )
+        .await?;
+    }
+
+    if is_authenticated {
+        info!("Authentication successful");
+        authorization::remember(session, user)?;
+    } else {
+        warn!("Authentication failed");
+    }
+
+    let token = skip_authorize();
+    token.authorized_ok(web::Json(is_authenticated))
+}
+
+async fn handle_production_login(
+    session: &Session,
+    conn: &mut PgConnection,
+    client: &OAuthClient,
+    tmc_client: &TmcClient,
+    email: &str,
+    password: &str,
+) -> ControllerResult<web::Json<bool>> {
     let mut is_authenticated = false;
 
     // Try to authenticate using password stored in courses.mooc.fi database
-    if let Ok(user) = models::users::get_by_email(&mut conn, &email).await {
+    if let Ok(user) = models::users::get_by_email(conn, email).await {
         let is_password_stored =
-            models::user_passwords::check_if_users_password_is_stored(&mut conn, user.id).await?;
+            models::user_passwords::check_if_users_password_is_stored(conn, user.id).await?;
         if is_password_stored {
             is_authenticated = models::user_passwords::verify_user_password(
-                &mut conn,
+                conn,
                 user.id,
-                &SecretString::new(password.clone().into()),
+                &SecretString::new(password.into()),
             )
             .await?;
 
             if is_authenticated {
                 info!("Authentication successful");
-                authorization::remember(&session, user)?;
+                authorization::remember(session, user)?;
             }
         }
     }
 
     // Try to authenticate via TMC and store password to courses.mooc.fi if successful
     if !is_authenticated {
-        let auth_result =
-            authorization::authenticate_moocfi_user(&mut conn, &client, email, password.clone())
-                .await?;
+        let auth_result = authorization::authenticate_moocfi_user(
+            conn,
+            client,
+            email.to_string(),
+            password.to_string(),
+        )
+        .await?;
 
         if let Some((user, _token)) = auth_result {
             // If user is autenticated in TMC succesfully, hash password and save it to courses.mooc.fi database
             let password_hash =
-                models::user_passwords::hash_password(&SecretString::new(password.clone().into()))
+                models::user_passwords::hash_password(&SecretString::new(password.into()))
                     .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
 
-            models::user_passwords::upsert_user_password(&mut conn, user.id, password_hash)
+            models::user_passwords::upsert_user_password(conn, user.id, password_hash)
                 .await
                 .map_err(|e| {
                     ControllerError::new(
@@ -403,7 +441,7 @@ pub async fn login(
             } else {
                 warn!("User has no upstream_id; skipping notify to TMC");
             }
-            authorization::remember(&session, user)?;
+            authorization::remember(session, user)?;
             info!("Authentication successful");
             is_authenticated = true;
         }

@@ -16,7 +16,7 @@ interface MessageBubbleProps {
   hideCitations?: boolean
 }
 
-const bubbleStyle = (isFromChatbot: boolean) => css`
+const bubbleStyle = (isFromChatbot: boolean, showCitations: boolean) => css`
   padding: 1rem;
   border-radius: 10px;
   width: fit-content;
@@ -36,21 +36,24 @@ const bubbleStyle = (isFromChatbot: boolean) => css`
       background-color: #ffffff;
     `}
   details {
-    transition: all 0.3s ease-in-out;
-    background-color: red;
+    transition: all 0.6s ease-in-out;
   }
   details > summary {
     list-style: none;
   }
-  details > summary::after {
-    content: ">";
-  }
-  details > summary[open]::after {
-    content: "v";
-  }
-  details[open]::details-content {
-    background-color: blue;
-  }
+  ${showCitations
+    ? `
+      details > summary::after {
+      content: ">";
+      }
+      details[open] > summary::after {
+        content: "v";
+      }
+      details[open]::details-content {
+        background-color: blue;
+      }
+    `
+    : ``}
 `
 
 const messageStyle = css`
@@ -97,6 +100,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   const [processedMessage, processedCitations] = useMemo(() => {
     let renderedMessage = message
     renderedMessage = sanitizeCourseMaterialHtml(md.render(renderedMessage).trim())
+    let filteredCitations: ChatbotConversationMessageCitation[] = []
 
     if (isFromChatbot) {
       if (citations && hideCitations) {
@@ -112,20 +116,13 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         /* eslint-disable i18next/no-literal-string */
         renderedMessage = renderedMessage.replace(/\[[a-z]*?([0-9]+)\]/g, `<span>$1</span>`)
 
-        //renderedMessage = renderedMessage.concat("\nReferences:\n")
-        citations
-          .filter((cit) => citedDocs.has(cit.citation_number))
-          .forEach((cit) => {
-            //console.log(cit)
-            return cit.title
-            //renderedMessage = renderedMessage.concat(`\n${cit.title}\n`)
-          })
+        filteredCitations = citations.filter((cit) => citedDocs.has(cit.citation_number))
       }
     }
-    return [renderedMessage, citations]
+    return [renderedMessage, filteredCitations]
   }, [hideCitations, message, citations, isFromChatbot])
   return (
-    <div className={bubbleStyle(isFromChatbot)}>
+    <div className={bubbleStyle(isFromChatbot, !hideCitations && processedCitations.length > 0)}>
       {!isFromChatbot && (
         <span
           className={messageStyle}
@@ -140,7 +137,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
               dangerouslySetInnerHTML={{ __html: processedMessage }}
             ></span>
           </summary>
-          content
+          {processedCitations.map((cit) => (
+            <p key={cit.title}>
+              {cit.citation_number} <a href={cit.document_url}>{cit.title}</a>
+            </p>
+          ))}
         </details>
       )}
 

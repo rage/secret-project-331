@@ -74,19 +74,29 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 }) => {
   const processedMessage = useMemo(() => {
     let renderedMessage = message
-    if (hideCitations) {
-      renderedMessage = renderedMessage.replace(/\[.*?\]/g, "")
-    } else if (citations) {
-      //renderedMessage = renderedMessage.replace(/\[.*?\]/g, `^${}`)
-      // eslint-disable-next-line i18next/no-literal-string
-      renderedMessage = renderedMessage.concat("\nReferences:\n")
-      citations.forEach((cit) => {
-        // TODO only show used referenes
-        // eslint-disable-next-line i18next/no-literal-string
-        renderedMessage = renderedMessage.concat(`\n${cit.title}\n`)
-      })
-    }
+
     if (isFromChatbot) {
+      if (citations && hideCitations) {
+        renderedMessage = renderedMessage.replace(/\[[a-z]*?[0-9]+\]/g, "")
+      } else if (citations) {
+        let citedDocs = new Set(
+          Array.from(renderedMessage.matchAll(/\[[a-z]*?([0-9]+)\]/g), (arr, _) =>
+            parseInt(arr[1]),
+          ),
+        )
+        // TODO is it bad to do two regex operations?
+        //console.log("citedDocs: ", citedDocs)
+        renderedMessage = renderedMessage.replace(/\[[a-z]*?([0-9]+)\]/g, "($1)")
+
+        //renderedMessage = renderedMessage.concat("\nReferences:\n")
+        citations
+          .filter((cit) => citedDocs.has(cit.citation_number))
+          .forEach((cit) => {
+            //console.log(cit)
+            /* eslint-disable i18next/no-literal-string */
+            renderedMessage = renderedMessage.concat(`\n${cit.title}\n`)
+          })
+      }
       renderedMessage = sanitizeCourseMaterialHtml(md.render(renderedMessage).trim())
     }
     return renderedMessage

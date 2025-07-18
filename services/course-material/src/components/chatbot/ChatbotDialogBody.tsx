@@ -15,7 +15,6 @@ import { sendChatbotMessage } from "@/services/backend"
 import {
   ChatbotConversation,
   ChatbotConversationInfo,
-  ChatbotConversationMessage,
   ChatbotConversationMessageCitation,
 } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
@@ -38,11 +37,6 @@ interface MessageState {
   optimisticMessage: string | null
   streamingMessage: string | null
 }
-/*
-interface Message {
-  message: ChatbotConversationMessage
-  citation: ChatbotConversationMessageCitation | null
-} */
 
 type MessageAction =
   | { type: "SET_OPTIMISTIC_MESSAGE"; payload: string | null }
@@ -141,19 +135,18 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
   const citations = useMemo(() => {
     const citations: Map<string, ChatbotConversationMessageCitation[]> = new Map()
 
-    if (currentConversationInfo.data?.hide_citations) {
-      return citations
+    if (!currentConversationInfo.data?.hide_citations) {
+      currentConversationInfo.data?.current_conversation_message_citations?.forEach((cit) => {
+        const id = cit.conversation_message_id
+        if (!citations.has(id)) {
+          citations.set(id, [cit])
+        } else {
+          // id is definitely in hashmap because of the condition branch we're in
+          citations.set(id, citations.get(id)!.concat(cit))
+        }
+      })
     }
 
-    currentConversationInfo.data?.current_conversation_message_citations?.forEach((cit) => {
-      const id = cit.conversation_message_id
-      if (!citations.has(id)) {
-        citations.set(id, [cit])
-      } else {
-        // id is definitely in hashmap because of the condition branch we're in
-        citations.set(id, citations.get(id)!.concat(cit))
-      }
-    })
     return citations
   }, [
     currentConversationInfo.data?.current_conversation_message_citations,

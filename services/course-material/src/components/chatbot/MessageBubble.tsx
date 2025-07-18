@@ -35,6 +35,22 @@ const bubbleStyle = (isFromChatbot: boolean) => css`
       border: 2px solid ${baseTheme.colors.gray[200]};
       background-color: #ffffff;
     `}
+  details {
+    transition: all 0.3s ease-in-out;
+    background-color: red;
+  }
+  details > summary {
+    list-style: none;
+  }
+  details > summary::after {
+    content: ">";
+  }
+  details > summary[open]::after {
+    content: "v";
+  }
+  details[open]::details-content {
+    background-color: blue;
+  }
 `
 
 const messageStyle = css`
@@ -60,6 +76,12 @@ const messageStyle = css`
     will force long strings in it to wrap and not overflow */
     white-space: pre-wrap;
   }
+  span {
+    background-color: ${baseTheme.colors.gray[200]};
+    padding: 0 7px 0 7px;
+    border-radius: 10px;
+  }
+
   white-space: pre-wrap;
 `
 
@@ -72,8 +94,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   citations,
   hideCitations,
 }) => {
-  const processedMessage = useMemo(() => {
+  const [processedMessage, processedCitations] = useMemo(() => {
     let renderedMessage = message
+    renderedMessage = sanitizeCourseMaterialHtml(md.render(renderedMessage).trim())
 
     if (isFromChatbot) {
       if (citations && hideCitations) {
@@ -86,24 +109,41 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         )
         // TODO is it bad to do two regex operations?
         //console.log("citedDocs: ", citedDocs)
-        renderedMessage = renderedMessage.replace(/\[[a-z]*?([0-9]+)\]/g, "($1)")
+        /* eslint-disable i18next/no-literal-string */
+        renderedMessage = renderedMessage.replace(/\[[a-z]*?([0-9]+)\]/g, `<span>$1</span>`)
 
         //renderedMessage = renderedMessage.concat("\nReferences:\n")
         citations
           .filter((cit) => citedDocs.has(cit.citation_number))
           .forEach((cit) => {
             //console.log(cit)
-            /* eslint-disable i18next/no-literal-string */
-            renderedMessage = renderedMessage.concat(`\n${cit.title}\n`)
+            return cit.title
+            //renderedMessage = renderedMessage.concat(`\n${cit.title}\n`)
           })
       }
-      renderedMessage = sanitizeCourseMaterialHtml(md.render(renderedMessage).trim())
     }
-    return renderedMessage
+    return [renderedMessage, citations]
   }, [hideCitations, message, citations, isFromChatbot])
   return (
     <div className={bubbleStyle(isFromChatbot)}>
-      <span className={messageStyle} dangerouslySetInnerHTML={{ __html: processedMessage }}></span>
+      {!isFromChatbot && (
+        <span
+          className={messageStyle}
+          dangerouslySetInnerHTML={{ __html: processedMessage }}
+        ></span>
+      )}
+      {isFromChatbot && (
+        <details>
+          <summary>
+            <span
+              className={messageStyle}
+              dangerouslySetInnerHTML={{ __html: processedMessage }}
+            ></span>
+          </summary>
+          content
+        </details>
+      )}
+
       {isPending && <ThinkingIndicator />}
     </div>
   )

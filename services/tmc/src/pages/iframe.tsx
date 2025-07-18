@@ -5,12 +5,13 @@ import { orderBy } from "natural-orderby"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
 import ReactDOM from "react-dom"
+import tar from "tar-stream"
 import { v4 } from "uuid"
+import { ZSTDDecoder } from "zstddec"
 
 import StateRenderer from "../components/StateRenderer"
 import {
   CurrentStateMessageData,
-  EditorExercisePublicSpec,
   ExerciseIframeState,
   MessageToParent,
   ModelSolutionSpec,
@@ -75,20 +76,22 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
               private_spec: messageData.data.private_spec as PrivateSpec,
             })
           } else if (messageData.view_type === "answer-exercise") {
-            setState((oldState) => {
-              const newPublicSpec = messageData.data.public_spec as EditorExercisePublicSpec
-              const previousSubmission = messageData.data
-                .previous_submission as ExerciseTaskSubmission | null
-              return {
-                view_type: messageData.view_type,
-                initial_public_spec:
-                  oldState?.view_type === "answer-exercise"
-                    ? oldState.initial_public_spec
-                    : // cloneDeep prevents setState from changing the initial spec
-                      _.cloneDeep(newPublicSpec),
-                user_answer: publicSpecToTemplateUserAnswer(newPublicSpec),
-                previous_submission: previousSubmission,
-              }
+            const newPublicSpec = messageData.data.public_spec as PublicSpec
+            publicSpecToIframeUserAnswer(newPublicSpec).then((userAnswer) => {
+              setState((oldState) => {
+                const previousSubmission = messageData.data
+                  .previous_submission as ExerciseTaskSubmission | null
+                return {
+                  view_type: messageData.view_type,
+                  public_spec:
+                    oldState?.view_type === "answer-exercise"
+                      ? oldState.public_spec
+                      : // cloneDeep prevents setState from changing the initial spec
+                        _.cloneDeep(newPublicSpec),
+                  user_answer: userAnswer,
+                  previous_submission: previousSubmission,
+                }
+              })
             })
           } else if (messageData.view_type === "view-submission") {
             setState({
@@ -163,9 +166,6 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
         <StateRenderer
           setState={(updater) => setStateAndSend(port, updater)}
           state={state}
-          sendTestRequestMessage={(archiveDownloadUrl, files) => {
-            sendTestRequestMessage(port, archiveDownloadUrl, files)
-          }}
           testRequestResponse={testRequestResponse}
           sendFileUploadMessage={(filename, file) => {
             const files = new Map()
@@ -194,22 +194,6 @@ const sendSpecToParent = (port: MessagePort, data: CurrentStateMessageData) => {
   port.postMessage(currentStateMessage)
 }
 
-const sendTestRequestMessage = (
-  port: MessagePort | null,
-  archiveDownloadUrl: string,
-  files: Array<ExerciseFile>,
-) => {
-  if (port) {
-    const testRequest: MessageToParent = {
-      message: "test-request",
-      archiveDownloadUrl: archiveDownloadUrl,
-      files,
-    }
-    console.info("Posting message to parent", testRequest)
-    port.postMessage(testRequest)
-  }
-}
-
 const sendFileUploadMessage = (port: MessagePort | null, files: Map<string, string | Blob>) => {
   if (port) {
     const fileUploadRequest: MessageToParent = {
@@ -229,13 +213,54 @@ const requestRepositoryExercises = (port: MessagePort | null) => {
   }
 }
 
-const publicSpecToTemplateUserAnswer = (publicSpec: PublicSpec): UserAnswer => {
+const publicSpecToIframeUserAnswer = async (publicSpec: PublicSpec): Promise<UserAnswer> => {
   if (publicSpec.type == "browser") {
-    return { type: "browser", files: publicSpec.files }
+    // dl archive
+    console.log("fetching ", publicSpec.stub_download_url)
+    const stubResponse = await fetch(publicSpec.stub_download_url)
+
+    // unpack zstd
+    const tarZstdArchive = await stubResponse.arrayBuffer()
+    const zstdDecoder = new ZSTDDecoder()
+    await zstdDecoder.init()
+    const tarArchive = zstdDecoder.decode(Buffer.from(tarZstdArchive), 1024 * 1024)
+
+    // unpack tar
+    const files: Array<ExerciseFile> = []
+    const extract = tar.extract({})
+    extract.on("entry", function (header, stream, next) {
+      // strip first component...
+      const filepath = header.name.substring(header.name.indexOf("/") + 1)
+      const chunks: Uint8Array[] = []
+      stream.on("data", (chunk) => chunks.push(new Uint8Array(chunk)))
+      stream.on("end", () => {
+        const buf = Buffer.concat(chunks)
+        const decoded = decodeString(buf)
+        if (decoded) {
+          files.push({ filepath, contents: decoded })
+        }
+      })
+      stream.on("end", function () {
+        next()
+      })
+      stream.resume()
+    })
+    extract.end(tarArchive)
+
+    return { type: "browser", files: files }
   } else if (publicSpec.type == "editor") {
-    return { type: "editor", archive_download_url: publicSpec.archive_download_url }
+    return { type: "editor", archive_download_url: publicSpec.stub_download_url }
   } else {
     throw new Error("unreachable")
+  }
+}
+
+const decodeString = (data: Buffer<ArrayBuffer>): string | null => {
+  try {
+    const decoder = new TextDecoder("utf-8", { fatal: true })
+    return decoder.decode(data)
+  } catch {
+    return null // Not valid UTF-8
   }
 }
 

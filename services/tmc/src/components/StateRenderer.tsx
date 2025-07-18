@@ -11,12 +11,11 @@ import { UploadResultMessage } from "@/shared-module/common/exercise-service-pro
 import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/common/utils/constants"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
-import { ExerciseFile, RunResult } from "@/tmc/cli"
+import { RunResult } from "@/tmc/cli"
 
 interface Props {
   state: ExerciseIframeState | null
   setState: (updater: (state: ExerciseIframeState | null) => ExerciseIframeState | null) => void
-  sendTestRequestMessage: (archiveDownloadUrl: string, editorFiles: Array<ExerciseFile>) => void
   testRequestResponse: RunResult | null
   sendFileUploadMessage: (filename: string, file: File) => void
   requestRepositoryExercises: () => void
@@ -26,7 +25,6 @@ interface Props {
 export const StateRenderer: React.FC<React.PropsWithChildren<Props>> = ({
   state,
   setState,
-  sendTestRequestMessage,
   testRequestResponse,
   requestRepositoryExercises,
   sendFileUploadMessage,
@@ -52,9 +50,9 @@ export const StateRenderer: React.FC<React.PropsWithChildren<Props>> = ({
     return (
       <div id={EXERCISE_SERVICE_CONTENT_ID}>
         <AnswerExercise
-          initialPublicSpec={state.initial_public_spec}
+          publicSpec={state.public_spec}
+          userAnswer={state.user_answer}
           setState={setState}
-          sendTestRequestMessage={sendTestRequestMessage}
           testRequestResponse={testRequestResponse}
           sendFileUploadMessage={sendFileUploadMessage}
           fileUploadResponse={fileUploadResponse}

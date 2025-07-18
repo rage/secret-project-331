@@ -12,7 +12,8 @@ if [ -z ${1+x} ]; then
   exit 1
 fi
 VERSION="$1"
-LANGS_FILENAME="tmc-langs-cli-x86_64-unknown-linux-gnu-${VERSION}"
+LANGS_FILENAME_ROOT="tmc-langs-cli-x86_64-unknown-linux-gnu"
+LANGS_FILENAME="${LANGS_FILENAME_ROOT}-${VERSION}"
 LANGS_PATH="./bin/$LANGS_FILENAME"
 
 echo "Updating TMC langs version to $VERSION"
@@ -40,9 +41,11 @@ run_command npx eslint --fix "$BINDINGS_DOWNLOAD_TARGET"
 # generate guard
 run_command npx ts-auto-guard --paths "$BINDINGS_DOWNLOAD_TARGET" --project ./tsconfig.json
 run_command sed -i '1s;^;/* eslint-disable @typescript-eslint/no-explicit-any */\n/* eslint-disable @typescript-eslint/explicit-module-boundary-types */\n\n;' "$BINDINGS_GUARD"
-run_command npx eslint --fix "$BINDINGS_GUARD"
+run_command npx eslint --fix --no-ignore "$BINDINGS_GUARD"
 
-# this is done last so that if anything goes wrong earlier, we don't get a false "Already up to date!" message
+echo "Removing old langs binary"
+run_command find ./bin/ -name "${LANGS_FILENAME_ROOT}*" -delete
+
 echo "Downloading CLI to ${LANGS_PATH}"
 run_command curl "https://download.mooc.fi/tmc-langs-rust/${LANGS_FILENAME}" --output "$LANGS_PATH"
 run_command chmod +x "$LANGS_PATH"

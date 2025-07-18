@@ -12,7 +12,6 @@ export type MessageFromIframe =
   | HeightChangedMessage
   | FileUploadMessage
   | RequestRepositoryExercisesMessage
-  | TestRequestMessage
 
 export interface CurrentStateMessage {
   message: "current-state"
@@ -37,12 +36,6 @@ export interface FileUploadMessage {
 
 export interface RequestRepositoryExercisesMessage {
   message: "request-repository-exercises"
-}
-
-export interface TestRequestMessage {
-  message: "test-request"
-  archiveDownloadUrl: string
-  files: Array<{ filepath: string; contents: string }>
 }
 
 /**

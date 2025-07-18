@@ -3,10 +3,23 @@ import { v4 } from "uuid"
 
 import { ClientErrorResponse } from "@/lib"
 import { RunResult } from "@/tmc/cli"
+import { ExerciseFile } from "@/util/stateInterfaces"
 import { runTests } from "@/util/test"
 
 // todo timed cache
 export const testRuns: Map<string, RunResult | null> = new Map()
+
+export type TestRequest =
+  | {
+      type: "browser"
+      templateDownloadUrl: string
+      files: Array<ExerciseFile>
+    }
+  | {
+      type: "editor"
+      templateDownloadUrl: string
+      archiveDownloadUrl: string
+    }
 
 export type TestRequestResult = {
   id: string
@@ -21,21 +34,25 @@ export default async (
       return badRequest(res, "Wrong method")
     }
 
+    const body = JSON.parse(req.body) as TestRequest
+
     const testRunId = v4()
     testRuns.set(testRunId, null)
-    const templateDownloadUrl = req.body.templateDownloadUrl
-    if (req.body.type === "browser") {
+    const templateDownloadUrl = body.templateDownloadUrl
+    if (body.type === "browser") {
       runTests(templateDownloadUrl, {
         type: "browser",
-        files: req.body.files,
+        files: body.files,
       }).then((rr) => testRuns.set(testRunId, rr))
       ok(res, { id: testRunId })
     } else if (req.body.type === "editor") {
       runTests(templateDownloadUrl, {
         type: "editor",
-        archiveDownloadUrl: req.body.archiveDownloadUrl,
+        archiveDownloadUrl: body.archiveDownloadUrl,
       }).then((rr) => testRuns.set(testRunId, rr))
       ok(res, { id: testRunId })
+    } else {
+      throw new Error("Invalid type")
     }
   } catch (err) {
     return internalServerError(res, "Error while processing request", err)

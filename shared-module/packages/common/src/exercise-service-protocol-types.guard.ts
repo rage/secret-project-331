@@ -5,7 +5,7 @@
  * Generated type guards for "exercise-service-protocol-types.ts".
  * WARNING: Do not manually change this file.
  */
-import { MessageFromIframe, CurrentStateMessage, HeightChangedMessage, OpenLinkMessage, FileUploadMessage, RequestRepositoryExercisesMessage, TestRequestMessage, MessageToIframe, SetLanguageMessage, SetStateMessage, UploadResultMessage, RepositoryExercisesMessage, TestResultsMessage, UserInformation, UserVariablesMap, AnswerExerciseIframeState, ViewSubmissionIframeState, ExerciseEditorIframeState, CustomViewIframeState, ExerciseIframeState, ExtendedIframeState, IframeViewType, NonGenericGradingRequest, NonGenericGradingResult } from "./exercise-service-protocol-types";
+import { MessageFromIframe, CurrentStateMessage, HeightChangedMessage, OpenLinkMessage, FileUploadMessage, RequestRepositoryExercisesMessage, MessageToIframe, SetLanguageMessage, SetStateMessage, UploadResultMessage, RepositoryExercisesMessage, TestResultsMessage, UserInformation, UserVariablesMap, AnswerExerciseIframeState, ViewSubmissionIframeState, ExerciseEditorIframeState, CustomViewIframeState, ExerciseIframeState, ExtendedIframeState, IframeViewType, NonGenericGradingRequest, NonGenericGradingResult } from "./exercise-service-protocol-types";
 
 export function isMessageFromIframe(obj: unknown): obj is MessageFromIframe {
     const typedObj = obj as MessageFromIframe
@@ -13,8 +13,7 @@ export function isMessageFromIframe(obj: unknown): obj is MessageFromIframe {
         (isCurrentStateMessage(typedObj) as boolean ||
             isHeightChangedMessage(typedObj) as boolean ||
             isFileUploadMessage(typedObj) as boolean ||
-            isRequestRepositoryExercisesMessage(typedObj) as boolean ||
-            isTestRequestMessage(typedObj) as boolean)
+            isRequestRepositoryExercisesMessage(typedObj) as boolean)
     )
 }
 
@@ -69,25 +68,6 @@ export function isRequestRepositoryExercisesMessage(obj: unknown): obj is Reques
             typeof typedObj === "object" ||
             typeof typedObj === "function") &&
         typedObj["message"] === "request-repository-exercises"
-    )
-}
-
-export function isTestRequestMessage(obj: unknown): obj is TestRequestMessage {
-    const typedObj = obj as TestRequestMessage
-    return (
-        (typedObj !== null &&
-            typeof typedObj === "object" ||
-            typeof typedObj === "function") &&
-        typedObj["message"] === "test-request" &&
-        typeof typedObj["archiveDownloadUrl"] === "string" &&
-        Array.isArray(typedObj["files"]) &&
-        typedObj["files"].every((e: any) =>
-            (e !== null &&
-                typeof e === "object" ||
-                typeof e === "function") &&
-            typeof e["filepath"] === "string" &&
-            typeof e["contents"] === "string"
-        )
     )
 }
 

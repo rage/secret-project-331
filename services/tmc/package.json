@@ -47,17 +47,21 @@
     "react-popper": "^2.3.0",
     "react-spring": "^10.0.1",
     "svgo": "^3.3.2",
+    "tar": "7.4.3",
+    "tar-stream": "^3.1.7",
     "tempy": "^3.1.0",
     "tree-kill": "^1.2.2",
     "use-debounce": "^10.0.5",
     "uuid": "^11.1.0",
-    "workerpool": "^9.2.0"
+    "workerpool": "^9.2.0",
+    "zstddec": "^0.1.0"
   },
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",
     "@types/lodash": "^4.17.16",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.5",
+    "@types/tar-stream": "^3.1.4",
     "@types/uuid": "^10.0.0",
     "@types/workerpool": "^9.0.0",
     "node-loader": "^2.1.0",

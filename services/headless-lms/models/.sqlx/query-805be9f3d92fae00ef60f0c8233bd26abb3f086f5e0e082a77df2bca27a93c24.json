@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE oauth_auth_codes SET used = true WHERE code = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Text"]
+    },
+    "nullable": []
+  },
+  "hash": "805be9f3d92fae00ef60f0c8233bd26abb3f086f5e0e082a77df2bca27a93c24"
+}

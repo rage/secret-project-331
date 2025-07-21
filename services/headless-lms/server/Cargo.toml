@@ -115,6 +115,8 @@ tar = "0.4.44"
 rand = "0.9.1"
 # JSON Web Token (JWT) is a compact, URL-safe means of representing claims to be transferred between two parties.
 jwt = "0.16.0"
+# Another JWT crate, used for asymmetric signing for OAuth
+jsonwebtoken = "9.3.1"
 # Pure Rust implementation of the Hash-based Message Authentication Code (HMAC).
 hmac = "0.12.1"
 # Pure Rust implementation of the SHA-2 hash function family.

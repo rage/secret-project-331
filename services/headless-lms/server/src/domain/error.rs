@@ -363,6 +363,16 @@ impl From<actix_multipart::MultipartError> for ControllerError {
     }
 }
 
+impl From<jsonwebtoken::errors::Error> for ControllerError {
+    fn from(err: jsonwebtoken::errors::Error) -> Self {
+        Self::new(
+            ControllerErrorType::InternalServerError,
+            err.to_string(),
+            None,
+        )
+    }
+}
+
 impl From<ModelError> for ControllerError {
     fn from(err: ModelError) -> Self {
         let backtrace: Backtrace =

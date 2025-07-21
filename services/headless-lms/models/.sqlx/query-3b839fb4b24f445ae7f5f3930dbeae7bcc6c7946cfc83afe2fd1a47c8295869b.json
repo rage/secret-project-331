@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO oauth_auth_codes\n               (code, user_id, client_id, redirect_uri, scope, nonce, used, expires_at)\n               VALUES ($1, $2, $3, $4, $5, $6, false, $7)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Text", "Uuid", "Uuid", "Text", "Text", "Text", "Timestamptz"]
+    },
+    "nullable": []
+  },
+  "hash": "3b839fb4b24f445ae7f5f3930dbeae7bcc6c7946cfc83afe2fd1a47c8295869b"
+}

@@ -1,9 +1,11 @@
 import { css } from "@emotion/css"
+import { UpArrow } from "@vectopus/atlas-icons-react"
 import React, { useMemo, useState } from "react"
 
 import ThinkingIndicator from "./ThinkingIndicator"
 
 import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
+import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 import { getRemarkable } from "@/utils/getRemarkable"
 import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
@@ -38,20 +40,32 @@ const bubbleStyle = (isFromChatbot: boolean, showCitations: boolean) => css`
   details {
     transition: all 0.6s ease-in-out;
   }
+
   details > summary {
     list-style: none;
+    cursor: pointer;
   }
   ${showCitations
     ? `
-      details > summary::after {
-      content: "+";
+      details {
+        padding: 2px 6px;
+        margin-bottom: 1em;
       }
-      details[open] > summary::after {
-        content: "-";
+      details:first-of-type summary::marker,
+      :is(::-webkit-details-marker) {
+        content: "";
+        padding: 50px;
+        margin-inline-start: 50px;
+        font-family: monospace;
+        font-weight: bold;
       }
-      details[open]::details-content {
-        background-color: blue;
+      details[open]:first-of-type summary::marker {
+        content: "";
       }
+      details:last-of-type summary::-webkit-details-marker {
+        display: none;
+      }
+
     `
     : ``}
 `
@@ -90,21 +104,29 @@ const messageStyle = css`
   white-space: pre-wrap;
 `
 
-const referenceListStyle = css`
+const referenceListStyleOpen = css`
   display: flex;
-  flex-flow: row wrap;
-  white-space: pre;
+  flex-flow: column nowrap;
   padding: 7px;
-  background-color: #ffffff;
   border-radius: 10px;
 `
-const referenceStyle = css`
+const referenceListStyleClosed = css`
   display: flex;
-  flex-direction: row;
+  flex-flow: row nowrap;
+  overflow: hidden;
+  white-space: pre;
+  padding: 0 0 0 0;
+  border-radius: 10px;
+  mask-image: linear-gradient(0.25turn, black 66%, transparent);
+`
+
+const referenceStyle = css`
   margin: 4px 4px 4px 0;
+  border-radius: 10px;
   background-color: ${baseTheme.colors.gray[200]};
   padding: 2px 7px 2px 7px;
   border-radius: 10px;
+  font-size: 85%;
 `
 
 let md = getRemarkable()
@@ -134,7 +156,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         )
         if (openCitations) {
           /* eslint-disable i18next/no-literal-string */
-
           renderedMessage = renderedMessage.replace(/\[[a-z]*?([0-9]+)\]/g, `<span>$1</span>`)
         } else {
           renderedMessage = renderedMessage.replace(/\s\[[a-z]*?[0-9]+\]/g, "")
@@ -156,32 +177,52 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         ></span>
       )}
       <span className={messageStyle} dangerouslySetInnerHTML={{ __html: processedMessage }}></span>
-      {isFromChatbot && (
+      {isFromChatbot && citations && (
         <details
           onToggle={() => {
             setOpenCitations(!openCitations)
           }}
         >
-          <summary>
-            <div className={referenceListStyle}>
-              {" "}
-              {openCitations
-                ? "References:"
-                : processedCitations.map((cit) => (
-                    <p key={cit.title} className={referenceStyle}>
-                      <span>{cit.citation_number}</span> {cit.title.slice(0, 15)}...
-                    </p>
-                  ))}
-            </div>
-          </summary>
-          {processedCitations.map((cit) => (
-            <p key={cit.title} className={messageStyle}>
-              <span>{cit.citation_number}</span> <a href={cit.document_url}>{cit.title}</a>
-            </p>
-          ))}
+          <summary>References</summary>
+          {
+            // TODO to screenreaders this is a button so it might not be a good idea
+            // to but links/buttons inside of it
+          }
+          <div className={openCitations ? referenceListStyleOpen : referenceListStyleClosed}>
+            {processedCitations.map((cit) => (
+              <p key={cit.citation_number} className={referenceStyle}>
+                {openCitations ? (
+                  <p>
+                    <span>{cit.citation_number}</span> <a href={cit.document_url}>{cit.title}</a>
+                  </p>
+                ) : (
+                  <p>
+                    <span>{cit.citation_number}</span> {cit.title.slice(0, 15)}...
+                  </p>
+                )}
+              </p>
+            ))}
+          </div>
+          {openCitations ? <UpArrow /> : <DownIcon />}
         </details>
       )}
-
+      {!openCitations && (
+        <div className={openCitations ? referenceListStyleOpen : referenceListStyleClosed}>
+          {processedCitations.map((cit) => (
+            <p key={cit.citation_number} className={referenceStyle}>
+              {openCitations ? (
+                <p>
+                  <span>{cit.citation_number}</span> <a href={cit.document_url}>{cit.title}</a>
+                </p>
+              ) : (
+                <p>
+                  <span>{cit.citation_number}</span> {cit.title.slice(0, 15)}...
+                </p>
+              )}
+            </p>
+          ))}
+        </div>
+      )}
       {isPending && <ThinkingIndicator />}
     </div>
   )

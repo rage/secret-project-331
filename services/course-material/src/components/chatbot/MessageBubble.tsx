@@ -104,20 +104,33 @@ const messageStyle = css`
   white-space: pre-wrap;
 `
 
+const aaa = css`
+  button[aria-expanded] {
+    /* style as you see fit */
+  }
+`
 const referenceListStyleOpen = css`
   display: flex;
   flex-flow: column nowrap;
   padding: 7px;
   border-radius: 10px;
 `
-const referenceListStyleClosed = css`
+const referenceListStyleClosed = (open: boolean) => css`
   display: flex;
-  flex-flow: row nowrap;
-  overflow: hidden;
-  white-space: pre;
-  padding: 0 0 0 0;
-  border-radius: 10px;
-  mask-image: linear-gradient(0.25turn, black 66%, transparent);
+
+  ${open
+    ? `display: flex;
+    flex-flow: column nowrap;
+    padding: 7px;
+    border-radius: 10px;`
+    : `
+    flex-flow: row nowrap;
+    overflow: hidden;
+    white-space: pre;
+    padding: 0 0 0 0;
+    border-radius: 10px;
+    mask-image: linear-gradient(0.25turn, black 66%, transparent);
+  `}
 `
 
 const referenceStyle = css`
@@ -178,17 +191,27 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       )}
       <span className={messageStyle} dangerouslySetInnerHTML={{ __html: processedMessage }}></span>
       {isFromChatbot && citations && (
-        <details
-          onToggle={() => {
-            setOpenCitations(!openCitations)
-          }}
-        >
-          <summary>References</summary>
-          {
-            // TODO to screenreaders this is a button so it might not be a good idea
-            // to but links/buttons inside of it
-          }
-          <div className={openCitations ? referenceListStyleOpen : referenceListStyleClosed}>
+        <div className={aaa}>
+          <button
+            id="expandButton"
+            onClick={() => {
+              let btn = document.getElementById("expandButton")
+              let open = btn?.getAttribute("aria-expanded")
+              // TODO is using this attribute really needed
+              if (open === "true") {
+                console.log("closing")
+                btn?.setAttribute("aria-expanded", "false")
+              } else {
+                console.log("opening")
+                btn?.setAttribute("aria-expanded", "true")
+              }
+              setOpenCitations(!openCitations)
+            }}
+            aria-expanded={"false"}
+          >
+            References
+          </button>
+          <div className={referenceListStyleClosed(openCitations)}>
             {processedCitations.map((cit) => (
               <p key={cit.citation_number} className={referenceStyle}>
                 {openCitations ? (
@@ -204,25 +227,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             ))}
           </div>
           {openCitations ? <UpArrow /> : <DownIcon />}
-        </details>
-      )}
-      {!openCitations && (
-        <div className={openCitations ? referenceListStyleOpen : referenceListStyleClosed}>
-          {processedCitations.map((cit) => (
-            <p key={cit.citation_number} className={referenceStyle}>
-              {openCitations ? (
-                <p>
-                  <span>{cit.citation_number}</span> <a href={cit.document_url}>{cit.title}</a>
-                </p>
-              ) : (
-                <p>
-                  <span>{cit.citation_number}</span> {cit.title.slice(0, 15)}...
-                </p>
-              )}
-            </p>
-          ))}
         </div>
       )}
+
       {isPending && <ThinkingIndicator />}
     </div>
   )

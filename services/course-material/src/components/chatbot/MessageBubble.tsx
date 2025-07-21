@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import React, { useMemo } from "react"
+import React, { useMemo, useState } from "react"
 
 import ThinkingIndicator from "./ThinkingIndicator"
 
@@ -44,10 +44,10 @@ const bubbleStyle = (isFromChatbot: boolean, showCitations: boolean) => css`
   ${showCitations
     ? `
       details > summary::after {
-      content: ">";
+      content: "+";
       }
       details[open] > summary::after {
-        content: "v";
+        content: "-";
       }
       details[open]::details-content {
         background-color: blue;
@@ -57,6 +57,7 @@ const bubbleStyle = (isFromChatbot: boolean, showCitations: boolean) => css`
 `
 
 const messageStyle = css`
+  flex: 1;
   table {
     margin: 20px 0 20px 0;
     border-collapse: collapse;
@@ -81,11 +82,29 @@ const messageStyle = css`
   }
   span {
     background-color: ${baseTheme.colors.gray[200]};
-    padding: 0 7px 0 7px;
+    padding: 2px 7px 2px 7px;
     border-radius: 10px;
+    font-size: 85%;
   }
 
   white-space: pre-wrap;
+`
+
+const referenceListStyle = css`
+  display: flex;
+  flex-flow: row wrap;
+  white-space: pre;
+  padding: 7px;
+  background-color: #ffffff;
+  border-radius: 10px;
+`
+const referenceStyle = css`
+  display: flex;
+  flex-direction: row;
+  margin: 4px 4px 4px 0;
+  background-color: ${baseTheme.colors.gray[200]};
+  padding: 2px 7px 2px 7px;
+  border-radius: 10px;
 `
 
 let md = getRemarkable()
@@ -97,6 +116,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   citations,
   hideCitations,
 }) => {
+  let [openCitations, setOpenCitations] = useState(false)
+
   const [processedMessage, processedCitations] = useMemo(() => {
     let renderedMessage = message
     renderedMessage = sanitizeCourseMaterialHtml(md.render(renderedMessage).trim())
@@ -104,23 +125,28 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 
     if (isFromChatbot) {
       if (citations && hideCitations) {
-        renderedMessage = renderedMessage.replace(/\[[a-z]*?[0-9]+\]/g, "")
+        renderedMessage = renderedMessage.replace(/\s\[[a-z]*?[0-9]+\]/g, "")
       } else if (citations) {
         let citedDocs = new Set(
           Array.from(renderedMessage.matchAll(/\[[a-z]*?([0-9]+)\]/g), (arr, _) =>
             parseInt(arr[1]),
           ),
         )
+        if (openCitations) {
+          /* eslint-disable i18next/no-literal-string */
+
+          renderedMessage = renderedMessage.replace(/\[[a-z]*?([0-9]+)\]/g, `<span>$1</span>`)
+        } else {
+          renderedMessage = renderedMessage.replace(/\s\[[a-z]*?[0-9]+\]/g, "")
+        }
         // TODO is it bad to do two regex operations?
         //console.log("citedDocs: ", citedDocs)
-        /* eslint-disable i18next/no-literal-string */
-        renderedMessage = renderedMessage.replace(/\[[a-z]*?([0-9]+)\]/g, `<span>$1</span>`)
 
-        filteredCitations = citations.filter((cit) => citedDocs.has(cit.citation_number))
+        filteredCitations = citations //.filter((cit) => citedDocs.has(cit.citation_number))
       }
     }
     return [renderedMessage, filteredCitations]
-  }, [hideCitations, message, citations, isFromChatbot])
+  }, [hideCitations, message, citations, isFromChatbot, openCitations])
   return (
     <div className={bubbleStyle(isFromChatbot, !hideCitations && processedCitations.length > 0)}>
       {!isFromChatbot && (
@@ -129,17 +155,28 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           dangerouslySetInnerHTML={{ __html: processedMessage }}
         ></span>
       )}
+      <span className={messageStyle} dangerouslySetInnerHTML={{ __html: processedMessage }}></span>
       {isFromChatbot && (
-        <details>
+        <details
+          onToggle={() => {
+            setOpenCitations(!openCitations)
+          }}
+        >
           <summary>
-            <span
-              className={messageStyle}
-              dangerouslySetInnerHTML={{ __html: processedMessage }}
-            ></span>
+            <div className={referenceListStyle}>
+              {" "}
+              {openCitations
+                ? "References:"
+                : processedCitations.map((cit) => (
+                    <p key={cit.title} className={referenceStyle}>
+                      <span>{cit.citation_number}</span> {cit.title.slice(0, 15)}...
+                    </p>
+                  ))}
+            </div>
           </summary>
           {processedCitations.map((cit) => (
-            <p key={cit.title}>
-              {cit.citation_number} <a href={cit.document_url}>{cit.title}</a>
+            <p key={cit.title} className={messageStyle}>
+              <span>{cit.citation_number}</span> <a href={cit.document_url}>{cit.title}</a>
             </p>
           ))}
         </details>

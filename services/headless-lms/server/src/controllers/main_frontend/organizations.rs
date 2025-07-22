@@ -12,7 +12,7 @@ use models::{
 use crate::{
     controllers::helpers::file_uploading::upload_image_for_organization,
     domain::authorization::{
-        authorize_with_fetched_list_of_roles, skip_authorize, Action, Resource,
+        authorize_with_fetched_list_of_roles, skip_authorize, Action, AuthorizedResponse, Resource,
     },
     prelude::*,
 };
@@ -366,7 +366,7 @@ async fn create_organization(
 ) -> ControllerResult<web::Json<Organization>> {
     let mut conn = pool.acquire().await?;
 
-    // ✅ Check admin role manually
+    // Only allow admins
     let user_roles = models::roles::get_roles(&mut conn, user.id).await?;
     let is_admin = user_roles
         .iter()
@@ -379,31 +379,91 @@ async fn create_organization(
         ));
     }
 
-    // Insert org (returns only ID)
-    let org_id = models::organizations::insert(
+    let org_id = match models::organizations::insert(
         &mut conn,
         PKeyPolicy::Generate,
         &payload.name,
         &payload.slug,
-        "", // Add real description later if needed
+        "",
     )
-    .await?;
+    .await
+    {
+        Ok(id) => id,
+        Err(err) => {
+            let err_str = err.to_string();
+            if err_str.contains("organizations_slug_key") {
+                return Err(ControllerError::new(
+                    ControllerErrorType::BadRequest,
+                    "An organization with this slug already exists.".to_string(),
+                    None,
+                ));
+            }
 
-    // Set visibility if hidden
+            return Err(err.into());
+        }
+    };
+
     if payload.hidden {
         models::organizations::update_name_and_hidden(&mut conn, org_id, &payload.name, true)
             .await?;
     }
 
-    // Fetch full DatabaseOrganization
     let db_org = models::organizations::get_organization(&mut conn, org_id).await?;
 
-    // Convert for frontend
     let org =
         Organization::from_database_organization(db_org, file_store.as_ref(), app_conf.as_ref());
 
     let token = skip_authorize();
     token.authorized_ok(web::Json(org))
+}
+
+/// DELETE `/api/v0/main-frontend/organizations/{organization_id}`
+///
+/// Deletes an organization by its ID. Only users with the `Admin` role are allowed
+/// to perform this action.
+///
+/// # Path Parameters
+/// - `organization_id`: UUID of the organization to delete.
+///
+/// # Response
+/// Returns an empty JSON object `{}` on success with a 200 OK status code.
+///
+/// # Permissions
+/// - Requires the user to have the `Admin` role.
+///
+/// # Errors
+/// - `401 Unauthorized`: If the user does not have admin privileges.
+/// - `500 Internal Server Error`: If deletion fails in the database.
+
+#[instrument(skip(pool))]
+async fn delete_organization(
+    org_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<AuthorizedResponse<web::Json<()>>> {
+    let mut conn = pool.acquire().await?;
+
+    // Check if user is admin
+    let user_roles = models::roles::get_roles(&mut conn, user.id).await?;
+    let is_admin = user_roles
+        .iter()
+        .any(|r| r.role == models::roles::UserRole::Admin);
+    if !is_admin {
+        return Err(ControllerError::new(
+            ControllerErrorType::Unauthorized,
+            "Admin access required".to_string(),
+            None,
+        ));
+    }
+
+    // Delete organization
+    models::organizations::delete(&mut conn, *org_id).await?;
+
+    // Return empty success response
+    let token = skip_authorize();
+    let json = web::Json(());
+    let result: ControllerResult<web::Json<()>> = token.authorized_ok(json);
+    result.map(|data| AuthorizedResponse { data, token })
 }
 
 /**
@@ -520,6 +580,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route("", web::post().to(create_organization))
         .route("/{organization_id}", web::get().to(get_organization))
         .route("/{organization_id}", web::put().to(update_organization))
+        .route("/{organization_id}", web::delete().to(delete_organization))
         .route(
             "/{organization_id}/courses",
             web::get().to(get_organization_courses),

@@ -3,12 +3,14 @@ import { useQuery } from "@tanstack/react-query"
 import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { PencilBox, Trash } from "@vectopus/atlas-icons-react"
 import type { TFunction } from "i18next"
+import { useRouter } from "next/router"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchOrganization, updateOrganization } from "../../../../services/backend/organizations"
 
 import AddUserPopup from "./components/AddUserPopup"
+import DeleteOrganizationPopup from "./components/DeleteOrganizationPopup"
 import EditUserPopup from "./components/EditUserPopup"
 import {
   actionButtonStyle,
@@ -28,6 +30,7 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import { allOrganizationsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 type NamedRoleUser = RoleUser & { name: string }
@@ -55,6 +58,8 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
   const [editUser, setEditUser] = React.useState<RoleUser | null>(null)
   const [editRole, setEditRole] = React.useState("")
   const [editedName, setEditedName] = React.useState("")
+  const [showDeletePopup, setShowDeletePopup] = React.useState(false)
+  const router = useRouter()
 
   const addMutation = useToastMutation(
     () => {
@@ -68,6 +73,32 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
         setRole("")
         setShowAddUserPopup(false)
         roleQuery.refetch()
+      },
+    },
+  )
+
+  const deleteMutation = useToastMutation(
+    async () => {
+      const res = await fetch(`/api/v0/main-frontend/organizations/${query.id}`, {
+        method: "DELETE",
+      })
+
+      if (!res.ok) {
+        let json
+        try {
+          json = await res.json()
+        } catch {
+          throw new Error(`Delete failed: ${res.status}`)
+        }
+        throw json
+      }
+
+      return res
+    },
+    { notify: true, method: "DELETE" },
+    {
+      onSuccess: () => {
+        router.push(allOrganizationsRoute())
       },
     },
   )
@@ -190,6 +221,9 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
       setHidden,
       updateOrgMutation,
       organization,
+      showDeletePopup,
+      setShowDeletePopup,
+      deleteMutation,
     )
   }
 
@@ -250,6 +284,9 @@ const content = (
   setHidden: React.Dispatch<React.SetStateAction<boolean>>,
   updateOrgMutation: UseMutationResult<void, unknown, { name: string; hidden: boolean }, unknown>,
   organization: UseQueryResult<Organization>,
+  showDeletePopup: boolean,
+  setShowDeletePopup: React.Dispatch<React.SetStateAction<boolean>>,
+  deleteMutation: UseMutationResult<unknown, unknown, void, unknown>,
 ) => (
   <div
     className={css`
@@ -357,6 +394,9 @@ const content = (
           hidden,
           setHidden,
           updateOrgMutation,
+          showDeletePopup,
+          setShowDeletePopup,
+          deleteMutation,
         )}
       </div>
     ) : (
@@ -376,6 +416,9 @@ const designContent = (
   hidden: boolean,
   setHidden: React.Dispatch<React.SetStateAction<boolean>>,
   updateOrgMutation: UseMutationResult<void, unknown, { name: string; hidden: boolean }, unknown>,
+  showDeletePopup: boolean,
+  setShowDeletePopup: React.Dispatch<React.SetStateAction<boolean>>,
+  deleteMutation: UseMutationResult<unknown, unknown, void, unknown>, // ⬅️ Add this
 ) => {
   return (
     <div className={containerBase}>
@@ -532,6 +575,18 @@ const designContent = (
             {t("text-field-label-or-header-slug-or-short-name")}
           </span>
         </div>
+
+        <button className={primaryButton} onClick={() => setShowDeletePopup(true)}>
+          {t("delete-organization")}
+        </button>
+
+        <DeleteOrganizationPopup
+          show={showDeletePopup}
+          setShow={setShowDeletePopup}
+          handleDelete={() => {
+            deleteMutation.mutate()
+          }}
+        />
 
         {/* BUTTONS */}
         <div

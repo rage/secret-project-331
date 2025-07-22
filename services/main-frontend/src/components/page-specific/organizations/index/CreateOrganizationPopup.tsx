@@ -3,7 +3,6 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import StandardDialog from "@/shared-module/common/components/StandardDialog"
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 interface CreateOrganizationPopupProps {
   show: boolean

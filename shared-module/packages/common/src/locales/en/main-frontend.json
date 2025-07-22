@@ -971,5 +971,6 @@
   "label-organization-name": "Organization name",
   "label-visibility": "Visibility",
   "label-visible": "Visible",
+  "label-slug": "Slug",
   "create": "Create"
 }

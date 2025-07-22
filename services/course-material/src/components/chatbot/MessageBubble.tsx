@@ -39,7 +39,7 @@ const bubbleStyle = (isFromChatbot: boolean) => css`
       background-color: #ffffff;
     `}
 `
-const referenceStyle = css`
+const citationStyle = css`
   margin: 4px 4px 4px 0;
   background-color: ${baseTheme.colors.gray[200]};
   padding: 2px 7px 2px 7px;
@@ -74,7 +74,7 @@ const messageStyle = css`
   span {
     /*Citations are inside span tags, it's assumed span tags wouldn't
     be used otherwise */
-    ${referenceStyle}
+    ${citationStyle}
   }
   white-space: pre-wrap;
 `
@@ -95,6 +95,18 @@ const referenceListStyle = (expanded: boolean) => css`
 
     &:hover {
       filter: brightness(0.9) contrast(1.1);
+    }
+  }
+  a {
+    display: flex;
+    flex-flow: row nowrap;
+    gap: 1em;
+    color: #000000;
+    padding: 2px 2px;
+    text-decoration: none;
+    &:hover {
+      color: blue;
+      text-decoration: underline;
     }
   }
   #container {
@@ -150,10 +162,10 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           renderedMessage = renderedMessage.replace(/\s\[[a-z]*?[0-9]+\]/g, "")
         }
         // TODO is it bad to do two regex operations?
-        filteredCitations = citations.filter((cit) => citedDocs.has(cit.citation_number))
+        filteredCitations = citations //.filter((cit) => citedDocs.has(cit.citation_number))
       }
     }
-    // 60 is magick number from trial and error
+    // 60 is magick number that represents the collapsed list width
     const citationTitleLen = 60 / filteredCitations.length
 
     return [renderedMessage, filteredCitations, citationTitleLen]
@@ -169,11 +181,21 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           <div id="container">
             <div id="referenceList">
               {processedCitations.map((cit) => (
-                <p key={cit.citation_number} className={referenceStyle}>
+                <p key={cit.citation_number} className={citationStyle}>
                   {citationsOpen ? (
                     <>
-                      {cit.citation_number} <a href={cit.document_url}>{cit.title}</a>{" "}
-                      <Library size={18} />
+                      <a href={cit.document_url} aria-label={t("TODO")}>
+                        <b>{cit.citation_number}</b>
+                        <span
+                          className={css`
+                            flex: 3;
+                          `}
+                        >
+                          {"    Chatbot, Chapter 1: "}
+                          {cit.title}
+                        </span>
+                        <Library size={18} />
+                      </a>{" "}
                     </>
                   ) : (
                     <>

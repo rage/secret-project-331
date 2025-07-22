@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import { Library } from "@vectopus/atlas-icons-react"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -18,7 +19,7 @@ interface MessageBubbleProps {
   hideCitations?: boolean
 }
 
-const bubbleStyle = (isFromChatbot: boolean, showCitations: boolean) => css`
+const bubbleStyle = (isFromChatbot: boolean) => css`
   padding: 1rem;
   border-radius: 10px;
   width: fit-content;
@@ -45,29 +46,13 @@ const bubbleStyle = (isFromChatbot: boolean, showCitations: boolean) => css`
     list-style: none;
     cursor: pointer;
   }
-  ${showCitations
-    ? `
-      details {
-        padding: 2px 6px;
-        margin-bottom: 1em;
-      }
-      details:first-of-type summary::marker,
-      :is(::-webkit-details-marker) {
-        content: "";
-        padding: 50px;
-        margin-inline-start: 50px;
-        font-family: monospace;
-        font-weight: bold;
-      }
-      details[open]:first-of-type summary::marker {
-        content: "";
-      }
-      details:last-of-type summary::-webkit-details-marker {
-        display: none;
-      }
-
-    `
-    : ``}
+`
+const referenceStyle = css`
+  margin: 4px 4px 4px 0;
+  background-color: ${baseTheme.colors.gray[200]};
+  padding: 2px 7px 2px 7px;
+  border-radius: 10px;
+  font-size: 85%;
 `
 
 const messageStyle = css`
@@ -95,52 +80,37 @@ const messageStyle = css`
     white-space: pre-wrap;
   }
   span {
-    background-color: ${baseTheme.colors.gray[200]};
-    padding: 2px 7px 2px 7px;
-    border-radius: 10px;
-    font-size: 85%;
+    /*Citations are inside span tags, it's assumed span tags wouldn't
+    be used otherwise */
+    ${referenceStyle}
   }
-
   white-space: pre-wrap;
 `
 
-const aaa = css`
+const referencesBlockStyle = css`
+  margin-top: 15px;
+  hr {
+    opacity: 40%;
+  }
   button[aria-expanded] {
     flex: 1;
     opacity: 50%;
   }
 `
-const referenceListStyleOpen = css`
-  display: flex;
-  flex-flow: column nowrap;
-  padding: 7px;
-  border-radius: 10px;
-`
-const referenceListStyleClosed = (open: boolean) => css`
-  display: flex;
 
-  ${open
-    ? `display: flex;
+const referenceListStyle = (expanded: boolean) => css`
+  display: flex;
+  ${expanded
+    ? `
     flex-flow: column nowrap;
     padding: 7px;
-    border-radius: 10px;`
+    `
     : `
     flex-flow: row nowrap;
     overflow: hidden;
     white-space: pre;
-    padding: 0 0 0 0;
-    border-radius: 10px;
     mask-image: linear-gradient(0.25turn, black 66%, transparent);
   `}
-`
-
-const referenceStyle = css`
-  margin: 4px 4px 4px 0;
-  border-radius: 10px;
-  background-color: ${baseTheme.colors.gray[200]};
-  padding: 2px 7px 2px 7px;
-  border-radius: 10px;
-  font-size: 85%;
 `
 
 let md = getRemarkable()
@@ -176,31 +146,32 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           renderedMessage = renderedMessage.replace(/\s\[[a-z]*?[0-9]+\]/g, "")
         }
         // TODO is it bad to do two regex operations?
-        //console.log("citedDocs: ", citedDocs)
-
         filteredCitations = citations //.filter((cit) => citedDocs.has(cit.citation_number))
       }
     }
     return [renderedMessage, filteredCitations]
   }, [hideCitations, message, citations, isFromChatbot, citationsOpen])
+
   return (
-    <div className={bubbleStyle(isFromChatbot, !hideCitations && processedCitations.length > 0)}>
+    <div className={bubbleStyle(isFromChatbot)}>
       <span className={messageStyle} dangerouslySetInnerHTML={{ __html: processedMessage }}></span>
-      {isFromChatbot && citations && (
-        <div className={aaa}>
+      {isFromChatbot && !hideCitations && processedCitations.length > 0 && (
+        <div className={referencesBlockStyle}>
+          <hr></hr>
           <h4>References</h4>
-          <div id="referenceList" className={referenceListStyleClosed(citationsOpen)}>
+          <div id="referenceList" className={referenceListStyle(citationsOpen)}>
             {processedCitations.map((cit) => (
               <p key={cit.citation_number} className={referenceStyle}>
                 {citationsOpen ? (
-                  <p>
-                    <span>{cit.citation_number}</span> <a href={cit.document_url}>{cit.title}</a>
-                  </p>
+                  <>
+                    <span>{cit.citation_number}</span> <a href={cit.document_url}>{cit.title}</a>{" "}
+                    <Library size={18} />
+                  </>
                 ) : (
-                  <p>
+                  <>
                     <span>{cit.citation_number}</span>{" "}
                     {cit.title.length <= 15 ? cit.title : cit.title.slice(0, 12).concat("...")}
-                  </p>
+                  </>
                 )}
               </p>
             ))}

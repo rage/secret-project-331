@@ -1,4 +1,3 @@
-import { finished } from "stream/promises"
 import tar from "tar-stream"
 import { ZSTDDecoder } from "zstddec"
 
@@ -39,7 +38,12 @@ export const extractTarZstd = async (tarZstdArchive: Buffer): Promise<Array<Exer
     })
     stream.resume()
   })
+  const waitForExtract = new Promise((resolve, reject) => {
+    extract.on("finish", resolve)
+    extract.on("close", resolve)
+    extract.on("error", reject)
+  })
   extract.end(tarArchive)
-  await finished(extract)
+  await waitForExtract
   return files
 }

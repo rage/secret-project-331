@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
-import { UpArrow } from "@vectopus/atlas-icons-react"
 import React, { useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import ThinkingIndicator from "./ThinkingIndicator"
 
@@ -106,7 +106,8 @@ const messageStyle = css`
 
 const aaa = css`
   button[aria-expanded] {
-    /* style as you see fit */
+    flex: 1;
+    opacity: 50%;
   }
 `
 const referenceListStyleOpen = css`
@@ -151,7 +152,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   citations,
   hideCitations,
 }) => {
-  let [openCitations, setOpenCitations] = useState(false)
+  const { t } = useTranslation()
+  let [citationsOpen, setcitationsOpen] = useState(false)
 
   const [processedMessage, processedCitations] = useMemo(() => {
     let renderedMessage = message
@@ -167,7 +169,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             parseInt(arr[1]),
           ),
         )
-        if (openCitations) {
+        if (citationsOpen) {
           /* eslint-disable i18next/no-literal-string */
           renderedMessage = renderedMessage.replace(/\[[a-z]*?([0-9]+)\]/g, `<span>$1</span>`)
         } else {
@@ -180,53 +182,42 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       }
     }
     return [renderedMessage, filteredCitations]
-  }, [hideCitations, message, citations, isFromChatbot, openCitations])
+  }, [hideCitations, message, citations, isFromChatbot, citationsOpen])
   return (
     <div className={bubbleStyle(isFromChatbot, !hideCitations && processedCitations.length > 0)}>
-      {!isFromChatbot && (
-        <span
-          className={messageStyle}
-          dangerouslySetInnerHTML={{ __html: processedMessage }}
-        ></span>
-      )}
       <span className={messageStyle} dangerouslySetInnerHTML={{ __html: processedMessage }}></span>
       {isFromChatbot && citations && (
         <div className={aaa}>
-          <button
-            id="expandButton"
-            onClick={() => {
-              let btn = document.getElementById("expandButton")
-              let open = btn?.getAttribute("aria-expanded")
-              // TODO is using this attribute really needed
-              if (open === "true") {
-                console.log("closing")
-                btn?.setAttribute("aria-expanded", "false")
-              } else {
-                console.log("opening")
-                btn?.setAttribute("aria-expanded", "true")
-              }
-              setOpenCitations(!openCitations)
-            }}
-            aria-expanded={"false"}
-          >
-            References
-          </button>
-          <div className={referenceListStyleClosed(openCitations)}>
+          <h4>References</h4>
+          <div id="referenceList" className={referenceListStyleClosed(citationsOpen)}>
             {processedCitations.map((cit) => (
               <p key={cit.citation_number} className={referenceStyle}>
-                {openCitations ? (
+                {citationsOpen ? (
                   <p>
                     <span>{cit.citation_number}</span> <a href={cit.document_url}>{cit.title}</a>
                   </p>
                 ) : (
                   <p>
-                    <span>{cit.citation_number}</span> {cit.title.slice(0, 15)}...
+                    <span>{cit.citation_number}</span>{" "}
+                    {cit.title.length <= 15 ? cit.title : cit.title.slice(0, 12).concat("...")}
                   </p>
                 )}
               </p>
             ))}
           </div>
-          {openCitations ? <UpArrow /> : <DownIcon />}
+          <button
+            id="expandButton"
+            aria-controls="referenceList"
+            onClick={() => {
+              // TODO should focus on the expanded material?
+              // TODO use a checkbox instead of custom element?
+              setcitationsOpen(!citationsOpen)
+            }}
+            aria-label={t("show-references")}
+            aria-expanded={citationsOpen ? "true" : "false"}
+          >
+            {citationsOpen ? <DownIcon transform="rotate(180)" /> : <DownIcon />}
+          </button>
         </div>
       )}
 

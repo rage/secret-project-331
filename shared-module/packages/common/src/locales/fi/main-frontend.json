@@ -962,5 +962,6 @@
   "label-organization-name": "Organisaation nimi",
   "label-visibility": "Näkyvyys",
   "label-visible": "Näkyvä",
+  "label-slug": "Polkutunnus",
   "create": "Create"
 }

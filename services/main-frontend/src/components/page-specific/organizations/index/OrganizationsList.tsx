@@ -13,6 +13,7 @@ import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
@@ -23,32 +24,33 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
   const [newSlug, setNewSlug] = React.useState("")
   // eslint-disable-next-line i18next/no-literal-string
   const [newVisibility, setNewVisibility] = React.useState("public")
+  const router = useRouter()
 
   const allOrganizationsQuery = useAllOrganizationsQuery()
 
-  const router = useRouter()
-
-  const handleCreate = async () => {
-    try {
-      const response = await axios.post("/api/v0/main-frontend/organizations", {
+  const createOrganizationMutation = useToastMutation(
+    async () => {
+      return await axios.post("/api/v0/main-frontend/organizations", {
         name: orgName,
         slug: newSlug.trim().toLowerCase().replace(/\s+/g, "-"),
         description: "",
         hidden: newVisibility === "private",
       })
-
-      // Close popup
-      setShowCreatePopup(false)
-
-      // Optionally show success or redirect
-      console.log("Created organization", response.data)
-      // For example, redirect to the new organization's page
-      // router.push(`/organizations/${response.data.slug}`)
-    } catch (error) {
-      console.error("Error creating organization", error)
-      alert("Failed to create organization. Are you an admin?")
-    }
-  }
+    },
+    {
+      notify: true,
+      method: "POST",
+    },
+    {
+      onSuccess: () => {
+        setShowCreatePopup(false)
+        router.reload()
+      },
+      onError: () => {
+        // optional: add custom logic if needed
+      },
+    },
+  )
 
   return (
     <div
@@ -146,7 +148,9 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
         setSlug={setNewSlug}
         visibility={newVisibility}
         setVisibility={setNewVisibility}
-        handleCreate={handleCreate}
+        handleCreate={() => {
+          createOrganizationMutation.mutate()
+        }}
       />
 
       <DebugModal data={allOrganizationsQuery.data} />

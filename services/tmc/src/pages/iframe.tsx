@@ -5,9 +5,7 @@ import { orderBy } from "natural-orderby"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
 import ReactDOM from "react-dom"
-import tar from "tar-stream"
 import { v4 } from "uuid"
-import { ZSTDDecoder } from "zstddec"
 
 import StateRenderer from "../components/StateRenderer"
 import {
@@ -26,7 +24,8 @@ import { UploadResultMessage } from "@/shared-module/common/exercise-service-pro
 import { isMessageToIframe } from "@/shared-module/common/exercise-service-protocol-types.guard"
 import useExerciseServiceParentConnection from "@/shared-module/common/hooks/useExerciseServiceParentConnection"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { ExerciseFile, RunResult } from "@/tmc/cli"
+import { RunResult } from "@/tmc/cli"
+import { extractTarZstd } from "@/util/helpers"
 
 const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
   const iframeId = v4().slice(0, 4)
@@ -226,49 +225,15 @@ const publicSpecToIframeUserAnswer = async (publicSpec: PublicSpec): Promise<Use
 
     // unpack zstd
     const tarZstdArchive = await stubResponse.arrayBuffer()
-    const zstdDecoder = new ZSTDDecoder()
-    await zstdDecoder.init()
-    const tarArchive = zstdDecoder.decode(Buffer.from(tarZstdArchive), 1024 * 1024)
+    const files = await extractTarZstd(Buffer.from(tarZstdArchive))
 
-    // unpack tar
-    const files: Array<ExerciseFile> = []
-    const extract = tar.extract({})
-    extract.on("entry", function (header, stream, next) {
-      // strip first component...
-      const filepath = header.name.substring(header.name.indexOf("/") + 1)
-      const chunks: Uint8Array[] = []
-      stream.on("data", (chunk) => chunks.push(new Uint8Array(chunk)))
-      stream.on("end", () => {
-        const buf = Buffer.concat(chunks)
-        const decoded = decodeString(buf)
-        if (decoded) {
-          files.push({ filepath, contents: decoded })
-        }
-      })
-      stream.on("end", function () {
-        next()
-      })
-      stream.resume()
-    })
-    extract.end(tarArchive)
-
-    return { type: "browser", files: files }
+    return { type: "browser", files }
   } else if (publicSpec.type == "editor") {
     return { type: "editor", archive_download_url: publicSpec.stub_download_url }
   } else {
     throw new Error("unreachable")
   }
 }
-
-const decodeString = (data: Buffer<ArrayBuffer>): string | null => {
-  try {
-    const decoder = new TextDecoder("utf-8", { fatal: true })
-    return decoder.decode(data)
-  } catch {
-    return null // Not valid UTF-8
-  }
-}
-
 const debug = (iframeId: string, message: string, ...optionalParams: unknown[]): void => {
   console.debug(`[tmc-iframe/${iframeId}]`, message, ...optionalParams)
 }

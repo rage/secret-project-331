@@ -5,7 +5,8 @@
     "build": "NODE_ENV=production next build",
     "dev": "next dev --port 3005",
     "export": "next export",
-    "start": "NODE_ENV=production PORT=3005 node server.js"
+    "start": "NODE_ENV=production PORT=3005 node server.js",
+    "test": "jest"
   },
   "dependencies": {
     "@emotion/css": "^11.13.5",
@@ -58,14 +59,18 @@
   },
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",
+    "@types/jest": "^30.0.0",
     "@types/lodash": "^4.17.16",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.5",
     "@types/tar-stream": "^3.1.4",
     "@types/uuid": "^10.0.0",
     "@types/workerpool": "^9.0.0",
+    "jest": "^30.0.5",
+    "jest-environment-jsdom": "^30.0.5",
     "node-loader": "^2.1.0",
     "postcss-styled-syntax": "^0.7.1",
+    "ts-jest": "^29.4.0",
     "typescript": "^5.8.3"
   },
   "overrides": {

@@ -1,7 +1,7 @@
 //! Controllers for requests starting with '/api/v0/main-frontend/oauth'.
 use crate::prelude::*;
 use actix_web::{Error, HttpResponse, web};
-use chrono::{DateTime, Duration, Local, Utc};
+use chrono::{DateTime, Duration, Utc};
 use jsonwebtoken::{EncodingKey, Header, encode};
 use models::{
     oauth_access_token::OAuthAccessToken, oauth_auth_code::OAuthAuthCode,
@@ -58,6 +58,7 @@ struct Claims {
 async fn authorize(
     pool: web::Data<PgPool>,
     query: web::Query<AuthorizeQuery>,
+    user: Option<AuthUser>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let server_token = skip_authorize();
@@ -81,25 +82,31 @@ async fn authorize(
             "nonce missing",
         )));
     }
+    let mut redirect_url: String;
+    match user {
+        Some(user) => {
+            let code = Uuid::new_v4().to_string();
+            let expires_at = Utc::now() + Duration::minutes(10);
+            OAuthAuthCode::insert(
+                &mut conn,
+                &code,
+                user.id,
+                client.id,
+                &query.redirect_uri,
+                &query.scope,
+                &query.nonce,
+                expires_at,
+            )
+            .await?;
 
-    let user_id = uuid::uuid!("6017133f-9ae2-4e97-8443-f100ce438e00");
-    let code = Uuid::new_v4().to_string();
-    let expires_at = Utc::now() + Duration::minutes(10);
-    OAuthAuthCode::insert(
-        &mut conn,
-        &code,
-        user_id,
-        client.id,
-        &query.redirect_uri,
-        &query.scope,
-        &query.nonce,
-        expires_at,
-    )
-    .await?;
-
-    let mut redirect_url = format!("{}?code={}", query.redirect_uri, code);
-    if !query.state.is_empty() {
-        redirect_url.push_str(&format!("&state={}", query.state));
+            redirect_url = format!("{}?code={}", query.redirect_uri, code);
+            if !query.state.is_empty() {
+                redirect_url.push_str(&format!("&state={}", query.state));
+            }
+        }
+        None => {
+            redirect_url = "/login".to_string();
+        }
     }
 
     server_token.authorized_ok(

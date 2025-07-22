@@ -5,7 +5,8 @@ CREATE TABLE oauth_clients (
     redirect_uris TEXT[] NOT NULL,
     grant_types TEXT[] NOT NULL,
     scope TEXT,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON oauth_clients FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
@@ -38,8 +39,6 @@ CREATE TABLE oauth_auth_codes (
     expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
-CREATE TRIGGER set_timestamp BEFORE
-UPDATE ON oauth_auth_codes FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 CREATE INDEX idx_oauth_auth_codes_expires_at ON oauth_auth_codes (expires_at);
 COMMENT ON TABLE oauth_auth_codes IS
   'Temporary authorization codes issued to clients after user consent';
@@ -71,8 +70,6 @@ CREATE TABLE oauth_access_tokens (
     expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
-CREATE TRIGGER set_timestamp BEFORE
-UPDATE ON oauth_access_tokens FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 CREATE INDEX idx_oauth_access_tokens_expires_at ON oauth_access_tokens (expires_at);
 COMMENT ON TABLE oauth_access_tokens IS
   'Access tokens issued to clients for calling protected APIs';
@@ -99,8 +96,6 @@ CREATE TABLE oauth_refresh_tokens (
     revoked BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
-CREATE TRIGGER set_timestamp BEFORE
-UPDATE ON oauth_refresh_tokens FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 CREATE INDEX idx_oauth_refresh_tokens_expires_at ON oauth_refresh_tokens (expires_at);
 COMMENT ON TABLE oauth_refresh_tokens IS
   'Refresh tokens used to obtain new access tokens without re‑authentication';

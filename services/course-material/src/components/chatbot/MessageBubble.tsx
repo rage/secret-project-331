@@ -38,14 +38,6 @@ const bubbleStyle = (isFromChatbot: boolean) => css`
       border: 2px solid ${baseTheme.colors.gray[200]};
       background-color: #ffffff;
     `}
-  details {
-    transition: all 0.6s ease-in-out;
-  }
-
-  details > summary {
-    list-style: none;
-    cursor: pointer;
-  }
 `
 const referenceStyle = css`
   margin: 4px 4px 4px 0;
@@ -87,30 +79,42 @@ const messageStyle = css`
   white-space: pre-wrap;
 `
 
-const referencesBlockStyle = css`
+const referenceListStyle = (expanded: boolean) => css`
   margin-top: 15px;
   hr {
     opacity: 40%;
   }
   button[aria-expanded] {
     flex: 1;
-    opacity: 50%;
-  }
-`
+    cursor: pointer;
+    background-color: ${baseTheme.colors.gray[100]};
+    border: none;
+    margin: 0 0.5rem;
+    color: ${baseTheme.colors.gray[400]};
+    transition: filter 0.2s;
 
-const referenceListStyle = (expanded: boolean) => css`
-  display: flex;
-  ${expanded
-    ? `
+    &:hover {
+      filter: brightness(0.9) contrast(1.1);
+    }
+  }
+  #container {
+    display: flex;
+    ${expanded ? `flex-flow: column nowrap;` : `flex-flow: row nowrap;`}
+  }
+  #referenceList {
+    display: flex;
+    ${expanded
+      ? `
     flex-flow: column nowrap;
     padding: 7px;
     `
-    : `
+      : `
     flex-flow: row nowrap;
     overflow: hidden;
     white-space: pre;
     mask-image: linear-gradient(0.25turn, black 66%, transparent);
   `}
+  }
 `
 
 let md = getRemarkable()
@@ -156,39 +160,41 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     <div className={bubbleStyle(isFromChatbot)}>
       <span className={messageStyle} dangerouslySetInnerHTML={{ __html: processedMessage }}></span>
       {isFromChatbot && !hideCitations && processedCitations.length > 0 && (
-        <div className={referencesBlockStyle}>
+        <div className={referenceListStyle(citationsOpen)}>
           <hr></hr>
           <h4>References</h4>
-          <div id="referenceList" className={referenceListStyle(citationsOpen)}>
-            {processedCitations.map((cit) => (
-              <p key={cit.citation_number} className={referenceStyle}>
-                {citationsOpen ? (
-                  <>
-                    <span>{cit.citation_number}</span> <a href={cit.document_url}>{cit.title}</a>{" "}
-                    <Library size={18} />
-                  </>
-                ) : (
-                  <>
-                    <span>{cit.citation_number}</span>{" "}
-                    {cit.title.length <= 15 ? cit.title : cit.title.slice(0, 12).concat("...")}
-                  </>
-                )}
-              </p>
-            ))}
+          <div id="container">
+            <div id="referenceList">
+              {processedCitations.map((cit) => (
+                <p key={cit.citation_number} className={referenceStyle}>
+                  {citationsOpen ? (
+                    <>
+                      <span>{cit.citation_number}</span> <a href={cit.document_url}>{cit.title}</a>{" "}
+                      <Library size={18} />
+                    </>
+                  ) : (
+                    <>
+                      <span>{cit.citation_number}</span>{" "}
+                      {cit.title.length <= 15 ? cit.title : cit.title.slice(0, 12).concat("...")}
+                    </>
+                  )}
+                </p>
+              ))}
+            </div>
+            <button
+              id="expandButton"
+              aria-controls="referenceList"
+              onClick={() => {
+                // TODO should focus on the expanded material?
+                // TODO use a checkbox instead of custom element?
+                setcitationsOpen(!citationsOpen)
+              }}
+              aria-label={t("show-references")}
+              aria-expanded={citationsOpen ? "true" : "false"}
+            >
+              {citationsOpen ? <DownIcon transform="rotate(180)" /> : <DownIcon />}
+            </button>
           </div>
-          <button
-            id="expandButton"
-            aria-controls="referenceList"
-            onClick={() => {
-              // TODO should focus on the expanded material?
-              // TODO use a checkbox instead of custom element?
-              setcitationsOpen(!citationsOpen)
-            }}
-            aria-label={t("show-references")}
-            aria-expanded={citationsOpen ? "true" : "false"}
-          >
-            {citationsOpen ? <DownIcon transform="rotate(180)" /> : <DownIcon />}
-          </button>
         </div>
       )}
 

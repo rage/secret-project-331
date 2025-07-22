@@ -129,7 +129,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   const { t } = useTranslation()
   let [citationsOpen, setcitationsOpen] = useState(false)
 
-  const [processedMessage, processedCitations] = useMemo(() => {
+  const [processedMessage, processedCitations, citationTitleLen] = useMemo(() => {
     let renderedMessage = message
     renderedMessage = sanitizeCourseMaterialHtml(md.render(renderedMessage).trim())
     let filteredCitations: ChatbotConversationMessageCitation[] = []
@@ -150,10 +150,13 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           renderedMessage = renderedMessage.replace(/\s\[[a-z]*?[0-9]+\]/g, "")
         }
         // TODO is it bad to do two regex operations?
-        filteredCitations = citations //.filter((cit) => citedDocs.has(cit.citation_number))
+        filteredCitations = citations.filter((cit) => citedDocs.has(cit.citation_number))
       }
     }
-    return [renderedMessage, filteredCitations]
+    // 60 is magick number from trial and error
+    const citationTitleLen = 60 / filteredCitations.length
+
+    return [renderedMessage, filteredCitations, citationTitleLen]
   }, [hideCitations, message, citations, isFromChatbot, citationsOpen])
 
   return (
@@ -169,13 +172,15 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                 <p key={cit.citation_number} className={referenceStyle}>
                   {citationsOpen ? (
                     <>
-                      <span>{cit.citation_number}</span> <a href={cit.document_url}>{cit.title}</a>{" "}
+                      {cit.citation_number} <a href={cit.document_url}>{cit.title}</a>{" "}
                       <Library size={18} />
                     </>
                   ) : (
                     <>
-                      <span>{cit.citation_number}</span>{" "}
-                      {cit.title.length <= 15 ? cit.title : cit.title.slice(0, 12).concat("...")}
+                      {cit.citation_number}{" "}
+                      {cit.title.length <= citationTitleLen
+                        ? cit.title
+                        : cit.title.slice(0, citationTitleLen - 3).concat("...")}
                     </>
                   )}
                 </p>
@@ -185,7 +190,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
               id="expandButton"
               aria-controls="referenceList"
               onClick={() => {
-                // TODO should focus on the expanded material?
                 // TODO use a checkbox instead of custom element?
                 setcitationsOpen(!citationsOpen)
               }}

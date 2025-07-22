@@ -19,33 +19,16 @@ export const runBrowserTests = async (
 
 // do not await, use .then
 export const waitForTestResults = async (testRunId: string): Promise<RunResult | null> => {
-  let breaker = true
+  const startTime = Date.now()
+  const timeoutMs = 1000 * 60 * 5 // 5 minutes
 
-  // give up after 5min
-  new Promise((resolve) => {
-    setTimeout(
-      () => {
-        resolve(null)
-      },
-      1000 * 60 * 5,
-    )
-  }).then(() => {
-    breaker = false
-  })
-
-  while (breaker) {
+  while (Date.now() - startTime < timeoutMs) {
     const runResult = await checkTestRun(testRunId)
-    if (runResult === null) {
-      // no results yet...
-      // wait for two seconds and try again
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(null)
-        }, 1000 * 2)
-      })
-    } else {
+    if (runResult !== null) {
       return runResult
     }
+    // Wait for two seconds before next check
+    await new Promise((resolve) => setTimeout(resolve, 1000 * 2))
   }
   return null
 }

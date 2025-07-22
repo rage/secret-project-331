@@ -77,22 +77,27 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
             })
           } else if (messageData.view_type === "answer-exercise") {
             const newPublicSpec = messageData.data.public_spec as PublicSpec
-            publicSpecToIframeUserAnswer(newPublicSpec).then((userAnswer) => {
-              setState((oldState) => {
-                const previousSubmission = messageData.data
-                  .previous_submission as ExerciseTaskSubmission | null
-                return {
-                  view_type: messageData.view_type,
-                  public_spec:
-                    oldState?.view_type === "answer-exercise"
-                      ? oldState.public_spec
-                      : // cloneDeep prevents setState from changing the initial spec
-                        _.cloneDeep(newPublicSpec),
-                  user_answer: userAnswer,
-                  previous_submission: previousSubmission,
-                }
+            publicSpecToIframeUserAnswer(newPublicSpec)
+              .then((userAnswer) => {
+                setState((oldState) => {
+                  const previousSubmission = messageData.data
+                    .previous_submission as ExerciseTaskSubmission | null
+                  return {
+                    view_type: messageData.view_type,
+                    public_spec:
+                      oldState?.view_type === "answer-exercise"
+                        ? oldState.public_spec
+                        : // cloneDeep prevents setState from changing the initial spec
+                          _.cloneDeep(newPublicSpec),
+                    user_answer: userAnswer,
+                    previous_submission: previousSubmission,
+                  }
+                })
               })
-            })
+              .catch((error) => {
+                // todo: proper error handling
+                throw new Error(`Failed to process public spec: ${error}`)
+              })
           } else if (messageData.view_type === "view-submission") {
             setState({
               view_type: messageData.view_type,
@@ -216,7 +221,7 @@ const requestRepositoryExercises = (port: MessagePort | null) => {
 const publicSpecToIframeUserAnswer = async (publicSpec: PublicSpec): Promise<UserAnswer> => {
   if (publicSpec.type == "browser") {
     // dl archive
-    console.log("fetching ", publicSpec.stub_download_url)
+    debug("fetching ", publicSpec.stub_download_url)
     const stubResponse = await fetch(publicSpec.stub_download_url)
 
     // unpack zstd

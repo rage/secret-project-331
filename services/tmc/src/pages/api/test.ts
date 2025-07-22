@@ -45,7 +45,7 @@ export default async (
         files: body.files,
       }).then((rr) => testRuns.set(testRunId, rr))
       ok(res, { id: testRunId })
-    } else if (req.body.type === "editor") {
+    } else if (body.type === "editor") {
       runTests(templateDownloadUrl, {
         type: "editor",
         archiveDownloadUrl: body.archiveDownloadUrl,

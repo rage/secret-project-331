@@ -3,6 +3,8 @@ import { Library } from "@vectopus/atlas-icons-react"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+//import { tooltipStyles } from "../ContentRenderer/core/formatting/CodeBlock/styles"
+
 import ThinkingIndicator from "./ThinkingIndicator"
 
 import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
@@ -71,9 +73,14 @@ const messageStyle = css`
     will force long strings in it to wrap and not overflow */
     white-space: pre-wrap;
   }
-  span {
-    /*Citations are inside span tags, it's assumed span tags wouldn't
+  button {
+    /*Citations are inside span(/button????) tags, it's assumed span tags wouldn't
     be used otherwise */
+    &:hover {
+      filter: brightness(0.9) contrast(1.1);
+    }
+    cursor: default;
+
     ${citationStyle}
   }
   white-space: pre-wrap;
@@ -102,7 +109,6 @@ const referenceListStyle = (expanded: boolean) => css`
     flex-flow: row nowrap;
     gap: 1em;
     color: #000000;
-    padding: 2px 2px;
     text-decoration: none;
     &:hover {
       color: blue;
@@ -126,6 +132,12 @@ const referenceListStyle = (expanded: boolean) => css`
     white-space: pre;
     mask-image: linear-gradient(0.25turn, black 66%, transparent);
   `}
+    div[popover] {
+      background-color: red;
+      position: absolute;
+      inset-inline-start: 40px;
+      inset-block-start: 40px;
+    }
   }
 `
 
@@ -139,7 +151,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   hideCitations,
 }) => {
   const { t } = useTranslation()
-  let [citationsOpen, setcitationsOpen] = useState(false)
+  let [citationsOpen, setCitationsOpen] = useState(false)
+  let [showLinkPreview, setShowLinkPreview] = useState(false)
 
   const [processedMessage, processedCitations, citationTitleLen] = useMemo(() => {
     let renderedMessage = message
@@ -157,7 +170,10 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         )
         if (citationsOpen) {
           /* eslint-disable i18next/no-literal-string */
-          renderedMessage = renderedMessage.replace(/\[[a-z]*?([0-9]+)\]/g, `<span>$1</span>`)
+          renderedMessage = renderedMessage.replace(
+            /\[[a-z]*?([0-9]+)\]/g,
+            `<button popovertarget="popover$1">$1</button>`,
+          )
         } else {
           renderedMessage = renderedMessage.replace(/\s\[[a-z]*?[0-9]+\]/g, "")
         }
@@ -174,6 +190,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   return (
     <div className={bubbleStyle(isFromChatbot)}>
       <span className={messageStyle} dangerouslySetInnerHTML={{ __html: processedMessage }}></span>
+
       {isFromChatbot && !hideCitations && processedCitations.length > 0 && (
         <div className={referenceListStyle(citationsOpen)}>
           <hr></hr>
@@ -191,15 +208,17 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                             flex: 3;
                           `}
                         >
-                          {"    Chatbot, Chapter 1: "}
-                          {cit.title}
+                          {cit.course_material_chapter !== cit.title
+                            ? `${cit.course_material_chapter}: `
+                            : ""}
+                          {`${cit.title}`}
                         </span>
                         <Library size={18} />
                       </a>{" "}
                     </>
                   ) : (
                     <>
-                      {cit.citation_number}{" "}
+                      <b>{cit.citation_number}</b>{" "}
                       {cit.title.length <= citationTitleLen
                         ? cit.title
                         : cit.title.slice(0, citationTitleLen - 3).concat("...")}
@@ -213,10 +232,10 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
               aria-controls="referenceList"
               onClick={() => {
                 // TODO use a checkbox instead of custom element?
-                setcitationsOpen(!citationsOpen)
+                setCitationsOpen(!citationsOpen)
               }}
               aria-label={t("show-references")}
-              aria-expanded={citationsOpen ? "true" : "false"}
+              aria-expanded={citationsOpen}
             >
               {citationsOpen ? <DownIcon transform="rotate(180)" /> : <DownIcon />}
             </button>

@@ -20,7 +20,7 @@
       },
       {
         "ordinal": 3,
-        "name": "content",
+        "name": "course_material_chapter",
         "type_info": "Varchar"
       },
       {
@@ -30,11 +30,16 @@
       },
       {
         "ordinal": 5,
-        "name": "document_url",
+        "name": "content",
         "type_info": "Varchar"
       },
       {
         "ordinal": 6,
+        "name": "document_url",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
         "name": "citation_number",
         "type_info": "Int4"
       }
@@ -42,7 +47,7 @@
     "parameters": {
       "Left": ["Uuid"]
     },
-    "nullable": [false, false, false, false, false, false, false]
+    "nullable": [false, false, false, true, false, false, false, false]
   },
   "hash": "f866e94820ab2671149449b6c2dbd0000921ca02577ee8a257ab107d927767eb"
 }

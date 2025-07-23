@@ -6,8 +6,9 @@ pub struct ChatbotConversationMessageCitation {
     pub id: Uuid,
     pub conversation_message_id: Uuid,
     pub conversation_id: Uuid,
-    pub content: String, // TODO: option or no option? do the yneed to be nullable
+    pub course_material_chapter: Option<String>,
     pub title: String,
+    pub content: String,
     pub document_url: String,
     pub citation_number: i32,
 }
@@ -22,17 +23,19 @@ pub async fn insert(
 INSERT INTO chatbot_conversation_messages_citations (
   conversation_message_id,
   conversation_id,
-  content,
+  course_material_chapter,
   title,
+  content,
   document_url,
   citation_number)
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING *
         "#,
         input.conversation_message_id,
         input.conversation_id,
-        input.content,
+        input.course_material_chapter,
         input.title,
+        input.content,
         input.document_url,
         input.citation_number
     )

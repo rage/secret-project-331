@@ -460,8 +460,6 @@ pub async fn send_chat_request_and_parse_stream(
     let mut lines = reader.lines();
 
     let response_stream = async_stream::try_stream! {
-        // TODO the first line willl have delta.context which contains the citations.
-        // rest of the lines will habve delta.content
         while let Some(line) = lines.next_line().await? {
             if !line.starts_with("data: ") {
                 continue;
@@ -504,16 +502,23 @@ pub async fn send_chat_request_and_parse_stream(
                         let citation_message_id = response_message.id;
                         let mut conn = pool.acquire().await?;
                         for (idx, cit) in context.citations.iter().enumerate() {
-                            let content = if cit.content.len() < 255 {cit.content.clone()} else {cit.content[0..255].to_string()}; // TODO idk if w even needthe cit content
+                            let content = if cit.content.len() < 255 {cit.content.clone()} else {cit.content[0..255].to_string()};
+                            let document_url = cit.url.clone();
+                            let url_parts: Vec<&str> = document_url.split("/").collect();
+                            // TODO idk how to make sure that this cited document is course material vs.
+                            // something else... this works for now
+                            let course_material_chapter = if url_parts[5] == "courses".to_string() {Some(parse_capitalize(url_parts[7].to_string()))} else {None};
+                            println!("Course material chapter: {:?}", course_material_chapter);
                             models::chatbot_conversation_messages_citations::insert(
                                 &mut conn, ChatbotConversationMessageCitation {
                                     id: Uuid::new_v4(),
                                     conversation_message_id: citation_message_id,
                                     conversation_id,
-                                    content,
+                                    course_material_chapter,
                                     title: cit.title.clone(), // TODO is it ugly to clone here?
-                                    document_url: cit.url.clone(),
-                                    citation_number: (idx+1) as i32, // TODO ugly? doc indexing starts from 1
+                                    content,
+                                    document_url,
+                                    citation_number: (idx+1) as i32, // doc indexing starts from 1
                                 }
                             ).await?;
                         }
@@ -534,4 +539,16 @@ pub async fn send_chat_request_and_parse_stream(
 
     // Box and pin the GuardedStream to satisfy the Unpin requirement
     Ok(Box::pin(guarded_stream))
+}
+
+pub fn parse_capitalize(s: String) -> String {
+    // "example-text" -> "Example Text"
+    s.split("-")
+        .map(|s| {
+            let mut s2: Vec<char> = s.chars().collect();
+            s2[0] = s2[0].to_uppercase().nth(0).unwrap();
+            s2.into_iter().collect()
+        })
+        .collect::<Vec<String>>()
+        .join(" ")
 }

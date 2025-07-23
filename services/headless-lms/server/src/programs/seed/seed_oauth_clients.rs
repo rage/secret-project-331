@@ -13,7 +13,7 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
         &mut conn,
         "test-client-id",
         "very-secret",
-        Vec::from(["localhost".to_string()]),
+        Vec::from(["http://localhost".to_string()]),
         Vec::from(["user_info".to_string()]),
         "openid",
     )

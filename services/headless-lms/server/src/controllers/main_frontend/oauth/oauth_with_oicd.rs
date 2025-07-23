@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sqlx::PgPool;
 use std::env;
+use url::form_urlencoded;
 use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -105,7 +106,12 @@ async fn authorize(
             }
         }
         None => {
-            redirect_url = "/login".to_string();
+            let mut return_to = format!(
+                "/api/v0/main-frontend/oauth/authorize?client_id={}&scope={}&redirect_uri={}&state={}&nonce={}",
+                &query.client_id, &query.scope, &query.redirect_uri, &query.state, &query.nonce
+            );
+            return_to = form_urlencoded::byte_serialize(return_to.as_bytes()).collect();
+            redirect_url = format!("/login?return_to={}", return_to);
         }
     }
 

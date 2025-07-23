@@ -25,7 +25,7 @@ impl OAuthAuthCode {
         scope: &str,
         nonce: &str,
         expires_at: DateTime<Utc>,
-    ) -> sqlx::Result<()> {
+    ) -> ModelResult<()> {
         let mut tx = conn.begin().await?;
         sqlx::query!(
             r#"INSERT INTO oauth_auth_codes

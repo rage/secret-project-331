@@ -1,7 +1,9 @@
 import { css } from "@emotion/css"
 import { Library } from "@vectopus/atlas-icons-react"
-import React, { useMemo, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 import { useTranslation } from "react-i18next"
+import { usePopper } from "react-popper"
 
 //import { tooltipStyles } from "../ContentRenderer/core/formatting/CodeBlock/styles"
 
@@ -73,7 +75,7 @@ const messageStyle = css`
     will force long strings in it to wrap and not overflow */
     white-space: pre-wrap;
   }
-  button {
+  span {
     /*Citations are inside span(/button????) tags, it's assumed span tags wouldn't
     be used otherwise */
     &:hover {
@@ -152,7 +154,17 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 }) => {
   const { t } = useTranslation()
   let [citationsOpen, setCitationsOpen] = useState(false)
+  const [referenceElement, setReferenceElement] = React.useState<HTMLButtonElement | null>(null)
+  const [popperElement, setPopperElement] = React.useState<HTMLElement | null>(null)
   let [showLinkPreview, setShowLinkPreview] = useState(false)
+  let [idd, setIdd] = useState<HTMLElement | null>(null)
+
+  useEffect(() => {
+    console.log(document.getElementById("cit-1"))
+    setIdd(document.getElementById("cit-1"))
+  }, [citationsOpen])
+
+  const { styles, attributes, update } = usePopper(referenceElement, popperElement)
 
   const [processedMessage, processedCitations, citationTitleLen] = useMemo(() => {
     let renderedMessage = message
@@ -172,7 +184,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           /* eslint-disable i18next/no-literal-string */
           renderedMessage = renderedMessage.replace(
             /\[[a-z]*?([0-9]+)\]/g,
-            `<button popovertarget="popover$1">$1</button>`,
+            `<span id="cit-$1">$1</span>`,
           )
         } else {
           renderedMessage = renderedMessage.replace(/\s\[[a-z]*?[0-9]+\]/g, "")
@@ -198,33 +210,35 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           <div id="container">
             <div id="referenceList">
               {processedCitations.map((cit) => (
-                <p key={cit.citation_number} className={citationStyle}>
-                  {citationsOpen ? (
-                    <>
-                      <a href={cit.document_url} aria-label={t("TODO")}>
-                        <b>{cit.citation_number}</b>
-                        <span
-                          className={css`
-                            flex: 3;
-                          `}
-                        >
-                          {cit.course_material_chapter !== cit.title
-                            ? `${cit.course_material_chapter}: `
-                            : ""}
-                          {`${cit.title}`}
-                        </span>
-                        <Library size={18} />
-                      </a>{" "}
-                    </>
-                  ) : (
-                    <>
-                      <b>{cit.citation_number}</b>{" "}
-                      {cit.title.length <= citationTitleLen
-                        ? cit.title
-                        : cit.title.slice(0, citationTitleLen - 3).concat("...")}
-                    </>
-                  )}
-                </p>
+                <div key={cit.citation_number}>
+                  <p key={cit.citation_number} className={citationStyle}>
+                    {citationsOpen ? (
+                      <>
+                        <a href={cit.document_url}>
+                          <b>{cit.citation_number}</b>
+                          <span
+                            className={css`
+                              flex: 3;
+                            `}
+                          >
+                            {cit.course_material_chapter !== cit.title
+                              ? `${cit.course_material_chapter}: `
+                              : ""}
+                            {`${cit.title}`}
+                          </span>
+                          <Library size={18} />
+                        </a>{" "}
+                      </>
+                    ) : (
+                      <>
+                        <b>{cit.citation_number}</b>{" "}
+                        {cit.title.length <= citationTitleLen
+                          ? cit.title
+                          : cit.title.slice(0, citationTitleLen - 3).concat("...")}
+                      </>
+                    )}
+                  </p>
+                </div>
               ))}
             </div>
             <button
@@ -242,7 +256,10 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           </div>
         </div>
       )}
-
+      <div ref={setPopperElement} id={`citpopper`} {...attributes.popper}>
+        HELLOOOOOOO pop
+      </div>
+      {idd && createPortal(<button ref={setReferenceElement}>HELLO ref</button>, idd)}
       {isPending && <ThinkingIndicator />}
     </div>
   )

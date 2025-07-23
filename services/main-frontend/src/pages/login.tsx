@@ -183,7 +183,7 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
             className={css`
               color: ${baseTheme.colors.blue[500]}!important;
             `}
-            href="https://tmc.mooc.fi/password_reset_keys/new"
+            href="/reset-password"
           >
             {t("forgot-password")}
           </a>

@@ -12,7 +12,7 @@ pub struct EmailTemplate {
     pub subject: Option<String>,
     pub exercise_completions_threshold: Option<i32>,
     pub points_threshold: Option<i32>,
-    pub course_instance_id: Uuid,
+    pub course_instance_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -48,6 +48,26 @@ WHERE course_instance_id = $1
     Ok(res)
 }
 
+pub async fn get_generic_email_templates_by_subject(
+    conn: &mut PgConnection,
+    subject: &str,
+) -> ModelResult<Vec<EmailTemplate>> {
+    let res = sqlx::query_as!(
+        EmailTemplate,
+        r#"
+SELECT *
+FROM email_templates
+WHERE subject = $1
+  AND course_instance_id IS NULL
+  AND deleted_at IS NULL
+        "#,
+        subject
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(res)
+}
 pub async fn insert_email_template(
     conn: &mut PgConnection,
     course_instance_id: Uuid,

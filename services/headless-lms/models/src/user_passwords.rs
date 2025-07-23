@@ -11,6 +11,16 @@ pub struct UserPassword {
     pub deleted_at: Option<DateTime<Utc>>,
 }
 
+pub struct PasswordResetToken {
+    pub token: Uuid,
+    pub user_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub expires_at: DateTime<Utc>,
+    pub used_at: Option<DateTime<Utc>>,
+    pub deleted_at: Option<DateTime<Utc>>,
+}
+
 pub async fn upsert_user_password(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -18,11 +28,10 @@ pub async fn upsert_user_password(
 ) -> ModelResult<bool> {
     let result = sqlx::query!(
         r#"
-INSERT INTO user_passwords (user_id, password_hash, created_at, updated_at)
-VALUES ($1, $2, NOW(), NOW()) ON CONFLICT (user_id) DO
+INSERT INTO user_passwords (user_id, password_hash)
+VALUES ($1, $2) ON CONFLICT (user_id) DO
 UPDATE
-SET password_hash = EXCLUDED.password_hash,
-  updated_at = NOW()
+SET password_hash = EXCLUDED.password_hash
         "#,
         user_id,
         password_hash.expose_secret()
@@ -93,4 +102,74 @@ WHERE user_id = $1
     .await?;
 
     Ok(result.is_some())
+}
+
+pub async fn insert_password_reset_token(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<Uuid> {
+    let token = Uuid::new_v4();
+
+    sqlx::query!(
+        r#"
+INSERT INTO password_reset_tokens (
+    token,
+    user_id
+  )
+VALUES ($1, $2)
+        "#,
+        token,
+        user_id
+    )
+    .execute(conn)
+    .await?;
+
+    Ok(token)
+}
+
+pub async fn get_unused_reset_password_token_with_user_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<Option<PasswordResetToken>> {
+    let now = Utc::now();
+    let record = sqlx::query_as!(
+        PasswordResetToken,
+        r#"
+SELECT token,
+  user_id,
+  created_at,
+  updated_at,
+  used_at,
+  deleted_at,
+  expires_at
+FROM password_reset_tokens
+WHERE user_id = $1
+  AND deleted_at IS NULL
+  AND used_at IS NULL
+  AND expires_at > $2
+        "#,
+        user_id,
+        now
+    )
+    .fetch_optional(conn)
+    .await?;
+
+    Ok(record)
+}
+
+pub async fn mark_token_used(conn: &mut PgConnection, token: Uuid) -> ModelResult<bool> {
+    let result = sqlx::query!(
+        r#"
+UPDATE password_reset_tokens
+SET used_at = NOW(),
+  deleted_at = NOW()
+WHERE token = $1
+  AND deleted_at IS NULL
+        "#,
+        token
+    )
+    .execute(conn)
+    .await?;
+
+    Ok(result.rows_affected() > 0)
 }

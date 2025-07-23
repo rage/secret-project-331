@@ -145,7 +145,10 @@ pub async fn signup(
             // Notify tmc that the password is managed by courses.mooc.fi
             if let Some(upstream_id) = user.upstream_id {
                 tmc_client
-                    .set_user_password_managed_by_courses_mooc_fi(upstream_id.to_string())
+                    .set_user_password_managed_by_courses_mooc_fi(
+                        upstream_id.to_string(),
+                        user.id.to_string(),
+                    )
                     .await
                     .map_err(|e| {
                         ControllerError::new(
@@ -428,7 +431,10 @@ async fn handle_production_login(
             // Notify TMC that the password is now managed by courses.mooc.fi
             if let Some(upstream_id) = user.upstream_id {
                 tmc_client
-                    .set_user_password_managed_by_courses_mooc_fi(upstream_id.to_string())
+                    .set_user_password_managed_by_courses_mooc_fi(
+                        upstream_id.to_string(),
+                        user.id.to_string(),
+                    )
                     .await
                     .map_err(|e| {
                         ControllerError::new(

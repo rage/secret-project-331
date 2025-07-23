@@ -165,6 +165,39 @@ pub async fn get_user_reset_exercise_logs(
     token.authorized_ok(web::Json(res))
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct EmailData {
+    pub email: String,
+}
+
+#[instrument(skip(pool))]
+pub async fn send_reset_password_email(
+    pool: web::Data<PgPool>,
+    payload: web::Json<EmailData>,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let email = &payload.email;
+
+    let user = { models::users::get_by_email(&mut conn, email).await? };
+
+    let _password_token =
+        models::user_passwords::insert_password_reset_token(&mut conn, user.id).await?;
+
+    let reset_templates = models::email_templates::get_generic_email_templates_by_subject(
+        &mut conn,
+        "Reset password request",
+    )
+    .await?;
+
+    let _ =
+        models::email_deliveries::insert_email_delivery(&mut conn, user.id, reset_templates[0].id)
+            .await?;
+    token.authorized_ok(web::Json(true))
+}
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route(
         "/user-research-form-question-answers",
@@ -175,14 +208,18 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         "/get-user-research-consent",
         web::get().to(get_research_consent_by_user_id),
     )
+    .route(
+        "/user-research-consents",
+        web::post().to(post_user_consents),
+    )
+    .route(
+        "/send-reset-password-email",
+        web::post().to(send_reset_password_email),
+    )
     .route("/{user_id}", web::get().to(get_user))
     .route(
         "/{user_id}/course-instance-enrollments",
         web::get().to(get_course_instance_enrollments_for_user),
-    )
-    .route(
-        "/user-research-consents",
-        web::post().to(post_user_consents),
     )
     .route(
         "/{user_id}/user-reset-exercise-logs",

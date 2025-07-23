@@ -14,7 +14,7 @@ import {
   isResearchFormQuestionAnswer,
   isUserResearchConsent,
 } from "@/shared-module/common/bindings.guard"
-import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
+import { isArray, isBoolean, validateResponse } from "@/shared-module/common/utils/fetching"
 
 export async function getCourseInstanceEnrollmentsInfo(
   userId: string,
@@ -50,4 +50,9 @@ export const getUserResetExerciseLogs = async (
 ): Promise<Array<ExerciseResetLog>> => {
   const response = await mainFrontendClient.get(`/users/${userId}/user-reset-exercise-logs`)
   return validateResponse(response, isArray(isExerciseResetLog))
+}
+
+export const sendResetPasswordLink = async (email: string): Promise<boolean> => {
+  const response = await mainFrontendClient.post(`/users/send-reset-password-email`, { email })
+  return validateResponse(response, isBoolean)
 }

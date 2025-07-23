@@ -553,7 +553,7 @@ export interface EmailTemplate {
   subject: string | null
   exercise_completions_threshold: number | null
   points_threshold: number | null
-  course_instance_id: string
+  course_instance_id: string | null
 }
 
 export interface EmailTemplateNew {

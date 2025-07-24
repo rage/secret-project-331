@@ -155,7 +155,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 }) => {
   const { t } = useTranslation()
   let [citationsOpen, setCitationsOpen] = useState(false)
-  console.log(citations, citationsOpen)
 
   const [processedMessage, processedCitations, citationTitleLen] = useMemo(() => {
     let messageCopy = message
@@ -164,20 +163,16 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     let filteredCitations: ChatbotConversationMessageCitation[] = []
 
     if (isFromChatbot) {
-      let citedDocs: number[] = []
-      if (citations) {
-        // check if there are any citations
+      let messageParts = messageCopy.split(/\[[a-z]*?[0-9]+\]/g)
+
+      if (messageParts.length > 1 && citationsOpen && citations) {
+        // if there are citations in text, render buttons for them & md
         let citedDocs = Array.from(messageCopy.matchAll(/\[[a-z]*?([0-9]+)\]/g), (arr, _) =>
           parseInt(arr[1]),
         )
         let citedDocsSet = new Set(citedDocs)
         filteredCitations = citations //.filter((cit) => citedDocsSet.has(cit.citation_number))
-      }
 
-      if (filteredCitations.length > 0 && citationsOpen) {
-        // if there are citations in text, render buttons for them
-        /* eslint-disable i18next/no-literal-string */
-        let messageParts = messageCopy.split(/\[[a-z]*?[0-9]+\]/g)
         renderedMessage = messageParts.map((s, i) => {
           return (
             <span key={i} className={messageStyle}>
@@ -204,7 +199,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           ></span>,
         ]
       }
-      // TODO is it bad to do two regex operations?
     } else {
       renderedMessage = [
         <span key="1" className={messageStyle}>
@@ -225,7 +219,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       {isFromChatbot && processedCitations.length > 0 && (
         <div className={referenceListStyle(citationsOpen)}>
           <hr></hr>
-          <h4>References</h4>
+          <h4>{t("references")}</h4>
           <div id="container">
             <div id="referenceList">
               {processedCitations.map((cit) => (
@@ -247,7 +241,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                         <Library size={18} />
                       </a>{" "}
                       <div popover="auto" id={`popover-${cit.citation_number}`}>
-                        <SpeechBalloon>Hello {cit.title}</SpeechBalloon>
+                        <SpeechBalloon> {cit.title}</SpeechBalloon>
                       </div>
                     </div>
                   ) : (

@@ -1,15 +1,14 @@
 import { css } from "@emotion/css"
 import { Library } from "@vectopus/atlas-icons-react"
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { createPortal } from "react-dom"
+import React, { ReactElement, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { usePopper } from "react-popper"
 
 //import { tooltipStyles } from "../ContentRenderer/core/formatting/CodeBlock/styles"
 
 import ThinkingIndicator from "./ThinkingIndicator"
 
 import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
+import SpeechBalloon from "@/shared-module/common/components/SpeechBalloon"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 import { getRemarkable } from "@/utils/getRemarkable"
@@ -75,15 +74,18 @@ const messageStyle = css`
     will force long strings in it to wrap and not overflow */
     white-space: pre-wrap;
   }
-  span {
+  button {
     /*Citations are inside span(/button????) tags, it's assumed span tags wouldn't
     be used otherwise */
     &:hover {
       filter: brightness(0.9) contrast(1.1);
     }
+    border: none;
     cursor: default;
-
-    ${citationStyle}
+    background-color: ${baseTheme.colors.gray[200]};
+    padding: 0 7px 0 7px;
+    border-radius: 10px;
+    font-size: 85%;
   }
   white-space: pre-wrap;
 `
@@ -135,7 +137,7 @@ const referenceListStyle = (expanded: boolean) => css`
     mask-image: linear-gradient(0.25turn, black 66%, transparent);
   `}
     div[popover] {
-      background-color: red;
+      border: none;
       position: absolute;
       inset-inline-start: 40px;
       inset-block-start: 40px;
@@ -154,54 +156,67 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 }) => {
   const { t } = useTranslation()
   let [citationsOpen, setCitationsOpen] = useState(false)
-  const [referenceElement, setReferenceElement] = React.useState<HTMLButtonElement | null>(null)
-  const [popperElement, setPopperElement] = React.useState<HTMLElement | null>(null)
   let [showLinkPreview, setShowLinkPreview] = useState(false)
-  let [idd, setIdd] = useState<HTMLElement | null>(null)
 
-  useEffect(() => {
-    console.log(document.getElementById("cit-1"))
-    setIdd(document.getElementById("cit-1"))
-  }, [citationsOpen])
-
-  const { styles, attributes, update } = usePopper(referenceElement, popperElement)
-
-  const [processedMessage, processedCitations, citationTitleLen] = useMemo(() => {
-    let renderedMessage = message
-    renderedMessage = sanitizeCourseMaterialHtml(md.render(renderedMessage).trim())
+  const [processedMessage, processedCitations, citationTitleLen, citationButtons] = useMemo(() => {
+    let messageCopy = message
+    messageCopy = sanitizeCourseMaterialHtml(md.render(messageCopy).trim())
+    let renderedMessage: string[] = []
     let filteredCitations: ChatbotConversationMessageCitation[] = []
+    let citationButtons: ReactElement[] = []
 
     if (isFromChatbot) {
       if (citations && hideCitations) {
-        renderedMessage = renderedMessage.replace(/\s\[[a-z]*?[0-9]+\]/g, "")
+        renderedMessage = [messageCopy.replace(/\s\[[a-z]*?[0-9]+\]/g, "")]
       } else if (citations) {
-        let citedDocs = new Set(
-          Array.from(renderedMessage.matchAll(/\[[a-z]*?([0-9]+)\]/g), (arr, _) =>
-            parseInt(arr[1]),
-          ),
+        let citedDocs = Array.from(messageCopy.matchAll(/\[[a-z]*?([0-9]+)\]/g), (arr, _) =>
+          parseInt(arr[1]),
         )
+
+        let citedDocsSet = new Set(citedDocs)
         if (citationsOpen) {
           /* eslint-disable i18next/no-literal-string */
-          renderedMessage = renderedMessage.replace(
+          renderedMessage = messageCopy.split(/\[[a-z]*?[0-9]+\]/g)
+          citationButtons = citedDocs.map((cit) => {
+            return (
+              <button
+                id={`cit-${cit}`}
+                key={cit}
+                popoverTarget={`popover-${cit}`}
+                onMouseEnter={() => console.log("hovered cit ", cit)}
+                onMouseLeave={() => {}}
+              >
+                {cit}
+              </button>
+            )
+          })
+          /* renderedMessage = renderedMessage.replace(
             /\[[a-z]*?([0-9]+)\]/g,
-            `<span id="cit-$1">$1</span>`,
-          )
+            `<button popovertarget="popover-$1">$1</button>`,
+          ) */ // split the string at citations and render in alternating parts as innerhtml and buttons?
         } else {
-          renderedMessage = renderedMessage.replace(/\s\[[a-z]*?[0-9]+\]/g, "")
+          renderedMessage = [messageCopy.replace(/\s\[[a-z]*?[0-9]+\]/g, "")]
         }
         // TODO is it bad to do two regex operations?
-        filteredCitations = citations //.filter((cit) => citedDocs.has(cit.citation_number))
+        filteredCitations = citations //.filter((cit) => citedDocsSet.has(cit.citation_number))
       }
+    } else {
+      renderedMessage = [messageCopy]
     }
     // 60 is magick number that represents the collapsed list width
     const citationTitleLen = 60 / filteredCitations.length
 
-    return [renderedMessage, filteredCitations, citationTitleLen]
+    return [renderedMessage, filteredCitations, citationTitleLen, citationButtons]
   }, [hideCitations, message, citations, isFromChatbot, citationsOpen])
 
   return (
     <div className={bubbleStyle(isFromChatbot)}>
-      <span className={messageStyle} dangerouslySetInnerHTML={{ __html: processedMessage }}></span>
+      {processedMessage.map((s, idx) => (
+        <span key={idx} className={messageStyle}>
+          <span dangerouslySetInnerHTML={{ __html: s }}></span>
+          {citationButtons[idx]}
+        </span>
+      ))}
 
       {isFromChatbot && !hideCitations && processedCitations.length > 0 && (
         <div className={referenceListStyle(citationsOpen)}>
@@ -210,34 +225,35 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           <div id="container">
             <div id="referenceList">
               {processedCitations.map((cit) => (
-                <div key={cit.citation_number}>
-                  <p key={cit.citation_number} className={citationStyle}>
-                    {citationsOpen ? (
-                      <>
-                        <a href={cit.document_url}>
-                          <b>{cit.citation_number}</b>
-                          <span
-                            className={css`
-                              flex: 3;
-                            `}
-                          >
-                            {cit.course_material_chapter !== cit.title
-                              ? `${cit.course_material_chapter}: `
-                              : ""}
-                            {`${cit.title}`}
-                          </span>
-                          <Library size={18} />
-                        </a>{" "}
-                      </>
-                    ) : (
-                      <>
-                        <b>{cit.citation_number}</b>{" "}
-                        {cit.title.length <= citationTitleLen
-                          ? cit.title
-                          : cit.title.slice(0, citationTitleLen - 3).concat("...")}
-                      </>
-                    )}
-                  </p>
+                <div key={cit.citation_number} className={citationStyle}>
+                  {citationsOpen ? (
+                    <div>
+                      <a href={cit.document_url}>
+                        <b>{cit.citation_number}</b>
+                        <span
+                          className={css`
+                            flex: 3;
+                          `}
+                        >
+                          {cit.course_material_chapter !== cit.title
+                            ? `${cit.course_material_chapter}: `
+                            : ""}
+                          {`${cit.title}`}
+                        </span>
+                        <Library size={18} />
+                      </a>{" "}
+                      <div popover="auto" id={`popover-${cit.citation_number}`}>
+                        <SpeechBalloon>Hello {cit.title}</SpeechBalloon>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <b>{cit.citation_number}</b>{" "}
+                      {cit.title.length <= citationTitleLen
+                        ? cit.title
+                        : cit.title.slice(0, citationTitleLen - 3).concat("...")}
+                    </>
+                  )}
                 </div>
               ))}
             </div>
@@ -256,10 +272,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           </div>
         </div>
       )}
-      <div ref={setPopperElement} id={`citpopper`} {...attributes.popper}>
-        HELLOOOOOOO pop
-      </div>
-      {idd && createPortal(<button ref={setReferenceElement}>HELLO ref</button>, idd)}
+
       {isPending && <ThinkingIndicator />}
     </div>
   )

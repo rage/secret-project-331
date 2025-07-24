@@ -3,6 +3,7 @@ import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { PaperAirplane } from "@vectopus/atlas-icons-react"
 import React, { useCallback, useEffect, useMemo, useReducer, useRef } from "react"
 import { useTranslation } from "react-i18next"
+import { usePopper } from "react-popper"
 import { v4 } from "uuid"
 
 import { ChatbotDialogProps } from "./ChatbotDialog"
@@ -20,6 +21,7 @@ import {
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
+import SpeechBalloon from "@/shared-module/common/components/SpeechBalloon"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -56,6 +58,25 @@ const messageReducer = (state: MessageState, action: MessageAction): MessageStat
   }
 }
 
+const tooltipStyle = css`
+  z-index: 100;
+  position: absolute;
+  animation: fadeIn 0.2s ease-in-out;
+  pointer-events: auto;
+  user-select: none;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+`
+
 const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
   currentConversationInfo,
   newConversation,
@@ -72,6 +93,47 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
     optimisticMessage: null,
     streamingMessage: null,
   })
+
+  const [referenceElement, setReferenceElement] = React.useState<HTMLButtonElement | null>(null)
+  const [popperElement, setPopperElement] = React.useState<HTMLElement | null>(null)
+
+  const { styles, attributes, update } = usePopper(referenceElement, popperElement, {
+    placement: "top",
+    modifiers: [
+      {
+        name: "offset",
+        options: {
+          offset: [0, 8],
+        },
+      },
+      {
+        name: "preventOverflow",
+        options: {
+          padding: 8,
+        },
+      },
+      {
+        name: "computeStyles",
+        options: {
+          gpuAcceleration: false,
+        },
+      },
+      {
+        name: "eventListeners",
+        options: {
+          scroll: true,
+          resize: true,
+        },
+      },
+    ],
+    strategy: "absolute",
+  })
+  useEffect(() => {
+    if (update) {
+      update()
+    }
+  }, [referenceElement, update])
+  console.log("ref elem", referenceElement, "show", !(referenceElement == null))
 
   const newMessageMutation = useToastMutation(
     async () => {
@@ -317,6 +379,8 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
             citations={citations.get(message.id)}
             isFromChatbot={message.is_from_chatbot}
             isPending={!message.message_is_complete && newMessageMutation.isPending}
+            setReferenceElement={setReferenceElement}
+            popperAttributes={attributes}
           />
         ))}
       </div>
@@ -408,6 +472,19 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
       >
         {t("warning-chatbots-can-make-mistakes")}
       </div>
+      {referenceElement && (
+        <div
+          //popover="auto"
+          id={`popover`}
+          ref={setPopperElement}
+          className={tooltipStyle}
+          /* eslint-disable-next-line react/forbid-dom-props */
+          style={styles.popper}
+          {...attributes.popper}
+        >
+          <SpeechBalloon> 1</SpeechBalloon>
+        </div>
+      )}
     </div>
   )
 }

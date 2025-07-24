@@ -1,9 +1,10 @@
 import { css } from "@emotion/css"
 import { Library } from "@vectopus/atlas-icons-react"
-import React, { ReactElement, useMemo, useState } from "react"
+import React, { ReactElement, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
+import { usePopper } from "react-popper"
 
-//import { tooltipStyles } from "../ContentRenderer/core/formatting/CodeBlock/styles"
+import { tooltipStyles } from "../ContentRenderer/core/formatting/CodeBlock/styles"
 
 import ThinkingIndicator from "./ThinkingIndicator"
 
@@ -19,7 +20,8 @@ interface MessageBubbleProps {
   isFromChatbot: boolean
   isPending: boolean
   citations: ChatbotConversationMessageCitation[] | undefined
-  hideCitations?: boolean
+  setReferenceElement: React.Dispatch<React.SetStateAction<HTMLButtonElement | null>>
+  popperAttributes: { [key: string]: { [key: string]: string } | undefined }
 }
 
 const bubbleStyle = (isFromChatbot: boolean) => css`
@@ -138,9 +140,6 @@ const referenceListStyle = (expanded: boolean) => css`
   `}
     div[popover] {
       border: none;
-      position: absolute;
-      inset-inline-start: 40px;
-      inset-block-start: 40px;
     }
   }
 `
@@ -152,10 +151,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   isFromChatbot,
   isPending,
   citations,
+  setReferenceElement,
+  popperAttributes,
 }) => {
   const { t } = useTranslation()
   let [citationsOpen, setCitationsOpen] = useState(false)
-
   const [processedMessage, processedCitations, citationTitleLen] = useMemo(() => {
     let messageCopy = message
     messageCopy = sanitizeCourseMaterialHtml(md.render(messageCopy).trim())
@@ -178,9 +178,17 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
               {citedDocs[i] && (
                 <button
                   id={`cit-${citedDocs[i]}`}
-                  popoverTarget={`popover-${citedDocs[i]}`}
-                  onMouseEnter={() => console.log("hovered cit ", citedDocs[i])}
-                  onMouseLeave={() => {}}
+                  //popoverTarget={`popover-${citedDocs[i]}`}
+                  //ref={setReferenceElement}
+                  {...popperAttributes.popper}
+                  onMouseEnter={(e) => {
+                    console.log("hovered cit ", citedDocs[i])
+                    setReferenceElement(e.currentTarget)
+                  }}
+                  onMouseLeave={() => {
+                    console.log("mouse lleave")
+                    setReferenceElement(null)
+                  }}
                 >
                   {citedDocs[i]}
                 </button>
@@ -240,9 +248,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                         </span>
                         <Library size={18} />
                       </a>{" "}
-                      <div popover="auto" id={`popover-${cit.citation_number}`}>
-                        <SpeechBalloon> {cit.title}</SpeechBalloon>
-                      </div>
                     </div>
                   ) : (
                     <>
@@ -255,6 +260,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                 </div>
               ))}
             </div>
+
             <button
               id="expandButton"
               aria-controls="referenceList"

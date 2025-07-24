@@ -152,73 +152,77 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   isFromChatbot,
   isPending,
   citations,
-  hideCitations,
 }) => {
   const { t } = useTranslation()
   let [citationsOpen, setCitationsOpen] = useState(false)
-  let [showLinkPreview, setShowLinkPreview] = useState(false)
+  console.log(citations, citationsOpen)
 
-  const [processedMessage, processedCitations, citationTitleLen, citationButtons] = useMemo(() => {
+  const [processedMessage, processedCitations, citationTitleLen] = useMemo(() => {
     let messageCopy = message
     messageCopy = sanitizeCourseMaterialHtml(md.render(messageCopy).trim())
-    let renderedMessage: string[] = []
+    let renderedMessage: ReactElement[] = []
     let filteredCitations: ChatbotConversationMessageCitation[] = []
-    let citationButtons: ReactElement[] = []
 
     if (isFromChatbot) {
-      if (citations && hideCitations) {
-        renderedMessage = [messageCopy.replace(/\s\[[a-z]*?[0-9]+\]/g, "")]
-      } else if (citations) {
+      let citedDocs: number[] = []
+      if (citations) {
+        // check if there are any citations
         let citedDocs = Array.from(messageCopy.matchAll(/\[[a-z]*?([0-9]+)\]/g), (arr, _) =>
           parseInt(arr[1]),
         )
-
         let citedDocsSet = new Set(citedDocs)
-        if (citationsOpen) {
-          /* eslint-disable i18next/no-literal-string */
-          renderedMessage = messageCopy.split(/\[[a-z]*?[0-9]+\]/g)
-          citationButtons = citedDocs.map((cit) => {
-            return (
-              <button
-                id={`cit-${cit}`}
-                key={cit}
-                popoverTarget={`popover-${cit}`}
-                onMouseEnter={() => console.log("hovered cit ", cit)}
-                onMouseLeave={() => {}}
-              >
-                {cit}
-              </button>
-            )
-          })
-          /* renderedMessage = renderedMessage.replace(
-            /\[[a-z]*?([0-9]+)\]/g,
-            `<button popovertarget="popover-$1">$1</button>`,
-          ) */ // split the string at citations and render in alternating parts as innerhtml and buttons?
-        } else {
-          renderedMessage = [messageCopy.replace(/\s\[[a-z]*?[0-9]+\]/g, "")]
-        }
-        // TODO is it bad to do two regex operations?
         filteredCitations = citations //.filter((cit) => citedDocsSet.has(cit.citation_number))
       }
+
+      if (filteredCitations.length > 0 && citationsOpen) {
+        // if there are citations in text, render buttons for them
+        /* eslint-disable i18next/no-literal-string */
+        let messageParts = messageCopy.split(/\[[a-z]*?[0-9]+\]/g)
+        renderedMessage = messageParts.map((s, i) => {
+          return (
+            <span key={i} className={messageStyle}>
+              <span dangerouslySetInnerHTML={{ __html: s }}></span>
+              <button
+                id={`cit-${citedDocs[i]}`}
+                popoverTarget={`popover-${citedDocs[i]}`}
+                onMouseEnter={() => console.log("hovered cit ", citedDocs[i])}
+                onMouseLeave={() => {}}
+              >
+                {citedDocs[i]}
+              </button>
+            </span>
+          )
+        })
+      } else {
+        // render only md
+        messageCopy = messageCopy.replace(/\s\[[a-z]*?[0-9]+\]/g, "")
+        renderedMessage = [
+          <span
+            key="1"
+            className={messageStyle}
+            dangerouslySetInnerHTML={{ __html: messageCopy }}
+          ></span>,
+        ]
+      }
+      // TODO is it bad to do two regex operations?
     } else {
-      renderedMessage = [messageCopy]
+      renderedMessage = [
+        <span key="1" className={messageStyle}>
+          {message}
+        </span>,
+      ]
     }
     // 60 is magick number that represents the collapsed list width
     const citationTitleLen = 60 / filteredCitations.length
 
-    return [renderedMessage, filteredCitations, citationTitleLen, citationButtons]
-  }, [hideCitations, message, citations, isFromChatbot, citationsOpen])
+    return [renderedMessage, filteredCitations, citationTitleLen]
+  }, [message, citations, isFromChatbot, citationsOpen])
 
   return (
     <div className={bubbleStyle(isFromChatbot)}>
-      {processedMessage.map((s, idx) => (
-        <span key={idx} className={messageStyle}>
-          <span dangerouslySetInnerHTML={{ __html: s }}></span>
-          {citationButtons[idx]}
-        </span>
-      ))}
+      {processedMessage}
 
-      {isFromChatbot && !hideCitations && processedCitations.length > 0 && (
+      {isFromChatbot && processedCitations.length > 0 && (
         <div className={referenceListStyle(citationsOpen)}>
           <hr></hr>
           <h4>References</h4>

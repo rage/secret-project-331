@@ -161,18 +161,16 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     messageCopy = sanitizeCourseMaterialHtml(md.render(messageCopy).trim())
     let renderedMessage: ReactElement[] = []
     let filteredCitations: ChatbotConversationMessageCitation[] = []
+    let citedDocs = Array.from(messageCopy.matchAll(/\[[a-z]*?([0-9]+)\]/g), (arr, _) =>
+      parseInt(arr[1]),
+    )
+    let citedDocsSet = new Set(citedDocs)
+    filteredCitations = citations ? citations : [] //.filter((cit) => citedDocsSet.has(cit.citation_number))
 
     if (isFromChatbot) {
-      let messageParts = messageCopy.split(/\[[a-z]*?[0-9]+\]/g)
-
-      if (messageParts.length > 1 && citationsOpen && citations) {
+      if (filteredCitations.length > 0 && citationsOpen) {
         // if there are citations in text, render buttons for them & md
-        let citedDocs = Array.from(messageCopy.matchAll(/\[[a-z]*?([0-9]+)\]/g), (arr, _) =>
-          parseInt(arr[1]),
-        )
-        let citedDocsSet = new Set(citedDocs)
-        filteredCitations = citations //.filter((cit) => citedDocsSet.has(cit.citation_number))
-
+        let messageParts = messageCopy.split(/\[[a-z]*?[0-9]+\]/g)
         renderedMessage = messageParts.map((s, i) => {
           return (
             <span key={i} className={messageStyle}>
@@ -208,6 +206,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     }
     // 60 is magick number that represents the collapsed list width
     const citationTitleLen = 60 / filteredCitations.length
+    console.log(filteredCitations)
 
     return [renderedMessage, filteredCitations, citationTitleLen]
   }, [message, citations, isFromChatbot, citationsOpen])

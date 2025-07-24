@@ -175,14 +175,16 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           return (
             <span key={i} className={messageStyle}>
               <span dangerouslySetInnerHTML={{ __html: s }}></span>
-              <button
-                id={`cit-${citedDocs[i]}`}
-                popoverTarget={`popover-${citedDocs[i]}`}
-                onMouseEnter={() => console.log("hovered cit ", citedDocs[i])}
-                onMouseLeave={() => {}}
-              >
-                {citedDocs[i]}
-              </button>
+              {citedDocs[i] && (
+                <button
+                  id={`cit-${citedDocs[i]}`}
+                  popoverTarget={`popover-${citedDocs[i]}`}
+                  onMouseEnter={() => console.log("hovered cit ", citedDocs[i])}
+                  onMouseLeave={() => {}}
+                >
+                  {citedDocs[i]}
+                </button>
+              )}
             </span>
           )
         })
@@ -206,7 +208,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     }
     // 60 is magick number that represents the collapsed list width
     const citationTitleLen = 60 / filteredCitations.length
-    console.log(filteredCitations)
 
     return [renderedMessage, filteredCitations, citationTitleLen]
   }, [message, citations, isFromChatbot, citationsOpen])

@@ -16,8 +16,8 @@ interface MessageBubbleProps {
   isFromChatbot: boolean
   isPending: boolean
   citations: ChatbotConversationMessageCitation[] | undefined
-  updateRefElemHover: (elem: HTMLButtonElement | null) => void
-  updateRefElemClick: (elem: HTMLButtonElement | null) => void
+  onRefElemHover: (elem: HTMLButtonElement | null) => void
+  onRefElemClick: (elem: HTMLButtonElement | null) => void
   popperAttributes: { [key: string]: { [key: string]: string } | undefined }
 }
 
@@ -47,6 +47,14 @@ const citationStyle = css`
   padding: 2px 7px 2px 7px;
   border-radius: 10px;
   font-size: 85%;
+  a {
+    &:hover {
+      span {
+        color: ${baseTheme.colors.blue[700]}; /*accessibility issue, not enough contrast?*/
+        text-decoration: underline;
+      }
+    }
+  }
 `
 
 const messageStyle = css`
@@ -113,10 +121,6 @@ const referenceListStyle = (expanded: boolean) => css`
     gap: 1em;
     color: #000000;
     text-decoration: none;
-    &:hover {
-      color: blue;
-      text-decoration: underline;
-    }
   }
   #container {
     display: flex;
@@ -148,8 +152,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   isFromChatbot,
   isPending,
   citations,
-  updateRefElemHover,
-  updateRefElemClick,
+  onRefElemHover,
+  onRefElemClick,
   popperAttributes,
 }) => {
   const { t } = useTranslation()
@@ -176,19 +180,21 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
               {citedDocs[i] && (
                 <button
                   id={`cit-${citedDocs[i]}`}
+                  value={citedDocs[i]}
                   {...popperAttributes.popper}
                   onClick={(e) => {
-                    e.preventDefault()
-                    updateRefElemClick(e.currentTarget)
+                    onRefElemClick(e.currentTarget)
                   }}
                   onMouseEnter={(e) => {
-                    e.preventDefault()
-                    updateRefElemHover(e.currentTarget)
+                    onRefElemHover(e.currentTarget)
                   }}
-                  onMouseLeave={(e) => {
-                    e.preventDefault()
-                    updateRefElemHover(null)
+                  onMouseLeave={() => {
+                    onRefElemHover(null)
                   }}
+                  onBlur={() => {
+                    onRefElemClick(null)
+                  }}
+                  //aria-label={`Citation ${citedDocs[i]}`}
                 >
                   {citedDocs[i]}
                 </button>
@@ -224,8 +230,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     isFromChatbot,
     citationsOpen,
     popperAttributes.popper,
-    updateRefElemHover,
-    updateRefElemClick,
+    onRefElemHover,
+    onRefElemClick,
   ])
 
   return (

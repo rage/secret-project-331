@@ -64,7 +64,6 @@ const tooltipStyle = css`
   position: absolute;
   animation: fadeIn 0.2s ease-in-out;
   pointer-events: auto;
-  user-select: none;
 
   @keyframes fadeIn {
     from {
@@ -100,13 +99,15 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
   const [hoverPopperElement, setHoverPopperElement] = React.useState<boolean>(false)
   const [hoverRefElement, setHoverRefElement] = React.useState<boolean>(false)
 
-  const { styles, attributes, update } = usePopper(referenceElement, popperElement, {
+  const { styles, attributes } = usePopper(referenceElement, popperElement, {
     placement: "top",
     modifiers: [
       {
         name: "preventOverflow",
         options: {
           padding: 8,
+          boundary: "clippingParents",
+          altAxis: true,
         },
       },
       {
@@ -134,11 +135,16 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
   }, [hoverPopperElement, hoverRefElement])
 
   const handleRefElemClick = (elem: HTMLButtonElement | null) => {
+    // toggle if elem is provided, if elem is null then "unclick"
+    if (elem === null) {
+      setReferenceElement(null)
+      return
+    }
     setReferenceElement(referenceElement === null ? elem : null)
+    document.getElementById("popover")?.focus()
   }
 
   const handleRefElemHover = (elem: HTMLButtonElement | null) => {
-    console.log("updating hover,,, hovering ", hoverPopperElement)
     if (!(elem === null)) {
       setHoverRefElement(true)
       setReferenceElement(elem)
@@ -391,8 +397,8 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
             citations={citations.get(message.id)}
             isFromChatbot={message.is_from_chatbot}
             isPending={!message.message_is_complete && newMessageMutation.isPending}
-            updateRefElemHover={handleRefElemHover}
-            updateRefElemClick={handleRefElemClick}
+            onRefElemHover={handleRefElemHover}
+            onRefElemClick={handleRefElemClick}
             popperAttributes={attributes}
           />
         ))}

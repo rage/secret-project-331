@@ -16,8 +16,8 @@ interface MessageBubbleProps {
   isFromChatbot: boolean
   isPending: boolean
   citations: ChatbotConversationMessageCitation[] | undefined
-  setReferenceElement: React.Dispatch<React.SetStateAction<HTMLButtonElement | null>>
-  updateReferenceElement: (elem: HTMLButtonElement | null) => void
+  updateRefElemHover: (elem: HTMLButtonElement | null) => void
+  updateRefElemClick: (elem: HTMLButtonElement | null) => void
   popperAttributes: { [key: string]: { [key: string]: string } | undefined }
 }
 
@@ -148,8 +148,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   isFromChatbot,
   isPending,
   citations,
-  setReferenceElement,
-  updateReferenceElement,
+  updateRefElemHover,
+  updateRefElemClick,
   popperAttributes,
 }) => {
   const { t } = useTranslation()
@@ -176,19 +176,18 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
               {citedDocs[i] && (
                 <button
                   id={`cit-${citedDocs[i]}`}
-                  //popoverTarget={`popover`}
                   {...popperAttributes.popper}
                   onClick={(e) => {
                     e.preventDefault()
-                    updateReferenceElement(e.currentTarget)
+                    updateRefElemClick(e.currentTarget)
                   }}
                   onMouseEnter={(e) => {
                     e.preventDefault()
-                    setReferenceElement(e.currentTarget)
+                    updateRefElemHover(e.currentTarget)
                   }}
                   onMouseLeave={(e) => {
                     e.preventDefault()
-                    setReferenceElement(null)
+                    updateRefElemHover(null)
                   }}
                 >
                   {citedDocs[i]}
@@ -225,8 +224,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     isFromChatbot,
     citationsOpen,
     popperAttributes.popper,
-    setReferenceElement,
-    updateReferenceElement,
+    updateRefElemHover,
+    updateRefElemClick,
   ])
 
   return (

@@ -60,6 +60,7 @@ const messageReducer = (state: MessageState, action: MessageAction): MessageStat
 
 const tooltipStyle = css`
   z-index: 100;
+  padding: 5px;
   position: absolute;
   animation: fadeIn 0.2s ease-in-out;
   pointer-events: auto;
@@ -96,16 +97,12 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
 
   const [referenceElement, setReferenceElement] = React.useState<HTMLButtonElement | null>(null)
   const [popperElement, setPopperElement] = React.useState<HTMLElement | null>(null)
+  const [hoverPopperElement, setHoverPopperElement] = React.useState<boolean>(false)
+  const [hoverRefElement, setHoverRefElement] = React.useState<boolean>(false)
 
   const { styles, attributes, update } = usePopper(referenceElement, popperElement, {
     placement: "top",
     modifiers: [
-      {
-        name: "offset",
-        options: {
-          offset: [0, 8],
-        },
-      },
       {
         name: "preventOverflow",
         options: {
@@ -128,17 +125,26 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
     ],
     strategy: "absolute",
   })
-  /*   useEffect(() => {
-    if (update) {
-      update()
+  useEffect(() => {
+    if (!hoverRefElement) {
+      if (!hoverPopperElement) {
+        setReferenceElement(null)
+      }
     }
-  }, [referenceElement, update]) */
+  }, [hoverPopperElement, hoverRefElement])
 
-  const updateReferenceElement = (elem: HTMLButtonElement | null) => {
-    console.log("ref elem", referenceElement)
-    // idk what's wrong maybe delete it all
-
+  const handleRefElemClick = (elem: HTMLButtonElement | null) => {
     setReferenceElement(referenceElement === null ? elem : null)
+  }
+
+  const handleRefElemHover = (elem: HTMLButtonElement | null) => {
+    console.log("updating hover,,, hovering ", hoverPopperElement)
+    if (!(elem === null)) {
+      setHoverRefElement(true)
+      setReferenceElement(elem)
+    } else {
+      setHoverRefElement(false)
+    }
   }
 
   const newMessageMutation = useToastMutation(
@@ -385,8 +391,8 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
             citations={citations.get(message.id)}
             isFromChatbot={message.is_from_chatbot}
             isPending={!message.message_is_complete && newMessageMutation.isPending}
-            setReferenceElement={setReferenceElement}
-            updateReferenceElement={updateReferenceElement}
+            updateRefElemHover={handleRefElemHover}
+            updateRefElemClick={handleRefElemClick}
             popperAttributes={attributes}
           />
         ))}
@@ -481,12 +487,16 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
       </div>
       {referenceElement && (
         <div
-          //popover="auto"
-          id={`popover`}
           ref={setPopperElement}
           className={tooltipStyle}
           /* eslint-disable-next-line react/forbid-dom-props */
           style={styles.popper}
+          onMouseEnter={() => {
+            setHoverPopperElement(true)
+          }}
+          onMouseLeave={() => {
+            setHoverPopperElement(false)
+          }}
           {...attributes.popper}
         >
           <SpeechBalloon> 1</SpeechBalloon>

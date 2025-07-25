@@ -159,19 +159,19 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   const { t } = useTranslation()
   let [citationsOpen, setCitationsOpen] = useState(false)
   const [processedMessage, processedCitations, citationTitleLen] = useMemo(() => {
-    let messageCopy = message
-    messageCopy = sanitizeCourseMaterialHtml(md.render(messageCopy).trim()).slice(3, -4)
-    // slicing to remove the <p>-tags that envelope the whole message, since they will be broken
-    // when the message is split into parts later
     let renderedMessage: ReactElement[] = []
     let filteredCitations: ChatbotConversationMessageCitation[] = []
-    let citedDocs = Array.from(messageCopy.matchAll(/\[[a-z]*?([0-9]+)\]/g), (arr, _) =>
-      parseInt(arr[1]),
-    )
-    let citedDocsSet = new Set(citedDocs)
-    filteredCitations = citations ? citations : [] //.filter((cit) => citedDocsSet.has(cit.citation_number))
 
     if (isFromChatbot) {
+      let messageCopy = message
+      messageCopy = sanitizeCourseMaterialHtml(md.render(messageCopy).trim()).slice(3, -4)
+      // slicing to remove the <p>-tags that envelope the whole message, since they will be broken
+      // when the message is split into parts later
+      let citedDocs = Array.from(messageCopy.matchAll(/\[[a-z]*?([0-9]+)\]/g), (arr, _) =>
+        parseInt(arr[1]),
+      )
+      let citedDocsSet = new Set(citedDocs)
+      filteredCitations = citations ? citations : [] //.filter((cit) => citedDocsSet.has(cit.citation_number))
       if (filteredCitations.length > 0 && citationsOpen) {
         // if there are citations in text, render buttons for them & md
         let messageParts = messageCopy.split(/\[[a-z]*?[0-9]+\]/g)
@@ -194,7 +194,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                     onRefElemHover(null)
                   }}
                   onBlur={(e) => {
-                    console.log("getting unfocused")
                     if (e.relatedTarget?.id === "popover-button") {
                       return
                     }
@@ -220,6 +219,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         ]
       }
     } else {
+      // user message with no md rendering
       renderedMessage = [
         <span key="1" className={messageStyle}>
           {message}

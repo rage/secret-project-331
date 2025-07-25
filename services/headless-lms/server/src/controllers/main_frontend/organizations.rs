@@ -303,6 +303,7 @@ PUT `/api/v0/main-frontend/organizations/{organization_id}` - Updates an organiz
 struct OrganizationUpdatePayload {
     name: String,
     hidden: bool,
+    slug: String,
 }
 
 #[instrument(skip(pool))]
@@ -328,6 +329,7 @@ async fn update_organization(
         *organization_id,
         &payload.name,
         payload.hidden,
+        &payload.slug,
     )
     .await?;
 
@@ -404,8 +406,8 @@ async fn create_organization(
     };
 
     if payload.hidden {
-        models::organizations::update_name_and_hidden(&mut conn, org_id, &payload.name, true)
-            .await?;
+        models::organizations::update_name_and_hidden(&mut conn, org_id, &payload.name, true, &payload.slug).await?;
+
     }
 
     let db_org = models::organizations::get_organization(&mut conn, org_id).await?;

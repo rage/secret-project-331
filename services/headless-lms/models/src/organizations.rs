@@ -178,15 +178,19 @@ pub async fn update_name_and_hidden(
     id: Uuid,
     name: &str,
     hidden: bool,
+    slug: &str,
 ) -> ModelResult<()> {
     sqlx::query!(
         r#"
-        UPDATE organizations
-        SET name = $1, deleted_at = CASE WHEN $2 THEN NOW() ELSE NULL END
-        WHERE id = $3
-        "#,
+    UPDATE organizations
+    SET name = $1,
+        deleted_at = CASE WHEN $2 THEN NOW() ELSE NULL END,
+        slug = $3
+    WHERE id = $4
+    "#,
         name,
         hidden,
+        slug,
         id
     )
     .execute(conn)

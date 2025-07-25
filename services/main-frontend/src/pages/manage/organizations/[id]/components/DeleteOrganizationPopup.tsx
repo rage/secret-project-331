@@ -58,7 +58,6 @@ const DeleteOrganizationPopup: React.FC<Props> = ({ show, setShow, handleDelete 
         type="text"
         value={confirmText}
         onChange={(e) => setConfirmText(e.target.value)}
-        placeholder={t("type-delete-to-confirm")}
         className={css`
           border: 1.6px solid #e4e5e8;
           border-radius: 2px;

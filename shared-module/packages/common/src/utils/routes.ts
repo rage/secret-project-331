@@ -24,6 +24,10 @@ export function manageExerciseServicesRoute() {
   return "/manage/exercise-services"
 }
 
+export function manageOrganizationRoute(organizationId: string) {
+  return `/manage/organizations/${organizationId}`
+}
+
 export function searchUsersRoute() {
   return "/manage/search-users"
 }

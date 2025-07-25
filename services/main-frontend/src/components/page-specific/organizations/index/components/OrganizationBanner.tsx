@@ -1,12 +1,17 @@
 import { css } from "@emotion/css"
-import { ApartmentBuilding } from "@vectopus/atlas-icons-react"
+import { ApartmentBuilding, Gear } from "@vectopus/atlas-icons-react"
+import { useRouter } from "next/router"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import UnstyledA from "@/shared-module/common/components/UnstyledA"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { organizationFrontPageRoute } from "@/shared-module/common/utils/routes"
+import {
+  manageOrganizationRoute,
+  organizationFrontPageRoute,
+} from "@/shared-module/common/utils/routes"
 
 type Props = {
   organization: {
@@ -17,6 +22,9 @@ type Props = {
 }
 
 const OrganizationBanner: React.FC<Props> = ({ organization }) => {
+  const { t } = useTranslation()
+  const router = useRouter()
+
   return (
     <div
       key={organization.id}
@@ -58,7 +66,78 @@ const OrganizationBanner: React.FC<Props> = ({ organization }) => {
       >
         <OrganizationIcon />
         <OrganizationText name={organization.name} />
-        <OrganizationSelectButton slug={organization.slug} />
+        <div
+          className={css`
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-left: auto;
+            margin-right: 1rem;
+          `}
+        >
+          <OnlyRenderIfPermissions
+            action={{ type: "create_courses_or_exams" }}
+            resource={{ type: "organization", id: organization.id }}
+          >
+            <a
+              href={manageOrganizationRoute(organization.id)}
+              onClick={(e) => {
+                e.preventDefault()
+                router.push(manageOrganizationRoute(organization.id))
+              }}
+              className={css`
+                width: 25px;
+                height: 25px;
+                border-radius: 50%;
+                background-color: rgba(237, 238, 240, 1);
+                border: none;
+                margin-right: 0.5rem;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-decoration: none;
+
+                &:hover {
+                  background-color: rgb(216, 216, 216);
+                }
+              `}
+            >
+              <Gear
+                className={css`
+                  width: 14px;
+                  height: 13px;
+                  color: rgba(26, 35, 51, 1);
+                `}
+              />
+            </a>
+          </OnlyRenderIfPermissions>
+
+          <a
+            href={`/org/${organization.slug}`}
+            className={css`
+              background-color: rgba(237, 238, 240, 1);
+              color: rgba(26, 35, 51, 1);
+              border: none;
+              border-radius: 0px;
+              padding: 0.4rem 0.8rem;
+              font-family: ${primaryFont};
+              font-size: 18px;
+              line-height: 100%;
+              letter-spacing: 0;
+              cursor: pointer;
+              text-decoration: none;
+              display: inline-block;
+
+              &:hover {
+                transition: background-color 0.3s;
+                background-color: rgb(216, 216, 216);
+              }
+            `}
+          >
+            {t("label-select")}
+          </a>
+        </div>
       </div>
     </div>
   )

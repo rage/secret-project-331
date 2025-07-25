@@ -59,6 +59,7 @@ const messageReducer = (state: MessageState, action: MessageAction): MessageStat
 }
 
 const tooltipStyle = css`
+  inset: unset;
   z-index: 100;
   padding: 5px;
   position: absolute;
@@ -136,12 +137,13 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
 
   const handleRefElemClick = (elem: HTMLButtonElement | null) => {
     // toggle if elem is provided, if elem is null then "unclick"
-    if (elem === null) {
-      setReferenceElement(null)
+    if (elem === null && hoverPopperElement) {
       return
+    } else if (!(elem === null)) {
+      setReferenceElement(referenceElement === null ? elem : null)
+    } else {
+      setReferenceElement(null)
     }
-    setReferenceElement(referenceElement === null ? elem : null)
-    document.getElementById("popover")?.focus()
   }
 
   const handleRefElemHover = (elem: HTMLButtonElement | null) => {
@@ -493,6 +495,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
       </div>
       {referenceElement && (
         <div
+          id="popover"
           ref={setPopperElement}
           className={tooltipStyle}
           /* eslint-disable-next-line react/forbid-dom-props */
@@ -503,9 +506,22 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
           onMouseLeave={() => {
             setHoverPopperElement(false)
           }}
+          onBlur={() => {
+            setReferenceElement(null)
+          }}
           {...attributes.popper}
         >
-          <SpeechBalloon> 1</SpeechBalloon>
+          <SpeechBalloon>
+            {" "}
+            <button
+              id="popover-button"
+              onClick={() => {
+                console.log("clicked pop")
+              }}
+            >
+              AAAA
+            </button>
+          </SpeechBalloon>
         </div>
       )}
     </div>

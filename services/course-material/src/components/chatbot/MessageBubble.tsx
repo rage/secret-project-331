@@ -160,7 +160,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   let [citationsOpen, setCitationsOpen] = useState(false)
   const [processedMessage, processedCitations, citationTitleLen] = useMemo(() => {
     let messageCopy = message
-    messageCopy = sanitizeCourseMaterialHtml(md.render(messageCopy).trim())
+    messageCopy = sanitizeCourseMaterialHtml(md.render(messageCopy).trim()).slice(3, -4)
+    // slicing to remove the <p>-tags that envelope the whole message, since they will be broken
+    // when the message is split into parts later
     let renderedMessage: ReactElement[] = []
     let filteredCitations: ChatbotConversationMessageCitation[] = []
     let citedDocs = Array.from(messageCopy.matchAll(/\[[a-z]*?([0-9]+)\]/g), (arr, _) =>
@@ -191,7 +193,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                   onMouseLeave={() => {
                     onRefElemHover(null)
                   }}
-                  onBlur={() => {
+                  onBlur={(e) => {
+                    console.log("getting unfocused")
+                    if (e.relatedTarget?.id === "popover-button") {
+                      return
+                    }
                     onRefElemClick(null)
                   }}
                   //aria-label={`Citation ${citedDocs[i]}`}

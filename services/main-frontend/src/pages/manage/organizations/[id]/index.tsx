@@ -22,6 +22,7 @@ import {
 import { fetchRoles, giveRole, removeRole } from "@/services/backend/roles"
 import { RoleDomain, RoleUser, UserRole } from "@/shared-module/common/bindings"
 import type { Organization } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -59,6 +60,8 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
   const [editRole, setEditRole] = React.useState("")
   const [editedName, setEditedName] = React.useState("")
   const [showDeletePopup, setShowDeletePopup] = React.useState(false)
+  const [editedSlug, setEditedSlug] = React.useState("")
+
   const router = useRouter()
 
   const addMutation = useToastMutation(
@@ -147,8 +150,10 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
   }
 
   const updateOrgMutation = useToastMutation(
-    (newData: { name: string; hidden: boolean }) =>
-      updateOrganization(query.id, newData.name, newData.hidden),
+    (newData: { name: string; hidden: boolean; slug: string }) => {
+      console.log("Sending payload:", newData)
+      return updateOrganization(query.id, newData.name, newData.hidden, newData.slug)
+    },
     { notify: true, method: "PUT" },
     {
       onSuccess: () => {
@@ -195,6 +200,7 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
   React.useEffect(() => {
     if (organization.data) {
       setEditedName(organization.data.name)
+      setEditedSlug(organization.data.slug)
       setHidden(organization.data.deleted_at !== null)
     }
   }, [organization.data])
@@ -224,6 +230,8 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
       showDeletePopup,
       setShowDeletePopup,
       deleteMutation,
+      editedSlug,
+      setEditedSlug,
     )
   }
 
@@ -287,6 +295,8 @@ const content = (
   showDeletePopup: boolean,
   setShowDeletePopup: React.Dispatch<React.SetStateAction<boolean>>,
   deleteMutation: UseMutationResult<unknown, unknown, void, unknown>,
+  editedSlug: string,
+  setEditedSlug: React.Dispatch<React.SetStateAction<string>>,
 ) => (
   <div
     className={css`
@@ -397,6 +407,8 @@ const content = (
           showDeletePopup,
           setShowDeletePopup,
           deleteMutation,
+          editedSlug,
+          setEditedSlug,
         )}
       </div>
     ) : (
@@ -415,10 +427,17 @@ const designContent = (
   setEditedName: React.Dispatch<React.SetStateAction<string>>,
   hidden: boolean,
   setHidden: React.Dispatch<React.SetStateAction<boolean>>,
-  updateOrgMutation: UseMutationResult<void, unknown, { name: string; hidden: boolean }, unknown>,
+  updateOrgMutation: UseMutationResult<
+    void,
+    unknown,
+    { name: string; hidden: boolean; slug: string },
+    unknown
+  >,
   showDeletePopup: boolean,
   setShowDeletePopup: React.Dispatch<React.SetStateAction<boolean>>,
-  deleteMutation: UseMutationResult<unknown, unknown, void, unknown>, // ⬅️ Add this
+  deleteMutation: UseMutationResult<unknown, unknown, void, unknown>,
+  editedSlug: string,
+  setEditedSlug: React.Dispatch<React.SetStateAction<string>>,
 ) => {
   return (
     <div className={containerBase}>
@@ -559,6 +578,7 @@ const designContent = (
           )}
         </div>
 
+        {/* SLUG FIELD */}
         <div
           className={css`
             display: flex;
@@ -566,27 +586,63 @@ const designContent = (
             gap: 24px;
           `}
         >
-          <span
+          <label
+            htmlFor="organization-slug"
             className={css`
               font-size: 14px;
               width: 80px;
+              flex-shrink: 0;
             `}
           >
             {t("text-field-label-or-header-slug-or-short-name")}
-          </span>
+          </label>
+
+          {editMode ? (
+            <input
+              id="organization-slug"
+              type="text"
+              value={editedSlug}
+              onChange={(e) => setEditedSlug(e.target.value)}
+              className={css`
+                width: 70%;
+                border: 2px solid #e4e5e8;
+                border-radius: 2px;
+                padding: 8px 12px;
+                font-size: 14px;
+                ${respondToOrLarger.lg} {
+                  width: 250px;
+                }
+              `}
+            />
+          ) : (
+            <span
+              className={css`
+                font-size: 14px;
+                font-family: "Inter", sans-serif;
+                line-height: 20px;
+                color: #1a2333;
+              `}
+            >
+              {editedSlug}
+            </span>
+          )}
         </div>
 
-        <button className={primaryButton} onClick={() => setShowDeletePopup(true)}>
-          {t("delete-organization")}
-        </button>
+        {editMode && (
+          <div>
+            <Button variant="secondary" size="medium" onClick={() => setShowDeletePopup(true)}>
+              {t("delete-organization")}
+            </Button>
 
-        <DeleteOrganizationPopup
-          show={showDeletePopup}
-          setShow={setShowDeletePopup}
-          handleDelete={() => {
-            deleteMutation.mutate()
-          }}
-        />
+            <DeleteOrganizationPopup
+              show={showDeletePopup}
+              setShow={setShowDeletePopup}
+              handleDelete={() => {
+                deleteMutation.mutate()
+              }}
+            />
+          </div>
+        )}
 
         {/* BUTTONS */}
         <div
@@ -601,7 +657,9 @@ const designContent = (
             <>
               <button
                 className={primaryButton}
-                onClick={() => updateOrgMutation.mutate({ name: editedName, hidden })}
+                onClick={() => {
+                  updateOrgMutation.mutate({ name: editedName, hidden, slug: editedSlug })
+                }}
               >
                 {t("button-text-save")}
               </button>

@@ -12,6 +12,7 @@ import OrganizationBanner from "./components/OrganizationBanner"
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { primaryFont } from "@/shared-module/common/styles"
@@ -85,23 +86,28 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
       >
         {t("select-organization")}
       </p>
-      <div
-        className={css`
-          display: flex;
-          justify-content: center;
-          margin-bottom: 2rem;
-        `}
+      <OnlyRenderIfPermissions
+        action={{ type: "create_courses_or_exams" }}
+        resource={{ type: "global_permissions" }}
       >
-        <Button
-          variant="primary"
-          size="medium"
-          onClick={() => {
-            setShowCreatePopup(true)
-          }}
+        <div
+          className={css`
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+          `}
         >
-          {t("create-a-new-organization")}
-        </Button>
-      </div>
+          <Button
+            variant="primary"
+            size="medium"
+            onClick={() => {
+              setShowCreatePopup(true)
+            }}
+          >
+            {t("create-a-new-organization")}
+          </Button>
+        </div>
+      </OnlyRenderIfPermissions>
 
       {allOrganizationsQuery.isError && (
         <ErrorBanner variant={"readOnly"} error={allOrganizationsQuery.error} />

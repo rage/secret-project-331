@@ -56,4 +56,12 @@ test("can add and delete exercise service", async ({ page, headless }, testInfo)
     },
     clearNotifications: true,
   })
+
+  // finds an element with the text "New exercise service",
+  // finds all of its ancestors that contain a Delete button,
+  // selects the first (lowest) one and finds the button inside...
+  await page.click(
+    'xpath=//*[text()="New exercise service"]/ancestor::*[descendant::button[@aria-label="Delete"]][1]/descendant::button[@aria-label="Delete"]',
+  )
+  await page.click('button:text("Delete")')
 })

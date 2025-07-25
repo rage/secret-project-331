@@ -157,6 +157,60 @@ WHERE user_id = $1
     Ok(record)
 }
 
+pub async fn is_reset_password_token_valid(
+    conn: &mut PgConnection,
+    token: &Uuid,
+) -> ModelResult<bool> {
+    let now = Utc::now();
+    let record = sqlx::query!(
+        r#"
+SELECT *
+FROM password_reset_tokens
+WHERE token = $1
+  AND deleted_at IS NULL
+  AND used_at IS NULL
+  AND expires_at > $2
+       "#,
+        token,
+        now
+    )
+    .fetch_optional(conn)
+    .await?;
+
+    Ok(record.is_some())
+}
+
+pub async fn change_user_password(
+    conn: &mut PgConnection,
+    token: Uuid,
+    password_hash: SecretString,
+) -> ModelResult<bool> {
+    let record = sqlx::query!(
+        r#"
+        SELECT user_id
+        FROM password_reset_tokens
+        WHERE token = $1
+          AND deleted_at IS NULL
+          AND used_at IS NULL
+          AND expires_at > NOW()
+        "#,
+        token
+    )
+    .fetch_optional(&mut *conn)
+    .await?;
+
+    let user_id = match record {
+        Some(r) => r.user_id,
+        None => return Ok(false),
+    };
+
+    upsert_user_password(conn, user_id, password_hash).await?;
+
+    mark_token_used(conn, token).await?;
+
+    Ok(true)
+}
+
 pub async fn mark_token_used(conn: &mut PgConnection, token: Uuid) -> ModelResult<bool> {
     let result = sqlx::query!(
         r#"

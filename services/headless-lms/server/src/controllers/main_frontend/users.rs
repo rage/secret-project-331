@@ -1,9 +1,11 @@
 use crate::prelude::*;
+use anyhow::anyhow;
 use models::{
     course_instance_enrollments::CourseInstanceEnrollmentsInfo, courses::Course,
     exercise_reset_logs::ExerciseResetLog, research_forms::ResearchFormQuestionAnswer,
     user_research_consents::UserResearchConsent, users::User,
 };
+use secrecy::SecretString;
 
 /**
 GET `/api/v0/main-frontend/users/:id`
@@ -198,6 +200,49 @@ pub async fn send_reset_password_email(
     token.authorized_ok(web::Json(true))
 }
 
+#[instrument(skip(pool))]
+pub async fn reset_password_token_status(
+    pool: web::Data<PgPool>,
+    password_token: web::Path<String>,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let password_token = Uuid::parse_str(&password_token)
+        .map_err(|e| anyhow::anyhow!("Invalid UUID format for password_token: {}", e))?;
+
+    let res =
+        models::user_passwords::is_reset_password_token_valid(&mut conn, &password_token).await?;
+    token.authorized_ok(web::Json(res))
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ChangePasswordData {
+    pub token: String,
+    pub new_password: String,
+}
+
+#[instrument(skip(pool))]
+pub async fn change_user_password(
+    pool: web::Data<PgPool>,
+    payload: web::Json<ChangePasswordData>,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let token_uuid = Uuid::parse_str(&payload.token)?;
+    let password_hash = models::user_passwords::hash_password(&SecretString::new(
+        payload.new_password.clone().into(),
+    ))
+    .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
+
+    let res =
+        models::user_passwords::change_user_password(&mut conn, token_uuid, password_hash).await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route(
         "/user-research-form-question-answers",
@@ -224,5 +269,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route(
         "/{user_id}/user-reset-exercise-logs",
         web::get().to(get_user_reset_exercise_logs),
-    );
+    )
+    .route(
+        "/reset-password-token-status/{token}",
+        web::get().to(reset_password_token_status),
+    )
+    .route("/change-password", web::post().to(change_user_password));
 }

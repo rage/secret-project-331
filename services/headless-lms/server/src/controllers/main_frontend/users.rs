@@ -1,9 +1,11 @@
 use crate::prelude::*;
+use anyhow::anyhow;
 use models::{
     course_instance_enrollments::CourseInstanceEnrollmentsInfo, courses::Course,
     exercise_reset_logs::ExerciseResetLog, research_forms::ResearchFormQuestionAnswer,
     user_research_consents::UserResearchConsent, users::User,
 };
+use secrecy::SecretString;
 
 /**
 GET `/api/v0/main-frontend/users/:id`
@@ -165,6 +167,82 @@ pub async fn get_user_reset_exercise_logs(
     token.authorized_ok(web::Json(res))
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct EmailData {
+    pub email: String,
+}
+
+#[instrument(skip(pool))]
+pub async fn send_reset_password_email(
+    pool: web::Data<PgPool>,
+    payload: web::Json<EmailData>,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let email = &payload.email;
+
+    let user = { models::users::get_by_email(&mut conn, email).await? };
+
+    let _password_token =
+        models::user_passwords::insert_password_reset_token(&mut conn, user.id).await?;
+
+    let reset_templates = models::email_templates::get_generic_email_templates_by_subject(
+        &mut conn,
+        "Reset password request",
+    )
+    .await?;
+
+    let _ =
+        models::email_deliveries::insert_email_delivery(&mut conn, user.id, reset_templates[0].id)
+            .await?;
+    token.authorized_ok(web::Json(true))
+}
+
+#[instrument(skip(pool))]
+pub async fn reset_password_token_status(
+    pool: web::Data<PgPool>,
+    password_token: web::Path<String>,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let password_token = Uuid::parse_str(&password_token)
+        .map_err(|e| anyhow::anyhow!("Invalid UUID format for password_token: {}", e))?;
+
+    let res =
+        models::user_passwords::is_reset_password_token_valid(&mut conn, &password_token).await?;
+    token.authorized_ok(web::Json(res))
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ChangePasswordData {
+    pub token: String,
+    pub new_password: String,
+}
+
+#[instrument(skip(pool))]
+pub async fn change_user_password(
+    pool: web::Data<PgPool>,
+    payload: web::Json<ChangePasswordData>,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let token_uuid = Uuid::parse_str(&payload.token)?;
+    let password_hash = models::user_passwords::hash_password(&SecretString::new(
+        payload.new_password.clone().into(),
+    ))
+    .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
+
+    let res =
+        models::user_passwords::change_user_password(&mut conn, token_uuid, password_hash).await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route(
         "/user-research-form-question-answers",
@@ -175,17 +253,26 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         "/get-user-research-consent",
         web::get().to(get_research_consent_by_user_id),
     )
+    .route(
+        "/user-research-consents",
+        web::post().to(post_user_consents),
+    )
+    .route(
+        "/send-reset-password-email",
+        web::post().to(send_reset_password_email),
+    )
     .route("/{user_id}", web::get().to(get_user))
     .route(
         "/{user_id}/course-instance-enrollments",
         web::get().to(get_course_instance_enrollments_for_user),
     )
     .route(
-        "/user-research-consents",
-        web::post().to(post_user_consents),
-    )
-    .route(
         "/{user_id}/user-reset-exercise-logs",
         web::get().to(get_user_reset_exercise_logs),
-    );
+    )
+    .route(
+        "/reset-password-token-status/{token}",
+        web::get().to(reset_password_token_status),
+    )
+    .route("/change-password", web::post().to(change_user_password));
 }

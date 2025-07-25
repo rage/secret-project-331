@@ -3,13 +3,15 @@ use std::{env, time::Duration};
 use anyhow::{Context, Result};
 use futures::{FutureExt, StreamExt};
 use headless_lms_models::email_deliveries::{Email, fetch_emails, mark_as_sent, save_err_to_email};
-use headless_lms_utils::email_processor::{self, EmailGutenbergBlock};
+use headless_lms_models::user_passwords::get_unused_reset_password_token_with_user_id;
+use headless_lms_utils::email_processor::{self, BlockAttributes, EmailGutenbergBlock};
 use lettre::{
     Message, SmtpTransport, Transport,
     message::{MultiPart, SinglePart, header},
 };
 use once_cell::sync::Lazy;
 use sqlx::PgPool;
+use std::collections::HashMap;
 
 const BATCH_SIZE: usize = 100;
 
@@ -21,11 +23,7 @@ static DB_URL: Lazy<String> =
     Lazy::new(|| env::var("DATABASE_URL").expect("No db url found in the env variables."));
 
 pub async fn mail_sender() -> Result<()> {
-    tracing_subscriber::fmt().init();
-    dotenv::dotenv().ok();
-
     let pool = PgPool::connect(&DB_URL).await?;
-
     let mut conn = pool.acquire().await?;
 
     let emails = fetch_emails(&mut conn).await?;
@@ -48,19 +46,47 @@ pub async fn mail_sender() -> Result<()> {
 }
 
 pub async fn send_message(email: Email, mailer: &SmtpTransport, pool: PgPool) -> Result<()> {
-    let email_block: Vec<EmailGutenbergBlock> =
+    let mut conn = pool.acquire().await?;
+    tracing::info!("Email send messages...");
+
+    let mut email_block: Vec<EmailGutenbergBlock> =
         serde_json::from_value(email.body.context("No body")?)?;
+
+    // Check if emails subject is "Reset password request" and insert users unique reset -link to the email"
+    if email
+        .subject
+        .as_deref()
+        .unwrap_or_default()
+        .to_lowercase()
+        .contains("reset password request")
+    {
+        let token = get_unused_reset_password_token_with_user_id(&mut conn, email.user_id).await?;
+
+        let reset_url = match token {
+            // THIS URL NEED TO BE CHANGED TO A CORRECT ONE FOR PRODUCTION
+            Some(token_str) => format!(
+                "https://project-331.local/reset-password/{}",
+                token_str.token
+            ),
+            None => {
+                tracing::error!("No reset token found for user {}", email.user_id);
+                return Err(anyhow::anyhow!("No reset token found"));
+            }
+        };
+
+        let mut replacements = HashMap::new();
+        replacements.insert("RESET_LINK".to_string(), reset_url.to_string());
+        email_block = insert_reset_password_link_placeholders(email_block, &replacements);
+    }
 
     let msg_as_plaintext = email_processor::process_content_to_plaintext(&email_block);
     let msg_as_html = email_processor::process_content_to_html(&email_block);
 
-    let mut conn = pool.acquire().await?;
-    let email_to = email.to;
+    let email_to = &email.to;
     let msg = Message::builder()
         .from(MOOCFI_EMAIL.parse()?)
         .to(email
             .to
-            .to_string()
             .parse()
             .with_context(|| format!("Invalid address: {}", email_to))?)
         .subject(email.subject.context("No subject")?)
@@ -92,7 +118,39 @@ pub async fn send_message(email: Email, mailer: &SmtpTransport, pool: PgPool) ->
     Ok(())
 }
 
+fn insert_reset_password_link_placeholders(
+    blocks: Vec<EmailGutenbergBlock>,
+    replacements: &HashMap<String, String>,
+) -> Vec<EmailGutenbergBlock> {
+    blocks
+        .into_iter()
+        .map(|mut block| {
+            if let BlockAttributes::Paragraph {
+                content,
+                drop_cap,
+                rest,
+            } = block.attributes
+            {
+                let replaced_content = replacements.iter().fold(content, |acc, (key, value)| {
+                    acc.replace(&format!("{{{{{}}}}}", key), value)
+                });
+
+                block.attributes = BlockAttributes::Paragraph {
+                    content: replaced_content,
+                    drop_cap,
+                    rest,
+                };
+            }
+            block
+        })
+        .collect()
+}
+
 pub async fn main() -> anyhow::Result<()> {
+    tracing_subscriber::fmt().init();
+    dotenv::dotenv().ok();
+    tracing::info!("Email sender starting up...");
+
     let mut interval = tokio::time::interval(Duration::from_secs(10));
     loop {
         interval.tick().await;

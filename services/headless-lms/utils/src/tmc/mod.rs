@@ -178,6 +178,25 @@ impl TmcClient {
             .map(|_| ())
     }
 
+    pub async fn set_user_password_managed_by_courses_mooc_fi(
+        &self,
+        user_upstream_id: String,
+        user_id: String,
+    ) -> Result<()> {
+        let url = format!(
+            "{}/{}/set_password_managed_by_courses_mooc_fi",
+            TMC_API_URL, user_upstream_id
+        );
+
+        let payload = serde_json::json!({
+            "courses_mooc_fi_user_id": user_id,
+        });
+
+        self.request_with_headers(reqwest::Method::POST, &url, true, Some(payload))
+            .await
+            .map(|_| ())
+    }
+
     pub fn mock_for_test() -> Self {
         Self {
             client: Client::default(),

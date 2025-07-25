@@ -33,7 +33,7 @@ pub async fn main() -> anyhow::Result<()> {
         }
 
         let exercise_services_by_type =
-            models::exercise_service_info::get_all_exercise_services_by_type(
+            models::exercise_service_info::get_upsert_all_exercise_services_by_type(
                 &mut conn,
                 models_requests::fetch_service_info,
             )

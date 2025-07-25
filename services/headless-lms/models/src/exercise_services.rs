@@ -1,10 +1,7 @@
-use futures::future::BoxFuture;
 use url::Url;
 
 use crate::{
-    exercise_service_info::{
-        ExerciseServiceInfo, ExerciseServiceInfoApi, get_all_exercise_services_by_type,
-    },
+    exercise_service_info::{ExerciseServiceInfo, get_all_exercise_services_by_type},
     prelude::*,
 };
 
@@ -220,10 +217,9 @@ WHERE deleted_at IS NULL
 
 pub async fn get_all_exercise_services_iframe_rendering_infos(
     conn: &mut PgConnection,
-    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Vec<ExerciseServiceIframeRenderingInfo>> {
     let services = get_exercise_services(conn).await?;
-    let service_infos = get_all_exercise_services_by_type(conn, fetch_service_info).await?;
+    let service_infos = get_all_exercise_services_by_type(conn).await?;
     let res = services
         .into_iter()
         .filter_map(|exercise_service| {

@@ -7,25 +7,24 @@ import { ExerciseFile, ExerciseIframeState, PublicSpec } from "../util/stateInte
 
 import Button from "@/shared-module/common/components/Button"
 import { RunResult } from "@/tmc/cli"
+import { runBrowserTests, waitForTestResults } from "@/util/requests"
 
 interface Props {
-  initialPublicSpec: PublicSpec & { type: "browser" }
-  sendTestRequestMessage: (archiveDownloadUrl: string, editorFiles: Array<ExerciseFile>) => void
+  publicSpec: PublicSpec
+  initialState: Array<ExerciseFile>
   testRequestResponse: RunResult | null
   setState: (updater: (state: ExerciseIframeState | null) => ExerciseIframeState | null) => void
 }
 
 const AnswerBrowserExercise: React.FC<React.PropsWithChildren<Props>> = ({
-  initialPublicSpec,
-  sendTestRequestMessage,
+  publicSpec,
+  initialState,
   testRequestResponse,
   setState,
 }) => {
   const { t } = useTranslation()
 
-  console.log("spec", initialPublicSpec)
-  const initialEditorFiles = initialPublicSpec.files
-  const [editorFiles, setEditorFiles] = useState(initialEditorFiles)
+  const [editorFiles, setEditorFiles] = useState(initialState)
   const setEditorState = (files: Array<ExerciseFile>) => {
     setEditorFiles(files)
     setState((old) => {
@@ -36,10 +35,19 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<Props>> = ({
       }
     })
   }
+  const [testResults, setTestResults] = useState<RunResult | null>(null)
 
   // "inline" exercise, solved in the browser
+  if (publicSpec.student_file_paths.length == 0) {
+    return <div>{t("no-student-files")}</div>
+  }
+
   // todo: support multiple files
-  const { filepath, contents } = editorFiles[0]
+  const exerciseFile = editorFiles.find((ef) => publicSpec.student_file_paths.includes(ef.filepath))
+  if (exerciseFile === undefined) {
+    return <div>{t("no-exercise-files")}</div>
+  }
+  const { filepath, contents } = exerciseFile
   return (
     <>
       <div>{filepath}</div>
@@ -64,7 +72,10 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<Props>> = ({
         variant="primary"
         size="medium"
         onClick={async () => {
-          sendTestRequestMessage(initialPublicSpec.archive_download_url, editorFiles)
+          const testRunId = await runBrowserTests(publicSpec.stub_download_url, filepath, contents)
+          waitForTestResults(testRunId).then((result) => {
+            setTestResults(result)
+          })
         }}
       >
         {t("test")}
@@ -76,15 +87,17 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<Props>> = ({
         variant="primary"
         size="medium"
         onClick={() => {
+          // todo: custom dialog
           const res = confirm(t("are-you-sure"))
           if (res) {
             // cloneDeep prevents setState from changing the initial spec (??)
-            setEditorState(_.cloneDeep(initialEditorFiles))
+            setEditorState(_.cloneDeep(initialState))
           }
         }}
       >
         {t("reset")}
       </Button>
+      <div>{testResults && testResults.status}</div>
     </>
   )
 }

@@ -171,18 +171,45 @@ pub async fn get_service_info_by_exercise_type(
 ) -> ModelResult<ExerciseServiceInfo> {
     let exercise_service = get_exercise_service_by_exercise_type(conn, exercise_type).await?;
     let service_info =
-        get_service_info_by_exercise_service(conn, &exercise_service, fetch_service_info).await?;
+        get_upsert_service_info_by_exercise_service(conn, &exercise_service, fetch_service_info)
+            .await?;
     Ok(service_info)
 }
 
 pub async fn get_all_exercise_services_by_type(
     conn: &mut PgConnection,
+) -> ModelResult<HashMap<String, (ExerciseService, ExerciseServiceInfo)>> {
+    let mut exercise_services_by_type = HashMap::new();
+    for exercise_service in get_exercise_services(conn).await? {
+        match get_service_info_by_exercise_service(conn, &exercise_service).await {
+            Ok(Some(info)) => {
+                exercise_services_by_type
+                    .insert(exercise_service.slug.clone(), (exercise_service, info));
+            }
+            _ => {
+                tracing::error!(
+                    "No corresponding service info found for {} ({})",
+                    exercise_service.name,
+                    exercise_service.id
+                );
+            }
+        }
+    }
+    Ok(exercise_services_by_type)
+}
+
+pub async fn get_upsert_all_exercise_services_by_type(
+    conn: &mut PgConnection,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<HashMap<String, (ExerciseService, ExerciseServiceInfo)>> {
     let mut exercise_services_by_type = HashMap::new();
     for exercise_service in get_exercise_services(conn).await? {
-        match get_service_info_by_exercise_service(conn, &exercise_service, &fetch_service_info)
-            .await
+        match get_upsert_service_info_by_exercise_service(
+            conn,
+            &exercise_service,
+            &fetch_service_info,
+        )
+        .await
         {
             Ok(info) => {
                 exercise_services_by_type
@@ -217,15 +244,18 @@ WHERE slug = ANY($1);",
     .await?;
     let mut exercise_services_by_type = HashMap::new();
     for exercise_service in selected_services {
-        let info =
-            get_service_info_by_exercise_service(conn, &exercise_service, &fetch_service_info)
-                .await?;
+        let info = get_upsert_service_info_by_exercise_service(
+            conn,
+            &exercise_service,
+            &fetch_service_info,
+        )
+        .await?;
         exercise_services_by_type.insert(exercise_service.slug.clone(), (exercise_service, info));
     }
     Ok(exercise_services_by_type)
 }
 
-pub async fn get_service_info_by_exercise_service(
+pub async fn get_upsert_service_info_by_exercise_service(
     conn: &mut PgConnection,
     exercise_service: &ExerciseService,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
@@ -245,6 +275,24 @@ pub async fn get_service_info_by_exercise_service(
     Ok(service_info)
 }
 
+pub async fn get_service_info_by_exercise_service(
+    conn: &mut PgConnection,
+    exercise_service: &ExerciseService,
+) -> ModelResult<Option<ExerciseServiceInfo>> {
+    let res = get_service_info(conn, exercise_service.id).await;
+    let service_info = match res {
+        Ok(exercise_service_info) => exercise_service_info,
+        _ => {
+            warn!(
+                "Could not find service info for {} ({}). This is rare and only should happen when a background worker has not had the opportunity to complete their fetching task yet.",
+                exercise_service.name, exercise_service.slug
+            );
+            return Ok(None);
+        }
+    };
+    Ok(Some(service_info))
+}
+
 /**
 Returns service info meant for the course material. If no service info is found and fetching it fails, we return None to
 indicate that the service info is unavailable.
@@ -256,9 +304,12 @@ pub async fn get_course_material_service_info_by_exercise_type(
 ) -> ModelResult<Option<CourseMaterialExerciseServiceInfo>> {
     match get_exercise_service_by_exercise_type(conn, exercise_type).await {
         Ok(exercise_service) => {
-            let full_service_info =
-                get_service_info_by_exercise_service(conn, &exercise_service, fetch_service_info)
-                    .await;
+            let full_service_info = get_upsert_service_info_by_exercise_service(
+                conn,
+                &exercise_service,
+                fetch_service_info,
+            )
+            .await;
             let service_info_option = match full_service_info {
                 Ok(o) => {
                     // Need to convert relative url to absolute url because

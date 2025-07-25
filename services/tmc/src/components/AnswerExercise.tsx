@@ -1,45 +1,45 @@
 import _ from "lodash"
 import React from "react"
 
-import { ExerciseIframeState, PublicSpec } from "../util/stateInterfaces"
+import { ExerciseIframeState, PublicSpec, UserAnswer } from "../util/stateInterfaces"
 
 import AnswerBrowserExercise from "./AnswerBrowserExercise"
 import AnswerEditorExercise from "./AnswerEditorExercise"
 
 import { UploadResultMessage } from "@/shared-module/common/exercise-service-protocol-types"
-import { ExerciseFile, RunResult } from "@/tmc/cli"
+import { RunResult } from "@/tmc/cli"
 
 interface Props {
-  initialPublicSpec: PublicSpec
+  publicSpec: PublicSpec
+  userAnswer: UserAnswer
   setState: (updater: (state: ExerciseIframeState | null) => ExerciseIframeState | null) => void
-  sendTestRequestMessage: (archiveDownloadUrl: string, editorFiles: Array<ExerciseFile>) => void
   testRequestResponse: RunResult | null
   sendFileUploadMessage: (filename: string, file: File) => void
   fileUploadResponse: UploadResultMessage | null
 }
 
 const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
-  initialPublicSpec,
+  publicSpec,
+  userAnswer,
   setState,
-  sendTestRequestMessage,
   testRequestResponse,
   sendFileUploadMessage,
   fileUploadResponse,
 }) => {
   // student exercise view
-  if (initialPublicSpec.type === "browser") {
+  if (userAnswer.type === "browser") {
     return (
       <AnswerBrowserExercise
-        initialPublicSpec={initialPublicSpec}
-        sendTestRequestMessage={sendTestRequestMessage}
+        publicSpec={publicSpec}
+        initialState={userAnswer.files}
         testRequestResponse={testRequestResponse}
         setState={setState}
       />
     )
-  } else if (initialPublicSpec.type === "editor") {
+  } else if (userAnswer.type === "editor") {
     return (
       <AnswerEditorExercise
-        initialPublicSpec={initialPublicSpec}
+        publicSpec={publicSpec}
         sendFileUploadMessage={sendFileUploadMessage}
         fileUploadResponse={fileUploadResponse}
       />

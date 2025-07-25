@@ -1,8 +1,9 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/exercise-services/`.
 
+use headless_lms_models::exercise_service_info::fetch_and_upsert_service_info;
 use models::exercise_services::{ExerciseService, ExerciseServiceNewOrUpdate};
 
-use crate::prelude::*;
+use crate::{domain::models_requests, prelude::*};
 
 /**
 DELETE `/api/v0/main-frontend/exercise-services/:id`
@@ -37,6 +38,17 @@ async fn add_exercise_service(
     let exercise_service = payload.0;
     let created =
         models::exercise_services::insert_exercise_service(&mut conn, &exercise_service).await?;
+
+    // try to get exercise service info
+    if let Err(err) =
+        fetch_and_upsert_service_info(&mut conn, &created, models_requests::fetch_service_info)
+            .await
+    {
+        tracing::warn!(
+            "Failed to get exercise service info for new exercise service {}: {err}",
+            created.name
+        );
+    }
 
     token.authorized_ok(web::Json(created))
 }

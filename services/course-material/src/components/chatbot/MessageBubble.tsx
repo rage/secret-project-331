@@ -1,15 +1,11 @@
 import { css } from "@emotion/css"
 import { Library } from "@vectopus/atlas-icons-react"
-import React, { ReactElement, useEffect, useMemo, useState } from "react"
+import React, { ReactElement, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { usePopper } from "react-popper"
-
-import { tooltipStyles } from "../ContentRenderer/core/formatting/CodeBlock/styles"
 
 import ThinkingIndicator from "./ThinkingIndicator"
 
 import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
-import SpeechBalloon from "@/shared-module/common/components/SpeechBalloon"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 import { getRemarkable } from "@/utils/getRemarkable"
@@ -21,6 +17,7 @@ interface MessageBubbleProps {
   isPending: boolean
   citations: ChatbotConversationMessageCitation[] | undefined
   setReferenceElement: React.Dispatch<React.SetStateAction<HTMLButtonElement | null>>
+  updateReferenceElement: (elem: HTMLButtonElement | null) => void
   popperAttributes: { [key: string]: { [key: string]: string } | undefined }
 }
 
@@ -152,6 +149,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   isPending,
   citations,
   setReferenceElement,
+  updateReferenceElement,
   popperAttributes,
 }) => {
   const { t } = useTranslation()
@@ -178,15 +176,18 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
               {citedDocs[i] && (
                 <button
                   id={`cit-${citedDocs[i]}`}
-                  //popoverTarget={`popover-${citedDocs[i]}`}
-                  //ref={setReferenceElement}
+                  //popoverTarget={`popover`}
                   {...popperAttributes.popper}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    updateReferenceElement(e.currentTarget)
+                  }}
                   onMouseEnter={(e) => {
-                    console.log("hovered cit ", citedDocs[i])
+                    e.preventDefault()
                     setReferenceElement(e.currentTarget)
                   }}
-                  onMouseLeave={() => {
-                    console.log("mouse lleave")
+                  onMouseLeave={(e) => {
+                    e.preventDefault()
                     setReferenceElement(null)
                   }}
                 >
@@ -218,7 +219,15 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     const citationTitleLen = 60 / filteredCitations.length
 
     return [renderedMessage, filteredCitations, citationTitleLen]
-  }, [message, citations, isFromChatbot, citationsOpen])
+  }, [
+    message,
+    citations,
+    isFromChatbot,
+    citationsOpen,
+    popperAttributes.popper,
+    setReferenceElement,
+    updateReferenceElement,
+  ])
 
   return (
     <div className={bubbleStyle(isFromChatbot)}>

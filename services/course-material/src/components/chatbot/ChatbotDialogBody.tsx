@@ -128,12 +128,18 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
     ],
     strategy: "absolute",
   })
-  useEffect(() => {
+  /*   useEffect(() => {
     if (update) {
       update()
     }
-  }, [referenceElement, update])
-  console.log("ref elem", referenceElement, "show", !(referenceElement == null))
+  }, [referenceElement, update]) */
+
+  const updateReferenceElement = (elem: HTMLButtonElement | null) => {
+    console.log("ref elem", referenceElement)
+    // idk what's wrong maybe delete it all
+
+    setReferenceElement(referenceElement === null ? elem : null)
+  }
 
   const newMessageMutation = useToastMutation(
     async () => {
@@ -380,6 +386,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
             isFromChatbot={message.is_from_chatbot}
             isPending={!message.message_is_complete && newMessageMutation.isPending}
             setReferenceElement={setReferenceElement}
+            updateReferenceElement={updateReferenceElement}
             popperAttributes={attributes}
           />
         ))}

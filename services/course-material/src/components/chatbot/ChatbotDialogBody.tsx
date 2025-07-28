@@ -3,7 +3,6 @@ import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { PaperAirplane } from "@vectopus/atlas-icons-react"
 import React, { useCallback, useEffect, useMemo, useReducer, useRef } from "react"
 import { useTranslation } from "react-i18next"
-import { usePopper } from "react-popper"
 import { v4 } from "uuid"
 
 import { ChatbotDialogProps } from "./ChatbotDialog"
@@ -21,7 +20,6 @@ import {
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
-import SpeechBalloon from "@/shared-module/common/components/SpeechBalloon"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -58,26 +56,6 @@ const messageReducer = (state: MessageState, action: MessageAction): MessageStat
   }
 }
 
-const tooltipStyle = css`
-  inset: unset;
-  z-index: 100;
-  padding: 5px;
-  position: absolute;
-  animation: fadeIn 0.2s ease-in-out;
-  pointer-events: auto;
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(5px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-`
-
 const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
   currentConversationInfo,
   newConversation,
@@ -94,66 +72,6 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
     optimisticMessage: null,
     streamingMessage: null,
   })
-
-  const [referenceElement, setReferenceElement] = React.useState<HTMLButtonElement | null>(null)
-  const [popperElement, setPopperElement] = React.useState<HTMLElement | null>(null)
-  const [hoverPopperElement, setHoverPopperElement] = React.useState<boolean>(false)
-  const [hoverRefElement, setHoverRefElement] = React.useState<boolean>(false)
-
-  const { styles, attributes } = usePopper(referenceElement, popperElement, {
-    placement: "top",
-    modifiers: [
-      {
-        name: "preventOverflow",
-        options: {
-          padding: 8,
-          boundary: "clippingParents",
-          altAxis: true,
-        },
-      },
-      {
-        name: "computeStyles",
-        options: {
-          gpuAcceleration: false,
-        },
-      },
-      {
-        name: "eventListeners",
-        options: {
-          scroll: true,
-          resize: true,
-        },
-      },
-    ],
-    strategy: "absolute",
-  })
-  useEffect(() => {
-    if (!hoverRefElement) {
-      if (!hoverPopperElement) {
-        setReferenceElement(null)
-      }
-    }
-  }, [hoverPopperElement, hoverRefElement])
-
-  const handleRefElemClick = (elem: HTMLButtonElement | null) => {
-    // toggle if elem is provided, if elem is null then "unclick"
-    if (elem === null && hoverPopperElement) {
-      return
-    } else if (!(elem === null)) {
-      setReferenceElement(referenceElement === null ? elem : null)
-    } else {
-      setReferenceElement(null)
-    }
-  }
-
-  const handleRefElemHover = (elem: HTMLButtonElement | null) => {
-    if (!(elem === null)) {
-      setHoverRefElement(true)
-      setReferenceElement(elem)
-    } else {
-      setHoverRefElement(false)
-    }
-  }
 
   const newMessageMutation = useToastMutation(
     async () => {
@@ -399,9 +317,6 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
             citations={citations.get(message.id)}
             isFromChatbot={message.is_from_chatbot}
             isPending={!message.message_is_complete && newMessageMutation.isPending}
-            onRefElemHover={handleRefElemHover}
-            onRefElemClick={handleRefElemClick}
-            popperAttributes={attributes}
           />
         ))}
       </div>
@@ -493,37 +408,6 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
       >
         {t("warning-chatbots-can-make-mistakes")}
       </div>
-      {referenceElement && (
-        <div
-          id="popover"
-          ref={setPopperElement}
-          className={tooltipStyle}
-          /* eslint-disable-next-line react/forbid-dom-props */
-          style={styles.popper}
-          onMouseEnter={() => {
-            setHoverPopperElement(true)
-          }}
-          onMouseLeave={() => {
-            setHoverPopperElement(false)
-          }}
-          onBlur={() => {
-            setReferenceElement(null)
-          }}
-          {...attributes.popper}
-        >
-          <SpeechBalloon>
-            {" "}
-            <button
-              id="popover-button"
-              onClick={() => {
-                console.log("clicked pop")
-              }}
-            >
-              AAAA
-            </button>
-          </SpeechBalloon>
-        </div>
-      )}
     </div>
   )
 }

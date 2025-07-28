@@ -1,11 +1,13 @@
 import { css } from "@emotion/css"
 import { Library } from "@vectopus/atlas-icons-react"
-import React, { ReactElement, useMemo, useState } from "react"
+import React, { ReactElement, useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
+import { usePopper } from "react-popper"
 
 import ThinkingIndicator from "./ThinkingIndicator"
 
 import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
+import SpeechBalloon from "@/shared-module/common/components/SpeechBalloon"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 import { getRemarkable } from "@/utils/getRemarkable"
@@ -16,10 +18,25 @@ interface MessageBubbleProps {
   isFromChatbot: boolean
   isPending: boolean
   citations: ChatbotConversationMessageCitation[] | undefined
-  onRefElemHover: (elem: HTMLButtonElement | null) => void
-  onRefElemClick: (elem: HTMLButtonElement | null) => void
-  popperAttributes: { [key: string]: { [key: string]: string } | undefined }
 }
+
+const tooltipStyle = css`
+  z-index: 100;
+  padding: 5px;
+  animation: fadeIn 0.2s ease-in-out;
+  pointer-events: auto;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+`
 
 const bubbleStyle = (isFromChatbot: boolean) => css`
   padding: 1rem;
@@ -152,12 +169,75 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   isFromChatbot,
   isPending,
   citations,
-  onRefElemHover,
-  onRefElemClick,
-  popperAttributes,
 }) => {
   const { t } = useTranslation()
   let [citationsOpen, setCitationsOpen] = useState(false)
+
+  const [referenceElement, setReferenceElement] = React.useState<HTMLButtonElement | null>(null)
+  const [popperElement, setPopperElement] = React.useState<HTMLElement | null>(null)
+  const [hoverPopperElement, setHoverPopperElement] = React.useState<boolean>(false)
+  const [hoverRefElement, setHoverRefElement] = React.useState<boolean>(false)
+
+  const { styles, attributes } = usePopper(referenceElement, popperElement, {
+    placement: "top",
+    modifiers: [
+      {
+        name: "preventOverflow",
+        options: {
+          padding: 8,
+          boundary: "clippingParents",
+          altAxis: true,
+        },
+      },
+      {
+        name: "computeStyles",
+        options: {
+          gpuAcceleration: false,
+        },
+      },
+      {
+        name: "eventListeners",
+        options: {
+          scroll: true,
+          resize: true,
+        },
+      },
+    ],
+    strategy: "absolute",
+  })
+  useEffect(() => {
+    if (!hoverRefElement) {
+      if (!hoverPopperElement) {
+        setReferenceElement(null)
+      }
+    }
+  }, [hoverPopperElement, hoverRefElement])
+
+  const handleRefElemHover = (elem: HTMLButtonElement | null) => {
+    if (!(elem === null)) {
+      setHoverRefElement(true)
+      setReferenceElement(elem)
+    } else {
+      setHoverRefElement(false)
+    }
+  }
+  const handleRefElemClick = useCallback(
+    (elem: HTMLButtonElement | null) => {
+      // toggle if elem is provided, if elem is null then "unclick"
+      // TODO idk how to optimize this so that the useMemo is actually useful.
+      // now useMemo is recomputed whenever the popover is toggled open or even hovered
+      // so that must be inefficient?
+      if (elem === null && hoverPopperElement) {
+        return
+      } else if (!(elem === null)) {
+        setReferenceElement(referenceElement === null ? elem : null)
+      } else {
+        setReferenceElement(null)
+      }
+    },
+    [referenceElement, hoverPopperElement],
+  )
+
   const [processedMessage, processedCitations, citationTitleLen] = useMemo(() => {
     let renderedMessage: ReactElement[] = []
     let filteredCitations: ChatbotConversationMessageCitation[] = []
@@ -180,29 +260,31 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             <span key={i} className={messageStyle}>
               <span dangerouslySetInnerHTML={{ __html: s }}></span>
               {citedDocs[i] && (
-                <button
-                  id={`cit-${citedDocs[i]}`}
-                  value={citedDocs[i]}
-                  {...popperAttributes.popper}
-                  onClick={(e) => {
-                    onRefElemClick(e.currentTarget)
-                  }}
-                  onMouseEnter={(e) => {
-                    onRefElemHover(e.currentTarget)
-                  }}
-                  onMouseLeave={() => {
-                    onRefElemHover(null)
-                  }}
-                  onBlur={(e) => {
-                    if (e.relatedTarget?.id === "popover-button") {
-                      return
-                    }
-                    onRefElemClick(null)
-                  }}
-                  //aria-label={`Citation ${citedDocs[i]}`}
-                >
-                  {citedDocs[i]}
-                </button>
+                <>
+                  <button
+                    id={`cit-${citedDocs[i]}`}
+                    value={citedDocs[i]}
+                    //{...attributes.popper}
+                    onClick={(e) => {
+                      handleRefElemClick(e.currentTarget)
+                    }}
+                    onMouseEnter={(e) => {
+                      handleRefElemHover(e.currentTarget)
+                    }}
+                    onMouseLeave={() => {
+                      handleRefElemHover(null)
+                    }}
+                    onBlur={(e) => {
+                      if (e.relatedTarget?.id === "popover-button") {
+                        return
+                      }
+                      handleRefElemClick(null)
+                    }}
+                    //aria-label={`Citation ${citedDocs[i]}`}
+                  >
+                    {citedDocs[i]}
+                  </button>
+                </>
               )}
             </span>
           )
@@ -230,15 +312,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     const citationTitleLen = 60 / filteredCitations.length
 
     return [renderedMessage, filteredCitations, citationTitleLen]
-  }, [
-    message,
-    citations,
-    isFromChatbot,
-    citationsOpen,
-    popperAttributes.popper,
-    onRefElemHover,
-    onRefElemClick,
-  ])
+  }, [message, citations, isFromChatbot, citationsOpen, handleRefElemClick])
 
   return (
     <div className={bubbleStyle(isFromChatbot)}>
@@ -276,6 +350,40 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                         ? cit.title
                         : cit.title.slice(0, citationTitleLen - 3).concat("...")}
                     </>
+                  )}
+                  {referenceElement?.id == `cit-${cit.citation_number}` && (
+                    <div
+                      id="popover"
+                      ref={setPopperElement}
+                      className={tooltipStyle}
+                      /* eslint-disable-next-line react/forbid-dom-props */
+                      style={styles.popper}
+                      onMouseEnter={() => {
+                        setHoverPopperElement(true)
+                      }}
+                      onMouseLeave={() => {
+                        setHoverPopperElement(false)
+                      }}
+                      onBlur={(e) => {
+                        if (e.relatedTarget?.id === `cit-${cit.citation_number}`) {
+                          return
+                        }
+                        setReferenceElement(null)
+                      }}
+                      {...attributes.popper}
+                    >
+                      <SpeechBalloon>
+                        {" "}
+                        <button
+                          id="popover-button"
+                          onClick={() => {
+                            console.log("clicked pop")
+                          }}
+                        >
+                          {cit.title}
+                        </button>
+                      </SpeechBalloon>
+                    </div>
                   )}
                 </div>
               ))}

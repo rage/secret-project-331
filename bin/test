@@ -2,6 +2,10 @@
 set -euo pipefail
 source "$(dirname "$0")/.common"
 
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$BASEDIR/..")
+run_command cd "$RELATIVE_PATH" || exit
+
 disallow_running_as_root
 ensure_program_in_path "skaffold"
 ensure_program_in_path "kubectl"

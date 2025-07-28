@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT scope\n            FROM oauth_user_client_scopes\n            WHERE user_id = $1 AND client_id = $2\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "scope",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Uuid"]
+    },
+    "nullable": [false]
+  },
+  "hash": "c647541d0cebc809a2fa7f5ca7a8b93817432b725a421a3f55dd9134d309f065"
+}

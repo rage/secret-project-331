@@ -15,7 +15,7 @@ pub struct OAuthAccessToken {
 impl OAuthAccessToken {
     pub async fn insert(
         conn: &mut PgConnection,
-        token: &str,
+        token: String,
         user_id: Uuid,
         client_id: Uuid,
         scope: &str,

@@ -1983,6 +1983,7 @@ dependencies = [
  "async-stream",
  "async-trait",
  "backtrace",
+ "base64 0.22.1",
  "blake3",
  "bytes",
  "chrono",

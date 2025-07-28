@@ -126,3 +126,15 @@ COMMENT ON COLUMN oauth_refresh_tokens.revoked IS
 COMMENT ON COLUMN oauth_refresh_tokens.created_at IS
   'Timestamp when this refresh token was created';
 
+CREATE TABLE oauth_user_client_scopes (
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  client_id UUID NOT NULL REFERENCES oauth_clients(id) ON DELETE CASCADE,
+  scope TEXT NOT NULL,
+  granted_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  PRIMARY KEY (user_id, client_id, scope)
+);
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON oauth_user_client_scopes FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+CREATE INDEX idx_oauth_user_client_scopes_user ON oauth_user_client_scopes(user_id);
+CREATE INDEX idx_oauth_user_client_scopes_client ON oauth_user_client_scopes(client_id);

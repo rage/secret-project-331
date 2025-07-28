@@ -23,6 +23,8 @@ actix-web = "4.11.0"
 actix-files = "0.6.6"
 # Multipart form support for Actix web.
 actix-multipart = "0.7.2"
+# Base64 encoding, used in oauth access token generation
+base64 = "0.22"
 # Strongly Typed Mimes
 mime = "0.3.17"
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.

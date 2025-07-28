@@ -42,8 +42,6 @@ export const runTests = async (
       await fs.writeFile(resolved, contents)
     }
     debug("compressing project")
-    const f = await fs.readFile(path.join(submissionDir, "src/seven_brothers.py"))
-    log(await f.toString())
     await compressProject(submissionDir, submissionArchivePath, "zstd", true, log)
   } else {
     throw "Unreachable"
@@ -57,8 +55,6 @@ export const runTests = async (
   const extractedTemplatePath = temporaryDirectory()
   await extractProject(templateArchivePath, extractedTemplatePath, log)
   log("template")
-  const f = await fs.readFile(path.join(extractedTemplatePath, "src/seven_brothers.py"))
-  log(await f.toString())
   // prepare submission with tmc-langs
   const preparedSubmissionArchivePath = temporaryFile()
   const sandboxImage = await prepareSubmission(
@@ -72,15 +68,9 @@ export const runTests = async (
 
   const testPath = temporaryFile()
   await extractProject(preparedSubmissionArchivePath, testPath, log)
-  log("asd")
-  const fasd = await fs.readFile(path.join(testPath, "src/seven_brothers.py"))
-  log(await fasd.toString())
 
   const testPatha = temporaryFile()
   await extractProject(submissionArchivePath, testPatha, log)
-  log("sasd")
-  const fasda = await fs.readFile(path.join(testPatha, "src/seven_brothers.py"))
-  log(await fasda.toString())
 
   log("preparing pod")
   const kubeConfig = initKubeConfig()

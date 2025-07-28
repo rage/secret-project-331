@@ -163,6 +163,11 @@ pub async fn main() -> anyhow::Result<()> {
 
         if let Err(e) = sync_contacts(&mut conn, &config, process_unsubscribes).await {
             error!("Error during synchronization: {:?}", e);
+            if let Ok(sqlx::Error::Io(..)) = e.downcast::<sqlx::Error>() {
+                // this usually happens if the database is reset while running bin/dev etc.
+                info!("syncer may have lost its connection to the db, trying to reconnect");
+                conn = db_pool.acquire().await?;
+            }
         }
     }
 }

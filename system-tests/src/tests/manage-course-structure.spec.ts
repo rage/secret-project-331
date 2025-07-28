@@ -180,10 +180,10 @@ test("manage course structure works", async ({ page, headless }, testInfo) => {
       testInfo,
       snapshotName: "manage-course-structure-middle-of-the-page",
       clearNotifications: true,
-    })
-
-    await page.evaluate(() => {
-      window.scrollTo(0, 0)
+      scrollToYCoordinate: {
+        "desktop-regular": 800,
+        "mobile-tall": 800,
+      },
     })
 
     await expectScreenshotsToMatchSnapshots({
@@ -192,6 +192,7 @@ test("manage course structure works", async ({ page, headless }, testInfo) => {
       testInfo,
       snapshotName: "manage-course-structure-top-of-the-page",
       clearNotifications: true,
+      scrollToYCoordinate: 0,
     })
   })
 })

@@ -289,12 +289,27 @@ pub fn make_spec_fetcher(
     }
 }
 
+// see `fetch_service_info_fast` while handling HTTP requests
 pub fn fetch_service_info(url: Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>> {
-    async {
+    fetch_service_info_with_timeout(url, 1000 * 120)
+}
+
+// use this while handling HTTP requests, see `fetch_service_info`
+pub fn fetch_service_info_fast(
+    url: Url,
+) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>> {
+    fetch_service_info_with_timeout(url, 1000 * 5)
+}
+
+fn fetch_service_info_with_timeout(
+    url: Url,
+    timeout_ms: u64,
+) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>> {
+    async move {
         let client = reqwest::Client::new();
         let res = client
             .get(url) // e.g. http://example-exercise.default.svc.cluster.local:3002/example-exercise/api/service-info
-            .timeout(std::time::Duration::from_secs(120))
+            .timeout(std::time::Duration::from_millis(timeout_ms))
             .send()
             .await
             .map_err(reqwest_err)?;

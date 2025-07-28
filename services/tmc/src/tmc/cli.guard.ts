@@ -145,13 +145,25 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
                     typeof typedObj["data"] === "function") &&
-                typedObj["data"]["output-data-kind"] === "local-exercises" &&
+                typedObj["data"]["output-data-kind"] === "local-tmc-exercises" &&
                 Array.isArray(typedObj["data"]["output-data"]) &&
                 typedObj["data"]["output-data"].every((e: any) =>
                     (e !== null &&
                         typeof e === "object" ||
                         typeof e === "function") &&
                     typeof e["exercise-slug"] === "string" &&
+                    typeof e["exercise-path"] === "string"
+                ) ||
+                (typedObj["data"] !== null &&
+                    typeof typedObj["data"] === "object" ||
+                    typeof typedObj["data"] === "function") &&
+                typedObj["data"]["output-data-kind"] === "local-mooc-exercises" &&
+                Array.isArray(typedObj["data"]["output-data"]) &&
+                typedObj["data"]["output-data"].every((e: any) =>
+                    (e !== null &&
+                        typeof e === "object" ||
+                        typeof e === "function") &&
+                    typeof e["exercise-id"] === "string" &&
                     typeof e["exercise-path"] === "string"
                 ) ||
                 (typedObj["data"] !== null &&
@@ -246,7 +258,7 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
                     typeof typedObj["data"] === "function") &&
-                typedObj["data"]["output-data-kind"] === "exercise-download" &&
+                typedObj["data"]["output-data-kind"] === "tmc-exercise-download" &&
                 (typedObj["data"]["output-data"] !== null &&
                     typeof typedObj["data"]["output-data"] === "object" ||
                     typeof typedObj["data"]["output-data"] === "function") &&
@@ -280,6 +292,43 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                         typeof e[0]["id"] === "number" &&
                         typeof e[0]["course-slug"] === "string" &&
                         typeof e[0]["exercise-slug"] === "string" &&
+                        typeof e[0]["path"] === "string" &&
+                        Array.isArray(e[1]) &&
+                        e[1].every((e: any) =>
+                            typeof e === "string"
+                        )
+                    )) ||
+                (typedObj["data"] !== null &&
+                    typeof typedObj["data"] === "object" ||
+                    typeof typedObj["data"] === "function") &&
+                typedObj["data"]["output-data-kind"] === "mooc-exercise-download" &&
+                (typedObj["data"]["output-data"] !== null &&
+                    typeof typedObj["data"]["output-data"] === "object" ||
+                    typeof typedObj["data"]["output-data"] === "function") &&
+                Array.isArray(typedObj["data"]["output-data"]["downloaded"]) &&
+                typedObj["data"]["output-data"]["downloaded"].every((e: any) =>
+                    (e !== null &&
+                        typeof e === "object" ||
+                        typeof e === "function") &&
+                    typeof e["id"] === "string" &&
+                    typeof e["path"] === "string"
+                ) &&
+                Array.isArray(typedObj["data"]["output-data"]["skipped"]) &&
+                typedObj["data"]["output-data"]["skipped"].every((e: any) =>
+                    (e !== null &&
+                        typeof e === "object" ||
+                        typeof e === "function") &&
+                    typeof e["id"] === "string" &&
+                    typeof e["path"] === "string"
+                ) &&
+                (typeof typedObj["data"]["output-data"]["failed"] === "undefined" ||
+                    Array.isArray(typedObj["data"]["output-data"]["failed"]) &&
+                    typedObj["data"]["output-data"]["failed"].every((e: any) =>
+                        Array.isArray(e) &&
+                        (e[0] !== null &&
+                            typeof e[0] === "object" ||
+                            typeof e[0] === "function") &&
+                        typeof e[0]["id"] === "string" &&
                         typeof e[0]["path"] === "string" &&
                         Array.isArray(e[1]) &&
                         e[1].every((e: any) =>
@@ -1025,7 +1074,7 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                             (e["public_spec"] !== null &&
                                 typeof e["public_spec"] === "object" ||
                                 typeof e["public_spec"] === "function") &&
-                            e["public_spec"]["type"] === "browser" &&
+                            e["public_spec"]["type"] === "Browser" &&
                             Array.isArray(e["public_spec"]["files"]) &&
                             e["public_spec"]["files"].every((e: any) =>
                                 (e !== null &&
@@ -1037,17 +1086,17 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                             (e["public_spec"] !== null &&
                                 typeof e["public_spec"] === "object" ||
                                 typeof e["public_spec"] === "function") &&
-                            e["public_spec"]["type"] === "editor" &&
-                            typeof e["public_spec"]["archiveName"] === "string" &&
-                            typeof e["public_spec"]["archiveDownloadUrl"] === "string" &&
+                            e["public_spec"]["type"] === "Editor" &&
+                            typeof e["public_spec"]["archive_name"] === "string" &&
+                            typeof e["public_spec"]["archive_download_url"] === "string" &&
                             typeof e["public_spec"]["checksum"] === "string") &&
                         (e["model_solution_spec"] === null ||
                             (e["model_solution_spec"] !== null &&
                                 typeof e["model_solution_spec"] === "object" ||
                                 typeof e["model_solution_spec"] === "function") &&
-                            e["model_solution_spec"]["type"] === "browser" &&
-                            Array.isArray(e["model_solution_spec"]["solutionFiles"]) &&
-                            e["model_solution_spec"]["solutionFiles"].every((e: any) =>
+                            e["model_solution_spec"]["type"] === "Browser" &&
+                            Array.isArray(e["model_solution_spec"]["solution_files"]) &&
+                            e["model_solution_spec"]["solution_files"].every((e: any) =>
                                 (e !== null &&
                                     typeof e === "object" ||
                                     typeof e === "function") &&
@@ -1057,8 +1106,8 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                             (e["model_solution_spec"] !== null &&
                                 typeof e["model_solution_spec"] === "object" ||
                                 typeof e["model_solution_spec"] === "function") &&
-                            e["model_solution_spec"]["type"] === "editor" &&
-                            typeof e["model_solution_spec"]["archiveDownloadUrl"] === "string")
+                            e["model_solution_spec"]["type"] === "Editor" &&
+                            typeof e["model_solution_spec"]["download_url"] === "string")
                     )
                 ) ||
                 (typedObj["data"] !== null &&
@@ -1085,7 +1134,7 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                         (e["public_spec"] !== null &&
                             typeof e["public_spec"] === "object" ||
                             typeof e["public_spec"] === "function") &&
-                        e["public_spec"]["type"] === "browser" &&
+                        e["public_spec"]["type"] === "Browser" &&
                         Array.isArray(e["public_spec"]["files"]) &&
                         e["public_spec"]["files"].every((e: any) =>
                             (e !== null &&
@@ -1097,17 +1146,17 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                         (e["public_spec"] !== null &&
                             typeof e["public_spec"] === "object" ||
                             typeof e["public_spec"] === "function") &&
-                        e["public_spec"]["type"] === "editor" &&
-                        typeof e["public_spec"]["archiveName"] === "string" &&
-                        typeof e["public_spec"]["archiveDownloadUrl"] === "string" &&
+                        e["public_spec"]["type"] === "Editor" &&
+                        typeof e["public_spec"]["archive_name"] === "string" &&
+                        typeof e["public_spec"]["archive_download_url"] === "string" &&
                         typeof e["public_spec"]["checksum"] === "string") &&
                     (e["model_solution_spec"] === null ||
                         (e["model_solution_spec"] !== null &&
                             typeof e["model_solution_spec"] === "object" ||
                             typeof e["model_solution_spec"] === "function") &&
-                        e["model_solution_spec"]["type"] === "browser" &&
-                        Array.isArray(e["model_solution_spec"]["solutionFiles"]) &&
-                        e["model_solution_spec"]["solutionFiles"].every((e: any) =>
+                        e["model_solution_spec"]["type"] === "Browser" &&
+                        Array.isArray(e["model_solution_spec"]["solution_files"]) &&
+                        e["model_solution_spec"]["solution_files"].every((e: any) =>
                             (e !== null &&
                                 typeof e === "object" ||
                                 typeof e === "function") &&
@@ -1117,8 +1166,8 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                         (e["model_solution_spec"] !== null &&
                             typeof e["model_solution_spec"] === "object" ||
                             typeof e["model_solution_spec"] === "function") &&
-                        e["model_solution_spec"]["type"] === "editor" &&
-                        typeof e["model_solution_spec"]["archiveDownloadUrl"] === "string")
+                        e["model_solution_spec"]["type"] === "Editor" &&
+                        typeof e["model_solution_spec"]["download_url"] === "string")
                 ) ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||

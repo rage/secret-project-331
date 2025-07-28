@@ -1,7 +1,14 @@
 import { mainFrontendClient } from "../mainFrontendClient"
 
-import { ExerciseService, ExerciseServiceNewOrUpdate } from "@/shared-module/common/bindings"
-import { isExerciseService } from "@/shared-module/common/bindings.guard"
+import {
+  ExerciseService,
+  ExerciseServiceNewOrUpdate,
+  ExerciseServiceWithError,
+} from "@/shared-module/common/bindings"
+import {
+  isExerciseService,
+  isExerciseServiceWithError,
+} from "@/shared-module/common/bindings.guard"
 import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
 
 export const fetchExerciseServices = async (): Promise<Array<ExerciseService>> => {
@@ -18,9 +25,9 @@ export const fetchExerciseServiceById = async (
 
 export const addExerciseService = async (
   exercise_service: ExerciseServiceNewOrUpdate,
-): Promise<ExerciseService> => {
+): Promise<ExerciseServiceWithError> => {
   const response = await mainFrontendClient.post("/exercise-services/", exercise_service)
-  return validateResponse(response, isExerciseService)
+  return validateResponse(response, isExerciseServiceWithError)
 }
 
 export const deleteExerciseService = async (
@@ -33,10 +40,10 @@ export const deleteExerciseService = async (
 export const updateExerciseService = async (
   exercise_service_id: string,
   exercise_service: ExerciseService,
-): Promise<ExerciseService> => {
+): Promise<ExerciseServiceWithError> => {
   const response = await mainFrontendClient.put(
     `/exercise-services/${exercise_service_id}`,
     exercise_service,
   )
-  return validateResponse(response, isExerciseService)
+  return validateResponse(response, isExerciseServiceWithError)
 }

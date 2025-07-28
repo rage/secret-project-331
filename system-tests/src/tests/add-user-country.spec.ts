@@ -14,12 +14,15 @@ test("User can add missing country information", async ({ page }) => {
     await page.getByRole("button", { name: "Log in" }).click()
 
     // Form to fill missing country
+    // the course instance selection is sometimes prompted before the country
+    // by not awaiting for the instance modal, playwright should hopefully be able to handle both cases
+    selectCourseInstanceIfPrompted(page).then(async () => {
+      await expect(page.getByText("Success", { exact: true })).toBeVisible()
+    })
     await expect(page.getByRole("heading", { name: "Fill missing information" })).toBeVisible()
     await page.getByRole("button", { name: "Select a country Where do you" }).click()
     await page.getByLabel("Suggestions").getByText("Andorra").click()
     await page.getByRole("button", { name: "Save" }).click()
-    await expect(page.getByText("Success", { exact: true })).toBeVisible()
-    await selectCourseInstanceIfPrompted(page)
     await expect(page.getByText("Success", { exact: true })).toBeVisible()
 
     // Go to user setting and change users country

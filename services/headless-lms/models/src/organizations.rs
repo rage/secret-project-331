@@ -77,13 +77,6 @@ RETURNING id
     Ok(res.id)
 }
 
-pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
-    sqlx::query!("DELETE FROM organizations WHERE id = $1", id)
-        .execute(conn)
-        .await?;
-    Ok(())
-}
-
 pub async fn all_organizations(conn: &mut PgConnection) -> ModelResult<Vec<DatabaseOrganization>> {
     let organizations = sqlx::query_as!(
         DatabaseOrganization,
@@ -196,5 +189,13 @@ pub async fn update_name_and_hidden(
     .execute(conn)
     .await?;
 
+    Ok(())
+}
+
+pub async fn soft_delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+    sqlx::query("UPDATE organizations SET deleted_at = now() WHERE id = $1")
+        .bind(id)
+        .execute(conn)
+        .await?;
     Ok(())
 }

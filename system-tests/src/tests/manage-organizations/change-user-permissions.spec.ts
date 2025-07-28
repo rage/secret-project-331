@@ -4,65 +4,76 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("create and edit organization, along with user permissions", async ({ page }) => {
+test.only("create new organization, edit it and it's permissions, and delete it", async ({
+  page,
+}) => {
   await page.goto("http://project-331.local/")
   await page.getByRole("link", { name: "All organizations" }).click()
+
+  // Create organization
   await page.getByRole("button", { name: "Create a new organization" }).click()
   await page.getByRole("textbox", { name: "Organization name" }).click()
-  await page.getByRole("textbox", { name: "Organization name" }).fill("test new organization")
+  await page.getByRole("textbox", { name: "Organization name" }).fill("createnewtestorganization")
   await page.getByRole("textbox", { name: "Slug" }).click()
-  await page.getByRole("textbox", { name: "Slug" }).fill("testslug")
+  await page.getByRole("textbox", { name: "Slug" }).fill("createnewtestorganizationslug")
   await page.getByTestId("dialog").getByRole("button", { name: "Create" }).click()
-  await page.getByRole("heading", { name: "test new organization" }).click()
+  await page.getByRole("heading", { name: "createnewtestorganization" }).click()
   await page
-    .getByLabel("test new organization")
+    .getByLabel("createnewtestorganization")
     .getByRole("link")
     .filter({ hasText: ".gear_svg__cls-1{fill:none;" })
     .click()
+  await page.getByText("createnewtestorganization", { exact: true }).click()
+  await page.getByText("createnewtestorganizationslug").click()
+
+  // Edit organization
   await page.getByRole("button", { name: "Edit" }).click()
   await page.getByRole("textbox", { name: "Name" }).click()
-  await page.getByRole("textbox", { name: "Name" }).press("ArrowRight")
-  await page.getByRole("textbox", { name: "Name" }).press("ArrowRight")
-  await page.getByRole("textbox", { name: "Name" }).press("ArrowRight")
-  await page.getByRole("textbox", { name: "Name" }).press("ArrowRight")
-  await page.getByRole("textbox", { name: "Name" }).press("ArrowRight")
-  await page.getByRole("textbox", { name: "Name" }).fill("test new organization edited")
-  await page.getByRole("textbox", { name: "Slug" }).click()
-  await page.getByRole("textbox", { name: "Slug" }).fill("testslugedited")
+  await page.getByRole("textbox", { name: "Slug" }).fill("createnewtestorganizationslugedited")
   await page.getByRole("button", { name: "Save" }).click()
-  await page.goto("http://project-331.local/organizations")
-  await page.getByRole("heading", { name: "test new organization edited" }).click()
+  await page.goto("http://project-331.local/")
+  await page.getByRole("link", { name: "All organizations" }).click()
+  await page.getByRole("heading", { name: "createnewtestorganizationedited" }).click()
   await page
-    .getByLabel("test new organization edited")
+    .getByLabel("createnewtestorganizationedited")
     .getByRole("link")
     .filter({ hasText: ".gear_svg__cls-1{fill:none;" })
     .click()
-  await page.getByText("test new organization edited", { exact: true }).click()
-  await page.getByText("testslugedited").click()
-  await page.getByText("Visible").click()
+  await page.getByText("createnewtestorganizationedited", { exact: true }).click()
+  await page.getByText("createnewtestorganizationslugedited").click()
+
+  // Add user with a role
   await page.getByRole("tab", { name: "Permissions" }).click()
   await page.getByRole("button", { name: "Add user" }).click()
   await page.getByRole("textbox", { name: "Email" }).click()
   await page.getByRole("textbox", { name: "Email" }).fill("teacher@example.com")
-  await page.getByLabel("Role").selectOption("Teacher")
   await page.getByRole("button", { name: "Save" }).click()
   await page.getByText("Teacher", { exact: true }).click()
   await page.getByText("teacher@example.com").click()
   await page.getByText("Teacher Example").click()
+
+  // Edit teacher role
   await page.getByRole("button", { name: "Edit user Teacher Example" }).click()
-  await page.getByTestId("dialog").getByLabel("Role").selectOption("Reviewer")
+  await page.getByTestId("dialog").getByLabel("Role").selectOption("CourseOrExamCreator")
   await page.getByRole("button", { name: "Save" }).click()
-  await page.getByText("Reviewer").click()
+  await page.getByText("CourseOrExamCreator").click()
   await page.getByText("teacher@example.com").click()
   await page.getByText("Teacher Example").click()
   page.once("dialog", (dialog) => {
     console.log(`Dialog message: ${dialog.message()}`)
     dialog.dismiss().catch(() => {})
   })
+
+  // Delete teacher
   await page.getByRole("button", { name: "Delete user Teacher Example" }).click()
+  await expect(page.getByText("teacher@example.com")).toHaveCount(0)
+
+  // Delete organization
   await page.getByRole("tab", { name: "General" }).click()
   await page.getByRole("button", { name: "Edit" }).click()
-  await page.getByRole("checkbox", { name: "Hide" }).check()
-  await page.getByRole("button", { name: "Save" }).click()
-  await page.goto("http://project-331.local/organizations")
+  await page.getByRole("button", { name: "Delete organization" }).click()
+  await page.getByTestId("dialog").getByRole("textbox").click()
+  await page.getByTestId("dialog").getByRole("textbox").fill("delete")
+  await page.getByRole("button", { name: "Confirm" }).click()
+  await page.getByText("Success", { exact: true }).click()
 })

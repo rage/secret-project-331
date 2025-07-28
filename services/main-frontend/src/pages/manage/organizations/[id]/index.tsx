@@ -12,12 +12,6 @@ import { fetchOrganization, updateOrganization } from "../../../../services/back
 import AddUserPopup from "./components/AddUserPopup"
 import DeleteOrganizationPopup from "./components/DeleteOrganizationPopup"
 import EditUserPopup from "./components/EditUserPopup"
-import {
-  actionButtonStyle,
-  containerBase,
-  disabledButton,
-  primaryButton,
-} from "./styles/sharedStyles"
 
 import { fetchRoles, giveRole, removeRole } from "@/services/backend/roles"
 import { RoleDomain, RoleUser, UserRole } from "@/shared-module/common/bindings"
@@ -33,6 +27,12 @@ import dontRenderUntilQueryParametersReady, {
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import { allOrganizationsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import {
+  actionButtonStyle,
+  containerBase,
+  disabledButton,
+  primaryButton,
+} from "@/styles/sharedStyles"
 
 type NamedRoleUser = RoleUser & { name: string }
 
@@ -290,7 +290,12 @@ const content = (
   setEditedName: React.Dispatch<React.SetStateAction<string>>,
   hidden: boolean,
   setHidden: React.Dispatch<React.SetStateAction<boolean>>,
-  updateOrgMutation: UseMutationResult<void, unknown, { name: string; hidden: boolean }, unknown>,
+  updateOrgMutation: UseMutationResult<
+    void,
+    unknown,
+    { name: string; hidden: boolean; slug: string },
+    unknown
+  >,
   organization: UseQueryResult<Organization>,
   showDeletePopup: boolean,
   setShowDeletePopup: React.Dispatch<React.SetStateAction<boolean>>,

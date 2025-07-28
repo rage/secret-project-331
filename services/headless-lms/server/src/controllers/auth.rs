@@ -16,6 +16,7 @@ use actix_session::Session;
 use anyhow::Error;
 use anyhow::anyhow;
 use headless_lms_utils::tmc::{NewUserInfo, TmcClient};
+use secrecy::SecretString;
 use std::time::Duration;
 use tracing_log::log;
 
@@ -103,16 +104,15 @@ pub async fn signup(
     if app_conf.test_mode {
         return handle_test_mode_signup(&mut conn, &session, &user_details, &app_conf).await;
     }
-
     if user.is_none() {
         // First create the actual user to tmc.mooc.fi and then fetch it from mooc.fi
-        post_new_user_to_moocfi(&user_details, tmc_client, &app_conf).await?;
+        post_new_user_to_moocfi(&user_details, &tmc_client, &app_conf).await?;
 
         let auth_result = authorization::authenticate_moocfi_user(
             &mut conn,
             &client,
             user_details.email,
-            user_details.password,
+            user_details.password.clone(),
         )
         .await?;
 
@@ -125,6 +125,42 @@ pub async fn signup(
                 user_details.email_communication_consent,
             )
             .await?;
+
+            // Hash and save password to local database
+            let password_hash = models::user_passwords::hash_password(&SecretString::new(
+                user_details.password.into(),
+            ))
+            .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
+
+            models::user_passwords::upsert_user_password(&mut conn, user.id, password_hash)
+                .await
+                .map_err(|e| {
+                    ControllerError::new(
+                        ControllerErrorType::InternalServerError,
+                        "Failed to add password to database".to_string(),
+                        anyhow!(e),
+                    )
+                })?;
+
+            // Notify tmc that the password is managed by courses.mooc.fi
+            if let Some(upstream_id) = user.upstream_id {
+                tmc_client
+                    .set_user_password_managed_by_courses_mooc_fi(
+                        upstream_id.to_string(),
+                        user.id.to_string(),
+                    )
+                    .await
+                    .map_err(|e| {
+                        ControllerError::new(
+                            ControllerErrorType::InternalServerError,
+                            "Failed to notify TMC that user's password is saved in courses.mooc.fi"
+                                .to_string(),
+                            anyhow!(e),
+                        )
+                    })?;
+            } else {
+                warn!("User has no upstream_id; skipping notify to TMC");
+            }
 
             let token = skip_authorize();
             authorization::remember(&session, user)?;
@@ -183,6 +219,21 @@ async fn handle_test_mode_signup(
     .await?;
 
     let user = models::users::get_by_email(conn, &user_details.email).await?;
+
+    let password_hash = models::user_passwords::hash_password(&SecretString::new(
+        user_details.password.clone().into(),
+    ))
+    .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
+
+    models::user_passwords::upsert_user_password(conn, user.id, password_hash)
+        .await
+        .map_err(|e| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                "Failed to add password to database".to_string(),
+                anyhow!(e),
+            )
+        })?;
     authorization::remember(session, user)?;
 
     let token = skip_authorize();
@@ -244,57 +295,171 @@ pub async fn login(
     client: web::Data<OAuthClient>,
     app_conf: web::Data<ApplicationConfiguration>,
     payload: web::Json<Login>,
+    tmc_client: web::Data<TmcClient>,
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let Login { email, password } = payload.into_inner();
 
+    // Development mode UUID login (allows logging in with a user ID string)
     if app_conf.development_uuid_login {
-        warn!("Trying development mode UUID login");
-        if let Ok(id) = Uuid::parse_str(&email) {
-            let user = { models::users::get_by_id(&mut conn, id).await? };
-            let token = skip_authorize();
-            authorization::remember(&session, user)?;
-            return token.authorized_ok(web::Json(true));
-        };
+        return handle_uuid_login(&session, &mut conn, &email).await;
     }
 
-    let success = if app_conf.test_mode {
-        warn!("Using test credentials. Normal accounts won't work.");
-        let success =
-            authorization::authenticate_test_user(&mut conn, &email, &password, &app_conf)
-                .await
-                .map_err(|e| {
-                    ControllerError::new(
-                        ControllerErrorType::Unauthorized,
-                        "Could not find the test user. Have you seeded the database?".to_string(),
-                        e,
-                    )
-                })?;
-        if success {
-            let user = models::users::get_by_email(&mut conn, &email).await?;
-            authorization::remember(&session, user)?;
-        }
-        success
-    } else {
-        let auth_result =
-            authorization::authenticate_moocfi_user(&mut conn, &client, email, password).await?;
-
-        if let Some((user, _token)) = auth_result {
-            authorization::remember(&session, user)?;
-            true
-        } else {
-            false
-        }
+    // Test mode: authenticate using seeded test credentials or stored password
+    if app_conf.test_mode {
+        return handle_test_mode_login(&session, &mut conn, &email, &password, &app_conf).await;
     };
 
-    if success {
+    return handle_production_login(&session, &mut conn, &client, &tmc_client, &email, &password)
+        .await;
+}
+
+async fn handle_uuid_login(
+    session: &Session,
+    conn: &mut PgConnection,
+    email: &str,
+) -> ControllerResult<web::Json<bool>> {
+    warn!("Trying development mode UUID login");
+    let token = skip_authorize();
+
+    if let Ok(id) = Uuid::parse_str(email) {
+        let user = { models::users::get_by_id(conn, id).await? };
+        authorization::remember(session, user)?;
+        token.authorized_ok(web::Json(true))
+    } else {
+        warn!("Authentication failed");
+        token.authorized_ok(web::Json(false))
+    }
+}
+
+async fn handle_test_mode_login(
+    session: &Session,
+    conn: &mut PgConnection,
+    email: &str,
+    password: &str,
+    app_conf: &ApplicationConfiguration,
+) -> ControllerResult<web::Json<bool>> {
+    warn!("Using test credentials. Normal accounts won't work.");
+
+    let user = { models::users::get_by_email(conn, email).await? };
+    let mut is_authenticated =
+        authorization::authenticate_test_user(conn, email, password, app_conf)
+            .await
+            .map_err(|e| {
+                ControllerError::new(
+                    ControllerErrorType::Unauthorized,
+                    "Could not find the test user. Have you seeded the database?".to_string(),
+                    e,
+                )
+            })?;
+
+    if !is_authenticated {
+        is_authenticated = models::user_passwords::verify_user_password(
+            conn,
+            user.id,
+            &SecretString::new(password.into()),
+        )
+        .await?;
+    }
+
+    if is_authenticated {
         info!("Authentication successful");
+        authorization::remember(session, user)?;
     } else {
         warn!("Authentication failed");
     }
 
     let token = skip_authorize();
-    token.authorized_ok(web::Json(success))
+    token.authorized_ok(web::Json(is_authenticated))
+}
+
+async fn handle_production_login(
+    session: &Session,
+    conn: &mut PgConnection,
+    client: &OAuthClient,
+    tmc_client: &TmcClient,
+    email: &str,
+    password: &str,
+) -> ControllerResult<web::Json<bool>> {
+    let mut is_authenticated = false;
+
+    // Try to authenticate using password stored in courses.mooc.fi database
+    if let Ok(user) = models::users::get_by_email(conn, email).await {
+        let is_password_stored =
+            models::user_passwords::check_if_users_password_is_stored(conn, user.id).await?;
+        if is_password_stored {
+            is_authenticated = models::user_passwords::verify_user_password(
+                conn,
+                user.id,
+                &SecretString::new(password.into()),
+            )
+            .await?;
+
+            if is_authenticated {
+                info!("Authentication successful");
+                authorization::remember(session, user)?;
+            }
+        }
+    }
+
+    // Try to authenticate via TMC and store password to courses.mooc.fi if successful
+    if !is_authenticated {
+        let auth_result = authorization::authenticate_moocfi_user(
+            conn,
+            client,
+            email.to_string(),
+            password.to_string(),
+        )
+        .await?;
+
+        if let Some((user, _token)) = auth_result {
+            // If user is autenticated in TMC succesfully, hash password and save it to courses.mooc.fi database
+            let password_hash =
+                models::user_passwords::hash_password(&SecretString::new(password.into()))
+                    .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
+
+            models::user_passwords::upsert_user_password(conn, user.id, password_hash)
+                .await
+                .map_err(|e| {
+                    ControllerError::new(
+                        ControllerErrorType::InternalServerError,
+                        "Failed to add password to database".to_string(),
+                        anyhow!(e),
+                    )
+                })?;
+
+            // Notify TMC that the password is now managed by courses.mooc.fi
+            if let Some(upstream_id) = user.upstream_id {
+                tmc_client
+                    .set_user_password_managed_by_courses_mooc_fi(
+                        upstream_id.to_string(),
+                        user.id.to_string(),
+                    )
+                    .await
+                    .map_err(|e| {
+                        ControllerError::new(
+                            ControllerErrorType::InternalServerError,
+                            "Failed to notify TMC that users password is saved in courses.mooc.fi"
+                                .to_string(),
+                            anyhow!(e),
+                        )
+                    })?;
+            } else {
+                warn!("User has no upstream_id; skipping notify to TMC");
+            }
+            authorization::remember(session, user)?;
+            info!("Authentication successful");
+            is_authenticated = true;
+        }
+    }
+
+    let token = skip_authorize();
+    if is_authenticated {
+        token.authorized_ok(web::Json(true))
+    } else {
+        warn!("Authentication failed");
+        token.authorized_ok(web::Json(false))
+    }
 }
 
 /**
@@ -357,7 +522,7 @@ pub async fn user_info(
 /// Based on implementation from <https://github.com/rage/mooc.fi/blob/fb9a204f4dbf296b35ec82b2442e1e6ae0641fe9/frontend/lib/account.ts>
 pub async fn post_new_user_to_moocfi(
     user_details: &CreateAccountDetails,
-    tmc_client: web::Data<TmcClient>,
+    tmc_client: &web::Data<TmcClient>,
     app_conf: &ApplicationConfiguration,
 ) -> anyhow::Result<()> {
     tmc_client

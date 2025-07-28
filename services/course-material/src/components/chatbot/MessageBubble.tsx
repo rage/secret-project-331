@@ -20,9 +20,19 @@ interface MessageBubbleProps {
   citations: ChatbotConversationMessageCitation[] | undefined
 }
 
+const hrefStyle = css`
+  a {
+    &:hover {
+      span {
+        color: ${baseTheme.colors.blue[700]}; /* TODO accessibility issue, not enough contrast?*/
+        text-decoration: underline;
+      }
+    }
+  }
+`
+
 const tooltipStyle = css`
   z-index: 100;
-  padding: 5px;
   animation: fadeIn 0.2s ease-in-out;
   pointer-events: auto;
 
@@ -36,6 +46,12 @@ const tooltipStyle = css`
       transform: translateY(0);
     }
   }
+  p {
+    overflow-wrap: break-word;
+    width: 300px;
+    max-width: 90vw;
+  }
+  ${hrefStyle}
 `
 
 const bubbleStyle = (isFromChatbot: boolean) => css`
@@ -64,14 +80,7 @@ const citationStyle = css`
   padding: 2px 7px 2px 7px;
   border-radius: 10px;
   font-size: 85%;
-  a {
-    &:hover {
-      span {
-        color: ${baseTheme.colors.blue[700]}; /*accessibility issue, not enough contrast?*/
-        text-decoration: underline;
-      }
-    }
-  }
+  ${hrefStyle}
 `
 
 const messageStyle = css`
@@ -213,6 +222,24 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     }
   }, [hoverPopperElement, hoverRefElement])
 
+  /*   useEffect(() => {
+    let timeoutId: NodeJS.Timeout | null = null
+
+    if (referenceElement) {
+      timeoutId = setTimeout(() => {
+        setShowTooltip(true)
+      }, 200)
+    } else {
+      setShowTooltip(false)
+    }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+      }
+    }
+  }, [referenceElement]) */
+
   const handleRefElemHover = (elem: HTMLButtonElement | null) => {
     if (!(elem === null)) {
       setHoverRefElement(true)
@@ -327,22 +354,20 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
               {processedCitations.map((cit) => (
                 <div key={cit.citation_number} className={citationStyle}>
                   {citationsOpen ? (
-                    <div>
-                      <a href={cit.document_url}>
-                        <b>{cit.citation_number}</b>
-                        <span
-                          className={css`
-                            flex: 3;
-                          `}
-                        >
-                          {cit.course_material_chapter !== cit.title
-                            ? `${cit.course_material_chapter}: `
-                            : ""}
-                          {`${cit.title}`}
-                        </span>
-                        <Library size={18} />
-                      </a>{" "}
-                    </div>
+                    <a href={cit.document_url}>
+                      <b>{cit.citation_number}</b>
+                      <span
+                        className={css`
+                          flex: 3;
+                        `}
+                      >
+                        {cit.course_material_chapter !== cit.title
+                          ? `${cit.course_material_chapter}: `
+                          : ""}
+                        {`${cit.title}`}
+                      </span>
+                      <Library size={18} />
+                    </a>
                   ) : (
                     <>
                       <b>{cit.citation_number}</b>{" "}
@@ -372,16 +397,17 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                       }}
                       {...attributes.popper}
                     >
-                      <SpeechBalloon>
-                        {" "}
-                        <button
-                          id="popover-button"
-                          onClick={() => {
-                            console.log("clicked pop")
-                          }}
-                        >
-                          {cit.title}
-                        </button>
+                      <SpeechBalloon
+                      /*                         className={css`
+                          flex-flow: column nowrap;
+                          border: solid red;
+                        `} */
+                      >
+                        <a href={cit.document_url} id="popover-button">
+                          <p>{cit.content}</p>
+                          <span>{cit.title}</span>
+                          <Library size={18} />
+                        </a>
                       </SpeechBalloon>
                     </div>
                   )}

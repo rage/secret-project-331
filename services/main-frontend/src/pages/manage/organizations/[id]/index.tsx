@@ -83,7 +83,13 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
   const deleteMutation = useToastMutation(
     async () => {
       const res = await fetch(`/api/v0/main-frontend/organizations/${query.id}`, {
-        method: "DELETE",
+        method: "PATCH", // keep PATCH here — this is the real HTTP method
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          deleted_at: new Date().toISOString(),
+        }),
       })
 
       if (!res.ok) {
@@ -91,14 +97,14 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
         try {
           json = await res.json()
         } catch {
-          throw new Error(`Delete failed: ${res.status}`)
+          throw new Error(`Soft delete failed: ${res.status}`)
         }
         throw json
       }
 
       return res
     },
-    { notify: true, method: "DELETE" },
+    { notify: true, method: "PUT" },
     {
       onSuccess: () => {
         router.push(allOrganizationsRoute())

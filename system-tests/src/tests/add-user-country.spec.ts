@@ -14,6 +14,7 @@ test("User can add missing country information", async ({ page }) => {
     await page.getByRole("button", { name: "Log in" }).click()
 
     // Form to fill missing country
+    await selectCourseInstanceIfPrompted(page)
     await expect(page.getByRole("heading", { name: "Fill missing information" })).toBeVisible()
     await page.getByRole("button", { name: "Select a country Where do you" }).click()
     await page.getByLabel("Suggestions").getByText("Andorra").click()

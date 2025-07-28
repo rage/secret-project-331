@@ -54,7 +54,9 @@ pub async fn main() -> anyhow::Result<()> {
                 err.source().and_then(|s| s.downcast_ref::<sqlx::Error>())
             {
                 // this usually happens if the database is reset while running bin/dev etc.
-                info!("regrader may have lost its connection to the db, trying to reconnect");
+                tracing::info!(
+                    "regrader may have lost its connection to the db, trying to reconnect"
+                );
                 conn = db_pool.acquire().await?;
             }
         }

@@ -10,7 +10,6 @@ import { v4 } from "uuid"
 import StateRenderer from "../components/StateRenderer"
 import {
   CurrentStateMessageData,
-  EditorExercisePublicSpec,
   ExerciseIframeState,
   MessageToParent,
   ModelSolutionSpec,
@@ -25,7 +24,8 @@ import { UploadResultMessage } from "@/shared-module/common/exercise-service-pro
 import { isMessageToIframe } from "@/shared-module/common/exercise-service-protocol-types.guard"
 import useExerciseServiceParentConnection from "@/shared-module/common/hooks/useExerciseServiceParentConnection"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { ExerciseFile, RunResult } from "@/tmc/cli"
+import { RunResult } from "@/tmc/cli"
+import { extractTarZstd } from "@/util/helpers"
 
 const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
   const iframeId = v4().slice(0, 4)
@@ -75,21 +75,28 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
               private_spec: messageData.data.private_spec as PrivateSpec,
             })
           } else if (messageData.view_type === "answer-exercise") {
-            setState((oldState) => {
-              const newPublicSpec = messageData.data.public_spec as EditorExercisePublicSpec
-              const previousSubmission = messageData.data
-                .previous_submission as ExerciseTaskSubmission | null
-              return {
-                view_type: messageData.view_type,
-                initial_public_spec:
-                  oldState?.view_type === "answer-exercise"
-                    ? oldState.initial_public_spec
-                    : // cloneDeep prevents setState from changing the initial spec
-                      _.cloneDeep(newPublicSpec),
-                user_answer: publicSpecToTemplateUserAnswer(newPublicSpec),
-                previous_submission: previousSubmission,
-              }
-            })
+            const newPublicSpec = messageData.data.public_spec as PublicSpec
+            publicSpecToIframeUserAnswer(newPublicSpec)
+              .then((userAnswer) => {
+                setState((oldState) => {
+                  const previousSubmission = messageData.data
+                    .previous_submission as ExerciseTaskSubmission | null
+                  return {
+                    view_type: messageData.view_type,
+                    public_spec:
+                      oldState?.view_type === "answer-exercise"
+                        ? oldState.public_spec
+                        : // cloneDeep prevents setState from changing the initial spec
+                          _.cloneDeep(newPublicSpec),
+                    user_answer: userAnswer,
+                    previous_submission: previousSubmission,
+                  }
+                })
+              })
+              .catch((error) => {
+                // todo: proper error handling
+                throw new Error(`Failed to process public spec: ${error}`)
+              })
           } else if (messageData.view_type === "view-submission") {
             setState({
               view_type: messageData.view_type,
@@ -163,9 +170,6 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
         <StateRenderer
           setState={(updater) => setStateAndSend(port, updater)}
           state={state}
-          sendTestRequestMessage={(archiveDownloadUrl, files) => {
-            sendTestRequestMessage(port, archiveDownloadUrl, files)
-          }}
           testRequestResponse={testRequestResponse}
           sendFileUploadMessage={(filename, file) => {
             const files = new Map()
@@ -194,22 +198,6 @@ const sendSpecToParent = (port: MessagePort, data: CurrentStateMessageData) => {
   port.postMessage(currentStateMessage)
 }
 
-const sendTestRequestMessage = (
-  port: MessagePort | null,
-  archiveDownloadUrl: string,
-  files: Array<ExerciseFile>,
-) => {
-  if (port) {
-    const testRequest: MessageToParent = {
-      message: "test-request",
-      archiveDownloadUrl: archiveDownloadUrl,
-      files,
-    }
-    console.info("Posting message to parent", testRequest)
-    port.postMessage(testRequest)
-  }
-}
-
 const sendFileUploadMessage = (port: MessagePort | null, files: Map<string, string | Blob>) => {
   if (port) {
     const fileUploadRequest: MessageToParent = {
@@ -229,16 +217,23 @@ const requestRepositoryExercises = (port: MessagePort | null) => {
   }
 }
 
-const publicSpecToTemplateUserAnswer = (publicSpec: PublicSpec): UserAnswer => {
+const publicSpecToIframeUserAnswer = async (publicSpec: PublicSpec): Promise<UserAnswer> => {
   if (publicSpec.type == "browser") {
-    return { type: "browser", files: publicSpec.files }
+    // dl archive
+    debug("fetching ", publicSpec.stub_download_url)
+    const stubResponse = await fetch(publicSpec.stub_download_url)
+
+    // unpack zstd
+    const tarZstdArchive = await stubResponse.arrayBuffer()
+    const files = await extractTarZstd(Buffer.from(tarZstdArchive))
+
+    return { type: "browser", files }
   } else if (publicSpec.type == "editor") {
-    return { type: "editor", archive_download_url: publicSpec.archive_download_url }
+    return { type: "editor", archive_download_url: publicSpec.stub_download_url }
   } else {
     throw new Error("unreachable")
   }
 }
-
 const debug = (iframeId: string, message: string, ...optionalParams: unknown[]): void => {
   console.debug(`[tmc-iframe/${iframeId}]`, message, ...optionalParams)
 }

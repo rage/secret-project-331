@@ -289,180 +289,195 @@
 <a href=#289 id=289 data-nosnippet>289</a>    }
 <a href=#290 id=290 data-nosnippet>290</a>}
 <a href=#291 id=291 data-nosnippet>291</a>
-<a href=#292 id=292 data-nosnippet>292</a><span class="kw">pub fn </span>fetch_service_info(url: Url) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt; {
-<a href=#293 id=293 data-nosnippet>293</a>    <span class="kw">async </span>{
-<a href=#294 id=294 data-nosnippet>294</a>        <span class="kw">let </span>client = reqwest::Client::new();
-<a href=#295 id=295 data-nosnippet>295</a>        <span class="kw">let </span>res = client
-<a href=#296 id=296 data-nosnippet>296</a>            .get(url) <span class="comment">// e.g. http://example-exercise.default.svc.cluster.local:3002/example-exercise/api/service-info
-<a href=#297 id=297 data-nosnippet>297</a>            </span>.timeout(std::time::Duration::from_secs(<span class="number">120</span>))
-<a href=#298 id=298 data-nosnippet>298</a>            .send()
-<a href=#299 id=299 data-nosnippet>299</a>            .<span class="kw">await
-<a href=#300 id=300 data-nosnippet>300</a>            </span>.map_err(reqwest_err)<span class="question-mark">?</span>;
-<a href=#301 id=301 data-nosnippet>301</a>        <span class="kw">let </span>status = res.status();
-<a href=#302 id=302 data-nosnippet>302</a>        <span class="kw">if </span>!status.is_success() {
-<a href=#303 id=303 data-nosnippet>303</a>            <span class="kw">let </span>response_url = res.url().to_string();
-<a href=#304 id=304 data-nosnippet>304</a>            <span class="kw">let </span>body = res.text().<span class="kw">await</span>.map_err(reqwest_err)<span class="question-mark">?</span>;
-<a href=#305 id=305 data-nosnippet>305</a>            <span class="macro">warn!</span>(url=<span class="question-mark">?</span>response_url, status=<span class="question-mark">?</span>status, body=<span class="question-mark">?</span>body, <span class="string">"Could not fetch service info."</span>);
-<a href=#306 id=306 data-nosnippet>306</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
-<a href=#307 id=307 data-nosnippet>307</a>                ModelErrorType::Generic,
-<a href=#308 id=308 data-nosnippet>308</a>                <span class="string">"Could not fetch service info."</span>.to_string(),
-<a href=#309 id=309 data-nosnippet>309</a>                <span class="prelude-val">None</span>,
-<a href=#310 id=310 data-nosnippet>310</a>            ));
-<a href=#311 id=311 data-nosnippet>311</a>        }
-<a href=#312 id=312 data-nosnippet>312</a>        <span class="kw">let </span>res = res
-<a href=#313 id=313 data-nosnippet>313</a>            .json::&lt;ExerciseServiceInfoApi&gt;()
+<a href=#292 id=292 data-nosnippet>292</a><span class="comment">// see `fetch_service_info_fast` while handling HTTP requests
+<a href=#293 id=293 data-nosnippet>293</a></span><span class="kw">pub fn </span>fetch_service_info(url: Url) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt; {
+<a href=#294 id=294 data-nosnippet>294</a>    fetch_service_info_with_timeout(url, <span class="number">1000 </span>* <span class="number">120</span>)
+<a href=#295 id=295 data-nosnippet>295</a>}
+<a href=#296 id=296 data-nosnippet>296</a>
+<a href=#297 id=297 data-nosnippet>297</a><span class="comment">// use this while handling HTTP requests, see `fetch_service_info`
+<a href=#298 id=298 data-nosnippet>298</a></span><span class="kw">pub fn </span>fetch_service_info_fast(
+<a href=#299 id=299 data-nosnippet>299</a>    url: Url,
+<a href=#300 id=300 data-nosnippet>300</a>) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt; {
+<a href=#301 id=301 data-nosnippet>301</a>    fetch_service_info_with_timeout(url, <span class="number">1000 </span>* <span class="number">5</span>)
+<a href=#302 id=302 data-nosnippet>302</a>}
+<a href=#303 id=303 data-nosnippet>303</a>
+<a href=#304 id=304 data-nosnippet>304</a><span class="kw">fn </span>fetch_service_info_with_timeout(
+<a href=#305 id=305 data-nosnippet>305</a>    url: Url,
+<a href=#306 id=306 data-nosnippet>306</a>    timeout_ms: u64,
+<a href=#307 id=307 data-nosnippet>307</a>) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt; {
+<a href=#308 id=308 data-nosnippet>308</a>    <span class="kw">async move </span>{
+<a href=#309 id=309 data-nosnippet>309</a>        <span class="kw">let </span>client = reqwest::Client::new();
+<a href=#310 id=310 data-nosnippet>310</a>        <span class="kw">let </span>res = client
+<a href=#311 id=311 data-nosnippet>311</a>            .get(url) <span class="comment">// e.g. http://example-exercise.default.svc.cluster.local:3002/example-exercise/api/service-info
+<a href=#312 id=312 data-nosnippet>312</a>            </span>.timeout(std::time::Duration::from_millis(timeout_ms))
+<a href=#313 id=313 data-nosnippet>313</a>            .send()
 <a href=#314 id=314 data-nosnippet>314</a>            .<span class="kw">await
 <a href=#315 id=315 data-nosnippet>315</a>            </span>.map_err(reqwest_err)<span class="question-mark">?</span>;
-<a href=#316 id=316 data-nosnippet>316</a>        <span class="prelude-val">Ok</span>(res)
-<a href=#317 id=317 data-nosnippet>317</a>    }
-<a href=#318 id=318 data-nosnippet>318</a>    .boxed()
-<a href=#319 id=319 data-nosnippet>319</a>}
-<a href=#320 id=320 data-nosnippet>320</a>
-<a href=#321 id=321 data-nosnippet>321</a><span class="kw">pub fn </span>make_grading_request_sender(
-<a href=#322 id=322 data-nosnippet>322</a>    jwt_key: Arc&lt;JwtKey&gt;,
-<a href=#323 id=323 data-nosnippet>323</a>) -&gt; <span class="kw">impl </span>Fn(
-<a href=#324 id=324 data-nosnippet>324</a>    Url,
-<a href=#325 id=325 data-nosnippet>325</a>    <span class="kw-2">&amp;</span>ExerciseTask,
-<a href=#326 id=326 data-nosnippet>326</a>    <span class="kw-2">&amp;</span>ExerciseTaskSubmission,
-<a href=#327 id=327 data-nosnippet>327</a>) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, ModelResult&lt;ExerciseTaskGradingResult&gt;&gt; {
-<a href=#328 id=328 data-nosnippet>328</a>    <span class="kw">move </span>|grade_url, exercise_task, submission| {
-<a href=#329 id=329 data-nosnippet>329</a>        <span class="kw">let </span>client = reqwest::Client::new();
-<a href=#330 id=330 data-nosnippet>330</a>        <span class="comment">// TODO: use real url
-<a href=#331 id=331 data-nosnippet>331</a>        </span><span class="kw">let </span>grading_update_url = <span class="macro">format!</span>(
-<a href=#332 id=332 data-nosnippet>332</a>            <span class="string">"http://project-331.local/api/v0/exercise-services/grading/grading-update/{}"</span>,
-<a href=#333 id=333 data-nosnippet>333</a>            submission.id
-<a href=#334 id=334 data-nosnippet>334</a>        );
-<a href=#335 id=335 data-nosnippet>335</a>        <span class="kw">let </span>grading_update_claim = GradingUpdateClaim::expiring_in_1_day(submission.id);
-<a href=#336 id=336 data-nosnippet>336</a>        <span class="kw">let </span>req = client
-<a href=#337 id=337 data-nosnippet>337</a>            .post(grade_url)
-<a href=#338 id=338 data-nosnippet>338</a>            .header(
-<a href=#339 id=339 data-nosnippet>339</a>                EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER,
-<a href=#340 id=340 data-nosnippet>340</a>                grading_update_claim.sign(<span class="kw-2">&amp;</span>jwt_key),
-<a href=#341 id=341 data-nosnippet>341</a>            )
-<a href=#342 id=342 data-nosnippet>342</a>            .timeout(std::time::Duration::from_secs(<span class="number">120</span>))
-<a href=#343 id=343 data-nosnippet>343</a>            .json(<span class="kw-2">&amp;</span>ExerciseTaskGradingRequest {
-<a href=#344 id=344 data-nosnippet>344</a>                grading_update_url: <span class="kw-2">&amp;</span>grading_update_url,
-<a href=#345 id=345 data-nosnippet>345</a>                exercise_spec: <span class="kw-2">&amp;</span>exercise_task.private_spec,
-<a href=#346 id=346 data-nosnippet>346</a>                submission_data: <span class="kw-2">&amp;</span>submission.data_json,
-<a href=#347 id=347 data-nosnippet>347</a>            });
-<a href=#348 id=348 data-nosnippet>348</a>        <span class="kw">async move </span>{
-<a href=#349 id=349 data-nosnippet>349</a>            <span class="kw">let </span>res = req.send().<span class="kw">await</span>.map_err(reqwest_err)<span class="question-mark">?</span>;
-<a href=#350 id=350 data-nosnippet>350</a>            <span class="kw">let </span>status = res.status();
-<a href=#351 id=351 data-nosnippet>351</a>            <span class="kw">if </span>!status.is_success() {
-<a href=#352 id=352 data-nosnippet>352</a>                <span class="kw">let </span>response_body = res.text().<span class="kw">await</span>;
-<a href=#353 id=353 data-nosnippet>353</a>                <span class="macro">error!</span>(
-<a href=#354 id=354 data-nosnippet>354</a>                    <span class="question-mark">?</span>response_body,
-<a href=#355 id=355 data-nosnippet>355</a>                    <span class="string">"Grading request returned an unsuccesful status code"
-<a href=#356 id=356 data-nosnippet>356</a>                </span>);
-<a href=#357 id=357 data-nosnippet>357</a>                <span class="kw">let </span>source_error = ModelError::new(
-<a href=#358 id=358 data-nosnippet>358</a>                    ModelErrorType::Generic,
-<a href=#359 id=359 data-nosnippet>359</a>                    <span class="macro">format!</span>(<span class="string">"{:?}"</span>, response_body),
-<a href=#360 id=360 data-nosnippet>360</a>                    <span class="prelude-val">None</span>,
-<a href=#361 id=361 data-nosnippet>361</a>                );
-<a href=#362 id=362 data-nosnippet>362</a>                <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
-<a href=#363 id=363 data-nosnippet>363</a>                    ModelErrorType::Generic,
-<a href=#364 id=364 data-nosnippet>364</a>                    <span class="string">"Grading failed"</span>.to_string(),
-<a href=#365 id=365 data-nosnippet>365</a>                    <span class="prelude-val">Some</span>(source_error.into()),
-<a href=#366 id=366 data-nosnippet>366</a>                ));
-<a href=#367 id=367 data-nosnippet>367</a>            }
-<a href=#368 id=368 data-nosnippet>368</a>            <span class="kw">let </span>obj = res
-<a href=#369 id=369 data-nosnippet>369</a>                .json::&lt;ExerciseTaskGradingResult&gt;()
-<a href=#370 id=370 data-nosnippet>370</a>                .<span class="kw">await
-<a href=#371 id=371 data-nosnippet>371</a>                </span>.map_err(reqwest_err)<span class="question-mark">?</span>;
-<a href=#372 id=372 data-nosnippet>372</a>            <span class="macro">info!</span>(<span class="string">"Received a grading result: {:#?}"</span>, <span class="kw-2">&amp;</span>obj);
-<a href=#373 id=373 data-nosnippet>373</a>            <span class="prelude-val">Ok</span>(obj)
-<a href=#374 id=374 data-nosnippet>374</a>        }
-<a href=#375 id=375 data-nosnippet>375</a>        .boxed()
-<a href=#376 id=376 data-nosnippet>376</a>    }
-<a href=#377 id=377 data-nosnippet>377</a>}
-<a href=#378 id=378 data-nosnippet>378</a>
-<a href=#379 id=379 data-nosnippet>379</a><span class="attr">#[derive(Debug, Serialize, Deserialize)]
-<a href=#380 id=380 data-nosnippet>380</a></span><span class="kw">pub struct </span>GivePeerReviewClaim {
-<a href=#381 id=381 data-nosnippet>381</a>    <span class="kw">pub </span>exercise_slide_submission_id: Uuid,
-<a href=#382 id=382 data-nosnippet>382</a>    <span class="kw">pub </span>peer_or_self_review_config_id: Uuid,
-<a href=#383 id=383 data-nosnippet>383</a>    expiration_time: DateTime&lt;Utc&gt;,
-<a href=#384 id=384 data-nosnippet>384</a>}
-<a href=#385 id=385 data-nosnippet>385</a>
-<a href=#386 id=386 data-nosnippet>386</a><span class="kw">impl </span>GivePeerReviewClaim {
-<a href=#387 id=387 data-nosnippet>387</a>    <span class="kw">pub fn </span>expiring_in_1_day(
-<a href=#388 id=388 data-nosnippet>388</a>        exercise_slide_submission_id: Uuid,
-<a href=#389 id=389 data-nosnippet>389</a>        peer_or_self_review_config_id: Uuid,
-<a href=#390 id=390 data-nosnippet>390</a>    ) -&gt; <span class="self">Self </span>{
-<a href=#391 id=391 data-nosnippet>391</a>        <span class="self">Self </span>{
-<a href=#392 id=392 data-nosnippet>392</a>            exercise_slide_submission_id,
-<a href=#393 id=393 data-nosnippet>393</a>            peer_or_self_review_config_id,
-<a href=#394 id=394 data-nosnippet>394</a>            expiration_time: Utc::now() + Duration::days(<span class="number">1</span>),
-<a href=#395 id=395 data-nosnippet>395</a>        }
-<a href=#396 id=396 data-nosnippet>396</a>    }
-<a href=#397 id=397 data-nosnippet>397</a>
-<a href=#398 id=398 data-nosnippet>398</a>    <span class="kw">pub fn </span>sign(<span class="self">self</span>, key: <span class="kw-2">&amp;</span>JwtKey) -&gt; String {
-<a href=#399 id=399 data-nosnippet>399</a>        <span class="self">self</span>.sign_with_key(<span class="kw-2">&amp;</span>key.<span class="number">0</span>).expect(<span class="string">"should never fail"</span>)
-<a href=#400 id=400 data-nosnippet>400</a>    }
-<a href=#401 id=401 data-nosnippet>401</a>
-<a href=#402 id=402 data-nosnippet>402</a>    <span class="kw">pub fn </span>validate(token: <span class="kw-2">&amp;</span>str, key: <span class="kw-2">&amp;</span>JwtKey) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ControllerError&gt; {
-<a href=#403 id=403 data-nosnippet>403</a>        <span class="kw">let </span>claim: <span class="self">Self </span>= token.verify_with_key(<span class="kw-2">&amp;</span>key.<span class="number">0</span>).map_err(|err| {
-<a href=#404 id=404 data-nosnippet>404</a>            ControllerError::new(
-<a href=#405 id=405 data-nosnippet>405</a>                ControllerErrorType::BadRequest,
-<a href=#406 id=406 data-nosnippet>406</a>                <span class="macro">format!</span>(<span class="string">"Invalid claim: {}"</span>, err),
-<a href=#407 id=407 data-nosnippet>407</a>                <span class="prelude-val">Some</span>(err.into()),
-<a href=#408 id=408 data-nosnippet>408</a>            )
-<a href=#409 id=409 data-nosnippet>409</a>        })<span class="question-mark">?</span>;
-<a href=#410 id=410 data-nosnippet>410</a>        <span class="kw">if </span>claim.expiration_time &lt; Utc::now() {
-<a href=#411 id=411 data-nosnippet>411</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
-<a href=#412 id=412 data-nosnippet>412</a>                ControllerErrorType::BadRequest,
-<a href=#413 id=413 data-nosnippet>413</a>                <span class="string">"The review has expired."</span>.to_string(),
-<a href=#414 id=414 data-nosnippet>414</a>                <span class="prelude-val">None</span>,
-<a href=#415 id=415 data-nosnippet>415</a>            ));
-<a href=#416 id=416 data-nosnippet>416</a>        }
-<a href=#417 id=417 data-nosnippet>417</a>        <span class="prelude-val">Ok</span>(claim)
-<a href=#418 id=418 data-nosnippet>418</a>    }
-<a href=#419 id=419 data-nosnippet>419</a>}
-<a href=#420 id=420 data-nosnippet>420</a>
-<a href=#421 id=421 data-nosnippet>421</a><span class="doccomment">/// A caching spec fetcher ONLY FOR THE SEED that returns a cached spec if the same
-<a href=#422 id=422 data-nosnippet>422</a>/// (url, exercise_service_slug, private_spec) is requested. Since this is only used during seeding,
-<a href=#423 id=423 data-nosnippet>423</a>/// there is no cache eviction.
-<a href=#424 id=424 data-nosnippet>424</a></span><span class="kw">pub fn </span>make_seed_spec_fetcher_with_cache(
-<a href=#425 id=425 data-nosnippet>425</a>    base_url: String,
-<a href=#426 id=426 data-nosnippet>426</a>    request_id: Uuid,
-<a href=#427 id=427 data-nosnippet>427</a>    jwt_key: Arc&lt;JwtKey&gt;,
-<a href=#428 id=428 data-nosnippet>428</a>) -&gt; <span class="kw">impl </span>SpecFetcher {
-<a href=#429 id=429 data-nosnippet>429</a>    <span class="comment">// Cache key: (url, exercise_service_slug, private_spec serialized)
-<a href=#430 id=430 data-nosnippet>430</a>    </span><span class="kw">let </span>cache: Arc&lt;Mutex&lt;SpecCache&gt;&gt; = Arc::new(Mutex::new(HashMap::new()));
-<a href=#431 id=431 data-nosnippet>431</a>
-<a href=#432 id=432 data-nosnippet>432</a>    <span class="comment">// Create the base non-caching spec fetcher and wrap it in Arc to make it clonable
-<a href=#433 id=433 data-nosnippet>433</a>    </span><span class="kw">let </span>base_fetcher = Arc::new(make_spec_fetcher(base_url, request_id, jwt_key));
-<a href=#434 id=434 data-nosnippet>434</a>
-<a href=#435 id=435 data-nosnippet>435</a>    <span class="kw">move </span>|url, exercise_service_slug, private_spec| {
-<a href=#436 id=436 data-nosnippet>436</a>        <span class="kw">let </span>url_str = url.to_string();
-<a href=#437 id=437 data-nosnippet>437</a>        <span class="kw">let </span>service_slug = exercise_service_slug.to_string();
-<a href=#438 id=438 data-nosnippet>438</a>        <span class="comment">// Convert private_spec to string for cache key if present
-<a href=#439 id=439 data-nosnippet>439</a>        </span><span class="kw">let </span>private_spec_str =
-<a href=#440 id=440 data-nosnippet>440</a>            private_spec.map(|spec| serde_json::to_string(<span class="kw-2">&amp;</span>spec).unwrap_or_default());
-<a href=#441 id=441 data-nosnippet>441</a>        <span class="kw">let </span>key = (url_str.clone(), service_slug.clone(), private_spec_str);
-<a href=#442 id=442 data-nosnippet>442</a>        <span class="kw">let </span>cache = Arc::clone(<span class="kw-2">&amp;</span>cache);
-<a href=#443 id=443 data-nosnippet>443</a>        <span class="kw">let </span>base_fetcher = Arc::clone(<span class="kw-2">&amp;</span>base_fetcher);
-<a href=#444 id=444 data-nosnippet>444</a>
-<a href=#445 id=445 data-nosnippet>445</a>        <span class="kw">async move </span>{
-<a href=#446 id=446 data-nosnippet>446</a>            <span class="comment">// Try to get from cache first
-<a href=#447 id=447 data-nosnippet>447</a>            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(cached_spec) = cache
-<a href=#448 id=448 data-nosnippet>448</a>                .lock()
-<a href=#449 id=449 data-nosnippet>449</a>                .expect(<span class="string">"Seed spec fetcher cache lock poisoned"</span>)
-<a href=#450 id=450 data-nosnippet>450</a>                .get(<span class="kw-2">&amp;</span>key)
-<a href=#451 id=451 data-nosnippet>451</a>            {
-<a href=#452 id=452 data-nosnippet>452</a>                <span class="kw">return </span><span class="prelude-val">Ok</span>(cached_spec.clone());
-<a href=#453 id=453 data-nosnippet>453</a>            }
-<a href=#454 id=454 data-nosnippet>454</a>
-<a href=#455 id=455 data-nosnippet>455</a>            <span class="comment">// Not in cache - fetch using base fetcher
-<a href=#456 id=456 data-nosnippet>456</a>            </span><span class="kw">let </span>fetched_spec = base_fetcher(url, exercise_service_slug, private_spec).<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#457 id=457 data-nosnippet>457</a>
-<a href=#458 id=458 data-nosnippet>458</a>            <span class="comment">// Store in cache
-<a href=#459 id=459 data-nosnippet>459</a>            </span>cache
-<a href=#460 id=460 data-nosnippet>460</a>                .lock()
-<a href=#461 id=461 data-nosnippet>461</a>                .expect(<span class="string">"Seed spec fetcher cache lock poisoned"</span>)
-<a href=#462 id=462 data-nosnippet>462</a>                .insert(key, fetched_spec.clone());
-<a href=#463 id=463 data-nosnippet>463</a>
-<a href=#464 id=464 data-nosnippet>464</a>            <span class="prelude-val">Ok</span>(fetched_spec)
-<a href=#465 id=465 data-nosnippet>465</a>        }
-<a href=#466 id=466 data-nosnippet>466</a>        .boxed()
-<a href=#467 id=467 data-nosnippet>467</a>    }
-<a href=#468 id=468 data-nosnippet>468</a>}</code></pre></div></section></main></body></html>
+<a href=#316 id=316 data-nosnippet>316</a>        <span class="kw">let </span>status = res.status();
+<a href=#317 id=317 data-nosnippet>317</a>        <span class="kw">if </span>!status.is_success() {
+<a href=#318 id=318 data-nosnippet>318</a>            <span class="kw">let </span>response_url = res.url().to_string();
+<a href=#319 id=319 data-nosnippet>319</a>            <span class="kw">let </span>body = res.text().<span class="kw">await</span>.map_err(reqwest_err)<span class="question-mark">?</span>;
+<a href=#320 id=320 data-nosnippet>320</a>            <span class="macro">warn!</span>(url=<span class="question-mark">?</span>response_url, status=<span class="question-mark">?</span>status, body=<span class="question-mark">?</span>body, <span class="string">"Could not fetch service info."</span>);
+<a href=#321 id=321 data-nosnippet>321</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
+<a href=#322 id=322 data-nosnippet>322</a>                ModelErrorType::Generic,
+<a href=#323 id=323 data-nosnippet>323</a>                <span class="string">"Could not fetch service info."</span>.to_string(),
+<a href=#324 id=324 data-nosnippet>324</a>                <span class="prelude-val">None</span>,
+<a href=#325 id=325 data-nosnippet>325</a>            ));
+<a href=#326 id=326 data-nosnippet>326</a>        }
+<a href=#327 id=327 data-nosnippet>327</a>        <span class="kw">let </span>res = res
+<a href=#328 id=328 data-nosnippet>328</a>            .json::&lt;ExerciseServiceInfoApi&gt;()
+<a href=#329 id=329 data-nosnippet>329</a>            .<span class="kw">await
+<a href=#330 id=330 data-nosnippet>330</a>            </span>.map_err(reqwest_err)<span class="question-mark">?</span>;
+<a href=#331 id=331 data-nosnippet>331</a>        <span class="prelude-val">Ok</span>(res)
+<a href=#332 id=332 data-nosnippet>332</a>    }
+<a href=#333 id=333 data-nosnippet>333</a>    .boxed()
+<a href=#334 id=334 data-nosnippet>334</a>}
+<a href=#335 id=335 data-nosnippet>335</a>
+<a href=#336 id=336 data-nosnippet>336</a><span class="kw">pub fn </span>make_grading_request_sender(
+<a href=#337 id=337 data-nosnippet>337</a>    jwt_key: Arc&lt;JwtKey&gt;,
+<a href=#338 id=338 data-nosnippet>338</a>) -&gt; <span class="kw">impl </span>Fn(
+<a href=#339 id=339 data-nosnippet>339</a>    Url,
+<a href=#340 id=340 data-nosnippet>340</a>    <span class="kw-2">&amp;</span>ExerciseTask,
+<a href=#341 id=341 data-nosnippet>341</a>    <span class="kw-2">&amp;</span>ExerciseTaskSubmission,
+<a href=#342 id=342 data-nosnippet>342</a>) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, ModelResult&lt;ExerciseTaskGradingResult&gt;&gt; {
+<a href=#343 id=343 data-nosnippet>343</a>    <span class="kw">move </span>|grade_url, exercise_task, submission| {
+<a href=#344 id=344 data-nosnippet>344</a>        <span class="kw">let </span>client = reqwest::Client::new();
+<a href=#345 id=345 data-nosnippet>345</a>        <span class="comment">// TODO: use real url
+<a href=#346 id=346 data-nosnippet>346</a>        </span><span class="kw">let </span>grading_update_url = <span class="macro">format!</span>(
+<a href=#347 id=347 data-nosnippet>347</a>            <span class="string">"http://project-331.local/api/v0/exercise-services/grading/grading-update/{}"</span>,
+<a href=#348 id=348 data-nosnippet>348</a>            submission.id
+<a href=#349 id=349 data-nosnippet>349</a>        );
+<a href=#350 id=350 data-nosnippet>350</a>        <span class="kw">let </span>grading_update_claim = GradingUpdateClaim::expiring_in_1_day(submission.id);
+<a href=#351 id=351 data-nosnippet>351</a>        <span class="kw">let </span>req = client
+<a href=#352 id=352 data-nosnippet>352</a>            .post(grade_url)
+<a href=#353 id=353 data-nosnippet>353</a>            .header(
+<a href=#354 id=354 data-nosnippet>354</a>                EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER,
+<a href=#355 id=355 data-nosnippet>355</a>                grading_update_claim.sign(<span class="kw-2">&amp;</span>jwt_key),
+<a href=#356 id=356 data-nosnippet>356</a>            )
+<a href=#357 id=357 data-nosnippet>357</a>            .timeout(std::time::Duration::from_secs(<span class="number">120</span>))
+<a href=#358 id=358 data-nosnippet>358</a>            .json(<span class="kw-2">&amp;</span>ExerciseTaskGradingRequest {
+<a href=#359 id=359 data-nosnippet>359</a>                grading_update_url: <span class="kw-2">&amp;</span>grading_update_url,
+<a href=#360 id=360 data-nosnippet>360</a>                exercise_spec: <span class="kw-2">&amp;</span>exercise_task.private_spec,
+<a href=#361 id=361 data-nosnippet>361</a>                submission_data: <span class="kw-2">&amp;</span>submission.data_json,
+<a href=#362 id=362 data-nosnippet>362</a>            });
+<a href=#363 id=363 data-nosnippet>363</a>        <span class="kw">async move </span>{
+<a href=#364 id=364 data-nosnippet>364</a>            <span class="kw">let </span>res = req.send().<span class="kw">await</span>.map_err(reqwest_err)<span class="question-mark">?</span>;
+<a href=#365 id=365 data-nosnippet>365</a>            <span class="kw">let </span>status = res.status();
+<a href=#366 id=366 data-nosnippet>366</a>            <span class="kw">if </span>!status.is_success() {
+<a href=#367 id=367 data-nosnippet>367</a>                <span class="kw">let </span>response_body = res.text().<span class="kw">await</span>;
+<a href=#368 id=368 data-nosnippet>368</a>                <span class="macro">error!</span>(
+<a href=#369 id=369 data-nosnippet>369</a>                    <span class="question-mark">?</span>response_body,
+<a href=#370 id=370 data-nosnippet>370</a>                    <span class="string">"Grading request returned an unsuccesful status code"
+<a href=#371 id=371 data-nosnippet>371</a>                </span>);
+<a href=#372 id=372 data-nosnippet>372</a>                <span class="kw">let </span>source_error = ModelError::new(
+<a href=#373 id=373 data-nosnippet>373</a>                    ModelErrorType::Generic,
+<a href=#374 id=374 data-nosnippet>374</a>                    <span class="macro">format!</span>(<span class="string">"{:?}"</span>, response_body),
+<a href=#375 id=375 data-nosnippet>375</a>                    <span class="prelude-val">None</span>,
+<a href=#376 id=376 data-nosnippet>376</a>                );
+<a href=#377 id=377 data-nosnippet>377</a>                <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
+<a href=#378 id=378 data-nosnippet>378</a>                    ModelErrorType::Generic,
+<a href=#379 id=379 data-nosnippet>379</a>                    <span class="string">"Grading failed"</span>.to_string(),
+<a href=#380 id=380 data-nosnippet>380</a>                    <span class="prelude-val">Some</span>(source_error.into()),
+<a href=#381 id=381 data-nosnippet>381</a>                ));
+<a href=#382 id=382 data-nosnippet>382</a>            }
+<a href=#383 id=383 data-nosnippet>383</a>            <span class="kw">let </span>obj = res
+<a href=#384 id=384 data-nosnippet>384</a>                .json::&lt;ExerciseTaskGradingResult&gt;()
+<a href=#385 id=385 data-nosnippet>385</a>                .<span class="kw">await
+<a href=#386 id=386 data-nosnippet>386</a>                </span>.map_err(reqwest_err)<span class="question-mark">?</span>;
+<a href=#387 id=387 data-nosnippet>387</a>            <span class="macro">info!</span>(<span class="string">"Received a grading result: {:#?}"</span>, <span class="kw-2">&amp;</span>obj);
+<a href=#388 id=388 data-nosnippet>388</a>            <span class="prelude-val">Ok</span>(obj)
+<a href=#389 id=389 data-nosnippet>389</a>        }
+<a href=#390 id=390 data-nosnippet>390</a>        .boxed()
+<a href=#391 id=391 data-nosnippet>391</a>    }
+<a href=#392 id=392 data-nosnippet>392</a>}
+<a href=#393 id=393 data-nosnippet>393</a>
+<a href=#394 id=394 data-nosnippet>394</a><span class="attr">#[derive(Debug, Serialize, Deserialize)]
+<a href=#395 id=395 data-nosnippet>395</a></span><span class="kw">pub struct </span>GivePeerReviewClaim {
+<a href=#396 id=396 data-nosnippet>396</a>    <span class="kw">pub </span>exercise_slide_submission_id: Uuid,
+<a href=#397 id=397 data-nosnippet>397</a>    <span class="kw">pub </span>peer_or_self_review_config_id: Uuid,
+<a href=#398 id=398 data-nosnippet>398</a>    expiration_time: DateTime&lt;Utc&gt;,
+<a href=#399 id=399 data-nosnippet>399</a>}
+<a href=#400 id=400 data-nosnippet>400</a>
+<a href=#401 id=401 data-nosnippet>401</a><span class="kw">impl </span>GivePeerReviewClaim {
+<a href=#402 id=402 data-nosnippet>402</a>    <span class="kw">pub fn </span>expiring_in_1_day(
+<a href=#403 id=403 data-nosnippet>403</a>        exercise_slide_submission_id: Uuid,
+<a href=#404 id=404 data-nosnippet>404</a>        peer_or_self_review_config_id: Uuid,
+<a href=#405 id=405 data-nosnippet>405</a>    ) -&gt; <span class="self">Self </span>{
+<a href=#406 id=406 data-nosnippet>406</a>        <span class="self">Self </span>{
+<a href=#407 id=407 data-nosnippet>407</a>            exercise_slide_submission_id,
+<a href=#408 id=408 data-nosnippet>408</a>            peer_or_self_review_config_id,
+<a href=#409 id=409 data-nosnippet>409</a>            expiration_time: Utc::now() + Duration::days(<span class="number">1</span>),
+<a href=#410 id=410 data-nosnippet>410</a>        }
+<a href=#411 id=411 data-nosnippet>411</a>    }
+<a href=#412 id=412 data-nosnippet>412</a>
+<a href=#413 id=413 data-nosnippet>413</a>    <span class="kw">pub fn </span>sign(<span class="self">self</span>, key: <span class="kw-2">&amp;</span>JwtKey) -&gt; String {
+<a href=#414 id=414 data-nosnippet>414</a>        <span class="self">self</span>.sign_with_key(<span class="kw-2">&amp;</span>key.<span class="number">0</span>).expect(<span class="string">"should never fail"</span>)
+<a href=#415 id=415 data-nosnippet>415</a>    }
+<a href=#416 id=416 data-nosnippet>416</a>
+<a href=#417 id=417 data-nosnippet>417</a>    <span class="kw">pub fn </span>validate(token: <span class="kw-2">&amp;</span>str, key: <span class="kw-2">&amp;</span>JwtKey) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ControllerError&gt; {
+<a href=#418 id=418 data-nosnippet>418</a>        <span class="kw">let </span>claim: <span class="self">Self </span>= token.verify_with_key(<span class="kw-2">&amp;</span>key.<span class="number">0</span>).map_err(|err| {
+<a href=#419 id=419 data-nosnippet>419</a>            ControllerError::new(
+<a href=#420 id=420 data-nosnippet>420</a>                ControllerErrorType::BadRequest,
+<a href=#421 id=421 data-nosnippet>421</a>                <span class="macro">format!</span>(<span class="string">"Invalid claim: {}"</span>, err),
+<a href=#422 id=422 data-nosnippet>422</a>                <span class="prelude-val">Some</span>(err.into()),
+<a href=#423 id=423 data-nosnippet>423</a>            )
+<a href=#424 id=424 data-nosnippet>424</a>        })<span class="question-mark">?</span>;
+<a href=#425 id=425 data-nosnippet>425</a>        <span class="kw">if </span>claim.expiration_time &lt; Utc::now() {
+<a href=#426 id=426 data-nosnippet>426</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+<a href=#427 id=427 data-nosnippet>427</a>                ControllerErrorType::BadRequest,
+<a href=#428 id=428 data-nosnippet>428</a>                <span class="string">"The review has expired."</span>.to_string(),
+<a href=#429 id=429 data-nosnippet>429</a>                <span class="prelude-val">None</span>,
+<a href=#430 id=430 data-nosnippet>430</a>            ));
+<a href=#431 id=431 data-nosnippet>431</a>        }
+<a href=#432 id=432 data-nosnippet>432</a>        <span class="prelude-val">Ok</span>(claim)
+<a href=#433 id=433 data-nosnippet>433</a>    }
+<a href=#434 id=434 data-nosnippet>434</a>}
+<a href=#435 id=435 data-nosnippet>435</a>
+<a href=#436 id=436 data-nosnippet>436</a><span class="doccomment">/// A caching spec fetcher ONLY FOR THE SEED that returns a cached spec if the same
+<a href=#437 id=437 data-nosnippet>437</a>/// (url, exercise_service_slug, private_spec) is requested. Since this is only used during seeding,
+<a href=#438 id=438 data-nosnippet>438</a>/// there is no cache eviction.
+<a href=#439 id=439 data-nosnippet>439</a></span><span class="kw">pub fn </span>make_seed_spec_fetcher_with_cache(
+<a href=#440 id=440 data-nosnippet>440</a>    base_url: String,
+<a href=#441 id=441 data-nosnippet>441</a>    request_id: Uuid,
+<a href=#442 id=442 data-nosnippet>442</a>    jwt_key: Arc&lt;JwtKey&gt;,
+<a href=#443 id=443 data-nosnippet>443</a>) -&gt; <span class="kw">impl </span>SpecFetcher {
+<a href=#444 id=444 data-nosnippet>444</a>    <span class="comment">// Cache key: (url, exercise_service_slug, private_spec serialized)
+<a href=#445 id=445 data-nosnippet>445</a>    </span><span class="kw">let </span>cache: Arc&lt;Mutex&lt;SpecCache&gt;&gt; = Arc::new(Mutex::new(HashMap::new()));
+<a href=#446 id=446 data-nosnippet>446</a>
+<a href=#447 id=447 data-nosnippet>447</a>    <span class="comment">// Create the base non-caching spec fetcher and wrap it in Arc to make it clonable
+<a href=#448 id=448 data-nosnippet>448</a>    </span><span class="kw">let </span>base_fetcher = Arc::new(make_spec_fetcher(base_url, request_id, jwt_key));
+<a href=#449 id=449 data-nosnippet>449</a>
+<a href=#450 id=450 data-nosnippet>450</a>    <span class="kw">move </span>|url, exercise_service_slug, private_spec| {
+<a href=#451 id=451 data-nosnippet>451</a>        <span class="kw">let </span>url_str = url.to_string();
+<a href=#452 id=452 data-nosnippet>452</a>        <span class="kw">let </span>service_slug = exercise_service_slug.to_string();
+<a href=#453 id=453 data-nosnippet>453</a>        <span class="comment">// Convert private_spec to string for cache key if present
+<a href=#454 id=454 data-nosnippet>454</a>        </span><span class="kw">let </span>private_spec_str =
+<a href=#455 id=455 data-nosnippet>455</a>            private_spec.map(|spec| serde_json::to_string(<span class="kw-2">&amp;</span>spec).unwrap_or_default());
+<a href=#456 id=456 data-nosnippet>456</a>        <span class="kw">let </span>key = (url_str.clone(), service_slug.clone(), private_spec_str);
+<a href=#457 id=457 data-nosnippet>457</a>        <span class="kw">let </span>cache = Arc::clone(<span class="kw-2">&amp;</span>cache);
+<a href=#458 id=458 data-nosnippet>458</a>        <span class="kw">let </span>base_fetcher = Arc::clone(<span class="kw-2">&amp;</span>base_fetcher);
+<a href=#459 id=459 data-nosnippet>459</a>
+<a href=#460 id=460 data-nosnippet>460</a>        <span class="kw">async move </span>{
+<a href=#461 id=461 data-nosnippet>461</a>            <span class="comment">// Try to get from cache first
+<a href=#462 id=462 data-nosnippet>462</a>            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(cached_spec) = cache
+<a href=#463 id=463 data-nosnippet>463</a>                .lock()
+<a href=#464 id=464 data-nosnippet>464</a>                .expect(<span class="string">"Seed spec fetcher cache lock poisoned"</span>)
+<a href=#465 id=465 data-nosnippet>465</a>                .get(<span class="kw-2">&amp;</span>key)
+<a href=#466 id=466 data-nosnippet>466</a>            {
+<a href=#467 id=467 data-nosnippet>467</a>                <span class="kw">return </span><span class="prelude-val">Ok</span>(cached_spec.clone());
+<a href=#468 id=468 data-nosnippet>468</a>            }
+<a href=#469 id=469 data-nosnippet>469</a>
+<a href=#470 id=470 data-nosnippet>470</a>            <span class="comment">// Not in cache - fetch using base fetcher
+<a href=#471 id=471 data-nosnippet>471</a>            </span><span class="kw">let </span>fetched_spec = base_fetcher(url, exercise_service_slug, private_spec).<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#472 id=472 data-nosnippet>472</a>
+<a href=#473 id=473 data-nosnippet>473</a>            <span class="comment">// Store in cache
+<a href=#474 id=474 data-nosnippet>474</a>            </span>cache
+<a href=#475 id=475 data-nosnippet>475</a>                .lock()
+<a href=#476 id=476 data-nosnippet>476</a>                .expect(<span class="string">"Seed spec fetcher cache lock poisoned"</span>)
+<a href=#477 id=477 data-nosnippet>477</a>                .insert(key, fetched_spec.clone());
+<a href=#478 id=478 data-nosnippet>478</a>
+<a href=#479 id=479 data-nosnippet>479</a>            <span class="prelude-val">Ok</span>(fetched_spec)
+<a href=#480 id=480 data-nosnippet>480</a>        }
+<a href=#481 id=481 data-nosnippet>481</a>        .boxed()
+<a href=#482 id=482 data-nosnippet>482</a>    }
+<a href=#483 id=483 data-nosnippet>483</a>}</code></pre></div></section></main></body></html>

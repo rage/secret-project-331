@@ -2,7 +2,7 @@
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a></span><span class="kw">use </span>models::exercise_services::ExerciseServiceIframeRenderingInfo;
 <a href=#4 id=4 data-nosnippet>4</a>
-<a href=#5 id=5 data-nosnippet>5</a><span class="kw">use crate</span>::{domain::models_requests, prelude::<span class="kw-2">*</span>};
+<a href=#5 id=5 data-nosnippet>5</a><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 <a href=#6 id=6 data-nosnippet>6</a>
 <a href=#7 id=7 data-nosnippet>7</a><span class="doccomment">/**
 <a href=#8 id=8 data-nosnippet>8</a>GET `/api/v0/cms/exercise-services` - List all exercise services configured in the system.
@@ -14,15 +14,13 @@
 <a href=#14 id=14 data-nosnippet>14</a>) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;ExerciseServiceIframeRenderingInfo&gt;&gt;&gt; {
 <a href=#15 id=15 data-nosnippet>15</a>    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
 <a href=#16 id=16 data-nosnippet>16</a>    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::AnyCourse).<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#17 id=17 data-nosnippet>17</a>    <span class="kw">let </span>res = models::exercise_services::get_all_exercise_services_iframe_rendering_infos(
-<a href=#18 id=18 data-nosnippet>18</a>        <span class="kw-2">&amp;mut </span>conn,
-<a href=#19 id=19 data-nosnippet>19</a>        models_requests::fetch_service_info,
-<a href=#20 id=20 data-nosnippet>20</a>    )
-<a href=#21 id=21 data-nosnippet>21</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#22 id=22 data-nosnippet>22</a>
-<a href=#23 id=23 data-nosnippet>23</a>    token.authorized_ok(web::Json(res))
-<a href=#24 id=24 data-nosnippet>24</a>}
-<a href=#25 id=25 data-nosnippet>25</a>
-<a href=#26 id=26 data-nosnippet>26</a><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
-<a href=#27 id=27 data-nosnippet>27</a>    cfg.route(<span class="string">""</span>, web::get().to(get_all_exercise_services));
-<a href=#28 id=28 data-nosnippet>28</a>}</code></pre></div></section></main></body></html>
+<a href=#17 id=17 data-nosnippet>17</a>    <span class="kw">let </span>res =
+<a href=#18 id=18 data-nosnippet>18</a>        models::exercise_services::get_all_exercise_services_iframe_rendering_infos(<span class="kw-2">&amp;mut </span>conn)
+<a href=#19 id=19 data-nosnippet>19</a>            .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#20 id=20 data-nosnippet>20</a>
+<a href=#21 id=21 data-nosnippet>21</a>    token.authorized_ok(web::Json(res))
+<a href=#22 id=22 data-nosnippet>22</a>}
+<a href=#23 id=23 data-nosnippet>23</a>
+<a href=#24 id=24 data-nosnippet>24</a><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
+<a href=#25 id=25 data-nosnippet>25</a>    cfg.route(<span class="string">""</span>, web::get().to(get_all_exercise_services));
+<a href=#26 id=26 data-nosnippet>26</a>}</code></pre></div></section></main></body></html>

@@ -15,6 +15,7 @@ import { prepareExerciseServiceForBackend } from "../../../utils/prepareServiceF
 import { ExerciseServiceNewOrUpdate } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -41,7 +42,15 @@ const ExerciseServicePage: React.FC<React.PropsWithChildren<unknown>> = () => {
         return
       }
       const processedService = prepareExerciseServiceForBackend(exerciseService)
-      await addExerciseService(processedService)
+      const result = await addExerciseService(processedService)
+      if (result.service_info_error) {
+        showErrorNotification({
+          header: t("could-not-connect-to-exercise-service-header"),
+          message: t("could-not-connect-to-exercise-service-message", {
+            message: result.service_info_error,
+          }),
+        })
+      }
     },
     { notify: true, method: "POST" },
     {

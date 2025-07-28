@@ -2282,6 +2282,11 @@ export interface NewExerciseRepository {
   deploy_key: string | null
 }
 
+export interface ExerciseServiceWithError {
+  exercise_service: ExerciseService
+  service_info_error: string | null
+}
+
 export interface ExerciseSubmissions {
   data: Array<ExerciseSlideSubmission>
   total_pages: number

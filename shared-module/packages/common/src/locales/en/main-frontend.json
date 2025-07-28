@@ -147,6 +147,8 @@
   "confirm-reset-title": "Confirm Reset",
   "confirm-your-password": "Confirm your password",
   "copied-course-is-a-language-version": "Copied course is a language version",
+  "could-not-connect-to-exercise-service-header": "Server could not connect to exercise service",
+  "could-not-connect-to-exercise-service-message": "The exercise service was processed successfully, but there may be a problem with the public URL of the service: {{ message }}",
   "could-not-find-course-course-instance-or-user-course-settings-for-enrollment": "Could not find course or course instance or user course settings for this enrollment.",
   "country": "Country",
   "course": "Course",

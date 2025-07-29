@@ -4,10 +4,11 @@ import React, { ReactElement, useCallback, useEffect, useMemo, useState } from "
 import { useTranslation } from "react-i18next"
 import { usePopper } from "react-popper"
 
+import CitationPopover from "./CitationPopover"
 import ThinkingIndicator from "./ThinkingIndicator"
+import { fadeStyle, hrefStyle } from "./styles"
 
 import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
-import SpeechBalloon from "@/shared-module/common/components/SpeechBalloon"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 import { getRemarkable } from "@/utils/getRemarkable"
@@ -19,40 +20,6 @@ interface MessageBubbleProps {
   isPending: boolean
   citations: ChatbotConversationMessageCitation[] | undefined
 }
-
-const hrefStyle = css`
-  a {
-    &:hover {
-      span {
-        color: ${baseTheme.colors.blue[700]}; /* TODO accessibility issue, not enough contrast?*/
-        text-decoration: underline;
-      }
-    }
-  }
-`
-
-const tooltipStyle = css`
-  z-index: 100;
-  animation: fadeIn 0.2s ease-in-out;
-  pointer-events: auto;
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(5px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  p {
-    overflow-wrap: break-word;
-    width: 300px;
-    max-width: 90vw;
-  }
-  ${hrefStyle}
-`
 
 const bubbleStyle = (isFromChatbot: boolean) => css`
   padding: 1rem;
@@ -108,17 +75,17 @@ const messageStyle = css`
     white-space: pre-wrap;
   }
   button {
-    /*Citations are inside span(/button????) tags, it's assumed span tags wouldn't
-    be used otherwise */
-    &:hover {
-      filter: brightness(0.9) contrast(1.1);
-    }
+    /*Citations are inside button tags, it's assumed button tags wouldn't
+    be used otherwise in chatbot text*/
     border: none;
     cursor: default;
     background-color: ${baseTheme.colors.gray[200]};
     padding: 0 7px 0 7px;
     border-radius: 10px;
     font-size: 85%;
+    &:hover {
+      filter: brightness(0.9) contrast(1.1);
+    }
   }
   white-space: pre-wrap;
 `
@@ -163,7 +130,7 @@ const referenceListStyle = (expanded: boolean) => css`
     flex-flow: row nowrap;
     overflow: hidden;
     white-space: pre;
-    mask-image: linear-gradient(0.25turn, black 66%, transparent);
+    ${fadeStyle}
   `}
     div[popover] {
       border: none;
@@ -291,7 +258,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                   <button
                     id={`cit-${citedDocs[i]}`}
                     value={citedDocs[i]}
-                    //{...attributes.popper}
                     onClick={(e) => {
                       handleRefElemClick(e.currentTarget)
                     }}
@@ -377,66 +343,14 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                     </>
                   )}
                   {referenceElement?.id == `cit-${cit.citation_number}` && (
-                    <div
-                      id="popover"
-                      ref={setPopperElement}
-                      className={tooltipStyle}
-                      /* eslint-disable-next-line react/forbid-dom-props */
-                      style={styles.popper}
-                      onMouseEnter={() => {
-                        setHoverPopperElement(true)
-                      }}
-                      onMouseLeave={() => {
-                        setHoverPopperElement(false)
-                      }}
-                      onBlur={(e) => {
-                        if (e.relatedTarget?.id === `cit-${cit.citation_number}`) {
-                          return
-                        }
-                        setReferenceElement(null)
-                      }}
-                      {...attributes.popper}
-                    >
-                      <SpeechBalloon
-                        className={css`
-                          display: flex;
-                          flex-flow: column nowrap;
-                          position: relative;
-                          a::after {
-                            content: "";
-                            position: absolute;
-                            top: 0;
-                            left: 0;
-                            width: 100%;
-                            height: 100%;
-                          }
-                        `}
-                      >
-                        <p
-                          className={css`
-                            mask-image: linear-gradient(0.5turn, black 66%, transparent);
-                          `}
-                        >
-                          {cit.content}
-                        </p>
-                        <p
-                          className={css`
-                            display: flex;
-                            justify-content: space-between;
-                            flex-flow: row nowrap;
-                          `}
-                        >
-                          <a href={cit.document_url} id="popover-button">
-                            <span>
-                              <b>
-                                {cit.course_material_chapter}: {cit.title}
-                              </b>
-                            </span>
-                          </a>
-                          <Library size={18} />
-                        </p>
-                      </SpeechBalloon>
-                    </div>
+                    <CitationPopover
+                      setPopperElement={setPopperElement}
+                      setHoverPopperElement={setHoverPopperElement}
+                      setReferenceElement={setReferenceElement}
+                      citation={cit}
+                      popperStyles={styles.popper}
+                      popperAttributes={attributes.popper}
+                    />
                   )}
                 </div>
               ))}

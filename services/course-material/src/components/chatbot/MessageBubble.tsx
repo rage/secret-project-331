@@ -1,12 +1,12 @@
 import { css } from "@emotion/css"
 import { Library } from "@vectopus/atlas-icons-react"
-import React, { ReactElement, useCallback, useEffect, useMemo, useState } from "react"
+import React, { ReactElement, useCallback, useEffect, useId, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { usePopper } from "react-popper"
 
 import CitationPopover from "./CitationPopover"
 import ThinkingIndicator from "./ThinkingIndicator"
-import { fadeStyle, hrefStyle } from "./styles"
+import { hrefStyle } from "./styles"
 
 import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
 import DownIcon from "@/shared-module/common/img/down.svg"
@@ -130,11 +130,8 @@ const referenceListStyle = (expanded: boolean) => css`
     flex-flow: row nowrap;
     overflow: hidden;
     white-space: pre;
-    ${fadeStyle}
+    mask-image: linear-gradient(0.25turn, black 66%, transparent);
   `}
-    div[popover] {
-      border: none;
-    }
   }
 `
 
@@ -147,12 +144,15 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   citations,
 }) => {
   const { t } = useTranslation()
-  let [citationsOpen, setCitationsOpen] = useState(false)
 
-  const [referenceElement, setReferenceElement] = React.useState<HTMLButtonElement | null>(null)
-  const [popperElement, setPopperElement] = React.useState<HTMLElement | null>(null)
-  const [hoverPopperElement, setHoverPopperElement] = React.useState<boolean>(false)
-  const [hoverRefElement, setHoverRefElement] = React.useState<boolean>(false)
+  const popoverId = useId()
+  const popoverLinkId = useId()
+
+  const [citationsOpen, setCitationsOpen] = useState(false)
+  const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null)
+  const [popperElement, setPopperElement] = useState<HTMLElement | null>(null)
+  const [hoverPopperElement, setHoverPopperElement] = useState<boolean>(false)
+  const [hoverRefElement, setHoverRefElement] = useState<boolean>(false)
 
   const { styles, attributes } = usePopper(referenceElement, popperElement, {
     placement: "top",
@@ -225,11 +225,16 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         return
       } else if (!(elem === null)) {
         setReferenceElement(referenceElement === null ? elem : null)
+        // focus on popper element when ref element is clicked
+        // TODO it's not yet rendered here so we wait a bit, could be better?
+        setTimeout(() => {
+          document.getElementById(popoverLinkId)?.focus()
+        }, 200)
       } else {
         setReferenceElement(null)
       }
     },
-    [referenceElement, hoverPopperElement],
+    [referenceElement, hoverPopperElement, popoverLinkId],
   )
 
   const [processedMessage, processedCitations, citationTitleLen] = useMemo(() => {
@@ -268,7 +273,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                       handleRefElemHover(null)
                     }}
                     onBlur={(e) => {
-                      if (e.relatedTarget?.id === "popover-button") {
+                      if (e.relatedTarget?.id === popoverLinkId) {
                         return
                       }
                       handleRefElemClick(null)
@@ -305,7 +310,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     const citationTitleLen = 60 / filteredCitations.length
 
     return [renderedMessage, filteredCitations, citationTitleLen]
-  }, [message, citations, isFromChatbot, citationsOpen, handleRefElemClick])
+  }, [message, citations, isFromChatbot, citationsOpen, handleRefElemClick, popoverLinkId])
 
   return (
     <div className={bubbleStyle(isFromChatbot)}>
@@ -344,9 +349,14 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                   )}
                   {referenceElement?.id == `cit-${cit.citation_number}` && (
                     <CitationPopover
+                      id={popoverId}
+                      linkId={popoverLinkId}
                       setPopperElement={setPopperElement}
                       setHoverPopperElement={setHoverPopperElement}
                       setReferenceElement={setReferenceElement}
+                      focusOnRefElement={() => {
+                        referenceElement?.focus()
+                      }}
                       citation={cit}
                       popperStyles={styles.popper}
                       popperAttributes={attributes.popper}

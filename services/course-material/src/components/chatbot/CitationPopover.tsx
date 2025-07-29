@@ -7,6 +7,11 @@ import { hrefStyle } from "./styles"
 import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
 import SpeechBalloon from "@/shared-module/common/components/SpeechBalloon"
 
+type CitationType = Pick<
+  ChatbotConversationMessageCitation,
+  "citation_number" | "course_material_chapter" | "title" | "document_url"
+>
+
 interface CitationPopoverProps {
   id: string
   linkId: string
@@ -14,7 +19,8 @@ interface CitationPopoverProps {
   setHoverPopperElement: (value: React.SetStateAction<boolean>) => void
   setReferenceElement: (value: React.SetStateAction<HTMLButtonElement | null>) => void
   focusOnRefElement: () => void
-  citation: ChatbotConversationMessageCitation
+  citation: CitationType
+  content: string
   popperStyles: React.CSSProperties
   popperAttributes:
     | {
@@ -23,7 +29,7 @@ interface CitationPopoverProps {
     | undefined
 }
 
-const popoverStyle = css`
+const popoverStyle = (id: string) => css`
   z-index: 100;
   animation: fadeIn 0.2s ease-in-out;
   pointer-events: auto;
@@ -38,10 +44,13 @@ const popoverStyle = css`
       transform: translateY(0);
     }
   }
-  p {
+  #${id} {
     overflow-wrap: break-word;
     width: 300px;
-    max-width: 90vw;
+    height: 5lh;
+    max-width: 70vw;
+    margin-bottom: 0.5em;
+    mask-image: linear-gradient(0.5turn, black 66%, transparent);
   }
   ${hrefStyle}
 `
@@ -54,6 +63,7 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
   setReferenceElement,
   focusOnRefElement,
   citation,
+  content,
   popperStyles,
   popperAttributes,
 }) => {
@@ -67,7 +77,7 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
       aria-labelledby={popLabelId}
       aria-describedby={popDescribeId}
       ref={setPopperElement}
-      className={popoverStyle}
+      className={popoverStyle(popDescribeId)}
       /* eslint-disable-next-line react/forbid-dom-props */
       style={popperStyles}
       onMouseEnter={() => {
@@ -93,14 +103,7 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
           flex-flow: column nowrap;
         `}
       >
-        <p
-          id={popDescribeId}
-          className={css`
-            mask-image: linear-gradient(0.5turn, black 66%, transparent);
-          `}
-        >
-          {citation.content}
-        </p>
+        <p id={popDescribeId} dangerouslySetInnerHTML={{ __html: content }}></p>
         <p
           id={popLabelId}
           className={css`

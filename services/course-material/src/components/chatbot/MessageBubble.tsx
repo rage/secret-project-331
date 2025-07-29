@@ -358,6 +358,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                         referenceElement?.focus()
                       }}
                       citation={cit}
+                      content={sanitizeCourseMaterialHtml(md.render(cit.content).trim())}
                       popperStyles={styles.popper}
                       popperAttributes={attributes.popper}
                     />

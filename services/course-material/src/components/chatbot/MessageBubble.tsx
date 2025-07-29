@@ -398,16 +398,43 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                       {...attributes.popper}
                     >
                       <SpeechBalloon
-                      /*                         className={css`
+                        className={css`
+                          display: flex;
                           flex-flow: column nowrap;
-                          border: solid red;
-                        `} */
+                          position: relative;
+                          a::after {
+                            content: "";
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                          }
+                        `}
                       >
-                        <a href={cit.document_url} id="popover-button">
-                          <p>{cit.content}</p>
-                          <span>{cit.title}</span>
+                        <p
+                          className={css`
+                            mask-image: linear-gradient(0.5turn, black 66%, transparent);
+                          `}
+                        >
+                          {cit.content}
+                        </p>
+                        <p
+                          className={css`
+                            display: flex;
+                            justify-content: space-between;
+                            flex-flow: row nowrap;
+                          `}
+                        >
+                          <a href={cit.document_url} id="popover-button">
+                            <span>
+                              <b>
+                                {cit.course_material_chapter}: {cit.title}
+                              </b>
+                            </span>
+                          </a>
                           <Library size={18} />
-                        </a>
+                        </p>
                       </SpeechBalloon>
                     </div>
                   )}
@@ -419,7 +446,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
               id="expandButton"
               aria-controls="referenceList"
               onClick={() => {
-                // TODO use a checkbox instead of custom element?
                 setCitationsOpen(!citationsOpen)
               }}
               aria-label={t("show-references")}

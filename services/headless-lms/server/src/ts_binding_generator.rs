@@ -336,6 +336,7 @@ fn controllers(target: &mut File) {
             courses::CopyCourseMode,
             exams::ExamCourseInfo,
             exercise_repositories::NewExerciseRepository,
+            exercise_services::ExerciseServiceWithError,
             exercises::ExerciseSubmissions,
             feedback::MarkAsRead,
             playground_views::PlaygroundViewsMessage,

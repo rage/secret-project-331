@@ -2,17 +2,11 @@ import axios from "axios"
 import FormData from "form-data"
 import * as fs from "fs"
 import { NextApiRequest, NextApiResponse } from "next"
-import path from "path"
 import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { ClientErrorResponse, downloadStream } from "../../lib"
-import {
-  compressProject,
-  extractProject,
-  getExercisePackagingConfiguration,
-  prepareSolution,
-} from "../../tmc/langs"
-import { ExerciseFile, ModelSolutionSpec, PrivateSpec } from "../../util/stateInterfaces"
+import { compressProject, extractProject, prepareSolution } from "../../tmc/langs"
+import { ModelSolutionSpec, PrivateSpec } from "../../util/stateInterfaces"
 
 import { RepositoryExercise, SpecRequest } from "@/shared-module/common/bindings"
 import { isSpecRequest } from "@/shared-module/common/bindings.guard"
@@ -73,21 +67,14 @@ const processModelSolution = async (
     await prepareSolution(extractedProjectDir, solutionDir, makeLog(requestId))
 
     let modelSolutionSpec: ModelSolutionSpec
-    if (privateSpec.type === "browser") {
-      debug(requestId, "preparing browser model solution")
-      modelSolutionSpec = await prepareBrowserModelSolution(requestId, solutionDir)
-    } else if (privateSpec.type === "editor") {
-      debug(requestId, "preparing editor model solution")
-      modelSolutionSpec = await prepareEditorModelSolution(
-        requestId,
-        solutionDir,
-        privateSpec.repository_exercise,
-        upload_url,
-        uploadClaim,
-      )
-    } else {
-      return internalServerError(requestId, res, "Unexpected private spec type", privateSpec.type)
-    }
+    debug(requestId, "uploading model solution")
+    modelSolutionSpec = await uploadModelSolution(
+      requestId,
+      solutionDir,
+      privateSpec.repository_exercise,
+      upload_url,
+      uploadClaim,
+    )
     return ok(res, modelSolutionSpec)
   } catch (err) {
     error(requestId, "Error while processing the model solution spec", err)
@@ -100,25 +87,7 @@ const processModelSolution = async (
   }
 }
 
-const prepareBrowserModelSolution = async (
-  requestId: string,
-  solutionDir: string,
-): Promise<ModelSolutionSpec> => {
-  const config = await getExercisePackagingConfiguration(solutionDir, makeLog(requestId))
-  const solutionFiles: Array<ExerciseFile> = []
-  for (const studentFilePath of config.student_file_paths) {
-    const resolvedPath = path.resolve(solutionDir, studentFilePath)
-    const buffer = await fs.promises.readFile(resolvedPath)
-    solutionFiles.push({ filepath: studentFilePath, contents: buffer.toString() })
-  }
-
-  return {
-    type: "browser",
-    solution_files: solutionFiles,
-  }
-}
-
-const prepareEditorModelSolution = async (
+const uploadModelSolution = async (
   requestId: string,
   solutionDir: string,
   exercise: RepositoryExercise,
@@ -143,8 +112,7 @@ const prepareEditorModelSolution = async (
   if (isObjectMap<string>(res.data)) {
     const solutionDownloadUrl = res.data[archiveName]
     return {
-      type: "editor",
-      download_url: solutionDownloadUrl,
+      solution_download_url: solutionDownloadUrl,
     }
   } else {
     throw new Error(`Unexpected response data: ${JSON.stringify(res.data)}`)

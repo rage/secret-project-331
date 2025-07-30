@@ -1,9 +1,9 @@
-use std::{env, sync::Arc, time::Duration};
+use std::{env, error::Error, sync::Arc, time::Duration};
 
 use crate::domain::models_requests::{self, JwtKey};
 use headless_lms_models as models;
 use models::library::regrading;
-use sqlx::{Connection, PgConnection};
+use sqlx::PgPool;
 
 /**
 Starts a thread that will periodically send regrading submissions to the corresponding exercise services for regrading.
@@ -19,8 +19,10 @@ pub async fn main() -> anyhow::Result<()> {
 
     let mut interval = tokio::time::interval(Duration::from_secs(10));
     let mut ticks = 60;
+
     // Since this is repeating every 10 seconds we can keep the connection open.
-    let mut conn = PgConnection::connect(&db_url).await?;
+    let db_pool = PgPool::connect(&db_url).await?;
+    let mut conn = db_pool.acquire().await?;
     loop {
         interval.tick().await;
 
@@ -33,7 +35,7 @@ pub async fn main() -> anyhow::Result<()> {
         }
 
         let exercise_services_by_type =
-            models::exercise_service_info::get_all_exercise_services_by_type(
+            models::exercise_service_info::get_upsert_all_exercise_services_by_type(
                 &mut conn,
                 models_requests::fetch_service_info,
             )
@@ -47,6 +49,16 @@ pub async fn main() -> anyhow::Result<()> {
         .await
         {
             tracing::error!("Error in regrader: {}", err);
+
+            if let Some(sqlx::Error::Io(..)) =
+                err.source().and_then(|s| s.downcast_ref::<sqlx::Error>())
+            {
+                // this usually happens if the database is reset while running bin/dev etc.
+                tracing::info!(
+                    "regrader may have lost its connection to the db, trying to reconnect"
+                );
+                conn = db_pool.acquire().await?;
+            }
         }
     }
 }

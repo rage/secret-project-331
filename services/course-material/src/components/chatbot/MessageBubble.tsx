@@ -189,6 +189,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     ],
     strategy: "absolute",
   })
+
   useEffect(() => {
     if (!hoverRefElement) {
       if (!hoverPopperElement) {

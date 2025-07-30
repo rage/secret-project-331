@@ -161,6 +161,7 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
         if (e.relatedTarget?.id === `cit-${citation.citation_number}`) {
           return
         }
+        focusOnRefElement()
         setReferenceElement(null)
       }}
       {...popperAttributes.popper}

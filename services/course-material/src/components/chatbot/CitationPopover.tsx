@@ -6,6 +6,8 @@ import { hrefStyle } from "./styles"
 
 import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
 import SpeechBalloon from "@/shared-module/common/components/SpeechBalloon"
+import { baseTheme } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 type CitationType = Pick<
   ChatbotConversationMessageCitation,
@@ -18,19 +20,65 @@ interface CitationPopoverProps {
   setPopperElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>
   setHoverPopperElement: (value: React.SetStateAction<boolean>) => void
   setReferenceElement: (value: React.SetStateAction<HTMLButtonElement | null>) => void
+  setArrowElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>
   focusOnRefElement: () => void
   citation: CitationType
   content: string
-  popperStyles: React.CSSProperties
-  popperAttributes:
-    | {
-        [key: string]: string
-      }
-    | undefined
+  popperStyles: {
+    [key: string]: React.CSSProperties
+  }
+  popperAttributes: {
+    [key: string]:
+      | {
+          [key: string]: string
+        }
+      | undefined
+  }
 }
 
-const popoverStyle = (id: string) => css`
+// TODO copied from SpeechBalloon
+// shouldn't be detached from there?
+const BORDER_WIDTH = "2px"
+const POINTER_SIZE = "12px"
+
+// Clean white background with green accents
+const COLORS = {
+  bg: "#ffffff",
+  border: baseTheme.colors.green[400],
+  shadow: "rgba(0, 0, 0, 0.4)",
+}
+
+const arrowStyle = css`
+  &:after {
+    content: "";
+    position: absolute;
+    bottom: ${BORDER_WIDTH};
+    left: calc(50% - ${POINTER_SIZE});
+    width: 0;
+    height: 0;
+    border-left: ${POINTER_SIZE} solid transparent;
+    border-right: ${POINTER_SIZE} solid transparent;
+    border-top: ${POINTER_SIZE} solid ${COLORS.border};
+    filter: drop-shadow(0 8px 6px ${COLORS.shadow});
+  }
+
+  &:before {
+    content: "";
+    position: absolute;
+    bottom: calc(${BORDER_WIDTH} + ${BORDER_WIDTH} * 1.5);
+    left: calc(50% - ${POINTER_SIZE} + ${BORDER_WIDTH});
+    width: 0;
+    height: 0;
+    border-left: calc(${POINTER_SIZE} - ${BORDER_WIDTH}) solid transparent;
+    border-right: calc(${POINTER_SIZE} - ${BORDER_WIDTH}) solid transparent;
+    border-top: calc(${POINTER_SIZE} - ${BORDER_WIDTH} * 1.5) solid ${COLORS.bg};
+    z-index: 1;
+  }
+`
+
+const popoverStyle = (content: string) => css`
   z-index: 100;
+  background-color: #fffff;
   animation: fadeIn 0.2s ease-in-out;
   pointer-events: auto;
 
@@ -44,11 +92,9 @@ const popoverStyle = (id: string) => css`
       transform: translateY(0);
     }
   }
-  #${id} {
+  #${content} {
     overflow-wrap: break-word;
-    width: 300px;
     height: 5lh;
-    max-width: 70vw;
     margin-bottom: 0.5em;
     mask-image: linear-gradient(0.5turn, black 66%, transparent);
   }
@@ -61,6 +107,7 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
   setPopperElement,
   setHoverPopperElement,
   setReferenceElement,
+  setArrowElement,
   focusOnRefElement,
   citation,
   content,
@@ -79,7 +126,7 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
       ref={setPopperElement}
       className={popoverStyle(popDescribeId)}
       /* eslint-disable-next-line react/forbid-dom-props */
-      style={popperStyles}
+      style={popperStyles.popper}
       onMouseEnter={() => {
         setHoverPopperElement(true)
       }}
@@ -95,12 +142,23 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
         }
         setReferenceElement(null)
       }}
-      {...popperAttributes}
+      {...popperAttributes.popper}
     >
       <SpeechBalloon
         className={css`
           display: flex;
+          width: 66vw;
+          ${respondToOrLarger.sm} {
+            width: 330px;
+          }
           flex-flow: column nowrap;
+          /*hide the pointer of the speech balloon to set arrow element instead*/
+          &:after {
+            display: none;
+          }
+          &:before {
+            display: none;
+          }
         `}
       >
         <p id={popDescribeId} dangerouslySetInnerHTML={{ __html: content }}></p>
@@ -141,6 +199,15 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
           <Library size={18} />
         </p>
       </SpeechBalloon>
+      <div
+        id="arrow"
+        ref={setArrowElement}
+        /* eslint-disable-next-line react/forbid-dom-props */
+        style={popperStyles.arrow}
+        // TODO copied from SpeechBalloon
+        className={arrowStyle}
+        {...popperAttributes.arrow}
+      />
     </div>
   )
 }

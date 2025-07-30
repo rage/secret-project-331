@@ -4,9 +4,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test.only("create new organization, edit it and it's permissions, and delete it", async ({
-  page,
-}) => {
+test("create new organization, edit it and it's permissions, and delete it", async ({ page }) => {
   await page.goto("http://project-331.local/")
   await page.getByRole("link", { name: "All organizations" }).click()
 
@@ -28,7 +26,7 @@ test.only("create new organization, edit it and it's permissions, and delete it"
 
   // Edit organization
   await page.getByRole("button", { name: "Edit" }).click()
-  await page.getByRole("textbox", { name: "Name" }).click()
+  await page.getByRole("textbox", { name: "Name" }).fill("createnewtestorganizationedited")
   await page.getByRole("textbox", { name: "Slug" }).fill("createnewtestorganizationslugedited")
   await page.getByRole("button", { name: "Save" }).click()
   await page.goto("http://project-331.local/")
@@ -47,6 +45,7 @@ test.only("create new organization, edit it and it's permissions, and delete it"
   await page.getByRole("button", { name: "Add user" }).click()
   await page.getByRole("textbox", { name: "Email" }).click()
   await page.getByRole("textbox", { name: "Email" }).fill("teacher@example.com")
+  await page.getByLabel("Role").selectOption("Teacher")
   await page.getByRole("button", { name: "Save" }).click()
   await page.getByText("Teacher", { exact: true }).click()
   await page.getByText("teacher@example.com").click()
@@ -59,12 +58,13 @@ test.only("create new organization, edit it and it's permissions, and delete it"
   await page.getByText("CourseOrExamCreator").click()
   await page.getByText("teacher@example.com").click()
   await page.getByText("Teacher Example").click()
-  page.once("dialog", (dialog) => {
-    console.log(`Dialog message: ${dialog.message()}`)
-    dialog.dismiss().catch(() => {})
-  })
 
   // Delete teacher
+  page.once("dialog", (dialog) => {
+    expect(dialog.message()).toContain("teacher@example.com") // Optional
+    dialog.accept()
+  })
+
   await page.getByRole("button", { name: "Delete user Teacher Example" }).click()
   await expect(page.getByText("teacher@example.com")).toHaveCount(0)
 
@@ -76,4 +76,5 @@ test.only("create new organization, edit it and it's permissions, and delete it"
   await page.getByTestId("dialog").getByRole("textbox").fill("delete")
   await page.getByRole("button", { name: "Confirm" }).click()
   await page.getByText("Success", { exact: true }).click()
+  await expect(page.getByText("teacher@createnewtestorganizationedited.com")).toHaveCount(0)
 })

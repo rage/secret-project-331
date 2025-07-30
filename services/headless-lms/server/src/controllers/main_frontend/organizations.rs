@@ -27,10 +27,28 @@ async fn get_all_organizations(
     pool: web::Data<PgPool>,
     file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
+    user: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Vec<Organization>>> {
     let mut conn = pool.acquire().await?;
-    let organizations = models::organizations::all_organizations(&mut conn)
-        .await?
+
+    // Determine if the user is an admin
+    let is_admin = if let Some(user) = user {
+        let roles = models::roles::get_roles(&mut conn, user.id).await?;
+        roles
+            .iter()
+            .any(|r| r.role == models::roles::UserRole::Admin)
+    } else {
+        false
+    };
+
+    // Choose query based on admin status
+    let raw_organizations = if is_admin {
+        models::organizations::all_organizations_include_hidden(&mut conn).await?
+    } else {
+        models::organizations::all_organizations(&mut conn).await?
+    };
+
+    let organizations = raw_organizations
         .into_iter()
         .map(|org| Organization::from_database_organization(org, file_store.as_ref(), &app_conf))
         .collect();
@@ -406,8 +424,14 @@ async fn create_organization(
     };
 
     if payload.hidden {
-        models::organizations::update_name_and_hidden(&mut conn, org_id, &payload.name, true, &payload.slug).await?;
-
+        models::organizations::update_name_and_hidden(
+            &mut conn,
+            org_id,
+            &payload.name,
+            true,
+            &payload.slug,
+        )
+        .await?;
     }
 
     let db_org = models::organizations::get_organization(&mut conn, org_id).await?;
@@ -418,8 +442,6 @@ async fn create_organization(
     let token = skip_authorize();
     token.authorized_ok(web::Json(org))
 }
-
-
 
 #[instrument(skip(pool))]
 async fn soft_delete_organization(
@@ -448,7 +470,6 @@ async fn soft_delete_organization(
     let result: ControllerResult<web::Json<()>> = token.authorized_ok(json);
     result.map(|data| AuthorizedResponse { data, token })
 }
-
 
 /**
 GET `/api/v0/main-frontend/organizations/{organization_id}/course_exams` - Returns an organizations exams in CourseExam form.
@@ -564,7 +585,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route("", web::post().to(create_organization))
         .route("/{organization_id}", web::get().to(get_organization))
         .route("/{organization_id}", web::put().to(update_organization))
-        .route("/{organization_id}", web::patch().to(soft_delete_organization))
+        .route(
+            "/{organization_id}",
+            web::patch().to(soft_delete_organization),
+        )
         .route(
             "/{organization_id}/courses",
             web::get().to(get_organization_courses),

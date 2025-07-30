@@ -18,6 +18,7 @@ type Props = {
     id: string
     name: string
     slug: string
+    hidden?: boolean
   }
 }
 
@@ -65,7 +66,7 @@ const OrganizationBanner: React.FC<Props> = ({ organization }) => {
         `}
       >
         <OrganizationIcon />
-        <OrganizationText name={organization.name} />
+        <OrganizationText name={organization.name} hidden={organization.hidden} />
         <div
           className={css`
             display: flex;
@@ -176,73 +177,38 @@ const OrganizationIcon: React.FC = () => (
   </div>
 )
 
-const OrganizationText: React.FC<{ name: string }> = ({ name }) => (
-  <div
-    className={css`
-      flex-grow: 1;
-      min-width: 0;
-      padding: 0.5rem 0.5rem;
-
-      ${respondToOrLarger.lg} {
-        padding: 0.5rem 1rem;
-      }
-    `}
-  >
-    <h2
-      className={css`
-        color: #333;
-        font-family: ${primaryFont};
-        font-size: 15px;
-        line-height: 1.1;
-        text-transform: capitalize;
-
-        ${respondToOrLarger.lg} {
-          font-size: 18px;
-          line-height: 1.3;
-        }
-      `}
-    >
-      {name}
-    </h2>
-  </div>
-)
-
-const OrganizationSelectButton: React.FC<{ slug: string }> = ({ slug }) => {
+const OrganizationText: React.FC<{ name: string; hidden?: boolean }> = ({ name, hidden }) => {
   const { t } = useTranslation()
 
   return (
     <div
       className={css`
-        margin: 0;
+        flex-grow: 1;
+        min-width: 0;
+        padding: 0.5rem 0.5rem;
+
         ${respondToOrLarger.lg} {
-          margin-left: auto;
-          margin-right: 1rem;
+          padding: 0.5rem 1rem;
         }
       `}
     >
-      <UnstyledA href={organizationFrontPageRoute(slug)}>
-        <button
-          className={css`
-            background-color: rgba(237, 238, 240, 1);
-            color: rgba(26, 35, 51, 1);
-            border: none;
-            border-radius: 0px;
-            padding: 0.4rem 0.8rem;
-            font-family: ${primaryFont};
-            font-size: 18px;
-            line-height: 100%;
-            letter-spacing: 0;
-            cursor: pointer;
+      <h2
+        className={css`
+          color: #333;
+          font-family: ${primaryFont};
+          font-size: 15px;
+          line-height: 1.1;
+          text-transform: capitalize;
+          opacity: ${hidden ? 0.6 : 1};
 
-            &:hover {
-              transition: background-color 0.3s;
-              background-color: rgb(216, 216, 216);
-            }
-          `}
-        >
-          {t("label-select")}
-        </button>
-      </UnstyledA>
+          ${respondToOrLarger.lg} {
+            font-size: 18px;
+            line-height: 1.3;
+          }
+        `}
+      >
+        {name} {hidden ? `(${t("label-hidden")})` : ""}
+      </h2>
     </div>
   )
 }

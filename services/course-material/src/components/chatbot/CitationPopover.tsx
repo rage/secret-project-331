@@ -2,10 +2,7 @@ import { css } from "@emotion/css"
 import { Library } from "@vectopus/atlas-icons-react"
 import React, { useId } from "react"
 
-import { hrefStyle } from "./styles"
-
 import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
-import SpeechBalloon from "@/shared-module/common/components/SpeechBalloon"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
@@ -36,18 +33,39 @@ interface CitationPopoverProps {
   }
 }
 
-// TODO copied from SpeechBalloon
-// shouldn't be detached from there?
+// modified from SpeechBalloon
+const BORDER_RADIUS = "8px"
 const BORDER_WIDTH = "2px"
 const POINTER_SIZE = "12px"
 
-// Clean white background with green accents
 const COLORS = {
   bg: "#ffffff",
   border: baseTheme.colors.green[400],
+  text: baseTheme.colors.gray[700],
   shadow: "rgba(0, 0, 0, 0.4)",
 }
 
+const speechBalloonStyle = css`
+  display: flex;
+  width: 66vw;
+  ${respondToOrLarger.sm} {
+    width: 330px;
+  }
+  flex-flow: column nowrap;
+  position: relative;
+  background: ${COLORS.bg};
+  color: ${COLORS.text};
+  padding: 1rem 1.5rem;
+  border-radius: ${BORDER_RADIUS};
+  border: ${BORDER_WIDTH} solid ${COLORS.border};
+  box-shadow: 0 3px 15px 0px ${COLORS.shadow};
+  margin-bottom: ${POINTER_SIZE};
+  transition: filter 0.3s;
+
+  &:active {
+    transform: translateY(0);
+  }
+`
 const arrowStyle = css`
   &:after {
     content: "";
@@ -78,7 +96,6 @@ const arrowStyle = css`
 
 const popoverStyle = (content: string) => css`
   z-index: 100;
-  background-color: #fffff;
   animation: fadeIn 0.2s ease-in-out;
   pointer-events: auto;
 
@@ -98,7 +115,14 @@ const popoverStyle = (content: string) => css`
     margin-bottom: 0.5em;
     mask-image: linear-gradient(0.5turn, black 66%, transparent);
   }
-  ${hrefStyle}
+  a {
+    &:hover {
+      span {
+        color: ${baseTheme.colors.blue[700]};
+        text-decoration: underline;
+      }
+    }
+  }
 `
 
 const CitationPopover: React.FC<CitationPopoverProps> = ({
@@ -133,9 +157,6 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
       onMouseLeave={() => {
         setHoverPopperElement(false)
       }}
-      onFocus={() => {
-        console.log("focusing on popover")
-      }}
       onBlur={(e) => {
         if (e.relatedTarget?.id === `cit-${citation.citation_number}`) {
           return
@@ -144,23 +165,7 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
       }}
       {...popperAttributes.popper}
     >
-      <SpeechBalloon
-        className={css`
-          display: flex;
-          width: 66vw;
-          ${respondToOrLarger.sm} {
-            width: 330px;
-          }
-          flex-flow: column nowrap;
-          /*hide the pointer of the speech balloon to set arrow element instead*/
-          &:after {
-            display: none;
-          }
-          &:before {
-            display: none;
-          }
-        `}
-      >
+      <div className={speechBalloonStyle}>
         <p id={popDescribeId} dangerouslySetInnerHTML={{ __html: content }}></p>
         <p
           id={popLabelId}
@@ -198,13 +203,11 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
           </a>
           <Library size={18} />
         </p>
-      </SpeechBalloon>
+      </div>
       <div
-        id="arrow"
         ref={setArrowElement}
         /* eslint-disable-next-line react/forbid-dom-props */
         style={popperStyles.arrow}
-        // TODO copied from SpeechBalloon
         className={arrowStyle}
         {...popperAttributes.arrow}
       />

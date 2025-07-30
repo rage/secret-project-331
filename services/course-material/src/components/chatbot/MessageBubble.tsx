@@ -6,7 +6,6 @@ import { usePopper } from "react-popper"
 
 import CitationPopover from "./CitationPopover"
 import ThinkingIndicator from "./ThinkingIndicator"
-import { hrefStyle } from "./styles"
 
 import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
 import DownIcon from "@/shared-module/common/img/down.svg"
@@ -47,7 +46,22 @@ const citationStyle = css`
   padding: 2px 7px 2px 7px;
   border-radius: 10px;
   font-size: 85%;
-  ${hrefStyle}
+  a {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    gap: 1em;
+    color: #000000;
+    text-decoration: none;
+  }
+  a {
+    &:hover {
+      [data-linklike] {
+        color: ${baseTheme.colors.blue[700]}; /* TODO accessibility issue, not enough contrast?*/
+        text-decoration: underline;
+      }
+    }
+  }
 `
 
 const messageStyle = css`
@@ -89,42 +103,32 @@ const messageStyle = css`
   }
   white-space: pre-wrap;
 `
+const expandButtonStyle = css`
+  flex: 1;
+  cursor: pointer;
+  background-color: ${baseTheme.colors.gray[100]};
+  border: none;
+  margin: 0 0.5rem;
+  color: ${baseTheme.colors.gray[400]};
+  transition: filter 0.2s;
 
-const referenceListStyle = (expanded: boolean) => css`
-  margin-top: 15px;
-  hr {
-    opacity: 40%;
+  &:hover {
+    filter: brightness(0.9) contrast(1.1);
   }
-  button[aria-expanded] {
-    flex: 1;
-    cursor: pointer;
-    background-color: ${baseTheme.colors.gray[100]};
-    border: none;
-    margin: 0 0.5rem;
-    color: ${baseTheme.colors.gray[400]};
-    transition: filter 0.2s;
+`
 
-    &:hover {
-      filter: brightness(0.9) contrast(1.1);
-    }
-  }
-  a {
+const referenceListStyle = (expanded: boolean, referenceList: string) => css`
+  display: flex;
+  ${expanded ? `flex-flow: column nowrap;` : `flex-flow: row nowrap;`}
+
+  #${referenceList} {
     display: flex;
-    flex-flow: row nowrap;
-    gap: 1em;
-    color: #000000;
-    text-decoration: none;
-  }
-  #container {
-    display: flex;
-    ${expanded ? `flex-flow: column nowrap;` : `flex-flow: row nowrap;`}
-  }
-  #referenceList {
-    display: flex;
+    flex: 10;
     ${expanded
       ? `
     flex-flow: column nowrap;
     padding: 7px;
+    justify-content: space-around;
     `
       : `
     flex-flow: row nowrap;
@@ -147,10 +151,13 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 
   const popoverId = useId()
   const popoverLinkId = useId()
+  const referenceListId = useId()
 
   const [citationsOpen, setCitationsOpen] = useState(false)
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null)
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null)
+  const [arrowElement, setArrowElement] = React.useState<HTMLElement | null>(null)
+
   const [hoverPopperElement, setHoverPopperElement] = useState<boolean>(false)
   const [hoverRefElement, setHoverRefElement] = useState<boolean>(false)
 
@@ -178,6 +185,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           resize: true,
         },
       },
+      { name: "arrow", options: { element: arrowElement } },
     ],
     strategy: "absolute",
   })
@@ -250,7 +258,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         parseInt(arr[1]),
       )
       let citedDocsSet = new Set(citedDocs)
-      filteredCitations = citations ? citations : [] //.filter((cit) => citedDocsSet.has(cit.citation_number))
+      filteredCitations = citations
+        ? citations.filter((cit) => citedDocsSet.has(cit.citation_number))
+        : []
       if (filteredCitations.length > 0 && citationsOpen) {
         // if there are citations in text, render buttons for them & md
         let messageParts = messageCopy.split(/\[[a-z]*?[0-9]+\]/g)
@@ -278,7 +288,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                       }
                       handleRefElemClick(null)
                     }}
-                    //aria-label={`Citation ${citedDocs[i]}`}
                   >
                     {citedDocs[i]}
                   </button>
@@ -317,25 +326,36 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       {processedMessage}
 
       {isFromChatbot && processedCitations.length > 0 && (
-        <div className={referenceListStyle(citationsOpen)}>
+        <div
+          className={css`
+            margin-top: 15px;
+            hr {
+              opacity: 40%;
+            }
+          `}
+        >
           <hr></hr>
           <h4>{t("references")}</h4>
-          <div id="container">
-            <div id="referenceList">
+          <div className={referenceListStyle(citationsOpen, referenceListId)}>
+            <div id={referenceListId}>
               {processedCitations.map((cit) => (
                 <div key={cit.citation_number} className={citationStyle}>
                   {citationsOpen ? (
                     <a href={cit.document_url}>
-                      <b>{cit.citation_number}</b>
-                      <span
-                        className={css`
-                          flex: 3;
-                        `}
-                      >
-                        {cit.course_material_chapter !== cit.title
-                          ? `${cit.course_material_chapter}: `
-                          : ""}
-                        {`${cit.title}`}
+                      <span>
+                        <b
+                          className={css`
+                            padding: 0 1em 0 0.25em;
+                          `}
+                        >
+                          {cit.citation_number}
+                        </b>
+                        <span data-linklike={true}>
+                          {cit.course_material_chapter !== cit.title
+                            ? `${cit.course_material_chapter}: `
+                            : ""}
+                          {`${cit.title}`}
+                        </span>
                       </span>
                       <Library size={18} />
                     </a>
@@ -354,13 +374,14 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                       setPopperElement={setPopperElement}
                       setHoverPopperElement={setHoverPopperElement}
                       setReferenceElement={setReferenceElement}
+                      setArrowElement={setArrowElement}
                       focusOnRefElement={() => {
                         referenceElement?.focus()
                       }}
                       citation={cit}
                       content={sanitizeCourseMaterialHtml(md.render(cit.content).trim())}
-                      popperStyles={styles.popper}
-                      popperAttributes={attributes.popper}
+                      popperStyles={styles}
+                      popperAttributes={attributes}
                     />
                   )}
                 </div>
@@ -368,13 +389,13 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             </div>
 
             <button
-              id="expandButton"
-              aria-controls="referenceList"
+              aria-controls={referenceListId}
               onClick={() => {
                 setCitationsOpen(!citationsOpen)
               }}
               aria-label={t("show-references")}
               aria-expanded={citationsOpen}
+              className={expandButtonStyle}
             >
               {citationsOpen ? <DownIcon transform="rotate(180)" /> : <DownIcon />}
             </button>

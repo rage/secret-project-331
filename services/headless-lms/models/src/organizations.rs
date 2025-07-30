@@ -199,3 +199,15 @@ pub async fn soft_delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
         .await?;
     Ok(())
 }
+
+pub async fn all_organizations_include_hidden(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<DatabaseOrganization>> {
+    let organizations = sqlx::query_as!(
+        DatabaseOrganization,
+        "SELECT * FROM organizations ORDER BY name;"
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(organizations)
+}

@@ -23,9 +23,9 @@ export const fetchOrganizations = async (): Promise<Array<Organization>> => {
 
 ## Creating forms
 
-Forms are created using the useForm-hook from (react-hook-form)[https://react-hook-form.com/get-started]. Looking at already existing forms in the project is also a good starting point.
+Forms are created using the useForm-hook from [react-hook-form](https://react-hook-form.com/get-started). Looking at already existing forms in the project is also a good starting point.
 
-`useForm` gives us `register`, `handleSubmit` and `formstate: {errors}`. `register` is used to "register" and track form fields. Each input element of the form is registered with a name and will then appear as a field with that name in the data object for `handleSubmit`. `register` allows options for validating the input, like setting it as "required" and setting an error message in case this validation fails. The form is validated this way so there is no need to validate it inside or before handleSubmit.
+`useForm` gives us most importantly `register`, `handleSubmit` and `formState: {errors}`. `register` is used to "register" and track form fields. Each input element of the form is registered with a name and will then appear as a field with that name in the data object for `handleSubmit`. `register` allows options for validating the input, like setting it as "required" and setting an error message in case this validation fails. The form is validated this way so there is no need to validate it inside or before handleSubmit.
 
 ## General
 

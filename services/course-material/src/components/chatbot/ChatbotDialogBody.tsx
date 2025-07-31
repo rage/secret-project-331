@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { PaperAirplane } from "@vectopus/atlas-icons-react"
-import React, { useCallback, useEffect, useMemo, useReducer, useRef } from "react"
+import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
@@ -67,7 +67,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
-
+  const [chatbotMessageAnnouncement, setChatbotMessageAnnouncement] = useState<string>("")
   const [messageState, dispatch] = useReducer(messageReducer, {
     optimisticMessage: null,
     streamingMessage: null,
@@ -118,6 +118,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
         await currentConversationInfo.refetch()
         dispatch({ type: "RESET_MESSAGES" })
         setError(null)
+        setChatbotMessageAnnouncement(t("new-message-chatbot"))
       },
       onError: async (error) => {
         if (error instanceof Error) {
@@ -319,6 +320,20 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
             isPending={!message.message_is_complete && newMessageMutation.isPending}
           />
         ))}
+        <div
+          id="live-region"
+          aria-live="polite"
+          className={css`
+            width: 1px;
+            height: 0px;
+            margin: -1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0 0 0 0);
+          `}
+        >
+          {chatbotMessageAnnouncement}
+        </div>
       </div>
       {error && <ErrorDisplay error={error} />}
       <div
@@ -348,6 +363,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
+                setChatbotMessageAnnouncement("")
                 e.preventDefault()
                 if (canSubmit) {
                   newMessageMutation.mutate()
@@ -392,7 +408,10 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
             `}
             disabled={!canSubmit}
             aria-label={t("send")}
-            onClick={() => newMessageMutation.mutate()}
+            onClick={() => {
+              setChatbotMessageAnnouncement("")
+              newMessageMutation.mutate()
+            }}
           >
             <PaperAirplane />
           </button>

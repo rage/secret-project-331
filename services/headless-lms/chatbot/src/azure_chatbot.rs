@@ -53,7 +53,6 @@ pub struct Delta {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct DeltaContext {
     pub citations: Vec<Citation>,
-    pub intent: String, //TODO a string that contains a vec, maybe not needed in our app?
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -497,8 +496,6 @@ pub async fn send_chat_request_and_parse_stream(
                         yield Bytes::from("\n");
                     }
                     if let Some(context) = &delta.context {
-                        println!("\n!!!!! CONTEXR !!!!!!!!!!: {:?}\n", context.citations);
-
                         let citation_message_id = response_message.id;
                         let mut conn = pool.acquire().await?;
                         for (idx, cit) in context.citations.iter().enumerate() {
@@ -508,7 +505,6 @@ pub async fn send_chat_request_and_parse_stream(
                             // TODO idk how to make sure that this cited document is course material vs.
                             // something else... this works for now
                             let course_material_chapter = if url_parts[5] == "courses".to_string() {Some(parse_capitalize(url_parts[7].to_string()))} else {None};
-                            println!("Course material chapter: {:?}", course_material_chapter);
                             models::chatbot_conversation_messages_citations::insert(
                                 &mut conn, ChatbotConversationMessageCitation {
                                     id: Uuid::new_v4(),
@@ -518,7 +514,7 @@ pub async fn send_chat_request_and_parse_stream(
                                     title: cit.title.clone(), // TODO is it ugly to clone here?
                                     content,
                                     document_url,
-                                    citation_number: (idx+1) as i32, // doc indexing starts from 1
+                                    citation_number: (idx+1) as i32,
                                 }
                             ).await?;
                         }

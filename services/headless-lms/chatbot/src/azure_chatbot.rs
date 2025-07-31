@@ -504,7 +504,7 @@ pub async fn send_chat_request_and_parse_stream(
                             let url_parts: Vec<&str> = document_url.split("/").collect();
                             // TODO idk how to make sure that this cited document is course material vs.
                             // something else... this works for now
-                            let course_material_chapter = if url_parts[5] == "courses".to_string() {Some(parse_capitalize(url_parts[7].to_string()))} else {None};
+                            let course_material_chapter = if url_parts[5] == "courses" {Some(parse_capitalize(url_parts[7].to_string()))} else {None};
                             models::chatbot_conversation_messages_citations::insert(
                                 &mut conn, ChatbotConversationMessageCitation {
                                     id: Uuid::new_v4(),
@@ -542,7 +542,7 @@ pub fn parse_capitalize(s: String) -> String {
     s.split("-")
         .map(|s| {
             let mut s2: Vec<char> = s.chars().collect();
-            s2[0] = s2[0].to_uppercase().nth(0).unwrap();
+            s2[0] = s2[0].to_uppercase().next().unwrap();
             s2.into_iter().collect()
         })
         .collect::<Vec<String>>()

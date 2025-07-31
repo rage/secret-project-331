@@ -540,6 +540,7 @@ pub async fn send_chat_request_and_parse_stream(
 pub fn parse_capitalize(s: String) -> String {
     // "example-text" -> "Example Text"
     s.split("-")
+        .filter(|s| !s.is_empty())
         .map(|s| {
             let mut s2: Vec<char> = s.chars().collect();
             s2[0] = s2[0].to_uppercase().next().unwrap();

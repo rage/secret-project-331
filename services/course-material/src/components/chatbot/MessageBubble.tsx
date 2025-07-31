@@ -160,6 +160,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 
   const [hoverPopperElement, setHoverPopperElement] = useState<boolean>(false)
   const [hoverRefElement, setHoverRefElement] = useState<boolean>(false)
+  const [showPopover, setShowPopover] = useState<boolean>(false)
 
   const { styles, attributes } = usePopper(referenceElement, popperElement, {
     placement: "top",
@@ -198,15 +199,15 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     }
   }, [hoverPopperElement, hoverRefElement])
 
-  /*   useEffect(() => {
+  useEffect(() => {
     let timeoutId: NodeJS.Timeout | null = null
 
     if (referenceElement) {
       timeoutId = setTimeout(() => {
-        setShowTooltip(true)
+        setShowPopover(true)
       }, 200)
     } else {
-      setShowTooltip(false)
+      setShowPopover(false)
     }
 
     return () => {
@@ -214,7 +215,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         clearTimeout(timeoutId)
       }
     }
-  }, [referenceElement]) */
+  }, [referenceElement])
 
   const handleRefElemHover = (elem: HTMLButtonElement | null) => {
     if (!(elem === null)) {
@@ -368,7 +369,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                         : cit.title.slice(0, citationTitleLen - 3).concat("...")}
                     </>
                   )}
-                  {referenceElement?.id == `cit-${cit.citation_number}` && (
+                  {referenceElement?.id == `cit-${cit.citation_number}` && showPopover && (
                     <CitationPopover
                       id={popoverId}
                       linkId={popoverLinkId}

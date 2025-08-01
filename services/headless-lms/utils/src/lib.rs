@@ -186,6 +186,7 @@ impl AzureConfiguration {
     /// Returns `Ok(Some(AzureConfiguration))` if any of the configurations are set.
     /// Returns `Ok(None)` if no relevant environment variables are set.
     pub fn try_from_env() -> anyhow::Result<Option<Self>> {
+        let use_fake_conf = env::var("USE_FAKE_AZURE_CONFIGURATION").ok();
         let chatbot = AzureChatbotConfiguration::try_from_env()?;
         let search_config = AzureSearchConfiguration::try_from_env()?;
         let blob_storage_config = AzureBlobStorageConfiguration::try_from_env()?;

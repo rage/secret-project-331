@@ -24,7 +24,7 @@ pub mod url_to_oembed_endpoint;
 extern crate tracing;
 
 use anyhow::Context;
-use std::env;
+use std::{env, str::FromStr};
 use url::Url;
 
 #[derive(Clone, PartialEq)]
@@ -43,7 +43,13 @@ impl ApplicationConfiguration {
         let test_mode = env::var("TEST_MODE").is_ok();
         let development_uuid_login = env::var("DEVELOPMENT_UUID_LOGIN").is_ok();
 
-        let azure_configuration = AzureConfiguration::try_from_env()?;
+        let use_fake_conf = env::var("USE_FAKE_AZURE_CONFIGURATION").ok();
+
+        let azure_configuration = if use_fake_conf.is_some() {
+            AzureConfiguration::fake_conf()?
+        } else {
+            AzureConfiguration::try_from_env()?
+        };
 
         let tmc_account_creation_origin = Some(
             env::var("TMC_ACCOUNT_CREATION_ORIGIN")
@@ -186,7 +192,6 @@ impl AzureConfiguration {
     /// Returns `Ok(Some(AzureConfiguration))` if any of the configurations are set.
     /// Returns `Ok(None)` if no relevant environment variables are set.
     pub fn try_from_env() -> anyhow::Result<Option<Self>> {
-        let use_fake_conf = env::var("USE_FAKE_AZURE_CONFIGURATION").ok();
         let chatbot = AzureChatbotConfiguration::try_from_env()?;
         let search_config = AzureSearchConfiguration::try_from_env()?;
         let blob_storage_config = AzureBlobStorageConfiguration::try_from_env()?;
@@ -200,5 +205,30 @@ impl AzureConfiguration {
         } else {
             Ok(None)
         }
+    }
+
+    pub fn fake_conf() -> anyhow::Result<Option<Self>> {
+        let chatbot_config = Some(AzureChatbotConfiguration {
+            api_key: "".to_string(),
+            api_endpoint: Url::from_str("")?,
+        });
+        let search_config = Some(AzureSearchConfiguration {
+            vectorizer_resource_uri: "".to_string(),
+            vectorizer_deployment_id: "".to_string(),
+            vectorizer_api_key: "".to_string(),
+            vectorizer_model_name: "".to_string(),
+            search_api_key: "".to_string(),
+            search_endpoint: Url::from_str("")?,
+        });
+        let blob_storage_config = Some(AzureBlobStorageConfiguration {
+            storage_account: "".to_string(),
+            access_key: "".to_string(),
+        });
+
+        Ok(Some(AzureConfiguration {
+            chatbot_config,
+            search_config,
+            blob_storage_config,
+        }))
     }
 }

@@ -239,7 +239,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         // TODO it's not yet rendered here so we wait a bit, could be better?
         setTimeout(() => {
           document.getElementById(popoverLinkId)?.focus()
-        }, 200)
+        }, 300)
       } else {
         setReferenceElement(null)
       }

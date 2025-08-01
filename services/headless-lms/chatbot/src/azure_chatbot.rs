@@ -60,7 +60,6 @@ pub struct Citation {
     pub content: String,
     pub title: String,
     pub url: String,
-    //pub chunk_id: i32,
 }
 
 #[derive(Deserialize, Serialize, Debug)]

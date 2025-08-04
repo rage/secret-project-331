@@ -60,6 +60,7 @@ pub struct Citation {
     pub content: String,
     pub title: String,
     pub url: String,
+    pub filepath: String,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -503,10 +504,27 @@ pub async fn send_chat_request_and_parse_stream(
                         for (idx, cit) in context.citations.iter().enumerate() {
                             let content = if cit.content.len() < 255 {cit.content.clone()} else {cit.content[0..255].to_string()};
                             let document_url = cit.url.clone();
-                            let url_parts: Vec<&str> = document_url.split("/").collect();
-                            // TODO idk how to make sure that this cited document is course material vs.
-                            // something else... this works for now
-                            let course_material_chapter = if url_parts[5] == "courses" {Some(parse_capitalize(url_parts[7].to_string()))} else {None};
+                            let page_path = cit.filepath.split("/").collect::<Vec<&str>>().pop();
+                            let page_id = match page_path {
+                                Some(id_str) => {
+                                    // slice to remove file extension from the page path
+                                    Uuid::parse_str(&id_str[0..(id_str.len()-3)]).ok()
+                                },
+                                None => None
+                            };
+                            let course_material_chapter = if let Some(id) = page_id {
+                                let chapter = models::chapters::get_chapter_by_page_id(&mut conn, id).await.ok();
+                                match chapter {
+                                    Some(c) => {
+                                        let n = c.chapter_number;
+                                        Some(format!("Chapter {n}"))
+                                    },
+                                    None => None
+                                }
+                            } else {
+                                None
+                            };
+
                             models::chatbot_conversation_messages_citations::insert(
                                 &mut conn, ChatbotConversationMessageCitation {
                                     id: Uuid::new_v4(),
@@ -537,17 +555,4 @@ pub async fn send_chat_request_and_parse_stream(
 
     // Box and pin the GuardedStream to satisfy the Unpin requirement
     Ok(Box::pin(guarded_stream))
-}
-
-pub fn parse_capitalize(s: String) -> String {
-    // "example-text" -> "Example Text"
-    s.split("-")
-        .filter(|s| !s.is_empty())
-        .map(|s| {
-            let mut s2: Vec<char> = s.chars().collect();
-            s2[0] = s2[0].to_uppercase().next().unwrap();
-            s2.into_iter().collect()
-        })
-        .collect::<Vec<String>>()
-        .join(" ")
 }

@@ -252,7 +252,7 @@ export interface ChatbotConversationMessageCitation {
   id: string
   conversation_message_id: string
   conversation_id: string
-  course_material_chapter: string | null
+  course_material_chapter_number: number | null
   title: string
   content: string
   document_url: string

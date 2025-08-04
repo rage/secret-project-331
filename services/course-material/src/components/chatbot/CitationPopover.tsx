@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import { Library } from "@vectopus/atlas-icons-react"
 import React, { useId } from "react"
+import { useTranslation } from "react-i18next"
 
 import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -8,7 +9,7 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 type CitationType = Pick<
   ChatbotConversationMessageCitation,
-  "citation_number" | "course_material_chapter" | "title" | "document_url"
+  "citation_number" | "course_material_chapter_number" | "title" | "document_url"
 >
 
 interface CitationPopoverProps {
@@ -138,6 +139,8 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
   popperStyles,
   popperAttributes,
 }) => {
+  const { t } = useTranslation()
+
   const popLabelId = useId()
   const popDescribeId = useId()
 
@@ -198,7 +201,10 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
           >
             <span>
               <b>
-                {citation.course_material_chapter}: {citation.title}
+                {t("chapter-chapter-number", {
+                  chapterNumber: citation.course_material_chapter_number,
+                })}{" "}
+                {citation.title}
               </b>
             </span>
           </a>

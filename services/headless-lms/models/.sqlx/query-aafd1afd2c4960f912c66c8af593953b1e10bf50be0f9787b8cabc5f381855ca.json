@@ -20,8 +20,8 @@
       },
       {
         "ordinal": 3,
-        "name": "course_material_chapter",
-        "type_info": "Varchar"
+        "name": "course_material_chapter_number",
+        "type_info": "Int4"
       },
       {
         "ordinal": 4,

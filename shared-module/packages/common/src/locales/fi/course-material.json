@@ -28,6 +28,7 @@
   "can-comment-on-portions-of-material-by-highlightig": "Voit kommentoida tiettyjä kohtia materiaalista valitsemalla sen",
   "cannot-render-exercise-task-missing-url": "Tehtävänantoa ei voida näyttää, osoite puuttuu.",
   "chapter": "Luku",
+  "chapter-chapter-number": "Luku {{chapterNumber}}: ",
   "chapter-chapter-number-chapter-name": "Luku {{chapterNumber}}: {{chapterName}}",
   "chapter-progress": "Luvun edistyminen",
   "chatbot-discalimer-sensitive-information": "Älä koskaan paljasta arkaluontoista tietoa keskustelurobotille.",

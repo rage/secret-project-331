@@ -1,3 +1,4 @@
+use std::path::PathBuf;
 use std::pin::Pin;
 use std::sync::{
     Arc,
@@ -504,23 +505,13 @@ pub async fn send_chat_request_and_parse_stream(
                         for (idx, cit) in context.citations.iter().enumerate() {
                             let content = if cit.content.len() < 255 {cit.content.clone()} else {cit.content[0..255].to_string()};
                             let document_url = cit.url.clone();
-                            let page_path = cit.filepath.split("/").collect::<Vec<&str>>().pop();
-                            let page_id = match page_path {
-                                Some(id_str) => {
-                                    // slice to remove file extension from the page path
-                                    Uuid::parse_str(&id_str[0..(id_str.len()-3)]).ok()
-                                },
-                                None => None
-                            };
-                            let course_material_chapter = if let Some(id) = page_id {
+                            let mut page_path = PathBuf::from(&cit.filepath);
+                            page_path.set_extension("");
+                            let page_id_str = page_path.file_name();
+                            let page_id = page_id_str.map(|id_str| Uuid::parse_str(&id_str.to_string_lossy().to_string()).ok()).flatten();
+                            let course_material_chapter_number = if let Some(id) = page_id {
                                 let chapter = models::chapters::get_chapter_by_page_id(&mut conn, id).await.ok();
-                                match chapter {
-                                    Some(c) => {
-                                        let n = c.chapter_number;
-                                        Some(format!("Chapter {n}"))
-                                    },
-                                    None => None
-                                }
+                                chapter.map(|c| c.chapter_number)
                             } else {
                                 None
                             };
@@ -530,8 +521,8 @@ pub async fn send_chat_request_and_parse_stream(
                                     id: Uuid::new_v4(),
                                     conversation_message_id: citation_message_id,
                                     conversation_id,
-                                    course_material_chapter,
-                                    title: cit.title.clone(), // TODO is it ugly to clone here?
+                                    course_material_chapter_number,
+                                    title: cit.title.clone(),
                                     content,
                                     document_url,
                                     citation_number: (idx+1) as i32,

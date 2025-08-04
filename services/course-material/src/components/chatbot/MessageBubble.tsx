@@ -353,9 +353,10 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                           {cit.citation_number}
                         </b>
                         <span data-linklike={true}>
-                          {cit.course_material_chapter !== cit.title
-                            ? `${cit.course_material_chapter}: `
-                            : ""}
+                          {cit.course_material_chapter_number &&
+                            t("chapter-chapter-number", {
+                              chapterNumber: cit.course_material_chapter_number,
+                            })}
                           {`${cit.title}`}
                         </span>
                       </span>

@@ -64,7 +64,6 @@ const NewCodeGiveawayForm: React.FC<NewCodeGiveawayFormProps> = ({
       title={t("heading-new-code-giveaway")}
       buttons={[
         {
-          // eslint-disable-next-line i18next/no-literal-string
           variant: "primary",
           onClick: () => createCodeGiveawayMutation.mutate(),
           disabled: !valid || createCodeGiveawayMutation.isPending,

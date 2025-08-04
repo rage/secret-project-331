@@ -5,7 +5,8 @@ import { DismissButton, OverlayContainer, useModal, useOverlay } from "@react-ar
 import { AriaDialogProps } from "@react-types/dialog"
 import React, { useEffect, useRef } from "react"
 
-import { typography } from "../styles"
+import { typography } from "../../styles"
+
 interface DialogProps extends AriaDialogProps {
   open: boolean
   onClose?: () => void

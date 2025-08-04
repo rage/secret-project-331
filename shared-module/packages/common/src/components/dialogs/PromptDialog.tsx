@@ -44,7 +44,7 @@ const PromptDialog: React.FC<PromptDialogProps> = ({
       buttons={[
         // eslint-disable-next-line i18next/no-literal-string
         { children: "Cancel", variant: "secondary", onClick: onCancel },
-        // eslint-disable-next-line i18next/no-literal-string
+
         { children: "OK", variant: "primary", onClick: () => onConfirm(value) },
       ]}
     >

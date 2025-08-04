@@ -14,7 +14,6 @@ const AlertDialog: React.FC<AlertDialogProps> = ({ open, title, message, onClose
     open={open}
     onClose={onClose}
     title={title}
-    // eslint-disable-next-line i18next/no-literal-string
     buttons={[{ children: "OK", variant: "primary", onClick: onClose }]}
   >
     {message}

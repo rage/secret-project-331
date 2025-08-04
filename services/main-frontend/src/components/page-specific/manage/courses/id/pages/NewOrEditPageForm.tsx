@@ -96,7 +96,7 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
       buttons={[
         {
           disabled: saveMutation.isPending,
-          // eslint-disable-next-line i18next/no-literal-string
+
           variant: "primary",
           onClick: handleSubmit,
           children: isUpdate ? t("button-text-update") : t("button-text-create"),

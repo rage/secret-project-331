@@ -77,7 +77,7 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
         {
           onClick: () => updateCourseMutation.mutate(),
           children: t("button-text-update"),
-          // eslint-disable-next-line i18next/no-literal-string
+
           variant: "primary",
         },
       ]}

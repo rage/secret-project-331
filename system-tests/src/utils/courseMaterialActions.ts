@@ -1,4 +1,3 @@
-/* eslint-disable playwright/no-conditional-in-test */
 /* eslint-disable playwright/no-wait-for-timeout */
 import { test } from "@playwright/test"
 import { Page } from "playwright"

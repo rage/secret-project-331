@@ -47,7 +47,6 @@ const MarkAsSpamDialog: React.FC<{
       title={t("title-report-dialog")}
       buttons={[
         {
-          // eslint-disable-next-line i18next/no-literal-string
           variant: "primary",
           onClick: () => handleSubmit(),
           disabled: !selectedReason,

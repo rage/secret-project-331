@@ -81,18 +81,20 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
       </Script>
 
       <QueryClientProvider client={queryClient}>
-        <OverlayProvider>
-          <GlobalStyles />
-          <LocalStyles />
-          <LoginStateContextProvider>
-            <Layout
-              /* @ts-expect-error: hideBreadcrumbs is an addtional property on Component */
-              hideBreadcrumbs={Component.hideBreadcrumbs}
-            >
-              <Component {...pageProps} />
-            </Layout>
-          </LoginStateContextProvider>
-        </OverlayProvider>
+        <DialogProvider>
+          <OverlayProvider>
+            <GlobalStyles />
+            <LocalStyles />
+            <LoginStateContextProvider>
+              <Layout
+                /* @ts-expect-error: hideBreadcrumbs is an addtional property on Component */
+                hideBreadcrumbs={Component.hideBreadcrumbs}
+              >
+                <Component {...pageProps} />
+              </Layout>
+            </LoginStateContextProvider>
+          </OverlayProvider>
+        </DialogProvider>
       </QueryClientProvider>
     </>
   )

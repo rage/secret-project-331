@@ -24,7 +24,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       open={open}
       onClose={onCancel}
       title={title}
-      closeOnClickOutside={false}
+      closeable={false}
       buttons={[
         { children: t("no"), variant: "secondary", onClick: onCancel },
         { children: t("yes"), variant: "primary", onClick: onConfirm },

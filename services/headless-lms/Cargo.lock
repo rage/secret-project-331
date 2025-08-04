@@ -604,25 +604,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "azure_core"
-version = "0.26.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5bc409f6252d078df978e532dafdd364154f5e60862dce46a712e37aa61b6ace"
-dependencies = [
- "async-lock",
- "async-trait",
- "bytes",
- "futures",
- "pin-project",
- "rustc_version",
- "serde",
- "serde_json",
- "tracing",
- "typespec",
- "typespec_client_core",
-]
-
-[[package]]
 name = "azure_storage"
 version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -631,7 +612,7 @@ dependencies = [
  "RustyXML",
  "async-lock",
  "async-trait",
- "azure_core 0.21.0",
+ "azure_core",
  "bytes",
  "serde",
  "serde_derive",
@@ -648,7 +629,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "97e83c3636ae86d9a6a7962b2112e3b19eb3903915c50ce06ff54ff0a2e6a7e4"
 dependencies = [
  "RustyXML",
- "azure_core 0.21.0",
+ "azure_core",
  "azure_storage",
  "azure_svc_blobstorage",
  "bytes",
@@ -668,7 +649,7 @@ version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4e6c6f20c5611b885ba94c7bae5e02849a267381aecb8aee577e8c35ff4064c6"
 dependencies = [
- "azure_core 0.21.0",
+ "azure_core",
  "bytes",
  "futures",
  "log",
@@ -1935,7 +1916,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-stream",
- "azure_core 0.26.0",
+ "azure_core",
  "azure_storage",
  "azure_storage_blobs",
  "bytes",
@@ -5630,56 +5611,6 @@ name = "typenum"
 version = "1.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1dccffe3ce07af9386bfd29e80c0ab1a8205a2fc34e4bcd40364df902cfa8f3f"
-
-[[package]]
-name = "typespec"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a0db0b9d3d46ff019aee01436243e77388ef101300b0a7be0d99884ee2aa8241"
-dependencies = [
- "base64 0.22.1",
- "serde",
- "serde_json",
- "url",
-]
-
-[[package]]
-name = "typespec_client_core"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e86c48a434f77b12fc368549d3cc9741a60270e799b48be3790d52fbdaae2a5a"
-dependencies = [
- "async-trait",
- "base64 0.22.1",
- "bytes",
- "dyn-clone",
- "futures",
- "getrandom 0.3.3",
- "pin-project",
- "rand 0.9.2",
- "reqwest 0.12.22",
- "serde",
- "serde_json",
- "time",
- "tokio",
- "tracing",
- "typespec",
- "typespec_macros",
- "url",
- "uuid",
-]
-
-[[package]]
-name = "typespec_macros"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "23800b88212e659cf2113cd5488510d0ead6ba26bf3b31158f77d47cec0d4031"
-dependencies = [
- "proc-macro2",
- "quote",
- "rustc_version",
- "syn",
-]
 
 [[package]]
 name = "unicase"

@@ -1,3 +1,4 @@
+import { t } from "i18next"
 import React, {
   createContext,
   ReactNode,
@@ -16,8 +17,8 @@ import PromptDialog from "./PromptDialog"
 
 type DialogBase = {
   id: number
-  title: string
-  message?: React.ReactNode
+  title?: string
+  message: React.ReactNode
 }
 
 type AlertDialogType = DialogBase & {
@@ -55,11 +56,11 @@ const dialogReducer = (state: DialogType[], action: DialogAction): DialogType[] 
 
 const DialogContext = createContext<
   | {
-      alert: (title: string, message?: React.ReactNode) => Promise<void>
-      confirm: (title: string, message?: React.ReactNode) => Promise<boolean>
+      alert: (message: React.ReactNode, title?: string) => Promise<void>
+      confirm: (message: React.ReactNode, title?: string) => Promise<boolean>
       prompt: (
-        title: string,
-        message?: React.ReactNode,
+        message: React.ReactNode,
+        title?: string,
         defaultValue?: string,
       ) => Promise<string | null>
     }
@@ -88,7 +89,7 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   }, [])
 
   const alert = useCallback(
-    (title: string, message?: React.ReactNode): Promise<void> => {
+    (message: React.ReactNode, title?: string): Promise<void> => {
       return new Promise((resolve) => {
         pushDialog({ type: "alert", title, message, resolve })
       })
@@ -97,7 +98,7 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   )
 
   const confirm = useCallback(
-    (title: string, message?: React.ReactNode): Promise<boolean> => {
+    (message: React.ReactNode, title?: string): Promise<boolean> => {
       return new Promise((resolve) => {
         pushDialog({ type: "confirm", title, message, resolve })
       })
@@ -106,7 +107,7 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   )
 
   const prompt = useCallback(
-    (title: string, message?: React.ReactNode, defaultValue?: string): Promise<string | null> => {
+    (message: React.ReactNode, title?: string, defaultValue?: string): Promise<string | null> => {
       return new Promise((resolve) => {
         pushDialog({ type: "prompt", title, message, defaultValue, resolve })
       })
@@ -128,7 +129,7 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
               <AlertDialog
                 key={dialog.id}
                 open
-                title={dialog.title}
+                title={dialog.title ?? t("dialog-title-alert")}
                 message={dialog.message}
                 onClose={() => {
                   dialog.resolve()
@@ -141,7 +142,7 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
               <ConfirmDialog
                 key={dialog.id}
                 open
-                title={dialog.title}
+                title={dialog.title ?? t("dialog-title-confirm")}
                 message={dialog.message}
                 onCancel={() => {
                   dialog.resolve(false)
@@ -158,7 +159,7 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
               <PromptDialog
                 key={dialog.id}
                 open
-                title={dialog.title}
+                title={dialog.title ?? t("dialog-title-prompt")}
                 message={dialog.message}
                 defaultValue={dialog.defaultValue}
                 onCancel={() => {

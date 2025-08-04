@@ -81,16 +81,16 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
       </Script>
 
       <QueryClientProvider client={queryClient}>
-        <DialogProvider>
-          <OverlayProvider>
+        <OverlayProvider>
+          <DialogProvider>
             <GlobalStyles />
             <LoginStateContextProvider>
               <Layout noVisibleLayout={noVisibleLayout}>
                 <Component {...pageProps} />
               </Layout>
             </LoginStateContextProvider>
-          </OverlayProvider>
-        </DialogProvider>
+          </DialogProvider>
+        </OverlayProvider>
       </QueryClientProvider>
     </>
   )

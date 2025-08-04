@@ -1,10 +1,10 @@
 import { ReactNode } from "react"
 
 class DialogService {
-  alert: ((title: string, message?: ReactNode) => Promise<void>) | null = null
-  confirm: ((title: string, message?: ReactNode) => Promise<boolean>) | null = null
+  alert: ((message: ReactNode, title?: string) => Promise<void>) | null = null
+  confirm: ((message: ReactNode, title?: string) => Promise<boolean>) | null = null
   prompt:
-    | ((title: string, message?: ReactNode, defaultValue?: string) => Promise<string | null>)
+    | ((message: ReactNode, title?: string, defaultValue?: string) => Promise<string | null>)
     | null = null
 
   register({
@@ -12,9 +12,9 @@ class DialogService {
     confirm,
     prompt,
   }: {
-    alert: (title: string, message?: ReactNode) => Promise<void>
-    confirm: (title: string, message?: ReactNode) => Promise<boolean>
-    prompt: (title: string, message?: ReactNode, defaultValue?: string) => Promise<string | null>
+    alert: (message: ReactNode, title?: string) => Promise<void>
+    confirm: (message: ReactNode, title?: string) => Promise<boolean>
+    prompt: (message: ReactNode, title?: string, defaultValue?: string) => Promise<string | null>
   }) {
     this.alert = alert
     this.confirm = confirm

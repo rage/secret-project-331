@@ -153,6 +153,7 @@ jobs:
 
       # upload logs for all the services on failure
       - name: Save service logs to disk
+        if: failure()
         run: |
           mkdir ./logs
           kubectl logs 'deployment/chatbot-syncer' > ./logs/chatbot-syncer.log

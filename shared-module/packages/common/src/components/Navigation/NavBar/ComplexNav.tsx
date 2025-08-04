@@ -96,7 +96,7 @@ const active = css`
 const navMenu = css`
   display: flex;
   flex-direction: column;
-  grid-gap: 0;
+  gap: 0;
   width: 100%;
   height: auto;
   position: absolute;
@@ -115,7 +115,7 @@ const navMenu = css`
 
   ${respondToOrLarger.lg} {
     display: inline-block;
-    grid-gap: 10px;
+    gap: 10px;
     list-style: none;
     margin-top: 1em;
     width: auto;
@@ -206,7 +206,7 @@ const hide = css`
 `
 const secondaryLink = css`
   display: none;
-  grid-gap: 10px;
+  gap: 10px;
   list-style: none;
   text-align: center;
   align-items: center;

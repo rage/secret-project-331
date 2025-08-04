@@ -8,7 +8,6 @@
     "declaration-property-value-no-unknown": null,
     "no-invalid-position-declaration": null,
     "nesting-selector-no-missing-scoping-root": null,
-    "property-no-deprecated": null,
     "selector-type-no-unknown": [
       true,
       {

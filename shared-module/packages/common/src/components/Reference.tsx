@@ -86,7 +86,7 @@ const TextWrapper = styled.div`
     margin: 1rem 0 1rem 0.2rem;
     padding-left: 8px;
     list-style-position: outside;
-    word-wrap: break-word;
+    overflow-wrap: break-word;
     overflow-wrap: break-word;
   }
 

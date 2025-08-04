@@ -21,7 +21,7 @@ tokio.workspace = true
 # Utilities for working with Tokio.
 tokio-util = "0.7.15"
 # higher level HTTP client library
-reqwest = { version = "0.12.20", features = [
+reqwest = { version = "0.12.22", features = [
   "brotli",
   "gzip",
   "json",
@@ -32,7 +32,7 @@ reqwest = { version = "0.12.20", features = [
 # A generic serialization/deserialization framework
 serde = { version = "1.0.219", features = ["derive"] }
 # A JSON serialization file format
-serde_json = "1.0.140"
+serde_json = "1.0.142"
 # Application-level tracing for Rust.
 tracing = "0.1.41"
 # A library to generate and parse UUIDs.

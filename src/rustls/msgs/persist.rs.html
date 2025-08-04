@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustls-0.23.27/src/msgs/persist.rs`."><title>persist.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../static.files/storage-82c7156e.js"></script><script defer src="../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rustls/msgs/</div>persist.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>alloc::vec::Vec;
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustls-0.23.31/src/msgs/persist.rs`."><title>persist.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../static.files/storage-82c7156e.js"></script><script defer src="../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rustls/msgs/</div>persist.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>alloc::vec::Vec;
 <a href=#2 id=2 data-nosnippet>2</a><span class="kw">use </span>core::cmp;
 <a href=#3 id=3 data-nosnippet>3</a>
 <a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span>pki_types::{DnsName, UnixTime};
@@ -9,9 +9,9 @@
 <a href=#9 id=9 data-nosnippet>9</a><span class="kw">use </span><span class="kw">crate</span>::error::InvalidMessage;
 <a href=#10 id=10 data-nosnippet>10</a><span class="kw">use </span><span class="kw">crate</span>::msgs::base::{MaybeEmpty, PayloadU8, PayloadU16};
 <a href=#11 id=11 data-nosnippet>11</a><span class="kw">use </span><span class="kw">crate</span>::msgs::codec::{Codec, Reader};
-<a href=#12 id=12 data-nosnippet>12</a><span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::CertificateChain;
-<a href=#13 id=13 data-nosnippet>13</a><span class="attr">#[cfg(feature = <span class="string">"tls12"</span>)]
-<a href=#14 id=14 data-nosnippet>14</a></span><span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::SessionId;
+<a href=#12 id=12 data-nosnippet>12</a><span class="attr">#[cfg(feature = <span class="string">"tls12"</span>)]
+<a href=#13 id=13 data-nosnippet>13</a></span><span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::SessionId;
+<a href=#14 id=14 data-nosnippet>14</a><span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::{CertificateChain, ProtocolName};
 <a href=#15 id=15 data-nosnippet>15</a><span class="kw">use </span><span class="kw">crate</span>::sync::{Arc, Weak};
 <a href=#16 id=16 data-nosnippet>16</a><span class="attr">#[cfg(feature = <span class="string">"tls12"</span>)]
 <a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use </span><span class="kw">crate</span>::tls12::Tls12CipherSuite;
@@ -189,7 +189,7 @@
 <a href=#189 id=189 data-nosnippet>189</a>    }
 <a href=#190 id=190 data-nosnippet>190</a>
 <a href=#191 id=191 data-nosnippet>191</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>ticket(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Arc&lt;PayloadU16&gt; {
-<a href=#192 id=192 data-nosnippet>192</a>        Arc::clone(<span class="kw-2">&amp;</span><span class="self">self</span>.common.ticket)
+<a href=#192 id=192 data-nosnippet>192</a>        <span class="self">self</span>.common.ticket.clone()
 <a href=#193 id=193 data-nosnippet>193</a>    }
 <a href=#194 id=194 data-nosnippet>194</a>
 <a href=#195 id=195 data-nosnippet>195</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>extended_ms(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
@@ -399,7 +399,7 @@
 <a href=#399 id=399 data-nosnippet>399</a>        cs: CipherSuite,
 <a href=#400 id=400 data-nosnippet>400</a>        ms: <span class="kw-2">&amp;</span>[u8],
 <a href=#401 id=401 data-nosnippet>401</a>        client_cert_chain: <span class="prelude-ty">Option</span>&lt;CertificateChain&lt;<span class="lifetime">'static</span>&gt;&gt;,
-<a href=#402 id=402 data-nosnippet>402</a>        alpn: <span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;,
+<a href=#402 id=402 data-nosnippet>402</a>        alpn: <span class="prelude-ty">Option</span>&lt;ProtocolName&gt;,
 <a href=#403 id=403 data-nosnippet>403</a>        application_data: Vec&lt;u8&gt;,
 <a href=#404 id=404 data-nosnippet>404</a>        creation_time: UnixTime,
 <a href=#405 id=405 data-nosnippet>405</a>        age_obfuscation_offset: u32,
@@ -411,7 +411,7 @@
 <a href=#411 id=411 data-nosnippet>411</a>            master_secret: Zeroizing::new(PayloadU8::new(ms.to_vec())),
 <a href=#412 id=412 data-nosnippet>412</a>            extended_ms: <span class="bool-val">false</span>,
 <a href=#413 id=413 data-nosnippet>413</a>            client_cert_chain,
-<a href=#414 id=414 data-nosnippet>414</a>            alpn: alpn.map(PayloadU8::new),
+<a href=#414 id=414 data-nosnippet>414</a>            alpn: alpn.map(|p| PayloadU8::new(p.as_ref().to_vec())),
 <a href=#415 id=415 data-nosnippet>415</a>            application_data: PayloadU16::new(application_data),
 <a href=#416 id=416 data-nosnippet>416</a>            creation_time_sec: creation_time.as_secs(),
 <a href=#417 id=417 data-nosnippet>417</a>            age_obfuscation_offset,
@@ -435,62 +435,58 @@
 <a href=#435 id=435 data-nosnippet>435</a>            .saturating_sub(<span class="self">self</span>.creation_time_sec) <span class="kw">as </span>u32)
 <a href=#436 id=436 data-nosnippet>436</a>            .saturating_mul(<span class="number">1000</span>);
 <a href=#437 id=437 data-nosnippet>437</a>
-<a href=#438 id=438 data-nosnippet>438</a>        <span class="kw">let </span>age_difference = <span class="kw">if </span>client_age_ms &lt; server_age_ms {
-<a href=#439 id=439 data-nosnippet>439</a>            server_age_ms - client_age_ms
-<a href=#440 id=440 data-nosnippet>440</a>        } <span class="kw">else </span>{
-<a href=#441 id=441 data-nosnippet>441</a>            client_age_ms - server_age_ms
-<a href=#442 id=442 data-nosnippet>442</a>        };
+<a href=#438 id=438 data-nosnippet>438</a>        <span class="kw">let </span>age_difference = server_age_ms.abs_diff(client_age_ms);
+<a href=#439 id=439 data-nosnippet>439</a>
+<a href=#440 id=440 data-nosnippet>440</a>        <span class="self">self</span>.freshness = <span class="prelude-val">Some</span>(age_difference &lt;= MAX_FRESHNESS_SKEW_MS);
+<a href=#441 id=441 data-nosnippet>441</a>        <span class="self">self
+<a href=#442 id=442 data-nosnippet>442</a>    </span>}
 <a href=#443 id=443 data-nosnippet>443</a>
-<a href=#444 id=444 data-nosnippet>444</a>        <span class="self">self</span>.freshness = <span class="prelude-val">Some</span>(age_difference &lt;= MAX_FRESHNESS_SKEW_MS);
-<a href=#445 id=445 data-nosnippet>445</a>        <span class="self">self
-<a href=#446 id=446 data-nosnippet>446</a>    </span>}
-<a href=#447 id=447 data-nosnippet>447</a>
-<a href=#448 id=448 data-nosnippet>448</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_fresh(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-<a href=#449 id=449 data-nosnippet>449</a>        <span class="self">self</span>.freshness.unwrap_or_default()
-<a href=#450 id=450 data-nosnippet>450</a>    }
-<a href=#451 id=451 data-nosnippet>451</a>}
+<a href=#444 id=444 data-nosnippet>444</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_fresh(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+<a href=#445 id=445 data-nosnippet>445</a>        <span class="self">self</span>.freshness.unwrap_or_default()
+<a href=#446 id=446 data-nosnippet>446</a>    }
+<a href=#447 id=447 data-nosnippet>447</a>}
+<a href=#448 id=448 data-nosnippet>448</a>
+<a href=#449 id=449 data-nosnippet>449</a><span class="attr">#[cfg(test)]
+<a href=#450 id=450 data-nosnippet>450</a></span><span class="kw">mod </span>tests {
+<a href=#451 id=451 data-nosnippet>451</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 <a href=#452 id=452 data-nosnippet>452</a>
-<a href=#453 id=453 data-nosnippet>453</a><span class="attr">#[cfg(test)]
-<a href=#454 id=454 data-nosnippet>454</a></span><span class="kw">mod </span>tests {
-<a href=#455 id=455 data-nosnippet>455</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
-<a href=#456 id=456 data-nosnippet>456</a>
-<a href=#457 id=457 data-nosnippet>457</a>    <span class="attr">#[cfg(feature = <span class="string">"std"</span>)] </span><span class="comment">// for UnixTime::now
-<a href=#458 id=458 data-nosnippet>458</a>    </span><span class="attr">#[test]
-<a href=#459 id=459 data-nosnippet>459</a>    </span><span class="kw">fn </span>serversessionvalue_is_debug() {
-<a href=#460 id=460 data-nosnippet>460</a>        <span class="kw">use </span>std::{println, vec};
-<a href=#461 id=461 data-nosnippet>461</a>        <span class="kw">let </span>ssv = ServerSessionValue::new(
+<a href=#453 id=453 data-nosnippet>453</a>    <span class="attr">#[cfg(feature = <span class="string">"std"</span>)] </span><span class="comment">// for UnixTime::now
+<a href=#454 id=454 data-nosnippet>454</a>    </span><span class="attr">#[test]
+<a href=#455 id=455 data-nosnippet>455</a>    </span><span class="kw">fn </span>serversessionvalue_is_debug() {
+<a href=#456 id=456 data-nosnippet>456</a>        <span class="kw">use </span>std::{println, vec};
+<a href=#457 id=457 data-nosnippet>457</a>        <span class="kw">let </span>ssv = ServerSessionValue::new(
+<a href=#458 id=458 data-nosnippet>458</a>            <span class="prelude-val">None</span>,
+<a href=#459 id=459 data-nosnippet>459</a>            ProtocolVersion::TLSv1_3,
+<a href=#460 id=460 data-nosnippet>460</a>            CipherSuite::TLS13_AES_128_GCM_SHA256,
+<a href=#461 id=461 data-nosnippet>461</a>            <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>],
 <a href=#462 id=462 data-nosnippet>462</a>            <span class="prelude-val">None</span>,
-<a href=#463 id=463 data-nosnippet>463</a>            ProtocolVersion::TLSv1_3,
-<a href=#464 id=464 data-nosnippet>464</a>            CipherSuite::TLS13_AES_128_GCM_SHA256,
-<a href=#465 id=465 data-nosnippet>465</a>            <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>],
-<a href=#466 id=466 data-nosnippet>466</a>            <span class="prelude-val">None</span>,
-<a href=#467 id=467 data-nosnippet>467</a>            <span class="prelude-val">None</span>,
-<a href=#468 id=468 data-nosnippet>468</a>            <span class="macro">vec!</span>[<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>],
-<a href=#469 id=469 data-nosnippet>469</a>            UnixTime::now(),
-<a href=#470 id=470 data-nosnippet>470</a>            <span class="number">0x12345678</span>,
-<a href=#471 id=471 data-nosnippet>471</a>        );
-<a href=#472 id=472 data-nosnippet>472</a>        <span class="macro">println!</span>(<span class="string">"{:?}"</span>, ssv);
-<a href=#473 id=473 data-nosnippet>473</a>    }
-<a href=#474 id=474 data-nosnippet>474</a>
-<a href=#475 id=475 data-nosnippet>475</a>    <span class="attr">#[test]
-<a href=#476 id=476 data-nosnippet>476</a>    </span><span class="kw">fn </span>serversessionvalue_no_sni() {
-<a href=#477 id=477 data-nosnippet>477</a>        <span class="kw">let </span>bytes = [
-<a href=#478 id=478 data-nosnippet>478</a>            <span class="number">0x00</span>, <span class="number">0x03</span>, <span class="number">0x03</span>, <span class="number">0xc0</span>, <span class="number">0x23</span>, <span class="number">0x03</span>, <span class="number">0x01</span>, <span class="number">0x02</span>, <span class="number">0x03</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>,
-<a href=#479 id=479 data-nosnippet>479</a>            <span class="number">0x12</span>, <span class="number">0x23</span>, <span class="number">0x34</span>, <span class="number">0x45</span>, <span class="number">0x56</span>, <span class="number">0x67</span>, <span class="number">0x78</span>, <span class="number">0x89</span>, <span class="number">0xfe</span>, <span class="number">0xed</span>, <span class="number">0xf0</span>, <span class="number">0x0d</span>,
-<a href=#480 id=480 data-nosnippet>480</a>        ];
-<a href=#481 id=481 data-nosnippet>481</a>        <span class="kw">let </span><span class="kw-2">mut </span>rd = Reader::init(<span class="kw-2">&amp;</span>bytes);
-<a href=#482 id=482 data-nosnippet>482</a>        <span class="kw">let </span>ssv = ServerSessionValue::read(<span class="kw-2">&amp;mut </span>rd).unwrap();
-<a href=#483 id=483 data-nosnippet>483</a>        <span class="macro">assert_eq!</span>(ssv.get_encoding(), bytes);
-<a href=#484 id=484 data-nosnippet>484</a>    }
-<a href=#485 id=485 data-nosnippet>485</a>
-<a href=#486 id=486 data-nosnippet>486</a>    <span class="attr">#[test]
-<a href=#487 id=487 data-nosnippet>487</a>    </span><span class="kw">fn </span>serversessionvalue_with_cert() {
-<a href=#488 id=488 data-nosnippet>488</a>        <span class="kw">let </span>bytes = [
-<a href=#489 id=489 data-nosnippet>489</a>            <span class="number">0x00</span>, <span class="number">0x03</span>, <span class="number">0x03</span>, <span class="number">0xc0</span>, <span class="number">0x23</span>, <span class="number">0x03</span>, <span class="number">0x01</span>, <span class="number">0x02</span>, <span class="number">0x03</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>,
-<a href=#490 id=490 data-nosnippet>490</a>            <span class="number">0x12</span>, <span class="number">0x23</span>, <span class="number">0x34</span>, <span class="number">0x45</span>, <span class="number">0x56</span>, <span class="number">0x67</span>, <span class="number">0x78</span>, <span class="number">0x89</span>, <span class="number">0xfe</span>, <span class="number">0xed</span>, <span class="number">0xf0</span>, <span class="number">0x0d</span>,
-<a href=#491 id=491 data-nosnippet>491</a>        ];
-<a href=#492 id=492 data-nosnippet>492</a>        <span class="kw">let </span><span class="kw-2">mut </span>rd = Reader::init(<span class="kw-2">&amp;</span>bytes);
-<a href=#493 id=493 data-nosnippet>493</a>        <span class="kw">let </span>ssv = ServerSessionValue::read(<span class="kw-2">&amp;mut </span>rd).unwrap();
-<a href=#494 id=494 data-nosnippet>494</a>        <span class="macro">assert_eq!</span>(ssv.get_encoding(), bytes);
-<a href=#495 id=495 data-nosnippet>495</a>    }
-<a href=#496 id=496 data-nosnippet>496</a>}</code></pre></div></section></main></body></html>
+<a href=#463 id=463 data-nosnippet>463</a>            <span class="prelude-val">None</span>,
+<a href=#464 id=464 data-nosnippet>464</a>            <span class="macro">vec!</span>[<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>],
+<a href=#465 id=465 data-nosnippet>465</a>            UnixTime::now(),
+<a href=#466 id=466 data-nosnippet>466</a>            <span class="number">0x12345678</span>,
+<a href=#467 id=467 data-nosnippet>467</a>        );
+<a href=#468 id=468 data-nosnippet>468</a>        <span class="macro">println!</span>(<span class="string">"{ssv:?}"</span>);
+<a href=#469 id=469 data-nosnippet>469</a>    }
+<a href=#470 id=470 data-nosnippet>470</a>
+<a href=#471 id=471 data-nosnippet>471</a>    <span class="attr">#[test]
+<a href=#472 id=472 data-nosnippet>472</a>    </span><span class="kw">fn </span>serversessionvalue_no_sni() {
+<a href=#473 id=473 data-nosnippet>473</a>        <span class="kw">let </span>bytes = [
+<a href=#474 id=474 data-nosnippet>474</a>            <span class="number">0x00</span>, <span class="number">0x03</span>, <span class="number">0x03</span>, <span class="number">0xc0</span>, <span class="number">0x23</span>, <span class="number">0x03</span>, <span class="number">0x01</span>, <span class="number">0x02</span>, <span class="number">0x03</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>,
+<a href=#475 id=475 data-nosnippet>475</a>            <span class="number">0x12</span>, <span class="number">0x23</span>, <span class="number">0x34</span>, <span class="number">0x45</span>, <span class="number">0x56</span>, <span class="number">0x67</span>, <span class="number">0x78</span>, <span class="number">0x89</span>, <span class="number">0xfe</span>, <span class="number">0xed</span>, <span class="number">0xf0</span>, <span class="number">0x0d</span>,
+<a href=#476 id=476 data-nosnippet>476</a>        ];
+<a href=#477 id=477 data-nosnippet>477</a>        <span class="kw">let </span><span class="kw-2">mut </span>rd = Reader::init(<span class="kw-2">&amp;</span>bytes);
+<a href=#478 id=478 data-nosnippet>478</a>        <span class="kw">let </span>ssv = ServerSessionValue::read(<span class="kw-2">&amp;mut </span>rd).unwrap();
+<a href=#479 id=479 data-nosnippet>479</a>        <span class="macro">assert_eq!</span>(ssv.get_encoding(), bytes);
+<a href=#480 id=480 data-nosnippet>480</a>    }
+<a href=#481 id=481 data-nosnippet>481</a>
+<a href=#482 id=482 data-nosnippet>482</a>    <span class="attr">#[test]
+<a href=#483 id=483 data-nosnippet>483</a>    </span><span class="kw">fn </span>serversessionvalue_with_cert() {
+<a href=#484 id=484 data-nosnippet>484</a>        <span class="kw">let </span>bytes = [
+<a href=#485 id=485 data-nosnippet>485</a>            <span class="number">0x00</span>, <span class="number">0x03</span>, <span class="number">0x03</span>, <span class="number">0xc0</span>, <span class="number">0x23</span>, <span class="number">0x03</span>, <span class="number">0x01</span>, <span class="number">0x02</span>, <span class="number">0x03</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>,
+<a href=#486 id=486 data-nosnippet>486</a>            <span class="number">0x12</span>, <span class="number">0x23</span>, <span class="number">0x34</span>, <span class="number">0x45</span>, <span class="number">0x56</span>, <span class="number">0x67</span>, <span class="number">0x78</span>, <span class="number">0x89</span>, <span class="number">0xfe</span>, <span class="number">0xed</span>, <span class="number">0xf0</span>, <span class="number">0x0d</span>,
+<a href=#487 id=487 data-nosnippet>487</a>        ];
+<a href=#488 id=488 data-nosnippet>488</a>        <span class="kw">let </span><span class="kw-2">mut </span>rd = Reader::init(<span class="kw-2">&amp;</span>bytes);
+<a href=#489 id=489 data-nosnippet>489</a>        <span class="kw">let </span>ssv = ServerSessionValue::read(<span class="kw-2">&amp;mut </span>rd).unwrap();
+<a href=#490 id=490 data-nosnippet>490</a>        <span class="macro">assert_eq!</span>(ssv.get_encoding(), bytes);
+<a href=#491 id=491 data-nosnippet>491</a>    }
+<a href=#492 id=492 data-nosnippet>492</a>}</code></pre></div></section></main></body></html>

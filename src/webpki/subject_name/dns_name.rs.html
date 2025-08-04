@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustls-webpki-0.103.3/src/subject_name/dns_name.rs`."><title>dns_name.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="webpki" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../static.files/storage-82c7156e.js"></script><script defer src="../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">webpki/subject_name/</div>dns_name.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2015-2020 Brian Smith.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustls-webpki-0.103.4/src/subject_name/dns_name.rs`."><title>dns_name.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="webpki" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../static.files/storage-82c7156e.js"></script><script defer src="../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">webpki/subject_name/</div>dns_name.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2015-2020 Brian Smith.
 <a href=#2 id=2 data-nosnippet>2</a>//
 <a href=#3 id=3 data-nosnippet>3</a>// Permission to use, copy, modify, and/or distribute this software for any
 <a href=#4 id=4 data-nosnippet>4</a>// purpose with or without fee is hereby granted, provided that the above
@@ -896,86 +896,84 @@
 <a href=#896 id=896 data-nosnippet>896</a>            );
 <a href=#897 id=897 data-nosnippet>897</a>            <span class="macro">assert_eq!</span>(
 <a href=#898 id=898 data-nosnippet>898</a>                <span class="kw-2">&amp;</span>actual_result, expected_result,
-<a href=#899 id=899 data-nosnippet>899</a>                <span class="string">"presented_id_matches_reference_id(\"{:?}\", \"{:?}\")"</span>,
-<a href=#900 id=900 data-nosnippet>900</a>                presented, reference
-<a href=#901 id=901 data-nosnippet>901</a>            );
-<a href=#902 id=902 data-nosnippet>902</a>        }
-<a href=#903 id=903 data-nosnippet>903</a>    }
-<a href=#904 id=904 data-nosnippet>904</a>
-<a href=#905 id=905 data-nosnippet>905</a>    <span class="comment">// (presented_name, constraint, expected_matches)
-<a href=#906 id=906 data-nosnippet>906</a>    </span><span class="attr">#[allow(clippy::type_complexity)]
-<a href=#907 id=907 data-nosnippet>907</a>    </span><span class="kw">const </span>PRESENTED_MATCHES_CONSTRAINT: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span>[u8], <span class="kw-2">&amp;</span>[u8], <span class="prelude-ty">Result</span>&lt;bool, Error&gt;)] = <span class="kw-2">&amp;</span>[
-<a href=#908 id=908 data-nosnippet>908</a>        <span class="comment">// No absolute presented IDs allowed
-<a href=#909 id=909 data-nosnippet>909</a>        </span>(<span class="string">b"."</span>, <span class="string">b""</span>, <span class="prelude-val">Err</span>(Error::MalformedDnsIdentifier)),
-<a href=#910 id=910 data-nosnippet>910</a>        (<span class="string">b"www.example.com."</span>, <span class="string">b""</span>, <span class="prelude-val">Err</span>(Error::MalformedDnsIdentifier)),
-<a href=#911 id=911 data-nosnippet>911</a>        (
+<a href=#899 id=899 data-nosnippet>899</a>                <span class="string">"presented_id_matches_reference_id(\"{presented:?}\", \"{reference:?}\")"
+<a href=#900 id=900 data-nosnippet>900</a>            </span>);
+<a href=#901 id=901 data-nosnippet>901</a>        }
+<a href=#902 id=902 data-nosnippet>902</a>    }
+<a href=#903 id=903 data-nosnippet>903</a>
+<a href=#904 id=904 data-nosnippet>904</a>    <span class="comment">// (presented_name, constraint, expected_matches)
+<a href=#905 id=905 data-nosnippet>905</a>    </span><span class="attr">#[allow(clippy::type_complexity)]
+<a href=#906 id=906 data-nosnippet>906</a>    </span><span class="kw">const </span>PRESENTED_MATCHES_CONSTRAINT: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span>[u8], <span class="kw-2">&amp;</span>[u8], <span class="prelude-ty">Result</span>&lt;bool, Error&gt;)] = <span class="kw-2">&amp;</span>[
+<a href=#907 id=907 data-nosnippet>907</a>        <span class="comment">// No absolute presented IDs allowed
+<a href=#908 id=908 data-nosnippet>908</a>        </span>(<span class="string">b"."</span>, <span class="string">b""</span>, <span class="prelude-val">Err</span>(Error::MalformedDnsIdentifier)),
+<a href=#909 id=909 data-nosnippet>909</a>        (<span class="string">b"www.example.com."</span>, <span class="string">b""</span>, <span class="prelude-val">Err</span>(Error::MalformedDnsIdentifier)),
+<a href=#910 id=910 data-nosnippet>910</a>        (
+<a href=#911 id=911 data-nosnippet>911</a>            <span class="string">b"www.example.com."</span>,
 <a href=#912 id=912 data-nosnippet>912</a>            <span class="string">b"www.example.com."</span>,
-<a href=#913 id=913 data-nosnippet>913</a>            <span class="string">b"www.example.com."</span>,
-<a href=#914 id=914 data-nosnippet>914</a>            <span class="prelude-val">Err</span>(Error::MalformedDnsIdentifier),
-<a href=#915 id=915 data-nosnippet>915</a>        ),
-<a href=#916 id=916 data-nosnippet>916</a>        <span class="comment">// No absolute constraints allowed
-<a href=#917 id=917 data-nosnippet>917</a>        </span>(
-<a href=#918 id=918 data-nosnippet>918</a>            <span class="string">b"www.example.com"</span>,
-<a href=#919 id=919 data-nosnippet>919</a>            <span class="string">b"."</span>,
-<a href=#920 id=920 data-nosnippet>920</a>            <span class="prelude-val">Err</span>(Error::MalformedNameConstraint),
-<a href=#921 id=921 data-nosnippet>921</a>        ),
-<a href=#922 id=922 data-nosnippet>922</a>        (
-<a href=#923 id=923 data-nosnippet>923</a>            <span class="string">b"www.example.com"</span>,
-<a href=#924 id=924 data-nosnippet>924</a>            <span class="string">b"www.example.com."</span>,
-<a href=#925 id=925 data-nosnippet>925</a>            <span class="prelude-val">Err</span>(Error::MalformedNameConstraint),
-<a href=#926 id=926 data-nosnippet>926</a>        ),
-<a href=#927 id=927 data-nosnippet>927</a>        <span class="comment">// No wildcard in constraints allowed
-<a href=#928 id=928 data-nosnippet>928</a>        </span>(
-<a href=#929 id=929 data-nosnippet>929</a>            <span class="string">b"www.example.com"</span>,
-<a href=#930 id=930 data-nosnippet>930</a>            <span class="string">b"*.example.com"</span>,
-<a href=#931 id=931 data-nosnippet>931</a>            <span class="prelude-val">Err</span>(Error::MalformedNameConstraint),
-<a href=#932 id=932 data-nosnippet>932</a>        ),
-<a href=#933 id=933 data-nosnippet>933</a>        <span class="comment">// No empty presented IDs allowed
-<a href=#934 id=934 data-nosnippet>934</a>        </span>(<span class="string">b""</span>, <span class="string">b""</span>, <span class="prelude-val">Err</span>(Error::MalformedDnsIdentifier)),
-<a href=#935 id=935 data-nosnippet>935</a>        <span class="comment">// Empty constraints match everything allowed
-<a href=#936 id=936 data-nosnippet>936</a>        </span>(<span class="string">b"example.com"</span>, <span class="string">b""</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)),
-<a href=#937 id=937 data-nosnippet>937</a>        (<span class="string">b"*.example.com"</span>, <span class="string">b""</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)),
-<a href=#938 id=938 data-nosnippet>938</a>        <span class="comment">// Constraints that start with a dot
-<a href=#939 id=939 data-nosnippet>939</a>        </span>(<span class="string">b"www.example.com"</span>, <span class="string">b".example.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)),
-<a href=#940 id=940 data-nosnippet>940</a>        (<span class="string">b"www.example.com"</span>, <span class="string">b".EXAMPLE.COM"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)),
-<a href=#941 id=941 data-nosnippet>941</a>        (<span class="string">b"www.example.com"</span>, <span class="string">b".axample.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)),
-<a href=#942 id=942 data-nosnippet>942</a>        (<span class="string">b"www.example.com"</span>, <span class="string">b".xample.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)),
-<a href=#943 id=943 data-nosnippet>943</a>        (<span class="string">b"www.example.com"</span>, <span class="string">b".exampl.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)),
-<a href=#944 id=944 data-nosnippet>944</a>        (<span class="string">b"badexample.com"</span>, <span class="string">b".example.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)),
-<a href=#945 id=945 data-nosnippet>945</a>        <span class="comment">// Constraints that do not start with a dot
-<a href=#946 id=946 data-nosnippet>946</a>        </span>(<span class="string">b"www.example.com"</span>, <span class="string">b"example.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)),
-<a href=#947 id=947 data-nosnippet>947</a>        (<span class="string">b"www.example.com"</span>, <span class="string">b"EXAMPLE.COM"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)),
-<a href=#948 id=948 data-nosnippet>948</a>        (<span class="string">b"www.example.com"</span>, <span class="string">b"axample.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)),
-<a href=#949 id=949 data-nosnippet>949</a>        (<span class="string">b"www.example.com"</span>, <span class="string">b"xample.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)),
-<a href=#950 id=950 data-nosnippet>950</a>        (<span class="string">b"www.example.com"</span>, <span class="string">b"exampl.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)),
-<a href=#951 id=951 data-nosnippet>951</a>        (<span class="string">b"badexample.com"</span>, <span class="string">b"example.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)),
-<a href=#952 id=952 data-nosnippet>952</a>        <span class="comment">// Presented IDs with wildcard
-<a href=#953 id=953 data-nosnippet>953</a>        </span>(<span class="string">b"*.example.com"</span>, <span class="string">b".example.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)),
-<a href=#954 id=954 data-nosnippet>954</a>        (<span class="string">b"*.example.com"</span>, <span class="string">b"example.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)),
-<a href=#955 id=955 data-nosnippet>955</a>        (<span class="string">b"*.example.com"</span>, <span class="string">b"www.example.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)),
-<a href=#956 id=956 data-nosnippet>956</a>        (<span class="string">b"*.example.com"</span>, <span class="string">b"www.EXAMPLE.COM"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)),
-<a href=#957 id=957 data-nosnippet>957</a>        (<span class="string">b"*.example.com"</span>, <span class="string">b"www.axample.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)),
-<a href=#958 id=958 data-nosnippet>958</a>        (<span class="string">b"*.example.com"</span>, <span class="string">b".xample.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)),
-<a href=#959 id=959 data-nosnippet>959</a>        (<span class="string">b"*.example.com"</span>, <span class="string">b"xample.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)),
-<a href=#960 id=960 data-nosnippet>960</a>        (<span class="string">b"*.example.com"</span>, <span class="string">b".exampl.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)),
-<a href=#961 id=961 data-nosnippet>961</a>        (<span class="string">b"*.example.com"</span>, <span class="string">b"exampl.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)),
-<a href=#962 id=962 data-nosnippet>962</a>        <span class="comment">// Matching IDs
-<a href=#963 id=963 data-nosnippet>963</a>        </span>(<span class="string">b"www.example.com"</span>, <span class="string">b"www.example.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)),
-<a href=#964 id=964 data-nosnippet>964</a>    ];
-<a href=#965 id=965 data-nosnippet>965</a>
-<a href=#966 id=966 data-nosnippet>966</a>    <span class="attr">#[test]
-<a href=#967 id=967 data-nosnippet>967</a>    </span><span class="kw">fn </span>presented_matches_constraint_test() {
-<a href=#968 id=968 data-nosnippet>968</a>        <span class="kw">for </span>(presented, constraint, expected_result) <span class="kw">in </span>PRESENTED_MATCHES_CONSTRAINT {
-<a href=#969 id=969 data-nosnippet>969</a>            <span class="kw">let </span>actual_result = presented_id_matches_reference_id(
-<a href=#970 id=970 data-nosnippet>970</a>                untrusted::Input::from(presented),
-<a href=#971 id=971 data-nosnippet>971</a>                IdRole::NameConstraint,
-<a href=#972 id=972 data-nosnippet>972</a>                untrusted::Input::from(constraint),
-<a href=#973 id=973 data-nosnippet>973</a>            );
-<a href=#974 id=974 data-nosnippet>974</a>            <span class="macro">assert_eq!</span>(
-<a href=#975 id=975 data-nosnippet>975</a>                <span class="kw-2">&amp;</span>actual_result, expected_result,
-<a href=#976 id=976 data-nosnippet>976</a>                <span class="string">"presented_id_matches_constraint(\"{:?}\", \"{:?}\")"</span>,
-<a href=#977 id=977 data-nosnippet>977</a>                presented, constraint,
-<a href=#978 id=978 data-nosnippet>978</a>            );
-<a href=#979 id=979 data-nosnippet>979</a>        }
-<a href=#980 id=980 data-nosnippet>980</a>    }
-<a href=#981 id=981 data-nosnippet>981</a>}</code></pre></div></section></main></body></html>
+<a href=#913 id=913 data-nosnippet>913</a>            <span class="prelude-val">Err</span>(Error::MalformedDnsIdentifier),
+<a href=#914 id=914 data-nosnippet>914</a>        ),
+<a href=#915 id=915 data-nosnippet>915</a>        <span class="comment">// No absolute constraints allowed
+<a href=#916 id=916 data-nosnippet>916</a>        </span>(
+<a href=#917 id=917 data-nosnippet>917</a>            <span class="string">b"www.example.com"</span>,
+<a href=#918 id=918 data-nosnippet>918</a>            <span class="string">b"."</span>,
+<a href=#919 id=919 data-nosnippet>919</a>            <span class="prelude-val">Err</span>(Error::MalformedNameConstraint),
+<a href=#920 id=920 data-nosnippet>920</a>        ),
+<a href=#921 id=921 data-nosnippet>921</a>        (
+<a href=#922 id=922 data-nosnippet>922</a>            <span class="string">b"www.example.com"</span>,
+<a href=#923 id=923 data-nosnippet>923</a>            <span class="string">b"www.example.com."</span>,
+<a href=#924 id=924 data-nosnippet>924</a>            <span class="prelude-val">Err</span>(Error::MalformedNameConstraint),
+<a href=#925 id=925 data-nosnippet>925</a>        ),
+<a href=#926 id=926 data-nosnippet>926</a>        <span class="comment">// No wildcard in constraints allowed
+<a href=#927 id=927 data-nosnippet>927</a>        </span>(
+<a href=#928 id=928 data-nosnippet>928</a>            <span class="string">b"www.example.com"</span>,
+<a href=#929 id=929 data-nosnippet>929</a>            <span class="string">b"*.example.com"</span>,
+<a href=#930 id=930 data-nosnippet>930</a>            <span class="prelude-val">Err</span>(Error::MalformedNameConstraint),
+<a href=#931 id=931 data-nosnippet>931</a>        ),
+<a href=#932 id=932 data-nosnippet>932</a>        <span class="comment">// No empty presented IDs allowed
+<a href=#933 id=933 data-nosnippet>933</a>        </span>(<span class="string">b""</span>, <span class="string">b""</span>, <span class="prelude-val">Err</span>(Error::MalformedDnsIdentifier)),
+<a href=#934 id=934 data-nosnippet>934</a>        <span class="comment">// Empty constraints match everything allowed
+<a href=#935 id=935 data-nosnippet>935</a>        </span>(<span class="string">b"example.com"</span>, <span class="string">b""</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)),
+<a href=#936 id=936 data-nosnippet>936</a>        (<span class="string">b"*.example.com"</span>, <span class="string">b""</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)),
+<a href=#937 id=937 data-nosnippet>937</a>        <span class="comment">// Constraints that start with a dot
+<a href=#938 id=938 data-nosnippet>938</a>        </span>(<span class="string">b"www.example.com"</span>, <span class="string">b".example.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)),
+<a href=#939 id=939 data-nosnippet>939</a>        (<span class="string">b"www.example.com"</span>, <span class="string">b".EXAMPLE.COM"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)),
+<a href=#940 id=940 data-nosnippet>940</a>        (<span class="string">b"www.example.com"</span>, <span class="string">b".axample.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)),
+<a href=#941 id=941 data-nosnippet>941</a>        (<span class="string">b"www.example.com"</span>, <span class="string">b".xample.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)),
+<a href=#942 id=942 data-nosnippet>942</a>        (<span class="string">b"www.example.com"</span>, <span class="string">b".exampl.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)),
+<a href=#943 id=943 data-nosnippet>943</a>        (<span class="string">b"badexample.com"</span>, <span class="string">b".example.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)),
+<a href=#944 id=944 data-nosnippet>944</a>        <span class="comment">// Constraints that do not start with a dot
+<a href=#945 id=945 data-nosnippet>945</a>        </span>(<span class="string">b"www.example.com"</span>, <span class="string">b"example.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)),
+<a href=#946 id=946 data-nosnippet>946</a>        (<span class="string">b"www.example.com"</span>, <span class="string">b"EXAMPLE.COM"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)),
+<a href=#947 id=947 data-nosnippet>947</a>        (<span class="string">b"www.example.com"</span>, <span class="string">b"axample.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)),
+<a href=#948 id=948 data-nosnippet>948</a>        (<span class="string">b"www.example.com"</span>, <span class="string">b"xample.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)),
+<a href=#949 id=949 data-nosnippet>949</a>        (<span class="string">b"www.example.com"</span>, <span class="string">b"exampl.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)),
+<a href=#950 id=950 data-nosnippet>950</a>        (<span class="string">b"badexample.com"</span>, <span class="string">b"example.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)),
+<a href=#951 id=951 data-nosnippet>951</a>        <span class="comment">// Presented IDs with wildcard
+<a href=#952 id=952 data-nosnippet>952</a>        </span>(<span class="string">b"*.example.com"</span>, <span class="string">b".example.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)),
+<a href=#953 id=953 data-nosnippet>953</a>        (<span class="string">b"*.example.com"</span>, <span class="string">b"example.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)),
+<a href=#954 id=954 data-nosnippet>954</a>        (<span class="string">b"*.example.com"</span>, <span class="string">b"www.example.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)),
+<a href=#955 id=955 data-nosnippet>955</a>        (<span class="string">b"*.example.com"</span>, <span class="string">b"www.EXAMPLE.COM"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)),
+<a href=#956 id=956 data-nosnippet>956</a>        (<span class="string">b"*.example.com"</span>, <span class="string">b"www.axample.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)),
+<a href=#957 id=957 data-nosnippet>957</a>        (<span class="string">b"*.example.com"</span>, <span class="string">b".xample.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)),
+<a href=#958 id=958 data-nosnippet>958</a>        (<span class="string">b"*.example.com"</span>, <span class="string">b"xample.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)),
+<a href=#959 id=959 data-nosnippet>959</a>        (<span class="string">b"*.example.com"</span>, <span class="string">b".exampl.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)),
+<a href=#960 id=960 data-nosnippet>960</a>        (<span class="string">b"*.example.com"</span>, <span class="string">b"exampl.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)),
+<a href=#961 id=961 data-nosnippet>961</a>        <span class="comment">// Matching IDs
+<a href=#962 id=962 data-nosnippet>962</a>        </span>(<span class="string">b"www.example.com"</span>, <span class="string">b"www.example.com"</span>, <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)),
+<a href=#963 id=963 data-nosnippet>963</a>    ];
+<a href=#964 id=964 data-nosnippet>964</a>
+<a href=#965 id=965 data-nosnippet>965</a>    <span class="attr">#[test]
+<a href=#966 id=966 data-nosnippet>966</a>    </span><span class="kw">fn </span>presented_matches_constraint_test() {
+<a href=#967 id=967 data-nosnippet>967</a>        <span class="kw">for </span>(presented, constraint, expected_result) <span class="kw">in </span>PRESENTED_MATCHES_CONSTRAINT {
+<a href=#968 id=968 data-nosnippet>968</a>            <span class="kw">let </span>actual_result = presented_id_matches_reference_id(
+<a href=#969 id=969 data-nosnippet>969</a>                untrusted::Input::from(presented),
+<a href=#970 id=970 data-nosnippet>970</a>                IdRole::NameConstraint,
+<a href=#971 id=971 data-nosnippet>971</a>                untrusted::Input::from(constraint),
+<a href=#972 id=972 data-nosnippet>972</a>            );
+<a href=#973 id=973 data-nosnippet>973</a>            <span class="macro">assert_eq!</span>(
+<a href=#974 id=974 data-nosnippet>974</a>                <span class="kw-2">&amp;</span>actual_result, expected_result,
+<a href=#975 id=975 data-nosnippet>975</a>                <span class="string">"presented_id_matches_constraint(\"{presented:?}\", \"{constraint:?}\")"</span>,
+<a href=#976 id=976 data-nosnippet>976</a>            );
+<a href=#977 id=977 data-nosnippet>977</a>        }
+<a href=#978 id=978 data-nosnippet>978</a>    }
+<a href=#979 id=979 data-nosnippet>979</a>}</code></pre></div></section></main></body></html>

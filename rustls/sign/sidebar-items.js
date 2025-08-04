@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["CertifiedKey","SingleCertAndKey"],"trait":["Signer","SigningKey"]};
+window.SIDEBAR_ITEMS = {"fn":["public_key_to_spki"],"struct":["CertifiedKey","SingleCertAndKey"],"trait":["Signer","SigningKey"]};

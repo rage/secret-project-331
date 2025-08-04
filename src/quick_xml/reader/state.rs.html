@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/quick-xml-0.37.5/src/reader/state.rs`."><title>state.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="quick_xml" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../static.files/storage-82c7156e.js"></script><script defer src="../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">quick_xml/reader/</div>state.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="attr">#[cfg(feature = <span class="string">"encoding"</span>)]
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/quick-xml-0.38.0/src/reader/state.rs`."><title>state.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="quick_xml" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../static.files/storage-82c7156e.js"></script><script defer src="../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">quick_xml/reader/</div>state.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="attr">#[cfg(feature = <span class="string">"encoding"</span>)]
 <a href=#2 id=2 data-nosnippet>2</a></span><span class="kw">use </span>encoding_rs::UTF_8;
 <a href=#3 id=3 data-nosnippet>3</a>
 <a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span><span class="kw">crate</span>::encoding::Decoder;
@@ -251,7 +251,7 @@
 <a href=#251 id=251 data-nosnippet>251</a>            <span class="kw">let </span>len = content.len();
 <a href=#252 id=252 data-nosnippet>252</a>
 <a href=#253 id=253 data-nosnippet>253</a>            <span class="kw">if </span>content.starts_with(<span class="string">b"xml"</span>) &amp;&amp; (len == <span class="number">3 </span>|| is_whitespace(content[<span class="number">3</span>])) {
-<a href=#254 id=254 data-nosnippet>254</a>                <span class="kw">let </span>event = BytesDecl::from_start(BytesStart::wrap(content, <span class="number">3</span>));
+<a href=#254 id=254 data-nosnippet>254</a>                <span class="kw">let </span>event = BytesDecl::from_start(BytesStart::wrap(content, <span class="number">3</span>, <span class="self">self</span>.decoder()));
 <a href=#255 id=255 data-nosnippet>255</a>
 <a href=#256 id=256 data-nosnippet>256</a>                <span class="comment">// Try getting encoding from the declaration event
 <a href=#257 id=257 data-nosnippet>257</a>                </span><span class="attr">#[cfg(feature = <span class="string">"encoding"</span>)]
@@ -263,84 +263,88 @@
 <a href=#263 id=263 data-nosnippet>263</a>
 <a href=#264 id=264 data-nosnippet>264</a>                <span class="prelude-val">Ok</span>(Event::Decl(event))
 <a href=#265 id=265 data-nosnippet>265</a>            } <span class="kw">else </span>{
-<a href=#266 id=266 data-nosnippet>266</a>                <span class="prelude-val">Ok</span>(Event::PI(BytesPI::wrap(content, name_len(content))))
-<a href=#267 id=267 data-nosnippet>267</a>            }
-<a href=#268 id=268 data-nosnippet>268</a>        } <span class="kw">else </span>{
-<a href=#269 id=269 data-nosnippet>269</a>            <span class="comment">// &lt;?....EOF
-<a href=#270 id=270 data-nosnippet>270</a>            //  ^^^^^ - `buf` does not contains `&lt;`, but we want to report error at `&lt;`,
-<a href=#271 id=271 data-nosnippet>271</a>            //          so we move offset to it (-2 for `&lt;` and `&gt;`)
-<a href=#272 id=272 data-nosnippet>272</a>            </span><span class="self">self</span>.last_error_offset = <span class="self">self</span>.offset - len <span class="kw">as </span>u64 - <span class="number">2</span>;
-<a href=#273 id=273 data-nosnippet>273</a>            <span class="prelude-val">Err</span>(Error::Syntax(SyntaxError::UnclosedPIOrXmlDecl))
-<a href=#274 id=274 data-nosnippet>274</a>        }
-<a href=#275 id=275 data-nosnippet>275</a>    }
-<a href=#276 id=276 data-nosnippet>276</a>
-<a href=#277 id=277 data-nosnippet>277</a>    <span class="doccomment">/// Converts content of a tag to a `Start` or an `Empty` event
-<a href=#278 id=278 data-nosnippet>278</a>    ///
-<a href=#279 id=279 data-nosnippet>279</a>    /// # Parameters
-<a href=#280 id=280 data-nosnippet>280</a>    /// - `content`: Content of a tag between `&lt;` and `&gt;`
-<a href=#281 id=281 data-nosnippet>281</a>    </span><span class="kw">pub fn </span>emit_start&lt;<span class="lifetime">'b</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, content: <span class="kw-2">&amp;</span><span class="lifetime">'b </span>[u8]) -&gt; Event&lt;<span class="lifetime">'b</span>&gt; {
-<a href=#282 id=282 data-nosnippet>282</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(content) = content.strip_suffix(<span class="string">b"/"</span>) {
-<a href=#283 id=283 data-nosnippet>283</a>            <span class="comment">// This is self-closed tag `&lt;something/&gt;`
-<a href=#284 id=284 data-nosnippet>284</a>            </span><span class="kw">let </span>event = BytesStart::wrap(content, name_len(content));
-<a href=#285 id=285 data-nosnippet>285</a>
-<a href=#286 id=286 data-nosnippet>286</a>            <span class="kw">if </span><span class="self">self</span>.config.expand_empty_elements {
-<a href=#287 id=287 data-nosnippet>287</a>                <span class="self">self</span>.state = ParseState::InsideEmpty;
-<a href=#288 id=288 data-nosnippet>288</a>                <span class="self">self</span>.opened_starts.push(<span class="self">self</span>.opened_buffer.len());
-<a href=#289 id=289 data-nosnippet>289</a>                <span class="self">self</span>.opened_buffer.extend(event.name().as_ref());
-<a href=#290 id=290 data-nosnippet>290</a>                Event::Start(event)
-<a href=#291 id=291 data-nosnippet>291</a>            } <span class="kw">else </span>{
-<a href=#292 id=292 data-nosnippet>292</a>                Event::Empty(event)
-<a href=#293 id=293 data-nosnippet>293</a>            }
-<a href=#294 id=294 data-nosnippet>294</a>        } <span class="kw">else </span>{
-<a href=#295 id=295 data-nosnippet>295</a>            <span class="kw">let </span>event = BytesStart::wrap(content, name_len(content));
-<a href=#296 id=296 data-nosnippet>296</a>
-<a href=#297 id=297 data-nosnippet>297</a>            <span class="comment">// #514: Always store names event when .check_end_names == false,
-<a href=#298 id=298 data-nosnippet>298</a>            // because checks can be temporary disabled and when they would be
-<a href=#299 id=299 data-nosnippet>299</a>            // enabled, we should have that information
-<a href=#300 id=300 data-nosnippet>300</a>            </span><span class="self">self</span>.opened_starts.push(<span class="self">self</span>.opened_buffer.len());
-<a href=#301 id=301 data-nosnippet>301</a>            <span class="self">self</span>.opened_buffer.extend(event.name().as_ref());
-<a href=#302 id=302 data-nosnippet>302</a>            Event::Start(event)
-<a href=#303 id=303 data-nosnippet>303</a>        }
-<a href=#304 id=304 data-nosnippet>304</a>    }
-<a href=#305 id=305 data-nosnippet>305</a>
-<a href=#306 id=306 data-nosnippet>306</a>    <span class="attr">#[inline]
-<a href=#307 id=307 data-nosnippet>307</a>    </span><span class="kw">pub fn </span>close_expanded_empty(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; BytesEnd&lt;<span class="lifetime">'static</span>&gt; {
-<a href=#308 id=308 data-nosnippet>308</a>        <span class="self">self</span>.state = ParseState::InsideText;
-<a href=#309 id=309 data-nosnippet>309</a>        <span class="kw">let </span>name = <span class="self">self
-<a href=#310 id=310 data-nosnippet>310</a>            </span>.opened_buffer
-<a href=#311 id=311 data-nosnippet>311</a>            .split_off(<span class="self">self</span>.opened_starts.pop().unwrap());
-<a href=#312 id=312 data-nosnippet>312</a>        BytesEnd::wrap(name.into())
-<a href=#313 id=313 data-nosnippet>313</a>    }
-<a href=#314 id=314 data-nosnippet>314</a>
-<a href=#315 id=315 data-nosnippet>315</a>    <span class="doccomment">/// Get the decoder, used to decode bytes, read by this reader, to the strings.
-<a href=#316 id=316 data-nosnippet>316</a>    ///
-<a href=#317 id=317 data-nosnippet>317</a>    /// If [`encoding`] feature is enabled, the used encoding may change after
-<a href=#318 id=318 data-nosnippet>318</a>    /// parsing the XML declaration, otherwise encoding is fixed to UTF-8.
-<a href=#319 id=319 data-nosnippet>319</a>    ///
-<a href=#320 id=320 data-nosnippet>320</a>    /// If [`encoding`] feature is enabled and no encoding is specified in declaration,
-<a href=#321 id=321 data-nosnippet>321</a>    /// defaults to UTF-8.
-<a href=#322 id=322 data-nosnippet>322</a>    ///
-<a href=#323 id=323 data-nosnippet>323</a>    /// [`encoding`]: ../../index.html#encoding
-<a href=#324 id=324 data-nosnippet>324</a>    </span><span class="kw">pub const fn </span>decoder(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Decoder {
-<a href=#325 id=325 data-nosnippet>325</a>        Decoder {
-<a href=#326 id=326 data-nosnippet>326</a>            <span class="attr">#[cfg(feature = <span class="string">"encoding"</span>)]
-<a href=#327 id=327 data-nosnippet>327</a>            </span>encoding: <span class="self">self</span>.encoding.encoding(),
-<a href=#328 id=328 data-nosnippet>328</a>        }
-<a href=#329 id=329 data-nosnippet>329</a>    }
-<a href=#330 id=330 data-nosnippet>330</a>}
-<a href=#331 id=331 data-nosnippet>331</a>
-<a href=#332 id=332 data-nosnippet>332</a><span class="kw">impl </span>Default <span class="kw">for </span>ReaderState {
-<a href=#333 id=333 data-nosnippet>333</a>    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-<a href=#334 id=334 data-nosnippet>334</a>        <span class="self">Self </span>{
-<a href=#335 id=335 data-nosnippet>335</a>            offset: <span class="number">0</span>,
-<a href=#336 id=336 data-nosnippet>336</a>            last_error_offset: <span class="number">0</span>,
-<a href=#337 id=337 data-nosnippet>337</a>            state: ParseState::Init,
-<a href=#338 id=338 data-nosnippet>338</a>            config: Config::default(),
-<a href=#339 id=339 data-nosnippet>339</a>            opened_buffer: Vec::new(),
-<a href=#340 id=340 data-nosnippet>340</a>            opened_starts: Vec::new(),
-<a href=#341 id=341 data-nosnippet>341</a>
-<a href=#342 id=342 data-nosnippet>342</a>            <span class="attr">#[cfg(feature = <span class="string">"encoding"</span>)]
-<a href=#343 id=343 data-nosnippet>343</a>            </span>encoding: EncodingRef::Implicit(UTF_8),
-<a href=#344 id=344 data-nosnippet>344</a>        }
-<a href=#345 id=345 data-nosnippet>345</a>    }
-<a href=#346 id=346 data-nosnippet>346</a>}</code></pre></div></section></main></body></html>
+<a href=#266 id=266 data-nosnippet>266</a>                <span class="prelude-val">Ok</span>(Event::PI(BytesPI::wrap(
+<a href=#267 id=267 data-nosnippet>267</a>                    content,
+<a href=#268 id=268 data-nosnippet>268</a>                    name_len(content),
+<a href=#269 id=269 data-nosnippet>269</a>                    <span class="self">self</span>.decoder(),
+<a href=#270 id=270 data-nosnippet>270</a>                )))
+<a href=#271 id=271 data-nosnippet>271</a>            }
+<a href=#272 id=272 data-nosnippet>272</a>        } <span class="kw">else </span>{
+<a href=#273 id=273 data-nosnippet>273</a>            <span class="comment">// &lt;?....EOF
+<a href=#274 id=274 data-nosnippet>274</a>            //  ^^^^^ - `buf` does not contains `&lt;`, but we want to report error at `&lt;`,
+<a href=#275 id=275 data-nosnippet>275</a>            //          so we move offset to it (-2 for `&lt;` and `&gt;`)
+<a href=#276 id=276 data-nosnippet>276</a>            </span><span class="self">self</span>.last_error_offset = <span class="self">self</span>.offset - len <span class="kw">as </span>u64 - <span class="number">2</span>;
+<a href=#277 id=277 data-nosnippet>277</a>            <span class="prelude-val">Err</span>(Error::Syntax(SyntaxError::UnclosedPIOrXmlDecl))
+<a href=#278 id=278 data-nosnippet>278</a>        }
+<a href=#279 id=279 data-nosnippet>279</a>    }
+<a href=#280 id=280 data-nosnippet>280</a>
+<a href=#281 id=281 data-nosnippet>281</a>    <span class="doccomment">/// Converts content of a tag to a `Start` or an `Empty` event
+<a href=#282 id=282 data-nosnippet>282</a>    ///
+<a href=#283 id=283 data-nosnippet>283</a>    /// # Parameters
+<a href=#284 id=284 data-nosnippet>284</a>    /// - `content`: Content of a tag between `&lt;` and `&gt;`
+<a href=#285 id=285 data-nosnippet>285</a>    </span><span class="kw">pub fn </span>emit_start&lt;<span class="lifetime">'b</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, content: <span class="kw-2">&amp;</span><span class="lifetime">'b </span>[u8]) -&gt; Event&lt;<span class="lifetime">'b</span>&gt; {
+<a href=#286 id=286 data-nosnippet>286</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(content) = content.strip_suffix(<span class="string">b"/"</span>) {
+<a href=#287 id=287 data-nosnippet>287</a>            <span class="comment">// This is self-closed tag `&lt;something/&gt;`
+<a href=#288 id=288 data-nosnippet>288</a>            </span><span class="kw">let </span>event = BytesStart::wrap(content, name_len(content), <span class="self">self</span>.decoder());
+<a href=#289 id=289 data-nosnippet>289</a>
+<a href=#290 id=290 data-nosnippet>290</a>            <span class="kw">if </span><span class="self">self</span>.config.expand_empty_elements {
+<a href=#291 id=291 data-nosnippet>291</a>                <span class="self">self</span>.state = ParseState::InsideEmpty;
+<a href=#292 id=292 data-nosnippet>292</a>                <span class="self">self</span>.opened_starts.push(<span class="self">self</span>.opened_buffer.len());
+<a href=#293 id=293 data-nosnippet>293</a>                <span class="self">self</span>.opened_buffer.extend(event.name().as_ref());
+<a href=#294 id=294 data-nosnippet>294</a>                Event::Start(event)
+<a href=#295 id=295 data-nosnippet>295</a>            } <span class="kw">else </span>{
+<a href=#296 id=296 data-nosnippet>296</a>                Event::Empty(event)
+<a href=#297 id=297 data-nosnippet>297</a>            }
+<a href=#298 id=298 data-nosnippet>298</a>        } <span class="kw">else </span>{
+<a href=#299 id=299 data-nosnippet>299</a>            <span class="kw">let </span>event = BytesStart::wrap(content, name_len(content), <span class="self">self</span>.decoder());
+<a href=#300 id=300 data-nosnippet>300</a>
+<a href=#301 id=301 data-nosnippet>301</a>            <span class="comment">// #514: Always store names event when .check_end_names == false,
+<a href=#302 id=302 data-nosnippet>302</a>            // because checks can be temporary disabled and when they would be
+<a href=#303 id=303 data-nosnippet>303</a>            // enabled, we should have that information
+<a href=#304 id=304 data-nosnippet>304</a>            </span><span class="self">self</span>.opened_starts.push(<span class="self">self</span>.opened_buffer.len());
+<a href=#305 id=305 data-nosnippet>305</a>            <span class="self">self</span>.opened_buffer.extend(event.name().as_ref());
+<a href=#306 id=306 data-nosnippet>306</a>            Event::Start(event)
+<a href=#307 id=307 data-nosnippet>307</a>        }
+<a href=#308 id=308 data-nosnippet>308</a>    }
+<a href=#309 id=309 data-nosnippet>309</a>
+<a href=#310 id=310 data-nosnippet>310</a>    <span class="attr">#[inline]
+<a href=#311 id=311 data-nosnippet>311</a>    </span><span class="kw">pub fn </span>close_expanded_empty(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; BytesEnd&lt;<span class="lifetime">'static</span>&gt; {
+<a href=#312 id=312 data-nosnippet>312</a>        <span class="self">self</span>.state = ParseState::InsideText;
+<a href=#313 id=313 data-nosnippet>313</a>        <span class="kw">let </span>name = <span class="self">self
+<a href=#314 id=314 data-nosnippet>314</a>            </span>.opened_buffer
+<a href=#315 id=315 data-nosnippet>315</a>            .split_off(<span class="self">self</span>.opened_starts.pop().unwrap());
+<a href=#316 id=316 data-nosnippet>316</a>        BytesEnd::wrap(name.into())
+<a href=#317 id=317 data-nosnippet>317</a>    }
+<a href=#318 id=318 data-nosnippet>318</a>
+<a href=#319 id=319 data-nosnippet>319</a>    <span class="doccomment">/// Get the decoder, used to decode bytes, read by this reader, to the strings.
+<a href=#320 id=320 data-nosnippet>320</a>    ///
+<a href=#321 id=321 data-nosnippet>321</a>    /// If [`encoding`] feature is enabled, the used encoding may change after
+<a href=#322 id=322 data-nosnippet>322</a>    /// parsing the XML declaration, otherwise encoding is fixed to UTF-8.
+<a href=#323 id=323 data-nosnippet>323</a>    ///
+<a href=#324 id=324 data-nosnippet>324</a>    /// If [`encoding`] feature is enabled and no encoding is specified in declaration,
+<a href=#325 id=325 data-nosnippet>325</a>    /// defaults to UTF-8.
+<a href=#326 id=326 data-nosnippet>326</a>    ///
+<a href=#327 id=327 data-nosnippet>327</a>    /// [`encoding`]: ../../index.html#encoding
+<a href=#328 id=328 data-nosnippet>328</a>    </span><span class="kw">pub const fn </span>decoder(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Decoder {
+<a href=#329 id=329 data-nosnippet>329</a>        Decoder {
+<a href=#330 id=330 data-nosnippet>330</a>            <span class="attr">#[cfg(feature = <span class="string">"encoding"</span>)]
+<a href=#331 id=331 data-nosnippet>331</a>            </span>encoding: <span class="self">self</span>.encoding.encoding(),
+<a href=#332 id=332 data-nosnippet>332</a>        }
+<a href=#333 id=333 data-nosnippet>333</a>    }
+<a href=#334 id=334 data-nosnippet>334</a>}
+<a href=#335 id=335 data-nosnippet>335</a>
+<a href=#336 id=336 data-nosnippet>336</a><span class="kw">impl </span>Default <span class="kw">for </span>ReaderState {
+<a href=#337 id=337 data-nosnippet>337</a>    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+<a href=#338 id=338 data-nosnippet>338</a>        <span class="self">Self </span>{
+<a href=#339 id=339 data-nosnippet>339</a>            offset: <span class="number">0</span>,
+<a href=#340 id=340 data-nosnippet>340</a>            last_error_offset: <span class="number">0</span>,
+<a href=#341 id=341 data-nosnippet>341</a>            state: ParseState::Init,
+<a href=#342 id=342 data-nosnippet>342</a>            config: Config::default(),
+<a href=#343 id=343 data-nosnippet>343</a>            opened_buffer: Vec::new(),
+<a href=#344 id=344 data-nosnippet>344</a>            opened_starts: Vec::new(),
+<a href=#345 id=345 data-nosnippet>345</a>
+<a href=#346 id=346 data-nosnippet>346</a>            <span class="attr">#[cfg(feature = <span class="string">"encoding"</span>)]
+<a href=#347 id=347 data-nosnippet>347</a>            </span>encoding: EncodingRef::Implicit(UTF_8),
+<a href=#348 id=348 data-nosnippet>348</a>        }
+<a href=#349 id=349 data-nosnippet>349</a>    }
+<a href=#350 id=350 data-nosnippet>350</a>}</code></pre></div></section></main></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustls-0.23.27/src/manual/howto.rs`."><title>howto.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../static.files/storage-82c7156e.js"></script><script defer src="../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rustls/manual/</div>howto.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-2"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">/*! # Customising private key usage
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustls-0.23.31/src/manual/howto.rs`."><title>howto.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../static.files/storage-82c7156e.js"></script><script defer src="../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rustls/manual/</div>howto.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">/*! # Customising private key usage
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a>By default rustls supports PKCS#8-format[^1] RSA or ECDSA keys, plus PKCS#1-format RSA keys.
 <a href=#4 id=4 data-nosnippet>4</a>
@@ -54,4 +54,71 @@
 <a href=#54 id=54 data-nosnippet>54</a>ignore `UnexpectedEof` errors from rustls.
 <a href=#55 id=55 data-nosnippet>55</a>
 <a href=#56 id=56 data-nosnippet>56</a>[^2]: &lt;https://datatracker.ietf.org/doc/html/rfc8446#section-6.1&gt;
-<a href=#57 id=57 data-nosnippet>57</a>*/</span></code></pre></div></section></main></body></html>
+<a href=#57 id=57 data-nosnippet>57</a>
+<a href=#58 id=58 data-nosnippet>58</a># Debugging
+<a href=#59 id=59 data-nosnippet>59</a>
+<a href=#60 id=60 data-nosnippet>60</a>If you encounter a bug with Rustls it can be helpful to collect up as much diagnostic
+<a href=#61 id=61 data-nosnippet>61</a>information as possible.
+<a href=#62 id=62 data-nosnippet>62</a>
+<a href=#63 id=63 data-nosnippet>63</a>## Collecting logs
+<a href=#64 id=64 data-nosnippet>64</a>
+<a href=#65 id=65 data-nosnippet>65</a>If your bug reproduces with one of the [Rustls examples] you can use the
+<a href=#66 id=66 data-nosnippet>66</a>[`RUST_LOG`] environment variable to increase the log verbosity. If you're using
+<a href=#67 id=67 data-nosnippet>67</a>your own application, you may need to configure it with a logging backend
+<a href=#68 id=68 data-nosnippet>68</a>like `env_logger`.
+<a href=#69 id=69 data-nosnippet>69</a>
+<a href=#70 id=70 data-nosnippet>70</a>Consider reproducing your bug with `RUST_LOG=rustls=trace` and sharing the result
+<a href=#71 id=71 data-nosnippet>71</a>in a [GitHub gist].
+<a href=#72 id=72 data-nosnippet>72</a>
+<a href=#73 id=73 data-nosnippet>73</a>[Rustls examples]: https://github.com/rustls/rustls/tree/main/examples
+<a href=#74 id=74 data-nosnippet>74</a>[`RUST_LOG`]: https://docs.rs/env_logger/latest/env_logger/#enabling-logging
+<a href=#75 id=75 data-nosnippet>75</a>[`env_logger`]: https://docs.rs/env_logger/
+<a href=#76 id=76 data-nosnippet>76</a>[GitHub gist]: https://docs.github.com/en/get-started/writing-on-github/editing-and-sharing-content-with-gists/creating-gists
+<a href=#77 id=77 data-nosnippet>77</a>
+<a href=#78 id=78 data-nosnippet>78</a>## Taking a packet capture
+<a href=#79 id=79 data-nosnippet>79</a>
+<a href=#80 id=80 data-nosnippet>80</a>When logs aren't enough taking a packet capture ("pcap") is another helpful tool.
+<a href=#81 id=81 data-nosnippet>81</a>The details of how to accomplish this vary by operating system/context.
+<a href=#82 id=82 data-nosnippet>82</a>
+<a href=#83 id=83 data-nosnippet>83</a>### tcpdump
+<a href=#84 id=84 data-nosnippet>84</a>
+<a href=#85 id=85 data-nosnippet>85</a>As one example, on Linux using [`tcpdump`] is often easiest.
+<a href=#86 id=86 data-nosnippet>86</a>
+<a href=#87 id=87 data-nosnippet>87</a>If you know the IP address of the remote server your bug demonstrates with you
+<a href=#88 id=88 data-nosnippet>88</a>could take a short packet capture with this command (after replacing
+<a href=#89 id=89 data-nosnippet>89</a>`XX.XX.XX.XX` with the correct IP address):
+<a href=#90 id=90 data-nosnippet>90</a>
+<a href=#91 id=91 data-nosnippet>91</a>```bash
+<a href=#92 id=92 data-nosnippet>92</a>sudo tcpdump -i any tcp and dst host XX.XX.XX.XX -C5 -w rustls.pcap
+<a href=#93 id=93 data-nosnippet>93</a>```
+<a href=#94 id=94 data-nosnippet>94</a>
+<a href=#95 id=95 data-nosnippet>95</a>The `-i any` captures on any network interface. The `tcp and dst host XX.XX.XX.XX`
+<a href=#96 id=96 data-nosnippet>96</a>portion target the capture to TCP traffic to the specified IP address. The `-C5`
+<a href=#97 id=97 data-nosnippet>97</a>argument limits the capture to at most 5MB. Lastly the `-w` argument writes the
+<a href=#98 id=98 data-nosnippet>98</a>capture to `rustls.pcap`.
+<a href=#99 id=99 data-nosnippet>99</a>
+<a href=#100 id=100 data-nosnippet>100</a>Another approach is to use `tcp and port XXXX` instead of `tcp and dst host XX.XX.XX.XX`
+<a href=#101 id=101 data-nosnippet>101</a>to capture all traffic to a specific port instead of a specific host server.
+<a href=#102 id=102 data-nosnippet>102</a>
+<a href=#103 id=103 data-nosnippet>103</a>[`tcpdump`]: https://www.redhat.com/en/blog/introduction-using-tcpdump-linux-command-line
+<a href=#104 id=104 data-nosnippet>104</a>
+<a href=#105 id=105 data-nosnippet>105</a>### SSLKEYLOGFILE
+<a href=#106 id=106 data-nosnippet>106</a>
+<a href=#107 id=107 data-nosnippet>107</a>If the bug you are reporting happens after data is encrypted you may also wish to
+<a href=#108 id=108 data-nosnippet>108</a>share the secret keys required to decrypt the post-handshake traffic.
+<a href=#109 id=109 data-nosnippet>109</a>
+<a href=#110 id=110 data-nosnippet>110</a>If you're using one of the [Rustls examples] you can set the `SSLKEYLOGFILE` environment
+<a href=#111 id=111 data-nosnippet>111</a>variable to a path where secrets will be written. E.g. `SSLKEYLOGFILE=rustls.pcap.keys`.
+<a href=#112 id=112 data-nosnippet>112</a>
+<a href=#113 id=113 data-nosnippet>113</a>If you're using your own application you may need to customize the Rustls `ClientConfig`
+<a href=#114 id=114 data-nosnippet>114</a>or `ServerConfig`'s `key_log` setting like the example applications do.
+<a href=#115 id=115 data-nosnippet>115</a>
+<a href=#116 id=116 data-nosnippet>116</a>With the file from `SSLKEYLOGFILE` it is possible to use [Wireshark] or another tool to
+<a href=#117 id=117 data-nosnippet>117</a>decrypt the post-handshake messages, following [these instructions][curl-sslkeylogfile].
+<a href=#118 id=118 data-nosnippet>118</a>
+<a href=#119 id=119 data-nosnippet>119</a>Remember this allows plaintext decryption and should only be done in testing contexts
+<a href=#120 id=120 data-nosnippet>120</a>where no sensitive data (API keys, etc) are being shared.
+<a href=#121 id=121 data-nosnippet>121</a>
+<a href=#122 id=122 data-nosnippet>122</a>[Wireshark]: https://www.wireshark.org/download.html
+<a href=#123 id=123 data-nosnippet>123</a>[curl-sslkeylogfile]: https://everything.curl.dev/usingcurl/tls/sslkeylogfile.html
+<a href=#124 id=124 data-nosnippet>124</a>*/</span></code></pre></div></section></main></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustls-0.23.27/src/webpki/server_verifier.rs`."><title>server_verifier.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../static.files/storage-82c7156e.js"></script><script defer src="../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rustls/webpki/</div>server_verifier.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>alloc::vec::Vec;
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustls-0.23.31/src/webpki/server_verifier.rs`."><title>server_verifier.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../static.files/storage-82c7156e.js"></script><script defer src="../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rustls/webpki/</div>server_verifier.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>alloc::vec::Vec;
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a><span class="kw">use </span>pki_types::{CertificateDer, CertificateRevocationListDer, ServerName, UnixTime};
 <a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span>webpki::{CertRevocationList, ExpirationPolicy, RevocationCheckDepth, UnknownStatusPolicy};
@@ -153,7 +153,7 @@
 <a href=#153 id=153 data-nosnippet>153</a>    </span><span class="kw">pub fn </span>builder(roots: Arc&lt;RootCertStore&gt;) -&gt; ServerCertVerifierBuilder {
 <a href=#154 id=154 data-nosnippet>154</a>        <span class="self">Self</span>::builder_with_provider(
 <a href=#155 id=155 data-nosnippet>155</a>            roots,
-<a href=#156 id=156 data-nosnippet>156</a>            Arc::clone(CryptoProvider::get_default_or_install_from_crate_features()),
+<a href=#156 id=156 data-nosnippet>156</a>            CryptoProvider::get_default_or_install_from_crate_features().clone(),
 <a href=#157 id=157 data-nosnippet>157</a>        )
 <a href=#158 id=158 data-nosnippet>158</a>    }
 <a href=#159 id=159 data-nosnippet>159</a>
@@ -375,7 +375,7 @@
 <a href=#375 id=375 data-nosnippet>375</a>        <span class="comment">// There should be the expected number of crls.
 <a href=#376 id=376 data-nosnippet>376</a>        </span><span class="macro">assert_eq!</span>(builder.crls.len(), initial_crls.len() + extra_crls.len());
 <a href=#377 id=377 data-nosnippet>377</a>        <span class="comment">// The builder should be Debug.
-<a href=#378 id=378 data-nosnippet>378</a>        </span><span class="macro">println!</span>(<span class="string">"{:?}"</span>, builder);
+<a href=#378 id=378 data-nosnippet>378</a>        </span><span class="macro">println!</span>(<span class="string">"{builder:?}"</span>);
 <a href=#379 id=379 data-nosnippet>379</a>        builder.build().unwrap();
 <a href=#380 id=380 data-nosnippet>380</a>    }
 <a href=#381 id=381 data-nosnippet>381</a>
@@ -399,7 +399,7 @@
 <a href=#399 id=399 data-nosnippet>399</a>        )
 <a href=#400 id=400 data-nosnippet>400</a>        .only_check_end_entity_revocation();
 <a href=#401 id=401 data-nosnippet>401</a>        <span class="comment">// The builder should be Debug.
-<a href=#402 id=402 data-nosnippet>402</a>        </span><span class="macro">println!</span>(<span class="string">"{:?}"</span>, builder);
+<a href=#402 id=402 data-nosnippet>402</a>        </span><span class="macro">println!</span>(<span class="string">"{builder:?}"</span>);
 <a href=#403 id=403 data-nosnippet>403</a>        builder.build().unwrap();
 <a href=#404 id=404 data-nosnippet>404</a>    }
 <a href=#405 id=405 data-nosnippet>405</a>
@@ -413,7 +413,7 @@
 <a href=#413 id=413 data-nosnippet>413</a>        )
 <a href=#414 id=414 data-nosnippet>414</a>        .allow_unknown_revocation_status();
 <a href=#415 id=415 data-nosnippet>415</a>        <span class="comment">// The builder should be Debug.
-<a href=#416 id=416 data-nosnippet>416</a>        </span><span class="macro">println!</span>(<span class="string">"{:?}"</span>, builder);
+<a href=#416 id=416 data-nosnippet>416</a>        </span><span class="macro">println!</span>(<span class="string">"{builder:?}"</span>);
 <a href=#417 id=417 data-nosnippet>417</a>        builder.build().unwrap();
 <a href=#418 id=418 data-nosnippet>418</a>    }
 <a href=#419 id=419 data-nosnippet>419</a>
@@ -428,7 +428,7 @@
 <a href=#428 id=428 data-nosnippet>428</a>        .allow_unknown_revocation_status()
 <a href=#429 id=429 data-nosnippet>429</a>        .only_check_end_entity_revocation();
 <a href=#430 id=430 data-nosnippet>430</a>        <span class="comment">// The builder should be Debug.
-<a href=#431 id=431 data-nosnippet>431</a>        </span><span class="macro">println!</span>(<span class="string">"{:?}"</span>, builder);
+<a href=#431 id=431 data-nosnippet>431</a>        </span><span class="macro">println!</span>(<span class="string">"{builder:?}"</span>);
 <a href=#432 id=432 data-nosnippet>432</a>        builder.build().unwrap();
 <a href=#433 id=433 data-nosnippet>433</a>    }
 <a href=#434 id=434 data-nosnippet>434</a>
@@ -442,7 +442,7 @@
 <a href=#442 id=442 data-nosnippet>442</a>        )
 <a href=#443 id=443 data-nosnippet>443</a>        .enforce_revocation_expiration();
 <a href=#444 id=444 data-nosnippet>444</a>        <span class="comment">// The builder should be Debug.
-<a href=#445 id=445 data-nosnippet>445</a>        </span><span class="macro">println!</span>(<span class="string">"{:?}"</span>, builder);
+<a href=#445 id=445 data-nosnippet>445</a>        </span><span class="macro">println!</span>(<span class="string">"{builder:?}"</span>);
 <a href=#446 id=446 data-nosnippet>446</a>        builder.build().unwrap();
 <a href=#447 id=447 data-nosnippet>447</a>    }
 <a href=#448 id=448 data-nosnippet>448</a>}</code></pre></div></section></main></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/kurbo-0.11.2/src/affine.rs`."><title>affine.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="../../static.files/src-script-63605ae7.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">kurbo/</div>affine.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2018 the Kurbo Authors
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/kurbo-0.11.3/src/affine.rs`."><title>affine.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="../../static.files/src-script-63605ae7.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">kurbo/</div>affine.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2018 the Kurbo Authors
 <a href=#2 id=2 data-nosnippet>2</a>// SPDX-License-Identifier: Apache-2.0 OR MIT
 <a href=#3 id=3 data-nosnippet>3</a>
 <a href=#4 id=4 data-nosnippet>4</a></span><span class="doccomment">//! Affine transforms.
@@ -69,8 +69,8 @@
 <a href=#69 id=69 data-nosnippet>69</a>    ///
 <a href=#70 id=70 data-nosnippet>70</a>    /// See [`Affine::scale()`] for more info.
 <a href=#71 id=71 data-nosnippet>71</a>    </span><span class="attr">#[inline]
-<a href=#72 id=72 data-nosnippet>72</a>    </span><span class="kw">pub fn </span>scale_about(s: f64, center: Point) -&gt; Affine {
-<a href=#73 id=73 data-nosnippet>73</a>        <span class="kw">let </span>center = center.to_vec2();
+<a href=#72 id=72 data-nosnippet>72</a>    </span><span class="kw">pub fn </span>scale_about(s: f64, center: <span class="kw">impl </span>Into&lt;Point&gt;) -&gt; Affine {
+<a href=#73 id=73 data-nosnippet>73</a>        <span class="kw">let </span>center = center.into().to_vec2();
 <a href=#74 id=74 data-nosnippet>74</a>        <span class="self">Self</span>::translate(-center)
 <a href=#75 id=75 data-nosnippet>75</a>            .then_scale(s)
 <a href=#76 id=76 data-nosnippet>76</a>            .then_translate(center)
@@ -94,8 +94,8 @@
 <a href=#94 id=94 data-nosnippet>94</a>    ///
 <a href=#95 id=95 data-nosnippet>95</a>    /// See [`Affine::rotate()`] for more info.
 <a href=#96 id=96 data-nosnippet>96</a>    </span><span class="attr">#[inline]
-<a href=#97 id=97 data-nosnippet>97</a>    </span><span class="kw">pub fn </span>rotate_about(th: f64, center: Point) -&gt; Affine {
-<a href=#98 id=98 data-nosnippet>98</a>        <span class="kw">let </span>center = center.to_vec2();
+<a href=#97 id=97 data-nosnippet>97</a>    </span><span class="kw">pub fn </span>rotate_about(th: f64, center: <span class="kw">impl </span>Into&lt;Point&gt;) -&gt; Affine {
+<a href=#98 id=98 data-nosnippet>98</a>        <span class="kw">let </span>center = center.into().to_vec2();
 <a href=#99 id=99 data-nosnippet>99</a>        <span class="self">Self</span>::translate(-center)
 <a href=#100 id=100 data-nosnippet>100</a>            .then_rotate(th)
 <a href=#101 id=101 data-nosnippet>101</a>            .then_translate(center)
@@ -188,7 +188,7 @@
 <a href=#188 id=188 data-nosnippet>188</a>    /// [rotation]: Affine::rotate_about
 <a href=#189 id=189 data-nosnippet>189</a>    </span><span class="attr">#[inline]
 <a href=#190 id=190 data-nosnippet>190</a>    #[must_use]
-<a href=#191 id=191 data-nosnippet>191</a>    </span><span class="kw">pub fn </span>pre_rotate_about(<span class="self">self</span>, th: f64, center: Point) -&gt; <span class="self">Self </span>{
+<a href=#191 id=191 data-nosnippet>191</a>    </span><span class="kw">pub fn </span>pre_rotate_about(<span class="self">self</span>, th: f64, center: <span class="kw">impl </span>Into&lt;Point&gt;) -&gt; <span class="self">Self </span>{
 <a href=#192 id=192 data-nosnippet>192</a>        Affine::rotate_about(th, center) * <span class="self">self
 <a href=#193 id=193 data-nosnippet>193</a>    </span>}
 <a href=#194 id=194 data-nosnippet>194</a>
@@ -243,7 +243,7 @@
 <a href=#243 id=243 data-nosnippet>243</a>    /// [rotation]: Affine::rotate_about
 <a href=#244 id=244 data-nosnippet>244</a>    </span><span class="attr">#[inline]
 <a href=#245 id=245 data-nosnippet>245</a>    #[must_use]
-<a href=#246 id=246 data-nosnippet>246</a>    </span><span class="kw">pub fn </span>then_rotate_about(<span class="self">self</span>, th: f64, center: Point) -&gt; <span class="self">Self </span>{
+<a href=#246 id=246 data-nosnippet>246</a>    </span><span class="kw">pub fn </span>then_rotate_about(<span class="self">self</span>, th: f64, center: <span class="kw">impl </span>Into&lt;Point&gt;) -&gt; <span class="self">Self </span>{
 <a href=#247 id=247 data-nosnippet>247</a>        Affine::rotate_about(th, center) * <span class="self">self
 <a href=#248 id=248 data-nosnippet>248</a>    </span>}
 <a href=#249 id=249 data-nosnippet>249</a>
@@ -276,7 +276,7 @@
 <a href=#276 id=276 data-nosnippet>276</a>    /// [scale]: Affine::scale_about
 <a href=#277 id=277 data-nosnippet>277</a>    </span><span class="attr">#[inline]
 <a href=#278 id=278 data-nosnippet>278</a>    #[must_use]
-<a href=#279 id=279 data-nosnippet>279</a>    </span><span class="kw">pub fn </span>then_scale_about(<span class="self">self</span>, scale: f64, center: Point) -&gt; <span class="self">Self </span>{
+<a href=#279 id=279 data-nosnippet>279</a>    </span><span class="kw">pub fn </span>then_scale_about(<span class="self">self</span>, scale: f64, center: <span class="kw">impl </span>Into&lt;Point&gt;) -&gt; <span class="self">Self </span>{
 <a href=#280 id=280 data-nosnippet>280</a>        Affine::scale_about(scale, center) * <span class="self">self
 <a href=#281 id=281 data-nosnippet>281</a>    </span>}
 <a href=#282 id=282 data-nosnippet>282</a>

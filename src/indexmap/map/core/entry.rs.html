@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/indexmap-2.9.0/src/map/core/entry.rs`."><title>entry.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="indexmap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../../static.files/storage-82c7156e.js"></script><script defer src="../../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">indexmap/map/core/</div>entry.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use super</span>::{equivalent, Entries, IndexMapCore, RefMut};
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/indexmap-2.10.0/src/map/core/entry.rs`."><title>entry.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="indexmap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../../static.files/storage-82c7156e.js"></script><script defer src="../../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">indexmap/map/core/</div>entry.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use super</span>::{equivalent, Entries, IndexMapCore, RefMut};
 <a href=#2 id=2 data-nosnippet>2</a><span class="kw">use </span><span class="kw">crate</span>::HashValue;
 <a href=#3 id=3 data-nosnippet>3</a><span class="kw">use </span>core::{fmt, mem};
 <a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span>hashbrown::hash_table;
@@ -308,264 +308,267 @@
 <a href=#308 id=308 data-nosnippet>308</a>    /// ***Panics*** if the `other` index is out of bounds.
 <a href=#309 id=309 data-nosnippet>309</a>    ///
 <a href=#310 id=310 data-nosnippet>310</a>    /// Computes in **O(1)** time (average).
-<a href=#311 id=311 data-nosnippet>311</a>    </span><span class="kw">pub fn </span>swap_indices(<span class="self">self</span>, other: usize) {
-<a href=#312 id=312 data-nosnippet>312</a>        <span class="kw">let </span>index = <span class="self">self</span>.index();
-<a href=#313 id=313 data-nosnippet>313</a>        <span class="self">self</span>.into_ref_mut().swap_indices(index, other);
-<a href=#314 id=314 data-nosnippet>314</a>    }
-<a href=#315 id=315 data-nosnippet>315</a>}
-<a href=#316 id=316 data-nosnippet>316</a>
-<a href=#317 id=317 data-nosnippet>317</a><span class="kw">impl</span>&lt;K: fmt::Debug, V: fmt::Debug&gt; fmt::Debug <span class="kw">for </span>OccupiedEntry&lt;<span class="lifetime">'_</span>, K, V&gt; {
-<a href=#318 id=318 data-nosnippet>318</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
-<a href=#319 id=319 data-nosnippet>319</a>        f.debug_struct(<span class="string">"OccupiedEntry"</span>)
-<a href=#320 id=320 data-nosnippet>320</a>            .field(<span class="string">"key"</span>, <span class="self">self</span>.key())
-<a href=#321 id=321 data-nosnippet>321</a>            .field(<span class="string">"value"</span>, <span class="self">self</span>.get())
-<a href=#322 id=322 data-nosnippet>322</a>            .finish()
-<a href=#323 id=323 data-nosnippet>323</a>    }
-<a href=#324 id=324 data-nosnippet>324</a>}
-<a href=#325 id=325 data-nosnippet>325</a>
-<a href=#326 id=326 data-nosnippet>326</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; From&lt;IndexedEntry&lt;<span class="lifetime">'a</span>, K, V&gt;&gt; <span class="kw">for </span>OccupiedEntry&lt;<span class="lifetime">'a</span>, K, V&gt; {
-<a href=#327 id=327 data-nosnippet>327</a>    <span class="kw">fn </span>from(other: IndexedEntry&lt;<span class="lifetime">'a</span>, K, V&gt;) -&gt; <span class="self">Self </span>{
-<a href=#328 id=328 data-nosnippet>328</a>        <span class="kw">let </span>IndexedEntry {
-<a href=#329 id=329 data-nosnippet>329</a>            map: RefMut { indices, entries },
-<a href=#330 id=330 data-nosnippet>330</a>            index,
-<a href=#331 id=331 data-nosnippet>331</a>        } = other;
-<a href=#332 id=332 data-nosnippet>332</a>        <span class="kw">let </span>hash = entries[index].hash;
-<a href=#333 id=333 data-nosnippet>333</a>        <span class="self">Self </span>{
-<a href=#334 id=334 data-nosnippet>334</a>            entries,
-<a href=#335 id=335 data-nosnippet>335</a>            index: indices
-<a href=#336 id=336 data-nosnippet>336</a>                .find_entry(hash.get(), <span class="kw">move </span>|<span class="kw-2">&amp;</span>i| i == index)
-<a href=#337 id=337 data-nosnippet>337</a>                .expect(<span class="string">"index not found"</span>),
-<a href=#338 id=338 data-nosnippet>338</a>        }
-<a href=#339 id=339 data-nosnippet>339</a>    }
-<a href=#340 id=340 data-nosnippet>340</a>}
-<a href=#341 id=341 data-nosnippet>341</a>
-<a href=#342 id=342 data-nosnippet>342</a><span class="doccomment">/// A view into a vacant entry in an [`IndexMap`][crate::IndexMap].
-<a href=#343 id=343 data-nosnippet>343</a>/// It is part of the [`Entry`] enum.
-<a href=#344 id=344 data-nosnippet>344</a></span><span class="kw">pub struct </span>VacantEntry&lt;<span class="lifetime">'a</span>, K, V&gt; {
-<a href=#345 id=345 data-nosnippet>345</a>    map: RefMut&lt;<span class="lifetime">'a</span>, K, V&gt;,
-<a href=#346 id=346 data-nosnippet>346</a>    hash: HashValue,
-<a href=#347 id=347 data-nosnippet>347</a>    key: K,
-<a href=#348 id=348 data-nosnippet>348</a>}
-<a href=#349 id=349 data-nosnippet>349</a>
-<a href=#350 id=350 data-nosnippet>350</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; VacantEntry&lt;<span class="lifetime">'a</span>, K, V&gt; {
-<a href=#351 id=351 data-nosnippet>351</a>    <span class="doccomment">/// Return the index where a key-value pair may be inserted.
-<a href=#352 id=352 data-nosnippet>352</a>    </span><span class="kw">pub fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-<a href=#353 id=353 data-nosnippet>353</a>        <span class="self">self</span>.map.indices.len()
-<a href=#354 id=354 data-nosnippet>354</a>    }
-<a href=#355 id=355 data-nosnippet>355</a>
-<a href=#356 id=356 data-nosnippet>356</a>    <span class="doccomment">/// Gets a reference to the key that was used to find the entry.
-<a href=#357 id=357 data-nosnippet>357</a>    </span><span class="kw">pub fn </span>key(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>K {
-<a href=#358 id=358 data-nosnippet>358</a>        <span class="kw-2">&amp;</span><span class="self">self</span>.key
-<a href=#359 id=359 data-nosnippet>359</a>    }
-<a href=#360 id=360 data-nosnippet>360</a>
-<a href=#361 id=361 data-nosnippet>361</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>key_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>K {
-<a href=#362 id=362 data-nosnippet>362</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>.key
-<a href=#363 id=363 data-nosnippet>363</a>    }
-<a href=#364 id=364 data-nosnippet>364</a>
-<a href=#365 id=365 data-nosnippet>365</a>    <span class="doccomment">/// Takes ownership of the key, leaving the entry vacant.
-<a href=#366 id=366 data-nosnippet>366</a>    </span><span class="kw">pub fn </span>into_key(<span class="self">self</span>) -&gt; K {
-<a href=#367 id=367 data-nosnippet>367</a>        <span class="self">self</span>.key
-<a href=#368 id=368 data-nosnippet>368</a>    }
-<a href=#369 id=369 data-nosnippet>369</a>
-<a href=#370 id=370 data-nosnippet>370</a>    <span class="doccomment">/// Inserts the entry's key and the given value into the map, and returns a mutable reference
-<a href=#371 id=371 data-nosnippet>371</a>    /// to the value.
-<a href=#372 id=372 data-nosnippet>372</a>    ///
-<a href=#373 id=373 data-nosnippet>373</a>    /// Computes in **O(1)** time (amortized average).
-<a href=#374 id=374 data-nosnippet>374</a>    </span><span class="kw">pub fn </span>insert(<span class="self">self</span>, value: V) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V {
-<a href=#375 id=375 data-nosnippet>375</a>        <span class="self">self</span>.insert_entry(value).into_mut()
-<a href=#376 id=376 data-nosnippet>376</a>    }
-<a href=#377 id=377 data-nosnippet>377</a>
-<a href=#378 id=378 data-nosnippet>378</a>    <span class="doccomment">/// Inserts the entry's key and the given value into the map, and returns an `OccupiedEntry`.
-<a href=#379 id=379 data-nosnippet>379</a>    ///
-<a href=#380 id=380 data-nosnippet>380</a>    /// Computes in **O(1)** time (amortized average).
-<a href=#381 id=381 data-nosnippet>381</a>    </span><span class="kw">pub fn </span>insert_entry(<span class="self">self</span>, value: V) -&gt; OccupiedEntry&lt;<span class="lifetime">'a</span>, K, V&gt; {
-<a href=#382 id=382 data-nosnippet>382</a>        <span class="kw">let </span><span class="self">Self </span>{ map, hash, key } = <span class="self">self</span>;
-<a href=#383 id=383 data-nosnippet>383</a>        map.insert_unique(hash, key, value)
-<a href=#384 id=384 data-nosnippet>384</a>    }
-<a href=#385 id=385 data-nosnippet>385</a>
-<a href=#386 id=386 data-nosnippet>386</a>    <span class="doccomment">/// Inserts the entry's key and the given value into the map at its ordered
-<a href=#387 id=387 data-nosnippet>387</a>    /// position among sorted keys, and returns the new index and a mutable
-<a href=#388 id=388 data-nosnippet>388</a>    /// reference to the value.
-<a href=#389 id=389 data-nosnippet>389</a>    ///
-<a href=#390 id=390 data-nosnippet>390</a>    /// If the existing keys are **not** already sorted, then the insertion
-<a href=#391 id=391 data-nosnippet>391</a>    /// index is unspecified (like [`slice::binary_search`]), but the key-value
-<a href=#392 id=392 data-nosnippet>392</a>    /// pair is inserted at that position regardless.
-<a href=#393 id=393 data-nosnippet>393</a>    ///
-<a href=#394 id=394 data-nosnippet>394</a>    /// Computes in **O(n)** time (average).
-<a href=#395 id=395 data-nosnippet>395</a>    </span><span class="kw">pub fn </span>insert_sorted(<span class="self">self</span>, value: V) -&gt; (usize, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V)
-<a href=#396 id=396 data-nosnippet>396</a>    <span class="kw">where
-<a href=#397 id=397 data-nosnippet>397</a>        </span>K: Ord,
-<a href=#398 id=398 data-nosnippet>398</a>    {
-<a href=#399 id=399 data-nosnippet>399</a>        <span class="kw">let </span>slice = <span class="kw">crate</span>::map::Slice::from_slice(<span class="self">self</span>.map.entries);
-<a href=#400 id=400 data-nosnippet>400</a>        <span class="kw">let </span>i = slice.binary_search_keys(<span class="kw-2">&amp;</span><span class="self">self</span>.key).unwrap_err();
-<a href=#401 id=401 data-nosnippet>401</a>        (i, <span class="self">self</span>.shift_insert(i, value))
-<a href=#402 id=402 data-nosnippet>402</a>    }
-<a href=#403 id=403 data-nosnippet>403</a>
-<a href=#404 id=404 data-nosnippet>404</a>    <span class="doccomment">/// Inserts the entry's key and the given value into the map at the given index,
-<a href=#405 id=405 data-nosnippet>405</a>    /// shifting others to the right, and returns a mutable reference to the value.
-<a href=#406 id=406 data-nosnippet>406</a>    ///
-<a href=#407 id=407 data-nosnippet>407</a>    /// ***Panics*** if `index` is out of bounds.
-<a href=#408 id=408 data-nosnippet>408</a>    ///
-<a href=#409 id=409 data-nosnippet>409</a>    /// Computes in **O(n)** time (average).
-<a href=#410 id=410 data-nosnippet>410</a>    </span><span class="kw">pub fn </span>shift_insert(<span class="kw-2">mut </span><span class="self">self</span>, index: usize, value: V) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V {
-<a href=#411 id=411 data-nosnippet>411</a>        <span class="self">self</span>.map
-<a href=#412 id=412 data-nosnippet>412</a>            .shift_insert_unique(index, <span class="self">self</span>.hash, <span class="self">self</span>.key, value);
-<a href=#413 id=413 data-nosnippet>413</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>.map.entries[index].value
-<a href=#414 id=414 data-nosnippet>414</a>    }
-<a href=#415 id=415 data-nosnippet>415</a>}
-<a href=#416 id=416 data-nosnippet>416</a>
-<a href=#417 id=417 data-nosnippet>417</a><span class="kw">impl</span>&lt;K: fmt::Debug, V&gt; fmt::Debug <span class="kw">for </span>VacantEntry&lt;<span class="lifetime">'_</span>, K, V&gt; {
-<a href=#418 id=418 data-nosnippet>418</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
-<a href=#419 id=419 data-nosnippet>419</a>        f.debug_tuple(<span class="string">"VacantEntry"</span>).field(<span class="self">self</span>.key()).finish()
-<a href=#420 id=420 data-nosnippet>420</a>    }
-<a href=#421 id=421 data-nosnippet>421</a>}
-<a href=#422 id=422 data-nosnippet>422</a>
-<a href=#423 id=423 data-nosnippet>423</a><span class="doccomment">/// A view into an occupied entry in an [`IndexMap`][crate::IndexMap] obtained by index.
-<a href=#424 id=424 data-nosnippet>424</a>///
-<a href=#425 id=425 data-nosnippet>425</a>/// This `struct` is created from the [`get_index_entry`][crate::IndexMap::get_index_entry] method.
-<a href=#426 id=426 data-nosnippet>426</a></span><span class="kw">pub struct </span>IndexedEntry&lt;<span class="lifetime">'a</span>, K, V&gt; {
-<a href=#427 id=427 data-nosnippet>427</a>    map: RefMut&lt;<span class="lifetime">'a</span>, K, V&gt;,
-<a href=#428 id=428 data-nosnippet>428</a>    <span class="comment">// We have a mutable reference to the map, which keeps the index
-<a href=#429 id=429 data-nosnippet>429</a>    // valid and pointing to the correct entry.
-<a href=#430 id=430 data-nosnippet>430</a>    </span>index: usize,
-<a href=#431 id=431 data-nosnippet>431</a>}
-<a href=#432 id=432 data-nosnippet>432</a>
-<a href=#433 id=433 data-nosnippet>433</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; IndexedEntry&lt;<span class="lifetime">'a</span>, K, V&gt; {
-<a href=#434 id=434 data-nosnippet>434</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(map: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>IndexMapCore&lt;K, V&gt;, index: usize) -&gt; <span class="self">Self </span>{
-<a href=#435 id=435 data-nosnippet>435</a>        <span class="self">Self </span>{
-<a href=#436 id=436 data-nosnippet>436</a>            map: map.borrow_mut(),
-<a href=#437 id=437 data-nosnippet>437</a>            index,
-<a href=#438 id=438 data-nosnippet>438</a>        }
-<a href=#439 id=439 data-nosnippet>439</a>    }
-<a href=#440 id=440 data-nosnippet>440</a>
-<a href=#441 id=441 data-nosnippet>441</a>    <span class="doccomment">/// Return the index of the key-value pair
-<a href=#442 id=442 data-nosnippet>442</a>    </span><span class="attr">#[inline]
-<a href=#443 id=443 data-nosnippet>443</a>    </span><span class="kw">pub fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-<a href=#444 id=444 data-nosnippet>444</a>        <span class="self">self</span>.index
-<a href=#445 id=445 data-nosnippet>445</a>    }
-<a href=#446 id=446 data-nosnippet>446</a>
-<a href=#447 id=447 data-nosnippet>447</a>    <span class="doccomment">/// Gets a reference to the entry's key in the map.
-<a href=#448 id=448 data-nosnippet>448</a>    </span><span class="kw">pub fn </span>key(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>K {
-<a href=#449 id=449 data-nosnippet>449</a>        <span class="kw-2">&amp;</span><span class="self">self</span>.map.entries[<span class="self">self</span>.index].key
-<a href=#450 id=450 data-nosnippet>450</a>    }
-<a href=#451 id=451 data-nosnippet>451</a>
-<a href=#452 id=452 data-nosnippet>452</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>key_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>K {
-<a href=#453 id=453 data-nosnippet>453</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>.map.entries[<span class="self">self</span>.index].key
-<a href=#454 id=454 data-nosnippet>454</a>    }
-<a href=#455 id=455 data-nosnippet>455</a>
-<a href=#456 id=456 data-nosnippet>456</a>    <span class="doccomment">/// Gets a reference to the entry's value in the map.
-<a href=#457 id=457 data-nosnippet>457</a>    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>V {
-<a href=#458 id=458 data-nosnippet>458</a>        <span class="kw-2">&amp;</span><span class="self">self</span>.map.entries[<span class="self">self</span>.index].value
-<a href=#459 id=459 data-nosnippet>459</a>    }
-<a href=#460 id=460 data-nosnippet>460</a>
-<a href=#461 id=461 data-nosnippet>461</a>    <span class="doccomment">/// Gets a mutable reference to the entry's value in the map.
-<a href=#462 id=462 data-nosnippet>462</a>    ///
-<a href=#463 id=463 data-nosnippet>463</a>    /// If you need a reference which may outlive the destruction of the
-<a href=#464 id=464 data-nosnippet>464</a>    /// `IndexedEntry` value, see [`into_mut`][Self::into_mut].
-<a href=#465 id=465 data-nosnippet>465</a>    </span><span class="kw">pub fn </span>get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>V {
-<a href=#466 id=466 data-nosnippet>466</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>.map.entries[<span class="self">self</span>.index].value
-<a href=#467 id=467 data-nosnippet>467</a>    }
-<a href=#468 id=468 data-nosnippet>468</a>
-<a href=#469 id=469 data-nosnippet>469</a>    <span class="doccomment">/// Sets the value of the entry to `value`, and returns the entry's old value.
-<a href=#470 id=470 data-nosnippet>470</a>    </span><span class="kw">pub fn </span>insert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: V) -&gt; V {
-<a href=#471 id=471 data-nosnippet>471</a>        mem::replace(<span class="self">self</span>.get_mut(), value)
-<a href=#472 id=472 data-nosnippet>472</a>    }
-<a href=#473 id=473 data-nosnippet>473</a>
-<a href=#474 id=474 data-nosnippet>474</a>    <span class="doccomment">/// Converts into a mutable reference to the entry's value in the map,
-<a href=#475 id=475 data-nosnippet>475</a>    /// with a lifetime bound to the map itself.
-<a href=#476 id=476 data-nosnippet>476</a>    </span><span class="kw">pub fn </span>into_mut(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V {
-<a href=#477 id=477 data-nosnippet>477</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>.map.entries[<span class="self">self</span>.index].value
-<a href=#478 id=478 data-nosnippet>478</a>    }
-<a href=#479 id=479 data-nosnippet>479</a>
-<a href=#480 id=480 data-nosnippet>480</a>    <span class="doccomment">/// Remove and return the key, value pair stored in the map for this entry
-<a href=#481 id=481 data-nosnippet>481</a>    ///
-<a href=#482 id=482 data-nosnippet>482</a>    /// Like [`Vec::swap_remove`][crate::Vec::swap_remove], the pair is removed by swapping it with
-<a href=#483 id=483 data-nosnippet>483</a>    /// the last element of the map and popping it off.
-<a href=#484 id=484 data-nosnippet>484</a>    /// **This perturbs the position of what used to be the last element!**
-<a href=#485 id=485 data-nosnippet>485</a>    ///
-<a href=#486 id=486 data-nosnippet>486</a>    /// Computes in **O(1)** time (average).
-<a href=#487 id=487 data-nosnippet>487</a>    </span><span class="kw">pub fn </span>swap_remove_entry(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; (K, V) {
-<a href=#488 id=488 data-nosnippet>488</a>        <span class="self">self</span>.map.swap_remove_index(<span class="self">self</span>.index).unwrap()
-<a href=#489 id=489 data-nosnippet>489</a>    }
-<a href=#490 id=490 data-nosnippet>490</a>
-<a href=#491 id=491 data-nosnippet>491</a>    <span class="doccomment">/// Remove and return the key, value pair stored in the map for this entry
-<a href=#492 id=492 data-nosnippet>492</a>    ///
-<a href=#493 id=493 data-nosnippet>493</a>    /// Like [`Vec::remove`][crate::Vec::remove], the pair is removed by shifting all of the
-<a href=#494 id=494 data-nosnippet>494</a>    /// elements that follow it, preserving their relative order.
-<a href=#495 id=495 data-nosnippet>495</a>    /// **This perturbs the index of all of those elements!**
-<a href=#496 id=496 data-nosnippet>496</a>    ///
-<a href=#497 id=497 data-nosnippet>497</a>    /// Computes in **O(n)** time (average).
-<a href=#498 id=498 data-nosnippet>498</a>    </span><span class="kw">pub fn </span>shift_remove_entry(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; (K, V) {
-<a href=#499 id=499 data-nosnippet>499</a>        <span class="self">self</span>.map.shift_remove_index(<span class="self">self</span>.index).unwrap()
-<a href=#500 id=500 data-nosnippet>500</a>    }
-<a href=#501 id=501 data-nosnippet>501</a>
-<a href=#502 id=502 data-nosnippet>502</a>    <span class="doccomment">/// Remove the key, value pair stored in the map for this entry, and return the value.
-<a href=#503 id=503 data-nosnippet>503</a>    ///
-<a href=#504 id=504 data-nosnippet>504</a>    /// Like [`Vec::swap_remove`][crate::Vec::swap_remove], the pair is removed by swapping it with
-<a href=#505 id=505 data-nosnippet>505</a>    /// the last element of the map and popping it off.
-<a href=#506 id=506 data-nosnippet>506</a>    /// **This perturbs the position of what used to be the last element!**
-<a href=#507 id=507 data-nosnippet>507</a>    ///
-<a href=#508 id=508 data-nosnippet>508</a>    /// Computes in **O(1)** time (average).
-<a href=#509 id=509 data-nosnippet>509</a>    </span><span class="kw">pub fn </span>swap_remove(<span class="self">self</span>) -&gt; V {
-<a href=#510 id=510 data-nosnippet>510</a>        <span class="self">self</span>.swap_remove_entry().<span class="number">1
-<a href=#511 id=511 data-nosnippet>511</a>    </span>}
-<a href=#512 id=512 data-nosnippet>512</a>
-<a href=#513 id=513 data-nosnippet>513</a>    <span class="doccomment">/// Remove the key, value pair stored in the map for this entry, and return the value.
-<a href=#514 id=514 data-nosnippet>514</a>    ///
-<a href=#515 id=515 data-nosnippet>515</a>    /// Like [`Vec::remove`][crate::Vec::remove], the pair is removed by shifting all of the
-<a href=#516 id=516 data-nosnippet>516</a>    /// elements that follow it, preserving their relative order.
-<a href=#517 id=517 data-nosnippet>517</a>    /// **This perturbs the index of all of those elements!**
-<a href=#518 id=518 data-nosnippet>518</a>    ///
-<a href=#519 id=519 data-nosnippet>519</a>    /// Computes in **O(n)** time (average).
-<a href=#520 id=520 data-nosnippet>520</a>    </span><span class="kw">pub fn </span>shift_remove(<span class="self">self</span>) -&gt; V {
-<a href=#521 id=521 data-nosnippet>521</a>        <span class="self">self</span>.shift_remove_entry().<span class="number">1
-<a href=#522 id=522 data-nosnippet>522</a>    </span>}
-<a href=#523 id=523 data-nosnippet>523</a>
-<a href=#524 id=524 data-nosnippet>524</a>    <span class="doccomment">/// Moves the position of the entry to a new index
-<a href=#525 id=525 data-nosnippet>525</a>    /// by shifting all other entries in-between.
-<a href=#526 id=526 data-nosnippet>526</a>    ///
-<a href=#527 id=527 data-nosnippet>527</a>    /// This is equivalent to [`IndexMap::move_index`][`crate::IndexMap::move_index`]
-<a href=#528 id=528 data-nosnippet>528</a>    /// coming `from` the current [`.index()`][Self::index].
-<a href=#529 id=529 data-nosnippet>529</a>    ///
-<a href=#530 id=530 data-nosnippet>530</a>    /// * If `self.index() &lt; to`, the other pairs will shift down while the targeted pair moves up.
-<a href=#531 id=531 data-nosnippet>531</a>    /// * If `self.index() &gt; to`, the other pairs will shift up while the targeted pair moves down.
-<a href=#532 id=532 data-nosnippet>532</a>    ///
-<a href=#533 id=533 data-nosnippet>533</a>    /// ***Panics*** if `to` is out of bounds.
+<a href=#311 id=311 data-nosnippet>311</a>    </span><span class="attr">#[track_caller]
+<a href=#312 id=312 data-nosnippet>312</a>    </span><span class="kw">pub fn </span>swap_indices(<span class="self">self</span>, other: usize) {
+<a href=#313 id=313 data-nosnippet>313</a>        <span class="kw">let </span>index = <span class="self">self</span>.index();
+<a href=#314 id=314 data-nosnippet>314</a>        <span class="self">self</span>.into_ref_mut().swap_indices(index, other);
+<a href=#315 id=315 data-nosnippet>315</a>    }
+<a href=#316 id=316 data-nosnippet>316</a>}
+<a href=#317 id=317 data-nosnippet>317</a>
+<a href=#318 id=318 data-nosnippet>318</a><span class="kw">impl</span>&lt;K: fmt::Debug, V: fmt::Debug&gt; fmt::Debug <span class="kw">for </span>OccupiedEntry&lt;<span class="lifetime">'_</span>, K, V&gt; {
+<a href=#319 id=319 data-nosnippet>319</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+<a href=#320 id=320 data-nosnippet>320</a>        f.debug_struct(<span class="string">"OccupiedEntry"</span>)
+<a href=#321 id=321 data-nosnippet>321</a>            .field(<span class="string">"key"</span>, <span class="self">self</span>.key())
+<a href=#322 id=322 data-nosnippet>322</a>            .field(<span class="string">"value"</span>, <span class="self">self</span>.get())
+<a href=#323 id=323 data-nosnippet>323</a>            .finish()
+<a href=#324 id=324 data-nosnippet>324</a>    }
+<a href=#325 id=325 data-nosnippet>325</a>}
+<a href=#326 id=326 data-nosnippet>326</a>
+<a href=#327 id=327 data-nosnippet>327</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; From&lt;IndexedEntry&lt;<span class="lifetime">'a</span>, K, V&gt;&gt; <span class="kw">for </span>OccupiedEntry&lt;<span class="lifetime">'a</span>, K, V&gt; {
+<a href=#328 id=328 data-nosnippet>328</a>    <span class="kw">fn </span>from(other: IndexedEntry&lt;<span class="lifetime">'a</span>, K, V&gt;) -&gt; <span class="self">Self </span>{
+<a href=#329 id=329 data-nosnippet>329</a>        <span class="kw">let </span>IndexedEntry {
+<a href=#330 id=330 data-nosnippet>330</a>            map: RefMut { indices, entries },
+<a href=#331 id=331 data-nosnippet>331</a>            index,
+<a href=#332 id=332 data-nosnippet>332</a>        } = other;
+<a href=#333 id=333 data-nosnippet>333</a>        <span class="kw">let </span>hash = entries[index].hash;
+<a href=#334 id=334 data-nosnippet>334</a>        <span class="self">Self </span>{
+<a href=#335 id=335 data-nosnippet>335</a>            entries,
+<a href=#336 id=336 data-nosnippet>336</a>            index: indices
+<a href=#337 id=337 data-nosnippet>337</a>                .find_entry(hash.get(), <span class="kw">move </span>|<span class="kw-2">&amp;</span>i| i == index)
+<a href=#338 id=338 data-nosnippet>338</a>                .expect(<span class="string">"index not found"</span>),
+<a href=#339 id=339 data-nosnippet>339</a>        }
+<a href=#340 id=340 data-nosnippet>340</a>    }
+<a href=#341 id=341 data-nosnippet>341</a>}
+<a href=#342 id=342 data-nosnippet>342</a>
+<a href=#343 id=343 data-nosnippet>343</a><span class="doccomment">/// A view into a vacant entry in an [`IndexMap`][crate::IndexMap].
+<a href=#344 id=344 data-nosnippet>344</a>/// It is part of the [`Entry`] enum.
+<a href=#345 id=345 data-nosnippet>345</a></span><span class="kw">pub struct </span>VacantEntry&lt;<span class="lifetime">'a</span>, K, V&gt; {
+<a href=#346 id=346 data-nosnippet>346</a>    map: RefMut&lt;<span class="lifetime">'a</span>, K, V&gt;,
+<a href=#347 id=347 data-nosnippet>347</a>    hash: HashValue,
+<a href=#348 id=348 data-nosnippet>348</a>    key: K,
+<a href=#349 id=349 data-nosnippet>349</a>}
+<a href=#350 id=350 data-nosnippet>350</a>
+<a href=#351 id=351 data-nosnippet>351</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; VacantEntry&lt;<span class="lifetime">'a</span>, K, V&gt; {
+<a href=#352 id=352 data-nosnippet>352</a>    <span class="doccomment">/// Return the index where a key-value pair may be inserted.
+<a href=#353 id=353 data-nosnippet>353</a>    </span><span class="kw">pub fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+<a href=#354 id=354 data-nosnippet>354</a>        <span class="self">self</span>.map.indices.len()
+<a href=#355 id=355 data-nosnippet>355</a>    }
+<a href=#356 id=356 data-nosnippet>356</a>
+<a href=#357 id=357 data-nosnippet>357</a>    <span class="doccomment">/// Gets a reference to the key that was used to find the entry.
+<a href=#358 id=358 data-nosnippet>358</a>    </span><span class="kw">pub fn </span>key(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>K {
+<a href=#359 id=359 data-nosnippet>359</a>        <span class="kw-2">&amp;</span><span class="self">self</span>.key
+<a href=#360 id=360 data-nosnippet>360</a>    }
+<a href=#361 id=361 data-nosnippet>361</a>
+<a href=#362 id=362 data-nosnippet>362</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>key_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>K {
+<a href=#363 id=363 data-nosnippet>363</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>.key
+<a href=#364 id=364 data-nosnippet>364</a>    }
+<a href=#365 id=365 data-nosnippet>365</a>
+<a href=#366 id=366 data-nosnippet>366</a>    <span class="doccomment">/// Takes ownership of the key, leaving the entry vacant.
+<a href=#367 id=367 data-nosnippet>367</a>    </span><span class="kw">pub fn </span>into_key(<span class="self">self</span>) -&gt; K {
+<a href=#368 id=368 data-nosnippet>368</a>        <span class="self">self</span>.key
+<a href=#369 id=369 data-nosnippet>369</a>    }
+<a href=#370 id=370 data-nosnippet>370</a>
+<a href=#371 id=371 data-nosnippet>371</a>    <span class="doccomment">/// Inserts the entry's key and the given value into the map, and returns a mutable reference
+<a href=#372 id=372 data-nosnippet>372</a>    /// to the value.
+<a href=#373 id=373 data-nosnippet>373</a>    ///
+<a href=#374 id=374 data-nosnippet>374</a>    /// Computes in **O(1)** time (amortized average).
+<a href=#375 id=375 data-nosnippet>375</a>    </span><span class="kw">pub fn </span>insert(<span class="self">self</span>, value: V) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V {
+<a href=#376 id=376 data-nosnippet>376</a>        <span class="self">self</span>.insert_entry(value).into_mut()
+<a href=#377 id=377 data-nosnippet>377</a>    }
+<a href=#378 id=378 data-nosnippet>378</a>
+<a href=#379 id=379 data-nosnippet>379</a>    <span class="doccomment">/// Inserts the entry's key and the given value into the map, and returns an `OccupiedEntry`.
+<a href=#380 id=380 data-nosnippet>380</a>    ///
+<a href=#381 id=381 data-nosnippet>381</a>    /// Computes in **O(1)** time (amortized average).
+<a href=#382 id=382 data-nosnippet>382</a>    </span><span class="kw">pub fn </span>insert_entry(<span class="self">self</span>, value: V) -&gt; OccupiedEntry&lt;<span class="lifetime">'a</span>, K, V&gt; {
+<a href=#383 id=383 data-nosnippet>383</a>        <span class="kw">let </span><span class="self">Self </span>{ map, hash, key } = <span class="self">self</span>;
+<a href=#384 id=384 data-nosnippet>384</a>        map.insert_unique(hash, key, value)
+<a href=#385 id=385 data-nosnippet>385</a>    }
+<a href=#386 id=386 data-nosnippet>386</a>
+<a href=#387 id=387 data-nosnippet>387</a>    <span class="doccomment">/// Inserts the entry's key and the given value into the map at its ordered
+<a href=#388 id=388 data-nosnippet>388</a>    /// position among sorted keys, and returns the new index and a mutable
+<a href=#389 id=389 data-nosnippet>389</a>    /// reference to the value.
+<a href=#390 id=390 data-nosnippet>390</a>    ///
+<a href=#391 id=391 data-nosnippet>391</a>    /// If the existing keys are **not** already sorted, then the insertion
+<a href=#392 id=392 data-nosnippet>392</a>    /// index is unspecified (like [`slice::binary_search`]), but the key-value
+<a href=#393 id=393 data-nosnippet>393</a>    /// pair is inserted at that position regardless.
+<a href=#394 id=394 data-nosnippet>394</a>    ///
+<a href=#395 id=395 data-nosnippet>395</a>    /// Computes in **O(n)** time (average).
+<a href=#396 id=396 data-nosnippet>396</a>    </span><span class="kw">pub fn </span>insert_sorted(<span class="self">self</span>, value: V) -&gt; (usize, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V)
+<a href=#397 id=397 data-nosnippet>397</a>    <span class="kw">where
+<a href=#398 id=398 data-nosnippet>398</a>        </span>K: Ord,
+<a href=#399 id=399 data-nosnippet>399</a>    {
+<a href=#400 id=400 data-nosnippet>400</a>        <span class="kw">let </span>slice = <span class="kw">crate</span>::map::Slice::from_slice(<span class="self">self</span>.map.entries);
+<a href=#401 id=401 data-nosnippet>401</a>        <span class="kw">let </span>i = slice.binary_search_keys(<span class="kw-2">&amp;</span><span class="self">self</span>.key).unwrap_err();
+<a href=#402 id=402 data-nosnippet>402</a>        (i, <span class="self">self</span>.shift_insert(i, value))
+<a href=#403 id=403 data-nosnippet>403</a>    }
+<a href=#404 id=404 data-nosnippet>404</a>
+<a href=#405 id=405 data-nosnippet>405</a>    <span class="doccomment">/// Inserts the entry's key and the given value into the map at the given index,
+<a href=#406 id=406 data-nosnippet>406</a>    /// shifting others to the right, and returns a mutable reference to the value.
+<a href=#407 id=407 data-nosnippet>407</a>    ///
+<a href=#408 id=408 data-nosnippet>408</a>    /// ***Panics*** if `index` is out of bounds.
+<a href=#409 id=409 data-nosnippet>409</a>    ///
+<a href=#410 id=410 data-nosnippet>410</a>    /// Computes in **O(n)** time (average).
+<a href=#411 id=411 data-nosnippet>411</a>    </span><span class="attr">#[track_caller]
+<a href=#412 id=412 data-nosnippet>412</a>    </span><span class="kw">pub fn </span>shift_insert(<span class="kw-2">mut </span><span class="self">self</span>, index: usize, value: V) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V {
+<a href=#413 id=413 data-nosnippet>413</a>        <span class="self">self</span>.map
+<a href=#414 id=414 data-nosnippet>414</a>            .shift_insert_unique(index, <span class="self">self</span>.hash, <span class="self">self</span>.key, value);
+<a href=#415 id=415 data-nosnippet>415</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>.map.entries[index].value
+<a href=#416 id=416 data-nosnippet>416</a>    }
+<a href=#417 id=417 data-nosnippet>417</a>}
+<a href=#418 id=418 data-nosnippet>418</a>
+<a href=#419 id=419 data-nosnippet>419</a><span class="kw">impl</span>&lt;K: fmt::Debug, V&gt; fmt::Debug <span class="kw">for </span>VacantEntry&lt;<span class="lifetime">'_</span>, K, V&gt; {
+<a href=#420 id=420 data-nosnippet>420</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+<a href=#421 id=421 data-nosnippet>421</a>        f.debug_tuple(<span class="string">"VacantEntry"</span>).field(<span class="self">self</span>.key()).finish()
+<a href=#422 id=422 data-nosnippet>422</a>    }
+<a href=#423 id=423 data-nosnippet>423</a>}
+<a href=#424 id=424 data-nosnippet>424</a>
+<a href=#425 id=425 data-nosnippet>425</a><span class="doccomment">/// A view into an occupied entry in an [`IndexMap`][crate::IndexMap] obtained by index.
+<a href=#426 id=426 data-nosnippet>426</a>///
+<a href=#427 id=427 data-nosnippet>427</a>/// This `struct` is created from the [`get_index_entry`][crate::IndexMap::get_index_entry] method.
+<a href=#428 id=428 data-nosnippet>428</a></span><span class="kw">pub struct </span>IndexedEntry&lt;<span class="lifetime">'a</span>, K, V&gt; {
+<a href=#429 id=429 data-nosnippet>429</a>    map: RefMut&lt;<span class="lifetime">'a</span>, K, V&gt;,
+<a href=#430 id=430 data-nosnippet>430</a>    <span class="comment">// We have a mutable reference to the map, which keeps the index
+<a href=#431 id=431 data-nosnippet>431</a>    // valid and pointing to the correct entry.
+<a href=#432 id=432 data-nosnippet>432</a>    </span>index: usize,
+<a href=#433 id=433 data-nosnippet>433</a>}
+<a href=#434 id=434 data-nosnippet>434</a>
+<a href=#435 id=435 data-nosnippet>435</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; IndexedEntry&lt;<span class="lifetime">'a</span>, K, V&gt; {
+<a href=#436 id=436 data-nosnippet>436</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(map: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>IndexMapCore&lt;K, V&gt;, index: usize) -&gt; <span class="self">Self </span>{
+<a href=#437 id=437 data-nosnippet>437</a>        <span class="self">Self </span>{
+<a href=#438 id=438 data-nosnippet>438</a>            map: map.borrow_mut(),
+<a href=#439 id=439 data-nosnippet>439</a>            index,
+<a href=#440 id=440 data-nosnippet>440</a>        }
+<a href=#441 id=441 data-nosnippet>441</a>    }
+<a href=#442 id=442 data-nosnippet>442</a>
+<a href=#443 id=443 data-nosnippet>443</a>    <span class="doccomment">/// Return the index of the key-value pair
+<a href=#444 id=444 data-nosnippet>444</a>    </span><span class="attr">#[inline]
+<a href=#445 id=445 data-nosnippet>445</a>    </span><span class="kw">pub fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+<a href=#446 id=446 data-nosnippet>446</a>        <span class="self">self</span>.index
+<a href=#447 id=447 data-nosnippet>447</a>    }
+<a href=#448 id=448 data-nosnippet>448</a>
+<a href=#449 id=449 data-nosnippet>449</a>    <span class="doccomment">/// Gets a reference to the entry's key in the map.
+<a href=#450 id=450 data-nosnippet>450</a>    </span><span class="kw">pub fn </span>key(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>K {
+<a href=#451 id=451 data-nosnippet>451</a>        <span class="kw-2">&amp;</span><span class="self">self</span>.map.entries[<span class="self">self</span>.index].key
+<a href=#452 id=452 data-nosnippet>452</a>    }
+<a href=#453 id=453 data-nosnippet>453</a>
+<a href=#454 id=454 data-nosnippet>454</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>key_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>K {
+<a href=#455 id=455 data-nosnippet>455</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>.map.entries[<span class="self">self</span>.index].key
+<a href=#456 id=456 data-nosnippet>456</a>    }
+<a href=#457 id=457 data-nosnippet>457</a>
+<a href=#458 id=458 data-nosnippet>458</a>    <span class="doccomment">/// Gets a reference to the entry's value in the map.
+<a href=#459 id=459 data-nosnippet>459</a>    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>V {
+<a href=#460 id=460 data-nosnippet>460</a>        <span class="kw-2">&amp;</span><span class="self">self</span>.map.entries[<span class="self">self</span>.index].value
+<a href=#461 id=461 data-nosnippet>461</a>    }
+<a href=#462 id=462 data-nosnippet>462</a>
+<a href=#463 id=463 data-nosnippet>463</a>    <span class="doccomment">/// Gets a mutable reference to the entry's value in the map.
+<a href=#464 id=464 data-nosnippet>464</a>    ///
+<a href=#465 id=465 data-nosnippet>465</a>    /// If you need a reference which may outlive the destruction of the
+<a href=#466 id=466 data-nosnippet>466</a>    /// `IndexedEntry` value, see [`into_mut`][Self::into_mut].
+<a href=#467 id=467 data-nosnippet>467</a>    </span><span class="kw">pub fn </span>get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>V {
+<a href=#468 id=468 data-nosnippet>468</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>.map.entries[<span class="self">self</span>.index].value
+<a href=#469 id=469 data-nosnippet>469</a>    }
+<a href=#470 id=470 data-nosnippet>470</a>
+<a href=#471 id=471 data-nosnippet>471</a>    <span class="doccomment">/// Sets the value of the entry to `value`, and returns the entry's old value.
+<a href=#472 id=472 data-nosnippet>472</a>    </span><span class="kw">pub fn </span>insert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: V) -&gt; V {
+<a href=#473 id=473 data-nosnippet>473</a>        mem::replace(<span class="self">self</span>.get_mut(), value)
+<a href=#474 id=474 data-nosnippet>474</a>    }
+<a href=#475 id=475 data-nosnippet>475</a>
+<a href=#476 id=476 data-nosnippet>476</a>    <span class="doccomment">/// Converts into a mutable reference to the entry's value in the map,
+<a href=#477 id=477 data-nosnippet>477</a>    /// with a lifetime bound to the map itself.
+<a href=#478 id=478 data-nosnippet>478</a>    </span><span class="kw">pub fn </span>into_mut(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V {
+<a href=#479 id=479 data-nosnippet>479</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>.map.entries[<span class="self">self</span>.index].value
+<a href=#480 id=480 data-nosnippet>480</a>    }
+<a href=#481 id=481 data-nosnippet>481</a>
+<a href=#482 id=482 data-nosnippet>482</a>    <span class="doccomment">/// Remove and return the key, value pair stored in the map for this entry
+<a href=#483 id=483 data-nosnippet>483</a>    ///
+<a href=#484 id=484 data-nosnippet>484</a>    /// Like [`Vec::swap_remove`][crate::Vec::swap_remove], the pair is removed by swapping it with
+<a href=#485 id=485 data-nosnippet>485</a>    /// the last element of the map and popping it off.
+<a href=#486 id=486 data-nosnippet>486</a>    /// **This perturbs the position of what used to be the last element!**
+<a href=#487 id=487 data-nosnippet>487</a>    ///
+<a href=#488 id=488 data-nosnippet>488</a>    /// Computes in **O(1)** time (average).
+<a href=#489 id=489 data-nosnippet>489</a>    </span><span class="kw">pub fn </span>swap_remove_entry(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; (K, V) {
+<a href=#490 id=490 data-nosnippet>490</a>        <span class="self">self</span>.map.swap_remove_index(<span class="self">self</span>.index).unwrap()
+<a href=#491 id=491 data-nosnippet>491</a>    }
+<a href=#492 id=492 data-nosnippet>492</a>
+<a href=#493 id=493 data-nosnippet>493</a>    <span class="doccomment">/// Remove and return the key, value pair stored in the map for this entry
+<a href=#494 id=494 data-nosnippet>494</a>    ///
+<a href=#495 id=495 data-nosnippet>495</a>    /// Like [`Vec::remove`][crate::Vec::remove], the pair is removed by shifting all of the
+<a href=#496 id=496 data-nosnippet>496</a>    /// elements that follow it, preserving their relative order.
+<a href=#497 id=497 data-nosnippet>497</a>    /// **This perturbs the index of all of those elements!**
+<a href=#498 id=498 data-nosnippet>498</a>    ///
+<a href=#499 id=499 data-nosnippet>499</a>    /// Computes in **O(n)** time (average).
+<a href=#500 id=500 data-nosnippet>500</a>    </span><span class="kw">pub fn </span>shift_remove_entry(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; (K, V) {
+<a href=#501 id=501 data-nosnippet>501</a>        <span class="self">self</span>.map.shift_remove_index(<span class="self">self</span>.index).unwrap()
+<a href=#502 id=502 data-nosnippet>502</a>    }
+<a href=#503 id=503 data-nosnippet>503</a>
+<a href=#504 id=504 data-nosnippet>504</a>    <span class="doccomment">/// Remove the key, value pair stored in the map for this entry, and return the value.
+<a href=#505 id=505 data-nosnippet>505</a>    ///
+<a href=#506 id=506 data-nosnippet>506</a>    /// Like [`Vec::swap_remove`][crate::Vec::swap_remove], the pair is removed by swapping it with
+<a href=#507 id=507 data-nosnippet>507</a>    /// the last element of the map and popping it off.
+<a href=#508 id=508 data-nosnippet>508</a>    /// **This perturbs the position of what used to be the last element!**
+<a href=#509 id=509 data-nosnippet>509</a>    ///
+<a href=#510 id=510 data-nosnippet>510</a>    /// Computes in **O(1)** time (average).
+<a href=#511 id=511 data-nosnippet>511</a>    </span><span class="kw">pub fn </span>swap_remove(<span class="self">self</span>) -&gt; V {
+<a href=#512 id=512 data-nosnippet>512</a>        <span class="self">self</span>.swap_remove_entry().<span class="number">1
+<a href=#513 id=513 data-nosnippet>513</a>    </span>}
+<a href=#514 id=514 data-nosnippet>514</a>
+<a href=#515 id=515 data-nosnippet>515</a>    <span class="doccomment">/// Remove the key, value pair stored in the map for this entry, and return the value.
+<a href=#516 id=516 data-nosnippet>516</a>    ///
+<a href=#517 id=517 data-nosnippet>517</a>    /// Like [`Vec::remove`][crate::Vec::remove], the pair is removed by shifting all of the
+<a href=#518 id=518 data-nosnippet>518</a>    /// elements that follow it, preserving their relative order.
+<a href=#519 id=519 data-nosnippet>519</a>    /// **This perturbs the index of all of those elements!**
+<a href=#520 id=520 data-nosnippet>520</a>    ///
+<a href=#521 id=521 data-nosnippet>521</a>    /// Computes in **O(n)** time (average).
+<a href=#522 id=522 data-nosnippet>522</a>    </span><span class="kw">pub fn </span>shift_remove(<span class="self">self</span>) -&gt; V {
+<a href=#523 id=523 data-nosnippet>523</a>        <span class="self">self</span>.shift_remove_entry().<span class="number">1
+<a href=#524 id=524 data-nosnippet>524</a>    </span>}
+<a href=#525 id=525 data-nosnippet>525</a>
+<a href=#526 id=526 data-nosnippet>526</a>    <span class="doccomment">/// Moves the position of the entry to a new index
+<a href=#527 id=527 data-nosnippet>527</a>    /// by shifting all other entries in-between.
+<a href=#528 id=528 data-nosnippet>528</a>    ///
+<a href=#529 id=529 data-nosnippet>529</a>    /// This is equivalent to [`IndexMap::move_index`][`crate::IndexMap::move_index`]
+<a href=#530 id=530 data-nosnippet>530</a>    /// coming `from` the current [`.index()`][Self::index].
+<a href=#531 id=531 data-nosnippet>531</a>    ///
+<a href=#532 id=532 data-nosnippet>532</a>    /// * If `self.index() &lt; to`, the other pairs will shift down while the targeted pair moves up.
+<a href=#533 id=533 data-nosnippet>533</a>    /// * If `self.index() &gt; to`, the other pairs will shift up while the targeted pair moves down.
 <a href=#534 id=534 data-nosnippet>534</a>    ///
-<a href=#535 id=535 data-nosnippet>535</a>    /// Computes in **O(n)** time (average).
-<a href=#536 id=536 data-nosnippet>536</a>    </span><span class="attr">#[track_caller]
-<a href=#537 id=537 data-nosnippet>537</a>    </span><span class="kw">pub fn </span>move_index(<span class="kw-2">mut </span><span class="self">self</span>, to: usize) {
-<a href=#538 id=538 data-nosnippet>538</a>        <span class="self">self</span>.map.move_index(<span class="self">self</span>.index, to);
-<a href=#539 id=539 data-nosnippet>539</a>    }
-<a href=#540 id=540 data-nosnippet>540</a>
-<a href=#541 id=541 data-nosnippet>541</a>    <span class="doccomment">/// Swaps the position of entry with another.
-<a href=#542 id=542 data-nosnippet>542</a>    ///
-<a href=#543 id=543 data-nosnippet>543</a>    /// This is equivalent to [`IndexMap::swap_indices`][`crate::IndexMap::swap_indices`]
-<a href=#544 id=544 data-nosnippet>544</a>    /// with the current [`.index()`][Self::index] as one of the two being swapped.
-<a href=#545 id=545 data-nosnippet>545</a>    ///
-<a href=#546 id=546 data-nosnippet>546</a>    /// ***Panics*** if the `other` index is out of bounds.
+<a href=#535 id=535 data-nosnippet>535</a>    /// ***Panics*** if `to` is out of bounds.
+<a href=#536 id=536 data-nosnippet>536</a>    ///
+<a href=#537 id=537 data-nosnippet>537</a>    /// Computes in **O(n)** time (average).
+<a href=#538 id=538 data-nosnippet>538</a>    </span><span class="attr">#[track_caller]
+<a href=#539 id=539 data-nosnippet>539</a>    </span><span class="kw">pub fn </span>move_index(<span class="kw-2">mut </span><span class="self">self</span>, to: usize) {
+<a href=#540 id=540 data-nosnippet>540</a>        <span class="self">self</span>.map.move_index(<span class="self">self</span>.index, to);
+<a href=#541 id=541 data-nosnippet>541</a>    }
+<a href=#542 id=542 data-nosnippet>542</a>
+<a href=#543 id=543 data-nosnippet>543</a>    <span class="doccomment">/// Swaps the position of entry with another.
+<a href=#544 id=544 data-nosnippet>544</a>    ///
+<a href=#545 id=545 data-nosnippet>545</a>    /// This is equivalent to [`IndexMap::swap_indices`][`crate::IndexMap::swap_indices`]
+<a href=#546 id=546 data-nosnippet>546</a>    /// with the current [`.index()`][Self::index] as one of the two being swapped.
 <a href=#547 id=547 data-nosnippet>547</a>    ///
-<a href=#548 id=548 data-nosnippet>548</a>    /// Computes in **O(1)** time (average).
-<a href=#549 id=549 data-nosnippet>549</a>    </span><span class="kw">pub fn </span>swap_indices(<span class="kw-2">mut </span><span class="self">self</span>, other: usize) {
-<a href=#550 id=550 data-nosnippet>550</a>        <span class="self">self</span>.map.swap_indices(<span class="self">self</span>.index, other);
-<a href=#551 id=551 data-nosnippet>551</a>    }
-<a href=#552 id=552 data-nosnippet>552</a>}
-<a href=#553 id=553 data-nosnippet>553</a>
-<a href=#554 id=554 data-nosnippet>554</a><span class="kw">impl</span>&lt;K: fmt::Debug, V: fmt::Debug&gt; fmt::Debug <span class="kw">for </span>IndexedEntry&lt;<span class="lifetime">'_</span>, K, V&gt; {
-<a href=#555 id=555 data-nosnippet>555</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
-<a href=#556 id=556 data-nosnippet>556</a>        f.debug_struct(<span class="string">"IndexedEntry"</span>)
-<a href=#557 id=557 data-nosnippet>557</a>            .field(<span class="string">"index"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.index)
-<a href=#558 id=558 data-nosnippet>558</a>            .field(<span class="string">"key"</span>, <span class="self">self</span>.key())
-<a href=#559 id=559 data-nosnippet>559</a>            .field(<span class="string">"value"</span>, <span class="self">self</span>.get())
-<a href=#560 id=560 data-nosnippet>560</a>            .finish()
-<a href=#561 id=561 data-nosnippet>561</a>    }
-<a href=#562 id=562 data-nosnippet>562</a>}
-<a href=#563 id=563 data-nosnippet>563</a>
-<a href=#564 id=564 data-nosnippet>564</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; From&lt;OccupiedEntry&lt;<span class="lifetime">'a</span>, K, V&gt;&gt; <span class="kw">for </span>IndexedEntry&lt;<span class="lifetime">'a</span>, K, V&gt; {
-<a href=#565 id=565 data-nosnippet>565</a>    <span class="kw">fn </span>from(other: OccupiedEntry&lt;<span class="lifetime">'a</span>, K, V&gt;) -&gt; <span class="self">Self </span>{
-<a href=#566 id=566 data-nosnippet>566</a>        <span class="self">Self </span>{
-<a href=#567 id=567 data-nosnippet>567</a>            index: other.index(),
-<a href=#568 id=568 data-nosnippet>568</a>            map: other.into_ref_mut(),
-<a href=#569 id=569 data-nosnippet>569</a>        }
-<a href=#570 id=570 data-nosnippet>570</a>    }
-<a href=#571 id=571 data-nosnippet>571</a>}</code></pre></div></section></main></body></html>
+<a href=#548 id=548 data-nosnippet>548</a>    /// ***Panics*** if the `other` index is out of bounds.
+<a href=#549 id=549 data-nosnippet>549</a>    ///
+<a href=#550 id=550 data-nosnippet>550</a>    /// Computes in **O(1)** time (average).
+<a href=#551 id=551 data-nosnippet>551</a>    </span><span class="attr">#[track_caller]
+<a href=#552 id=552 data-nosnippet>552</a>    </span><span class="kw">pub fn </span>swap_indices(<span class="kw-2">mut </span><span class="self">self</span>, other: usize) {
+<a href=#553 id=553 data-nosnippet>553</a>        <span class="self">self</span>.map.swap_indices(<span class="self">self</span>.index, other);
+<a href=#554 id=554 data-nosnippet>554</a>    }
+<a href=#555 id=555 data-nosnippet>555</a>}
+<a href=#556 id=556 data-nosnippet>556</a>
+<a href=#557 id=557 data-nosnippet>557</a><span class="kw">impl</span>&lt;K: fmt::Debug, V: fmt::Debug&gt; fmt::Debug <span class="kw">for </span>IndexedEntry&lt;<span class="lifetime">'_</span>, K, V&gt; {
+<a href=#558 id=558 data-nosnippet>558</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+<a href=#559 id=559 data-nosnippet>559</a>        f.debug_struct(<span class="string">"IndexedEntry"</span>)
+<a href=#560 id=560 data-nosnippet>560</a>            .field(<span class="string">"index"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.index)
+<a href=#561 id=561 data-nosnippet>561</a>            .field(<span class="string">"key"</span>, <span class="self">self</span>.key())
+<a href=#562 id=562 data-nosnippet>562</a>            .field(<span class="string">"value"</span>, <span class="self">self</span>.get())
+<a href=#563 id=563 data-nosnippet>563</a>            .finish()
+<a href=#564 id=564 data-nosnippet>564</a>    }
+<a href=#565 id=565 data-nosnippet>565</a>}
+<a href=#566 id=566 data-nosnippet>566</a>
+<a href=#567 id=567 data-nosnippet>567</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; From&lt;OccupiedEntry&lt;<span class="lifetime">'a</span>, K, V&gt;&gt; <span class="kw">for </span>IndexedEntry&lt;<span class="lifetime">'a</span>, K, V&gt; {
+<a href=#568 id=568 data-nosnippet>568</a>    <span class="kw">fn </span>from(other: OccupiedEntry&lt;<span class="lifetime">'a</span>, K, V&gt;) -&gt; <span class="self">Self </span>{
+<a href=#569 id=569 data-nosnippet>569</a>        <span class="self">Self </span>{
+<a href=#570 id=570 data-nosnippet>570</a>            index: other.index(),
+<a href=#571 id=571 data-nosnippet>571</a>            map: other.into_ref_mut(),
+<a href=#572 id=572 data-nosnippet>572</a>        }
+<a href=#573 id=573 data-nosnippet>573</a>    }
+<a href=#574 id=574 data-nosnippet>574</a>}</code></pre></div></section></main></body></html>

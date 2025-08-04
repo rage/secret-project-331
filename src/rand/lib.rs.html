@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand-0.9.1/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rand" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="../../static.files/src-script-63605ae7.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rand/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2018 Developers of the Rand project.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rand-0.9.2/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rand" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="../../static.files/src-script-63605ae7.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">rand/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2018 Developers of the Rand project.
 <a href=#2 id=2 data-nosnippet>2</a>// Copyright 2013-2017 The Rust Project Developers.
 <a href=#3 id=3 data-nosnippet>3</a>//
 <a href=#4 id=4 data-nosnippet>4</a>// Licensed under the Apache License, Version 2.0 &lt;LICENSE-APACHE or
@@ -309,24 +309,52 @@
 <a href=#309 id=309 data-nosnippet>309</a>        rand_pcg::Pcg32::new(seed, INC)
 <a href=#310 id=310 data-nosnippet>310</a>    }
 <a href=#311 id=311 data-nosnippet>311</a>
-<a href=#312 id=312 data-nosnippet>312</a>    <span class="attr">#[test]
-<a href=#313 id=313 data-nosnippet>313</a>    #[cfg(feature = <span class="string">"thread_rng"</span>)]
-<a href=#314 id=314 data-nosnippet>314</a>    </span><span class="kw">fn </span>test_random() {
-<a href=#315 id=315 data-nosnippet>315</a>        <span class="kw">let </span>_n: u64 = random();
-<a href=#316 id=316 data-nosnippet>316</a>        <span class="kw">let </span>_f: f32 = random();
-<a href=#317 id=317 data-nosnippet>317</a>        <span class="attr">#[allow(clippy::type_complexity)]
-<a href=#318 id=318 data-nosnippet>318</a>        </span><span class="kw">let </span>_many: (
-<a href=#319 id=319 data-nosnippet>319</a>            (),
-<a href=#320 id=320 data-nosnippet>320</a>            [(u32, bool); <span class="number">3</span>],
-<a href=#321 id=321 data-nosnippet>321</a>            (u8, i8, u16, i16, u32, i32, u64, i64),
-<a href=#322 id=322 data-nosnippet>322</a>            (f32, (f64, (f64,))),
-<a href=#323 id=323 data-nosnippet>323</a>        ) = random();
-<a href=#324 id=324 data-nosnippet>324</a>    }
-<a href=#325 id=325 data-nosnippet>325</a>
-<a href=#326 id=326 data-nosnippet>326</a>    <span class="attr">#[test]
-<a href=#327 id=327 data-nosnippet>327</a>    #[cfg(feature = <span class="string">"thread_rng"</span>)]
-<a href=#328 id=328 data-nosnippet>328</a>    </span><span class="kw">fn </span>test_range() {
-<a href=#329 id=329 data-nosnippet>329</a>        <span class="kw">let </span>_n: usize = random_range(<span class="number">42</span>..=<span class="number">43</span>);
-<a href=#330 id=330 data-nosnippet>330</a>        <span class="kw">let </span>_f: f32 = random_range(<span class="number">42.0</span>..<span class="number">43.0</span>);
-<a href=#331 id=331 data-nosnippet>331</a>    }
-<a href=#332 id=332 data-nosnippet>332</a>}</code></pre></div></section></main></body></html>
+<a href=#312 id=312 data-nosnippet>312</a>    <span class="doccomment">/// Construct a generator yielding a constant value
+<a href=#313 id=313 data-nosnippet>313</a>    </span><span class="kw">pub fn </span>const_rng(x: u64) -&gt; StepRng {
+<a href=#314 id=314 data-nosnippet>314</a>        StepRng(x, <span class="number">0</span>)
+<a href=#315 id=315 data-nosnippet>315</a>    }
+<a href=#316 id=316 data-nosnippet>316</a>
+<a href=#317 id=317 data-nosnippet>317</a>    <span class="doccomment">/// Construct a generator yielding an arithmetic sequence
+<a href=#318 id=318 data-nosnippet>318</a>    </span><span class="kw">pub fn </span>step_rng(x: u64, increment: u64) -&gt; StepRng {
+<a href=#319 id=319 data-nosnippet>319</a>        StepRng(x, increment)
+<a href=#320 id=320 data-nosnippet>320</a>    }
+<a href=#321 id=321 data-nosnippet>321</a>
+<a href=#322 id=322 data-nosnippet>322</a>    <span class="attr">#[derive(Clone)]
+<a href=#323 id=323 data-nosnippet>323</a>    </span><span class="kw">pub struct </span>StepRng(u64, u64);
+<a href=#324 id=324 data-nosnippet>324</a>    <span class="kw">impl </span>RngCore <span class="kw">for </span>StepRng {
+<a href=#325 id=325 data-nosnippet>325</a>        <span class="kw">fn </span>next_u32(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u32 {
+<a href=#326 id=326 data-nosnippet>326</a>            <span class="self">self</span>.next_u64() <span class="kw">as </span>u32
+<a href=#327 id=327 data-nosnippet>327</a>        }
+<a href=#328 id=328 data-nosnippet>328</a>
+<a href=#329 id=329 data-nosnippet>329</a>        <span class="kw">fn </span>next_u64(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
+<a href=#330 id=330 data-nosnippet>330</a>            <span class="kw">let </span>res = <span class="self">self</span>.<span class="number">0</span>;
+<a href=#331 id=331 data-nosnippet>331</a>            <span class="self">self</span>.<span class="number">0 </span>= <span class="self">self</span>.<span class="number">0</span>.wrapping_add(<span class="self">self</span>.<span class="number">1</span>);
+<a href=#332 id=332 data-nosnippet>332</a>            res
+<a href=#333 id=333 data-nosnippet>333</a>        }
+<a href=#334 id=334 data-nosnippet>334</a>
+<a href=#335 id=335 data-nosnippet>335</a>        <span class="kw">fn </span>fill_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dst: <span class="kw-2">&amp;mut </span>[u8]) {
+<a href=#336 id=336 data-nosnippet>336</a>            rand_core::impls::fill_bytes_via_next(<span class="self">self</span>, dst)
+<a href=#337 id=337 data-nosnippet>337</a>        }
+<a href=#338 id=338 data-nosnippet>338</a>    }
+<a href=#339 id=339 data-nosnippet>339</a>
+<a href=#340 id=340 data-nosnippet>340</a>    <span class="attr">#[test]
+<a href=#341 id=341 data-nosnippet>341</a>    #[cfg(feature = <span class="string">"thread_rng"</span>)]
+<a href=#342 id=342 data-nosnippet>342</a>    </span><span class="kw">fn </span>test_random() {
+<a href=#343 id=343 data-nosnippet>343</a>        <span class="kw">let </span>_n: u64 = random();
+<a href=#344 id=344 data-nosnippet>344</a>        <span class="kw">let </span>_f: f32 = random();
+<a href=#345 id=345 data-nosnippet>345</a>        <span class="attr">#[allow(clippy::type_complexity)]
+<a href=#346 id=346 data-nosnippet>346</a>        </span><span class="kw">let </span>_many: (
+<a href=#347 id=347 data-nosnippet>347</a>            (),
+<a href=#348 id=348 data-nosnippet>348</a>            [(u32, bool); <span class="number">3</span>],
+<a href=#349 id=349 data-nosnippet>349</a>            (u8, i8, u16, i16, u32, i32, u64, i64),
+<a href=#350 id=350 data-nosnippet>350</a>            (f32, (f64, (f64,))),
+<a href=#351 id=351 data-nosnippet>351</a>        ) = random();
+<a href=#352 id=352 data-nosnippet>352</a>    }
+<a href=#353 id=353 data-nosnippet>353</a>
+<a href=#354 id=354 data-nosnippet>354</a>    <span class="attr">#[test]
+<a href=#355 id=355 data-nosnippet>355</a>    #[cfg(feature = <span class="string">"thread_rng"</span>)]
+<a href=#356 id=356 data-nosnippet>356</a>    </span><span class="kw">fn </span>test_range() {
+<a href=#357 id=357 data-nosnippet>357</a>        <span class="kw">let </span>_n: usize = random_range(<span class="number">42</span>..=<span class="number">43</span>);
+<a href=#358 id=358 data-nosnippet>358</a>        <span class="kw">let </span>_f: f32 = random_range(<span class="number">42.0</span>..<span class="number">43.0</span>);
+<a href=#359 id=359 data-nosnippet>359</a>    }
+<a href=#360 id=360 data-nosnippet>360</a>}</code></pre></div></section></main></body></html>

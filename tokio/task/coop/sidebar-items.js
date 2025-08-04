@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["consume_budget","has_budget_remaining","unconstrained"],"struct":["Unconstrained"]};
+window.SIDEBAR_ITEMS = {"fn":["consume_budget","cooperative","has_budget_remaining","poll_proceed","unconstrained"],"struct":["Coop","RestoreOnPending","Unconstrained"]};

@@ -1,10 +1,7 @@
-use futures::future::BoxFuture;
 use url::Url;
 
 use crate::{
-    exercise_service_info::{
-        get_all_exercise_services_by_type, ExerciseServiceInfo, ExerciseServiceInfoApi,
-    },
+    exercise_service_info::{ExerciseServiceInfo, get_all_exercise_services_by_type},
     prelude::*,
 };
 
@@ -220,15 +217,14 @@ WHERE deleted_at IS NULL
 
 pub async fn get_all_exercise_services_iframe_rendering_infos(
     conn: &mut PgConnection,
-    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Vec<ExerciseServiceIframeRenderingInfo>> {
     let services = get_exercise_services(conn).await?;
-    let service_infos = get_all_exercise_services_by_type(conn, fetch_service_info).await?;
+    let service_infos = get_all_exercise_services_by_type(conn).await?;
     let res = services
         .into_iter()
         .filter_map(|exercise_service| {
             if let Some((_, service_info)) = service_infos.get(&exercise_service.slug) {
-                if let Ok(mut url) =  get_exercise_service_externally_preferred_baseurl(&exercise_service) {
+                match get_exercise_service_externally_preferred_baseurl(&exercise_service) { Ok(mut url) => {
                     url.set_path(&service_info.user_interface_iframe_path);
                     Some(ExerciseServiceIframeRenderingInfo {
                         id: exercise_service.id,
@@ -237,10 +233,10 @@ pub async fn get_all_exercise_services_iframe_rendering_infos(
                         public_iframe_url: url.to_string(),
                         has_custom_view: service_info.has_custom_view,
                     })
-                } else {
+                } _ => {
                     warn!(exercise_service_id = ?exercise_service.id, "Skipping exercise service from the list because it has an invalid base url");
                     None
-                }
+                }}
 
             } else {
                 warn!(exercise_service_id = ?exercise_service.id, "Skipping exercise service from the list because it doesn't have a service info");

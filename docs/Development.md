@@ -9,12 +9,16 @@ This document outlines the steps required to set up a development environment fo
    - [Windows Setup](#setting-up-on-windows)
    - [macOS Setup](#setting-up-on-macos)
 2. [Running the Development Environment](#running-the-development-environment)
+3. [Developer Resources](#developer-resources)
+4. [Troubleshoot](#troubleshoot)
 
 ---
 
 ## Setting Up the Environment
 
 ### Setting Up on Linux
+
+**Recommended**: It is recommended to have 200GB free space before setting up the environment.
 
 **Note**: After installing all required tools, run `bin/print-versions` to confirm that dependencies are correctly installed.
 
@@ -38,14 +42,15 @@ Install these packages on your Linux system:
 
 Optional utilities:
 
-- [Stern](https://github.com/wercker/stern) for logs aggregation
+- [Stern](https://github.com/stern/stern) for logs aggregation
 - [Kubectx](https://github.com/ahmetb/kubectx) for easy Kubernetes context switching
+- [Kubens](https://github.com/ahmetb/kubectx) for easy Kubernetes namespace switching
 
 Other essential commands required by scripts (`bc`, `find`, `jq`, `rsync`, `sponge`):
 
 ```bash
 # Ubuntu
-sudo apt install bc find jq rsync moreutils
+sudo apt install bc findutils jq rsync moreutils
 
 # Arch Linux
 sudo pacman -Syu bc find jq rsync moreutils
@@ -163,7 +168,7 @@ bin/npm-ci-all
 Make sure `TMC-Langs` is downloaded:
 
 ```bash
-bin/download-tmc-langs
+bin/tmc-langs-setup
 ```
 
 Next, copy the shared module contents:
@@ -196,7 +201,8 @@ bin/minikube-start
 
 ### Setting Up a Local Domain
 
-#### Linux
+<details>
+<summary>Linux</summary>
 
 Retrieve the Minikube IP address:
 
@@ -210,7 +216,21 @@ Add this IP to your `/etc/hosts` file:
 <minikube-ip>    project-331.local
 ```
 
-#### Windows
+</details>
+
+<details>
+<summary>macOS</summary>
+
+Similar to Linux, use `minikube ip` to retrieve the IP, then add it to `/etc/hosts`.
+
+### Starting the Application
+
+Ensure Minikube is running, then:
+
+</details>
+
+<details>
+<summary>Windows</summary>
 
 Use the Minikube IP obtained from `minikube ip` and add a hosts entry:
 
@@ -220,15 +240,12 @@ Use the Minikube IP obtained from `minikube ip` and add a hosts entry:
 
 Hosts file location: `C:\Windows\System32\drivers\etc\hosts`
 
-#### macOS
+</details>
 
-Similar to Linux, use `minikube ip` to retrieve the IP, then add it to `/etc/hosts`.
+### Starting up the development environment
 
-### Starting the Application
-
-Ensure Minikube is running, then:
-
-#### Linux
+<details>
+<summary>Linux</summary>
 
 In the root of the repository:
 
@@ -236,7 +253,21 @@ In the root of the repository:
 bin/dev
 ```
 
-#### Windows
+</details>
+
+<details>
+<summary>macOS</summary>
+
+In the root of the repository:
+
+```bash
+bin/dev
+```
+
+</details>
+
+<details>
+<summary>Windows</summary>
 
 Use **Cygwin** in Windows Terminal, navigate to the root of the repository:
 
@@ -244,13 +275,19 @@ Use **Cygwin** in Windows Terminal, navigate to the root of the repository:
 bin/dev
 ```
 
-#### macOS
+</details>
 
-In the root of the repository:
+### Seeding the database
+
+Populate the database with testing data:
 
 ```bash
-bin/dev
+bin/seed
 ```
+
+### Using the website
+
+You may now connect to the website using the following link (http://project-331.local/). In order to login, you can find them here: [Accounts](https://github.com/rage/secret-project-331/blob/894468ce4864b8c95208baf0f594f01fbd20d254/services/headless-lms/server/src/domain/authorization.rs#L966-L1000)
 
 ### Recommended Terminal Tools for Multi-Window Management
 
@@ -264,4 +301,24 @@ Verify your setup with:
 
 ```bash
 bin/detect-dev-env-problems
+```
+
+## Developer Resources
+
+You can find a lot of useful information in [Index](./index.md)
+
+### Troubleshoot:
+
+## bin/dev step
+
+If postgres pod does not enter ready state, which you can find out this by using the following command:
+
+```bash
+bin/pods
+```
+
+In these cases it may help to run the command below, which sets up a new database:
+
+```bash
+postgres-remove-data
 ```

@@ -66,7 +66,7 @@ RETURNING id
 }
 
 /// Creates a new regrading for the exercise task submission ids supplied as arguments.
-pub async fn insert_and_create_exercise_task_regradings(
+pub async fn insert_and_create_regradings(
     conn: &mut PgConnection,
     new_regrading: NewRegrading,
     user_id: Uuid,
@@ -114,6 +114,13 @@ RETURNING id
     );
     for id in &exercise_task_submission_ids {
         let exercise_task_submission = exercise_task_submissions::get_by_id(&mut tx, *id).await?;
+        if exercise_task_submission.deleted_at.is_some() {
+            warn!(
+                "Skipping regrading of deleted exercise task submission {:?}",
+                id
+            );
+            continue;
+        }
         let grading_before_regrading_id = exercise_task_submission
             .exercise_task_grading_id
             .ok_or_else(|| {

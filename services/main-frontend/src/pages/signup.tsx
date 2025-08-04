@@ -1,19 +1,24 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { useQuery } from "@tanstack/react-query"
 import { Envelope } from "@vectopus/atlas-icons-react"
 import { useRouter } from "next/router"
 import { useContext, useEffect, useState } from "react"
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import ResearchOnCoursesForm from "../components/forms/ResearchOnCoursesForm"
 
+import { fetchCountryFromIP } from "@/services/backend/user-details"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+import SearchableSelect from "@/shared-module/common/components/InputFields/SearchableSelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import countries from "@/shared-module/common/locales/en/countries.json"
 import { createUser } from "@/shared-module/common/services/backend/auth"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import {
@@ -27,6 +32,8 @@ interface FormFields {
   email: string
   password: string
   password_confirmation: string
+  country: string
+  email_communication_consent: boolean
 }
 
 const Wrapper = styled.div`
@@ -111,10 +118,24 @@ const Wrapper = styled.div`
 `
 
 const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
-  const { register, formState, watch, reset, handleSubmit, trigger } = useForm<FormFields>({
-    // eslint-disable-next-line i18next/no-literal-string
-    mode: "onChange",
+  const { register, formState, watch, reset, handleSubmit, trigger, control } = useForm<FormFields>(
+    {
+      // eslint-disable-next-line i18next/no-literal-string
+      mode: "onChange",
+    },
+  )
+
+  const preFillCountry = useQuery({
+    queryKey: [`users-ip-country`],
+    queryFn: () => fetchCountryFromIP(),
   })
+
+  useEffect(() => {
+    if (preFillCountry.data) {
+      reset({ country: preFillCountry.data })
+    }
+  }, [preFillCountry.data, reset])
+
   const loginStateContext = useContext(LoginStateContext)
   const router = useRouter()
   const uncheckedReturnTo = useQueryParameter("return_to")
@@ -130,7 +151,15 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
 
   const createAccountMutation = useToastMutation<unknown, unknown, FormFields>(
     async (data) => {
-      const { first_name, last_name, email, password, password_confirmation } = data
+      const {
+        first_name,
+        last_name,
+        email,
+        password,
+        password_confirmation,
+        country,
+        email_communication_consent,
+      } = data
       await createUser({
         email: email,
         first_name: first_name,
@@ -138,6 +167,8 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
         language: i18n.language,
         password: password,
         password_confirmation: password_confirmation,
+        country: country,
+        email_communication_consent: Boolean(email_communication_consent),
       })
     },
     { notify: true, method: "POST" },
@@ -149,6 +180,8 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
           email: "",
           password: "",
           password_confirmation: "",
+          country: "",
+          email_communication_consent: false,
         })
         setConfirmEmailPageVisible(true)
         loginStateContext.refresh()
@@ -169,6 +202,12 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
       trigger("password_confirmation")
     }
   }, [password, passwordConfirmation, trigger])
+
+  const { t: tCountries } = useTranslation("countries")
+  const countriesNames = Object.entries(countries).map(([code]) => ({
+    value: code,
+    label: tCountries(code as keyof typeof countries),
+  }))
 
   if (confirmEmailPageVisible) {
     return (
@@ -245,6 +284,26 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
             required={true}
             error={errors.last_name}
           />
+
+          <Controller
+            // eslint-disable-next-line i18next/no-literal-string
+            name="country"
+            control={control}
+            rules={{ required: t("required-field") }}
+            render={({ field }) => (
+              <SearchableSelect
+                className={css`
+                  margin-bottom: 10px;
+                `}
+                label={t("enter-country-question")}
+                options={countriesNames}
+                onChangeByValue={(value) => field.onChange(value)}
+                value={field.value}
+                error={errors.country?.message}
+              />
+            )}
+          />
+
           <TextField
             label={t("email")}
             type="email"
@@ -291,6 +350,15 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
             required={true}
             error={errors.password_confirmation}
           />
+
+          <CheckBox
+            className={css`
+              margin-top: 1rem;
+            `}
+            defaultChecked={false}
+            label={t("email-communication-consent-checkbox-text")}
+            {...register("email_communication_consent")}
+          ></CheckBox>
         </fieldset>
         <input
           disabled={!isValid || createAccountMutation.isPending}

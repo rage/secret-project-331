@@ -17,13 +17,17 @@ use anyhow::Context;
 use futures::try_join;
 
 use headless_lms_utils::futures::run_parallelly;
-use sqlx::{migrate::MigrateDatabase, postgres::PgPoolOptions, Pool, Postgres};
+use sqlx::{Pool, Postgres, migrate::MigrateDatabase, postgres::PgPoolOptions};
 use tracing::info;
 
 pub async fn main() -> anyhow::Result<()> {
     let base_url = std::env::var("BASE_URL").context("BASE_URL must be defined")?;
     let db_pool = setup_seed_environment().await?;
     let jwt_key = Arc::new(JwtKey::try_from_env().expect("Failed to create JwtKey"));
+
+    // Initialize the global spec fetcher before any seeding
+    seed_helpers::init_seed_spec_fetcher(base_url.clone(), Arc::clone(&jwt_key))
+        .expect("Failed to initialize seed spec fetcher");
 
     // Run parallelly to improve performance.
     let (_, seed_users_result, _) = try_join!(
@@ -77,7 +81,8 @@ pub async fn main() -> anyhow::Result<()> {
 }
 
 async fn setup_seed_environment() -> anyhow::Result<Pool<Postgres>> {
-    env::set_var("RUST_LOG", "info,sqlx=warn,headless_lms_models=info");
+    // TODO: Audit that the environment access only happens in single-threaded code.
+    unsafe { env::set_var("RUST_LOG", "info,sqlx=warn,headless_lms_models=info") };
 
     dotenv::dotenv().ok();
     setup_tracing()?;

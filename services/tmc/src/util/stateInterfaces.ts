@@ -11,45 +11,43 @@ import {
 export type ExerciseIframeState = ExerciseEditorState | AnswerExerciseState | ViewSubmissionState
 
 export type ExerciseEditorState = {
-  viewType: "exercise-editor"
-  exerciseTaskId: string
-  repositoryExercises: Array<RepositoryExercise> | null
-  privateSpec: PrivateSpec | null
+  view_type: "exercise-editor"
+  exercise_task_id: string
+  repository_exercises: Array<RepositoryExercise> | null
+  private_spec: PrivateSpec | null
 }
 
 export type AnswerExerciseState = {
-  viewType: "answer-exercise"
-  initialPublicSpec: PublicSpec
-  userAnswer: UserAnswer
-  previousSubmission: ExerciseTaskSubmission | null
+  view_type: "answer-exercise"
+  public_spec: PublicSpec
+  user_answer: UserAnswer
+  previous_submission: ExerciseTaskSubmission | null
 }
 
 export type ViewSubmissionState = {
-  viewType: "view-submission"
-  exerciseTaskId: string
+  view_type: "view-submission"
+  exercise_task_id: string
   grading: ExerciseTaskGradingResult | null
   submission: UserAnswer
-  publicSpec: PublicSpec
-  modelSolutionSpec: ModelSolutionSpec | null
+  public_spec: PublicSpec
+  model_solution_spec: ModelSolutionSpec | null
 }
 
 export type PrivateSpec = {
   type: "browser" | "editor"
-  repositoryExercise: RepositoryExercise
+  repository_exercise: RepositoryExercise
 }
 
-export type PublicSpec = BrowserExercisePublicSpec | EditorExercisePublicSpec
-
-export interface BrowserExercisePublicSpec {
-  type: "browser"
-  files: Array<ExerciseFile>
-}
-
-export interface EditorExercisePublicSpec {
-  type: "editor"
-  archiveName: string
-  archiveDownloadUrl: string
+export type PublicSpec = {
+  type: "browser" | "editor"
+  archive_name: string
+  stub_download_url: string
+  student_file_paths: Array<string>
   checksum: string
+}
+
+export type ModelSolutionSpec = {
+  solution_download_url: string
 }
 
 export type MessageToParent =
@@ -62,31 +60,19 @@ export type CurrentStateMessageData =
   | { private_spec: PrivateSpec | UserAnswer }
   | { public_spec: PublicSpec }
 
-export type UserAnswer = BrowserAnswer | EditorAnswer
+export type UserAnswer = BrowserUserAnswer | EditorUserAnswer
 
-export interface BrowserAnswer {
+export type BrowserUserAnswer = {
   type: "browser"
   files: Array<ExerciseFile>
 }
 
-export interface EditorAnswer {
+export type EditorUserAnswer = {
   type: "editor"
-  archiveDownloadUrl: string
+  archive_download_url: string
 }
 
-export type ModelSolutionSpec = BrowserExerciseModelSolutionSpec | EditorExerciseModelSolutionSpec
-
-export interface BrowserExerciseModelSolutionSpec {
-  type: "browser"
-  solutionFiles: Array<ExerciseFile>
-}
-
-export interface EditorExerciseModelSolutionSpec {
-  type: "editor"
-  downloadUrl: string
-}
-
-export interface ExerciseFile {
+export type ExerciseFile = {
   filepath: string
   contents: string
 }

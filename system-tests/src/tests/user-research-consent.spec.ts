@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
+import { selectOrganization } from "@/utils/organizationUtils"
 test("Research consent form is visible on login, if not yet answered", async ({
   page,
   headless,
@@ -32,7 +33,7 @@ test("Research consent form is visible on login, if not yet answered", async ({
       snapshotName: "research-consent-form",
       waitForTheseToBeVisibleAndStable: [page.getByText("Regarding research done on courses")],
     })
-    await page.getByRole("button", { name: "Save" }).click()
+    await page.getByTestId("dialog").getByRole("button", { name: "Save" }).click()
     await page.getByText("Operation successful").waitFor()
 
     //Login again and check research consent form doesn't show again when already answered.
@@ -51,11 +52,10 @@ test("Research consent form is visible on login, if not yet answered", async ({
 
   await test.step("Can change research consent", async () => {
     await page.goto("http://project-331.local/organizations")
-    await page
-      .getByRole("link", {
-        name: "University of Helsinki, Department of Mathematics and Statistics",
-      })
-      .click()
+    await selectOrganization(
+      page,
+      "University of Helsinki, Department of Mathematics and Statistics",
+    )
     await page.getByRole("link", { name: "Navigate to course 'Introduction to citations'" }).click()
     await selectCourseInstanceIfPrompted(page)
 
@@ -84,7 +84,7 @@ test("Research consent form is visible on login, if not yet answered", async ({
     )
 
     await page.getByLabel("I do not want to participate in the educational research.").check()
-    await page.getByRole("button", { name: "Save" }).click()
+    await page.getByTestId("dialog").getByRole("button", { name: "Save" }).click()
     await page.getByText("Operation successful").waitFor()
     await page.getByRole("button", { name: "Edit" }).click()
     expect(

@@ -3,7 +3,6 @@ import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from "@tanst
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import useCourseBreadcrumbInfoQuery from "../../../../../../hooks/useCourseBreadcrumbInfoQuery"
 import {
   deleteCourse,
   teacherResetCourseProgressForEveryone,
@@ -13,6 +12,7 @@ import {
 import UpdateCourseForm from "./UpdateCourseForm"
 import UpdatePeerReviewQueueReviewsReceivedButton from "./UpdatePeerReviewQueueReviewsReceivedButton"
 
+import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import { setJoinCourseLinkForCourse } from "@/services/backend/courses"
 import { Course } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"

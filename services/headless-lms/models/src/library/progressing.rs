@@ -535,6 +535,7 @@ pub struct TeacherManualCompletionRequest {
 pub struct TeacherManualCompletion {
     pub user_id: Uuid,
     pub grade: Option<i32>,
+    pub passed: bool,
     pub completion_date: Option<DateTime<Utc>>,
 }
 
@@ -602,8 +603,11 @@ pub async fn add_manual_completions(
                     eligible_for_ects: true,
                     email: completion_receiver_user_details.email,
                     grade: completion.grade,
-                    // Should passed be false if grade == Some(0)?
-                    passed: true,
+                    passed: if completion.grade == Some(0) {
+                        false
+                    } else {
+                        completion.passed
+                    },
                 },
                 CourseModuleCompletionGranter::User(completion_giver_user_id),
             )
@@ -639,6 +643,7 @@ pub struct ManualCompletionPreviewUser {
     pub last_name: Option<String>,
     pub grade: Option<i32>,
     pub passed: bool,
+    pub previous_best_grade: Option<i32>,
 }
 
 /// Gets a preview of changes that will occur to completions with the given manual completion data.
@@ -667,7 +672,8 @@ pub async fn get_manual_completion_result_preview(
             first_name: user_details.first_name,
             last_name: user_details.last_name,
             grade: completion.grade,
-            passed: true,
+            passed: completion.passed,
+            previous_best_grade: None,
         };
         let enrollment = course_instance_enrollments::get_by_user_and_course_instance_id(
             conn,
@@ -785,16 +791,26 @@ pub async fn get_user_module_completion_statuses_for_course_instance(
     let course = courses::get_course(conn, course_id).await?;
     let course_modules = course_modules::get_by_course_id(conn, course_id).await?;
     let course_module_ids = course_modules.iter().map(|x| x.id).collect::<Vec<_>>();
-    let course_module_completions: HashMap<Uuid, CourseModuleCompletion> =
+
+    let course_module_completions_raw =
         course_module_completions::get_all_by_course_instance_and_user_id(
             conn,
             course_instance_id,
             user_id,
         )
-        .await?
-        .into_iter()
-        .map(|x| (x.course_module_id, x))
-        .collect();
+        .await?;
+
+    let course_module_completions: HashMap<Uuid, CourseModuleCompletion> =
+        course_module_completions_raw
+            .into_iter()
+            .sorted_by_key(|c| c.course_module_id)
+            .chunk_by(|c| c.course_module_id)
+            .into_iter()
+            .filter_map(|(module_id, group)| {
+                crate::course_module_completions::select_best_completion(group.collect())
+                    .map(|best| (module_id, best))
+            })
+            .collect();
 
     let all_default_certificate_configurations = crate::certificate_configurations::get_default_certificate_configurations_and_requirements_by_course_instance(conn, course_instance_id).await?;
     let all_certifcate_configurations_requiring_only_one_module_and_no_course_instance = crate::certificate_configurations::get_all_certifcate_configurations_requiring_only_one_module_and_no_course_instance(conn, &course_module_ids).await?;
@@ -846,7 +862,7 @@ pub async fn get_user_module_completion_statuses_for_course_instance(
                 certification_enabled: module.certification_enabled,
                 certificate_configuration_id,
                 needs_to_be_reviewed: completion
-                    .is_some_and(|x| x.needs_to_be_reviewed.unwrap_or(false))
+                    .is_some_and(|x| x.needs_to_be_reviewed)
             }
         })
         .collect();

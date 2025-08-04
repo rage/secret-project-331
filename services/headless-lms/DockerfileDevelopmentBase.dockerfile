@@ -10,7 +10,7 @@ RUN apt-get update \
 RUN git clone https://github.com/rui314/mold.git \
   && mkdir mold/build \
   && cd mold/build \
-  && git checkout v2.34.1 \
+  && git checkout v2.40.0 \
   && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=c++ .. \
   && cmake --build . -j $(nproc)
 
@@ -25,6 +25,20 @@ RUN location update \
   && mkdir -p /ips-to-country \
   && location export --directory /ips-to-country \
   && gzip /ips-to-country/*
+
+FROM rust:bookworm as icu4x-builder
+
+RUN cargo install icu4x-datagen
+
+
+# Generate v2 of the file so that we can temporarily use the other one for compatibility
+# TODO: Remove this in the next release
+RUN icu4x-datagen \
+  --markers all \
+  --locales fi \
+  --locales en \
+  --format blob \
+  --out /icu4x.postcard.2
 
 FROM rust:bookworm
 
@@ -53,6 +67,8 @@ RUN icu4x-datagen \
   --locales en \
   --format blob \
   --out /icu4x.postcard
+
+COPY --from=icu4x-builder /icu4x.postcard.2 /icu4x.postcard.2
 
 COPY --from=dep-builder /ips-to-country /ips-to-country
 

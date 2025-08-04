@@ -88,8 +88,13 @@ test.describe("Students should be able to give extra peer reviews to receive pri
         .getByRole("button", { name: "Course status summary" })
         .click()
 
-      await adminPage.getByText("Exercise: Can give extra").click()
-      await expect(adminPage.locator("main")).toContainText("Priority: 4")
+      const exerciseDetailsComponent = adminPage
+        .getByTestId("exercise-status")
+        .filter({ hasText: "Can give extra" })
+
+      await exerciseDetailsComponent.getByRole("button", { name: "View details" }).click()
+
+      await expect(exerciseDetailsComponent).toContainText("Priority: 4")
     })
   })
 })

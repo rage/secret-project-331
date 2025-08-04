@@ -2,7 +2,6 @@ import axios from "axios"
 import FormData from "form-data"
 import * as fs from "fs"
 import { NextApiRequest, NextApiResponse } from "next"
-import path from "path"
 import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { ClientErrorResponse, downloadStream } from "../../lib"
@@ -17,6 +16,7 @@ import { PrivateSpec, PublicSpec } from "../../util/stateInterfaces"
 import { RepositoryExercise, SpecRequest } from "@/shared-module/common/bindings"
 import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/common/utils/exerciseServices"
 import { isObjectMap } from "@/shared-module/common/utils/fetching"
+import { buildArchiveName } from "@/util/helpers"
 
 export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
   try {
@@ -57,23 +57,17 @@ async function processPublicSpec(
     }
 
     debug(requestId, "preparing stub dir")
-    const stubDir = await prepareStubDir(requestId, privateSpec.repositoryExercise.download_url)
+    const stubDir = await prepareStubDir(requestId, privateSpec.repository_exercise.download_url)
     let publicSpec: PublicSpec
-    if (privateSpec.type === "browser") {
-      debug(requestId, "preparing browser exercise")
-      publicSpec = await prepareBrowserExercise(requestId, stubDir)
-    } else if (privateSpec.type === "editor") {
-      debug(requestId, "preparing editor exercise")
-      publicSpec = await prepareEditorExercise(
-        requestId,
-        stubDir,
-        privateSpec.repositoryExercise,
-        upload_url,
-        uploadClaim,
-      )
-    } else {
-      return badRequest(requestId, res, `Unexpected private spec type: ${privateSpec.type}`)
-    }
+    debug(requestId, "uploading public spec")
+    publicSpec = await uploadPublicSpec(
+      privateSpec.type,
+      requestId,
+      stubDir,
+      privateSpec.repository_exercise,
+      upload_url,
+      uploadClaim,
+    )
     return ok(res, publicSpec)
   } catch (err) {
     return internalServerError(requestId, res, "Error while processing the public spec", err)
@@ -94,37 +88,22 @@ const prepareStubDir = async (requestId: string, downloadUrl: string): Promise<s
   return stubDir
 }
 
-const prepareBrowserExercise = async (requestId: string, stubDir: string): Promise<PublicSpec> => {
-  log(requestId, "browser exercise, saving student files to public spec")
-  const config = await getExercisePackagingConfiguration(stubDir, makeLog(requestId))
-  const files = []
-  for (const filepath of config.student_file_paths) {
-    log(requestId, `adding ${filepath}`)
-    const resolved = path.resolve(stubDir, filepath)
-    const contents = await fs.promises.readFile(resolved)
-    files.push({ filepath, contents: contents.toString() })
-  }
-  return {
-    type: "browser",
-    files,
-  }
-}
-
-const prepareEditorExercise = async (
+const uploadPublicSpec = async (
+  type: "browser" | "editor",
   requestId: string,
   stubDir: string,
   exercise: RepositoryExercise,
   uploadUrl: string,
   uploadClaim: string | null,
 ): Promise<PublicSpec> => {
-  log(requestId, "editor exercise, uploading archive to server and saving the URL to public spec")
+  log(requestId, "editor exercise")
   const stubArchive = temporaryFile()
   debug(requestId, "compressing stub to", stubArchive)
   const checksum = await compressProject(stubDir, stubArchive, "zstd", true, makeLog(requestId))
 
   debug(requestId, "uploading stub to", uploadUrl)
   const form = new FormData()
-  const archiveName = exercise.part + "/" + exercise.name + ".tar.zst"
+  const archiveName = buildArchiveName(exercise)
   form.append(archiveName, fs.createReadStream(stubArchive))
   const headers: Record<string, string> = {}
   if (uploadClaim) {
@@ -134,12 +113,14 @@ const prepareEditorExercise = async (
     headers,
   })
   if (isObjectMap<string>(res.data)) {
+    const config = await getExercisePackagingConfiguration(stubDir, makeLog(requestId))
     const archiveDownloadPath = res.data[archiveName]
     return {
-      type: "editor",
-      archiveName,
-      archiveDownloadUrl: archiveDownloadPath,
+      type,
+      archive_name: archiveName,
+      stub_download_url: archiveDownloadPath,
       checksum,
+      student_file_paths: config.student_file_paths,
     }
   } else {
     throw new Error(`Unexpected response data: ${JSON.stringify(res.data)}`)

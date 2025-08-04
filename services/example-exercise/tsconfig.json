@@ -25,6 +25,6 @@
     "isolatedModules": true,
     "incremental": true
   },
-  "exclude": ["node_modules"],
+  "exclude": ["node_modules", "src/shared-module"],
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"]
 }

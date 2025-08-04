@@ -3,7 +3,7 @@ import React from "react"
 import "./loader"
 
 import { monospaceFont } from "../../../styles"
-import monacoFontFixer from "../../../styles/monacoFontFixer"
+import monacoStylesFixer from "../../../styles/monacoStylesFixer"
 
 const WORDWRAP_DEFAULT_VALUE = "on"
 
@@ -14,7 +14,7 @@ const MonacoEditorImpl: React.FC<React.PropsWithChildren<EditorProps>> = (props)
     options.wordWrap = WORDWRAP_DEFAULT_VALUE
   }
   return (
-    <div className={monacoFontFixer}>
+    <div className={monacoStylesFixer}>
       <Editor {...props} options={options} />
     </div>
   )

@@ -3,6 +3,8 @@ import { expect, test } from "@playwright/test"
 import { downloadToString } from "../../utils/download"
 import { showNextToastsInfinitely, showToastsNormally } from "../../utils/notificationUtils"
 
+import { selectOrganization } from "@/utils/organizationUtils"
+
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
@@ -11,7 +13,7 @@ test("Managing course instances works", async ({ page }) => {
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.getByText("University of Helsinki, Department of Computer Science").click(),
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
@@ -51,10 +53,11 @@ test("Managing course instances works", async ({ page }) => {
   const usersCsvContents = await downloadToString(usersDownload)
   expect(usersCsvContents).toContain("user_id,created_at,updated_at,first_name,last_name,email")
   expect(usersCsvContents).toContain("3524d694-7fa8-4e73-aa1a-de9a20fd514b,")
-  expect(usersCsvContents).toContain(",User4,,user_4@example.com")
+  expect(usersCsvContents).toContain(",User4,User4,user_4@example.com")
 
   await Promise.all([page.getByRole("tab", { name: "Course instances" }).click()])
-  await page.click(`:nth-match(button:text("New"):below(:text("All course instances")), 1)`)
+  await page.getByRole("heading", { name: "All course instances" }).waitFor()
+  await page.getByRole("button", { name: "New" }).click()
 
   await page.getByText("New course instance").waitFor()
 
@@ -75,7 +78,11 @@ test("Managing course instances works", async ({ page }) => {
   await page.getByText("Success").first().waitFor()
   await showToastsNormally(page)
 
-  await page.click("text=Default Manage >> a")
+  await page
+    .getByTestId("course-instance-card")
+    .filter({ has: page.getByRole("heading", { name: "Default", exact: true }) })
+    .getByRole("link", { name: "Manage", exact: true })
+    .click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/course-instances/211556f5-7793-5705-ac63-b84465916da5",
   )

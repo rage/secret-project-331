@@ -11,7 +11,10 @@ use models::{
 
 use crate::{
     controllers::helpers::file_uploading::upload_image_for_organization,
-    domain::authorization::skip_authorize, prelude::*,
+    domain::authorization::{
+        Action, Resource, authorize_with_fetched_list_of_roles, skip_authorize,
+    },
+    prelude::*,
 };
 use actix_web::web::{self, Json};
 
@@ -59,6 +62,43 @@ async fn get_organization_courses(
 
     let token = skip_authorize();
     token.authorized_ok(web::Json(courses))
+}
+
+/**
+GET `/api/v0/main-frontend/organizations/{organization_id}/courses/duplicatable"` - Returns a list of all courses in a organization that the current user has permission to duplicate.
+*/
+
+#[instrument(skip(pool))]
+async fn get_organization_duplicatable_courses(
+    organization_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<Course>>> {
+    let mut conn = pool.acquire().await?;
+    let courses = models::courses::get_by_organization_id(&mut conn, *organization_id).await?;
+
+    // We filter out the courses the user does not have permission to duplicate.
+    // Prefetch roles so that we can do multiple authorization checks without repeteadly querying the database.
+    let user_roles = models::roles::get_roles(&mut conn, user.id).await?;
+
+    let mut duplicatable_courses = Vec::new();
+    for course in courses {
+        if authorize_with_fetched_list_of_roles(
+            &mut conn,
+            Action::Duplicate,
+            Some(user.id),
+            Resource::Course(course.id),
+            &user_roles,
+        )
+        .await
+        .is_ok()
+        {
+            duplicatable_courses.push(course);
+        }
+    }
+
+    let token = skip_authorize();
+    token.authorized_ok(web::Json(duplicatable_courses))
 }
 
 #[instrument(skip(pool))]
@@ -370,6 +410,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{organization_id}/courses",
             web::get().to(get_organization_courses),
+        )
+        .route(
+            "/{organization_id}/courses/duplicatable",
+            web::get().to(get_organization_duplicatable_courses),
         )
         .route(
             "/{organization_id}/courses/count",

@@ -21,7 +21,7 @@ const ExpandableContentBlock: React.FC<
         gap: 6px;
       `}
     >
-      {<InnerBlocks parentBlockProps={props} />}
+      {<InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />}
     </div>
   )
 }

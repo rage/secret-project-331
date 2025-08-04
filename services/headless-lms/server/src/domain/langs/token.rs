@@ -2,8 +2,8 @@ use crate::{
     domain::authorization::{self, LoginToken},
     prelude::*,
 };
-use actix_web::{http::header, FromRequest};
-use futures_util::{future::LocalBoxFuture, FutureExt};
+use actix_web::{FromRequest, http::header};
+use futures_util::{FutureExt, future::LocalBoxFuture};
 use headless_lms_utils::cache::Cache;
 use models::users::User;
 use oauth2::TokenResponse;

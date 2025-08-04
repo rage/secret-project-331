@@ -111,8 +111,7 @@ const DetailTag = styled.div`
 `
 
 export interface BannerExtraProps {
-  variant: "text" | "link" | "readOnly"
-
+  variant?: "text" | "link" | "readOnly"
   error: unknown | string
 }
 
@@ -121,11 +120,13 @@ export type BannerProps = React.HTMLAttributes<HTMLDivElement> & BannerExtraProp
 const ErrorBanner: React.FC<React.PropsWithChildren<BannerProps>> = (props) => {
   const { t } = useTranslation()
 
-  const { error: unknownError } = props
+  // Default the variant to "text" if not provided
+  const { variant: __variant = "text", error: unknownError } = props
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const anyError = unknownError as any
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [error, setError] = useState<any>(undefined)
+
   useEffect(() => {
     if (typeof anyError === "object" && anyError !== null && anyError.data instanceof Blob) {
       const blob: Blob = anyError.data
@@ -145,7 +146,7 @@ const ErrorBanner: React.FC<React.PropsWithChildren<BannerProps>> = (props) => {
   }, [anyError])
 
   if (error === undefined) {
-    // error data is blob and haven't read it yet, this should practically never be shown
+    // error data is blob and hasn't been read yet, this should practically never be shown
     return <Spinner variant="medium" />
   }
 
@@ -198,8 +199,12 @@ const ErrorBanner: React.FC<React.PropsWithChildren<BannerProps>> = (props) => {
       )
     } else if (error.isAxiosError) {
       const axiosError = error as AxiosError
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const responseMessage = (axiosError.response?.data as any)?.message
+      const responseData = axiosError.response?.data
+      const responseMessage =
+        typeof responseData === "object" && responseData !== null && "message" in responseData
+          ? (responseData as { message: string }).message
+          : undefined
+
       return (
         <BannerWrapper>
           <Content>
@@ -210,12 +215,12 @@ const ErrorBanner: React.FC<React.PropsWithChildren<BannerProps>> = (props) => {
               {responseMessage && <p>{responseMessage}</p>}
             </Text>
             <DetailTag>
-              {Boolean(axiosError.response?.data) && (
+              {Boolean(responseData) && (
                 <details>
                   <summary>{t("show-error-source")}</summary>
                   <ul>
                     <li>
-                      <pre>{JSON.stringify(axiosError.response?.data, undefined, 2)}</pre>
+                      <pre>{JSON.stringify(responseData, undefined, 2)}</pre>
                     </li>
                   </ul>
                 </details>

@@ -3,18 +3,21 @@ Handlers for HTTP requests to `/api/v0/auth`.
 */
 
 use crate::{
+    OAuthClient,
     domain::{
         authorization::{
-            self, authorize_with_fetched_list_of_roles, skip_authorize, ActionOnResource,
+            self, ActionOnResource, authorize_with_fetched_list_of_roles, skip_authorize,
         },
         rate_limit_middleware_builder::build_rate_limiting_middleware,
     },
     prelude::*,
-    OAuthClient,
 };
 use actix_session::Session;
-use reqwest::Client;
-use std::{env, time::Duration};
+use anyhow::Error;
+use anyhow::anyhow;
+use headless_lms_utils::tmc::{NewUserInfo, TmcClient};
+use std::time::Duration;
+use tracing_log::log;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -36,14 +39,13 @@ pub async fn authorize_action_on_resource(
     let mut conn = pool.acquire().await?;
     let data = payload.0;
     if let Some(user) = user {
-        if let Ok(true_token) =
-            authorize(&mut conn, data.action, Some(user.id), data.resource).await
-        {
-            true_token.authorized_ok(web::Json(true))
-        } else {
-            // We went to return success message even if the authorization fails.
-            let false_token = skip_authorize();
-            false_token.authorized_ok(web::Json(false))
+        match authorize(&mut conn, data.action, Some(user.id), data.resource).await {
+            Ok(true_token) => true_token.authorized_ok(web::Json(true)),
+            _ => {
+                // We went to return success message even if the authorization fails.
+                let false_token = skip_authorize();
+                false_token.authorized_ok(web::Json(false))
+            }
         }
     } else {
         // Never authorize anonymous user
@@ -61,6 +63,8 @@ pub struct CreateAccountDetails {
     pub language: String,
     pub password: String,
     pub password_confirmation: String,
+    pub country: String,
+    pub email_communication_consent: bool,
 }
 
 /**
@@ -77,32 +81,51 @@ Content-Type: application/json
   "last_name": "Doe",
   "language": "en",
   "password": "hunter42",
-  "password_confirmation": "hunter42"
+  "password_confirmation": "hunter42",
+  "country" : "Finland",
+  "email_communication_consent": true
 }
 ```
 */
-#[instrument(skip(session, pool, client, payload))]
+#[instrument(skip(session, pool, client, payload, app_conf))]
 pub async fn signup(
     session: Session,
     payload: web::Json<CreateAccountDetails>,
     pool: web::Data<PgPool>,
     client: web::Data<OAuthClient>,
     user: Option<AuthUser>,
+    app_conf: web::Data<ApplicationConfiguration>,
+    tmc_client: web::Data<TmcClient>,
 ) -> ControllerResult<HttpResponse> {
+    let user_details = payload.0;
+    let mut conn = pool.acquire().await?;
+
+    if app_conf.test_mode {
+        return handle_test_mode_signup(&mut conn, &session, &user_details, &app_conf).await;
+    }
+
     if user.is_none() {
         // First create the actual user to tmc.mooc.fi and then fetch it from mooc.fi
-        let user_details = payload.0;
-        post_new_user_to_moocfi(&user_details).await?;
+        post_new_user_to_moocfi(&user_details, tmc_client, &app_conf).await?;
 
-        let mut conn = pool.acquire().await?;
-        let user = authorization::authenticate_moocfi_user(
+        let auth_result = authorization::authenticate_moocfi_user(
             &mut conn,
             &client,
             user_details.email,
             user_details.password,
         )
-        .await;
-        if let Ok((user, _token)) = user {
+        .await?;
+
+        if let Some((user, _token)) = auth_result {
+            let country = user_details.country.clone();
+            models::user_details::update_user_country(&mut conn, user.id, &country).await?;
+            models::user_details::update_user_email_communication_consent(
+                &mut conn,
+                user.id,
+                user_details.email_communication_consent,
+            )
+            .await?;
+
             let token = skip_authorize();
             authorization::remember(&session, user)?;
             token.authorized_ok(HttpResponse::Ok().finish())
@@ -120,6 +143,50 @@ pub async fn signup(
             None,
         ))
     }
+}
+
+async fn handle_test_mode_signup(
+    conn: &mut PgConnection,
+    session: &Session,
+    user_details: &CreateAccountDetails,
+    app_conf: &ApplicationConfiguration,
+) -> ControllerResult<HttpResponse> {
+    assert!(
+        app_conf.test_mode,
+        "handle_test_mode_signup called outside test mode"
+    );
+
+    warn!("Handling signup in test mode. No real account is created.");
+
+    let user_id = models::users::insert(
+        conn,
+        PKeyPolicy::Generate,
+        &user_details.email,
+        Some(&user_details.first_name),
+        Some(&user_details.last_name),
+    )
+    .await
+    .map_err(|e| {
+        ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            "Failed to insert test user.".to_string(),
+            Some(anyhow!(e)),
+        )
+    })?;
+
+    models::user_details::update_user_country(conn, user_id, &user_details.country).await?;
+    models::user_details::update_user_email_communication_consent(
+        conn,
+        user_id,
+        user_details.email_communication_consent,
+    )
+    .await?;
+
+    let user = models::users::get_by_email(conn, &user_details.email).await?;
+    authorization::remember(session, user)?;
+
+    let token = skip_authorize();
+    token.authorized_ok(HttpResponse::Ok().finish())
 }
 
 /**
@@ -168,6 +235,7 @@ pub async fn authorize_multiple_actions_on_resources(
 
 /**
 POST `/api/v0/auth/login` Logs in to TMC.
+Returns true if login was successful, false if credentials were incorrect.
 **/
 #[instrument(skip(session, pool, client, payload, app_conf))]
 pub async fn login(
@@ -176,7 +244,7 @@ pub async fn login(
     client: web::Data<OAuthClient>,
     app_conf: web::Data<ApplicationConfiguration>,
     payload: web::Json<Login>,
-) -> ControllerResult<HttpResponse> {
+) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let Login { email, password } = payload.into_inner();
 
@@ -186,30 +254,47 @@ pub async fn login(
             let user = { models::users::get_by_id(&mut conn, id).await? };
             let token = skip_authorize();
             authorization::remember(&session, user)?;
-            return token.authorized_ok(HttpResponse::Ok().finish());
+            return token.authorized_ok(web::Json(true));
         };
     }
 
-    let user = if app_conf.test_mode {
+    let success = if app_conf.test_mode {
         warn!("Using test credentials. Normal accounts won't work.");
-        authorization::authenticate_test_user(&mut conn, &email, &password, &app_conf).await?
-    } else {
-        let (user, _token) =
-            authorization::authenticate_moocfi_user(&mut conn, &client, email, password)
+        let success =
+            authorization::authenticate_test_user(&mut conn, &email, &password, &app_conf)
                 .await
-                .map_err(|err| {
-                    info!("Could not get user from moocfi: {err}");
+                .map_err(|e| {
                     ControllerError::new(
                         ControllerErrorType::Unauthorized,
-                        "Incorrect email or password.".to_string(),
-                        None,
+                        "Could not find the test user. Have you seeded the database?".to_string(),
+                        e,
                     )
                 })?;
-        user
+        if success {
+            let user = models::users::get_by_email(&mut conn, &email).await?;
+            authorization::remember(&session, user)?;
+        }
+        success
+    } else {
+        let auth_result =
+            authorization::authenticate_moocfi_user(&mut conn, &client, email, password).await?;
+
+        if let Some((user, _token)) = auth_result {
+            authorization::remember(&session, user)?;
+            true
+        } else {
+            false
+        }
     };
+
+    if success {
+        info!("Authentication successful");
+    } else {
+        warn!("Authentication failed");
+    }
+
     let token = skip_authorize();
-    authorization::remember(&session, user)?;
-    token.authorized_ok(HttpResponse::Ok().finish())
+    token.authorized_ok(web::Json(success))
 }
 
 /**
@@ -270,42 +355,45 @@ pub async fn user_info(
 /// Posts new user account to tmc.mooc.fi.
 ///
 /// Based on implementation from <https://github.com/rage/mooc.fi/blob/fb9a204f4dbf296b35ec82b2442e1e6ae0641fe9/frontend/lib/account.ts>
-pub async fn post_new_user_to_moocfi(user_details: &CreateAccountDetails) -> anyhow::Result<()> {
-    let tmc_api_url = "https://tmc.mooc.fi/api/v8";
-    let origin = env::var("TMC_ACCOUNT_CREATION_ORIGIN")
-        .expect("TMC_ACCOUNT_CREATION_ORIGIN must be defined");
-    let ratelimit_api_key = env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
-        .expect("RATELIMIT_PROTECTION_SAFE_API_KEY must be defined");
-    let tmc_client = Client::default();
-    let json = serde_json::json!({
-        "user": {
-            "email": user_details.email,
-            "first_name": user_details.first_name,
-            "last_name": user_details.last_name,
-            "password": user_details.password,
-            "password_confirmation": user_details.password_confirmation
-        },
-        "user_field": {
-            "first_name": user_details.first_name,
-            "last_name": user_details.last_name
-        },
-        "origin": origin,
-        "language": user_details.language
-    });
-    let res = tmc_client
-        .post(format!("{}/users", tmc_api_url))
-        .header("RATELIMIT-PROTECTION-SAFE-API-KEY", ratelimit_api_key)
-        .header(reqwest::header::CONTENT_TYPE, "application/json")
-        .header(reqwest::header::ACCEPT, "application/json")
-        .json(&json)
-        .send()
+pub async fn post_new_user_to_moocfi(
+    user_details: &CreateAccountDetails,
+    tmc_client: web::Data<TmcClient>,
+    app_conf: &ApplicationConfiguration,
+) -> anyhow::Result<()> {
+    tmc_client
+        .post_new_user_to_moocfi(
+            NewUserInfo {
+                first_name: user_details.first_name.clone(),
+                last_name: user_details.last_name.clone(),
+                email: user_details.email.clone(),
+                password: user_details.password.clone(),
+                password_confirmation: user_details.password_confirmation.clone(),
+                language: user_details.language.clone(),
+            },
+            app_conf,
+        )
         .await
-        .context("Failed to send request to https://tmc.mooc.fi")?;
-    if res.status().is_success() {
-        Ok(())
-    } else {
-        Err(anyhow::anyhow!("Failed to get current user from Mooc.fi"))
+}
+
+pub async fn update_user_information_to_tmc(
+    first_name: String,
+    last_name: String,
+    email: Option<String>,
+    user_upstream_id: String,
+    tmc_client: web::Data<TmcClient>,
+    app_conf: web::Data<ApplicationConfiguration>,
+) -> Result<(), Error> {
+    if app_conf.test_mode {
+        return Ok(());
     }
+    tmc_client
+        .update_user_information(first_name, last_name, email, user_upstream_id)
+        .await
+        .map_err(|e| {
+            log::warn!("TMC user update failed: {:?}", e);
+            anyhow::anyhow!("TMC user update failed: {}", e)
+        })?;
+    Ok(())
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

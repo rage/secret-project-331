@@ -8,7 +8,12 @@ import useUserResearchConsentQuery from "../hooks/useUserResearchConsentQuery"
 import { getCourseBreadCrumbInfo } from "../services/backend/courses"
 import { getAllResearchConsentAnswersByUserId } from "../services/backend/users"
 
+import EditUserInformationForm from "@/components/forms/EditUserInformationForm"
+import { getUserDetailsForUser } from "@/services/backend/user-details"
 import Button from "@/shared-module/common/components/Button"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { baseTheme } from "@/shared-module/common/styles"
 
 interface Slug {
   name: string
@@ -19,8 +24,14 @@ interface Slug {
 
 const UserSettings: React.FC<React.PropsWithChildren<Slug>> = () => {
   const { t } = useTranslation()
+
   const [openResearchForm, setOpenResearchForm] = useState<boolean>(false)
   const getUserConsent = useUserResearchConsentQuery()
+
+  const getUserDetails = useQuery({
+    queryKey: [`user-details`],
+    queryFn: () => getUserDetailsForUser(),
+  })
 
   const getAllResearchFormAnswers = useQuery({
     queryKey: [`users-user-research-form-question-answers`],
@@ -58,6 +69,35 @@ const UserSettings: React.FC<React.PropsWithChildren<Slug>> = () => {
       <h1>{t("user-settings")}</h1>
       <div
         className={css`
+          padding: 1rem;
+          border-top: 1px solid ${baseTheme.colors.gray[100]};
+        `}
+      >
+        {getUserDetails.isError && (
+          <ErrorBanner variant={"readOnly"} error={getUserDetails.error} />
+        )}
+        {getUserDetails.isPending && <Spinner variant={"medium"} />}
+        {getUserDetails.isSuccess && getUserDetails.data !== null && (
+          <EditUserInformationForm
+            firstName={getUserDetails.data?.first_name ?? ""}
+            lastName={getUserDetails.data?.last_name ?? ""}
+            country={getUserDetails.data?.country ?? ""}
+            emailCommunicationConsent={getUserDetails.data?.email_communication_consent ?? false}
+            email={getUserDetails.data?.email}
+          />
+        )}
+      </div>
+      <h2
+        className={css`
+          padding-top: 1rem;
+        `}
+      >
+        {t("title-research-consents")}
+      </h2>
+
+      <div
+        className={css`
+          border-top: 1px solid ${baseTheme.colors.gray[100]};
           display: flex;
           flex-direction: column;
         `}
@@ -65,75 +105,74 @@ const UserSettings: React.FC<React.PropsWithChildren<Slug>> = () => {
         <div
           className={css`
             display: flex;
-            flex-direction: row;
-            padding-top: 30px;
-            font-size: 22px;
-            line-height: 22px;
-            gap: 60px;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1rem 0rem 1rem;
           `}
         >
-          <div
+          <p
             className={css`
-              width: 400px;
+              font-size: ${baseTheme.fontSizes[2]}px;
             `}
           >
             {t("title-general-research-consent")}:
-          </div>
+          </p>
           <Button size="medium" variant="primary" onClick={handleGeneralResearchFormButton}>
             {t("edit")}
           </Button>
-          {openResearchForm && (
-            <ResearchOnCoursesForm
-              afterSubmit={handleGeneralResearchFormAfterSubmit}
-              initialConsentValue={getUserConsent.data?.research_consent}
-            />
-          )}
         </div>
 
+        {openResearchForm && (
+          <ResearchOnCoursesForm
+            afterSubmit={handleGeneralResearchFormAfterSubmit}
+            initialConsentValue={getUserConsent.data?.research_consent}
+          />
+        )}
+
         {courseBreadcrumbInfos.length !== 0 && (
-          <>
-            <h2
+          <div>
+            <h3
               className={css`
-                padding-top: 20px;
+                padding: 1rem 1rem 0px 0px;
               `}
             >
               {t("title-course-specific-research-consents")}
-            </h2>
-            <div>
-              {courseBreadcrumbInfos.map((course) => {
-                return (
-                  <div
+            </h3>
+
+            <div
+              className={css`
+                display: flex;
+                flex-direction: column;
+              `}
+            >
+              {courseBreadcrumbInfos.map((course) => (
+                <div
+                  key={course.data?.course_id}
+                  className={css`
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 1rem 1rem 0rem 1rem;
+                  `}
+                >
+                  <p
                     className={css`
-                      display: flex;
-                      flex-direction: row;
-                      padding-top: 30px;
-                      font-size: 22px;
-                      line-height: 22px;
-                      gap: 60px;
+                      font-size: ${baseTheme.fontSizes[2]}px;
                     `}
-                    key={course.data?.course_id}
                   >
-                    <div
-                      className={css`
-                        width: 400px;
-                      `}
-                    >
-                      {course.data?.course_name}:
-                    </div>
-                    <div>
-                      <a
-                        href={`org/${course.data?.organization_slug}/courses/${course.data?.course_slug}/?show_research_form=1`}
-                      >
-                        <Button size="medium" variant="primary">
-                          {t("edit")}
-                        </Button>
-                      </a>
-                    </div>
-                  </div>
-                )
-              })}
+                    {course.data?.course_name}:
+                  </p>
+                  <a
+                    href={`org/${course.data?.organization_slug}/courses/${course.data?.course_slug}/?show_research_form=1`}
+                  >
+                    <Button size="medium" variant="primary">
+                      {t("edit")}
+                    </Button>
+                  </a>
+                </div>
+              ))}
             </div>
-          </>
+          </div>
         )}
       </div>
     </>

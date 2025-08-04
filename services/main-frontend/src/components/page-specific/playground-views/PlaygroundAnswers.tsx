@@ -20,7 +20,7 @@ const StyledPre = styled.pre`
   font-size: 13px;
   width: 100%;
   max-height: 700px;
-  overflow: scroll;
+  overflow: auto;
   white-space: pre-wrap;
   resize: vertical;
 

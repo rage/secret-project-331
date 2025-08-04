@@ -10,7 +10,6 @@ import CloseEndedQuestionWrapper from "../../../Shared/CloseEndedQuestionWrapper
 
 import { QuizItemSubmissionComponentProps } from "."
 
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const FEEDBACK_STYLES = `
@@ -56,20 +55,34 @@ const ClosedEndedQuestionFeedback: React.FC<
           <ParsedText inline parseLatex parseMarkdown text={public_quiz_item.body} />
         )}
       </div>
-      <div>
-        <TextField
-          id={fieldId}
-          type="text"
-          disabled
-          label={t("answer")}
-          value={user_quiz_item_answer.textData ?? ""}
+      <div
+        className={css`
+          margin-bottom: 1rem;
+        `}
+      >
+        <label
+          htmlFor={fieldId}
           className={css`
-            input {
-              border-radius: 0.25rem;
-              border: 0.188rem solid #dfe1e6 !important;
-            }
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
           `}
-        />
+        >
+          {t("answer")}
+        </label>
+        <p
+          id={fieldId}
+          className={css`
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            border: 0.188rem solid #dfe1e6;
+            background-color: #f4f5f7;
+            min-height: 1.5rem;
+            margin: 0;
+          `}
+        >
+          {user_quiz_item_answer.textData ?? ""}
+        </p>
       </div>
       <div
         className={css`

@@ -1,0 +1,98 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from,\n  hidden,\n  page_language_group_id\nFROM pages p\nWHERE p.chapter_id = $1\n  AND p.deleted_at IS NULL\n  AND p.hidden IS FALSE\n  AND p.url_path IS NOT NULL\n  AND p.id NOT IN (\n    SELECT front_page_id\n    FROM chapters c\n    WHERE c.front_page_id = p.id\n  );\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "exam_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "chapter_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "url_path",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "title",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "content",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 10,
+        "name": "order_number",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 11,
+        "name": "copied_from",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 12,
+        "name": "hidden",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 13,
+        "name": "page_language_group_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      false,
+      true
+    ]
+  },
+  "hash": "8523b1d5cdc9ea91ed59cb0238a1680b675112d4475cbba8a7b5ae10f99c0096"
+}

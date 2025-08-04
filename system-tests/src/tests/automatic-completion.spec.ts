@@ -3,16 +3,15 @@ import { expect, test } from "@playwright/test"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
+import { selectOrganization } from "@/utils/organizationUtils"
+
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
 test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
-
-  await page
-    .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-    .click()
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
 
   await page.getByText("Automatic Completions").click()
 
@@ -61,13 +60,10 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   })
 
   await page.getByText("To the registration form").click()
-  await expect(page).toHaveURL("https://www.example.com")
+  await page.waitForURL("https://www.example.com", { waitUntil: "commit" })
 
   await page.goto("http://project-331.local/organizations")
-
-  await page
-    .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-    .click()
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
 
   await Promise.all([
     page.getByRole("link", { name: "Manage course 'Automatic Completions'" }).click(),
@@ -96,10 +92,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   await page.getByRole("button", { name: "Save changes" }).click()
 
   await page.goto("http://project-331.local/organizations")
-
-  await page
-    .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-    .click()
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
 
   await page.getByText("Automatic Completions").click()
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs/courses/automatic-completions")
@@ -110,6 +103,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
     .getByRole("button", { name: "Register" })
     .click()
 
+  await page.getByText("Use this email address").first().waitFor()
   await page.getByText("To the registration form").click()
   // Wait for the redirection
   await page.waitForURL("https://www.example.com/override", { waitUntil: "commit" })

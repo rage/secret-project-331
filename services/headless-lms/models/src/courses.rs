@@ -1,12 +1,12 @@
 use headless_lms_utils::{
-    file_store::FileStore, language_tag_to_name::LANGUAGE_TAG_TO_NAME, ApplicationConfiguration,
+    ApplicationConfiguration, file_store::FileStore, language_tag_to_name::LANGUAGE_TAG_TO_NAME,
 };
 
 use crate::{
-    chapters::{course_chapters, Chapter},
+    chapters::{Chapter, course_chapters},
     course_modules::CourseModule,
     pages::Page,
-    pages::{get_all_by_course_id_and_visibility, PageVisibility},
+    pages::{PageVisibility, get_all_by_course_id_and_visibility},
     prelude::*,
 };
 
@@ -84,6 +84,7 @@ pub struct NewCourse {
     pub join_code: Option<String>,
     pub ask_marketing_consent: bool,
     pub flagged_answers_threshold: Option<i32>,
+    pub can_add_chatbot: bool,
 }
 
 pub async fn insert(
@@ -105,7 +106,8 @@ INSERT INTO courses(
     is_draft,
     is_test_mode,
     is_joinable_by_code_only,
-    join_code
+    join_code,
+    can_add_chatbot
   )
 VALUES(
     $1,
@@ -118,7 +120,8 @@ VALUES(
     $8,
     $9,
     $10,
-    $11
+    $11,
+    $12
   )
 RETURNING id
         ",
@@ -132,7 +135,8 @@ RETURNING id
         new_course.is_draft,
         new_course.is_test_mode,
         new_course.is_joinable_by_code_only,
-        new_course.join_code
+        new_course.join_code,
+        new_course.can_add_chatbot,
     )
     .fetch_one(conn)
     .await?;
@@ -345,7 +349,7 @@ SELECT
     c.is_draft,
     c.is_test_mode,
     c.base_module_completion_requires_n_submodule_completions,
-    can_add_chatbot,
+    c.can_add_chatbot,
     c.is_unlisted,
     c.is_joinable_by_code_only,
     c.join_code,
@@ -832,6 +836,46 @@ WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
     Ok(courses)
 }
 
+pub async fn get_by_organization_id(
+    conn: &mut PgConnection,
+    organization_id: Uuid,
+) -> ModelResult<Vec<Course>> {
+    let courses = sqlx::query_as!(
+        Course,
+        r#"
+SELECT id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language::text,
+  language_code,
+  copied_from,
+  course_language_group_id,
+  description,
+  is_draft,
+  is_test_mode,
+  can_add_chatbot,
+  is_unlisted,
+  base_module_completion_requires_n_submodule_completions,
+  is_joinable_by_code_only,
+  join_code,
+  ask_marketing_consent,
+  flagged_answers_threshold
+FROM courses
+WHERE organization_id = $1
+  AND deleted_at IS NULL
+ORDER BY name
+        "#,
+        organization_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(courses)
+}
+
 pub async fn set_join_code_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -995,6 +1039,7 @@ mod test {
                 join_code: None,
                 ask_marketing_consent: false,
                 flagged_answers_threshold: Some(3),
+                can_add_chatbot: false,
             }
         }
     }

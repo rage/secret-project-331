@@ -5,22 +5,24 @@ use actix_http::Payload;
 use actix_web::{FromRequest, HttpRequest};
 use chrono::{DateTime, Duration, Utc};
 use futures::{
-    future::{ready, BoxFuture, Ready},
     FutureExt,
+    future::{BoxFuture, Ready, ready},
 };
 use headless_lms_models::{
+    ModelError, ModelErrorType, ModelResult,
     exercise_service_info::ExerciseServiceInfoApi,
     exercise_task_gradings::{ExerciseTaskGradingRequest, ExerciseTaskGradingResult},
     exercise_task_submissions::ExerciseTaskSubmission,
     exercise_tasks::ExerciseTask,
-    ModelError, ModelErrorType, ModelResult,
 };
 use headless_lms_utils::error::backend_error::BackendError;
 use hmac::{Hmac, Mac};
 use jwt::{SignWithKey, VerifyWithKey};
 use models::SpecFetcher;
 use sha2::Sha256;
-use std::{borrow::Cow, fmt::Debug, sync::Arc};
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
+use std::{borrow::Cow, fmt::Debug};
 use url::Url;
 
 use super::error::{ControllerError, ControllerErrorType};
@@ -28,6 +30,9 @@ use super::error::{ControllerError, ControllerErrorType};
 // keep in sync with the shared-module constants
 const EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER: &str = "exercise-service-grading-update-claim";
 const EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER: &str = "exercise-service-upload-claim";
+
+/// A type for caching the spec fetching (only for the seed)
+type SpecCache = HashMap<(String, String, Option<String>), serde_json::Value>;
 
 #[derive(Clone, Debug)]
 pub struct JwtKey(Hmac<Sha256>);
@@ -271,7 +276,9 @@ pub fn make_spec_fetcher(
                 );
                 return Err(ModelError::new(
                     ModelErrorType::Generic,
-                    format!("Failed to generate spec for exercise for {exercise_service_slug}: {error}."),
+                    format!(
+                        "Failed to generate spec for exercise for {exercise_service_slug}: {error}."
+                    ),
                     None,
                 ));
             }
@@ -282,12 +289,27 @@ pub fn make_spec_fetcher(
     }
 }
 
+// see `fetch_service_info_fast` while handling HTTP requests
 pub fn fetch_service_info(url: Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>> {
-    async {
+    fetch_service_info_with_timeout(url, 1000 * 120)
+}
+
+// use this while handling HTTP requests, see `fetch_service_info`
+pub fn fetch_service_info_fast(
+    url: Url,
+) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>> {
+    fetch_service_info_with_timeout(url, 1000 * 5)
+}
+
+fn fetch_service_info_with_timeout(
+    url: Url,
+    timeout_ms: u64,
+) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>> {
+    async move {
         let client = reqwest::Client::new();
         let res = client
             .get(url) // e.g. http://example-exercise.default.svc.cluster.local:3002/example-exercise/api/service-info
-            .timeout(std::time::Duration::from_secs(120))
+            .timeout(std::time::Duration::from_millis(timeout_ms))
             .send()
             .await
             .map_err(reqwest_err)?;
@@ -408,5 +430,54 @@ impl GivePeerReviewClaim {
             ));
         }
         Ok(claim)
+    }
+}
+
+/// A caching spec fetcher ONLY FOR THE SEED that returns a cached spec if the same
+/// (url, exercise_service_slug, private_spec) is requested. Since this is only used during seeding,
+/// there is no cache eviction.
+pub fn make_seed_spec_fetcher_with_cache(
+    base_url: String,
+    request_id: Uuid,
+    jwt_key: Arc<JwtKey>,
+) -> impl SpecFetcher {
+    // Cache key: (url, exercise_service_slug, private_spec serialized)
+    let cache: Arc<Mutex<SpecCache>> = Arc::new(Mutex::new(HashMap::new()));
+
+    // Create the base non-caching spec fetcher and wrap it in Arc to make it clonable
+    let base_fetcher = Arc::new(make_spec_fetcher(base_url, request_id, jwt_key));
+
+    move |url, exercise_service_slug, private_spec| {
+        let url_str = url.to_string();
+        let service_slug = exercise_service_slug.to_string();
+        // Convert private_spec to string for cache key if present
+        let private_spec_str =
+            private_spec.map(|spec| serde_json::to_string(&spec).unwrap_or_default());
+        let key = (url_str.clone(), service_slug.clone(), private_spec_str);
+        let cache = Arc::clone(&cache);
+        let base_fetcher = Arc::clone(&base_fetcher);
+
+        async move {
+            // Try to get from cache first
+            if let Some(cached_spec) = cache
+                .lock()
+                .expect("Seed spec fetcher cache lock poisoned")
+                .get(&key)
+            {
+                return Ok(cached_spec.clone());
+            }
+
+            // Not in cache - fetch using base fetcher
+            let fetched_spec = base_fetcher(url, exercise_service_slug, private_spec).await?;
+
+            // Store in cache
+            cache
+                .lock()
+                .expect("Seed spec fetcher cache lock poisoned")
+                .insert(key, fetched_spec.clone());
+
+            Ok(fetched_spec)
+        }
+        .boxed()
     }
 }

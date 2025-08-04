@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use headless_lms_utils::{http::REQWEST_CLIENT, ApplicationConfiguration};
+use headless_lms_utils::{ApplicationConfiguration, http::REQWEST_CLIENT};
 
 const API_VERSION: &str = "2024-07-01";
 
@@ -302,6 +302,24 @@ pub async fn create_search_index(
             vector_encoding: None,
         },
         Field {
+            name: "language".to_string(),
+            field_type: "Edm.String".to_string(),
+            key: Some(false),
+            searchable: Some(true),
+            filterable: Some(true),
+            retrievable: Some(true),
+            stored: Some(true),
+            sortable: Some(false),
+            facetable: Some(false),
+            analyzer: None,
+            index_analyzer: None,
+            search_analyzer: None,
+            synonym_maps: Some(vec![]),
+            dimensions: None,
+            vector_search_profile: None,
+            vector_encoding: None,
+        },
+        Field {
             name: "parent_id".to_string(),
             field_type: "Edm.String".to_string(),
             key: Some(false),
@@ -357,6 +375,24 @@ pub async fn create_search_index(
         },
         Field {
             name: "url".to_string(),
+            field_type: "Edm.String".to_string(),
+            key: Some(false),
+            searchable: Some(false),
+            filterable: Some(true),
+            retrievable: Some(true),
+            stored: Some(true),
+            sortable: Some(false),
+            facetable: Some(false),
+            analyzer: None,
+            index_analyzer: None,
+            search_analyzer: None,
+            synonym_maps: Some(vec![]),
+            dimensions: None,
+            vector_search_profile: None,
+            vector_encoding: None,
+        },
+        Field {
+            name: "course_id".to_string(),
             field_type: "Edm.String".to_string(),
             key: Some(false),
             searchable: Some(false),

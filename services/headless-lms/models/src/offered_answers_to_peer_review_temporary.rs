@@ -33,13 +33,13 @@ WHERE exercise_id = $1
 
     if let Some(res) = res {
         // In order to return the saved submission, it needs to have a peer review queue entry and the entry must not have received enough peer reviews.
-        if let Some(peer_review_queue_entry) = crate::peer_review_queue_entries::get_by_receiving_peer_reviews_exercise_slide_submission_id(&mut *conn, res.exercise_slide_submission_id).await.optional()? {
+        match crate::peer_review_queue_entries::get_by_receiving_peer_reviews_exercise_slide_submission_id(&mut *conn, res.exercise_slide_submission_id).await.optional()? { Some(peer_review_queue_entry) => {
           if peer_review_queue_entry.received_enough_peer_reviews || peer_review_queue_entry.removed_from_queue_for_unusual_reason || peer_review_queue_entry.deleted_at.is_some() {
             return Ok(None);
           }
-        } else {
+        } _ => {
           return Ok(None)
-        }
+        }}
 
         let ess = crate::exercise_slide_submissions::get_by_id(
             &mut *conn,
@@ -95,17 +95,16 @@ pub async fn delete_saved_submissions_for_user(
     conn: &mut PgConnection,
     exercise_id: Uuid,
     user_id: Uuid,
-    course_instance_id: Uuid,
 ) -> ModelResult<()> {
     info!("Deleting expired records from offered_answers_to_peer_review_temporary");
     let _res = sqlx::query!(
         "
 DELETE FROM offered_answers_to_peer_review_temporary
-WHERE exercise_id = $1 AND user_id = $2 AND course_instance_id = $3
+WHERE exercise_id = $1
+  AND user_id = $2
 ",
         exercise_id,
-        user_id,
-        course_instance_id
+        user_id
     )
     .execute(&mut *conn)
     .await?;

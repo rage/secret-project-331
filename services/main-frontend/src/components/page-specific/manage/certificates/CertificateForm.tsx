@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -13,6 +14,7 @@ import FileField from "@/shared-module/common/components/InputFields/FileField"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import MaskOverThisInSystemTests from "@/shared-module/common/components/system-tests/MaskOverThisInSystemTests"
+import SetHeightInSystemTests from "@/shared-module/common/components/system-tests/SetHeightInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
 
 interface Props {
@@ -43,6 +45,12 @@ export interface CertificateFields {
   backgroundSvg: FileList
   overlaySvg: FileList
   clearCurrentOverlaySvg: boolean
+  renderGrade: boolean
+  gradePosX: string | null
+  gradePosY: string | null
+  gradeFontSize: string | null
+  gradeTextColor: string | null
+  gradeTextAnchor: CertificateTextAnchor | null
 }
 
 const ANCHOR_OPTIONS: { value: CertificateTextAnchor; label: string }[] = [
@@ -90,12 +98,20 @@ const CertificateForm: React.FC<Props> = ({
       backgroundSvg: undefined,
       overlaySvg: undefined,
       clearCurrentOverlaySvg: false,
+      renderGrade: configuration?.render_certificate_grade ?? false,
+      gradePosX: configuration?.certificate_grade_x_pos ?? null,
+      gradePosY: configuration?.certificate_grade_y_pos ?? null,
+      gradeFontSize: configuration?.certificate_grade_font_size ?? null,
+      gradeTextColor: configuration?.certificate_grade_text_color ?? null,
+      gradeTextAnchor: configuration?.certificate_grade_text_anchor ?? null,
     },
   })
   /* eslint-enable i18next/no-literal-string */
   const onSubmitWrapper = handleSubmit((data) => {
     onClickSave(data)
   })
+
+  const [showGradeFields, setShowGradeFields] = useState(!!configuration?.certificate_grade_x_pos)
 
   return (
     <form
@@ -119,38 +135,40 @@ const CertificateForm: React.FC<Props> = ({
         {...register("paperSize")}
       />
       <MaskOverThisInSystemTests useDisplayBlockAndHideOverflow>
-        <FileField
-          id={"backgroundSvg"}
-          error={errors.backgroundSvg}
-          label={
-            configuration
-              ? t("label-background-svg-current", { path: configuration.background_svg_path })
-              : t("label-background-svg")
-          }
-          {...register(
-            "backgroundSvg",
-            // required if configuration does not exist yet
-            configuration ? undefined : { required: t("required-field") },
-          )}
-          // required for new configurations
-          required={configuration === null}
-          // eslint-disable-next-line i18next/no-literal-string
-          accept={".svg"}
-        />
-        <FileField
-          id={"overlaySvg"}
-          error={errors.overlaySvg}
-          label={
-            configuration
-              ? configuration.overlay_svg_path
-                ? t("label-overlay-svg-current", { path: configuration.overlay_svg_path })
-                : t("label-overlay-svg-optional")
-              : t("label-overlay-svg")
-          }
-          {...register("overlaySvg")}
-          // eslint-disable-next-line i18next/no-literal-string
-          accept={".svg"}
-        />
+        <SetHeightInSystemTests heightPx={100}>
+          <FileField
+            id={"backgroundSvg"}
+            error={errors.backgroundSvg}
+            label={
+              configuration
+                ? t("label-background-svg-current", { path: configuration.background_svg_path })
+                : t("label-background-svg")
+            }
+            {...register(
+              "backgroundSvg",
+              // required if configuration does not exist yet
+              configuration ? undefined : { required: t("required-field") },
+            )}
+            // required for new configurations
+            required={configuration === null}
+            // eslint-disable-next-line i18next/no-literal-string
+            accept={".svg"}
+          />
+          <FileField
+            id={"overlaySvg"}
+            error={errors.overlaySvg}
+            label={
+              configuration
+                ? configuration.overlay_svg_path
+                  ? t("label-overlay-svg-current", { path: configuration.overlay_svg_path })
+                  : t("label-overlay-svg-optional")
+                : t("label-overlay-svg")
+            }
+            {...register("overlaySvg")}
+            // eslint-disable-next-line i18next/no-literal-string
+            accept={".svg"}
+          />
+        </SetHeightInSystemTests>
       </MaskOverThisInSystemTests>
       <CheckBox
         id={"clearCurrentOverlaySvg"}
@@ -261,7 +279,67 @@ const CertificateForm: React.FC<Props> = ({
           {...register("dateTextAnchor")}
         />
       </div>
-
+      <hr />
+      <CheckBox
+        id="enableGrade"
+        label={t("label-grade")}
+        checked={showGradeFields}
+        onChange={(e) => {
+          const checked = e.target.checked
+          setShowGradeFields(checked)
+        }}
+      />
+      {showGradeFields && (
+        <>
+          <hr />
+          <CheckBox
+            id="renderGrade"
+            label={t("label-show-grade-in-cerfiticate")}
+            {...register("renderGrade")}
+          />
+          <div>
+            <h3>{t("grade")}</h3>
+            <TextField
+              id={"gradePosX"}
+              error={errors.gradePosX}
+              label={t("label-position-x")}
+              {...register("gradePosX", {
+                required: showGradeFields ? t("required-field") : undefined,
+              })}
+            />
+            <TextField
+              id={"gradePosY"}
+              error={errors.gradePosY}
+              label={t("label-position-y")}
+              {...register("gradePosY", {
+                required: showGradeFields ? t("required-field") : undefined,
+              })}
+            />
+            <TextField
+              id={"gradeFontSize"}
+              error={errors.gradeFontSize}
+              label={t("label-font-size")}
+              {...register("gradeFontSize", {
+                required: showGradeFields ? t("required-field") : undefined,
+              })}
+            />
+            <TextField
+              id={"gradeTextColor"}
+              error={errors.gradeTextColor}
+              label={t("label-text-color")}
+              {...register("gradeTextColor", {
+                required: showGradeFields ? t("required-field") : undefined,
+              })}
+            />
+            <SelectField
+              id={"gradeTextAnchor"}
+              options={ANCHOR_OPTIONS}
+              label={t("label-text-anchor")}
+              {...register("gradeTextAnchor")}
+            />
+          </div>
+        </>
+      )}
       <Button variant="primary" size="medium" type="submit">
         {t("button-text-save")}
       </Button>

@@ -7,6 +7,7 @@ const createJestConfig = nextJest({ dir: "./" })
 const customJestConfig = {
   preset: "ts-jest",
   testEnvironment: "jsdom",
+  testPathIgnorePatterns: ["/node_modules/", "/src/shared-module/"],
 }
 
 // createJestConfig is exported in this way to ensure that next/jest can load the Next.js configuration, which is async

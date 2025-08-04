@@ -8,6 +8,7 @@ import ResearchOnCoursesForm from "../components/forms/ResearchOnCoursesForm"
 import useUserResearchConsentQuery from "../hooks/useUserResearchConsentQuery"
 
 import Button from "@/shared-module/common/components/Button"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
@@ -25,7 +26,8 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
   const loginStateContext = useContext(LoginStateContext)
 
   const router = useRouter()
-  const [notification, setNotification] = useState<string | null>(null)
+  const [credentialsError, setCredentialsError] = useState<boolean>(false)
+  const [error, setError] = useState<Error | null>(null)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const uncheckedReturnTo = useQueryParameter("return_to")
@@ -34,7 +36,11 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
 
   const loginMutation = useToastMutation(
     async () => {
-      await login(email, password)
+      const success = await login(email, password)
+      // Clear any previous errors
+      setError(null)
+      setCredentialsError(!success)
+      return success
     },
     { notify: false },
   )
@@ -65,30 +71,24 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
         }
       `}
     >
+      {error && <ErrorBanner error={error} />}
+
       <form
         onSubmit={async (event) => {
           event.preventDefault()
           try {
-            await loginMutation.mutateAsync()
+            const success = await loginMutation.mutateAsync()
+            if (success) {
+              await loginStateContext.refresh()
+            }
           } catch (e) {
             if (!(e instanceof Error)) {
               throw e
             }
             console.error("failed to login: ", e)
-
-            // @ts-expect-error: null checked
-            if (e?.response?.status.toString().startsWith("4")) {
-              setNotification(t("incorrect-email-or-password"))
-            } else {
-              setNotification(t("failed-to-authenticate"))
-            }
-            setTimeout(() => {
-              setNotification(null)
-            }, 5000)
+            setError(e)
             return null
           }
-
-          await loginStateContext.refresh()
         }}
         className={css`
           display: flex;
@@ -102,21 +102,37 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
             margin-bottom: 2rem;
           `}
         >
-          {/* eslint-disable-next-line i18next/no-literal-string */}
-          {t("login-description")} <a href="https://mooc.fi">mooc.fi</a> {t("login-description2")}
+          {}
+          {t("login-description")}{" "}
+          <a
+            className={css`
+              color: ${baseTheme.colors.blue[500]}!important;
+            `}
+            href="https://mooc.fi"
+            // eslint-disable-next-line i18next/no-literal-string
+          >
+            mooc.fi
+          </a>{" "}
+          {t("login-description2")}
         </div>
         <TextField
           label={t("label-email")}
-          onChange={(event) => setEmail(event.target.value)}
+          onChange={(event) => {
+            setEmail(event.target.value)
+            setCredentialsError(false)
+          }}
           required
         />
         <TextField
           type="password"
           label={t("label-password")}
-          onChange={(event) => setPassword(event.target.value)}
+          onChange={(event) => {
+            setPassword(event.target.value)
+            setCredentialsError(false)
+          }}
           required
         />
-        {notification && (
+        {credentialsError && (
           <div
             aria-live="assertive"
             className={css`
@@ -124,9 +140,10 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
               border: 2px solid ${baseTheme.colors.red[500]};
               font-weight: bold;
               color: ${baseTheme.colors.red[500]};
+              margin-top: 1rem;
             `}
           >
-            {notification}
+            {t("incorrect-email-or-password")}
           </div>
         )}
         <Button
@@ -148,21 +165,40 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
             display: none;
           `}
         >
-          <Link href="/sign-up">{t("create-new-account")}</Link>
+          <Link
+            className={css`
+              color: ${baseTheme.colors.blue[500]}!important;
+            `}
+            href="/sign-up"
+          >
+            {t("create-new-account")}
+          </Link>
         </div>
         <div
           className={css`
             margin-bottom: 1.5rem;
           `}
         >
-          <a href="https://tmc.mooc.fi/password_reset_keys/new">{t("forgot-password")}</a>
+          <a
+            className={css`
+              color: ${baseTheme.colors.blue[500]}!important;
+            `}
+            href="https://tmc.mooc.fi/password_reset_keys/new"
+          >
+            {t("forgot-password")}
+          </a>
         </div>
         <div
           className={css`
             margin-bottom: 1.5rem;
           `}
         >
-          <a href={`/signup?return_to=${encodeURIComponent(returnToForLinkToSignupPage)}`}>
+          <a
+            className={css`
+              color: ${baseTheme.colors.blue[500]}!important;
+            `}
+            href={`/signup?return_to=${encodeURIComponent(returnToForLinkToSignupPage)}`}
+          >
             {t("create-an-acount")}
           </a>
         </div>

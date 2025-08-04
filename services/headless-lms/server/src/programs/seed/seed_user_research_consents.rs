@@ -1,4 +1,4 @@
-use headless_lms_models::{user_research_consents, PKeyPolicy};
+use headless_lms_models::{PKeyPolicy, user_research_consents};
 use sqlx::{Pool, Postgres};
 
 use super::seed_users::SeedUsersResult;
@@ -19,6 +19,7 @@ pub async fn seed_user_research_consents(
         example_normal_user_ids,
         teaching_and_learning_services_user_id,
         student_without_research_consent: _,
+        student_without_country,
         material_viewer_user_id,
         user_user_id,
         student_1_user_id,
@@ -28,6 +29,7 @@ pub async fn seed_user_research_consents(
         student_5_user_id,
         student_6_user_id,
         langs_user_id,
+        sign_up_user,
     } = seed_users_result;
 
     user_research_consents::upsert(&mut conn, PKeyPolicy::Generate, admin_user_id, true).await?;
@@ -77,6 +79,14 @@ pub async fn seed_user_research_consents(
         true,
     )
     .await?;
+    user_research_consents::upsert(
+        &mut conn,
+        PKeyPolicy::Generate,
+        student_without_country,
+        true,
+    )
+    .await?;
+    user_research_consents::upsert(&mut conn, PKeyPolicy::Generate, sign_up_user, true).await?;
 
     for user_id in example_normal_user_ids {
         user_research_consents::upsert(&mut conn, PKeyPolicy::Generate, user_id, true).await?;

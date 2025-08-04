@@ -1,6 +1,7 @@
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import _ from "lodash"
+import { orderBy } from "natural-orderby"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
 import ReactDOM from "react-dom"
@@ -9,7 +10,6 @@ import { v4 } from "uuid"
 import StateRenderer from "../components/StateRenderer"
 import {
   CurrentStateMessageData,
-  EditorExercisePublicSpec,
   ExerciseIframeState,
   MessageToParent,
   ModelSolutionSpec,
@@ -24,11 +24,14 @@ import { UploadResultMessage } from "@/shared-module/common/exercise-service-pro
 import { isMessageToIframe } from "@/shared-module/common/exercise-service-protocol-types.guard"
 import useExerciseServiceParentConnection from "@/shared-module/common/hooks/useExerciseServiceParentConnection"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { RunResult } from "@/tmc/cli"
+import { extractTarZstd } from "@/util/helpers"
 
 const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
   const iframeId = v4().slice(0, 4)
 
   const [state, setState] = useState<ExerciseIframeState | null>(null)
+  const [testRequestResponse, setTestRequestResponse] = useState<RunResult | null>(null)
   const [fileUploadResponse, setFileUploadResponse] = useState<UploadResultMessage | null>(null)
   const router = useRouter()
   const rawMaxWidth = router?.query?.width
@@ -46,13 +49,13 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
     }
     setState((old) => {
       const newState = updater(old)
-      if (newState?.viewType == "exercise-editor" && newState.privateSpec) {
+      if (newState?.view_type == "exercise-editor" && newState.private_spec) {
         // send updated private spec
-        sendSpecToParent(port, { private_spec: newState.privateSpec })
-      } else if (newState?.viewType == "answer-exercise") {
+        sendSpecToParent(port, { private_spec: newState.private_spec })
+      } else if (newState?.view_type == "answer-exercise") {
         // send user answer
-        sendSpecToParent(port, { private_spec: newState.userAnswer })
-      } else if (newState?.viewType == "view-submission") {
+        sendSpecToParent(port, { private_spec: newState.user_answer })
+      } else if (newState?.view_type == "view-submission") {
         sendSpecToParent(port, { private_spec: newState.submission })
       }
       return newState
@@ -66,35 +69,42 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
         ReactDOM.flushSync(() => {
           if (messageData.view_type === "exercise-editor") {
             setState({
-              viewType: messageData.view_type,
-              exerciseTaskId: messageData.exercise_task_id,
-              repositoryExercises: messageData.repository_exercises || null,
-              privateSpec: messageData.data.private_spec as PrivateSpec,
+              view_type: messageData.view_type,
+              exercise_task_id: messageData.exercise_task_id,
+              repository_exercises: messageData.repository_exercises || null,
+              private_spec: messageData.data.private_spec as PrivateSpec,
             })
           } else if (messageData.view_type === "answer-exercise") {
-            setState((oldState) => {
-              const newPublicSpec = messageData.data.public_spec as EditorExercisePublicSpec
-              const previousSubmission = messageData.data
-                .previous_submission as ExerciseTaskSubmission | null
-              return {
-                viewType: messageData.view_type,
-                initialPublicSpec:
-                  oldState?.viewType === "answer-exercise"
-                    ? oldState.initialPublicSpec
-                    : // cloneDeep prevents setState from changing the initial spec
-                      _.cloneDeep(newPublicSpec),
-                userAnswer: publicSpecToTemplateUserAnswer(newPublicSpec),
-                previousSubmission,
-              }
-            })
+            const newPublicSpec = messageData.data.public_spec as PublicSpec
+            publicSpecToIframeUserAnswer(newPublicSpec)
+              .then((userAnswer) => {
+                setState((oldState) => {
+                  const previousSubmission = messageData.data
+                    .previous_submission as ExerciseTaskSubmission | null
+                  return {
+                    view_type: messageData.view_type,
+                    public_spec:
+                      oldState?.view_type === "answer-exercise"
+                        ? oldState.public_spec
+                        : // cloneDeep prevents setState from changing the initial spec
+                          _.cloneDeep(newPublicSpec),
+                    user_answer: userAnswer,
+                    previous_submission: previousSubmission,
+                  }
+                })
+              })
+              .catch((error) => {
+                // todo: proper error handling
+                throw new Error(`Failed to process public spec: ${error}`)
+              })
           } else if (messageData.view_type === "view-submission") {
             setState({
-              viewType: messageData.view_type,
-              exerciseTaskId: messageData.exercise_task_id,
+              view_type: messageData.view_type,
+              exercise_task_id: messageData.exercise_task_id,
               grading: messageData.data.grading,
               submission: messageData.data.user_answer as UserAnswer,
-              publicSpec: messageData.data.public_spec as PublicSpec,
-              modelSolutionSpec: messageData.data.model_solution_spec as ModelSolutionSpec,
+              public_spec: messageData.data.public_spec as PublicSpec,
+              model_solution_spec: messageData.data.model_solution_spec as ModelSolutionSpec,
             })
           } else {
             error(iframeId, "Unknown view type received from parent")
@@ -105,15 +115,15 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
         if (messageData.success) {
           // using the wrapper here because we want to let the frontend know
           setStateAndSend(port, (old) => {
-            if (old && old.viewType === "answer-exercise" && old.userAnswer.type === "editor") {
+            if (old && old.view_type === "answer-exercise" && old.user_answer.type === "editor") {
               const state = { ...old }
               let archiveDownloadUrl = "null"
               messageData.urls.forEach((val) => {
                 archiveDownloadUrl = val
               })
-              state.userAnswer = {
+              state.user_answer = {
                 type: "editor",
-                archiveDownloadUrl,
+                archive_download_url: archiveDownloadUrl,
               }
               return state
             } else {
@@ -125,6 +135,21 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
         } else {
           error(iframeId, "Failed to upload:", messageData.error)
         }
+      } else if (messageData.message == "repository-exercises") {
+        setState((oldState) => {
+          if (oldState && oldState.view_type === "exercise-editor") {
+            const sorted = orderBy(messageData.repository_exercises, (re) => re.part + re.name)
+            return {
+              ...oldState,
+              repository_exercises: sorted,
+            }
+          } else {
+            return oldState
+          }
+        })
+      } else if (messageData.message === "test-results") {
+        // start task to monitor test results
+        setTestRequestResponse(messageData.test_result as RunResult)
       } else {
         error(iframeId, "Unexpected message from parent")
       }
@@ -145,12 +170,16 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
         <StateRenderer
           setState={(updater) => setStateAndSend(port, updater)}
           state={state}
+          testRequestResponse={testRequestResponse}
           sendFileUploadMessage={(filename, file) => {
             const files = new Map()
             files.set(filename, file)
             sendFileUploadMessage(port, files)
           }}
           fileUploadResponse={fileUploadResponse}
+          requestRepositoryExercises={() => {
+            requestRepositoryExercises(port)
+          }}
         />
       </div>
     </HeightTrackingContainer>
@@ -179,16 +208,32 @@ const sendFileUploadMessage = (port: MessagePort | null, files: Map<string, stri
   }
 }
 
-const publicSpecToTemplateUserAnswer = (publicSpec: PublicSpec): UserAnswer => {
+const requestRepositoryExercises = (port: MessagePort | null) => {
+  if (port) {
+    const requestRepositoryExercises: MessageToParent = {
+      message: "request-repository-exercises",
+    }
+    port.postMessage(requestRepositoryExercises)
+  }
+}
+
+const publicSpecToIframeUserAnswer = async (publicSpec: PublicSpec): Promise<UserAnswer> => {
   if (publicSpec.type == "browser") {
-    return { type: "browser", files: publicSpec.files }
+    // dl archive
+    debug("fetching ", publicSpec.stub_download_url)
+    const stubResponse = await fetch(publicSpec.stub_download_url)
+
+    // unpack zstd
+    const tarZstdArchive = await stubResponse.arrayBuffer()
+    const files = await extractTarZstd(Buffer.from(tarZstdArchive))
+
+    return { type: "browser", files }
   } else if (publicSpec.type == "editor") {
-    return { type: "editor", archiveDownloadUrl: publicSpec.archiveDownloadUrl }
+    return { type: "editor", archive_download_url: publicSpec.stub_download_url }
   } else {
     throw new Error("unreachable")
   }
 }
-
 const debug = (iframeId: string, message: string, ...optionalParams: unknown[]): void => {
   console.debug(`[tmc-iframe/${iframeId}]`, message, ...optionalParams)
 }

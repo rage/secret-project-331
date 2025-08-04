@@ -1,14 +1,14 @@
 use std::sync::Arc;
 
 use headless_lms_models::{
-    chatbot_configurations::{self, ChatbotConfiguration},
+    PKeyPolicy,
+    chatbot_configurations::{self, NewChatbotConf},
     course_instances::{self, NewCourseInstance},
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy},
     courses::NewCourse,
     library::{self, content_management::CreateNewCourseFixedIds, copying::copy_course},
     organizations,
     roles::{self, RoleDomain, UserRole},
-    PKeyPolicy,
 };
 use uuid::Uuid;
 
@@ -17,8 +17,9 @@ use sqlx::{Pool, Postgres};
 use crate::{
     domain::models_requests::{self, JwtKey},
     programs::seed::{
-        seed_courses::{seed_sample_course, CommonCourseData},
+        seed_courses::{CommonCourseData, seed_sample_course},
         seed_file_storage::SeedFileStorageResult,
+        seed_helpers::get_seed_spec_fetcher,
     },
 };
 
@@ -35,8 +36,8 @@ pub async fn seed_organization_uh_mathstat(
     info!("seeding organization uh-mathstat");
 
     let SeedUsersResult {
-        admin_user_id,
-        teacher_user_id: _,
+        teacher_user_id,
+        admin_user_id: _,
         language_teacher_user_id: _,
         material_viewer_user_id,
         assistant_user_id: _,
@@ -44,6 +45,7 @@ pub async fn seed_organization_uh_mathstat(
         example_normal_user_ids,
         teaching_and_learning_services_user_id: _,
         student_without_research_consent: _,
+        student_without_country: _,
         user_user_id: _,
         student_1_user_id: _,
         student_2_user_id: _,
@@ -52,6 +54,7 @@ pub async fn seed_organization_uh_mathstat(
         student_5_user_id: _,
         student_6_user_id: _,
         langs_user_id,
+        sign_up_user: _,
     } = seed_users_result;
     let _ = seed_file_storage_result;
 
@@ -90,6 +93,7 @@ pub async fn seed_organization_uh_mathstat(
         join_code: None,
         ask_marketing_consent: false,
         flagged_answers_threshold: Some(3),
+        can_add_chatbot: false,
     };
     let (
         statistics_course,
@@ -103,8 +107,8 @@ pub async fn seed_organization_uh_mathstat(
             default_course_instance_id: Uuid::parse_str("8e4aeba5-1958-49bc-9b40-c9f0f0680911")?,
         }),
         new_course,
-        admin_user_id,
-        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key)),
+        teacher_user_id,
+        get_seed_spec_fetcher(),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -140,6 +144,7 @@ pub async fn seed_organization_uh_mathstat(
         join_code: None,
         ask_marketing_consent: false,
         flagged_answers_threshold: Some(3),
+        can_add_chatbot: false,
     };
     library::content_management::create_new_course(
         &mut conn,
@@ -148,48 +153,56 @@ pub async fn seed_organization_uh_mathstat(
             default_course_instance_id: Uuid::parse_str("5cb4b4d6-4599-4f81-ab7e-79b415f8f584")?,
         }),
         draft_course,
-        admin_user_id,
-        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key)),
+        teacher_user_id,
+        get_seed_spec_fetcher(),
         models_requests::fetch_service_info,
     )
     .await?;
 
-    let cody_only_course = NewCourse {
-        name: "Joinable by code only".to_string(),
-        slug: "joinable-by-code-only".to_string(),
-        organization_id: uh_mathstat_id,
-        language_code: "en-US".to_string(),
-        teacher_in_charge_name: "admin".to_string(),
-        teacher_in_charge_email: "admin@example.com".to_string(),
-        description: "Just a draft.".to_string(),
-        is_draft: false,
-        is_test_mode: false,
-        is_unlisted: false,
-        copy_user_permissions: false,
-        is_joinable_by_code_only: true,
-        join_code: Some(
-            "zARvZARjYhESMPVceEgZyJGQZZuUHVVgcUepyzEqzSqCMdbSCDrTaFhkJTxBshWU".to_string(),
-        ),
-        ask_marketing_consent: false,
-        flagged_answers_threshold: Some(3),
-    };
-    library::content_management::create_new_course(
+    let (cody_only_course, _, _, _) = library::content_management::create_new_course(
         &mut conn,
         PKeyPolicy::Fixed(CreateNewCourseFixedIds {
             course_id: Uuid::parse_str("39a52e8c-ebbf-4b9a-a900-09aa344f3691")?,
             default_course_instance_id: Uuid::parse_str("5b7286ce-22c5-4874-ade1-262949c4a604")?,
         }),
-        cody_only_course,
-        admin_user_id,
-        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key)),
+        NewCourse {
+            name: "Joinable by code only".to_string(),
+            slug: "joinable-by-code-only".to_string(),
+            organization_id: uh_mathstat_id,
+            language_code: "en-US".to_string(),
+            teacher_in_charge_name: "admin".to_string(),
+            teacher_in_charge_email: "admin@example.com".to_string(),
+            description: "Just a draft.".to_string(),
+            is_draft: false,
+            is_test_mode: false,
+            is_unlisted: false,
+            copy_user_permissions: false,
+            is_joinable_by_code_only: true,
+            join_code: Some(
+                "zARvZARjYhESMPVceEgZyJGQZZuUHVVgcUepyzEqzSqCMdbSCDrTaFhkJTxBshWU".to_string(),
+            ),
+            ask_marketing_consent: false,
+            flagged_answers_threshold: Some(3),
+            can_add_chatbot: false,
+        },
+        teacher_user_id,
+        get_seed_spec_fetcher(),
         models_requests::fetch_service_info,
+    )
+    .await?;
+
+    roles::insert(
+        &mut conn,
+        teacher_user_id,
+        UserRole::Teacher,
+        RoleDomain::Course(cody_only_course.id),
     )
     .await?;
 
     let uh_data = CommonCourseData {
         db_pool: db_pool.clone(),
         organization_id: uh_mathstat_id,
-        admin_user_id,
+        teacher_user_id,
         student_user_id: student_3_user_id,
         langs_user_id,
         example_normal_user_ids: Arc::new(example_normal_user_ids.to_vec()),
@@ -201,6 +214,7 @@ pub async fn seed_organization_uh_mathstat(
         "Introduction to citations",
         "introduction-to-citations",
         uh_data.clone(),
+        false,
         seed_users_result,
     )
     .await?;
@@ -224,9 +238,10 @@ pub async fn seed_organization_uh_mathstat(
             join_code: None,
             ask_marketing_consent: false,
             flagged_answers_threshold: Some(3),
+            can_add_chatbot: false,
         },
         true,
-        admin_user_id,
+        teacher_user_id,
     )
     .await?;
 
@@ -235,6 +250,7 @@ pub async fn seed_organization_uh_mathstat(
         "Preview unopened chapters",
         "preview-unopened-chapters",
         uh_data.clone(),
+        false,
         seed_users_result,
     )
     .await?;
@@ -244,6 +260,7 @@ pub async fn seed_organization_uh_mathstat(
         "Reset progress",
         "reset-progress",
         uh_data.clone(),
+        false,
         seed_users_result,
     )
     .await?;
@@ -253,6 +270,7 @@ pub async fn seed_organization_uh_mathstat(
         "Change path",
         "change-path",
         uh_data.clone(),
+        false,
         seed_users_result,
     )
     .await?;
@@ -262,6 +280,7 @@ pub async fn seed_organization_uh_mathstat(
         "Self review",
         "self-review",
         uh_data.clone(),
+        false,
         seed_users_result,
     )
     .await?;
@@ -271,6 +290,7 @@ pub async fn seed_organization_uh_mathstat(
         "Audio course",
         "audio-course",
         uh_data.clone(),
+        false,
         seed_users_result,
     )
     .await?;
@@ -280,6 +300,7 @@ pub async fn seed_organization_uh_mathstat(
         "Course for Suspected Cheaters",
         "course-for-suspected-cheaters",
         uh_data.clone(),
+        false,
         seed_users_result,
     )
     .await?;
@@ -310,17 +331,14 @@ pub async fn seed_organization_uh_mathstat(
         "Chatbot",
         "chatbot",
         uh_data.clone(),
+        true,
         seed_users_result,
     )
     .await?;
 
     chatbot_configurations::insert(
         &mut conn,
-        ChatbotConfiguration {
-            id: Uuid::parse_str("d13daa6e-7a14-40b9-92a9-58bd5793d2de")?,
-            created_at: chrono::Utc::now(),
-            updated_at: chrono::Utc::now(),
-            deleted_at: None,
+        NewChatbotConf {
             course_id: chatbot_course_id,
             enabled_to_students: true,
             chatbot_name: "Genetic Lifeform and Disk Operating System".to_string(),
@@ -337,6 +355,7 @@ pub async fn seed_organization_uh_mathstat(
             maintain_azure_search_index: false,
             hide_citations: false,
             use_semantic_reranking: false,
+            default_chatbot: true,
         },
     )
     .await?;
@@ -346,6 +365,17 @@ pub async fn seed_organization_uh_mathstat(
         "Giveaway",
         "giveaway",
         uh_data.clone(),
+        false,
+        seed_users_result,
+    )
+    .await?;
+
+    let _custom_points_course_id = seed_sample_course(
+        Uuid::parse_str("db5cd9c7-1658-4214-896e-8213678d3534")?,
+        "Custom points",
+        "custom-points",
+        uh_data.clone(),
+        false,
         seed_users_result,
     )
     .await?;

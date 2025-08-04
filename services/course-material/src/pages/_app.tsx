@@ -1,3 +1,4 @@
+import { OverlayProvider } from "@react-aria/overlays"
 import { QueryClientProvider } from "@tanstack/react-query"
 import type { AppProps } from "next/app"
 import Script from "next/script"
@@ -78,16 +79,16 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
         {OUTDATED_BROWSER_WARNING_SCRIPT}
       </Script>
 
-      <DialogProvider>
-        <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <OverlayProvider>
           <GlobalStyles />
           <LoginStateContextProvider>
             <Layout>
               <Component {...pageProps} />
             </Layout>
           </LoginStateContextProvider>
-        </QueryClientProvider>
-      </DialogProvider>
+        </OverlayProvider>
+      </QueryClientProvider>
     </>
   )
 }

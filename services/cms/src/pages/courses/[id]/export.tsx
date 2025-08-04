@@ -91,13 +91,14 @@ const ExportPage: React.FC<React.PropsWithChildren<ExportPageProps>> = ({ query 
           throw new Error("Course has no pages")
         }
         const pageInfo = await fetchPageInfo(pages[0].id)
+        const tarData = tarBuilder.finish()
         save(
           // eslint-disable-next-line i18next/no-literal-string
           `Page export ${pageInfo.course_slug} ${dateToString(new Date()).replaceAll(
             ":",
             ".",
           )}.tar`,
-          tarBuilder.finish(),
+          tarData,
         )
       } finally {
         setTotalSteps(0)
@@ -126,7 +127,8 @@ const ExportPage: React.FC<React.PropsWithChildren<ExportPageProps>> = ({ query 
 
 function save(filename: string, data: Uint8Array) {
   console.info(`Downloading ${filename}`)
-  const blob = new Blob([data], { type: "application/gzip" })
+  const dataAsUint8Array = new Uint8Array(data)
+  const blob = new Blob([dataAsUint8Array], { type: "application/gzip" })
 
   const elem = window.document.createElement("a")
   elem.href = window.URL.createObjectURL(blob)

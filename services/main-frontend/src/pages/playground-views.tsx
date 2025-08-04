@@ -64,7 +64,7 @@ const StyledPre = styled.pre<{ fullWidth: boolean }>`
   font-size: 13px;
   max-width: ${(props) => (props.fullWidth ? FULL_WIDTH : HALF_WIDTH)};
   max-height: 700px;
-  overflow: scroll;
+  overflow: auto;
   white-space: pre-wrap;
   resize: vertical;
 
@@ -79,7 +79,7 @@ const GridContainer = styled.div`
   margin: 0 auto;
 
   display: grid;
-  grid-gap: 0;
+  gap: 0;
   grid-template-rows: auto;
   grid-template-columns: 1fr;
   grid-template-areas:
@@ -93,7 +93,7 @@ const GridContainer = styled.div`
     "model-solution-spec";
 
   ${respondToOrLarger.xl} {
-    grid-gap: 2rem;
+    gap: 2rem;
     grid-template-columns: 1fr 1fr;
     grid-template-areas:
       "service-info-url misc-settings"
@@ -104,7 +104,7 @@ const GridContainer = styled.div`
 
   ${respondToOrLarger.xxxxxl} {
     padding: 4rem;
-    grid-gap: 2rem;
+    gap: 2rem;
     max-width: 5000px;
     grid-template-columns: 1fr 1fr 1fr 1fr;
     grid-template-areas:

@@ -54,17 +54,6 @@ pub struct ExerciseTaskSubmissionResult {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct UploadMetadata {
-    pub slide_id: Uuid,
-    pub task_id: Uuid,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct UploadResult {
-    pub download_url: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
 pub enum ExerciseTaskSubmissionStatus {
     NoGradingYet,
     Grading {
@@ -89,4 +78,21 @@ pub enum GradingProgress {
     Pending,
     /// The grading process is completed; the score value, if any, represents the current Final Grade;
     FullyGraded,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ExerciseUpdatesRequest<'a> {
+    pub exercises: &'a [ExerciseUpdateData<'a>],
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ExerciseUpdateData<'a> {
+    pub id: Uuid,
+    pub checksum: &'a str,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ExerciseUpdates {
+    pub updated_exercises: Vec<Uuid>,
+    pub deleted_exercises: Vec<Uuid>,
 }

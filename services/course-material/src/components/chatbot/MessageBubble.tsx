@@ -4,6 +4,8 @@ import React, { useMemo } from "react"
 import ThinkingIndicator from "./ThinkingIndicator"
 
 import { baseTheme } from "@/shared-module/common/styles"
+import { getRemarkable } from "@/utils/getRemarkable"
+import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
 
 interface MessageBubbleProps {
   message: string
@@ -16,6 +18,8 @@ const bubbleStyle = (isFromChatbot: boolean) => css`
   padding: 1rem;
   border-radius: 10px;
   width: fit-content;
+  max-width: stretch;
+  overflow-wrap: break-word;
   margin: 0.5rem 0;
   ${isFromChatbot
     ? `
@@ -31,6 +35,34 @@ const bubbleStyle = (isFromChatbot: boolean) => css`
     `}
 `
 
+const messageStyle = css`
+  table {
+    margin: 20px 0 20px 0;
+    border-collapse: collapse;
+  }
+  thead {
+    background-color: ${baseTheme.colors.clear[200]};
+  }
+  tbody td {
+    text-align: center;
+    padding: 5px;
+  }
+  tbody tr:nth-child(odd) {
+    background-color: #ffffff;
+  }
+  tbody tr:nth-child(even) {
+    background-color: ${baseTheme.colors.clear[200]};
+  }
+  pre {
+    /*the pre element corresponds to md raw text, this property
+    will force long strings in it to wrap and not overflow */
+    white-space: pre-wrap;
+  }
+  white-space: pre-wrap;
+`
+
+let md = getRemarkable()
+
 const MessageBubble: React.FC<MessageBubbleProps> = ({
   message,
   isFromChatbot,
@@ -38,14 +70,18 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   hideCitations,
 }) => {
   const processedMessage = useMemo(() => {
+    let renderedMessage = message
     if (hideCitations) {
-      return message.replace(/\[.*?\]/g, "")
+      renderedMessage = renderedMessage.replace(/\[.*?\]/g, "")
     }
-    return message
-  }, [hideCitations, message])
+    if (isFromChatbot) {
+      renderedMessage = sanitizeCourseMaterialHtml(md.render(renderedMessage).trim())
+    }
+    return renderedMessage
+  }, [hideCitations, message, isFromChatbot])
   return (
     <div className={bubbleStyle(isFromChatbot)}>
-      <span>{processedMessage}</span>
+      <span className={messageStyle} dangerouslySetInnerHTML={{ __html: processedMessage }}></span>
       {isPending && <ThinkingIndicator />}
     </div>
   )

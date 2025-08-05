@@ -11,7 +11,7 @@
 ```tsx
 // In components:
 const { alert, confirm, prompt } = useDialog()
-await alert("Title", "Message")
-const confirmed = await confirm("Are you sure?") // returns boolean
-const name = await prompt("Enter name", "Message", "default") // returns string | null
+await alert("Here is the body text", "Optional title")
+const confirmed = await confirm("Do you really want to continue?", "Please confirm")
+const name = await prompt("What's your name?", "Enter name", "default value")
 ```

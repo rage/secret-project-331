@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import React, { useEffect, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import StandardDialog from "./StandardDialog"
 
@@ -20,6 +21,7 @@ const PromptDialog: React.FC<PromptDialogProps> = ({
   onConfirm,
   onCancel,
 }) => {
+  const { t } = useTranslation()
   const [value, setValue] = useState(defaultValue)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -42,10 +44,9 @@ const PromptDialog: React.FC<PromptDialogProps> = ({
       onClose={onCancel}
       title={title}
       buttons={[
-        // eslint-disable-next-line i18next/no-literal-string
-        { children: "Cancel", variant: "secondary", onClick: onCancel },
+        { children: t("button-cancel"), variant: "secondary", onClick: onCancel },
 
-        { children: "OK", variant: "primary", onClick: () => onConfirm(value) },
+        { children: t("button-ok"), variant: "primary", onClick: () => onConfirm(value) },
       ]}
     >
       <div>

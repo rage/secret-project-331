@@ -31,12 +31,7 @@ const ModuleCompletionReprocessButton: React.FC<
         variant="secondary"
         size="medium"
         onClick={async () => {
-          if (
-            await confirm(
-              t("reprocess-module-completions"),
-              t("message-are-you-sure-you-want-to-reprocess-submissions"),
-            )
-          ) {
+          if (await confirm(t("message-are-you-sure-you-want-to-reprocess-submissions"))) {
             return postReprocessCompletionsMutation.mutate()
           }
         }}

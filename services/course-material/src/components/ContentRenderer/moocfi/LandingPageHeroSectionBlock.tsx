@@ -11,24 +11,32 @@ const LandingPageHeroSectionBlock: React.FC<
 > = (props) => {
   // We allow only one block as a inner block and it cannot have too much text
   const filteredInnerBlocks = useMemo(() => {
-    const firstBlock = props.data.innerBlocks[0]
-    // Disallow too long text
+    const firstBlock = props.data.innerBlocks?.[0]
+
+    if (!firstBlock) {
+      return []
+    }
+
+    const copiedBlock = { ...firstBlock }
+
     if (
-      firstBlock.attributes &&
-      typeof firstBlock.attributes === "object" &&
-      "content" in firstBlock.attributes &&
-      typeof firstBlock.attributes.content === "string"
+      copiedBlock.attributes &&
+      typeof copiedBlock.attributes === "object" &&
+      "content" in copiedBlock.attributes &&
+      typeof copiedBlock.attributes.content === "string"
     ) {
-      let content = firstBlock.attributes.content as string
+      let content = copiedBlock.attributes.content as string
+      // Disallow too long text
       if (content.length > 300) {
         content = content.slice(0, 300) + "..."
       }
       // Remove all newlines
       content = content.replace(/\n/g, " ")
-      firstBlock.attributes.content = content
+
+      copiedBlock.attributes = { ...copiedBlock.attributes, content }
     }
 
-    return [firstBlock]
+    return [copiedBlock]
   }, [props.data.innerBlocks])
   return (
     <BreakFromCentered sidebar={false}>

@@ -14,7 +14,7 @@ oauth2 = "5.0.0"
 # A generic serialization/deserialization framework
 serde = { version = "1.0.219", features = ["derive"] }
 # A JSON serialization file format
-serde_json = "1.0.140"
+serde_json = "1.0.142"
 # derive(Error)
 thiserror = "2.0.12"
 # A library to generate and parse UUIDs.

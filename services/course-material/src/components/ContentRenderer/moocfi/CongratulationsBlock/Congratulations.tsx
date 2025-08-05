@@ -79,7 +79,7 @@ const StyledBackground = styled(BackgroundImage)`
 const ModuleWrapper = styled.div`
   display: grid;
   grid-template-columns: minmax(auto, 480px);
-  grid-gap: 20px;
+  gap: 20px;
   margin-top: 3rem;
   justify-content: center;
 

@@ -22,6 +22,7 @@ test("Success notifications work", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "success-notification-test",
     waitForTheseToBeVisibleAndStable: [page.getByText("Success").first().first()],
+    dontWaitForSpinnersToDisappear: true,
   })
   await showToastsNormally(page)
 })

@@ -1,7 +1,7 @@
 use models::{pages::SearchRequest, user_details::UserDetail};
 
-use crate::prelude::*;
-use headless_lms_utils::ip_to_country::IpToCountryMapper;
+use crate::{controllers, prelude::*};
+use headless_lms_utils::{ip_to_country::IpToCountryMapper, tmc::TmcClient};
 use std::net::IpAddr;
 
 /**
@@ -117,6 +117,22 @@ pub async fn get_users_by_course_id(
     token.authorized_ok(web::Json(res))
 }
 
+/**
+GET `/api/v0/main-frontend/user-details/user-details-for-user` - Get authenticated user's own details
+*/
+#[instrument(skip(pool))]
+pub async fn get_user_details_for_user(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<UserDetail>> {
+    let mut conn = pool.acquire().await?;
+
+    let token = skip_authorize();
+    let user_id = user.id;
+    let res = models::user_details::get_user_details_by_user_id(&mut conn, user_id).await?;
+    token.authorized_ok(web::Json(res))
+}
+
 pub async fn get_user_country_by_ip(
     req: HttpRequest,
     ip_to_country_mapper: web::Data<IpToCountryMapper>,
@@ -136,6 +152,96 @@ pub async fn get_user_country_by_ip(
     token.authorized_ok(country)
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct UserInfoPayload {
+    pub email: String,
+    pub first_name: String,
+    pub last_name: String,
+    pub country: String,
+    pub email_communication_consent: bool,
+}
+
+/**
+POST `/api/v0/main-frontend/user-details/update-user-info` - Updates the users information such as email, name, country and email communication consent
+*/
+#[instrument(skip(pool, app_conf, tmc_client))]
+pub async fn update_user_info(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    payload: web::Json<UserInfoPayload>,
+    tmc_client: web::Data<TmcClient>,
+    app_conf: web::Data<ApplicationConfiguration>,
+) -> ControllerResult<web::Json<UserDetail>> {
+    let mut tx = pool.begin().await?;
+
+    let existing_user = models::user_details::get_user_details_by_user_id(&mut tx, user.id)
+        .await
+        .context("Failed to fetch existing user data")?;
+
+    let user = models::users::get_by_id(&mut tx, user.id)
+        .await
+        .context("Failed to fetch user")?;
+
+    let updated_user = models::user_details::update_user_info(
+        &mut tx,
+        user.id,
+        &payload.email,
+        &payload.first_name,
+        &payload.last_name,
+        &payload.country,
+        payload.email_communication_consent,
+    )
+    .await
+    .context("Failed to update database")?;
+
+    let email_changed = existing_user.email != payload.email;
+    let first_name_changed = existing_user.first_name != Some(payload.first_name.clone());
+    let last_name_changed = existing_user.last_name != Some(payload.last_name.clone());
+
+    if !app_conf.test_mode && (email_changed || first_name_changed || last_name_changed) {
+        let email_opt = if email_changed {
+            Some(payload.email.clone())
+        } else {
+            None
+        };
+
+        let upstream_id = user
+            .upstream_id
+            .ok_or_else(|| {
+                ControllerError::new(
+                    ControllerErrorType::InternalServerError,
+                    "Missing upstream_id".to_string(),
+                    None,
+                )
+            })?
+            .to_string();
+
+        controllers::auth::update_user_information_to_tmc(
+            payload.first_name.clone(),
+            payload.last_name.clone(),
+            email_opt,
+            upstream_id,
+            tmc_client.clone(),
+            app_conf,
+        )
+        .await
+        .map_err(|e| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                "Failed to update user info to tmc",
+                e,
+            )
+        })?;
+    } else {
+        info!("User info unchanged, skipping update to TMC.");
+    }
+
+    tx.commit().await?;
+    let token = skip_authorize();
+    token.authorized_ok(web::Json(updated_user))
+}
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/search-by-email", web::post().to(search_users_by_email))
         .route(
@@ -148,6 +254,11 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route("/user/{user_id}", web::get().to(get_user_details))
         .route("/users-ip-country", web::get().to(get_user_country_by_ip))
+        .route(
+            "/user-details-for-user",
+            web::get().to(get_user_details_for_user),
+        )
+        .route("/update-user-info", web::post().to(update_user_info))
         .route(
             "/{course_id}/get-users-by-course-id",
             web::get().to(get_users_by_course_id),

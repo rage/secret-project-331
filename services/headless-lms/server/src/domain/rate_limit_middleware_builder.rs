@@ -1,8 +1,8 @@
 use std::{future::Ready, time::Duration};
 
 use actix_extensible_rate_limit::{
-    backend::{memory::InMemoryBackend, SimpleInput, SimpleInputFunctionBuilder, SimpleOutput},
     RateLimiter,
+    backend::{SimpleInput, SimpleInputFunctionBuilder, SimpleOutput, memory::InMemoryBackend},
 };
 use actix_web::dev::ServiceRequest;
 

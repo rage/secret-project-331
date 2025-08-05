@@ -14,6 +14,8 @@ const testClient = (handler: NextApiHandler) => {
         previewModeId: "",
         previewModeEncryptionKey: "",
         previewModeSigningKey: "",
+        dev: false,
+        projectDir: "",
       },
       false,
     )

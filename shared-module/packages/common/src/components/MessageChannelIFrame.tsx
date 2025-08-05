@@ -29,7 +29,18 @@ interface MessageChannelIFrameProps {
   headingBeforeIframe?: string
 }
 
-// const IFRAME_TITLE = "Exercise type specific content"
+const useIframeSandboxingAttribute = (disableSandbox: boolean) => {
+  if (disableSandbox) {
+    return undefined
+  }
+  // Allow same origin in development ONLY so that the Next.js dev overlay works. Note that exercise plugins should be tested with the host program in production mode.
+  if (process.env.NODE_ENV === "development") {
+    // eslint-disable-next-line i18next/no-literal-string
+    return "allow-scripts allow-forms allow-downloads allow-same-origin"
+  }
+  // eslint-disable-next-line i18next/no-literal-string
+  return "allow-scripts allow-forms allow-downloads"
+}
 
 const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFrameProps>> = ({
   url,
@@ -43,6 +54,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
   const { t, i18n } = useTranslation()
   const language = i18n.language
   const iframeRef = useRef<HTMLIFrameElement>(null)
+  const iframeSandboxAttribute = useIframeSandboxingAttribute(disableSandbox)
 
   const [lastThingPosted, setLastThingPosted] = useState<unknown>(null)
 
@@ -93,32 +105,41 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
       return
     }
     const temporaryEventHandler = (e: WindowEventMap["message"]) => {
-      // Verify the source of the message. Origin is always null if the IFrame is
-      // sandboxed without allow-same-origin
+      // Verify the source of the message. Origin can be "null" if the IFrame is
+      // sandboxed without allow-same-origin, or it can be the same as window.location.origin
       if (
-        (!disableSandbox && e.origin !== "null") ||
+        (!disableSandbox && e.origin !== "null" && e.origin !== window.location.origin) ||
         e.source !== iframeRef.current?.contentWindow
       ) {
+        // Only log if this was a "ready" message to avoid noise from other messages
+        if (e.data === "ready") {
+          console.warn("[MessageChannelIFrame] Received ready message from invalid origin", {
+            origin: e.origin,
+            expectedOrigins: ["null", window.location.origin],
+            isSandboxed: !disableSandbox,
+          })
+        }
         return
       }
+
       if (e.data !== "ready") {
-        console.warn(`Unsupported message from IFrame: ${e.data}`)
+        console.warn(`[MessageChannelIFrame] Unsupported message from IFrame: ${e.data}`)
         return
       }
 
       if (iframeRef.current && iframeRef.current.contentWindow) {
-        console.info("Parent posting message port to iframe")
+        console.info("[MessageChannelIFrame] Parent posting message port to iframe")
         try {
           // The iframe will use port 2 for communication
           iframeRef.current.contentWindow.postMessage("communication-port", "*", [
             messageChannel.port2,
           ])
         } catch (e) {
-          console.error("Posting communication port to iframe failed", e)
+          console.error("[MessageChannelIFrame] Posting communication port to iframe failed", e)
         }
       } else {
         console.error(
-          "Could not send port to iframe because the target iframe content window could not be found.",
+          "[MessageChannelIFrame] Could not send port to iframe because the target iframe content window could not be found.",
         )
       }
       removeEventListener("message", temporaryEventHandler)
@@ -201,7 +222,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
         </h4>
       )}
       <iframe
-        sandbox={disableSandbox ? undefined : "allow-scripts allow-forms allow-downloads"}
+        sandbox={iframeSandboxAttribute}
         className={css`
           overflow: hidden;
           width: 100%;

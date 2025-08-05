@@ -16,10 +16,6 @@ test("User can add missing country information", async ({ page }) => {
     // Form to fill missing country
     // the course instance selection is sometimes prompted before the country
     // so we will await both simultaneously
-    const courseInstancePrompt = async () => {
-      await selectCourseInstanceIfPrompted(page)
-      await expect(page.getByText("Success", { exact: true })).toBeVisible()
-    }
     const countryPrompt = async () => {
       await expect(page.getByRole("heading", { name: "Fill missing information" })).toBeVisible()
       await page.getByRole("button", { name: "Select a country Where do you" }).click()
@@ -27,7 +23,7 @@ test("User can add missing country information", async ({ page }) => {
       await page.getByRole("button", { name: "Save" }).click()
       await expect(page.getByText("Success", { exact: true })).toBeVisible()
     }
-    await Promise.all([courseInstancePrompt(), countryPrompt()])
+    await Promise.all([selectCourseInstanceIfPrompted(page), countryPrompt()])
 
     // Go to user setting and change users country
     await page.getByRole("button", { name: "Open menu" }).click()

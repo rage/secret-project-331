@@ -151,18 +151,36 @@ jobs:
         working-directory: ./system-tests/
         if: ${{ github.ref != 'refs/heads/master' }}
 
-      - name: Headless lms logs
-        run: kubectl logs 'deployment/headless-lms'
+      # upload logs for all the services on failure
+      - name: Save service logs to disk
         if: failure()
+        run: |
+          mkdir ./logs
+          kubectl logs 'deployment/chatbot-syncer' > ./logs/chatbot-syncer.log
+          kubectl logs 'deployment/cms' > ./logs/cms.log
+          kubectl logs 'deployment/course-material' > ./logs/course-material.log
+          kubectl logs 'deployment/example-exercise' > ./logs/example-exercise.log
+          kubectl logs 'deployment/headless-lms' > ./logs/headless-lms.log
+          kubectl logs 'deployment/mailchimp-syncer' > ./logs/mailchimp-syncer.log
+          kubectl logs 'deployment/main-frontend' > ./logs/main-frontend.log
+          kubectl logs 'deployment/quizzes' > ./logs/quizzes.log
+      - name: Upload logs
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: service-logs
+          path: ./logs/*
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: test-results
           path: ./system-tests/test-results/
           if-no-files-found: ignore
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload playwright report
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: playwright-html-report

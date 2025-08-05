@@ -56,4 +56,11 @@ test("can add and delete exercise service", async ({ page, headless }, testInfo)
     },
     clearNotifications: true,
   })
+
+  await page.getByTestId("exercise-service-card-new-exercise-service").getByLabel("Delete").click()
+  // confirm
+  await page.getByRole("button").getByText("Delete").click()
+  for (const locator of await page.getByText("New exercise service").all()) {
+    await expect(locator).toBeHidden()
+  }
 })

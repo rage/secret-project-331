@@ -116,6 +116,29 @@ const CertificateView: React.FC<Props> = ({
           {t("text-anchor")}: {configuration.certificate_date_text_anchor}
         </div>
       </div>
+      <hr />
+      <div>
+        <h3>{t("label-grade")}</h3>
+        <div>
+          {t("label-show-grade-in-cerfiticate")}:{" "}
+          {configuration.render_certificate_grade ? t("yes") : t("no")}
+        </div>
+        <div>
+          {t("position-x")}: {configuration.certificate_grade_x_pos}
+        </div>
+        <div>
+          {t("position-y")}: {configuration.certificate_grade_y_pos}
+        </div>
+        <div>
+          {t("font-size")}: {configuration.certificate_grade_font_size}
+        </div>
+        <div>
+          {t("text-color")}: {configuration.certificate_grade_text_color}
+        </div>
+        <div>
+          {t("text-anchor")}: {configuration.certificate_grade_text_anchor}
+        </div>
+      </div>
       <div
         className={css`
           display: flex;

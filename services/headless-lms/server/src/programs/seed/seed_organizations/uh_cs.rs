@@ -3,7 +3,7 @@ use std::sync::Arc;
 use chrono::{Duration, TimeZone, Utc};
 use futures::try_join;
 use headless_lms_models::{
-    course_exams,
+    PKeyPolicy, course_exams,
     course_instances::{self, NewCourseInstance},
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy},
     courses::NewCourse,
@@ -14,7 +14,6 @@ use headless_lms_models::{
     },
     open_university_registration_links, organizations,
     roles::{self, RoleDomain, UserRole},
-    PKeyPolicy,
 };
 use headless_lms_utils::futures::run_parallelly;
 use uuid::Uuid;
@@ -23,8 +22,8 @@ use crate::{
     domain::models_requests::{self, JwtKey},
     programs::seed::{
         seed_courses::{
-            create_glossary_course, seed_cs_course_material,
-            seed_peer_review_course_without_submissions, seed_sample_course, CommonCourseData,
+            CommonCourseData, create_glossary_course, seed_cs_course_material,
+            seed_peer_review_course_without_submissions, seed_sample_course,
         },
         seed_file_storage::SeedFileStorageResult,
         seed_helpers::{create_exam, get_seed_spec_fetcher},
@@ -67,6 +66,7 @@ pub async fn seed_organization_uh_cs(
         student_5_user_id: _,
         student_6_user_id: _,
         langs_user_id,
+        sign_up_user: _,
     } = seed_users_result;
     let _ = seed_file_storage_result;
 
@@ -117,6 +117,7 @@ pub async fn seed_organization_uh_cs(
             "Introduction to everything",
             "introduction-to-everything",
             cs_data.clone(),
+            false,
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
@@ -124,6 +125,7 @@ pub async fn seed_organization_uh_cs(
             "Automatic Completions",
             "automatic-completions",
             cs_data.clone(),
+            false,
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
@@ -131,6 +133,7 @@ pub async fn seed_organization_uh_cs(
             "Introduction to localizing",
             "introduction-to-localizing",
             cs_data.clone(),
+            false,
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
@@ -138,6 +141,7 @@ pub async fn seed_organization_uh_cs(
             "Manual Completions",
             "manual-completions",
             cs_data.clone(),
+            false,
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
@@ -145,6 +149,7 @@ pub async fn seed_organization_uh_cs(
             "Automatic Course with Exam",
             "automatic-course-with-exam",
             cs_data.clone(),
+            false,
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
@@ -152,6 +157,7 @@ pub async fn seed_organization_uh_cs(
             "Certificates",
             "certificates",
             cs_data.clone(),
+            false,
             seed_users_result,
         )),
         // not using these ids
@@ -160,6 +166,7 @@ pub async fn seed_organization_uh_cs(
             "Model solutions",
             "model-solutions",
             cs_data.clone(),
+            false,
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
@@ -167,6 +174,7 @@ pub async fn seed_organization_uh_cs(
             "Course Modules",
             "course-modules",
             cs_data.clone(),
+            false,
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
@@ -174,6 +182,7 @@ pub async fn seed_organization_uh_cs(
             "Introduction to feedback",
             "introduction-to-feedback",
             cs_data.clone(),
+            false,
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
@@ -181,6 +190,7 @@ pub async fn seed_organization_uh_cs(
             "Introduction to history",
             "introduction-to-history",
             cs_data.clone(),
+            false,
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
@@ -188,6 +198,7 @@ pub async fn seed_organization_uh_cs(
             "Introduction to edit proposals",
             "introduction-to-edit-proposals",
             cs_data.clone(),
+            false,
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
@@ -195,6 +206,7 @@ pub async fn seed_organization_uh_cs(
             "Point view for teachers",
             "point-view-for-teachers",
             cs_data.clone(),
+            false,
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
@@ -202,6 +214,7 @@ pub async fn seed_organization_uh_cs(
             "Advanced course instance management",
             "advanced-course-instance-management",
             cs_data.clone(),
+            false,
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
@@ -209,6 +222,7 @@ pub async fn seed_organization_uh_cs(
             "Advanced exercise states",
             "advanced-exercise-states",
             cs_data.clone(),
+            false,
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
@@ -216,6 +230,7 @@ pub async fn seed_organization_uh_cs(
             "Glossary course",
             "glossary-course",
             cs_data.clone(),
+            false,
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
@@ -223,6 +238,7 @@ pub async fn seed_organization_uh_cs(
             "Permission management",
             "permission-management",
             cs_data.clone(),
+            false,
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
@@ -230,6 +246,7 @@ pub async fn seed_organization_uh_cs(
             "Redirections",
             "redirections",
             cs_data.clone(),
+            false,
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
@@ -237,6 +254,7 @@ pub async fn seed_organization_uh_cs(
             "Limited tries",
             "limited-tries",
             cs_data.clone(),
+            false,
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
@@ -244,6 +262,7 @@ pub async fn seed_organization_uh_cs(
             "Course Structure",
             "course-structure",
             cs_data.clone(),
+            false,
             seed_users_result,
         )),
         run_parallelly(create_glossary_course(
@@ -255,7 +274,15 @@ pub async fn seed_organization_uh_cs(
             "Peer review Course",
             "peer-review-course",
             cs_data.clone(),
-        ))
+        )),
+        run_parallelly(seed_sample_course(
+            Uuid::parse_str("557040ea-31bc-47ae-81bd-caeec45a08d0")?,
+            "TestMyCode",
+            "tmc-course",
+            cs_data.clone(),
+            false,
+            seed_users_result
+        )),
     )?;
 
     // configure automatic completions
@@ -486,6 +513,7 @@ pub async fn seed_organization_uh_cs(
         join_code: None,
         ask_marketing_consent: false,
         flagged_answers_threshold: Some(3),
+        can_add_chatbot: false,
     };
     let (cs_course, _cs_front_page, _cs_default_course_instance, _cs_default_course_module) =
         library::content_management::create_new_course(

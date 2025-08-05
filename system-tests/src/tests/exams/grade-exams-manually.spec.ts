@@ -145,7 +145,9 @@ test("Grade exams manually", async ({}) => {
   await expect(teacherPage.getByText("Graded").nth(1)).toBeVisible()
   await expect(teacherPage.getByRole("cell", { name: "0.5/ 1" })).toBeVisible()
 
+  // Navigate back to the questions overview page
   await teacherPage.getByRole("link", { name: "Questions" }).click()
+  await teacherPage.getByRole("heading", { name: "Submissions" }).waitFor({ state: "hidden" })
 
   // Check question 1 is fully graded and unpublished
   await expect(teacherPage.getByText("Graded", { exact: true })).toBeVisible()

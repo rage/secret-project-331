@@ -42,12 +42,17 @@
         "ordinal": 7,
         "name": "country",
         "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "email_communication_consent",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
       "Left": ["Uuid"]
     },
-    "nullable": [false, false, false, true, true, false, true, true]
+    "nullable": [false, false, false, true, true, false, true, true, false]
   },
   "hash": "31ec5a4b089caf670c2b3ea745433235b142e889e7ee61621fbf8d4be62bc35d"
 }

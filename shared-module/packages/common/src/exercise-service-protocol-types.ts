@@ -7,7 +7,11 @@ import { isSetStateMessage } from "./exercise-service-protocol-types.guard"
  *
  * to: parent
  */
-export type MessageFromIframe = CurrentStateMessage | HeightChangedMessage | FileUploadMessage
+export type MessageFromIframe =
+  | CurrentStateMessage
+  | HeightChangedMessage
+  | FileUploadMessage
+  | RequestRepositoryExercisesMessage
 
 export interface CurrentStateMessage {
   message: "current-state"
@@ -30,12 +34,21 @@ export interface FileUploadMessage {
   files: Map<string, string | Blob>
 }
 
+export interface RequestRepositoryExercisesMessage {
+  message: "request-repository-exercises"
+}
+
 /**
  * from: Parent
  *
  * to: IFrame
  */
-export type MessageToIframe = SetLanguageMessage | SetStateMessage | UploadResultMessage
+export type MessageToIframe =
+  | SetLanguageMessage
+  | SetStateMessage
+  | UploadResultMessage
+  | RepositoryExercisesMessage
+  | TestResultsMessage
 
 export interface SetLanguageMessage {
   message: "set-language"
@@ -59,6 +72,16 @@ export type UploadResultMessage = {
       error: string
     }
 )
+
+export type RepositoryExercisesMessage = {
+  message: "repository-exercises"
+  repository_exercises: Array<RepositoryExercise>
+}
+
+export type TestResultsMessage = {
+  message: "test-results"
+  test_result: unknown
+}
 
 /**
  * Checks if the message is a set state messages but doesn't require all the fields in the object to match

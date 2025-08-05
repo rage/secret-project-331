@@ -199,8 +199,12 @@ const ErrorBanner: React.FC<React.PropsWithChildren<BannerProps>> = (props) => {
       )
     } else if (error.isAxiosError) {
       const axiosError = error as AxiosError
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const responseMessage = (axiosError.response?.data as any)?.message
+      const responseData = axiosError.response?.data
+      const responseMessage =
+        typeof responseData === "object" && responseData !== null && "message" in responseData
+          ? (responseData as { message: string }).message
+          : undefined
+
       return (
         <BannerWrapper>
           <Content>
@@ -211,12 +215,12 @@ const ErrorBanner: React.FC<React.PropsWithChildren<BannerProps>> = (props) => {
               {responseMessage && <p>{responseMessage}</p>}
             </Text>
             <DetailTag>
-              {Boolean(axiosError.response?.data) && (
+              {Boolean(responseData) && (
                 <details>
                   <summary>{t("show-error-source")}</summary>
                   <ul>
                     <li>
-                      <pre>{JSON.stringify(axiosError.response?.data, undefined, 2)}</pre>
+                      <pre>{JSON.stringify(responseData, undefined, 2)}</pre>
                     </li>
                   </ul>
                 </details>

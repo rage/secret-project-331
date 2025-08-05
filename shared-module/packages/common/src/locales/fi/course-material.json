@@ -67,6 +67,7 @@
   "delete": "Poista",
   "do-you-want-to-send-changes": "Haluatko lähettää muutokset?",
   "dont-know-how-to-render-this-assignment": "En tiedä miten piirtää tätä tehtävää.",
+  "email-communication-consent-checkbox-text": "Suostun siihen, että minulle lähetetään sähköpostitse viestintää, joka koskee MOOC.fi-palvelun kursseja ja oppimisympäristön kehittämistä. Viestintä voi sisältää esimerkiksi tiedotteita uusista kursseista ja palveluista, uutiskirjeitä tai kutsuja käyttäjäkyselyihin.",
   "ends-at-time": "Päättyy: {{time}}",
   "enroll": "Aloita",
   "enter-country-question": "Missä asut?",

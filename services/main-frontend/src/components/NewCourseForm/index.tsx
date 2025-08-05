@@ -22,7 +22,7 @@ export interface NewCourseFormProps {
   onSuccess?: () => void
 }
 
-export interface FormFields extends Omit<NewCourse, "organization_id"> {
+export interface FormFields extends Omit<NewCourse, "organization_id" | "can_add_chatbot"> {
   createDuplicate: boolean
   courseId: string
   useExistingLanguageGroup: boolean

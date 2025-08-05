@@ -16,8 +16,6 @@ build:
       context: services/headless-lms
       docker:
         dockerfile: Dockerfile.production.cache.dockerfile
-        cacheFrom:
-          - eu.gcr.io/moocfi-public/secret-project-headless-lms-production-build-cache:latest
     - image: eu.gcr.io/moocfi-public/secret-project-headless-lms-production-slim
       context: services/headless-lms
       docker:
@@ -31,8 +29,6 @@ build:
       context: services/cms
       docker:
         dockerfile: Dockerfile.production.cache.dockerfile
-        cacheFrom:
-          - eu.gcr.io/moocfi-public/secret-project-cms-production-build-cache:latest
     - image: eu.gcr.io/moocfi-public/secret-project-cms-production-slim
       context: services/cms
       docker:
@@ -46,8 +42,6 @@ build:
       context: services/course-material
       docker:
         dockerfile: Dockerfile.production.cache.dockerfile
-        cacheFrom:
-          - eu.gcr.io/moocfi-public/secret-project-course-material-production-build-cache:latest
     - image: eu.gcr.io/moocfi-public/secret-project-course-material-production-slim
       context: services/course-material
       docker:
@@ -61,8 +55,6 @@ build:
       context: services/main-frontend
       docker:
         dockerfile: Dockerfile.production.cache.dockerfile
-        cacheFrom:
-          - eu.gcr.io/moocfi-public/secret-project-main-frontend-production-build-cache:latest
     - image: eu.gcr.io/moocfi-public/secret-project-main-frontend-production-slim
       context: services/main-frontend
       docker:
@@ -76,8 +68,6 @@ build:
       context: services/example-exercise
       docker:
         dockerfile: Dockerfile.production.cache.dockerfile
-        cacheFrom:
-          - eu.gcr.io/moocfi-public/secret-project-example-exercise-production-build-cache:latest
     - image: eu.gcr.io/moocfi-public/secret-project-example-exercise-production-slim
       context: services/example-exercise
       docker:
@@ -91,8 +81,6 @@ build:
       context: services/quizzes
       docker:
         dockerfile: Dockerfile.production.cache.dockerfile
-        cacheFrom:
-          - eu.gcr.io/moocfi-public/secret-project-quizzes-production-build-cache:latest
     - image: eu.gcr.io/moocfi-public/secret-project-quizzes-production-slim
       context: services/quizzes
       docker:
@@ -106,8 +94,6 @@ build:
       context: services/tmc
       docker:
         dockerfile: Dockerfile.production.cache.dockerfile
-        cacheFrom:
-          - eu.gcr.io/moocfi-public/secret-project-tmc-production-build-cache:latest
     - image: eu.gcr.io/moocfi-public/secret-project-tmc-production-slim
       context: services/tmc
       docker:

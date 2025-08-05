@@ -1,8 +1,11 @@
 import * as cp from "child_process"
+import * as fs from "node:fs/promises"
+import path from "node:path"
 import * as readline from "readline"
+import { temporaryDirectory, temporaryFile } from "tempy"
 import kill from "tree-kill"
 
-import { Compression, ExercisePackagingConfiguration, OutputData } from "./cli"
+import { Compression, ExercisePackagingConfiguration, OutputData, RunResult } from "./cli"
 import { isCliOutput } from "./cli.guard"
 
 const execute = async (
@@ -213,4 +216,32 @@ export const fastAvailablePoints = async (
   } else {
     throw new Error("Unexpected data")
   }
+}
+
+export const runBrowserTest = async (
+  archive_url: string,
+  filepath: string,
+  filedata: string,
+  log: (message: string, ...optionalParams: unknown[]) => void,
+): Promise<RunResult | null> => {
+  const archiveTempFile = temporaryFile()
+  const archiveResponse = await fetch(archive_url)
+  const archiveBuf = await archiveResponse.arrayBuffer()
+  await fs.writeFile(archiveTempFile, Buffer.from(archiveBuf))
+
+  const exerciseDir = temporaryDirectory()
+  // todo check extract results
+  await execute(
+    "extract-project",
+    ["--archive-path", archiveTempFile, "--output-path", exerciseDir],
+    log,
+  )
+  // write user input
+  await fs.writeFile(path.join(exerciseDir, filepath), filedata)
+
+  const testResults = await execute("run-tests", ["--exercise-path", exerciseDir], log)
+  if (testResults.data?.["output-data-kind"] === "test-result") {
+    return testResults.data["output-data"]
+  }
+  return null
 }

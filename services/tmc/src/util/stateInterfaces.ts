@@ -19,7 +19,7 @@ export type ExerciseEditorState = {
 
 export type AnswerExerciseState = {
   view_type: "answer-exercise"
-  initial_public_spec: PublicSpec
+  public_spec: PublicSpec
   user_answer: UserAnswer
   previous_submission: ExerciseTaskSubmission | null
 }
@@ -38,18 +38,16 @@ export type PrivateSpec = {
   repository_exercise: RepositoryExercise
 }
 
-export type PublicSpec = BrowserExercisePublicSpec | EditorExercisePublicSpec
-
-export interface BrowserExercisePublicSpec {
-  type: "browser"
-  files: Array<ExerciseFile>
+export type PublicSpec = {
+  type: "browser" | "editor"
+  archive_name: string
+  stub_download_url: string
+  student_file_paths: Array<string>
+  checksum: string
 }
 
-export interface EditorExercisePublicSpec {
-  type: "editor"
-  archive_name: string
-  archive_download_url: string
-  checksum: string
+export type ModelSolutionSpec = {
+  solution_download_url: string
 }
 
 export type MessageToParent =
@@ -62,31 +60,19 @@ export type CurrentStateMessageData =
   | { private_spec: PrivateSpec | UserAnswer }
   | { public_spec: PublicSpec }
 
-export type UserAnswer = BrowserAnswer | EditorAnswer
+export type UserAnswer = BrowserUserAnswer | EditorUserAnswer
 
-export interface BrowserAnswer {
+export type BrowserUserAnswer = {
   type: "browser"
   files: Array<ExerciseFile>
 }
 
-export interface EditorAnswer {
+export type EditorUserAnswer = {
   type: "editor"
   archive_download_url: string
 }
 
-export type ModelSolutionSpec = BrowserExerciseModelSolutionSpec | EditorExerciseModelSolutionSpec
-
-export interface BrowserExerciseModelSolutionSpec {
-  type: "browser"
-  solution_files: Array<ExerciseFile>
-}
-
-export interface EditorExerciseModelSolutionSpec {
-  type: "editor"
-  download_url: string
-}
-
-export interface ExerciseFile {
+export type ExerciseFile = {
   filepath: string
   contents: string
 }

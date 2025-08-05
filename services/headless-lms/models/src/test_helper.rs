@@ -4,7 +4,7 @@ use std::error::Error;
 use tokio::sync::Mutex;
 use tracing_error::ErrorLayer;
 use tracing_log::LogTracer;
-use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
+use tracing_subscriber::{EnvFilter, layer::SubscriberExt};
 
 pub fn setup_tracing() -> Result<(), Box<dyn Error>> {
     let subscriber = tracing_subscriber::Registry::default()
@@ -177,7 +177,8 @@ macro_rules! insert_data {
                 is_joinable_by_code_only: false,
                 join_code: None,
                 ask_marketing_consent:false,
-                flagged_answers_threshold: Some(3)
+                flagged_answers_threshold: Some(3),
+                can_add_chatbot: false,
             },
             $user,
             |_, _, _| unimplemented!(),

@@ -12,7 +12,7 @@ use models::{
 use crate::{
     controllers::helpers::file_uploading::upload_image_for_organization,
     domain::authorization::{
-        authorize_with_fetched_list_of_roles, skip_authorize, Action, AuthorizedResponse, Resource,
+        Action, Resource, AuthorizedResponse, authorize_with_fetched_list_of_roles, skip_authorize,
     },
     prelude::*,
 };

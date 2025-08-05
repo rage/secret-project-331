@@ -1,9 +1,12 @@
 {
+  "are-you-sure": "Are you sure?",
   "download-exercise": "Download exercise",
   "download-submission-button": "Download",
   "file-upload-save-failure": "Failed to save file upload",
   "file-upload-save-success": "File upload saved successfully.",
+  "no-exercise-files": "No exercise files found. This is an error in the exercise.",
   "no-file-saved-yet": "No file saved yet.",
+  "no-student-files": "No student files found. This is an error in the exercise.",
   "reset": "Reset",
   "reset-file": "Reset file",
   "save-file-for-submission": "Save file for submission",
@@ -15,6 +18,7 @@
   "solve-in-editor-label": "Solve in an external editor",
   "submission-archive-download-label": "The submitted archive can be downloaded from the following link",
   "submit": "Submit",
+  "test": "Test",
   "upload-solution-instructions": "Upload solution archive. Supported archive types: .tar.zst",
   "waiting-for-content": "Waiting for content...",
   "waiting-for-port": "Waiting for port..."

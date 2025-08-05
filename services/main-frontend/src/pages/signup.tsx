@@ -12,6 +12,7 @@ import ResearchOnCoursesForm from "../components/forms/ResearchOnCoursesForm"
 import { fetchCountryFromIP } from "@/services/backend/user-details"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import SearchableSelect from "@/shared-module/common/components/InputFields/SearchableSelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
@@ -32,6 +33,7 @@ interface FormFields {
   password: string
   password_confirmation: string
   country: string
+  email_communication_consent: boolean
 }
 
 const Wrapper = styled.div`
@@ -149,7 +151,15 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
 
   const createAccountMutation = useToastMutation<unknown, unknown, FormFields>(
     async (data) => {
-      const { first_name, last_name, email, password, password_confirmation, country } = data
+      const {
+        first_name,
+        last_name,
+        email,
+        password,
+        password_confirmation,
+        country,
+        email_communication_consent,
+      } = data
       await createUser({
         email: email,
         first_name: first_name,
@@ -158,6 +168,7 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
         password: password,
         password_confirmation: password_confirmation,
         country: country,
+        email_communication_consent: Boolean(email_communication_consent),
       })
     },
     { notify: true, method: "POST" },
@@ -170,6 +181,7 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
           password: "",
           password_confirmation: "",
           country: "",
+          email_communication_consent: false,
         })
         setConfirmEmailPageVisible(true)
         loginStateContext.refresh()
@@ -280,6 +292,9 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
             rules={{ required: t("required-field") }}
             render={({ field }) => (
               <SearchableSelect
+                className={css`
+                  margin-bottom: 10px;
+                `}
                 label={t("enter-country-question")}
                 options={countriesNames}
                 onChangeByValue={(value) => field.onChange(value)}
@@ -335,6 +350,15 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
             required={true}
             error={errors.password_confirmation}
           />
+
+          <CheckBox
+            className={css`
+              margin-top: 1rem;
+            `}
+            defaultChecked={false}
+            label={t("email-communication-consent-checkbox-text")}
+            {...register("email_communication_consent")}
+          ></CheckBox>
         </fieldset>
         <input
           disabled={!isValid || createAccountMutation.isPending}

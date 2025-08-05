@@ -44,6 +44,10 @@ const config = {
   },
 
   transpilePackages: ["@vectopus/atlas-icons-react"],
+  // The dev indicators don't work inside sandboxed IFrames as they try to access localstorage, which is not allowed without the allow-same-origin option.
+  devIndicators: false,
+  // This program is used inside sandboxed iframes so the origin of request to the _next folder will be different from the origin of the page.
+  allowedDevOrigins: ["*", "project-331.local"],
 }
 
 if (process.env.NEXT_PUBLIC_BASE_PATH) {

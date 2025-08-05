@@ -82,6 +82,7 @@ const CourseDescription = styled.div`
   /* Limit line count to 3 */
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  /* stylelint-disable-next-line property-no-deprecated */
   -webkit-box-orient: vertical;
 
   font-family: ${primaryFont};

@@ -2,10 +2,10 @@
 
 use crate::{domain::authorization::authorize, prelude::*};
 
+use models::library::TimeGranularity;
 use models::library::global_stats::{
     CourseCompletionStats, DomainCompletionStats, GlobalCourseModuleStatEntry, GlobalStatEntry,
 };
-use models::library::TimeGranularity;
 use std::collections::HashMap;
 
 /**

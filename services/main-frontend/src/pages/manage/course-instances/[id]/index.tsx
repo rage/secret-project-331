@@ -21,6 +21,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import { manageCourseRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 export interface ManageCourseInstancesProps {
@@ -63,8 +64,7 @@ const ManageCourseInstances: React.FC<React.PropsWithChildren<ManageCourseInstan
     },
     {
       onSuccess: (_, courseId) => {
-        // eslint-disable-next-line i18next/no-literal-string
-        router.push(`/manage/courses/${courseId}`)
+        router.push(manageCourseRoute(courseId))
       },
     },
   )

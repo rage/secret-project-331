@@ -26,6 +26,8 @@ COPY --from=builder /ips-to-country /ips-to-country
 
 # ICU4X data provider blob
 COPY --from=builder /icu4x.postcard /icu4x.postcard
+# TODO: Remove this in the next release, this is a temporary file for compatibility
+COPY --from=builder /icu4x.postcard.2 /icu4x.postcard.2
 
 USER user
 

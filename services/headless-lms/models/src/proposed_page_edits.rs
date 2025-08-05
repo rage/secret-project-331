@@ -1,4 +1,4 @@
-use std::collections::{hash_map::Entry, HashMap};
+use std::collections::{HashMap, hash_map::Entry};
 
 use futures::future::BoxFuture;
 use headless_lms_utils::{document_schema_processor::GutenbergBlock, merge_edits};
@@ -6,6 +6,7 @@ use serde_json::Value;
 use url::Url;
 
 use crate::{
+    SpecFetcher,
     exercise_service_info::ExerciseServiceInfoApi,
     page_history::HistoryChangeReason,
     pages::{CmsPageUpdate, PageUpdateArgs},
@@ -14,7 +15,6 @@ use crate::{
         BlockProposal, BlockProposalAction, BlockProposalInfo, EditedBlockNoLongerExistsData,
         EditedBlockStillExistsData, NewProposedBlockEdit, ProposalStatus,
     },
-    SpecFetcher,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
@@ -428,7 +428,7 @@ WHERE id = $2
 
 #[cfg(test)]
 mod test {
-    use headless_lms_utils::document_schema_processor::{attributes, GutenbergBlock};
+    use headless_lms_utils::document_schema_processor::{GutenbergBlock, attributes};
 
     use super::*;
     use crate::{pages::PageUpdateArgs, proposed_block_edits::*, test_helper::*};

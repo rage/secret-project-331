@@ -1,5 +1,5 @@
 use crate::{controllers::helpers::file_uploading, prelude::*};
-use actix_multipart::form::{tempfile::TempFile, MultipartForm};
+use actix_multipart::form::{MultipartForm, tempfile::TempFile};
 use chrono::Utc;
 use headless_lms_certificates as certificates;
 use headless_lms_utils::{file_store::file_utils, icu4x::Icu4xBlob};
@@ -35,6 +35,12 @@ pub struct CertificateConfigurationUpdate {
     pub background_svg_file_name: Option<String>,
     pub overlay_svg_file_name: Option<String>,
     pub clear_overlay_svg_file: bool,
+    pub render_certificate_grade: bool,
+    pub certificate_grade_y_pos: Option<String>,
+    pub certificate_grade_x_pos: Option<String>,
+    pub certificate_grade_font_size: Option<String>,
+    pub certificate_grade_text_color: Option<String>,
+    pub certificate_grade_text_anchor: Option<CertificateTextAnchor>,
 }
 
 #[derive(Debug, MultipartForm)]
@@ -278,6 +284,12 @@ async fn update_certificate_configuration_inner(
         background_svg_file_upload_id,
         overlay_svg_path: overlay_svg_file_path,
         overlay_svg_file_upload_id: overlay_svg_file_id,
+        render_certificate_grade: metadata.render_certificate_grade,
+        certificate_grade_y_pos: metadata.certificate_grade_y_pos,
+        certificate_grade_x_pos: metadata.certificate_grade_x_pos,
+        certificate_grade_font_size: metadata.certificate_grade_font_size,
+        certificate_grade_text_color: metadata.certificate_grade_text_color,
+        certificate_grade_text_anchor: metadata.certificate_grade_text_anchor,
     };
     if let Some(existing_configuration) = existing_configuration {
         // update existing config
@@ -302,6 +314,7 @@ async fn update_certificate_configuration_inner(
 pub struct CertificateGenerationRequest {
     pub certificate_configuration_id: Uuid,
     pub name_on_certificate: String,
+    pub grade: Option<String>,
 }
 
 /**

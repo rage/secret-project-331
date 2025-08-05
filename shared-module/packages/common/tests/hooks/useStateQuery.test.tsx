@@ -27,7 +27,7 @@ describe("useStateQuery hook", () => {
     expect(hookResult.result.current.state).toBe("disabled")
     hookResult.rerender()
     expect(hookResult.result.current.state).toBe("disabled")
-    expect(query).not.toBeCalled()
+    expect(query).not.toHaveBeenCalled()
   })
 
   test("executes query if all keys are defined", async () => {
@@ -42,7 +42,7 @@ describe("useStateQuery hook", () => {
       expect(hookResult.result.current.state).toBe("ready")
     })
 
-    expect(query).toBeCalled()
+    expect(query).toHaveBeenCalled()
   })
 
   test("results in error if query fails", async () => {

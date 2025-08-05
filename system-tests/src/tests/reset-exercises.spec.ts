@@ -37,7 +37,10 @@ test("Can manually reset exercises", async () => {
     .getByRole("checkbox", { name: "a" })
     .click()
 
-  await student1Page.getByRole("button", { name: "Submit" }).click()
+  // disabled: false prevents the selector from selecting an incorrect Submit button
+  // as it'll instead wait for an enabled one. although playwright does auto-wait on click(),
+  // in this case it can select a button that will never be enabled and wait for it instead
+  await student1Page.getByRole("button", { name: "Submit", disabled: false }).click()
   await student1Page.getByRole("button", { name: "Try again" }).waitFor({ state: "visible" })
 
   // eslint-disable-next-line playwright/no-wait-for-timeout

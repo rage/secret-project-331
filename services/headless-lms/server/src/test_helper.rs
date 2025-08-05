@@ -2,7 +2,10 @@ use crate::{
     config::{ServerConfig, ServerConfigBuilder},
     setup_tracing,
 };
-use headless_lms_utils::{file_store::local_file_store::LocalFileStore, ApplicationConfiguration};
+
+use headless_lms_utils::{
+    ApplicationConfiguration, file_store::local_file_store::LocalFileStore, tmc::TmcClient,
+};
 use sqlx::{Connection, PgConnection, Postgres, Transaction};
 use std::{env, sync::Arc};
 use tokio::sync::Mutex;
@@ -15,7 +18,7 @@ postgres://headless-lms:only-for-local-development-intentionally-public@postgres
         oauth_application_id: "some-id".to_string(),
         oauth_secret: "some-secret".to_string(),
         auth_url: "http://example.com".parse().unwrap(),
-        icu4x_postcard_path: "/icu4x.postcard".to_string(),
+        icu4x_postcard_path: "/icu4x.postcard.2".to_string(),
         file_store: Arc::new(futures::executor::block_on(async {
             LocalFileStore::new("uploads".into(), "http://localhost:3000".to_string())
                 .expect("Failed to initialize test file store")
@@ -25,10 +28,12 @@ postgres://headless-lms:only-for-local-development-intentionally-public@postgres
             base_url: "http://project-331.local".to_string(),
             development_uuid_login: false,
             azure_configuration: None,
+            tmc_account_creation_origin: None,
         },
         redis_url: "redis://example.com".to_string(),
         jwt_password: "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS"
             .to_string(),
+        tmc_client: TmcClient::mock_for_test(),
     }
     .build()
     .await
@@ -191,6 +196,7 @@ macro_rules! insert_data {
                 join_code: None,
                 ask_marketing_consent:false,
                 flagged_answers_threshold: Some(3),
+                can_add_chatbot: false,
             },
             $user,
             |_, _, _| unimplemented!(),

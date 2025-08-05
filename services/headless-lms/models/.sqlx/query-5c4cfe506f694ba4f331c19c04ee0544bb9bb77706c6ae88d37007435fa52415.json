@@ -102,6 +102,11 @@
         "ordinal": 19,
         "name": "hide_citations",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 20,
+        "name": "default_chatbot",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
@@ -125,6 +130,7 @@
       false,
       false,
       true,
+      false,
       false,
       false,
       false,

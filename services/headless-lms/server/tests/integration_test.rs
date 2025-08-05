@@ -1,19 +1,21 @@
 use std::{env, sync::Arc};
 
-use actix_http::{body::BoxBody, Request};
-use actix_session::{storage::CookieSessionStore, SessionMiddleware};
-use actix_web::{cookie::Key, dev::ServiceResponse, test, App};
+use actix_http::{Request, body::BoxBody};
+use actix_session::{SessionMiddleware, storage::CookieSessionStore};
+use actix_web::{App, cookie::Key, dev::ServiceResponse, test};
 use headless_lms_models::{
-    organizations::{self, Organization},
     PKeyPolicy,
+    organizations::{self, Organization},
 };
 use headless_lms_server::{
     config::{ServerConfig, ServerConfigBuilder},
     domain::models_requests::JwtKey,
     setup_tracing,
 };
-use headless_lms_utils::{file_store::local_file_store::LocalFileStore, ApplicationConfiguration};
-use sqlx::{migrate::MigrateDatabase, Connection, PgConnection, PgPool, Postgres};
+use headless_lms_utils::{
+    ApplicationConfiguration, file_store::local_file_store::LocalFileStore, tmc::TmcClient,
+};
+use sqlx::{Connection, PgConnection, PgPool, Postgres, migrate::MigrateDatabase};
 use tokio::sync::Mutex;
 use uuid::Uuid;
 
@@ -66,7 +68,7 @@ pub async fn test_config() -> ServerConfig {
         oauth_application_id: "some-id".to_string(),
         oauth_secret: "some-secret".to_string(),
         auth_url: "https://example.com".parse().unwrap(),
-        icu4x_postcard_path: "/icu4x.postcard".to_string(),
+        icu4x_postcard_path: "/icu4x.postcard.2".to_string(),
         file_store: Arc::new(futures::executor::block_on(async {
             LocalFileStore::new("uploads".into(), "http://localhost:3000".to_string())
                 .expect("Failed to initialize test file store")
@@ -76,10 +78,12 @@ pub async fn test_config() -> ServerConfig {
             base_url: "http://project-331.local".to_string(),
             development_uuid_login: false,
             azure_configuration: None,
+            tmc_account_creation_origin: None,
         },
         redis_url: "redis://example.com".to_string(),
         jwt_password: "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS"
             .to_string(),
+        tmc_client: TmcClient::mock_for_test(),
     }
     .build()
     .await
@@ -91,8 +95,10 @@ pub async fn init_actix() -> (
     impl actix_web::dev::Service<Request, Response = ServiceResponse<BoxBody>, Error = actix_web::Error>,
     PgPool,
 ) {
-    env::set_var("OAUTH_APPLICATION_ID", "some-id");
-    env::set_var("HEADLESS_LMS_CACHE_FILES_PATH", "/tmp");
+    // TODO: Audit that the environment access only happens in single-threaded code.
+    unsafe { env::set_var("OAUTH_APPLICATION_ID", "some-id") };
+    // TODO: Audit that the environment access only happens in single-threaded code.
+    unsafe { env::set_var("HEADLESS_LMS_CACHE_FILES_PATH", "/tmp") };
     let private_cookie_key =
         "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS";
     let server_config = test_config().await;

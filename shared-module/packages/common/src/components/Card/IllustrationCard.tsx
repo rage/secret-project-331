@@ -46,6 +46,7 @@ const CardContentWrapper = styled.div`
     /* For multi-line truncation: */
     display: -webkit-box;
     -webkit-line-clamp: 3; /* Limit to 3 lines */
+    /* stylelint-disable-next-line property-no-deprecated */
     -webkit-box-orient: vertical;
   }
 `

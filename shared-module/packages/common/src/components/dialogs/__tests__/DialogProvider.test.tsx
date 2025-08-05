@@ -1,20 +1,29 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react"
-import { renderHook } from "@testing-library/react-hooks"
+import { OverlayProvider } from "@react-aria/overlays"
+import { fireEvent, render, renderHook, screen, waitFor } from "@testing-library/react"
 import React from "react"
+import { I18nextProvider } from "react-i18next"
 
+import i18nTest from "../../../utils/testing/i18nTest"
 import { DialogProvider, useDialog } from "../DialogProvider"
+
+// Test wrapper with all necessary providers
+const TestWrapper: React.FC<React.PropsWithChildren> = ({ children }) => (
+  <I18nextProvider i18n={i18nTest}>
+    <OverlayProvider>
+      <DialogProvider>{children}</DialogProvider>
+    </OverlayProvider>
+  </I18nextProvider>
+)
 
 describe("useDialog hook", () => {
   it("should throw an error if used outside of DialogProvider", () => {
-    const { result } = renderHook(() => useDialog())
-    expect(result.error).toEqual(new Error("useDialog must be used within a DialogProvider"))
+    expect(() => {
+      renderHook(() => useDialog())
+    }).toThrow("useDialog must be used within a DialogProvider")
   })
 
   it("should return alert, confirm, and prompt functions when inside DialogProvider", () => {
-    const wrapper: React.FC<React.PropsWithChildren> = ({ children }) => (
-      <DialogProvider>{children}</DialogProvider>
-    )
-    const { result } = renderHook(() => useDialog(), { wrapper })
+    const { result } = renderHook(() => useDialog(), { wrapper: TestWrapper })
 
     expect(typeof result.current.alert).toBe("function")
     expect(typeof result.current.confirm).toBe("function")
@@ -38,11 +47,7 @@ describe("useDialog hook", () => {
         )
       }
 
-      render(
-        <DialogProvider>
-          <AlertOpener />
-        </DialogProvider>,
-      )
+      render(<AlertOpener />, { wrapper: TestWrapper })
 
       fireEvent.click(screen.getByText("Open Alert"))
 
@@ -82,11 +87,7 @@ describe("useDialog hook", () => {
         )
       }
 
-      render(
-        <DialogProvider>
-          <ConfirmOpener />
-        </DialogProvider>,
-      )
+      render(<ConfirmOpener />, { wrapper: TestWrapper })
 
       // First, test true
       fireEvent.click(screen.getByText("Open Confirm True"))
@@ -117,11 +118,7 @@ describe("useDialog hook", () => {
         )
       }
 
-      render(
-        <DialogProvider>
-          <PromptOpener />
-        </DialogProvider>,
-      )
+      render(<PromptOpener />, { wrapper: TestWrapper })
 
       // Open prompt and confirm
       fireEvent.click(screen.getByText("Open Prompt"))

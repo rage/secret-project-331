@@ -1,15 +1,5 @@
 import { t } from "i18next"
-import React, {
-  createContext,
-  ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useReducer,
-  useRef,
-} from "react"
-
-import dialogService from "../../services/dialogService"
+import React, { createContext, ReactNode, useCallback, useContext, useReducer, useRef } from "react"
 
 import AlertDialog from "./AlertDialog"
 import ConfirmDialog from "./ConfirmDialog"
@@ -114,10 +104,6 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     },
     [pushDialog],
   )
-
-  useEffect(() => {
-    dialogService.register({ alert, confirm, prompt })
-  }, [alert, confirm, prompt])
 
   return (
     <DialogContext.Provider value={{ alert, confirm, prompt }}>

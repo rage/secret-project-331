@@ -17,9 +17,9 @@ interface CitationPopoverProps {
   linkId: string
   setPopperElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>
   setHoverPopperElement: (value: React.SetStateAction<boolean>) => void
-  setReferenceElement: (value: React.SetStateAction<HTMLButtonElement | null>) => void
+  unfocusPopperElement: () => void
   setArrowElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>
-  focusOnRefElement: () => void
+  focusOnCitationButton: () => void
   citation: CitationType
   content: string
   popperStyles: {
@@ -131,9 +131,9 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
   linkId,
   setPopperElement,
   setHoverPopperElement,
-  setReferenceElement,
+  unfocusPopperElement,
   setArrowElement,
-  focusOnRefElement,
+  focusOnCitationButton,
   citation,
   content,
   popperStyles,
@@ -160,12 +160,9 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
       onMouseLeave={() => {
         setHoverPopperElement(false)
       }}
-      onBlur={(e) => {
-        if (e.relatedTarget?.id === `cit-${citation.citation_number}`) {
-          return
-        }
-        focusOnRefElement()
-        setReferenceElement(null)
+      onBlur={() => {
+        unfocusPopperElement()
+        focusOnCitationButton()
       }}
       {...popperAttributes.popper}
     >
@@ -194,8 +191,7 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
             id={linkId}
             onKeyDown={(e) => {
               if (e.key === "Escape") {
-                focusOnRefElement()
-                setReferenceElement(null)
+                focusOnCitationButton()
               }
             }}
           >

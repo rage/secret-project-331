@@ -21,23 +21,23 @@ interface MessageBubbleProps {
   citations: ChatbotConversationMessageCitation[] | undefined
 }
 
-interface PopState {
+interface PopperState {
   citationButton: HTMLButtonElement | null
   hoveringCitationButton: boolean
   hoveringPopperElement: boolean
-  clickedRefElement: boolean
+  citationButtonClicked: boolean
 }
 
 type MessageAction =
   | { type: "HOVER_POPPER_ELEMENT" }
   | { type: "UNHOVER_POPPER_ELEMENT" }
-  | { type: "UNFOCUS_POPPER_ELEMENT" }
+  | { type: "UNFOCUS_POPPER_ELEMENT"; payload: EventTarget | null }
   | { type: "HOVER_CITATION_BUTTON"; payload: HTMLButtonElement }
   | { type: "UNHOVER_CITATION_BUTTON" }
-  | { type: "UNFOCUS_CITATION_BUTTON" }
   | { type: "CLICK_CITATION_BUTTON"; payload: HTMLButtonElement | null }
+  | { type: "ESCAPE_POPPER_ELEMENT" }
 
-const popStateReducer = (state: PopState, action: MessageAction): PopState => {
+const popStateReducer = (state: PopperState, action: MessageAction): PopperState => {
   switch (action.type) {
     case "HOVER_POPPER_ELEMENT": {
       return { ...state, hoveringPopperElement: true }
@@ -46,14 +46,19 @@ const popStateReducer = (state: PopState, action: MessageAction): PopState => {
       return { ...state, hoveringPopperElement: false }
     }
     case "UNFOCUS_POPPER_ELEMENT":
+      console.log("UNFOCUS POP")
+      if (action.payload === state.citationButton) {
+        return state
+      }
       if (
-        state.clickedRefElement === true &&
+        state.citationButtonClicked === true &&
         state.hoveringPopperElement === false &&
         state.hoveringCitationButton === false
       ) {
+        state.citationButton?.focus()
         return {
           ...state,
-          clickedRefElement: false,
+          citationButtonClicked: false,
           citationButton: null,
         }
       }
@@ -62,22 +67,16 @@ const popStateReducer = (state: PopState, action: MessageAction): PopState => {
       return { ...state, hoveringCitationButton: true, citationButton: action.payload }
     case "UNHOVER_CITATION_BUTTON":
       return { ...state, hoveringCitationButton: false }
-    case "UNFOCUS_CITATION_BUTTON":
-      if (state.clickedRefElement === true && state.hoveringPopperElement === false) {
-        return {
-          ...state,
-          hoveringCitationButton: false,
-          clickedRefElement: false,
-          citationButton: null,
-        }
-      }
-      return { ...state, hoveringCitationButton: false }
     case "CLICK_CITATION_BUTTON":
+      console.log("CLICK")
       return {
         ...state,
         citationButton: action.payload,
-        clickedRefElement: !state.clickedRefElement,
+        citationButtonClicked: !state.citationButtonClicked,
       }
+    case "ESCAPE_POPPER_ELEMENT":
+      console.log("ESCSPE")
+      return { ...state, citationButtonClicked: false }
     default:
       return state
   }
@@ -227,10 +226,16 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     citationButton: null,
     hoveringCitationButton: false,
     hoveringPopperElement: false,
-    clickedRefElement: false,
+    citationButtonClicked: false,
   })
 
-  useClickOutside(outSideClickRef, () => dispatch({ type: "UNFOCUS_POPPER_ELEMENT" }), showPopover)
+  console.log(popState)
+
+  useClickOutside(
+    outSideClickRef,
+    (e) => dispatch({ type: "UNFOCUS_POPPER_ELEMENT", payload: e.target }),
+    showPopover,
+  )
 
   const { styles, attributes } = usePopper(popState.citationButton, popperElement, {
     placement: "top",
@@ -262,10 +267,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   })
 
   useEffect(() => {
+    console.log("inside effect")
     let timeoutId: NodeJS.Timeout | null = null
 
     if (
-      popState.clickedRefElement ||
+      popState.citationButtonClicked ||
       popState.hoveringCitationButton ||
       popState.hoveringPopperElement
     ) {
@@ -308,7 +314,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
               key={i}
               className={messageStyle(
                 popState.citationButton?.id === `cit-${citedDocs[i]}-${i}` &&
-                  popState.clickedRefElement,
+                  popState.citationButtonClicked,
               )}
             >
               <span dangerouslySetInnerHTML={{ __html: s }}></span>
@@ -318,6 +324,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                     id={`cit-${citedDocs[i]}-${i}`}
                     value={citedDocs[i]}
                     onClick={(e) => {
+                      console.log("clicked")
                       dispatch({ type: "CLICK_CITATION_BUTTON", payload: e.currentTarget })
                       setTimeout(() => {
                         document.getElementById(popperElementLinkId)?.focus()
@@ -328,12 +335,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                     }}
                     onMouseLeave={() => {
                       dispatch({ type: "UNHOVER_CITATION_BUTTON" })
-                    }}
-                    onBlur={(e) => {
-                      if (e.relatedTarget?.id === popperElementLinkId) {
-                        return
-                      }
-                      dispatch({ type: "UNFOCUS_CITATION_BUTTON" })
                     }}
                   >
                     {citedDocs[i]}
@@ -373,7 +374,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     citationsOpen,
     popperElementLinkId,
     popState.citationButton,
-    popState.clickedRefElement,
+    popState.citationButtonClicked,
   ])
 
   return (
@@ -437,9 +438,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                               dispatch({ type: "UNHOVER_POPPER_ELEMENT" })
                             }
                           }}
-                          unfocusPopperElement={() => dispatch({ type: "UNFOCUS_POPPER_ELEMENT" })}
                           setArrowElement={setArrowElement}
-                          focusOnCitationButton={() => {
+                          escape={() => {
+                            dispatch({ type: "ESCAPE_POPPER_ELEMENT" })
                             popState.citationButton?.focus()
                           }}
                           citation={cit}

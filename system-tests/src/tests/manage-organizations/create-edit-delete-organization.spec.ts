@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test"
 
+import { manageOrganization } from "../../utils/organizationUtils"
+
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
@@ -16,11 +18,7 @@ test("create new organization, edit it and it's permissions, and delete it", asy
   await page.getByRole("textbox", { name: "Slug" }).fill("createnewtestorganizationslug")
   await page.getByTestId("dialog").getByRole("button", { name: "Create" }).click()
   await page.getByRole("heading", { name: "createnewtestorganization" }).click()
-  await page
-    .getByLabel("createnewtestorganization")
-    .getByRole("link")
-    .filter({ hasText: ".gear_svg__cls-1{fill:none;" })
-    .click()
+  await manageOrganization(page, "createnewtestorganization")
   await page.getByText("createnewtestorganization", { exact: true }).click()
   await page.getByText("createnewtestorganizationslug").click()
 
@@ -32,11 +30,7 @@ test("create new organization, edit it and it's permissions, and delete it", asy
   await page.goto("http://project-331.local/")
   await page.getByRole("link", { name: "All organizations" }).click()
   await page.getByRole("heading", { name: "createnewtestorganizationedited" }).click()
-  await page
-    .getByLabel("createnewtestorganizationedited")
-    .getByRole("link")
-    .filter({ hasText: ".gear_svg__cls-1{fill:none;" })
-    .click()
+  await manageOrganization(page, "createnewtestorganizationedited")
   await page.getByText("createnewtestorganizationedited", { exact: true }).click()
   await page.getByText("createnewtestorganizationslugedited").click()
 

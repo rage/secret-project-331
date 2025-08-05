@@ -18,7 +18,7 @@ interface CitationPopoverProps {
   setPopperElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>
   setHoverPopperElement: (value: React.SetStateAction<boolean>) => void
   setArrowElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>
-  escape: () => void
+  escapePopper: () => void
   citation: CitationType
   content: string
   popperStyles: {
@@ -131,7 +131,7 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
   setPopperElement,
   setHoverPopperElement,
   setArrowElement,
-  escape,
+  escapePopper,
   citation,
   content,
   popperStyles,
@@ -188,7 +188,7 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
             id={linkId}
             onKeyDown={(e) => {
               if (e.key === "Escape") {
-                escape()
+                escapePopper()
               }
             }}
           >

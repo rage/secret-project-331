@@ -37,7 +37,7 @@ type MessageAction =
   | { type: "CLICK_CITATION_BUTTON"; payload: HTMLButtonElement | null }
   | { type: "ESCAPE_POPPER_ELEMENT" }
 
-const popStateReducer = (state: PopperState, action: MessageAction): PopperState => {
+const popperStateReducer = (state: PopperState, action: MessageAction): PopperState => {
   switch (action.type) {
     case "HOVER_POPPER_ELEMENT": {
       return { ...state, hoveringPopperElement: true }
@@ -46,7 +46,6 @@ const popStateReducer = (state: PopperState, action: MessageAction): PopperState
       return { ...state, hoveringPopperElement: false }
     }
     case "UNFOCUS_POPPER_ELEMENT":
-      console.log("UNFOCUS POP")
       if (action.payload === state.citationButton) {
         return state
       }
@@ -64,18 +63,19 @@ const popStateReducer = (state: PopperState, action: MessageAction): PopperState
       }
       return state
     case "HOVER_CITATION_BUTTON":
+      if (state.citationButtonClicked && !(state.citationButton === action.payload)) {
+        return state
+      }
       return { ...state, hoveringCitationButton: true, citationButton: action.payload }
     case "UNHOVER_CITATION_BUTTON":
       return { ...state, hoveringCitationButton: false }
     case "CLICK_CITATION_BUTTON":
-      console.log("CLICK")
       return {
         ...state,
         citationButton: action.payload,
         citationButtonClicked: !state.citationButtonClicked,
       }
     case "ESCAPE_POPPER_ELEMENT":
-      console.log("ESCSPE")
       return { ...state, citationButtonClicked: false }
     default:
       return state
@@ -222,14 +222,12 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   const outSideClickRef = useRef<HTMLDivElement>(null)
 
   const [showPopover, setShowPopover] = useState<boolean>(false)
-  const [popState, dispatch] = useReducer(popStateReducer, {
+  const [popperState, dispatch] = useReducer(popperStateReducer, {
     citationButton: null,
     hoveringCitationButton: false,
     hoveringPopperElement: false,
     citationButtonClicked: false,
   })
-
-  console.log(popState)
 
   useClickOutside(
     outSideClickRef,
@@ -237,7 +235,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     showPopover,
   )
 
-  const { styles, attributes } = usePopper(popState.citationButton, popperElement, {
+  const { styles, attributes } = usePopper(popperState.citationButton, popperElement, {
     placement: "top",
     modifiers: [
       {
@@ -271,9 +269,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     let timeoutId: NodeJS.Timeout | null = null
 
     if (
-      popState.citationButtonClicked ||
-      popState.hoveringCitationButton ||
-      popState.hoveringPopperElement
+      popperState.citationButtonClicked ||
+      popperState.hoveringCitationButton ||
+      popperState.hoveringPopperElement
     ) {
       timeoutId = setTimeout(() => {
         setShowPopover(true)
@@ -287,7 +285,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         clearTimeout(timeoutId)
       }
     }
-  }, [popState])
+  }, [popperState])
 
   const [processedMessage, processedCitations, citationTitleLen] = useMemo(() => {
     let renderedMessage: ReactElement[] = []
@@ -313,8 +311,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             <span
               key={i}
               className={messageStyle(
-                popState.citationButton?.id === `cit-${citedDocs[i]}-${i}` &&
-                  popState.citationButtonClicked,
+                popperState.citationButton?.id === `cit-${citedDocs[i]}-${i}` &&
+                  popperState.citationButtonClicked,
               )}
             >
               <span dangerouslySetInnerHTML={{ __html: s }}></span>
@@ -324,7 +322,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                     id={`cit-${citedDocs[i]}-${i}`}
                     value={citedDocs[i]}
                     onClick={(e) => {
-                      console.log("clicked")
                       dispatch({ type: "CLICK_CITATION_BUTTON", payload: e.currentTarget })
                       setTimeout(() => {
                         document.getElementById(popperElementLinkId)?.focus()
@@ -373,8 +370,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     isFromChatbot,
     citationsOpen,
     popperElementLinkId,
-    popState.citationButton,
-    popState.citationButtonClicked,
+    popperState.citationButton,
+    popperState.citationButtonClicked,
   ])
 
   return (
@@ -424,7 +421,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                         : cit.title.slice(0, citationTitleLen - 3).concat("...")}
                     </>
                   )}
-                  {popState.citationButton?.id.includes(`cit-${cit.citation_number}`) &&
+                  {popperState.citationButton?.id.includes(`cit-${cit.citation_number}`) &&
                     showPopover && (
                       <div ref={outSideClickRef}>
                         <CitationPopover
@@ -439,9 +436,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                             }
                           }}
                           setArrowElement={setArrowElement}
-                          escape={() => {
+                          escapePopper={() => {
                             dispatch({ type: "ESCAPE_POPPER_ELEMENT" })
-                            popState.citationButton?.focus()
+                            popperState.citationButton?.focus()
                           }}
                           citation={cit}
                           content={sanitizeCourseMaterialHtml(md.render(cit.content).trim())}

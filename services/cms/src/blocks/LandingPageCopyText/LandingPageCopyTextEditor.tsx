@@ -56,7 +56,13 @@ const LandingPageCopyTextEditor: React.FC<
             font-family: ${headingFont};
           `}
         >
-          <h4>{t("landing-page-copy-text")}</h4>
+          <h2
+            className={css`
+              font-size: 1rem;
+            `}
+          >
+            {t("landing-page-copy-text")}
+          </h2>
         </div>
         <InnerBlocks
           allowedBlocks={ALLOWED_NESTED_BLOCKS}

@@ -74,6 +74,7 @@ const LandingPageHeroSectionEditor: React.FC<
           <InnerBlocks
             template={LANDING_PAGE_HERO_SECTION_TEMPLATE}
             allowedBlocks={ALLOWED_NESTED_BLOCKS}
+            templateLock="all"
           />
           <div
             className={css`

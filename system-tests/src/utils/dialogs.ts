@@ -1,4 +1,5 @@
-import { expect, Page } from "@playwright/test"
+/* eslint-disable playwright/no-conditional-in-test */
+import { expect, Page, test } from "@playwright/test"
 
 const DIALOG_TEST_ID = "dialog-provider-dialog"
 const ALERT_DIALOG_OK_BUTTON_TEST_ID = "alert-dialog-ok-button"
@@ -19,19 +20,21 @@ export async function dismissAlertDialog(
   expectedMessage?: string,
   expectedTitle?: string,
 ): Promise<void> {
-  const dialog = page.getByTestId(DIALOG_TEST_ID)
-  await dialog.waitFor()
+  await test.step("Dismiss alert dialog", async () => {
+    const dialog = page.getByTestId(DIALOG_TEST_ID)
+    await dialog.waitFor()
 
-  if (expectedMessage) {
-    await expect(dialog.getByText(expectedMessage)).toBeVisible()
-  }
-  if (expectedTitle) {
-    await expect(dialog.getByText(expectedTitle)).toBeVisible()
-  }
+    if (expectedMessage) {
+      await expect(dialog.getByText(expectedMessage)).toBeVisible()
+    }
+    if (expectedTitle) {
+      await expect(dialog.getByText(expectedTitle)).toBeVisible()
+    }
 
-  await dialog.getByTestId(ALERT_DIALOG_OK_BUTTON_TEST_ID).click()
+    await dialog.getByTestId(ALERT_DIALOG_OK_BUTTON_TEST_ID).click()
 
-  await dialog.waitFor({ state: "hidden" })
+    await dialog.waitFor({ state: "hidden" })
+  })
 }
 
 /**
@@ -47,22 +50,25 @@ export async function respondToConfirmDialog(
   expectedMessage?: string,
   expectedTitle?: string,
 ): Promise<void> {
-  const dialog = page.getByTestId(DIALOG_TEST_ID)
-  await dialog.waitFor()
+  const action = confirm ? "Confirm" : "Cancel"
+  await test.step(`Respond to confirm dialog - ${action}`, async () => {
+    const dialog = page.getByTestId(DIALOG_TEST_ID)
+    await dialog.waitFor()
 
-  if (expectedMessage) {
-    await expect(dialog.getByText(expectedMessage)).toBeVisible()
-  }
-  if (expectedTitle) {
-    await expect(dialog.getByText(expectedTitle)).toBeVisible()
-  }
+    if (expectedMessage) {
+      await expect(dialog.getByText(expectedMessage)).toBeVisible()
+    }
+    if (expectedTitle) {
+      await expect(dialog.getByText(expectedTitle)).toBeVisible()
+    }
 
-  const buttonTestId = confirm
-    ? CONFIRM_DIALOG_YES_BUTTON_TEST_ID
-    : CONFIRM_DIALOG_NO_BUTTON_TEST_ID
-  await dialog.getByTestId(buttonTestId).click()
+    const buttonTestId = confirm
+      ? CONFIRM_DIALOG_YES_BUTTON_TEST_ID
+      : CONFIRM_DIALOG_NO_BUTTON_TEST_ID
+    await dialog.getByTestId(buttonTestId).click()
 
-  await dialog.waitFor({ state: "hidden" })
+    await dialog.waitFor({ state: "hidden" })
+  })
 }
 
 /**
@@ -80,26 +86,29 @@ export async function fillPromptDialog(
   expectedMessage?: string,
   expectedTitle?: string,
 ): Promise<void> {
-  const dialog = page.getByTestId(DIALOG_TEST_ID)
-  await dialog.waitFor()
+  const action = submit ? "Submit" : "Cancel"
+  await test.step(`Fill prompt dialog - ${action}`, async () => {
+    const dialog = page.getByTestId(DIALOG_TEST_ID)
+    await dialog.waitFor()
 
-  if (expectedMessage) {
-    await expect(dialog.getByText(expectedMessage)).toBeVisible()
-  }
-  if (expectedTitle) {
-    await expect(dialog.getByText(expectedTitle)).toBeVisible()
-  }
+    if (expectedMessage) {
+      await expect(dialog.getByText(expectedMessage)).toBeVisible()
+    }
+    if (expectedTitle) {
+      await expect(dialog.getByText(expectedTitle)).toBeVisible()
+    }
 
-  if (submit) {
-    const input = dialog.getByTestId(PROMPT_DIALOG_INPUT_TEST_ID)
-    await input.fill(inputValue)
+    if (submit) {
+      const input = dialog.getByTestId(PROMPT_DIALOG_INPUT_TEST_ID)
+      await input.fill(inputValue)
 
-    await dialog.getByTestId(PROMPT_DIALOG_OK_BUTTON_TEST_ID).click()
-  } else {
-    await dialog.getByTestId(PROMPT_DIALOG_CANCEL_BUTTON_TEST_ID).click()
-  }
+      await dialog.getByTestId(PROMPT_DIALOG_OK_BUTTON_TEST_ID).click()
+    } else {
+      await dialog.getByTestId(PROMPT_DIALOG_CANCEL_BUTTON_TEST_ID).click()
+    }
 
-  await dialog.waitFor({ state: "hidden" })
+    await dialog.waitFor({ state: "hidden" })
+  })
 }
 
 /**
@@ -113,15 +122,17 @@ export async function waitForDialog(
   expectedMessage?: string,
   expectedTitle?: string,
 ): Promise<void> {
-  const dialog = page.getByTestId(DIALOG_TEST_ID)
-  await dialog.waitFor()
+  await test.step("Wait for dialog", async () => {
+    const dialog = page.getByTestId(DIALOG_TEST_ID)
+    await dialog.waitFor()
 
-  if (expectedMessage) {
-    await expect(dialog.getByText(expectedMessage)).toBeVisible()
-  }
-  if (expectedTitle) {
-    await expect(dialog.getByText(expectedTitle)).toBeVisible()
-  }
+    if (expectedMessage) {
+      await expect(dialog.getByText(expectedMessage)).toBeVisible()
+    }
+    if (expectedTitle) {
+      await expect(dialog.getByText(expectedTitle)).toBeVisible()
+    }
+  })
 }
 
 /**
@@ -130,6 +141,8 @@ export async function waitForDialog(
  * @returns Promise<boolean> - true if dialog is visible, false otherwise
  */
 export async function isDialogVisible(page: Page): Promise<boolean> {
-  const dialog = page.getByTestId(DIALOG_TEST_ID)
-  return await dialog.isVisible()
+  return await test.step("Check if dialog is visible", async () => {
+    const dialog = page.getByTestId(DIALOG_TEST_ID)
+    return await dialog.isVisible()
+  })
 }

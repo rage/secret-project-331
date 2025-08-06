@@ -60,8 +60,8 @@ test.describe("Chatbot settings testing", () => {
       .getByRole("button", { name: "Edit" })
       .click()
     await page.getByText("Advanced settings").waitFor()
-    await respondToConfirmDialog(page, true)
     await page.getByRole("button", { name: "Delete" }).click()
+    await respondToConfirmDialog(page, true)
     await expect(page.getByText("Deleted", { exact: true })).toBeVisible()
   })
 

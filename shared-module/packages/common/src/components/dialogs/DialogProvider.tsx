@@ -1,5 +1,5 @@
-import { t } from "i18next"
 import React, { createContext, ReactNode, useCallback, useContext, useReducer, useRef } from "react"
+import { useTranslation } from "react-i18next"
 
 import AlertDialog from "./AlertDialog"
 import ConfirmDialog from "./ConfirmDialog"
@@ -112,6 +112,8 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     },
     [pushDialog],
   )
+
+  const { t } = useTranslation()
 
   return (
     <DialogContext.Provider value={{ alert, confirm, prompt }}>

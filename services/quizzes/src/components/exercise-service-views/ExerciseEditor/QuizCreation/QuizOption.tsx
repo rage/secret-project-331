@@ -53,7 +53,7 @@ const QuizCardTitle = styled.div`
 const QuizCardDescription = styled.div`
   margin-top: 6px;
   font-size: 17px;
-  word-wrap: break-word;
+  overflow-wrap: break-word;
   color: #767b85;
 `
 

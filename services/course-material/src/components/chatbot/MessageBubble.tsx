@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { Library } from "@vectopus/atlas-icons-react"
-import React, { ReactElement, useId, useMemo, useReducer, useRef, useState } from "react"
+import React, { ReactElement, useEffect, useId, useMemo, useReducer, useRef, useState } from "react"
 import { useHover } from "react-aria"
 import { Button, DialogTrigger } from "react-aria-components"
 import { useTranslation } from "react-i18next"
@@ -22,7 +22,7 @@ interface MessageBubbleProps {
 }
 
 interface HoverState {
-  hoveredElement: HTMLElement | null
+  refElement: HTMLElement | null
   hoveringCitationButton: boolean
   hoveringPopperElement: boolean
   citationButtonClicked: boolean
@@ -32,18 +32,37 @@ type MessageAction =
   | { type: "HOVER_POPPER_ELEMENT"; payload: HTMLElement | null }
   | { type: "UNHOVER_POPPER_ELEMENT"; payload: HTMLElement | null }
   | { type: "UNFOCUS_POPPER_ELEMENT"; payload: EventTarget | null }
-  | { type: "HOVER_CITATION_BUTTON"; payload: HTMLButtonElement }
-  | { type: "UNHOVER_CITATION_BUTTON" }
+  | { type: "HOVER_CITATION_BUTTON"; payload: HTMLElement }
+  | { type: "UNHOVER_CITATION_BUTTON"; payload: HTMLElement }
   | { type: "CLICK_CITATION_BUTTON"; payload: HTMLButtonElement | null }
   | { type: "ESCAPE_POPPER_ELEMENT" }
 
 const popperStateReducer = (state: HoverState, action: MessageAction): HoverState => {
   switch (action.type) {
+    case "HOVER_CITATION_BUTTON":
+      if (action.payload === state.refElement) {
+        return state
+      }
+      return { ...state, refElement: action.payload }
+    case "UNHOVER_CITATION_BUTTON":
+      console.log("UNHOVERED")
+
+      return { ...state, refElement: null }
+    case "CLICK_CITATION_BUTTON":
+      console.log("UNHOVERED")
+
+      return { ...state, refElement: null }
     case "HOVER_POPPER_ELEMENT": {
-      return { ...state, hoveredElement: action.payload }
+      console.log("HOVERED")
+      if (action.payload === state.refElement) {
+        return state
+      }
+      return state //{ ...state, refElement: action.payload }
     }
     case "UNHOVER_POPPER_ELEMENT": {
-      return { ...state, hoveredElement: action.payload }
+      console.log("UNHOVERED")
+
+      return state //{ ...state, refElement: null }
     } /*
     case "UNFOCUS_POPPER_ELEMENT":
       if (action.payload === state.citationButton) {
@@ -216,25 +235,44 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 
   const [citationsOpen, setCitationsOpen] = useState(false)
 
-  let triggerRef = React.useRef(null)
+  let triggerRef = React.useRef<HTMLElement>(null)
   let [isOpen, setOpen] = useState(false)
 
   const [showPopover, setShowPopover] = useState<boolean>(false)
 
   const [hoverState, dispatch] = useReducer(popperStateReducer, {
-    hoveredElement: null,
+    refElement: null,
     hoveringCitationButton: false,
     hoveringPopperElement: false,
     citationButtonClicked: false,
   })
 
-  let { hoverProps, isHovered } = useHover({
+  let { hoverProps: hoverCitationProps, isHovered: isCitationHovered } = useHover({
     onHoverStart: (e) => {
-      let id = e.target.id
-      dispatch({ type: "HOVER_POPPER_ELEMENT", payload: e.target })
+      console.log("hoverstart", e.target)
+      dispatch({ type: "HOVER_CITATION_BUTTON", payload: e.target })
     },
-    onHoverEnd: (e) => dispatch({ type: "UNHOVER_POPPER_ELEMENT", payload: null }),
+    onHoverEnd: (e) => {
+      console.log("hover end", e.target)
+      triggerRef.current = null
+      dispatch({ type: "UNHOVER_CITATION_BUTTON", payload: e.target })
+    },
   })
+  let { hoverProps: hoverPopoverProps, isHovered: isPopoverHovered } = useHover({
+    onHoverStart: (e) => {
+      console.log("hoverstart pop", e.target)
+      //dispatch({ type: "HOVER_POPPER_ELEMENT", payload: e.target })
+    },
+    onHoverEnd: (e) => {
+      console.log("hover end pop", e.target)
+      triggerRef.current = null
+      //dispatch({ type: "UNHOVER_POPPER_ELEMENT", payload: e.target })
+    },
+  })
+
+  useEffect(() => {
+    triggerRef.current = hoverState.refElement
+  }, [hoverState.refElement])
 
   /*   useClickOutside(
     outSideClickRef,
@@ -320,55 +358,17 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             <span key={i} className={messageStyle(false)}>
               <span dangerouslySetInnerHTML={{ __html: s }}></span>
               {cit_n && citation && (
-                <DialogTrigger>
-                  <Button id={`cit-${cit_n}-${i}`}>{cit_n}</Button>
-                  <MyPopover
-                    /* eslint-disable-next-line i18next/no-literal-string */
-                    placement="top"
-                    isOpen={isHovered && hoverState.hoveredElement?.id === `cit-${cit_n}-${i}`}
+                <>
+                  <button
+                    id={`cit-${cit_n}-${i}`}
+                    {...hoverCitationProps}
+                    // @ts-expect-error: Ref missing from type definitions
+                    ref={triggerRef}
+                    onClick={() => setOpen(!isOpen)}
                   >
-                    <p
-                      className={css`
-                        overflow-wrap: break-word;
-                        height: 6lh;
-                        margin-bottom: 0.5em;
-                        mask-image: linear-gradient(0.5turn, black 66%, transparent);
-                      `}
-                      dangerouslySetInnerHTML={{
-                        __html: sanitizeCourseMaterialHtml(md.render(citation.content).trim()),
-                      }}
-                    ></p>
-                    <p
-                      className={css`
-                        display: flex;
-                        justify-content: space-between;
-                        flex-flow: row nowrap;
-                        position: relative;
-
-                        a::after {
-                          content: "";
-                          position: absolute;
-                          top: 0;
-                          left: 0;
-                          width: 100%;
-                          height: 100%;
-                        }
-                      `}
-                    >
-                      <a href={citation.document_url}>
-                        <span>
-                          <b>
-                            {t("chapter-chapter-number", {
-                              chapterNumber: citation.course_material_chapter_number,
-                            })}{" "}
-                            {citation.title}
-                          </b>
-                        </span>
-                      </a>
-                      <Library size={18} />
-                    </p>
-                  </MyPopover>
-                </DialogTrigger>
+                    {cit_n}
+                  </button>
+                </>
               )}
             </span>
           )
@@ -392,11 +392,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         </span>,
       ]
     }
-    // 60 is magick number that represents the collapsed list width
+    // represents the collapsed list width
     const citationTitleLen = 60 / filteredCitations.length
 
     return [renderedMessage, filteredCitations, citationTitleLen]
-  }, [t, message, citations, isFromChatbot, citationsOpen])
+  }, [t, message, citations, isFromChatbot, citationsOpen, hoverState.refElement])
 
   return (
     <div className={bubbleStyle(isFromChatbot)}>
@@ -445,6 +445,58 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                         : cit.title.slice(0, citationTitleLen - 3).concat("...")}
                     </>
                   )}
+                  <MyPopover
+                    /* eslint-disable-next-line i18next/no-literal-string */
+                    placement="top"
+                    triggerRef={triggerRef}
+                    isOpen={isCitationHovered || isPopoverHovered || isOpen}
+                    onOpenChange={() => {
+                      console.log("closing")
+                      setOpen(false)
+                    }} //() => dispatch({ type: "UNHOVER_POPPER_ELEMENT", payload: null })}
+                    {...hoverPopoverProps}
+                  >
+                    <p
+                      className={css`
+                        overflow-wrap: break-word;
+                        height: 6lh;
+                        margin-bottom: 0.5em;
+                        mask-image: linear-gradient(0.5turn, black 66%, transparent);
+                      `}
+                      dangerouslySetInnerHTML={{
+                        __html: sanitizeCourseMaterialHtml(md.render(cit.content).trim()),
+                      }}
+                    ></p>
+                    <p
+                      className={css`
+                        display: flex;
+                        justify-content: space-between;
+                        flex-flow: row nowrap;
+                        position: relative;
+
+                        a::after {
+                          content: "";
+                          position: absolute;
+                          top: 0;
+                          left: 0;
+                          width: 100%;
+                          height: 100%;
+                        }
+                      `}
+                    >
+                      <a href={cit.document_url}>
+                        <span>
+                          <b>
+                            {t("chapter-chapter-number", {
+                              chapterNumber: cit.course_material_chapter_number,
+                            })}{" "}
+                            {cit.title}
+                          </b>
+                        </span>
+                      </a>
+                      <Library size={18} />
+                    </p>
+                  </MyPopover>
                 </div>
               ))}
             </div>

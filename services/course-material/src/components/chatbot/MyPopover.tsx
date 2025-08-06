@@ -102,7 +102,7 @@ const popoverStyle = css`
 
 const MyPopover = ({ children, ...props }: MyPopoverProps) => {
   return (
-    <Popover className={popoverStyle} {...props}>
+    <Popover className={popoverStyle} isNonModal={true} offset={10} {...props}>
       <OverlayArrow>
         <svg width={18} height={18} viewBox="0 0 18 18">
           <path d="M0 0 L9 9 L18 0" />

@@ -1,4 +1,4 @@
-use headless_lms_models::{organizations, PKeyPolicy};
+use headless_lms_models::{PKeyPolicy, organizations};
 use sqlx::{Pool, Postgres};
 use tracing::info;
 use uuid::Uuid;

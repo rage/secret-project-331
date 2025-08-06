@@ -5,7 +5,6 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
-import UnstyledA from "@/shared-module/common/components/UnstyledA"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import {
@@ -80,12 +79,13 @@ const OrganizationBanner: React.FC<Props> = ({ organization }) => {
             action={{ type: "create_courses_or_exams" }}
             resource={{ type: "organization", id: organization.id }}
           >
-            <a
-              href={manageOrganizationRoute(organization.id)}
-              onClick={(e) => {
-                e.preventDefault()
-                router.push(manageOrganizationRoute(organization.id))
-              }}
+            <button
+              type="button"
+              onClick={() => router.push(manageOrganizationRoute(organization.id))}
+              aria-label={t("label-manage-organization", {
+                name: organization.name,
+                defaultValue: `Manage organization ${organization.name}`,
+              })}
               className={css`
                 width: 25px;
                 height: 25px;
@@ -111,11 +111,13 @@ const OrganizationBanner: React.FC<Props> = ({ organization }) => {
                   color: rgba(26, 35, 51, 1);
                 `}
               />
-            </a>
+            </button>
           </OnlyRenderIfPermissions>
 
-          <a
-            href={`/org/${organization.slug}`}
+          <button
+            type="button"
+            onClick={() => router.push(organizationFrontPageRoute(organization.slug))}
+            aria-label={t("label-visit-organization", { name: organization.name })}
             className={css`
               background-color: rgba(237, 238, 240, 1);
               color: rgba(26, 35, 51, 1);
@@ -137,7 +139,7 @@ const OrganizationBanner: React.FC<Props> = ({ organization }) => {
             `}
           >
             {t("label-select")}
-          </a>
+          </button>
         </div>
       </div>
     </div>
@@ -194,12 +196,12 @@ const OrganizationText: React.FC<{ name: string; hidden?: boolean }> = ({ name, 
     >
       <h2
         className={css`
-          color: #333;
+          color: ${hidden ? "#666" : "#333"};
           font-family: ${primaryFont};
           font-size: 15px;
           line-height: 1.1;
           text-transform: capitalize;
-          opacity: ${hidden ? 0.6 : 1};
+          opacity: 1;
 
           ${respondToOrLarger.lg} {
             font-size: 18px;

@@ -16,6 +16,7 @@ import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -27,7 +28,7 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 const ModuleCertificate: React.FC<React.PropsWithChildren<void>> = () => {
   const { t } = useTranslation()
   const router = useRouter()
-
+  const { confirm } = useDialog()
   const certificateConfigurationId = useQueryParameter("ccid")
   // Used to generate the right title
   const moduleId = useQueryParameter("module")
@@ -121,11 +122,9 @@ const ModuleCertificate: React.FC<React.PropsWithChildren<void>> = () => {
             size="medium"
             variant="primary"
             disabled={!nameOnCertificate || userGrade.isPending}
-            onClick={() => {
+            onClick={async () => {
               if (
-                window.confirm(
-                  t("certificate-generation-confirmation", { name: nameOnCertificate }),
-                )
+                await confirm(t("certificate-generation-confirmation", { name: nameOnCertificate }))
               ) {
                 generateCertificateMutation.mutate()
               }

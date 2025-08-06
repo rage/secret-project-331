@@ -33,6 +33,7 @@ import Centered from "@/shared-module/common/components/Centering/Centered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import DropdownMenu from "@/shared-module/common/components/DropdownMenu"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 
@@ -54,6 +55,7 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
   courseStructure,
   refetch,
 }) => {
+  const { confirm } = useDialog()
   const deleteChapterMutation = useToastMutation(
     (chapterId: string) => {
       return deleteChapter(chapterId)
@@ -245,9 +247,9 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
                                 label: t("button-text-delete"),
                                 onClick: async () => {
                                   if (
-                                    !confirm(
+                                    !(await confirm(
                                       t("message-are-you-sure-you-want-to-delete-this-chapter"),
-                                    )
+                                    ))
                                   ) {
                                     return
                                   }

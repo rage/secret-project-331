@@ -92,25 +92,99 @@ run_command mkdir -p ./bin
 verify_checksum() {
     local file=$1
     local checksum_file=$2
+    local expected_hash
+    local actual_hash
+    local temp_output
+
+    # Validate input files exist
+    if [ ! -f "$file" ]; then
+        echo "Error: File to verify does not exist: $file" >&2
+        return 1
+    fi
+
+    if [ ! -f "$checksum_file" ]; then
+        echo "Error: Checksum file does not exist: $checksum_file" >&2
+        return 1
+    fi
 
     case "$OSTYPE" in
         "msys"*|"cygwin"*)
             # Windows: Use PowerShell's Get-FileHash
-            local expected_hash
-            local actual_hash
-            expected_hash=$(powershell -Command "(Get-Content '$checksum_file' | ForEach-Object { $_.Split(' ')[0] })")
-            actual_hash=$(powershell -Command "(Get-FileHash -Path '$file' -Algorithm SHA256).Hash")
-            [ "$expected_hash" = "$actual_hash" ]
+            # Check if PowerShell is available
+            if ! command -v powershell >/dev/null 2>&1; then
+                echo "Error: PowerShell not found in PATH" >&2
+                return 1
+            fi
+
+            # Escape file paths for PowerShell by converting to absolute paths and using single quotes
+            local abs_file
+            local abs_checksum_file
+            abs_file=$(realpath "$file" 2>/dev/null) || {
+                echo "Error: Cannot resolve absolute path for file: $file" >&2
+                return 1
+            }
+            abs_checksum_file=$(realpath "$checksum_file" 2>/dev/null) || {
+                echo "Error: Cannot resolve absolute path for checksum file: $checksum_file" >&2
+                return 1
+            }
+
+            # Extract expected hash
+            temp_output=$(powershell -Command "try { Get-Content -LiteralPath '$abs_checksum_file' -ErrorAction Stop | ForEach-Object { (\$_.Split(' ', [System.StringSplitOptions]::RemoveEmptyEntries))[0].Trim() } | Select-Object -First 1 } catch { Write-Error \$_.Exception.Message; exit 1 }" 2>&1) || {
+                echo "Error: Failed to read checksum from $checksum_file: $temp_output" >&2
+                return 1
+            }
+            expected_hash="$temp_output"
+
+            # Calculate actual hash
+            temp_output=$(powershell -Command "try { (Get-FileHash -LiteralPath '$abs_file' -Algorithm SHA256 -ErrorAction Stop).Hash.ToLower() } catch { Write-Error \$_.Exception.Message; exit 1 }" 2>&1) || {
+                echo "Error: Failed to calculate hash for $file: $temp_output" >&2
+                return 1
+            }
+            actual_hash="$temp_output"
             ;;
         *)
             # Linux/macOS: Use sha256sum
-            local expected_hash
-            local actual_hash
-            expected_hash=$(cat "$checksum_file" | cut -d' ' -f1)
-            actual_hash=$(sha256sum "$file" | cut -d' ' -f1)
-            [ "$expected_hash" = "$actual_hash" ]
+            # Check if required commands are available
+            if ! command -v sha256sum >/dev/null 2>&1; then
+                echo "Error: sha256sum not found in PATH" >&2
+                return 1
+            fi
+
+            if ! command -v cut >/dev/null 2>&1; then
+                echo "Error: cut not found in PATH" >&2
+                return 1
+            fi
+
+            # Extract expected hash
+            temp_output=$(cat "$checksum_file" 2>&1) || {
+                echo "Error: Failed to read checksum file: $checksum_file" >&2
+                return 1
+            }
+            expected_hash=$(echo "$temp_output" | head -n1 | cut -d' ' -f1 | tr -d '[:space:]')
+
+            if [ -z "$expected_hash" ]; then
+                echo "Error: Could not extract hash from checksum file: $checksum_file" >&2
+                return 1
+            fi
+
+            # Calculate actual hash
+            temp_output=$(sha256sum "$file" 2>&1) || {
+                echo "Error: Failed to calculate hash for file: $file" >&2
+                return 1
+            }
+            actual_hash=$(echo "$temp_output" | cut -d' ' -f1 | tr -d '[:space:]')
             ;;
     esac
+
+    # Compare hashes
+    if [ "$expected_hash" = "$actual_hash" ]; then
+        return 0
+    else
+        echo "Error: Checksum verification failed" >&2
+        echo "Expected: $expected_hash" >&2
+        echo "Actual:   $actual_hash" >&2
+        return 1
+    fi
 }
 
 # Check if file exists and verify checksum

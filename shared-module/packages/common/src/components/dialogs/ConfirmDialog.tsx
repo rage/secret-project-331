@@ -1,12 +1,12 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import StandardDialog from "./StandardDialog"
 import {
   CONFIRM_DIALOG_NO_BUTTON_TEST_ID,
   CONFIRM_DIALOG_YES_BUTTON_TEST_ID,
   DIALOG_PROVIDER_DIALOG_TEST_ID,
-} from "./DialogProvider"
-import StandardDialog from "./StandardDialog"
+} from "./dialogTestIds"
 
 export interface ConfirmDialogProps {
   open: boolean

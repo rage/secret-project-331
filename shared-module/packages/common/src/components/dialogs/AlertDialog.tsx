@@ -1,8 +1,8 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { ALERT_DIALOG_OK_BUTTON_TEST_ID, DIALOG_PROVIDER_DIALOG_TEST_ID } from "./DialogProvider"
 import StandardDialog from "./StandardDialog"
+import { ALERT_DIALOG_OK_BUTTON_TEST_ID, DIALOG_PROVIDER_DIALOG_TEST_ID } from "./dialogTestIds"
 
 export interface AlertDialogProps {
   open: boolean

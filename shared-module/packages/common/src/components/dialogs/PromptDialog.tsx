@@ -2,13 +2,13 @@ import { css } from "@emotion/css"
 import React, { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import StandardDialog from "./StandardDialog"
 import {
   DIALOG_PROVIDER_DIALOG_TEST_ID,
   PROMPT_DIALOG_CANCEL_BUTTON_TEST_ID,
   PROMPT_DIALOG_INPUT_TEST_ID,
   PROMPT_DIALOG_OK_BUTTON_TEST_ID,
-} from "./DialogProvider"
-import StandardDialog from "./StandardDialog"
+} from "./dialogTestIds"
 
 export interface PromptDialogProps {
   open: boolean

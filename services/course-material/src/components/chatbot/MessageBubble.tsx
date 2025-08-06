@@ -2,7 +2,6 @@ import { css } from "@emotion/css"
 import { Library } from "@vectopus/atlas-icons-react"
 import React, { ReactElement, useEffect, useId, useMemo, useReducer, useRef, useState } from "react"
 import { useHover } from "react-aria"
-import { Button, DialogTrigger } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import MyPopover from "./MyPopover"
@@ -23,19 +22,15 @@ interface MessageBubbleProps {
 
 interface HoverState {
   refElement: HTMLElement | null
-  hoveringCitationButton: boolean
-  hoveringPopperElement: boolean
   citationButtonClicked: boolean
 }
 
 type MessageAction =
-  | { type: "HOVER_POPPER_ELEMENT"; payload: HTMLElement | null }
-  | { type: "UNHOVER_POPPER_ELEMENT"; payload: HTMLElement | null }
   | { type: "UNFOCUS_POPPER_ELEMENT"; payload: EventTarget | null }
   | { type: "HOVER_CITATION_BUTTON"; payload: HTMLElement }
   | { type: "UNHOVER_CITATION_BUTTON"; payload: HTMLElement }
   | { type: "CLICK_CITATION_BUTTON"; payload: HTMLButtonElement | null }
-  | { type: "ESCAPE_POPPER_ELEMENT" }
+  | { type: "DISMISS_MODAL_POPOVER" }
 
 const popperStateReducer = (state: HoverState, action: MessageAction): HoverState => {
   switch (action.type) {
@@ -49,53 +44,13 @@ const popperStateReducer = (state: HoverState, action: MessageAction): HoverStat
 
       return { ...state, refElement: null }
     case "CLICK_CITATION_BUTTON":
-      console.log("UNHOVERED")
-
-      return { ...state, refElement: null }
-    case "HOVER_POPPER_ELEMENT": {
-      console.log("HOVERED")
-      if (action.payload === state.refElement) {
-        return state
+      console.log("CLICKED")
+      if (state.citationButtonClicked && state.refElement == action.payload) {
+        return { ...state, refElement: null, citationButtonClicked: false }
       }
-      return state //{ ...state, refElement: action.payload }
-    }
-    case "UNHOVER_POPPER_ELEMENT": {
-      console.log("UNHOVERED")
-
-      return state //{ ...state, refElement: null }
-    } /*
-    case "UNFOCUS_POPPER_ELEMENT":
-      if (action.payload === state.citationButton) {
-        return state
-      }
-      if (
-        state.citationButtonClicked === true &&
-        state.hoveringPopperElement === false &&
-        state.hoveringCitationButton === false
-      ) {
-        state.citationButton?.focus()
-        return {
-          ...state,
-          citationButtonClicked: false,
-          citationButton: null,
-        }
-      }
-      return state
-    case "HOVER_CITATION_BUTTON":
-      if (state.citationButtonClicked && !(state.citationButton === action.payload)) {
-        return state
-      }
-      return { ...state, hoveringCitationButton: true, citationButton: action.payload }
-    case "UNHOVER_CITATION_BUTTON":
-      return { ...state, hoveringCitationButton: false }
-    case "CLICK_CITATION_BUTTON":
-      return {
-        ...state,
-        citationButton: action.payload,
-        citationButtonClicked: !state.citationButtonClicked,
-      }
-    case "ESCAPE_POPPER_ELEMENT":
-      return { ...state, citationButtonClicked: false } */
+      return { ...state, refElement: action.payload, citationButtonClicked: true }
+    case "DISMISS_MODAL_POPOVER":
+      return { ...state, citationButtonClicked: false, refElement: null }
     default:
       return state
   }
@@ -235,15 +190,10 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 
   const [citationsOpen, setCitationsOpen] = useState(false)
 
-  let triggerRef = React.useRef<HTMLElement>(null)
-  let [isOpen, setOpen] = useState(false)
-
-  const [showPopover, setShowPopover] = useState<boolean>(false)
+  let triggerRef = useRef<HTMLElement>(null)
 
   const [hoverState, dispatch] = useReducer(popperStateReducer, {
     refElement: null,
-    hoveringCitationButton: false,
-    hoveringPopperElement: false,
     citationButtonClicked: false,
   })
 
@@ -269,68 +219,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       //dispatch({ type: "UNHOVER_POPPER_ELEMENT", payload: e.target })
     },
   })
+  console.log(hoverState)
 
   useEffect(() => {
     triggerRef.current = hoverState.refElement
   }, [hoverState.refElement])
-
-  /*   useClickOutside(
-    outSideClickRef,
-    (e) => dispatch({ type: "UNFOCUS_POPPER_ELEMENT", payload: e.target }),
-    showPopover,
-  ) */
-
-  /*   const { styles, attributes } = usePopper(popperState.citationButton, popperElement, {
-    placement: "top",
-    modifiers: [
-      {
-        name: "preventOverflow",
-        options: {
-          padding: 8,
-          boundary: "clippingParents",
-          altAxis: true,
-        },
-      },
-      {
-        name: "computeStyles",
-        options: {
-          gpuAcceleration: false,
-        },
-      },
-      {
-        name: "eventListeners",
-        options: {
-          scroll: true,
-          resize: true,
-        },
-      },
-      { name: "arrow", options: { element: arrowElement } },
-    ],
-    strategy: "absolute",
-  }) */
-  /*
-  useEffect(() => {
-    console.log("inside effect")
-    let timeoutId: NodeJS.Timeout | null = null
-
-    if (
-      popperState.citationButtonClicked ||
-      popperState.hoveringCitationButton ||
-      popperState.hoveringPopperElement
-    ) {
-      timeoutId = setTimeout(() => {
-        setShowPopover(true)
-      }, 200)
-    } else {
-      setShowPopover(false)
-    }
-
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId)
-      }
-    }
-  }, [popperState]) */
 
   const [processedMessage, processedCitations, citationTitleLen] = useMemo(() => {
     let renderedMessage: ReactElement[] = []
@@ -364,7 +257,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                     {...hoverCitationProps}
                     // @ts-expect-error: Ref missing from type definitions
                     ref={triggerRef}
-                    onClick={() => setOpen(!isOpen)}
+                    onClick={(e) =>
+                      dispatch({ type: "CLICK_CITATION_BUTTON", payload: e.currentTarget })
+                    }
                   >
                     {cit_n}
                   </button>
@@ -396,7 +291,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     const citationTitleLen = 60 / filteredCitations.length
 
     return [renderedMessage, filteredCitations, citationTitleLen]
-  }, [t, message, citations, isFromChatbot, citationsOpen, hoverState.refElement])
+  }, [message, citations, isFromChatbot, citationsOpen, hoverCitationProps])
 
   return (
     <div className={bubbleStyle(isFromChatbot)}>
@@ -449,11 +344,15 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                     /* eslint-disable-next-line i18next/no-literal-string */
                     placement="top"
                     triggerRef={triggerRef}
-                    isOpen={isCitationHovered || isPopoverHovered || isOpen}
+                    isOpen={
+                      isCitationHovered || isPopoverHovered || hoverState.citationButtonClicked
+                    }
+                    isNonModal={!hoverState.citationButtonClicked}
                     onOpenChange={() => {
                       console.log("closing")
-                      setOpen(false)
-                    }} //() => dispatch({ type: "UNHOVER_POPPER_ELEMENT", payload: null })}
+                      dispatch({ type: "DISMISS_MODAL_POPOVER" })
+                    }}
+                    popoverLabel={`${t("citation")} ${cit.citation_number}`}
                     {...hoverPopoverProps}
                   >
                     <p

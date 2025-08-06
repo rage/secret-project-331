@@ -7,6 +7,7 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 interface MyPopoverProps extends Omit<PopoverProps, "children"> {
   children: React.ReactNode
+  popoverLabel: string
 }
 
 const COLORS = {
@@ -100,15 +101,15 @@ const popoverStyle = css`
   }
 `
 
-const MyPopover = ({ children, ...props }: MyPopoverProps) => {
+const MyPopover = ({ children, popoverLabel, ...props }: MyPopoverProps) => {
   return (
-    <Popover className={popoverStyle} isNonModal={true} offset={10} {...props}>
+    <Popover className={popoverStyle} {...props}>
       <OverlayArrow>
-        <svg width={18} height={18} viewBox="0 0 18 18">
-          <path d="M0 0 L9 9 L18 0" />
+        <svg width={19} height={19} viewBox="0 1 19 19">
+          <path d="M0 0 L9.5 10 L19 0" />
         </svg>
       </OverlayArrow>
-      <Dialog>{children}</Dialog>
+      <Dialog aria-label={popoverLabel}>{children}</Dialog>
     </Popover>
   )
 }

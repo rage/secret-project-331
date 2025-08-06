@@ -22,6 +22,7 @@ interface StandardDialogProps {
   disableContentScroll?: boolean
   leftAlignTitle?: boolean
   closeable?: boolean
+  "data-testid"?: string
 }
 
 const CLOSE_SYMBOL = "×"
@@ -41,6 +42,7 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
   disableContentScroll = false,
   leftAlignTitle = false,
   closeable = true,
+  "data-testid": dataTestId,
 }) => {
   const { t } = useTranslation()
   const titleId = useId()
@@ -64,6 +66,7 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
       aria-labelledby={titleId}
       disableContentScroll={disableContentScroll}
       closeable={closeable}
+      data-testid={dataTestId}
     >
       <div
         ref={dialogRef}

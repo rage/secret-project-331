@@ -17,6 +17,7 @@ interface DialogProps extends AriaDialogProps {
   preventBackgroundScroll?: boolean
   children: React.ReactNode
   className?: string
+  "data-testid"?: string
 }
 
 const Dialog: React.FC<DialogProps> = ({
@@ -28,6 +29,7 @@ const Dialog: React.FC<DialogProps> = ({
   width = "normal",
   disableContentScroll = false,
   preventBackgroundScroll = false,
+  "data-testid": dataTestId,
   ...props
 }) => {
   const ref = useRef(null)
@@ -104,7 +106,7 @@ const Dialog: React.FC<DialogProps> = ({
                 }
               `,
             )}
-            data-testid="dialog"
+            data-testid={dataTestId ?? "dialog"}
           >
             <div
               className={css`

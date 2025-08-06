@@ -63,7 +63,6 @@ test("Teacher can reset progress for all students on draft courses", async ({ pa
     await studentPage.getByText("1/1").waitFor()
     await page.goto("http://project-331.local/org/uh-mathstat")
     await page.locator(`[aria-label="Manage course 'Reset progress'"]`).click()
-    await respondToConfirmDialog(page, true)
 
     await page
       .getByRole("button", {

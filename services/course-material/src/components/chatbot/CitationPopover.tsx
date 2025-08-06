@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import { Library } from "@vectopus/atlas-icons-react"
 import React, { useId } from "react"
+import { Popover } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
@@ -143,14 +144,13 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
   const popDescribeId = useId()
 
   return (
-    <div
-      id={id}
+    <Popover
+    /* id={id}
       role="dialog"
       aria-labelledby={popLabelId}
       aria-describedby={popDescribeId}
       ref={setPopperElement}
       className={popoverStyle(popDescribeId)}
-      /* eslint-disable-next-line react/forbid-dom-props */
       style={popperStyles.popper}
       onMouseEnter={() => {
         setHoverPopperElement(true)
@@ -158,10 +158,7 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
       onMouseLeave={() => {
         setHoverPopperElement(false)
       }}
-      onBlur={() => {
-        //unfocusPopperElement()
-      }}
-      {...popperAttributes.popper}
+      {...popperAttributes.popper} */
     >
       <div className={speechBalloonStyle}>
         <p id={popDescribeId} dangerouslySetInnerHTML={{ __html: content }}></p>
@@ -211,7 +208,7 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
         className={arrowStyle}
         {...popperAttributes.arrow}
       />
-    </div>
+    </Popover>
   )
 }
 

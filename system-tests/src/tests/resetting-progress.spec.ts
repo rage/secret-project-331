@@ -2,15 +2,14 @@ import { BrowserContext, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 
+import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
 test("Resetting teacher's own progress resets points", async ({ page }) => {
   await page.goto("http://project-331.local/organizations")
-  await page
-    .getByRole("link", { name: "University of Helsinki, Department of Mathematics and Statistics" })
-    .click()
+  await selectOrganization(page, "University of Helsinki, Department of Mathematics and Statistics")
   await page.getByRole("link", { name: "Navigate to course 'Reset progress'" }).click()
   await selectCourseInstanceIfPrompted(page)
   await page.getByRole("link", { name: "Chapter 1 The Basics" }).click()
@@ -47,11 +46,10 @@ test("Teacher can reset progress for all students on draft courses", async ({ pa
     })
     const studentPage = await studentContext.newPage()
     await studentPage.goto("http://project-331.local/organizations")
-    await studentPage
-      .getByRole("link", {
-        name: "University of Helsinki, Department of Mathematics and Statistics",
-      })
-      .click()
+    await selectOrganization(
+      studentPage,
+      "University of Helsinki, Department of Mathematics and Statistics",
+    )
     await studentPage.getByRole("link", { name: "Navigate to course 'Reset progress'" }).click()
     await selectCourseInstanceIfPrompted(studentPage)
     await studentPage.getByRole("link", { name: "Chapter 1 The Basics" }).click()

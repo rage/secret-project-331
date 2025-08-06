@@ -25,17 +25,17 @@ const Grid: React.FC<React.PropsWithChildren<GridProps>> = ({
       className={css`
         @supports (display: grid) {
           display: grid;
-          grid-gap: 20px;
+          gap: 20px;
           max-width: 1075px;
           margin: 0 auto;
           grid-template-columns: 1fr;
 
           ${respondToOrLarger.md} {
             grid-template-columns: 1fr 1fr;
-            grid-gap: 40px;
+            gap: 40px;
           }
           ${respondToOrLarger.lg} {
-            grid-gap: 40px;
+            gap: 40px;
           }
         }
       `}

@@ -11,17 +11,22 @@ import { UploadResultMessage } from "@/shared-module/common/exercise-service-pro
 import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/common/utils/constants"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
+import { RunResult } from "@/tmc/cli"
 
 interface Props {
   state: ExerciseIframeState | null
   setState: (updater: (state: ExerciseIframeState | null) => ExerciseIframeState | null) => void
+  testRequestResponse: RunResult | null
   sendFileUploadMessage: (filename: string, file: File) => void
+  requestRepositoryExercises: () => void
   fileUploadResponse: UploadResultMessage | null
 }
 
 export const StateRenderer: React.FC<React.PropsWithChildren<Props>> = ({
   state,
   setState,
+  testRequestResponse,
+  requestRepositoryExercises,
   sendFileUploadMessage,
   fileUploadResponse,
 }) => {
@@ -34,15 +39,21 @@ export const StateRenderer: React.FC<React.PropsWithChildren<Props>> = ({
   if (state.view_type === "exercise-editor") {
     return (
       <div id={EXERCISE_SERVICE_CONTENT_ID}>
-        <ExerciseEditor state={state} setState={setState} />
+        <ExerciseEditor
+          state={state}
+          setState={setState}
+          requestRepositoryExercises={requestRepositoryExercises}
+        />
       </div>
     )
   } else if (state.view_type === "answer-exercise") {
     return (
       <div id={EXERCISE_SERVICE_CONTENT_ID}>
         <AnswerExercise
-          initialPublicSpec={state.initial_public_spec}
+          publicSpec={state.public_spec}
+          userAnswer={state.user_answer}
           setState={setState}
+          testRequestResponse={testRequestResponse}
           sendFileUploadMessage={sendFileUploadMessage}
           fileUploadResponse={fileUploadResponse}
         />

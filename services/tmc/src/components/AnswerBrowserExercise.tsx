@@ -6,22 +6,27 @@ import { useTranslation } from "react-i18next"
 import { ExerciseFile, ExerciseIframeState, PublicSpec } from "../util/stateInterfaces"
 
 import Button from "@/shared-module/common/components/Button"
+import { RunResult } from "@/tmc/cli"
+import { runBrowserTests, waitForTestResults } from "@/util/requests"
 
 interface Props {
-  initialPublicSpec: PublicSpec & { type: "browser" }
+  publicSpec: PublicSpec
+  initialState: Array<ExerciseFile>
+  testRequestResponse: RunResult | null
   setState: (updater: (state: ExerciseIframeState | null) => ExerciseIframeState | null) => void
 }
 
 const AnswerBrowserExercise: React.FC<React.PropsWithChildren<Props>> = ({
-  initialPublicSpec,
+  publicSpec,
+  initialState,
+  testRequestResponse,
   setState,
 }) => {
   const { t } = useTranslation()
 
-  const initialEditorState = initialPublicSpec.files
-  const [editorState, _setEditorState] = useState(initialEditorState)
+  const [editorFiles, setEditorFiles] = useState(initialState)
   const setEditorState = (files: Array<ExerciseFile>) => {
-    _setEditorState(files)
+    setEditorFiles(files)
     setState((old) => {
       if (old?.view_type == "answer-exercise") {
         return { ...old, user_answer: { type: "browser", files } }
@@ -30,10 +35,19 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<Props>> = ({
       }
     })
   }
+  const [testResults, setTestResults] = useState<RunResult | null>(null)
 
   // "inline" exercise, solved in the browser
+  if (publicSpec.student_file_paths.length == 0) {
+    return <div>{t("no-student-files")}</div>
+  }
+
   // todo: support multiple files
-  const { filepath, contents } = editorState[0]
+  const exerciseFile = editorFiles.find((ef) => publicSpec.student_file_paths.includes(ef.filepath))
+  if (exerciseFile === undefined) {
+    return <div>{t("no-exercise-files")}</div>
+  }
+  const { filepath, contents } = exerciseFile
   return (
     <>
       <div>{filepath}</div>
@@ -44,7 +58,7 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<Props>> = ({
         value={contents}
         onChange={(newContents) => {
           if (newContents !== undefined) {
-            const newState = _.cloneDeep(editorState)
+            const newState = _.cloneDeep(editorFiles)
             const changed = newState.find((ef) => ef.filepath == filepath)
             if (changed) {
               changed.contents = newContents
@@ -53,16 +67,37 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<Props>> = ({
           }
         }}
       />
+      {testRequestResponse && <div>{testRequestResponse.status}</div>}
+      <Button
+        variant="primary"
+        size="medium"
+        onClick={async () => {
+          const testRunId = await runBrowserTests(publicSpec.stub_download_url, filepath, contents)
+          waitForTestResults(testRunId).then((result) => {
+            setTestResults(result)
+          })
+        }}
+      >
+        {t("test")}
+      </Button>
+      <Button variant="primary" size="medium" onClick={() => {}}>
+        {t("submit")}
+      </Button>
       <Button
         variant="primary"
         size="medium"
         onClick={() => {
-          // cloneDeep prevents setState from changing the initial spec (??)
-          setEditorState(_.cloneDeep(initialEditorState))
+          // todo: custom dialog
+          const res = confirm(t("are-you-sure"))
+          if (res) {
+            // cloneDeep prevents setState from changing the initial spec (??)
+            setEditorState(_.cloneDeep(initialState))
+          }
         }}
       >
         {t("reset")}
       </Button>
+      <div>{testResults && testResults.status}</div>
     </>
   )
 }

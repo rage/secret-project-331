@@ -1,16 +1,17 @@
-use std::collections::{hash_map, HashMap};
+use std::collections::{HashMap, hash_map};
 
 use futures::future::{BoxFuture, OptionFuture};
 use headless_lms_utils::document_schema_processor::{
-    contains_blocks_not_allowed_in_top_level_pages, GutenbergBlock,
+    GutenbergBlock, contains_blocks_not_allowed_in_top_level_pages,
 };
 use itertools::Itertools;
 use sqlx::{Postgres, QueryBuilder, Row};
 use url::Url;
 
 use crate::{
+    CourseOrExamId, SpecFetcher,
     chapters::{
-        self, course_chapters, get_chapter, get_chapter_by_page_id, Chapter, DatabaseChapter,
+        self, Chapter, DatabaseChapter, course_chapters, get_chapter, get_chapter_by_page_id,
     },
     course_instances::{self, CourseInstance},
     courses::{Course, CourseContextData},
@@ -22,11 +23,10 @@ use crate::{
     page_history::{self, HistoryChangeReason, PageHistoryContent},
     peer_or_self_review_configs::CmsPeerOrSelfReviewConfig,
     peer_or_self_review_questions::{
-        normalize_cms_peer_or_self_review_questions, CmsPeerOrSelfReviewQuestion,
+        CmsPeerOrSelfReviewQuestion, normalize_cms_peer_or_self_review_questions,
     },
     prelude::*,
     user_course_settings::{self, UserCourseSettings},
-    CourseOrExamId, SpecFetcher,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -1353,9 +1353,7 @@ async fn upsert_exercises(
 ) -> ModelResult<HashMap<Uuid, Exercise>> {
     let mut remapped_exercises = HashMap::new();
     for exercise_update in exercise_updates.iter() {
-        let exercise_exists = existing_exercise_ids
-            .iter()
-            .any(|id| *id == exercise_update.id);
+        let exercise_exists = existing_exercise_ids.contains(&exercise_update.id);
         let safe_for_db_exercise_id = if retain_exercise_ids || exercise_exists {
             exercise_update.id
         } else {
@@ -1474,7 +1472,7 @@ async fn upsert_exercise_slides(
 ) -> ModelResult<HashMap<Uuid, CmsPageExerciseSlide>> {
     let mut remapped_exercise_slides = HashMap::new();
     for slide_update in slide_updates.iter() {
-        let slide_exists = existing_slide_ids.iter().any(|id| *id == slide_update.id);
+        let slide_exists = existing_slide_ids.contains(&slide_update.id);
         let safe_for_db_slide_id = if retain_exercise_ids || slide_exists {
             slide_update.id
         } else {
@@ -1677,7 +1675,7 @@ pub async fn upsert_peer_or_self_review_configs(
         let mut illegal_exercise_id = None;
 
         sql.push_values(peer_reviews.iter().take(1000), |mut x, pr| {
-            let peer_review_exists = existing_peer_reviews.iter().any(|id| *id == pr.id);
+            let peer_review_exists = existing_peer_reviews.contains(&pr.id);
             let safe_for_db_peer_or_self_review_config_id = if retain_ids || peer_review_exists {
                 pr.id
             } else {
@@ -1826,9 +1824,8 @@ pub async fn upsert_peer_or_self_review_questions(
         sql.push_values(
             peer_or_self_review_questions,
             |mut x, (prq, peer_or_self_review_config_id)| {
-                let peer_review_question_exists = existing_peer_or_self_review_questions
-                    .iter()
-                    .any(|id| *id == prq.id);
+                let peer_review_question_exists =
+                    existing_peer_or_self_review_questions.contains(&prq.id);
                 let safe_for_db_peer_or_self_review_question_id =
                     if retain_ids || peer_review_question_exists {
                         prq.id
@@ -3132,7 +3129,10 @@ WHERE course_id = $1
                         ));
                     }
                 } else {
-                    error!("Cannot move a top level page to a chapter. matching_db_page.chapter_id: {:?} page.chapter_id: {:?}", matching_db_page.chapter_id, page.chapter_id);
+                    error!(
+                        "Cannot move a top level page to a chapter. matching_db_page.chapter_id: {:?} page.chapter_id: {:?}",
+                        matching_db_page.chapter_id, page.chapter_id
+                    );
                     // Moving page from the top level to a chapter
                     return Err(ModelError::new(
                         ModelErrorType::InvalidRequest,
@@ -3448,28 +3448,36 @@ mod test {
         };
 
         // Works without exercises
-        assert!(create_update(vec![], vec![], vec![])
-            .validate_exercise_data()
-            .is_ok());
+        assert!(
+            create_update(vec![], vec![], vec![])
+                .validate_exercise_data()
+                .is_ok()
+        );
 
         // Works with single valid exercise
-        assert!(create_update(
-            vec![e1.clone()],
-            vec![e1_s1.clone()],
-            vec![e1_s1_t1.clone()],
-        )
-        .validate_exercise_data()
-        .is_ok());
+        assert!(
+            create_update(
+                vec![e1.clone()],
+                vec![e1_s1.clone()],
+                vec![e1_s1_t1.clone()],
+            )
+            .validate_exercise_data()
+            .is_ok()
+        );
 
         // Fails with missing slide
-        assert!(create_update(vec![e1.clone()], vec![], vec![e1_s1_t1],)
-            .validate_exercise_data()
-            .is_err());
+        assert!(
+            create_update(vec![e1.clone()], vec![], vec![e1_s1_t1],)
+                .validate_exercise_data()
+                .is_err()
+        );
 
         // Fails with missing task
-        assert!(create_update(vec![e1], vec![e1_s1], vec![],)
-            .validate_exercise_data()
-            .is_err());
+        assert!(
+            create_update(vec![e1], vec![e1_s1], vec![],)
+                .validate_exercise_data()
+                .is_err()
+        );
     }
 
     fn create_update(

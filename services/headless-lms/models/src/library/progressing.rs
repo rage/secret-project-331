@@ -643,6 +643,7 @@ pub struct ManualCompletionPreviewUser {
     pub last_name: Option<String>,
     pub grade: Option<i32>,
     pub passed: bool,
+    pub previous_best_grade: Option<i32>,
 }
 
 /// Gets a preview of changes that will occur to completions with the given manual completion data.
@@ -672,6 +673,7 @@ pub async fn get_manual_completion_result_preview(
             last_name: user_details.last_name,
             grade: completion.grade,
             passed: completion.passed,
+            previous_best_grade: None,
         };
         let enrollment = course_instance_enrollments::get_by_user_and_course_instance_id(
             conn,
@@ -789,16 +791,26 @@ pub async fn get_user_module_completion_statuses_for_course_instance(
     let course = courses::get_course(conn, course_id).await?;
     let course_modules = course_modules::get_by_course_id(conn, course_id).await?;
     let course_module_ids = course_modules.iter().map(|x| x.id).collect::<Vec<_>>();
-    let course_module_completions: HashMap<Uuid, CourseModuleCompletion> =
+
+    let course_module_completions_raw =
         course_module_completions::get_all_by_course_instance_and_user_id(
             conn,
             course_instance_id,
             user_id,
         )
-        .await?
-        .into_iter()
-        .map(|x| (x.course_module_id, x))
-        .collect();
+        .await?;
+
+    let course_module_completions: HashMap<Uuid, CourseModuleCompletion> =
+        course_module_completions_raw
+            .into_iter()
+            .sorted_by_key(|c| c.course_module_id)
+            .chunk_by(|c| c.course_module_id)
+            .into_iter()
+            .filter_map(|(module_id, group)| {
+                crate::course_module_completions::select_best_completion(group.collect())
+                    .map(|best| (module_id, best))
+            })
+            .collect();
 
     let all_default_certificate_configurations = crate::certificate_configurations::get_default_certificate_configurations_and_requirements_by_course_instance(conn, course_instance_id).await?;
     let all_certifcate_configurations_requiring_only_one_module_and_no_course_instance = crate::certificate_configurations::get_all_certifcate_configurations_requiring_only_one_module_and_no_course_instance(conn, &course_module_ids).await?;

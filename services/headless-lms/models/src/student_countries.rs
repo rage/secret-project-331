@@ -2,7 +2,6 @@ use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-
 pub struct StudentCountry {
     pub id: Uuid,
     pub user_id: Uuid,

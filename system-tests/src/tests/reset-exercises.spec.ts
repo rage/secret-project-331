@@ -1,6 +1,7 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import { scrollLocatorsParentIframeToViewIfNeeded } from "@/utils/iframeLocators"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -36,7 +37,10 @@ test("Can manually reset exercises", async () => {
     .getByRole("checkbox", { name: "a" })
     .click()
 
-  await student1Page.getByRole("button", { name: "Submit" }).click()
+  // disabled: false prevents the selector from selecting an incorrect Submit button
+  // as it'll instead wait for an enabled one. although playwright does auto-wait on click(),
+  // in this case it can select a button that will never be enabled and wait for it instead
+  await student1Page.getByRole("button", { name: "Submit", disabled: false }).click()
   await student1Page.getByRole("button", { name: "Try again" }).waitFor({ state: "visible" })
 
   // eslint-disable-next-line playwright/no-wait-for-timeout
@@ -53,6 +57,14 @@ test("Can manually reset exercises", async () => {
   await student1Page.getByRole("button", { name: "Try again" }).waitFor({ state: "visible" })
   await student1Page.getByRole("button", { name: "Try again" }).click()
   await student1Page.getByRole("button", { name: "Try again" }).waitFor({ state: "hidden" })
+
+  await scrollLocatorsParentIframeToViewIfNeeded(
+    student1Page
+      .locator('iframe[title="Exercise 1\\, task 1 content"]')
+      .nth(1)
+      .contentFrame()
+      .getByRole("checkbox", { name: "b" }),
+  )
 
   await student1Page
     .locator('iframe[title="Exercise 1\\, task 1 content"]')

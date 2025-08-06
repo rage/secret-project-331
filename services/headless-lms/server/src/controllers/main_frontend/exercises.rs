@@ -4,8 +4,8 @@ use futures::future;
 
 use headless_lms_models::exercises::Exercise;
 use models::{
-    exercise_slide_submissions::ExerciseSlideSubmission,
-    library::grading::AnswersRequiringAttention, CourseOrExamId,
+    CourseOrExamId, exercise_slide_submissions::ExerciseSlideSubmission,
+    library::grading::AnswersRequiringAttention,
 };
 
 use crate::{domain::models_requests, prelude::*};

@@ -18,7 +18,7 @@ pub struct AzureBlobClient {
 impl AzureBlobClient {
     pub async fn new(
         app_config: &ApplicationConfiguration,
-        container_name_prefix: &str,
+        container_name: &str,
     ) -> anyhow::Result<Self> {
         let azure_configuration = app_config
             .azure_configuration
@@ -32,7 +32,7 @@ impl AzureBlobClient {
             .clone()
             .context("Azure Blob Storage configuration is missing")?;
 
-        let container_name = format!("{}-chatbot", container_name_prefix);
+        let container_name = container_name.to_string();
 
         let storage_credentials = StorageCredentials::access_key(&storage_account, access_key);
         let blob_service_client = BlobServiceClient::new(storage_account, storage_credentials);

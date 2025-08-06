@@ -2,6 +2,7 @@
 import { expect, test } from "@playwright/test"
 
 import { getLocatorForNthExerciseServiceIframe, waitForViewType } from "@/utils/iframeLocators"
+import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -12,7 +13,7 @@ test.use({
 test.skip("Testing exam works", async ({ page }) => {
   await test.step("Create exam", async () => {
     await page.goto("http://project-331.local/organizations")
-    await page.getByLabel("University of Helsinki, Department of Computer Science").click()
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await page.getByRole("button", { name: "Create" }).nth(1).click()
     await page.getByLabel("Name", { exact: true }).fill("Exam for testing")
     await page.getByLabel("Starts at").fill("1990-12-03T12:00")
@@ -51,7 +52,7 @@ test.skip("Testing exam works", async ({ page }) => {
 
   await test.step("Navigate to exam", async () => {
     await page.goto("http://project-331.local/organizations")
-    await page.getByLabel("University of Helsinki, Department of Computer Science").click()
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await page
       .getByTestId("exam-list-item")
       .filter({ hasText: "Exam for testing" })

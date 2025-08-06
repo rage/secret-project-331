@@ -1,8 +1,8 @@
 //! Controllers for requests starting with '/api/v0/main-frontend/oauth'.
 use crate::prelude::*;
-use actix_web::{Error, HttpResponse, web};
+use actix_web::{web, Error, HttpResponse};
 use chrono::{DateTime, Duration, Utc};
-use jsonwebtoken::{EncodingKey, Header, encode};
+use jsonwebtoken::{encode, EncodingKey, Header};
 use models::{
     oauth_access_token::OAuthAccessToken, oauth_auth_code::OAuthAuthCode,
     oauth_client::OAuthClient, oauth_refresh_tokens::OAuthRefreshTokens,
@@ -12,7 +12,8 @@ use rand::Rng;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sqlx::PgPool;
-use std::{env, str::FromStr};
+use std::collections::HashMap;
+use std::env;
 use url::form_urlencoded;
 use uuid::Uuid;
 
@@ -28,6 +29,11 @@ struct AuthorizeQuery {
     scope: String,
     state: String,
     nonce: String,
+
+    // OAuth2.0 spec requires that auth does not fail when there are unknown parameters present,
+    // see RFC 6749 3.1
+    #[serde(flatten)]
+    pub _extra: HashMap<String, String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -36,6 +42,11 @@ pub struct TokenQuery {
     pub client_secret: String,
     #[serde(flatten)]
     pub grant: GrantType,
+
+    // OAuth2.0 spec requires that token does not fail when there are unknown parameters present,
+    // see RFC 6749 3.2
+    #[serde(flatten)]
+    pub _extra: HashMap<String, String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -73,14 +84,22 @@ struct Claims {
     nonce: String,
 }
 
-#[derive(Debug, Deserialize)]
-pub struct ConsentForm {
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct ConsentQuery {
     pub client_id: String,
     pub redirect_uri: String,
     pub scopes: String,
     pub state: String,
     pub nonce: String,
 }
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct ConsentDenyQuery {
+    pub redirect_uri: String,
+    pub state: String,
+}
+
+// TODO: Check client origin in every relevant endpoint. Extract  as a function.
 
 #[instrument(skip(pool))]
 async fn authorize(
@@ -133,7 +152,7 @@ async fn authorize(
                 let encoded_return_to: String =
                     form_urlencoded::byte_serialize(return_to.as_bytes()).collect();
                 redirect_url = format!(
-                    "/oauth/consent?client_id={}&redirect_uri={}&scope={}&state={}&nonce={}&return_to={}",
+                    "/oauth_authorize_scopes?client_id={}&redirect_uri={}&scope={}&state={}&nonce={}&return_to={}",
                     &query.client_id,
                     &query.redirect_uri,
                     &query.scope,
@@ -149,7 +168,7 @@ async fn authorize(
                 );
             }
 
-            let code = Uuid::new_v4().to_string();
+            let code = generate_access_token()?;
             let expires_at = Utc::now() + Duration::minutes(10);
 
             OAuthAuthCode::insert(
@@ -190,20 +209,20 @@ async fn authorize(
 #[instrument(skip(pool))]
 async fn approve_consent(
     pool: web::Data<PgPool>,
-    form: web::Form<ConsentForm>,
+    query: web::Query<ConsentQuery>,
     user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
-    let client = OAuthClient::find_by_client_id(&mut conn, &form.client_id).await?;
 
-    if !client.redirect_uris.contains(&form.redirect_uri) {
+    let client = OAuthClient::find_by_client_id(&mut conn, &query.client_id).await?;
+    if !client.redirect_uris.contains(&query.redirect_uri) {
         return Err(ControllerError::from(actix_web::error::ErrorBadRequest(
             "invalid redirect URI",
         )));
     }
 
-    let requested_scopes: Vec<String> = form
+    let requested_scopes: Vec<String> = query
         .scopes
         .split_whitespace()
         .map(|s| s.to_string())
@@ -223,13 +242,12 @@ async fn approve_consent(
     }
 
     for scope in requested_scopes {
-        OAuthUserClientScopes::insert(&mut conn, user.id, Uuid::from_str(&form.client_id)?, scope)
-            .await?;
+        OAuthUserClientScopes::insert(&mut conn, user.id, client.id, scope).await?;
     }
 
     let redirect_url = format!(
         "/api/v0/main-frontend/oauth/authorize?client_id={}&redirect_uri={}&scope={}&state={}&nonce={}",
-        form.client_id, form.redirect_uri, form.scopes, form.state, form.nonce
+        query.client_id, query.redirect_uri, query.scopes, query.state, query.nonce
     );
 
     token.authorized_ok(
@@ -237,6 +255,18 @@ async fn approve_consent(
             .append_header(("Location", redirect_url))
             .finish(),
     )
+}
+
+#[instrument]
+async fn deny_consent(query: web::Query<ConsentDenyQuery>) -> Result<HttpResponse, Error> {
+    let redirect_url = format!(
+        "{}?error=access_denied&state={}",
+        query.redirect_uri, query.state
+    );
+
+    Ok(HttpResponse::Found()
+        .append_header(("Location", redirect_url))
+        .finish())
 }
 
 #[instrument(skip(pool))]
@@ -280,7 +310,8 @@ async fn token(
                 expires_at,
             )
             .await?;
-
+            // TODO: Perhaps remove this? This will logout all other sessions and might not be what
+            // we want.
             OAuthRefreshTokens::revoke_all_by_user_client(
                 &mut conn,
                 auth_code.user_id,
@@ -312,7 +343,8 @@ async fn token(
                     "invalid grant",
                 )));
             }
-
+            // TODO: Same as upper, perhaps remove so that we do not logout other sessions by the
+            // same user.
             OAuthRefreshTokens::revoke_all_by_user_client(
                 &mut conn,
                 token.user_id,
@@ -362,7 +394,7 @@ async fn token(
     server_token.authorized_ok(HttpResponse::Ok().json(response))
 }
 
-// TODO: Change this. Make custom OAuth errors and them to ControllerError so it can map them
+// TODO: Change this. Make custom OAuth errors and implement them to ControllerError so it can map them
 // automatically.
 fn map_internal_error<E: std::fmt::Debug>(e: E) -> ControllerError {
     error!(?e);
@@ -442,7 +474,8 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
             "/.well-known/openid-configuration",
             web::get().to(well_known_openid),
         )
-        .route("/approve_consent", web::get().to(approve_consent));
+        .route("/consent", web::get().to(approve_consent))
+        .route("/consent/deny", web::get().to(deny_consent));
 }
 
 // TODO: Think if this is secure enough, or if whe should use OsRang for cryptographically safer

@@ -2,6 +2,12 @@ import { css } from "@emotion/css"
 import React, { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import {
+  DIALOG_PROVIDER_DIALOG_TEST_ID,
+  PROMPT_DIALOG_CANCEL_BUTTON_TEST_ID,
+  PROMPT_DIALOG_INPUT_TEST_ID,
+  PROMPT_DIALOG_OK_BUTTON_TEST_ID,
+} from "./DialogProvider"
 import StandardDialog from "./StandardDialog"
 
 export interface PromptDialogProps {
@@ -40,13 +46,23 @@ const PromptDialog: React.FC<PromptDialogProps> = ({
 
   return (
     <StandardDialog
+      data-testid={DIALOG_PROVIDER_DIALOG_TEST_ID}
       open={open}
       onClose={onCancel}
       title={title}
       buttons={[
-        { children: t("button-cancel"), variant: "secondary", onClick: onCancel },
-
-        { children: t("button-ok"), variant: "primary", onClick: () => onConfirm(value) },
+        {
+          children: t("button-cancel"),
+          variant: "secondary",
+          onClick: onCancel,
+          "data-testid": PROMPT_DIALOG_CANCEL_BUTTON_TEST_ID,
+        },
+        {
+          children: t("button-ok"),
+          variant: "primary",
+          onClick: () => onConfirm(value),
+          "data-testid": PROMPT_DIALOG_OK_BUTTON_TEST_ID,
+        },
       ]}
     >
       <div>
@@ -57,6 +73,7 @@ const PromptDialog: React.FC<PromptDialogProps> = ({
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
+          data-testid={PROMPT_DIALOG_INPUT_TEST_ID}
           className={css`
             width: 100%;
             padding: 0.5rem;

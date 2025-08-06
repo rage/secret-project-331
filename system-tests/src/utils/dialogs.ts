@@ -1,13 +1,15 @@
 /* eslint-disable playwright/no-conditional-in-test */
 import { expect, Page, test } from "@playwright/test"
 
-const DIALOG_TEST_ID = "dialog-provider-dialog"
-const ALERT_DIALOG_OK_BUTTON_TEST_ID = "alert-dialog-ok-button"
-const CONFIRM_DIALOG_YES_BUTTON_TEST_ID = "confirm-dialog-yes-button"
-const CONFIRM_DIALOG_NO_BUTTON_TEST_ID = "confirm-dialog-no-button"
-const PROMPT_DIALOG_OK_BUTTON_TEST_ID = "prompt-dialog-ok-button"
-const PROMPT_DIALOG_CANCEL_BUTTON_TEST_ID = "prompt-dialog-cancel-button"
-const PROMPT_DIALOG_INPUT_TEST_ID = "prompt-dialog-input"
+import {
+  ALERT_DIALOG_OK_BUTTON_TEST_ID,
+  CONFIRM_DIALOG_NO_BUTTON_TEST_ID,
+  CONFIRM_DIALOG_YES_BUTTON_TEST_ID,
+  DIALOG_PROVIDER_DIALOG_TEST_ID,
+  PROMPT_DIALOG_CANCEL_BUTTON_TEST_ID,
+  PROMPT_DIALOG_INPUT_TEST_ID,
+  PROMPT_DIALOG_OK_BUTTON_TEST_ID,
+} from "../../../shared-module/packages/common/src/components/dialogs/DialogProvider"
 
 /**
  * Dismiss an alert dialog by clicking OK
@@ -21,7 +23,7 @@ export async function dismissAlertDialog(
   expectedTitle?: string,
 ): Promise<void> {
   await test.step("Dismiss alert dialog", async () => {
-    const dialog = page.getByTestId(DIALOG_TEST_ID)
+    const dialog = page.getByTestId(DIALOG_PROVIDER_DIALOG_TEST_ID)
     await dialog.waitFor()
 
     if (expectedMessage) {
@@ -52,7 +54,7 @@ export async function respondToConfirmDialog(
 ): Promise<void> {
   const action = confirm ? "Confirm" : "Cancel"
   await test.step(`Respond to confirm dialog - ${action}`, async () => {
-    const dialog = page.getByTestId(DIALOG_TEST_ID)
+    const dialog = page.getByTestId(DIALOG_PROVIDER_DIALOG_TEST_ID)
     await dialog.waitFor()
 
     if (expectedMessage) {
@@ -88,7 +90,7 @@ export async function fillPromptDialog(
 ): Promise<void> {
   const action = submit ? "Submit" : "Cancel"
   await test.step(`Fill prompt dialog - ${action}`, async () => {
-    const dialog = page.getByTestId(DIALOG_TEST_ID)
+    const dialog = page.getByTestId(DIALOG_PROVIDER_DIALOG_TEST_ID)
     await dialog.waitFor()
 
     if (expectedMessage) {
@@ -108,41 +110,5 @@ export async function fillPromptDialog(
     }
 
     await dialog.waitFor({ state: "hidden" })
-  })
-}
-
-/**
- * Wait for a dialog to appear and optionally verify its content
- * @param page - Playwright page object
- * @param expectedMessage - Optional message to verify is present in the dialog
- * @param expectedTitle - Optional title to verify is present in the dialog
- */
-export async function waitForDialog(
-  page: Page,
-  expectedMessage?: string,
-  expectedTitle?: string,
-): Promise<void> {
-  await test.step("Wait for dialog", async () => {
-    const dialog = page.getByTestId(DIALOG_TEST_ID)
-    await dialog.waitFor()
-
-    if (expectedMessage) {
-      await expect(dialog.getByText(expectedMessage)).toBeVisible()
-    }
-    if (expectedTitle) {
-      await expect(dialog.getByText(expectedTitle)).toBeVisible()
-    }
-  })
-}
-
-/**
- * Helper function to check if a dialog is currently visible
- * @param page - Playwright page object
- * @returns Promise<boolean> - true if dialog is visible, false otherwise
- */
-export async function isDialogVisible(page: Page): Promise<boolean> {
-  return await test.step("Check if dialog is visible", async () => {
-    const dialog = page.getByTestId(DIALOG_TEST_ID)
-    return await dialog.isVisible()
   })
 }

@@ -59,10 +59,7 @@ async fn fetch_and_update_completion_links(
     open_university_course_url: &str,
     open_university_token: &str,
 ) -> anyhow::Result<u32> {
-    tracing::info!(
-        "Starting Open University completion link fetch and update process. Base URL: {}",
-        open_university_course_url
-    );
+    tracing::info!("Fetching new completion links from EduWeb.");
 
     let mut updates = 0;
     let mut errors = 0;
@@ -75,14 +72,27 @@ async fn fetch_and_update_completion_links(
     tracing::info!("Found {} course codes to process", course_codes.len());
 
     for (index, uh_course_code) in course_codes.iter().enumerate() {
+        let trimmed_code = uh_course_code.trim();
+
+        if trimmed_code.is_empty() {
+            tracing::warn!(
+                "Skipping empty course code at index {} ({}/{})",
+                index + 1,
+                index + 1,
+                course_codes.len()
+            );
+            skipped += 1;
+            continue;
+        }
+
         tracing::debug!(
             "Processing course code {} ({}/{})",
-            uh_course_code,
+            trimmed_code,
             index + 1,
             course_codes.len()
         );
 
-        let url = format!("{}{}", &open_university_course_url, &uh_course_code);
+        let url = format!("{}{}", &open_university_course_url, &trimmed_code);
         tracing::debug!("Fetching data from URL: {}", url);
 
         // TODO: Handle error if no info found for single course code
@@ -93,7 +103,7 @@ async fn fetch_and_update_completion_links(
                 tracing::debug!(
                     "Retrieved {} registration alternatives for course code {}",
                     infos.len(),
-                    uh_course_code
+                    trimmed_code
                 );
 
                 // Select link that has already started and has the latest end date.
@@ -102,7 +112,7 @@ async fn fetch_and_update_completion_links(
                     Some(open_university_info) => {
                         tracing::debug!(
                             "Selected best candidate for course {}: start_date={}, end_date={}, link={}",
-                            uh_course_code,
+                            trimmed_code,
                             open_university_info.start_date,
                             open_university_info.end_date,
                             open_university_info.link
@@ -111,7 +121,7 @@ async fn fetch_and_update_completion_links(
                         // Only update link if there is a new one.
                         let res = update_course_registration_link(
                             conn,
-                            &uh_course_code,
+                            &trimmed_code,
                             &open_university_info,
                         )
                         .await;
@@ -119,14 +129,14 @@ async fn fetch_and_update_completion_links(
                             Ok(_) => {
                                 tracing::info!(
                                     "Successfully updated registration link for course code {}",
-                                    uh_course_code
+                                    trimmed_code
                                 );
                                 updates += 1;
                             }
                             Err(err) => {
                                 tracing::error!(
                                     "Failed to update link for course code {}: {:#?}",
-                                    uh_course_code,
+                                    trimmed_code,
                                     err
                                 );
                                 errors += 1;
@@ -136,14 +146,13 @@ async fn fetch_and_update_completion_links(
                     None => {
                         tracing::warn!(
                             "No suitable registration candidate found for course code {}",
-                            uh_course_code
+                            trimmed_code
                         );
 
-                        // Detailed logging for why no candidate was found
                         tracing::info!(
                             "Analyzing {} registration alternatives for course {}:",
                             infos.len(),
-                            uh_course_code
+                            trimmed_code
                         );
 
                         let mut future_courses = 0;
@@ -186,7 +195,7 @@ async fn fetch_and_update_completion_links(
 
                         tracing::info!(
                             "Course {} candidate analysis: {} total alternatives, {} future, {} past, {} current",
-                            uh_course_code,
+                            trimmed_code,
                             infos.len(),
                             future_courses,
                             past_courses,
@@ -196,25 +205,25 @@ async fn fetch_and_update_completion_links(
                         if current_courses > 0 {
                             tracing::warn!(
                                 "Course {} has {} current alternatives but none were selected - this may indicate a bug in selection logic",
-                                uh_course_code,
+                                trimmed_code,
                                 current_courses
                             );
                         } else if future_courses > 0 {
                             tracing::info!(
                                 "Course {} has {} future alternatives but no current ones - registration may not be open yet",
-                                uh_course_code,
+                                trimmed_code,
                                 future_courses
                             );
                         } else if past_courses > 0 {
                             tracing::info!(
                                 "Course {} has {} past alternatives but no current ones - registration period may have ended",
-                                uh_course_code,
+                                trimmed_code,
                                 past_courses
                             );
                         } else {
                             tracing::warn!(
                                 "Course {} has no registration alternatives at all - this may indicate a data issue",
-                                uh_course_code
+                                trimmed_code
                             );
                         }
 
@@ -225,7 +234,7 @@ async fn fetch_and_update_completion_links(
             Err(err) => {
                 tracing::error!(
                     "Failed to get completion registration info for course code '{}': {:#?}",
-                    uh_course_code,
+                    trimmed_code,
                     err
                 );
                 errors += 1;

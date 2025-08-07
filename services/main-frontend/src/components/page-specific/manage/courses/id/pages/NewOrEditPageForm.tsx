@@ -8,7 +8,7 @@ import { normalizePath } from "../../../../../../utils/normalizePath"
 
 import { Page } from "@/shared-module/common/bindings"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import StandardDialog from "@/shared-module/common/components/StandardDialog"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 const PathFieldWithPrefixElement = styled.div`
@@ -96,7 +96,7 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
       buttons={[
         {
           disabled: saveMutation.isPending,
-          // eslint-disable-next-line i18next/no-literal-string
+
           variant: "primary",
           onClick: handleSubmit,
           children: isUpdate ? t("button-text-update") : t("button-text-create"),

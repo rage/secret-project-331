@@ -1,6 +1,8 @@
 import { test } from "@playwright/test"
 
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
+
+import { respondToConfirmDialog } from "@/utils/dialogs"
 test.use({
   storageState: "src/states/user@example.com.json",
 })
@@ -19,8 +21,8 @@ test("Can start an exam and can answer exercises", async ({ page, headless }, te
     ],
   })
 
-  page.on("dialog", (dialog) => dialog.accept())
-  await page.locator(`button:text("Start the exam!")`).click()
+  await page.getByRole("button", { name: "Start the exam!" }).click()
+  await respondToConfirmDialog(page, true)
   await page
     .getByText("In this exam you're supposed to answer to two easy questions. Good luck!")
     .waitFor()

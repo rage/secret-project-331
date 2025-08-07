@@ -4,7 +4,7 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
-import StandardDialog from "@/shared-module/common/components/StandardDialog"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
@@ -47,7 +47,6 @@ const MarkAsSpamDialog: React.FC<{
       title={t("title-report-dialog")}
       buttons={[
         {
-          // eslint-disable-next-line i18next/no-literal-string
           variant: "primary",
           onClick: () => handleSubmit(),
           disabled: !selectedReason,

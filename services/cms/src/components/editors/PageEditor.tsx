@@ -31,6 +31,7 @@ import BreakFromCentered from "@/shared-module/common/components/Centering/Break
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Menu from "@/shared-module/common/components/Navigation/NavBar/Menu/Menu"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { pageRoute } from "@/shared-module/common/utils/routes"
 
@@ -63,6 +64,7 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   needToRunMigrationsAndValidations,
   setNeedToRunMigrationsAndValidations,
 }) => {
+  const { confirm } = useDialog()
   const { t } = useTranslation()
   const router = useRouter()
   const prefix = router.asPath.split("/")[1]
@@ -193,8 +195,8 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
             border: 1px black solid;
             pointer-events: auto;
           `}
-          onClick={() => {
-            const res = confirm(t("are-you-sure-you-want-to-discard-changes"))
+          onClick={async () => {
+            const res = await confirm(t("are-you-sure-you-want-to-discard-changes"))
             if (res) {
               contentDispatch({ type: "setContent", payload: savedContent })
             }

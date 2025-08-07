@@ -11,7 +11,7 @@ import { CourseManagementPagesProps } from "@/pages/manage/courses/[id]/[...path
 import { resetExercisesForUsers } from "@/services/backend/exercises"
 import { UserDetail } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
-import StandardDialog from "@/shared-module/common/components/StandardDialog"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, secondaryFont } from "@/shared-module/common/styles"
 
@@ -147,14 +147,12 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
           leftAlignTitle={true}
           buttons={[
             {
-              // eslint-disable-next-line i18next/no-literal-string
               variant: "primary",
               onClick: () => resetMutation.mutate(),
               disabled: selectedUsers.length === 0 || selectedExerciseIds.length === 0,
               children: t("button-reset"),
             },
             {
-              // eslint-disable-next-line i18next/no-literal-string
               variant: "secondary",
               onClick: () => setIsModalOpen(false),
               children: t("button-text-cancel"),

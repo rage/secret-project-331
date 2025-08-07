@@ -6,7 +6,7 @@ import ContentArea from "./ContentArea"
 
 import { ExerciseServiceNewOrUpdate } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
-import Dialog from "@/shared-module/common/components/Dialog"
+import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { validURL } from "@/shared-module/common/utils/validation"
 
 interface ExerciseServiceCreationModelProps {

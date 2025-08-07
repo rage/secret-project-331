@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import { createCodeGiveaway } from "@/services/backend/codeGiveaways"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import StandardDialog from "@/shared-module/common/components/StandardDialog"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 
@@ -64,7 +64,6 @@ const NewCodeGiveawayForm: React.FC<NewCodeGiveawayFormProps> = ({
       title={t("heading-new-code-giveaway")}
       buttons={[
         {
-          // eslint-disable-next-line i18next/no-literal-string
           variant: "primary",
           onClick: () => createCodeGiveawayMutation.mutate(),
           disabled: !valid || createCodeGiveawayMutation.isPending,

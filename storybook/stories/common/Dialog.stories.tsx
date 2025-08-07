@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react"
 
-import StoryComponent from "../../src/shared-module/common/components/Dialog"
+import StoryComponent from "../../src/shared-module/common/components/dialogs/Dialog"
 
 const meta = {
   component: StoryComponent,

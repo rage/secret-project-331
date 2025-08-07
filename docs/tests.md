@@ -95,6 +95,27 @@ Here are some helpful functions available in the codebase:
 - **`selectCourseInstanceIfPrompted`**: Selects a course instance when prompted. Always use this instead of writing custom code for the dialog.
 - **`showNextToastsInfinitely` / `showToastsNormally`**: Keeps toast notifications visible for screenshots. Use `showNextToastsInfinitely` before triggering the notification and `showToastsNormally` afterward.
 
+#### Dialog Helper Functions
+
+The following functions help interact with different types of dialogs in the application:
+
+- **`dismissAlertDialog(page, expectedMessage?, expectedTitle?)`**: Dismisses an alert dialog by clicking OK. Optionally verifies the dialog contains expected message and/or title.
+- **`respondToConfirmDialog(page, confirm, expectedMessage?, expectedTitle?)`**: Responds to a confirm dialog by clicking "Yes" (true) or "No" (false). Optionally verifies the dialog content.
+- **`fillPromptDialog(page, inputValue, submit, expectedMessage?, expectedTitle?)`**: Fills and submits or cancels a prompt dialog. Set `submit` to true to click "OK" or false to click "Cancel".
+
+**Example usage:**
+
+```javascript
+// Dismiss an alert dialog
+await dismissAlertDialog(page, "Operation completed successfully")
+
+// Confirm an action
+await respondToConfirmDialog(page, true, "Are you sure you want to delete this item?")
+
+// Fill a prompt dialog
+await fillPromptDialog(page, "New name", true, "Enter a new name")
+```
+
 ### Example Tests
 
 - **Basic Example:** [login.spec.ts](src/tests/login/login.spec.ts)
@@ -188,7 +209,6 @@ await page.getByLabel("Draft").check()
 If you need to skip a known accessibility violation:
 
 1. Get the **Rule ID**:
-
    - In the browser, click **More Info** on the violation to see the Rule ID.
    - Alternatively, find the ID in the console output.
 

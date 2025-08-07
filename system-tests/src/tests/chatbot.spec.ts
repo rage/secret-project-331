@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test"
 
 import accessibilityCheck from "@/utils/accessibilityCheck"
+import { respondToConfirmDialog } from "@/utils/dialogs"
 
 test.describe("Chatbot settings testing", () => {
   test.use({
@@ -59,10 +60,8 @@ test.describe("Chatbot settings testing", () => {
       .getByRole("button", { name: "Edit" })
       .click()
     await page.getByText("Advanced settings").waitFor()
-    page.on("dialog", (dialog) => {
-      dialog.accept()
-    })
     await page.getByRole("button", { name: "Delete" }).click()
+    await respondToConfirmDialog(page, true)
     await expect(page.getByText("Deleted", { exact: true })).toBeVisible()
   })
 

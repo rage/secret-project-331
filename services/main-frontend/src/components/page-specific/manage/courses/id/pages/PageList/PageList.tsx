@@ -16,6 +16,7 @@ import TableWrapper from "./TableWrapper"
 
 import { Chapter, Page } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, typography } from "@/shared-module/common/styles"
 
@@ -36,6 +37,7 @@ const PageList: React.FC<React.PropsWithChildren<Props>> = ({
   pageOrderDispatch,
 }) => {
   const { t } = useTranslation()
+  const { confirm } = useDialog()
   const [showNewOrEditPageForm, setShowNewOrEditPageForm] = useState(false)
   const deletePageMutation = useToastMutation(
     (pageId: string) => {
@@ -50,7 +52,7 @@ const PageList: React.FC<React.PropsWithChildren<Props>> = ({
   }
 
   const handleDeletePage = async (pageId: string, title: string) => {
-    const result = confirm(t("page-deletion-confirmation-message", { title }))
+    const result = await confirm(t("page-deletion-confirmation-message", { title }))
     if (result) {
       deletePageMutation.mutate(pageId)
     }

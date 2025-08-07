@@ -6,6 +6,7 @@ import { postUpdatePeerReviewQueueReviewsReceived } from "../../../../../../serv
 
 import Button from "@/shared-module/common/components/Button"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 interface ModuleCompletionReprocessButtonProps {
@@ -16,6 +17,7 @@ const UpdatePeerReviewQueueReviewsReceivedButton: React.FC<
   React.PropsWithChildren<ModuleCompletionReprocessButtonProps>
 > = ({ courseId }) => {
   const { t } = useTranslation()
+  const { confirm } = useDialog()
   const mutation = useToastMutation(
     async () => {
       return postUpdatePeerReviewQueueReviewsReceived(courseId)
@@ -33,9 +35,9 @@ const UpdatePeerReviewQueueReviewsReceivedButton: React.FC<
         <Button
           variant="secondary"
           size="medium"
-          onClick={() => {
+          onClick={async () => {
             if (
-              confirm(
+              await confirm(
                 t("message-are-you-sure-you-want-to-update-peer-review-queue-reviews-received"),
               )
             ) {

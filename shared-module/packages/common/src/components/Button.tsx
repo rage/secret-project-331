@@ -20,6 +20,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   transform?: "capitalize" | "uppercase" | "none" | "lowercase"
   fullWidth?: boolean
   children?: React.ReactNode
+  "data-testid"?: string
 }
 
 // BaseButtonStyles is the primary button

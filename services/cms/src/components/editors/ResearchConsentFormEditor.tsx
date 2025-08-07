@@ -15,6 +15,7 @@ import SerializeGutenbergModal from "../SerializeGutenbergModal"
 import { NewResearchForm, ResearchForm } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
@@ -34,7 +35,7 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
   setNeedToRunMigrationsAndValidations,
 }) => {
   const { t } = useTranslation()
-
+  const { confirm } = useDialog()
   const [content, setContent] = useState<BlockInstance[]>(
     modifyBlocks((data.content ?? []) as BlockInstance[], [
       ...allowedResearchFormCoreBlocks,
@@ -108,8 +109,8 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
             border: 1px black solid;
             pointer-events: auto;
           `}
-          onClick={() => {
-            const res = confirm(t("are-you-sure-you-want-to-discard-changes"))
+          onClick={async () => {
+            const res = await confirm(t("are-you-sure-you-want-to-discard-changes"))
             if (res) {
               setContent(currentContent)
             }

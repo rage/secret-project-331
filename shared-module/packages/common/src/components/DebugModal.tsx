@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 import { baseTheme } from "../styles/theme"
 
 import Button from "./Button"
-import StandardDialog from "./StandardDialog"
+import StandardDialog from "./dialogs/StandardDialog"
 import MonacoEditor from "./monaco/MonacoEditor"
 
 export interface DebugModalProps {

@@ -2,6 +2,7 @@ import { test } from "@playwright/test"
 
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
+import { respondToConfirmDialog } from "@/utils/dialogs"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
@@ -61,9 +62,6 @@ test("Configuring certificates works", async ({ page, headless }, testInfo) => {
   await page.getByRole("button", { name: "Save" }).click()
 
   // disable/enable generating certs with confirmation dialog
-  page.once("dialog", (dialog) => {
-    dialog.accept()
-  })
   await page
     .getByRole("listitem")
     .filter({
@@ -71,9 +69,7 @@ test("Configuring certificates works", async ({ page, headless }, testInfo) => {
     })
     .getByRole("button", { name: "Enable generating certificates" })
     .click()
-  page.once("dialog", (dialog) => {
-    dialog.accept()
-  })
+  await respondToConfirmDialog(page, true)
   await page
     .getByRole("listitem")
     .filter({
@@ -81,6 +77,7 @@ test("Configuring certificates works", async ({ page, headless }, testInfo) => {
     })
     .getByRole("button", { name: "Disable generating certificates" })
     .click()
+  await respondToConfirmDialog(page, true)
 
   // edit with cancel and save
   await page
@@ -108,10 +105,6 @@ test("Configuring certificates works", async ({ page, headless }, testInfo) => {
     .getByRole("button", { name: "Save" })
     .click()
 
-  // delete with confirm
-  page.once("dialog", (dialog) => {
-    dialog.accept()
-  })
   await page
     .getByRole("listitem")
     .filter({
@@ -119,4 +112,5 @@ test("Configuring certificates works", async ({ page, headless }, testInfo) => {
     })
     .getByRole("button", { name: "Delete" })
     .click()
+  await respondToConfirmDialog(page, true)
 })

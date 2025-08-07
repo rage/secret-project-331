@@ -465,7 +465,6 @@ pub async fn send_chat_request_and_parse_stream(
                 continue;
             }
             let json_str = line.trim_start_matches("data: ");
-            println!("RESPONSE CHUNK:    {:?}", json_str);
 
             let mut full_response_text = full_response_text.lock().await;
             if json_str.trim() == "[DONE]" {
@@ -508,7 +507,7 @@ pub async fn send_chat_request_and_parse_stream(
                             let mut page_path = PathBuf::from(&cit.filepath);
                             page_path.set_extension("");
                             let page_id_str = page_path.file_name();
-                            let page_id = page_id_str.map(|id_str| Uuid::parse_str(&id_str.to_string_lossy().to_string()).ok()).flatten();
+                            let page_id = page_id_str.and_then(|id_str| Uuid::parse_str(id_str.to_string_lossy().as_ref()).ok());
                             let course_material_chapter_number = if let Some(id) = page_id {
                                 let chapter = models::chapters::get_chapter_by_page_id(&mut conn, id).await.ok();
                                 chapter.map(|c| c.chapter_number)

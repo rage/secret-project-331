@@ -320,9 +320,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                         <span data-linklike={true}>
                           {cit.course_material_chapter_number &&
                             t("chapter-chapter-number", {
-                              chapterNumber: cit.course_material_chapter_number,
+                              number: cit.course_material_chapter_number,
                             })}
-                          {`${cit.title}`}
+                          {`: ${cit.title}`}
                         </span>
                       </span>
                       <Library
@@ -388,9 +388,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                         <span>
                           <b>
                             {t("chapter-chapter-number", {
-                              chapterNumber: cit.course_material_chapter_number,
-                            })}{" "}
-                            {cit.title}
+                              number: cit.course_material_chapter_number,
+                            })}
+                            {`: ${cit.title}`}
                           </b>
                         </span>
                       </a>

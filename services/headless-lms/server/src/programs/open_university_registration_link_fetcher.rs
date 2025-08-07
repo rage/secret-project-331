@@ -121,7 +121,7 @@ async fn fetch_and_update_completion_links(
                         // Only update link if there is a new one.
                         let res = update_course_registration_link(
                             conn,
-                            &trimmed_code,
+                            trimmed_code,
                             &open_university_info,
                         )
                         .await;

@@ -1,16 +1,20 @@
 import styled from "@emotion/styled"
-import React, { useState } from "react"
+import React from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { updateCourse } from "../../../../../../services/backend/courses"
 
-import { Course } from "@/shared-module/common/bindings"
+import { Course, CourseUpdate } from "@/shared-module/common/bindings"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { validateUUID } from "@/shared-module/common/utils/strings"
+import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
@@ -30,43 +34,63 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
   onClose,
 }) => {
   const { t } = useTranslation()
-  const [name, setName] = useState(course.name)
-  const [description, setDescription] = useState(course.description)
-  const [draftStatus, setDraftStatus] = useState(course.is_draft)
-  const [testStatus, setTestStatus] = useState(course.is_test_mode)
-  const [isUnlisted, setIsUnlisted] = useState(course.is_unlisted)
-  const [peerReviewFlaggingThreshold, setPeerReviewFlaggingThreshold] = useState(
-    course.flagged_answers_threshold ?? 3,
-  )
-  const [joinableByCodeOnlyStatus, setjoinableByCodeOnlyStatus] = useState(
-    course.is_joinable_by_code_only,
-  )
-  const [canAddChatbot, setCanAddChatbot] = useState(course.can_add_chatbot)
-  const [askMarketingConsent, setAskMarketingConsent] = useState(course.ask_marketing_consent)
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+    setValue,
+  } = useForm<CourseUpdate>({
+    defaultValues: {
+      name: course.name,
+      description: course.description ?? null,
+      is_draft: course.is_draft,
+      is_test_mode: course.is_test_mode,
+      is_unlisted: course.is_unlisted,
+      can_add_chatbot: course.can_add_chatbot,
+      is_joinable_by_code_only: course.is_joinable_by_code_only,
+      ask_marketing_consent: course.ask_marketing_consent,
+      flagged_answers_threshold: course.flagged_answers_threshold ?? 3,
+      closed_at: course.closed_at ?? null,
+      closed_additional_message: course.closed_additional_message ?? null,
+      closed_course_successor_id: course.closed_course_successor_id ?? null,
+    },
+  })
+
+  const draftStatus = watch("is_draft")
+  const isClosed = watch("closed_at") !== null && watch("closed_at") !== ""
 
   const updateCourseMutation = useToastMutation(
-    async () => {
-      let unlisted = isUnlisted
-      if (draftStatus) {
+    async (data: CourseUpdate) => {
+      let unlisted = data.is_unlisted
+      if (data.is_draft) {
         // Course cannot be unlisted if it is a draft. Draft courses are not displayed to students.
         unlisted = false
       }
       await updateCourse(course.id, {
-        name,
-        description,
-        is_draft: draftStatus,
-        is_test_mode: testStatus,
+        name: data.name,
+        description: data.description,
+        is_draft: data.is_draft,
+        is_test_mode: data.is_test_mode,
         is_unlisted: unlisted,
-        can_add_chatbot: canAddChatbot,
-        is_joinable_by_code_only: joinableByCodeOnlyStatus,
-        ask_marketing_consent: askMarketingConsent,
-        flagged_answers_threshold: peerReviewFlaggingThreshold,
+        can_add_chatbot: data.can_add_chatbot,
+        is_joinable_by_code_only: data.is_joinable_by_code_only,
+        ask_marketing_consent: data.ask_marketing_consent,
+        flagged_answers_threshold: data.flagged_answers_threshold,
+        closed_at: data.closed_at || null,
+        closed_additional_message: data.closed_additional_message || null,
+        closed_course_successor_id: data.closed_course_successor_id || null,
       })
       onSubmitForm()
       onClose()
     },
     { method: "PUT", notify: true },
   )
+
+  const onSubmit = handleSubmit((data) => {
+    updateCourseMutation.mutate(data)
+  })
 
   return (
     <StandardDialog
@@ -75,9 +99,8 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
       title={t("edit-course")}
       buttons={[
         {
-          onClick: () => updateCourseMutation.mutate(),
+          onClick: onSubmit,
           children: t("button-text-update"),
-
           variant: "primary",
         },
       ]}
@@ -87,94 +110,94 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
           <TextField
             required
             label={t("text-field-label-name")}
-            value={name}
-            onChangeByValue={(value) => {
-              setName(value)
-            }}
+            error={errors.name?.message}
+            {...register("name", { required: t("required-field") })}
           />
         </FieldContainer>
         <FieldContainer>
-          <TextAreaField
-            label={t("text-field-label-description")}
-            value={description ?? ""}
-            onChangeByValue={(description) => {
-              setDescription(description)
-            }}
-          />
+          <TextAreaField label={t("text-field-label-description")} {...register("description")} />
         </FieldContainer>
         <FieldContainer>
-          <CheckBox
-            label={t("draft")}
-            onChange={() => {
-              setDraftStatus(!draftStatus)
-            }}
-            checked={draftStatus}
-          />
+          <CheckBox label={t("draft")} {...register("is_draft")} />
         </FieldContainer>
 
         {!draftStatus && (
           <FieldContainer>
-            <CheckBox
-              label={t("unlisted")}
-              onChange={() => {
-                setIsUnlisted(!isUnlisted)
-              }}
-              checked={isUnlisted}
-            />
+            <CheckBox label={t("unlisted")} {...register("is_unlisted")} />
           </FieldContainer>
         )}
         <FieldContainer>
-          <CheckBox
-            label={t("test-course")}
-            onChange={() => {
-              setTestStatus(!testStatus)
-            }}
-            checked={testStatus}
-          />
+          <CheckBox label={t("test-course")} {...register("is_test_mode")} />
         </FieldContainer>
         <OnlyRenderIfPermissions
           action={{ type: "teach" }}
           resource={{ type: "global_permissions" }}
         >
           <FieldContainer>
-            <CheckBox
-              label={t("can-enable-chatbot")}
-              onChange={() => {
-                setCanAddChatbot(!canAddChatbot)
-              }}
-              checked={canAddChatbot}
-            />
+            <CheckBox label={t("can-enable-chatbot")} {...register("can_add_chatbot")} />
           </FieldContainer>
         </OnlyRenderIfPermissions>
         <FieldContainer>
-          <CheckBox
-            label={t("joinable-by-code-only")}
-            onChange={() => {
-              setjoinableByCodeOnlyStatus(!joinableByCodeOnlyStatus)
-            }}
-            checked={joinableByCodeOnlyStatus}
-          />
+          <CheckBox label={t("joinable-by-code-only")} {...register("is_joinable_by_code_only")} />
         </FieldContainer>
         <FieldContainer>
           <CheckBox
             label={t("label-ask-for-marketing-consent")}
-            onChange={() => {
-              setAskMarketingConsent(!askMarketingConsent)
-            }}
-            checked={askMarketingConsent}
+            {...register("ask_marketing_consent")}
           />
         </FieldContainer>
         <FieldContainer>
           <TextField
             type={"number"}
             min={0}
-            value={peerReviewFlaggingThreshold}
             label={t("label-threshold-to-move-flagged-answer-to-manual-review")}
-            onChangeByValue={(value) => {
-              setPeerReviewFlaggingThreshold(Number(value))
+            error={errors.flagged_answers_threshold?.message}
+            {...register("flagged_answers_threshold", {
+              valueAsNumber: true,
+              min: { value: 0, message: t("threshold-must-be-non-negative") },
+            })}
+          />
+        </FieldContainer>
+        <FieldContainer>
+          <CheckBox
+            label={t("course-closed")}
+            checked={isClosed}
+            onChange={(checked) => {
+              if (checked) {
+                setValue("closed_at", formatDateForDateTimeLocalInputs(new Date()) ?? null)
+              } else {
+                setValue("closed_at", null)
+              }
             }}
           />
         </FieldContainer>
+        {isClosed && (
+          <>
+            <FieldContainer>
+              <DateTimeLocal label={t("closed-at")} {...register("closed_at")} />
+            </FieldContainer>
+            <FieldContainer>
+              <TextAreaField
+                label={t("closed-additional-message")}
+                {...register("closed_additional_message")}
+              />
+            </FieldContainer>
+            <FieldContainer>
+              <TextField
+                label={t("closed-course-successor-id")}
+                error={errors.closed_course_successor_id?.message}
+                {...register("closed_course_successor_id", {
+                  validate: (value) => {
+                    if (!value) {
+                      return true
+                    }
+                    return validateUUID(value) || t("invalid-uuid-format")
+                  },
+                })}
+              />
+            </FieldContainer>
+          </>
+        )}
       </div>
     </StandardDialog>
   )

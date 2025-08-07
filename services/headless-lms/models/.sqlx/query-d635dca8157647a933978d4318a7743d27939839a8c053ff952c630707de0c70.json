@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  closed_at,\n  closed_additional_message,\n  closed_successor_course_id\nFROM courses\nWHERE slug = $1\n  AND deleted_at IS NULL\n",
+  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id\nFROM courses\nWHERE id = $1;\n    ",
   "describe": {
     "columns": [
       {
@@ -120,12 +120,12 @@
       },
       {
         "ordinal": 23,
-        "name": "closed_successor_course_id",
+        "name": "closed_course_successor_id",
         "type_info": "Uuid"
       }
     ],
     "parameters": {
-      "Left": ["Text"]
+      "Left": ["Uuid"]
     },
     "nullable": [
       false,
@@ -154,5 +154,5 @@
       true
     ]
   },
-  "hash": "d55dfac257cf5eb7ef7e8b767d5e28eb5cfa6c89b22b1b6c0c2efcb535ac289a"
+  "hash": "d635dca8157647a933978d4318a7743d27939839a8c053ff952c630707de0c70"
 }

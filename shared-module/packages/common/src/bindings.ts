@@ -538,7 +538,7 @@ export interface Course {
   flagged_answers_threshold: number | null
   closed_at: string | null
   closed_additional_message: string | null
-  closed_successor_course_id: string | null
+  closed_course_successor_id: string | null
 }
 
 export interface CourseMaterialCourse {
@@ -559,7 +559,7 @@ export interface CourseMaterialCourse {
   ask_marketing_consent: boolean
   closed_at: string | null
   closed_additional_message: string | null
-  closed_successor_course_id: string | null
+  closed_course_successor_id: string | null
 }
 
 export interface CourseBreadcrumbInfo {
@@ -591,6 +591,9 @@ export interface CourseUpdate {
   is_joinable_by_code_only: boolean
   ask_marketing_consent: boolean
   flagged_answers_threshold: number
+  closed_at: string | null
+  closed_additional_message: string | null
+  closed_course_successor_id: string | null
 }
 
 export interface NewCourse {

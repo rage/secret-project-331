@@ -67,7 +67,7 @@ const createCourse = (overrides: Partial<Course>): Course => ({
   flagged_answers_threshold: null,
   closed_at: null,
   closed_additional_message: null,
-  closed_successor_course_id: null,
+  closed_course_successor_id: null,
   ...overrides,
 })
 

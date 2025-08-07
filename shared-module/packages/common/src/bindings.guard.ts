@@ -1142,8 +1142,8 @@ export function isCourse(obj: unknown): obj is Course {
             typeof typedObj["closed_at"] === "string") &&
         (typedObj["closed_additional_message"] === null ||
             typeof typedObj["closed_additional_message"] === "string") &&
-        (typedObj["closed_successor_course_id"] === null ||
-            typeof typedObj["closed_successor_course_id"] === "string")
+        (typedObj["closed_course_successor_id"] === null ||
+            typeof typedObj["closed_course_successor_id"] === "string")
     )
 }
 
@@ -1175,8 +1175,8 @@ export function isCourseMaterialCourse(obj: unknown): obj is CourseMaterialCours
             typeof typedObj["closed_at"] === "string") &&
         (typedObj["closed_additional_message"] === null ||
             typeof typedObj["closed_additional_message"] === "string") &&
-        (typedObj["closed_successor_course_id"] === null ||
-            typeof typedObj["closed_successor_course_id"] === "string")
+        (typedObj["closed_course_successor_id"] === null ||
+            typeof typedObj["closed_course_successor_id"] === "string")
     )
 }
 
@@ -1241,7 +1241,13 @@ export function isCourseUpdate(obj: unknown): obj is CourseUpdate {
         typeof typedObj["is_unlisted"] === "boolean" &&
         typeof typedObj["is_joinable_by_code_only"] === "boolean" &&
         typeof typedObj["ask_marketing_consent"] === "boolean" &&
-        typeof typedObj["flagged_answers_threshold"] === "number"
+        typeof typedObj["flagged_answers_threshold"] === "number" &&
+        (typedObj["closed_at"] === null ||
+            typeof typedObj["closed_at"] === "string") &&
+        (typedObj["closed_additional_message"] === null ||
+            typeof typedObj["closed_additional_message"] === "string") &&
+        (typedObj["closed_course_successor_id"] === null ||
+            typeof typedObj["closed_course_successor_id"] === "string")
     )
 }
 

@@ -52,7 +52,7 @@ pub struct Course {
     pub flagged_answers_threshold: Option<i32>,
     pub closed_at: Option<DateTime<Utc>>,
     pub closed_additional_message: Option<String>,
-    pub closed_successor_course_id: Option<Uuid>,
+    pub closed_course_successor_id: Option<Uuid>,
 }
 
 /** A subset of the `Course` struct that contains the fields that are allowed to be shown to all students on the course materials. */
@@ -76,7 +76,7 @@ pub struct CourseMaterialCourse {
     pub ask_marketing_consent: bool,
     pub closed_at: Option<DateTime<Utc>>,
     pub closed_additional_message: Option<String>,
-    pub closed_successor_course_id: Option<Uuid>,
+    pub closed_course_successor_id: Option<Uuid>,
 }
 
 impl From<Course> for CourseMaterialCourse {
@@ -100,7 +100,7 @@ impl From<Course> for CourseMaterialCourse {
             ask_marketing_consent: course.ask_marketing_consent,
             closed_at: course.closed_at,
             closed_additional_message: course.closed_additional_message,
-            closed_successor_course_id: course.closed_successor_course_id,
+            closed_course_successor_id: course.closed_course_successor_id,
         }
     }
 }
@@ -232,7 +232,7 @@ SELECT id,
   flagged_answers_threshold,
   closed_at,
   closed_additional_message,
-  closed_successor_course_id
+  closed_course_successor_id
 FROM courses
 WHERE deleted_at IS NULL;
 "#
@@ -272,7 +272,7 @@ SELECT id,
   flagged_answers_threshold,
   closed_at,
   closed_additional_message,
-  closed_successor_course_id
+  closed_course_successor_id
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND id IN (
@@ -319,7 +319,7 @@ SELECT id,
   flagged_answers_threshold,
   closed_at,
   closed_additional_message,
-  closed_successor_course_id
+  closed_course_successor_id
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND (
@@ -378,7 +378,7 @@ SELECT id,
   flagged_answers_threshold,
   closed_at,
   closed_additional_message,
-  closed_successor_course_id
+  closed_course_successor_id
 FROM courses
 WHERE course_language_group_id = $1
 AND deleted_at IS NULL
@@ -422,7 +422,7 @@ SELECT
     c.flagged_answers_threshold,
     c.closed_at,
     c.closed_additional_message,
-    c.closed_successor_course_id
+    c.closed_course_successor_id
 FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
 WHERE
@@ -491,7 +491,7 @@ SELECT id,
   flagged_answers_threshold,
   closed_at,
   closed_additional_message,
-  closed_successor_course_id
+  closed_course_successor_id
 FROM courses
 WHERE id = $1;
     "#,
@@ -602,7 +602,7 @@ SELECT courses.id,
   courses.flagged_answers_threshold,
   courses.closed_at,
   courses.closed_additional_message,
-  courses.closed_successor_course_id
+  courses.closed_course_successor_id
 FROM courses
 WHERE courses.organization_id = $1
   AND (
@@ -668,6 +668,9 @@ pub struct CourseUpdate {
     pub is_joinable_by_code_only: bool,
     pub ask_marketing_consent: bool,
     pub flagged_answers_threshold: i32,
+    pub closed_at: Option<DateTime<Utc>>,
+    pub closed_additional_message: Option<String>,
+    pub closed_course_successor_id: Option<Uuid>,
 }
 
 pub async fn update_course(
@@ -687,8 +690,11 @@ SET name = $1,
   is_unlisted = $6,
   is_joinable_by_code_only = $7,
   ask_marketing_consent = $8,
-  flagged_answers_threshold = $9
-WHERE id = $10
+  flagged_answers_threshold = $9,
+  closed_at = $10,
+  closed_additional_message = $11,
+  closed_course_successor_id = $12
+WHERE id = $13
 RETURNING id,
   name,
   created_at,
@@ -712,7 +718,7 @@ RETURNING id,
   flagged_answers_threshold,
   closed_at,
   closed_additional_message,
-  closed_successor_course_id
+  closed_course_successor_id
     "#,
         course_update.name,
         course_update.description,
@@ -723,6 +729,9 @@ RETURNING id,
         course_update.is_joinable_by_code_only,
         course_update.ask_marketing_consent,
         course_update.flagged_answers_threshold,
+        course_update.closed_at,
+        course_update.closed_additional_message,
+        course_update.closed_course_successor_id,
         course_id
     )
     .fetch_one(conn)
@@ -780,7 +789,7 @@ RETURNING id,
   flagged_answers_threshold,
   closed_at,
   closed_additional_message,
-  closed_successor_course_id
+  closed_course_successor_id
     "#,
         course_id
     )
@@ -816,7 +825,7 @@ SELECT id,
   flagged_answers_threshold,
   closed_at,
   closed_additional_message,
-  closed_successor_course_id
+  closed_course_successor_id
 FROM courses
 WHERE slug = $1
   AND deleted_at IS NULL
@@ -911,7 +920,7 @@ SELECT id,
   flagged_answers_threshold,
   closed_at,
   closed_additional_message,
-  closed_successor_course_id
+  closed_course_successor_id
 FROM courses
 WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
   ",
@@ -952,7 +961,7 @@ SELECT id,
   flagged_answers_threshold,
   closed_at,
   closed_additional_message,
-  closed_successor_course_id
+  closed_course_successor_id
 FROM courses
 WHERE organization_id = $1
   AND deleted_at IS NULL
@@ -1014,7 +1023,7 @@ SELECT id,
   flagged_answers_threshold,
   closed_at,
   closed_additional_message,
-  closed_successor_course_id
+  closed_course_successor_id
 FROM courses
 WHERE join_code = $1
   AND deleted_at IS NULL;

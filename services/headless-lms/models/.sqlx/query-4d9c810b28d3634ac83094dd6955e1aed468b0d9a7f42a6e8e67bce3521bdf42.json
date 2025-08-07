@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE courses\nSET deleted_at = now()\nWHERE id = $1\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  closed_at,\n  closed_additional_message,\n  closed_successor_course_id\n    ",
+  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id\nFROM courses\nWHERE organization_id = $1\n  AND deleted_at IS NULL\nORDER BY name\n        ",
   "describe": {
     "columns": [
       {
@@ -120,7 +120,7 @@
       },
       {
         "ordinal": 23,
-        "name": "closed_successor_course_id",
+        "name": "closed_course_successor_id",
         "type_info": "Uuid"
       }
     ],
@@ -154,5 +154,5 @@
       true
     ]
   },
-  "hash": "4586879500dee0c4e38f22ebbfa75728405eaf2bcc02783435f01681d216d8d8"
+  "hash": "4d9c810b28d3634ac83094dd6955e1aed468b0d9a7f42a6e8e67bce3521bdf42"
 }

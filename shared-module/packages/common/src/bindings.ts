@@ -95,6 +95,12 @@ export interface CertificateConfiguration {
   background_svg_file_upload_id: string
   overlay_svg_path: string | null
   overlay_svg_file_upload_id: string | null
+  render_certificate_grade: boolean
+  certificate_grade_y_pos: string | null
+  certificate_grade_x_pos: string | null
+  certificate_grade_font_size: string | null
+  certificate_grade_text_color: string | null
+  certificate_grade_text_anchor: CertificateTextAnchor | null
 }
 
 export interface CertificateConfigurationAndRequirements {
@@ -183,6 +189,50 @@ export interface UserCourseInstanceChapterProgress {
   score_maximum: number
   total_exercises: number | null
   attempted_exercises: number | null
+}
+
+export interface ChatbotConfiguration {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  course_id: string
+  enabled_to_students: boolean
+  chatbot_name: string
+  prompt: string
+  initial_message: string
+  weekly_tokens_per_user: number
+  daily_tokens_per_user: number
+  temperature: number
+  top_p: number
+  frequency_penalty: number
+  presence_penalty: number
+  response_max_tokens: number
+  use_azure_search: boolean
+  maintain_azure_search_index: boolean
+  hide_citations: boolean
+  use_semantic_reranking: boolean
+  default_chatbot: boolean
+}
+
+export interface NewChatbotConf {
+  course_id: string
+  enabled_to_students: boolean
+  chatbot_name: string
+  prompt: string
+  initial_message: string
+  weekly_tokens_per_user: number
+  daily_tokens_per_user: number
+  temperature: number
+  top_p: number
+  frequency_penalty: number
+  presence_penalty: number
+  response_max_tokens: number
+  use_azure_search: boolean
+  maintain_azure_search_index: boolean
+  hide_citations: boolean
+  use_semantic_reranking: boolean
+  default_chatbot: boolean
 }
 
 export interface ChatbotConversationMessage {
@@ -559,6 +609,7 @@ export interface NewCourse {
   join_code: string | null
   ask_marketing_consent: boolean
   flagged_answers_threshold: number | null
+  can_add_chatbot: boolean
 }
 
 export interface EmailTemplate {
@@ -851,6 +902,7 @@ export interface CourseMaterialExerciseTask {
   previous_submission: ExerciseTaskSubmission | null
   previous_submission_grading: ExerciseTaskGrading | null
   order_number: number
+  deleted_at: string | null
 }
 
 export interface ExerciseTask {
@@ -2035,6 +2087,7 @@ export interface UserDetail {
   last_name: string | null
   search_helper: string | null
   country: string | null
+  email_communication_consent: boolean | null
 }
 
 export interface ExerciseUserCounts {
@@ -2119,6 +2172,7 @@ export interface CreateAccountDetails {
   password: string
   password_confirmation: string
   country: string
+  email_communication_consent: boolean
 }
 
 export interface Login {
@@ -2200,6 +2254,12 @@ export interface CertificateConfigurationUpdate {
   background_svg_file_name: string | null
   overlay_svg_file_name: string | null
   clear_overlay_svg_file: boolean
+  render_certificate_grade: boolean
+  certificate_grade_y_pos: string | null
+  certificate_grade_x_pos: string | null
+  certificate_grade_font_size: string | null
+  certificate_grade_text_color: string | null
+  certificate_grade_text_anchor: CertificateTextAnchor | null
 }
 
 export interface GetFeedbackQuery {
@@ -2224,6 +2284,7 @@ export interface CopyCourseRequest {
   join_code: string | null
   ask_marketing_consent: boolean
   flagged_answers_threshold: number | null
+  can_add_chatbot: boolean
   mode: CopyCourseMode
 }
 
@@ -2241,7 +2302,13 @@ export interface NewExerciseRepository {
   course_id: string | null
   exam_id: string | null
   git_url: string
+  public_key: string | null
   deploy_key: string | null
+}
+
+export interface ExerciseServiceWithError {
+  exercise_service: ExerciseService
+  service_info_error: string | null
 }
 
 export interface ExerciseSubmissions {

@@ -9,6 +9,7 @@ license.workspace = true
 [dependencies]
 headless-lms-utils = { path = "../utils" }
 headless-lms-models = { path = "../models" }
+rust-i18n = "3.1.5"
 
 # An SVG rendering library.
 resvg = "0.45.1"
@@ -17,7 +18,7 @@ usvg = "0.45.1"
 # A simple, streaming XML writer.
 xmlwriter = "0.1.0"
 # High performance xml reader and writer
-quick-xml = "0.37.5"
+quick-xml = "0.38.0"
 # International Components for Unicode
 icu = { version = "2.0.0", features = ["serde"] }
 # Trait and struct definitions for the ICU data provider

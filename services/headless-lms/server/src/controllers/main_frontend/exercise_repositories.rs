@@ -13,6 +13,7 @@ pub struct NewExerciseRepository {
     course_id: Option<Uuid>,
     exam_id: Option<Uuid>,
     git_url: String,
+    public_key: Option<String>,
     deploy_key: Option<String>,
 }
 
@@ -44,6 +45,7 @@ async fn new(
         new_repository_id,
         course_or_exam_id,
         &repository.git_url,
+        repository.public_key.as_deref(),
         repository.deploy_key.as_deref(),
     )
     .await?;
@@ -54,15 +56,14 @@ async fn new(
             &mut conn,
             new_repository_id,
             &repository.git_url,
+            repository.public_key.as_deref(),
             repository.deploy_key.as_deref(),
             file_store.as_ref(),
             app_conf.as_ref(),
         )
         .await
         {
-            tracing::error!(
-                "Error while processing repository {new_repository_id} as a failure: {err}"
-            );
+            tracing::error!("Error while processing repository {new_repository_id}: {err}");
         }
     });
     token.authorized_ok(web::Json(new_repository_id))

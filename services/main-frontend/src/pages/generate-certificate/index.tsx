@@ -1,11 +1,14 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query"
 import { TFunction } from "i18next"
 import { useRouter } from "next/router"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchCertificate, generateCertificate } from "../../services/backend/certificates"
-import { fetchCourseModule } from "../../services/backend/course-modules"
+import {
+  fetchCourseModule,
+  fetchUserCourseModuleCompletion,
+} from "../../services/backend/course-modules"
 import { getCourse } from "../../services/backend/courses"
 
 import { Course, CourseModule } from "@/shared-module/common/bindings"
@@ -13,6 +16,7 @@ import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -24,7 +28,7 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 const ModuleCertificate: React.FC<React.PropsWithChildren<void>> = () => {
   const { t } = useTranslation()
   const router = useRouter()
-
+  const { confirm } = useDialog()
   const certificateConfigurationId = useQueryParameter("ccid")
   // Used to generate the right title
   const moduleId = useQueryParameter("module")
@@ -59,9 +63,32 @@ const ModuleCertificate: React.FC<React.PropsWithChildren<void>> = () => {
       )
     }
   }, [userInfo.isSuccess, userInfo.data, nameOnCertificate])
+
+  const userGrade = useQuery({
+    queryKey: [`${moduleId}-course-module-completion`, moduleId],
+    queryFn: async () => {
+      const courseModule = await fetchUserCourseModuleCompletion(assertNotNullOrUndefined(moduleId))
+      const course = await getCourse(courseModule.course_id)
+      return { module: courseModule, course }
+    },
+    enabled: !!moduleId,
+  })
+
+  const grade = useMemo(() => {
+    if (!userGrade.data?.module) {
+      return ""
+    }
+    const moduleData = userGrade.data?.module
+    if (moduleData.grade !== null) {
+      return String(moduleData.grade)
+    } else {
+      return String(moduleData.passed)
+    }
+  }, [userGrade.data?.module])
+
   const generateCertificateMutation = useToastMutation(
     () => {
-      return generateCertificate(certificateConfigurationId, nameOnCertificate)
+      return generateCertificate(certificateConfigurationId, nameOnCertificate, grade)
     },
     { notify: true, method: "POST" },
     {
@@ -70,12 +97,16 @@ const ModuleCertificate: React.FC<React.PropsWithChildren<void>> = () => {
       },
     },
   )
+
   return (
     <>
       {courseAndModule.isError && (
         <ErrorBanner error={courseAndModule.error} variant={"readOnly"} />
       )}
-      {userInfo.isPending || (courseAndModule.isPending && <Spinner variant={"medium"} />)}
+      {userGrade.isError && <ErrorBanner error={userGrade.error} variant={"readOnly"} />}
+      {(userInfo.isPending || courseAndModule.isPending || userGrade.isPending) && (
+        <Spinner variant={"medium"} />
+      )}
       {courseAndModule.isSuccess && (
         <>
           <h2>{getHeaderContent(t, courseAndModule, moduleId)}</h2>
@@ -90,12 +121,10 @@ const ModuleCertificate: React.FC<React.PropsWithChildren<void>> = () => {
           <Button
             size="medium"
             variant="primary"
-            disabled={!nameOnCertificate}
-            onClick={() => {
+            disabled={!nameOnCertificate || userGrade.isPending}
+            onClick={async () => {
               if (
-                window.confirm(
-                  t("certificate-generation-confirmation", { name: nameOnCertificate }),
-                )
+                await confirm(t("certificate-generation-confirmation", { name: nameOnCertificate }))
               ) {
                 generateCertificateMutation.mutate()
               }

@@ -17,6 +17,7 @@ import { setJoinCourseLinkForCourse } from "@/services/backend/courses"
 import { Course } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont, primaryFont, typography } from "@/shared-module/common/styles"
 import { courseMaterialFrontPageHref } from "@/shared-module/common/utils/cross-routing"
@@ -29,6 +30,8 @@ interface Props {
 }
 
 const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetch }) => {
+  const { confirm } = useDialog()
+
   const { t } = useTranslation()
   const [showForm, setShowForm] = useState(false)
   const courseBreadcrumbInfoQuery = useCourseBreadcrumbInfoQuery(course.id)
@@ -142,8 +145,8 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
         <Button
           variant="secondary"
           size="medium"
-          onClick={() => {
-            const confirmation = confirm(
+          onClick={async () => {
+            const confirmation = await confirm(
               // eslint-disable-next-line i18next/no-literal-string
               `${t("delete-course-confirmation")}\n\n${t(
                 "delete-course-confirmation-explanation",
@@ -210,8 +213,8 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
             <Button
               variant="secondary"
               size="medium"
-              onClick={() => {
-                const sure = confirm(
+              onClick={async () => {
+                const sure = await confirm(
                   t("are-you-sure-you-want-to-reset-your-own-progress-on-the-course"),
                 )
                 if (sure) {
@@ -231,8 +234,8 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
               <Button
                 variant="secondary"
                 size="medium"
-                onClick={() => {
-                  const sure = confirm(
+                onClick={async () => {
+                  const sure = await confirm(
                     t("are-you-sure-you-want-to-reset-everyones-progress-on-the-course"),
                   )
                   if (sure) {

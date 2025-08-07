@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE user_details\nSET email = $1,\n  first_name = $2,\n  last_name = $3,\n  country = $4,\n  email_communication_consent = $5\nWHERE user_id = $6\nRETURNING *\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "first_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "last_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "email",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "search_helper",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "country",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "email_communication_consent",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": ["Varchar", "Varchar", "Varchar", "Varchar", "Bool", "Uuid"]
+    },
+    "nullable": [false, false, false, true, true, false, true, true, false]
+  },
+  "hash": "324f84dc27091de9c28374ab2b9bdbc77567c3d0bef342b50ae4b0d68a922ea0"
+}

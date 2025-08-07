@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use headless_lms_models::{
     PKeyPolicy,
-    chatbot_configurations::{self, ChatbotConfiguration},
+    chatbot_configurations::{self, NewChatbotConf},
     course_instances::{self, NewCourseInstance},
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy},
     courses::NewCourse,
@@ -54,6 +54,7 @@ pub async fn seed_organization_uh_mathstat(
         student_5_user_id: _,
         student_6_user_id: _,
         langs_user_id,
+        sign_up_user: _,
     } = seed_users_result;
     let _ = seed_file_storage_result;
 
@@ -92,6 +93,7 @@ pub async fn seed_organization_uh_mathstat(
         join_code: None,
         ask_marketing_consent: false,
         flagged_answers_threshold: Some(3),
+        can_add_chatbot: false,
     };
     let (
         statistics_course,
@@ -142,6 +144,7 @@ pub async fn seed_organization_uh_mathstat(
         join_code: None,
         ask_marketing_consent: false,
         flagged_answers_threshold: Some(3),
+        can_add_chatbot: false,
     };
     library::content_management::create_new_course(
         &mut conn,
@@ -180,6 +183,7 @@ pub async fn seed_organization_uh_mathstat(
             ),
             ask_marketing_consent: false,
             flagged_answers_threshold: Some(3),
+            can_add_chatbot: false,
         },
         teacher_user_id,
         get_seed_spec_fetcher(),
@@ -210,6 +214,7 @@ pub async fn seed_organization_uh_mathstat(
         "Introduction to citations",
         "introduction-to-citations",
         uh_data.clone(),
+        false,
         seed_users_result,
     )
     .await?;
@@ -233,6 +238,7 @@ pub async fn seed_organization_uh_mathstat(
             join_code: None,
             ask_marketing_consent: false,
             flagged_answers_threshold: Some(3),
+            can_add_chatbot: false,
         },
         true,
         teacher_user_id,
@@ -244,6 +250,7 @@ pub async fn seed_organization_uh_mathstat(
         "Preview unopened chapters",
         "preview-unopened-chapters",
         uh_data.clone(),
+        false,
         seed_users_result,
     )
     .await?;
@@ -253,6 +260,7 @@ pub async fn seed_organization_uh_mathstat(
         "Reset progress",
         "reset-progress",
         uh_data.clone(),
+        false,
         seed_users_result,
     )
     .await?;
@@ -262,6 +270,7 @@ pub async fn seed_organization_uh_mathstat(
         "Change path",
         "change-path",
         uh_data.clone(),
+        false,
         seed_users_result,
     )
     .await?;
@@ -271,6 +280,7 @@ pub async fn seed_organization_uh_mathstat(
         "Self review",
         "self-review",
         uh_data.clone(),
+        false,
         seed_users_result,
     )
     .await?;
@@ -280,6 +290,7 @@ pub async fn seed_organization_uh_mathstat(
         "Audio course",
         "audio-course",
         uh_data.clone(),
+        false,
         seed_users_result,
     )
     .await?;
@@ -289,6 +300,7 @@ pub async fn seed_organization_uh_mathstat(
         "Course for Suspected Cheaters",
         "course-for-suspected-cheaters",
         uh_data.clone(),
+        false,
         seed_users_result,
     )
     .await?;
@@ -319,17 +331,14 @@ pub async fn seed_organization_uh_mathstat(
         "Chatbot",
         "chatbot",
         uh_data.clone(),
+        true,
         seed_users_result,
     )
     .await?;
 
     chatbot_configurations::insert(
         &mut conn,
-        ChatbotConfiguration {
-            id: Uuid::parse_str("d13daa6e-7a14-40b9-92a9-58bd5793d2de")?,
-            created_at: chrono::Utc::now(),
-            updated_at: chrono::Utc::now(),
-            deleted_at: None,
+        NewChatbotConf {
             course_id: chatbot_course_id,
             enabled_to_students: true,
             chatbot_name: "Genetic Lifeform and Disk Operating System".to_string(),
@@ -346,6 +355,7 @@ pub async fn seed_organization_uh_mathstat(
             maintain_azure_search_index: false,
             hide_citations: false,
             use_semantic_reranking: false,
+            default_chatbot: true,
         },
     )
     .await?;
@@ -355,6 +365,7 @@ pub async fn seed_organization_uh_mathstat(
         "Giveaway",
         "giveaway",
         uh_data.clone(),
+        false,
         seed_users_result,
     )
     .await?;
@@ -364,6 +375,7 @@ pub async fn seed_organization_uh_mathstat(
         "Custom points",
         "custom-points",
         uh_data.clone(),
+        false,
         seed_users_result,
     )
     .await?;

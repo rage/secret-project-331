@@ -181,7 +181,6 @@ pub async fn get_by_exercise_slide_submission_id(
 SELECT *
 FROM exercise_task_submissions
 WHERE exercise_slide_submission_id = $1
-  AND deleted_at IS NULL
         ",
         exercise_slide_submission_id
     )
@@ -386,6 +385,7 @@ pub async fn get_exercise_task_submission_info_by_exercise_slide_submission_id(
     exercise_slide_submission_id: Uuid,
     viewer_user_id: Uuid,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+    include_deleted_tasks: bool,
 ) -> ModelResult<Vec<CourseMaterialExerciseTask>> {
     let task_submisssions = crate::exercise_task_submissions::get_by_exercise_slide_submission_id(
         &mut *conn,
@@ -399,10 +399,19 @@ pub async fn get_exercise_task_submission_info_by_exercise_slide_submission_id(
         )
         .await?;
 
-    let exercise_tasks = crate::exercise_tasks::get_exercise_tasks_by_exercise_slide_id::<
-        Vec<ExerciseTask>,
-    >(&mut *conn, &task_submisssions[0].exercise_slide_id)
-    .await?;
+    let exercise_tasks = if include_deleted_tasks {
+        crate::exercise_tasks::get_exercise_tasks_by_exercise_slide_id_including_deleted::<
+            Vec<ExerciseTask>,
+        >(&mut *conn, &task_submisssions[0].exercise_slide_id)
+        .await?
+    } else {
+        crate::exercise_tasks::get_exercise_tasks_by_exercise_slide_id::<Vec<ExerciseTask>>(
+            &mut *conn,
+            &task_submisssions[0].exercise_slide_id,
+        )
+        .await?
+    };
+
     let mut res = Vec::with_capacity(task_submisssions.len());
 
     let unique_exercise_service_slugs = exercise_tasks
@@ -468,6 +477,7 @@ pub async fn get_exercise_task_submission_info_by_exercise_slide_submission_id(
             previous_submission: Some(ts),
             previous_submission_grading: Some(grading.clone()),
             order_number: task.order_number,
+            deleted_at: task.deleted_at,
         };
         res.push(course_material_exercise_task);
     }

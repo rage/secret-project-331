@@ -24,8 +24,9 @@ import ContentArea from "./ContentArea"
 
 import { ExerciseService, ExerciseServiceNewOrUpdate } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
-import Dialog from "@/shared-module/common/components/Dialog"
+import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
+import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { validURL } from "@/shared-module/common/utils/validation"
 
 interface ExerciseServiceCardProps {
@@ -86,7 +87,17 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
           service,
         ) as ExerciseService
         const updated = await updateExerciseService(service.id, preparedService)
-        setService(updated)
+
+        if (updated.service_info_error) {
+          showErrorNotification({
+            header: t("could-not-connect-to-exercise-service-header"),
+            message: t("could-not-connect-to-exercise-service-message", {
+              message: updated.service_info_error,
+            }),
+          })
+        }
+
+        setService(updated.exercise_service)
         setStatus(UpdateStatus.saved)
         await refetch()
       }
@@ -120,7 +131,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
   }
 
   return (
-    <div>
+    <div data-testid={`exercise-service-card-${exerciseService.slug}`}>
       <div
         key={id}
         className={css`

@@ -8,7 +8,7 @@
     "jsx": "preserve",
     "lib": ["dom", "es2017"],
     "typeRoots": ["types", "./shared-module/types", "./node_modules/@types"],
-    "types": ["node"],
+    "types": ["jest", "node"],
     "moduleResolution": "node",
     "allowJs": true,
     "noEmit": true,

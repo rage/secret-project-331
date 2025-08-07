@@ -3,6 +3,8 @@ import { expect, test } from "@playwright/test"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
+import { respondToConfirmDialog } from "@/utils/dialogs"
+
 test.use({
   storageState: "src/states/user@example.com.json",
 })
@@ -52,6 +54,6 @@ test("Can take exam after enough course points", async ({ page, headless }, test
     ],
   })
 
-  page.on("dialog", (dialog) => dialog.accept())
   await page.getByRole("button", { name: "Start the exam!" }).click()
+  await respondToConfirmDialog(page, true)
 })

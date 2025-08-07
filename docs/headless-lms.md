@@ -46,7 +46,13 @@ COMMENT ON COLUMN table_templates.updated_at IS 'Timestamp when the record was l
 COMMENT ON COLUMN table_templates.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 ```
 
-When you come up with the table name, make sure to make it plural. If you want to look at other examples, you can observe the create statements for other tables by running `bin/database-dump-schema`.
+When you come up with the table name, make sure to make it plural. If you want to look at other examples, you can observe the create statements for other tables by running `bin/database-dump-schema` or by reading other `up.sql`-migrations.
+
+### Testing new schema
+
+To manually do queries and poke around the database, you can run `bin/psql`.
+
+If you want to reset the database, run `bin/sqlx-database-reset` followed by `bin/seed`.
 
 ### Using postgres enums in SQLx queries
 

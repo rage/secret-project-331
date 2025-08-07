@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { ExamEnrollmentData } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { baseTheme } from "@/shared-module/common/styles"
 
 export interface ExamInstructionsProps {
@@ -24,9 +25,10 @@ const ExamStartBanner: React.FC<React.PropsWithChildren<ExamInstructionsProps>> 
 }) => {
   const [disabled, setDisabled] = useState(false)
   const { t } = useTranslation()
+  const { confirm } = useDialog()
 
   const handleStart = async () => {
-    if (window.confirm(t("exam-start-confirmation", { "time-minutes": timeMinutes }))) {
+    if (await confirm(t("exam-start-confirmation", { "time-minutes": timeMinutes }))) {
       setDisabled(false)
       await onStart()
       setDisabled(true)

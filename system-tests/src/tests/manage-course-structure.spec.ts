@@ -2,6 +2,7 @@ import { expect, Page, test } from "@playwright/test"
 
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
+import { respondToConfirmDialog } from "@/utils/dialogs"
 import { hideToasts } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
@@ -57,12 +58,9 @@ async function deletePage(page: Page, pageText: string) {
     const pageRow = page.getByRole("row").filter({ hasText: pageText })
     await pageRow.getByLabel("Dropdown menu").click()
 
-    page.once("dialog", (dialog) => {
-      dialog.accept()
-    })
-
     await hideToasts(page)
     await page.getByRole("button", { name: "Delete" }).click()
+    await respondToConfirmDialog(page, true)
     await expect(page.getByText("Successfully deleted")).toBeVisible()
     await verifyDialogState(page, false, true)
   })

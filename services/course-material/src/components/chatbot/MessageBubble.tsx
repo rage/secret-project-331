@@ -309,7 +309,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                 <div key={cit.id} className={citationStyle}>
                   {citationsOpen ? (
                     <a href={cit.document_url}>
-                      <span>
+                      <span
+                        className={css`
+                          flex: 7;
+                        `}
+                      >
                         <b
                           className={css`
                             padding: 0 1em 0 0.25em;
@@ -327,9 +331,10 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                       </span>
                       <Library
                         className={css`
+                          flex: 1;
+                          padding: 2px;
+                          margin-right: -5px;
                           align-self: flex-end;
-                          width: 2.5em;
-                          margin-right: -3px;
                         `}
                       />
                     </a>

@@ -31,6 +31,7 @@ import {
   NewProposedPageEdits,
   NewResearchFormQuestionAnswer,
   OEmbedResponse,
+  Organization,
   Page,
   PageAudioFile,
   PageChapterAndCourseInformation,
@@ -79,6 +80,7 @@ import {
   isIsChapterFrontPage,
   isMaterialReference,
   isOEmbedResponse,
+  isOrganization,
   isPage,
   isPageAudioFile,
   isPageChapterAndCourseInformation,
@@ -849,4 +851,9 @@ export const updateUserInfo = async (
 export const fetchCountryFromIP = async (): Promise<string> => {
   const response = await courseMaterialClient.get(`/user-details/users-ip-country`)
   return validateResponse(response, isString)
+}
+
+export const fetchOrganization = async (organizationId: string): Promise<Organization> => {
+  const response = await courseMaterialClient.get(`/organizations/${organizationId}`)
+  return validateResponse(response, isOrganization)
 }

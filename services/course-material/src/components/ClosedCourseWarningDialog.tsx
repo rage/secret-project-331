@@ -1,28 +1,101 @@
-import { useContext } from "react"
+import { css } from "@emotion/css"
+import { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import PageContext from "@/contexts/PageContext"
+import useCourseInfo from "@/hooks/useCourseInfo"
+import useOrganization from "@/hooks/useOrganization"
+import Button from "@/shared-module/common/components/Button"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import { baseTheme } from "@/shared-module/common/styles"
+import { navigateToCourseRoute } from "@/shared-module/common/utils/routes"
 
 const ClosedCourseWarningDialog = () => {
   const { t } = useTranslation("course-material")
+  const [open, setOpen] = useState(true)
 
   const pageContext = useContext(PageContext)
   const course = pageContext.course
+
+  const successorCourse = useCourseInfo(course?.closed_course_successor_id)
+  const organization = useOrganization(course?.organization_id)
 
   if (!course) {
     return null
   }
 
+  // Localized label with safe default; no string manipulation of other translations
+  const additionalInfoLabelText = t("course-closed-additional-label", {
+    defaultValue: "Additional information",
+  })
+
   return (
-    <StandardDialog open={true} title={t("course-closed-warning-title")}>
-      <div>
-        <p>{t("course-closed-warning-message")}</p>
-        <p>{t("course-closed-successor-message")}</p>
+    <StandardDialog
+      open={open}
+      closeable
+      showCloseButton
+      title={t("course-closed-warning-title")}
+      onClose={() => setOpen(false)}
+    >
+      <div
+        className={css`
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+          line-height: 1.55;
+        `}
+      >
+        <p
+          className={css`
+            margin: 0;
+          `}
+        >
+          {t("course-closed-warning-message")}
+        </p>
+
         {course.closed_additional_message && (
-          <p>
-            {t("course-closed-additional-message", { message: course.closed_additional_message })}
-          </p>
+          <div
+            className={css`
+              margin-top: 0.25rem;
+              padding: 0.75rem 1rem;
+              background-color: ${baseTheme.colors.yellow[100]};
+              border-left: 4px solid ${baseTheme.colors.yellow[600]};
+              border-radius: 8px;
+            `}
+          >
+            <span
+              className={css`
+                display: inline-block;
+                align-self: flex-start;
+                padding: 0.125rem 0.5rem;
+                border-radius: 999px;
+                background-color: ${baseTheme.colors.yellow[600]};
+                color: ${baseTheme.colors.gray[600]};
+                font-weight: 700;
+                text-transform: uppercase;
+                font-size: 12px;
+                letter-spacing: 0.02em;
+                margin-bottom: 0.5rem;
+              `}
+            >
+              {additionalInfoLabelText}
+            </span>
+            <p
+              className={css`
+                margin: 0;
+              `}
+            >
+              {course.closed_additional_message}
+            </p>
+          </div>
+        )}
+
+        {successorCourse.data && organization.data && (
+          <a href={navigateToCourseRoute(organization.data?.slug, successorCourse.data.slug)}>
+            <Button variant="primary" size="medium">
+              {t("course-closed-warning-successor-button")}
+            </Button>
+          </a>
         )}
       </div>
     </StandardDialog>

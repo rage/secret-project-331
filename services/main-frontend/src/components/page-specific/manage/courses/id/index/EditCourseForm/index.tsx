@@ -1,4 +1,5 @@
 import styled from "@emotion/styled"
+import { parseISO } from "date-fns"
 import React from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -14,6 +15,7 @@ import TextField from "@/shared-module/common/components/InputFields/TextField"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
@@ -47,7 +49,9 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
       is_joinable_by_code_only: course.is_joinable_by_code_only,
       ask_marketing_consent: course.ask_marketing_consent,
       flagged_answers_threshold: course.flagged_answers_threshold ?? 3,
-      closed_at: course.closed_at ?? null,
+      closed_at: course.closed_at
+        ? (formatDateForDateTimeLocalInputs(course.closed_at) ?? null)
+        : null,
       closed_additional_message: course.closed_additional_message ?? null,
       closed_course_successor_id: course.closed_course_successor_id ?? null,
       set_course_closed_at: Boolean(course.closed_at),
@@ -80,7 +84,11 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
         is_joinable_by_code_only: data.is_joinable_by_code_only,
         ask_marketing_consent: data.ask_marketing_consent,
         flagged_answers_threshold: data.flagged_answers_threshold,
-        closed_at: data.set_course_closed_at ? data.closed_at || null : null,
+        closed_at: data.set_course_closed_at
+          ? data.closed_at
+            ? parseISO(data.closed_at).toISOString()
+            : null
+          : null,
         closed_additional_message: data.closed_additional_message || null,
         closed_course_successor_id: data.closed_course_successor_id || null,
       })

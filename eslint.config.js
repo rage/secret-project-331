@@ -226,6 +226,7 @@ const config = [
               "type",
               "key",
               "id",
+              "placement",
               "width",
               "height",
               "variant",

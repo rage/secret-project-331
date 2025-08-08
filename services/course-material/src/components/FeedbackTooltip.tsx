@@ -17,7 +17,7 @@ const FeedbackTooltip: React.FC = () => {
   const [selection] = useAtom(selectionAtom)
   const setCurrentlyOpenFeedbackDialog = useSetAtom(currentlyOpenFeedbackDialogAtom)
 
-  const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null)
+  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null)
   const [showTooltip, setShowTooltip] = useState(false)
 
   // Show tooltip after a delay so that it's less annoying
@@ -74,7 +74,7 @@ const FeedbackTooltip: React.FC = () => {
     virtualReference.getBoundingClientRect = getBoundingClientRect
   }, [getBoundingClientRect, virtualReference])
 
-  const { styles, attributes, update } = usePopper(virtualReference, referenceElement, {
+  const { styles, attributes, update } = usePopper(virtualReference, popperElement, {
     placement: "top",
     modifiers: [
       {
@@ -144,7 +144,7 @@ const FeedbackTooltip: React.FC = () => {
 
   return (
     <div
-      ref={setReferenceElement}
+      ref={setPopperElement}
       className={tooltipClass}
       // eslint-disable-next-line react/forbid-dom-props
       style={styles.popper}

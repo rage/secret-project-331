@@ -3,7 +3,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { USER_ROLES } from "@/constants/roles"
-import StandardDialog from "@/shared-module/common/components/StandardDialog"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 interface AddUserPopupProps {

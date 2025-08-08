@@ -3,7 +3,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { USER_ROLES } from "@/constants/roles"
-import StandardDialog from "@/shared-module/common/components/StandardDialog"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 
 interface EditUserPopupProps {
   show: boolean
@@ -35,13 +35,13 @@ const EditUserPopup: React.FC<EditUserPopupProps> = ({
         {
           children: t("save"),
           onClick: handleSave,
-          // eslint-disable-next-line i18next/no-literal-string
+
           variant: "primary",
         },
         {
           children: t("button-text-cancel"),
           onClick: () => setShow(false),
-          // eslint-disable-next-line i18next/no-literal-string
+
           variant: "secondary",
         },
       ]}

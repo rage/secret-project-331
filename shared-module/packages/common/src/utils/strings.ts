@@ -1,6 +1,5 @@
 import { FieldError } from "react-hook-form"
-
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+import { validate } from "uuid"
 
 const NON_PRINTING_CHAR_REGEX =
   // eslint-disable-next-line no-control-regex, no-misleading-character-class
@@ -94,5 +93,5 @@ export function errorToDescription(error: string | FieldError | undefined): stri
 }
 
 export const validateUUID = (value: string): boolean => {
-  return UUID_REGEX.test(value)
+  return validate(value)
 }

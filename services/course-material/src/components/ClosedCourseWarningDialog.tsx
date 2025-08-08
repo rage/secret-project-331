@@ -7,6 +7,7 @@ import useCourseInfo from "@/hooks/useCourseInfo"
 import useOrganization from "@/hooks/useOrganization"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { baseTheme } from "@/shared-module/common/styles"
 import { navigateToCourseRoute } from "@/shared-module/common/utils/routes"
@@ -87,6 +88,16 @@ const ClosedCourseWarningDialog = () => {
             >
               {course.closed_additional_message}
             </p>
+          </div>
+        )}
+
+        {(successorCourse.isLoading || organization.isLoading) && (
+          <div
+            className={css`
+              margin: 1rem 0;
+            `}
+          >
+            <Spinner />
           </div>
         )}
 

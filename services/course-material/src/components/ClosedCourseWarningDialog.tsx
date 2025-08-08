@@ -1,30 +1,28 @@
-import styled from "@emotion/styled"
+import { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
+import PageContext from "@/contexts/PageContext"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 
-interface ClosedCourseWarningDialogProps {
-  courseId: string
-  open: boolean
-  onClose: () => void
-  additionalMessage?: string | null
-}
-
-const ClosedCourseWarningDialog = ({
-  courseId,
-  open,
-  onClose,
-  additionalMessage,
-}: ClosedCourseWarningDialogProps) => {
+const ClosedCourseWarningDialog = () => {
   const { t } = useTranslation("course-material")
 
+  const pageContext = useContext(PageContext)
+  const course = pageContext.course
+
+  if (!course) {
+    return null
+  }
+
   return (
-    <StandardDialog open={open} onClose={onClose} title={t("course-closed-warning-title")}>
+    <StandardDialog open={true} title={t("course-closed-warning-title")}>
       <div>
         <p>{t("course-closed-warning-message")}</p>
         <p>{t("course-closed-successor-message")}</p>
-        {additionalMessage && (
-          <p>{t("course-closed-additional-message", { message: additionalMessage })}</p>
+        {course.closed_additional_message && (
+          <p>
+            {t("course-closed-additional-message", { message: course.closed_additional_message })}
+          </p>
         )}
       </div>
     </StandardDialog>

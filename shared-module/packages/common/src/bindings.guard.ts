@@ -3105,6 +3105,8 @@ export function isCoursePageWithUserData(obj: unknown): obj is CoursePageWithUse
             isCourseInstance(typedObj["instance"]) as boolean) &&
         (typedObj["settings"] === null ||
             isUserCourseSettings(typedObj["settings"]) as boolean) &&
+        (typedObj["course"] === null ||
+            isCourse(typedObj["course"]) as boolean) &&
         typeof typedObj["was_redirected"] === "boolean" &&
         typeof typedObj["is_test_mode"] === "boolean"
     )

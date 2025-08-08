@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import StandardDialog from "@/shared-module/common/components/StandardDialog"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 
 interface Props {
   show: boolean
@@ -30,7 +30,7 @@ const DeleteOrganizationPopup: React.FC<Props> = ({ show, setShow, handleDelete 
             setShow(false)
             setConfirmText("")
           },
-          // eslint-disable-next-line i18next/no-literal-string
+
           variant: "primary",
           disabled: confirmText !== "delete",
         },
@@ -40,7 +40,7 @@ const DeleteOrganizationPopup: React.FC<Props> = ({ show, setShow, handleDelete 
             setShow(false)
             setConfirmText("")
           },
-          // eslint-disable-next-line i18next/no-literal-string
+
           variant: "secondary",
         },
       ]}

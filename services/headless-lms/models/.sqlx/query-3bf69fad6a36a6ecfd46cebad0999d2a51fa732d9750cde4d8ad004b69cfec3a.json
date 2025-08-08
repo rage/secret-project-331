@@ -1,0 +1,53 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM organizations ORDER BY name;",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "slug",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "organization_image_path",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "description",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [false, false, false, false, true, false, true, true]
+  },
+  "hash": "3bf69fad6a36a6ecfd46cebad0999d2a51fa732d9750cde4d8ad004b69cfec3a"
+}

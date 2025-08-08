@@ -93,6 +93,10 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
 
   await page.click('button:has-text("Preview")')
 
+  // Wait for the preview to load
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(200)
+
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,

@@ -29,11 +29,6 @@ const ClosedCourseWarningDialog = () => {
     return null
   }
 
-  // Localized label with safe default; no string manipulation of other translations
-  const additionalInfoLabelText = t("course-closed-additional-label", {
-    defaultValue: "Additional information",
-  })
-
   return (
     <StandardDialog
       open={open}
@@ -83,7 +78,7 @@ const ClosedCourseWarningDialog = () => {
                 margin-bottom: 0.5rem;
               `}
             >
-              {additionalInfoLabelText}
+              {t("course-closed-additional-label")}
             </span>
             <p
               className={css`

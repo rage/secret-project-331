@@ -518,6 +518,9 @@ pub async fn send_chat_request_and_parse_stream(
                             models::chatbot_conversation_messages_citations::insert(
                                 &mut conn, ChatbotConversationMessageCitation {
                                     id: Uuid::new_v4(),
+                                    created_at: Utc::now(),
+                                    updated_at: Utc::now(),
+                                    deleted_at: None,
                                     conversation_message_id: citation_message_id,
                                     conversation_id,
                                     course_material_chapter_number,

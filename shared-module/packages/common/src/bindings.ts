@@ -250,6 +250,9 @@ export interface ChatbotConversationMessage {
 
 export interface ChatbotConversationMessageCitation {
   id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
   conversation_message_id: string
   conversation_id: string
   course_material_chapter_number: number | null

@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { Library } from "@vectopus/atlas-icons-react"
-import React, { ReactElement, useEffect, useId, useMemo, useReducer, useRef, useState } from "react"
+import React, { ReactElement, useId, useMemo, useRef, useState } from "react"
 import { useHover } from "react-aria"
 import { useTranslation } from "react-i18next"
 
@@ -18,39 +18,6 @@ interface MessageBubbleProps {
   isFromChatbot: boolean
   isPending: boolean
   citations: ChatbotConversationMessageCitation[] | undefined
-}
-
-interface PopoverState {
-  refElement: HTMLElement | null
-  citationButtonClicked: boolean
-}
-
-type MessageAction =
-  | { type: "UNFOCUS_POPPER_ELEMENT"; payload: EventTarget | null }
-  | { type: "HOVER_CITATION_BUTTON"; payload: HTMLElement }
-  | { type: "UNHOVER_CITATION_BUTTON"; payload: HTMLElement }
-  | { type: "CLICK_CITATION_BUTTON"; payload: HTMLButtonElement | null }
-  | { type: "DISMISS_MODAL_POPOVER" }
-
-const popperStateReducer = (state: PopoverState, action: MessageAction): PopoverState => {
-  switch (action.type) {
-    case "HOVER_CITATION_BUTTON":
-      return { ...state, refElement: action.payload }
-    case "UNHOVER_CITATION_BUTTON":
-      if (state.citationButtonClicked) {
-        return state
-      }
-      return { ...state, refElement: null }
-    case "CLICK_CITATION_BUTTON":
-      if (state.citationButtonClicked && state.refElement == action.payload) {
-        return { ...state, refElement: null, citationButtonClicked: false }
-      }
-      return { ...state, refElement: action.payload, citationButtonClicked: true }
-    case "DISMISS_MODAL_POPOVER":
-      return { ...state, citationButtonClicked: false, refElement: null }
-    default:
-      return state
-  }
 }
 
 const bubbleStyle = (isFromChatbot: boolean) => css`
@@ -89,7 +56,7 @@ const citationStyle = css`
   }
   a {
     &:hover {
-      [data-linklike] {
+      .linklike {
         color: ${baseTheme.colors.blue[700]};
         text-decoration: underline;
       }
@@ -132,6 +99,7 @@ const messageStyle = (clicked: boolean) => css`
     font-size: 85%;
     &:hover {
       filter: brightness(0.9) contrast(1.1);
+      transition: filter 0.2s;
     }
     ${clicked && `box-shadow: inset 0 0 0 2px ${baseTheme.colors.gray[400]};`}
   }
@@ -184,27 +152,31 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   const { t } = useTranslation()
 
   const referenceListId = useId()
-  let triggerRef = useRef<HTMLElement>(null)
+
+  // the ref is updated manually because there are multiple trigger elements for the popover
+  // that are "activated" by clicking or hovering them
+  let triggerRef = useRef<HTMLButtonElement>(null)
 
   const [citationsOpen, setCitationsOpen] = useState(false)
-  const [popoverState, dispatch] = useReducer(popperStateReducer, {
-    refElement: null,
-    citationButtonClicked: false,
-  })
+  const [citationButtonClicked, setCitationButtonClicked] = useState(false)
 
   let { hoverProps: hoverCitationProps, isHovered: isCitationHovered } = useHover({
     onHoverStart: (e) => {
-      dispatch({ type: "HOVER_CITATION_BUTTON", payload: e.target })
+      if (!(e.target instanceof HTMLButtonElement)) {
+        throw new Error("This hover is meant to be used on buttons only.")
+      }
+      triggerRef.current = e.target
     },
     onHoverEnd: (e) => {
-      dispatch({ type: "UNHOVER_CITATION_BUTTON", payload: e.target })
+      if (!(e.target instanceof HTMLButtonElement)) {
+        throw new Error("This hover is meant to be used on buttons only.")
+      }
+      if (!citationButtonClicked) {
+        triggerRef.current = null
+      }
     },
   })
   let { hoverProps: hoverPopoverProps, isHovered: isPopoverHovered } = useHover({})
-
-  useEffect(() => {
-    triggerRef.current = popoverState.refElement
-  }, [popoverState.refElement])
 
   const [processedMessage, processedCitations, citationTitleLen] = useMemo(() => {
     let renderedMessage: ReactElement[] = []
@@ -212,10 +184,10 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 
     if (isFromChatbot) {
       let messageCopy = message
-      messageCopy = sanitizeCourseMaterialHtml(md.render(messageCopy).trim()).slice(3, -4)
+      messageCopy = md.render(messageCopy).trim().slice(3, -4)
       // slicing to remove the <p>-tags that envelope the whole message, since they will be broken
       // when the message is split into parts later
-      let citedDocs = Array.from(messageCopy.matchAll(/\[[a-z]*?([0-9]+)\]/g), (arr, _) =>
+      let citedDocs = Array.from(messageCopy.matchAll(/\[[\w]*?([\d]+)\]/g), (arr, _) =>
         parseInt(arr[1]),
       )
       let citedDocsSet = new Set(citedDocs)
@@ -224,7 +196,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         : []
       if (citationsOpen && filteredCitations.length > 0) {
         // if there are citations in text, render buttons for them & md
-        let messageParts = messageCopy.split(/\[[a-z]*?[0-9]+\]/g)
+        let messageParts = messageCopy.split(/\[[\w]*?[\d]+\]/g)
         renderedMessage = messageParts.map((s, i) => {
           let cit_n = citedDocs[i]
           let citation = filteredCitations.find((c) => c.citation_number === cit_n)
@@ -232,21 +204,19 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             <span
               key={i}
               className={messageStyle(
-                popoverState.citationButtonClicked &&
-                  popoverState.refElement?.id === `cit-${cit_n}-${i}`,
+                citationButtonClicked && triggerRef.current?.id === `cit-${cit_n}-${i}`,
               )}
             >
-              <span dangerouslySetInnerHTML={{ __html: s }}></span>
+              <span dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(s) }}></span>
               {cit_n && citation && (
                 <>
                   <button
                     id={`cit-${cit_n}-${i}`}
                     {...hoverCitationProps}
-                    // @ts-expect-error: Ref missing from type definitions
-                    ref={triggerRef}
-                    onClick={(e) =>
-                      dispatch({ type: "CLICK_CITATION_BUTTON", payload: e.currentTarget })
-                    }
+                    onClick={(e) => {
+                      setCitationButtonClicked(true)
+                      triggerRef.current = e.currentTarget
+                    }}
                   >
                     {cit_n}
                   </button>
@@ -257,12 +227,12 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         })
       } else {
         // render only md
-        messageCopy = messageCopy.replace(/\s\[[a-z]*?[0-9]+\]/g, "")
+        messageCopy = messageCopy.replace(/\s\[[\w]*?[\d]+\]/g, "")
         renderedMessage = [
           <span
             key="1"
             className={messageStyle(false)}
-            dangerouslySetInnerHTML={{ __html: messageCopy }}
+            dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(messageCopy) }}
           ></span>,
         ]
       }
@@ -274,19 +244,12 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         </span>,
       ]
     }
-    // represents the collapsed list width
+    // 60 represents the n of chars in the collapsed list width, allocate it
+    // for the citations by dividing by n of citations
     const citationTitleLen = 60 / filteredCitations.length
 
     return [renderedMessage, filteredCitations, citationTitleLen]
-  }, [
-    message,
-    citations,
-    isFromChatbot,
-    citationsOpen,
-    hoverCitationProps,
-    popoverState.citationButtonClicked,
-    popoverState.refElement?.id,
-  ])
+  }, [message, citations, isFromChatbot, citationsOpen, hoverCitationProps, citationButtonClicked])
 
   return (
     <div className={bubbleStyle(isFromChatbot)}>
@@ -321,7 +284,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                         >
                           {cit.citation_number}
                         </b>
-                        <span data-linklike={true}>
+                        <span className="linklike">
                           {cit.course_material_chapter_number &&
                             t("chapter-chapter-number", {
                               number: cit.course_material_chapter_number,
@@ -347,15 +310,12 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                     </>
                   )}
                   <SpeechBalloonPopover
-                    /* eslint-disable-next-line i18next/no-literal-string */
                     placement="top"
                     triggerRef={triggerRef}
-                    isOpen={
-                      isCitationHovered || isPopoverHovered || popoverState.citationButtonClicked
-                    }
-                    isNonModal={!popoverState.citationButtonClicked}
+                    isOpen={isCitationHovered || isPopoverHovered || citationButtonClicked}
+                    isNonModal={!citationButtonClicked}
                     onOpenChange={() => {
-                      dispatch({ type: "DISMISS_MODAL_POPOVER" })
+                      setCitationButtonClicked(false)
                     }}
                     popoverLabel={`${t("citation")} ${cit.citation_number}`}
                     {...hoverPopoverProps}

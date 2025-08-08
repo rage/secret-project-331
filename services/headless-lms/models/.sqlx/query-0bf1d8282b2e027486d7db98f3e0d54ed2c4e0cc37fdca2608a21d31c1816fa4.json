@@ -42,12 +42,27 @@
         "ordinal": 7,
         "name": "citation_number",
         "type_info": "Int4"
+      },
+      {
+        "ordinal": 8,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
       }
     ],
     "parameters": {
       "Left": ["Uuid", "Uuid", "Int4", "Varchar", "Varchar", "Varchar", "Int4"]
     },
-    "nullable": [false, false, false, true, false, false, false, false]
+    "nullable": [false, false, false, true, false, false, false, false, false, false, true]
   },
   "hash": "0bf1d8282b2e027486d7db98f3e0d54ed2c4e0cc37fdca2608a21d31c1816fa4"
 }

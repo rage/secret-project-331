@@ -545,6 +545,10 @@ export function isChatbotConversationMessageCitation(obj: unknown): obj is Chatb
             typeof typedObj === "object" ||
             typeof typedObj === "function") &&
         typeof typedObj["id"] === "string" &&
+        typeof typedObj["created_at"] === "string" &&
+        typeof typedObj["updated_at"] === "string" &&
+        (typedObj["deleted_at"] === null ||
+            typeof typedObj["deleted_at"] === "string") &&
         typeof typedObj["conversation_message_id"] === "string" &&
         typeof typedObj["conversation_id"] === "string" &&
         (typedObj["course_material_chapter_number"] === null ||

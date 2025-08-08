@@ -3,8 +3,8 @@ import { useTranslation } from "react-i18next"
 
 import { addCodesToCodeGiveaway } from "@/services/backend/codeGiveaways"
 import Button from "@/shared-module/common/components/Button"
-import Dialog from "@/shared-module/common/components/Dialog"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
+import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 type ImportCodesFormProps = {

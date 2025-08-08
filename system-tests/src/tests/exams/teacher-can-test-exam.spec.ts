@@ -1,6 +1,7 @@
 /* eslint-disable playwright/no-wait-for-timeout */
 import { expect, test } from "@playwright/test"
 
+import { respondToConfirmDialog } from "@/utils/dialogs"
 import { getLocatorForNthExerciseServiceIframe, waitForViewType } from "@/utils/iframeLocators"
 import { selectOrganization } from "@/utils/organizationUtils"
 
@@ -63,8 +64,8 @@ test.skip("Testing exam works", async ({ page }) => {
 
   await test.step("Take and submit exam", async () => {
     await page.getByRole("link", { name: "Test exam", exact: true }).click()
-    page.on("dialog", (dialog) => dialog.accept())
-    await page.locator(`button:text("Start the exam!")`).click()
+    await page.getByRole("button", { name: "Start the exam!" }).click()
+    await respondToConfirmDialog(page, true)
 
     const quizzesIframe = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
     await waitForViewType(quizzesIframe, "answer-exercise")

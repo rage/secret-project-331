@@ -22,6 +22,7 @@ import { CertificateConfigurationUpdate } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -43,6 +44,7 @@ interface UpdateMutationArgs {
 
 const CertificationsPage: React.FC<Props> = ({ query }) => {
   const { t } = useTranslation()
+  const { confirm } = useDialog()
   const courseInstanceId = query.id
 
   const [editingConfiguration, setEditingConfiguration] = useState<string | null>(null)
@@ -216,8 +218,8 @@ const CertificationsPage: React.FC<Props> = ({ query }) => {
                           <Button
                             variant="primary"
                             size="medium"
-                            onClick={() => {
-                              if (window.confirm(t("confirm-disable-generating-certificates"))) {
+                            onClick={async () => {
+                              if (await confirm(t("confirm-disable-generating-certificates"))) {
                                 toggleCertificateGenerationEnabledMutation.mutate({
                                   moduleId: module.id,
                                   enabled: false,
@@ -231,8 +233,8 @@ const CertificationsPage: React.FC<Props> = ({ query }) => {
                           <Button
                             variant="primary"
                             size="medium"
-                            onClick={() => {
-                              if (window.confirm(t("confirm-enable-generating-certificates"))) {
+                            onClick={async () => {
+                              if (await confirm(t("confirm-enable-generating-certificates"))) {
                                 toggleCertificateGenerationEnabledMutation.mutate({
                                   moduleId: module.id,
                                   enabled: true,
@@ -248,8 +250,8 @@ const CertificationsPage: React.FC<Props> = ({ query }) => {
                           onClickEdit={() => {
                             setEditingConfiguration(module.id)
                           }}
-                          onClickDelete={() => {
-                            if (window.confirm(t("confirm-certification-configuration-deletion"))) {
+                          onClickDelete={async () => {
+                            if (await confirm(t("confirm-certification-configuration-deletion"))) {
                               deleteConfigurationMutation.mutate({
                                 moduleId: module.id,
                                 configurationId: configuration.certificate_configuration.id,

@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 import CreateChatbotForm from "./CreateChatbotForm"
 
 import { ChatbotConfiguration } from "@/shared-module/common/bindings"
-import StandardDialog from "@/shared-module/common/components/StandardDialog"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 
 interface CreateChatbotDialogProps {
   courseId: string

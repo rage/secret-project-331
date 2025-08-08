@@ -55,7 +55,7 @@
   "course": "Course",
   "course-closed-additional-message": "Additional information: {{message}}",
   "course-closed-warning-message": "This course has been closed and and you can no longer take it.",
-  "course-closed-warning-successor-button": "Continue to a new version of the course",
+  "course-closed-warning-successor-button": "New version of the course",
   "course-closed-warning-title": "Course Closed",
   "course-has-no-page-at-path": "This course has no page at {{path}}",
   "course-language-change-warning": "Note: The course material will be switched to the {{newLanguage}} course with different course progress.",

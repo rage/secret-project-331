@@ -117,7 +117,7 @@ import {
 
 export const fetchCourseById = async (courseId: string): Promise<CourseMaterialCourse> => {
   const response = await courseMaterialClient.get(`/courses/${courseId}`, { responseType: "json" })
-  return validateResponse(response, isCourse)
+  return validateResponse(response, isCourseMaterialCourse)
 }
 
 export const fetchCourses = async (): Promise<Array<Course>> => {

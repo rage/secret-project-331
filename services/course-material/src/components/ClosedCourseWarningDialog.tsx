@@ -6,6 +6,7 @@ import PageContext from "@/contexts/PageContext"
 import useCourseInfo from "@/hooks/useCourseInfo"
 import useOrganization from "@/hooks/useOrganization"
 import Button from "@/shared-module/common/components/Button"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { baseTheme } from "@/shared-module/common/styles"
 import { navigateToCourseRoute } from "@/shared-module/common/utils/routes"
@@ -18,7 +19,11 @@ const ClosedCourseWarningDialog = () => {
   const course = pageContext.course
 
   const successorCourse = useCourseInfo(course?.closed_course_successor_id)
-  const organization = useOrganization(course?.organization_id)
+  const organization = useOrganization(successorCourse?.data?.organization_id)
+
+  if (successorCourse.isError || organization.isError) {
+    return <ErrorBanner error={successorCourse.error || organization.error} />
+  }
 
   if (!course) {
     return null
@@ -91,7 +96,12 @@ const ClosedCourseWarningDialog = () => {
         )}
 
         {successorCourse.data && organization.data && (
-          <a href={navigateToCourseRoute(organization.data?.slug, successorCourse.data.slug)}>
+          <a
+            className={css`
+              margin: 1rem 0;
+            `}
+            href={navigateToCourseRoute(organization.data?.slug, successorCourse.data.slug)}
+          >
             <Button variant="primary" size="medium">
               {t("course-closed-warning-successor-button")}
             </Button>

@@ -19,6 +19,7 @@ import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -44,7 +45,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     getDefaultPageState(undefined),
   )
   const now = useTime(5000)
-
+  const { confirm } = useDialog()
   const exam = useQuery({ queryKey: [`exam-page-${examId}`], queryFn: () => fetchExam(examId) })
   const { refetch: refetchExam } = exam
 
@@ -344,8 +345,8 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
           <Button
             variant={"primary"}
             size={"small"}
-            onClick={() => {
-              const confirmation = confirm(t("message-do-you-want-to-end-the-exam"))
+            onClick={async () => {
+              const confirmation = await confirm(t("message-do-you-want-to-end-the-exam"))
               if (confirmation) {
                 handleEndExam()
               }

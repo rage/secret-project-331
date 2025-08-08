@@ -13,6 +13,7 @@ import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 
 const GutenbergEditor = dynamicImport(() => import("./GutenbergEditor"))
@@ -25,6 +26,7 @@ const supportedBlocks = (): string[] => {
 
 const TestEditor: React.FC = () => {
   const { t } = useTranslation()
+  const { confirm } = useDialog()
   const [title, setTitle] = useState("")
   const savedContent: BlockInstance[] = []
   const [content, contentDispatch] = useReducer(
@@ -64,8 +66,8 @@ const TestEditor: React.FC = () => {
             border: 1px black solid;
             pointer-events: auto;
           `}
-          onClick={() => {
-            const res = confirm(t("are-you-sure-you-want-to-discard-changes"))
+          onClick={async () => {
+            const res = await confirm(t("are-you-sure-you-want-to-discard-changes"))
             if (res) {
               contentDispatch({ type: "setContent", payload: savedContent })
             }

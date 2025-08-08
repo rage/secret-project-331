@@ -27,6 +27,11 @@ reviews:
 
         If someone write a tests that depends on a toast staying on the screen, make sure to use the `showNextToastsInfinitely`, and `showToastsNormally` functions. If those are used in conjunction with `expectScreenshotsToMatchSnapshots`, you should set its argument of `dontWaitForSpinnersToDisappear` to true.
 
+        For dialog interactions, use the helper functions from `system-tests/src/utils/dialogs.ts`:
+        - Use `dismissAlertDialog` for alert dialogs
+        - Use `respondToConfirmDialog` for confirm dialogs (Yes/No)
+        - Use `fillPromptDialog` for prompt dialogs with input fields
+
     - path: "**/*.tsx"
       instructions: >
         Make sure to use the `useTranslation` hook for all text that is visible to the user.
@@ -40,3 +45,5 @@ reviews:
         If there is a form of any kind, make sure it uses useForm from react-hook-form, and make sure the form is integrated with the useToastMutation and useQuery hooks.
 
         For loading and error states, use the Spinner and ErrorBanner components from the shared module.
+
+        We have better replacements for window.confirm, window.alert, and window.prompt, use the DialogProvider and the useDialog hook from the shared module instead.

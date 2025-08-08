@@ -192,6 +192,42 @@ impl GutenbergBlock {
         )
     }
 
+    pub fn landing_page_copy_text(heading: &str, content: &str) -> Self {
+        GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+            "moocfi/landing-page-copy-text",
+            attributes! {},
+            vec![GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+                "core/columns",
+                attributes! {
+                    "isStackedOnMobile": true
+                },
+                vec![GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+                    "core/column",
+                    attributes! {},
+                    vec![
+                        GutenbergBlock::block_with_name_and_attributes(
+                            "core/heading",
+                            attributes! {
+                                "content": heading,
+                                "level": 2,
+                                "placeholder": heading,
+                                "anchor": heading,
+                                "textAlign": "left"
+                            },
+                        ),
+                        GutenbergBlock::block_with_name_and_attributes(
+                            "core/paragraph",
+                            attributes! {
+                                "content": content,
+                                "dropCap": false
+                            },
+                        ),
+                    ],
+                )],
+            )],
+        )
+    }
+
     pub fn with_id(self, id: Uuid) -> Self {
         Self {
             client_id: id,

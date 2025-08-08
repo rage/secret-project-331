@@ -6,7 +6,7 @@ import EditExamForm from "../../../../../forms/EditExamForm"
 
 import { Exam, NewExam } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import StandardDialog from "@/shared-module/common/components/StandardDialog"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 interface ExamDialogProps {

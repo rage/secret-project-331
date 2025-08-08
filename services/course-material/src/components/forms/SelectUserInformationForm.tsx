@@ -8,7 +8,7 @@ import { fetchCountryFromIP, updateUserInfo } from "@/services/backend"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import SearchableSelectField from "@/shared-module/common/components/InputFields/SearchableSelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import StandardDialog from "@/shared-module/common/components/StandardDialog"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import countries from "@/shared-module/common/locales/en/countries.json"
 
@@ -118,7 +118,7 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
             disabled: postUserCountryMutation.isPending || !isValid,
             // eslint-disable-next-line i18next/no-literal-string
             className: "primary-button",
-            // eslint-disable-next-line i18next/no-literal-string
+
             variant: "primary",
             children: t("save"),
             onClick: handleSubmit((data) => postUserCountryMutation.mutate(data)),

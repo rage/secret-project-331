@@ -5,7 +5,7 @@ import { postNewReferences } from "../../../../../../services/backend/courses"
 import NewReferenceForm from "../../../../../forms/NewReferenceForm"
 
 import { MaterialReference, NewMaterialReference } from "@/shared-module/common/bindings"
-import StandardDialog from "@/shared-module/common/components/StandardDialog"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 interface NewReferenceModalProps {

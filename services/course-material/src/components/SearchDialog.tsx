@@ -12,8 +12,8 @@ import { sanitizeCourseMaterialHtml } from "../utils/sanitizeCourseMaterialHtml"
 
 import { PageSearchResult } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
-import Dialog from "@/shared-module/common/components/Dialog"
 import Spinner from "@/shared-module/common/components/Spinner"
+import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 

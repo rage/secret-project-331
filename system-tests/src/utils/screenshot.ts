@@ -1,5 +1,5 @@
 /* eslint-disable playwright/no-wait-for-timeout */
-/* eslint-disable playwright/no-conditional-in-test */
+
 import { expect, Locator, Page, test, TestInfo } from "@playwright/test"
 import { stat } from "fs/promises"
 

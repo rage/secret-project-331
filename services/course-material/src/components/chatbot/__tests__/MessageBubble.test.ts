@@ -6,9 +6,9 @@ describe("MessageBubble", () => {
   describe("getMessagePartsCitationPairs", () => {
     const exampleUserMessage = "Hi [dsds] [doc2] can you teach me chatbot? [23]."
 
-    const exampleChatbotMessage = `Certainly! The Chinese abacus [doc1], known as the "suanpan," dates back to the Han Dynasty, around the 2nd century BCE [doc1]. It features a bead-and-rod system, typically with two beads on the upper deck [doc23] and five beads on the lower deck per rod, operating on a decimal system.`
+    const exampleChatbotMessage = `Certainly! The Chinese abacus [doc1], known as the "suanpan," dates back to the Han Dynasty, around the 2nd century BCE [doc1]. It features a [dsdsg] bead-and-rod system, typically with two beads on the upper deck [doc23] and five beads on the lower deck per rod, operating on a decimal system.`
 
-    const exampleChatbotMessage2 = `Certainly! The Chinese abacus, known as the "suanpan," dates back to the Han Dynasty, around the 2nd century BCE. It features a bead-and-rod system, typically with two beads on the upper deck and five beads on the lower deck per rod, operating on a decimal system.`
+    const exampleChatbotMessage2 = `Certainly! The Chinese abacus, known as the "suanpan," dates back to the Han Dynasty, around the 2nd century BCE. It features a [dsdsg] bead-and-rod system, typically with two beads on the upper deck and five beads on the lower deck per rod, operating on a decimal system.`
 
     it("doesn't alter anything when it's an user message", () => {
       const isFromChatbot = false
@@ -34,7 +34,7 @@ describe("MessageBubble", () => {
           cit_n: 1,
         },
         {
-          msg: ". It features a bead-and-rod system, typically with two beads on the upper deck ",
+          msg: ". It features a [dsdsg] bead-and-rod system, typically with two beads on the upper deck ",
           cit_n: 23,
         },
         {

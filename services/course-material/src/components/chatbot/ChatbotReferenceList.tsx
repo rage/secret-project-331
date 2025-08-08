@@ -130,10 +130,10 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
                     </b>
                     <span className="link">
                       {cit.course_material_chapter_number &&
-                        t("chapter-chapter-number", {
+                        `${t("chapter-chapter-number", {
                           number: cit.course_material_chapter_number,
-                        })}
-                      {`: ${cit.title}`}
+                        })}: `}
+                      {`${cit.title}`}
                     </span>
                   </span>
                   <Library
@@ -198,10 +198,11 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
                   <a href={cit.document_url}>
                     <span>
                       <b>
-                        {t("chapter-chapter-number", {
-                          number: cit.course_material_chapter_number,
-                        })}
-                        {`: ${cit.title}`}
+                        {cit.course_material_chapter_number &&
+                          `${t("chapter-chapter-number", {
+                            number: cit.course_material_chapter_number,
+                          })}: `}
+                        {`${cit.title}`}
                       </b>
                     </span>
                   </a>

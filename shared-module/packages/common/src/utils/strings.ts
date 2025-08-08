@@ -1,4 +1,5 @@
 import { FieldError } from "react-hook-form"
+import { validate } from "uuid"
 
 const NON_PRINTING_CHAR_REGEX =
   // eslint-disable-next-line no-control-regex, no-misleading-character-class
@@ -89,4 +90,8 @@ export function errorToDescription(error: string | FieldError | undefined): stri
     return error
   }
   return error.message ?? error.type
+}
+
+export const validateUUID = (value: string): boolean => {
+  return validate(value)
 }

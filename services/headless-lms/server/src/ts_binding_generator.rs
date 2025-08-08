@@ -87,6 +87,7 @@ fn models(target: &mut File) {
         course_modules::NewCourseModule,
         course_modules::NewModule,
         courses::Course,
+        courses::CourseMaterialCourse,
         courses::CourseBreadcrumbInfo,
         courses::CourseCount,
         courses::CourseStructure,

@@ -75,6 +75,7 @@ const PagePage: React.FC = () => {
           pageData: getCoursePageByPath.data.page,
           instance: getCoursePageByPath.data.instance ?? null,
           settings: getCoursePageByPath.data.settings ?? null,
+          course: getCoursePageByPath.data.course ?? null,
           exam: null,
           isTest: getCoursePageByPath.data.is_test_mode,
         },

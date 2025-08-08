@@ -18,6 +18,7 @@ import {
 import { inlineColorStyles } from "../styles/inlineColorStyles"
 
 import AudioSpeaker from "./../img/audio-player/audio-speaker.svg"
+import ClosedCourseWarningDialog from "./ClosedCourseWarningDialog"
 import ContentRenderer from "./ContentRenderer"
 import AudioPlayer from "./ContentRenderer/moocfi/AudioPlayer"
 import NavigationContainer from "./ContentRenderer/moocfi/NavigationContainer"
@@ -30,6 +31,7 @@ import SelectUserInformationForm from "./forms/SelectUserInformationForm"
 import CourseSettingsModal from "./modals/CourseSettingsModal"
 import UserOnWrongCourseNotification from "./notifications/UserOnWrongCourseNotification"
 
+import useHasCourseClosed from "@/hooks/useHasCourseClosed"
 import { useUserDetails } from "@/hooks/useUserDetails"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -82,6 +84,8 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   const waitingForCourseSettingsToBeFilled =
     pageContext.settings?.current_course_instance_id === null ||
     pageContext.settings?.current_course_instance_id === undefined
+
+  const hasCourseClosed = useHasCourseClosed()
 
   useEffect(() => {
     if (researchFormQueryParam) {
@@ -266,6 +270,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
         )}
 
         {isMaterialPage && <HeadingsNavigation />}
+        {hasCourseClosed && <ClosedCourseWarningDialog />}
         <div id="maincontent">
           {/* TODO: Better type for Page.content in bindings. */}
           <div id="content" className={inlineColorStyles}>

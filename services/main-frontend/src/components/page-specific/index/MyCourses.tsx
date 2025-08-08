@@ -8,6 +8,7 @@ import { CourseComponent, CourseGrid } from "../org/organizationSlug/CourseCard"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
+import { manageCourseByIdRoute, navigateToCourseRoute } from "@/shared-module/common/utils/routes"
 
 const MyCourses: React.FC = () => {
   const { t } = useTranslation()
@@ -45,12 +46,12 @@ const MyCourses: React.FC = () => {
             isUnlisted={course.is_unlisted}
             description={course.description ?? t("no-description-available")}
             languageCode={course.language_code}
-            // eslint-disable-next-line i18next/no-literal-string
-            manageHref={`/manage/courses/${course.id}`}
-            // eslint-disable-next-line i18next/no-literal-string
-            navigateToCourseHref={`/org/${organization?.slug ?? "undefined"}/courses/${
-              course.slug
-            }`}
+            manageHref={manageCourseByIdRoute(course.id)}
+            navigateToCourseHref={navigateToCourseRoute(
+              // eslint-disable-next-line i18next/no-literal-string
+              organization?.slug || "undefined",
+              course.slug,
+            )}
             id={course.id}
             showManageButton={canMangeCourse.data?.[n] === true}
           />

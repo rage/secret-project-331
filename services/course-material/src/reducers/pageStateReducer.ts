@@ -1,4 +1,10 @@
-import { CourseInstance, ExamData, Page, UserCourseSettings } from "@/shared-module/common/bindings"
+import {
+  Course,
+  CourseInstance,
+  ExamData,
+  Page,
+  UserCourseSettings,
+} from "@/shared-module/common/bindings"
 
 interface PageStateLoading {
   state: "loading"
@@ -6,6 +12,7 @@ interface PageStateLoading {
   settings: null
   instance: null
   exam: null
+  course: null
   isTest: boolean
   error: null
   refetchPage?: () => Promise<void>
@@ -17,6 +24,7 @@ interface PageStateReady {
   settings: UserCourseSettings | null
   instance: CourseInstance | null
   exam: ExamData | null
+  course: Course | null
   isTest: boolean
   error: null
   refetchPage?: () => Promise<void>
@@ -28,6 +36,7 @@ interface PageStateError {
   settings: null
   instance: null
   exam: null
+  course: null
   isTest: boolean
   error: unknown
   refetchPage?: () => Promise<void>
@@ -47,6 +56,7 @@ interface SetDataAction {
     instance: CourseInstance | null
     settings: UserCourseSettings | null
     exam: ExamData | null
+    course: Course | null
     isTest: boolean
   }
 }
@@ -70,9 +80,19 @@ export default function pageStateReducer(prev: PageState, action: PageStateActio
     case "rawSetState":
       return action.payload
     case "setData": {
-      const { instance, pageData, settings, exam, isTest } = action.payload
+      const { instance, pageData, settings, exam, course, isTest } = action.payload
 
-      return { ...prev, state: "ready", instance, pageData, settings, exam, isTest, error: null }
+      return {
+        ...prev,
+        state: "ready",
+        instance,
+        pageData,
+        settings,
+        exam,
+        course,
+        isTest,
+        error: null,
+      }
     }
     case "setError":
       return {
@@ -84,6 +104,7 @@ export default function pageStateReducer(prev: PageState, action: PageStateActio
         pageData: null,
         settings: null,
         exam: null,
+        course: null,
         isTest: false,
       }
     case "setLoading":
@@ -96,6 +117,7 @@ export default function pageStateReducer(prev: PageState, action: PageStateActio
         pageData: null,
         settings: null,
         exam: null,
+        course: null,
         isTest: false,
       }
   }

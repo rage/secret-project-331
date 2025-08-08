@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold\nFROM courses\nWHERE id IN (SELECT * FROM UNNEST($1::uuid[]))\n  ",
+  "query": "\nSELECT\n    DISTINCT(c.id),\n    c.name,\n    c.created_at,\n    c.updated_at,\n    c.organization_id,\n    c.deleted_at,\n    c.slug,\n    c.content_search_language::text,\n    c.language_code,\n    c.copied_from,\n    c.course_language_group_id,\n    c.description,\n    c.is_draft,\n    c.is_test_mode,\n    c.base_module_completion_requires_n_submodule_completions,\n    c.can_add_chatbot,\n    c.is_unlisted,\n    c.is_joinable_by_code_only,\n    c.join_code,\n    c.ask_marketing_consent,\n    c.flagged_answers_threshold,\n    c.closed_at,\n    c.closed_additional_message,\n    c.closed_course_successor_id\nFROM courses as c\n    LEFT JOIN course_instances as ci on c.id = ci.course_id\nWHERE\n    c.organization_id = $1 AND\n    ci.starts_at < NOW() AND ci.ends_at > NOW() AND\n    c.deleted_at IS NULL AND ci.deleted_at IS NULL\n    LIMIT $2 OFFSET $3;\n        ",
   "describe": {
     "columns": [
       {
@@ -75,18 +75,18 @@
       },
       {
         "ordinal": 14,
+        "name": "base_module_completion_requires_n_submodule_completions",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 15,
         "name": "can_add_chatbot",
         "type_info": "Bool"
       },
       {
-        "ordinal": 15,
+        "ordinal": 16,
         "name": "is_unlisted",
         "type_info": "Bool"
-      },
-      {
-        "ordinal": 16,
-        "name": "base_module_completion_requires_n_submodule_completions",
-        "type_info": "Int4"
       },
       {
         "ordinal": 17,
@@ -107,10 +107,25 @@
         "ordinal": 20,
         "name": "flagged_answers_threshold",
         "type_info": "Int4"
+      },
+      {
+        "ordinal": 21,
+        "name": "closed_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 22,
+        "name": "closed_additional_message",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 23,
+        "name": "closed_course_successor_id",
+        "type_info": "Uuid"
       }
     ],
     "parameters": {
-      "Left": ["UuidArray"]
+      "Left": ["Uuid", "Int8", "Int8"]
     },
     "nullable": [
       false,
@@ -133,8 +148,11 @@
       false,
       true,
       false,
-      false
+      false,
+      true,
+      true,
+      true
     ]
   },
-  "hash": "630403a014992249ea36c52d3611b6c3617b6ca2d7aa07de995feaee3e16e22a"
+  "hash": "714de41552d8540a3bdab2f0bd5e34ef8eb4c57251686056f2a17f3b6f935457"
 }

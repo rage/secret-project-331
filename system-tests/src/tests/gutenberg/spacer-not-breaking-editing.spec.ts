@@ -1,7 +1,10 @@
+/* eslint-disable playwright/no-wait-for-timeout */
 import { test } from "@playwright/test"
 
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 import { waitForFooterTranslationsToLoad } from "../../utils/waitingUtils"
+
+import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -16,9 +19,7 @@ test.describe(() => {
     headless,
   }, testInfo) => {
     await page.goto("http://project-331.local/organizations")
-    await page
-      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-      .click()
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await page.getByRole("link", { name: "Manage course 'Glossary Tooltip'" }).click()
     await page.getByRole("tab", { name: "Pages" }).click()
     await page
@@ -33,16 +34,19 @@ test.describe(() => {
     await page.waitForLoadState("networkidle")
     await page.getByRole("button", { name: "Add block" }).click()
     await page.getByRole("option", { name: "Paragraph" }).click()
+    await page.waitForTimeout(100)
     await page
       .getByRole("document", {
         name: "Empty block; start writing or type forward slash to choose a block",
       })
       .waitFor()
+    await page.waitForTimeout(100)
     await page
       .getByRole("document", {
         name: "Empty block; start writing or type forward slash to choose a block",
       })
       .fill("This text should remain editable")
+    await page.waitForTimeout(100)
     await page.getByText("This text should remain editable").press("Control+A")
     // In this screenshot the plus sign for inserting a new block should not be on top of the typing caret.
     await expectScreenshotsToMatchSnapshots({
@@ -55,7 +59,7 @@ test.describe(() => {
     await page
       .getByText("Pages in chapter placeholderThis block is placed on each chapter front page, e.g")
       .click()
-    // eslint-disable-next-line playwright/no-wait-for-timeout
+
     await page.waitForTimeout(100)
     await page.getByLabel("Options", { exact: true }).click()
     await page.getByRole("menuitem", { name: "Add after Ctrl+Alt+Y" }).click()

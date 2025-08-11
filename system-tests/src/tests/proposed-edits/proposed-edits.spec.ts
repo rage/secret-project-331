@@ -4,6 +4,7 @@ import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialAction
 import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
+import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
@@ -14,7 +15,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.getByText("University of Helsinki, Department of Computer Science").click(),
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
@@ -92,6 +93,10 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
 
   await page.click('button:has-text("Preview")')
 
+  // Wait for the preview to load
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(200)
+
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
@@ -114,7 +119,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.getByText("University of Helsinki, Department of Computer Science").click(),
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
   ])
 
   await page.locator("[aria-label=\"Manage course 'Introduction to edit proposals'\"] svg").click()

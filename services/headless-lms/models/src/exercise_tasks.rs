@@ -1,11 +1,12 @@
 use std::collections::{HashMap, HashSet};
 
-use futures::{future::BoxFuture, Stream, TryStreamExt};
+use futures::{Stream, TryStreamExt, future::BoxFuture};
 
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 use url::Url;
 
 use crate::{
+    CourseOrExamId,
     exercise_service_info::{self, ExerciseServiceInfoApi},
     exercise_services,
     exercise_slides::{self, CourseMaterialExerciseSlide},
@@ -13,7 +14,7 @@ use crate::{
     exercise_task_submissions::{self, ExerciseTaskSubmission},
     library::custom_view_exercises::CustomViewExerciseTaskSpec,
     prelude::*,
-    user_exercise_states::{self},
+    user_exercise_states,
 };
 
 /// Information necessary for the frontend to render an exercise task
@@ -39,6 +40,7 @@ pub struct CourseMaterialExerciseTask {
     pub previous_submission: Option<ExerciseTaskSubmission>,
     pub previous_submission_grading: Option<ExerciseTaskGrading>,
     pub order_number: i32,
+    pub deleted_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -244,6 +246,7 @@ pub async fn get_course_material_exercise_tasks(
             previous_submission,
             previous_submission_grading,
             order_number: exercise_task.order_number,
+            deleted_at: exercise_task.deleted_at,
         });
     }
     Ok(material_tasks)
@@ -262,7 +265,29 @@ where
 SELECT *
 FROM exercise_tasks
 WHERE exercise_slide_id = $1
-  AND deleted_at IS NULL;
+AND deleted_at IS NULL;
+        ",
+        exercise_slide_id,
+    )
+    .fetch(conn)
+    .try_collect()
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_exercise_tasks_by_exercise_slide_id_including_deleted<T>(
+    conn: &mut PgConnection,
+    exercise_slide_id: &Uuid,
+) -> ModelResult<T>
+where
+    T: Default + Extend<ExerciseTask> + FromIterator<ExerciseTask>,
+{
+    let res = sqlx::query_as!(
+        ExerciseTask,
+        "
+SELECT *
+FROM exercise_tasks
+WHERE exercise_slide_id = $1
         ",
         exercise_slide_id,
     )

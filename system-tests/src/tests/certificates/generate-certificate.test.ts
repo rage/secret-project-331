@@ -3,15 +3,15 @@ import { expect, test } from "@playwright/test"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
+import { respondToConfirmDialog } from "@/utils/dialogs"
+import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/user@example.com.json",
 })
 
 test("Generating certificates works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
-  await page
-    .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-    .click()
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await page.getByRole("link", { name: "Navigate to course 'Certificates'" }).click()
 
   await selectCourseInstanceIfPrompted(page)
@@ -27,10 +27,9 @@ test("Generating certificates works", async ({ page, headless }, testInfo) => {
   await page.getByRole("link", { name: "Certificates" }).click()
   await page.getByRole("button", { name: "Generate certificate for completion" }).first().click()
   await page.getByLabel("Your name  *").fill("Example User")
-  page.once("dialog", (dialog) => {
-    dialog.accept()
-  })
+
   await page.getByRole("button", { name: "Generate" }).click()
+  await respondToConfirmDialog(page, true)
   await expect(page).toHaveURL(/.*\/certificates\/.*/)
   await page.getByText("Save as png").waitFor()
   const currentUrl = page.url()

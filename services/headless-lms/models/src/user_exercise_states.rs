@@ -1206,7 +1206,7 @@ pub fn stream_user_exercise_states_for_course<'a>(
     conn: &'a mut PgConnection,
     course_ids: &'a [Uuid],
 ) -> impl Stream<Item = sqlx::Result<ExportedUserExerciseState>> + 'a {
-    let res = sqlx::query_as!(
+    sqlx::query_as!(
         ExportedUserExerciseState,
         r#"
 SELECT id,
@@ -1226,8 +1226,7 @@ WHERE course_id = ANY($1)
         "#,
         course_ids
     )
-    .fetch(conn);
-    res
+    .fetch(conn)
 }
 
 #[cfg(test)]
@@ -1252,12 +1251,14 @@ mod tests {
     fn merges_course_modules_with_metrics() {
         let timestamp = Utc.with_ymd_and_hms(2022, 6, 22, 0, 0, 0).unwrap();
         let module_id = Uuid::parse_str("9e831ecc-9751-42f1-ae7e-9b2f06e523e8").unwrap();
-        let course_modules = vec![CourseModule::new(
-            module_id,
-            Uuid::parse_str("3fa4bee6-7390-415e-968f-ecdc5f28330e").unwrap(),
-        )
-        .set_timestamps(timestamp, timestamp, None)
-        .set_registration_info(None, Some(5.0), None, false)];
+        let course_modules = vec![
+            CourseModule::new(
+                module_id,
+                Uuid::parse_str("3fa4bee6-7390-415e-968f-ecdc5f28330e").unwrap(),
+            )
+            .set_timestamps(timestamp, timestamp, None)
+            .set_registration_info(None, Some(5.0), None, false),
+        ];
         let course_metrics_by_course_module_id = HashMap::from([(
             module_id,
             CourseExerciseMetrics {

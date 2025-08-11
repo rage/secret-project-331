@@ -33,6 +33,7 @@ async fn get_submission_info(
         submission_id.into_inner(),
         user.id,
         models_requests::fetch_service_info,
+        true,
     )
     .await?;
 

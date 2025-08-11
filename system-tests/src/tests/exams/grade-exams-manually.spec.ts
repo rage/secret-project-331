@@ -1,6 +1,8 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
+import { respondToConfirmDialog } from "@/utils/dialogs"
 import { scrollLocatorsParentIframeToViewIfNeeded } from "@/utils/iframeLocators"
+import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -33,10 +35,8 @@ test("Grade exams manually", async ({}) => {
     "http://project-331.local/org/uh-cs/exams/fee8bb0c-8629-477c-86eb-1785005143ae",
   )
 
-  student1Page.once("dialog", (dialog) => {
-    dialog.accept()
-  })
   await student1Page.getByRole("button", { name: "Start the exam!" }).click()
+  await respondToConfirmDialog(student1Page, true)
 
   await student1Page
     .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
@@ -59,10 +59,8 @@ test("Grade exams manually", async ({}) => {
   await student1Page.getByRole("button", { name: "Submit" }).click()
   await student1Page.getByRole("button", { name: "Try again" }).nth(1).waitFor()
 
-  student1Page.once("dialog", (dialog) => {
-    dialog.accept()
-  })
   await student1Page.getByRole("button", { name: "End exam" }).click()
+  await respondToConfirmDialog(student1Page, true)
   await expect(student1Page.getByText("Success", { exact: true })).toBeVisible()
 
   // Student2 goes to the exam page and submits answers and then ends exam
@@ -70,10 +68,8 @@ test("Grade exams manually", async ({}) => {
     "http://project-331.local/org/uh-cs/exams/fee8bb0c-8629-477c-86eb-1785005143ae",
   )
 
-  student2Page.once("dialog", (dialog) => {
-    dialog.accept()
-  })
   await student2Page.getByRole("button", { name: "Start the exam!" }).click()
+  await respondToConfirmDialog(student2Page, true)
 
   await student2Page
     .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
@@ -96,15 +92,14 @@ test("Grade exams manually", async ({}) => {
   await student2Page.getByRole("button", { name: "Submit" }).click()
   await student2Page.getByRole("button", { name: "Try again" }).nth(1).waitFor()
 
-  student2Page.once("dialog", (dialog) => {
-    dialog.accept()
-  })
   await student2Page.getByRole("button", { name: "End exam" }).click()
+  await respondToConfirmDialog(student2Page, true)
   await expect(student2Page.getByText("Success", { exact: true })).toBeVisible()
 
   // Teacher goes to the grading page and grades the students submissions
   await teacherPage.goto("http://project-331.local/organizations")
-  await teacherPage.getByLabel("University of Helsinki, Department of Computer Science").click()
+  await selectOrganization(teacherPage, "University of Helsinki, Department of Computer Science")
+
   await teacherPage
     .getByTestId("exam-list-item")
     .filter({ hasText: "Exam for manual grading" })
@@ -143,7 +138,9 @@ test("Grade exams manually", async ({}) => {
   await expect(teacherPage.getByText("Graded").nth(1)).toBeVisible()
   await expect(teacherPage.getByRole("cell", { name: "0.5/ 1" })).toBeVisible()
 
+  // Navigate back to the questions overview page
   await teacherPage.getByRole("link", { name: "Questions" }).click()
+  await teacherPage.getByRole("heading", { name: "Submissions" }).waitFor({ state: "hidden" })
 
   // Check question 1 is fully graded and unpublished
   await expect(teacherPage.getByText("Graded", { exact: true })).toBeVisible()
@@ -168,11 +165,8 @@ test("Grade exams manually", async ({}) => {
   ).toBeVisible()
 
   // Publish grading results
-  teacherPage.once("dialog", (dialog) => {
-    dialog.accept()
-  })
-
   await teacherPage.getByRole("button", { name: "Publish grading results" }).click()
+  await respondToConfirmDialog(teacherPage, true)
   await teacherPage.getByText("Operation successful!").waitFor()
 
   await expect(

@@ -14,7 +14,7 @@ import ContentRenderer from "../ContentRenderer"
 
 import { ResearchForm, ResearchFormQuestionAnswer } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
-import Dialog from "@/shared-module/common/components/Dialog"
+import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -97,7 +97,12 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
   }
   return (
     <div>
-      <Dialog open={shouldAnswerResearchForm || editForm} noPadding={true} closeable={false}>
+      <Dialog
+        open={shouldAnswerResearchForm || editForm}
+        noPadding={true}
+        closeable={false}
+        aria-label={t("title-research-consent-form")}
+      >
         <div
           className={css`
             display: flex;

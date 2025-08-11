@@ -2,15 +2,15 @@ import { BrowserContext, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 
+import { respondToConfirmDialog } from "@/utils/dialogs"
+import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
 test("Resetting teacher's own progress resets points", async ({ page }) => {
   await page.goto("http://project-331.local/organizations")
-  await page
-    .getByRole("link", { name: "University of Helsinki, Department of Mathematics and Statistics" })
-    .click()
+  await selectOrganization(page, "University of Helsinki, Department of Mathematics and Statistics")
   await page.getByRole("link", { name: "Navigate to course 'Reset progress'" }).click()
   await selectCourseInstanceIfPrompted(page)
   await page.getByRole("link", { name: "Chapter 1 The Basics" }).click()
@@ -26,10 +26,9 @@ test("Resetting teacher's own progress resets points", async ({ page }) => {
   await page.getByRole("navigation", { name: "Navigation menu" }).click()
   await page.getByRole("button", { name: "Open menu" }).click()
   await page.getByRole("button", { name: "Manage course" }).click()
-  page.once("dialog", (dialog) => {
-    dialog.accept()
-  })
+
   await page.getByRole("button", { name: "Reset my own progress on the course" }).click()
+  await respondToConfirmDialog(page, true)
   await page.getByText("Successfully deleted").waitFor()
   await page.goto(
     "http://project-331.local/org/uh-mathstat/courses/reset-progress/chapter-1/page-2",
@@ -47,11 +46,10 @@ test("Teacher can reset progress for all students on draft courses", async ({ pa
     })
     const studentPage = await studentContext.newPage()
     await studentPage.goto("http://project-331.local/organizations")
-    await studentPage
-      .getByRole("link", {
-        name: "University of Helsinki, Department of Mathematics and Statistics",
-      })
-      .click()
+    await selectOrganization(
+      studentPage,
+      "University of Helsinki, Department of Mathematics and Statistics",
+    )
     await studentPage.getByRole("link", { name: "Navigate to course 'Reset progress'" }).click()
     await selectCourseInstanceIfPrompted(studentPage)
     await studentPage.getByRole("link", { name: "Chapter 1 The Basics" }).click()
@@ -84,14 +82,12 @@ test("Teacher can reset progress for all students on draft courses", async ({ pa
     await page.getByRole("button", { name: "Update", exact: true }).click()
     await page.getByRole("heading", { name: "Reset progress (Draft)" }).waitFor()
 
-    page.once("dialog", (dialog) => {
-      dialog.accept()
-    })
     await page
       .getByRole("button", {
         name: "Reset progress for all students on the course (works only on draft courses)",
       })
       .click()
+    await respondToConfirmDialog(page, true)
     await page.getByText("Successfully deleted").waitFor()
     // Change the course back to a non-draft course so that the student can access it
     await page.getByRole("button", { name: "Edit", exact: true }).click()

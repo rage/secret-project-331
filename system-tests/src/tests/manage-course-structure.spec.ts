@@ -2,7 +2,9 @@ import { expect, Page, test } from "@playwright/test"
 
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
+import { respondToConfirmDialog } from "@/utils/dialogs"
 import { hideToasts } from "@/utils/notificationUtils"
+import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -56,12 +58,9 @@ async function deletePage(page: Page, pageText: string) {
     const pageRow = page.getByRole("row").filter({ hasText: pageText })
     await pageRow.getByLabel("Dropdown menu").click()
 
-    page.once("dialog", (dialog) => {
-      dialog.accept()
-    })
-
     await hideToasts(page)
     await page.getByRole("button", { name: "Delete" }).click()
+    await respondToConfirmDialog(page, true)
     await expect(page.getByText("Successfully deleted")).toBeVisible()
     await verifyDialogState(page, false, true)
   })
@@ -95,7 +94,7 @@ async function verifyElementOrder(page: Page, firstElement: string, secondElemen
 test("manage course structure works", async ({ page, headless }, testInfo) => {
   await test.step("Navigate to course structure page", async () => {
     await page.goto("http://project-331.local/organizations")
-    await page.getByText("University of Helsinki, Department of Computer Science").click()
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await page.getByLabel("Manage course 'Course Structure'").click()
     await page.getByText("Pages").click()
 
@@ -179,10 +178,10 @@ test("manage course structure works", async ({ page, headless }, testInfo) => {
       testInfo,
       snapshotName: "manage-course-structure-middle-of-the-page",
       clearNotifications: true,
-    })
-
-    await page.evaluate(() => {
-      window.scrollTo(0, 0)
+      scrollToYCoordinate: {
+        "desktop-regular": 800,
+        "mobile-tall": 800,
+      },
     })
 
     await expectScreenshotsToMatchSnapshots({
@@ -191,6 +190,7 @@ test("manage course structure works", async ({ page, headless }, testInfo) => {
       testInfo,
       snapshotName: "manage-course-structure-top-of-the-page",
       clearNotifications: true,
+      scrollToYCoordinate: 0,
     })
   })
 })

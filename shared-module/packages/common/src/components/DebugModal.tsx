@@ -1,13 +1,13 @@
 import { css } from "@emotion/css"
 import { Parser } from "@json2csv/plainjs"
 import { BugInsect, DownloadArrowDown as Download } from "@vectopus/atlas-icons-react"
-import { Dispatch, useCallback, useMemo, useState } from "react"
+import { Dispatch, useCallback, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../styles/theme"
 
 import Button from "./Button"
-import StandardDialog from "./StandardDialog"
+import StandardDialog from "./dialogs/StandardDialog"
 import MonacoEditor from "./monaco/MonacoEditor"
 
 export interface DebugModalProps {
@@ -51,7 +51,7 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
 }) => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
-  const [editedContent, setEditedContent] = useState<string>()
+  const editedContentRef = useRef<string | undefined>("")
 
   const stringifiedData = useMemo(() => {
     return JSON.stringify(data, null, 2)
@@ -83,16 +83,16 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
   }, [data, size])
 
   const closeModal = useCallback(() => {
-    if (updateDataOnClose && editedContent) {
+    if (updateDataOnClose && editedContentRef.current) {
       try {
-        updateDataOnClose(JSON.parse(editedContent))
+        updateDataOnClose(JSON.parse(editedContentRef.current))
       } catch (err) {
         console.error("Failed to parse edited content:", err)
       }
     }
     setOpen(false)
-    setEditedContent(undefined) // Reset the edited content when closing
-  }, [editedContent, updateDataOnClose])
+    editedContentRef.current = undefined // Reset the edited content when closing
+  }, [updateDataOnClose])
 
   const handleDownloadCSV = useCallback(() => {
     if (!Array.isArray(data) || !data.every((item) => typeof item === "object" && item !== null)) {
@@ -118,8 +118,8 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
   }, [data])
 
   const handleEditorChange = useCallback((value: string | undefined) => {
-    if (value) {
-      setEditedContent(value)
+    if (value !== undefined) {
+      editedContentRef.current = value
     }
   }, [])
 
@@ -133,7 +133,7 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
             type="button"
             aria-label={t("title-data-view")}
             onClick={() => {
-              setEditedContent(stringifiedData)
+              editedContentRef.current = stringifiedData
               setOpen(true)
             }}
             className={iconButtonStyles}
@@ -146,7 +146,7 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
             size={buttonSize}
             aria-label={t("title-data-view")}
             onClick={() => {
-              setEditedContent(stringifiedData)
+              editedContentRef.current = stringifiedData
               setOpen(true)
             }}
             className={css`
@@ -209,7 +209,7 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
           height="90vh"
           defaultLanguage="json"
           options={{ wordWrap: ON, readOnly }}
-          defaultValue={editedContent || undefined}
+          defaultValue={stringifiedData}
           onChange={handleEditorChange}
         />
       </StandardDialog>

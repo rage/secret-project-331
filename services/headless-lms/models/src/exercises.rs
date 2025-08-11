@@ -7,7 +7,7 @@ use crate::{
     exams, exercise_reset_logs,
     exercise_service_info::ExerciseServiceInfoApi,
     exercise_slide_submissions::{
-        get_exercise_slide_submission_counts_for_exercise_user, ExerciseSlideSubmission,
+        ExerciseSlideSubmission, get_exercise_slide_submission_counts_for_exercise_user,
     },
     exercise_slides::{self, CourseMaterialExerciseSlide},
     exercise_tasks,

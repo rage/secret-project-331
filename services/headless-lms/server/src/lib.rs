@@ -26,13 +26,13 @@ extern crate doc_macro;
 
 use anyhow::Result;
 use headless_lms_utils::file_store::{
-    google_cloud_file_store::GoogleCloudFileStore, local_file_store::LocalFileStore, FileStore,
+    FileStore, google_cloud_file_store::GoogleCloudFileStore, local_file_store::LocalFileStore,
 };
 use oauth2::{EndpointNotSet, EndpointSet};
 use std::{env, sync::Arc};
 use tracing_error::ErrorLayer;
 use tracing_log::LogTracer;
-use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
+use tracing_subscriber::{EnvFilter, layer::SubscriberExt};
 
 pub type OAuthClient = oauth2::basic::BasicClient<
     EndpointSet,
@@ -48,7 +48,9 @@ settings that have been set with RUST_LOG, for example:
 
 ```no_run
 use std::env;
-env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn");
+unsafe {
+    env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn");
+}
 ```
 */
 pub fn setup_tracing() -> Result<()> {
@@ -90,7 +92,7 @@ pub fn setup_file_store() -> Arc<dyn FileStore + Send + Sync> {
 /// Used with the helper macro from the doc-macro crate: #[generated_doc]
 #[macro_export]
 macro_rules! generated_docs {
-    ($t: expr, ts) => {
+    ($t: expr_2021, ts) => {
         concat!(
             "## Response TypeScript definition\n",
             "```ts\n",
@@ -103,7 +105,7 @@ macro_rules! generated_docs {
             "\n```\n",
         )
     };
-    ($t: expr, json) => {
+    ($t: expr_2021, json) => {
         concat!(
             "## Example response\n",
             "```json\n",
@@ -116,7 +118,7 @@ macro_rules! generated_docs {
             "\n```\n",
         )
     };
-    ($t: expr) => {
+    ($t: expr_2021) => {
         concat!(generated_docs!($t, ts), generated_docs!($t, json),)
     };
 }

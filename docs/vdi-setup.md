@@ -8,9 +8,10 @@ This document details the setup process for the VDI environment specifically req
 
 1. Go to [https://onify.it.helsinki.fi/](https://onify.it.helsinki.fi/) and select **Order a virtual desktop**.
 2. Choose **Basic Linux** as the desktop type.
-3. Enter your university username as the name for the virtual desktop.
+3. Enter `vdi-mooc-<your university username>` as the name for the virtual desktop.
 4. For the WBS number, please ask **redande** or **hn** in the MOOC Center Slack channel.
-5. To receive sufficient resources and an external disk necessary for development, contact the university's helpdesk. The MOOC Center has an ongoing email thread for these requests; ask **redande** or **hn** to add your request to this thread.
+5. In the open text field **Describe the intended use of the virtual desktop**, you should describe that you need the virtual desktop for your work at the university's MOOC-center.
+6. To receive sufficient resources and an external disk necessary for development, contact the university's helpdesk. The MOOC Center has an ongoing email thread for these requests; ask **redande** or **hn** to add your request to this thread.
 
 ## Install and Set Up Omnissa Horizon Client
 
@@ -19,16 +20,18 @@ This document details the setup process for the VDI environment specifically req
 3. Open Omnissa Horizon Client and select **New Server**.
 4. Enter `vdi.helsinki.fi` as the **Connection Server**.
 5. Sign in with your university credentials. Make sure the dropdown below the credentials field is set to **ATKK**.
-6. Select your virtual desktop, which should appear as `vdi-<your university username>`.
+6. Select your virtual desktop, which should appear as `vdi-mooc-<your university username>`.
 
 > **Tip**: You can also access the virtual desktop through [https://vdi.helsinki.fi](https://vdi.helsinki.fi), but using the VMware Horizon Client is recommended for better performance and features.
 
 ## Requesting Administrative Privileges (sudo)
 
+Note: Before doing this step, wait until the virtual machine has been created.
+
 Since many development tools require administrative privileges, follow these steps to request `sudo` rights:
 
 1. Complete [this form](https://elomake.helsinki.fi/lomakkeet/42471/lomake.html) to request administrative rights.
-2. For the **Identification of workstation** field, enter the name of your virtual desktop (e.g., `vdi-<your university username>`).
+2. For the **Identification of workstation** field, enter the name of your virtual desktop (e.g., `vdi-mooc-<your university username>`).
 3. In the **Reason** field, state that you need administrative privileges to develop MOOC Center software.
 
 ## Setting Up Secret Project 331 on the Virtual Desktop

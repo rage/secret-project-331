@@ -2,7 +2,7 @@ use std::fmt;
 
 use crate::{
     certificate_configuration_to_requirements::{
-        get_all_requirements_for_certificate_configuration, CertificateAllRequirements,
+        CertificateAllRequirements, get_all_requirements_for_certificate_configuration,
     },
     prelude::*,
 };
@@ -87,6 +87,12 @@ pub struct CertificateConfiguration {
     pub background_svg_file_upload_id: Uuid,
     pub overlay_svg_path: Option<String>,
     pub overlay_svg_file_upload_id: Option<Uuid>,
+    pub render_certificate_grade: bool,
+    pub certificate_grade_y_pos: Option<String>,
+    pub certificate_grade_x_pos: Option<String>,
+    pub certificate_grade_font_size: Option<String>,
+    pub certificate_grade_text_color: Option<String>,
+    pub certificate_grade_text_anchor: Option<CertificateTextAnchor>,
 }
 
 pub async fn get_required_course_instance_ids(
@@ -119,27 +125,32 @@ SELECT cc.id,
   cc.certificate_owner_name_x_pos,
   cc.certificate_owner_name_font_size,
   cc.certificate_owner_name_text_color,
-  cc.certificate_owner_name_text_anchor as "certificate_owner_name_text_anchor: _",
+  cc.certificate_owner_name_text_anchor AS "certificate_owner_name_text_anchor: _",
   cc.certificate_validate_url_y_pos,
   cc.certificate_validate_url_x_pos,
   cc.certificate_validate_url_font_size,
   cc.certificate_validate_url_text_color,
-  cc.certificate_validate_url_text_anchor as "certificate_validate_url_text_anchor: _",
+  cc.certificate_validate_url_text_anchor AS "certificate_validate_url_text_anchor: _",
   cc.certificate_date_y_pos,
   cc.certificate_date_x_pos,
   cc.certificate_date_font_size,
   cc.certificate_date_text_color,
-  cc.certificate_date_text_anchor as "certificate_date_text_anchor: _",
+  cc.certificate_date_text_anchor AS "certificate_date_text_anchor: _",
   cc.certificate_locale,
-  cc.paper_size as "paper_size: _",
+  cc.paper_size AS "paper_size: _",
   cc.background_svg_path,
   cc.background_svg_file_upload_id,
   cc.overlay_svg_path,
-  cc.overlay_svg_file_upload_id
+  cc.overlay_svg_file_upload_id,
+  cc.render_certificate_grade,
+  cc.certificate_grade_y_pos,
+  cc.certificate_grade_x_pos,
+  cc.certificate_grade_font_size,
+  cc.certificate_grade_text_color,
+  cc.certificate_grade_text_anchor AS "certificate_grade_text_anchor: _"
 FROM certificate_configurations cc
 WHERE id = $1
-  AND cc.deleted_at IS NULL
-        "#,
+  AND cc.deleted_at IS NULL "#,
         id,
     )
     .fetch_one(&mut *conn)
@@ -179,7 +190,13 @@ SELECT cc.id,
   cc.background_svg_path,
   cc.background_svg_file_upload_id,
   cc.overlay_svg_path,
-  cc.overlay_svg_file_upload_id
+  cc.overlay_svg_file_upload_id,
+  cc.render_certificate_grade,
+  cc.certificate_grade_y_pos,
+  cc.certificate_grade_x_pos,
+  cc.certificate_grade_font_size,
+  cc.certificate_grade_text_color,
+  cc.certificate_grade_text_anchor AS "certificate_grade_text_anchor: _"
 FROM certificate_configurations cc
 JOIN certificate_configuration_to_requirements cctr ON cc.id = cctr.certificate_configuration_id
 WHERE cctr.course_module_id = $1
@@ -254,7 +271,13 @@ SELECT cc.id,
   cc.background_svg_path,
   cc.background_svg_file_upload_id,
   cc.overlay_svg_path,
-  cc.overlay_svg_file_upload_id
+  cc.overlay_svg_file_upload_id,
+  cc.render_certificate_grade,
+  cc.certificate_grade_y_pos,
+  cc.certificate_grade_x_pos,
+  cc.certificate_grade_font_size,
+  cc.certificate_grade_text_color,
+  cc.certificate_grade_text_anchor AS "certificate_grade_text_anchor: _"
 FROM certificate_configurations cc
   JOIN certificate_configuration_to_requirements cctr ON cc.id = cctr.certificate_configuration_id
 WHERE cctr.course_module_id IN (
@@ -318,7 +341,13 @@ SELECT cc.id,
   cc.background_svg_path,
   cc.background_svg_file_upload_id,
   cc.overlay_svg_path,
-  cc.overlay_svg_file_upload_id
+  cc.overlay_svg_file_upload_id,
+  cc.render_certificate_grade,
+  cc.certificate_grade_y_pos,
+  cc.certificate_grade_x_pos,
+  cc.certificate_grade_font_size,
+  cc.certificate_grade_text_color,
+  cc.certificate_grade_text_anchor as "certificate_grade_text_anchor: _"
 FROM certificate_configurations cc
 JOIN certificate_configuration_to_requirements cctr ON cc.id = cctr.certificate_configuration_id
 WHERE cctr.course_module_id = ANY($1)
@@ -369,6 +398,12 @@ pub struct DatabaseCertificateConfiguration {
     pub background_svg_file_upload_id: Uuid,
     pub overlay_svg_path: Option<String>,
     pub overlay_svg_file_upload_id: Option<Uuid>,
+    pub render_certificate_grade: bool,
+    pub certificate_grade_y_pos: Option<String>,
+    pub certificate_grade_x_pos: Option<String>,
+    pub certificate_grade_font_size: Option<String>,
+    pub certificate_grade_text_color: Option<String>,
+    pub certificate_grade_text_anchor: Option<CertificateTextAnchor>,
 }
 
 impl DatabaseCertificateConfiguration {
@@ -434,6 +469,17 @@ impl DatabaseCertificateConfiguration {
             background_svg_file_upload_id: self.background_svg_file_upload_id,
             overlay_svg_path: self.overlay_svg_path.as_deref(),
             overlay_svg_file_upload_id: self.overlay_svg_file_upload_id,
+            render_certificate_grade: self.render_certificate_grade,
+            certificate_grade_y_pos: self.certificate_grade_y_pos.as_deref().unwrap_or(""),
+            certificate_grade_x_pos: self.certificate_grade_x_pos.as_deref().unwrap_or(""),
+            certificate_grade_font_size: self.certificate_grade_font_size.as_deref().unwrap_or(""),
+            certificate_grade_text_color: self
+                .certificate_grade_text_color
+                .as_deref()
+                .unwrap_or(""),
+            certificate_grade_text_anchor: self
+                .certificate_grade_text_anchor
+                .unwrap_or(CertificateTextAnchor::Middle),
         }
     }
 }
@@ -462,6 +508,12 @@ struct DatabaseCertificateConfigurationInner<'a> {
     pub background_svg_file_upload_id: Uuid,
     pub overlay_svg_path: Option<&'a str>,
     pub overlay_svg_file_upload_id: Option<Uuid>,
+    pub render_certificate_grade: bool,
+    pub certificate_grade_y_pos: &'a str,
+    pub certificate_grade_x_pos: &'a str,
+    pub certificate_grade_font_size: &'a str,
+    pub certificate_grade_text_color: &'a str,
+    pub certificate_grade_text_anchor: CertificateTextAnchor,
 }
 
 pub async fn insert(
@@ -493,7 +545,13 @@ INSERT INTO public.certificate_configurations (
     background_svg_path,
     background_svg_file_upload_id,
     overlay_svg_path,
-    overlay_svg_file_upload_id
+    overlay_svg_file_upload_id,
+    render_certificate_grade,
+    certificate_grade_y_pos,
+    certificate_grade_x_pos,
+    certificate_grade_font_size,
+    certificate_grade_text_color,
+    certificate_grade_text_anchor
   )
 VALUES (
     $1,
@@ -516,7 +574,13 @@ VALUES (
     $18,
     $19,
     $20,
-    $21
+    $21,
+    $22,
+    $23,
+    $24,
+    $25,
+    $26,
+    $27
   )
 RETURNING id,
   created_at,
@@ -542,7 +606,13 @@ RETURNING id,
   background_svg_path,
   background_svg_file_upload_id,
   overlay_svg_path,
-  overlay_svg_file_upload_id
+  overlay_svg_file_upload_id,
+  render_certificate_grade,
+  certificate_grade_y_pos,
+  certificate_grade_x_pos,
+  certificate_grade_font_size,
+  certificate_grade_text_color,
+  certificate_grade_text_anchor as "certificate_grade_text_anchor: _"
 "#,
         conf.certificate_owner_name_y_pos,
         conf.certificate_owner_name_x_pos,
@@ -564,7 +634,13 @@ RETURNING id,
         conf.background_svg_path,
         conf.background_svg_file_upload_id,
         conf.overlay_svg_path,
-        conf.overlay_svg_file_upload_id
+        conf.overlay_svg_file_upload_id,
+        conf.render_certificate_grade,
+        conf.certificate_grade_y_pos,
+        conf.certificate_grade_x_pos,
+        conf.certificate_grade_font_size,
+        conf.certificate_grade_text_color,
+        conf.certificate_grade_text_anchor as CertificateTextAnchor
     )
     .fetch_one(conn)
     .await?;
@@ -600,8 +676,14 @@ SET certificate_owner_name_y_pos = $1,
   background_svg_path = $18,
   background_svg_file_upload_id = $19,
   overlay_svg_path = $20,
-  overlay_svg_file_upload_id = $21
-WHERE id = $22
+  overlay_svg_file_upload_id = $21,
+  render_certificate_grade = $22,
+  certificate_grade_y_pos = $23,
+  certificate_grade_x_pos = $24,
+  certificate_grade_font_size = $25,
+  certificate_grade_text_color = $26,
+  certificate_grade_text_anchor = $27
+WHERE id = $28
 "#,
         conf.certificate_owner_name_y_pos,
         conf.certificate_owner_name_x_pos,
@@ -624,6 +706,12 @@ WHERE id = $22
         conf.background_svg_file_upload_id,
         conf.overlay_svg_path,
         conf.overlay_svg_file_upload_id,
+        conf.render_certificate_grade,
+        conf.certificate_grade_y_pos,
+        conf.certificate_grade_x_pos,
+        conf.certificate_grade_font_size,
+        conf.certificate_grade_text_color,
+        conf.certificate_grade_text_anchor as CertificateTextAnchor,
         id
     )
     .execute(conn)

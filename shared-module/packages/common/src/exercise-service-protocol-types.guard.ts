@@ -5,14 +5,15 @@
  * Generated type guards for "exercise-service-protocol-types.ts".
  * WARNING: Do not manually change this file.
  */
-import { MessageFromIframe, CurrentStateMessage, HeightChangedMessage, OpenLinkMessage, FileUploadMessage, MessageToIframe, SetLanguageMessage, SetStateMessage, UploadResultMessage, UserInformation, UserVariablesMap, AnswerExerciseIframeState, ViewSubmissionIframeState, ExerciseEditorIframeState, CustomViewIframeState, ExerciseIframeState, ExtendedIframeState, IframeViewType, NonGenericGradingRequest, NonGenericGradingResult } from "./exercise-service-protocol-types";
+import { MessageFromIframe, CurrentStateMessage, HeightChangedMessage, OpenLinkMessage, FileUploadMessage, RequestRepositoryExercisesMessage, MessageToIframe, SetLanguageMessage, SetStateMessage, UploadResultMessage, RepositoryExercisesMessage, TestResultsMessage, UserInformation, UserVariablesMap, AnswerExerciseIframeState, ViewSubmissionIframeState, ExerciseEditorIframeState, CustomViewIframeState, ExerciseIframeState, ExtendedIframeState, IframeViewType, NonGenericGradingRequest, NonGenericGradingResult } from "./exercise-service-protocol-types";
 
 export function isMessageFromIframe(obj: unknown): obj is MessageFromIframe {
     const typedObj = obj as MessageFromIframe
     return (
         (isCurrentStateMessage(typedObj) as boolean ||
             isHeightChangedMessage(typedObj) as boolean ||
-            isFileUploadMessage(typedObj) as boolean)
+            isFileUploadMessage(typedObj) as boolean ||
+            isRequestRepositoryExercisesMessage(typedObj) as boolean)
     )
 }
 
@@ -60,6 +61,16 @@ export function isFileUploadMessage(obj: unknown): obj is FileUploadMessage {
     )
 }
 
+export function isRequestRepositoryExercisesMessage(obj: unknown): obj is RequestRepositoryExercisesMessage {
+    const typedObj = obj as RequestRepositoryExercisesMessage
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typedObj["message"] === "request-repository-exercises"
+    )
+}
+
 export function isMessageToIframe(obj: unknown): obj is MessageToIframe {
     const typedObj = obj as MessageToIframe
     return (
@@ -101,7 +112,9 @@ export function isMessageToIframe(obj: unknown): obj is MessageToIframe {
                 typeof typedObj === "object" ||
                 typeof typedObj === "function") &&
             typedObj["success"] === false &&
-            typeof typedObj["error"] === "string")
+            typeof typedObj["error"] === "string" ||
+            isRepositoryExercisesMessage(typedObj) as boolean ||
+            isTestResultsMessage(typedObj) as boolean)
     )
 }
 
@@ -163,6 +176,42 @@ export function isUploadResultMessage(obj: unknown): obj is UploadResultMessage 
                 typeof typedObj === "function") &&
             typedObj["success"] === false &&
             typeof typedObj["error"] === "string")
+    )
+}
+
+export function isRepositoryExercisesMessage(obj: unknown): obj is RepositoryExercisesMessage {
+    const typedObj = obj as RepositoryExercisesMessage
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typedObj["message"] === "repository-exercises" &&
+        Array.isArray(typedObj["repository_exercises"]) &&
+        typedObj["repository_exercises"].every((e: any) =>
+            (e !== null &&
+                typeof e === "object" ||
+                typeof e === "function") &&
+            typeof e["id"] === "string" &&
+            typeof e["repository_id"] === "string" &&
+            typeof e["part"] === "string" &&
+            typeof e["name"] === "string" &&
+            typeof e["repository_url"] === "string" &&
+            Array.isArray(e["checksum"]) &&
+            e["checksum"].every((e: any) =>
+                typeof e === "number"
+            ) &&
+            typeof e["download_url"] === "string"
+        )
+    )
+}
+
+export function isTestResultsMessage(obj: unknown): obj is TestResultsMessage {
+    const typedObj = obj as TestResultsMessage
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typedObj["message"] === "test-results"
     )
 }
 

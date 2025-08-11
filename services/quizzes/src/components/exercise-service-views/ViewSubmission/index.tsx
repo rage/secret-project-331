@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { BullhornMegaphone } from "@vectopus/atlas-icons-react"
+import { BullhornMegaphone, InfoCircle } from "@vectopus/atlas-icons-react"
 import React, { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -50,6 +50,7 @@ import ScaleSubmissionViewComponent from "./impl-by-quiz-item-type/Scale"
 import Timeline from "./impl-by-quiz-item-type/Timeline"
 import Unsupported from "./impl-by-quiz-item-type/Unsupported"
 
+import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import { UserInformation } from "@/shared-module/common/exercise-service-protocol-types"
 import { baseTheme } from "@/shared-module/common/styles"
 
@@ -123,14 +124,18 @@ const FlexItem = styled.div`
 const SubmissionFeedback: React.FC<{
   itemFeedback: ItemAnswerFeedback
   itemModelSolution: ModelSolutionQuizItem | null
-}> = ({ itemFeedback, itemModelSolution }) => {
+  questionType: QuizItemType
+}> = ({ itemFeedback, itemModelSolution, questionType }) => {
   const { t } = useTranslation()
 
   let backgroundColor = "#fffaf1"
   let textColor = "#C25100"
 
   const userScore = itemFeedback.correctnessCoefficient ?? itemFeedback.score
-  if (userScore == 1) {
+  if (questionType === "closed-ended-question") {
+    backgroundColor = "#F2F2F2"
+    textColor = "#57606F"
+  } else if (userScore == 1) {
     backgroundColor = "#D5EADF"
     textColor = "#246F46"
   } else if (userScore == 0) {
@@ -173,7 +178,7 @@ const SubmissionFeedback: React.FC<{
       className={css`
         background: ${backgroundColor};
         box-sizing: border-box;
-        border-radius: 0.25rem;
+        border-radius: ${questionType === "closed-ended-question" ? "0.5rem" : "0.25rem"};
         color: ${textColor};
         margin: 1.5rem 0rem 1.5rem 0rem;
         margin-bottom: 0;
@@ -192,7 +197,11 @@ const SubmissionFeedback: React.FC<{
           min-width: 1rem;
         `}
       >
-        <BullhornMegaphone size={20} weight="bold" color="7A3F75" />{" "}
+        {questionType === "closed-ended-question" ? (
+          <InfoCircle size={20} weight="bold" color="7A3F75" />
+        ) : (
+          <BullhornMegaphone size={20} weight="bold" color="7A3F75" />
+        )}
       </span>
 
       <span>
@@ -222,8 +231,21 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
     }
   })
 
+  const hasTypeChanged = React.useMemo(() => {
+    return user_answer.itemAnswers.some((userItem) => {
+      const matchingPublicItem = publicAlternatives.items.find(
+        (publicItem) => publicItem.id === userItem.quizItemId,
+      )
+
+      return !matchingPublicItem || userItem.type !== matchingPublicItem.type
+    })
+  }, [user_answer?.itemAnswers, publicAlternatives?.items])
+
   return (
     <FlexWrapper wideScreenDirection={direction}>
+      {hasTypeChanged && (
+        <GenericInfobox>{t("message-the-exercise-type-has-changed")}</GenericInfobox>
+      )}
       {publicAlternatives.items
         .sort((i1, i2) => i1.order - i2.order)
         .map((item) => {
@@ -247,6 +269,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
               <SubmissionFeedback
                 itemFeedback={itemAnswerFeedback}
                 itemModelSolution={itemModelSolution}
+                questionType={item.type as QuizItemType}
               />
             )
           const missingQuizItemAnswer = !quizItemAnswer && (

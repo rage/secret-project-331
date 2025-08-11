@@ -6,8 +6,8 @@ use crate::{
     prelude::*,
 };
 use headless_lms_utils::{
-    file_store::FileStore, numbers::option_f32_to_f32_two_decimals_with_none_as_zero,
-    ApplicationConfiguration,
+    ApplicationConfiguration, file_store::FileStore,
+    numbers::option_f32_to_f32_two_decimals_with_none_as_zero,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -627,6 +627,7 @@ mod tests {
                     join_code: None,
                     ask_marketing_consent: false,
                     flagged_answers_threshold: Some(3),
+                    can_add_chatbot: false,
                 },
                 user,
                 |_, _, _| unimplemented!(),

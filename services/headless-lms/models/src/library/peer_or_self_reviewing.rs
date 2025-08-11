@@ -652,7 +652,8 @@ async fn get_course_material_peer_or_self_review_data(
                 conn,
                 exercise_slide_submission_id,
                 reviewer_user_id,
-                 fetch_service_info
+                 fetch_service_info,
+                 false
             ).await?;
             Some(CourseMaterialPeerOrSelfReviewDataAnswerToReview {
                 exercise_slide_submission_id,

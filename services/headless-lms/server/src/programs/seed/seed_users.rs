@@ -1,4 +1,4 @@
-use headless_lms_models::{users, PKeyPolicy};
+use headless_lms_models::{PKeyPolicy, user_details, users};
 use sqlx::{Pool, Postgres};
 use uuid::Uuid;
 
@@ -12,6 +12,7 @@ pub struct SeedUsersResult {
     pub example_normal_user_ids: [Uuid; 4],
     pub teaching_and_learning_services_user_id: Uuid,
     pub student_without_research_consent: Uuid,
+    pub student_without_country: Uuid,
     pub material_viewer_user_id: Uuid,
     pub user_user_id: Uuid,
     pub student_1_user_id: Uuid,
@@ -21,6 +22,7 @@ pub struct SeedUsersResult {
     pub student_5_user_id: Uuid,
     pub student_6_user_id: Uuid,
     pub langs_user_id: Uuid,
+    pub sign_up_user: Uuid,
 }
 
 pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResult> {
@@ -35,6 +37,7 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
         Some("Example"),
     )
     .await?;
+    user_details::update_user_country(&mut conn, admin_user_id, "fi").await?;
     let teacher_user_id = users::insert(
         &mut conn,
         PKeyPolicy::Fixed(Uuid::parse_str("90643204-7656-4570-bdd9-aad5d297f9ce")?),
@@ -43,6 +46,8 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
         Some("Example"),
     )
     .await?;
+    user_details::update_user_country(&mut conn, teacher_user_id, "fi").await?;
+
     let language_teacher_user_id = users::insert(
         &mut conn,
         PKeyPolicy::Fixed(Uuid::parse_str("0fd8bd2d-cb4e-4035-b7db-89e798fe4df0")?),
@@ -51,6 +56,8 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
         Some("Example"),
     )
     .await?;
+    user_details::update_user_country(&mut conn, language_teacher_user_id, "fi").await?;
+
     let material_viewer_user_id = users::insert(
         &mut conn,
         PKeyPolicy::Fixed(Uuid::parse_str("ee0753ae-9f4b-465a-b04b-66edf91b41a5")?),
@@ -59,6 +66,8 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
         Some("Viewer"),
     )
     .await?;
+    user_details::update_user_country(&mut conn, material_viewer_user_id, "fi").await?;
+
     let assistant_user_id = users::insert(
         &mut conn,
         PKeyPolicy::Fixed(Uuid::parse_str("24342539-f1ba-453e-ae13-14aa418db921")?),
@@ -67,6 +76,8 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
         Some("Example"),
     )
     .await?;
+    user_details::update_user_country(&mut conn, assistant_user_id, "fi").await?;
+
     let course_or_exam_creator_user_id = users::insert(
         &mut conn,
         PKeyPolicy::Fixed(Uuid::parse_str("c9f9f9f9-f9f9-f9f9-f9f9-f9f9f9f9f9f9")?),
@@ -75,6 +86,8 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
         Some("Example"),
     )
     .await?;
+    user_details::update_user_country(&mut conn, course_or_exam_creator_user_id, "fi").await?;
+
     let user_user_id = users::insert(
         &mut conn,
         PKeyPolicy::Fixed(Uuid::parse_str("849b8d32-d5f8-4994-9d21-5aa6259585b1")?),
@@ -83,6 +96,7 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
         Some("Example"),
     )
     .await?;
+    user_details::update_user_country(&mut conn, user_user_id, "fi").await?;
 
     let student_1_user_id = users::insert(
         &mut conn,
@@ -92,6 +106,7 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
         Some("1"),
     )
     .await?;
+    user_details::update_user_country(&mut conn, student_1_user_id, "fi").await?;
 
     let student_2_user_id = users::insert(
         &mut conn,
@@ -101,6 +116,7 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
         Some("2"),
     )
     .await?;
+    user_details::update_user_country(&mut conn, student_2_user_id, "fi").await?;
 
     let student_3_user_id = users::insert(
         &mut conn,
@@ -110,6 +126,7 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
         Some("3"),
     )
     .await?;
+    user_details::update_user_country(&mut conn, student_3_user_id, "fi").await?;
 
     let student_4_user_id = users::insert(
         &mut conn,
@@ -119,6 +136,7 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
         Some("4"),
     )
     .await?;
+    user_details::update_user_country(&mut conn, student_4_user_id, "fi").await?;
 
     let student_5_user_id = users::insert(
         &mut conn,
@@ -128,6 +146,7 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
         Some("5"),
     )
     .await?;
+    user_details::update_user_country(&mut conn, student_5_user_id, "fi").await?;
 
     let student_6_user_id = users::insert(
         &mut conn,
@@ -137,6 +156,7 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
         Some("6"),
     )
     .await?;
+    user_details::update_user_country(&mut conn, student_6_user_id, "fi").await?;
 
     let teaching_and_learning_services_user_id = users::insert(
         &mut conn,
@@ -146,15 +166,18 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
         Some("And Learning"),
     )
     .await?;
+    user_details::update_user_country(&mut conn, teaching_and_learning_services_user_id, "fi")
+        .await?;
 
     let langs_user_id = users::insert(
         &mut conn,
         PKeyPolicy::Fixed(Uuid::parse_str("c60ca874-bab9-452a-895f-02597cf60886")?),
         "langs@example.com",
         Some("langs"),
-        None,
+        Some("Langs"),
     )
     .await?;
+    user_details::update_user_country(&mut conn, langs_user_id, "fi").await?;
 
     let student_without_research_consent = users::insert(
         &mut conn,
@@ -164,6 +187,25 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
         Some("User4"),
     )
     .await?;
+    user_details::update_user_country(&mut conn, student_without_research_consent, "fi").await?;
+
+    let student_without_country = users::insert(
+        &mut conn,
+        PKeyPolicy::Fixed(Uuid::parse_str("88036435-9779-4b81-8d85-66767f529639")?),
+        "student-without-country@example.com",
+        Some("User"),
+        Some("User"),
+    )
+    .await?;
+
+    let sign_up_user = users::insert(
+        &mut conn,
+        PKeyPolicy::Fixed(Uuid::parse_str("fb3e9b9d-8870-47a5-b4a3-7087ff8e8355")?),
+        "sign-up-user@example.com",
+        Some("NewUser"),
+        Some("Signup"),
+    )
+    .await?;
 
     let example_normal_user_ids: [Uuid; 4] = [
         users::insert(
@@ -171,7 +213,7 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
             PKeyPolicy::Fixed(Uuid::parse_str("00e249d8-345f-4eff-aedb-7bdc4c44c1d5")?),
             "user_1@example.com",
             Some("User1"),
-            None,
+            Some("User1"),
         )
         .await?,
         users::insert(
@@ -179,7 +221,7 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
             PKeyPolicy::Fixed(Uuid::parse_str("8d7d6c8c-4c31-48ae-8e20-c68fa95c25cc")?),
             "user_2@example.com",
             Some("User2"),
-            None,
+            Some("User2"),
         )
         .await?,
         users::insert(
@@ -187,7 +229,7 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
             PKeyPolicy::Fixed(Uuid::parse_str("fbeb9286-3dd8-4896-a6b8-3faffa3fabd6")?),
             "user_3@example.com",
             Some("User3"),
-            None,
+            Some("User3"),
         )
         .await?,
         users::insert(
@@ -195,10 +237,14 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
             PKeyPolicy::Fixed(Uuid::parse_str("3524d694-7fa8-4e73-aa1a-de9a20fd514b")?),
             "user_4@example.com",
             Some("User4"),
-            None,
+            Some("User4"),
         )
         .await?,
     ];
+    for user_id in example_normal_user_ids {
+        user_details::update_user_country(&mut conn, user_id, "fi").await?;
+    }
+
     Ok(SeedUsersResult {
         admin_user_id,
         teacher_user_id,
@@ -208,6 +254,8 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
         example_normal_user_ids,
         teaching_and_learning_services_user_id,
         student_without_research_consent,
+        student_without_country,
+        sign_up_user,
         material_viewer_user_id,
         user_user_id,
         student_1_user_id,

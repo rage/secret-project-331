@@ -1,3 +1,4 @@
+import { OverlayProvider } from "@react-aria/overlays"
 import { QueryClientProvider } from "@tanstack/react-query"
 import type { AppProps } from "next/app"
 import Script from "next/script"
@@ -6,6 +7,7 @@ import React, { useEffect, useState } from "react"
 import Layout from "../components/Layout"
 import LocalStyles from "../styles/LocalStyles"
 
+import DialogProvider from "@/shared-module/common/components/dialogs/DialogProvider"
 import { LoginStateContextProvider } from "@/shared-module/common/contexts/LoginStateContext"
 import useLanguage, { getDir } from "@/shared-module/common/hooks/useLanguage"
 import { queryClient } from "@/shared-module/common/services/appQueryClient"
@@ -79,16 +81,20 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
       </Script>
 
       <QueryClientProvider client={queryClient}>
-        <GlobalStyles />
-        <LocalStyles />
-        <LoginStateContextProvider>
-          <Layout
-            /* @ts-expect-error: hideBreadcrumbs is an addtional property on Component */
-            hideBreadcrumbs={Component.hideBreadcrumbs}
-          >
-            <Component {...pageProps} />
-          </Layout>
-        </LoginStateContextProvider>
+        <OverlayProvider>
+          <DialogProvider>
+            <GlobalStyles />
+            <LocalStyles />
+            <LoginStateContextProvider>
+              <Layout
+                /* @ts-expect-error: hideBreadcrumbs is an addtional property on Component */
+                hideBreadcrumbs={Component.hideBreadcrumbs}
+              >
+                <Component {...pageProps} />
+              </Layout>
+            </LoginStateContextProvider>
+          </DialogProvider>
+        </OverlayProvider>
       </QueryClientProvider>
     </>
   )

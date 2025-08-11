@@ -79,6 +79,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
       if (!currentConversationInfo.data?.current_conversation) {
         throw new Error("No active conversation")
       }
+      setChatbotMessageAnnouncement(t("chatbot-is-responding"))
       const message = newMessage.trim()
       dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: message })
       setNewMessage("")
@@ -119,7 +120,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
         await currentConversationInfo.refetch()
         dispatch({ type: "RESET_MESSAGES" })
         setError(null)
-        setChatbotMessageAnnouncement(t("new-message-chatbot"))
+        setChatbotMessageAnnouncement(t("chatbot-finished-responding"))
       },
       onError: async (error) => {
         if (error instanceof Error) {
@@ -321,10 +322,10 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
             isPending={!message.message_is_complete && newMessageMutation.isPending}
           />
         ))}
-        <VisuallyHidden aria-live="polite" role="status">
-          {chatbotMessageAnnouncement}
-        </VisuallyHidden>
       </div>
+      <VisuallyHidden aria-live="polite" role="status">
+        {chatbotMessageAnnouncement}
+      </VisuallyHidden>
       {error && <ErrorDisplay error={error} />}
       <div
         className={css`

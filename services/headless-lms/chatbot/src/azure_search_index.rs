@@ -427,6 +427,24 @@ pub async fn create_search_index(
             vector_search_profile: Some(format!("{}-azureOpenAi-text-profile", index_name)),
             vector_encoding: None,
         },
+        Field {
+            name: "filepath".to_string(),
+            field_type: "Edm.String".to_string(),
+            key: Some(false),
+            searchable: Some(false),
+            filterable: Some(false),
+            retrievable: Some(true),
+            stored: Some(true),
+            sortable: Some(false),
+            facetable: Some(false),
+            analyzer: None,
+            index_analyzer: None,
+            search_analyzer: None,
+            synonym_maps: Some(vec![]),
+            dimensions: None,
+            vector_search_profile: None,
+            vector_encoding: None,
+        },
     ];
 
     let index = NewIndex {

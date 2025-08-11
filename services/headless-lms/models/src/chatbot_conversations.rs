@@ -1,6 +1,9 @@
 use futures::future::OptionFuture;
 
-use crate::{chatbot_conversation_messages::ChatbotConversationMessage, prelude::*};
+use crate::{
+    chatbot_conversation_messages::ChatbotConversationMessage,
+    chatbot_conversation_messages_citations::ChatbotConversationMessageCitation, prelude::*,
+};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -20,6 +23,7 @@ pub struct ChatbotConversation {
 pub struct ChatbotConversationInfo {
     pub current_conversation: Option<ChatbotConversation>,
     pub current_conversation_messages: Option<Vec<ChatbotConversationMessage>>,
+    pub current_conversation_message_citations: Option<Vec<ChatbotConversationMessageCitation>>,
     pub chatbot_name: String,
     pub hide_citations: bool,
 }
@@ -88,9 +92,17 @@ pub async fn get_current_conversation_info(
     .await
     .transpose()?;
 
+    let current_conversation_message_citations =
+        OptionFuture::from(current_conversation.clone().map(|c| {
+            crate::chatbot_conversation_messages_citations::get_by_conversation_id(tx, c.id)
+        }))
+        .await
+        .transpose()?;
+
     Ok(ChatbotConversationInfo {
         current_conversation,
         current_conversation_messages,
+        current_conversation_message_citations,
         // Don't want to expose everything from the chatbot configuration to the user because it contains private information like the prompt.
         chatbot_name: chatbot_configuration.chatbot_name,
         hide_citations: chatbot_configuration.hide_citations,

@@ -27,6 +27,8 @@
   "button-text-reset-exam-progress": "إعادة تعيين تقدم الامتحان",
   "can-comment-on-portions-of-material-by-highlightig": "يمكنك التعليق على أجزاء محددة من المادة بتحديدها.",
   "cannot-render-exercise-task-missing-url": "لا يمكن عرض مهمة التمرين، عنوان URL مفقود.",
+  "chapter": "الفصل",
+  "chapter-chapter-number": "الفصل {{number}}",
   "chapter-chapter-number-chapter-name": "الفصل {{chapterNumber}}: {{chapterName}}",
   "chapter-progress": "تقدم الفصل",
   "chatbot-discalimer-sensitive-information": "لا تكشف أبدًا عن أي معلومات حساسة للروبوت الدردشة.",

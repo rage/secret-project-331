@@ -32,6 +32,7 @@
     "katex.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "@/shared-module/packages/common/src/components/layout/PageMarginOffset.tsx"
+    "@/shared-module/packages/common/src/components/layout/PageMarginOffset.tsx",
+    "../../shared-module/packages/common/src/components/SpeechBalloonPopover.tsx"
   ]
 }

@@ -97,7 +97,10 @@ RETURNING id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  closed_additional_message,
+  closed_course_successor_id
         "#,
         new_course.name,
         new_course.organization_id,

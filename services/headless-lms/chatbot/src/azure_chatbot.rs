@@ -549,15 +549,3 @@ pub async fn send_chat_request_and_parse_stream(
     // Box and pin the GuardedStream to satisfy the Unpin requirement
     Ok(Box::pin(guarded_stream))
 }
-
-pub fn parse_capitalize(s: String) -> String {
-    // "example-text" -> "Example Text"
-    s.split("-")
-        .map(|s| {
-            let mut s2: Vec<char> = s.chars().collect();
-            s2[0] = s2[0].to_uppercase().next().unwrap();
-            s2.into_iter().collect()
-        })
-        .collect::<Vec<String>>()
-        .join(" ")
-}

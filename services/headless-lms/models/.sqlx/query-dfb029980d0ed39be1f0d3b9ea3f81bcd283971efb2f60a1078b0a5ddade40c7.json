@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT id, client_id, client_secret, redirect_uris, grant_types, scope\n               FROM oauth_clients WHERE client_id = $1",
+  "query": "SELECT id, client_id, client_secret, redirect_uris, grant_types, scope, origin\n               FROM oauth_clients WHERE client_id = $1",
   "describe": {
     "columns": [
       {
@@ -32,12 +32,17 @@
         "ordinal": 5,
         "name": "scope",
         "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "origin",
+        "type_info": "Text"
       }
     ],
     "parameters": {
       "Left": ["Text"]
     },
-    "nullable": [false, false, false, false, false, true]
+    "nullable": [false, false, false, false, false, true, false]
   },
-  "hash": "3dea7a3f8d649dbe771497ff04770c8bc8b67f2b2ed7d0395a5a0d6f3caa1562"
+  "hash": "dfb029980d0ed39be1f0d3b9ea3f81bcd283971efb2f60a1078b0a5ddade40c7"
 }

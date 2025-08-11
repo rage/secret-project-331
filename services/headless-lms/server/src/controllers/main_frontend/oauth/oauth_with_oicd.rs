@@ -1,203 +1,121 @@
 //! Controllers for requests starting with '/api/v0/main-frontend/oauth'.
+use super::types::*;
 use crate::prelude::*;
-use actix_web::{web, Error, HttpResponse};
+use actix_web::{Error, HttpResponse, web};
 use chrono::{DateTime, Duration, Utc};
-use jsonwebtoken::{encode, EncodingKey, Header};
+use domain::error::{OAuthErrorCode, OAuthErrorData};
+use headless_lms_utils::prelude::*;
+use jsonwebtoken::{EncodingKey, Header, encode};
 use models::{
     oauth_access_token::OAuthAccessToken, oauth_auth_code::OAuthAuthCode,
     oauth_client::OAuthClient, oauth_refresh_tokens::OAuthRefreshTokens,
     oauth_user_client_scopes::OAuthUserClientScopes, users,
 };
 use rand::Rng;
-use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sqlx::PgPool;
-use std::collections::HashMap;
 use std::env;
-use url::form_urlencoded;
 use uuid::Uuid;
 
-// TODO: Refactor this file to be a little cleaner, extract functions and make the flow easier to
-// read
-// TODO: Perhaps make a custom error for OAuthError for clarity, this can of course under the hood
-// return the same actix http errors than it does now.
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-struct AuthorizeQuery {
-    client_id: String,
-    redirect_uri: String,
-    scope: String,
-    state: String,
-    nonce: String,
-
-    // OAuth2.0 spec requires that auth does not fail when there are unknown parameters present,
-    // see RFC 6749 3.1
-    #[serde(flatten)]
-    pub _extra: HashMap<String, String>,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct TokenQuery {
-    pub client_id: String,
-    pub client_secret: String,
-    #[serde(flatten)]
-    pub grant: GrantType,
-
-    // OAuth2.0 spec requires that token does not fail when there are unknown parameters present,
-    // see RFC 6749 3.2
-    #[serde(flatten)]
-    pub _extra: HashMap<String, String>,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-#[serde(tag = "grant_type")]
-pub enum GrantType {
-    #[serde(rename = "authorization_code")]
-    AuthorizationCode { code: String, redirect_uri: String },
-    #[serde(rename = "refresh_token")]
-    RefreshToken { refresh_token: String },
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-struct TokenResponse {
-    access_token: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    id_token: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    refresh_token: Option<String>,
-    token_type: String,
-    expires_in: u32,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-struct UserInfoResponse {
-    sub: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-struct Claims {
-    sub: String,
-    aud: String,
-    iss: String,
-    iat: usize,
-    exp: usize,
-    nonce: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct ConsentQuery {
-    pub client_id: String,
-    pub redirect_uri: String,
-    pub scopes: String,
-    pub state: String,
-    pub nonce: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct ConsentDenyQuery {
-    pub redirect_uri: String,
-    pub state: String,
-}
-
-// TODO: Check client origin in every relevant endpoint. Extract  as a function.
-
-#[instrument(skip(pool))]
+#[instrument(skip(pool, query))] // TODO dont skip query
 async fn authorize(
     pool: web::Data<PgPool>,
-    query: web::Query<AuthorizeQuery>,
+    query: SafeExtractor<AuthorizeQuery>,
     user: Option<AuthUser>,
 ) -> ControllerResult<HttpResponse> {
+    query.0.validate()?;
+
     let mut conn = pool.acquire().await?;
     let server_token = skip_authorize();
 
-    let client = OAuthClient::find_by_client_id(&mut conn, &query.client_id).await?;
-    if !client.redirect_uris.contains(&query.redirect_uri) {
-        return Err(ControllerError::from(actix_web::error::ErrorBadRequest(
-            "redirect_uri missing",
-        )));
+    let client_id = query.0.client_id.as_deref().unwrap_or_default();
+    let redirect_uri = query.0.redirect_uri.as_deref().unwrap_or_default();
+    let scope = query.0.scope.as_deref().unwrap_or_default();
+    let state = query.0.state.as_deref().unwrap_or_default();
+    let nonce = query.0.nonce.as_deref().unwrap_or_default();
+
+    let client = OAuthClient::find_by_client_id(&mut conn, client_id)
+        .await
+        .map_err(|_| {
+            ControllerError::new(
+                ControllerErrorType::OAuthError(OAuthErrorData {
+                    error: OAuthErrorCode::InvalidRequest.as_str().into(),
+                    error_description: "invalid client_id".into(),
+                    redirect_uri: Some(redirect_uri.to_string()),
+                    state: Some(state.to_string()),
+                }),
+                "Invalid client_id",
+                None::<anyhow::Error>,
+            )
+        })?;
+
+    if !client.redirect_uris.contains(&redirect_uri.to_string()) {
+        return Err(ControllerError::new(
+            ControllerErrorType::OAuthError(OAuthErrorData {
+                error: OAuthErrorCode::InvalidRequest.as_str().into(),
+                error_description: "redirect_uri does not match client".into(),
+                redirect_uri: Some(redirect_uri.to_string()),
+                state: Some(state.to_string()),
+            }),
+            "Redirect URI mismatch",
+            None::<anyhow::Error>,
+        ));
     }
 
-    let requested_scopes: Vec<&str> = query.scope.split_whitespace().collect();
-    if requested_scopes.is_empty() {
-        return Err(ControllerError::from(actix_web::error::ErrorBadRequest(
-            "scope missing",
-        )));
-    }
-
-    let is_oidc = requested_scopes.contains(&"openid");
-    if is_oidc && query.nonce.is_empty() {
-        return Err(ControllerError::from(actix_web::error::ErrorBadRequest(
-            "nonce missing",
-        )));
-    }
-
-    let mut redirect_url: String;
-
-    match user {
+    let requested_scopes: Vec<&str> = scope.split_whitespace().collect();
+    let redirect_url = match user {
         Some(user) => {
             let granted_scopes =
                 OAuthUserClientScopes::find_scopes(&mut conn, user.id, client.id).await?;
-
             let missing_scopes: Vec<&str> = requested_scopes
                 .iter()
-                .filter(|scope| !granted_scopes.contains(&scope.to_string()))
+                .filter(|s| !granted_scopes.contains(&s.to_string()))
                 .copied()
                 .collect();
 
             if !missing_scopes.is_empty() {
                 let return_to = format!(
                     "/api/v0/main-frontend/oauth/authorize?client_id={}&scope={}&redirect_uri={}&state={}&nonce={}",
-                    &query.client_id, &query.scope, &query.redirect_uri, &query.state, &query.nonce
+                    client_id, scope, redirect_uri, state, nonce
                 );
-                let encoded_return_to: String =
-                    form_urlencoded::byte_serialize(return_to.as_bytes()).collect();
-                redirect_url = format!(
+                let encoded_return_to =
+                    url::form_urlencoded::byte_serialize(return_to.as_bytes()).collect::<String>();
+                format!(
                     "/oauth_authorize_scopes?client_id={}&redirect_uri={}&scope={}&state={}&nonce={}&return_to={}",
-                    &query.client_id,
-                    &query.redirect_uri,
-                    &query.scope,
-                    &query.state,
-                    &query.nonce,
-                    encoded_return_to
-                );
+                    client_id, redirect_uri, scope, state, nonce, encoded_return_to
+                )
+            } else {
+                let code = generate_access_token()?;
+                let expires_at = Utc::now() + Duration::minutes(10);
+                OAuthAuthCode::insert(
+                    &mut conn,
+                    &code,
+                    user.id,
+                    client.id,
+                    redirect_uri,
+                    scope,
+                    nonce,
+                    expires_at,
+                )
+                .await?;
 
-                return server_token.authorized_ok(
-                    HttpResponse::Found()
-                        .append_header(("Location", redirect_url))
-                        .finish(),
-                );
-            }
-
-            let code = generate_access_token()?;
-            let expires_at = Utc::now() + Duration::minutes(10);
-
-            OAuthAuthCode::insert(
-                &mut conn,
-                &code,
-                user.id,
-                client.id,
-                &query.redirect_uri,
-                &query.scope,
-                &query.nonce,
-                expires_at,
-            )
-            .await?;
-
-            redirect_url = format!("{}?code={}", query.redirect_uri, code);
-            if !query.state.is_empty() {
-                redirect_url.push_str(&format!("&state={}", query.state));
+                let mut redirect = format!("{}?code={}", redirect_uri, code);
+                if !state.is_empty() {
+                    redirect.push_str(&format!("&state={}", state));
+                }
+                redirect
             }
         }
         None => {
             let return_to = format!(
                 "/api/v0/main-frontend/oauth/authorize?client_id={}&scope={}&redirect_uri={}&state={}&nonce={}",
-                &query.client_id, &query.scope, &query.redirect_uri, &query.state, &query.nonce
+                client_id, scope, redirect_uri, state, nonce
             );
-            let encoded_return_to: String =
-                form_urlencoded::byte_serialize(return_to.as_bytes()).collect();
-            redirect_url = format!("/login?return_to={}", encoded_return_to);
+            let encoded_return_to =
+                url::form_urlencoded::byte_serialize(return_to.as_bytes()).collect::<String>();
+            format!("/login?return_to={}", encoded_return_to)
         }
-    }
+    };
 
     server_token.authorized_ok(
         HttpResponse::Found()
@@ -269,35 +187,70 @@ async fn deny_consent(query: web::Query<ConsentDenyQuery>) -> Result<HttpRespons
         .finish())
 }
 
-#[instrument(skip(pool))]
+#[instrument(skip(pool, form))] // TODO: dont skip form
 async fn token(
     pool: web::Data<PgPool>,
-    form: web::Form<TokenQuery>,
+    form: SafeExtractor<TokenQuery>,
 ) -> ControllerResult<HttpResponse> {
-    let access_token_expire_time = Duration::hours(1);
-    let refresh_token_expire_time = Duration::days(30);
+    form.0.validate()?;
+
     let mut conn = pool.acquire().await?;
     let server_token = skip_authorize();
 
-    let client = OAuthClient::find_by_client_id(&mut conn, &form.client_id).await?;
-    if client.client_secret != form.client_secret {
-        return Err(ControllerError::from(actix_web::error::ErrorBadRequest(
-            "invalid client secret",
-        )));
+    let access_token_expire_time = Duration::hours(1);
+    let refresh_token_expire_time = Duration::days(30);
+
+    let client_id = form.0.client_id.as_deref().unwrap_or_default();
+    let client_secret = form.0.client_secret.as_deref().unwrap_or_default();
+
+    let client = OAuthClient::find_by_client_id(&mut conn, client_id)
+        .await
+        .map_err(|_| {
+            ControllerError::new(
+                ControllerErrorType::OAuthError(OAuthErrorData {
+                    error: OAuthErrorCode::InvalidClient.as_str().into(),
+                    error_description: "invalid client_id".into(),
+                    redirect_uri: None,
+                    state: None,
+                }),
+                "Invalid client_id",
+                None::<anyhow::Error>,
+            )
+        })?;
+
+    if client.client_secret != client_secret {
+        return Err(ControllerError::new(
+            ControllerErrorType::OAuthError(OAuthErrorData {
+                error: OAuthErrorCode::InvalidClient.as_str().into(),
+                error_description: "invalid client secret".into(),
+                redirect_uri: None,
+                state: None,
+            }),
+            "Invalid client secret",
+            None::<anyhow::Error>,
+        ));
     }
 
-    let access_token = generate_access_token().map_err(map_internal_error)?;
-    let new_refresh_token = generate_access_token().map_err(map_internal_error)?;
+    let access_token = generate_access_token()?;
+    let new_refresh_token = generate_access_token()?;
     let refresh_token_expires_at = Utc::now() + refresh_token_expire_time;
 
-    let (user_id, scope, nonce, expires_at, issue_id_token) = match &form.grant {
-        GrantType::AuthorizationCode { code, redirect_uri } => {
+    let (user_id, scope, nonce, expires_at, issue_id_token) = match &form.0.grant {
+        Some(GrantType::AuthorizationCode { code, redirect_uri }) => {
             let auth_code = OAuthAuthCode::consume(&mut conn, code).await?;
             if auth_code.client_id != client.id || &auth_code.redirect_uri != redirect_uri {
-                return Err(ControllerError::from(actix_web::error::ErrorBadRequest(
-                    "invalid grant",
-                )));
+                return Err(ControllerError::new(
+                    ControllerErrorType::OAuthError(OAuthErrorData {
+                        error: OAuthErrorCode::InvalidRequest.as_str().into(),
+                        error_description: "invalid authorization code or redirect_uri".into(),
+                        redirect_uri: None,
+                        state: None,
+                    }),
+                    "Invalid authorization code",
+                    None::<anyhow::Error>,
+                ));
             }
+
             let expires_at = Utc::now() + access_token_expire_time;
             let scope = auth_code.scope.clone().unwrap_or_default();
 
@@ -310,8 +263,6 @@ async fn token(
                 expires_at,
             )
             .await?;
-            // TODO: Perhaps remove this? This will logout all other sessions and might not be what
-            // we want.
             OAuthRefreshTokens::revoke_all_by_user_client(
                 &mut conn,
                 auth_code.user_id,
@@ -336,15 +287,21 @@ async fn token(
                 true,
             )
         }
-        GrantType::RefreshToken { refresh_token } => {
+        Some(GrantType::RefreshToken { refresh_token }) => {
             let token = OAuthRefreshTokens::consume(&mut conn, refresh_token).await?;
             if token.client_id != client.id {
-                return Err(ControllerError::from(actix_web::error::ErrorBadRequest(
-                    "invalid grant",
-                )));
+                return Err(ControllerError::new(
+                    ControllerErrorType::OAuthError(OAuthErrorData {
+                        error: OAuthErrorCode::InvalidRequest.as_str().into(),
+                        error_description: "invalid refresh_token".into(),
+                        redirect_uri: None,
+                        state: None,
+                    }),
+                    "Invalid refresh token",
+                    None::<anyhow::Error>,
+                ));
             }
-            // TODO: Same as upper, perhaps remove so that we do not logout other sessions by the
-            // same user.
+
             OAuthRefreshTokens::revoke_all_by_user_client(
                 &mut conn,
                 token.user_id,
@@ -370,6 +327,7 @@ async fn token(
                 false,
             )
         }
+        None => unreachable!("validate() ensures grant is Some"),
     };
 
     let id_token = if issue_id_token && scope.split_whitespace().any(|s| s == "openid") {
@@ -392,15 +350,6 @@ async fn token(
     };
 
     server_token.authorized_ok(HttpResponse::Ok().json(response))
-}
-
-// TODO: Change this. Make custom OAuth errors and implement them to ControllerError so it can map them
-// automatically.
-fn map_internal_error<E: std::fmt::Debug>(e: E) -> ControllerError {
-    error!(?e);
-    ControllerError::from(actix_web::error::ErrorInternalServerError(
-        "Something went wrong.",
-    ))
 }
 // TODO: This is not a ready version, remember to actually make it. Returning user id makes no
 // sense, the client has that (and nothing else) already.
@@ -456,7 +405,7 @@ fn generate_id_token(
         aud: client_id.to_string(),
         iss: "mooc.fi".to_string(),
         iat: now,
-        exp: exp,
+        exp,
         nonce: nonce.to_string(),
     };
     encode(
@@ -481,16 +430,29 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
 // TODO: Think if this is secure enough, or if whe should use OsRang for cryptographically safer
 // rng tokens. Or we should import custom crate for this (rather not). Also, performance might be
 // issue when using charset.chars and not just working with bytes
-fn generate_access_token() -> Result<String, &'static str> {
-    let length = 64;
-    let charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".to_string();
 
-    let mut rng = rand::rng();
-    let token: String = (0..length)
+pub fn generate_access_token() -> UtilResult<String> {
+    const LENGTH: usize = 64;
+    const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    let mut rng = rand::rng(); // your crate-specific `rng()` function
+
+    let token: String = (0..LENGTH)
         .map(|_| {
-            let idx = rng.random_range(0..charset.len());
-            charset.chars().nth(idx).unwrap()
+            let idx = rng.random_range(0..CHARSET.len()); // assuming this exists in your rng
+            CHARSET
+                .get(idx)
+                .copied()
+                .ok_or_else(|| {
+                    UtilError::new(
+                        UtilErrorType::Other,
+                        "Failed to select a character during token generation",
+                        None,
+                    )
+                })
+                .map(|b| b as char)
         })
-        .collect();
+        .collect::<Result<String, UtilError>>()?;
+
     Ok(token)
 }

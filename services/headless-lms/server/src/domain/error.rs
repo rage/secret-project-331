@@ -2,8 +2,6 @@
 Contains error and result types for all the controllers.
 */
 
-use std::{error::Error, fmt::Write};
-
 use crate::domain::authorization::AuthorizedResponse;
 use actix_web::{
     HttpResponse, HttpResponseBuilder, error,
@@ -19,6 +17,7 @@ use serde::{Deserialize, Serialize};
 use tracing_error::SpanTrace;
 #[cfg(feature = "ts_rs")]
 use ts_rs::TS;
+use url::form_urlencoded;
 use uuid::Uuid;
 
 /**
@@ -55,6 +54,10 @@ pub enum ControllerErrorType {
     /// HTTP status code 403. Is logged in but is not allowed to access the resource.
     #[display("Forbidden")]
     Forbidden,
+
+    /// HTTP satus code 200. OAuthError is returned as a error message on OK response.
+    #[display("OAuthError")]
+    OAuthError(OAuthErrorData),
 }
 
 /**
@@ -240,42 +243,64 @@ pub struct ErrorResponse {
 impl error::ResponseError for ControllerError {
     fn error_response(&self) -> HttpResponse {
         if let ControllerErrorType::InternalServerError = &self.error_type {
+            use std::fmt::Write as _;
             let mut err_string = String::new();
-            let mut source = Some(&self as &dyn Error);
+            let mut source = Some(self as &dyn std::error::Error);
             while let Some(err) = source {
-                let res = write!(err_string, "{}\n    ", err);
-                if let Err(e) = res {
-                    error!(
-                        "Error occured while trying to construct error source string: {}",
-                        e
-                    );
-                }
+                let _ = write!(err_string, "{}\n    ", err);
                 source = err.source();
             }
             error!("Internal server error: {}", err_string);
         }
 
+        if let ControllerErrorType::OAuthError(data) = &self.error_type {
+            if let Some(uri) = &data.redirect_uri {
+                // /authorize style: redirect back with encoded query
+                let encoded = form_urlencoded::Serializer::new(String::new())
+                    .append_pair("error", &data.error)
+                    .append_pair("error_description", &data.error_description)
+                    .append_pair("state", data.state.as_deref().unwrap_or_default())
+                    .finish();
+
+                return HttpResponse::Found()
+                    .insert_header(("Location", format!("{uri}?{encoded}")))
+                    .finish();
+            } else {
+                // /token style: JSON error; invalid_client => 401 + WWW-Authenticate
+                let mut builder = if data.error == "invalid_client" {
+                    let mut b = HttpResponse::Unauthorized();
+                    b.insert_header(("WWW-Authenticate", "Basic realm=\"OAuth\""));
+                    b
+                } else {
+                    HttpResponse::BadRequest()
+                };
+
+                return builder.json(serde_json::json!({
+                    "error": data.error,
+                    "error_description": data.error_description,
+                }));
+            }
+        }
+
         let status = self.status_code();
-        let error_data = if let ControllerErrorType::BadRequestWithData(data) = &self.error_type {
-            Some(data.clone())
-        } else {
-            None
+
+        let error_data = match &self.error_type {
+            ControllerErrorType::BadRequestWithData(data) => Some(data.clone()),
+            _ => None,
         };
 
-        let source_message = if let Some(anyhow_err) = &self.source {
+        let source_message = self.source.as_ref().map(|anyhow_err| {
             if let Some(controller_err) = anyhow_err.downcast_ref::<ControllerError>() {
-                Some(controller_err.message.clone())
+                controller_err.message.clone()
             } else {
-                Some(anyhow_err.to_string())
+                anyhow_err.to_string()
             }
-        } else {
-            None
-        };
+        });
 
         let error_response = ErrorResponse {
             title: status
                 .canonical_reason()
-                .map(|o| o.to_string())
+                .map(str::to_string)
                 .unwrap_or_else(|| status.to_string()),
             message: self.message.clone(),
             source: source_message,
@@ -284,7 +309,11 @@ impl error::ResponseError for ControllerError {
 
         HttpResponseBuilder::new(status)
             .append_header(ContentType::json())
-            .body(serde_json::to_string(&error_response).unwrap_or_else(|_| r#"{"title": "Internal server error", "message": "Error occured while formatting error message."}"#.to_string()))
+            .body(
+                serde_json::to_string(&error_response).unwrap_or_else(|_| {
+                    r#"{"title":"Internal Server Error","message":"Error occurred while formatting error message."}"#.to_string()
+                }),
+            )
     }
 
     fn status_code(&self) -> StatusCode {
@@ -295,6 +324,32 @@ impl error::ResponseError for ControllerError {
             ControllerErrorType::NotFound => StatusCode::NOT_FOUND,
             ControllerErrorType::Unauthorized => StatusCode::UNAUTHORIZED,
             ControllerErrorType::Forbidden => StatusCode::FORBIDDEN,
+            ControllerErrorType::OAuthError(_) => StatusCode::OK,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "snake_case")]
+pub struct OAuthErrorData {
+    pub error: String,
+    pub error_description: String,
+    pub redirect_uri: Option<String>,
+    pub state: Option<String>,
+}
+
+pub enum OAuthErrorCode {
+    InvalidRequest,
+    InvalidClient,
+    UnsupportedGrantType,
+}
+
+impl OAuthErrorCode {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::InvalidRequest => "invalid_request",
+            Self::InvalidClient => "invalid_client",
+            Self::UnsupportedGrantType => "unsupported_grant_type",
         }
     }
 }

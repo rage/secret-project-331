@@ -5,6 +5,7 @@ CREATE TABLE oauth_clients (
     redirect_uris TEXT[] NOT NULL,
     grant_types TEXT[] NOT NULL,
     scope TEXT,
+    origin TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     deleted_at TIMESTAMP WITH TIME ZONE
@@ -26,6 +27,8 @@ COMMENT ON COLUMN oauth_clients.grant_types IS
   'List of allowed grant types for the client. Scopes are defined by the server and the OAuth spec does not define any.';
 COMMENT ON COLUMN oauth_clients.scope IS
   'Default scope or scopes the client may request if none provided at runtime';
+COMMENT ON COLUMN oauth_clients.origin IS
+  'Only allowed origin for request coming from this client';
 COMMENT ON COLUMN oauth_clients.created_at IS
   'Timestamp when this client record was created';
 

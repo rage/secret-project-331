@@ -9,6 +9,7 @@ pub struct OAuthClient {
     pub redirect_uris: Vec<String>,
     pub grant_types: Vec<String>,
     pub scope: Option<String>,
+    pub origin: String,
 }
 
 impl OAuthClient {
@@ -19,7 +20,7 @@ impl OAuthClient {
         let mut tx = conn.begin().await?;
         let client = sqlx::query_as!(
             OAuthClient,
-            r#"SELECT id, client_id, client_secret, redirect_uris, grant_types, scope
+            r#"SELECT id, client_id, client_secret, redirect_uris, grant_types, scope, origin
                FROM oauth_clients WHERE client_id = $1"#,
             client_id
         )
@@ -36,6 +37,7 @@ impl OAuthClient {
         redirect_uris: Vec<String>,
         grant_types: Vec<String>,
         scope: &str,
+        origin: &str,
     ) -> ModelResult<Uuid> {
         let mut tx = conn.begin().await?;
         let res = sqlx::query!(
@@ -45,16 +47,18 @@ impl OAuthClient {
                 client_secret,
                 redirect_uris,
                 grant_types,
-                scope
+                scope,
+                origin
             )
-            VALUES ($1, $2, $3, $4, $5)
+            VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING id
             ",
             client_id,
             client_secret,
             &redirect_uris,
             &grant_types,
-            scope
+            scope,
+            origin
         )
         .fetch_one(&mut *tx)
         .await?;

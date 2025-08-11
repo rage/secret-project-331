@@ -173,6 +173,21 @@ jobs:
           name: service-logs
           path: ./logs/*
 
+      - name: Print pods information
+        if: ${{ failure() && steps.deploy_local.conclusion == 'success' }}
+        run: |
+          echo "> kubectl get pods"
+          kubectl get pods
+          echo
+          echo "----------------------------------------------------------"
+          for POD in $(kubectl get pods -o custom-columns=NAME:.metadata.name --no-headers=true)
+          do
+              echo
+              echo "----------------------------------------------------------"
+              echo "> kubectl describe pod $POD"
+              kubectl describe pod "$POD"
+          done
+
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: ${{ failure() && steps.deploy_local.conclusion == 'success' }}

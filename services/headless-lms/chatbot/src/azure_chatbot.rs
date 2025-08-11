@@ -1,3 +1,4 @@
+use std::path::PathBuf;
 use std::pin::Pin;
 use std::sync::{
     Arc,
@@ -9,6 +10,7 @@ use bytes::Bytes;
 use chrono::Utc;
 use futures::{Stream, TryStreamExt};
 use headless_lms_models::chatbot_conversation_messages::ChatbotConversationMessage;
+use headless_lms_models::chatbot_conversation_messages_citations::ChatbotConversationMessageCitation;
 use headless_lms_utils::{ApplicationConfiguration, http::REQWEST_CLIENT};
 use pin_project::pin_project;
 use serde::{Deserialize, Serialize};
@@ -46,6 +48,20 @@ pub struct Choice {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Delta {
     pub content: Option<String>,
+    pub context: Option<DeltaContext>,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct DeltaContext {
+    pub citations: Vec<Citation>,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct Citation {
+    pub content: String,
+    pub title: String,
+    pub url: String,
+    pub filepath: String,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -449,6 +465,7 @@ pub async fn send_chat_request_and_parse_stream(
                 continue;
             }
             let json_str = line.trim_start_matches("data: ");
+
             let mut full_response_text = full_response_text.lock().await;
             if json_str.trim() == "[DONE]" {
                 let full_response_as_string = full_response_text.join("");
@@ -471,6 +488,7 @@ pub async fn send_chat_request_and_parse_stream(
             let response_chunk = serde_json::from_str::<ResponseChunk>(json_str).map_err(|e| {
                 anyhow::anyhow!("Failed to parse response chunk: {}", e)
             })?;
+
             for choice in &response_chunk.choices {
                 if let Some(delta) = &choice.delta {
                     if let Some(content) = &delta.content {
@@ -479,6 +497,40 @@ pub async fn send_chat_request_and_parse_stream(
                         let response_as_string = serde_json::to_string(&response)?;
                         yield Bytes::from(response_as_string);
                         yield Bytes::from("\n");
+                    }
+                    if let Some(context) = &delta.context {
+                        let citation_message_id = response_message.id;
+                        let mut conn = pool.acquire().await?;
+                        for (idx, cit) in context.citations.iter().enumerate() {
+                            let content = if cit.content.len() < 255 {cit.content.clone()} else {cit.content[0..255].to_string()};
+                            let document_url = cit.url.clone();
+                            let mut page_path = PathBuf::from(&cit.filepath);
+                            page_path.set_extension("");
+                            let page_id_str = page_path.file_name();
+                            let page_id = page_id_str.and_then(|id_str| Uuid::parse_str(id_str.to_string_lossy().as_ref()).ok());
+                            let course_material_chapter_number = if let Some(id) = page_id {
+                                let chapter = models::chapters::get_chapter_by_page_id(&mut conn, id).await.ok();
+                                chapter.map(|c| c.chapter_number)
+                            } else {
+                                None
+                            };
+
+                            models::chatbot_conversation_messages_citations::insert(
+                                &mut conn, ChatbotConversationMessageCitation {
+                                    id: Uuid::new_v4(),
+                                    created_at: Utc::now(),
+                                    updated_at: Utc::now(),
+                                    deleted_at: None,
+                                    conversation_message_id: citation_message_id,
+                                    conversation_id,
+                                    course_material_chapter_number,
+                                    title: cit.title.clone(),
+                                    content,
+                                    document_url,
+                                    citation_number: (idx+1) as i32,
+                                }
+                            ).await?;
+                        }
                     }
 
                 }

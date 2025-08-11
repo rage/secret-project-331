@@ -75,3 +75,11 @@ export function manageChatbotRoute(chatbotId: string) {
 export function courseChatbotSettingsRoute(courseId: string) {
   return `/manage/courses/${courseId}/other/chatbot`
 }
+
+export function manageCourseByIdRoute(courseId: string) {
+  return `/manage/courses/${courseId}`
+}
+
+export function navigateToCourseRoute(organizationSlug: string, courseSlug: string) {
+  return `/org/${organizationSlug}/courses/${courseSlug}`
+}

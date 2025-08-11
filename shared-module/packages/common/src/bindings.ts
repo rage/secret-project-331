@@ -248,6 +248,20 @@ export interface ChatbotConversationMessage {
   order_number: number
 }
 
+export interface ChatbotConversationMessageCitation {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  conversation_message_id: string
+  conversation_id: string
+  course_material_chapter_number: number | null
+  title: string
+  content: string
+  document_url: string
+  citation_number: number
+}
+
 export interface ChatbotConversation {
   id: string
   created_at: string
@@ -261,6 +275,7 @@ export interface ChatbotConversation {
 export interface ChatbotConversationInfo {
   current_conversation: ChatbotConversation | null
   current_conversation_messages: Array<ChatbotConversationMessage> | null
+  current_conversation_message_citations: Array<ChatbotConversationMessageCitation> | null
   chatbot_name: string
   hide_citations: boolean
 }
@@ -536,6 +551,30 @@ export interface Course {
   join_code: string | null
   ask_marketing_consent: boolean
   flagged_answers_threshold: number | null
+  closed_at: string | null
+  closed_additional_message: string | null
+  closed_course_successor_id: string | null
+}
+
+export interface CourseMaterialCourse {
+  id: string
+  slug: string
+  name: string
+  description: string | null
+  organization_id: string
+  language_code: string
+  copied_from: string | null
+  content_search_language: string | null
+  course_language_group_id: string
+  is_draft: boolean
+  is_test_mode: boolean
+  is_unlisted: boolean
+  base_module_completion_requires_n_submodule_completions: number
+  is_joinable_by_code_only: boolean
+  ask_marketing_consent: boolean
+  closed_at: string | null
+  closed_additional_message: string | null
+  closed_course_successor_id: string | null
 }
 
 export interface CourseBreadcrumbInfo {
@@ -567,6 +606,9 @@ export interface CourseUpdate {
   is_joinable_by_code_only: boolean
   ask_marketing_consent: boolean
   flagged_answers_threshold: number
+  closed_at: string | null
+  closed_additional_message: string | null
+  closed_course_successor_id: string | null
 }
 
 export interface NewCourse {
@@ -1487,6 +1529,7 @@ export interface CoursePageWithUserData {
   page: Page
   instance: CourseInstance | null
   settings: UserCourseSettings | null
+  course: Course | null
   was_redirected: boolean
   is_test_mode: boolean
 }

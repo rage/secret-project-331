@@ -55,6 +55,7 @@ test.describe(() => {
       screenshotTarget: page,
       snapshotName: "new-block-inserter-should-not-obscure-typing-caret",
       axeSkip: ["aria-allowed-attr", "aria-allowed-role", "region", "heading-order"],
+      scrollToYCoordinate: 200,
     })
     await page
       .getByText("Pages in chapter placeholderThis block is placed on each chapter front page, e.g")

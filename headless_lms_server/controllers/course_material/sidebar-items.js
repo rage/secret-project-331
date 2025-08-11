@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes"],"mod":["chapters","chatbot","code_giveaways","course_instances","course_modules","courses","exams","exercises","glossary","oembed","page_audio_files","pages","proposed_edits","user_details"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes"],"mod":["chapters","chatbot","code_giveaways","course_instances","course_modules","courses","exams","exercises","glossary","oembed","organizations","page_audio_files","pages","proposed_edits","user_details"]};

@@ -15,27 +15,29 @@
 <a href=#15 id=15 data-nosnippet>15</a><span class="kw">pub mod </span>exercises;
 <a href=#16 id=16 data-nosnippet>16</a><span class="kw">pub mod </span>glossary;
 <a href=#17 id=17 data-nosnippet>17</a><span class="kw">pub mod </span>oembed;
-<a href=#18 id=18 data-nosnippet>18</a><span class="kw">pub mod </span>page_audio_files;
-<a href=#19 id=19 data-nosnippet>19</a><span class="kw">pub mod </span>pages;
-<a href=#20 id=20 data-nosnippet>20</a><span class="kw">pub mod </span>proposed_edits;
-<a href=#21 id=21 data-nosnippet>21</a><span class="kw">pub mod </span>user_details;
-<a href=#22 id=22 data-nosnippet>22</a>
-<a href=#23 id=23 data-nosnippet>23</a><span class="kw">use </span>actix_web::web::{<span class="self">self</span>, ServiceConfig};
-<a href=#24 id=24 data-nosnippet>24</a>
-<a href=#25 id=25 data-nosnippet>25</a><span class="doccomment">/// Add controllers from all the submodules.
-<a href=#26 id=26 data-nosnippet>26</a></span><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
-<a href=#27 id=27 data-nosnippet>27</a>    cfg.service(web::scope(<span class="string">"/courses"</span>).configure(courses::_add_routes))
-<a href=#28 id=28 data-nosnippet>28</a>        .service(web::scope(<span class="string">"/exercises"</span>).configure(exercises::_add_routes))
-<a href=#29 id=29 data-nosnippet>29</a>        .service(web::scope(<span class="string">"/pages"</span>).configure(pages::_add_routes))
-<a href=#30 id=30 data-nosnippet>30</a>        .service(web::scope(<span class="string">"/chapters"</span>).configure(chapters::_add_routes))
-<a href=#31 id=31 data-nosnippet>31</a>        .service(web::scope(<span class="string">"/course-instances"</span>).configure(course_instances::_add_routes))
-<a href=#32 id=32 data-nosnippet>32</a>        .service(web::scope(<span class="string">"/proposed-edits"</span>).configure(proposed_edits::_add_routes))
-<a href=#33 id=33 data-nosnippet>33</a>        .service(web::scope(<span class="string">"/exams"</span>).configure(exams::_add_routes))
-<a href=#34 id=34 data-nosnippet>34</a>        .service(web::scope(<span class="string">"/acronyms"</span>).configure(glossary::_add_routes))
-<a href=#35 id=35 data-nosnippet>35</a>        .service(web::scope(<span class="string">"/oembed"</span>).configure(oembed::_add_routes))
-<a href=#36 id=36 data-nosnippet>36</a>        .service(web::scope(<span class="string">"/course-modules"</span>).configure(course_modules::_add_routes))
-<a href=#37 id=37 data-nosnippet>37</a>        .service(web::scope(<span class="string">"/page_audio"</span>).configure(page_audio_files::_add_routes))
-<a href=#38 id=38 data-nosnippet>38</a>        .service(web::scope(<span class="string">"/chatbot"</span>).configure(chatbot::_add_routes))
-<a href=#39 id=39 data-nosnippet>39</a>        .service(web::scope(<span class="string">"/code-giveaways"</span>).configure(code_giveaways::_add_routes))
-<a href=#40 id=40 data-nosnippet>40</a>        .service(web::scope(<span class="string">"/user-details"</span>).configure(user_details::_add_routes));
-<a href=#41 id=41 data-nosnippet>41</a>}</code></pre></div></section></main></body></html>
+<a href=#18 id=18 data-nosnippet>18</a><span class="kw">pub mod </span>organizations;
+<a href=#19 id=19 data-nosnippet>19</a><span class="kw">pub mod </span>page_audio_files;
+<a href=#20 id=20 data-nosnippet>20</a><span class="kw">pub mod </span>pages;
+<a href=#21 id=21 data-nosnippet>21</a><span class="kw">pub mod </span>proposed_edits;
+<a href=#22 id=22 data-nosnippet>22</a><span class="kw">pub mod </span>user_details;
+<a href=#23 id=23 data-nosnippet>23</a>
+<a href=#24 id=24 data-nosnippet>24</a><span class="kw">use </span>actix_web::web::{<span class="self">self</span>, ServiceConfig};
+<a href=#25 id=25 data-nosnippet>25</a>
+<a href=#26 id=26 data-nosnippet>26</a><span class="doccomment">/// Add controllers from all the submodules.
+<a href=#27 id=27 data-nosnippet>27</a></span><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
+<a href=#28 id=28 data-nosnippet>28</a>    cfg.service(web::scope(<span class="string">"/courses"</span>).configure(courses::_add_routes))
+<a href=#29 id=29 data-nosnippet>29</a>        .service(web::scope(<span class="string">"/exercises"</span>).configure(exercises::_add_routes))
+<a href=#30 id=30 data-nosnippet>30</a>        .service(web::scope(<span class="string">"/pages"</span>).configure(pages::_add_routes))
+<a href=#31 id=31 data-nosnippet>31</a>        .service(web::scope(<span class="string">"/chapters"</span>).configure(chapters::_add_routes))
+<a href=#32 id=32 data-nosnippet>32</a>        .service(web::scope(<span class="string">"/course-instances"</span>).configure(course_instances::_add_routes))
+<a href=#33 id=33 data-nosnippet>33</a>        .service(web::scope(<span class="string">"/proposed-edits"</span>).configure(proposed_edits::_add_routes))
+<a href=#34 id=34 data-nosnippet>34</a>        .service(web::scope(<span class="string">"/exams"</span>).configure(exams::_add_routes))
+<a href=#35 id=35 data-nosnippet>35</a>        .service(web::scope(<span class="string">"/acronyms"</span>).configure(glossary::_add_routes))
+<a href=#36 id=36 data-nosnippet>36</a>        .service(web::scope(<span class="string">"/oembed"</span>).configure(oembed::_add_routes))
+<a href=#37 id=37 data-nosnippet>37</a>        .service(web::scope(<span class="string">"/course-modules"</span>).configure(course_modules::_add_routes))
+<a href=#38 id=38 data-nosnippet>38</a>        .service(web::scope(<span class="string">"/page_audio"</span>).configure(page_audio_files::_add_routes))
+<a href=#39 id=39 data-nosnippet>39</a>        .service(web::scope(<span class="string">"/chatbot"</span>).configure(chatbot::_add_routes))
+<a href=#40 id=40 data-nosnippet>40</a>        .service(web::scope(<span class="string">"/code-giveaways"</span>).configure(code_giveaways::_add_routes))
+<a href=#41 id=41 data-nosnippet>41</a>        .service(web::scope(<span class="string">"/user-details"</span>).configure(user_details::_add_routes))
+<a href=#42 id=42 data-nosnippet>42</a>        .service(web::scope(<span class="string">"/organizations"</span>).configure(organizations::_add_routes));
+<a href=#43 id=43 data-nosnippet>43</a>}</code></pre></div></section></main></body></html>

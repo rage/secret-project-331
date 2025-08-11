@@ -380,5 +380,15 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
+    let _closed_course_id = seed_sample_course(
+        Uuid::parse_str("7622eb8e-15a5-40c8-8136-0956d9f25b16")?,
+        "Closed course",
+        "closed-course",
+        uh_data.clone(),
+        false,
+        seed_users_result,
+    )
+    .await?;
+
     Ok(uh_mathstat_id)
 }

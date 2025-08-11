@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE courses\nSET name = $1,\n  description = $2,\n  is_draft = $3,\n  is_test_mode = $4,\n  can_add_chatbot = $5,\n  is_unlisted = $6,\n  is_joinable_by_code_only = $7,\n  ask_marketing_consent = $8,\n  flagged_answers_threshold = $9\nWHERE id = $10\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold\n    ",
+  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id\nFROM courses\nWHERE slug = $1\n  AND deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -107,10 +107,25 @@
         "ordinal": 20,
         "name": "flagged_answers_threshold",
         "type_info": "Int4"
+      },
+      {
+        "ordinal": 21,
+        "name": "closed_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 22,
+        "name": "closed_additional_message",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 23,
+        "name": "closed_course_successor_id",
+        "type_info": "Uuid"
       }
     ],
     "parameters": {
-      "Left": ["Varchar", "Text", "Bool", "Bool", "Bool", "Bool", "Bool", "Bool", "Int4", "Uuid"]
+      "Left": ["Text"]
     },
     "nullable": [
       false,
@@ -133,8 +148,11 @@
       false,
       true,
       false,
-      false
+      false,
+      true,
+      true,
+      true
     ]
   },
-  "hash": "588f8c05914b1077dee418b21038791db03ae1584540a66d065d05e88556d60f"
+  "hash": "dfc18deb98ca566bc1b86766a567e2efba56674dd0dc4dd8ac8e5aa7199cdeca"
 }

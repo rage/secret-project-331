@@ -10,6 +10,7 @@ export const getDefaultPageState = (refetchPage?: () => Promise<void>): PageStat
   settings: null,
   exam: null,
   isTest: false,
+  course: null,
   refetchPage,
 })
 

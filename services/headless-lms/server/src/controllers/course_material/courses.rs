@@ -6,6 +6,7 @@ use actix_http::header::{self, X_FORWARDED_FOR};
 use actix_web::web::Json;
 use chrono::Utc;
 use futures::{FutureExt, future::OptionFuture};
+use headless_lms_models::courses::CourseMaterialCourse;
 use headless_lms_models::{
     course_custom_privacy_policy_checkbox_texts::CourseCustomPrivacyPolicyCheckboxText,
     marketing_consents::UserMarketingConsent,
@@ -17,7 +18,6 @@ use models::{
     chapters::ChapterWithStatus,
     course_instances::CourseInstance,
     course_modules::CourseModule,
-    courses::Course,
     courses::{self, get_nondeleted_course_id_by_slug},
     feedback,
     feedback::NewFeedback,
@@ -51,11 +51,11 @@ GET `/api/v0/course-material/courses/:course_id` - Get course.
 async fn get_course(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<Course>> {
+) -> ControllerResult<web::Json<CourseMaterialCourse>> {
     let mut conn = pool.acquire().await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
     let token = skip_authorize();
-    token.authorized_ok(web::Json(course))
+    token.authorized_ok(web::Json(course.into()))
 }
 
 /**
@@ -687,7 +687,7 @@ async fn get_all_course_language_versions(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
     user: Option<AuthUser>,
-) -> ControllerResult<web::Json<Vec<Course>>> {
+) -> ControllerResult<web::Json<Vec<CourseMaterialCourse>>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
     let course = models::courses::get_course(&mut conn, *course_id).await?;
@@ -710,8 +710,12 @@ async fn get_all_course_language_versions(
                 "Course {} the language version was requested for is a draft course. Including all draft courses in the response.",
                 course.id,
             );
-            return access_draft_course_token
-                .authorized_ok(web::Json(unfiltered_language_versions));
+            return access_draft_course_token.authorized_ok(web::Json(
+                unfiltered_language_versions
+                    .into_iter()
+                    .map(|c| c.into())
+                    .collect(),
+            ));
         } else {
             return Err(ControllerError::new(
                 ControllerErrorType::Unauthorized,
@@ -720,7 +724,9 @@ async fn get_all_course_language_versions(
             ));
         }
     }
-    token.authorized_ok(web::Json(language_versions))
+    token.authorized_ok(web::Json(
+        language_versions.into_iter().map(|c| c.into()).collect(),
+    ))
 }
 
 /**

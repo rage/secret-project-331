@@ -329,7 +329,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
             margin: -1px;
             padding: 0;
             overflow: hidden;
-            clip: rect(0 0 0 0);
+            clip-path: rect(0 0 0 0);
           `}
         >
           {chatbotMessageAnnouncement}

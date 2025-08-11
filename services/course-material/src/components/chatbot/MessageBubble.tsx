@@ -1,17 +1,45 @@
 import { css } from "@emotion/css"
-import { Library } from "@vectopus/atlas-icons-react"
-import React, { ReactElement, useCallback, useEffect, useId, useMemo, useState } from "react"
-import { useTranslation } from "react-i18next"
-import { usePopper } from "react-popper"
+import { zipWith } from "lodash"
+import React, { useMemo, useRef, useState } from "react"
+import { useHover } from "react-aria"
 
-import CitationPopover from "./CitationPopover"
+import ChatbotReferenceList from "./ChatbotReferenceList"
+import RenderedMessage, { MessageRenderType } from "./RenderedMessage"
 import ThinkingIndicator from "./ThinkingIndicator"
 
 import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
-import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
-import { getRemarkable } from "@/utils/getRemarkable"
-import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
+
+// captures citations
+const MATCH_CITATIONS_REGEX = /\[[\w]*?([\d]+)\]/g
+// don't capture citations, just detect
+const SPLIT_AT_CITATIONS_REGEX = /\[[\w]*?[\d]+\]/g
+// also matches a starting whitespace that should be removed
+const REPLACE_CITATIONS_REGEX = /\s\[[a-z]*?[0-9]+\]/g
+
+export const getMessagePartsCitationPairs = (message: string, isFromChatbot: boolean) => {
+  let pairs: {
+    msg: string
+    cit_n: number
+  }[] = []
+  let citedDocs: number[] = []
+
+  // if the message is from user, there are no citations for it so no need to
+  // process further
+  if (!isFromChatbot) {
+    return { pairs, citedDocs, alteredMessage: message }
+  }
+
+  citedDocs = Array.from(message.matchAll(MATCH_CITATIONS_REGEX), (arr, _) => parseInt(arr[1]))
+  let messageParts = message.split(SPLIT_AT_CITATIONS_REGEX)
+  pairs = zipWith(messageParts, citedDocs, (m, c) => {
+    return { msg: m, cit_n: c }
+  })
+
+  const messageNoCitations = message.replace(REPLACE_CITATIONS_REGEX, "")
+
+  return { pairs, citedDocs, alteredMessage: messageNoCitations }
+}
 
 interface MessageBubbleProps {
   message: string
@@ -40,106 +68,6 @@ const bubbleStyle = (isFromChatbot: boolean) => css`
       background-color: #ffffff;
     `}
 `
-const citationStyle = css`
-  margin: 4px 4px 4px 0;
-  background-color: ${baseTheme.colors.gray[200]};
-  padding: 2px 7px 2px 7px;
-  border-radius: 10px;
-  font-size: 85%;
-  a {
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: space-between;
-    gap: 1em;
-    color: #000000;
-    text-decoration: none;
-  }
-  a {
-    &:hover {
-      [data-linklike] {
-        color: ${baseTheme.colors.blue[700]}; /* TODO accessibility issue, not enough contrast?*/
-        text-decoration: underline;
-      }
-    }
-  }
-`
-
-const messageStyle = css`
-  flex: 1;
-  table {
-    margin: 20px 0 20px 0;
-    border-collapse: collapse;
-  }
-  thead {
-    background-color: ${baseTheme.colors.clear[200]};
-  }
-  tbody td {
-    text-align: center;
-    padding: 5px;
-  }
-  tbody tr:nth-child(odd) {
-    background-color: #ffffff;
-  }
-  tbody tr:nth-child(even) {
-    background-color: ${baseTheme.colors.clear[200]};
-  }
-  pre {
-    /*the pre element corresponds to md raw text, this property
-    will force long strings in it to wrap and not overflow */
-    white-space: pre-wrap;
-  }
-  button {
-    /*Citations are inside button tags, it's assumed button tags wouldn't
-    be used otherwise in chatbot text*/
-    border: none;
-    cursor: default;
-    background-color: ${baseTheme.colors.gray[200]};
-    padding: 0 7px 0 7px;
-    border-radius: 10px;
-    font-size: 85%;
-    &:hover {
-      filter: brightness(0.9) contrast(1.1);
-    }
-  }
-  white-space: pre-wrap;
-`
-const expandButtonStyle = css`
-  flex: 1;
-  cursor: pointer;
-  background-color: ${baseTheme.colors.gray[100]};
-  border: none;
-  margin: 0 0.5rem;
-  color: ${baseTheme.colors.gray[400]};
-  transition: filter 0.2s;
-
-  &:hover {
-    filter: brightness(0.9) contrast(1.1);
-  }
-`
-
-const referenceListStyle = (expanded: boolean, referenceList: string) => css`
-  display: flex;
-  ${expanded ? `flex-flow: column nowrap;` : `flex-flow: row nowrap;`}
-
-  #${referenceList} {
-    display: flex;
-    flex: 10;
-    ${expanded
-      ? `
-    flex-flow: column nowrap;
-    padding: 7px;
-    justify-content: space-around;
-    `
-      : `
-    flex-flow: row nowrap;
-    overflow: hidden;
-    white-space: pre;
-    mask-image: linear-gradient(0.25turn, black 66%, transparent);
-  `}
-  }
-`
-
-let md = getRemarkable()
 
 const MessageBubble: React.FC<MessageBubbleProps> = ({
   message,
@@ -147,181 +75,61 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   isPending,
   citations,
 }) => {
-  const { t } = useTranslation()
-
-  const popoverId = useId()
-  const popoverLinkId = useId()
-  const referenceListId = useId()
+  // the ref is updated manually because there are multiple trigger elements for the popover
+  // that need to be able to be set as the ref conditionally
+  let triggerRef = useRef<HTMLButtonElement>(null)
 
   const [citationsOpen, setCitationsOpen] = useState(false)
-  const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null)
-  const [popperElement, setPopperElement] = useState<HTMLElement | null>(null)
-  const [arrowElement, setArrowElement] = React.useState<HTMLElement | null>(null)
+  const [citationButtonClicked, setCitationButtonClicked] = useState(false)
 
-  const [hoverPopperElement, setHoverPopperElement] = useState<boolean>(false)
-  const [hoverRefElement, setHoverRefElement] = useState<boolean>(false)
-  const [showPopover, setShowPopover] = useState<boolean>(false)
-
-  const { styles, attributes } = usePopper(referenceElement, popperElement, {
-    placement: "top",
-    modifiers: [
-      {
-        name: "preventOverflow",
-        options: {
-          padding: 8,
-          boundary: "clippingParents",
-          altAxis: true,
-        },
-      },
-      {
-        name: "computeStyles",
-        options: {
-          gpuAcceleration: false,
-        },
-      },
-      {
-        name: "eventListeners",
-        options: {
-          scroll: true,
-          resize: true,
-        },
-      },
-      { name: "arrow", options: { element: arrowElement } },
-    ],
-    strategy: "absolute",
-  })
-
-  useEffect(() => {
-    if (!hoverRefElement) {
-      if (!hoverPopperElement) {
-        setReferenceElement(null)
+  let { hoverProps: hoverCitationProps, isHovered: isCitationHovered } = useHover({
+    onHoverStart: (e) => {
+      if (!(e.target instanceof HTMLButtonElement)) {
+        throw new Error("This hover is meant to be used on buttons only.")
       }
-    }
-  }, [hoverPopperElement, hoverRefElement])
-
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout | null = null
-
-    if (referenceElement) {
-      timeoutId = setTimeout(() => {
-        setShowPopover(true)
-      }, 200)
-    } else {
-      setShowPopover(false)
-    }
-
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId)
+      triggerRef.current = e.target
+    },
+    onHoverEnd: (e) => {
+      if (!(e.target instanceof HTMLButtonElement)) {
+        throw new Error("This hover is meant to be used on buttons only.")
       }
-    }
-  }, [referenceElement])
-
-  const handleRefElemHover = (elem: HTMLButtonElement | null) => {
-    if (!(elem === null)) {
-      setHoverRefElement(true)
-      setReferenceElement(elem)
-    } else {
-      setHoverRefElement(false)
-    }
-  }
-  const handleRefElemClick = useCallback(
-    (elem: HTMLButtonElement | null) => {
-      // toggle if elem is provided, if elem is null then "unclick"
-      // TODO idk how to optimize this so that the useMemo is actually useful.
-      // now useMemo is recomputed whenever the popover is toggled open or even hovered
-      // so that must be inefficient?
-      if (elem === null && hoverPopperElement) {
-        return
-      } else if (!(elem === null)) {
-        setReferenceElement(referenceElement === null ? elem : null)
-        // focus on popper element when ref element is clicked
-        // TODO it's not yet rendered here so we wait a bit, could be better?
-        setTimeout(() => {
-          document.getElementById(popoverLinkId)?.focus()
-        }, 200)
-      } else {
-        setReferenceElement(null)
+      if (!citationButtonClicked) {
+        triggerRef.current = null
       }
     },
-    [referenceElement, hoverPopperElement, popoverLinkId],
-  )
+  })
 
-  const [processedMessage, processedCitations, citationTitleLen] = useMemo(() => {
-    let renderedMessage: ReactElement[] = []
-    let filteredCitations: ChatbotConversationMessageCitation[] = []
+  const [processedMessage, processedCitations] = useMemo(() => {
+    const { pairs, citedDocs, alteredMessage } = getMessagePartsCitationPairs(
+      message,
+      isFromChatbot,
+    )
+    let filteredCitations = citations
+      ? citations.filter((cit) => citedDocs.includes(cit.citation_number))
+      : []
+    let renderOption = !isFromChatbot
+      ? MessageRenderType.User
+      : !citationsOpen || filteredCitations.length == 0
+        ? MessageRenderType.ChatbotNoCitations
+        : MessageRenderType.ChatbotWithCitations
 
-    if (isFromChatbot) {
-      let messageCopy = message
-      messageCopy = sanitizeCourseMaterialHtml(md.render(messageCopy).trim()).slice(3, -4)
-      // slicing to remove the <p>-tags that envelope the whole message, since they will be broken
-      // when the message is split into parts later
-      let citedDocs = Array.from(messageCopy.matchAll(/\[[a-z]*?([0-9]+)\]/g), (arr, _) =>
-        parseInt(arr[1]),
-      )
-      let citedDocsSet = new Set(citedDocs)
-      filteredCitations = citations
-        ? citations.filter((cit) => citedDocsSet.has(cit.citation_number))
-        : []
-      if (filteredCitations.length > 0 && citationsOpen) {
-        // if there are citations in text, render buttons for them & md
-        let messageParts = messageCopy.split(/\[[a-z]*?[0-9]+\]/g)
-        renderedMessage = messageParts.map((s, i) => {
-          return (
-            <span key={i} className={messageStyle}>
-              <span dangerouslySetInnerHTML={{ __html: s }}></span>
-              {citedDocs[i] && (
-                <>
-                  <button
-                    id={`cit-${citedDocs[i]}`}
-                    value={citedDocs[i]}
-                    onClick={(e) => {
-                      handleRefElemClick(e.currentTarget)
-                    }}
-                    onMouseEnter={(e) => {
-                      handleRefElemHover(e.currentTarget)
-                    }}
-                    onMouseLeave={() => {
-                      handleRefElemHover(null)
-                    }}
-                    onBlur={(e) => {
-                      if (e.relatedTarget?.id === popoverLinkId) {
-                        return
-                      }
-                      handleRefElemClick(null)
-                    }}
-                  >
-                    {citedDocs[i]}
-                  </button>
-                </>
-              )}
-            </span>
-          )
-        })
-      } else {
-        // render only md
-        messageCopy = messageCopy.replace(/\s\[[a-z]*?[0-9]+\]/g, "")
-        renderedMessage = [
-          <span
-            key="1"
-            className={messageStyle}
-            dangerouslySetInnerHTML={{ __html: messageCopy }}
-          ></span>,
-        ]
-      }
-    } else {
-      // user message with no md rendering
-      renderedMessage = [
-        <span key="1" className={messageStyle}>
-          {message}
-        </span>,
-      ]
-    }
-    // 60 is magick number that represents the collapsed list width
-    const citationTitleLen = 60 / filteredCitations.length
+    let renderedMessage = (
+      <RenderedMessage
+        renderOption={renderOption}
+        citationButtonClicked={citationButtonClicked}
+        currentRefId={triggerRef.current?.id}
+        message={alteredMessage}
+        pairs={pairs}
+        handleClick={(e) => {
+          setCitationButtonClicked(true)
+          triggerRef.current = e.currentTarget
+        }}
+        hoverCitationProps={hoverCitationProps}
+      />
+    )
 
-    return [renderedMessage, filteredCitations, citationTitleLen]
-  }, [message, citations, isFromChatbot, citationsOpen, handleRefElemClick, popoverLinkId])
+    return [renderedMessage, filteredCitations]
+  }, [message, citations, isFromChatbot, citationsOpen, hoverCitationProps, citationButtonClicked])
 
   return (
     <div className={bubbleStyle(isFromChatbot)}>
@@ -331,77 +139,22 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         <div
           className={css`
             margin-top: 15px;
-            hr {
-              opacity: 40%;
-            }
           `}
         >
-          <hr></hr>
-          <h4>{t("references")}</h4>
-          <div className={referenceListStyle(citationsOpen, referenceListId)}>
-            <div id={referenceListId}>
-              {processedCitations.map((cit) => (
-                <div key={cit.citation_number} className={citationStyle}>
-                  {citationsOpen ? (
-                    <a href={cit.document_url}>
-                      <span>
-                        <b
-                          className={css`
-                            padding: 0 1em 0 0.25em;
-                          `}
-                        >
-                          {cit.citation_number}
-                        </b>
-                        <span data-linklike={true}>
-                          {cit.course_material_chapter !== cit.title
-                            ? `${cit.course_material_chapter}: `
-                            : ""}
-                          {`${cit.title}`}
-                        </span>
-                      </span>
-                      <Library size={18} />
-                    </a>
-                  ) : (
-                    <>
-                      <b>{cit.citation_number}</b>{" "}
-                      {cit.title.length <= citationTitleLen
-                        ? cit.title
-                        : cit.title.slice(0, citationTitleLen - 3).concat("...")}
-                    </>
-                  )}
-                  {referenceElement?.id == `cit-${cit.citation_number}` && showPopover && (
-                    <CitationPopover
-                      id={popoverId}
-                      linkId={popoverLinkId}
-                      setPopperElement={setPopperElement}
-                      setHoverPopperElement={setHoverPopperElement}
-                      setReferenceElement={setReferenceElement}
-                      setArrowElement={setArrowElement}
-                      focusOnRefElement={() => {
-                        referenceElement?.focus()
-                      }}
-                      citation={cit}
-                      content={sanitizeCourseMaterialHtml(md.render(cit.content).trim())}
-                      popperStyles={styles}
-                      popperAttributes={attributes}
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-
-            <button
-              aria-controls={referenceListId}
-              onClick={() => {
-                setCitationsOpen(!citationsOpen)
-              }}
-              aria-label={t("show-references")}
-              aria-expanded={citationsOpen}
-              className={expandButtonStyle}
-            >
-              {citationsOpen ? <DownIcon transform="rotate(180)" /> : <DownIcon />}
-            </button>
-          </div>
+          <hr
+            className={css`
+              opacity: 40%;
+            `}
+          ></hr>
+          <ChatbotReferenceList
+            citations={processedCitations}
+            triggerRef={triggerRef}
+            citationsOpen={citationsOpen}
+            citationButtonClicked={citationButtonClicked}
+            isCitationHovered={isCitationHovered}
+            setCitationButtonClicked={setCitationButtonClicked}
+            setCitationsOpen={setCitationsOpen}
+          />
         </div>
       )}
 
@@ -410,4 +163,4 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   )
 }
 
-export default React.memo(MessageBubble)
+export default MessageBubble

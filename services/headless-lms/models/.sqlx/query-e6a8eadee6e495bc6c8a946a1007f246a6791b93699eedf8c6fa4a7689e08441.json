@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT * FROM chatbot_conversation_messages_citations\nWHERE conversation_message_id = $1\n        ",
+  "query": "\nSELECT * FROM chatbot_conversation_messages_citations\nWHERE conversation_message_id = $1\nAND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -20,8 +20,8 @@
       },
       {
         "ordinal": 3,
-        "name": "course_material_chapter",
-        "type_info": "Varchar"
+        "name": "course_material_chapter_number",
+        "type_info": "Int4"
       },
       {
         "ordinal": 4,
@@ -42,12 +42,27 @@
         "ordinal": 7,
         "name": "citation_number",
         "type_info": "Int4"
+      },
+      {
+        "ordinal": 8,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
       }
     ],
     "parameters": {
       "Left": ["Uuid"]
     },
-    "nullable": [false, false, false, true, false, false, false, false]
+    "nullable": [false, false, false, true, false, false, false, false, false, false, true]
   },
-  "hash": "f866e94820ab2671149449b6c2dbd0000921ca02577ee8a257ab107d927767eb"
+  "hash": "e6a8eadee6e495bc6c8a946a1007f246a6791b93699eedf8c6fa4a7689e08441"
 }

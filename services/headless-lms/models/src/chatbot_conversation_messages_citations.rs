@@ -4,9 +4,12 @@ use crate::prelude::*;
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChatbotConversationMessageCitation {
     pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
     pub conversation_message_id: Uuid,
     pub conversation_id: Uuid,
-    pub course_material_chapter: Option<String>,
+    pub course_material_chapter_number: Option<i32>,
     pub title: String,
     pub content: String,
     pub document_url: String,
@@ -23,7 +26,7 @@ pub async fn insert(
 INSERT INTO chatbot_conversation_messages_citations (
   conversation_message_id,
   conversation_id,
-  course_material_chapter,
+  course_material_chapter_number,
   title,
   content,
   document_url,
@@ -33,7 +36,7 @@ RETURNING *
         "#,
         input.conversation_message_id,
         input.conversation_id,
-        input.course_material_chapter,
+        input.course_material_chapter_number,
         input.title,
         input.content,
         input.document_url,
@@ -53,6 +56,7 @@ pub async fn get_by_message_id(
         r#"
 SELECT * FROM chatbot_conversation_messages_citations
 WHERE conversation_message_id = $1
+AND deleted_at IS NULL
         "#,
         message_id
     )
@@ -70,6 +74,7 @@ pub async fn get_by_conversation_id(
         r#"
 SELECT * FROM chatbot_conversation_messages_citations
 WHERE conversation_id = $1
+AND deleted_at IS NULL
         "#,
         conversation_id
     )

@@ -36,21 +36,18 @@ const FlipBoxSizeCustomizer: React.FC<React.PropsWithChildren<FlipCardCustomizer
           // eslint-disable-next-line i18next/no-literal-string
           label={"Xl (500x500)"}
           name={t("flip-card-size-customizer")}
-          // eslint-disable-next-line i18next/no-literal-string
           onChange={() => setAttributes({ size: "xl" })}
         />
         <RadioButton
           // eslint-disable-next-line i18next/no-literal-string
           label={"M (300x300)"}
           name={t("flip-card-size-customizer")}
-          // eslint-disable-next-line i18next/no-literal-string
           onChange={() => setAttributes({ size: "m" })}
         />
         <RadioButton
           // eslint-disable-next-line i18next/no-literal-string
           label={"S (200x200)"}
           name={t("flip-card-size-customizer")}
-          // eslint-disable-next-line i18next/no-literal-string
           onChange={() => setAttributes({ size: "s" })}
         />
       </Placeholder>

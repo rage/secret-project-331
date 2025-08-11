@@ -8,7 +8,7 @@ import { currentlyOpenFeedbackDialogAtom, selectionAtom } from "../stores/materi
 import ImprovementExample from "./ImprovementExample"
 import { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
 
-import StandardDialog from "@/shared-module/common/components/StandardDialog"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { baseTheme } from "@/shared-module/common/styles"
 
 const FeedbackTypeDialog: React.FC = () => {

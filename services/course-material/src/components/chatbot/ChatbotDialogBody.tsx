@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { PaperAirplane } from "@vectopus/atlas-icons-react"
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
@@ -320,20 +321,9 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
             isPending={!message.message_is_complete && newMessageMutation.isPending}
           />
         ))}
-        <div
-          id="live-region"
-          aria-live="polite"
-          className={css`
-            width: 1px;
-            height: 0px;
-            margin: -1px;
-            padding: 0;
-            overflow: hidden;
-            clip-path: rect(0 0 0 0);
-          `}
-        >
+        <VisuallyHidden aria-live="polite" role="status">
           {chatbotMessageAnnouncement}
-        </div>
+        </VisuallyHidden>
       </div>
       {error && <ErrorDisplay error={error} />}
       <div

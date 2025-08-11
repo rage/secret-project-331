@@ -11,6 +11,7 @@ pub mod certificate_fonts;
 pub mod chapters;
 pub mod chatbot_configurations;
 pub mod chatbot_conversation_messages;
+pub mod chatbot_conversation_messages_citations;
 pub mod chatbot_conversations;
 pub mod chatbot_page_sync_statuses;
 pub mod code_giveaway_codes;

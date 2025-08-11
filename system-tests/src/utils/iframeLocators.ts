@@ -88,3 +88,8 @@ export async function waitForViewType(
 ) {
   await locator.locator(`[data-view-type="${viewType}"]`).waitFor()
 }
+
+export async function scrollToLocatorsParentIframeAndClick(locator: Locator) {
+  await scrollLocatorsParentIframeToViewIfNeeded(locator)
+  await locator.click()
+}

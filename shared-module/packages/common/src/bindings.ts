@@ -248,6 +248,20 @@ export interface ChatbotConversationMessage {
   order_number: number
 }
 
+export interface ChatbotConversationMessageCitation {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  conversation_message_id: string
+  conversation_id: string
+  course_material_chapter_number: number | null
+  title: string
+  content: string
+  document_url: string
+  citation_number: number
+}
+
 export interface ChatbotConversation {
   id: string
   created_at: string
@@ -261,6 +275,7 @@ export interface ChatbotConversation {
 export interface ChatbotConversationInfo {
   current_conversation: ChatbotConversation | null
   current_conversation_messages: Array<ChatbotConversationMessage> | null
+  current_conversation_message_citations: Array<ChatbotConversationMessageCitation> | null
   chatbot_name: string
   hide_citations: boolean
 }

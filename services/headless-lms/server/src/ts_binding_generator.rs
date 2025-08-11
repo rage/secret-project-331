@@ -58,6 +58,7 @@ fn models(target: &mut File) {
         chatbot_configurations::ChatbotConfiguration,
         chatbot_configurations::NewChatbotConf,
         chatbot_conversation_messages::ChatbotConversationMessage,
+        chatbot_conversation_messages_citations::ChatbotConversationMessageCitation,
         chatbot_conversations::ChatbotConversation,
         chatbot_conversations::ChatbotConversationInfo,
         code_giveaway_codes::CodeGiveawayCode,

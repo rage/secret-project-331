@@ -164,7 +164,13 @@ pub async fn create_skillset(
                           "source": "/document/language",
                           "sourceContext": null,
                           "inputs": []
-                        }
+                        },
+                        {
+                          "name": "filepath",
+                          "source": "/document/filepath",
+                          "sourceContext": null,
+                          "inputs": []
+                        },
                     ]
                 }
             ],

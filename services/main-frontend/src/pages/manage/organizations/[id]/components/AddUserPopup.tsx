@@ -36,13 +36,13 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({
         {
           children: t("save"),
           onClick: handleSave,
-          // eslint-disable-next-line i18next/no-literal-string
+
           variant: "primary",
         },
         {
           children: t("button-text-cancel"),
           onClick: () => setShow(false),
-          // eslint-disable-next-line i18next/no-literal-string
+
           variant: "secondary",
         },
       ]}

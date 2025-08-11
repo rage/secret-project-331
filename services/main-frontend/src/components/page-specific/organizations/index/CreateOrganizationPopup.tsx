@@ -38,13 +38,13 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
         {
           children: t("create"),
           onClick: handleCreate,
-          // eslint-disable-next-line i18next/no-literal-string
+
           variant: "primary",
         },
         {
           children: t("button-text-cancel"),
           onClick: () => setShow(false),
-          // eslint-disable-next-line i18next/no-literal-string
+
           variant: "secondary",
         },
       ]}

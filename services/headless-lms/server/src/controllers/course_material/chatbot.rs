@@ -9,6 +9,13 @@ use headless_lms_models::chatbot_conversations::{
 
 use crate::prelude::*;
 
+/* #[instrument(skip(pool))]
+async fn get_chatbot_configuration(
+    pool: web::Data<PgPool>,
+    configuration_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<Option<Uuid>>> {
+} */
+
 /**
 GET `/api/v0/course-material/course-modules/chatbot/for-course/:course-id`
 

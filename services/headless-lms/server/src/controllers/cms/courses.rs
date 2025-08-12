@@ -2,6 +2,7 @@
 
 use crate::prelude::*;
 
+use headless_lms_models::chatbot_configurations::ChatbotConfiguration;
 use models::{
     course_instances::CourseInstance,
     pages::{Page, PageVisibility},
@@ -311,6 +312,29 @@ async fn delete_partners_block(
 }
 
 /**
+GET /api/v0/cms/courses/:course_id/chatbot-configurations - Get all chatbot configurations of this course.
+*/
+#[instrument(skip(pool))]
+async fn get_course_chatbot_configurations(
+    path: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<ChatbotConfiguration>>> {
+    let course_id = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::UsuallyUnacceptableDeletion,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+    let course_chatbot_configurations =
+        models::chatbot_configurations::get_for_course(&mut conn, course_id).await?;
+    token.authorized_ok(web::Json(course_chatbot_configurations))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -356,5 +380,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/course-instances",
             web::get().to(get_course_instances),
+        )
+        .route(
+            "/{course_id}/chatbot-configurations",
+            web::get().to(get_course_chatbot_configurations),
         );
 }

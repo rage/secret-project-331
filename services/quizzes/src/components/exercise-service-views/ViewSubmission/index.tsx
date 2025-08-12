@@ -128,19 +128,19 @@ const SubmissionFeedback: React.FC<{
 }> = ({ itemFeedback, itemModelSolution, questionType }) => {
   const { t } = useTranslation()
 
-  let backgroundColor = "#fffaf1"
-  let textColor = "#C25100"
+  let backgroundColor = "#f5f5f5" // Default grey for unknown
+  let textColor = "#292929" // Dark text for better contrast
 
   const userScore = itemFeedback.correctnessCoefficient ?? itemFeedback.score
-  if (questionType === "closed-ended-question") {
-    backgroundColor = "#F2F2F2"
-    textColor = "#57606F"
-  } else if (userScore == 1) {
-    backgroundColor = "#D5EADF"
-    textColor = "#246F46"
+  if (userScore == 1) {
+    backgroundColor = "#e8f5e8"
+    textColor = "#292929"
   } else if (userScore == 0) {
-    backgroundColor = "#fff4f5"
-    textColor = "#d52a3c"
+    backgroundColor = "#fdeaea"
+    textColor = "#292929"
+  } else if (userScore !== null && userScore !== undefined) {
+    backgroundColor = "#f5f5f5"
+    textColor = "#292929"
   }
 
   const mapScoreToFeedback = useCallback(

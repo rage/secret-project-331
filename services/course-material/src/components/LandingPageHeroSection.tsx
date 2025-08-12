@@ -4,6 +4,7 @@ import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import { GlossaryContext } from "../contexts/GlossaryContext"
+import { useCornerTapFlip } from "../hooks/useCornerTapFlip"
 
 import { parseText } from "./ContentRenderer/util/textParsing"
 
@@ -105,8 +106,11 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
 }) => {
   const { t } = useTranslation()
   const { terms } = useContext(GlossaryContext)
+  const { containerRef, onPointerDown, flipClassName } = useCornerTapFlip()
   return (
     <div
+      ref={containerRef}
+      onPointerDown={onPointerDown}
       className={css`
         width: 100%;
         border-radius: 1px;
@@ -119,6 +123,7 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
         background-repeat: ${backgroundRepeatX ? "repeat-x" : "no-repeat"};
         background-position: center center;`}
         background-size: cover;
+        touch-action: manipulation;
         ${respondToOrLarger.xxxxl} {
           background-size: auto;
         }
@@ -126,7 +131,10 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
     >
       {backgroundImage === undefined && <StyledSVG />}
       <TextBox color={fontColor}>
-        <h1 dangerouslySetInnerHTML={{ __html: parseText(title, terms).parsedText }} />
+        <h1
+          className={flipClassName}
+          dangerouslySetInnerHTML={{ __html: parseText(title, terms).parsedText }}
+        />
         <div className="hero-subtitle">{children}</div>
         <Button
           variant="primary"

@@ -28,6 +28,8 @@
   "button-text-reset-exam-progress": "Скинути прогрес екзамену",
   "can-comment-on-portions-of-material-by-highlightig": "Ви можете прокоментувати окремі частини матеріалу, виділивши їх.",
   "cannot-render-exercise-task-missing-url": "Неможливо відобразити завдання вправи, відсутня url.",
+  "chapter": "Розділ",
+  "chapter-chapter-number": "Розділ {{number}}",
   "chapter-chapter-number-chapter-name": "Розділ {{chapterNumber}}: {{chapterName}}",
   "chapter-progress": "Прогрес розділу",
   "chatbot-discalimer-sensitive-information": "Ніколи не розголошуйте будь-яку конфіденційну інформацію чатботу.",

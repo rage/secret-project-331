@@ -10,7 +10,7 @@ import {
 } from "../../../../../../services/backend/courses"
 import ModuleCompletionReprocessButton from "../course-instances/ModuleCompletionReprocessButton"
 
-import UpdateCourseForm from "./UpdateCourseForm"
+import EditCourseForm from "./EditCourseForm"
 import UpdatePeerReviewQueueReviewsReceivedButton from "./UpdatePeerReviewQueueReviewsReceivedButton"
 
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
@@ -164,7 +164,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
       <Button variant="primary" size="medium" onClick={() => setShowForm(true)}>
         {t("edit")}
       </Button>
-      <UpdateCourseForm
+      <EditCourseForm
         course={course}
         onSubmitForm={handleOnUpdateCourse}
         open={showForm}

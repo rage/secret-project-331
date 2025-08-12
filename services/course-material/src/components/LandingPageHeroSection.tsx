@@ -36,10 +36,19 @@ const TextBox = styled.div<TextBoxProps>`
     margin-bottom: 0.8rem;
     color: ${({ color }) => (color ? color : baseTheme.colors.gray[700])};
     margin-top: 1.5rem;
-    font-size: clamp(2.4rem, 4vw, 60px);
+
     font-weight: bold;
     max-width: 100%;
     line-height: 1.1;
+
+    font-size: clamp(1.5rem, 4vw, 60px);
+    ${respondToOrLarger.xxxs} {
+      font-size: clamp(2rem, 4vw, 60px);
+    }
+
+    ${respondToOrLarger.xxs} {
+      font-size: clamp(2.4rem, 4vw, 60px);
+    }
 
     ${respondToOrLarger.md} {
       width: 50vw;

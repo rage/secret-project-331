@@ -1,7 +1,5 @@
 use crate::{domain::models_requests, prelude::*};
-use headless_lms_models::{
-    exercise_slide_submissions::ExerciseSlideSubmissionInfo, library::user_exercise_state_updater,
-};
+use headless_lms_models::exercise_slide_submissions::ExerciseSlideSubmissionInfo;
 use models::{
     exercises::get_exercise_by_id,
     teacher_grading_decisions::{

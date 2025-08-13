@@ -4,7 +4,7 @@ pub mod chatbots;
 pub mod stats;
 
 use chrono::Utc;
-use domain::csv_export::user_exericse_states_export::UserExerciseStatesExportOperation;
+use domain::csv_export::user_exercise_states_export::UserExerciseStatesExportOperation;
 use headless_lms_models::{
     partner_block::PartnersBlock,
     suspected_cheaters::{SuspectedCheaters, ThresholdData},
@@ -80,6 +80,24 @@ async fn get_course_breadcrumb_info(
     let token = authorize_access_to_course_material(&mut conn, user_id, *course_id).await?;
     let info = models::courses::get_course_breadcrumb_info(&mut conn, *course_id).await?;
     token.authorized_ok(web::Json(info))
+}
+
+/**
+POST `/api/v0/main-frontend/courses/{course_id}/reprocess-completions`
+
+Reprocesses all module completions for the given course instance. Only available to admins.
+*/
+
+#[instrument(skip(pool, user))]
+async fn post_reprocess_module_completions(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    course_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
+    models::library::progressing::process_all_course_completions(&mut conn, *course_id).await?;
+    token.authorized_ok(web::Json(true))
 }
 
 /**
@@ -1328,7 +1346,7 @@ pub async fn teacher_reset_course_progress_for_themselves(
         models::course_instances::reset_progress_on_course_instance_for_user(
             &mut tx,
             user.id,
-            course_instance.id,
+            course_instance.course_id,
         )
         .await?;
     }
@@ -1395,7 +1413,7 @@ pub async fn teacher_reset_course_progress_for_everyone(
             models::course_instances::reset_progress_on_course_instance_for_user(
                 &mut tx,
                 user_in_course_instance.id,
-                course_instance.id,
+                course_instance.course_id,
             )
             .await?;
         }
@@ -1836,6 +1854,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/set-join-code",
             web::post().to(set_join_code_for_course),
+        )
+        .route(
+            "/{course_id}/reprocess-completions",
+            web::post().to(post_reprocess_module_completions),
         )
         .route(
             "/join/{join_code}",

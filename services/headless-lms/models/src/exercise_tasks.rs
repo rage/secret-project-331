@@ -14,7 +14,7 @@ use crate::{
     exercise_task_submissions::{self, ExerciseTaskSubmission},
     library::custom_view_exercises::CustomViewExerciseTaskSpec,
     prelude::*,
-    user_exercise_states::{self, CourseInstanceOrExamId},
+    user_exercise_states,
 };
 
 /// Information necessary for the frontend to render an exercise task
@@ -155,7 +155,7 @@ WHERE id = (
     )
     .fetch_one(conn)
     .await?;
-    CourseOrExamId::from(res.course_id, res.exam_id)
+    CourseOrExamId::from_course_and_exam_ids(res.course_id, res.exam_id)
 }
 
 pub async fn get_exercise_task_by_id(
@@ -317,18 +317,18 @@ WHERE exercise_slide_id = ANY($1)
 }
 
 // TODO: Move most of this to exercise_slides
-pub async fn get_existing_users_exercise_slide_for_course_instance(
+pub async fn get_existing_users_exercise_slide_for_course(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Option<CourseMaterialExerciseSlide>> {
     let user_exercise_state = user_exercise_states::get_user_exercise_state_if_exists(
         conn,
         user_id,
         exercise_id,
-        CourseInstanceOrExamId::Instance(course_instance_id),
+        CourseOrExamId::Course(course_id),
     )
     .await?;
     let exercise_tasks = if let Some(user_exercise_state) = user_exercise_state {
@@ -354,19 +354,19 @@ pub async fn get_existing_users_exercise_slide_for_course_instance(
 }
 
 // TODO: Move most of this logic to exercise_slides
-pub async fn get_or_select_user_exercise_tasks_for_course_instance_or_exam(
+pub async fn get_or_select_user_exercise_slide_for_course_or_exam(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
-    course_instance_id: Option<Uuid>,
-    exam_id: Option<Uuid>,
+    course_or_exam_id: CourseOrExamId,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<CourseMaterialExerciseSlide> {
+    let (course_id, exam_id) = course_or_exam_id.to_course_and_exam_ids();
     let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
         conn,
         user_id,
         exercise_id,
-        course_instance_id,
+        course_id,
         exam_id,
     )
     .await?;
@@ -385,7 +385,7 @@ pub async fn get_or_select_user_exercise_tasks_for_course_instance_or_exam(
                 conn,
                 user_id,
                 exercise_id,
-                course_instance_id,
+                course_id,
                 exam_id,
                 Some(exercise_slide_id),
             )

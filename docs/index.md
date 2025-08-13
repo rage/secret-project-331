@@ -1,16 +1,14 @@
 # Secret Project 331 – Documentation for Developers
 
+> [!IMPORTANT]
+> This document contains technical information intended for software developers. If you're not a software developer, you might find these resources helpful instead:
+>
+> - To learn more about the courses, visit [https://www.mooc.fi](https://www.mooc.fi).
+> - For teacher documentation, refer to the **Wiki** tab in this repository.
+
 ## 📌 Introduction
 
 **Secret Project 331** is a Learning Management System (LMS) developed by the MOOC Center of the University of Helsinki. It's deployed at [https://courses.mooc.fi](https://courses.mooc.fi.
-
-> [!CAUTION]
-> This documentation is **only** for developers.
->
-> For non-developers:
->
-> * **Learn more about the courses**: [https://www.mooc.fi](https://www.mooc.fi)
-> * **For teachers**: See the **Wiki** tab in this repository.
 
 ---
 

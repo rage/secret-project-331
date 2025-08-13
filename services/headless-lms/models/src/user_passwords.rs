@@ -110,6 +110,19 @@ pub async fn insert_password_reset_token(
 ) -> ModelResult<Uuid> {
     let token = Uuid::new_v4();
 
+    //Soft delete possible previous tokens so that only one token is at use at a time
+    sqlx::query!(
+        r#"
+UPDATE password_reset_tokens
+SET deleted_at = NOW()
+WHERE user_id = $1
+  AND deleted_at IS NULL
+        "#,
+        user_id
+    )
+    .execute(&mut *conn)
+    .await?;
+
     sqlx::query!(
         r#"
 INSERT INTO password_reset_tokens (
@@ -121,7 +134,7 @@ VALUES ($1, $2)
         token,
         user_id
     )
-    .execute(conn)
+    .execute(&mut *conn)
     .await?;
 
     Ok(token)

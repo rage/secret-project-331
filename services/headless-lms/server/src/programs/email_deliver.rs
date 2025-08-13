@@ -5,6 +5,7 @@ use futures::{FutureExt, StreamExt};
 use headless_lms_models::email_deliveries::{Email, fetch_emails, mark_as_sent, save_err_to_email};
 use headless_lms_models::user_passwords::get_unused_reset_password_token_with_user_id;
 use headless_lms_utils::email_processor::{self, BlockAttributes, EmailGutenbergBlock};
+use lettre::transport::smtp::authentication::Credentials;
 use lettre::{
     Message, SmtpTransport, Transport,
     message::{MultiPart, SinglePart, header},
@@ -16,18 +17,25 @@ use std::collections::HashMap;
 const BATCH_SIZE: usize = 100;
 
 static MOOCFI_EMAIL: Lazy<String> =
-    Lazy::new(|| env::var("MOOCFI_EMAIL").expect("No moocfi email found in the env variables."));
+    Lazy::new(|| env::var("SMTP_FROM").expect("No moocfi email found in the env variables."));
 static EMAIL_RELAY: Lazy<String> =
-    Lazy::new(|| env::var("EMAIL_RELAY").expect("No email relay found in the env variables."));
+    Lazy::new(|| env::var("SMTP_HOST").expect("No email relay found in the env variables."));
 static DB_URL: Lazy<String> =
     Lazy::new(|| env::var("DATABASE_URL").expect("No db url found in the env variables."));
+static SMTP_USER: Lazy<String> =
+    Lazy::new(|| env::var("SMTP_USER").expect("No smtp user found in env variables."));
+static SMTP_PASS: Lazy<String> =
+    Lazy::new(|| env::var("SMTP_PASS").expect("No smtp password found in env variables."));
 
 pub async fn mail_sender() -> Result<()> {
     let pool = PgPool::connect(&DB_URL).await?;
     let mut conn = pool.acquire().await?;
+    let creds = Credentials::new(SMTP_USER.to_string(), SMTP_PASS.to_string());
 
     let emails = fetch_emails(&mut conn).await?;
-    let mailer = SmtpTransport::relay(&EMAIL_RELAY)?.build();
+    let mailer = SmtpTransport::relay(&EMAIL_RELAY)?
+        .credentials(creds)
+        .build();
 
     let mut futures = tokio_stream::iter(emails)
         .map(|email| {
@@ -52,20 +60,20 @@ pub async fn send_message(email: Email, mailer: &SmtpTransport, pool: PgPool) ->
     let mut email_block: Vec<EmailGutenbergBlock> =
         serde_json::from_value(email.body.context("No body")?)?;
 
-    // Check if emails subject is "Reset password request" and insert users unique reset -link to the email"
+    // Check if emails name is "reset-password-email" and inserts users unique reset -link into the email"
     if email
-        .subject
+        .name
         .as_deref()
         .unwrap_or_default()
         .to_lowercase()
-        .contains("reset password request")
+        .contains("reset-password-email")
     {
         let token = get_unused_reset_password_token_with_user_id(&mut conn, email.user_id).await?;
 
         let reset_url = match token {
             // THIS URL NEED TO BE CHANGED TO A CORRECT ONE FOR PRODUCTION
             Some(token_str) => format!(
-                "https://project-331.local/reset-password/{}",
+                "https://project-331.local/reset-user-password/{}",
                 token_str.token
             ),
             None => {

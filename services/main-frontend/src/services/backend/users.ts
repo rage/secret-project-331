@@ -52,8 +52,11 @@ export const getUserResetExerciseLogs = async (
   return validateResponse(response, isArray(isExerciseResetLog))
 }
 
-export const sendResetPasswordLink = async (email: string): Promise<boolean> => {
-  const response = await mainFrontendClient.post(`/users/send-reset-password-email`, { email })
+export const sendResetPasswordLink = async (email: string, language: string): Promise<boolean> => {
+  const response = await mainFrontendClient.post(`/users/send-reset-password-email`, {
+    email,
+    language,
+  })
   return validateResponse(response, isBoolean)
 }
 

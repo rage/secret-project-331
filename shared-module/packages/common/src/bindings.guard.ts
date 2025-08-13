@@ -1194,7 +1194,9 @@ export function isEmailTemplate(obj: unknown): obj is EmailTemplate {
         (typedObj["points_threshold"] === null ||
             typeof typedObj["points_threshold"] === "number") &&
         (typedObj["course_instance_id"] === null ||
-            typeof typedObj["course_instance_id"] === "string")
+            typeof typedObj["course_instance_id"] === "string") &&
+        (typedObj["language"] === null ||
+            typeof typedObj["language"] === "string")
     )
 }
 

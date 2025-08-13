@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM email_templates\nWHERE subject = $1\n  AND course_instance_id IS NULL\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT *\nFROM email_templates\nWHERE name = $1\n  AND language = $2\n  AND course_instance_id IS NULL\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -52,12 +52,17 @@
         "ordinal": 9,
         "name": "course_instance_id",
         "type_info": "Uuid"
+      },
+      {
+        "ordinal": 10,
+        "name": "language",
+        "type_info": "Varchar"
       }
     ],
     "parameters": {
-      "Left": ["Text"]
+      "Left": ["Text", "Text"]
     },
-    "nullable": [false, false, false, true, true, false, true, true, true, true]
+    "nullable": [false, false, false, true, true, false, true, true, true, true, true]
   },
-  "hash": "8283c7aa316fe69e3ad158ddfb699a0955085460b4db39f7c5fbbfc352aba49d"
+  "hash": "4b9768fa2b5f29b9b9ec2752f6adce52afe51cfc099dca8b51845cf7dcfae393"
 }

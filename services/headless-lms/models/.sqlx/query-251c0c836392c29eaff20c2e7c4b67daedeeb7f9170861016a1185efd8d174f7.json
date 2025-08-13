@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE email_templates\nSET deleted_at = now()\nWHERE id = $1\nRETURNING *\n  ",
+  "query": "\nSELECT *\nFROM email_templates\nWHERE name = $1\n  AND language = 'en'\n  AND course_instance_id IS NULL\n  AND deleted_at IS NULL\n                ",
   "describe": {
     "columns": [
       {
@@ -60,9 +60,9 @@
       }
     ],
     "parameters": {
-      "Left": ["Uuid"]
+      "Left": ["Text"]
     },
     "nullable": [false, false, false, true, true, false, true, true, true, true, true]
   },
-  "hash": "dc6a94949ce20d11fa55e247dc706fdc88018bf1ba528487fcd0ef02f5c40ca7"
+  "hash": "251c0c836392c29eaff20c2e7c4b67daedeeb7f9170861016a1185efd8d174f7"
 }

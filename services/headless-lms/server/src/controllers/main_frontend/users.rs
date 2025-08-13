@@ -171,6 +171,7 @@ pub async fn get_user_reset_exercise_logs(
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct EmailData {
     pub email: String,
+    pub language: String,
 }
 
 #[instrument(skip(pool))]
@@ -182,21 +183,21 @@ pub async fn send_reset_password_email(
     let token = skip_authorize();
 
     let email = &payload.email;
-
-    let user = { models::users::get_by_email(&mut conn, email).await? };
+    let language = &payload.language;
+    let user = models::users::get_by_email(&mut conn, email).await?;
 
     let _password_token =
         models::user_passwords::insert_password_reset_token(&mut conn, user.id).await?;
 
-    let reset_templates = models::email_templates::get_generic_email_templates_by_subject(
+    let reset_templates = models::email_templates::get_generic_email_template_by_name_and_language(
         &mut conn,
-        "Reset password request",
+        "reset-password-email",
+        language,
     )
     .await?;
 
-    let _ =
-        models::email_deliveries::insert_email_delivery(&mut conn, user.id, reset_templates[0].id)
-            .await?;
+    let _ = models::email_deliveries::insert_email_delivery(&mut conn, user.id, reset_templates.id)
+        .await?;
     token.authorized_ok(web::Json(true))
 }
 

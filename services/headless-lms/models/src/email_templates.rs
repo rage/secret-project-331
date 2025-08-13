@@ -13,6 +13,7 @@ pub struct EmailTemplate {
     pub exercise_completions_threshold: Option<i32>,
     pub points_threshold: Option<i32>,
     pub course_instance_id: Option<Uuid>,
+    pub language: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -48,26 +49,51 @@ WHERE course_instance_id = $1
     Ok(res)
 }
 
-pub async fn get_generic_email_templates_by_subject(
+pub async fn get_generic_email_template_by_name_and_language(
     conn: &mut PgConnection,
-    subject: &str,
-) -> ModelResult<Vec<EmailTemplate>> {
+    name: &str,
+    language: &str,
+) -> ModelResult<EmailTemplate> {
     let res = sqlx::query_as!(
         EmailTemplate,
         r#"
 SELECT *
 FROM email_templates
-WHERE subject = $1
+WHERE name = $1
+  AND language = $2
   AND course_instance_id IS NULL
   AND deleted_at IS NULL
         "#,
-        subject
+        name,
+        language
     )
-    .fetch_all(conn)
-    .await?;
+    .fetch_one(&mut *conn)
+    .await;
+    // Fallback to english password reset email if one in used language doesn't exist
+    match res {
+        Ok(template) => Ok(template),
+        Err(sqlx::Error::RowNotFound) if language != "en" => {
+            let fallback_res = sqlx::query_as!(
+                EmailTemplate,
+                r#"
+SELECT *
+FROM email_templates
+WHERE name = $1
+  AND language = 'en'
+  AND course_instance_id IS NULL
+  AND deleted_at IS NULL
+                "#,
+                name
+            )
+            .fetch_one(&mut *conn)
+            .await?;
 
-    Ok(res)
+            Ok(fallback_res)
+        }
+        Err(e) => Err(e.into()),
+    }
 }
+
 pub async fn insert_email_template(
     conn: &mut PgConnection,
     course_instance_id: Uuid,

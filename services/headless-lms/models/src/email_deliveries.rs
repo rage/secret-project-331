@@ -20,6 +20,7 @@ pub struct Email {
     pub to: String,
     pub subject: Option<String>,
     pub body: Option<serde_json::Value>,
+    pub name: Option<String>,
 }
 
 pub async fn insert_email_delivery(
@@ -57,7 +58,8 @@ SELECT
     u.id AS user_id,
     ud.email AS to,
     et.subject AS subject,
-    et.content AS body
+    et.content AS body,
+    et.name AS name
 FROM email_deliveries ed
 JOIN email_templates et ON et.id = ed.email_template_id
 JOIN users u ON u.id = ed.user_id

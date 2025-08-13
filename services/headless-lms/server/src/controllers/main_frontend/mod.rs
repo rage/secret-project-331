@@ -7,6 +7,7 @@ This documents all endpoints. Select a module below for a category.
 
 pub mod certificates;
 pub mod chapters;
+pub mod chatbots;
 pub mod code_giveaways;
 pub mod course_instances;
 pub mod course_modules;
@@ -71,5 +72,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                 .configure(teacher_grading_decisions::_add_routes),
         )
         .service(web::scope("/code-giveaways").configure(code_giveaways::_add_routes))
-        .service(web::scope("/oauth").configure(oauth::_add_routes));
+        .service(web::scope("/oauth").configure(oauth::_add_routes))
+        .service(web::scope("/chatbots").configure(chatbots::_add_routes));
 }

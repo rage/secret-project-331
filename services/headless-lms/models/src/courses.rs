@@ -50,6 +50,59 @@ pub struct Course {
     pub join_code: Option<String>,
     pub ask_marketing_consent: bool,
     pub flagged_answers_threshold: Option<i32>,
+    pub closed_at: Option<DateTime<Utc>>,
+    pub closed_additional_message: Option<String>,
+    pub closed_course_successor_id: Option<Uuid>,
+}
+
+/** A subset of the `Course` struct that contains the fields that are allowed to be shown to all students on the course materials. */
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CourseMaterialCourse {
+    pub id: Uuid,
+    pub slug: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub organization_id: Uuid,
+    pub language_code: String,
+    pub copied_from: Option<Uuid>,
+    pub content_search_language: Option<String>,
+    pub course_language_group_id: Uuid,
+    pub is_draft: bool,
+    pub is_test_mode: bool,
+    pub is_unlisted: bool,
+    pub base_module_completion_requires_n_submodule_completions: i32,
+    pub is_joinable_by_code_only: bool,
+    pub ask_marketing_consent: bool,
+    pub closed_at: Option<DateTime<Utc>>,
+    pub closed_additional_message: Option<String>,
+    pub closed_course_successor_id: Option<Uuid>,
+}
+
+impl From<Course> for CourseMaterialCourse {
+    fn from(course: Course) -> Self {
+        CourseMaterialCourse {
+            id: course.id,
+            slug: course.slug,
+            name: course.name,
+            description: course.description,
+            organization_id: course.organization_id,
+            language_code: course.language_code,
+            copied_from: course.copied_from,
+            content_search_language: course.content_search_language,
+            course_language_group_id: course.course_language_group_id,
+            is_draft: course.is_draft,
+            is_test_mode: course.is_test_mode,
+            is_unlisted: course.is_unlisted,
+            base_module_completion_requires_n_submodule_completions: course
+                .base_module_completion_requires_n_submodule_completions,
+            is_joinable_by_code_only: course.is_joinable_by_code_only,
+            ask_marketing_consent: course.ask_marketing_consent,
+            closed_at: course.closed_at,
+            closed_additional_message: course.closed_additional_message,
+            closed_course_successor_id: course.closed_course_successor_id,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -84,6 +137,7 @@ pub struct NewCourse {
     pub join_code: Option<String>,
     pub ask_marketing_consent: bool,
     pub flagged_answers_threshold: Option<i32>,
+    pub can_add_chatbot: bool,
 }
 
 pub async fn insert(
@@ -105,7 +159,8 @@ INSERT INTO courses(
     is_draft,
     is_test_mode,
     is_joinable_by_code_only,
-    join_code
+    join_code,
+    can_add_chatbot
   )
 VALUES(
     $1,
@@ -118,7 +173,8 @@ VALUES(
     $8,
     $9,
     $10,
-    $11
+    $11,
+    $12
   )
 RETURNING id
         ",
@@ -132,7 +188,8 @@ RETURNING id
         new_course.is_draft,
         new_course.is_test_mode,
         new_course.is_joinable_by_code_only,
-        new_course.join_code
+        new_course.join_code,
+        new_course.can_add_chatbot,
     )
     .fetch_one(conn)
     .await?;
@@ -172,7 +229,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  closed_additional_message,
+  closed_course_successor_id
 FROM courses
 WHERE deleted_at IS NULL;
 "#
@@ -209,7 +269,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  closed_additional_message,
+  closed_course_successor_id
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND id IN (
@@ -253,7 +316,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  closed_additional_message,
+  closed_course_successor_id
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND (
@@ -309,7 +375,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  closed_additional_message,
+  closed_course_successor_id
 FROM courses
 WHERE course_language_group_id = $1
 AND deleted_at IS NULL
@@ -345,12 +414,15 @@ SELECT
     c.is_draft,
     c.is_test_mode,
     c.base_module_completion_requires_n_submodule_completions,
-    can_add_chatbot,
+    c.can_add_chatbot,
     c.is_unlisted,
     c.is_joinable_by_code_only,
     c.join_code,
     c.ask_marketing_consent,
-    c.flagged_answers_threshold
+    c.flagged_answers_threshold,
+    c.closed_at,
+    c.closed_additional_message,
+    c.closed_course_successor_id
 FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
 WHERE
@@ -416,7 +488,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  closed_additional_message,
+  closed_course_successor_id
 FROM courses
 WHERE id = $1;
     "#,
@@ -524,7 +599,10 @@ SELECT courses.id,
   courses.is_joinable_by_code_only,
   courses.join_code,
   courses.ask_marketing_consent,
-  courses.flagged_answers_threshold
+  courses.flagged_answers_threshold,
+  courses.closed_at,
+  courses.closed_additional_message,
+  courses.closed_course_successor_id
 FROM courses
 WHERE courses.organization_id = $1
   AND (
@@ -590,6 +668,9 @@ pub struct CourseUpdate {
     pub is_joinable_by_code_only: bool,
     pub ask_marketing_consent: bool,
     pub flagged_answers_threshold: i32,
+    pub closed_at: Option<DateTime<Utc>>,
+    pub closed_additional_message: Option<String>,
+    pub closed_course_successor_id: Option<Uuid>,
 }
 
 pub async fn update_course(
@@ -609,8 +690,11 @@ SET name = $1,
   is_unlisted = $6,
   is_joinable_by_code_only = $7,
   ask_marketing_consent = $8,
-  flagged_answers_threshold = $9
-WHERE id = $10
+  flagged_answers_threshold = $9,
+  closed_at = $10,
+  closed_additional_message = $11,
+  closed_course_successor_id = $12
+WHERE id = $13
 RETURNING id,
   name,
   created_at,
@@ -631,7 +715,10 @@ RETURNING id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  closed_additional_message,
+  closed_course_successor_id
     "#,
         course_update.name,
         course_update.description,
@@ -642,6 +729,9 @@ RETURNING id,
         course_update.is_joinable_by_code_only,
         course_update.ask_marketing_consent,
         course_update.flagged_answers_threshold,
+        course_update.closed_at,
+        course_update.closed_additional_message,
+        course_update.closed_course_successor_id,
         course_id
     )
     .fetch_one(conn)
@@ -696,7 +786,10 @@ RETURNING id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  closed_additional_message,
+  closed_course_successor_id
     "#,
         course_id
     )
@@ -729,7 +822,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  closed_additional_message,
+  closed_course_successor_id
 FROM courses
 WHERE slug = $1
   AND deleted_at IS NULL
@@ -821,7 +917,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  closed_additional_message,
+  closed_course_successor_id
 FROM courses
 WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
   ",
@@ -859,7 +958,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  closed_additional_message,
+  closed_course_successor_id
 FROM courses
 WHERE organization_id = $1
   AND deleted_at IS NULL
@@ -918,7 +1020,10 @@ SELECT id,
   is_joinable_by_code_only,
   join_code,
   ask_marketing_consent,
-  flagged_answers_threshold
+  flagged_answers_threshold,
+  closed_at,
+  closed_additional_message,
+  closed_course_successor_id
 FROM courses
 WHERE join_code = $1
   AND deleted_at IS NULL;
@@ -1035,6 +1140,7 @@ mod test {
                 join_code: None,
                 ask_marketing_consent: false,
                 flagged_answers_threshold: Some(3),
+                can_add_chatbot: false,
             }
         }
     }

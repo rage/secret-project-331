@@ -5,6 +5,7 @@ import { postReprocessModuleCompletions } from "../../../../../../services/backe
 
 import Button from "@/shared-module/common/components/Button"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 interface ModuleCompletionReprocessButtonProps {
@@ -14,6 +15,7 @@ interface ModuleCompletionReprocessButtonProps {
 const ModuleCompletionReprocessButton: React.FC<
   React.PropsWithChildren<ModuleCompletionReprocessButtonProps>
 > = ({ courseInstanceId }) => {
+  const { confirm } = useDialog()
   const { t } = useTranslation()
   const postReprocessCompletionsMutation = useToastMutation(
     async () => {
@@ -28,8 +30,8 @@ const ModuleCompletionReprocessButton: React.FC<
       <Button
         variant="secondary"
         size="medium"
-        onClick={() => {
-          if (confirm(t("message-are-you-sure-you-want-to-reprocess-submissions"))) {
+        onClick={async () => {
+          if (await confirm(t("message-are-you-sure-you-want-to-reprocess-submissions"))) {
             return postReprocessCompletionsMutation.mutate()
           }
         }}

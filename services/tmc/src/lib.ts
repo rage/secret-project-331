@@ -31,7 +31,7 @@ export const downloadStream = async (url: string, target: string) => {
   })
   const templateWriter = fs.createWriteStream(target)
   templateRes.data.pipe(templateWriter)
-  await new Promise((resolve, reject) => {
+  await new Promise<void>((resolve, reject) => {
     templateWriter.on("finish", resolve)
     templateWriter.on("error", reject)
   })

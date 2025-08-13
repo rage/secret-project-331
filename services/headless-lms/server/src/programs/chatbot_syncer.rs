@@ -313,6 +313,7 @@ async fn sync_pages_batch(
             "language".to_string(),
             course.language_code.to_string().into(),
         );
+        metadata.insert("filepath".to_string(), blob_path.clone().into());
 
         if let Err(e) = blob_client
             .upload_file(&blob_path, content_to_upload.as_bytes(), Some(metadata))
@@ -342,12 +343,7 @@ fn generate_blob_path(page: &Page) -> anyhow::Result<String> {
         .course_id
         .ok_or_else(|| anyhow::anyhow!("Page {} does not belong to any course.", page.id))?;
 
-    let mut url_path = page.url_path.trim_start_matches('/').to_string();
-    if url_path.is_empty() {
-        url_path = "index".to_string();
-    }
-
-    Ok(format!("courses/{}/{}.md", course_id, url_path))
+    Ok(format!("courses/{}/pages/{}.md", course_id, page.id))
 }
 
 /// Deletes files from blob storage that are no longer associated with any page.

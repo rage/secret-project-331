@@ -1,5 +1,6 @@
 import { ServerResponse } from "http"
 import { TextEncoder } from "util"
+import "@testing-library/jest-dom"
 
 global.TextEncoder = TextEncoder
 global.Response = ServerResponse

@@ -1,4 +1,3 @@
-/* eslint-disable playwright/no-conditional-in-test */
 /* eslint-disable playwright/no-wait-for-timeout */
 import { test } from "@playwright/test"
 import { Page } from "playwright"
@@ -38,6 +37,56 @@ export async function selectCourseInstanceIfPrompted(
 
         await page.getByTestId("select-course-instance-continue-button").click()
         await page.getByTestId("select-course-instance-heading").waitFor({ state: "detached" })
+      }
+    },
+    { box: true },
+  )
+}
+
+/** Navigates to the next page and verifies the page has actually changed.
+ *
+ * This function clicks the "Next page" link and waits for the URL to change,
+ * ensuring that the navigation was successful and the page has actually loaded.
+ * If the page hasn't changed after a short while, it retries the click.
+ */
+export async function navigateToNextPageInMaterial(page: Page) {
+  await test.step(
+    "Navigate to next page",
+    async () => {
+      // Find the next page link
+      const nextPageLink = page.getByRole("link", { name: /Next page:/ })
+
+      // Get the current URL before navigation
+      const originalUrl = page.url()
+
+      // Scroll the link into view and click it
+      await nextPageLink.scrollIntoViewIfNeeded()
+      await page.waitForTimeout(100)
+      await nextPageLink.click()
+
+      // Wait for the URL to change, indicating the page has actually navigated
+      let urlChanged = false
+      let attempts = 0
+      const maxAttempts = 3
+
+      while (!urlChanged && attempts < maxAttempts) {
+        try {
+          await page.waitForFunction(
+            (originalUrl) => window.location.href !== originalUrl,
+            originalUrl,
+            { timeout: 3000 },
+          )
+          urlChanged = true
+        } catch (error) {
+          console.warn("Failed to navigate to next page, retrying...", error)
+          attempts++
+          if (attempts < maxAttempts) {
+            // If URL hasn't changed, try clicking again
+            await nextPageLink.click()
+          } else {
+            throw new Error(`Failed to navigate to next page after ${maxAttempts} attempts`)
+          }
+        }
       }
     },
     { box: true },

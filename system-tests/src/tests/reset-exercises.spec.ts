@@ -1,6 +1,9 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
-import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import {
+  navigateToNextPageInMaterial,
+  selectCourseInstanceIfPrompted,
+} from "@/utils/courseMaterialActions"
 import { scrollLocatorsParentIframeToViewIfNeeded } from "@/utils/iframeLocators"
 
 test.use({
@@ -37,12 +40,13 @@ test("Can manually reset exercises", async () => {
     .getByRole("checkbox", { name: "a" })
     .click()
 
-  await student1Page.getByRole("button", { name: "Submit" }).click()
+  // disabled: false prevents the selector from selecting an incorrect Submit button
+  // as it'll instead wait for an enabled one. although playwright does auto-wait on click(),
+  // in this case it can select a button that will never be enabled and wait for it instead
+  await student1Page.getByRole("button", { name: "Submit", disabled: false }).click()
   await student1Page.getByRole("button", { name: "Try again" }).waitFor({ state: "visible" })
 
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await student1Page.waitForTimeout(100)
-  await student1Page.getByRole("link", { name: "Next page: Page" }).click()
+  await navigateToNextPageInMaterial(student1Page)
   await student1Page.getByText("Everything is a big topic.").waitFor({ state: "hidden" })
   await student1Page
     .locator('iframe[title="Exercise 1\\, task 1 content"]')
@@ -72,7 +76,7 @@ test("Can manually reset exercises", async () => {
   await student1Page.getByRole("button", { name: "Submit" }).first().click()
   await student1Page.getByRole("button", { name: "Try again" }).waitFor({ state: "visible" })
 
-  await student1Page.getByRole("link", { name: "Next page: Page" }).click()
+  await navigateToNextPageInMaterial(student1Page)
 
   await student1Page
     .locator('iframe[title="Exercise 2\\, task 1 content"]')
@@ -104,7 +108,7 @@ test("Can manually reset exercises", async () => {
     .click()
   await student1Page.getByRole("button", { name: "Submit" }).click()
 
-  await student1Page.getByRole("link", { name: "Next page: Complicated" }).click()
+  await navigateToNextPageInMaterial(student1Page)
   await student1Page
     .locator('iframe[title="Exercise 1\\, task 1 content"]')
     .contentFrame()

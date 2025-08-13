@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import StandardDialog from "@/shared-module/common/components/StandardDialog"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 
 interface MessageDialogProps {
   title: string

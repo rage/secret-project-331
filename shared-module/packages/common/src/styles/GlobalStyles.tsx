@@ -71,7 +71,7 @@ const globalCss = css`
   .screen-reader-only {
     position: absolute;
     width: 1px;
-    clip: rect(0 0 0 0);
+    clip-path: rect(0 0 0 0);
     overflow: hidden;
     white-space: nowrap;
   }

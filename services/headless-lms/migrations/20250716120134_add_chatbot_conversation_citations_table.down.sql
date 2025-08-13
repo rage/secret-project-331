@@ -1,0 +1,1 @@
+DROP TABLE chatbot_conversation_messages_citations;

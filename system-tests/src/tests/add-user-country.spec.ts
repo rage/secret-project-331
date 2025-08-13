@@ -14,13 +14,16 @@ test("User can add missing country information", async ({ page }) => {
     await page.getByRole("button", { name: "Log in" }).click()
 
     // Form to fill missing country
-    await expect(page.getByRole("heading", { name: "Fill missing information" })).toBeVisible()
-    await page.getByRole("button", { name: "Select a country Where do you" }).click()
-    await page.getByLabel("Suggestions").getByText("Andorra").click()
-    await page.getByRole("button", { name: "Save" }).click()
-    await expect(page.getByText("Success", { exact: true })).toBeVisible()
-    await selectCourseInstanceIfPrompted(page)
-    await expect(page.getByText("Success", { exact: true })).toBeVisible()
+    // the course instance selection is sometimes prompted before the country
+    // so we will await both simultaneously
+    const countryPrompt = async () => {
+      await expect(page.getByRole("heading", { name: "Fill missing information" })).toBeVisible()
+      await page.getByRole("button", { name: "Select a country Where do you" }).click()
+      await page.getByLabel("Suggestions").getByText("Andorra").click()
+      await page.getByRole("button", { name: "Save" }).click()
+      await expect(page.getByText("Success", { exact: true })).toBeVisible()
+    }
+    await Promise.all([selectCourseInstanceIfPrompted(page), countryPrompt()])
 
     // Go to user setting and change users country
     await page.getByRole("button", { name: "Open menu" }).click()

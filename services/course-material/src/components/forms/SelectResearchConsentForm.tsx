@@ -14,7 +14,7 @@ import ContentRenderer from "../ContentRenderer"
 
 import { ResearchForm, ResearchFormQuestionAnswer } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
-import Dialog from "@/shared-module/common/components/Dialog"
+import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { baseTheme } from "@/shared-module/common/styles"

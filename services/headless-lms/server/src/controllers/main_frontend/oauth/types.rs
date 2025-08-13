@@ -83,6 +83,7 @@ pub trait OAuthValidate {
 }
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Default)]
 pub struct AuthorizeQuery {
+    pub response_type: Option<String>,
     pub client_id: Option<String>,
     pub redirect_uri: Option<String>,
     pub scope: Option<String>,
@@ -99,6 +100,7 @@ pub struct AuthorizeQuery {
 // error as success request with error parameters to comply with OAuth.
 impl OAuthValidate for AuthorizeQuery {
     fn validate(&self) -> Result<(), ControllerError> {
+        let rt = self.response_type.as_deref().unwrap_or_default();
         let client_id = self.client_id.as_deref().unwrap_or_default();
         let redirect_uri = self.redirect_uri.as_deref().unwrap_or_default();
         let scope = self.scope.as_deref().unwrap_or_default();
@@ -117,16 +119,15 @@ impl OAuthValidate for AuthorizeQuery {
                 None::<anyhow::Error>,
             ));
         }
-
-        if scope.split_whitespace().any(|s| s == "openid") && nonce.is_empty() {
+        if rt != "code" {
             return Err(ControllerError::new(
                 ControllerErrorType::OAuthError(OAuthErrorData {
-                    error: OAuthErrorCode::InvalidRequest.as_str().into(),
-                    error_description: "nonce is required for OpenID Connect".into(),
-                    redirect_uri: None, // ← do not include here
+                    error: OAuthErrorCode::UnsupportedResponseType.as_str().into(),
+                    error_description: "unsupported response_type".into(),
+                    redirect_uri: None, // include later only after client+URI validation
                     state: Some(state.to_string()),
                 }),
-                "Missing nonce for OpenID Connect",
+                "Unsupported response_type",
                 None::<anyhow::Error>,
             ));
         }
@@ -267,7 +268,8 @@ pub struct ConsentDenyQuery {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use domain::error::{ControllerError, ControllerErrorType};
+    use domain::error::{ControllerError, ControllerErrorType, OAuthErrorCode};
+    use serde_json::{Value, json};
 
     fn assert_oauth_error(
         result: Result<(), ControllerError>,
@@ -280,17 +282,18 @@ mod tests {
                     assert_eq!(data.error, expected_error.as_str());
                     assert_eq!(data.error_description, expected_description);
                 }
-                _ => panic!("Expected OAuthError with {}", expected_description),
+                other => panic!("Expected OAuthError, got {:?}", other),
             },
-            _ => panic!("Expected Err with OAuthError"),
+            Ok(()) => panic!("Expected Err, got Ok(())"),
         }
     }
 
-    // --------- AuthorizeQuery Tests ----------
+    // ---------------- AuthorizeQuery ----------------
 
     #[test]
-    fn test_authorize_missing_fields() {
-        let query = AuthorizeQuery {
+    fn authorize_missing_fields() {
+        let q = AuthorizeQuery {
+            response_type: Some("code".into()),
             client_id: None,
             redirect_uri: None,
             scope: None,
@@ -298,140 +301,209 @@ mod tests {
             nonce: None,
             _extra: Default::default(),
         };
-        let result = query.validate();
+        let res = q.validate();
         assert_oauth_error(
-            result,
+            res,
             OAuthErrorCode::InvalidRequest,
             "client_id, redirect_uri, and scope are required",
         );
     }
 
     #[test]
-    fn test_authorize_oidc_missing_nonce() {
-        let query = AuthorizeQuery {
-            client_id: Some("abc".into()),
-            redirect_uri: Some("http://example.com".into()),
-            scope: Some("openid profile".into()),
-            state: Some("xyz".into()),
+    fn authorize_unsupported_response_type() {
+        let q = AuthorizeQuery {
+            response_type: Some("token".into()),
+            client_id: Some("cid".into()),
+            redirect_uri: Some("http://localhost".into()),
+            scope: Some("openid".into()),
+            state: None,
             nonce: None,
             _extra: Default::default(),
         };
-        let result = query.validate();
+        let res = q.validate();
         assert_oauth_error(
-            result,
-            OAuthErrorCode::InvalidRequest,
-            "nonce is required for OpenID Connect",
+            res,
+            OAuthErrorCode::UnsupportedResponseType,
+            "unsupported response_type",
         );
     }
 
     #[test]
-    fn test_authorize_valid() {
-        let query = AuthorizeQuery {
-            client_id: Some("abc".into()),
-            redirect_uri: Some("http://example.com".into()),
+    fn authorize_valid_code_flow_openid_without_nonce_is_ok() {
+        // For pure code flow, nonce is not required by OIDC core.
+        let q = AuthorizeQuery {
+            response_type: Some("code".into()),
+            client_id: Some("cid".into()),
+            redirect_uri: Some("http://localhost".into()),
             scope: Some("openid profile".into()),
-            state: Some("xyz".into()),
-            nonce: Some("random".into()),
+            state: Some("s".into()),
+            nonce: None,
             _extra: Default::default(),
         };
-        assert!(query.validate().is_ok());
+        assert!(q.validate().is_ok());
     }
 
-    // --------- TokenQuery Tests ----------
+    #[test]
+    fn authorize_unknown_params_are_captured_in_extra() {
+        let v: Value = json!({
+            "response_type": "code",
+            "client_id": "cid",
+            "redirect_uri": "http://localhost",
+            "scope": "openid",
+            "state": "s",
+            "foo": "bar",
+            "x": "y"
+        });
+        let q: AuthorizeQuery = serde_json::from_value(v).unwrap();
+        assert_eq!(q._extra.get("foo").map(String::as_str), Some("bar"));
+        assert_eq!(q._extra.get("x").map(String::as_str), Some("y"));
+        assert!(q.validate().is_ok());
+    }
+
+    // ---------------- TokenQuery ----------------
 
     #[test]
-    fn test_token_missing_client_credentials() {
-        let query = TokenQuery {
+    fn token_missing_client_credentials() {
+        let q = TokenQuery {
             client_id: None,
             client_secret: None,
             grant: None,
             _extra: Default::default(),
         };
-        let result = query.validate();
+        let res = q.validate();
         assert_oauth_error(
-            result,
+            res,
             OAuthErrorCode::InvalidClient,
             "client_id and client_secret are required",
         );
     }
 
     #[test]
-    fn test_token_missing_grant_type() {
-        let query = TokenQuery {
-            client_id: Some("abc".into()),
-            client_secret: Some("secret".into()),
+    fn token_missing_grant_type() {
+        let q = TokenQuery {
+            client_id: Some("cid".into()),
+            client_secret: Some("sec".into()),
             grant: None,
             _extra: Default::default(),
         };
-        let result = query.validate();
+        let res = q.validate();
         assert_oauth_error(
-            result,
+            res,
             OAuthErrorCode::UnsupportedGrantType,
             "grant_type is required",
         );
     }
 
     #[test]
-    fn test_token_auth_code_missing_fields() {
-        let query = TokenQuery {
-            client_id: Some("abc".into()),
-            client_secret: Some("secret".into()),
+    fn token_auth_code_missing_fields() {
+        let q = TokenQuery {
+            client_id: Some("cid".into()),
+            client_secret: Some("sec".into()),
             grant: Some(GrantType::AuthorizationCode {
                 code: "".into(),
                 redirect_uri: "".into(),
             }),
             _extra: Default::default(),
         };
-        let result = query.validate();
+        let res = q.validate();
         assert_oauth_error(
-            result,
+            res,
             OAuthErrorCode::InvalidRequest,
             "code and redirect_uri are required for authorization_code grant",
         );
     }
 
     #[test]
-    fn test_token_refresh_token_missing_field() {
-        let query = TokenQuery {
-            client_id: Some("abc".into()),
-            client_secret: Some("secret".into()),
+    fn token_refresh_missing_field() {
+        let q = TokenQuery {
+            client_id: Some("cid".into()),
+            client_secret: Some("sec".into()),
             grant: Some(GrantType::RefreshToken {
                 refresh_token: "".into(),
             }),
             _extra: Default::default(),
         };
-        let result = query.validate();
+        let res = q.validate();
         assert_oauth_error(
-            result,
+            res,
             OAuthErrorCode::InvalidRequest,
             "refresh_token is required",
         );
     }
 
     #[test]
-    fn test_token_valid_auth_code() {
-        let query = TokenQuery {
-            client_id: Some("abc".into()),
-            client_secret: Some("secret".into()),
+    fn token_valid_auth_code() {
+        let q = TokenQuery {
+            client_id: Some("cid".into()),
+            client_secret: Some("sec".into()),
             grant: Some(GrantType::AuthorizationCode {
-                code: "code".into(),
-                redirect_uri: "http://example.com".into(),
+                code: "abc".into(),
+                redirect_uri: "http://localhost".into(),
             }),
             _extra: Default::default(),
         };
-        assert!(query.validate().is_ok());
+        assert!(q.validate().is_ok());
     }
 
     #[test]
-    fn test_token_valid_refresh_token() {
-        let query = TokenQuery {
-            client_id: Some("abc".into()),
-            client_secret: Some("secret".into()),
+    fn token_valid_refresh_token() {
+        let q = TokenQuery {
+            client_id: Some("cid".into()),
+            client_secret: Some("sec".into()),
             grant: Some(GrantType::RefreshToken {
-                refresh_token: "token".into(),
+                refresh_token: "r1".into(),
             }),
             _extra: Default::default(),
         };
-        assert!(query.validate().is_ok());
+        assert!(q.validate().is_ok());
+    }
+
+    #[test]
+    fn token_unknown_params_are_captured_in_extra() {
+        let v: Value = json!({
+            "client_id": "cid",
+            "client_secret": "sec",
+            "grant_type": "refresh_token",
+            "refresh_token": "rt",
+            "extra_param": "zzz"
+        });
+        let q: TokenQuery = serde_json::from_value(v).unwrap();
+        assert_eq!(q._extra.get("extra_param").map(String::as_str), Some("zzz"));
+        assert!(q.validate().is_ok());
+    }
+
+    #[test]
+    fn token_grant_tagging_deserializes_properly() {
+        // authorization_code branch
+        let ac: TokenQuery = serde_json::from_value(json!({
+            "client_id": "cid",
+            "client_secret": "sec",
+            "grant_type": "authorization_code",
+            "code": "C",
+            "redirect_uri": "http://localhost"
+        }))
+        .unwrap();
+        match ac.grant {
+            Some(GrantType::AuthorizationCode { code, redirect_uri }) => {
+                assert_eq!(code, "C");
+                assert_eq!(redirect_uri, "http://localhost");
+            }
+            _ => panic!("expected AuthorizationCode"),
+        }
+
+        // refresh_token branch
+        let rt: TokenQuery = serde_json::from_value(json!({
+            "client_id": "cid",
+            "client_secret": "sec",
+            "grant_type": "refresh_token",
+            "refresh_token": "R"
+        }))
+        .unwrap();
+        match rt.grant {
+            Some(GrantType::RefreshToken { refresh_token }) => {
+                assert_eq!(refresh_token, "R");
+            }
+            _ => panic!("expected RefreshToken"),
+        }
     }
 }

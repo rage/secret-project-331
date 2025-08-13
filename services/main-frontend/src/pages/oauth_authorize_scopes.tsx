@@ -1,15 +1,20 @@
+import { css } from "@emotion/css"
 import { useRouter } from "next/router"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
-const scopeDescriptions: Record<string, string> = {
-  openid: "Authenticate with your account",
-  email: "Access your email address",
-  profile: "Read your public profile information",
-  offline_access: "Allow access when you're offline (refresh tokens)",
-}
+import Button from "@/shared-module/common/components/Button"
 
 export default function ConsentPage() {
   const router = useRouter()
+  const { t } = useTranslation("main-frontend")
+
+  const scopeDescriptions: Record<string, string> = {
+    openid: t("oauth-scope-description-openid"),
+    email: t("oauth-scope-description-email"),
+    profile: t("oauth-scope-description-profile"),
+    offline_access: t("oauth-scope-description-offline-access"),
+  }
 
   const {
     client_id = "",
@@ -29,57 +34,62 @@ export default function ConsentPage() {
   }, [scope])
 
   const handleApprove = () => {
-    const approveUrl = `/api/v0/main-frontend/oauth/consent?` +
+    /* eslint-disable i18next/no-literal-string */
+    const approveUrl =
+      `/api/v0/main-frontend/oauth/consent?` +
       `client_id=${encodeURIComponent(String(client_id))}` +
       `&redirect_uri=${encodeURIComponent(String(redirect_uri))}` +
       `&scopes=${encodeURIComponent(scopes.join(" "))}` +
       `&state=${encodeURIComponent(String(state))}` +
       `&nonce=${encodeURIComponent(String(nonce))}` +
       `&return_to=${encodeURIComponent(String(return_to))}`
-
+    /* eslint-enable i18next/no-literal-string */
     window.location.href = approveUrl
   }
 
   const handleDeny = () => {
-    const denyUrl = `/api/v0/main-frontend/oauth/consent/deny?` +
+    /* eslint-disable i18next/no-literal-string */
+    const denyUrl =
+      `/api/v0/main-frontend/oauth/consent/deny?` +
       `client_id=${encodeURIComponent(String(client_id))}` +
       `&redirect_uri=${encodeURIComponent(String(redirect_uri))}` +
       `&state=${encodeURIComponent(String(state))}`
+    /* eslint-enable i18next/no-literal-string */
 
     window.location.href = denyUrl
   }
 
   return (
-    <div className="max-w-md mx-auto mt-10 bg-white shadow-lg rounded-2xl p-6">
-      <h2 className="text-2xl font-bold text-center mb-4">
-        {client_name} wants access
-      </h2>
-      <p className="text-gray-700 text-center mb-4">
-        This application is requesting the following permissions:
-      </p>
+    <div
+      className={css`
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        max-width: 600px;
+        margin: auto;
+      `}
+    >
+      <h2>{client_name}</h2>
+      <p>{t("oauth-application-requesting-access")}</p>
 
-      <ul className="list-disc list-inside mb-6">
+      <ul>
         {scopes.map((scope) => (
-          <li key={scope} className="text-gray-800">
+          <li key={scope}>
             <strong>{scope}</strong>:{" "}
-            {scopeDescriptions[scope] || "No description available"}
+            {scopeDescriptions[scope] || t("oauth-scope-description-no-description")}
           </li>
         ))}
       </ul>
 
-      <div className="flex justify-center gap-4">
-        <button
-          onClick={handleApprove}
-          className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow"
-        >
-          Approve
-        </button>
-        <button
-          onClick={handleDeny}
-          className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg shadow"
-        >
-          Deny
-        </button>
+      <div>
+        <Button variant="primary" onClick={handleApprove} size="large">
+          {t("approve")}
+        </Button>
+        <Button onClick={handleDeny} variant="reject" size="large">
+          {t("button-text-cancel")}
+        </Button>
       </div>
     </div>
   )

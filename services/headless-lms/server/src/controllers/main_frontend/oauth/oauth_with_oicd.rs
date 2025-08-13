@@ -41,7 +41,7 @@ async fn authorize(
                 ControllerErrorType::OAuthError(OAuthErrorData {
                     error: OAuthErrorCode::InvalidRequest.as_str().into(),
                     error_description: "invalid client_id".into(),
-                    redirect_uri: Some(redirect_uri.to_string()),
+                    redirect_uri: None,
                     state: Some(state.to_string()),
                 }),
                 "Invalid client_id",
@@ -241,7 +241,7 @@ async fn token(
             if auth_code.client_id != client.id || &auth_code.redirect_uri != redirect_uri {
                 return Err(ControllerError::new(
                     ControllerErrorType::OAuthError(OAuthErrorData {
-                        error: OAuthErrorCode::InvalidRequest.as_str().into(),
+                        error: OAuthErrorCode::InvalidGrant.as_str().into(),
                         error_description: "invalid authorization code or redirect_uri".into(),
                         redirect_uri: None,
                         state: None,
@@ -292,7 +292,7 @@ async fn token(
             if token.client_id != client.id {
                 return Err(ControllerError::new(
                     ControllerErrorType::OAuthError(OAuthErrorData {
-                        error: OAuthErrorCode::InvalidRequest.as_str().into(),
+                        error: OAuthErrorCode::InvalidGrant.as_str().into(),
                         error_description: "invalid refresh_token".into(),
                         redirect_uri: None,
                         state: None,
@@ -348,8 +348,10 @@ async fn token(
         token_type: "Bearer".to_string(),
         expires_in: access_token_expire_time.num_seconds() as u32,
     };
-
-    server_token.authorized_ok(HttpResponse::Ok().json(response))
+    let mut resp = HttpResponse::Ok();
+    resp.insert_header(("Cache-Control", "no-store"));
+    resp.insert_header(("Pragma", "no-cache"));
+    server_token.authorized_ok(resp.json(response))
 }
 // TODO: This is not a ready version, remember to actually make it. Returning user id makes no
 // sense, the client has that (and nothing else) already.

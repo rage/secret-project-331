@@ -275,6 +275,9 @@ impl error::ResponseError for ControllerError {
                     HttpResponse::BadRequest()
                 };
 
+                builder.insert_header(("Cache-Control", "no-store"));
+                builder.insert_header(("Pragma", "no-cache"));
+
                 return builder.json(serde_json::json!({
                     "error": data.error,
                     "error_description": data.error_description,
@@ -339,17 +342,21 @@ pub struct OAuthErrorData {
 }
 
 pub enum OAuthErrorCode {
+    InvalidGrant,
     InvalidRequest,
     InvalidClient,
     UnsupportedGrantType,
+    UnsupportedResponseType,
 }
 
 impl OAuthErrorCode {
     pub fn as_str(&self) -> &'static str {
         match self {
+            Self::InvalidGrant => "invalid_grant",
             Self::InvalidRequest => "invalid_request",
             Self::InvalidClient => "invalid_client",
             Self::UnsupportedGrantType => "unsupported_grant_type",
+            Self::UnsupportedResponseType => "unsupported_response_type",
         }
     }
 }

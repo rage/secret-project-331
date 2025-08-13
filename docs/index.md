@@ -1,65 +1,91 @@
-# Secret Project 331 Documentation Index
+# Secret Project 331 – Documentation for Developers
 
 ## 📌 Introduction
 
-**Secret Project 331** is a Learning Management System (LMS) developed by the MOOC Center of the University of Helsinki. It's deployed at [https://courses.mooc.fi](https://courses.mooc.fi). This documentation is intended for developers and provides technical insights, setup instructions, and detailed guides to facilitate development and contribution.
+**Secret Project 331** is a Learning Management System (LMS) developed by the MOOC Center of the University of Helsinki. It's deployed at [https://courses.mooc.fi](https://courses.mooc.fi.
 
-For non-developers:
+> [!CAUTION]
+> This documentation is **only** for developers.
+>
+> For non-developers:
+>
+> * **Learn more about the courses**: [https://www.mooc.fi](https://www.mooc.fi)
+> * **For teachers**: See the **Wiki** tab in this repository.
 
-- **Learn more about the courses**: [https://www.mooc.fi](https://www.mooc.fi)
-- **Teacher Documentation**: Refer to the **Wiki** tab in this repository.
+---
 
 ## 🚀 Getting Started
 
-- Set up local environment: [Development Environment Setup](./Development.md)
-- Configure VDI: [VDI Setup for MOOC Center Employees](./vdi-setup.md)
+* Set up your computer for development: [Development Environment Setup](./Development.md)
+* Set up VDI for MOOC Center staff: [VDI Setup](./vdi-setup.md)
 
-## 🏛 Architecture
+---
 
-- System architecture overview: [Project Architecture](./architecture.md)
+## 🏛 How the System Works
+
+* Overview of the system: [Project Architecture](./architecture.md)
+
+---
 
 ## 💻 Development Guides
 
-- Interact with backend, shared modules: [Frontend Development](./frontend.md)
-- Database interactions, migrations: [Backend Development](./headless-lms.md)
-- Extend LMS with new exercises: [Plugin System](./plugin-system.md)
-- Implement responsive designs: [Mobile-First CSS](./mobile-first-css.md)
-- Support multiple languages: [Internationalization](./internationalization.md)
-- Develop new blocks for CMS and course material: [Blocks Development](./blocks.md)
+* Working with the backend and shared code: [Frontend Development](./frontend.md)
+* Database setup and updates: [Backend Development](./headless-lms.md)
+* Adding new exercises: [Plugin System](./plugin-system.md)
+* Making the site work on all devices: [Mobile-First CSS](./mobile-first-css.md)
+* Adding different languages: [Internationalization](./internationalization.md)
+* Creating new blocks for content: [Blocks Development](./blocks.md)
+
+---
 
 ## 📦 Deployment
 
-- Deployment process and CI/CD: [Deployment Workflow](./deployment.md)
-- Test/manage Dockerfile changes: [Testing Changes to Dockerfiles](./updating-dockerfiles.md)
+* How to put the system online: [Deployment Workflow](./deployment.md)
+* Testing and updating Docker files: [Dockerfile Updates](./updating-dockerfiles.md)
 
-## 🗄 Database Operations
+---
 
-- Perform database operations: [DataGrip Operations](./datagrip-operations.md)
+## 🗄 Database Tasks
+
+* Using DataGrip for database work: [DataGrip Guide](./datagrip-operations.md)
+
+---
 
 ## 🗂 Version Control
 
-- Enhance Git workflow: [GIT Notes](./git.md)
+* Tips for using Git: [Git Notes](./git.md)
+
+---
 
 ## 🧪 Testing
 
-- Write and execute tests: [Testing](./tests.md)
+* How to write and run tests: [Testing Guide](./tests.md)
 
-## 📋 Requirements
+---
 
-- Frontend should be designed with a minimum viable width of 320 pixels.
+## 📋 Design Requirements
+
+* Frontend should work with a screen width of at least 320 pixels.
+
+---
 
 ## 🔄 Updating Dependencies
 
-- [Updating Dependencies Guide](./updating-dependencies.md)
+* How to update dependencies: [Update Guide](./updating-dependencies.md)
 
-## 📚 Additional Documentation and links
+---
 
-- Additional notes: [Miscellaneous Notes](./etc.md)
-- Localization data: [Localizations](../shared-module/packages/common/src/locales/en/main-frontend.json)
-- Bin-commands: [Commands](../bin)
-- Figma design: [Figma](https://www.figma.com/design/7SCSdeHG5FnLNZLfd6SnBI/Teacher-redesign)
-- Routes helper functions: [Routes](../shared-module/packages/common/src/utils/routes.ts)
+## 📚 Extra Resources
 
-## 📞 Support and Contributions
+* Notes: [Miscellaneous Notes](./etc.md)
+* Language data: [Localizations](../shared-module/packages/common/src/locales/en/main-frontend.json)
+* Command-line tools: [Commands](../bin)
+* Design files: [Figma](https://www.figma.com/design/7SCSdeHG5FnLNZLfd6SnBI/Teacher-redesign)
+* Route helper functions: [Routes](../shared-module/packages/common/src/utils/routes.ts)
+* See also the recommended resources on the README of the repo: [GitHub Repository](https://github.com/rage/secret-project-331)
 
-- **Project Repository**: [GitHub Repository](https://github.com/rage/secret-project-331)
+---
+
+## 📞 Help and Contributions
+
+* **Project Code**: [GitHub Repository](https://github.com/rage/secret-project-331)

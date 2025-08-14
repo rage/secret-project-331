@@ -42,12 +42,16 @@ const TextBox = styled.div<TextBoxProps>`
     max-width: 100%;
     line-height: 1.1;
 
-    font-size: clamp(1.5rem, 4vw, 60px);
+    font-size: clamp(1.3rem, 4vw, 60px);
     ${respondToOrLarger.xxxs} {
-      font-size: clamp(2rem, 4vw, 60px);
+      font-size: clamp(1.5rem, 4vw, 60px);
     }
 
     ${respondToOrLarger.xxs} {
+      font-size: clamp(2rem, 4vw, 60px);
+    }
+
+    ${respondToOrLarger.xs} {
       font-size: clamp(2.4rem, 4vw, 60px);
     }
 

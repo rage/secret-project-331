@@ -36,6 +36,8 @@
   "chatbot-disclaimer-disclose-part-1": "Always disclose use of LLMs in your studies.You can find the University of Helsinki guidance on use of LLMs in studies",
   "chatbot-disclaimer-disclose-part-2": "here",
   "chatbot-disclaimer-start": "You are opening a chatbot based on a large language model (LLM). To use this chatbot, you must agree that you will...",
+  "chatbot-finished-responding": "Chatbot has finished responding",
+  "chatbot-is-responding": "Chatbot is responding",
   "choose-a-language": "Choose a language",
   "choose-preferred-language": "Choose your preferred language",
   "citation": "Citation",

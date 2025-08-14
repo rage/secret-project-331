@@ -64,6 +64,7 @@ Git should already be installed on the VDI. Confirm this by running `git --versi
    ```bash
    gh auth login
    ```
+
    - Select **HTTPS** as the protocol.
    - If logging in via browser, install Firefox if needed: `snap install firefox`.
 

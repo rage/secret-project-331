@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE oauth_refresh_tokens SET revoked = true WHERE token = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Text"]
+    },
+    "nullable": []
+  },
+  "hash": "c83adca4b13f619167439ae64a474985a4c78deb7870f5c94ff42c65f5181687"
+}

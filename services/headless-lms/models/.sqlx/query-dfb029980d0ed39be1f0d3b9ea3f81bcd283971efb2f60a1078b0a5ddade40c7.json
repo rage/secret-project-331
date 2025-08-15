@@ -1,0 +1,48 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT id, client_id, client_secret, redirect_uris, grant_types, scope, origin\n               FROM oauth_clients WHERE client_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "client_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "client_secret",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "redirect_uris",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 4,
+        "name": "grant_types",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 5,
+        "name": "scope",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "origin",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": ["Text"]
+    },
+    "nullable": [false, false, false, false, false, true, false]
+  },
+  "hash": "dfb029980d0ed39be1f0d3b9ea3f81bcd283971efb2f60a1078b0a5ddade40c7"
+}

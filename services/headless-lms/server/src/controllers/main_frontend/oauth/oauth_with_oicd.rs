@@ -46,7 +46,6 @@ use uuid::Uuid;
 /// HTTP/1.1 302 Found
 /// Location: http://localhost?code=SplxlOBeZQQYbYS6WxSbIA&state=random123
 /// ```
-
 #[instrument(skip(pool))]
 async fn authorize(
     pool: web::Data<PgPool>,
@@ -631,7 +630,6 @@ async fn jwks() -> ControllerResult<HttpResponse> {
 ///   "id_token_signing_alg_values_supported": ["RS256"]
 /// }
 /// ```
-
 async fn well_known_openid() -> Result<HttpResponse, Error> {
     let config = json!({
         "issuer": "https://courses.mooc.fi/api/v0/main-frontend/oauth",
@@ -703,7 +701,7 @@ fn generate_id_token(
     encode(
         &Header::new(jsonwebtoken::Algorithm::RS256),
         &claims,
-        &EncodingKey::from_rsa_pem(&private_pem.as_bytes())?,
+        &EncodingKey::from_rsa_pem(private_pem.as_bytes())?,
     )
     .map_err(|e| {
         ControllerError::new(

@@ -9,14 +9,15 @@ use models::{
     pages::{self, NewPage},
 };
 
+use crate::domain::authorization::{Action as Act, Resource as Res};
 use crate::{
     controllers::helpers::file_uploading::upload_image_for_organization,
     domain::authorization::{
-        Action, AuthorizedResponse, Resource, authorize, authorize_with_fetched_list_of_roles,
-        skip_authorize,
+        Action, Resource, authorize, authorize_with_fetched_list_of_roles, skip_authorize,
     },
     prelude::*,
 };
+
 use actix_web::web::{self, Json};
 
 /**
@@ -446,47 +447,20 @@ async fn soft_delete_organization(
     org_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<AuthorizedResponse<web::Json<()>>> {
+) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
 
-    let user_roles = models::roles::get_roles(&mut conn, user.id).await?;
-    let is_admin = user_roles
-        .iter()
-        .any(|r| r.role == models::roles::UserRole::Admin);
-    if !is_admin {
-        return Err(ControllerError::new(
-            ControllerErrorType::Unauthorized,
-            "Admin access required".to_string(),
-            None,
-        ));
-    }
+    let token = authorize(
+        &mut conn,
+        Action::Administrate,
+        Some(user.id),
+        Resource::GlobalPermissions,
+    )
+    .await?;
 
     models::organizations::soft_delete(&mut conn, *org_id).await?;
-
-    let token = skip_authorize();
-    let json = web::Json(());
-    let result: ControllerResult<web::Json<()>> = token.authorized_ok(json);
-    result.map(|data| AuthorizedResponse { data, token })
+    token.authorized_ok(web::Json(()))
 }
-
-//#[instrument(skip(pool))]
-//async fn soft_delete_organization(
-//    org_id: web::Path<Uuid>,
-//    pool: web::Data<PgPool>,
-//    user: AuthUser,
-//) -> ControllerResult<web::Json<()>> {
-//    let mut conn = pool.acquire().await?;
-//
-//    let token = authorize(
-//        &mut conn,
-//        Action::Administrate,
-//        Some(user.id),
-//        Resource::GlobalPermissions,
-//    ).await?;
-//
-//    models::organizations::soft_delete(&mut conn, *org_id).await?;
-//    token.authorized_ok(web::Json(()))
-//}
 
 /**
 GET `/api/v0/main-frontend/organizations/{organization_id}/course_exams` - Returns an organizations exams in CourseExam form.

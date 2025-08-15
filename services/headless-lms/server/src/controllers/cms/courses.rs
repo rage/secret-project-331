@@ -312,10 +312,10 @@ async fn delete_partners_block(
 }
 
 /**
-GET /api/v0/cms/courses/:course_id/chatbot-configurations - Get all chatbot configurations of this course.
+GET /api/v0/cms/courses/:course_id/nondefault-chatbot-configurations - Get all chatbot configurations of this course.
 */
 #[instrument(skip(pool))]
-async fn get_course_chatbot_configurations(
+async fn get_course_nondefault_chatbot_configurations(
     path: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -330,7 +330,7 @@ async fn get_course_chatbot_configurations(
     )
     .await?;
     let course_chatbot_configurations =
-        models::chatbot_configurations::get_for_course(&mut conn, course_id).await?;
+        models::chatbot_configurations::get_nondefault_for_course(&mut conn, course_id).await?;
     token.authorized_ok(web::Json(course_chatbot_configurations))
 }
 
@@ -382,7 +382,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_course_instances),
         )
         .route(
-            "/{course_id}/chatbot-configurations",
-            web::get().to(get_course_chatbot_configurations),
+            "/{course_id}/nondefault-chatbot-configurations",
+            web::get().to(get_course_nondefault_chatbot_configurations),
         );
 }

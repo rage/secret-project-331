@@ -629,10 +629,10 @@ export const fetchResearchFormAnswersWithUserId = async (
   return validateResponse(response, isArray(isResearchFormQuestionAnswer))
 }
 
-export const getChatbotConfigurationForCourse = async (
+export const getDefaultChatbotConfigurationForCourse = async (
   course_id: string,
 ): Promise<string | null> => {
-  const response = await courseMaterialClient.get(`/chatbot/for-course/${course_id}`, {
+  const response = await courseMaterialClient.get(`/chatbot/default-for-course/${course_id}`, {
     responseType: "json",
   })
   return validateResponse(response, isUnion(isString, isNull))

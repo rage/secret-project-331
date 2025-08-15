@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
@@ -9,7 +10,7 @@ import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 import { ChatbotBlockAttributes } from "."
 
-import { fetchChatbotConfigurationsForCourse } from "@/services/backend/courses"
+import { fetchNondefaultChatbotConfigurationsForCourse } from "@/services/backend/courses"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
@@ -24,8 +25,9 @@ const ChatbotEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChatbotBloc
   const courseId = useContext(PageContext)?.page.course_id
 
   const chatbotConfigurations = useQuery({
-    queryKey: [`/courses/${courseId}/chatbot-configurations`],
-    queryFn: () => fetchChatbotConfigurationsForCourse(assertNotNullOrUndefined(courseId)),
+    queryKey: [`/courses/${courseId}/nondefault-chatbot-configurations`],
+    queryFn: () =>
+      fetchNondefaultChatbotConfigurationsForCourse(assertNotNullOrUndefined(courseId)),
     enabled: !!courseId,
   })
   const chatbotConfigurationSelectOptions: { label: string; value: string }[] =
@@ -43,6 +45,9 @@ const ChatbotEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChatbotBloc
     >
       {chatbotConfigurations.data ? (
         <SelectField
+          className={css`
+            width: inherit;
+          `}
           label={t("select-an-option")}
           options={chatbotConfigurationSelectOptions}
           defaultValue={chatbotConfigurationId}

@@ -82,10 +82,10 @@ export const fetchCourseModulesByCourseId = async (
   return validateResponse(response, isArray(isCourseModule))
 }
 
-export const fetchChatbotConfigurationsForCourse = async (
+export const fetchNondefaultChatbotConfigurationsForCourse = async (
   courseId: string,
 ): Promise<Array<ChatbotConfiguration>> => {
-  const response = await cmsClient.get(`/courses/${courseId}/chatbot-configurations`, {
+  const response = await cmsClient.get(`/courses/${courseId}/nondefault-chatbot-configurations`, {
     headers: { "Content-Type": "application/json" },
   })
   return validateResponse(response, isArray(isChatbotConfiguration))

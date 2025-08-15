@@ -13,7 +13,7 @@ import {
   fetchPageAudioFiles,
   fetchResearchFormAnswersWithUserId,
   fetchResearchFormWithCourseId,
-  getChatbotConfigurationForCourse,
+  getDefaultChatbotConfigurationForCourse,
 } from "../services/backend"
 import { inlineColorStyles } from "../styles/inlineColorStyles"
 
@@ -114,7 +114,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
 
   const chatbotConfiguration = useQuery({
     queryKey: [`courses-${courseId}-chatbot-configuration`],
-    queryFn: () => getChatbotConfigurationForCourse(assertNotNullOrUndefined(courseId)),
+    queryFn: () => getDefaultChatbotConfigurationForCourse(assertNotNullOrUndefined(courseId)),
     enabled: loginContext.signedIn === true && Boolean(courseId),
   })
 

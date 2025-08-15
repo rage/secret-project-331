@@ -108,24 +108,24 @@ impl OAuthValidate for AuthorizeQuery {
 
         if client_id.is_empty() || redirect_uri.is_empty() || scope.is_empty() {
             return Err(ControllerError::new(
-                ControllerErrorType::OAuthError(OAuthErrorData {
+                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
                     error: OAuthErrorCode::InvalidRequest.as_str().into(),
                     error_description: "client_id, redirect_uri, and scope are required".into(),
                     redirect_uri: None,             // ← do not include here
                     state: Some(state.to_string()), // echo state is fine
-                }),
+                })),
                 "Missing required OAuth parameters",
                 None::<anyhow::Error>,
             ));
         }
         if rt != "code" {
             return Err(ControllerError::new(
-                ControllerErrorType::OAuthError(OAuthErrorData {
+                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
                     error: OAuthErrorCode::UnsupportedResponseType.as_str().into(),
                     error_description: "unsupported response_type".into(),
                     redirect_uri: None, // include later only after client+URI validation
                     state: Some(state.to_string()),
-                }),
+                })),
                 "Unsupported response_type",
                 None::<anyhow::Error>,
             ));
@@ -142,12 +142,12 @@ impl OAuthValidate for TokenQuery {
 
         if client_id.is_empty() || client_secret.is_empty() {
             return Err(ControllerError::new(
-                ControllerErrorType::OAuthError(OAuthErrorData {
+                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
                     error: OAuthErrorCode::InvalidClient.as_str().into(),
                     error_description: "client_id and client_secret are required".into(),
                     redirect_uri: None,
                     state: None,
-                }),
+                })),
                 "Missing client credentials",
                 None::<anyhow::Error>,
             ));
@@ -157,14 +157,14 @@ impl OAuthValidate for TokenQuery {
             Some(GrantType::AuthorizationCode { code, redirect_uri }) => {
                 if code.is_empty() || redirect_uri.is_empty() {
                     return Err(ControllerError::new(
-                        ControllerErrorType::OAuthError(OAuthErrorData {
+                        ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
                             error: OAuthErrorCode::InvalidRequest.as_str().into(),
                             error_description:
                                 "code and redirect_uri are required for authorization_code grant"
                                     .into(),
                             redirect_uri: None,
                             state: None,
-                        }),
+                        })),
                         "Missing authorization code parameters",
                         None::<anyhow::Error>,
                     ));
@@ -173,12 +173,12 @@ impl OAuthValidate for TokenQuery {
             Some(GrantType::RefreshToken { refresh_token }) => {
                 if refresh_token.is_empty() {
                     return Err(ControllerError::new(
-                        ControllerErrorType::OAuthError(OAuthErrorData {
+                        ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
                             error: OAuthErrorCode::InvalidRequest.as_str().into(),
                             error_description: "refresh_token is required".into(),
                             redirect_uri: None,
                             state: None,
-                        }),
+                        })),
                         "Missing refresh token",
                         None::<anyhow::Error>,
                     ));
@@ -186,12 +186,12 @@ impl OAuthValidate for TokenQuery {
             }
             None => {
                 return Err(ControllerError::new(
-                    ControllerErrorType::OAuthError(OAuthErrorData {
+                    ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
                         error: OAuthErrorCode::UnsupportedGrantType.as_str().into(),
                         error_description: "grant_type is required".into(),
                         redirect_uri: None,
                         state: None,
-                    }),
+                    })),
                     "Missing grant type",
                     None::<anyhow::Error>,
                 ));

@@ -56,7 +56,7 @@ pub enum ControllerErrorType {
 
     /// HTTP satus code 200. OAuthError is returned as a error message on OK response.
     #[display("OAuthError")]
-    OAuthError(OAuthErrorData),
+    OAuthError(Box<OAuthErrorData>),
 }
 
 /**

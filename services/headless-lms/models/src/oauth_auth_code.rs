@@ -16,6 +16,7 @@ pub struct OAuthAuthCode {
 }
 
 impl OAuthAuthCode {
+    #[allow(clippy::too_many_arguments)]
     pub async fn insert(
         conn: &mut PgConnection,
         code: &str,

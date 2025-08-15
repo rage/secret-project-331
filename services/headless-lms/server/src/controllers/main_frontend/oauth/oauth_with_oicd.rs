@@ -68,12 +68,12 @@ async fn authorize(
         .await
         .map_err(|_| {
             ControllerError::new(
-                ControllerErrorType::OAuthError(OAuthErrorData {
+                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
                     error: OAuthErrorCode::InvalidRequest.as_str().into(),
                     error_description: "invalid client_id".into(),
                     redirect_uri: None,
                     state: Some(state.to_string()),
-                }),
+                })),
                 "Invalid client_id",
                 None::<anyhow::Error>,
             )
@@ -81,12 +81,12 @@ async fn authorize(
 
     if !client.redirect_uris.contains(&redirect_uri.to_string()) {
         return Err(ControllerError::new(
-            ControllerErrorType::OAuthError(OAuthErrorData {
+            ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
                 error: OAuthErrorCode::InvalidRequest.as_str().into(),
                 error_description: "redirect_uri does not match client".into(),
                 redirect_uri: Some(redirect_uri.to_string()),
                 state: Some(state.to_string()),
-            }),
+            })),
             "Redirect URI mismatch",
             None::<anyhow::Error>,
         ));
@@ -317,12 +317,12 @@ async fn token(
         .await
         .map_err(|_| {
             ControllerError::new(
-                ControllerErrorType::OAuthError(OAuthErrorData {
+                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
                     error: OAuthErrorCode::InvalidClient.as_str().into(),
                     error_description: "invalid client_id".into(),
                     redirect_uri: None,
                     state: None,
-                }),
+                })),
                 "Invalid client_id",
                 None::<anyhow::Error>,
             )
@@ -330,12 +330,12 @@ async fn token(
 
     if client.client_secret != client_secret {
         return Err(ControllerError::new(
-            ControllerErrorType::OAuthError(OAuthErrorData {
+            ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
                 error: OAuthErrorCode::InvalidClient.as_str().into(),
                 error_description: "invalid client secret".into(),
                 redirect_uri: None,
                 state: None,
-            }),
+            })),
             "Invalid client secret",
             None::<anyhow::Error>,
         ));
@@ -350,12 +350,12 @@ async fn token(
             let auth_code = OAuthAuthCode::consume(&mut conn, code).await?;
             if auth_code.client_id != client.id || &auth_code.redirect_uri != redirect_uri {
                 return Err(ControllerError::new(
-                    ControllerErrorType::OAuthError(OAuthErrorData {
+                    ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
                         error: OAuthErrorCode::InvalidGrant.as_str().into(),
                         error_description: "invalid authorization code or redirect_uri".into(),
                         redirect_uri: None,
                         state: None,
-                    }),
+                    })),
                     "Invalid authorization code",
                     None::<anyhow::Error>,
                 ));
@@ -401,12 +401,12 @@ async fn token(
             let token = OAuthRefreshTokens::consume(&mut conn, refresh_token).await?;
             if token.client_id != client.id {
                 return Err(ControllerError::new(
-                    ControllerErrorType::OAuthError(OAuthErrorData {
+                    ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
                         error: OAuthErrorCode::InvalidGrant.as_str().into(),
                         error_description: "invalid refresh_token".into(),
                         redirect_uri: None,
                         state: None,
-                    }),
+                    })),
                     "Invalid refresh token",
                     None::<anyhow::Error>,
                 ));
@@ -510,12 +510,12 @@ async fn user_info(
         Some(t) => t,
         None => {
             return Err(ControllerError::new(
-                ControllerErrorType::OAuthError(OAuthErrorData {
+                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
                     error: OAuthErrorCode::InvalidToken.as_str().into(),
                     error_description: "missing or malformed token".into(),
                     redirect_uri: None,
                     state: None,
-                }),
+                })),
                 "missing or malformed token",
                 None::<anyhow::Error>,
             ));
@@ -582,7 +582,6 @@ async fn user_info(
 ///   ]
 /// }
 /// ```
-
 #[instrument]
 async fn jwks() -> ControllerResult<HttpResponse> {
     let server_token = skip_authorize();
@@ -602,7 +601,6 @@ async fn jwks() -> ControllerResult<HttpResponse> {
     };
     server_token.authorized_ok(HttpResponse::Ok().json(Jwks { keys: vec![jwk] }))
 }
-
 /// Handles `/.well-known/openid-configuration` to expose OIDC discovery metadata.
 ///
 /// This endpoint:
@@ -709,12 +707,12 @@ fn generate_id_token(
     )
     .map_err(|e| {
         ControllerError::new(
-            ControllerErrorType::OAuthError(OAuthErrorData {
+            ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
                 error: OAuthErrorCode::ServerError.as_str().into(),
                 error_description: "Failed to generate ID token".into(),
                 redirect_uri: None,
                 state: None,
-            }),
+            })),
             "Failed to generate ID token",
             Some(e.into()),
         )

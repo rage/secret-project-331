@@ -17,7 +17,6 @@ use serde::{Deserialize, Serialize};
 use tracing_error::SpanTrace;
 #[cfg(feature = "ts_rs")]
 use ts_rs::TS;
-use url::form_urlencoded;
 use uuid::Uuid;
 
 /**
@@ -252,37 +251,43 @@ impl error::ResponseError for ControllerError {
             }
             error!("Internal server error: {}", err_string);
         }
-
         if let ControllerErrorType::OAuthError(data) = &self.error_type {
             if let Some(uri) = &data.redirect_uri {
-                // /authorize style: redirect back with encoded query
-                let encoded = form_urlencoded::Serializer::new(String::new())
-                    .append_pair("error", &data.error)
-                    .append_pair("error_description", &data.error_description)
-                    .append_pair("state", data.state.as_deref().unwrap_or_default())
-                    .finish();
-
+                let loc = format!(
+                    "{}?error={}&error_description={}&state={}",
+                    uri,
+                    data.error,
+                    data.error_description,
+                    data.state.clone().unwrap_or_default()
+                );
                 return HttpResponse::Found()
-                    .insert_header(("Location", format!("{uri}?{encoded}")))
+                    .append_header(("Location", loc))
                     .finish();
-            } else {
-                // /token style: JSON error; invalid_client => 401 + WWW-Authenticate
-                let mut builder = if data.error == "invalid_client" {
-                    let mut b = HttpResponse::Unauthorized();
-                    b.insert_header(("WWW-Authenticate", "Basic realm=\"OAuth\""));
-                    b
-                } else {
-                    HttpResponse::BadRequest()
-                };
-
-                builder.insert_header(("Cache-Control", "no-store"));
-                builder.insert_header(("Pragma", "no-cache"));
-
-                return builder.json(serde_json::json!({
-                    "error": data.error,
-                    "error_description": data.error_description,
-                }));
             }
+
+            let status = match data.error.as_str() {
+                "invalid_client" => StatusCode::UNAUTHORIZED,  // 401
+                "invalid_token" => StatusCode::UNAUTHORIZED,   // 401
+                "insufficient_scope" => StatusCode::FORBIDDEN, // 403
+                _ => StatusCode::BAD_REQUEST,
+            };
+
+            let mut res = HttpResponse::build(status);
+            match data.error.as_str() {
+                "invalid_client" | "invalid_token" | "insufficient_scope" | "invalid_request" => {
+                    let hdr = format!(
+                        r#"Bearer error="{}", error_description="{}""#,
+                        data.error, data.error_description
+                    );
+                    res.append_header(("WWW-Authenticate", hdr));
+                }
+                _ => {}
+            }
+
+            return res.json(serde_json::json!({
+                "error": data.error,
+                "error_description": data.error_description
+            }));
         }
 
         let status = self.status_code();
@@ -345,8 +350,11 @@ pub enum OAuthErrorCode {
     InvalidGrant,
     InvalidRequest,
     InvalidClient,
+    InvalidToken,
+    InsufficientScope,
     UnsupportedGrantType,
     UnsupportedResponseType,
+    ServerError,
 }
 
 impl OAuthErrorCode {
@@ -355,8 +363,11 @@ impl OAuthErrorCode {
             Self::InvalidGrant => "invalid_grant",
             Self::InvalidRequest => "invalid_request",
             Self::InvalidClient => "invalid_client",
+            Self::InvalidToken => "invalid_token",
+            Self::InsufficientScope => "insufficient_scope",
             Self::UnsupportedGrantType => "unsupported_grant_type",
             Self::UnsupportedResponseType => "unsupported_response_type",
+            Self::ServerError => "server_error",
         }
     }
 }

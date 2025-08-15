@@ -115,6 +115,8 @@ zstd = "0.13.3" # matches the version from actix-http
 tar = "0.4.44"
 # Utilities for random number generation
 rand = "0.9.2"
+# A pure Rust implementation of the RSA public key cryptosystem.
+rsa = { version = "0.9", features = ["pem"] }
 # JSON Web Token (JWT) is a compact, URL-safe means of representing claims to be transferred between two parties.
 jwt = "0.16.0"
 # Another JWT crate, used for asymmetric signing for OAuth

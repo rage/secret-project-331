@@ -34,6 +34,7 @@ pub struct ApplicationConfiguration {
     pub development_uuid_login: bool,
     pub azure_configuration: Option<AzureConfiguration>,
     pub tmc_account_creation_origin: Option<String>,
+    pub oauth_server_configuration: OAuthServerConfiguration,
 }
 
 impl ApplicationConfiguration {
@@ -50,12 +51,16 @@ impl ApplicationConfiguration {
                 .context("TMC_ACCOUNT_CREATION_ORIGIN must be defined")?,
         );
 
+        let oauth_server_configuration = OAuthServerConfiguration::try_from_env()
+            .context("Failed to load OAuth server configuration")?;
+
         Ok(Self {
             base_url,
             test_mode,
             development_uuid_login,
             azure_configuration,
             tmc_account_creation_origin,
+            oauth_server_configuration,
         })
     }
 }
@@ -199,5 +204,24 @@ impl AzureConfiguration {
         } else {
             Ok(None)
         }
+    }
+}
+
+#[derive(Clone, PartialEq)]
+pub struct OAuthServerConfiguration {
+    pub rsa_public_key: String,
+    pub rsa_private_key: String,
+}
+
+impl OAuthServerConfiguration {
+    pub fn try_from_env() -> anyhow::Result<Self> {
+        let rsa_public_key =
+            env::var("OAUTH_RSA_PUBLIC_PEM").context("OAUTH_RSA_PUBLIC_KEY must be defined")?;
+        let rsa_private_key =
+            env::var("OAUTH_RSA_PRIVATE_PEM").context("OAUTH_RSA_PRIVATE_KEY must be defined")?;
+        Ok(Self {
+            rsa_public_key,
+            rsa_private_key,
+        })
     }
 }

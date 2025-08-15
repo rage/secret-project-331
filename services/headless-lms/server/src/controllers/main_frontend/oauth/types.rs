@@ -1,8 +1,7 @@
 use crate::prelude::*;
-use actix_web::{Error, FromRequest, HttpRequest, dev::Payload, web};
+use actix_web::{FromRequest, HttpRequest, dev::Payload, web};
 use domain::error::{OAuthErrorCode, OAuthErrorData};
 use futures_util::future::LocalBoxFuture;
-use futures_util::future::{Ready, ready};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::future::Future;
@@ -12,6 +11,7 @@ impl<T> ExtractFallback for T where T: Default + for<'de> Deserialize<'de> {}
 
 type AsyncPin<'a, O> = Pin<Box<dyn Future<Output = O> + 'a>>;
 
+#[derive(Debug)]
 pub struct SafeExtractor<T>(pub T);
 
 impl<T> SafeExtractor<T>
@@ -105,7 +105,6 @@ impl OAuthValidate for AuthorizeQuery {
         let redirect_uri = self.redirect_uri.as_deref().unwrap_or_default();
         let scope = self.scope.as_deref().unwrap_or_default();
         let state = self.state.as_deref().unwrap_or_default();
-        let nonce = self.nonce.as_deref().unwrap_or_default();
 
         if client_id.is_empty() || redirect_uri.is_empty() || scope.is_empty() {
             return Err(ControllerError::new(
@@ -236,11 +235,6 @@ pub struct TokenResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct UserInfoResponse {
-    pub sub: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct Claims {
     pub sub: String,
     pub aud: String,
@@ -263,6 +257,33 @@ pub struct ConsentQuery {
 pub struct ConsentDenyQuery {
     pub redirect_uri: String,
     pub state: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct UserInfoResponse {
+    pub sub: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub first_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub last_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub email: Option<String>,
+}
+
+#[derive(serde::Serialize)]
+pub struct Jwk {
+    pub kty: String,
+    #[serde(rename = "use")]
+    pub use_: String,
+    pub alg: String,
+    pub kid: String,
+    pub n: String,
+    pub e: String,
+}
+
+#[derive(serde::Serialize)]
+pub struct Jwks {
+    pub keys: Vec<Jwk>,
 }
 
 #[cfg(test)]

@@ -2,22 +2,52 @@
 use super::types::*;
 use crate::prelude::*;
 use actix_web::{Error, HttpResponse, web};
+use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
 use chrono::{DateTime, Duration, Utc};
 use domain::error::{OAuthErrorCode, OAuthErrorData};
+use headless_lms_utils::ApplicationConfiguration;
 use headless_lms_utils::prelude::*;
 use jsonwebtoken::{EncodingKey, Header, encode};
 use models::{
     oauth_access_token::OAuthAccessToken, oauth_auth_code::OAuthAuthCode,
     oauth_client::OAuthClient, oauth_refresh_tokens::OAuthRefreshTokens,
-    oauth_user_client_scopes::OAuthUserClientScopes, users,
+    oauth_user_client_scopes::OAuthUserClientScopes, user_details,
 };
-use rand::Rng;
+use rand::distr::SampleString;
+use rand::rng;
+use rsa::RsaPublicKey;
+use rsa::pkcs1::DecodeRsaPublicKey;
+use rsa::traits::PublicKeyParts;
 use serde_json::json;
+use sha2::{Digest, Sha256};
 use sqlx::PgPool;
-use std::env;
 use uuid::Uuid;
 
-#[instrument(skip(pool, query))] // TODO dont skip query
+/// Handles the `/authorize` endpoint for OAuth 2.0 / OpenID Connect.
+///
+/// This endpoint:
+/// - Validates the incoming authorization request.
+/// - Checks the client, redirect URI, and requested scopes.
+/// - If the user is logged in and has already granted the requested scopes, issues an authorization code.
+/// - If the user is logged in but missing consent for some scopes, redirects them to the consent screen.
+/// - If the user is not logged in, redirects them to the login page.
+///
+/// Follows [RFC 6749 Section 3.1](https://datatracker.ietf.org/doc/html/rfc6749#section-3.1) and
+/// [OpenID Connect Core 1.0 Section 3](https://openid.net/specs/openid-connect-core-1_0.html#AuthorizationEndpoint).
+///
+/// # Example
+/// ```http
+/// GET /api/v0/main-frontend/oauth/authorize?response_type=code&client_id=test-client-id&redirect_uri=http://localhost&scope=openid%20profile%20email&state=random123&nonce=secure_nonce_abc HTTP/1.1
+///
+/// ```
+///
+/// Successful redirect:
+/// ```http
+/// HTTP/1.1 302 Found
+/// Location: http://localhost?code=SplxlOBeZQQYbYS6WxSbIA&state=random123
+/// ```
+
+#[instrument(skip(pool))]
 async fn authorize(
     pool: web::Data<PgPool>,
     query: SafeExtractor<AuthorizeQuery>,
@@ -85,7 +115,7 @@ async fn authorize(
                     client_id, redirect_uri, scope, state, nonce, encoded_return_to
                 )
             } else {
-                let code = generate_access_token()?;
+                let code = generate_access_token();
                 let expires_at = Utc::now() + Duration::minutes(10);
                 OAuthAuthCode::insert(
                     &mut conn,
@@ -124,6 +154,25 @@ async fn authorize(
     )
 }
 
+/// Handles `/consent` approval after the user agrees to grant requested scopes.
+///
+/// This endpoint:
+/// - Validates the redirect URI and requested scopes against the registered client.
+/// - Records granted scopes for the user-client pair.
+/// - Redirects back to `/authorize` to continue the OAuth flow.
+///
+/// # Example
+/// ```http
+/// GET /api/v0/main-frontend/oauth/consent?client_id=test-client-id&redirect_uri=http://localhost&scopes=openid%20profile&state=random123&nonce=secure_nonce_abc HTTP/1.1
+/// Cookie: session=abc123
+///
+/// ```
+///
+/// Redirect back to `/authorize`:
+/// ```http
+/// HTTP/1.1 302 Found
+/// Location: /api/v0/main-frontend/oauth/authorize?client_id=...
+/// ```
 #[instrument(skip(pool))]
 async fn approve_consent(
     pool: web::Data<PgPool>,
@@ -175,6 +224,22 @@ async fn approve_consent(
     )
 }
 
+/// Handles `/consent/deny` when the user refuses to grant scopes.
+///
+/// This endpoint:
+/// - Redirects back to the client with `error=access_denied`.
+///
+/// # Example
+/// ```http
+/// GET /api/v0/main-frontend/oauth/consent/deny?redirect_uri=http://localhost&state=random123 HTTP/1.1
+///
+/// ```
+///
+/// Response:
+/// ```http
+/// HTTP/1.1 302 Found
+/// Location: http://localhost?error=access_denied&state=random123
+/// ```
 #[instrument]
 async fn deny_consent(query: web::Query<ConsentDenyQuery>) -> Result<HttpResponse, Error> {
     let redirect_url = format!(
@@ -187,7 +252,52 @@ async fn deny_consent(query: web::Query<ConsentDenyQuery>) -> Result<HttpRespons
         .finish())
 }
 
-#[instrument(skip(pool, form))] // TODO: dont skip form
+/// Handles the `/token` endpoint for exchanging an authorization code or refresh token.
+///
+/// This endpoint:
+/// - Validates the client credentials.
+/// - For `authorization_code` grants:
+///     - Verifies the code and redirect URI.
+///     - Issues an access token, refresh token, and optionally an ID token.
+/// - For `refresh_token` grants:
+///     - Issues a new access token and refresh token.
+///
+/// Follows [RFC 6749 Section 3.2](https://datatracker.ietf.org/doc/html/rfc6749#section-3.2)
+/// and [OIDC Core Section 3.1.3](https://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint).
+///
+/// # Example
+/// ```http
+/// POST /api/v0/main-frontend/oauth/token HTTP/1.1
+/// Content-Type: application/x-www-form-urlencoded
+///
+/// grant_type=authorization_code&code=SplxlOBeZQQYbYS6WxSbIA&redirect_uri=http://localhost&client_id=test-client-id&client_secret=test-secret
+/// ```
+///
+/// Successful response:
+/// ```http
+/// HTTP/1.1 200 OK
+/// Content-Type: application/json
+///
+/// {
+///   "access_token": "2YotnFZFEjr1zCsicMWpAA",
+///   "refresh_token": "tGzv3JOkF0XG5Qx2TlKWIA",
+///   "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
+///   "token_type": "Bearer",
+///   "expires_in": 3600
+/// }
+/// ```
+///
+/// Error:
+/// ```http
+/// HTTP/1.1 401 Unauthorized
+/// Content-Type: application/json
+///
+/// {
+///   "error": "invalid_client",
+///   "error_description": "invalid client secret"
+/// }
+/// ```
+#[instrument(skip(pool))]
 async fn token(
     pool: web::Data<PgPool>,
     form: SafeExtractor<TokenQuery>,
@@ -231,8 +341,8 @@ async fn token(
         ));
     }
 
-    let access_token = generate_access_token()?;
-    let new_refresh_token = generate_access_token()?;
+    let access_token = generate_access_token();
+    let new_refresh_token = generate_access_token();
     let refresh_token_expires_at = Utc::now() + refresh_token_expire_time;
 
     let (user_id, scope, nonce, expires_at, issue_id_token) = match &form.0.grant {
@@ -353,38 +463,184 @@ async fn token(
     resp.insert_header(("Pragma", "no-cache"));
     server_token.authorized_ok(resp.json(response))
 }
-// TODO: This is not a ready version, remember to actually make it. Returning user id makes no
-// sense, the client has that (and nothing else) already.
+
+/// Handles `/userinfo` for returning user claims according to granted scopes.
+///
+/// This endpoint:
+/// - Validates the access token.
+/// - Returns `sub` always.
+/// - Returns `first_name` and `last_name` if `profile` scope is granted.
+/// - Returns `email` if `email` scope is granted.
+///
+/// Follows [OIDC Core Section 5.3](https://openid.net/specs/openid-connect-core-1_0.html#UserInfo).
+///
+/// # Example
+/// ```http
+/// GET /api/v0/main-frontend/oauth/userinfo HTTP/1.1
+/// Authorization: Bearer 2YotnFZFEjr1zCsicMWpAA
+///
+/// ```
+///
+/// Response with `profile` and `email` scopes:
+/// ```http
+/// HTTP/1.1 200 OK
+/// Content-Type: application/json
+///
+/// {
+///   "sub": "248289761001",
+///   "first_name": "Jane",
+///   "last_name": "Doe",
+///   "email": "janedoe@example.com"
+/// }
+/// ```
 #[instrument(skip(pool))]
 async fn user_info(
-    pool: web::Data<PgPool>,
+    pool: web::Data<sqlx::PgPool>,
     req: actix_web::HttpRequest,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let server_token = skip_authorize();
-    let token = req
+
+    let token = match req
         .headers()
         .get("Authorization")
         .and_then(|v| v.to_str().ok())
         .and_then(|v| v.strip_prefix("Bearer "))
-        .ok_or_else(|| actix_web::error::ErrorUnauthorized("missing or malformed token"))?;
+    {
+        Some(t) => t,
+        None => {
+            return Err(ControllerError::new(
+                ControllerErrorType::OAuthError(OAuthErrorData {
+                    error: OAuthErrorCode::InvalidToken.as_str().into(),
+                    error_description: "missing or malformed token".into(),
+                    redirect_uri: None,
+                    state: None,
+                }),
+                "missing or malformed token",
+                None::<anyhow::Error>,
+            ));
+        }
+    };
 
     let access = OAuthAccessToken::find_valid(&mut conn, token).await?;
-    let user = users::get_by_id(&mut conn, access.user_id).await?;
+    let user = user_details::get_user_details_by_user_id(&mut conn, access.user_id).await?;
 
-    server_token.authorized_ok(HttpResponse::Ok().json(UserInfoResponse {
-        sub: user.id.to_string(),
-    }))
+    let scopes: std::collections::HashSet<&str> = access
+        .scope
+        .as_deref()
+        .unwrap_or("")
+        .split_whitespace()
+        .collect();
+
+    let mut res = UserInfoResponse {
+        sub: access.user_id.to_string(),
+        first_name: None,
+        last_name: None,
+        email: None,
+    };
+
+    if scopes.contains("profile") {
+        res.first_name = user.first_name.clone();
+        res.last_name = user.last_name.clone();
+    }
+    if scopes.contains("email") {
+        res.email = Some(user.email.clone());
+    }
+
+    server_token.authorized_ok(HttpResponse::Ok().json(res))
 }
 
-// TODO: Remember to make these actually correct
+/// Handles `/jwks.json` for returning the JSON Web Key Set (JWKS).
+///
+/// This endpoint:
+/// - Reads the configured RSA public key.
+/// - Exposes it in JWKS format for clients to validate ID tokens.
+///
+/// Follows [RFC 7517](https://datatracker.ietf.org/doc/html/rfc7517).
+///
+/// # Example
+/// ```http
+/// GET /api/v0/main-frontend/oauth/jwks.json HTTP/1.1
+///
+/// ```
+///
+/// Response:
+/// ```http
+/// HTTP/1.1 200 OK
+/// Content-Type: application/json
+///
+/// {
+///   "keys": [
+///     {
+///       "kty": "RSA",
+///       "use": "sig",
+///       "alg": "RS256",
+///       "kid": "abc123",
+///       "n": "0vx7agoebGcQSuuPiLJXZptN...",
+///       "e": "AQAB"
+///     }
+///   ]
+/// }
+/// ```
+
+#[instrument]
+async fn jwks() -> ControllerResult<HttpResponse> {
+    let server_token = skip_authorize();
+    let public_pem = ApplicationConfiguration::try_from_env()?
+        .oauth_server_configuration
+        .rsa_public_key;
+
+    let (n, e, kid) = rsa_n_e_and_kid_from_pem(&public_pem)?;
+
+    let jwk = Jwk {
+        kty: "RSA".into(),
+        use_: "sig".into(),
+        alg: "RS256".into(),
+        kid,
+        n,
+        e,
+    };
+    server_token.authorized_ok(HttpResponse::Ok().json(Jwks { keys: vec![jwk] }))
+}
+
+/// Handles `/.well-known/openid-configuration` to expose OIDC discovery metadata.
+///
+/// This endpoint:
+/// - Lists available endpoints, supported response types, and signing algorithms.
+/// - Used by OpenID Connect clients for automatic configuration.
+///
+/// Follows [OIDC Discovery 1.0](https://openid.net/specs/openid-connect-discovery-1_0.html).
+///
+/// # Example
+/// ```http
+/// GET /api/v0/main-frontend/oauth/.well-known/openid-configuration HTTP/1.1
+///
+/// ```
+///
+/// Example response:
+/// ```http
+/// HTTP/1.1 200 OK
+/// Content-Type: application/json
+///
+/// {
+///   "issuer": "https://courses.mooc.fi/api/v0/main-frontend/oauth",
+///   "authorization_endpoint": "https://courses.mooc.fi/api/v0/main-frontend/oauth/authorize",
+///   "token_endpoint": "https://courses.mooc.fi/api/v0/main-frontend/oauth/token",
+///   "userinfo_endpoint": "https://courses.mooc.fi/api/v0/main-frontend/oauth/userinfo",
+///   "jwks_uri": "https://courses.mooc.fi/api/v0/main-frontend/oauth/jwks.json",
+///   "response_types_supported": ["code"],
+///   "subject_types_supported": ["public"],
+///   "id_token_signing_alg_values_supported": ["RS256"]
+/// }
+/// ```
+
 async fn well_known_openid() -> Result<HttpResponse, Error> {
     let config = json!({
-        "issuer": "https://your-domain.com/api/v0/main-frontend/oauth",
-        "authorization_endpoint": "https://your-domain.com/api/v0/main-frontend/oauth/authorize",
-        "token_endpoint": "https://your-domain.com/api/v0/main-frontend/oauth/token",
-        "userinfo_endpoint": "https://your-domain.com/api/v0/main-frontend/oauth/userinfo",
-        "jwks_uri": "https://your-domain.com/api/v0/main-frontend/oauth/jwks.json",
+        "issuer": "https://courses.mooc.fi/api/v0/main-frontend/oauth",
+        "authorization_endpoint": "https://courses.mooc.fi/api/v0/main-frontend/oauth/authorize",
+        "token_endpoint": "https://courses.mooc.fi/api/v0/main-frontend/oauth/token",
+        "userinfo_endpoint": "https://courses.mooc.fi/api/v0/main-frontend/oauth/userinfo",
+        "jwks_uri": "https://courses.mooc.fi/api/v0/main-frontend/oauth/jwks.json",
         "response_types_supported": ["code"],
         "subject_types_supported": ["public"],
         "id_token_signing_alg_values_supported": ["RS256"]
@@ -393,15 +649,51 @@ async fn well_known_openid() -> Result<HttpResponse, Error> {
     Ok(HttpResponse::Ok().json(config))
 }
 
+pub fn _add_routes(cfg: &mut web::ServiceConfig) {
+    cfg.route("/authorize", web::get().to(authorize))
+        .route("/token", web::post().to(token))
+        .route("/userinfo", web::get().to(user_info))
+        .route(
+            "/.well-known/openid-configuration",
+            web::get().to(well_known_openid),
+        )
+        .route("/jwks.json", web::get().to(jwks))
+        .route("/consent", web::get().to(approve_consent))
+        .route("/consent/deny", web::get().to(deny_consent));
+}
+
+// -------------- HELPERS ------------------------ //
+
+pub fn generate_access_token() -> String {
+    const LENGTH: usize = 64;
+    rand::distr::Alphanumeric.sample_string(&mut rng(), LENGTH)
+}
+
+// Extract (n, e) in base64url and a stable kid
+fn rsa_n_e_and_kid_from_pem(public_pem: &str) -> anyhow::Result<(String, String, String)> {
+    let pubkey: RsaPublicKey = RsaPublicKey::from_pkcs1_pem(public_pem)?;
+    let n_b64 = URL_SAFE_NO_PAD.encode(pubkey.n().to_bytes_be());
+    let e_b64 = URL_SAFE_NO_PAD.encode(pubkey.e().to_bytes_be());
+
+    // Simple & stable kid: b64url(SHA-256(public_pem))
+    let mut hasher = Sha256::new();
+    hasher.update(public_pem.as_bytes());
+    let kid = URL_SAFE_NO_PAD.encode(hasher.finalize());
+
+    Ok((n_b64, e_b64, kid))
+}
+
 fn generate_id_token(
     user_id: Uuid,
     client_id: &str,
     nonce: &str,
     expires_at: DateTime<Utc>,
-) -> Result<String, jsonwebtoken::errors::Error> {
+) -> Result<String, ControllerError> {
     let now = Utc::now().timestamp() as usize;
     let exp = expires_at.timestamp() as usize;
-    let private_pem = env::var("OAUTH_RSA_PRIVATE_PEM").expect("OAUTH_RSA_PRIVATE_PEM must be set");
+    let private_pem = ApplicationConfiguration::try_from_env()?
+        .oauth_server_configuration
+        .rsa_private_key;
     let claims = Claims {
         sub: user_id.to_string(),
         aud: client_id.to_string(),
@@ -415,46 +707,16 @@ fn generate_id_token(
         &claims,
         &EncodingKey::from_rsa_pem(&private_pem.as_bytes())?,
     )
-}
-
-pub fn _add_routes(cfg: &mut web::ServiceConfig) {
-    cfg.route("/authorize", web::get().to(authorize))
-        .route("/token", web::post().to(token))
-        .route("/userinfo", web::get().to(user_info))
-        .route(
-            "/.well-known/openid-configuration",
-            web::get().to(well_known_openid),
+    .map_err(|e| {
+        ControllerError::new(
+            ControllerErrorType::OAuthError(OAuthErrorData {
+                error: OAuthErrorCode::ServerError.as_str().into(),
+                error_description: "Failed to generate ID token".into(),
+                redirect_uri: None,
+                state: None,
+            }),
+            "Failed to generate ID token",
+            Some(e.into()),
         )
-        .route("/consent", web::get().to(approve_consent))
-        .route("/consent/deny", web::get().to(deny_consent));
-}
-
-// TODO: Think if this is secure enough, or if whe should use OsRang for cryptographically safer
-// rng tokens. Or we should import custom crate for this (rather not). Also, performance might be
-// issue when using charset.chars and not just working with bytes
-
-pub fn generate_access_token() -> UtilResult<String> {
-    const LENGTH: usize = 64;
-    const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    let mut rng = rand::rng(); // your crate-specific `rng()` function
-
-    let token: String = (0..LENGTH)
-        .map(|_| {
-            let idx = rng.random_range(0..CHARSET.len()); // assuming this exists in your rng
-            CHARSET
-                .get(idx)
-                .copied()
-                .ok_or_else(|| {
-                    UtilError::new(
-                        UtilErrorType::Other,
-                        "Failed to select a character during token generation",
-                        None,
-                    )
-                })
-                .map(|b| b as char)
-        })
-        .collect::<Result<String, UtilError>>()?;
-
-    Ok(token)
+    })
 }

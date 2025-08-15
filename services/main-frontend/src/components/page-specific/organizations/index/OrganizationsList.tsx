@@ -1,21 +1,57 @@
 import { css } from "@emotion/css"
+import axios from "axios"
+import { useRouter } from "next/router"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import useAllOrganizationsQuery from "../../../../hooks/useAllOrganizationsQuery"
 
+import CreateOrganizationPopup from "./CreateOrganizationPopup"
 import OrganizationBanner from "./components/OrganizationBanner"
 
+import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import Spinner from "@/shared-module/common/components/Spinner"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
+  const [showCreatePopup, setShowCreatePopup] = React.useState(false)
+  const [orgName, setOrgName] = React.useState("")
+  const [newSlug, setNewSlug] = React.useState("")
+  // eslint-disable-next-line i18next/no-literal-string
+  const [newVisibility, setNewVisibility] = React.useState("public")
+  const router = useRouter()
 
   const allOrganizationsQuery = useAllOrganizationsQuery()
+
+  const createOrganizationMutation = useToastMutation(
+    async () => {
+      return await axios.post("/api/v0/main-frontend/organizations", {
+        name: orgName,
+        slug: newSlug.trim().toLowerCase().replace(/\s+/g, "-"),
+        description: "",
+        hidden: newVisibility === "private",
+      })
+    },
+    {
+      notify: true,
+      method: "POST",
+    },
+    {
+      onSuccess: () => {
+        setShowCreatePopup(false)
+        router.reload()
+      },
+      onError: () => {
+        // optional: add custom logic if needed
+      },
+    },
+  )
 
   return (
     <div
@@ -50,6 +86,29 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
       >
         {t("select-organization")}
       </p>
+      <OnlyRenderIfPermissions
+        action={{ type: "create_courses_or_exams" }}
+        resource={{ type: "global_permissions" }}
+      >
+        <div
+          className={css`
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+          `}
+        >
+          <Button
+            variant="primary"
+            size="medium"
+            onClick={() => {
+              setShowCreatePopup(true)
+            }}
+          >
+            {t("create-a-new-organization")}
+          </Button>
+        </div>
+      </OnlyRenderIfPermissions>
+
       {allOrganizationsQuery.isError && (
         <ErrorBanner variant={"readOnly"} error={allOrganizationsQuery.error} />
       )}
@@ -86,6 +145,20 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
           ))}
         </div>
       )}
+      <CreateOrganizationPopup
+        show={showCreatePopup}
+        setShow={setShowCreatePopup}
+        name={orgName}
+        setName={setOrgName}
+        slug={newSlug}
+        setSlug={setNewSlug}
+        visibility={newVisibility}
+        setVisibility={setNewVisibility}
+        handleCreate={() => {
+          createOrganizationMutation.mutate()
+        }}
+      />
+
       <DebugModal data={allOrganizationsQuery.data} />
     </div>
   )

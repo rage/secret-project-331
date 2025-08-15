@@ -12,7 +12,8 @@ use models::{
 use crate::{
     controllers::helpers::file_uploading::upload_image_for_organization,
     domain::authorization::{
-        Action, AuthorizedResponse, Resource, authorize_with_fetched_list_of_roles, skip_authorize,
+        Action, AuthorizedResponse, Resource, authorize, authorize_with_fetched_list_of_roles,
+        skip_authorize,
     },
     prelude::*,
 };
@@ -36,7 +37,7 @@ async fn get_all_organizations(
         let roles = models::roles::get_roles(&mut conn, user.id).await?;
         roles
             .iter()
-            .any(|r| r.role == models::roles::UserRole::Admin)
+            .any(|r| r.role == models::roles::UserRole::Admin && r.is_global)
     } else {
         false
     };
@@ -313,10 +314,6 @@ async fn get_organization(
     token.authorized_ok(web::Json(organization))
 }
 
-/**
-PUT `/api/v0/main-frontend/organizations/{organization_id}` - Updates an organization's name and hidden status.
-*/
-
 #[derive(Debug, Deserialize)]
 struct OrganizationUpdatePayload {
     name: String,
@@ -324,6 +321,11 @@ struct OrganizationUpdatePayload {
     slug: String,
 }
 
+/**
+PUT `/api/v0/main-frontend/organizations/{organization_id}`
+
+Updates an organization's name, hidden status, and slug.
+*/
 #[instrument(skip(pool))]
 async fn update_organization(
     organization_id: web::Path<Uuid>,
@@ -354,6 +356,13 @@ async fn update_organization(
     token.authorized_ok(web::Json(()))
 }
 
+#[derive(Debug, Deserialize)]
+struct OrganizationCreatePayload {
+    name: String,
+    slug: String,
+    hidden: bool,
+}
+
 /// POST `/api/v0/main-frontend/organizations`
 /// Creates a new organization with the given name, slug, and visibility status.
 ///
@@ -369,13 +378,6 @@ async fn update_organization(
 ///
 /// # Permissions
 /// Only users with the `Admin` role can access this endpoint.
-#[derive(Debug, Deserialize)]
-struct OrganizationCreatePayload {
-    name: String,
-    slug: String,
-    hidden: bool,
-}
-
 #[instrument(skip(pool, file_store, app_conf))]
 async fn create_organization(
     payload: web::Json<OrganizationCreatePayload>,
@@ -386,25 +388,22 @@ async fn create_organization(
 ) -> ControllerResult<web::Json<Organization>> {
     let mut conn = pool.acquire().await?;
 
-    // Only allow admins
-    let user_roles = models::roles::get_roles(&mut conn, user.id).await?;
-    let is_admin = user_roles
-        .iter()
-        .any(|r| r.role == models::roles::UserRole::Admin);
-    if !is_admin {
-        return Err(ControllerError::new(
-            ControllerErrorType::Unauthorized,
-            "Admin access required".to_string(),
-            None,
-        ));
-    }
+    let token = authorize(
+        &mut conn,
+        Action::Administrate,
+        Some(user.id),
+        Resource::GlobalPermissions,
+    )
+    .await?;
+
+    let mut tx = conn.begin().await?;
 
     let org_id = match models::organizations::insert(
-        &mut conn,
+        &mut *tx,
         PKeyPolicy::Generate,
         &payload.name,
         &payload.slug,
-        "",
+        None,
     )
     .await
     {
@@ -418,14 +417,13 @@ async fn create_organization(
                     None,
                 ));
             }
-
             return Err(err.into());
         }
     };
 
     if payload.hidden {
         models::organizations::update_name_and_hidden(
-            &mut conn,
+            &mut *tx,
             org_id,
             &payload.name,
             true,
@@ -434,12 +432,12 @@ async fn create_organization(
         .await?;
     }
 
-    let db_org = models::organizations::get_organization(&mut conn, org_id).await?;
+    tx.commit().await?;
 
+    let db_org = models::organizations::get_organization(&mut conn, org_id).await?;
     let org =
         Organization::from_database_organization(db_org, file_store.as_ref(), app_conf.as_ref());
 
-    let token = skip_authorize();
     token.authorized_ok(web::Json(org))
 }
 
@@ -470,6 +468,25 @@ async fn soft_delete_organization(
     let result: ControllerResult<web::Json<()>> = token.authorized_ok(json);
     result.map(|data| AuthorizedResponse { data, token })
 }
+
+//#[instrument(skip(pool))]
+//async fn soft_delete_organization(
+//    org_id: web::Path<Uuid>,
+//    pool: web::Data<PgPool>,
+//    user: AuthUser,
+//) -> ControllerResult<web::Json<()>> {
+//    let mut conn = pool.acquire().await?;
+//
+//    let token = authorize(
+//        &mut conn,
+//        Action::Administrate,
+//        Some(user.id),
+//        Resource::GlobalPermissions,
+//    ).await?;
+//
+//    models::organizations::soft_delete(&mut conn, *org_id).await?;
+//    token.authorized_ok(web::Json(()))
+//}
 
 /**
 GET `/api/v0/main-frontend/organizations/{organization_id}/course_exams` - Returns an organizations exams in CourseExam form.

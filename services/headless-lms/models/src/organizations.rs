@@ -59,14 +59,14 @@ pub async fn insert(
     pkey_policy: PKeyPolicy<Uuid>,
     name: &str,
     slug: &str,
-    description: &str,
+    description: Option<&str>,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO organizations (id, name, slug, description)
-VALUES ($1, $2, $3, $4)
-RETURNING id
-",
+        INSERT INTO organizations (id, name, slug, description)
+        VALUES ($1, $2, $3, $4)
+        RETURNING id
+        ",
         pkey_policy.into_uuid(),
         name,
         slug,
@@ -157,7 +157,7 @@ mod tests {
             PKeyPolicy::Fixed(Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap()),
             "org",
             "slug",
-            "description",
+            Some("description"),
         )
         .await
         .unwrap();

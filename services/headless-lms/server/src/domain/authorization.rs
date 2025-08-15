@@ -191,6 +191,7 @@ pub enum Action {
     ViewUserProgressOrDetails,
     ViewInternalCourseStructure,
     ViewStats,
+    Administrate,
 }
 
 /// The target of an action.

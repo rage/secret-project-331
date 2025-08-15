@@ -6,6 +6,7 @@ import AsideWithImage from "./AsideWithImage"
 import Author from "./Author"
 import AuthorInnerBlock from "./AuthorInnerBlock"
 import ChapterProgress from "./ChapterProgress"
+import ChatbotBlock from "./Chatbot"
 import CodeGiveaway from "./CodeGiveaway"
 import ConditionalBlock from "./ConditionalBlock"
 import Congratulations from "./Congratulations"
@@ -61,6 +62,7 @@ export const blockTypeMapForPages = [
   ["moocfi/exercise-slides", ExerciseSlides],
   ["moocfi/exercise-settings", ExerciseSettings],
   ["moocfi/exercises-in-chapter", ExerciseInChapter],
+  ["moocfi/chatbot", ChatbotBlock],
   ["moocfi/glossary", Glossary],
   ["moocfi/hero-section", HeroSection],
   ["moocfi/infobox", InfoBox],

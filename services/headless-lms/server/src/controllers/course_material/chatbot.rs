@@ -10,12 +10,12 @@ use headless_lms_models::chatbot_conversations::{
 use crate::prelude::*;
 
 /**
-GET `/api/v0/course-material/course-modules/chatbot/for-course/:course-id`
+GET `/api/v0/course-material/course-modules/chatbot/default-for-course/:course-id`
 
-Returns one chatbot configuration id for a course that students can use.
+Returns the default chatbot configuration id for a course if the default chatbot is enabled to students.
 */
 #[instrument(skip(pool))]
-async fn get_chatbot_configuration_for_course(
+async fn get_default_chatbot_configuration_for_course(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<Option<Uuid>>> {
@@ -27,7 +27,8 @@ async fn get_chatbot_configuration_for_course(
 
     let res = chatbot_configurations
         .into_iter()
-        .find(|c| c.enabled_to_students)
+        .filter(|c| c.enabled_to_students)
+        .find(|c| c.default_chatbot)
         .map(|c| c.id);
 
     token.authorized_ok(web::Json(res))
@@ -174,7 +175,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         web::post().to(new_conversation),
     )
     .route(
-        "/for-course/{course_id}",
-        web::get().to(get_chatbot_configuration_for_course),
+        "/default-for-course/{course_id}",
+        web::get().to(get_default_chatbot_configuration_for_course),
     );
 }

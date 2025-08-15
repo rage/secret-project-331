@@ -1,6 +1,7 @@
 import { cmsClient } from "./cmsClient"
 
 import {
+  ChatbotConfiguration,
   CmsPeerOrSelfReviewConfiguration,
   CourseModule,
   NewResearchForm,
@@ -10,13 +11,20 @@ import {
   ResearchFormQuestion,
 } from "@/shared-module/common/bindings"
 import {
+  isChatbotConfiguration,
   isCmsPeerOrSelfReviewConfiguration,
   isCourseModule,
   isPage,
   isResearchForm,
   isResearchFormQuestion,
 } from "@/shared-module/common/bindings.guard"
-import { isArray, isNull, isUnion, validateResponse } from "@/shared-module/common/utils/fetching"
+import {
+  isArray,
+  isBoolean,
+  isNull,
+  isUnion,
+  validateResponse,
+} from "@/shared-module/common/utils/fetching"
 
 export const getCoursesDefaultCmsPeerOrSelfReviewConfiguration = async (
   courseId: string,
@@ -78,4 +86,20 @@ export const fetchCourseModulesByCourseId = async (
     responseType: "json",
   })
   return validateResponse(response, isArray(isCourseModule))
+}
+
+export const fetchCourseCanAddChatbot = async (courseId: string): Promise<boolean> => {
+  const response = await cmsClient.get(`/courses/${courseId}/can-add-chatbot`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isBoolean)
+}
+
+export const fetchNondefaultChatbotConfigurationsForCourse = async (
+  courseId: string,
+): Promise<Array<ChatbotConfiguration>> => {
+  const response = await cmsClient.get(`/courses/${courseId}/nondefault-chatbot-configurations`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isArray(isChatbotConfiguration))
 }

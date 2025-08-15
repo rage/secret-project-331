@@ -5,6 +5,7 @@ import PageContext from "../../contexts/PageContext"
 import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"
 import { denormalizeDocument } from "../../utils/documentSchemaProcessor"
 
+import { fetchCourseCanAddChatbot } from "@/services/backend/courses"
 import { CmsPageUpdate, Page } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -51,6 +52,11 @@ const Pages = ({ query }: PagesProps) => {
       return page
     },
   })
+  const courseId = getPage.data?.course_id ? getPage.data?.course_id : ""
+  const courseCanAddChatbot = useQuery({
+    queryKey: [`/courses/${courseId}/can-add-chatbot`],
+    queryFn: async () => fetchCourseCanAddChatbot(courseId),
+  })
 
   const mutate = useToastMutation(
     (newPage: CmsPageUpdate) => updateExistingPage(id, newPage),
@@ -76,6 +82,7 @@ const Pages = ({ query }: PagesProps) => {
         <PageContext.Provider value={{ page: getPage.data }}>
           <PageEditor
             data={getPage.data}
+            courseCanAddChatbot={courseCanAddChatbot.data ? courseCanAddChatbot.data : false}
             saveMutation={mutate}
             needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
             setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}

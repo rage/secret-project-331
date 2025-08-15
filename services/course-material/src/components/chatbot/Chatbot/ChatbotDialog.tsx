@@ -1,8 +1,8 @@
 import { css, keyframes } from "@emotion/css"
 import React, { useEffect, useState } from "react"
 
-import ChatbotDialogBody from "./ChatbotDialogBody"
-import ChatbotDialogHeader from "./ChatbotDialogHeader"
+import ChatbotDialogBody from "../shared/ChatbotDialogBody"
+import ChatbotDialogHeader from "../shared/ChatbotDialogHeader"
 
 import { CHATBOX_HEIGHT_PX, CHATBOX_WIDTH_PX } from "."
 
@@ -94,6 +94,7 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
         {...props}
         currentConversationInfo={currentConversationInfoQuery}
         newConversation={newConversationMutation}
+        isCourseMaterialBlock={false}
       />
       <ChatbotDialogBody
         {...props}

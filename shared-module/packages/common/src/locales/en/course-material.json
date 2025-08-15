@@ -82,6 +82,7 @@
   "enter-last-name": "Enter last name",
   "error-comment-cannot-be-empty": "Comment cannot be empty",
   "error-comment-too-long": "Comment is too long",
+  "error-default-chatbot-in-block": "Can't use default chatbot in a course material block.",
   "error-hide-details": "Hide details",
   "error-issue": "Issue: {{issue}}",
   "error-message": "Message: {{message}}",

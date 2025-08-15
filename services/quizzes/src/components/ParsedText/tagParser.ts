@@ -5,74 +5,53 @@ const markdownParser = new MarkdownParser()
 const htmlWriter = new HtmlRenderer()
 
 const KATEX_OUTPUT_FORMAT = "htmlAndMathml"
-const LATEX_REGEX = /\[latex\](.*?)\[\/latex\]/g
-const MARKDOWN_REGEX = /\[markdown\]([\s\S]*?)\[\/markdown\]/g
-type PairArray<T, K> = [T, K][]
+const ANY_TAG_REGEX = /\[(latex|markdown)\]([\s\S]*?)\[\/\1\]/g
+
+const escapeHtml = (input: string) => {
+  const div = document.createElement("div")
+  div.textContent = input
+  return div.innerHTML
+}
 
 /**
- * Validate the text by checking if there are overlapping tags.
- * e.g. the following are invalid
- * '[latex][markdown][/latex][markdown]'
- * '[latex][markdown][/markdown][/latex]'
- * '[latex][latex][/latex][/latex]'
- *
- * @param text Text in the editor
- * @returns true if the text does not have overlapping tags
+ * Validate the text by ensuring there is no nesting or overlapping of tags.
+ * Rules:
+ * - Tags must not be nested at all
+ * - Closing tags must match the last opened tag
+ * - All opened tags must be closed
  */
 const validateText = (latex = false, markdown = false, text: string) => {
-  if ((latex && !markdown) || (!latex && markdown)) {
+  if (!latex && !markdown) {
     return true
   }
 
-  const latexLocations: PairArray<number, number> = []
-  const markdownLocations: PairArray<number, number> = []
+  const tokenRegex = /\[(\/)?(latex|markdown)\]/g
+  const stack: string[] = []
+  let match: RegExpExecArray | null
+  while ((match = tokenRegex.exec(text)) !== null) {
+    const isClosing = Boolean(match[1])
+    const tagName = match[2]
 
-  let match
-  while ((match = LATEX_REGEX.exec(text)) !== null) {
-    latexLocations.push([match.index, LATEX_REGEX.lastIndex])
-  }
-  while ((match = MARKDOWN_REGEX.exec(text)) !== null) {
-    markdownLocations.push([match.index, MARKDOWN_REGEX.lastIndex])
-  }
-
-  // Index in latex array
-  let lindex = 0
-  // Index in markdown array
-  let mindex = 0
-  const array: PairArray<number, number> = []
-
-  while (lindex < latexLocations.length || mindex < markdownLocations.length) {
-    if (lindex >= latexLocations.length) {
-      array.push(markdownLocations[mindex])
-      mindex++
-      continue
-    }
-
-    if (mindex >= markdownLocations.length) {
-      array.push(latexLocations[lindex])
-      lindex++
-      continue
-    }
-
-    if (latexLocations[lindex][0] < markdownLocations[mindex][0]) {
-      array.push(latexLocations[lindex])
-      lindex++
+    if (!isClosing) {
+      if (stack.length > 0) {
+        // Nested tag
+        return false
+      }
+      stack.push(tagName)
     } else {
-      array.push(markdownLocations[mindex])
-      mindex++
+      if (stack.length === 0) {
+        // Closing without open
+        return false
+      }
+      const open = stack.pop()
+      if (open !== tagName) {
+        // Mismatched close
+        return false
+      }
     }
   }
 
-  for (let i = 0; i < array.length - 1; i++) {
-    if (
-      (array[i][0] < array[i + 1][0] && array[i + 1][0] < array[i][1]) ||
-      (array[i][0] < array[i + 1][1] && array[i + 1][1] < array[i][1])
-    ) {
-      return false
-    }
-  }
-
-  return true
+  return stack.length === 0
 }
 
 /**
@@ -119,7 +98,7 @@ const isValidText = (latex = false, markdown = false, text: string) => {
 }
 
 /**
- * Format text by replacing tags with their corresponding html
+ * Format text by replacing tags with their corresponding html. Any content outside of tags is escaped so that it is not rendered as HTML.
  *
  * @param latex If true, content inside latex tags will be converted to html
  * @param markdown If true, content inside markdown tags will be converted to html
@@ -127,16 +106,47 @@ const isValidText = (latex = false, markdown = false, text: string) => {
  * @returns Text, where tags are replaced with html
  */
 const formatText = (latex = false, markdown = false, text: string | null, inline = false) => {
-  let formattedText = text ?? ""
-  if (latex) {
-    formattedText = formattedText.replace(LATEX_REGEX, (_, latex) => parseLatex(latex, !inline))
+  const originalText = text ?? ""
+
+  // If tags are enabled but text is invalid (nested/overlapping), return escaped original
+  if ((latex || markdown) && !validateText(latex, markdown, originalText)) {
+    return escapeHtml(originalText)
   }
 
-  if (markdown) {
-    formattedText = formattedText.replace(MARKDOWN_REGEX, (_, markdown) => parseMarkdown(markdown))
+  // Build output ensuring that all content outside recognized tags is escaped.
+  const parts: string[] = []
+  let lastIndex = 0
+
+  for (let match: RegExpExecArray | null; (match = ANY_TAG_REGEX.exec(originalText)) !== null; ) {
+    const fullMatch = match[0]
+    const tagName = match[1]
+    const innerContent = match[2]
+    const start = match.index
+    const end = ANY_TAG_REGEX.lastIndex
+
+    // Escape text before the tag
+    if (start > lastIndex) {
+      parts.push(escapeHtml(originalText.slice(lastIndex, start)))
+    }
+
+    // Render tag content if enabled, otherwise show the tag literally (escaped)
+    if (tagName === "latex" && latex) {
+      parts.push(parseLatex(innerContent, !inline))
+    } else if (tagName === "markdown" && markdown) {
+      parts.push(parseMarkdown(innerContent))
+    } else {
+      parts.push(escapeHtml(fullMatch))
+    }
+
+    lastIndex = end
   }
 
-  return formattedText
+  // Escape any remaining text after the last tag
+  if (lastIndex < originalText.length) {
+    parts.push(escapeHtml(originalText.slice(lastIndex)))
+  }
+
+  return parts.join("")
 }
 
 export { isValidText, formatText }

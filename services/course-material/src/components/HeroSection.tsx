@@ -1,8 +1,9 @@
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useContext } from "react"
 
 import { GlossaryContext } from "../contexts/GlossaryContext"
+import { useCornerTapFlip } from "../hooks/useCornerTapFlip"
 import { COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM } from "../utils/constants"
 
 import { parseText } from "./ContentRenderer/util/textParsing"
@@ -103,9 +104,12 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
   const { terms } = useContext(GlossaryContext)
   // eslint-disable-next-line i18next/no-literal-string
   const backgroundVerticalAlignment = alignBottom ? "bottom" : "center"
+  const { containerRef, onPointerDown, flipClassName } = useCornerTapFlip()
   return (
     <div
       id="hero-section"
+      ref={containerRef}
+      onPointerDown={onPointerDown}
       className={css`
         width: 100%;
         border-radius: 1px;
@@ -116,6 +120,7 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
         margin-top: -${COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM}rem;
         background-color: ${backgroundColor};
         position: relative;
+        touch-action: manipulation;
 
         &::after {
           background-size: ${backgroundSizeRem ?? 26}rem;
@@ -147,7 +152,7 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
       <TextBox color={fontColor} direction={direction}>
         <span className="chapter">{label}</span>
         <h1
-          className={INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS}
+          className={cx(INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS, flipClassName)}
           dangerouslySetInnerHTML={{
             __html: parseText(title, terms, { glossary: false }).parsedText,
           }}

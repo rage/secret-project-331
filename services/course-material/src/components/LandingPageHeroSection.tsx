@@ -4,6 +4,7 @@ import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import { GlossaryContext } from "../contexts/GlossaryContext"
+import { useCornerTapFlip } from "../hooks/useCornerTapFlip"
 
 import { parseText } from "./ContentRenderer/util/textParsing"
 
@@ -36,10 +37,23 @@ const TextBox = styled.div<TextBoxProps>`
     margin-bottom: 0.8rem;
     color: ${({ color }) => (color ? color : baseTheme.colors.gray[700])};
     margin-top: 1.5rem;
-    font-size: clamp(2.4rem, 4vw, 60px);
+
     font-weight: bold;
     max-width: 100%;
     line-height: 1.1;
+
+    font-size: clamp(1.3rem, 4vw, 60px);
+    ${respondToOrLarger.xxxs} {
+      font-size: clamp(1.5rem, 4vw, 60px);
+    }
+
+    ${respondToOrLarger.xxs} {
+      font-size: clamp(2rem, 4vw, 60px);
+    }
+
+    ${respondToOrLarger.xs} {
+      font-size: clamp(2.4rem, 4vw, 60px);
+    }
 
     ${respondToOrLarger.md} {
       width: 50vw;
@@ -96,8 +110,11 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
 }) => {
   const { t } = useTranslation()
   const { terms } = useContext(GlossaryContext)
+  const { containerRef, onPointerDown, flipClassName } = useCornerTapFlip()
   return (
     <div
+      ref={containerRef}
+      onPointerDown={onPointerDown}
       className={css`
         width: 100%;
         border-radius: 1px;
@@ -110,6 +127,7 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
         background-repeat: ${backgroundRepeatX ? "repeat-x" : "no-repeat"};
         background-position: center center;`}
         background-size: cover;
+        touch-action: manipulation;
         ${respondToOrLarger.xxxxl} {
           background-size: auto;
         }
@@ -117,7 +135,10 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
     >
       {backgroundImage === undefined && <StyledSVG />}
       <TextBox color={fontColor}>
-        <h1 dangerouslySetInnerHTML={{ __html: parseText(title, terms).parsedText }} />
+        <h1
+          className={flipClassName}
+          dangerouslySetInnerHTML={{ __html: parseText(title, terms).parsedText }}
+        />
         <div className="hero-subtitle">{children}</div>
         <Button
           variant="primary"

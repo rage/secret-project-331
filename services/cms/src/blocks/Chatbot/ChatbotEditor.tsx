@@ -37,6 +37,21 @@ const ChatbotEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChatbotBloc
 
   const { chatbotConfigurationId } = attributes
 
+  // set the initial selected value as the previously selected chatbotConfiguration,
+  // but if this chatbotConfiguration has been set as default, then it won't be found.
+  // in this case, select the first in the list.
+  const initialSelected = chatbotConfigurationSelectOptions
+    .map((o) => o.value)
+    .find((v) => v === chatbotConfigurationId)
+    ? chatbotConfigurationId
+    : chatbotConfigurationSelectOptions.at(0)?.value
+  // set it as the attribute, since if the dropdown contains only one item, then
+  // the onChangeByValue event will never fire and they won't be updated.
+  setAttributes({
+    chatbotConfigurationId: initialSelected,
+    courseId: courseId ? courseId : undefined,
+  })
+
   return (
     <BlockPlaceholderWrapper
       id={clientId}
@@ -50,11 +65,12 @@ const ChatbotEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChatbotBloc
           `}
           label={t("select-an-option")}
           options={chatbotConfigurationSelectOptions}
-          defaultValue={chatbotConfigurationId}
-          defaultChecked
-          onChange={(e) => {
+          defaultValue={initialSelected}
+          onChangeByValue={(v) => {
+            console.log(v)
             setAttributes({
-              chatbotConfigurationId: e.target.value,
+              chatbotConfigurationId: v,
+              courseId: courseId ? courseId : undefined,
             })
           }}
         />

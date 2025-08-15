@@ -6,6 +6,7 @@ import ChatbotSave from "./ChatbotSave"
 
 export interface ChatbotBlockAttributes {
   chatbotConfigurationId: string
+  courseId: string
 }
 
 const ChatbotBlockConfiguration: BlockConfiguration<ChatbotBlockAttributes> = {
@@ -14,6 +15,10 @@ const ChatbotBlockConfiguration: BlockConfiguration<ChatbotBlockAttributes> = {
   category: "other",
   attributes: {
     chatbotConfigurationId: {
+      type: "string",
+      default: undefined,
+    },
+    courseId: {
       type: "string",
       default: undefined,
     },

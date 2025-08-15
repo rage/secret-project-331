@@ -4,7 +4,6 @@ import { BlockRendererProps } from "../.."
 
 import ChatbotChatBox from "./ChatbotChatBox"
 
-//import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 interface ChatbotBlockProps {

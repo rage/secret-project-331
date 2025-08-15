@@ -48,11 +48,9 @@ const ChatbotEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChatbotBloc
           defaultValue={chatbotConfigurationId}
           defaultChecked
           onChange={(e) => {
-            console.log(e.target)
             setAttributes({
               chatbotConfigurationId: e.target.value,
             })
-            console.log(e.target.selectedOptions)
           }}
         />
       ) : (

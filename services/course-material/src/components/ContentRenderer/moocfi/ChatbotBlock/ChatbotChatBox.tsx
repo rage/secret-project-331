@@ -15,7 +15,7 @@ const ChatbotChatBox: React.FC<ChatbotChatBoxProps> = ({ chatbotConfigurationId 
   const [newMessage, setNewMessage] = React.useState("")
   const [error, setError] = useState<Error | null>(null)
   const dialogOpen = true
-  const setDialogOpen = (_: boolean) => {} // should the prop be nullable instead
+  const setDialogOpen = (_: boolean) => {} // should the prop be nullable instead since it's not needed in the block
 
   const currentConversationInfoQuery = useCurrentConversationInfo(chatbotConfigurationId)
   const newConversationMutation = useNewConversationMutation(

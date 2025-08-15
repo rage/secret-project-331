@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
 import React, { useState } from "react"
 
-import ChatbotDialogBody from "@/components/chatbot/ChatbotDialogBody"
-import ChatbotDialogHeader from "@/components/chatbot/ChatbotDialogHeader"
+import ChatbotDialogBody from "@/components/chatbot/shared/ChatbotDialogBody"
+import ChatbotDialogHeader from "@/components/chatbot/shared/ChatbotDialogHeader"
 import useNewConversationMutation from "@/hooks/chatbot/newConversationMutation"
 import useCurrentConversationInfo from "@/hooks/chatbot/useCurrentConversationInfo"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -15,9 +15,7 @@ const ChatbotChatBox: React.FC<ChatbotChatBoxProps> = ({ chatbotConfigurationId 
   const [newMessage, setNewMessage] = React.useState("")
   const [error, setError] = useState<Error | null>(null)
   const dialogOpen = true
-  const setDialogOpen = (_: boolean) => {
-    return
-  }
+  const setDialogOpen = (_: boolean) => {} // should the prop be nullable instead
 
   const currentConversationInfoQuery = useCurrentConversationInfo(chatbotConfigurationId)
   const newConversationMutation = useNewConversationMutation(
@@ -44,6 +42,7 @@ const ChatbotChatBox: React.FC<ChatbotChatBoxProps> = ({ chatbotConfigurationId 
         chatbotConfigurationId={chatbotConfigurationId}
         currentConversationInfo={currentConversationInfoQuery}
         newConversation={newConversationMutation}
+        isCourseMaterialBlock={true}
       />
       <ChatbotDialogBody
         dialogOpen={dialogOpen}

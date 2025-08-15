@@ -4,7 +4,7 @@ import { Account, AddMessage } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { ChatbotDialogProps } from "./ChatbotDialog"
+import { ChatbotDialogProps } from "../Chatbot/ChatbotDialog"
 
 import { ChatbotConversation, ChatbotConversationInfo } from "@/shared-module/common/bindings"
 import DownIcon from "@/shared-module/common/img/down.svg"
@@ -13,6 +13,7 @@ import { baseTheme } from "@/shared-module/common/styles"
 interface ChatbotDialogHeaderProps extends ChatbotDialogProps {
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
   newConversation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
+  isCourseMaterialBlock: boolean
 }
 
 const headerContainerStyle = css`
@@ -65,6 +66,7 @@ const ChatbotDialogHeader: React.FC<ChatbotDialogHeaderProps> = ({
   setDialogOpen,
   currentConversationInfo,
   newConversation,
+  isCourseMaterialBlock,
 }) => {
   const { t } = useTranslation()
 
@@ -83,19 +85,21 @@ const ChatbotDialogHeader: React.FC<ChatbotDialogHeaderProps> = ({
         >
           <AddMessage />
         </button>
-        <button
-          onClick={() => setDialogOpen(false)}
-          className={cx(
-            buttonStyle,
-            css`
-              position: relative;
-              top: -3px;
-            `,
-          )}
-          aria-label={t("close")}
-        >
-          <DownIcon />
-        </button>
+        {!isCourseMaterialBlock && (
+          <button
+            onClick={() => setDialogOpen(false)}
+            className={cx(
+              buttonStyle,
+              css`
+                position: relative;
+                top: -3px;
+              `,
+            )}
+            aria-label={t("close")}
+          >
+            <DownIcon />
+          </button>
+        )}
       </div>
     </div>
   )

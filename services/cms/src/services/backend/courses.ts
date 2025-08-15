@@ -1,6 +1,7 @@
 import { cmsClient } from "./cmsClient"
 
 import {
+  ChatbotConfiguration,
   CmsPeerOrSelfReviewConfiguration,
   CourseModule,
   NewResearchForm,
@@ -10,6 +11,7 @@ import {
   ResearchFormQuestion,
 } from "@/shared-module/common/bindings"
 import {
+  isChatbotConfiguration,
   isCmsPeerOrSelfReviewConfiguration,
   isCourseModule,
   isPage,
@@ -78,4 +80,13 @@ export const fetchCourseModulesByCourseId = async (
     responseType: "json",
   })
   return validateResponse(response, isArray(isCourseModule))
+}
+
+export const fetchChatbotConfigurationsForCourse = async (
+  courseId: string,
+): Promise<Array<ChatbotConfiguration>> => {
+  const response = await cmsClient.get(`/courses/${courseId}/chatbot-configurations`, {
+    headers: { "Content-Type": "application/json" },
+  })
+  return validateResponse(response, isArray(isChatbotConfiguration))
 }

@@ -15,19 +15,17 @@ const ChatbotBlock: React.FC<BlockRendererProps<ChatbotBlockProps>> = ({ data })
   const chatbotConfigurationId = data.attributes.chatbotConfigurationId
 
   return (
-    <div>
-      <div
-        className={css`
-          display: block;
-          height: 500px;
+    <div
+      className={css`
+        display: block;
+        height: 500px;
 
-          ${respondToOrLarger.sm} {
-            height: 900px;
-          }
-        `}
-      >
-        <ChatbotChatBox chatbotConfigurationId={chatbotConfigurationId} />
-      </div>
+        ${respondToOrLarger.sm} {
+          height: 900px;
+        }
+      `}
+    >
+      <ChatbotChatBox chatbotConfigurationId={chatbotConfigurationId} />
     </div>
   )
 }

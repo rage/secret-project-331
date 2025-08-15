@@ -15,6 +15,7 @@ import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface PagesProps {
@@ -52,10 +53,11 @@ const Pages = ({ query }: PagesProps) => {
       return page
     },
   })
-  const courseId = getPage.data?.course_id ? getPage.data?.course_id : ""
+  const courseId = getPage.data?.course_id
   const courseCanAddChatbot = useQuery({
     queryKey: [`/courses/${courseId}/can-add-chatbot`],
-    queryFn: async () => fetchCourseCanAddChatbot(courseId),
+    queryFn: async () => fetchCourseCanAddChatbot(assertNotNullOrUndefined(courseId)),
+    enabled: !!courseId,
   })
 
   const mutate = useToastMutation(
@@ -82,7 +84,7 @@ const Pages = ({ query }: PagesProps) => {
         <PageContext.Provider value={{ page: getPage.data }}>
           <PageEditor
             data={getPage.data}
-            courseCanAddChatbot={courseCanAddChatbot.data ? courseCanAddChatbot.data : false}
+            courseCanAddChatbot={!!courseCanAddChatbot.data}
             saveMutation={mutate}
             needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
             setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}

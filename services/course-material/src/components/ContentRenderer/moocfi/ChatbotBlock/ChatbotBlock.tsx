@@ -8,6 +8,7 @@ import ChatbotChatBox from "./ChatbotChatBox"
 
 import { getDefaultChatbotConfigurationForCourse } from "@/services/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
@@ -24,7 +25,15 @@ const ChatbotBlock: React.FC<BlockRendererProps<ChatbotBlockProps>> = ({ data })
   const defaultChatbotConfiguration = useQuery({
     queryKey: [`/chatbot/default-for-course/${courseId}`],
     queryFn: () => getDefaultChatbotConfigurationForCourse(assertNotNullOrUndefined(courseId)),
+    enabled: courseId != null,
   })
+
+  if (defaultChatbotConfiguration.isPending) {
+    return <Spinner />
+  }
+  if (defaultChatbotConfiguration.isError) {
+    return <ErrorBanner error={defaultChatbotConfiguration.error} />
+  }
 
   if (chatbotConfigurationId === defaultChatbotConfiguration.data) {
     return <ErrorBanner variant={"readOnly"} error={t("error-default-chatbot-in-block")} />

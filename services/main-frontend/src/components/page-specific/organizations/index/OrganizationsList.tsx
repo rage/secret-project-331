@@ -21,21 +21,17 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   const [showCreatePopup, setShowCreatePopup] = React.useState(false)
-  const [orgName, setOrgName] = React.useState("")
-  const [newSlug, setNewSlug] = React.useState("")
-  // eslint-disable-next-line i18next/no-literal-string
-  const [newVisibility, setNewVisibility] = React.useState("public")
   const router = useRouter()
 
   const allOrganizationsQuery = useAllOrganizationsQuery()
 
   const createOrganizationMutation = useToastMutation(
-    async () => {
+    async (data: { name: string; slug: string; visibility: string }) => {
       return await axios.post("/api/v0/main-frontend/organizations", {
-        name: orgName,
-        slug: newSlug.trim().toLowerCase().replace(/\s+/g, "-"),
+        name: data.name,
+        slug: data.slug,
         description: "",
-        hidden: newVisibility === "private",
+        hidden: data.visibility === "private",
       })
     },
     {
@@ -46,9 +42,6 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
       onSuccess: () => {
         setShowCreatePopup(false)
         router.reload()
-      },
-      onError: () => {
-        // optional: add custom logic if needed
       },
     },
   )
@@ -147,15 +140,14 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
       )}
       <CreateOrganizationPopup
         show={showCreatePopup}
-        setShow={setShowCreatePopup}
-        name={orgName}
-        setName={setOrgName}
-        slug={newSlug}
-        setSlug={setNewSlug}
-        visibility={newVisibility}
-        setVisibility={setNewVisibility}
-        handleCreate={() => {
-          createOrganizationMutation.mutate()
+        onClose={() => setShowCreatePopup(false)}
+        onCreate={({ name, slug, visibility }) => {
+          createOrganizationMutation.mutate({
+            name,
+            slug: slug.trim().toLowerCase().replace(/\s+/g, "-"),
+            description: "",
+            hidden: visibility === "private",
+          })
         }}
       />
 

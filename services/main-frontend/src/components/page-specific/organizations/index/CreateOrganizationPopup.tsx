@@ -1,50 +1,69 @@
 import { css } from "@emotion/css"
 import React from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 
+type CreateOrganizationForm = {
+  name: string
+  visibility: "public" | "private"
+  slug: string
+}
+
 interface CreateOrganizationPopupProps {
   show: boolean
-  setShow: React.Dispatch<React.SetStateAction<boolean>>
-  name: string
-  setName: React.Dispatch<React.SetStateAction<string>>
-  visibility: string
-  setVisibility: React.Dispatch<React.SetStateAction<string>>
-  handleCreate: () => void
-  slug: string
-  setSlug: React.Dispatch<React.SetStateAction<string>>
+  onClose: () => void
+  onCreate: (data: CreateOrganizationForm) => void
 }
 
 const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
   show,
-  setShow,
-  name,
-  setName,
-  visibility,
-  setVisibility,
-  handleCreate,
-  slug,
-  setSlug,
+  onClose,
+  onCreate,
 }) => {
-  const { t } = useTranslation("main-frontend") as { t: (key: string) => string }
+  const { t } = useTranslation("main-frontend")
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<CreateOrganizationForm>({
+    defaultValues: {
+      name: "",
+      // eslint-disable-next-line i18next/no-literal-string
+      visibility: "public", // internal value, not a UI label
+      slug: "",
+    },
+  })
+
+  // When popup is closed, reset the form for next open
+  React.useEffect(() => {
+    if (!show) {
+      reset()
+    }
+  }, [show, reset])
+
+  const submitForm = handleSubmit((data) => {
+    onCreate(data)
+    onClose()
+    reset()
+  })
 
   return (
     <StandardDialog
       open={show}
-      onClose={() => setShow(false)}
+      onClose={onClose}
       title={t("create-organization-title")}
       buttons={[
         {
           children: t("create"),
-          onClick: handleCreate,
-
+          onClick: submitForm,
           variant: "primary",
         },
         {
           children: t("button-text-cancel"),
-          onClick: () => setShow(false),
-
+          onClick: onClose,
           variant: "secondary",
         },
       ]}
@@ -58,7 +77,8 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
         {t("create-organization-description")}
       </p>
 
-      <div
+      <form
+        onSubmit={submitForm}
         className={css`
           display: flex;
           flex-direction: column;
@@ -78,8 +98,7 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
           <input
             id="org-name"
             type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            {...register("name", { required: true })}
             className={css`
               border: 1.6px solid #e4e5e8;
               border-radius: 2px;
@@ -87,6 +106,16 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
               font-size: 14px;
             `}
           />
+          {errors.name && (
+            <span
+              className={css`
+                color: red;
+                font-size: 12px;
+              `}
+            >
+              {t("validation-required")}
+            </span>
+          )}
         </div>
 
         {/* Visibility */}
@@ -100,8 +129,7 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
           <label htmlFor="org-visibility">{t("label-visibility")}</label>
           <select
             id="org-visibility"
-            value={visibility}
-            onChange={(e) => setVisibility(e.target.value)}
+            {...register("visibility")}
             className={css`
               border: 1.6px solid #e4e5e8;
               border-radius: 2px;
@@ -126,8 +154,7 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
           <input
             id="org-slug"
             type="text"
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
+            {...register("slug", { required: true })}
             className={css`
               border: 1.6px solid #e4e5e8;
               border-radius: 2px;
@@ -135,8 +162,18 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
               font-size: 14px;
             `}
           />
+          {errors.slug && (
+            <span
+              className={css`
+                color: red;
+                font-size: 12px;
+              `}
+            >
+              {t("validation-required")}
+            </span>
+          )}
         </div>
-      </div>
+      </form>
     </StandardDialog>
   )
 }

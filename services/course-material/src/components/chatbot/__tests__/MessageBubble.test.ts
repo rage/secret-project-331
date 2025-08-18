@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom"
 
-import { getMessagePartsCitationPairs } from "../MessageBubble"
+import { getMessagePartsCitationPairs } from "../Chatbot/MessageBubble"
 
 describe("MessageBubble", () => {
   describe("getMessagePartsCitationPairs", () => {

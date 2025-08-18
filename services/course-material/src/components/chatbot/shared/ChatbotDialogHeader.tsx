@@ -7,6 +7,8 @@ import { useTranslation } from "react-i18next"
 import { ChatbotDialogProps } from "../Chatbot/ChatbotDialog"
 
 import { ChatbotConversation, ChatbotConversationInfo } from "@/shared-module/common/bindings"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 
@@ -69,6 +71,25 @@ const ChatbotDialogHeader: React.FC<ChatbotDialogHeaderProps> = ({
   isCourseMaterialBlock,
 }) => {
   const { t } = useTranslation()
+
+  if (currentConversationInfo.isLoading) {
+    return <Spinner variant="medium" />
+  }
+
+  if (currentConversationInfo.isError) {
+    return (
+      <div
+        className={css`
+          flex-grow: 1;
+          display: flex;
+          flex-direction: column;
+          padding: 20px;
+        `}
+      >
+        <ErrorBanner error={currentConversationInfo.error} variant="readOnly" />
+      </div>
+    )
+  }
 
   return (
     <div className={headerContainerStyle}>

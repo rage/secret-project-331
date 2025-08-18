@@ -38,8 +38,8 @@ const ChatbotEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChatbotBloc
   const { chatbotConfigurationId } = attributes
 
   // set the initial selected value as the previously selected chatbotConfiguration,
-  // but if this chatbotConfiguration has been set as default, then it won't be found.
-  // in this case, select the first in the list.
+  // but if this chatbotConfiguration has been set as default, then it won't be found in
+  // the options. in this case, select the first in the list.
   const initialSelected = chatbotConfigurationSelectOptions
     .map((o) => o.value)
     .find((v) => v === chatbotConfigurationId)
@@ -67,7 +67,6 @@ const ChatbotEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChatbotBloc
           options={chatbotConfigurationSelectOptions}
           defaultValue={initialSelected}
           onChangeByValue={(v) => {
-            console.log(v)
             setAttributes({
               chatbotConfigurationId: v,
               courseId: courseId ? courseId : undefined,

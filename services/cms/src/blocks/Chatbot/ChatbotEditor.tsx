@@ -11,6 +11,7 @@ import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 import { ChatbotBlockAttributes } from "."
 
 import { fetchNondefaultChatbotConfigurationsForCourse } from "@/services/backend/courses"
+import ErrorAndLoadingWrapper from "@/shared-module/common/components/ErrorAndLoadingWrapper"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
@@ -58,24 +59,34 @@ const ChatbotEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChatbotBloc
       title={t("chatbot-block-placeholder")}
       explanation={t("chatbot-block-placeholder-explanation")}
     >
-      {chatbotConfigurations.data ? (
-        <SelectField
-          className={css`
-            width: inherit;
-          `}
-          label={t("select-an-option")}
-          options={chatbotConfigurationSelectOptions}
-          defaultValue={initialSelected}
-          onChangeByValue={(v) => {
-            setAttributes({
-              chatbotConfigurationId: v,
-              courseId: courseId ? courseId : undefined,
-            })
-          }}
-        />
-      ) : (
-        <p>{t("no-chatbots-for-course")}</p>
-      )}
+      <ErrorAndLoadingWrapper
+        queryResult={chatbotConfigurations}
+        render={(chatbotConfigurationsData) => {
+          return (
+            <>
+              {chatbotConfigurationsData && chatbotConfigurationsData.length > 0 ? (
+                <SelectField
+                  className={css`
+                    width: inherit;
+                  `}
+                  label={t("select-an-option")}
+                  options={chatbotConfigurationSelectOptions}
+                  defaultValue={initialSelected}
+                  onChangeByValue={(v) => {
+                    setAttributes({
+                      chatbotConfigurationId: v,
+                      courseId: courseId ? courseId : undefined,
+                    })
+                  }}
+                />
+              ) : (
+                <p>{t("no-chatbots-for-course")}</p>
+              )}
+            </>
+          )
+        }}
+      />
+
       <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
     </BlockPlaceholderWrapper>
   )

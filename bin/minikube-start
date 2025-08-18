@@ -1,7 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-source "$(dirname "$0")/.common"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+source "${SCRIPT_DIR}/.common"
 
 trap 'echo -e "\n${RED}Error: Something went wrong while starting minikube. You can run ${CURSIVE}bin/detect-dev-env-problems${RESET_EVERYTHING}${RED} to detect some common problems.${RESET_EVERYTHING}"' ERR
 
@@ -52,5 +53,8 @@ fi
 run_command "$COMMAND" "${ARGUMENTS[@]}"
 # Have to update the config for the ingress to that the ingress controller does not reject our ingresses
 run_command kubectl patch configmap ingress-nginx-controller -p '{"data":{"allow-snippet-annotations":"true"}}' -n ingress-nginx --type merge
+
+run_command "$SCRIPT_DIR/minikube-pull-images"
+
 echo ""
 echo -e "${GREEN}✅ Minikube has been started. You can now use ${CURSIVE}bin/dev${RESET_EVERYTHING}${GREEN}, ${CURSIVE}bin/dev-only-db${RESET_EVERYTHING}${GREEN}, or ${CURSIVE}bin/test${RESET_EVERYTHING}${GREEN}.${RESET_EVERYTHING}"

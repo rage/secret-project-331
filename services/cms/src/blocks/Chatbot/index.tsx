@@ -5,7 +5,7 @@ import ChatbotEditor from "./ChatbotEditor"
 import ChatbotSave from "./ChatbotSave"
 
 export interface ChatbotBlockAttributes {
-  chatbotConfigurationId: string
+  chatbotConfigurationId: string | undefined
   courseId: string
 }
 

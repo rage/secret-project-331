@@ -15,25 +15,27 @@ test("create new organization, edit it and it's permissions, and delete it", asy
   // Create organization
   await page.getByRole("button", { name: "Create a new organization" }).click()
   await page.getByRole("textbox", { name: "Organization name" }).click()
-  await page.getByRole("textbox", { name: "Organization name" }).fill("createnewtestorganization")
+  await page
+    .getByRole("textbox", { name: "Organization name" })
+    .fill("create new test organization")
   await page.getByRole("textbox", { name: "Slug" }).click()
   await page.getByRole("textbox", { name: "Slug" }).fill("createnewtestorganizationslug")
   await page.getByTestId("dialog").getByRole("button", { name: "Create" }).click()
-  await page.getByRole("heading", { name: "createnewtestorganization" }).click()
-  await manageOrganization(page, "createnewtestorganization")
-  await page.getByText("createnewtestorganization", { exact: true }).click()
+  await page.getByRole("heading", { name: "create new test organization" }).click()
+  await manageOrganization(page, "create new test organization")
+  await page.getByText("create new test organization", { exact: true }).click()
   await page.getByText("createnewtestorganizationslug").click()
 
   // Edit organization
   await page.getByRole("button", { name: "Edit" }).click()
-  await page.getByRole("textbox", { name: "Name" }).fill("createnewtestorganizationedited")
+  await page.getByRole("textbox", { name: "Name" }).fill("create new test organization edited")
   await page.getByRole("textbox", { name: "Slug" }).fill("createnewtestorganizationslugedited")
   await page.getByRole("button", { name: "Save" }).click()
   await page.goto("http://project-331.local/")
   await page.getByRole("link", { name: "All organizations" }).click()
-  await page.getByRole("heading", { name: "createnewtestorganizationedited" }).click()
-  await manageOrganization(page, "createnewtestorganizationedited")
-  await page.getByText("createnewtestorganizationedited", { exact: true }).click()
+  await page.getByRole("heading", { name: "create new test organization edited" }).click()
+  await manageOrganization(page, "create new test organization edited")
+  await page.getByText("create new test organization edited", { exact: true }).click()
   await page.getByText("createnewtestorganizationslugedited").click()
 
   // Add user with a role
@@ -72,7 +74,7 @@ test("create new organization, edit it and it's permissions, and delete it", asy
   await page.getByTestId("dialog").getByRole("textbox").fill("delete")
   await page.getByRole("button", { name: "Confirm" }).click()
   await page.getByText("Success", { exact: true }).click()
-  await expect(page.getByText("teacher@createnewtestorganizationedited.com")).toHaveCount(0)
+  await expect(page.getByText("teacher@create new test organization edited.com")).toHaveCount(0)
 })
 
 test("Organization list renders", async ({ page, headless }, testInfo) => {

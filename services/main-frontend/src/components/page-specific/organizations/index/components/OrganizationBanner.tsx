@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import { ApartmentBuilding, Gear } from "@vectopus/atlas-icons-react"
+import Link from "next/link"
 import { useRouter } from "next/router"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -79,9 +80,8 @@ const OrganizationBanner: React.FC<Props> = ({ organization }) => {
             action={{ type: "create_courses_or_exams" }}
             resource={{ type: "organization", id: organization.id }}
           >
-            <button
-              type="button"
-              onClick={() => router.push(manageOrganizationRoute(organization.id))}
+            <Link
+              href={manageOrganizationRoute(organization.id)}
               aria-label={t("label-manage-organization", {
                 name: organization.name,
                 defaultValue: `Manage organization ${organization.name}`,
@@ -111,13 +111,11 @@ const OrganizationBanner: React.FC<Props> = ({ organization }) => {
                   color: rgba(26, 35, 51, 1);
                 `}
               />
-            </button>
+            </Link>
           </OnlyRenderIfPermissions>
 
-          <button
-            type="button"
-            onClick={() => router.push(organizationFrontPageRoute(organization.slug))}
-            aria-label={t("label-visit-organization", { name: organization.name })}
+          <Link
+            href={organizationFrontPageRoute(organization.slug)}
             className={css`
               background-color: rgba(237, 238, 240, 1);
               color: rgba(26, 35, 51, 1);
@@ -139,7 +137,7 @@ const OrganizationBanner: React.FC<Props> = ({ organization }) => {
             `}
           >
             {t("label-select")}
-          </button>
+          </Link>
         </div>
       </div>
     </div>
@@ -201,7 +199,6 @@ const OrganizationText: React.FC<{ name: string; hidden?: boolean }> = ({ name, 
           font-size: 15px;
           line-height: 1.1;
           text-transform: capitalize;
-          opacity: 1;
 
           ${respondToOrLarger.lg} {
             font-size: 18px;
@@ -209,7 +206,7 @@ const OrganizationText: React.FC<{ name: string; hidden?: boolean }> = ({ name, 
           }
         `}
       >
-        {name} {hidden ? `(${t("label-hidden")})` : ""}
+        {name} {hidden && `(${t("label-hidden")})`}
       </h2>
     </div>
   )

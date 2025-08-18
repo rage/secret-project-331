@@ -29,7 +29,6 @@ export const disabledButton = css`
 
 export const containerBase = css`
   padding: 20px 0px;
-  font-family: "Inter", sans-serif;
   color: #1a2333;
   max-width: 100%;
 

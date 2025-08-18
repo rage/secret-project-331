@@ -6,13 +6,14 @@ import { USER_ROLES } from "@/constants/roles"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
+type RoleValue = (typeof USER_ROLES)[number]["value"]
 interface AddUserPopupProps {
   show: boolean
   setShow: React.Dispatch<React.SetStateAction<boolean>>
   email: string
   setEmail: React.Dispatch<React.SetStateAction<string>>
-  role: string
-  setRole: React.Dispatch<React.SetStateAction<string>>
+  role: RoleValue
+  setRole: React.Dispatch<React.SetStateAction<RoleValue>>
   handleSave: () => void
 }
 
@@ -25,7 +26,7 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({
   setRole,
   handleSave,
 }) => {
-  const { t } = useTranslation("main-frontend") as { t: (key: string) => string }
+  const { t } = useTranslation("main-frontend")
 
   return (
     <StandardDialog
@@ -103,7 +104,7 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({
           <select
             id="add-user-role"
             value={role}
-            onChange={(e) => setRole(e.target.value)}
+            onChange={(e) => setRole(e.target.value as RoleValue)}
             className={css`
               border: 1.6px solid #e4e5e8;
               border-radius: 2px;

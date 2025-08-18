@@ -14,8 +14,6 @@ export interface ChatbotChatBoxProps {
 const ChatbotChatBox: React.FC<ChatbotChatBoxProps> = ({ chatbotConfigurationId }) => {
   const [newMessage, setNewMessage] = React.useState("")
   const [error, setError] = useState<Error | null>(null)
-  const dialogOpen = true
-  const setDialogOpen = (_: boolean) => {} // should the prop be nullable instead since it's not needed in the block
 
   const currentConversationInfoQuery = useCurrentConversationInfo(chatbotConfigurationId)
   const newConversationMutation = useNewConversationMutation(
@@ -37,16 +35,12 @@ const ChatbotChatBox: React.FC<ChatbotChatBoxProps> = ({ chatbotConfigurationId 
       `}
     >
       <ChatbotDialogHeader
-        dialogOpen={dialogOpen}
-        setDialogOpen={setDialogOpen}
         chatbotConfigurationId={chatbotConfigurationId}
         currentConversationInfo={currentConversationInfoQuery}
         newConversation={newConversationMutation}
         isCourseMaterialBlock={true}
       />
       <ChatbotDialogBody
-        dialogOpen={dialogOpen}
-        setDialogOpen={setDialogOpen}
         chatbotConfigurationId={chatbotConfigurationId}
         currentConversationInfo={currentConversationInfoQuery}
         newConversation={newConversationMutation}

@@ -9,11 +9,19 @@ import { CHATBOX_HEIGHT_PX, CHATBOX_WIDTH_PX } from "."
 import useNewConversationMutation from "@/hooks/chatbot/newConversationMutation"
 import useCurrentConversationInfo from "@/hooks/chatbot/useCurrentConversationInfo"
 
-export interface ChatbotDialogProps {
+interface ChatbotDialogProps {
   dialogOpen: boolean
   setDialogOpen: (dialogOpen: boolean) => void
   chatbotConfigurationId: string
+  isCourseMaterialBlock: false
 }
+
+interface ChatbotNoDialogProps {
+  chatbotConfigurationId: string
+  isCourseMaterialBlock: true
+}
+
+export type DiscrChatbotDialogProps = ChatbotDialogProps | ChatbotNoDialogProps
 
 const openAnimation = keyframes`
   from {

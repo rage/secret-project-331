@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
 import { CHATBOX_HEIGHT_PX } from "../Chatbot"
-import { ChatbotDialogProps } from "../Chatbot/ChatbotDialog"
 import ErrorDisplay from "../Chatbot/ErrorDisplay"
 import MessageBubble from "../Chatbot/MessageBubble"
 
@@ -24,7 +23,8 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
 
-interface ChatbotDialogBodyProps extends ChatbotDialogProps {
+interface ChatbotDialogBodyProps {
+  chatbotConfigurationId: string
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
   newConversation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
   newMessage: string

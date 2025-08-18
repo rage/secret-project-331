@@ -4,7 +4,7 @@ import { Account, AddMessage } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { ChatbotDialogProps } from "../Chatbot/ChatbotDialog"
+import { DiscrChatbotDialogProps } from "../Chatbot/ChatbotDialog"
 
 import { ChatbotConversation, ChatbotConversationInfo } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -12,11 +12,11 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 
-interface ChatbotDialogHeaderProps extends ChatbotDialogProps {
+type ChatbotDialogHeaderProps = {
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
   newConversation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
   isCourseMaterialBlock: boolean
-}
+} & DiscrChatbotDialogProps
 
 const headerContainerStyle = css`
   display: flex;
@@ -64,13 +64,9 @@ const buttonsWrapper = css`
   display: flex;
 `
 
-const ChatbotDialogHeader: React.FC<ChatbotDialogHeaderProps> = ({
-  setDialogOpen,
-  currentConversationInfo,
-  newConversation,
-  isCourseMaterialBlock,
-}) => {
+const ChatbotDialogHeader: React.FC<ChatbotDialogHeaderProps> = (props) => {
   const { t } = useTranslation()
+  const { currentConversationInfo, newConversation, isCourseMaterialBlock } = props
 
   if (currentConversationInfo.isLoading) {
     return <Spinner variant="medium" />
@@ -108,7 +104,7 @@ const ChatbotDialogHeader: React.FC<ChatbotDialogHeaderProps> = ({
         </button>
         {!isCourseMaterialBlock && (
           <button
-            onClick={() => setDialogOpen(false)}
+            onClick={() => props.setDialogOpen(false)}
             className={cx(
               buttonStyle,
               css`

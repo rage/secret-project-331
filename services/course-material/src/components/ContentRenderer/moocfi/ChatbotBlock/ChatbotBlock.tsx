@@ -6,6 +6,7 @@ import { BlockRendererProps } from "../.."
 
 import ChatbotChatBox from "./ChatbotChatBox"
 
+import { IGNORE_BLOCK_FEEDBACK_CLASS } from "@/components/SelectionListener"
 import { getDefaultChatbotConfigurationForCourse } from "@/services/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -40,17 +41,19 @@ const ChatbotBlock: React.FC<BlockRendererProps<ChatbotBlockProps>> = ({ data })
   }
 
   return (
-    <div
-      className={css`
-        display: block;
-        height: 500px;
+    <div className={IGNORE_BLOCK_FEEDBACK_CLASS}>
+      <div
+        className={css`
+          display: block;
+          height: 500px;
 
-        ${respondToOrLarger.sm} {
-          height: 900px;
-        }
-      `}
-    >
-      <ChatbotChatBox chatbotConfigurationId={chatbotConfigurationId} />
+          ${respondToOrLarger.sm} {
+            height: 900px;
+          }
+        `}
+      >
+        <ChatbotChatBox chatbotConfigurationId={chatbotConfigurationId} />
+      </div>
     </div>
   )
 }

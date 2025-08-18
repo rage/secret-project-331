@@ -26,31 +26,29 @@ const ChatbotEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChatbotBloc
   const courseId = useContext(PageContext)?.page.course_id
 
   const chatbotConfigurations = useQuery({
-    queryKey: [`/courses/${courseId}/nondefault-chatbot-configurations`],
+    queryKey: ["courses", courseId, "nondefault-chatbot-configurations"],
     queryFn: () =>
       fetchNondefaultChatbotConfigurationsForCourse(assertNotNullOrUndefined(courseId)),
     enabled: !!courseId,
   })
-  const chatbotConfigurationSelectOptions: { label: string; value: string }[] =
-    chatbotConfigurations.data
-      ? [...chatbotConfigurations.data.map((c) => ({ label: c.chatbot_name, value: c.id }))]
-      : []
+  const chatbotConfigurationSelectOptions: { label: string; value: string }[] = [
+    ...(chatbotConfigurations.data?.map((c) => ({ label: c.chatbot_name, value: c.id })) ?? []),
+  ]
 
   const { chatbotConfigurationId } = attributes
 
   // set the initial selected value as the previously selected chatbotConfiguration,
   // but if this chatbotConfiguration has been set as default, then it won't be found in
   // the options. in this case, select the first in the list.
-  const initialSelected = chatbotConfigurationSelectOptions
-    .map((o) => o.value)
-    .find((v) => v === chatbotConfigurationId)
-    ? chatbotConfigurationId
-    : chatbotConfigurationSelectOptions.at(0)?.value
+  const initialSelected =
+    chatbotConfigurationSelectOptions
+      .map((o) => o.value)
+      .find((v) => v === chatbotConfigurationId) ?? chatbotConfigurationSelectOptions.at(0)?.value
   // set it as the attribute, since if the dropdown contains only one item, then
   // the onChangeByValue event will never fire and they won't be updated.
   setAttributes({
     chatbotConfigurationId: initialSelected,
-    courseId: courseId ? courseId : undefined,
+    courseId: courseId ?? undefined,
   })
 
   return (
@@ -75,7 +73,7 @@ const ChatbotEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChatbotBloc
                   onChangeByValue={(v) => {
                     setAttributes({
                       chatbotConfigurationId: v,
-                      courseId: courseId ? courseId : undefined,
+                      courseId: courseId ?? undefined,
                     })
                   }}
                 />

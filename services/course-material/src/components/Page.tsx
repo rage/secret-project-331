@@ -113,7 +113,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   })
 
   const chatbotConfiguration = useQuery({
-    queryKey: [`/chatbot/default-for-course/${courseId}`],
+    queryKey: ["chatbot", "default-for-course", courseId],
     queryFn: () => getDefaultChatbotConfigurationForCourse(assertNotNullOrUndefined(courseId)),
     enabled: loginContext.signedIn === true && Boolean(courseId),
   })

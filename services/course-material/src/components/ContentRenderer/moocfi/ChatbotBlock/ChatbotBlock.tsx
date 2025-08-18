@@ -24,12 +24,12 @@ const ChatbotBlock: React.FC<BlockRendererProps<ChatbotBlockProps>> = ({ data })
   const courseId = data.attributes.courseId
 
   const defaultChatbotConfiguration = useQuery({
-    queryKey: [`/chatbot/default-for-course/${courseId}`],
+    queryKey: ["chatbot", "default-for-course", courseId],
     queryFn: () => getDefaultChatbotConfigurationForCourse(assertNotNullOrUndefined(courseId)),
     enabled: courseId != null,
   })
 
-  if (defaultChatbotConfiguration.isPending) {
+  if (defaultChatbotConfiguration.isLoading) {
     return <Spinner />
   }
   if (defaultChatbotConfiguration.isError) {

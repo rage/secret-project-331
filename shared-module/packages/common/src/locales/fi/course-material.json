@@ -79,7 +79,7 @@
   "enter-last-name": "Syötä sukunimi",
   "error-comment-cannot-be-empty": "Kommentti ei voi olla tyhjä",
   "error-comment-too-long": "Kommentti on liian pitkä",
-  "error-default-chatbot-in-block": "Oletuskeskustelurobottia ei voi käyttää kurssimateriaalilohkossa.",
+  "error-default-chatbot-in-block": "Oletuskeskustelurobottia ei voi lisätä kurssimateriaaliin.",
   "error-missing-course-instance-id": "Kurssi version id puuttuu",
   "error-no-code-giveaway-id": "Tässä pitäisi olla koodin jakelua, mutta sitä ei ole määritetty, mikä koodin jakelu tulisi näyttää.",
   "error-no-exercise-type-selected": "Tehtävätyyppiä ei valittu",

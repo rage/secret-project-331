@@ -5,6 +5,7 @@ use crate::prelude::*;
 use headless_lms_models::chatbot_configurations::ChatbotConfiguration;
 use models::{
     course_instances::CourseInstance,
+    courses::Course,
     pages::{Page, PageVisibility},
     partner_block::PartnersBlock,
     peer_or_self_review_configs::{self, CmsPeerOrSelfReviewConfiguration},
@@ -15,6 +16,22 @@ use crate::prelude::models::course_modules::CourseModule;
 use models::research_forms::{
     NewResearchForm, NewResearchFormQuestion, ResearchForm, ResearchFormQuestion,
 };
+
+/**
+GET /api/v0/cms/courses/:course_id - Get the course.
+*/
+#[instrument(skip(pool))]
+async fn get_course_by_id(
+    path: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Course>> {
+    let course_id = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+    let course = models::courses::get_course(&mut conn, course_id).await?;
+    token.authorized_ok(web::Json(course))
+}
 
 /**
 POST `/api/v0/cms/courses/:course_id/upload` - Uploads a media (image, audio, file) for the course from Gutenberg page edit.
@@ -322,33 +339,10 @@ async fn get_course_nondefault_chatbot_configurations(
 ) -> ControllerResult<web::Json<Vec<ChatbotConfiguration>>> {
     let course_id = path.into_inner();
     let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::UsuallyUnacceptableDeletion,
-        Some(user.id),
-        Res::Course(course_id),
-    )
-    .await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
     let course_chatbot_configurations =
         models::chatbot_configurations::get_nondefault_for_course(&mut conn, course_id).await?;
     token.authorized_ok(web::Json(course_chatbot_configurations))
-}
-
-/**
-GET /api/v0/cms/courses/:course_id/can-add-chatbot - Get the boolean to answer if chatbots are enabled on this course.
-*/
-#[instrument(skip(pool))]
-async fn get_course_can_add_chatbot(
-    path: web::Path<Uuid>,
-    pool: web::Data<PgPool>,
-    user: AuthUser,
-) -> ControllerResult<web::Json<bool>> {
-    let course_id = path.into_inner();
-    let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
-    let course = models::courses::get_course(&mut conn, course_id).await?;
-    let course_can_add = course.can_add_chatbot;
-    token.authorized_ok(web::Json(course_can_add))
 }
 
 /**
@@ -359,7 +353,8 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/{course_id}/upload", web::post().to(add_media))
+    cfg.route("/{course_id}", web::get().to(get_course_by_id))
+        .route("/{course_id}/upload", web::post().to(add_media))
         .route(
             "/{course_id}/default-peer-review",
             web::get().to(get_course_default_peer_or_self_review_configuration),
@@ -401,9 +396,5 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/nondefault-chatbot-configurations",
             web::get().to(get_course_nondefault_chatbot_configurations),
-        )
-        .route(
-            "/{course_id}/can-add-chatbot",
-            web::get().to(get_course_can_add_chatbot),
         );
 }

@@ -242,6 +242,26 @@ AND deleted_at IS NULL
     Ok(res)
 }
 
+pub async fn get_nondefault_for_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<ChatbotConfiguration>> {
+    let res = sqlx::query_as!(
+        ChatbotConfiguration,
+        r#"
+SELECT * FROM
+chatbot_configurations
+WHERE course_id = $1
+AND default_chatbot IS false
+AND deleted_at IS NULL
+"#,
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_for_azure_search_maintenance(
     conn: &mut PgConnection,
 ) -> ModelResult<Vec<ChatbotConfiguration>> {

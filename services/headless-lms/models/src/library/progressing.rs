@@ -565,7 +565,18 @@ pub async fn add_manual_completions(
                 CourseModuleCompletionGranter::User(completion_giver_user_id),
             )
             .await?;
-            // TODO: Should we enroll the user to the instance if they are on some other instance?
+
+            // User may not have enrolled to the course at all, or they may have enrolled to a different instance. By inserting the enrollment
+            crate::course_instance_enrollments::insert_enrollment_and_set_as_current(
+                &mut tx,
+                NewCourseInstanceEnrollment {
+                    user_id: completion_receiver.id,
+                    course_id: course.id,
+                    course_instance_id: course_instance.id,
+                },
+            )
+            .await?;
+
             update_module_completion_prerequisite_statuses_for_user(
                 &mut tx,
                 completion_receiver.id,

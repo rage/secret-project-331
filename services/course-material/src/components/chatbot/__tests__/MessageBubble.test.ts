@@ -1,7 +1,37 @@
 import "@testing-library/jest-dom"
+import { zipWith } from "lodash"
 
-import { getMessagePartsCitationPairs } from "../Chatbot/MessageBubble"
+// TODO this shouldn't be here
+// captures citations
+const MATCH_CITATIONS_REGEX = /\[[\w]*?([\d]+)\]/g
+// don't capture citations, just detect
+const SPLIT_AT_CITATIONS_REGEX = /\[[\w]*?[\d]+\]/g
+// also matches a starting whitespace that should be removed
+const REPLACE_CITATIONS_REGEX = /\s\[[a-z]*?[0-9]+\]/g
 
+export const getMessagePartsCitationPairs = (message: string, isFromChatbot: boolean) => {
+  let pairs: {
+    msg: string
+    cit_n: number
+  }[] = []
+  let citedDocs: number[] = []
+
+  // if the message is from user, there are no citations for it so no need to
+  // process further
+  if (!isFromChatbot) {
+    return { pairs, citedDocs, alteredMessage: message }
+  }
+
+  citedDocs = Array.from(message.matchAll(MATCH_CITATIONS_REGEX), (arr, _) => parseInt(arr[1]))
+  let messageParts = message.split(SPLIT_AT_CITATIONS_REGEX)
+  pairs = zipWith(messageParts, citedDocs, (m, c) => {
+    return { msg: m, cit_n: c }
+  })
+
+  const messageNoCitations = message.replace(REPLACE_CITATIONS_REGEX, "")
+
+  return { pairs, citedDocs, alteredMessage: messageNoCitations }
+}
 describe("MessageBubble", () => {
   describe("getMessagePartsCitationPairs", () => {
     const exampleUserMessage = "Hi [dsds] [doc2] can you teach me chatbot? [23]."

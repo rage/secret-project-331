@@ -5,7 +5,7 @@ import React, { DOMAttributes } from "react"
 import CitationButton from "./CitationButton"
 
 import { baseTheme } from "@/shared-module/common/styles"
-import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
+//import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
 
 // captures citations
 const MATCH_CITATIONS_REGEX = /\[[\w]*?([\d]+)\]/g

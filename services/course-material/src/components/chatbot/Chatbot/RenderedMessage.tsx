@@ -1,11 +1,38 @@
 import { css } from "@emotion/css"
+import Markdown from "markdown-to-jsx"
 import React, { DOMAttributes } from "react"
 
+import CitationButton from "./CitationButton"
+
 import { baseTheme } from "@/shared-module/common/styles"
-import { getRemarkable } from "@/utils/getRemarkable"
 import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
 
-const messageStyle = (clicked: boolean) => css`
+// captures citations
+const MATCH_CITATIONS_REGEX = /\[[\w]*?([\d]+)\]/g
+// matches citations and a starting whitespace that should be removed
+const REMOVE_CITATIONS_REGEX = /\s\[[\w]*?[\d]+\]/g
+
+/* const getMessagePartsCitationPairs = (message: string, isFromChatbot: boolean) => {
+  let citedDocs: number[] = []
+
+  // if the message is from user, there are no citations for it so no need to
+  // process further
+  if (!isFromChatbot) {
+    return { citedDocs, alteredMessage: message }
+  }
+
+  citedDocs = Array.from(message.matchAll(MATCH_CITATIONS_REGEX), (arr, _) => parseInt(arr[1]))
+  let messageParts = message.split(SPLIT_AT_CITATIONS_REGEX)
+  /* pairs = zipWith(messageParts, citedDocs, (m, c) => {
+    return { msg: m, cit_n: c }
+  })
+  const messageNoCitations = message.replace(REMOVE_CITATIONS_REGEX, "")
+
+  return { citedDocs, alteredMessage: message }
+}
+*/
+
+const messageStyle = css`
   flex: 1;
   table {
     margin: 20px 0 20px 0;
@@ -42,7 +69,6 @@ const messageStyle = (clicked: boolean) => css`
       filter: brightness(0.9) contrast(1.1);
       transition: filter 0.2s;
     }
-    ${clicked && `box-shadow: inset 0 0 0 2px ${baseTheme.colors.gray[400]};`}
   }
   h1 {
     font-size: x-large;
@@ -62,77 +88,70 @@ const messageStyle = (clicked: boolean) => css`
   white-space: pre-wrap;
 `
 
-const citationId = (cit_n: number, idx: number) => {
-  /* eslint-disable i18next/no-literal-string */
-  return `cit-${cit_n}-${idx}`
-}
-
 export enum MessageRenderType {
   User,
   ChatbotNoCitations,
   ChatbotWithCitations,
 }
 
-interface CitationButtonProps {
+interface RenderedMessageProps {
   renderOption: MessageRenderType
   message: string
-  pairs: {
-    msg: string
-    cit_n: number
-  }[]
   citationButtonClicked: boolean
   currentRefId: string | undefined
   handleClick: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void
   hoverCitationProps: DOMAttributes<HTMLButtonElement>
 }
 
-let md = getRemarkable()
-
-const RenderedMessage: React.FC<CitationButtonProps> = ({
+const RenderedMessage: React.FC<RenderedMessageProps> = ({
   renderOption,
   message,
-  pairs,
   citationButtonClicked,
   currentRefId,
   handleClick,
   hoverCitationProps,
 }) => {
   if (renderOption === MessageRenderType.User) {
-    return <span className={messageStyle(false)}>{message}</span>
+    return <span className={messageStyle}>{message}</span>
   }
-  let messageCopy = md.render(message).trim().slice(3, -4)
 
   if (renderOption === MessageRenderType.ChatbotNoCitations) {
+    let renderedMessage = message.replace(REMOVE_CITATIONS_REGEX, "")
     return (
-      <span
-        className={messageStyle(false)}
-        dangerouslySetInnerHTML={{
-          __html: sanitizeCourseMaterialHtml(messageCopy),
-        }}
-      ></span>
+      <span className={messageStyle}>
+        <Markdown>{renderedMessage}</Markdown>
+      </span>
     )
   }
 
+  let renderedMessage = message.replace(MATCH_CITATIONS_REGEX, (_match, p1, offset) => {
+    // eslint-disable-next-line i18next/no-literal-string
+    return `<CitationButton citN="${p1}" idx="${offset}" />`
+  })
+
   return (
-    <>
-      {pairs.map(({ msg, cit_n }, idx) => (
-        <span
-          key={idx}
-          className={messageStyle(citationButtonClicked && currentRefId === citationId(cit_n, idx))}
-        >
-          <span dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(msg) }}></span>
-          {cit_n && (
-            <button
-              id={citationId(cit_n, idx)}
-              {...hoverCitationProps}
-              onClick={(e) => handleClick(e)}
-            >
-              {cit_n}
-            </button>
-          )}
-        </span>
-      ))}
-    </>
+    <span className={messageStyle}>
+      <Markdown
+        options={{
+          overrides: {
+            CitationButton: {
+              component: CitationButton,
+              props: {
+                citationButtonClicked: citationButtonClicked,
+                currentRefId: currentRefId,
+                handleClick: handleClick,
+                hoverCitationProps: hoverCitationProps,
+              },
+            },
+            script: () => null,
+            button: () => null,
+          },
+          disableAutoLink: true,
+        }}
+      >
+        {renderedMessage}
+      </Markdown>
+    </span>
   )
 }
 

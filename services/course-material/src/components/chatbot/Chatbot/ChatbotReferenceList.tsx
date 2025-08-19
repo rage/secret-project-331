@@ -156,7 +156,10 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
               <SpeechBalloonPopover
                 placement="top"
                 triggerRef={triggerRef}
-                isOpen={isCitationHovered || isPopoverHovered || citationButtonClicked}
+                isOpen={
+                  triggerRef.current?.id.includes(`cit-${cit.citation_number}`) &&
+                  (isCitationHovered || isPopoverHovered || citationButtonClicked)
+                }
                 isNonModal={!citationButtonClicked}
                 onOpenChange={() => {
                   setCitationButtonClicked(false)

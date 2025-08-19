@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import { zipWith } from "lodash"
 import React, { useMemo, useRef, useState } from "react"
 import { useHover } from "react-aria"
 
@@ -12,34 +11,6 @@ import { baseTheme } from "@/shared-module/common/styles"
 
 // captures citations
 const MATCH_CITATIONS_REGEX = /\[[\w]*?([\d]+)\]/g
-// don't capture citations, just detect
-const SPLIT_AT_CITATIONS_REGEX = /\[[\w]*?[\d]+\]/g
-// also matches a starting whitespace that should be removed
-const REPLACE_CITATIONS_REGEX = /\s\[[\w]*?[\d]+\]/g
-
-export const getMessagePartsCitationPairs = (message: string, isFromChatbot: boolean) => {
-  let pairs: {
-    msg: string
-    cit_n: number
-  }[] = []
-  let citedDocs: number[] = []
-
-  // if the message is from user, there are no citations for it so no need to
-  // process further
-  if (!isFromChatbot) {
-    return { pairs, citedDocs, alteredMessage: message }
-  }
-
-  citedDocs = Array.from(message.matchAll(MATCH_CITATIONS_REGEX), (arr, _) => parseInt(arr[1]))
-  let messageParts = message.split(SPLIT_AT_CITATIONS_REGEX)
-  pairs = zipWith(messageParts, citedDocs, (m, c) => {
-    return { msg: m, cit_n: c }
-  })
-
-  const messageNoCitations = message.replace(REPLACE_CITATIONS_REGEX, "")
-
-  return { pairs, citedDocs, alteredMessage: messageNoCitations }
-}
 
 interface MessageBubbleProps {
   message: string
@@ -89,21 +60,13 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       }
       triggerRef.current = e.target
     },
-    onHoverEnd: (e) => {
-      if (!(e.target instanceof HTMLButtonElement)) {
-        throw new Error("This hover is meant to be used on buttons only.")
-      }
-      if (!citationButtonClicked) {
-        triggerRef.current = null
-      }
-    },
   })
 
   const [processedMessage, processedCitations] = useMemo(() => {
-    const { pairs, citedDocs, alteredMessage } = getMessagePartsCitationPairs(
-      message,
-      isFromChatbot,
+    const citedDocs = Array.from(message.matchAll(MATCH_CITATIONS_REGEX), (arr, _) =>
+      parseInt(arr[1]),
     )
+
     let filteredCitations = citations
       ? citations.filter((cit) => citedDocs.includes(cit.citation_number))
       : []
@@ -118,8 +81,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         renderOption={renderOption}
         citationButtonClicked={citationButtonClicked}
         currentRefId={triggerRef.current?.id}
-        message={alteredMessage}
-        pairs={pairs}
+        message={message}
         handleClick={(e) => {
           setCitationButtonClicked(true)
           triggerRef.current = e.currentTarget

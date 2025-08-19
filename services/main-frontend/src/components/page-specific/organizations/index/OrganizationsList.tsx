@@ -145,8 +145,7 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
           createOrganizationMutation.mutate({
             name,
             slug: slug.trim().toLowerCase().replace(/\s+/g, "-"),
-            description: "",
-            hidden: visibility === "private",
+            visibility,
           })
         }}
       />

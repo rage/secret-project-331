@@ -116,7 +116,7 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({
             <option value="">{t("button-select-role")}</option>
             {USER_ROLES.map((role) => (
               <option key={role.value} value={role.value}>
-                {t(role.translationKey)}
+                {role.value}
               </option>
             ))}
           </select>

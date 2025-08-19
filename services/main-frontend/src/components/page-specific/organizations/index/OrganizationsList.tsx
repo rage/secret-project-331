@@ -41,7 +41,9 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
     {
       onSuccess: () => {
         setShowCreatePopup(false)
-        router.reload()
+        setTimeout(() => {
+          router.reload()
+        }, 1500)
       },
     },
   )

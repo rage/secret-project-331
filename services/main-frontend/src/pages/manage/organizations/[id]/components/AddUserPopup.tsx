@@ -1,49 +1,67 @@
 import { css } from "@emotion/css"
 import React from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { USER_ROLES } from "@/constants/roles"
+import SelectField from "@/shared-module/common/components/InputFields/SelectField"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 type RoleValue = (typeof USER_ROLES)[number]["value"]
-interface AddUserPopupProps {
-  show: boolean
-  setShow: React.Dispatch<React.SetStateAction<boolean>>
+
+type AddUserForm = {
   email: string
-  setEmail: React.Dispatch<React.SetStateAction<string>>
   role: RoleValue
-  setRole: React.Dispatch<React.SetStateAction<RoleValue>>
-  handleSave: () => void
 }
 
-const AddUserPopup: React.FC<AddUserPopupProps> = ({
-  show,
-  setShow,
-  email,
-  setEmail,
-  role,
-  setRole,
-  handleSave,
-}) => {
+interface AddUserPopupProps {
+  show: boolean
+  onClose: () => void
+  onSave: (data: AddUserForm) => void
+}
+
+const AddUserPopup: React.FC<AddUserPopupProps> = ({ show, onClose, onSave }) => {
   const { t } = useTranslation("main-frontend")
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<AddUserForm>({
+    defaultValues: {
+      email: "",
+      role: "",
+    },
+  })
+
+  React.useEffect(() => {
+    if (!show) {
+      reset()
+    }
+  }, [show, reset])
+
+  const submitForm = handleSubmit((data) => {
+    onSave(data)
+    onClose()
+    reset()
+  })
 
   return (
     <StandardDialog
       open={show}
-      onClose={() => setShow(false)}
+      onClose={onClose}
       title={t("add-user-title")}
       buttons={[
         {
           children: t("save"),
-          onClick: handleSave,
-
+          onClick: submitForm,
           variant: "primary",
         },
         {
           children: t("button-text-cancel"),
-          onClick: () => setShow(false),
-
+          onClick: onClose,
           variant: "secondary",
         },
       ]}
@@ -57,7 +75,8 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({
         {t("add-user-description")}
       </p>
 
-      <div
+      <form
+        onSubmit={submitForm}
         className={css`
           display: flex;
           flex-direction: column;
@@ -69,59 +88,26 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({
           }
         `}
       >
-        {/* Email */}
-        <div
-          className={css`
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-          `}
-        >
-          <label htmlFor="add-user-email">{t("label-email")}</label>
-          <input
-            id="add-user-email"
-            type="text"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className={css`
-              border: 1.6px solid #e4e5e8;
-              border-radius: 2px;
-              padding: 8px 12px;
-              font-size: 14px;
-            `}
-          />
-        </div>
+        <TextField
+          {...register("email", { required: true })}
+          id="add-user-email"
+          label={t("label-email")}
+          error={errors.email ? t("validation-required") : undefined}
+        />
 
-        {/* Role */}
-        <div
-          className={css`
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-          `}
-        >
-          <label htmlFor="add-user-role">{t("label-role")}</label>
-          <select
-            id="add-user-role"
-            value={role}
-            onChange={(e) => setRole(e.target.value as RoleValue)}
-            className={css`
-              border: 1.6px solid #e4e5e8;
-              border-radius: 2px;
-              padding: 8px 12px;
-              font-size: 14px;
-              background-color: white;
-            `}
-          >
-            <option value="">{t("button-select-role")}</option>
-            {USER_ROLES.map((role) => (
-              <option key={role.value} value={role.value}>
-                {role.value}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
+        <SelectField
+          {...register("role", { required: true })}
+          id="add-user-role"
+          label={t("label-role")}
+          options={[
+            { value: "", label: t("button-select-role") },
+            ...USER_ROLES.map((role) => ({
+              value: role.value,
+              label: role.value,
+            })),
+          ]}
+        />
+      </form>
     </StandardDialog>
   )
 }

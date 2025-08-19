@@ -8,7 +8,9 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("create new organization, edit it and it's permissions, and delete it", async ({ page }) => {
+test.only("create new organization, edit it and it's permissions, and delete it", async ({
+  page,
+}) => {
   await page.goto("http://project-331.local/")
   await page.getByRole("link", { name: "All organizations" }).click()
 
@@ -19,18 +21,22 @@ test("create new organization, edit it and it's permissions, and delete it", asy
     .getByRole("textbox", { name: "Organization name" })
     .fill("create new test organization")
   await page.getByRole("textbox", { name: "Slug" }).click()
-  await page.getByRole("textbox", { name: "Slug" }).fill("createnewtestorganizationslug")
+  await page.getByRole("textbox", { name: "Slug" }).fill("testslug")
   await page.getByTestId("dialog").getByRole("button", { name: "Create" }).click()
+  await page.getByText("Success", { exact: true }).click()
+
   await page.getByRole("heading", { name: "create new test organization" }).click()
   await manageOrganization(page, "create new test organization")
   await page.getByText("create new test organization", { exact: true }).click()
-  await page.getByText("createnewtestorganizationslug").click()
+  await page.getByText("testslug").click()
 
   // Edit organization
   await page.getByRole("button", { name: "Edit" }).click()
   await page.getByRole("textbox", { name: "Name" }).fill("create new test organization edited")
   await page.getByRole("textbox", { name: "Slug" }).fill("createnewtestorganizationslugedited")
   await page.getByRole("button", { name: "Save" }).click()
+  await page.getByText("Success", { exact: true }).click()
+
   await page.goto("http://project-331.local/")
   await page.getByRole("link", { name: "All organizations" }).click()
   await page.getByRole("heading", { name: "create new test organization edited" }).click()
@@ -45,6 +51,8 @@ test("create new organization, edit it and it's permissions, and delete it", asy
   await page.getByRole("textbox", { name: "Email" }).fill("teacher@example.com")
   await page.getByLabel("Role").selectOption("Teacher")
   await page.getByRole("button", { name: "Save" }).click()
+  await page.getByText("Success", { exact: true }).click()
+
   await page.getByText("Teacher", { exact: true }).click()
   await page.getByText("teacher@example.com").click()
   await page.getByText("Teacher Example").click()
@@ -53,6 +61,8 @@ test("create new organization, edit it and it's permissions, and delete it", asy
   await page.getByRole("button", { name: "Edit user Teacher Example" }).click()
   await page.getByTestId("dialog").getByLabel("Role").selectOption("CourseOrExamCreator")
   await page.getByRole("button", { name: "Save" }).click()
+  await page.getByText("Success", { exact: true }).click()
+
   await page.getByText("CourseOrExamCreator").click()
   await page.getByText("teacher@example.com").click()
   await page.getByText("Teacher Example").click()

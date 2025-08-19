@@ -3,6 +3,8 @@ import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import SelectField from "@/shared-module/common/components/InputFields/SelectField"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 
 type CreateOrganizationForm = {
@@ -77,102 +79,32 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
         {t("create-organization-description")}
       </p>
 
-      <form
-        onSubmit={submitForm}
-        className={css`
-          display: flex;
-          flex-direction: column;
-          gap: 24px;
-          margin-bottom: 32px;
-        `}
-      >
-        {/* Organization Name */}
-        <div
-          className={css`
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-          `}
-        >
-          <label htmlFor="org-name">{t("label-organization-name")}</label>
-          <input
-            id="org-name"
-            type="text"
-            {...register("name", { required: true })}
-            className={css`
-              border: 1.6px solid #e4e5e8;
-              border-radius: 2px;
-              padding: 8px 12px;
-              font-size: 14px;
-            `}
-          />
-          {errors.name && (
-            <span
-              className={css`
-                color: red;
-                font-size: 12px;
-              `}
-            >
-              {t("validation-required")}
-            </span>
-          )}
-        </div>
+      <form onSubmit={submitForm}>
+        <TextField
+          {...register("name", { required: true })}
+          id="org-name"
+          label={t("label-organization-name")}
+          error={errors.name ? t("validation-required") : undefined}
+        />
 
-        {/* Visibility */}
-        <div
-          className={css`
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-          `}
-        >
-          <label htmlFor="org-visibility">{t("label-visibility")}</label>
-          <select
-            id="org-visibility"
-            {...register("visibility")}
-            className={css`
-              border: 1.6px solid #e4e5e8;
-              border-radius: 2px;
-              padding: 8px 12px;
-              font-size: 14px;
-              background-color: white;
-            `}
-          >
-            <option value="public">{t("label-visible")}</option>
-            <option value="private">{t("label-hidden")}</option>
-          </select>
-        </div>
-        {/* Slug */}
-        <div
-          className={css`
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-          `}
-        >
-          <label htmlFor="org-slug">{t("label-slug")}</label>
-          <input
-            id="org-slug"
-            type="text"
-            {...register("slug", { required: true })}
-            className={css`
-              border: 1.6px solid #e4e5e8;
-              border-radius: 2px;
-              padding: 8px 12px;
-              font-size: 14px;
-            `}
-          />
-          {errors.slug && (
-            <span
-              className={css`
-                color: red;
-                font-size: 12px;
-              `}
-            >
-              {t("validation-required")}
-            </span>
-          )}
-        </div>
+        <SelectField
+          {...register("visibility")}
+          id="org-visibility"
+          label={t("label-visibility")}
+          options={[
+            // eslint-disable-next-line i18next/no-literal-string
+            { value: "public", label: t("label-visible") }, // uses internal value
+            // eslint-disable-next-line i18next/no-literal-string
+            { value: "private", label: t("label-hidden") }, // uses internal value
+          ]}
+        />
+
+        <TextField
+          {...register("slug", { required: true })}
+          id="org-slug"
+          label={t("label-slug")}
+          error={errors.slug ? t("validation-required") : undefined}
+        />
       </form>
     </StandardDialog>
   )

@@ -52,8 +52,6 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
   const [showAddUserPopup, setShowAddUserPopup] = React.useState(false)
   const [editMode, setEditMode] = React.useState(false)
   const [users, setUsers] = React.useState<NamedRoleUser[]>([])
-  const [email, setEmail] = React.useState("")
-  const [role, setRole] = React.useState("")
   const [hidden, setHidden] = React.useState(false)
   const [showEditPopup, setShowEditPopup] = React.useState(false)
   const [editUser, setEditUser] = React.useState<RoleUser | null>(null)
@@ -65,15 +63,13 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
   const router = useRouter()
 
   const addMutation = useToastMutation(
-    () => {
+    (data: { email: string; role: string }) => {
       // eslint-disable-next-line i18next/no-literal-string
-      return giveRole(email, role as UserRole, { tag: "Organization", id: query.id })
+      return giveRole(data.email, data.role as UserRole, { tag: "Organization", id: query.id })
     },
     { notify: true, method: "POST" },
     {
       onSuccess: () => {
-        setEmail("")
-        setRole("")
         setShowAddUserPopup(false)
         roleQuery.refetch()
       },
@@ -107,7 +103,9 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
     { notify: true, method: "PUT" },
     {
       onSuccess: () => {
-        router.push(allOrganizationsRoute())
+        setTimeout(() => {
+          router.push(allOrganizationsRoute())
+        }, 1500)
       },
     },
   )
@@ -182,12 +180,6 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
     queryFn: () => fetchOrganization(query.id),
   })
 
-  const handleSave = () => {
-    if (email && role) {
-      addMutation.mutate()
-    }
-  }
-
   React.useEffect(() => {
     if (roleQuery.data) {
       setUsers(
@@ -258,12 +250,8 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
         {contents}
         <AddUserPopup
           show={showAddUserPopup}
-          setShow={setShowAddUserPopup}
-          email={email}
-          setEmail={setEmail}
-          role={role}
-          setRole={setRole}
-          handleSave={handleSave}
+          onClose={() => setShowAddUserPopup(false)}
+          onSave={(data) => addMutation.mutate(data)}
         />
 
         {editUser && (

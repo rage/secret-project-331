@@ -15,7 +15,7 @@ const MATCH_CITATIONS_REGEX = /\[[\w]*?([\d]+)\]/g
 // don't capture citations, just detect
 const SPLIT_AT_CITATIONS_REGEX = /\[[\w]*?[\d]+\]/g
 // also matches a starting whitespace that should be removed
-const REPLACE_CITATIONS_REGEX = /\s\[[a-z]*?[0-9]+\]/g
+const REPLACE_CITATIONS_REGEX = /\s\[[\w]*?[\d]+\]/g
 
 export const getMessagePartsCitationPairs = (message: string, isFromChatbot: boolean) => {
   let pairs: {

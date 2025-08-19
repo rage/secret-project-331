@@ -44,6 +44,21 @@ const messageStyle = (clicked: boolean) => css`
     }
     ${clicked && `box-shadow: inset 0 0 0 2px ${baseTheme.colors.gray[400]};`}
   }
+  h1 {
+    font-size: x-large;
+  }
+  h2 {
+    font-size: large;
+  }
+  h3 {
+    font-size: medium;
+  }
+  h4,
+  h5,
+  h6 {
+    font-size: small;
+  }
+
   white-space: pre-wrap;
 `
 

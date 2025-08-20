@@ -9,7 +9,7 @@ import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindi
 import SpeechBalloonPopover from "@/shared-module/common/components/SpeechBalloonPopover"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
-import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
+//import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
 
 const referenceStyle = css`
   margin: 4px 4px 4px 0;

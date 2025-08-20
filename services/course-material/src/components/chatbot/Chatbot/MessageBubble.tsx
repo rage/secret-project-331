@@ -10,7 +10,37 @@ import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindi
 import { baseTheme } from "@/shared-module/common/styles"
 
 // captures citations
-const MATCH_CITATIONS_REGEX = /\[[\w]*?([\d]+)\]/g
+export const MATCH_CITATIONS_REGEX = /\[[\w]*?([\d]+)\]/g
+
+export const renumberFilterCitations = (
+  message: string,
+  citations: ChatbotConversationMessageCitation[],
+) => {
+  // change the citation_number of the actually cited citations so that
+  // the first citation that appears in the msg is 1, the 2nd is 2, etc.
+  // and filter out citations that were not cited in the msg.
+  // Set preserves the order of the unique items in the array
+  const citedDocs = new Set(
+    Array.from(message.matchAll(MATCH_CITATIONS_REGEX), (arr, _) => parseInt(arr[1])),
+  )
+  let uniqueCitations = [...citedDocs]
+  let renumberedFilteredCitations: ChatbotConversationMessageCitation[] = []
+
+  uniqueCitations.map((citN, idx) => {
+    // renumbers the uniqueCitations to be ordered
+    // and creates the renumberedFilteredCitations array
+    idx += 1
+    let cit = citations.find((c) => c.citation_number === citN)
+    if (cit) {
+      let modifiedCit = { ...cit }
+      modifiedCit.citation_number = idx
+      renumberedFilteredCitations.push(modifiedCit)
+    }
+    return idx
+  })
+
+  return { filteredCitations: renumberedFilteredCitations }
+}
 
 interface MessageBubbleProps {
   message: string
@@ -63,13 +93,12 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   })
 
   const [processedMessage, processedCitations] = useMemo(() => {
-    const citedDocs = Array.from(message.matchAll(MATCH_CITATIONS_REGEX), (arr, _) =>
-      parseInt(arr[1]),
-    )
+    const { filteredCitations } = renumberFilterCitations(message, citations ?? [])
+    /*     console.log("citations", citations)
+    console.log("citedDocs", citedDocs)
+    console.log("unique citations,", uniqueCitations)
+    console.log("filtered", filteredCitations) */
 
-    let filteredCitations = citations
-      ? citations.filter((cit) => citedDocs.includes(cit.citation_number))
-      : []
     let renderOption = !isFromChatbot
       ? MessageRenderType.User
       : !citationsOpen || filteredCitations.length == 0

@@ -3,35 +3,13 @@ import Markdown from "markdown-to-jsx"
 import React, { DOMAttributes } from "react"
 
 import CitationButton from "./CitationButton"
+import { MATCH_CITATIONS_REGEX } from "./MessageBubble"
 
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
-
 //import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
 
-// captures citations
-const MATCH_CITATIONS_REGEX = /\[[\w]*?([\d]+)\]/g
 // matches citations and a starting whitespace that should be removed
-const REMOVE_CITATIONS_REGEX = /\s\[[\w]*?[\d]+\]/g
-
-/* const getMessagePartsCitationPairs = (message: string, isFromChatbot: boolean) => {
-  let citedDocs: number[] = []
-
-  // if the message is from user, there are no citations for it so no need to
-  // process further
-  if (!isFromChatbot) {
-    return { citedDocs, alteredMessage: message }
-  }
-
-  citedDocs = Array.from(message.matchAll(MATCH_CITATIONS_REGEX), (arr, _) => parseInt(arr[1]))
-  let messageParts = message.split(SPLIT_AT_CITATIONS_REGEX)
-  /* pairs = zipWith(messageParts, citedDocs, (m, c) => {
-    return { msg: m, cit_n: c }
-  })
-  const messageNoCitations = message.replace(REMOVE_CITATIONS_REGEX, "")
-
-  return { citedDocs, alteredMessage: message }
-}
-*/
+export const REMOVE_CITATIONS_REGEX = /\s\[[\w]*?[\d]+\]/g
 
 const messageStyle = css`
   flex: 1;

@@ -7,11 +7,13 @@ use chrono::{DateTime, Duration, Utc};
 use domain::error::{OAuthErrorCode, OAuthErrorData};
 use headless_lms_utils::ApplicationConfiguration;
 use headless_lms_utils::prelude::*;
+use hmac::{Hmac, Mac};
 use jsonwebtoken::{EncodingKey, Header, encode};
 use models::{
     oauth_access_token::OAuthAccessToken, oauth_auth_code::OAuthAuthCode,
     oauth_client::OAuthClient, oauth_refresh_tokens::OAuthRefreshTokens,
-    oauth_user_client_scopes::OAuthUserClientScopes, user_details,
+    oauth_shared_types::Digest as TokenDigest, oauth_user_client_scopes::OAuthUserClientScopes,
+    user_details,
 };
 use rand::distr::SampleString;
 use rand::rng;
@@ -19,8 +21,9 @@ use rsa::RsaPublicKey;
 use rsa::pkcs1::DecodeRsaPublicKey;
 use rsa::traits::PublicKeyParts;
 use serde_json::json;
-use sha2::{Digest, Sha256};
+use sha2::{Digest as ShaDigest, Sha256};
 use sqlx::PgPool;
+use sqlx::types::JsonValue;
 use uuid::Uuid;
 
 /// Handles the `/authorize` endpoint for OAuth 2.0 / OpenID Connect.
@@ -46,7 +49,6 @@ use uuid::Uuid;
 /// HTTP/1.1 302 Found
 /// Location: http://localhost?code=SplxlOBeZQQYbYS6WxSbIA&state=random123
 /// ```
-#[instrument(skip(pool))]
 async fn authorize(
     pool: web::Data<PgPool>,
     query: SafeExtractor<AuthorizeQuery>,
@@ -116,15 +118,20 @@ async fn authorize(
             } else {
                 let code = generate_access_token();
                 let expires_at = Utc::now() + Duration::minutes(10);
+                let (pepper, pepper_id) = read_token_pepper()?;
+                let code_digest = token_digest_hmac_sha256(&code, &pepper);
+
                 OAuthAuthCode::insert(
                     &mut conn,
-                    &code,
+                    code_digest,
+                    pepper_id,
                     user.id,
                     client.id,
                     redirect_uri,
                     scope,
                     nonce,
                     expires_at,
+                    None::<JsonValue>,
                 )
                 .await?;
 
@@ -301,7 +308,10 @@ async fn token(
     pool: web::Data<PgPool>,
     form: SafeExtractor<TokenQuery>,
 ) -> ControllerResult<HttpResponse> {
+    use hmac::Mac; // for `update`, `finalize`
+
     form.0.validate()?;
+    let (pepper, pepper_id) = read_token_pepper()?;
 
     let mut conn = pool.acquire().await?;
     let server_token = skip_authorize();
@@ -327,7 +337,7 @@ async fn token(
             )
         })?;
 
-    if client.client_secret != client_secret {
+    if client.client_secret != hash_token_hmac_sha256(client_secret, pepper) {
         return Err(ControllerError::new(
             ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
                 error: OAuthErrorCode::InvalidClient.as_str().into(),
@@ -340,13 +350,14 @@ async fn token(
         ));
     }
 
-    let access_token = generate_access_token();
-    let new_refresh_token = generate_access_token();
+    let access_token_plain = generate_access_token();
+    let new_refresh_token_plain = generate_access_token();
     let refresh_token_expires_at = Utc::now() + refresh_token_expire_time;
 
     let (user_id, scope, nonce, expires_at, issue_id_token) = match &form.0.grant {
         Some(GrantType::AuthorizationCode { code, redirect_uri }) => {
-            let auth_code = OAuthAuthCode::consume(&mut conn, code).await?;
+            let code_digest = token_digest_hmac_sha256(code, &pepper);
+            let auth_code = OAuthAuthCode::consume(&mut conn, code_digest).await?;
             if auth_code.client_id != client.id || &auth_code.redirect_uri != redirect_uri {
                 return Err(ControllerError::new(
                     ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
@@ -360,31 +371,48 @@ async fn token(
                 ));
             }
 
-            let expires_at = Utc::now() + access_token_expire_time;
+            // issue new access + refresh (store DIGESTS)
             let scope = auth_code.scope.clone().unwrap_or_default();
+            let expires_at = Utc::now() + access_token_expire_time;
 
+            // access token digest
+            let at_digest = token_digest_hmac_sha256(&access_token_plain, &pepper);
             OAuthAccessToken::insert(
                 &mut conn,
-                access_token.clone(),
-                auth_code.user_id,
-                client.id,
+                at_digest,
+                pepper_id,
+                Some(auth_code.user_id), // user_id is Option<Uuid> in model
+                auth_code.client_id,
                 &scope,
+                "",                      // audience: &str
+                "",                      // dpop_jkt: &str
+                serde_json::Value::Null, // metadata: JsonValue
                 expires_at,
             )
             .await?;
+
+            // revoke any existing RTs for this pair (defense in depth)
             OAuthRefreshTokens::revoke_all_by_user_client(
                 &mut conn,
                 auth_code.user_id,
                 auth_code.client_id,
             )
             .await?;
+
+            // refresh token digest
+            let rt_digest = token_digest_hmac_sha256(&new_refresh_token_plain, &pepper);
             OAuthRefreshTokens::insert(
                 &mut conn,
-                &new_refresh_token,
+                rt_digest,
+                pepper_id,
                 auth_code.user_id,
-                client.id,
+                auth_code.client_id,
                 &scope,
+                "", // audience: &str
                 refresh_token_expires_at,
+                None, // rotated_from
+                None, // metadata
+                "",   // dpop_jkt
             )
             .await?;
 
@@ -396,8 +424,11 @@ async fn token(
                 true,
             )
         }
+
         Some(GrantType::RefreshToken { refresh_token }) => {
-            let token = OAuthRefreshTokens::consume(&mut conn, refresh_token).await?;
+            // verify/consume presented RT by DIGEST
+            let presented_rt = token_digest_hmac_sha256(refresh_token, &pepper);
+            let token = OAuthRefreshTokens::consume(&mut conn, presented_rt).await?;
             if token.client_id != client.id {
                 return Err(ControllerError::new(
                     ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
@@ -411,31 +442,49 @@ async fn token(
                 ));
             }
 
+            // rotate RT (insert new digest, link rotated_from), and mint new AT
             OAuthRefreshTokens::revoke_all_by_user_client(
                 &mut conn,
                 token.user_id,
                 token.client_id,
             )
             .await?;
+
+            let rt_digest = token_digest_hmac_sha256(&new_refresh_token_plain, &pepper);
             OAuthRefreshTokens::insert(
                 &mut conn,
-                &new_refresh_token,
+                rt_digest,
+                pepper_id,
                 token.user_id,
                 token.client_id,
-                &token.scope.clone().unwrap_or_default(),
+                &token.scope, // scope is String in your model
+                token.audience.as_deref().unwrap_or(""),
                 refresh_token_expires_at,
+                Some(token.digest.clone()),   // rotated_from
+                Some(token.metadata.clone()), // carry metadata forward if you want
+                token.dpop_jkt.as_str(),      // &str
             )
             .await?;
 
             let expires_at = Utc::now() + access_token_expire_time;
-            (
-                token.user_id,
-                token.scope.clone().unwrap_or_default(),
-                None,
+            let at_digest = token_digest_hmac_sha256(&access_token_plain, &pepper);
+            OAuthAccessToken::insert(
+                &mut conn,
+                at_digest,
+                pepper_id,
+                Some(token.user_id),
+                token.client_id,
+                &token.scope,
+                token.audience.as_deref().unwrap_or(""),
+                token.dpop_jkt.as_str(),
+                token.metadata.clone(),
                 expires_at,
-                false,
             )
+            .await?;
+
+            (token.user_id, token.scope.clone(), None, expires_at, false)
         }
+
         None => unreachable!("validate() ensures grant is Some"),
     };
 
@@ -450,13 +499,15 @@ async fn token(
         None
     };
 
+    // Return PLAINTEXT tokens to the client
     let response = TokenResponse {
-        access_token,
-        refresh_token: Some(new_refresh_token),
+        access_token: access_token_plain,
+        refresh_token: Some(new_refresh_token_plain),
         id_token,
         token_type: "Bearer".to_string(),
         expires_in: access_token_expire_time.num_seconds() as u32,
     };
+
     let mut resp = HttpResponse::Ok();
     resp.insert_header(("Cache-Control", "no-store"));
     resp.insert_header(("Pragma", "no-cache"));
@@ -500,6 +551,8 @@ async fn user_info(
     let mut conn = pool.acquire().await?;
     let server_token = skip_authorize();
 
+    // Extract "Bearer <token>"
+    // TODO handle DPoP tokens
     let token = match req
         .headers()
         .get("Authorization")
@@ -521,9 +574,32 @@ async fn user_info(
         }
     };
 
-    let access = OAuthAccessToken::find_valid(&mut conn, token).await?;
-    let user = user_details::get_user_details_by_user_id(&mut conn, access.user_id).await?;
+    // Hash the presented bearer token and look up by digest
+    let (pepper, _pepper_id) = read_token_pepper()?;
+    let digest = token_digest_hmac_sha256(token, &pepper);
 
+    let access = OAuthAccessToken::find_valid(&mut conn, digest).await?;
+
+    // UserInfo is end-user focused; ensure the token is bound to a user
+    let user_id = match access.user_id {
+        Some(u) => u,
+        None => {
+            return Err(ControllerError::new(
+                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
+                    error: OAuthErrorCode::InvalidToken.as_str().into(),
+                    error_description: "token has no associated user".into(),
+                    redirect_uri: None,
+                    state: None,
+                })),
+                "token has no associated user",
+                None::<anyhow::Error>,
+            ));
+        }
+    };
+
+    let user = user_details::get_user_details_by_user_id(&mut conn, user_id).await?;
+
+    // Scope-gated claims
     let scopes: std::collections::HashSet<&str> = access
         .scope
         .as_deref()
@@ -532,7 +608,7 @@ async fn user_info(
         .collect();
 
     let mut res = UserInfoResponse {
-        sub: access.user_id.to_string(),
+        sub: user_id.to_string(),
         first_name: None,
         last_name: None,
         email: None,
@@ -581,12 +657,10 @@ async fn user_info(
 ///   ]
 /// }
 /// ```
-#[instrument]
-async fn jwks() -> ControllerResult<HttpResponse> {
+#[instrument(skip(app_conf))]
+async fn jwks(app_conf: web::Data<ApplicationConfiguration>) -> ControllerResult<HttpResponse> {
     let server_token = skip_authorize();
-    let public_pem = ApplicationConfiguration::try_from_env()?
-        .oauth_server_configuration
-        .rsa_public_key;
+    let public_pem = &app_conf.oauth_server_configuration.rsa_public_key;
 
     let (n, e, kid) = rsa_n_e_and_kid_from_pem(&public_pem)?;
 
@@ -715,4 +789,25 @@ fn generate_id_token(
             Some(e.into()),
         )
     })
+}
+
+#[inline]
+fn token_digest_hmac_sha256(token_plaintext: &str, pepper: &[u8]) -> TokenDigest {
+    let mut mac = HmacSha256::new_from_slice(pepper).expect("valid HMAC key");
+    mac.update(token_plaintext.as_bytes());
+    let tag = mac.finalize().into_bytes(); // 32 bytes
+    let mut arr = [0u8; 32];
+    arr.copy_from_slice(&tag);
+    TokenDigest::from(arr)
+}
+
+fn read_token_pepper() -> Result<(Vec<u8>, i16), ControllerError> {
+    let pepper = ApplicationConfiguration::try_from_env()?
+        .oauth_server_configuration
+        .oauth_token_pepper_1
+        .into_bytes();
+    let pepper_id: i16 = ApplicationConfiguration::try_from_env()?
+        .oauth_server_configuration
+        .oauth_token_pepper_id;
+    Ok((pepper, pepper_id))
 }

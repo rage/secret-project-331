@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT id, client_id, client_secret, redirect_uris, grant_types, scope, origin\n               FROM oauth_clients WHERE client_id = $1",
+  "query": "SELECT id, client_id, client_secret,pepper_id, redirect_uris, grant_types, scope, origin\n               FROM oauth_clients WHERE client_id = $1",
   "describe": {
     "columns": [
       {
@@ -16,25 +16,30 @@
       {
         "ordinal": 2,
         "name": "client_secret",
-        "type_info": "Text"
+        "type_info": "Bytea"
       },
       {
         "ordinal": 3,
+        "name": "pepper_id",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 4,
         "name": "redirect_uris",
         "type_info": "TextArray"
       },
       {
-        "ordinal": 4,
+        "ordinal": 5,
         "name": "grant_types",
         "type_info": "TextArray"
       },
       {
-        "ordinal": 5,
+        "ordinal": 6,
         "name": "scope",
         "type_info": "Text"
       },
       {
-        "ordinal": 6,
+        "ordinal": 7,
         "name": "origin",
         "type_info": "Text"
       }
@@ -42,7 +47,7 @@
     "parameters": {
       "Left": ["Text"]
     },
-    "nullable": [false, false, false, false, false, true, false]
+    "nullable": [false, false, false, false, false, false, true, false]
   },
-  "hash": "dfb029980d0ed39be1f0d3b9ea3f81bcd283971efb2f60a1078b0a5ddade40c7"
+  "hash": "cbfa38f350bbe9f1e8fe0dba526d51a7e074ac73a25d2da59d994b3afd15abc1"
 }

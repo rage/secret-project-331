@@ -1,0 +1,73 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT digest as \"digest: _\", user_id, client_id, scope, expires_at, jti, dpop_jkt, metadata, pepper_id, audience, revoked, rotated_from as \"rotated_from: _\"\n           FROM oauth_refresh_tokens WHERE digest = $1 AND revoked = false AND expires_at > now()",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "digest: _",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "client_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "scope",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "jti",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "dpop_jkt",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "metadata",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 8,
+        "name": "pepper_id",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 9,
+        "name": "audience",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "revoked",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 11,
+        "name": "rotated_from: _",
+        "type_info": "Bytea"
+      }
+    ],
+    "parameters": {
+      "Left": ["Bytea"]
+    },
+    "nullable": [false, false, false, false, false, false, false, false, false, true, false, true]
+  },
+  "hash": "47e0b8bdaa361c018f3a96d878ba91eac1a3ac293dd5e94858fd441f0b1a3dd8"
+}

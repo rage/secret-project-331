@@ -2,7 +2,9 @@ use crate::prelude::*;
 use actix_web::{FromRequest, HttpRequest, dev::Payload, web};
 use domain::error::{OAuthErrorCode, OAuthErrorData};
 use futures_util::future::LocalBoxFuture;
+use hmac::{Hmac, Mac};
 use serde::{Deserialize, Serialize};
+use sha2::Sha256;
 use std::collections::HashMap;
 use std::future::Future;
 use std::pin::Pin;
@@ -528,3 +530,7 @@ mod tests {
         }
     }
 }
+
+// ---------- Token hashing / pepper helpers ----------
+
+pub type HmacSha256 = Hmac<Sha256>;

@@ -211,17 +211,30 @@ impl AzureConfiguration {
 pub struct OAuthServerConfiguration {
     pub rsa_public_key: String,
     pub rsa_private_key: String,
+    pub oauth_token_pepper_1: String,
+    pub oauth_token_pepper_id: i16,
 }
 
 impl OAuthServerConfiguration {
+    /// Attempts to create an OAuthServerConfiguration.
+    /// Return `Ok(Some(OAuthConfiguration))` if all configurations are set.
+    /// Return `Err` if any is not set.
     pub fn try_from_env() -> anyhow::Result<Self> {
         let rsa_public_key =
             env::var("OAUTH_RSA_PUBLIC_PEM").context("OAUTH_RSA_PUBLIC_KEY must be defined")?;
         let rsa_private_key =
             env::var("OAUTH_RSA_PRIVATE_PEM").context("OAUTH_RSA_PRIVATE_KEY must be defined")?;
+        let oauth_token_pepper_1 =
+            env::var("OAUTH_TOKEN_PEPPER_1").context("OAUTH_TOKEN_PEPPER_1 must be defined")?;
+        let oauth_token_pepper_id: i16 = env::var("OAUTH_TOKEN_PEPPER_ID")
+            .context("OAUTH_TOKEN_PEPPER_ID must be defined")?
+            .parse()
+            .context("OAUTH_TOKEN_PEPPER_ID must be a valid i16")?;
         Ok(Self {
             rsa_public_key,
             rsa_private_key,
+            oauth_token_pepper_1,
+            oauth_token_pepper_id,
         })
     }
 }

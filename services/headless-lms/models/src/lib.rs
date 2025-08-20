@@ -30,6 +30,7 @@ pub mod courses;
 pub mod email_deliveries;
 pub mod email_templates;
 pub mod ended_processed_exams;
+pub mod error;
 pub mod exams;
 pub mod exercise_language_groups;
 pub mod exercise_repositories;
@@ -56,6 +57,7 @@ pub mod oauth_access_token;
 pub mod oauth_auth_code;
 pub mod oauth_client;
 pub mod oauth_refresh_tokens;
+pub mod oauth_shared_types;
 pub mod oauth_user_client_scopes;
 pub mod offered_answers_to_peer_review_temporary;
 pub mod open_university_registration_links;
@@ -100,8 +102,6 @@ pub mod user_exercise_states;
 pub mod user_exercise_task_states;
 pub mod user_research_consents;
 pub mod users;
-
-pub mod error;
 
 pub mod prelude;
 #[cfg(test)]

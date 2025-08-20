@@ -1955,19 +1955,23 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "backtrace",
+ "base64 0.22.1",
  "chrono",
  "derive_more 2.0.1",
  "dotenv",
  "futures",
  "headless-lms-utils",
+ "hex",
  "itertools 0.14.0",
  "lettre",
  "mockito",
  "pretty_assertions",
  "rand 0.9.2",
  "serde",
+ "serde_bytes",
  "serde_json",
  "sqlx",
+ "subtle",
  "thiserror 2.0.12",
  "tokio",
  "tracing",
@@ -1977,6 +1981,7 @@ dependencies = [
  "ts-rs",
  "url",
  "uuid",
+ "zeroize",
 ]
 
 [[package]]
@@ -4551,6 +4556,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde_bytes"
+version = "0.11.17"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8437fd221bde2d4ca316d61b90e337e9e702b3820b87d63caa9ba6c02bd06d96"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "serde_derive"
 version = "1.0.219"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6501,6 +6515,20 @@ name = "zeroize"
 version = "1.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ced3678a2879b30306d323f4542626697a464a97c0a07c9aebf7ebca65cd4dde"
+dependencies = [
+ "zeroize_derive",
+]
+
+[[package]]
+name = "zeroize_derive"
+version = "1.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ce36e65b0d2999d2aafac989fb249189a141aee1f53c612c1f37d72631959f69"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
 
 [[package]]
 name = "zerotrie"

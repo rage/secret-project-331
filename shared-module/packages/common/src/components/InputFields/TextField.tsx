@@ -87,7 +87,7 @@ const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
         )}
       >
         <label
-          aria-label={`${rest.label}${rest.required === true && ` (${t("required")})`}`}
+          aria-label={`${rest.label ?? ""}${rest.required === true ? ` (${t("required")})` : ""}`}
           className={cx(
             css`
               color: #333;

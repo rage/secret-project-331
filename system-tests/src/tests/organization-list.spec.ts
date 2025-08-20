@@ -8,8 +8,8 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test.describe.serial("Organization workflow", () => {
-  test("Create new organization", async ({ page }) => {
+test("Organization workflow", async ({ page }) => {
+  await test.step("Create new organization", async () => {
     await page.goto("http://project-331.local/")
     await page.getByRole("link", { name: "All organizations" }).click()
     await page.getByRole("button", { name: "Create a new organization" }).click()
@@ -21,13 +21,13 @@ test.describe.serial("Organization workflow", () => {
     await page.getByText("Success", { exact: true }).click()
   })
 
-  test("Can see the new organization in manage page", async ({ page }) => {
+  await test.step("Can see the new organization in manage page", async () => {
     await manageOrganization(page, "New Test")
     await page.getByText("New Test", { exact: true }).click()
     await page.getByText("newslug", { exact: true }).click()
   })
 
-  test("Edit the organization", async ({ page }) => {
+  await test.step("Edit the organization", async () => {
     await page.getByRole("button", { name: "Edit" }).click()
     await page.getByRole("textbox", { name: "Name" }).click()
     await page.getByRole("textbox", { name: "Name" }).fill("New Test Edited")
@@ -39,7 +39,7 @@ test.describe.serial("Organization workflow", () => {
     await page.getByText("newslugedited").click()
   })
 
-  test("Add user permissions", async ({ page }) => {
+  await test.step("Add user permissions", async () => {
     await page.getByRole("tab", { name: "Permissions" }).click()
     await page.getByRole("button", { name: "Add user" }).click()
     await page.getByRole("textbox", { name: "Email" }).click()
@@ -50,7 +50,7 @@ test.describe.serial("Organization workflow", () => {
     await page.getByText("Teacher", { exact: true }).click()
   })
 
-  test("Edit user permissions", async ({ page }) => {
+  await test.step("Edit user permissions", async () => {
     await page.getByRole("button", { name: "Edit user Teacher Example" }).click()
     await page.getByTestId("dialog").getByLabel("Role").selectOption("Reviewer")
     await page.getByRole("button", { name: "Save" }).click()
@@ -61,7 +61,7 @@ test.describe.serial("Organization workflow", () => {
     })
   })
 
-  test("Delete user permissions and organization", async ({ page }) => {
+  await test.step("Delete user permissions and organization", async () => {
     await page.getByRole("button", { name: "Delete user Teacher Example" }).click()
     await page.getByRole("tab", { name: "General" }).click()
     await page.getByRole("button", { name: "Edit" }).click()

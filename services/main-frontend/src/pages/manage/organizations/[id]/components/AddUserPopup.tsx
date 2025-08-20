@@ -82,31 +82,46 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({ show, onClose, onSave }) =>
           flex-direction: column;
           gap: 24px;
           margin-bottom: 32px;
+          width: 100%; // <-- ensure full width!
 
           ${respondToOrLarger.lg} {
             flex-direction: row;
           }
         `}
       >
-        <TextField
-          {...register("email", { required: true })}
-          id="add-user-email"
-          label={t("label-email")}
-          error={errors.email ? t("validation-required") : undefined}
-        />
+        <div
+          className={css`
+            flex: 1;
+            min-width: 0; // fixes overflow in some browsers
+          `}
+        >
+          <TextField
+            {...register("email", { required: true })}
+            id="add-user-email"
+            label={t("label-email")}
+            error={errors.email ? t("validation-required") : undefined}
+          />
+        </div>
 
-        <SelectField
-          {...register("role", { required: true })}
-          id="add-user-role"
-          label={t("label-role")}
-          options={[
-            { value: "", label: t("button-select-role") },
-            ...USER_ROLES.map((role) => ({
-              value: role.value,
-              label: role.value,
-            })),
-          ]}
-        />
+        <div
+          className={css`
+            flex: 1;
+            min-width: 0;
+          `}
+        >
+          <SelectField
+            {...register("role", { required: true })}
+            id="add-user-role"
+            label={t("label-role")}
+            options={[
+              { value: "", label: t("button-select-role") },
+              ...USER_ROLES.map((role) => ({
+                value: role.value,
+                label: role.value,
+              })),
+            ]}
+          />
+        </div>
       </form>
     </StandardDialog>
   )

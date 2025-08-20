@@ -2,6 +2,8 @@ import { test } from "@playwright/test"
 
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
+import { manageOrganization } from "@/utils/organizationUtils"
+
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
@@ -20,7 +22,7 @@ test.describe.serial("Organization workflow", () => {
   })
 
   test("Can see the new organization in manage page", async ({ page }) => {
-    await page.getByRole("link", { name: "Manage organization New Test" }).click()
+    await manageOrganization(page, "New Test")
     await page.getByText("New Test", { exact: true }).click()
     await page.getByText("newslug", { exact: true }).click()
   })

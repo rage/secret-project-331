@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import { Library } from "@vectopus/atlas-icons-react"
+import Markdown from "markdown-to-jsx"
 import React, { useId } from "react"
 import { useHover } from "react-aria"
 import { useTranslation } from "react-i18next"
@@ -8,7 +9,6 @@ import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindi
 import SpeechBalloonPopover from "@/shared-module/common/components/SpeechBalloonPopover"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
-import { getRemarkable } from "@/utils/getRemarkable"
 import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
 
 const referenceStyle = css`
@@ -81,8 +81,6 @@ interface ChatbotReferenceListProps {
   setCitationsOpen: (value: React.SetStateAction<boolean>) => void
 }
 
-let md = getRemarkable()
-
 const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
   citations,
   triggerRef,
@@ -119,6 +117,7 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
                   <span
                     className={css`
                       flex: 7;
+                      color: #000000;
                     `}
                   >
                     <b
@@ -140,8 +139,9 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
                     className={css`
                       flex: 1;
                       padding: 2px;
-                      margin-right: -5px;
+                      margin-right: -1em;
                       align-self: flex-end;
+                      color: #000000;
                     `}
                   />
                 </a>
@@ -167,17 +167,37 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
                 popoverLabel={`${t("citation")} ${cit.citation_number}`}
                 {...hoverPopoverProps}
               >
-                <p
+                <Markdown
+                  options={{
+                    overrides: {
+                      script: () => null,
+                      button: () => null,
+                    },
+                  }}
                   className={css`
                     overflow-wrap: break-word;
-                    height: 6lh;
+                    height: fit-content;
+                    max-height: 6lh;
                     margin-bottom: 0.5em;
                     mask-image: linear-gradient(0.5turn, black 66%, transparent);
+                    h1 {
+                      font-size: x-large;
+                    }
+                    h2 {
+                      font-size: large;
+                    }
+                    h3 {
+                      font-size: medium;
+                    }
+                    h4,
+                    h5,
+                    h6 {
+                      font-size: small;
+                    }
                   `}
-                  dangerouslySetInnerHTML={{
-                    __html: sanitizeCourseMaterialHtml(md.render(cit.content).trim()),
-                  }}
-                ></p>
+                >
+                  {cit.content}
+                </Markdown>
                 <p
                   className={css`
                     display: flex;

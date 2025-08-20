@@ -4,7 +4,8 @@ import React, { DOMAttributes } from "react"
 
 import CitationButton from "./CitationButton"
 
-import { baseTheme } from "@/shared-module/common/styles"
+import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
+
 //import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
 
 // captures citations
@@ -62,8 +63,9 @@ const messageStyle = css`
     border: none;
     cursor: default;
     background-color: ${baseTheme.colors.gray[200]};
-    padding: 0 7px 0 7px;
-    border-radius: 10px;
+    font-family: ${monospaceFont};
+    padding: 0 0.525em 0 0.525em;
+    border-radius: 1em;
     font-size: 85%;
     &:hover {
       filter: brightness(0.9) contrast(1.1);
@@ -115,11 +117,28 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
     return <span className={messageStyle}>{message}</span>
   }
 
+  const markdownOptions = {
+    overrides: {
+      CitationButton: {
+        component: CitationButton,
+        props: {
+          citationButtonClicked: citationButtonClicked,
+          currentRefId: currentRefId,
+          handleClick: handleClick,
+          hoverCitationProps: hoverCitationProps,
+        },
+      },
+      script: () => null,
+      button: () => null,
+    },
+    disableAutoLink: true,
+  }
+
   if (renderOption === MessageRenderType.ChatbotNoCitations) {
     let renderedMessage = message.replace(REMOVE_CITATIONS_REGEX, "")
     return (
       <span className={messageStyle}>
-        <Markdown>{renderedMessage}</Markdown>
+        <Markdown options={markdownOptions}>{renderedMessage}</Markdown>
       </span>
     )
   }
@@ -131,26 +150,7 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
 
   return (
     <span className={messageStyle}>
-      <Markdown
-        options={{
-          overrides: {
-            CitationButton: {
-              component: CitationButton,
-              props: {
-                citationButtonClicked: citationButtonClicked,
-                currentRefId: currentRefId,
-                handleClick: handleClick,
-                hoverCitationProps: hoverCitationProps,
-              },
-            },
-            script: () => null,
-            button: () => null,
-          },
-          disableAutoLink: true,
-        }}
-      >
-        {renderedMessage}
-      </Markdown>
+      <Markdown options={markdownOptions}>{renderedMessage}</Markdown>
     </span>
   )
 }

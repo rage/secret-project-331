@@ -191,6 +191,14 @@ describe("MessageBubble", () => {
       ])
     })
 
+    it("works if the msg has no citations but is associated with cited docs", () => {
+      const { filteredCitations } = renumberFilterCitations(
+        exampleChatbotMessageNoCitations,
+        exampleChatbotMessageCitations,
+      )
+      expect(filteredCitations).toStrictEqual([])
+    })
+
     it("is true that the remove citations regex works", () => {
       const removedCitations = exampleChatbotMessage.replace(REMOVE_CITATIONS_REGEX, "")
       expect(removedCitations).toStrictEqual(exampleChatbotMessageNoCitations)

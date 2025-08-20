@@ -94,10 +94,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 
   const [processedMessage, processedCitations] = useMemo(() => {
     const { filteredCitations } = renumberFilterCitations(message, citations ?? [])
-    /*     console.log("citations", citations)
-    console.log("citedDocs", citedDocs)
-    console.log("unique citations,", uniqueCitations)
-    console.log("filtered", filteredCitations) */
 
     let renderOption = !isFromChatbot
       ? MessageRenderType.User

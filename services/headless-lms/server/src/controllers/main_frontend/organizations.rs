@@ -400,7 +400,7 @@ async fn create_organization(
     let mut tx = conn.begin().await?;
 
     let org_id = match models::organizations::insert(
-        &mut *tx,
+        &mut tx,
         PKeyPolicy::Generate,
         &payload.name,
         &payload.slug,

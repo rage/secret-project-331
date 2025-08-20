@@ -424,7 +424,7 @@ async fn create_organization(
 
     if payload.hidden {
         models::organizations::update_name_and_hidden(
-            &mut *tx,
+            &mut tx,
             org_id,
             &payload.name,
             true,

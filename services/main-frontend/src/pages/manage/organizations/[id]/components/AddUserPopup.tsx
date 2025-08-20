@@ -82,7 +82,7 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({ show, onClose, onSave }) =>
           flex-direction: column;
           gap: 24px;
           margin-bottom: 32px;
-          width: 100%; // <-- ensure full width!
+          width: 100%;
 
           ${respondToOrLarger.lg} {
             flex-direction: row;
@@ -92,7 +92,7 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({ show, onClose, onSave }) =>
         <div
           className={css`
             flex: 1;
-            min-width: 0; // fixes overflow in some browsers
+            min-width: 0;
           `}
         >
           <TextField

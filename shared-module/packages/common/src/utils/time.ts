@@ -74,6 +74,7 @@ export const humanReadableDateTime = (
   }
 
   const base = localDate.toLocaleString(locale, {
+    year: "numeric",
     month: "long",
     day: "numeric",
     hour: "numeric",

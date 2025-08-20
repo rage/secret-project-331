@@ -37,6 +37,7 @@ import { pageRoute } from "@/shared-module/common/utils/routes"
 
 interface PageEditorProps {
   data: Page
+  courseCanAddChatbot: boolean
   saveMutation: UseMutationResult<ContentManagementPage, unknown, CmsPageUpdate, unknown>
   needToRunMigrationsAndValidations: boolean
   setNeedToRunMigrationsAndValidations: React.Dispatch<boolean>
@@ -58,8 +59,30 @@ const supportedBlocks = (chapter_id: string | null, exam_id: string | null): str
   return allSupportedBlocks
 }
 
+const customBlocks = (
+  chapterId: string | null,
+  examId: string | null,
+  urlPath: string,
+  canAddChatbot: boolean,
+) => {
+  if (chapterId !== null || examId !== null) {
+    if (canAddChatbot) {
+      return blockTypeMapForPages
+    } else {
+      return blockTypeMapForPages.filter((v) => v[0] !== "moocfi/chatbot")
+    }
+  } else {
+    if (urlPath === "/") {
+      return blockTypeMapForFrontPages
+    } else {
+      return blockTypeMapForTopLevelPages
+    }
+  }
+}
+
 const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   data,
+  courseCanAddChatbot,
   saveMutation,
   needToRunMigrationsAndValidations,
   setNeedToRunMigrationsAndValidations,
@@ -232,13 +255,12 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
         <GutenbergEditor
           content={content}
           onContentChange={(value) => contentDispatch({ type: "setContent", payload: value })}
-          customBlocks={
-            data.chapter_id !== null || data.exam_id !== null
-              ? blockTypeMapForPages
-              : data.url_path === "/"
-                ? blockTypeMapForFrontPages
-                : blockTypeMapForTopLevelPages
-          }
+          customBlocks={customBlocks(
+            data.chapter_id,
+            data.exam_id,
+            data.url_path,
+            courseCanAddChatbot,
+          )}
           allowedBlocks={supportedCoreBlocks}
           allowedBlockVariations={allowedBlockVariants}
           mediaUpload={mediaUpload}

@@ -5,6 +5,7 @@ import PageContext from "../../contexts/PageContext"
 import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"
 import { denormalizeDocument } from "../../utils/documentSchemaProcessor"
 
+import { fetchCourseById } from "@/services/backend/courses"
 import { CmsPageUpdate, Page } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -14,6 +15,7 @@ import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface PagesProps {
@@ -51,6 +53,12 @@ const Pages = ({ query }: PagesProps) => {
       return page
     },
   })
+  const courseId = getPage.data?.course_id
+  const course = useQuery({
+    queryKey: ["courses", courseId],
+    queryFn: async () => fetchCourseById(assertNotNullOrUndefined(courseId)),
+    enabled: !!courseId,
+  })
 
   const mutate = useToastMutation(
     (newPage: CmsPageUpdate) => updateExistingPage(id, newPage),
@@ -76,6 +84,7 @@ const Pages = ({ query }: PagesProps) => {
         <PageContext.Provider value={{ page: getPage.data }}>
           <PageEditor
             data={getPage.data}
+            courseCanAddChatbot={!!course.data?.can_add_chatbot}
             saveMutation={mutate}
             needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
             setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}

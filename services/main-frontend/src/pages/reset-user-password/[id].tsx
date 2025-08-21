@@ -1,5 +1,5 @@
-/* eslint-disable i18next/no-literal-string */
 import { useQuery } from "@tanstack/react-query"
+import { useTranslation } from "react-i18next"
 
 import ResetPasswordForm from "@/components/forms/ResetUserPasswordForm"
 import { fetchResetPasswordTokenStatus } from "@/services/backend/users"
@@ -17,6 +17,7 @@ interface ResetPasswordProps {
 
 const ResetPassword: React.FC<ResetPasswordProps> = ({ query }) => {
   const token = query.id
+  const { t } = useTranslation()
 
   const isValid = useQuery({
     queryKey: [`reset-password-token-status-${token}`],
@@ -32,7 +33,7 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ query }) => {
           {isValid.data === true ? (
             <ResetPasswordForm token={token} />
           ) : (
-            <GenericInfobox>Reset link has expired</GenericInfobox>
+            <GenericInfobox>{t("reset-link-has-expired")}</GenericInfobox>
           )}
         </>
       )}

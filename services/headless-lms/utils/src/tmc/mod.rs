@@ -1,6 +1,8 @@
 use anyhow::{Context, Result};
 use reqwest::Client;
+use serde::Deserialize;
 use serde_json::json;
+use uuid::Uuid;
 
 use crate::ApplicationConfiguration;
 
@@ -18,6 +20,15 @@ pub struct NewUserInfo {
     pub password: String,
     pub password_confirmation: String,
     pub language: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct TmcUserInfo {
+    pub id: Uuid,
+    pub email: String,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub upstream_id: i32,
 }
 
 const TMC_API_URL: &str = "https://tmc.mooc.fi/api/v8/users";
@@ -195,6 +206,25 @@ impl TmcClient {
         self.request_with_headers(reqwest::Method::POST, &url, true, Some(payload))
             .await
             .map(|_| ())
+    }
+
+    pub async fn get_user_from_tmc_with_email(&self, email: String) -> Result<TmcUserInfo> {
+        let url = format!("{}/get_user_with_email", TMC_API_URL);
+
+        let payload = serde_json::json!({
+            "email": email,
+        });
+
+        let res = self
+            .request_with_headers(reqwest::Method::POST, &url, true, Some(payload))
+            .await?;
+
+        let user: TmcUserInfo = res
+            .json()
+            .await
+            .context("Failed to parse TMC user from JSON")?;
+
+        Ok(user)
     }
 
     pub fn mock_for_test() -> Self {

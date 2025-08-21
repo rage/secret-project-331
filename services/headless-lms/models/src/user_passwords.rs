@@ -1,6 +1,8 @@
 use crate::prelude::*;
+use crate::users::get_by_id;
 use argon2::password_hash::{SaltString, rand_core::OsRng};
 use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
+use headless_lms_utils::tmc::TmcClient;
 use secrecy::{ExposeSecret, SecretString};
 
 pub struct UserPassword {
@@ -197,15 +199,17 @@ pub async fn change_user_password(
     conn: &mut PgConnection,
     token: Uuid,
     password_hash: SecretString,
+    tmc_client: &TmcClient,
 ) -> ModelResult<bool> {
+    // Fetch user_id with password_reset_token
     let record = sqlx::query!(
         r#"
-        SELECT user_id
-        FROM password_reset_tokens
-        WHERE token = $1
-          AND deleted_at IS NULL
-          AND used_at IS NULL
-          AND expires_at > NOW()
+SELECT user_id
+FROM password_reset_tokens
+WHERE token = $1
+  AND deleted_at IS NULL
+  AND used_at IS NULL
+  AND expires_at > NOW()
         "#,
         token
     )
@@ -217,9 +221,46 @@ pub async fn change_user_password(
         None => return Ok(false),
     };
 
-    upsert_user_password(conn, user_id, password_hash).await?;
+    // Check if the user already has a password stored in the database
+    let has_existing_password = sqlx::query!(
+        r#"
+SELECT *
+FROM user_passwords
+WHERE user_id = $1
+    "#,
+        user_id
+    )
+    .fetch_optional(&mut *conn)
+    .await?;
 
-    mark_token_used(conn, token).await?;
+    // Upsert the new password
+    let upserted = upsert_user_password(conn, user_id, password_hash).await?;
+
+    if upserted {
+        // Mark the password reset token as used
+        mark_token_used(conn, token).await?;
+
+        // If the user previously did not have a password, notify TMC that the password is now managed by courses.mooc.fi
+        if has_existing_password.is_none() {
+            let user = get_by_id(&mut *conn, user_id).await?;
+            if let Some(upstream_id) = user.upstream_id {
+                if let Err(e) = tmc_client
+                    .set_user_password_managed_by_courses_mooc_fi(
+                        upstream_id.to_string(),
+                        user.id.to_string(),
+                    )
+                    .await
+                {
+                    warn!(
+                        "Failed to notify TMC that users password is saved in courses.mooc.fi: {:?}",
+                        e
+                    );
+                }
+            } else {
+                warn!("User has no upstream_id; skipping TMC notification");
+            }
+        }
+    }
 
     Ok(true)
 }

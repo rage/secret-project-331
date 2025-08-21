@@ -1,5 +1,6 @@
 use crate::prelude::*;
 use anyhow::anyhow;
+use headless_lms_utils::tmc::TmcClient;
 use models::{
     course_instance_enrollments::CourseInstanceEnrollmentsInfo, courses::Course,
     exercise_reset_logs::ExerciseResetLog, research_forms::ResearchFormQuestionAnswer,
@@ -178,26 +179,53 @@ pub struct EmailData {
 pub async fn send_reset_password_email(
     pool: web::Data<PgPool>,
     payload: web::Json<EmailData>,
+    tmc_client: web::Data<TmcClient>,
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
     let email = &payload.email;
     let language = &payload.language;
-    let user = models::users::get_by_email(&mut conn, email).await?;
 
-    let _password_token =
-        models::user_passwords::insert_password_reset_token(&mut conn, user.id).await?;
-
-    let reset_templates = models::email_templates::get_generic_email_template_by_name_and_language(
+    let reset_template = models::email_templates::get_generic_email_template_by_name_and_language(
         &mut conn,
         "reset-password-email",
         language,
     )
     .await?;
 
-    let _ = models::email_deliveries::insert_email_delivery(&mut conn, user.id, reset_templates.id)
-        .await?;
+    let user = match models::users::get_by_email(&mut conn, email).await {
+        Ok(user) => Some(user),
+        Err(_) => {
+            // If the user does not exist in the courses.mooc.fi database,
+            // check TMC for the user and create a new user in courses.mooc.fi if found.
+            if let Ok(tmc_user) = tmc_client.get_user_from_tmc_with_email(email.clone()).await {
+                Some(
+                    models::users::insert_with_upstream_id_and_moocfi_id(
+                        &mut conn,
+                        &tmc_user.email,
+                        tmc_user.first_name.as_deref(),
+                        tmc_user.last_name.as_deref(),
+                        tmc_user.upstream_id,
+                        tmc_user.id,
+                    )
+                    .await?,
+                )
+            } else {
+                None
+            }
+        }
+    };
+
+    if let Some(user) = user {
+        let _password_token =
+            models::user_passwords::insert_password_reset_token(&mut conn, user.id).await?;
+
+        let _ =
+            models::email_deliveries::insert_email_delivery(&mut conn, user.id, reset_template.id)
+                .await?;
+    }
+
     token.authorized_ok(web::Json(true))
 }
 
@@ -228,6 +256,7 @@ pub struct ChangePasswordData {
 pub async fn change_user_password(
     pool: web::Data<PgPool>,
     payload: web::Json<ChangePasswordData>,
+    tmc_client: web::Data<TmcClient>,
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
@@ -238,8 +267,13 @@ pub async fn change_user_password(
     ))
     .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
 
-    let res =
-        models::user_passwords::change_user_password(&mut conn, token_uuid, password_hash).await?;
+    let res = models::user_passwords::change_user_password(
+        &mut conn,
+        token_uuid,
+        password_hash,
+        &tmc_client,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(res))
 }

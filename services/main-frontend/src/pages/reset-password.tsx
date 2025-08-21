@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import i18n from "i18next"
 import { useRouter } from "next/router"
 import { useForm } from "react-hook-form"
@@ -38,7 +37,7 @@ const ResetPassword: React.FC<React.PropsWithChildren<unknown>> = () => {
 
   return (
     <>
-      <h3>Enter your email and we will send you a link to reset your password</h3>
+      <h3>{t("enter-email-for-password-reset-link")}</h3>
       <form onSubmit={handleSubmit((data) => postResetPassword.mutate(data))}>
         <TextField
           label={t("email")}

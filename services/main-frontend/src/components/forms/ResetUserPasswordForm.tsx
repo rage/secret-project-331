@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -25,6 +24,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
     watch,
     formState: { errors },
   } = useForm<ResetPasswordFormFields>({
+    // eslint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
       token,
@@ -48,7 +48,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
 
   return (
     <div>
-      <h1>Please confirm a new password</h1>
+      <h1>{t("confirm-your-new-password")}</h1>
 
       <form onSubmit={handleSubmit((data) => postPasswordChangeMutation.mutate(data))}>
         <TextField

@@ -69,7 +69,7 @@ WHERE name = $1
     )
     .fetch_one(&mut *conn)
     .await;
-    // Fallback to english password reset email if one in used language doesn't exist
+    // Fallback to English password reset email if one in used language doesn't exist
     match res {
         Ok(template) => Ok(template),
         Err(sqlx::Error::RowNotFound) if language != "en" => {

@@ -20,6 +20,8 @@ pub struct EmailTemplate {
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct EmailTemplateNew {
     pub name: String,
+    pub language: Option<String>,
+    pub content: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -69,7 +71,7 @@ WHERE name = $1
     )
     .fetch_one(&mut *conn)
     .await;
-    // Fallback to English password reset email if one in used language doesn't exist
+    // Fallback to English in case used language doesn't exist
     match res {
         Ok(template) => Ok(template),
         Err(sqlx::Error::RowNotFound) if language != "en" => {
@@ -96,20 +98,22 @@ WHERE name = $1
 
 pub async fn insert_email_template(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
+    course_instance_id: Option<Uuid>,
     email_template: EmailTemplateNew,
     subject: Option<&'_ str>,
 ) -> ModelResult<EmailTemplate> {
     let res = sqlx::query_as!(
         EmailTemplate,
         "
-INSERT INTO email_templates (name, course_instance_id, subject)
-VALUES ($1, $2, $3)
+INSERT INTO email_templates (name, course_instance_id, subject, language, content)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING *
 ",
         email_template.name,
         course_instance_id,
         subject,
+        email_template.language,
+        email_template.content,
     )
     .fetch_one(conn)
     .await?;

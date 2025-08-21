@@ -285,9 +285,11 @@ mod test {
 
         let err = crate::email_templates::insert_email_template(
             tx.as_mut(),
-            instance.id,
+            Some(instance.id),
             EmailTemplateNew {
                 name: "".to_string(),
+                language: None,
+                content: None,
             },
             Some(""),
         )

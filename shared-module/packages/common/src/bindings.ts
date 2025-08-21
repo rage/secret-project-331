@@ -646,6 +646,8 @@ export interface EmailTemplate {
 
 export interface EmailTemplateNew {
   name: string
+  language: string | null
+  content: unknown | null
 }
 
 export interface EmailTemplateUpdate {

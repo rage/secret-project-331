@@ -1336,7 +1336,9 @@ export function isEmailTemplateNew(obj: unknown): obj is EmailTemplateNew {
         (typedObj !== null &&
             typeof typedObj === "object" ||
             typeof typedObj === "function") &&
-        typeof typedObj["name"] === "string"
+        typeof typedObj["name"] === "string" &&
+        (typedObj["language"] === null ||
+            typeof typedObj["language"] === "string")
     )
 }
 

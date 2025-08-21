@@ -127,7 +127,7 @@ async fn gets_organizations() {
         PKeyPolicy::Fixed(Uuid::parse_str("b1bde372-cc86-4e3a-a978-35695fdd884b").unwrap()),
         "org",
         "slug",
-        "descr",
+        Some("descr"),
     )
     .await
     .unwrap();

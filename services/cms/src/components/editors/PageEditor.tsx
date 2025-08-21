@@ -4,7 +4,7 @@ import { UseMutationResult, useQuery } from "@tanstack/react-query"
 import { BlockInstance } from "@wordpress/blocks"
 import { isEqual } from "lodash"
 import { useRouter } from "next/router"
-import React, { useReducer, useState } from "react"
+import React, { useMemo, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -240,6 +240,10 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
       </div>
     </div>
   )
+  const memoizedCustomBlocks = useMemo(
+    () => customBlocks(data.chapter_id, data.exam_id, data.url_path, courseCanAddChatbot),
+    [data.chapter_id, data.exam_id, data.url_path, courseCanAddChatbot],
+  )
   return (
     <EditorContentDispatch.Provider value={contentDispatch}>
       <BreakFromCentered sidebar={false}>
@@ -255,12 +259,7 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
         <GutenbergEditor
           content={content}
           onContentChange={(value) => contentDispatch({ type: "setContent", payload: value })}
-          customBlocks={customBlocks(
-            data.chapter_id,
-            data.exam_id,
-            data.url_path,
-            courseCanAddChatbot,
-          )}
+          customBlocks={memoizedCustomBlocks}
           allowedBlocks={supportedCoreBlocks}
           allowedBlockVariations={allowedBlockVariants}
           mediaUpload={mediaUpload}

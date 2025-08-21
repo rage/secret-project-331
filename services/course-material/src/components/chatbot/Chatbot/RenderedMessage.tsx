@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import React, { DOMAttributes, memo, ReactPortal, useEffect, useState } from "react"
+import React, { DOMAttributes, memo, ReactPortal, useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 
 import CitationButton from "./CitationButton"
@@ -116,6 +116,8 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
   handleClick,
   hoverCitationProps,
 }) => {
+  // create a ref for this component so that we don't query the whole document later
+  const thisNode = useRef<HTMLElement>(null)
   const [readyForPortal, setReadyForPortal] = useState(false)
 
   useEffect(() => {
@@ -143,9 +145,10 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
 
   let renderedMessage = md.render(message.trim())
   console.log("rendering renderedMessage")
-  let x: ReactPortal[] = []
+  let portals: ReactPortal[] = []
   if (readyForPortal) {
-    document.querySelectorAll("[data-chatbot-citation='true']").forEach((node, idx) => {
+    // eslint-disable-next-line i18next/no-literal-string
+    thisNode.current?.querySelectorAll("[data-chatbot-citation='true']").forEach((node, idx) => {
       console.log("elemnt found", node)
       // the citedDocs list contains the citation numbers in the order of appearance in the msg
       // the nodelist contains the citations in the order of appearance in the msg
@@ -153,7 +156,7 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
       // TODO ccreate a map for the orig. cit ns and the renumbered for securely mapping them
       let citN = citedDocs[idx].toString()
 
-      x.push(
+      portals.push(
         createPortal(
           <CitationButton
             citN={citN}
@@ -171,10 +174,10 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
   }
 
   return (
-    <>
+    <span ref={thisNode}>
       <MessageWithPortalsComponent msg={renderedMessage} />
-      {readyForPortal && x}
-    </>
+      {readyForPortal && portals}
+    </span>
   )
 }
 

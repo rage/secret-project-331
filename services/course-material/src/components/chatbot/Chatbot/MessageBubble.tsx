@@ -29,8 +29,8 @@ export const renumberFilterCitations = (
   let uniqueCitations = [...citedDocsSet]
   let renumberedFilteredCitations: ChatbotConversationMessageCitation[] = []
 
-  /*   console.log("citations,", citations)
-  console.log("citedDocs", uniqueCitations) */
+  /*   console.log("citations,", citations)*/
+  //console.log("citedDocs", citedDocs)
 
   uniqueCitations.map((citN, idx) => {
     // renumbers the uniqueCitations to be ordered

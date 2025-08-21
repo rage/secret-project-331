@@ -7,9 +7,10 @@ const buttonStyle = (clicked: boolean) => css`
   ${clicked && `box-shadow: inset 0 0 0 2px ${baseTheme.colors.gray[400]};`}
 `
 
-const citationId = (cit_n: string, idx: string) => {
+export const citationId = (cit_n: string, idx: string) => {
+  // cit_n = citation number or doc number, idx = makes this id unique
   /* eslint-disable i18next/no-literal-string */
-  return `cit-${cit_n}-${idx}`
+  return `chatbot-citation-${cit_n}-${idx}`
 }
 
 interface CitationButtonProps {

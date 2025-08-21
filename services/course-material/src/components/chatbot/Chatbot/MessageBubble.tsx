@@ -20,11 +20,17 @@ export const renumberFilterCitations = (
   // the first citation that appears in the msg is 1, the 2nd is 2, etc.
   // and filter out citations that were not cited in the msg.
   // Set preserves the order of the unique items in the array
-  const citedDocs = new Set(
-    Array.from(message.matchAll(MATCH_CITATIONS_REGEX), (arr, _) => parseInt(arr[1])),
+  const citedDocs = Array.from(message.matchAll(MATCH_CITATIONS_REGEX), (arr, _) =>
+    parseInt(arr[1]),
   )
-  let uniqueCitations = [...citedDocs]
+  //console.log(message)
+
+  let citedDocsSet = new Set(citedDocs)
+  let uniqueCitations = [...citedDocsSet]
   let renumberedFilteredCitations: ChatbotConversationMessageCitation[] = []
+
+  /*   console.log("citations,", citations)
+  console.log("citedDocs", uniqueCitations) */
 
   uniqueCitations.map((citN, idx) => {
     // renumbers the uniqueCitations to be ordered
@@ -33,13 +39,15 @@ export const renumberFilterCitations = (
     let cit = citations.find((c) => c.citation_number === citN)
     if (cit) {
       let modifiedCit = { ...cit }
-      modifiedCit.citation_number = idx
+      // TODO temporarily no renumberinh
+      //modifiedCit.citation_number = idx
       renumberedFilteredCitations.push(modifiedCit)
     }
     return idx
   })
+  //console.log(renumberedFilteredCitations)
 
-  return { filteredCitations: renumberedFilteredCitations }
+  return { filteredCitations: renumberedFilteredCitations, citedDocs }
 }
 
 interface MessageBubbleProps {
@@ -93,7 +101,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   })
 
   const [processedMessage, processedCitations] = useMemo(() => {
-    const { filteredCitations } = renumberFilterCitations(message, citations ?? [])
+    const { filteredCitations, citedDocs } = renumberFilterCitations(message, citations ?? [])
 
     let renderOption = !isFromChatbot
       ? MessageRenderType.User
@@ -107,6 +115,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         citationButtonClicked={citationButtonClicked}
         currentRefId={triggerRef.current?.id}
         message={message}
+        citedDocs={citedDocs}
         handleClick={(e) => {
           setCitationButtonClicked(true)
           triggerRef.current = e.currentTarget

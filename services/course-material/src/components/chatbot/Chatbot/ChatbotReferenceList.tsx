@@ -1,15 +1,19 @@
 import { css } from "@emotion/css"
 import { Library } from "@vectopus/atlas-icons-react"
-import Markdown from "markdown-to-jsx"
 import React, { useId } from "react"
 import { useHover } from "react-aria"
 import { useTranslation } from "react-i18next"
+
+import { citationId } from "./CitationButton"
 
 import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
 import SpeechBalloonPopover from "@/shared-module/common/components/SpeechBalloonPopover"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
-//import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
+import { getRemarkable } from "@/utils/getRemarkable"
+import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
+
+let md = getRemarkable()
 
 const referenceStyle = css`
   margin: 4px 4px 4px 0;
@@ -157,7 +161,12 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
                 placement="top"
                 triggerRef={triggerRef}
                 isOpen={
-                  triggerRef.current?.id.includes(`cit-${cit.citation_number}`) &&
+                  triggerRef.current?.id.includes(
+                    // the last number of the id is not important here because the popover
+                    // is the same for all triggerRefs that are associated with the same
+                    // citation_number, so give a fake last number and slice it off
+                    citationId(cit.citation_number.toString(), "0").slice(0, -2),
+                  ) &&
                   (isCitationHovered || isPopoverHovered || citationButtonClicked)
                 }
                 isNonModal={!citationButtonClicked}
@@ -167,13 +176,7 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
                 popoverLabel={`${t("citation")} ${cit.citation_number}`}
                 {...hoverPopoverProps}
               >
-                <Markdown
-                  options={{
-                    overrides: {
-                      script: () => null,
-                      button: () => null,
-                    },
-                  }}
+                <span
                   className={css`
                     overflow-wrap: break-word;
                     height: fit-content;
@@ -195,9 +198,10 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
                       font-size: small;
                     }
                   `}
-                >
-                  {cit.content}
-                </Markdown>
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizeCourseMaterialHtml(md.render(cit.content)),
+                  }}
+                ></span>
                 <p
                   className={css`
                     display: flex;

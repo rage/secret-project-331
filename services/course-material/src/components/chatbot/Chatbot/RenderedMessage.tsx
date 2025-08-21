@@ -1,15 +1,17 @@
 import { css } from "@emotion/css"
-import Markdown from "markdown-to-jsx"
-import React, { DOMAttributes } from "react"
+import React, { DOMAttributes, memo, ReactPortal, useEffect, useState } from "react"
+import { createPortal } from "react-dom"
 
 import CitationButton from "./CitationButton"
-import { MATCH_CITATIONS_REGEX } from "./MessageBubble"
 
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
-//import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
+import { getRemarkable } from "@/utils/getRemarkable"
+import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
 
 // matches citations and a starting whitespace that should be removed
-export const REMOVE_CITATIONS_REGEX = /\s\[[\w]*?[\d]+\]/g
+export const REMOVE_CITATIONS_REGEX = /\s*?\[[\w]*?[\d]+\]/g
+
+const md = getRemarkable()
 
 const messageStyle = css`
   flex: 1;
@@ -77,59 +79,102 @@ export enum MessageRenderType {
 interface RenderedMessageProps {
   renderOption: MessageRenderType
   message: string
+  citedDocs: number[]
   citationButtonClicked: boolean
   currentRefId: string | undefined
   handleClick: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void
   hoverCitationProps: DOMAttributes<HTMLButtonElement>
 }
 
+interface MessageWithPortalsComponentProps {
+  msg: string
+}
+
+const MessageWithPortalsComponent: React.FC<MessageWithPortalsComponentProps> = memo(({ msg }) => {
+  console.log("rendering html string")
+  let el = document.getElementById("chatbot-citation-1")
+  console.log(el)
+
+  return (
+    <>
+      <span
+        className={messageStyle}
+        dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(msg) }}
+      ></span>
+    </>
+  )
+})
+
+MessageWithPortalsComponent.displayName = "MessageWithPortalsComponent"
+
 const RenderedMessage: React.FC<RenderedMessageProps> = ({
   renderOption,
   message,
+  citedDocs,
   citationButtonClicked,
   currentRefId,
   handleClick,
   hoverCitationProps,
 }) => {
+  const [readyForPortal, setReadyForPortal] = useState(false)
+
+  useEffect(() => {
+    if (renderOption == MessageRenderType.ChatbotWithCitations) {
+      setReadyForPortal(true)
+    } else {
+      setReadyForPortal(false)
+    }
+  }, [renderOption])
+
   if (renderOption === MessageRenderType.User) {
     return <span className={messageStyle}>{message}</span>
   }
 
-  const markdownOptions = {
-    overrides: {
-      CitationButton: {
-        component: CitationButton,
-        props: {
-          citationButtonClicked: citationButtonClicked,
-          currentRefId: currentRefId,
-          handleClick: handleClick,
-          hoverCitationProps: hoverCitationProps,
-        },
-      },
-      script: () => null,
-      button: () => null,
-    },
-    disableAutoLink: true,
-  }
-
   if (renderOption === MessageRenderType.ChatbotNoCitations) {
     let renderedMessage = message.replace(REMOVE_CITATIONS_REGEX, "")
+    renderedMessage = md.render(renderedMessage.trim()).trim().slice(3, -4)
     return (
-      <span className={messageStyle}>
-        <Markdown options={markdownOptions}>{renderedMessage}</Markdown>
-      </span>
+      <span
+        className={messageStyle}
+        dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(renderedMessage) }}
+      ></span>
     )
   }
 
-  let renderedMessage = message.replace(MATCH_CITATIONS_REGEX, (_match, p1, offset) => {
-    // eslint-disable-next-line i18next/no-literal-string
-    return `<CitationButton citN="${p1}" idx="${offset}" />`
-  })
+  let renderedMessage = md.render(message.trim())
+  console.log("rendering renderedMessage")
+  let x: ReactPortal[] = []
+  if (readyForPortal) {
+    document.querySelectorAll("[data-chatbot-citation='true']").forEach((node, idx) => {
+      console.log("elemnt found", node)
+      // the citedDocs list contains the citation numbers in the order of appearance in the msg
+      // the nodelist contains the citations in the order of appearance in the msg
+      // the same idx can be used
+      // TODO ccreate a map for the orig. cit ns and the renumbered for securely mapping them
+      let citN = citedDocs[idx].toString()
+
+      x.push(
+        createPortal(
+          <CitationButton
+            citN={citN}
+            idx={idx.toString()}
+            citationButtonClicked={citationButtonClicked}
+            hoverCitationProps={hoverCitationProps}
+            currentRefId={currentRefId}
+            handleClick={handleClick}
+          />,
+          node,
+          idx,
+        ),
+      )
+    })
+  }
 
   return (
-    <span className={messageStyle}>
-      <Markdown options={markdownOptions}>{renderedMessage}</Markdown>
-    </span>
+    <>
+      <MessageWithPortalsComponent msg={renderedMessage} />
+      {readyForPortal && x}
+    </>
   )
 }
 

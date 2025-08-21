@@ -223,7 +223,7 @@ pub async fn user_can_take_exam(
                     conn,
                     s.user_id,
                     requirements,
-                    s.current_course_instance_id,
+                    s.current_course_id,
                 )
                 .await?;
                 if eligible {

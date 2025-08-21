@@ -10,7 +10,7 @@ on:
       - master
 
 concurrency:
-  # New commits cancel previous builds only on pull requests. This is because `github.head_ref`` is only set on pull requests and `github.sha`` is unique for each commit.
+  # New commits cancel previous builds only on pull requests. This is because `github.head_ref`` is only set on pull requests and `github.sha` is unique for each commit.
   group: system-tests-${{ github.head_ref || github.sha }}
   cancel-in-progress: true
 
@@ -18,13 +18,12 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
-    runs-on: ubicloud-standard-8
+  build-and-system-tests:
+    runs-on: ubicloud-standard-16
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      # This would cause all other tests to be skipped
       - name: Make sure we have no focused system-tests
         run: |
           test "$(grep -r 'test.only' ./system-tests/src/ | wc -l)" -eq 0
@@ -45,9 +44,11 @@ jobs:
       - name: Hide gcloud cli from skaffold
         run: sudo mv /usr/bin/gcloud /tmp/gcloud
 
-      - name: Install skaffold
+      - name: Install kustomize, kubectl & skaffold
         uses: yokawasa/action-setup-kube-tools@v0.11.1
         with:
+          kubectl: "1.30.3"
+          kustomize: "5.4.1"
           skaffold: "2.13.1"
 
       - name: Run npm ci so that shared module gets copied
@@ -56,7 +57,27 @@ jobs:
       - name: Download tmc-langs
         run: bin/tmc-langs-setup
 
+      - name: Make sure skaffold local env patch files exist
+        run: bin/make-sure-skaffold-local-env-patch-files-exists
+
+      - name: Workaround for kube-proxy set nf_conntrack_max permission denied
+        run: |
+          # Workarounds this issue when starting up kube-system/kube-proxy:
+          # I0719 17:18:25.711233       1 conntrack.go:100] Set sysctl 'net/netfilter/nf_conntrack_max' to 131072
+          # F0719 17:18:25.711251       1 server.go:489] open /proc/sys/net/netfilter/nf_conntrack_max: permission denied
+          sudo sysctl net/netfilter/nf_conntrack_max=131072
+
+      - name: Install, start & configure minikube
+        uses: manusa/actions-setup-minikube@v2.13.0
+        with:
+          minikube version: "v1.33.1"
+          kubernetes version: "v1.30.0"
+          start args: "--addons ingress --memory 10g"
+          driver: "docker"
+          github token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build
+        id: build
         run: bin/skaffold-build-test-env-and-serialize-output
 
       - name: Store skaffold output json
@@ -64,16 +85,6 @@ jobs:
         with:
           name: skaffold-build-output
           path: ./skaffold-build-output.json
-
-      - name: Export production images
-        run: bin/skaffold-export-production-images
-
-      - name: Store built images
-        uses: actions/upload-artifact@v4
-        with:
-          name: skaffold-images
-          path: ./skaffold-images
-          retention-days: 5
 
       # If glcoud cli is installed skaffold spams the output because we're not logged in and in some cases might even fail the build.
       - name: Unhide gcloud cli if master
@@ -95,78 +106,19 @@ jobs:
           fi
         if: ${{ github.ref == 'refs/heads/master' }}
 
-      # These images are used for deployments and caching
-      - name: Push images if master
-        run: skaffold build -p push-images --filename ./skaffold.production.yaml
-        if: ${{ github.ref == 'refs/heads/master' }}
-      - name: Push latest images if master
-        run: skaffold build -p push-images,latest-tag --filename ./skaffold.production.yaml
-        if: ${{ github.ref == 'refs/heads/master' }}
-      - name: Push images tagged with sha if master
-        run: |
-          # shellcheck disable=SC2016
-          jq --raw-output '.builds[].tag' < skaffold-build-output.json | xargs -d $'\n' sh -c 'for arg do echo "> docker push $arg"; docker push "$arg"; done'
-        if: ${{ github.ref == 'refs/heads/master' }}
-
-  system-tests:
-    needs: build
-    runs-on: ubicloud-standard-8
-    strategy:
-      matrix:
-        shard: [1, 2]
-    steps:
-      - name: Free up disk space
-        run: |
-          echo "Space before:"
-          df -h
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf "/usr/local/share/boost"
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-          echo "Space after:"
-          df -h
-      - name: Check out repository code
-        uses: actions/checkout@v4
-
-        # This would cause all other tests to be skipped
-      - name: Make sure we have no focused system-tests
-        run: |
-          test "$(grep -r 'test.only' ./system-tests/src/ | wc -l)" -eq 0
-
-      - name: Install kustomize, kubectl & skaffold
-        uses: yokawasa/action-setup-kube-tools@v0.11.1
-        with:
-          kubectl: "1.30.3"
-          kustomize: "5.4.1"
-          skaffold: "2.13.1"
-
-      - name: Workaround for kube-proxy set nf_conntrack_max permission denied
-        run: |
-          # Workarounds this issue when starting up kube-system/kube-proxy:
-          # I0719 17:18:25.711233       1 conntrack.go:100] Set sysctl 'net/netfilter/nf_conntrack_max' to 131072
-          # F0719 17:18:25.711251       1 server.go:489] open /proc/sys/net/netfilter/nf_conntrack_max: permission denied
-          sudo sysctl net/netfilter/nf_conntrack_max=131072
-
-      - name: Install, start & configure minikube
-        uses: manusa/actions-setup-minikube@v2.13.0
-        with:
-          minikube version: "v1.33.1"
-          kubernetes version: "v1.30.0"
-          start args: "--addons ingress --memory 10g"
-          driver: "docker"
-          github token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Enable snippet directives
         run: |
           kubectl patch configmap ingress-nginx-controller -p '{"data":{"allow-snippet-annotations":"true"}}' -n ingress-nginx --type merge
+
+      - name: Remove ingress nginx admission webhook
+        run: |
+          kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission
 
       - name: Debug kube-system
         run: |
           kubectl get pods --namespace kube-system
           PODS=$(kubectl get pods --namespace kube-system -o name | cut -d '/' -f 2)
-          for pod in $PODS
-          do
+          for pod in $PODS; do
             echo "------------------"
             kubectl describe pod "$pod" --namespace kube-system
           done
@@ -175,32 +127,14 @@ jobs:
         run: |
           kubectl get pods --namespace ingress-nginx
           PODS=$(kubectl get pods --namespace ingress-nginx -o name | cut -d '/' -f 2)
-          for pod in $PODS
-          do
+          for pod in $PODS; do
             echo "------------------"
             kubectl describe pod "$pod" --namespace ingress-nginx
           done
 
-      - name: Run npm ci for shared-modules
-        run: npm ci
-
-      - name: Download skaffold build output artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: skaffold-build-output
-          path: skaffold-build-output
-
-      - name: Download built images
-        uses: actions/download-artifact@v4
-        with:
-          name: skaffold-images
-          path: skaffold-images
-
-      - name: Import downloaded images to minikube
-        run: bin/skaffold-import-images-to-minikube
-
       - name: Deploy to local minikube
-        run: skaffold deploy --force --filename ./skaffold.production.yaml --build-artifacts=./skaffold-build-output/skaffold-build-output.json
+        id: deploy_local
+        run: skaffold deploy --force --filename ./skaffold.production.yaml --build-artifacts=./skaffold-build-output.json
 
       - name: Configure ingress
         run: echo "$(minikube ip) project-331.local" | sudo tee --append /etc/hosts
@@ -210,35 +144,84 @@ jobs:
         working-directory: ./system-tests/
 
       - name: Run system tests
-        run: npm run test -- -- --shard="${{ matrix.shard }}/2"
+        run: npm run test
         working-directory: ./system-tests/
 
       # To prevent accidentally introducing flaky tests in a pr. Skipped on master in order to not slow down deploys.
       - name: Run system tests again to make sure they're stable (if not master)
-        run: npm run test -- -- --shard="${{ matrix.shard }}/2"
+        run: npm run test
         working-directory: ./system-tests/
         if: ${{ github.ref != 'refs/heads/master' }}
 
-      - name: Headless lms logs
-        run: kubectl logs 'deployment/headless-lms'
-        if: failure()
-
-      - uses: actions/upload-artifact@v4
-        if: failure()
+      # upload logs for all the services on failure
+      - name: Save service logs to disk
+        if: ${{ failure() && steps.deploy_local.conclusion == 'success' }}
+        run: |
+          mkdir ./logs
+          kubectl logs 'deployment/chatbot-syncer' > ./logs/chatbot-syncer.log
+          kubectl logs 'deployment/cms' > ./logs/cms.log
+          kubectl logs 'deployment/course-material' > ./logs/course-material.log
+          kubectl logs 'deployment/example-exercise' > ./logs/example-exercise.log
+          kubectl logs 'deployment/headless-lms' > ./logs/headless-lms.log
+          kubectl logs 'deployment/mailchimp-syncer' > ./logs/mailchimp-syncer.log
+          kubectl logs 'deployment/main-frontend' > ./logs/main-frontend.log
+          kubectl logs 'deployment/quizzes' > ./logs/quizzes.log
+      - name: Upload logs
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() && steps.deploy_local.conclusion == 'success' }}
         with:
-          name: test-results-${{ matrix.shard }}
+          name: service-logs
+          path: ./logs/*
+
+      - name: Print pods information
+        if: ${{ failure() && steps.deploy_local.conclusion == 'success' }}
+        run: |
+          echo "> kubectl get pods"
+          kubectl get pods
+          echo
+          echo "----------------------------------------------------------"
+          for POD in $(kubectl get pods -o custom-columns=NAME:.metadata.name --no-headers=true)
+          do
+              echo
+              echo "----------------------------------------------------------"
+              echo "> kubectl describe pod $POD"
+              kubectl describe pod "$POD"
+          done
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() && steps.deploy_local.conclusion == 'success' }}
+        with:
+          name: test-results
           path: ./system-tests/test-results/
           if-no-files-found: ignore
 
-      - uses: actions/upload-artifact@v4
-        if: failure()
+      - name: Upload playwright report
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() && steps.deploy_local.conclusion == 'success' }}
         with:
-          name: playwright-html-report-${{ matrix.shard }}
+          name: playwright-html-report
           path: ./system-tests/playwright-report/index.html
           if-no-files-found: ignore
 
+      # These images are used for deployments and caching
+      - name: Push images if master
+        run: skaffold build -p push-images --filename ./skaffold.production.yaml
+        if: ${{ github.ref == 'refs/heads/master' }}
+      - name: Push latest images if master
+        run: skaffold build -p push-images,latest-tag --filename ./skaffold.production.yaml
+        if: ${{ github.ref == 'refs/heads/master' }}
+      - name: Push images tagged with sha if master
+        run: |
+          # Point Docker CLI to minikube's Docker daemon since images are built there
+          eval "$(minikube -p minikube docker-env --shell bash)"
+          gcloud auth configure-docker -q
+          # shellcheck disable=SC2016
+          jq --raw-output '.builds[].tag' < skaffold-build-output.json | xargs -d $'\n' sh -c 'for arg do echo "> docker push $arg"; docker push "$arg"; done'
+        if: ${{ github.ref == 'refs/heads/master' }}
+
   deploy:
-    needs: system-tests
+    needs: build-and-system-tests
     if: ${{ github.ref == 'refs/heads/master' }}
     runs-on: ubuntu-latest
     environment:
@@ -247,6 +230,7 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+
       - name: Download skaffold build output artifact
         uses: actions/download-artifact@v4
         with:
@@ -259,14 +243,14 @@ jobs:
           kubectl: "1.30.3"
           kustomize: "5.4.1"
           skaffold: "2.13.1"
+
       - uses: google-github-actions/setup-gcloud@94337306dda8180d967a56932ceb4ddcf01edae7
         with:
           service_account_key: ${{ secrets.GCLOUD_SERVICE_KEY_DEPLOY_TO_PRODUCTION }}
           project_id: ${{ secrets.GKE_PROJECT }}
-      - run: |-
-          gcloud --quiet auth configure-docker
 
-      # Get the GKE credentials so we can deploy to the cluster
+      - run: gcloud --quiet auth configure-docker
+
       - uses: google-github-actions/get-gke-credentials@fb08709ba27618c31c09e014e1d8364b02e5042e
         with:
           cluster_name: ${{ secrets.GKE_CLUSTER }}
@@ -277,6 +261,9 @@ jobs:
         run: |
           IPS=$(kubectl config view | grep server | tr -s ' ' | cut -d ' ' -f 3 | xargs echo)
           echo "::add-mask::$IPS"
+
+      - name: Make sure skaffold local env patch files exist
+        run: bin/make-sure-skaffold-local-env-patch-files-exists
 
       - name: Deploy with Skaffold
         run: skaffold deploy --force --filename ./skaffold.production.yaml -p production --build-artifacts=./skaffold-build-output/skaffold-build-output.json --namespace courses-moocfi

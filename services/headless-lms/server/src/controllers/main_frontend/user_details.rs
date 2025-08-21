@@ -179,6 +179,10 @@ pub async fn update_user_info(
         .await
         .context("Failed to fetch existing user data")?;
 
+    let user = models::users::get_by_id(&mut tx, user.id)
+        .await
+        .context("Failed to fetch user")?;
+
     let updated_user = models::user_details::update_user_info(
         &mut tx,
         user.id,
@@ -195,17 +199,29 @@ pub async fn update_user_info(
     let first_name_changed = existing_user.first_name != Some(payload.first_name.clone());
     let last_name_changed = existing_user.last_name != Some(payload.last_name.clone());
 
-    if email_changed || first_name_changed || last_name_changed {
+    if !app_conf.test_mode && (email_changed || first_name_changed || last_name_changed) {
         let email_opt = if email_changed {
             Some(payload.email.clone())
         } else {
             None
         };
 
+        let upstream_id = user
+            .upstream_id
+            .ok_or_else(|| {
+                ControllerError::new(
+                    ControllerErrorType::InternalServerError,
+                    "Missing upstream_id".to_string(),
+                    None,
+                )
+            })?
+            .to_string();
+
         controllers::auth::update_user_information_to_tmc(
             payload.first_name.clone(),
             payload.last_name.clone(),
             email_opt,
+            upstream_id,
             tmc_client.clone(),
             app_conf,
         )

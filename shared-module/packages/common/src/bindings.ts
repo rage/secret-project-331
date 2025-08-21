@@ -191,6 +191,50 @@ export interface UserCourseInstanceChapterProgress {
   attempted_exercises: number | null
 }
 
+export interface ChatbotConfiguration {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  course_id: string
+  enabled_to_students: boolean
+  chatbot_name: string
+  prompt: string
+  initial_message: string
+  weekly_tokens_per_user: number
+  daily_tokens_per_user: number
+  temperature: number
+  top_p: number
+  frequency_penalty: number
+  presence_penalty: number
+  response_max_tokens: number
+  use_azure_search: boolean
+  maintain_azure_search_index: boolean
+  hide_citations: boolean
+  use_semantic_reranking: boolean
+  default_chatbot: boolean
+}
+
+export interface NewChatbotConf {
+  course_id: string
+  enabled_to_students: boolean
+  chatbot_name: string
+  prompt: string
+  initial_message: string
+  weekly_tokens_per_user: number
+  daily_tokens_per_user: number
+  temperature: number
+  top_p: number
+  frequency_penalty: number
+  presence_penalty: number
+  response_max_tokens: number
+  use_azure_search: boolean
+  maintain_azure_search_index: boolean
+  hide_citations: boolean
+  use_semantic_reranking: boolean
+  default_chatbot: boolean
+}
+
 export interface ChatbotConversationMessage {
   id: string
   created_at: string
@@ -202,6 +246,20 @@ export interface ChatbotConversationMessage {
   message_is_complete: boolean
   used_tokens: number
   order_number: number
+}
+
+export interface ChatbotConversationMessageCitation {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  conversation_message_id: string
+  conversation_id: string
+  course_material_chapter_number: number | null
+  title: string
+  content: string
+  document_url: string
+  citation_number: number
 }
 
 export interface ChatbotConversation {
@@ -217,6 +275,7 @@ export interface ChatbotConversation {
 export interface ChatbotConversationInfo {
   current_conversation: ChatbotConversation | null
   current_conversation_messages: Array<ChatbotConversationMessage> | null
+  current_conversation_message_citations: Array<ChatbotConversationMessageCitation> | null
   chatbot_name: string
   hide_citations: boolean
 }
@@ -492,6 +551,30 @@ export interface Course {
   join_code: string | null
   ask_marketing_consent: boolean
   flagged_answers_threshold: number | null
+  closed_at: string | null
+  closed_additional_message: string | null
+  closed_course_successor_id: string | null
+}
+
+export interface CourseMaterialCourse {
+  id: string
+  slug: string
+  name: string
+  description: string | null
+  organization_id: string
+  language_code: string
+  copied_from: string | null
+  content_search_language: string | null
+  course_language_group_id: string
+  is_draft: boolean
+  is_test_mode: boolean
+  is_unlisted: boolean
+  base_module_completion_requires_n_submodule_completions: number
+  is_joinable_by_code_only: boolean
+  ask_marketing_consent: boolean
+  closed_at: string | null
+  closed_additional_message: string | null
+  closed_course_successor_id: string | null
 }
 
 export interface CourseBreadcrumbInfo {
@@ -523,6 +606,9 @@ export interface CourseUpdate {
   is_joinable_by_code_only: boolean
   ask_marketing_consent: boolean
   flagged_answers_threshold: number
+  closed_at: string | null
+  closed_additional_message: string | null
+  closed_course_successor_id: string | null
 }
 
 export interface NewCourse {
@@ -541,6 +627,7 @@ export interface NewCourse {
   join_code: string | null
   ask_marketing_consent: boolean
   flagged_answers_threshold: number | null
+  can_add_chatbot: boolean
 }
 
 export interface EmailTemplate {
@@ -1443,6 +1530,7 @@ export interface CoursePageWithUserData {
   page: Page
   instance: CourseInstance | null
   settings: UserCourseSettings | null
+  course: Course | null
   was_redirected: boolean
   is_test_mode: boolean
 }
@@ -2216,6 +2304,7 @@ export interface CopyCourseRequest {
   join_code: string | null
   ask_marketing_consent: boolean
   flagged_answers_threshold: number | null
+  can_add_chatbot: boolean
   mode: CopyCourseMode
 }
 
@@ -2235,6 +2324,11 @@ export interface NewExerciseRepository {
   git_url: string
   public_key: string | null
   deploy_key: string | null
+}
+
+export interface ExerciseServiceWithError {
+  exercise_service: ExerciseService
+  service_info_error: string | null
 }
 
 export interface ExerciseSubmissions {

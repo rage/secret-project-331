@@ -1,7 +1,8 @@
 import { css } from "@emotion/css"
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { PaperAirplane } from "@vectopus/atlas-icons-react"
-import React, { useCallback, useEffect, useMemo, useReducer, useRef } from "react"
+import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
@@ -12,7 +13,11 @@ import MessageBubble from "./MessageBubble"
 import { CHATBOX_HEIGHT_PX } from "."
 
 import { sendChatbotMessage } from "@/services/backend"
-import { ChatbotConversation, ChatbotConversationInfo } from "@/shared-module/common/bindings"
+import {
+  ChatbotConversation,
+  ChatbotConversationInfo,
+  ChatbotConversationMessageCitation,
+} from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
@@ -63,7 +68,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
-
+  const [chatbotMessageAnnouncement, setChatbotMessageAnnouncement] = useState<string>("")
   const [messageState, dispatch] = useReducer(messageReducer, {
     optimisticMessage: null,
     streamingMessage: null,
@@ -74,6 +79,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
       if (!currentConversationInfo.data?.current_conversation) {
         throw new Error("No active conversation")
       }
+      setChatbotMessageAnnouncement(t("chatbot-is-responding"))
       const message = newMessage.trim()
       dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: message })
       setNewMessage("")
@@ -114,6 +120,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
         await currentConversationInfo.refetch()
         dispatch({ type: "RESET_MESSAGES" })
         setError(null)
+        setChatbotMessageAnnouncement(t("chatbot-finished-responding"))
       },
       onError: async (error) => {
         if (error instanceof Error) {
@@ -127,6 +134,27 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
       },
     },
   )
+
+  const citations = useMemo(() => {
+    const citations: Map<string, ChatbotConversationMessageCitation[]> = new Map()
+
+    if (!currentConversationInfo.data?.hide_citations) {
+      currentConversationInfo.data?.current_conversation_message_citations?.forEach((cit) => {
+        const id = cit.conversation_message_id
+        if (!citations.has(id)) {
+          citations.set(id, [cit])
+        } else {
+          // id is definitely in hashmap because of the condition branch we're in
+          citations.set(id, citations.get(id)!.concat(cit))
+        }
+      })
+    }
+
+    return citations
+  }, [
+    currentConversationInfo.data?.current_conversation_message_citations,
+    currentConversationInfo.data?.hide_citations,
+  ])
 
   const messages = useMemo(() => {
     const messages = [...(currentConversationInfo.data?.current_conversation_messages ?? [])]
@@ -289,11 +317,15 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
           <MessageBubble
             key={`chatbot-message-${message.id}`}
             message={message.message ?? ""}
+            citations={citations.get(message.id)}
             isFromChatbot={message.is_from_chatbot}
             isPending={!message.message_is_complete && newMessageMutation.isPending}
           />
         ))}
       </div>
+      <VisuallyHidden aria-live="polite" role="status">
+        {chatbotMessageAnnouncement}
+      </VisuallyHidden>
       {error && <ErrorDisplay error={error} />}
       <div
         className={css`
@@ -322,6 +354,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
+                setChatbotMessageAnnouncement("")
                 e.preventDefault()
                 if (canSubmit) {
                   newMessageMutation.mutate()
@@ -366,7 +399,10 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
             `}
             disabled={!canSubmit}
             aria-label={t("send")}
-            onClick={() => newMessageMutation.mutate()}
+            onClick={() => {
+              setChatbotMessageAnnouncement("")
+              newMessageMutation.mutate()
+            }}
           >
             <PaperAirplane />
           </button>

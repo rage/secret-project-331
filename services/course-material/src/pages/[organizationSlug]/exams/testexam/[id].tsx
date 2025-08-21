@@ -102,6 +102,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
           instance: null,
           settings: null,
           exam: exam.data,
+          course: null,
           isTest: false,
         },
       })

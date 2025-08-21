@@ -12,7 +12,7 @@ const ColorPalette: React.FC<React.PropsWithChildren<unknown>> = () => {
         ${respondToOrLarger.lg} {
           grid-template-columns: 0.3fr 0.3fr 0.3fr;
         }
-        grid-gap: 30px;
+        gap: 30px;
       `}
     >
       {Object.entries(baseTheme.colors).map(([k, v]) => {

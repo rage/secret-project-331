@@ -114,6 +114,7 @@ impl TmcClient {
         first_name: String,
         last_name: String,
         email: Option<String>,
+        user_upstream_id: String,
     ) -> Result<()> {
         let mut user_obj = serde_json::Map::new();
         let mut user_field_obj = serde_json::Map::new();
@@ -144,7 +145,7 @@ impl TmcClient {
 
         let payload_value = serde_json::Value::Object(payload);
 
-        let url = format!("{}/current", TMC_API_URL);
+        let url = format!("{}/{}", TMC_API_URL, user_upstream_id);
 
         self.request_with_headers(reqwest::Method::PUT, &url, true, Some(payload_value))
             .await

@@ -544,6 +544,7 @@ pub async fn update_user_information_to_tmc(
     first_name: String,
     last_name: String,
     email: Option<String>,
+    user_upstream_id: String,
     tmc_client: web::Data<TmcClient>,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> Result<(), Error> {
@@ -551,7 +552,7 @@ pub async fn update_user_information_to_tmc(
         return Ok(());
     }
     tmc_client
-        .update_user_information(first_name, last_name, email)
+        .update_user_information(first_name, last_name, email, user_upstream_id)
         .await
         .map_err(|e| {
             log::warn!("TMC user update failed: {:?}", e);

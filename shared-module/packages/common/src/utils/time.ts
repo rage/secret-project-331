@@ -36,14 +36,74 @@ export const formatDateForDateTimeLocalInputs = (
   return format(date, "yyyy-MM-dd'T'HH:mm")
 }
 
+/**
+ * Converts a date to a human-readable string in the user's local timezone.
+ *
+ * This function takes a date input (Date object, string, null, or undefined) and
+ * converts it to a localized string representation that includes the month name,
+ * day, time, and timezone offset. The date is automatically converted to the
+ * user's local timezone before formatting.
+ *
+ * @param date - The date to format. Can be a Date object, date string, null, or undefined.
+ *               If null or undefined, the function returns undefined.
+ * @param locale - The locale string to use for formatting (e.g., 'en-US', 'sv-SE').
+ *                 This determines the language and formatting conventions used.
+ *
+ * @returns A human-readable date-time string in the format "Month Day, Hour:Minute:Second (TimezoneOffset)"
+ *          (e.g., "December 25, 14:30:45 (UTC+3)"), or undefined if the input date is null/undefined.
+ *
+ * @example
+ * ```typescript
+ * humanReadableDateTime(new Date('2023-12-25T13:30:45Z'), 'en-US')
+ * // Returns: "December 25, 2:30:45 PM (UTC+3)" (depending on local timezone)
+ *
+ * humanReadableDateTime('2023-12-25T13:30:45Z', 'sv-SE')
+ * // Returns: "25 december 14:30:45 (UTC+3)" (depending on local timezone)
+ *
+ * humanReadableDateTime(null, 'en-US')
+ * // Returns: undefined
+ * ```
+ */
 export const humanReadableDateTime = (
   date: Date | string | null | undefined,
+  locale: string,
 ): string | undefined => {
   const localDate = dateToUsersLocalTimeZone(date)
   if (!localDate) {
     return undefined
   }
-  return format(localDate, "Pp")
+
+  const base = localDate.toLocaleString(locale, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+  })
+
+  return `${base} (${timeZoneOffsetString(localDate)})`
+}
+
+/**
+ * Helper get time zone offset string in the format "UTC+3", "UTC-5:30", etc.
+ * Minutes are only included if they are non-zero.
+ * @param date - The date to compute the time zone offset for.
+ * @returns A string representing the time zone offset in the format "UTC+3", "UTC-5:30", etc.
+ */
+export const timeZoneOffsetString = (date: Date): string => {
+  const offsetMin = -date.getTimezoneOffset()
+  const sign = offsetMin >= 0 ? "+" : "-"
+  const abs = Math.abs(offsetMin)
+  const hours = Math.floor(abs / 60)
+  const minutes = abs % 60
+
+  if (minutes === 0) {
+    return `UTC${sign}${hours}`
+  }
+
+  const minutesStr = String(minutes).padStart(2, "0")
+  return `UTC${sign}${hours}:${minutesStr}`
 }
 
 export const getLocalTimeZone = (): string => {

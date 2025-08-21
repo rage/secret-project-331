@@ -6,11 +6,9 @@ import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import { ChatbotDialogProps } from "./ChatbotDialog"
-import ErrorDisplay from "./ErrorDisplay"
-import MessageBubble from "./MessageBubble"
-
-import { CHATBOX_HEIGHT_PX } from "."
+import { CHATBOX_HEIGHT_PX } from "../Chatbot"
+import ErrorDisplay from "../Chatbot/ErrorDisplay"
+import MessageBubble from "../Chatbot/MessageBubble"
 
 import { sendChatbotMessage } from "@/services/backend"
 import {
@@ -25,7 +23,8 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
 
-interface ChatbotDialogBodyProps extends ChatbotDialogProps {
+interface ChatbotDialogBodyProps {
+  chatbotConfigurationId: string
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
   newConversation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
   newMessage: string

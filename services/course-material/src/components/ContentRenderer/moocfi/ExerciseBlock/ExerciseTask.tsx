@@ -65,7 +65,8 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
           className={css`
             font-family: ${headingFont};
             color: #4c5868;
-            p {
+            p,
+            li {
               opacity: 0.9;
               font-size: 1.125rem !important;
               font-weight: 500;

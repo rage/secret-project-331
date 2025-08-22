@@ -80,6 +80,7 @@ interface LikertScaleProps {
   answerRequired: boolean
   selectedOption: number | null
   setSelectedOption: (value: number | null) => void
+  questionId: string
 }
 
 interface StyledProps {
@@ -92,6 +93,7 @@ const LikertScale: React.FC<React.PropsWithChildren<LikertScaleProps>> = ({
   answerRequired,
   selectedOption,
   setSelectedOption,
+  questionId,
 }) => {
   const { t } = useTranslation()
 
@@ -130,6 +132,7 @@ const LikertScale: React.FC<React.PropsWithChildren<LikertScaleProps>> = ({
           {arr.map((option, n) => (
             <StyledToggleButton
               active={selectedOption === n + 1}
+              id={`likert-scale-${questionId}-option-${n + 1}`}
               key={n + 1}
               onClick={() => {
                 if (!disabled) {

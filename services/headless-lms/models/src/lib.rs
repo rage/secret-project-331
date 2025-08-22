@@ -56,6 +56,7 @@ pub mod material_references;
 pub mod oauth_access_token;
 pub mod oauth_auth_code;
 pub mod oauth_client;
+pub mod oauth_dpop_proofs;
 pub mod oauth_refresh_tokens;
 pub mod oauth_shared_types;
 pub mod oauth_user_client_scopes;

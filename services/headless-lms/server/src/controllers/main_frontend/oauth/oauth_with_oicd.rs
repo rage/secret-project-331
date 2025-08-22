@@ -7,7 +7,7 @@ use chrono::{DateTime, Duration, Utc};
 use domain::error::{OAuthErrorCode, OAuthErrorData};
 use headless_lms_utils::ApplicationConfiguration;
 use headless_lms_utils::prelude::*;
-use hmac::{Hmac, Mac};
+use hmac::Mac;
 use jsonwebtoken::{EncodingKey, Header, encode};
 use models::{
     oauth_access_token::OAuthAccessToken, oauth_auth_code::OAuthAuthCode,
@@ -307,13 +307,21 @@ async fn deny_consent(query: web::Query<ConsentDenyQuery>) -> Result<HttpRespons
 async fn token(
     pool: web::Data<PgPool>,
     form: SafeExtractor<TokenQuery>,
+    req: actix_web::HttpRequest,
 ) -> ControllerResult<HttpResponse> {
-    use hmac::Mac; // for `update`, `finalize`
-
     form.0.validate()?;
     let (pepper, pepper_id) = read_token_pepper()?;
+    // decide token type & (maybe) jkt based on presence of DPoP at /token
+    let mut token_type = "Bearer".to_string();
+    let mut jkt_at_issue: String = String::new();
 
     let mut conn = pool.acquire().await?;
+    if req.headers().get("DPoP").is_some() {
+        // No 'ath' at AS token endpoint
+        jkt_at_issue = verify_dpop_and_get_jkt(&mut conn, &req, "POST", None).await?;
+        token_type = "DPoP".to_string();
+    }
+
     let server_token = skip_authorize();
 
     let access_token_expire_time = Duration::hours(1);
@@ -337,7 +345,7 @@ async fn token(
             )
         })?;
 
-    if client.client_secret != hash_token_hmac_sha256(client_secret, pepper) {
+    if client.client_secret != token_digest_hmac_sha256(client_secret, &pepper) {
         return Err(ControllerError::new(
             ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
                 error: OAuthErrorCode::InvalidClient.as_str().into(),
@@ -385,7 +393,7 @@ async fn token(
                 auth_code.client_id,
                 &scope,
                 "",                      // audience: &str
-                "",                      // dpop_jkt: &str
+                &jkt_at_issue,           // dpop_jkt: &str
                 serde_json::Value::Null, // metadata: JsonValue
                 expires_at,
             )
@@ -410,9 +418,9 @@ async fn token(
                 &scope,
                 "", // audience: &str
                 refresh_token_expires_at,
-                None, // rotated_from
-                None, // metadata
-                "",   // dpop_jkt
+                None,          // rotated_from
+                None,          // metadata
+                &jkt_at_issue, // dpop_jkt
             )
             .await?;
 
@@ -442,7 +450,30 @@ async fn token(
                 ));
             }
 
-            // rotate RT (insert new digest, link rotated_from), and mint new AT
+            if !token.dpop_jkt.is_empty() {
+                // Stored RT is DPoP-bound: require proof and match jkt
+                let presented_jkt = verify_dpop_and_get_jkt(&mut conn, &req, "POST", None).await?;
+                if presented_jkt != token.dpop_jkt {
+                    return Err(ControllerError::new(
+                        ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
+                            error: OAuthErrorCode::InvalidGrant.as_str().into(),
+                            error_description: "DPoP key mismatch".into(),
+                            redirect_uri: None,
+                            state: None,
+                        })),
+                        "DPoP key mismatch",
+                        None::<anyhow::Error>,
+                    ));
+                }
+                token_type = "DPoP".to_string();
+                jkt_at_issue = token.dpop_jkt.clone();
+            } else {
+                // Stored RT is not bound: keep Bearer semantics
+                token_type = "Bearer".to_string();
+                jkt_at_issue.clear();
+            }
+
+            // rotate RT (insert new digest, link rotated_from)
             OAuthRefreshTokens::revoke_all_by_user_client(
                 &mut conn,
                 token.user_id,
@@ -462,7 +493,7 @@ async fn token(
                 refresh_token_expires_at,
                 Some(token.digest.clone()),   // rotated_from
                 Some(token.metadata.clone()), // carry metadata forward if you want
-                token.dpop_jkt.as_str(),      // &str
+                &jkt_at_issue,                // dpop_jkt
             )
             .await?;
 
@@ -476,7 +507,7 @@ async fn token(
                 token.client_id,
                 &token.scope,
                 token.audience.as_deref().unwrap_or(""),
-                token.dpop_jkt.as_str(),
+                &jkt_at_issue,
                 token.metadata.clone(),
                 expires_at,
             )
@@ -504,7 +535,7 @@ async fn token(
         access_token: access_token_plain,
         refresh_token: Some(new_refresh_token_plain),
         id_token,
-        token_type: "Bearer".to_string(),
+        token_type,
         expires_in: access_token_expire_time.num_seconds() as u32,
     };
 
@@ -551,27 +582,38 @@ async fn user_info(
     let mut conn = pool.acquire().await?;
     let server_token = skip_authorize();
 
-    // Extract "Bearer <token>"
-    // TODO handle DPoP tokens
-    let token = match req
+    let auth = req
         .headers()
         .get("Authorization")
         .and_then(|v| v.to_str().ok())
-        .and_then(|v| v.strip_prefix("Bearer "))
-    {
-        Some(t) => t,
-        None => {
-            return Err(ControllerError::new(
+        .ok_or_else(|| {
+            ControllerError::new(
                 ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
                     error: OAuthErrorCode::InvalidToken.as_str().into(),
-                    error_description: "missing or malformed token".into(),
+                    error_description: "missing Authorization header".into(),
                     redirect_uri: None,
                     state: None,
                 })),
-                "missing or malformed token",
+                "missing Authorization header",
                 None::<anyhow::Error>,
-            ));
-        }
+            )
+        })?;
+
+    let (scheme, token) = if let Some(t) = auth.strip_prefix("DPoP ") {
+        ("DPoP", t)
+    } else if let Some(t) = auth.strip_prefix("Bearer ") {
+        ("Bearer", t)
+    } else {
+        return Err(ControllerError::new(
+            ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
+                error: OAuthErrorCode::InvalidToken.as_str().into(),
+                error_description: "unsupported auth scheme".into(),
+                redirect_uri: None,
+                state: None,
+            })),
+            "unsupported auth scheme",
+            None::<anyhow::Error>,
+        ));
     };
 
     // Hash the presented bearer token and look up by digest
@@ -579,6 +621,35 @@ async fn user_info(
     let digest = token_digest_hmac_sha256(token, &pepper);
 
     let access = OAuthAccessToken::find_valid(&mut conn, digest).await?;
+
+    if !access.dpop_jkt.is_empty() {
+        if scheme != "DPoP" {
+            return Err(ControllerError::new(
+                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
+                    error: OAuthErrorCode::InvalidToken.as_str().into(),
+                    error_description: "DPoP-bound token must use DPoP scheme".into(),
+                    redirect_uri: None,
+                    state: None,
+                })),
+                "wrong auth scheme",
+                None::<anyhow::Error>,
+            ));
+        }
+
+        let presented_jkt = verify_dpop_and_get_jkt(&mut conn, &req, "GET", Some(token)).await?;
+        if presented_jkt != access.dpop_jkt {
+            return Err(ControllerError::new(
+                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
+                    error: OAuthErrorCode::InvalidToken.as_str().into(),
+                    error_description: "DPoP key mismatch".into(),
+                    redirect_uri: None,
+                    state: None,
+                })),
+                "DPoP key mismatch",
+                None::<anyhow::Error>,
+            ));
+        }
+    }
 
     // UserInfo is end-user focused; ensure the token is bound to a user
     let user_id = match access.user_id {
@@ -701,7 +772,9 @@ async fn jwks(app_conf: web::Data<ApplicationConfiguration>) -> ControllerResult
 ///   "jwks_uri": "https://courses.mooc.fi/api/v0/main-frontend/oauth/jwks.json",
 ///   "response_types_supported": ["code"],
 ///   "subject_types_supported": ["public"],
-///   "id_token_signing_alg_values_supported": ["RS256"]
+///   "id_token_signing_alg_values_supported": ["RS256"],
+///   "dpop_signing_alg_values_supported": ["ES256", "RS256"],
+///   "token_endpoint_auth_methods_supported": ["client_secret_post", "client_secret_basic"]
 /// }
 /// ```
 async fn well_known_openid() -> Result<HttpResponse, Error> {
@@ -713,7 +786,9 @@ async fn well_known_openid() -> Result<HttpResponse, Error> {
         "jwks_uri": "https://courses.mooc.fi/api/v0/main-frontend/oauth/jwks.json",
         "response_types_supported": ["code"],
         "subject_types_supported": ["public"],
-        "id_token_signing_alg_values_supported": ["RS256"]
+        "id_token_signing_alg_values_supported": ["RS256"],
+        "dpop_signing_alg_values_supported": ["ES256", "RS256"],
+        "token_endpoint_auth_methods_supported": ["client_secret_post", "client_secret_basic"]
     });
 
     Ok(HttpResponse::Ok().json(config))

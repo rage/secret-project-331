@@ -1,4 +1,6 @@
-use headless_lms_models::oauth_client;
+use std::str::FromStr;
+
+use headless_lms_models::{oauth_client, oauth_shared_types::Digest};
 use sqlx::{Pool, Postgres};
 use uuid::Uuid;
 
@@ -12,10 +14,11 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
     let client = oauth_client::OAuthClient::insert(
         &mut conn,
         "test-client-id",
-        "very-secret",
+        Digest::from_str("very-secret").unwrap(), // TODO this has to actually be hashed
+        1,
         Vec::from(["http://localhost".to_string()]),
         Vec::from(["user_info".to_string()]),
-        "openid",
+        "openid email profile",
         "http://localhost",
     )
     .await?;

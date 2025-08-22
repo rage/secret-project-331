@@ -527,3 +527,43 @@ impl From<UtilError> for ControllerError {
         )
     }
 }
+
+impl From<serde_json::Error> for ControllerError {
+    fn from(err: serde_json::Error) -> Self {
+        Self::new(
+            ControllerErrorType::InternalServerError,
+            err.to_string(),
+            Some(err.into()),
+        )
+    }
+}
+
+impl From<base64::DecodeError> for ControllerError {
+    fn from(err: base64::DecodeError) -> Self {
+        Self::new(
+            ControllerErrorType::InternalServerError,
+            err.to_string(),
+            Some(err.into()),
+        )
+    }
+}
+
+impl From<std::string::FromUtf8Error> for ControllerError {
+    fn from(err: std::string::FromUtf8Error) -> Self {
+        Self::new(
+            ControllerErrorType::InternalServerError,
+            err.to_string(),
+            Some(err.into()),
+        )
+    }
+}
+
+impl From<pkcs8::spki::Error> for ControllerError {
+    fn from(err: pkcs8::spki::Error) -> Self {
+        Self::new(
+            ControllerErrorType::InternalServerError,
+            err.to_string(),
+            Some(err.into()),
+        )
+    }
+}

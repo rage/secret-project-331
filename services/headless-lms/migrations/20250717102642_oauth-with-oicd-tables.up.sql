@@ -187,11 +187,16 @@ UPDATE ON oauth_user_client_scopes FOR EACH ROW EXECUTE PROCEDURE trigger_set_ti
 CREATE INDEX idx_oauth_user_client_scopes_user ON oauth_user_client_scopes(user_id);
 CREATE INDEX idx_oauth_user_client_scopes_client ON oauth_user_client_scopes(client_id);
 
-CREATE TABLE IF NOT EXISTS oauth_dpop_proofs (
-  jti_hash bytea PRIMARY KEY,  -- SHA-256(jti)
-  seen_at  timestamptz NOT NULL DEFAULT now()
+CREATE TABLE oauth_dpop_proofs (
+  jti_hash  bytea       PRIMARY KEY,               -- SHA-256(jti)
+  seen_at   timestamptz NOT NULL DEFAULT now(),
+  client_id uuid        NULL,
+  jkt       text        NULL,
+  htm       text        NULL,
+  htu       text        NULL,
+  iat       timestamptz NULL
 );
-CREATE INDEX IF NOT EXISTS idx_dpop_seen_at ON oauth_dpop_proofs (seen_at);
+CREATE INDEX idx_oauth_dpop_seen_at ON oauth_dpop_proofs (seen_at);
 
 COMMENT ON TABLE oauth_dpop_proofs IS
   'Replay protection store for DPoP proofs. Tracks used jti values to prevent replay attacks.';
@@ -199,4 +204,13 @@ COMMENT ON COLUMN oauth_dpop_proofs.jti_hash IS
   'SHA-256 hash of the DPoP proof''s jti claim. Using a hash avoids storing raw jtis and keeps row size fixed. Primary key ensures each proof is only used once.';
 COMMENT ON COLUMN oauth_dpop_proofs.seen_at IS
   'Timestamp when this DPoP proof was first observed and stored. Used for cleanup of old entries.';
-
+COMMENT ON COLUMN oauth_dpop_proofs.client_id IS
+  'OAuth client ID that presented this DPoP proof. Optional; useful for auditing and detecting misuse.';
+COMMENT ON COLUMN oauth_dpop_proofs.jkt IS
+  'JWK thumbprint (RFC 7638) from the DPoP proof. Used to bind the proof to a specific key.';
+COMMENT ON COLUMN oauth_dpop_proofs.htm IS
+  'HTTP method (GET, POST, etc.) from the DPoP proof. Helps detect misuse or replay across different methods.';
+COMMENT ON COLUMN oauth_dpop_proofs.htu IS
+  'HTTP URI (htu claim) from the DPoP proof. Should match the endpoint where the proof was presented.';
+COMMENT ON COLUMN oauth_dpop_proofs.iat IS
+  'Issued-at timestamp (iat claim) from the DPoP proof. Used to validate proof freshness.';

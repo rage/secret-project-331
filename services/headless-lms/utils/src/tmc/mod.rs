@@ -64,8 +64,13 @@ impl TmcClient {
             }
         }
 
+        let client = reqwest::Client::builder()
+            .timeout(std::time::Duration::from_secs(15))
+            .build()
+            .context("Failed to build HTTP client")?;
+
         Ok(Self {
-            client: Client::default(),
+            client,
             access_token,
             ratelimit_api_key,
         })
@@ -107,10 +112,8 @@ impl TmcClient {
                 .await
                 .unwrap_or_else(|e| format!("(Failed to read error body: {e})"));
 
-            warn!(
-                "Request to {} failed with status {}: {}",
-                url, status, error_text
-            );
+            tracing::warn!("Request to {} failed with status {}", url, status);
+            tracing::debug!("Response body: {}", error_text);
 
             Err(anyhow::anyhow!(
                 "Request failed with status {}: {}",
@@ -192,7 +195,7 @@ impl TmcClient {
     pub async fn set_user_password_managed_by_courses_mooc_fi(
         &self,
         user_upstream_id: String,
-        user_id: String,
+        user_id: Uuid,
     ) -> Result<()> {
         let url = format!(
             "{}/{}/set_password_managed_by_courses_mooc_fi",
@@ -200,7 +203,7 @@ impl TmcClient {
         );
 
         let payload = serde_json::json!({
-            "courses_mooc_fi_user_id": user_id,
+            "courses_mooc_fi_user_id": user_id.to_string(),
         });
 
         self.request_with_headers(reqwest::Method::POST, &url, true, Some(payload))

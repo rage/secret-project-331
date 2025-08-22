@@ -62,38 +62,22 @@ pub async fn get_generic_email_template_by_name_and_language(
 SELECT *
 FROM email_templates
 WHERE name = $1
-  AND language = $2
   AND course_instance_id IS NULL
   AND deleted_at IS NULL
+  AND language IN ($2, 'en')
+ORDER BY CASE
+    WHEN language = $2 THEN 0
+    WHEN language = 'en' THEN 1
+    ELSE 2
+  END
+LIMIT 1
         "#,
         name,
         language
     )
-    .fetch_one(&mut *conn)
-    .await;
-    // Fallback to English in case used language doesn't exist
-    match res {
-        Ok(template) => Ok(template),
-        Err(sqlx::Error::RowNotFound) if language != "en" => {
-            let fallback_res = sqlx::query_as!(
-                EmailTemplate,
-                r#"
-SELECT *
-FROM email_templates
-WHERE name = $1
-  AND language = 'en'
-  AND course_instance_id IS NULL
-  AND deleted_at IS NULL
-                "#,
-                name
-            )
-            .fetch_one(&mut *conn)
-            .await?;
-
-            Ok(fallback_res)
-        }
-        Err(e) => Err(e.into()),
-    }
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
 }
 
 pub async fn insert_email_template(

@@ -5,6 +5,8 @@ use serde_json::json;
 use sqlx::{Pool, Postgres};
 
 pub async fn seed_password_reset_emails(db_pool: Pool<Postgres>) -> anyhow::Result<()> {
+    info!("inserting password reset emails");
+
     let mut conn = db_pool.acquire().await?;
 
     let english_subject = Some("Reset password request");

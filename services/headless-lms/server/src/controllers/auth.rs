@@ -16,7 +16,7 @@ use actix_session::Session;
 use anyhow::Error;
 use anyhow::anyhow;
 use headless_lms_utils::tmc::{NewUserInfo, TmcClient};
-use secrecy::SecretString;
+use secrecy::{ExposeSecret, SecretString};
 use std::time::Duration;
 use tracing_log::log;
 
@@ -107,12 +107,13 @@ pub async fn signup(
     if user.is_none() {
         // First create the actual user to tmc.mooc.fi and then fetch it from mooc.fi
         post_new_user_to_moocfi(&user_details, &tmc_client, &app_conf).await?;
+        let password_secret = SecretString::new(user_details.password.into());
 
         let auth_result = authorization::authenticate_moocfi_user(
             &mut conn,
             &client,
             user_details.email,
-            user_details.password.clone(),
+            password_secret.expose_secret().to_string(),
         )
         .await?;
 
@@ -127,10 +128,8 @@ pub async fn signup(
             .await?;
 
             // Hash and save password to local database
-            let password_hash = models::user_passwords::hash_password(&SecretString::new(
-                user_details.password.into(),
-            ))
-            .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
+            let password_hash = models::user_passwords::hash_password(&password_secret)
+                .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
 
             models::user_passwords::upsert_user_password(&mut conn, user.id, password_hash)
                 .await
@@ -145,10 +144,7 @@ pub async fn signup(
             // Notify tmc that the password is managed by courses.mooc.fi
             if let Some(upstream_id) = user.upstream_id {
                 tmc_client
-                    .set_user_password_managed_by_courses_mooc_fi(
-                        upstream_id.to_string(),
-                        user.id.to_string(),
-                    )
+                    .set_user_password_managed_by_courses_mooc_fi(upstream_id.to_string(), user)
                     .await
                     .map_err(|e| {
                         ControllerError::new(
@@ -413,7 +409,7 @@ async fn handle_production_login(
         .await?;
 
         if let Some((user, _token)) = auth_result {
-            // If user is autenticated in TMC succesfully, hash password and save it to courses.mooc.fi database
+            // If user is autenticated in TMC successfully, hash password and save it to courses.mooc.fi database
             let password_hash =
                 models::user_passwords::hash_password(&SecretString::new(password.into()))
                     .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;

@@ -20,7 +20,7 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ query }) => {
   const { t } = useTranslation()
 
   const isValid = useQuery({
-    queryKey: [`reset-password-token-status-${token}`],
+    queryKey: ["reset-password-token-status", token],
     queryFn: () => fetchResetPasswordTokenStatus(token),
   })
 

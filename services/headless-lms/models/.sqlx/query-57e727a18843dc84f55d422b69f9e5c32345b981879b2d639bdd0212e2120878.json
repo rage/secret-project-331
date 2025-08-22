@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM user_passwords\nWHERE user_id = $1\n    ",
+  "query": "\nSELECT *\nFROM user_passwords\nWHERE user_id = $1\nAND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -34,5 +34,5 @@
     },
     "nullable": [false, false, false, false, true]
   },
-  "hash": "eba52745ce1e02568d451010ede1ad771175e2d67e43bcf3af4306f1d80bc5cf"
+  "hash": "57e727a18843dc84f55d422b69f9e5c32345b981879b2d639bdd0212e2120878"
 }

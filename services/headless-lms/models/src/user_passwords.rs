@@ -1,7 +1,7 @@
 use crate::prelude::*;
 use crate::users::get_by_id;
 use argon2::password_hash::{SaltString, rand_core::OsRng};
-use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
+use argon2::{Algorithm, Argon2, Params, PasswordHash, PasswordHasher, PasswordVerifier, Version};
 use headless_lms_utils::tmc::TmcClient;
 use secrecy::{ExposeSecret, SecretString};
 
@@ -48,7 +48,11 @@ pub fn hash_password(
     password: &SecretString,
 ) -> Result<SecretString, argon2::password_hash::Error> {
     let salt = SaltString::generate(&mut OsRng);
-    let argon2 = Argon2::default();
+    let argon2 = Argon2::new(
+        Algorithm::Argon2id,
+        Version::V0x13,
+        Params::new(65536, 3, 4, None)?,
+    );
 
     let password_hash = argon2.hash_password(password.expose_secret().as_bytes(), &salt)?;
     Ok(SecretString::new(password_hash.to_string().into()))
@@ -72,7 +76,16 @@ WHERE user_id = $1
     .await?
     {
         Some(p) => p,
-        None => return Ok(false),
+        None => {
+            // Perform a dummy Argon2 verification to ensure consistent timing,
+            // This mitigates timing attack vulnerabilities.
+            let _ = Argon2::default().verify_password(
+        b"dummy-password",
+        &PasswordHash::new("$argon2id$v=19$m=65536,t=3,p=1$L0VyeFh4eE1vY2tTYWx0$2n9n8cS55tT1cHqv6QH0rN2b2oXKQd0w3g4f4Q2mYw4")
+            .unwrap_or_else(|_| PasswordHash::new("$argon2id$v=19$m=65536,t=3,p=1$c2FsdHNhbHQ$u3b5k5k5k5k5k5k5k5k5k5k5k5k5k5k5k5").unwrap()),
+    );
+            return Ok(false);
+        }
     };
 
     let parsed_hash = match PasswordHash::new(&user_password.password_hash) {
@@ -110,34 +123,35 @@ pub async fn insert_password_reset_token(
     conn: &mut PgConnection,
     user_id: Uuid,
 ) -> ModelResult<Uuid> {
+    let mut tx = conn.begin().await?;
+
     let token = Uuid::new_v4();
 
     //Soft delete possible previous tokens so that only one token is at use at a time
-    sqlx::query!(
+    let _ = sqlx::query!(
         r#"
-UPDATE password_reset_tokens
+   UPDATE password_reset_tokens
 SET deleted_at = NOW()
 WHERE user_id = $1
   AND deleted_at IS NULL
-        "#,
+    "#,
         user_id
     )
-    .execute(&mut *conn)
+    .execute(&mut *tx)
     .await?;
 
-    sqlx::query!(
+    let _record = sqlx::query!(
         r#"
-INSERT INTO password_reset_tokens (
-    token,
-    user_id
-  )
+    INSERT INTO password_reset_tokens (token, user_id)
 VALUES ($1, $2)
-        "#,
+RETURNING token
+    "#,
         token,
         user_id
     )
-    .execute(&mut *conn)
+    .fetch_one(&mut *tx)
     .await?;
+    tx.commit().await?;
 
     Ok(token)
 }
@@ -201,7 +215,8 @@ pub async fn change_user_password(
     password_hash: SecretString,
     tmc_client: &TmcClient,
 ) -> ModelResult<bool> {
-    // Fetch user_id with password_reset_token
+    // 1) Start a transaction and lock the token row
+    let mut tx = conn.begin().await?;
     let record = sqlx::query!(
         r#"
 SELECT user_id
@@ -210,10 +225,11 @@ WHERE token = $1
   AND deleted_at IS NULL
   AND used_at IS NULL
   AND expires_at > NOW()
+FOR UPDATE
         "#,
         token
     )
-    .fetch_optional(&mut *conn)
+    .fetch_optional(&mut *tx)
     .await?;
 
     let user_id = match record {
@@ -221,47 +237,63 @@ WHERE token = $1
         None => return Ok(false),
     };
 
-    // Check if the user already has a password stored in the database
-    let has_existing_password = sqlx::query!(
+    // Check if the user has an existing password
+    let _has_existing_password = sqlx::query!(
         r#"
 SELECT *
 FROM user_passwords
 WHERE user_id = $1
-    "#,
+AND deleted_at IS NULL
+        "#,
         user_id
     )
-    .fetch_optional(&mut *conn)
+    .fetch_optional(&mut *tx)
     .await?;
 
-    // Upsert the new password
-    let upserted = upsert_user_password(conn, user_id, password_hash).await?;
+    // Upsert the new password inside the transaction
+    let upserted = upsert_user_password(&mut *tx, user_id, password_hash).await?;
 
     if upserted {
-        // Mark the password reset token as used
-        mark_token_used(conn, token).await?;
+        // 2) Mark the token as used inside the same transaction
+        sqlx::query!(
+            r#"
+UPDATE password_reset_tokens
+SET used_at = NOW(),
+  deleted_at = NOW()
+WHERE token = $1
+  AND deleted_at IS NULL
+  AND used_at IS NULL
+            "#,
+            token
+        )
+        .execute(&mut *tx)
+        .await?;
 
-        // If the user previously did not have a password, notify TMC that the password is now managed by courses.mooc.fi
-        if has_existing_password.is_none() {
-            let user = get_by_id(&mut *conn, user_id).await?;
-            if let Some(upstream_id) = user.upstream_id {
-                if let Err(e) = tmc_client
-                    .set_user_password_managed_by_courses_mooc_fi(
-                        upstream_id.to_string(),
-                        user.id.to_string(),
-                    )
-                    .await
-                {
-                    warn!(
-                        "Failed to notify TMC that users password is saved in courses.mooc.fi: {:?}",
-                        e
-                    );
-                }
-            } else {
-                warn!("User has no upstream_id; skipping TMC notification");
+        // Fetch user inside tx to decide but call TMC after commit
+        let user = get_by_id(&mut *tx, user_id).await?;
+        if let Some(upstream_id) = user.upstream_id {
+            // 3) Commit before making network call
+            tx.commit().await?;
+
+            if let Err(e) = tmc_client
+                .set_user_password_managed_by_courses_mooc_fi(upstream_id.to_string(), user_id)
+                .await
+            {
+                warn!(
+                    "Failed to notify TMC about password ownership change: {:?}",
+                    e
+                );
             }
+            return Ok(true);
+        } else {
+            tx.commit().await?;
+            warn!("User has no upstream_id; skipping TMC notification");
+            return Ok(true);
         }
     }
 
+    // Commit if we didn't early return above
+    tx.commit().await?;
     Ok(true)
 }
 

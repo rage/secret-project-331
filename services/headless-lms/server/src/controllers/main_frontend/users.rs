@@ -184,7 +184,7 @@ pub async fn send_reset_password_email(
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
-    let email = &payload.email;
+    let email = &payload.email.trim().to_lowercase();
     let language = &payload.language;
 
     let reset_template = models::email_templates::get_generic_email_template_by_name_and_language(
@@ -192,7 +192,8 @@ pub async fn send_reset_password_email(
         "reset-password-email",
         language,
     )
-    .await?;
+    .await
+    .expect("Failed to fetch reset password email template");
 
     let user = match models::users::get_by_email(&mut conn, email).await {
         Ok(user) => Some(user),
@@ -229,19 +230,27 @@ pub async fn send_reset_password_email(
     token.authorized_ok(web::Json(true))
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ResetPasswordTokenPayload {
+    pub token: String,
+}
+
 #[instrument(skip(pool))]
 pub async fn reset_password_token_status(
     pool: web::Data<PgPool>,
-    password_token: web::Path<String>,
+    payload: web::Json<ResetPasswordTokenPayload>,
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
-    let password_token = Uuid::parse_str(&password_token)
-        .map_err(|e| anyhow::anyhow!("Invalid UUID format for password_token: {}", e))?;
+    let password_token = match Uuid::parse_str(&payload.token) {
+        Ok(u) => u,
+        Err(_) => return token.authorized_ok(web::Json(false)),
+    };
 
     let res =
         models::user_passwords::is_reset_password_token_valid(&mut conn, &password_token).await?;
+
     token.authorized_ok(web::Json(res))
 }
 
@@ -306,8 +315,8 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         web::get().to(get_user_reset_exercise_logs),
     )
     .route(
-        "/reset-password-token-status/{token}",
-        web::get().to(reset_password_token_status),
+        "/reset-password-token-status",
+        web::post().to(reset_password_token_status),
     )
     .route("/change-password", web::post().to(change_user_password));
 }

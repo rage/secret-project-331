@@ -61,8 +61,8 @@ export const sendResetPasswordLink = async (email: string, language: string): Pr
 }
 
 export const fetchResetPasswordTokenStatus = async (token: string): Promise<boolean> => {
-  const response = await mainFrontendClient.get(`/users/reset-password-token-status/${token}`)
-  return validateResponse(response, isBoolean)
+  const res = await mainFrontendClient.post(`/users/reset-password-token-status`, { token })
+  return validateResponse(res, isBoolean)
 }
 
 export const postPasswordChange = async (token: string, new_password: string): Promise<boolean> => {

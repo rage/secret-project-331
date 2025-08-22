@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n    INSERT INTO password_reset_tokens (token, user_id)\nVALUES ($1, $2)\nRETURNING token\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "token",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Uuid"]
+    },
+    "nullable": [false]
+  },
+  "hash": "e92e9a8685a641b4f82a2614456a6d704222b4b51849f6cacf163ef5920c7bc3"
+}

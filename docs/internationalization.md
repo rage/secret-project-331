@@ -28,7 +28,7 @@ To use the t function in a JSX context, type `tj`.
 Open a terminal in shared-module and run:
 
 ```bash
-npm run watch
+npm run sync
 ```
 
 To keep changes to the translation files automatically synchronized with the different microservices.

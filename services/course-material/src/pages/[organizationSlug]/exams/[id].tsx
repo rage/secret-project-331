@@ -166,7 +166,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
                   text={
                     exam.data.starts_at
                       ? t("exam-can-be-started-after", {
-                          "starts-at": exam.data.starts_at.toLocaleString(),
+                          "starts-at": humanReadableDateTime(exam.data.starts_at, i18n.language),
                         })
                       : t("exam-no-start-time")
                   }
@@ -180,7 +180,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
                   text={
                     exam.data.ends_at
                       ? t("exam-submissions-not-accepted-after", {
-                          "ends-at": exam.data.ends_at.toLocaleString(),
+                          "ends-at": humanReadableDateTime(exam.data.ends_at, i18n.language),
                         })
                       : t("exam-no-end-time")
                   }
@@ -237,7 +237,11 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     return (
       <>
         {examInfo}
-        <div>{t("exam-time-up", { "ends-at": humanReadableDateTime(exam.data.ends_at) })}</div>
+        <div>
+          {t("exam-time-up", {
+            "ends-at": humanReadableDateTime(exam.data.ends_at, i18n.language),
+          })}
+        </div>
       </>
     )
   }

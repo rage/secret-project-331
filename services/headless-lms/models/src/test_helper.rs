@@ -150,7 +150,7 @@ macro_rules! insert_data {
             .map(char::from)
             .collect::<String>();
         let $org =
-            $crate::organizations::insert($tx.as_mut(), $crate::PKeyPolicy::Generate, "", &rs, Some(""))
+            $crate::organizations::insert($tx.as_mut(), $crate::PKeyPolicy::Generate, "", &rs, None)
                 .await
                 .unwrap();
     };

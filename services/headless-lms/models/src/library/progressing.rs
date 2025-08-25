@@ -1062,7 +1062,7 @@ mod tests {
                 tx.as_mut(),
                 user,
                 exercise_2,
-                Some(instance.id),
+                Some(course),
                 None,
             )
             .await
@@ -1126,7 +1126,7 @@ mod tests {
             tx.as_mut(),
             user,
             exercise,
-            Some(instance.id),
+            Some(course),
             None,
         )
         .await

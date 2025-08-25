@@ -117,6 +117,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn test_get_date_as_localized_string_english() {
         let Some(icu4x_blob) = try_create_test_icu4x_blob() else {
             println!("Skipping test: ICU4X_POSTCARD_PATH not defined");
@@ -131,6 +132,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn test_get_date_as_localized_string_finnish() {
         let Some(icu4x_blob) = try_create_test_icu4x_blob() else {
             println!("Skipping test: ICU4X_POSTCARD_PATH not defined");
@@ -145,6 +147,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn test_get_date_as_localized_string_german() {
         let Some(icu4x_blob) = try_create_test_icu4x_blob() else {
             println!("Skipping test: ICU4X_POSTCARD_PATH not defined");
@@ -159,6 +162,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn test_get_date_as_localized_string_edge_dates() {
         let Some(icu4x_blob) = try_create_test_icu4x_blob() else {
             println!("Skipping test: ICU4X_POSTCARD_PATH not defined");

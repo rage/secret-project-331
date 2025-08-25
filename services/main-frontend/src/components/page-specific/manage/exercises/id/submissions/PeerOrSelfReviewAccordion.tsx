@@ -12,7 +12,7 @@ import LikertScale from "@/shared-module/common/components/PeerReview/LikertScal
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { baseTheme } from "@/shared-module/common/styles"
 
-export interface PeerReviewAccordionProps {
+export interface PeerOrSelfReviewAccordionProps {
   peerOrSelfReviews: Array<PeerReviewWithQuestionsAndAnswers>
   title: string
 }
@@ -35,11 +35,18 @@ const QuestionWrapper = styled.div`
   margin: 2rem 1.5rem 0rem;
 `
 
-const PeerReviewAccordion: React.FC<PeerReviewAccordionProps> = ({ peerOrSelfReviews, title }) => {
+const PeerOrSelfReviewAccordion: React.FC<PeerOrSelfReviewAccordionProps> = ({
+  peerOrSelfReviews,
+  title,
+}) => {
   const { t } = useTranslation()
   const userInfo = useUserInfo()
 
-  const mapToAnswer = (question: string, answer: PeerOrSelfReviewAnswer, questionId: string) => {
+  const mapToAnswer = (
+    question: string,
+    answer: PeerOrSelfReviewAnswer,
+    peerOrSelfReviewQuestionId: string,
+  ) => {
     switch (answer.type) {
       case "essay":
         return (
@@ -59,7 +66,7 @@ const PeerReviewAccordion: React.FC<PeerReviewAccordionProps> = ({ peerOrSelfRev
               setSelectedOption={() => {
                 // No-op
               }}
-              questionId={questionId}
+              peerOrSelfReviewQuestionId={peerOrSelfReviewQuestionId}
             />
           </div>
         )
@@ -149,4 +156,4 @@ const PeerReviewAccordion: React.FC<PeerReviewAccordionProps> = ({ peerOrSelfRev
   )
 }
 
-export default PeerReviewAccordion
+export default PeerOrSelfReviewAccordion

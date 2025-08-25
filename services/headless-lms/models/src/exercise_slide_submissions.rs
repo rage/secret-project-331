@@ -543,13 +543,14 @@ LIMIT $2 OFFSET $3
 
     let exercise = exercises::get_by_id(conn, exercise_id).await?;
     let exam_id = exercise.exam_id;
+    let course_id = exercise.course_id;
 
     let user_exercise_states_list =
         user_exercise_states::get_or_create_user_exercise_state_for_users(
             conn,
             &user_ids,
             exercise_id,
-            None,
+            course_id,
             exam_id,
         )
         .await?;

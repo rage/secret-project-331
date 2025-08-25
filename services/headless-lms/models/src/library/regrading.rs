@@ -821,7 +821,7 @@ mod test {
             tx.as_mut(),
             user,
             exercise.id,
-            Some(instance.id),
+            Some(course),
             None,
         )
         .await

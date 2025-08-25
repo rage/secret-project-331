@@ -1,3 +1,4 @@
+import { useRouter } from "next/router"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -30,6 +31,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
       token,
     },
   })
+  const router = useRouter()
 
   const newPassword = watch("new_password")
 
@@ -43,7 +45,12 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
       method: "POST",
       notify: true,
     },
-    {},
+    {
+      onSuccess: () => {
+        // eslint-disable-next-line i18next/no-literal-string
+        router.push("/login?return_to=%2F")
+      },
+    },
   )
 
   return (

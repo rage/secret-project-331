@@ -2,6 +2,8 @@ import { css } from "@emotion/css"
 import React, { useMemo, useRef, useState } from "react"
 import { useHover } from "react-aria"
 
+import { LIGHT_GREEN } from "../shared/styles"
+
 import ChatbotReferenceList from "./ChatbotReferenceList"
 import RenderedMessage, { MessageRenderType } from "./RenderedMessage"
 import ThinkingIndicator from "./ThinkingIndicator"
@@ -11,6 +13,8 @@ import { baseTheme } from "@/shared-module/common/styles"
 
 // captures citations
 export const MATCH_CITATIONS_REGEX = /\[[\w]*?([\d]+)\]/g
+// matches citations and a starting whitespace that should be removed
+export const REMOVE_CITATIONS_REGEX = /\s*?\[[\w]*?[\d]+\]/g
 
 export const renumberFilterCitations = (
   message: string,
@@ -30,7 +34,7 @@ export const renumberFilterCitations = (
   let filteredCitations: ChatbotConversationMessageCitation[] = []
   let citationNumberingMap = new Map()
 
-  uniqueCitations.map((citN, idx) => {
+  uniqueCitations.forEach((citN, idx) => {
     // renumbers the uniqueCitations to be ordered,
     // saves the renumbering in a map and filters the citations
     idx += 1
@@ -39,7 +43,6 @@ export const renumberFilterCitations = (
       citationNumberingMap.set(cit.citation_number, idx)
       filteredCitations.push(cit)
     }
-    return idx
   })
 
   return { filteredCitations, citedDocs, citationNumberingMap }
@@ -63,12 +66,12 @@ const bubbleStyle = (isFromChatbot: boolean) => css`
     ? `
       margin-right: 2rem;
       align-self: flex-start;
-      background-color: ${baseTheme.colors.gray[100]};
+      background-color: ${LIGHT_GREEN};
     `
     : `
       margin-left: 2rem;
       align-self: flex-end;
-      border: 2px solid ${baseTheme.colors.gray[200]};
+      border: 2px solid ${baseTheme.colors.green[200]};
       background-color: #ffffff;
     `}
 `

@@ -4,8 +4,8 @@ import { ContentToken, Options, Rule, StateInline } from "remarkable/lib"
 let md: Remarkable | null = null
 
 const chatbotCitationParser = (state: StateInline) => {
-  // parser for parsing chatbot citations from text.
-  // matches [docn] where n is a digit
+  /** parser for parsing chatbot citations from text.
+  matches `[docn]` where n is a digit 0-9 */
   let citationTag = /^\[doc\d\]$/g
 
   let marker = ""
@@ -18,7 +18,7 @@ const chatbotCitationParser = (state: StateInline) => {
     marker = marker.concat(state.src.charAt(newPos))
   }
 
-  // check if the current pos starts a string that matches our tag [docn]
+  // check if the current pos starts a string that matches our tag `[docn]`
   if (!marker.match(citationTag)) {
     return false
   }
@@ -41,13 +41,12 @@ const chatbotCitationRenderer: Rule = (
   _options: Options | undefined,
 ) => {
   // rendering rule to render chatbot citations.
-  // tokens contains the surrounding tokens and this specific token. tokens are created
-  // in the parser and contain the marker as token.content
+  // `tokens` contains some surrounding tokens and this specific token at `idx`.
+  // tokens are created in the parser and contain the marker as token.content
 
-  // the content is the marker, so:  [docn]
-  // the doc number is the 4th index
+  // the content is the marker, so: `[docn]`
+  // the doc number n is at the 4th index
   const citationN = tokens[idx].content.charAt(4)
-  // !!!!!!!!!!!! not unique across all messages, problem?
   let htmlString = `<span data-chatbot-citation="true" data-citation-n="${citationN}"></span>`
   return htmlString
 }

@@ -4,6 +4,8 @@ import React, { useId } from "react"
 import { useHover } from "react-aria"
 import { useTranslation } from "react-i18next"
 
+import { LIGHT_GREEN } from "../shared/styles"
+
 import { citationId } from "./CitationButton"
 
 import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
@@ -17,7 +19,7 @@ let md = getRemarkable()
 
 const referenceStyle = css`
   margin: 4px 4px 4px 0;
-  background-color: ${baseTheme.colors.gray[200]};
+  background-color: ${baseTheme.colors.green[200]};
   padding: 2px 7px 2px 7px;
   border-radius: 10px;
   font-size: 90%;
@@ -64,10 +66,10 @@ const referenceListStyle = (expanded: boolean, referenceList: string) => css`
 const expandButtonStyle = css`
   flex: 1;
   cursor: pointer;
-  background-color: ${baseTheme.colors.gray[100]};
+  background-color: ${LIGHT_GREEN};
   border: none;
   margin: 0 0.5rem;
-  color: ${baseTheme.colors.gray[400]};
+  color: ${baseTheme.colors.green[400]};
   transition: filter 0.2s;
 
   &:hover {

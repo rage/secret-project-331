@@ -4,7 +4,7 @@ import React, { DOMAttributes } from "react"
 import { baseTheme } from "@/shared-module/common/styles"
 
 const buttonStyle = (clicked: boolean) => css`
-  ${clicked && `box-shadow: inset 0 0 0 2px ${baseTheme.colors.gray[400]};`}
+  ${clicked && `box-shadow: inset 0 0 0 2px ${baseTheme.colors.green[400]};`}
 `
 
 export const citationId = (cit_n: string, idx: string) => {
@@ -34,8 +34,8 @@ const CitationButton: React.FC<CitationButtonProps> = ({
     <button
       className={buttonStyle(citationButtonClicked && currentRefId === citationId(citN, idx))}
       id={citationId(citN, idx)}
-      {...hoverCitationProps}
       onClick={(e) => handleClick(e)}
+      {...hoverCitationProps}
     >
       {citN}
     </button>

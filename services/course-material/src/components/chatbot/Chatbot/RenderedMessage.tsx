@@ -1,15 +1,23 @@
 import { css } from "@emotion/css"
-import React, { DOMAttributes, memo, ReactPortal, useEffect, useRef, useState } from "react"
+import React, {
+  DOMAttributes,
+  memo,
+  ReactPortal,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react"
 import { createPortal } from "react-dom"
 
 import CitationButton from "./CitationButton"
+import { REMOVE_CITATIONS_REGEX } from "./MessageBubble"
 
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 import { getRemarkable } from "@/utils/getRemarkable"
 import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
 
-// matches citations and a starting whitespace that should be removed
-export const REMOVE_CITATIONS_REGEX = /\s*?\[[\w]*?[\d]+\]/g
+const PORTAL_PLACEHOLDER_QUERY_SELECTOR = "[data-chatbot-citation='true']"
 
 const md = getRemarkable()
 
@@ -48,7 +56,7 @@ const messageStyle = css`
     be used otherwise in chatbot text*/
     border: none;
     cursor: default;
-    background-color: ${baseTheme.colors.gray[200]};
+    background-color: ${baseTheme.colors.green[200]};
     font-family: ${monospaceFont};
     padding: 0 0.525em 0 0.525em;
     border-radius: 1em;
@@ -96,15 +104,13 @@ interface MessageWithPortalsComponentProps {
 }
 
 const MessageWithPortalsComponent: React.FC<MessageWithPortalsComponentProps> = memo(({ msg }) => {
-  /** memo the rendered message with the portal targets so that it won't be rerendered when the
-   portals are created */
+  /** memo the rendered message that has the portal targets so that it won't be
+   rerendered when the portals are created */
   return (
-    <>
-      <span
-        className={messageStyle}
-        dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(msg) }}
-      ></span>
-    </>
+    <span
+      className={messageStyle}
+      dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(msg) }}
+    ></span>
   )
 })
 
@@ -122,9 +128,11 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
 }) => {
   // create a ref for this component so that we don't query the whole document later
   const thisNode = useRef<HTMLElement>(null)
+  // the message needs to be rendered before we can put portals in it, so this state is
+  // set as true only when the initial render is complete and citations shouls be shown
   const [readyForPortal, setReadyForPortal] = useState(false)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (renderOption == MessageRenderType.ChatbotWithCitations) {
       setReadyForPortal(true)
     } else {
@@ -132,48 +140,65 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
     }
   }, [renderOption])
 
+  let portals: ReactPortal[] | null = useMemo(() => {
+    if (!readyForPortal) {
+      return null
+    }
+    return Array.from(
+      thisNode.current?.querySelectorAll(PORTAL_PLACEHOLDER_QUERY_SELECTOR) ?? [],
+    ).map((node, idx) => {
+      // the citedDocs list contains the citation numbers in the order of appearance in the msg
+      // the nodelist contains the citations in the order of appearance in the msg
+      // the same idx can be used
+      let citN = (citationNumberingMap.get(citedDocs[idx]) ?? "").toString()
+
+      return createPortal(
+        <CitationButton
+          citN={citN}
+          idx={idx.toString()}
+          citationButtonClicked={citationButtonClicked}
+          hoverCitationProps={hoverCitationProps}
+          currentRefId={currentRefId}
+          handleClick={handleClick}
+        />,
+        node,
+        idx,
+      )
+    })
+  }, [
+    citationButtonClicked,
+    citationNumberingMap,
+    citedDocs,
+    currentRefId,
+    handleClick,
+    hoverCitationProps,
+    readyForPortal,
+  ])
+
+  let renderedMessage = useMemo(() => {
+    switch (renderOption) {
+      case MessageRenderType.User:
+        return message
+      case MessageRenderType.ChatbotNoCitations:
+        return md.render(message.replace(REMOVE_CITATIONS_REGEX, "").trim())
+      case MessageRenderType.ChatbotWithCitations:
+        return md.render(message.trim())
+      default:
+        throw new Error("unexpected MessageRenderType")
+    }
+  }, [message, renderOption])
+
   if (renderOption === MessageRenderType.User) {
-    return <span className={messageStyle}>{message}</span>
+    return <span className={messageStyle}>{renderedMessage}</span>
   }
 
   if (renderOption === MessageRenderType.ChatbotNoCitations) {
-    let renderedMessage = message.replace(REMOVE_CITATIONS_REGEX, "")
-    renderedMessage = md.render(renderedMessage.trim()).trim().slice(3, -4)
     return (
       <span
         className={messageStyle}
         dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(renderedMessage) }}
       ></span>
     )
-  }
-
-  let renderedMessage = md.render(message.trim())
-  console.log("rendering renderedMessage")
-  let portals: ReactPortal[] = []
-  if (readyForPortal) {
-    // eslint-disable-next-line i18next/no-literal-string
-    thisNode.current?.querySelectorAll("[data-chatbot-citation='true']").forEach((node, idx) => {
-      console.log("elemnt found", node)
-      // the citedDocs list contains the citation numbers in the order of appearance in the msg
-      // the nodelist contains the citations in the order of appearance in the msg
-      // the same idx can be used
-      let citN = (citationNumberingMap.get(citedDocs[idx]) ?? "").toString()
-
-      portals.push(
-        createPortal(
-          <CitationButton
-            citN={citN}
-            idx={idx.toString()}
-            citationButtonClicked={citationButtonClicked}
-            hoverCitationProps={hoverCitationProps}
-            currentRefId={currentRefId}
-            handleClick={handleClick}
-          />,
-          node,
-          idx,
-        ),
-      )
-    })
   }
 
   return (

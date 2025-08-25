@@ -128,6 +128,7 @@ async fn gets_organizations() {
         "org",
         "slug",
         Some("descr"),
+        false,
     )
     .await
     .unwrap();

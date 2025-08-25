@@ -78,6 +78,7 @@ pub async fn seed_organization_uh_cs(
         "University of Helsinki, Department of Computer Science",
         "uh-cs",
         Some("Organization for Computer Science students and the rest of the world who wish to learn the basics in Computer Science, programming and software development."),
+        false,
     )
     .await?;
 

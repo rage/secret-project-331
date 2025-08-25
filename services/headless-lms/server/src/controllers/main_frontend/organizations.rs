@@ -402,6 +402,7 @@ async fn create_organization(
         &payload.name,
         &payload.slug,
         None,
+        payload.hidden,
     )
     .await
     {
@@ -418,17 +419,6 @@ async fn create_organization(
             return Err(err.into());
         }
     };
-
-    if payload.hidden {
-        models::organizations::update_name_and_hidden(
-            &mut tx,
-            org_id,
-            &payload.name,
-            true,
-            &payload.slug,
-        )
-        .await?;
-    }
 
     tx.commit().await?;
 

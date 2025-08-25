@@ -1155,6 +1155,7 @@ mod test {
             "auth",
             "auth",
             Some("auth"),
+            false,
         )
         .await
         .unwrap();

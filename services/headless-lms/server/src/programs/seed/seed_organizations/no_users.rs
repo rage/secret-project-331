@@ -14,6 +14,7 @@ pub async fn seed_organization_no_users(db_pool: Pool<Postgres>) -> anyhow::Resu
         "No Users Organization",
         "no-users-org",
         Some("This is a minimal test organization without any users or content."),
+        false,
     )
     .await?;
 

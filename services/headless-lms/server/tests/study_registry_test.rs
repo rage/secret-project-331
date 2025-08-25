@@ -139,6 +139,7 @@ async fn insert_data(
         "",
         "stream-org",
         None,
+        false,
     )
     .await
     .unwrap();

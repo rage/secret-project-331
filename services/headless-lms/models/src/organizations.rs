@@ -14,6 +14,7 @@ pub struct DatabaseOrganization {
     pub description: Option<String>,
     pub organization_image_path: Option<String>,
     pub deleted_at: Option<DateTime<Utc>>,
+    pub hidden: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -49,7 +50,7 @@ impl Organization {
             deleted_at: organization.deleted_at,
             organization_image_url,
             description: organization.description,
-            hidden: organization.deleted_at.is_some(),
+            hidden: organization.hidden,
         }
     }
 }
@@ -60,17 +61,19 @@ pub async fn insert(
     name: &str,
     slug: &str,
     description: Option<&str>,
+    hidden: bool,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-        INSERT INTO organizations (id, name, slug, description)
-        VALUES ($1, $2, $3, $4)
+        INSERT INTO organizations (id, name, slug, description, hidden)
+        VALUES ($1, $2, $3, $4, $5)
         RETURNING id
         ",
         pkey_policy.into_uuid(),
         name,
         slug,
-        description
+        description,
+        hidden,
     )
     .fetch_one(conn)
     .await?;
@@ -158,6 +161,7 @@ mod tests {
             "org",
             "slug",
             Some("description"),
+            false,
         )
         .await
         .unwrap();
@@ -175,12 +179,12 @@ pub async fn update_name_and_hidden(
 ) -> ModelResult<()> {
     sqlx::query!(
         r#"
-    UPDATE organizations
-    SET name = $1,
-        deleted_at = CASE WHEN $2 THEN NOW() ELSE NULL END,
-        slug = $3
-    WHERE id = $4
-    "#,
+        UPDATE organizations
+        SET name = $1,
+            hidden = $2,
+            slug = $3
+        WHERE id = $4
+        "#,
         name,
         hidden,
         slug,

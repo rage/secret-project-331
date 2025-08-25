@@ -66,6 +66,7 @@ pub async fn seed_organization_uh_mathstat(
         "University of Helsinki, Department of Mathematics and Statistics",
         "uh-mathstat",
         Some("Organization for Mathematics and Statistics courses. This organization creates courses that do require prior experience in mathematics, such as integration and induction."),
+        false,
     )
     .await?;
 

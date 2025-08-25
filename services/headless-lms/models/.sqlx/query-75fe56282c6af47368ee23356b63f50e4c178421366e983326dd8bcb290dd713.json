@@ -95,7 +95,10 @@
       }
     ],
     "parameters": {
-      "Left": ["UuidArray", "Uuid"]
+      "Left": [
+        "UuidArray",
+        "Uuid"
+      ]
     },
     "nullable": [
       false,

@@ -9,6 +9,7 @@ use models::{
     pages::{self, NewPage},
 };
 
+use crate::controllers::auth::is_user_global_admin;
 use crate::domain::authorization::{Action as Act, Resource as Res};
 use crate::{
     controllers::helpers::file_uploading::upload_image_for_organization,
@@ -33,12 +34,8 @@ async fn get_all_organizations(
 ) -> ControllerResult<web::Json<Vec<Organization>>> {
     let mut conn = pool.acquire().await?;
 
-    // Determine if the user is an admin
     let is_admin = if let Some(user) = user {
-        let roles = models::roles::get_roles(&mut conn, user.id).await?;
-        roles
-            .iter()
-            .any(|r| r.role == models::roles::UserRole::Admin && r.is_global)
+        is_user_global_admin(&mut conn, user.id).await?
     } else {
         false
     };

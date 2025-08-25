@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 import axios from "axios"
-import { useRouter } from "next/router"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -21,7 +20,7 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   const [showCreatePopup, setShowCreatePopup] = React.useState(false)
-  const router = useRouter()
+  const { refetch } = useAllOrganizationsQuery()
 
   const allOrganizationsQuery = useAllOrganizationsQuery()
 
@@ -41,9 +40,7 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
     {
       onSuccess: () => {
         setShowCreatePopup(false)
-        setTimeout(() => {
-          router.reload()
-        }, 1500)
+        refetch()
       },
     },
   )

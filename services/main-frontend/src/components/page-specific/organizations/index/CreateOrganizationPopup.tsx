@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import React from "react"
+import React, { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -40,7 +40,7 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
   })
 
   // When popup is closed, reset the form for next open
-  React.useEffect(() => {
+  useEffect(() => {
     if (!show) {
       reset()
     }
@@ -82,7 +82,6 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
       <form onSubmit={submitForm}>
         <TextField
           {...register("name", { required: true })}
-          id="org-name"
           label={t("label-organization-name")}
           error={errors.name ? t("validation-required") : undefined}
         />
@@ -101,7 +100,6 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
 
         <TextField
           {...register("slug", { required: true })}
-          id="org-slug"
           label={t("label-slug")}
           error={errors.slug ? t("validation-required") : undefined}
         />

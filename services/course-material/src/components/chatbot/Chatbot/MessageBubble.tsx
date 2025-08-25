@@ -16,38 +16,33 @@ export const renumberFilterCitations = (
   message: string,
   citations: ChatbotConversationMessageCitation[],
 ) => {
-  // change the citation_number of the actually cited citations so that
-  // the first citation that appears in the msg is 1, the 2nd is 2, etc.
-  // and filter out citations that were not cited in the msg.
+  /** change the citation_number of the actually cited citations so that
+  the first citation that appears in the msg is 1, the 2nd is 2, etc.
+  and filter out citations that were not cited in the msg. */
+
   // Set preserves the order of the unique items in the array
   const citedDocs = Array.from(message.matchAll(MATCH_CITATIONS_REGEX), (arr, _) =>
     parseInt(arr[1]),
   )
-  //console.log(message)
 
   let citedDocsSet = new Set(citedDocs)
   let uniqueCitations = [...citedDocsSet]
-  let renumberedFilteredCitations: ChatbotConversationMessageCitation[] = []
-
-  /*   console.log("citations,", citations)*/
-  //console.log("citedDocs", citedDocs)
+  let filteredCitations: ChatbotConversationMessageCitation[] = []
+  let citationNumberingMap = new Map()
 
   uniqueCitations.map((citN, idx) => {
-    // renumbers the uniqueCitations to be ordered
-    // and creates the renumberedFilteredCitations array
+    // renumbers the uniqueCitations to be ordered,
+    // saves the renumbering in a map and filters the citations
     idx += 1
     let cit = citations.find((c) => c.citation_number === citN)
     if (cit) {
-      let modifiedCit = { ...cit }
-      // TODO temporarily no renumberinh
-      //modifiedCit.citation_number = idx
-      renumberedFilteredCitations.push(modifiedCit)
+      citationNumberingMap.set(cit.citation_number, idx)
+      filteredCitations.push(cit)
     }
     return idx
   })
-  //console.log(renumberedFilteredCitations)
 
-  return { filteredCitations: renumberedFilteredCitations, citedDocs }
+  return { filteredCitations, citedDocs, citationNumberingMap }
 }
 
 interface MessageBubbleProps {
@@ -100,8 +95,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     },
   })
 
-  const [processedMessage, processedCitations] = useMemo(() => {
-    const { filteredCitations, citedDocs } = renumberFilterCitations(message, citations ?? [])
+  const [processedMessage, processedCitations, citationNumberingMap] = useMemo(() => {
+    const { filteredCitations, citedDocs, citationNumberingMap } = renumberFilterCitations(
+      message,
+      citations ?? [],
+    )
 
     let renderOption = !isFromChatbot
       ? MessageRenderType.User
@@ -116,6 +114,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         currentRefId={triggerRef.current?.id}
         message={message}
         citedDocs={citedDocs}
+        citationNumberingMap={citationNumberingMap}
         handleClick={(e) => {
           setCitationButtonClicked(true)
           triggerRef.current = e.currentTarget
@@ -124,7 +123,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       />
     )
 
-    return [renderedMessage, filteredCitations]
+    return [renderedMessage, filteredCitations, citationNumberingMap]
   }, [message, citations, isFromChatbot, citationsOpen, hoverCitationProps, citationButtonClicked])
 
   return (
@@ -144,6 +143,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           ></hr>
           <ChatbotReferenceList
             citations={processedCitations}
+            citationNumberingMap={citationNumberingMap}
             triggerRef={triggerRef}
             citationsOpen={citationsOpen}
             citationButtonClicked={citationButtonClicked}

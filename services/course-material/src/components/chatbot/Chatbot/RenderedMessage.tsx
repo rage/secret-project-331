@@ -15,6 +15,12 @@ const md = getRemarkable()
 
 const messageStyle = css`
   flex: 1;
+  & > * {
+    margin: 0rem auto 0.85em;
+  }
+  *:last-child {
+    margin: 0;
+  }
   table {
     margin: 20px 0 20px 0;
     border-collapse: collapse;
@@ -66,8 +72,6 @@ const messageStyle = css`
   h6 {
     font-size: small;
   }
-
-  white-space: pre-wrap;
 `
 
 export enum MessageRenderType {
@@ -80,6 +84,7 @@ interface RenderedMessageProps {
   renderOption: MessageRenderType
   message: string
   citedDocs: number[]
+  citationNumberingMap: Map<number, number>
   citationButtonClicked: boolean
   currentRefId: string | undefined
   handleClick: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void
@@ -91,10 +96,8 @@ interface MessageWithPortalsComponentProps {
 }
 
 const MessageWithPortalsComponent: React.FC<MessageWithPortalsComponentProps> = memo(({ msg }) => {
-  console.log("rendering html string")
-  let el = document.getElementById("chatbot-citation-1")
-  console.log(el)
-
+  /** memo the rendered message with the portal targets so that it won't be rerendered when the
+   portals are created */
   return (
     <>
       <span
@@ -111,6 +114,7 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
   renderOption,
   message,
   citedDocs,
+  citationNumberingMap,
   citationButtonClicked,
   currentRefId,
   handleClick,
@@ -153,8 +157,7 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
       // the citedDocs list contains the citation numbers in the order of appearance in the msg
       // the nodelist contains the citations in the order of appearance in the msg
       // the same idx can be used
-      // TODO ccreate a map for the orig. cit ns and the renumbered for securely mapping them
-      let citN = citedDocs[idx].toString()
+      let citN = (citationNumberingMap.get(citedDocs[idx]) ?? "").toString()
 
       portals.push(
         createPortal(

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO organizations (id, name, slug, description)\nVALUES ($1, $2, $3, $4)\nRETURNING id\n",
+  "query": "\n        INSERT INTO organizations (id, name, slug, description)\n        VALUES ($1, $2, $3, $4)\n        RETURNING id\n        ",
   "describe": {
     "columns": [
       {
@@ -14,5 +14,5 @@
     },
     "nullable": [false]
   },
-  "hash": "5e92276cd35f5b56591706b2e6b9e5229aba70df37b21a2654298bf9a0caf783"
+  "hash": "f1fe4da80c3c083675dcc3fd85003a3c6f45716b5abdab507ec1d38a8c66db7a"
 }

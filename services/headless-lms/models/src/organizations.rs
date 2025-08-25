@@ -27,6 +27,7 @@ pub struct Organization {
     pub description: Option<String>,
     pub organization_image_url: Option<String>,
     pub deleted_at: Option<DateTime<Utc>>,
+    pub hidden: bool,
 }
 
 impl Organization {
@@ -48,6 +49,7 @@ impl Organization {
             deleted_at: organization.deleted_at,
             organization_image_url,
             description: organization.description,
+            hidden: organization.deleted_at.is_some(),
         }
     }
 }
@@ -57,14 +59,14 @@ pub async fn insert(
     pkey_policy: PKeyPolicy<Uuid>,
     name: &str,
     slug: &str,
-    description: &str,
+    description: Option<&str>,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO organizations (id, name, slug, description)
-VALUES ($1, $2, $3, $4)
-RETURNING id
-",
+        INSERT INTO organizations (id, name, slug, description)
+        VALUES ($1, $2, $3, $4)
+        RETURNING id
+        ",
         pkey_policy.into_uuid(),
         name,
         slug,
@@ -155,11 +157,57 @@ mod tests {
             PKeyPolicy::Fixed(Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap()),
             "org",
             "slug",
-            "description",
+            Some("description"),
         )
         .await
         .unwrap();
         let orgs_after = all_organizations(tx.as_mut()).await.unwrap();
         assert_eq!(orgs_before.len() + 1, orgs_after.len());
     }
+}
+
+pub async fn update_name_and_hidden(
+    conn: &mut PgConnection,
+    id: Uuid,
+    name: &str,
+    hidden: bool,
+    slug: &str,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+    UPDATE organizations
+    SET name = $1,
+        deleted_at = CASE WHEN $2 THEN NOW() ELSE NULL END,
+        slug = $3
+    WHERE id = $4
+    "#,
+        name,
+        hidden,
+        slug,
+        id
+    )
+    .execute(conn)
+    .await?;
+
+    Ok(())
+}
+
+pub async fn soft_delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+    sqlx::query("UPDATE organizations SET deleted_at = now() WHERE id = $1")
+        .bind(id)
+        .execute(conn)
+        .await?;
+    Ok(())
+}
+
+pub async fn all_organizations_include_hidden(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<DatabaseOrganization>> {
+    let organizations = sqlx::query_as!(
+        DatabaseOrganization,
+        "SELECT * FROM organizations ORDER BY name;"
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(organizations)
 }

@@ -148,7 +148,6 @@ fn insert_reset_password_link_placeholders(
         .collect()
 }
 
-#[tokio::main]
 pub async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt().init();
     dotenv::dotenv().ok();

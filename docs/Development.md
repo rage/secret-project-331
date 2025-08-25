@@ -305,7 +305,7 @@ bin/detect-dev-env-problems
 
 ## Developer Resources
 
-You can find a lot of useful information in [Index](./index.md)
+You can find a lot of useful information in [Index](https://github.com/rage/secret-project-331/tree/master/docs#readme)
 
 ### Troubleshoot:
 

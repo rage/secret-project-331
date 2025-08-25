@@ -13,6 +13,11 @@ CREATE TABLE password_reset_tokens (
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON password_reset_tokens FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
+CREATE UNIQUE INDEX IF NOT EXISTS unique_active_password_reset_tokens_user ON password_reset_tokens(user_id)
+WHERE deleted_at IS NULL
+  AND used_at IS NULL;
+
+
 COMMENT ON TABLE password_reset_tokens IS 'Stores one-time password reset tokens with expiration and usage tracking.';
 COMMENT ON COLUMN password_reset_tokens.id IS 'A unique identifier for the resetting user password';
 COMMENT ON COLUMN password_reset_tokens.token IS 'Token sent to user for resetting their password.';
@@ -28,6 +33,9 @@ ALTER COLUMN course_instance_id DROP NOT NULL;
 
 ALTER TABLE email_templates
 ADD COLUMN language VARCHAR(255);
+
+CREATE UNIQUE INDEX IF NOT EXISTS unique_email_templates_name_language_general ON email_templates(name, language)
+WHERE course_instance_id IS NULL;
 
 COMMENT ON COLUMN email_templates.course_instance_id IS 'If not null the template is considered course instance specific. If null, the template is considered general.';
 

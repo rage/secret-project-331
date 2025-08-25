@@ -91,6 +91,11 @@ pub async fn insert_email_template(
         "
 INSERT INTO email_templates (name, course_instance_id, subject, language, content)
 VALUES ($1, $2, $3, $4, $5)
+ON CONFLICT (name, language) WHERE course_instance_id IS NULL
+DO UPDATE SET
+    subject    = EXCLUDED.subject,
+    content    = EXCLUDED.content,
+    updated_at = NOW()
 RETURNING *
 ",
         email_template.name,

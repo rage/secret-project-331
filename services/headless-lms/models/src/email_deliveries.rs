@@ -1,6 +1,5 @@
-use lettre::transport::smtp::Error;
-
 use crate::prelude::*;
+use std::fmt::Display;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct EmailDelivery {
@@ -93,7 +92,7 @@ where id = $1;
 
 pub async fn save_err_to_email(
     email_id: Uuid,
-    err: Error,
+    err: impl Display,
     conn: &mut PgConnection,
 ) -> ModelResult<()> {
     sqlx::query!(

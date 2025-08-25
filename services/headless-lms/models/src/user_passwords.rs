@@ -4,7 +4,7 @@ use argon2::password_hash::{SaltString, rand_core::OsRng};
 use argon2::{Algorithm, Argon2, Params, PasswordHash, PasswordHasher, PasswordVerifier, Version};
 use headless_lms_utils::tmc::TmcClient;
 use secrecy::{ExposeSecret, SecretString};
-
+use std::sync::LazyLock;
 pub struct UserPassword {
     pub user_id: Uuid,
     pub password_hash: SecretString,
@@ -33,7 +33,8 @@ pub async fn upsert_user_password(
 INSERT INTO user_passwords (user_id, password_hash)
 VALUES ($1, $2) ON CONFLICT (user_id) DO
 UPDATE
-SET password_hash = EXCLUDED.password_hash
+SET password_hash = EXCLUDED.password_hash,
+    deleted_at = NULL
         "#,
         user_id,
         password_hash.expose_secret()
@@ -77,13 +78,18 @@ WHERE user_id = $1
     {
         Some(p) => p,
         None => {
-            // Perform a dummy Argon2 verification to ensure consistent timing,
+            // Perform a dummy verify to normalize timing when user has no password row.
             // This mitigates timing attack vulnerabilities.
-            let _ = Argon2::default().verify_password(
-        b"dummy-password",
-        &PasswordHash::new("$argon2id$v=19$m=65536,t=3,p=1$L0VyeFh4eE1vY2tTYWx0$2n9n8cS55tT1cHqv6QH0rN2b2oXKQd0w3g4f4Q2mYw4")
-            .unwrap_or_else(|_| PasswordHash::new("$argon2id$v=19$m=65536,t=3,p=1$c2FsdHNhbHQ$u3b5k5k5k5k5k5k5k5k5k5k5k5k5k5k5k5").unwrap()),
-    );
+            static DUMMY_HASH: LazyLock<String> = LazyLock::new(|| {
+                let salt = SaltString::generate(&mut OsRng);
+                Argon2::default()
+                    .hash_password(b"dummy-password", &salt)
+                    .expect("failed to create dummy hash")
+                    .to_string()
+            });
+
+            let parsed = PasswordHash::new(&DUMMY_HASH).unwrap();
+            let _ = Argon2::default().verify_password(b"dummy-password", &parsed);
             return Ok(false);
         }
     };
@@ -127,7 +133,7 @@ pub async fn insert_password_reset_token(
 
     let token = Uuid::new_v4();
 
-    //Soft delete possible previous tokens so that only one token is at use at a time
+    // Soft delete possible previous tokens so that only one token is at use at a time
     let _ = sqlx::query!(
         r#"
    UPDATE password_reset_tokens
@@ -140,20 +146,22 @@ WHERE user_id = $1
     .execute(&mut *tx)
     .await?;
 
-    let _record = sqlx::query!(
+    // Attempt to insert new token; the unique index ensures no more than one active token per user
+    let record = sqlx::query!(
         r#"
-    INSERT INTO password_reset_tokens (token, user_id)
+      INSERT INTO password_reset_tokens (token, user_id)
 VALUES ($1, $2)
 RETURNING token
-    "#,
+        "#,
         token,
         user_id
     )
     .fetch_one(&mut *tx)
     .await?;
+
     tx.commit().await?;
 
-    Ok(token)
+    Ok(record.token)
 }
 
 pub async fn get_unused_reset_password_token_with_user_id(

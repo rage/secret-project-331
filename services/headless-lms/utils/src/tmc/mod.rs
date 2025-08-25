@@ -212,14 +212,14 @@ impl TmcClient {
     }
 
     pub async fn get_user_from_tmc_with_email(&self, email: String) -> Result<TmcUserInfo> {
-        let url = format!("{}/get_user_with_email", TMC_API_URL);
+        let url = format!("{}/get_user_with_email?email={}", TMC_API_URL, email);
 
         let payload = serde_json::json!({
             "email": email,
         });
 
         let res = self
-            .request_with_headers(reqwest::Method::POST, &url, true, Some(payload))
+            .request_with_headers(reqwest::Method::GET, &url, true, Some(payload))
             .await?;
 
         let user: TmcUserInfo = res

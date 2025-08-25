@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO email_templates (name, course_instance_id, subject, language, content)\nVALUES ($1, $2, $3, $4, $5)\nRETURNING *\n",
+  "query": "\nINSERT INTO email_templates (name, course_instance_id, subject, language, content)\nVALUES ($1, $2, $3, $4, $5)\nON CONFLICT (name, language) WHERE course_instance_id IS NULL\nDO UPDATE SET\n    subject    = EXCLUDED.subject,\n    content    = EXCLUDED.content,\n    updated_at = NOW()\nRETURNING *\n",
   "describe": {
     "columns": [
       {
@@ -64,5 +64,5 @@
     },
     "nullable": [false, false, false, true, true, false, true, true, true, true, true]
   },
-  "hash": "4bf13954e71cfaadf073a8d230cb6420a49738980a3d7dc874dc67f56ded9854"
+  "hash": "4b45252bd4cba1348f9e7159e069b9db12be68b08484349234b7ef837de77453"
 }

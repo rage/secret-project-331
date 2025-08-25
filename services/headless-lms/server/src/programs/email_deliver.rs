@@ -70,8 +70,9 @@ pub async fn send_message(email: Email, mailer: &SmtpTransport, pool: PgPool) ->
                 token_str.token
             ),
             None => {
-                tracing::error!("No reset token found for user {}", email.user_id);
-                return Err(anyhow::anyhow!("No reset token found"));
+                let err = anyhow::anyhow!("No reset token found for user {}", email.user_id);
+                save_err_to_email(email.id, err, &mut conn).await?;
+                return Ok(());
             }
         };
 
@@ -148,12 +149,12 @@ fn insert_reset_password_link_placeholders(
 }
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+pub async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt().init();
     dotenv::dotenv().ok();
     tracing::info!("Email sender starting up...");
 
-    let pool = PgPool::connect(&DB_URL).await?;
+    let pool = PgPool::connect(&DB_URL.to_string()).await?;
     let creds = Credentials::new(SMTP_USER.to_string(), SMTP_PASS.to_string());
     let mailer = SmtpTransport::relay(&SMTP_HOST)?.credentials(creds).build();
 

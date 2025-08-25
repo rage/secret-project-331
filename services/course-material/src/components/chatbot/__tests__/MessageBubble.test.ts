@@ -8,8 +8,10 @@ import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindi
 describe("MessageBubble", () => {
   describe("renumberFilterCitations", () => {
     const exampleChatbotMessage = `Certainly! The Chinese abacus [doc3], known as the "suanpan," dates back to the Han Dynasty, around the 2nd century BCE [doc3]. It features a [dsdsg] bead-and-rod system, typically with two beads on the upper deck [doc1] and five beads on the lower deck per rod [doc5], operating on a decimal system.`
+    const exampleCitedDocs = [3, 3, 1, 5]
 
     const exampleChatbotMessage2 = `Certainly! The Chinese abacus [doc1], known as the "suanpan," dates back to the Han Dynasty, around the 2nd century BCE [doc2]. It features a [dsdsg] bead-and-rod system, typically with two beads on the upper deck [doc3] and five beads on the lower deck per rod [doc4], operating on a decimal system.`
+    const exampleCitedDocs2 = [1, 2, 3, 4]
 
     const exampleChatbotMessageNoCitations = `Certainly! The Chinese abacus, known as the "suanpan," dates back to the Han Dynasty, around the 2nd century BCE. It features a [dsdsg] bead-and-rod system, typically with two beads on the upper deck and five beads on the lower deck per rod, operating on a decimal system.`
 
@@ -82,7 +84,7 @@ describe("MessageBubble", () => {
     ]
 
     it("filters out the citations that don't appear in the message and sorts and renumbers them based on when they appear", () => {
-      const { filteredCitations } = renumberFilterCitations(
+      const { filteredCitations, citedDocs, citationNumberingMap } = renumberFilterCitations(
         exampleChatbotMessage,
         exampleChatbotMessageCitations,
       )
@@ -90,7 +92,7 @@ describe("MessageBubble", () => {
         {
           id: "c",
           created_at: "",
-          citation_number: 1,
+          citation_number: 3,
           content: "",
           conversation_id: "",
           conversation_message_id: "",
@@ -103,7 +105,7 @@ describe("MessageBubble", () => {
         {
           id: "a",
           created_at: "",
-          citation_number: 2,
+          citation_number: 1,
           content: "",
           conversation_id: "",
           conversation_message_id: "",
@@ -116,7 +118,7 @@ describe("MessageBubble", () => {
         {
           id: "e",
           created_at: "",
-          citation_number: 3,
+          citation_number: 5,
           content: "",
           conversation_id: "",
           conversation_message_id: "",
@@ -127,10 +129,17 @@ describe("MessageBubble", () => {
           updated_at: "",
         },
       ])
+
+      expect(citedDocs).toStrictEqual(exampleCitedDocs)
+      // check each filteredCitations number to see if they map to the order in
+      // which they appear in the text.
+      expect(citationNumberingMap.get(3)).toEqual(1)
+      expect(citationNumberingMap.get(1)).toEqual(2)
+      expect(citationNumberingMap.get(5)).toEqual(3)
     })
 
     it("works when the citations are already in the correct numbered order", () => {
-      const { filteredCitations } = renumberFilterCitations(
+      const { filteredCitations, citedDocs, citationNumberingMap } = renumberFilterCitations(
         exampleChatbotMessage2,
         exampleChatbotMessageCitations,
       )
@@ -189,14 +198,21 @@ describe("MessageBubble", () => {
           updated_at: "",
         },
       ])
+      expect(citedDocs).toStrictEqual(exampleCitedDocs2)
+      // check each filteredCitations number to see if they map to the order in
+      // which they appear in the text.
+      expect(citationNumberingMap.get(1)).toEqual(1)
+      expect(citationNumberingMap.get(2)).toEqual(2)
+      expect(citationNumberingMap.get(3)).toEqual(3)
     })
 
     it("works if the msg has no citations but is associated with cited docs", () => {
-      const { filteredCitations } = renumberFilterCitations(
+      const { filteredCitations, citedDocs } = renumberFilterCitations(
         exampleChatbotMessageNoCitations,
         exampleChatbotMessageCitations,
       )
       expect(filteredCitations).toStrictEqual([])
+      expect(citedDocs).toStrictEqual([])
     })
 
     it("is true that the remove citations regex works", () => {

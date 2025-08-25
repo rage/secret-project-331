@@ -1,7 +1,8 @@
 import { css } from "@emotion/css"
-import { zipWith } from "lodash"
 import React, { useMemo, useRef, useState } from "react"
 import { useHover } from "react-aria"
+
+import { LIGHT_GREEN } from "../shared/styles"
 
 import ChatbotReferenceList from "./ChatbotReferenceList"
 import RenderedMessage, { MessageRenderType } from "./RenderedMessage"
@@ -11,34 +12,40 @@ import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindi
 import { baseTheme } from "@/shared-module/common/styles"
 
 // captures citations
-const MATCH_CITATIONS_REGEX = /\[[\w]*?([\d]+)\]/g
-// don't capture citations, just detect
-const SPLIT_AT_CITATIONS_REGEX = /\[[\w]*?[\d]+\]/g
-// also matches a starting whitespace that should be removed
-const REPLACE_CITATIONS_REGEX = /\s\[[a-z]*?[0-9]+\]/g
+export const MATCH_CITATIONS_REGEX = /\[[\w]*?([\d]+)\]/g
+// matches citations and a starting whitespace that should be removed
+export const REMOVE_CITATIONS_REGEX = /\s*?\[[\w]*?[\d]+\]/g
 
-export const getMessagePartsCitationPairs = (message: string, isFromChatbot: boolean) => {
-  let pairs: {
-    msg: string
-    cit_n: number
-  }[] = []
-  let citedDocs: number[] = []
+export const renumberFilterCitations = (
+  message: string,
+  citations: ChatbotConversationMessageCitation[],
+) => {
+  /** change the citation_number of the actually cited citations so that
+  the first citation that appears in the msg is 1, the 2nd is 2, etc.
+  and filter out citations that were not cited in the msg. */
 
-  // if the message is from user, there are no citations for it so no need to
-  // process further
-  if (!isFromChatbot) {
-    return { pairs, citedDocs, alteredMessage: message }
-  }
+  // Set preserves the order of the unique items in the array
+  const citedDocs = Array.from(message.matchAll(MATCH_CITATIONS_REGEX), (arr, _) =>
+    parseInt(arr[1]),
+  )
 
-  citedDocs = Array.from(message.matchAll(MATCH_CITATIONS_REGEX), (arr, _) => parseInt(arr[1]))
-  let messageParts = message.split(SPLIT_AT_CITATIONS_REGEX)
-  pairs = zipWith(messageParts, citedDocs, (m, c) => {
-    return { msg: m, cit_n: c }
+  let citedDocsSet = new Set(citedDocs)
+  let uniqueCitations = [...citedDocsSet]
+  let filteredCitations: ChatbotConversationMessageCitation[] = []
+  let citationNumberingMap = new Map()
+
+  uniqueCitations.forEach((citN, idx) => {
+    // renumbers the uniqueCitations to be ordered,
+    // saves the renumbering in a map and filters the citations
+    idx += 1
+    let cit = citations.find((c) => c.citation_number === citN)
+    if (cit) {
+      citationNumberingMap.set(cit.citation_number, idx)
+      filteredCitations.push(cit)
+    }
   })
 
-  const messageNoCitations = message.replace(REPLACE_CITATIONS_REGEX, "")
-
-  return { pairs, citedDocs, alteredMessage: messageNoCitations }
+  return { filteredCitations, citedDocs, citationNumberingMap }
 }
 
 interface MessageBubbleProps {
@@ -59,12 +66,12 @@ const bubbleStyle = (isFromChatbot: boolean) => css`
     ? `
       margin-right: 2rem;
       align-self: flex-start;
-      background-color: ${baseTheme.colors.gray[100]};
+      background-color: ${LIGHT_GREEN};
     `
     : `
       margin-left: 2rem;
       align-self: flex-end;
-      border: 2px solid ${baseTheme.colors.gray[200]};
+      border: 2px solid ${baseTheme.colors.green[200]};
       background-color: #ffffff;
     `}
 `
@@ -89,24 +96,14 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       }
       triggerRef.current = e.target
     },
-    onHoverEnd: (e) => {
-      if (!(e.target instanceof HTMLButtonElement)) {
-        throw new Error("This hover is meant to be used on buttons only.")
-      }
-      if (!citationButtonClicked) {
-        triggerRef.current = null
-      }
-    },
   })
 
-  const [processedMessage, processedCitations] = useMemo(() => {
-    const { pairs, citedDocs, alteredMessage } = getMessagePartsCitationPairs(
+  const [processedMessage, processedCitations, citationNumberingMap] = useMemo(() => {
+    const { filteredCitations, citedDocs, citationNumberingMap } = renumberFilterCitations(
       message,
-      isFromChatbot,
+      citations ?? [],
     )
-    let filteredCitations = citations
-      ? citations.filter((cit) => citedDocs.includes(cit.citation_number))
-      : []
+
     let renderOption = !isFromChatbot
       ? MessageRenderType.User
       : !citationsOpen || filteredCitations.length == 0
@@ -118,8 +115,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         renderOption={renderOption}
         citationButtonClicked={citationButtonClicked}
         currentRefId={triggerRef.current?.id}
-        message={alteredMessage}
-        pairs={pairs}
+        message={message}
+        citedDocs={citedDocs}
+        citationNumberingMap={citationNumberingMap}
         handleClick={(e) => {
           setCitationButtonClicked(true)
           triggerRef.current = e.currentTarget
@@ -128,7 +126,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       />
     )
 
-    return [renderedMessage, filteredCitations]
+    return [renderedMessage, filteredCitations, citationNumberingMap]
   }, [message, citations, isFromChatbot, citationsOpen, hoverCitationProps, citationButtonClicked])
 
   return (
@@ -148,6 +146,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           ></hr>
           <ChatbotReferenceList
             citations={processedCitations}
+            citationNumberingMap={citationNumberingMap}
             triggerRef={triggerRef}
             citationsOpen={citationsOpen}
             citationButtonClicked={citationButtonClicked}

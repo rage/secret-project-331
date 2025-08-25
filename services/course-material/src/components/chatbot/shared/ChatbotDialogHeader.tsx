@@ -1,4 +1,4 @@
-import { css, cx } from "@emotion/css"
+import { css } from "@emotion/css"
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { Account, AddMessage } from "@vectopus/atlas-icons-react"
 import React from "react"
@@ -23,13 +23,13 @@ const headerContainerStyle = css`
   align-items: center;
   justify-content: space-between;
   padding: 20px;
-  background-color: ${baseTheme.colors.gray[100]};
+  background-color: ${baseTheme.colors.green[300]};
   border-radius: 10px 10px 0px 0px;
 `
 
 const iconStyle = css`
-  background-color: ${baseTheme.colors.clear[200]};
-  color: ${baseTheme.colors.gray[400]};
+  background-color: ${baseTheme.colors.green[100]};
+  color: ${baseTheme.colors.green[400]};
   display: flex;
   justify-content: center;
   align-items: center;
@@ -52,7 +52,7 @@ const buttonStyle = css`
   border-radius: 50%;
   border: none;
   margin: 0 0.5rem;
-  color: ${baseTheme.colors.gray[400]};
+  color: ${baseTheme.colors.green[700]};
   transition: filter 0.2s;
 
   &:hover {
@@ -62,6 +62,7 @@ const buttonStyle = css`
 
 const buttonsWrapper = css`
   display: flex;
+  align-items: flex-start;
 `
 
 const ChatbotDialogHeader: React.FC<ChatbotDialogHeaderProps> = (props) => {
@@ -100,18 +101,17 @@ const ChatbotDialogHeader: React.FC<ChatbotDialogHeaderProps> = (props) => {
           className={buttonStyle}
           aria-label={t("new-conversation")}
         >
-          <AddMessage />
+          <AddMessage
+            className={css`
+              position: relative;
+              top: 0.25rem;
+            `}
+          />
         </button>
         {!isCourseMaterialBlock && (
           <button
             onClick={() => props.setDialogOpen(false)}
-            className={cx(
-              buttonStyle,
-              css`
-                position: relative;
-                top: -3px;
-              `,
-            )}
+            className={buttonStyle}
             aria-label={t("close")}
           >
             <DownIcon />

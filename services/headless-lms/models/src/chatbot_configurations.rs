@@ -242,7 +242,7 @@ AND deleted_at IS NULL
     Ok(res)
 }
 
-pub async fn get_nondefault_for_course(
+pub async fn get_enabled_nondefault_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,
 ) -> ModelResult<Vec<ChatbotConfiguration>> {
@@ -253,6 +253,7 @@ SELECT * FROM
 chatbot_configurations
 WHERE course_id = $1
 AND default_chatbot IS false
+AND enabled_to_students IS true
 AND deleted_at IS NULL
 "#,
         course_id

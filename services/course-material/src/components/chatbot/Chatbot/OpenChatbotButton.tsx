@@ -25,10 +25,10 @@ const buttonStyle = css`
   align-items: center;
   justify-content: center;
   transition: background-color 0.2s;
-  background-color: ${baseTheme.colors.gray[300]};
+  background-color: ${baseTheme.colors.green[300]};
 
   &:hover {
-    background-color: ${baseTheme.colors.gray[400]};
+    background-color: ${baseTheme.colors.green[400]};
   }
 `
 

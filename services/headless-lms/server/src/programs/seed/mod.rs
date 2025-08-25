@@ -77,7 +77,8 @@ pub async fn main() -> anyhow::Result<()> {
             db_pool.clone()
         )),
         run_parallelly(seed_password_reset_emails::seed_password_reset_emails(
-            db_pool.clone()
+            db_pool.clone(),
+            seed_users_result
         ))
     )?;
 

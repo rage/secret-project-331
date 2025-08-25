@@ -227,8 +227,10 @@ pub async fn send_reset_password_email(
     };
 
     if let Some(user) = user {
+        let token = Uuid::new_v4();
+
         let _password_token =
-            models::user_passwords::insert_password_reset_token(&mut conn, user.id).await?;
+            models::user_passwords::insert_password_reset_token(&mut conn, user.id, token).await?;
 
         let _ =
             models::email_deliveries::insert_email_delivery(&mut conn, user.id, reset_template.id)

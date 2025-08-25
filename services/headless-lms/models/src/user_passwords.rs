@@ -128,10 +128,9 @@ WHERE user_id = $1
 pub async fn insert_password_reset_token(
     conn: &mut PgConnection,
     user_id: Uuid,
+    token: Uuid,
 ) -> ModelResult<Uuid> {
     let mut tx = conn.begin().await?;
-
-    let token = Uuid::new_v4();
 
     // Soft delete possible previous tokens so that only one token is at use at a time
     let _ = sqlx::query!(

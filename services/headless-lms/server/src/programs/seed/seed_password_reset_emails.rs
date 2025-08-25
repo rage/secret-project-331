@@ -1,10 +1,17 @@
 use headless_lms_models::{
-    email_templates::EmailTemplateNew, email_templates::insert_email_template,
+    email_templates::{EmailTemplateNew, insert_email_template},
+    user_passwords::insert_password_reset_token,
 };
 use serde_json::json;
 use sqlx::{Pool, Postgres};
+use uuid::Uuid;
 
-pub async fn seed_password_reset_emails(db_pool: Pool<Postgres>) -> anyhow::Result<()> {
+use super::seed_users::SeedUsersResult;
+
+pub async fn seed_password_reset_emails(
+    db_pool: Pool<Postgres>,
+    seed_users_result: SeedUsersResult,
+) -> anyhow::Result<()> {
     info!("inserting password reset emails");
 
     let mut conn = db_pool.acquire().await?;
@@ -92,6 +99,15 @@ pub async fn seed_password_reset_emails(db_pool: Pool<Postgres>) -> anyhow::Resu
     };
 
     insert_email_template(&mut conn, None, finnish_template, finnish_subject).await?;
+
+    info!("inserting password reset token for user");
+    let SeedUsersResult { sign_up_user, .. } = seed_users_result;
+    insert_password_reset_token(
+        &mut conn,
+        sign_up_user,
+        Uuid::parse_str("5a831370-6b7e-4ece-b962-6bc31c28fe53")?,
+    )
+    .await?;
 
     Ok(())
 }

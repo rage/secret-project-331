@@ -1,6 +1,8 @@
 use anyhow::{Context, Result};
 use reqwest::Client;
+use serde::Deserialize;
 use serde_json::json;
+use uuid::Uuid;
 
 use crate::ApplicationConfiguration;
 
@@ -18,6 +20,15 @@ pub struct NewUserInfo {
     pub password: String,
     pub password_confirmation: String,
     pub language: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct TmcUserInfo {
+    pub id: Uuid,
+    pub email: String,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub upstream_id: i32,
 }
 
 const TMC_API_URL: &str = "https://tmc.mooc.fi/api/v8/users";
@@ -53,8 +64,13 @@ impl TmcClient {
             }
         }
 
+        let client = reqwest::Client::builder()
+            .timeout(std::time::Duration::from_secs(15))
+            .build()
+            .context("Failed to build HTTP client")?;
+
         Ok(Self {
-            client: Client::default(),
+            client,
             access_token,
             ratelimit_api_key,
         })
@@ -96,10 +112,8 @@ impl TmcClient {
                 .await
                 .unwrap_or_else(|e| format!("(Failed to read error body: {e})"));
 
-            warn!(
-                "Request to {} failed with status {}: {}",
-                url, status, error_text
-            );
+            tracing::warn!("Request to {} failed with status {}", url, status);
+            tracing::debug!("Response body: {}", error_text);
 
             Err(anyhow::anyhow!(
                 "Request failed with status {}: {}",
@@ -176,6 +190,44 @@ impl TmcClient {
         self.request_with_headers(reqwest::Method::POST, TMC_API_URL, false, Some(payload))
             .await
             .map(|_| ())
+    }
+
+    pub async fn set_user_password_managed_by_courses_mooc_fi(
+        &self,
+        user_upstream_id: String,
+        user_id: Uuid,
+    ) -> Result<()> {
+        let url = format!(
+            "{}/{}/set_password_managed_by_courses_mooc_fi",
+            TMC_API_URL, user_upstream_id
+        );
+
+        let payload = serde_json::json!({
+            "courses_mooc_fi_user_id": user_id.to_string(),
+        });
+
+        self.request_with_headers(reqwest::Method::POST, &url, true, Some(payload))
+            .await
+            .map(|_| ())
+    }
+
+    pub async fn get_user_from_tmc_with_email(&self, email: String) -> Result<TmcUserInfo> {
+        let url = format!("{}/get_user_with_email?email={}", TMC_API_URL, email);
+
+        let payload = serde_json::json!({
+            "email": email,
+        });
+
+        let res = self
+            .request_with_headers(reqwest::Method::GET, &url, true, Some(payload))
+            .await?;
+
+        let user: TmcUserInfo = res
+            .json()
+            .await
+            .context("Failed to parse TMC user from JSON")?;
+
+        Ok(user)
     }
 
     pub fn mock_for_test() -> Self {

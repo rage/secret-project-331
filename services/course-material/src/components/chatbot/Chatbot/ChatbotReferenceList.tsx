@@ -170,7 +170,7 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
                     triggerRef.current?.id.includes(
                       // the triggerRef's id will contain the citationId's first part
                       // if it's associated with this citation
-                      citationId(citationNumber.toString(), "0").slice(0, -1),
+                      citationId(citationNumber.toString(), ""),
                     ) &&
                     (isCitationHovered || isPopoverHovered || citationButtonClicked)
                   }

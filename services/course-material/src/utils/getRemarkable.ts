@@ -6,13 +6,17 @@ let md: Remarkable | null = null
 const chatbotCitationParser = (state: StateInline) => {
   /** parser for parsing chatbot citations from text.
   matches `[docn]` where n is a digit 0-9 */
-  let citationTag = /^\[doc\d\]$/g
+  let citationTag = /^\[doc\d\]$/
+
+  if (state.src.charAt(state.pos) !== "[") {
+    return false
+  }
 
   let marker = ""
   for (let i = 0; i < 6; i++) {
     let newPos = state.pos + i
     // if the source string ended, then there's no match and return
-    if (newPos > state.posMax) {
+    if (newPos >= state.posMax) {
       return false
     }
     marker = marker.concat(state.src.charAt(newPos))

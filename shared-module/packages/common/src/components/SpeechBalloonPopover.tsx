@@ -34,6 +34,7 @@ const popoverStyle = css`
   }
 
   &[data-placement="top"] {
+    flex-flow: column nowrap;
     --origin: translateY(8px);
     & > * {
       margin-bottom: ${POINTER_SIZE};
@@ -41,6 +42,7 @@ const popoverStyle = css`
   }
 
   &[data-placement="bottom"] {
+    flex-flow: column-reverse nowrap;
     --origin: translateY(-8px);
     .react-aria-OverlayArrow svg {
       transform: scaleY(-1);
@@ -71,7 +73,8 @@ const speechBalloonStyle = css`
   ${respondToOrLarger.xs} {
     width: 330px;
   }
-  flex-flow: column nowrap;
+  flex-flow: inherit;
+  gap: 0.5em;
   position: relative;
   background: ${COLORS.bg};
   color: ${COLORS.text};

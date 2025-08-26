@@ -418,7 +418,13 @@ pub async fn seed_sample_course(
                 exercise_block_1,
                 paragraph("So big, that we need many paragraphs.", block_id_4),
                 paragraph("Like this.", block_id_5),
-                paragraph(&"At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat. ".repeat(4), block_id_6),
+                paragraph("The abacus is one of the oldest known calculating tools, with origins tracing back to ancient Mesopotamia and China. Often consisting of a wooden frame with rows of beads, it has been used for centuries as a reliable aid in performing arithmetic operations. Its simplicity and effectiveness made it a cornerstone of commerce and education across many civilizations.", block_id_6),
+
+                paragraph("Throughout history, the abacus has taken on various forms, from the Roman hand abacus to the Chinese suanpan and the Japanese soroban. Each design introduced unique innovations, optimizing calculation methods for their respective regions. Despite the rise of digital calculators, the abacus continues to be used in some educational settings to teach arithmetic concepts and mental math techniques.", block_id_6),
+
+                paragraph("Modern interest in the abacus has grown as educators recognize its value in developing number sense and concentration in children. Competitions in mental abacus calculation demonstrate just how powerful this tool can be when mastered. While it may seem outdated, the abacus remains a symbol of timeless ingenuity and practical problem-solving.", block_id_6),
+
+                paragraph("In recent years, digital adaptations of the abacus have also emerged, blending traditional methods with modern interfaces. These tools not only preserve the historical legacy of the abacus but also make it more accessible to new generations of learners. Whether used physically or virtually, the abacus continues to bridge the gap between tactile learning and abstract thinking.", block_id_6),
             ]),
         },
 

@@ -329,7 +329,7 @@ async fn delete_partners_block(
 }
 
 /**
-GET /api/v0/cms/courses/:course_id/nondefault-chatbot-configurations - Get all chatbot configurations of this course.
+GET /api/v0/cms/courses/:course_id/nondefault-chatbot-configurations - Get all nondefault, enabled-to-students chatbot configurations of this course.
 */
 #[instrument(skip(pool))]
 async fn get_course_nondefault_chatbot_configurations(
@@ -341,7 +341,8 @@ async fn get_course_nondefault_chatbot_configurations(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
     let course_chatbot_configurations =
-        models::chatbot_configurations::get_nondefault_for_course(&mut conn, course_id).await?;
+        models::chatbot_configurations::get_enabled_nondefault_for_course(&mut conn, course_id)
+            .await?;
     token.authorized_ok(web::Json(course_chatbot_configurations))
 }
 

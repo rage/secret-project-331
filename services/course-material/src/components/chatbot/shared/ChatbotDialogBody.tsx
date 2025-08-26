@@ -371,7 +371,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
         <div>
           <button
             className={css`
-              background-color: ${baseTheme.colors.gray[100]};
+              background-color: ${baseTheme.colors.green[200]};
               border: none;
               cursor: pointer;
               display: flex;

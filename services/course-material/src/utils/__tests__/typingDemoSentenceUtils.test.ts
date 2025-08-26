@@ -1,4 +1,4 @@
-import { parseSentenceDifference } from "./typingDemoSentenceUtils"
+import { parseSentenceDifference } from "../typingDemoSentenceUtils"
 
 describe("parseSentenceDifference", () => {
   // Define English fallbacks to use in all tests

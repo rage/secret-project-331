@@ -4,6 +4,10 @@ import React, { useId } from "react"
 import { useHover } from "react-aria"
 import { useTranslation } from "react-i18next"
 
+import { LIGHT_GREEN } from "../shared/styles"
+
+import { citationId } from "./CitationButton"
+
 import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
 import SpeechBalloonPopover from "@/shared-module/common/components/SpeechBalloonPopover"
 import DownIcon from "@/shared-module/common/img/down.svg"
@@ -11,9 +15,11 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { getRemarkable } from "@/utils/getRemarkable"
 import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
 
+let md = getRemarkable()
+
 const referenceStyle = css`
   margin: 4px 4px 4px 0;
-  background-color: ${baseTheme.colors.gray[200]};
+  background-color: ${baseTheme.colors.green[200]};
   padding: 2px 7px 2px 7px;
   border-radius: 10px;
   font-size: 90%;
@@ -60,10 +66,10 @@ const referenceListStyle = (expanded: boolean, referenceList: string) => css`
 const expandButtonStyle = css`
   flex: 1;
   cursor: pointer;
-  background-color: ${baseTheme.colors.gray[100]};
+  background-color: ${LIGHT_GREEN};
   border: none;
   margin: 0 0.5rem;
-  color: ${baseTheme.colors.gray[400]};
+  color: ${baseTheme.colors.green[400]};
   transition: filter 0.2s;
 
   &:hover {
@@ -73,6 +79,7 @@ const expandButtonStyle = css`
 
 interface ChatbotReferenceListProps {
   citations: ChatbotConversationMessageCitation[]
+  citationNumberingMap: Map<number, number>
   triggerRef: React.RefObject<HTMLButtonElement | null>
   citationsOpen: boolean
   citationButtonClicked: boolean
@@ -81,10 +88,9 @@ interface ChatbotReferenceListProps {
   setCitationsOpen: (value: React.SetStateAction<boolean>) => void
 }
 
-let md = getRemarkable()
-
 const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
   citations,
+  citationNumberingMap,
   triggerRef,
   citationsOpen,
   citationButtonClicked,
@@ -112,111 +118,138 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
       </h2>
       <div className={referenceListStyle(citationsOpen, referenceListId)}>
         <div id={referenceListId}>
-          {citations.map((cit) => (
-            <div key={cit.id} className={referenceStyle}>
-              {citationsOpen ? (
-                <a href={cit.document_url}>
-                  <span
-                    className={css`
-                      flex: 7;
-                    `}
-                  >
-                    <b
+          {citations.map((cit) => {
+            let citationNumber = citationNumberingMap.get(cit.citation_number) ?? 0
+            return (
+              <div key={cit.id} className={referenceStyle}>
+                {citationsOpen ? (
+                  <a href={cit.document_url}>
+                    <span
                       className={css`
-                        padding: 0 1em 0 0.25em;
+                        flex: 7;
+                        color: #000000;
                       `}
                     >
-                      {cit.citation_number}
-                    </b>
-                    <span className="link">
-                      {cit.course_material_chapter_number &&
-                        `${t("chapter-chapter-number", {
-                          number: cit.course_material_chapter_number,
-                        })}: `}
-                      {`${cit.title}`}
-                    </span>
-                  </span>
-                  <Library
-                    className={css`
-                      flex: 1;
-                      padding: 2px;
-                      margin-right: -5px;
-                      align-self: flex-end;
-                    `}
-                  />
-                </a>
-              ) : (
-                <>
-                  <b>{cit.citation_number}</b>{" "}
-                  {cit.title.length <= citationTitleLen
-                    ? cit.title
-                    : cit.title.slice(0, citationTitleLen - 3).concat("...")}
-                </>
-              )}
-              <SpeechBalloonPopover
-                placement="top"
-                triggerRef={triggerRef}
-                isOpen={isCitationHovered || isPopoverHovered || citationButtonClicked}
-                isNonModal={!citationButtonClicked}
-                onOpenChange={() => {
-                  setCitationButtonClicked(false)
-                }}
-                popoverLabel={`${t("citation")} ${cit.citation_number}`}
-                {...hoverPopoverProps}
-              >
-                <p
-                  className={css`
-                    overflow-wrap: break-word;
-                    height: 6lh;
-                    margin-bottom: 0.5em;
-                    mask-image: linear-gradient(0.5turn, black 66%, transparent);
-                  `}
-                  dangerouslySetInnerHTML={{
-                    __html: sanitizeCourseMaterialHtml(md.render(cit.content).trim()),
-                  }}
-                ></p>
-                <p
-                  className={css`
-                    display: flex;
-                    justify-content: space-between;
-                    flex-flow: row nowrap;
-                    position: relative;
-                    gap: 10px;
-                    a {
-                      color: ${baseTheme.colors.blue[700]};
-                    }
-                    a::after {
-                      content: "";
-                      position: absolute;
-                      top: 0;
-                      left: 0;
-                      width: 100%;
-                      height: 100%;
-                    }
-                  `}
-                >
-                  <a href={cit.document_url}>
-                    <span>
-                      <b>
+                      <b
+                        className={css`
+                          padding: 0 1em 0 0.25em;
+                        `}
+                      >
+                        {citationNumber}
+                      </b>
+                      <span className="link">
                         {cit.course_material_chapter_number &&
                           `${t("chapter-chapter-number", {
                             number: cit.course_material_chapter_number,
                           })}: `}
                         {`${cit.title}`}
-                      </b>
+                      </span>
                     </span>
+                    <Library
+                      className={css`
+                        flex: 1;
+                        padding: 2px;
+                        margin-right: -1em;
+                        align-self: flex-end;
+                        color: #000000;
+                      `}
+                    />
                   </a>
-                  <Library
+                ) : (
+                  <>
+                    <b>{citationNumber}</b>{" "}
+                    {cit.title.length <= citationTitleLen
+                      ? cit.title
+                      : cit.title.slice(0, citationTitleLen - 3).concat("...")}
+                  </>
+                )}
+                <SpeechBalloonPopover
+                  placement="top"
+                  triggerRef={triggerRef}
+                  isOpen={
+                    triggerRef.current?.id.includes(
+                      // the triggerRef's id will contain the citationId's first part
+                      // if it's associated with this citation
+                      citationId(citationNumber.toString(), ""),
+                    ) &&
+                    (isCitationHovered || isPopoverHovered || citationButtonClicked)
+                  }
+                  isNonModal={!citationButtonClicked}
+                  onOpenChange={() => {
+                    setCitationButtonClicked(false)
+                  }}
+                  popoverLabel={`${t("citation")} ${citationNumber}`}
+                  {...hoverPopoverProps}
+                >
+                  <span
                     className={css`
-                      align-self: flex-end;
-                      width: 3em;
-                      margin-right: -5px;
+                      overflow-wrap: break-word;
+                      height: fit-content;
+                      max-height: 6lh;
+                      margin-bottom: 0.5em;
+                      mask-image: linear-gradient(0.5turn, black 66%, transparent);
+                      h1 {
+                        font-size: x-large;
+                      }
+                      h2 {
+                        font-size: large;
+                      }
+                      h3 {
+                        font-size: medium;
+                      }
+                      h4,
+                      h5,
+                      h6 {
+                        font-size: small;
+                      }
                     `}
-                  />
-                </p>
-              </SpeechBalloonPopover>
-            </div>
-          ))}
+                    dangerouslySetInnerHTML={{
+                      __html: sanitizeCourseMaterialHtml(md.render(cit.content)),
+                    }}
+                  ></span>
+                  <p
+                    className={css`
+                      display: flex;
+                      justify-content: space-between;
+                      flex-flow: row nowrap;
+                      position: relative;
+                      gap: 10px;
+                      a {
+                        color: ${baseTheme.colors.blue[700]};
+                      }
+                      a::after {
+                        content: "";
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                      }
+                    `}
+                  >
+                    <a href={cit.document_url}>
+                      <span>
+                        <b>
+                          {cit.course_material_chapter_number &&
+                            `${t("chapter-chapter-number", {
+                              number: cit.course_material_chapter_number,
+                            })}: `}
+                          {`${cit.title}`}
+                        </b>
+                      </span>
+                    </a>
+                    <Library
+                      className={css`
+                        align-self: flex-end;
+                        width: 3em;
+                        margin-right: -5px;
+                      `}
+                    />
+                  </p>
+                </SpeechBalloonPopover>
+              </div>
+            )
+          })}
         </div>
 
         <button

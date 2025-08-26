@@ -45,10 +45,9 @@ const ChatbotBlock: React.FC<BlockRendererProps<ChatbotBlockProps>> = ({ data })
       <div
         className={css`
           display: block;
-          height: 500px;
-
+          height: min(500px, 95vh);
           ${respondToOrLarger.sm} {
-            height: 900px;
+            height: min(900px, 95vh);
           }
         `}
       >

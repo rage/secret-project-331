@@ -1,32 +1,35 @@
-import { css, cx } from "@emotion/css"
+import { css } from "@emotion/css"
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { Account, AddMessage } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { ChatbotDialogProps } from "./ChatbotDialog"
+import { DiscrChatbotDialogProps } from "../Chatbot/ChatbotDialog"
 
 import { ChatbotConversation, ChatbotConversationInfo } from "@/shared-module/common/bindings"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 
-interface ChatbotDialogHeaderProps extends ChatbotDialogProps {
+type ChatbotDialogHeaderProps = {
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
   newConversation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
-}
+  isCourseMaterialBlock: boolean
+} & DiscrChatbotDialogProps
 
 const headerContainerStyle = css`
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 20px;
-  background-color: ${baseTheme.colors.gray[100]};
+  background-color: ${baseTheme.colors.green[300]};
   border-radius: 10px 10px 0px 0px;
 `
 
 const iconStyle = css`
-  background-color: ${baseTheme.colors.clear[200]};
-  color: ${baseTheme.colors.gray[400]};
+  background-color: ${baseTheme.colors.green[100]};
+  color: ${baseTheme.colors.green[400]};
   display: flex;
   justify-content: center;
   align-items: center;
@@ -49,7 +52,7 @@ const buttonStyle = css`
   border-radius: 50%;
   border: none;
   margin: 0 0.5rem;
-  color: ${baseTheme.colors.gray[400]};
+  color: ${baseTheme.colors.green[700]};
   transition: filter 0.2s;
 
   &:hover {
@@ -59,14 +62,31 @@ const buttonStyle = css`
 
 const buttonsWrapper = css`
   display: flex;
+  align-items: flex-start;
 `
 
-const ChatbotDialogHeader: React.FC<ChatbotDialogHeaderProps> = ({
-  setDialogOpen,
-  currentConversationInfo,
-  newConversation,
-}) => {
+const ChatbotDialogHeader: React.FC<ChatbotDialogHeaderProps> = (props) => {
   const { t } = useTranslation()
+  const { currentConversationInfo, newConversation, isCourseMaterialBlock } = props
+
+  if (currentConversationInfo.isLoading) {
+    return <Spinner variant="medium" />
+  }
+
+  if (currentConversationInfo.isError) {
+    return (
+      <div
+        className={css`
+          flex-grow: 1;
+          display: flex;
+          flex-direction: column;
+          padding: 20px;
+        `}
+      >
+        <ErrorBanner error={currentConversationInfo.error} variant="readOnly" />
+      </div>
+    )
+  }
 
   return (
     <div className={headerContainerStyle}>
@@ -81,21 +101,22 @@ const ChatbotDialogHeader: React.FC<ChatbotDialogHeaderProps> = ({
           className={buttonStyle}
           aria-label={t("new-conversation")}
         >
-          <AddMessage />
-        </button>
-        <button
-          onClick={() => setDialogOpen(false)}
-          className={cx(
-            buttonStyle,
-            css`
+          <AddMessage
+            className={css`
               position: relative;
-              top: -3px;
-            `,
-          )}
-          aria-label={t("close")}
-        >
-          <DownIcon />
+              top: 0.25rem;
+            `}
+          />
         </button>
+        {!isCourseMaterialBlock && (
+          <button
+            onClick={() => props.setDialogOpen(false)}
+            className={buttonStyle}
+            aria-label={t("close")}
+          >
+            <DownIcon />
+          </button>
+        )}
       </div>
     </div>
   )

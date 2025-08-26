@@ -20,6 +20,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
         chatbotConfigurationId={chatbotConfigurationId}
         dialogOpen={dialogOpen}
         setDialogOpen={setDialogOpen}
+        isCourseMaterialBlock={false}
       />
     </>
   )

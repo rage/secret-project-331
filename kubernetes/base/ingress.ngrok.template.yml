@@ -1,4 +1,4 @@
-# Note: This file has been gitignored, so your changes to this file won't be accidentally committed
+# Note: This file is copied to the same folder when bin/dev or bin/test are started
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:

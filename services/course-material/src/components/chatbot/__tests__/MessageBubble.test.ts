@@ -87,6 +87,7 @@ describe("MessageBubble", () => {
       const { filteredCitations, citedDocs, citationNumberingMap } = renumberFilterCitations(
         exampleChatbotMessage,
         exampleChatbotMessageCitations,
+        true,
       )
       expect(filteredCitations).toStrictEqual([
         {
@@ -142,6 +143,7 @@ describe("MessageBubble", () => {
       const { filteredCitations, citedDocs, citationNumberingMap } = renumberFilterCitations(
         exampleChatbotMessage2,
         exampleChatbotMessageCitations,
+        true,
       )
 
       expect(filteredCitations).toStrictEqual([
@@ -210,6 +212,7 @@ describe("MessageBubble", () => {
       const { filteredCitations, citedDocs } = renumberFilterCitations(
         exampleChatbotMessageNoCitations,
         exampleChatbotMessageCitations,
+        true,
       )
       expect(filteredCitations).toStrictEqual([])
       expect(citedDocs).toStrictEqual([])

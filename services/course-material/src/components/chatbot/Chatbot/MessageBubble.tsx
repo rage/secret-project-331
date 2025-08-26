@@ -10,11 +10,7 @@ import ThinkingIndicator from "./ThinkingIndicator"
 
 import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
 import { baseTheme } from "@/shared-module/common/styles"
-
-// captures citations
-export const MATCH_CITATIONS_REGEX = /\[[\w]*?([\d]+)\]/g
-// matches citations and a starting whitespace that should be removed
-export const REMOVE_CITATIONS_REGEX = /\s*?\[[\w]*?[\d]+\]/g
+import { MATCH_CITATIONS_REGEX } from "@/utils/chatbotCitationRegexes"
 
 export const renumberFilterCitations = (
   message: string,
@@ -23,6 +19,7 @@ export const renumberFilterCitations = (
   /** change the citation_number of the actually cited citations so that
   the first citation that appears in the msg is 1, the 2nd is 2, etc.
   and filter out citations that were not cited in the msg. */
+  // should this be memoized??
 
   // Set preserves the order of the unique items in the array
   const citedDocs = Array.from(message.matchAll(MATCH_CITATIONS_REGEX), (arr, _) =>
@@ -31,6 +28,12 @@ export const renumberFilterCitations = (
 
   let citedDocsSet = new Set(citedDocs)
   let uniqueCitations = [...citedDocsSet]
+
+  // there might be hallucinated citations in the message :(
+  // remove the hallucinated citations
+  const actualCitationNs: number[] = citations.map((c) => c.citation_number)
+  uniqueCitations = uniqueCitations.filter((v) => actualCitationNs.includes(v))
+
   let filteredCitations: ChatbotConversationMessageCitation[] = []
   let citationNumberingMap = new Map()
 

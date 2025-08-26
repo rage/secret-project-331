@@ -16,6 +16,8 @@ use std::collections::HashMap;
 
 const BATCH_SIZE: usize = 100;
 
+const FRONTEND_BASE_URL: &str = "https://courses.mooc.fi";
+
 static SMTP_FROM: Lazy<String> =
     Lazy::new(|| env::var("SMTP_FROM").expect("No moocfi email found in the env variables."));
 static SMTP_HOST: Lazy<String> =
@@ -35,7 +37,7 @@ pub async fn mail_sender(pool: &PgPool, mailer: &SmtpTransport) -> Result<()> {
     let mut futures = tokio_stream::iter(emails)
         .map(|email| {
             let email_id = email.id;
-            send_message(email, &mailer, pool.clone()).inspect(move |r| {
+            send_message(email, mailer, pool.clone()).inspect(move |r| {
                 if let Err(err) = r {
                     tracing::error!("Failed to send email {}: {}", email_id, err)
                 }
@@ -65,17 +67,22 @@ pub async fn send_message(email: Email, mailer: &SmtpTransport, pool: PgPool) ->
         let token = get_unused_reset_password_token_with_user_id(&mut conn, email.user_id).await?;
 
         let reset_url = match token {
-            Some(token_str) => format!(
-                "https://courses.mooc.fi/reset-user-password/{}",
-                token_str.token
-            ),
+            Some(token_str) => {
+                let base =
+                    std::env::var("FRONTEND_BASE_URL").unwrap_or(FRONTEND_BASE_URL.to_string());
+
+                format!(
+                    "{}/reset-user-password/{}",
+                    base.trim_end_matches('/'),
+                    token_str.token
+                )
+            }
             None => {
                 let err = anyhow::anyhow!("No reset token found for user {}", email.user_id);
                 save_err_to_email(email.id, err, &mut conn).await?;
                 return Ok(());
             }
         };
-
         let mut replacements = HashMap::new();
         replacements.insert("RESET_LINK".to_string(), reset_url.to_string());
         email_block = insert_reset_password_link_placeholders(email_block, &replacements);

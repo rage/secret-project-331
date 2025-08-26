@@ -13,6 +13,7 @@ pub struct UserPassword {
     pub deleted_at: Option<DateTime<Utc>>,
 }
 
+#[derive(sqlx::FromRow, Debug, Clone)]
 pub struct PasswordResetToken {
     pub token: Uuid,
     pub user_id: Uuid,
@@ -80,6 +81,7 @@ WHERE user_id = $1
         None => {
             // Perform a dummy verify to normalize timing when user has no password row.
             // This mitigates timing attack vulnerabilities.
+
             static DUMMY_HASH: LazyLock<String> = LazyLock::new(|| {
                 let salt = SaltString::generate(&mut OsRng);
                 Argon2::default()
@@ -222,8 +224,10 @@ pub async fn change_user_password(
     password_hash: SecretString,
     tmc_client: &TmcClient,
 ) -> ModelResult<bool> {
-    // 1) Start a transaction and lock the token row
+    // Start a transaction and lock the token row
     let mut tx = conn.begin().await?;
+
+    // Check if token is valid
     let record = sqlx::query!(
         r#"
 SELECT user_id
@@ -245,7 +249,7 @@ FOR UPDATE
     };
 
     // Check if the user has an existing password
-    let _has_existing_password = sqlx::query!(
+    let had_existing_password = sqlx::query!(
         r#"
 SELECT *
 FROM user_passwords
@@ -255,15 +259,15 @@ AND deleted_at IS NULL
         user_id
     )
     .fetch_optional(&mut *tx)
-    .await?;
+    .await?
+    .is_some();
 
-    // Upsert the new password inside the transaction
-    let upserted = upsert_user_password(&mut *tx, user_id, password_hash).await?;
+    // Upsert the new password
+    upsert_user_password(&mut tx, user_id, password_hash).await?;
 
-    if upserted {
-        // 2) Mark the token as used inside the same transaction
-        sqlx::query!(
-            r#"
+    // Mark the token as used
+    sqlx::query!(
+        r#"
 UPDATE password_reset_tokens
 SET used_at = NOW(),
   deleted_at = NOW()
@@ -271,17 +275,19 @@ WHERE token = $1
   AND deleted_at IS NULL
   AND used_at IS NULL
             "#,
-            token
-        )
-        .execute(&mut *tx)
-        .await?;
+        token
+    )
+    .execute(&mut *tx)
+    .await?;
 
-        // Fetch user inside tx to decide but call TMC after commit
-        let user = get_by_id(&mut *tx, user_id).await?;
+    // Fetch user
+    let user = get_by_id(&mut tx, user_id).await?;
+
+    tx.commit().await?;
+
+    // If user didn't have a password stored previously, notify tmc that password is now managed by courses.mooc
+    if !had_existing_password {
         if let Some(upstream_id) = user.upstream_id {
-            // 3) Commit before making network call
-            tx.commit().await?;
-
             if let Err(e) = tmc_client
                 .set_user_password_managed_by_courses_mooc_fi(upstream_id.to_string(), user_id)
                 .await
@@ -291,16 +297,11 @@ WHERE token = $1
                     e
                 );
             }
-            return Ok(true);
         } else {
-            tx.commit().await?;
             warn!("User has no upstream_id; skipping TMC notification");
-            return Ok(true);
         }
     }
 
-    // Commit if we didn't early return above
-    tx.commit().await?;
     Ok(true)
 }
 

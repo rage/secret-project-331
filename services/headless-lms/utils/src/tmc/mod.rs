@@ -2,6 +2,7 @@ use anyhow::{Context, Result};
 use reqwest::Client;
 use serde::Deserialize;
 use serde_json::json;
+use url::Url;
 use uuid::Uuid;
 
 use crate::ApplicationConfiguration;
@@ -112,7 +113,16 @@ impl TmcClient {
                 .await
                 .unwrap_or_else(|e| format!("(Failed to read error body: {e})"));
 
-            tracing::warn!("Request to {} failed with status {}", url, status);
+            if let Ok(parsed) = reqwest::Url::parse(url) {
+                let redacted = format!(
+                    "{}{}",
+                    parsed.origin().unicode_serialization(),
+                    parsed.path()
+                );
+                tracing::warn!("Request to {} failed with status {}", redacted, status);
+            } else {
+                tracing::warn!("Request failed with status {}", status);
+            }
             tracing::debug!("Response body: {}", error_text);
 
             Err(anyhow::anyhow!(
@@ -212,14 +222,12 @@ impl TmcClient {
     }
 
     pub async fn get_user_from_tmc_with_email(&self, email: String) -> Result<TmcUserInfo> {
-        let url = format!("{}/get_user_with_email?email={}", TMC_API_URL, email);
-
-        let payload = serde_json::json!({
-            "email": email,
-        });
+        let mut url = Url::parse(TMC_API_URL).unwrap();
+        url.path_segments_mut().unwrap().push("get_user_with_email");
+        url.query_pairs_mut().append_pair("email", &email);
 
         let res = self
-            .request_with_headers(reqwest::Method::GET, &url, true, Some(payload))
+            .request_with_headers(reqwest::Method::GET, url.as_str(), true, None)
             .await?;
 
         let user: TmcUserInfo = res

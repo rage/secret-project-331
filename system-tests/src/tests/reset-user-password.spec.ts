@@ -1,10 +1,14 @@
 import { expect, test } from "@playwright/test"
 
-test("Can change users password with reset passwors token", async ({ page }) => {
+import { showNextToastsInfinitely, showToastsNormally } from "@/utils/notificationUtils"
+
+test("Can change user's password with reset password token", async ({ page }) => {
   // Go to reset password page
   await page.goto(
     "http://project-331.local/reset-user-password/5a831370-6b7e-4ece-b962-6bc31c28fe53",
   )
+  await showNextToastsInfinitely(page)
+
   // Submit new password
   await page.getByRole("textbox", { name: "Password (Required)", exact: true }).fill("new-password")
   await page.getByRole("textbox", { name: "Confirm password (Required)" }).fill("new-password")
@@ -24,4 +28,5 @@ test("Can change users password with reset passwors token", async ({ page }) => 
   await page.getByRole("button", { name: "Log in" }).click()
 
   await expect(page.getByRole("heading", { name: "Welcome!" })).toBeVisible()
+  await showToastsNormally(page)
 })

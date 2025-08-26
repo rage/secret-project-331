@@ -64,11 +64,12 @@ FROM email_templates
 WHERE name = $1
   AND course_instance_id IS NULL
   AND deleted_at IS NULL
-  AND language IN ($2, 'en')
+  AND (language = $2 OR language = 'en' OR language IS NULL)
 ORDER BY CASE
     WHEN language = $2 THEN 0
     WHEN language = 'en' THEN 1
-    ELSE 2
+    WHEN language IS NULL THEN 2
+    ELSE 3
   END
 LIMIT 1
         "#,
@@ -89,13 +90,20 @@ pub async fn insert_email_template(
     let res = sqlx::query_as!(
         EmailTemplate,
         "
-INSERT INTO email_templates (name, course_instance_id, subject, language, content)
-VALUES ($1, $2, $3, $4, $5)
-ON CONFLICT (name, language) WHERE course_instance_id IS NULL
-DO UPDATE SET
-    subject = COALESCE(EXCLUDED.subject, email_templates.subject),
-    content = COALESCE(EXCLUDED.content, email_templates.content),
-    updated_at = NOW()
+INSERT INTO email_templates (
+    name,
+    course_instance_id,
+    subject,
+    language,
+    content
+  )
+VALUES ($1, $2, $3, $4, $5) ON CONFLICT (name, language)
+WHERE course_instance_id IS NULL
+  AND deleted_at IS NULL DO
+UPDATE
+SET subject = COALESCE(EXCLUDED.subject, email_templates.subject),
+  content = COALESCE(EXCLUDED.content, email_templates.content),
+  updated_at = NOW()
 RETURNING *
 ",
         email_template.name,

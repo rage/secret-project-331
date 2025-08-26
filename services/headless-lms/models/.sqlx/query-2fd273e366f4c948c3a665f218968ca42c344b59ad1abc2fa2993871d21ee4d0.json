@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM email_templates\nWHERE name = $1\n  AND course_instance_id IS NULL\n  AND deleted_at IS NULL\n  AND language IN ($2, 'en')\nORDER BY CASE\n    WHEN language = $2 THEN 0\n    WHEN language = 'en' THEN 1\n    ELSE 2\n  END\nLIMIT 1\n        ",
+  "query": "\nSELECT *\nFROM email_templates\nWHERE name = $1\n  AND course_instance_id IS NULL\n  AND deleted_at IS NULL\n  AND (language = $2 OR language = 'en' OR language IS NULL)\nORDER BY CASE\n    WHEN language = $2 THEN 0\n    WHEN language = 'en' THEN 1\n    WHEN language IS NULL THEN 2\n    ELSE 3\n  END\nLIMIT 1\n        ",
   "describe": {
     "columns": [
       {
@@ -60,9 +60,9 @@
       }
     ],
     "parameters": {
-      "Left": ["Text", "Varchar"]
+      "Left": ["Text", "Text"]
     },
     "nullable": [false, false, false, true, true, false, true, true, true, true, true]
   },
-  "hash": "23db6582d3d588f7b64310eaf6e2a1cc53dde18a765e061ed8a5acec87a326eb"
+  "hash": "2fd273e366f4c948c3a665f218968ca42c344b59ad1abc2fa2993871d21ee4d0"
 }

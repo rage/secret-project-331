@@ -337,7 +337,15 @@ async fn handle_test_mode_login(
 ) -> ControllerResult<web::Json<bool>> {
     warn!("Using test credentials. Normal accounts won't work.");
 
-    let user = { models::users::get_by_email(conn, email).await? };
+    let user = match models::users::get_by_email(conn, email).await {
+        Ok(u) => u,
+        Err(_) => {
+            warn!("Test user not found for {}", email);
+            let token = skip_authorize();
+            return token.authorized_ok(web::Json(false));
+        }
+    };
+
     let mut is_authenticated =
         authorization::authenticate_test_user(conn, email, password, app_conf)
             .await

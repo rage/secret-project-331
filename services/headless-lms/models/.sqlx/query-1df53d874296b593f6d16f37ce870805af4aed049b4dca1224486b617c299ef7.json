@@ -15,9 +15,18 @@
       }
     ],
     "parameters": {
-      "Left": ["UuidArray", "UuidArray", "Bool", "Float8", "Bool"]
+      "Left": [
+        "UuidArray",
+        "UuidArray",
+        "Bool",
+        "Float8",
+        "Bool"
+      ]
     },
-    "nullable": [false, false]
+    "nullable": [
+      false,
+      false
+    ]
   },
   "hash": "1df53d874296b593f6d16f37ce870805af4aed049b4dca1224486b617c299ef7"
 }

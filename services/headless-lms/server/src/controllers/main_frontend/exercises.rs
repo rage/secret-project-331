@@ -4,7 +4,7 @@ use futures::future;
 
 use headless_lms_models::exercises::Exercise;
 use models::{
-    CourseOrExamId, exercise_slide_submissions::ExerciseSlideSubmission,
+    exercise_slide_submissions::ExerciseSlideSubmission,
     library::grading::AnswersRequiringAttention,
 };
 

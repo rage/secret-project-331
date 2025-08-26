@@ -415,7 +415,7 @@ mod tests {
         }
 
         async fn create_test_data(tx: &mut Tx<'_>) -> ModelResult<(Uuid, Uuid, Uuid, Uuid)> {
-            insert_data!(tx: tx; :user, :org, :course, :instance, :course_module);
+            insert_data!(tx: tx; :user, :org, :course, instance: _instance, :course_module);
             let chapter_id = chapters::insert(
                 tx.as_mut(),
                 PKeyPolicy::Generate,
@@ -496,7 +496,7 @@ mod tests {
                 tx.as_mut(),
                 user,
                 exercise_id,
-                Some(instance.id),
+                Some(course),
                 None,
             )
             .await?;
@@ -504,7 +504,7 @@ mod tests {
                 tx.as_mut(),
                 user,
                 exercise_id,
-                Some(instance.id),
+                Some(course),
                 None,
                 Some(slide_id),
             )

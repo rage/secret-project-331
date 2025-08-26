@@ -32,7 +32,9 @@
         "Uuid"
       ]
     },
-    "nullable": [false]
+    "nullable": [
+      false
+    ]
   },
   "hash": "0ed1883e278007de6c43a3db3d4a14e0150bc27f462f085e2a35d861d80b680b"
 }

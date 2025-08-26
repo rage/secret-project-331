@@ -26,7 +26,7 @@ const messageStyle = css`
   & > * {
     margin: 0rem auto 0.85em;
   }
-  *:last-child {
+  p:last-child {
     margin: 0;
   }
   table {
@@ -55,6 +55,7 @@ const messageStyle = css`
     /*Citations are inside button tags, it's assumed button tags wouldn't
     be used otherwise in chatbot text*/
     border: none;
+    margin-right: 1px;
     cursor: default;
     background-color: ${baseTheme.colors.green[200]};
     font-family: ${monospaceFont};

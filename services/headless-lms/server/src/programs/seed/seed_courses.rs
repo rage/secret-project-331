@@ -376,7 +376,6 @@ pub async fn seed_sample_course(
     let block_id_3 = Uuid::new_v5(&course_id, b"46aad5a8-71bd-49cd-8d86-3368ee8bb7ac");
     let block_id_4 = Uuid::new_v5(&course_id, b"09b327a8-8e65-437e-9678-554fc4d98dd4");
     let block_id_5 = Uuid::new_v5(&course_id, b"834648cc-72d9-42d1-bed7-cc6a2e186ae6");
-    // hard code
     let block_id_6 = Uuid::new_v5(&course_id, b"c7cb99a4-b2e8-45d8-b30a-2f32de3465c8");
     let block_id_7 = Uuid::new_v5(&course_id, b"655dbafe-09ed-4f59-8184-159d0c2efd7c");
     let block_id_8 = Uuid::new_v5(&course_id, b"3bce0ce2-5cfb-45a8-bc0e-af5f634d4d61");

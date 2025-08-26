@@ -199,7 +199,7 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
     if (organization.data) {
       setEditedName(organization.data.name)
       setEditedSlug(organization.data.slug)
-      setHidden(organization.data.deleted_at !== null)
+      setHidden(organization.data.hidden)
     }
   }, [organization.data])
 

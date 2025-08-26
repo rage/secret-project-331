@@ -14,9 +14,8 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
 
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
+
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await page.getByText("Introduction to edit proposals").click()
@@ -48,7 +47,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     scrollToYCoordinate: 920,
   })
 
-  await page.getByText("At vero eos et").click()
+  await page.getByText("The abacus is one of the oldest known calculating tools").click()
 
   await page.getByText("So big, that we need many paragraphs.").click()
 
@@ -74,20 +73,10 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   await page.getByText("Like this.").click()
   await page.fill("text=Like this.", "Like this!")
 
-  await page.click(
-    "text=At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praese",
-  )
-  await page.click(
-    "text=At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praese",
-  )
-  await page.press(
-    "text=At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praese",
-    "Control+a",
-  )
-  await page.fill(
-    "text=At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praese",
-    "redacted",
-  )
+  await page.click("text=The abacus is one of the oldest known calculating tools")
+  await page.click("text=The abacus is one of the oldest known calculating tools")
+  await page.press("text=The abacus is one of the oldest known calculating tools", "Control+a")
+  await page.fill("text=The abacus is one of the oldest known calculating tools", "redacted")
 
   await page.getByText("So big,").click()
 

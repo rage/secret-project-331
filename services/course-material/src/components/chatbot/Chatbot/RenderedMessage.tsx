@@ -1,12 +1,34 @@
 import { css } from "@emotion/css"
-import React, { DOMAttributes } from "react"
+import React, {
+  DOMAttributes,
+  memo,
+  ReactPortal,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react"
+import { createPortal } from "react-dom"
 
-import { baseTheme } from "@/shared-module/common/styles"
+import CitationButton from "./CitationButton"
+import { REMOVE_CITATIONS_REGEX } from "./MessageBubble"
+
+import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 import { getRemarkable } from "@/utils/getRemarkable"
 import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
 
-const messageStyle = (clicked: boolean) => css`
+const PORTAL_PLACEHOLDER_QUERY_SELECTOR = "[data-chatbot-citation='true']"
+
+const md = getRemarkable()
+
+const messageStyle = css`
   flex: 1;
+  & > * {
+    margin: 0rem auto 0.85em;
+  }
+  p:last-child {
+    margin: 0;
+  }
   table {
     margin: 20px 0 20px 0;
     border-collapse: collapse;
@@ -33,24 +55,33 @@ const messageStyle = (clicked: boolean) => css`
     /*Citations are inside button tags, it's assumed button tags wouldn't
     be used otherwise in chatbot text*/
     border: none;
+    margin-right: 1px;
     cursor: default;
-    background-color: ${baseTheme.colors.gray[200]};
-    padding: 0 7px 0 7px;
-    border-radius: 10px;
+    background-color: ${baseTheme.colors.green[200]};
+    font-family: ${monospaceFont};
+    padding: 0 0.525em 0 0.525em;
+    border-radius: 1em;
     font-size: 85%;
     &:hover {
       filter: brightness(0.9) contrast(1.1);
       transition: filter 0.2s;
     }
-    ${clicked && `box-shadow: inset 0 0 0 2px ${baseTheme.colors.gray[400]};`}
   }
-  white-space: pre-wrap;
+  h1 {
+    font-size: x-large;
+  }
+  h2 {
+    font-size: large;
+  }
+  h3 {
+    font-size: medium;
+  }
+  h4,
+  h5,
+  h6 {
+    font-size: small;
+  }
 `
-
-const citationId = (cit_n: number, idx: number) => {
-  /* eslint-disable i18next/no-literal-string */
-  return `cit-${cit_n}-${idx}`
-}
 
 export enum MessageRenderType {
   User,
@@ -58,66 +89,124 @@ export enum MessageRenderType {
   ChatbotWithCitations,
 }
 
-interface CitationButtonProps {
+interface RenderedMessageProps {
   renderOption: MessageRenderType
   message: string
-  pairs: {
-    msg: string
-    cit_n: number
-  }[]
+  citedDocs: number[]
+  citationNumberingMap: Map<number, number>
   citationButtonClicked: boolean
   currentRefId: string | undefined
   handleClick: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void
   hoverCitationProps: DOMAttributes<HTMLButtonElement>
 }
 
-let md = getRemarkable()
+interface MessageWithPortalsComponentProps {
+  msg: string
+}
 
-const RenderedMessage: React.FC<CitationButtonProps> = ({
+const MessageWithPortalsComponent: React.FC<MessageWithPortalsComponentProps> = memo(({ msg }) => {
+  /** memo the rendered message that has the portal targets so that it won't be
+   rerendered when the portals are created */
+  return (
+    <span
+      className={messageStyle}
+      dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(msg) }}
+    ></span>
+  )
+})
+
+MessageWithPortalsComponent.displayName = "MessageWithPortalsComponent"
+
+const RenderedMessage: React.FC<RenderedMessageProps> = ({
   renderOption,
   message,
-  pairs,
+  citedDocs,
+  citationNumberingMap,
   citationButtonClicked,
   currentRefId,
   handleClick,
   hoverCitationProps,
 }) => {
+  // create a ref for this component so that we don't query the whole document later
+  const thisNode = useRef<HTMLElement>(null)
+  // the message needs to be rendered before we can put portals in it, so this state is
+  // set as true only when the initial render is complete and citations shouls be shown
+  const [readyForPortal, setReadyForPortal] = useState(false)
+
+  useLayoutEffect(() => {
+    if (renderOption == MessageRenderType.ChatbotWithCitations) {
+      setReadyForPortal(true)
+    } else {
+      setReadyForPortal(false)
+    }
+  }, [renderOption])
+
+  let portals: ReactPortal[] | null = useMemo(() => {
+    if (!readyForPortal) {
+      return null
+    }
+    return Array.from(
+      thisNode.current?.querySelectorAll(PORTAL_PLACEHOLDER_QUERY_SELECTOR) ?? [],
+    ).map((node, idx) => {
+      // the citedDocs list contains the citation numbers in the order of appearance in the msg
+      // the nodelist contains the citations in the order of appearance in the msg
+      // the same idx can be used
+      let citN = (citationNumberingMap.get(citedDocs[idx]) ?? "").toString()
+
+      return createPortal(
+        <CitationButton
+          citN={citN}
+          idx={idx.toString()}
+          citationButtonClicked={citationButtonClicked}
+          hoverCitationProps={hoverCitationProps}
+          currentRefId={currentRefId}
+          handleClick={handleClick}
+        />,
+        node,
+        idx,
+      )
+    })
+  }, [
+    citationButtonClicked,
+    citationNumberingMap,
+    citedDocs,
+    currentRefId,
+    handleClick,
+    hoverCitationProps,
+    readyForPortal,
+  ])
+
+  let renderedMessage = useMemo(() => {
+    switch (renderOption) {
+      case MessageRenderType.User:
+        return message
+      case MessageRenderType.ChatbotNoCitations:
+        return md.render(message.replace(REMOVE_CITATIONS_REGEX, "").trim())
+      case MessageRenderType.ChatbotWithCitations:
+        return md.render(message.trim())
+      default:
+        throw new Error("unexpected MessageRenderType")
+    }
+  }, [message, renderOption])
+
   if (renderOption === MessageRenderType.User) {
-    return <span className={messageStyle(false)}>{message}</span>
+    return <span className={messageStyle}>{renderedMessage}</span>
   }
-  let messageCopy = md.render(message).trim().slice(3, -4)
 
   if (renderOption === MessageRenderType.ChatbotNoCitations) {
     return (
       <span
-        className={messageStyle(false)}
-        dangerouslySetInnerHTML={{
-          __html: sanitizeCourseMaterialHtml(messageCopy),
-        }}
+        className={messageStyle}
+        dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(renderedMessage) }}
       ></span>
     )
   }
 
   return (
-    <>
-      {pairs.map(({ msg, cit_n }, idx) => (
-        <span
-          key={idx}
-          className={messageStyle(citationButtonClicked && currentRefId === citationId(cit_n, idx))}
-        >
-          <span dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(msg) }}></span>
-          {cit_n && (
-            <button
-              id={citationId(cit_n, idx)}
-              {...hoverCitationProps}
-              onClick={(e) => handleClick(e)}
-            >
-              {cit_n}
-            </button>
-          )}
-        </span>
-      ))}
-    </>
+    <span ref={thisNode}>
+      <MessageWithPortalsComponent msg={renderedMessage} />
+      {readyForPortal && portals}
+    </span>
   )
 }
 

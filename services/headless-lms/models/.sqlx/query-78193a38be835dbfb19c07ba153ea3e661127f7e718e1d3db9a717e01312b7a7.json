@@ -75,9 +75,7 @@
       }
     ],
     "parameters": {
-      "Left": [
-        "Date"
-      ]
+      "Left": ["Date"]
     },
     "nullable": [
       false,

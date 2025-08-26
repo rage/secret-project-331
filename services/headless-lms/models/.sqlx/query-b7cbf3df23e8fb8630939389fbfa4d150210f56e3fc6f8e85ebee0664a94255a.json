@@ -75,13 +75,7 @@
       }
     ],
     "parameters": {
-      "Left": [
-        "Uuid",
-        "Jsonb",
-        "Varchar",
-        "Varchar",
-        "Uuid"
-      ]
+      "Left": ["Uuid", "Jsonb", "Varchar", "Varchar", "Uuid"]
     },
     "nullable": [
       false,

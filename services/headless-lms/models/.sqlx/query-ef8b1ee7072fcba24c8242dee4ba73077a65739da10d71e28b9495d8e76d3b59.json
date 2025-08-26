@@ -47,14 +47,7 @@
         "Text"
       ]
     },
-    "nullable": [
-      false,
-      null,
-      null,
-      null,
-      null,
-      false
-    ]
+    "nullable": [false, null, null, null, null, false]
   },
   "hash": "ef8b1ee7072fcba24c8242dee4ba73077a65739da10d71e28b9495d8e76d3b59"
 }

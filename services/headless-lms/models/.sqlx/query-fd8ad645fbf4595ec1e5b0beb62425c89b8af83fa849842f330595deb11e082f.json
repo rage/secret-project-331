@@ -80,17 +80,7 @@
         "Text"
       ]
     },
-    "nullable": [
-      false,
-      false,
-      false,
-      false,
-      false,
-      true,
-      false,
-      false,
-      true
-    ]
+    "nullable": [false, false, false, false, false, true, false, false, true]
   },
   "hash": "fd8ad645fbf4595ec1e5b0beb62425c89b8af83fa849842f330595deb11e082f"
 }

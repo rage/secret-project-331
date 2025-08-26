@@ -42,21 +42,17 @@
         "ordinal": 7,
         "name": "description",
         "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "hidden",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
       "Left": []
     },
-    "nullable": [
-      false,
-      false,
-      false,
-      false,
-      true,
-      false,
-      true,
-      true
-    ]
+    "nullable": [false, false, false, false, true, false, true, true, false]
   },
   "hash": "3bf69fad6a36a6ecfd46cebad0999d2a51fa732d9750cde4d8ad004b69cfec3a"
 }

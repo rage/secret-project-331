@@ -20,9 +20,7 @@
         "TextArray"
       ]
     },
-    "nullable": [
-      false
-    ]
+    "nullable": [false]
   },
   "hash": "64dc5fcda1924b9d7616d7663915dc06e88ebd42011a8b35dd7092560cc8d75f"
 }

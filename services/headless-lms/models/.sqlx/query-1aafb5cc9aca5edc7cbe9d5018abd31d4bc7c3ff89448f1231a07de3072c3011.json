@@ -10,24 +10,16 @@
           "Custom": {
             "name": "proposal_status",
             "kind": {
-              "Enum": [
-                "pending",
-                "accepted",
-                "rejected"
-              ]
+              "Enum": ["pending", "accepted", "rejected"]
             }
           }
         }
       }
     ],
     "parameters": {
-      "Left": [
-        "Uuid"
-      ]
+      "Left": ["Uuid"]
     },
-    "nullable": [
-      false
-    ]
+    "nullable": [false]
   },
   "hash": "1aafb5cc9aca5edc7cbe9d5018abd31d4bc7c3ff89448f1231a07de3072c3011"
 }

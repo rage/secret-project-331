@@ -35,13 +35,7 @@
           "Custom": {
             "name": "grading_progress",
             "kind": {
-              "Enum": [
-                "fully-graded",
-                "pending",
-                "pending-manual",
-                "failed",
-                "not-ready"
-              ]
+              "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
             }
           }
         }
@@ -68,20 +62,9 @@
       }
     ],
     "parameters": {
-      "Left": [
-        "Uuid"
-      ]
+      "Left": ["Uuid"]
     },
-    "nullable": [
-      false,
-      true,
-      true,
-      false,
-      false,
-      false,
-      false,
-      true
-    ]
+    "nullable": [false, true, true, false, false, false, false, true]
   },
   "hash": "49fb36de200703e85a0cc8687d51bbfaa8d3c0303b9c09d0e5011b20926f9f24"
 }

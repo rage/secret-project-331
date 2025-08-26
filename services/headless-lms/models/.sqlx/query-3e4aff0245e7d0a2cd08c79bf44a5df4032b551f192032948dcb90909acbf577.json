@@ -45,20 +45,9 @@
       }
     ],
     "parameters": {
-      "Left": [
-        "UuidArray"
-      ]
+      "Left": ["UuidArray"]
     },
-    "nullable": [
-      false,
-      false,
-      false,
-      true,
-      false,
-      false,
-      true,
-      true
-    ]
+    "nullable": [false, false, false, true, false, false, true, true]
   },
   "hash": "3e4aff0245e7d0a2cd08c79bf44a5df4032b551f192032948dcb90909acbf577"
 }

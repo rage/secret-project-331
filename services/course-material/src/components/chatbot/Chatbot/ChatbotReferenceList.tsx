@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import { Library } from "@vectopus/atlas-icons-react"
+import Link from "next/link"
 import React, { useId } from "react"
 import { useHover } from "react-aria"
 import { useTranslation } from "react-i18next"
@@ -123,7 +124,7 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
             return (
               <div key={cit.id} className={referenceStyle}>
                 {citationsOpen ? (
-                  <a href={cit.document_url}>
+                  <Link href={cit.document_url}>
                     <span
                       className={css`
                         flex: 7;
@@ -142,7 +143,7 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
                           `${t("chapter-chapter-number", {
                             number: cit.course_material_chapter_number,
                           })}: `}
-                        {`${cit.title}`}
+                        {cit.title}
                       </span>
                     </span>
                     <Library
@@ -154,13 +155,14 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
                         color: #000000;
                       `}
                     />
-                  </a>
+                  </Link>
                 ) : (
                   <>
                     <b>{citationNumber}</b>{" "}
                     {cit.title.length <= citationTitleLen
                       ? cit.title
-                      : cit.title.slice(0, citationTitleLen - 3).concat("...")}
+                      : // eslint-disable-next-line i18next/no-literal-string
+                        cit.title.slice(0, citationTitleLen - 3).concat("\u2026")}
                   </>
                 )}
                 <SpeechBalloonPopover
@@ -189,18 +191,22 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
                       margin-bottom: 0.5em;
                       mask-image: linear-gradient(0.5turn, black 66%, transparent);
                       h1 {
-                        font-size: x-large;
+                        font-size: 1.8rem;
                       }
                       h2 {
-                        font-size: large;
+                        font-size: 1.5rem;
                       }
                       h3 {
-                        font-size: medium;
+                        font-size: 1.2rem;
                       }
-                      h4,
-                      h5,
+                      h4 {
+                        font-size: 1rem;
+                      }
+                      h5 {
+                        font-size: 0.8rem;
+                      }
                       h6 {
-                        font-size: small;
+                        font-size: 0.6rem;
                       }
                     `}
                     dangerouslySetInnerHTML={{

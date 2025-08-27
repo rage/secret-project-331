@@ -37,6 +37,10 @@ const chatbotCitationParser = (state: StateInline) => {
     }
     let char = state.src.charAt(newPos)
     if (!char.match(digitRegex)) {
+      if (i === 0) {
+        // there needs to be at least one digit
+        return false
+      }
       if (!char.match("]")) {
         return false
       }
@@ -48,6 +52,9 @@ const chatbotCitationParser = (state: StateInline) => {
 
   // double check if the current pos starts a string that matches our tag
   if (!marker.match(MATCH_CITATION_TAG_REGEX)) {
+    console.warn(
+      `Markdown parser caught an incorrect chatbotCitation marker in the double check. Marker: ${marker}. There's a bug in the parser.`,
+    )
     return false
   }
   // we found our tag in the source so let's create a token and update the state pos

@@ -13,6 +13,7 @@ import { createPortal } from "react-dom"
 import CitationButton from "./CitationButton"
 
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { REMOVE_CITATIONS_REGEX } from "@/utils/chatbotCitationRegexes"
 import { getRemarkable } from "@/utils/getRemarkable"
 import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
@@ -24,10 +25,10 @@ const md = getRemarkable()
 const messageStyle = css`
   flex: 1;
   & > * {
-    margin: 0rem auto 0.85em;
+    margin: 0 auto 0.85em;
   }
   p:last-child {
-    margin: 0;
+    margin: 0 auto;
   }
   table {
     margin: 20px 0 20px 0;
@@ -68,18 +69,22 @@ const messageStyle = css`
     }
   }
   h1 {
-    font-size: x-large;
+    font-size: 1.8rem;
   }
   h2 {
-    font-size: large;
+    font-size: 1.5rem;
   }
   h3 {
-    font-size: medium;
+    font-size: 1.2rem;
   }
-  h4,
-  h5,
+  h4 {
+    font-size: 1rem;
+  }
+  h5 {
+    font-size: 0.8rem;
+  }
   h6 {
-    font-size: small;
+    font-size: 0.6rem;
   }
 `
 
@@ -130,7 +135,7 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
   // create a ref for this component so that we don't query the whole document later
   const thisNode = useRef<HTMLElement>(null)
   // the message needs to be rendered before we can put portals in it, so this state is
-  // set as true only when the initial render is complete and citations shouls be shown
+  // set as true only when the initial render is complete and citations should be shown
   const [readyForPortal, setReadyForPortal] = useState(false)
 
   useLayoutEffect(() => {
@@ -151,11 +156,11 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
       // the citedDocs list contains the citation numbers in the order of appearance in the msg
       // the nodelist contains the citations in the order of appearance in the msg
       // the same idx can be used
-      let citN = (citationNumberingMap.get(citedDocs[idx]) ?? "").toString()
+      let citN = assertNotNullOrUndefined(citationNumberingMap.get(citedDocs[idx]))
 
       return createPortal(
         <CitationButton
-          citN={citN}
+          citN={citN.toString()}
           idx={idx.toString()}
           citationButtonClicked={citationButtonClicked}
           hoverCitationProps={hoverCitationProps}

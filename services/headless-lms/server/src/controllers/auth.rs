@@ -16,7 +16,7 @@ use actix_session::Session;
 use anyhow::Error;
 use anyhow::anyhow;
 use headless_lms_utils::tmc::{NewUserInfo, TmcClient};
-use secrecy::{ExposeSecret, SecretString};
+use secrecy::SecretString;
 use std::time::Duration;
 use tracing_log::log;
 
@@ -88,12 +88,11 @@ Content-Type: application/json
 }
 ```
 */
-#[instrument(skip(session, pool, client, payload, app_conf))]
+#[instrument(skip(session, pool, payload, app_conf))]
 pub async fn signup(
     session: Session,
     payload: web::Json<CreateAccountDetails>,
     pool: web::Data<PgPool>,
-    client: web::Data<OAuthClient>,
     user: Option<AuthUser>,
     app_conf: web::Data<ApplicationConfiguration>,
     tmc_client: web::Data<TmcClient>,

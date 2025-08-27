@@ -1,13 +1,14 @@
 import "@testing-library/jest-dom"
 
-import { REMOVE_CITATIONS_REGEX, renumberFilterCitations } from "../Chatbot/MessageBubble"
+import { renumberFilterCitations } from "../Chatbot/MessageBubble"
 
 import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
+import { REMOVE_CITATIONS_REGEX } from "@/utils/chatbotCitationRegexes"
 
 describe("MessageBubble", () => {
   describe("renumberFilterCitations", () => {
-    const exampleChatbotMessage = `Certainly! The Chinese abacus [doc3], known as the "suanpan," dates back to the Han Dynasty, around the 2nd century BCE [doc3]. It features a [dsdsg] bead-and-rod system, typically with two beads on the upper deck [doc1] and five beads on the lower deck per rod [doc5], operating on a decimal system.`
-    const exampleCitedDocs = [3, 3, 1, 5]
+    const exampleChatbotMessage = `Certainly! The Chinese abacus [doc3], known as the "suanpan," dates back to the Han Dynasty, around the 2nd century BCE [doc3]. It features a [dsdsg] bead-and-rod system, typically with two beads on the upper deck [doc12] and five beads on the lower deck per rod [doc5], operating on a decimal system.`
+    const exampleCitedDocs = [3, 3, 12, 5]
 
     const exampleChatbotMessage2 = `Certainly! The Chinese abacus [doc1], known as the "suanpan," dates back to the Han Dynasty, around the 2nd century BCE [doc2]. It features a [dsdsg] bead-and-rod system, typically with two beads on the upper deck [doc3] and five beads on the lower deck per rod [doc4], operating on a decimal system.`
     const exampleCitedDocs2 = [1, 2, 3, 4]
@@ -80,12 +81,26 @@ describe("MessageBubble", () => {
         title: "",
         updated_at: "",
       },
+      {
+        id: "f",
+        created_at: "",
+        citation_number: 12,
+        content: "",
+        conversation_id: "",
+        conversation_message_id: "",
+        course_material_chapter_number: null,
+        deleted_at: null,
+        document_url: "",
+        title: "",
+        updated_at: "",
+      },
     ]
 
     it("filters out the citations that don't appear in the message and sorts and renumbers them based on when they appear", () => {
       const { filteredCitations, citedDocs, citationNumberingMap } = renumberFilterCitations(
         exampleChatbotMessage,
         exampleChatbotMessageCitations,
+        true,
       )
       expect(filteredCitations).toStrictEqual([
         {
@@ -102,9 +117,9 @@ describe("MessageBubble", () => {
           updated_at: "",
         },
         {
-          id: "a",
+          id: "f",
           created_at: "",
-          citation_number: 1,
+          citation_number: 12,
           content: "",
           conversation_id: "",
           conversation_message_id: "",
@@ -133,7 +148,7 @@ describe("MessageBubble", () => {
       // check each filteredCitations number to see if they map to the order in
       // which they appear in the text.
       expect(citationNumberingMap.get(3)).toEqual(1)
-      expect(citationNumberingMap.get(1)).toEqual(2)
+      expect(citationNumberingMap.get(12)).toEqual(2)
       expect(citationNumberingMap.get(5)).toEqual(3)
     })
 
@@ -141,6 +156,7 @@ describe("MessageBubble", () => {
       const { filteredCitations, citedDocs, citationNumberingMap } = renumberFilterCitations(
         exampleChatbotMessage2,
         exampleChatbotMessageCitations,
+        true,
       )
 
       expect(filteredCitations).toStrictEqual([
@@ -203,12 +219,14 @@ describe("MessageBubble", () => {
       expect(citationNumberingMap.get(1)).toEqual(1)
       expect(citationNumberingMap.get(2)).toEqual(2)
       expect(citationNumberingMap.get(3)).toEqual(3)
+      expect(citationNumberingMap.get(4)).toEqual(4)
     })
 
     it("works if the msg has no citations but is associated with cited docs", () => {
       const { filteredCitations, citedDocs } = renumberFilterCitations(
         exampleChatbotMessageNoCitations,
         exampleChatbotMessageCitations,
+        true,
       )
       expect(filteredCitations).toStrictEqual([])
       expect(citedDocs).toStrictEqual([])

@@ -11,9 +11,9 @@ import React, {
 import { createPortal } from "react-dom"
 
 import CitationButton from "./CitationButton"
-import { REMOVE_CITATIONS_REGEX } from "./MessageBubble"
 
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
+import { REMOVE_CITATIONS_REGEX } from "@/utils/chatbotCitationRegexes"
 import { getRemarkable } from "@/utils/getRemarkable"
 import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
 

@@ -83,7 +83,12 @@ pub async fn insert(
 pub async fn all_organizations(conn: &mut PgConnection) -> ModelResult<Vec<DatabaseOrganization>> {
     let organizations = sqlx::query_as!(
         DatabaseOrganization,
-        "SELECT * FROM organizations WHERE deleted_at IS NULL ORDER BY name;"
+        r#"
+        SELECT *
+        FROM organizations
+        WHERE deleted_at IS NULL AND hidden = FALSE
+        ORDER BY name
+        "#
     )
     .fetch_all(conn)
     .await?;
@@ -209,7 +214,12 @@ pub async fn all_organizations_include_hidden(
 ) -> ModelResult<Vec<DatabaseOrganization>> {
     let organizations = sqlx::query_as!(
         DatabaseOrganization,
-        "SELECT * FROM organizations ORDER BY name;"
+        r#"
+SELECT *
+FROM organizations
+WHERE deleted_at IS NULL
+ORDER BY name
+    "#
     )
     .fetch_all(conn)
     .await?;

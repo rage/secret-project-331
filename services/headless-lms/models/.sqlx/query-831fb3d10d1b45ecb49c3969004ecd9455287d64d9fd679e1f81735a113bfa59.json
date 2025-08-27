@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT * FROM organizations WHERE deleted_at IS NULL ORDER BY name;",
+  "query": "\nSELECT *\nFROM organizations\nWHERE deleted_at IS NULL\nORDER BY name\n    ",
   "describe": {
     "columns": [
       {
@@ -54,5 +54,5 @@
     },
     "nullable": [false, false, false, false, true, false, true, true, false]
   },
-  "hash": "4dd782cd803242c13bb09a513ce1b947433a940989d46a40391a4564e305dfa8"
+  "hash": "831fb3d10d1b45ecb49c3969004ecd9455287d64d9fd679e1f81735a113bfa59"
 }

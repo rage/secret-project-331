@@ -7,7 +7,7 @@ let md: Remarkable | null = null
 
 const chatbotCitationParser = (state: StateInline) => {
   /** parser for parsing chatbot citations from text.
-  matches `[docn]` where n is a digit 0-9 */
+  matches `[docn]` where n is a sequence of digits 0-9 */
   let digitRegex = /^\d$/
 
   if (state.src.charAt(state.pos) !== "[") {
@@ -44,8 +44,8 @@ const chatbotCitationParser = (state: StateInline) => {
     }
   }
   newPos += 1
-
   let marker = state.src.slice(state.pos, newPos)
+
   // double check if the current pos starts a string that matches our tag
   if (!marker.match(MATCH_CITATION_TAG_REGEX)) {
     return false
@@ -74,7 +74,8 @@ const chatbotCitationRenderer: Rule = (
 
   // the content is the marker, so: `[docn]`
   // the doc number n is at the 4th index
-  const citationN = tokens[idx].content.charAt(4)
+  const marker: string = tokens[idx].content
+  const citationN = marker.slice(4, marker.length - 1)
   let htmlString = `<span data-chatbot-citation="true" data-citation-n="${citationN}"></span>`
   return htmlString
 }

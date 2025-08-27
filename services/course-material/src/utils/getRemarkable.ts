@@ -28,7 +28,6 @@ const chatbotCitationParser = (state: StateInline) => {
   if (state.src.charAt(newPos) !== "c") {
     return false
   }
-  newPos += 1
 
   for (let i = 0; i < 1000; i++) {
     newPos += 1

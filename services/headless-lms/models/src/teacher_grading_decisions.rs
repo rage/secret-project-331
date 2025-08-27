@@ -116,7 +116,7 @@ pub async fn try_to_get_latest_grading_decision_by_user_exercise_state_id_for_us
     let decisions = sqlx::query_as!(
         TeacherGradingDecision,
         r#"
-SELECT id,
+SELECT DISTINCT ON (user_exercise_state_id) id,
   user_exercise_state_id,
   created_at,
   updated_at,
@@ -126,10 +126,10 @@ SELECT id,
   justification,
   hidden
 FROM teacher_grading_decisions
-WHERE user_exercise_state_id IN (
-    SELECT UNNEST($1::uuid [])
-  )
+WHERE user_exercise_state_id = ANY($1)
   AND deleted_at IS NULL
+ORDER BY user_exercise_state_id,
+  created_at DESC
       "#,
         user_exercise_state_ids,
     )

@@ -11,5 +11,5 @@ export async function selectOrganization(page: Page, orgName: string) {
  * Clicks the "Manage" button for the organization with the given heading.
  */
 export async function manageOrganization(page: Page, orgName: string) {
-  await page.getByRole("link", { name: `Manage organization ${orgName}` }).click()
+  await page.getByLabel(orgName).getByRole("link", { name: "Manage Organization" }).click()
 }

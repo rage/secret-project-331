@@ -1,4 +1,4 @@
-import { test } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
@@ -70,7 +70,7 @@ test("Organization workflow", async ({ page }) => {
     await page.getByTestId("dialog").getByRole("textbox").fill("delete")
     await page.getByRole("button", { name: "Confirm" }).click()
     await page.getByText("Success", { exact: true }).click()
-    await page.getByRole("heading", { name: "New Test Edited (Hidden)" }).click()
+    await expect(page.getByRole("heading", { name: "New Test Edited" })).toHaveCount(0)
   })
 })
 

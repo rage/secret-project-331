@@ -81,6 +81,19 @@ describe("MessageBubble", () => {
         title: "",
         updated_at: "",
       },
+      {
+        id: "f",
+        created_at: "",
+        citation_number: 12,
+        content: "",
+        conversation_id: "",
+        conversation_message_id: "",
+        course_material_chapter_number: null,
+        deleted_at: null,
+        document_url: "",
+        title: "",
+        updated_at: "",
+      },
     ]
 
     it("filters out the citations that don't appear in the message and sorts and renumbers them based on when they appear", () => {
@@ -104,7 +117,7 @@ describe("MessageBubble", () => {
           updated_at: "",
         },
         {
-          id: "a",
+          id: "f",
           created_at: "",
           citation_number: 12,
           content: "",

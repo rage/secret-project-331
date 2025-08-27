@@ -1,9 +1,12 @@
 {
+  "are-you-sure": "Ви впевнені?",
   "download-exercise": "Завантажити вправу",
   "download-submission-button": "Завантажити",
   "file-upload-save-failure": "Не вдалося зберегти завантажений файл",
   "file-upload-save-success": "Файл успішно завантажено.",
+  "no-exercise-files": "Файли вправи не знайдені. Це помилка у вправі.",
   "no-file-saved-yet": "Файл ще не збережено.",
+  "no-student-files": "Файли студента не знайдені. Це помилка у вправі.",
   "reset": "Скинути",
   "reset-file": "Скинути файл",
   "save-file-for-submission": "Зберегти файл для подання",
@@ -15,6 +18,7 @@
   "solve-in-editor-label": "Вирішити у зовнішньому редакторі",
   "submission-archive-download-label": "Поданий архів можна завантажити за наступним посиланням",
   "submit": "Подати",
+  "test": "Тест",
   "upload-solution-instructions": "Завантажте архів з рішенням. Підтримувані типи архівів: .tar.zst",
   "waiting-for-content": "Очікування вмісту...",
   "waiting-for-port": "Очікування порту..."

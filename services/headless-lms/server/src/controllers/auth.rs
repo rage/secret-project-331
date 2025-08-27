@@ -105,69 +105,66 @@ pub async fn signup(
         return handle_test_mode_signup(&mut conn, &session, &user_details, &app_conf).await;
     }
     if user.is_none() {
-        // First create the actual user to tmc.mooc.fi and then fetch it from mooc.fi
-        post_new_user_to_moocfi(&user_details, &tmc_client, &app_conf).await?;
+        let upstream_id = post_new_user_to_tmc(&user_details, &tmc_client, &app_conf).await?;
         let password_secret = SecretString::new(user_details.password.into());
 
-        let auth_result = authorization::authenticate_moocfi_user(
+        let user_id = models::users::insert(
             &mut conn,
-            &client,
-            user_details.email,
-            password_secret.expose_secret().to_string(),
+            PKeyPolicy::Generate,
+            &user_details.email,
+            Some(&user_details.first_name),
+            Some(&user_details.last_name),
+        )
+        .await
+        .map_err(|e| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                "Failed to insert user.".to_string(),
+                Some(anyhow!(e)),
+            )
+        })?;
+
+        let user = models::users::get_by_id(&mut conn, user_id).await?;
+
+        let country = user_details.country.clone();
+        models::user_details::update_user_country(&mut conn, user_id, &country).await?;
+        models::user_details::update_user_email_communication_consent(
+            &mut conn,
+            user_id,
+            user_details.email_communication_consent,
         )
         .await?;
 
-        if let Some((user, _token)) = auth_result {
-            let country = user_details.country.clone();
-            models::user_details::update_user_country(&mut conn, user.id, &country).await?;
-            models::user_details::update_user_email_communication_consent(
-                &mut conn,
-                user.id,
-                user_details.email_communication_consent,
-            )
-            .await?;
+        // Hash and save password to local database
+        let password_hash = models::user_passwords::hash_password(&password_secret)
+            .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
 
-            // Hash and save password to local database
-            let password_hash = models::user_passwords::hash_password(&password_secret)
-                .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
+        models::user_passwords::upsert_user_password(&mut conn, user_id, password_hash)
+            .await
+            .map_err(|e| {
+                ControllerError::new(
+                    ControllerErrorType::InternalServerError,
+                    "Failed to add password to database".to_string(),
+                    anyhow!(e),
+                )
+            })?;
 
-            models::user_passwords::upsert_user_password(&mut conn, user.id, password_hash)
-                .await
-                .map_err(|e| {
-                    ControllerError::new(
-                        ControllerErrorType::InternalServerError,
-                        "Failed to add password to database".to_string(),
-                        anyhow!(e),
-                    )
-                })?;
+        // Notify tmc that the password is managed by courses.mooc.fi
+        tmc_client
+            .set_user_password_managed_by_courses_mooc_fi(upstream_id.to_string(), user.id)
+            .await
+            .map_err(|e| {
+                ControllerError::new(
+                    ControllerErrorType::InternalServerError,
+                    "Failed to notify TMC that user's password is saved in courses.mooc.fi"
+                        .to_string(),
+                    anyhow!(e),
+                )
+            })?;
 
-            // Notify tmc that the password is managed by courses.mooc.fi
-            if let Some(upstream_id) = user.upstream_id {
-                tmc_client
-                    .set_user_password_managed_by_courses_mooc_fi(upstream_id.to_string(), user.id)
-                    .await
-                    .map_err(|e| {
-                        ControllerError::new(
-                            ControllerErrorType::InternalServerError,
-                            "Failed to notify TMC that user's password is saved in courses.mooc.fi"
-                                .to_string(),
-                            anyhow!(e),
-                        )
-                    })?;
-            } else {
-                warn!("User has no upstream_id; skipping notify to TMC");
-            }
-
-            let token = skip_authorize();
-            authorization::remember(&session, user)?;
-            token.authorized_ok(HttpResponse::Ok().finish())
-        } else {
-            Err(ControllerError::new(
-                ControllerErrorType::Unauthorized,
-                "Incorrect email or password.".to_string(),
-                None,
-            ))
-        }
+        let token = skip_authorize();
+        authorization::remember(&session, user)?;
+        token.authorized_ok(HttpResponse::Ok().finish())
     } else {
         Err(ControllerError::new(
             ControllerErrorType::BadRequest,
@@ -521,13 +518,13 @@ pub async fn user_info(
 /// Posts new user account to tmc.mooc.fi.
 ///
 /// Based on implementation from <https://github.com/rage/mooc.fi/blob/fb9a204f4dbf296b35ec82b2442e1e6ae0641fe9/frontend/lib/account.ts>
-pub async fn post_new_user_to_moocfi(
+pub async fn post_new_user_to_tmc(
     user_details: &CreateAccountDetails,
     tmc_client: &web::Data<TmcClient>,
     app_conf: &ApplicationConfiguration,
-) -> anyhow::Result<()> {
-    tmc_client
-        .post_new_user_to_moocfi(
+) -> anyhow::Result<i64> {
+    let upstream_id = tmc_client
+        .post_new_user_to_tmc(
             NewUserInfo {
                 first_name: user_details.first_name.clone(),
                 last_name: user_details.last_name.clone(),
@@ -538,7 +535,8 @@ pub async fn post_new_user_to_moocfi(
             },
             app_conf,
         )
-        .await
+        .await?;
+    Ok(upstream_id)
 }
 
 pub async fn update_user_information_to_tmc(

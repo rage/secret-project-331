@@ -32,6 +32,11 @@ pub struct TmcUserInfo {
     pub upstream_id: i32,
 }
 
+#[derive(Deserialize)]
+pub struct TMCUserResponse {
+    pub id: i64,
+}
+
 const TMC_API_URL: &str = "https://tmc.mooc.fi/api/v8/users";
 
 impl TmcClient {
@@ -176,11 +181,11 @@ impl TmcClient {
             .map(|_| ())
     }
 
-    pub async fn post_new_user_to_moocfi(
+    pub async fn post_new_user_to_tmc(
         &self,
         user_info: NewUserInfo,
         app_conf: &ApplicationConfiguration,
-    ) -> Result<()> {
+    ) -> Result<i64> {
         let payload = json!({
             "user": {
                 "email": user_info.email,
@@ -197,9 +202,13 @@ impl TmcClient {
             "language": user_info.language
         });
 
-        self.request_with_headers(reqwest::Method::POST, TMC_API_URL, false, Some(payload))
-            .await
-            .map(|_| ())
+        let url = format!("{}?include_id=true", TMC_API_URL);
+        let response = self
+            .request_with_headers(reqwest::Method::POST, &url, false, Some(payload))
+            .await?;
+
+        let body: TMCUserResponse = response.json().await?;
+        Ok(body.id)
     }
 
     pub async fn set_user_password_managed_by_courses_mooc_fi(

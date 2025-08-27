@@ -300,6 +300,7 @@ async fn sync_pages_batch(
         };
 
         let blob_path = generate_blob_path(page)?;
+        let chapter = headless_lms_models::chapters::get_chapter_by_page_id(conn, page.id).await?;
 
         allowed_file_paths.push(blob_path.clone());
         let mut metadata = HashMap::new();
@@ -314,6 +315,14 @@ async fn sync_pages_batch(
             course.language_code.to_string().into(),
         );
         metadata.insert("filepath".to_string(), blob_path.clone().into());
+        metadata.insert(
+            "chunk_context".to_string(),
+            format!(
+                "This chunk is Page {} from the Chapter {}: {} of Course {}.",
+                page.title, chapter.chapter_number, chapter.name, course.name,
+            )
+            .into(),
+        );
 
         if let Err(e) = blob_client
             .upload_file(&blob_path, content_to_upload.as_bytes(), Some(metadata))

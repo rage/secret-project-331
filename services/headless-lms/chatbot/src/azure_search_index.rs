@@ -445,6 +445,24 @@ pub async fn create_search_index(
             vector_search_profile: None,
             vector_encoding: None,
         },
+        Field {
+            name: "chunk_context".to_string(),
+            field_type: "Edm.String".to_string(),
+            key: Some(false),
+            searchable: Some(true),
+            filterable: Some(false),
+            retrievable: Some(true),
+            stored: Some(true),
+            sortable: Some(false),
+            facetable: Some(false),
+            analyzer: None,
+            index_analyzer: None,
+            search_analyzer: None,
+            synonym_maps: Some(vec![]),
+            dimensions: None,
+            vector_search_profile: None,
+            vector_encoding: None,
+        },
     ];
 
     let index = NewIndex {

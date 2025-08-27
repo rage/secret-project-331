@@ -205,8 +205,8 @@ impl ChatRequest {
                             .to_odata()?,
                     ),
                     fields_mapping: FieldsMapping {
-                        content_fields_separator: ",".to_string(),
-                        content_fields: vec!["chunk".to_string()],
+                        content_fields_separator: ",,".to_string(),
+                        content_fields: vec!["chunk_context".to_string(), "chunk".to_string()],
                         filepath_field: "filepath".to_string(),
                         title_field: "title".to_string(),
                         url_field: "url".to_string(),
@@ -461,6 +461,8 @@ pub async fn send_chat_request_and_parse_stream(
 
     let response_stream = async_stream::try_stream! {
         while let Some(line) = lines.next_line().await? {
+            println!("{:?}", line);
+
             if !line.starts_with("data: ") {
                 continue;
             }

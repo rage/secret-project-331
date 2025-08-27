@@ -35,6 +35,13 @@ def get_api_key() -> str:
 def make_api_request(payload: Dict[str, Any], api_key: str) -> str:
     api_host = os.getenv('AZURE_API_HOST')
     api_model = os.getenv('AZURE_API_MODEL')
+
+    # Extract hostname from URL if it contains protocol
+    if api_host.startswith('https://'):
+        api_host = api_host[8:]  # Remove 'https://' prefix
+    elif api_host.startswith('http://'):
+        api_host = api_host[7:]  # Remove 'http://' prefix
+
     conn = http.client.HTTPSConnection(api_host)
     headers = {
         'api-key': api_key,
@@ -43,7 +50,7 @@ def make_api_request(payload: Dict[str, Any], api_key: str) -> str:
     conn.request(
         "POST",
         f"/openai/deployments/{api_model}/chat/completions?api-version=2024-06-01",
-        json.dumps(payload, ensure_ascii=False),
+        json.dumps(payload, ensure_ascii=False).encode('utf-8'),
         headers
     )
     res = conn.getresponse()

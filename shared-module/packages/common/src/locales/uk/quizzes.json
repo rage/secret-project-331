@@ -78,6 +78,7 @@
   "maximum": "Максимум",
   "message-after-submission-when-this-option-selected": "Повідомлення після надсилання, коли вибрано цей параметр",
   "message-on-model-solution-when-this-option-selected": "Повідомлення про модельне рішення, коли вибрано цей параметр",
+  "message-the-exercise-type-has-changed": "Тип вправи було змінено після вашого подання, але ваша початкова відповідь збережена.",
   "min": "хв",
   "min-words": "Мінімум слів",
   "minimum": "Мінімум",

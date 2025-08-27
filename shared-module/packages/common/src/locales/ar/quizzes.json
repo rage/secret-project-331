@@ -78,6 +78,7 @@
   "maximum": "الحد الأقصى",
   "message-after-submission-when-this-option-selected": "رسالة بعد التقديم عند اختيار هذا الخيار",
   "message-on-model-solution-when-this-option-selected": "رسالة على الحل النموذجي عند اختيار هذا الخيار",
+  "message-the-exercise-type-has-changed": "تم تغيير نوع التمرين بعد تقديمك، ولكن تم حفظ إجابتك الأصلية.",
   "min": "الحد الأدنى",
   "min-words": "الحد الأدنى للكلمات",
   "minimum": "الحد الأدنى",

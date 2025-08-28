@@ -14,7 +14,7 @@ const Wrapper = styled.div`
   margin: 1.5rem auto;
   max-width: 1000px;
 `
-const Question = styled.span`
+const Question = styled.legend`
   font-size: 22px;
   margin: 0 auto;
   margin-bottom: 1rem;
@@ -74,6 +74,13 @@ const StyledToggleButton = styled(ToggleButton)<StyledProps>`
   }
 `
 
+const StyledFieldset = styled.fieldset`
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+`
+
 interface LikertScaleProps {
   disabled?: boolean
   question: string
@@ -122,30 +129,30 @@ const LikertScale: React.FC<React.PropsWithChildren<LikertScaleProps>> = ({
 
   return (
     <Wrapper>
-      <Question>
-        {question}
-        {answerRequired && " *"}
-      </Question>
-
-      <ToggleButtonGroup>
-        <Likerts>
-          {arr.map((option, n) => (
-            <StyledToggleButton
-              active={selectedOption === n + 1}
-              id={`likert-scale-${peerOrSelfReviewQuestionId}-option-${n + 1}`}
-              key={n + 1}
-              onClick={() => {
-                if (!disabled) {
-                  setSelectedOption(n + 1)
-                }
-              }}
-            >
-              {option.image}
-              <p className="likert-scale-text">{option.text}</p>
-            </StyledToggleButton>
-          ))}
-        </Likerts>
-      </ToggleButtonGroup>
+      <StyledFieldset>
+        <Question>
+          {question} {answerRequired && " *"}
+        </Question>
+        <ToggleButtonGroup aria-required={answerRequired}>
+          <Likerts>
+            {arr.map((option, n) => (
+              <StyledToggleButton
+                active={selectedOption === n + 1}
+                id={`likert-scale-${peerOrSelfReviewQuestionId}-option-${n + 1}`}
+                key={n + 1}
+                onClick={() => {
+                  if (!disabled) {
+                    setSelectedOption(n + 1)
+                  }
+                }}
+              >
+                {option.image}
+                <p className="likert-scale-text">{option.text}</p>
+              </StyledToggleButton>
+            ))}
+          </Likerts>
+        </ToggleButtonGroup>
+      </StyledFieldset>
     </Wrapper>
   )
 }

@@ -179,14 +179,14 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
             margin-bottom: 1.5rem;
           `}
         >
-          <a
+          <Link
             className={css`
               color: ${baseTheme.colors.blue[500]}!important;
             `}
             href="/reset-password"
           >
             {t("forgot-password")}
-          </a>
+          </Link>
         </div>
         <div
           className={css`

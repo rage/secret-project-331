@@ -8,6 +8,7 @@ import useUserResearchConsentQuery from "../hooks/useUserResearchConsentQuery"
 import { getCourseBreadCrumbInfo } from "../services/backend/courses"
 import { getAllResearchConsentAnswersByUserId } from "../services/backend/users"
 
+import DeleteUserAccountForm from "@/components/forms/DeleteUserAccountForm"
 import EditUserInformationForm from "@/components/forms/EditUserInformationForm"
 import { getUserDetailsForUser } from "@/services/backend/user-details"
 import Button from "@/shared-module/common/components/Button"
@@ -78,13 +79,16 @@ const UserSettings: React.FC<React.PropsWithChildren<Slug>> = () => {
         )}
         {getUserDetails.isPending && <Spinner variant={"medium"} />}
         {getUserDetails.isSuccess && getUserDetails.data !== null && (
-          <EditUserInformationForm
-            firstName={getUserDetails.data?.first_name ?? ""}
-            lastName={getUserDetails.data?.last_name ?? ""}
-            country={getUserDetails.data?.country ?? ""}
-            emailCommunicationConsent={getUserDetails.data?.email_communication_consent ?? false}
-            email={getUserDetails.data?.email}
-          />
+          <div>
+            <EditUserInformationForm
+              firstName={getUserDetails.data?.first_name ?? ""}
+              lastName={getUserDetails.data?.last_name ?? ""}
+              country={getUserDetails.data?.country ?? ""}
+              emailCommunicationConsent={getUserDetails.data?.email_communication_consent ?? false}
+              email={getUserDetails.data?.email}
+            />
+            <DeleteUserAccountForm email={getUserDetails.data?.email} />
+          </div>
         )}
       </div>
       <h2

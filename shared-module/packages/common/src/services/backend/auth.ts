@@ -39,3 +39,11 @@ export const userInfo = async (): Promise<UserInfo | null> => {
   const response = await axios.get(`/api/v0/auth/user-info`, { responseType: "json" })
   return validateResponse(response, isUnion(isUserInfo, isNull))
 }
+
+export const deleteUserAccount = async (email: string, password: string): Promise<boolean> => {
+  const response = await axios.post(`/api/v0/auth/delete-user-account`, {
+    email,
+    password,
+  })
+  return validateResponse(response, isBoolean)
+}

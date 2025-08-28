@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["all_organizations","get_organization","get_organization_by_slug","insert","update_organization_image_path"],"struct":["DatabaseOrganization","Organization"]};
+window.SIDEBAR_ITEMS = {"fn":["all_organizations","all_organizations_include_hidden","get_organization","get_organization_by_slug","insert","soft_delete","update_name_and_hidden","update_organization_image_path"],"struct":["DatabaseOrganization","Organization"]};

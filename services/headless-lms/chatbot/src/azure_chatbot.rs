@@ -23,6 +23,8 @@ use crate::llm_utils::{LLM_API_VERSION, build_llm_headers, estimate_tokens};
 use crate::prelude::*;
 use crate::search_filter::SearchFilter;
 
+const CONTENT_FIELD_SEPARATOR: &'static str = ",,";
+
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ContentFilterResults {
     pub hate: Option<ContentFilter>,
@@ -205,7 +207,7 @@ impl ChatRequest {
                             .to_odata()?,
                     ),
                     fields_mapping: FieldsMapping {
-                        content_fields_separator: ",,".to_string(),
+                        content_fields_separator: CONTENT_FIELD_SEPARATOR.to_string(),
                         content_fields: vec!["chunk_context".to_string(), "chunk".to_string()],
                         filepath_field: "filepath".to_string(),
                         title_field: "title".to_string(),
@@ -461,8 +463,6 @@ pub async fn send_chat_request_and_parse_stream(
 
     let response_stream = async_stream::try_stream! {
         while let Some(line) = lines.next_line().await? {
-            println!("{:?}", line);
-
             if !line.starts_with("data: ") {
                 continue;
             }
@@ -493,6 +493,7 @@ pub async fn send_chat_request_and_parse_stream(
 
             for choice in &response_chunk.choices {
                 if let Some(delta) = &choice.delta {
+                    println!("{:?}",delta);
                     if let Some(content) = &delta.content {
                         full_response_text.push(content.clone());
                         let response = ChatResponse { text: content.clone() };
@@ -501,10 +502,16 @@ pub async fn send_chat_request_and_parse_stream(
                         yield Bytes::from("\n");
                     }
                     if let Some(context) = &delta.context {
+
                         let citation_message_id = response_message.id;
                         let mut conn = pool.acquire().await?;
                         for (idx, cit) in context.citations.iter().enumerate() {
                             let content = if cit.content.len() < 255 {cit.content.clone()} else {cit.content[0..255].to_string()};
+                            let mut split = content.split(CONTENT_FIELD_SEPARATOR);
+                            split.next();
+                            // join using the separator in case the separator appeared later in the content
+                            let cleaned_content: String = split.collect::<Vec<&str>>().join(CONTENT_FIELD_SEPARATOR);
+
                             let document_url = cit.url.clone();
                             let mut page_path = PathBuf::from(&cit.filepath);
                             page_path.set_extension("");
@@ -527,7 +534,7 @@ pub async fn send_chat_request_and_parse_stream(
                                     conversation_id,
                                     course_material_chapter_number,
                                     title: cit.title.clone(),
-                                    content,
+                                    content: cleaned_content,
                                     document_url,
                                     citation_number: (idx+1) as i32,
                                 }

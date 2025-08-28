@@ -23,6 +23,7 @@ use headless_lms_chatbot::{
     content_cleaner::convert_material_blocks_to_markdown_with_llm,
 };
 use headless_lms_models::{
+    chapters::DatabaseChapter,
     page_history::PageHistory,
     pages::{Page, PageVisibility},
 };
@@ -300,7 +301,11 @@ async fn sync_pages_batch(
         };
 
         let blob_path = generate_blob_path(page)?;
-        let chapter = headless_lms_models::chapters::get_chapter_by_page_id(conn, page.id).await?;
+        let mut chapter: Option<DatabaseChapter> = None;
+        if page.chapter_id.is_some() {
+            chapter =
+                Some(headless_lms_models::chapters::get_chapter_by_page_id(conn, page.id).await?);
+        }
 
         allowed_file_paths.push(blob_path.clone());
         let mut metadata = HashMap::new();
@@ -315,14 +320,25 @@ async fn sync_pages_batch(
             course.language_code.to_string().into(),
         );
         metadata.insert("filepath".to_string(), blob_path.clone().into());
-        metadata.insert(
-            "chunk_context".to_string(),
-            format!(
-                "This chunk is Page {} from the Chapter {}: {} of Course {}.",
-                page.title, chapter.chapter_number, chapter.name, course.name,
-            )
-            .into(),
-        );
+        if let Some(c) = chapter {
+            metadata.insert(
+                "chunk_context".to_string(),
+                format!(
+                    "This chunk is Page {} from the Chapter {}: {} of Course {}.",
+                    page.title, c.chapter_number, c.name, course.name,
+                )
+                .into(),
+            );
+        } else {
+            metadata.insert(
+                "chunk_context".to_string(),
+                format!(
+                    "This chunk is Page {} from the Course {}.",
+                    page.title, course.name,
+                )
+                .into(),
+            );
+        }
 
         if let Err(e) = blob_client
             .upload_file(&blob_path, content_to_upload.as_bytes(), Some(metadata))

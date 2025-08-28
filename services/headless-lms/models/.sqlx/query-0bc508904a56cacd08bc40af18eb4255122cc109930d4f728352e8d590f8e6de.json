@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE organizations\n        SET name = $1,\n            hidden = $2,\n            slug = $3\n        WHERE id = $4\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Varchar", "Bool", "Varchar", "Uuid"]
+    },
+    "nullable": []
+  },
+  "hash": "0bc508904a56cacd08bc40af18eb4255122cc109930d4f728352e8d590f8e6de"
+}

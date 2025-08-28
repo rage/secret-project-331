@@ -22,6 +22,7 @@ export type Action =
   | { type: "view_user_progress_or_details" }
   | { type: "view_internal_course_structure" }
   | { type: "view_stats" }
+  | { type: "administrate" }
 
 export interface ActionOnResource {
   action: Action
@@ -1395,6 +1396,7 @@ export interface Organization {
   description: string | null
   organization_image_url: string | null
   deleted_at: string | null
+  hidden: boolean
 }
 
 export interface PageAudioFile {

@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -11,10 +12,7 @@ const ADDITIONAL_MESSAGE = "THIS COURSE HAS CLOSED UNTIL FURTHER NOTICE"
 test("Can close courses and shows warning dialog", async ({ page }) => {
   await page.goto("http://project-331.local/")
   await page.getByRole("link", { name: "All organizations" }).click()
-  await page
-    .getByLabel("University of Helsinki, Department of Mathematics and Statistics")
-    .getByRole("button", { name: "Select" })
-    .click()
+  await selectOrganization(page, "University of Helsinki, Department of Mathematics and Statistics")
   await page.getByRole("link", { name: "Manage course 'Closed course'" }).click()
   await page.getByRole("button", { name: "Edit" }).click()
   await page.getByRole("checkbox", { name: "Set course closed at" }).check()

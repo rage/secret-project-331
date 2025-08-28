@@ -191,6 +191,7 @@ pub enum Action {
     ViewUserProgressOrDetails,
     ViewInternalCourseStructure,
     ViewStats,
+    Administrate,
 }
 
 /// The target of an action.
@@ -1148,9 +1149,16 @@ mod test {
         )
         .await
         .unwrap();
-        let org = organizations::insert(tx.as_mut(), PKeyPolicy::Generate, "auth", "auth", "auth")
-            .await
-            .unwrap();
+        let org = organizations::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            "auth",
+            "auth",
+            Some("auth"),
+            false,
+        )
+        .await
+        .unwrap();
 
         authorize(
             tx.as_mut(),

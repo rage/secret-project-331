@@ -1,21 +1,49 @@
 import { css } from "@emotion/css"
+import axios from "axios"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import useAllOrganizationsQuery from "../../../../hooks/useAllOrganizationsQuery"
 
+import CreateOrganizationPopup from "./CreateOrganizationPopup"
 import OrganizationBanner from "./components/OrganizationBanner"
 
+import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import Spinner from "@/shared-module/common/components/Spinner"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
+  const [showCreatePopup, setShowCreatePopup] = React.useState(false)
+  const { refetch } = useAllOrganizationsQuery()
 
   const allOrganizationsQuery = useAllOrganizationsQuery()
+
+  const createOrganizationMutation = useToastMutation(
+    async (data: { name: string; slug: string; visibility: string }) => {
+      return await axios.post("/api/v0/main-frontend/organizations", {
+        name: data.name,
+        slug: data.slug,
+        description: "",
+        hidden: data.visibility === "private",
+      })
+    },
+    {
+      notify: true,
+      method: "POST",
+    },
+    {
+      onSuccess: () => {
+        setShowCreatePopup(false)
+        refetch()
+      },
+    },
+  )
 
   return (
     <div
@@ -50,6 +78,29 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
       >
         {t("select-organization")}
       </p>
+      <OnlyRenderIfPermissions
+        action={{ type: "create_courses_or_exams" }}
+        resource={{ type: "global_permissions" }}
+      >
+        <div
+          className={css`
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+          `}
+        >
+          <Button
+            variant="primary"
+            size="medium"
+            onClick={() => {
+              setShowCreatePopup(true)
+            }}
+          >
+            {t("create-a-new-organization")}
+          </Button>
+        </div>
+      </OnlyRenderIfPermissions>
+
       {allOrganizationsQuery.isError && (
         <ErrorBanner variant={"readOnly"} error={allOrganizationsQuery.error} />
       )}
@@ -86,6 +137,18 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
           ))}
         </div>
       )}
+      <CreateOrganizationPopup
+        show={showCreatePopup}
+        onClose={() => setShowCreatePopup(false)}
+        onCreate={({ name, slug, visibility }) => {
+          createOrganizationMutation.mutate({
+            name,
+            slug: slug.trim().toLowerCase().replace(/\s+/g, "-"),
+            visibility,
+          })
+        }}
+      />
+
       <DebugModal data={allOrganizationsQuery.data} />
     </div>
   )

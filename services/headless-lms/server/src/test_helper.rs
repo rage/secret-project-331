@@ -168,7 +168,7 @@ macro_rules! insert_data {
             .map(char::from)
             .collect::<String>();
         let $org =
-            headless_lms_models::organizations::insert($tx.as_mut(), headless_lms_models::PKeyPolicy::Generate, "", &rs, "")
+            headless_lms_models::organizations::insert($tx.as_mut(), headless_lms_models::PKeyPolicy::Generate, "", &rs, Some(""), false)
                 .await
                 .unwrap();
     };

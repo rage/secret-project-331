@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE email_templates\nSET deleted_at = now()\nWHERE id = $1\nRETURNING *\n  ",
+  "query": "\nINSERT INTO email_templates (\n    name,\n    course_instance_id,\n    subject,\n    language,\n    content\n  )\nVALUES ($1, $2, $3, $4, $5) ON CONFLICT (name, language)\nWHERE course_instance_id IS NULL\n  AND deleted_at IS NULL DO\nUPDATE\nSET subject = COALESCE(EXCLUDED.subject, email_templates.subject),\n  content = COALESCE(EXCLUDED.content, email_templates.content),\n  updated_at = NOW()\nRETURNING *\n",
   "describe": {
     "columns": [
       {
@@ -60,9 +60,9 @@
       }
     ],
     "parameters": {
-      "Left": ["Uuid"]
+      "Left": ["Varchar", "Uuid", "Varchar", "Varchar", "Jsonb"]
     },
     "nullable": [false, false, false, true, true, false, true, true, true, true, true]
   },
-  "hash": "dc6a94949ce20d11fa55e247dc706fdc88018bf1ba528487fcd0ef02f5c40ca7"
+  "hash": "0e7f48cbb7ab7af479c25d9c41bd9c906f9bde414eaff07f8a4b9a1725e29928"
 }

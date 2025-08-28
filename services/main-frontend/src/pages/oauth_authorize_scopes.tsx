@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 import { useRouter } from "next/router"
-import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import Button from "@/shared-module/common/components/Button"
@@ -9,6 +8,18 @@ export default function ConsentPage() {
   const router = useRouter()
   const { t } = useTranslation("main-frontend")
 
+  const query = {
+    client_id: String(router.query.client_id ?? ""),
+    client_name: String(router.query.client_name ?? ""),
+    redirect_uri: String(router.query.redirect_uri ?? ""),
+    response_type: String(router.query.response_type ?? ""),
+    scope: String(router.query.scope ?? ""),
+    state: String(router.query.state ?? ""),
+    nonce: String(router.query.nonce ?? ""),
+  }
+
+  const scopes = query.scope.split(" ").filter(Boolean)
+
   const scopeDescriptions: Record<string, string> = {
     openid: t("oauth-scope-description-openid"),
     email: t("oauth-scope-description-email"),
@@ -16,47 +27,25 @@ export default function ConsentPage() {
     offline_access: t("oauth-scope-description-offline-access"),
   }
 
-  const {
-    client_id = "",
-    client_name = "Unknown Application",
-    redirect_uri = "",
-    scope = "",
-    state = "",
-    nonce = "",
-    return_to = "",
-  } = router.query
-
-  const scopes = useMemo(() => {
-    if (typeof scope === "string") {
-      return scope.split(" ").filter(Boolean)
-    }
-    return []
-  }, [scope])
-
   const handleApprove = () => {
-    /* eslint-disable i18next/no-literal-string */
-    const approveUrl =
-      `/api/v0/main-frontend/oauth/consent?` +
-      `client_id=${encodeURIComponent(String(client_id))}` +
-      `&redirect_uri=${encodeURIComponent(String(redirect_uri))}` +
-      `&scopes=${encodeURIComponent(scopes.join(" "))}` +
-      `&state=${encodeURIComponent(String(state))}` +
-      `&nonce=${encodeURIComponent(String(nonce))}` +
-      `&return_to=${encodeURIComponent(String(return_to))}`
-    /* eslint-enable i18next/no-literal-string */
-    window.location.href = approveUrl
+    const params = new URLSearchParams({
+      client_id: query.client_id,
+      redirect_uri: query.redirect_uri,
+      response_type: query.response_type,
+      scopes: scopes.join(" "),
+      state: query.state,
+      nonce: query.nonce,
+    })
+    window.location.href = `/api/v0/main-frontend/oauth/consent?${params}`
   }
 
   const handleDeny = () => {
-    /* eslint-disable i18next/no-literal-string */
-    const denyUrl =
-      `/api/v0/main-frontend/oauth/consent/deny?` +
-      `client_id=${encodeURIComponent(String(client_id))}` +
-      `&redirect_uri=${encodeURIComponent(String(redirect_uri))}` +
-      `&state=${encodeURIComponent(String(state))}`
-    /* eslint-enable i18next/no-literal-string */
-
-    window.location.href = denyUrl
+    const params = new URLSearchParams({
+      client_id: query.client_id,
+      redirect_uri: query.redirect_uri,
+      state: query.state,
+    })
+    window.location.href = `/api/v0/main-frontend/oauth/consent/deny?${params}`
   }
 
   return (
@@ -71,7 +60,7 @@ export default function ConsentPage() {
         margin: auto;
       `}
     >
-      <h2>{client_name}</h2>
+      <h2>{query.client_name}</h2>
       <p>{t("oauth-application-requesting-access")}</p>
 
       <ul>
@@ -83,7 +72,12 @@ export default function ConsentPage() {
         ))}
       </ul>
 
-      <div>
+      <div
+        className={css`
+          display: flex;
+          gap: 10px;
+        `}
+      >
         <Button variant="primary" onClick={handleApprove} size="large">
           {t("approve")}
         </Button>

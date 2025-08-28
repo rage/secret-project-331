@@ -1,8 +1,6 @@
 use crate::{oauth_shared_types::Digest, prelude::*};
 use chrono::{DateTime, Utc};
 use sqlx::FromRow;
-use sqlx::types::JsonValue;
-use uuid::Uuid;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromRow)]
 pub struct OAuthAuthCode {
@@ -16,7 +14,7 @@ pub struct OAuthAuthCode {
     pub nonce: Option<String>,
     pub used: bool,
     pub expires_at: DateTime<Utc>,
-    pub metadata: JsonValue,
+    pub metadata: serde_json::Value,
 }
 
 impl OAuthAuthCode {
@@ -31,7 +29,7 @@ impl OAuthAuthCode {
         scope: &str,
         nonce: &str,
         expires_at: DateTime<Utc>,
-        metadata: Option<JsonValue>,
+        metadata: serde_json::Map<String, serde_json::Value>,
     ) -> ModelResult<()> {
         let mut tx = conn.begin().await?;
         sqlx::query!(
@@ -46,7 +44,8 @@ impl OAuthAuthCode {
             scope,
             nonce,
             expires_at,
-            metadata
+            serde_json::Value::Object(metadata),
+
         )
         .execute(&mut *tx)
         .await?;

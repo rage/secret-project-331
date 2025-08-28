@@ -23,7 +23,6 @@ use rsa::traits::PublicKeyParts;
 use serde_json::json;
 use sha2::{Digest as ShaDigest, Sha256};
 use sqlx::PgPool;
-use sqlx::types::JsonValue;
 use uuid::Uuid;
 
 /// Handles the `/authorize` endpoint for OAuth 2.0 / OpenID Connect.
@@ -49,6 +48,7 @@ use uuid::Uuid;
 /// HTTP/1.1 302 Found
 /// Location: http://localhost?code=SplxlOBeZQQYbYS6WxSbIA&state=random123
 /// ```
+
 async fn authorize(
     pool: web::Data<PgPool>,
     query: SafeExtractor<AuthorizeQuery>,
@@ -64,6 +64,7 @@ async fn authorize(
     let scope = query.0.scope.as_deref().unwrap_or_default();
     let state = query.0.state.as_deref().unwrap_or_default();
     let nonce = query.0.nonce.as_deref().unwrap_or_default();
+    let response_type = query.0.response_type.as_deref().unwrap_or_default();
 
     let client = OAuthClient::find_by_client_id(&mut conn, client_id)
         .await
@@ -112,8 +113,8 @@ async fn authorize(
                 let encoded_return_to =
                     url::form_urlencoded::byte_serialize(return_to.as_bytes()).collect::<String>();
                 format!(
-                    "/oauth_authorize_scopes?client_id={}&redirect_uri={}&scope={}&state={}&nonce={}&return_to={}",
-                    client_id, redirect_uri, scope, state, nonce, encoded_return_to
+                    "/oauth_authorize_scopes?client_id={}&redirect_uri={}&scope={}&state={}&nonce={}&response_type={}&return_to={}",
+                    client_id, redirect_uri, scope, state, nonce, response_type, encoded_return_to
                 )
             } else {
                 let code = generate_access_token();
@@ -131,7 +132,7 @@ async fn authorize(
                     scope,
                     nonce,
                     expires_at,
-                    None::<JsonValue>,
+                    serde_json::Map::new(),
                 )
                 .await?;
 
@@ -219,8 +220,13 @@ async fn approve_consent(
     }
 
     let redirect_url = format!(
-        "/api/v0/main-frontend/oauth/authorize?client_id={}&redirect_uri={}&scope={}&state={}&nonce={}",
-        query.client_id, query.redirect_uri, query.scopes, query.state, query.nonce
+        "/api/v0/main-frontend/oauth/authorize?client_id={}&redirect_uri={}&scope={}&state={}&nonce={}&response_type={}",
+        query.client_id,
+        query.redirect_uri,
+        query.scopes,
+        query.state,
+        query.nonce,
+        query.response_type
     );
 
     token.authorized_ok(
@@ -318,7 +324,7 @@ async fn token(
     let mut conn = pool.acquire().await?;
     if req.headers().get("DPoP").is_some() {
         // No 'ath' at AS token endpoint
-        jkt_at_issue = verify_dpop_and_get_jkt(&mut conn, &req, "POST", None).await?;
+        jkt_at_issue = verify_dpop_and_get_jkt(&mut conn, &req, "POST", None, None).await?;
         token_type = "DPoP".to_string();
     }
 
@@ -392,9 +398,9 @@ async fn token(
                 Some(auth_code.user_id), // user_id is Option<Uuid> in model
                 auth_code.client_id,
                 &scope,
-                "",                      // audience: &str
-                &jkt_at_issue,           // dpop_jkt: &str
-                serde_json::Value::Null, // metadata: JsonValue
+                "",                     // audience: &str
+                &jkt_at_issue,          // dpop_jkt: &str
+                serde_json::Map::new(), // metadata
                 expires_at,
             )
             .await?;
@@ -418,9 +424,9 @@ async fn token(
                 &scope,
                 "", // audience: &str
                 refresh_token_expires_at,
-                None,          // rotated_from
-                None,          // metadata
-                &jkt_at_issue, // dpop_jkt
+                None,                   // rotated_from
+                serde_json::Map::new(), // metadata
+                &jkt_at_issue,          // dpop_jkt
             )
             .await?;
 
@@ -452,7 +458,8 @@ async fn token(
 
             if !token.dpop_jkt.is_empty() {
                 // Stored RT is DPoP-bound: require proof and match jkt
-                let presented_jkt = verify_dpop_and_get_jkt(&mut conn, &req, "POST", None).await?;
+                let presented_jkt =
+                    verify_dpop_and_get_jkt(&mut conn, &req, "POST", None, None).await?;
                 if presented_jkt != token.dpop_jkt {
                     return Err(ControllerError::new(
                         ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
@@ -488,12 +495,15 @@ async fn token(
                 pepper_id,
                 token.user_id,
                 token.client_id,
-                &token.scope, // scope is String in your model
+                &token.scope,
                 token.audience.as_deref().unwrap_or(""),
                 refresh_token_expires_at,
-                Some(token.digest.clone()),   // rotated_from
-                Some(token.metadata.clone()), // carry metadata forward if you want
-                &jkt_at_issue,                // dpop_jkt
+                Some(token.digest.clone()), // rotated_from
+                match token.metadata.as_object() {
+                    Some(map) => map.clone(),
+                    None => serde_json::Map::new(),
+                },
+                &jkt_at_issue, // dpop_jkt
             )
             .await?;
 
@@ -508,7 +518,10 @@ async fn token(
                 &token.scope,
                 token.audience.as_deref().unwrap_or(""),
                 &jkt_at_issue,
-                token.metadata.clone(),
+                match token.metadata.as_object() {
+                    Some(map) => map.clone(),
+                    None => serde_json::Map::new(),
+                },
                 expires_at,
             )
             .await?;
@@ -636,7 +649,8 @@ async fn user_info(
             ));
         }
 
-        let presented_jkt = verify_dpop_and_get_jkt(&mut conn, &req, "GET", Some(token)).await?;
+        let presented_jkt =
+            verify_dpop_and_get_jkt(&mut conn, &req, "GET", Some(token), None).await?;
         if presented_jkt != access.dpop_jkt {
             return Err(ControllerError::new(
                 ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
@@ -777,13 +791,16 @@ async fn jwks(app_conf: web::Data<ApplicationConfiguration>) -> ControllerResult
 ///   "token_endpoint_auth_methods_supported": ["client_secret_post", "client_secret_basic"]
 /// }
 /// ```
-async fn well_known_openid() -> Result<HttpResponse, Error> {
+async fn well_known_openid(
+    app_conf: web::Data<ApplicationConfiguration>,
+) -> Result<HttpResponse, Error> {
+    let base_url = &app_conf.base_url;
     let config = json!({
-        "issuer": "https://courses.mooc.fi/api/v0/main-frontend/oauth",
-        "authorization_endpoint": "https://courses.mooc.fi/api/v0/main-frontend/oauth/authorize",
-        "token_endpoint": "https://courses.mooc.fi/api/v0/main-frontend/oauth/token",
-        "userinfo_endpoint": "https://courses.mooc.fi/api/v0/main-frontend/oauth/userinfo",
-        "jwks_uri": "https://courses.mooc.fi/api/v0/main-frontend/oauth/jwks.json",
+        "issuer": format!("{}/api/v0/main-frontend/oauth", base_url),
+        "authorization_endpoint": format!("{}/api/v0/main-frontend/oauth/authorize", base_url),
+        "token_endpoint": format!("{}/api/v0/main-frontend/oauth/token", base_url),
+        "userinfo_endpoint": format!("{}/api/v0/main-frontend/oauth/userinfo", base_url),
+        "jwks_uri": format!("{}/api/v0/main-frontend/oauth/jwks.json", base_url),
         "response_types_supported": ["code"],
         "subject_types_supported": ["public"],
         "id_token_signing_alg_values_supported": ["RS256"],
@@ -885,4 +902,21 @@ fn read_token_pepper() -> Result<(Vec<u8>, i16), ControllerError> {
         .oauth_server_configuration
         .oauth_token_pepper_id;
     Ok((pepper, pepper_id))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use headless_lms_utils::ApplicationConfiguration;
+
+    #[test]
+    fn util_print_token_digest_hmac_sha256() -> Result<(), anyhow::Error> {
+        let token_plaintext = "very-secret";
+        let pepper = ApplicationConfiguration::try_from_env()?
+            .oauth_server_configuration
+            .oauth_token_pepper_1;
+        let digest = token_digest_hmac_sha256(token_plaintext, pepper.as_bytes());
+        println!("{}", digest);
+        Ok(())
+    }
 }

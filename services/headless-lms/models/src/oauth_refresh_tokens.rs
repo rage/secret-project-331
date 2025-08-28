@@ -1,7 +1,6 @@
 use crate::{oauth_shared_types::Digest, prelude::*};
 use chrono::{DateTime, Utc};
 use sqlx::FromRow;
-use sqlx::types::JsonValue;
 use uuid::Uuid;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromRow)]
@@ -15,7 +14,7 @@ pub struct OAuthRefreshTokens {
     pub audience: Option<String>,
     pub jti: Uuid,
     pub dpop_jkt: String,
-    pub metadata: JsonValue,
+    pub metadata: serde_json::Value,
     pub revoked: bool,
     pub rotated_from: Option<Digest>,
 }
@@ -31,7 +30,7 @@ impl OAuthRefreshTokens {
         audience: &str,
         expires_at: DateTime<Utc>,
         rotated_from: Option<Digest>,
-        metadata: Option<JsonValue>,
+        metadata: serde_json::Map<String, serde_json::Value>,
         dpop_jkt: &str,
     ) -> ModelResult<()> {
         let mut tx = conn.begin().await?;
@@ -45,7 +44,7 @@ impl OAuthRefreshTokens {
             scope,
             audience,
             pepper_id,
-            metadata,
+            serde_json::Value::Object(metadata),
             dpop_jkt,
             expires_at,
             rotated_from.as_ref().map(|d| d.as_slice())

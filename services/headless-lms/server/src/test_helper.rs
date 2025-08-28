@@ -29,6 +29,12 @@ postgres://headless-lms:only-for-local-development-intentionally-public@postgres
             development_uuid_login: false,
             azure_configuration: None,
             tmc_account_creation_origin: None,
+            oauth_server_configuration: headless_lms_utils::OAuthServerConfiguration {
+                rsa_public_key: "temp-change-when-needed".into(),
+                rsa_private_key: "test-change".into(),
+                oauth_token_pepper_1: "pippuri".into(),
+                oauth_token_pepper_id: 1,
+            },
         },
         redis_url: "redis://example.com".to_string(),
         jwt_password: "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS"

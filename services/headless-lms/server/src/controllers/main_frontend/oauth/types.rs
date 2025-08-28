@@ -8,7 +8,7 @@ use futures_util::future::LocalBoxFuture;
 use headless_lms_models::oauth_dpop_proofs::OAuthDpopProof;
 use headless_lms_models::oauth_shared_types::Digest as TokenDigest;
 use hmac::Hmac;
-use jsonwebtoken::{Algorithm, DecodingKey, Validation, decode, decode_header};
+use jsonwebtoken::{Algorithm, DecodingKey, Validation, decode};
 use p256::PublicKey;
 use p256::pkcs8::EncodePublicKey;
 use serde::{Deserialize, Serialize};
@@ -20,6 +20,7 @@ use std::collections::BTreeMap;
 use std::collections::HashMap;
 use std::future::Future;
 use std::pin::Pin;
+use url::Url;
 use uuid::Uuid;
 pub trait ExtractFallback: Default + for<'de> Deserialize<'de> {}
 impl<T> ExtractFallback for T where T: Default + for<'de> Deserialize<'de> {}
@@ -133,6 +134,7 @@ impl OAuthValidate for AuthorizeQuery {
                 None::<anyhow::Error>,
             ));
         }
+        info!("rt={}", rt);
         if rt != "code" {
             return Err(ControllerError::new(
                 ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
@@ -263,6 +265,7 @@ pub struct Claims {
 pub struct ConsentQuery {
     pub client_id: String,
     pub redirect_uri: String,
+    pub response_type: String,
     pub scopes: String,
     pub state: String,
     pub nonce: String,
@@ -566,6 +569,21 @@ pub struct RawHeader {
     jwk: Option<Value>,
 }
 
+#[derive(serde::Deserialize)]
+struct DpopHeader {
+    typ: String,
+    alg: String,
+    jwk: DpopJwk,
+}
+
+#[derive(serde::Deserialize)]
+struct DpopJwk {
+    kty: String,
+    crv: String,
+    x: String,
+    y: String,
+}
+
 // ----- EC JWK {x,y} -> DecodingKey (SPKI DER) -----
 
 fn ec_decoding_key_from_xy_b64url(
@@ -680,109 +698,337 @@ pub async fn dpop_replay_check_and_store(
     Ok(())
 }
 
-// ----- Main verifier: returns JWK thumbprint (jkt) -----
+use p256::ecdsa::{Signature, VerifyingKey, signature::Verifier};
+use p256::elliptic_curve::sec1::FromEncodedPoint as _;
+use p256::{EncodedPoint, FieldBytes};
 
+/// Verify the DPoP proof in the request and return the JWK thumbprint (jkt).
+/// Performs:
+///  - Header presence and JWT structure checks
+///  - JOSE header checks: typ=dpop+jwt, alg=ES256, jwk=EC P-256 (pub only)
+///  - Signature verification with the provided JWK
+///  - Claim checks: jti, iat freshness, htm, htu (canonicalized), optional ath
+///  - **Replay prevention**: stores hashed jti and rejects re-use
 pub async fn verify_dpop_and_get_jkt(
     conn: &mut PgConnection,
     req: &actix_web::HttpRequest,
     expected_method: &str,
-    require_ath_for: Option<&str>, // Some(access_token_plain) for resource calls; None for /token
+    maybe_access_token: Option<&str>,
+    maybe_client_id: Option<Uuid>,
 ) -> Result<String, ControllerError> {
-    let proof = req
+    // 1) Extract header
+    let dpop = req
         .headers()
         .get("DPoP")
-        .ok_or_else(|| anyhow::anyhow!("missing DPoP header"))?
+        .ok_or_else(|| dpop_bad_request("missing DPoP header"))?
         .to_str()
-        .map_err(|_| anyhow::anyhow!("invalid DPoP header encoding"))?;
+        .map_err(|_| dpop_bad_request("invalid DPoP header"))?;
 
-    // We need the raw header to fetch "jwk"
-    let header = decode_header(proof)?;
-    let header_segment = proof
-        .split('.')
-        .next()
-        .ok_or_else(|| anyhow::anyhow!("bad JWT"))?;
-    let header_json = String::from_utf8(URL_SAFE_NO_PAD.decode(header_segment)?)?;
-    let raw: RawHeader = serde_json::from_str(&header_json)?;
-
-    let alg = header.alg;
-
-    // Build DecodingKey from JWK and compute jkt
-    let jwk = raw.jwk.ok_or_else(|| anyhow::anyhow!("DPoP jwk missing"))?;
-    let (key, jkt) = match jwk.get("kty").and_then(Value::as_str) {
-        Some("EC") => {
-            // Only P-256/ES256 here
-            let crv = jwk
-                .get("crv")
-                .and_then(Value::as_str)
-                .ok_or_else(|| anyhow::anyhow!("missing crv"))?;
-            if crv != "P-256" || alg != Algorithm::ES256 {
-                return Err(anyhow::anyhow!("unsupported EC curve/alg").into());
-            }
-            let x = jwk
-                .get("x")
-                .and_then(Value::as_str)
-                .ok_or_else(|| anyhow::anyhow!("missing x"))?;
-            let y = jwk
-                .get("y")
-                .and_then(Value::as_str)
-                .ok_or_else(|| anyhow::anyhow!("missing y"))?;
-            let key = ec_decoding_key_from_xy_b64url(x, y)?;
-            let jkt = jwk_thumbprint_ec_p256(x, y)?;
-            (key, jkt)
-        }
-        Some("RSA") => {
-            // Accept RS256/384/512
-            if !matches!(alg, Algorithm::RS256 | Algorithm::RS384 | Algorithm::RS512) {
-                return Err(anyhow::anyhow!("unsupported RSA alg").into());
-            }
-            let n = jwk
-                .get("n")
-                .and_then(Value::as_str)
-                .ok_or_else(|| anyhow::anyhow!("missing n"))?;
-            let e = jwk
-                .get("e")
-                .and_then(Value::as_str)
-                .ok_or_else(|| anyhow::anyhow!("missing e"))?;
-            let key = DecodingKey::from_rsa_components(n, e)?;
-            let jkt = jwk_thumbprint_rsa(n, e)?;
-            (key, jkt)
-        }
-        _ => return Err(anyhow::anyhow!("unsupported DPoP kty").into()),
+    // 2) Split JWT
+    let mut parts = dpop.split('.');
+    let (h_b64, p_b64, s_b64) = match (parts.next(), parts.next(), parts.next()) {
+        (Some(h), Some(p), Some(s)) if parts.next().is_none() => (h, p, s),
+        _ => return Err(dpop_bad_request("malformed DPoP JWT")),
     };
 
-    let mut validation = Validation::new(alg);
-    validation.required_spec_claims.clear(); // we enforce our own checks
-    let jwt = decode::<DpopClaims>(proof, &key, &validation)?;
-    let c = jwt.claims;
+    // 3) Parse JOSE header
+    let hdr_bytes = URL_SAFE_NO_PAD
+        .decode(h_b64)
+        .map_err(|_| dpop_bad_request("bad DPoP header b64"))?;
+    let hdr: DpopHeader =
+        serde_json::from_slice(&hdr_bytes).map_err(|_| dpop_bad_request("bad DPoP header JSON"))?;
 
-    // htm/htu
-    if !c.htm.eq_ignore_ascii_case(expected_method) {
-        return Err(anyhow::anyhow!("DPoP htm mismatch").into());
+    if hdr.typ != "dpop+jwt" {
+        return Err(dpop_bad_request("typ must be dpop+jwt"));
     }
-    let expected_htu = expected_request_uri(req);
-    if c.htu != expected_htu {
-        return Err(anyhow::anyhow!("DPoP htu mismatch").into());
+    if hdr.alg.as_str() != "ES256" {
+        return Err(dpop_bad_request(
+            "unsupported DPoP alg (only ES256 enabled)",
+        ));
+    }
+    if hdr.jwk.kty != "EC" || hdr.jwk.crv != "P-256" {
+        return Err(dpop_bad_request("DPoP jwk must be EC P-256"));
     }
 
-    // iat freshness (+-5 minutes)
-    let now = Utc::now().timestamp();
-    if (now - c.iat).abs() > 300 {
-        return Err(anyhow::anyhow!("DPoP iat out of range").into());
+    // 4) Build verifying key from JWK x,y
+    let x = URL_SAFE_NO_PAD
+        .decode(hdr.jwk.x.as_bytes())
+        .map_err(|_| dpop_bad_request("bad jwk.x"))?;
+    let y = URL_SAFE_NO_PAD
+        .decode(hdr.jwk.y.as_bytes())
+        .map_err(|_| dpop_bad_request("bad jwk.y"))?;
+    if x.len() != 32 || y.len() != 32 {
+        return Err(dpop_bad_request("jwk x/y must be 32 bytes for P-256"));
+    }
+    let point = EncodedPoint::from_affine_coordinates(
+        FieldBytes::from_slice(&x),
+        FieldBytes::from_slice(&y),
+        /* compress = */ false,
+    );
+    let vk = VerifyingKey::from_encoded_point(&point)
+        .map_err(|_| dpop_bad_request("invalid EC point"))?;
+
+    // 5) Verify ECDSA signature over "<header>.<payload>"
+    let signing_input = {
+        let mut s = String::with_capacity(h_b64.len() + 1 + p_b64.len());
+        s.push_str(h_b64);
+        s.push('.');
+        s.push_str(p_b64);
+        s
+    };
+    let sig_bytes = URL_SAFE_NO_PAD
+        .decode(s_b64.as_bytes())
+        .map_err(|_| dpop_bad_request("bad signature b64"))?;
+
+    let sig = if sig_bytes.len() == 64 {
+        let der = ecdsa_raw_rs_to_der(&sig_bytes)
+            .ok_or_else(|| dpop_bad_request("invalid DPoP signature"))?;
+        Signature::from_der(&der).map_err(|_| dpop_bad_request("invalid DPoP signature"))?
+    } else {
+        Signature::from_der(&sig_bytes).map_err(|_| dpop_bad_request("invalid DPoP signature"))?
+    };
+
+    vk.verify(signing_input.as_bytes(), &sig)
+        .map_err(|_| dpop_bad_request("invalid DPoP signature"))?;
+    // 6) Parse payload claims
+    let claims_bytes = URL_SAFE_NO_PAD
+        .decode(p_b64.as_bytes())
+        .map_err(|_| dpop_bad_request("bad payload b64"))?;
+    let claims: serde_json::Value =
+        serde_json::from_slice(&claims_bytes).map_err(|_| dpop_bad_request("bad payload JSON"))?;
+
+    let jti = claims
+        .get("jti")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| dpop_bad_request("missing jti"))?;
+    let iat = claims
+        .get("iat")
+        .and_then(|v| v.as_i64())
+        .ok_or_else(|| dpop_bad_request("missing iat"))?;
+    let htm = claims
+        .get("htm")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| dpop_bad_request("missing htm"))?;
+    let htu = claims
+        .get("htu")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| dpop_bad_request("missing htu"))?;
+
+    if !htm.eq_ignore_ascii_case(expected_method) {
+        return Err(dpop_bad_request("htm mismatch"));
     }
 
-    // Replay prevention (store/reject duplicate jti)
-    dpop_replay_check_and_store(conn, &c.jti, c.iat, None, None, None, None).await?;
+    // 7) htu equality with canonicalized request URL (no query/fragment)
+    let expected_htu = canonicalize_request_url(req);
+    if !equal_uris_per_rfc3986(&expected_htu, htu) {
+        return Err(dpop_bad_request("htu mismatch"));
+    }
 
-    // If protecting resources, enforce ath
-    if let Some(access_token) = require_ath_for {
-        let mut h = Sha256::new();
-        h.update(access_token.as_bytes());
-        let ath_expected = URL_SAFE_NO_PAD.encode(h.finalize());
-        match c.ath {
-            Some(ref ath) if *ath == ath_expected => {}
-            _ => return Err(anyhow::anyhow!("DPoP ath missing/mismatch").into()),
+    // 8) If access token present (resource call), require+verify ath
+    if let Some(at) = maybe_access_token {
+        let want_ath = URL_SAFE_NO_PAD.encode(Sha256::digest(at.as_bytes()));
+        let got_ath = claims
+            .get("ath")
+            .and_then(|v| v.as_str())
+            .ok_or_else(|| dpop_bad_request("missing ath"))?;
+        if got_ath != want_ath {
+            return Err(dpop_bad_request("ath mismatch"));
         }
     }
 
+    // 9) Freshness + DB replay check
+    enforce_iat_fresh(iat)?;
+    let jkt = jwk_thumbprint_ec_p256(&hdr.jwk.x, &hdr.jwk.y)?;
+    dpop_replay_check_and_store(
+        conn,
+        jti,
+        iat,
+        maybe_client_id,
+        Some(&jkt),
+        Some(htm),
+        Some(htu),
+    )
+    .await?;
+
     Ok(jkt)
+}
+
+fn ecdsa_raw_rs_to_der(raw: &[u8]) -> Option<Vec<u8>> {
+    if raw.len() != 64 {
+        return None;
+    }
+    let (r, s) = raw.split_at(32);
+
+    fn trim_int(mut v: &[u8]) -> Vec<u8> {
+        // strip leading zeros
+        while v.len() > 1 && v[0] == 0 {
+            v = &v[1..];
+        }
+        let mut out = v.to_vec();
+        // add leading 0x00 if high bit is set (to keep INTEGER positive)
+        if !out.is_empty() && (out[0] & 0x80) != 0 {
+            let mut z = Vec::with_capacity(out.len() + 1);
+            z.push(0);
+            z.extend_from_slice(&out);
+            out = z;
+        }
+        out
+    }
+
+    let r_enc = trim_int(r);
+    let s_enc = trim_int(s);
+
+    // SEQUENCE(0x30) len, INTEGER(0x02) len r, r, INTEGER(0x02) len s, s
+    let len = 2 + r_enc.len() + 2 + s_enc.len();
+    let mut der = Vec::with_capacity(2 + len);
+    der.push(0x30);
+    if len < 128 {
+        der.push(len as u8);
+    } else {
+        // (won't happen here, but be correct)
+        let len_bytes = (len as u16).to_be_bytes();
+        der.push(0x81);
+        der.push(len_bytes[1]);
+    }
+    der.push(0x02);
+    der.push(r_enc.len() as u8);
+    der.extend_from_slice(&r_enc);
+    der.push(0x02);
+    der.push(s_enc.len() as u8);
+    der.extend_from_slice(&s_enc);
+    Some(der)
+}
+
+/// Build canonical `htu` for this request (no query/fragment).
+/// Honors common proxy headers, lowercases scheme/host, drops default ports.
+pub fn canonicalize_request_url(req: &HttpRequest) -> String {
+    let scheme = req
+        .headers()
+        .get("x-forwarded-proto")
+        .and_then(|v| v.to_str().ok())
+        .map(|s| s.to_ascii_lowercase())
+        .unwrap_or_else(|| req.connection_info().scheme().to_ascii_lowercase());
+
+    // prefer first value of X-Forwarded-Host if present
+    let host = req
+        .headers()
+        .get("x-forwarded-host")
+        .and_then(|v| v.to_str().ok())
+        .and_then(|s| s.split(',').next())
+        .map(|s| s.trim().to_string())
+        .unwrap_or_else(|| req.connection_info().host().to_string());
+
+    // optional: explicit forwarded port overrides host:port
+    let port_override = req
+        .headers()
+        .get("x-forwarded-port")
+        .and_then(|v| v.to_str().ok())
+        .and_then(|s| s.parse::<u16>().ok());
+
+    // split host[:port]
+    let (mut host_only, mut port_opt) = {
+        let s = host.trim();
+        if let Some(close) = s.rfind(']') {
+            if s.starts_with('[') && close > 0 {
+                let h = &s[..=close];
+                let rest = &s[close + 1..];
+                let p = rest.strip_prefix(':').and_then(|t| t.parse::<u16>().ok());
+                (h.to_string(), p)
+            } else {
+                (s.to_string(), None)
+            }
+        } else if let Some((h, p)) = s.rsplit_once(':') {
+            if let Ok(pn) = p.parse::<u16>() {
+                (h.to_string(), Some(pn))
+            } else {
+                (s.to_string(), None)
+            }
+        } else {
+            (s.to_string(), None)
+        }
+    };
+
+    if let Some(p) = port_override {
+        port_opt = Some(p);
+    }
+
+    host_only = host_only.to_ascii_lowercase();
+
+    // drop default ports
+    if let Some(p) = port_opt {
+        let is_default = (scheme == "http" && p == 80) || (scheme == "https" && p == 443);
+        if is_default {
+            port_opt = None;
+        }
+    }
+
+    // path only, no query/fragment
+    let mut path = req.uri().path();
+    if path.is_empty() {
+        path = "/";
+    }
+
+    match port_opt {
+        Some(p) => format!("{scheme}://{host_only}:{p}{path}"),
+        None => format!("{scheme}://{host_only}{path}"),
+    }
+}
+
+/// Normalize an absolute URI string to the same canonical form we use for `htu`.
+fn normalize_uri_no_query(s: &str) -> Option<String> {
+    let url = Url::parse(s).ok()?;
+    let scheme = url.scheme().to_ascii_lowercase();
+    let mut host = url.host_str()?.to_ascii_lowercase();
+    // keep IPv6 bracket form if present
+    if s.contains('[') && s.contains(']') && !host.starts_with('[') {
+        host = format!("[{host}]");
+    }
+    let port_opt = url.port();
+    let is_default = matches!(
+        (scheme.as_str(), port_opt),
+        ("http", Some(80)) | ("https", Some(443))
+    );
+    let path = if url.path().is_empty() {
+        "/"
+    } else {
+        url.path()
+    };
+    Some(match (port_opt, is_default) {
+        (Some(p), false) => format!("{scheme}://{host}:{p}{path}"),
+        _ => format!("{scheme}://{host}{path}"),
+    })
+}
+
+fn equal_uris_per_rfc3986(a: &str, b: &str) -> bool {
+    match (normalize_uri_no_query(a), normalize_uri_no_query(b)) {
+        (Some(aa), Some(bb)) => aa == bb,
+        _ => a == b, // fallback
+    }
+}
+
+pub fn enforce_iat_fresh(iat: i64) -> Result<(), ControllerError> {
+    const FUTURE_SKEW_SECS: i64 = 120; // allow small positive skew
+    const MAX_AGE_SECS: i64 = 300; // accept up to 5 minutes old
+    let now = Utc::now().timestamp();
+    if iat > now + FUTURE_SKEW_SECS {
+        return Err(dpop_bad_request("DPoP iat too far in the future"));
+    }
+    if now - iat > MAX_AGE_SECS {
+        return Err(dpop_bad_request("DPoP proof too old"));
+    }
+    Ok(())
+}
+
+fn dpop_bad_request(msg: &str) -> ControllerError {
+    ControllerError::new(
+        ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
+            // If you have `InvalidDpopProof`, use it; otherwise `InvalidToken` is fine.
+            error: OAuthErrorCode::InvalidDopopProof.as_str().into(),
+            error_description: msg.to_string(),
+            redirect_uri: None,
+            state: None,
+        })),
+        msg,
+        None::<anyhow::Error>,
+    )
 }

@@ -14,9 +14,10 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
     let client = oauth_client::OAuthClient::insert(
         &mut conn,
         "test-client-id",
-        Digest::from_str("very-secret").unwrap(), // TODO this has to actually be hashed
+        Digest::from_str("396b544a35b29f7d613452a165dcaebf4d71b80e981e687e91ce6d9ba9679cb2")
+            .unwrap(), // "very-secret"
         1,
-        Vec::from(["http://localhost".to_string()]),
+        Vec::from(["http://127.0.0.1:8765/callback".to_string()]),
         Vec::from(["user_info".to_string()]),
         "openid email profile",
         "http://localhost",

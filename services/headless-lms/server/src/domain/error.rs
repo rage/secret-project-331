@@ -355,6 +355,8 @@ pub enum OAuthErrorCode {
     UnsupportedGrantType,
     UnsupportedResponseType,
     ServerError,
+    InvalidDopopProof,
+    UseDpopNonce,
 }
 
 impl OAuthErrorCode {
@@ -368,6 +370,8 @@ impl OAuthErrorCode {
             Self::UnsupportedGrantType => "unsupported_grant_type",
             Self::UnsupportedResponseType => "unsupported_response_type",
             Self::ServerError => "server_error",
+            Self::InvalidDopopProof => "invalid_dpop_proof",
+            Self::UseDpopNonce => "use_dpop_nonce",
         }
     }
 }

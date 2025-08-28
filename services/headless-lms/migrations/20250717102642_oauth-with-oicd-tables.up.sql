@@ -129,7 +129,7 @@ CREATE TABLE oauth_refresh_tokens (
     client_id UUID NOT NULL REFERENCES oauth_clients(id) ON DELETE CASCADE,
     scope TEXT NOT NULL DEFAULT '',
     audience TEXT NULL,
-    jti uuid NOT NULL,
+    jti uuid NOT NULL DEFAULT uuid_generate_v4(),
     expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
     revoked BOOLEAN NOT NULL DEFAULT FALSE,
     rotated_from bytea NULL,

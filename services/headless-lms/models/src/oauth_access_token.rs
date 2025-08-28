@@ -2,7 +2,6 @@ use crate::oauth_shared_types::Digest;
 use crate::prelude::*;
 use chrono::{DateTime, Utc};
 use sqlx::FromRow;
-use sqlx::types::JsonValue;
 use uuid::Uuid;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromRow)]
@@ -15,7 +14,7 @@ pub struct OAuthAccessToken {
     pub audience: Option<String>,
     pub jti: Uuid,
     pub dpop_jkt: String,
-    pub metadata: Option<JsonValue>,
+    pub metadata: serde_json::Value,
     pub expires_at: DateTime<Utc>,
 }
 
@@ -29,7 +28,7 @@ impl OAuthAccessToken {
         scope: &str,
         audience: &str,
         dpop_jkt: &str,
-        metadata: JsonValue,
+        metadata: serde_json::Map<String, serde_json::Value>,
         expires_at: DateTime<Utc>,
     ) -> sqlx::Result<()> {
         let mut tx = conn.begin().await?;
@@ -44,7 +43,7 @@ impl OAuthAccessToken {
             scope,
             audience,
             dpop_jkt,
-            metadata,
+            serde_json::Value::Object(metadata),
             expires_at
         )
         .execute(&mut *tx)

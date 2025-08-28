@@ -208,9 +208,10 @@ impl AzureConfiguration {
     }
 
     pub fn fake_conf() -> anyhow::Result<Option<Self>> {
+        let base_url = Url::from_str(&env::var("BASE_URL").context("BASE_URL must be defined")?)?;
         let chatbot_config = Some(AzureChatbotConfiguration {
             api_key: "".to_string(),
-            api_endpoint: Url::from_str("")?,
+            api_endpoint: base_url.join("api/v0/idk/test")?,
         });
         let search_config = Some(AzureSearchConfiguration {
             vectorizer_resource_uri: "".to_string(),
@@ -218,7 +219,7 @@ impl AzureConfiguration {
             vectorizer_api_key: "".to_string(),
             vectorizer_model_name: "".to_string(),
             search_api_key: "".to_string(),
-            search_endpoint: Url::from_str("")?,
+            search_endpoint: Url::from_str("https://example.doesnotexist/")?,
         });
         let blob_storage_config = Some(AzureBlobStorageConfiguration {
             storage_account: "".to_string(),

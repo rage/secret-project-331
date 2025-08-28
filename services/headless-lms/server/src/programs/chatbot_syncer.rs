@@ -203,6 +203,7 @@ async fn sync_pages(
         .await?;
 
         delete_old_files(conn, *course_id, blob_client).await?;
+        // TODO: call delete old chunks from index
     }
 
     if any_changes {
@@ -377,9 +378,9 @@ async fn delete_old_files(
     course_id: Uuid,
     blob_client: &AzureBlobClient,
 ) -> anyhow::Result<()> {
-    let existing_files = blob_client
-        .list_files_with_prefix(&course_id.to_string())
-        .await?;
+    let mut courses_prefix = "courses/".to_string();
+    courses_prefix.push_str(&course_id.to_string());
+    let existing_files = blob_client.list_files_with_prefix(&courses_prefix).await?;
 
     let pages = headless_lms_models::pages::get_all_by_course_id_and_visibility(
         conn,

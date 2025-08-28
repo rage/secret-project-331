@@ -45,7 +45,7 @@ test.describe("Students should be able to navigate and select peer review radiob
     await Promise.all([context2.close(), context3.close()])
 
     await student1Page.getByRole("button", { name: "Start peer review" }).click()
-    await student1Page.getByPlaceholder("Write a review").press("Tab")
+    await student1Page.getByRole("textbox", { name: "What are your thoughts on the" }).press("Tab")
     await student1Page.getByRole("radio", { name: "Strongly disagree" }).first().press("ArrowRight")
     await student1Page.getByRole("radio", { name: "Disagree", exact: true }).nth(1).press(" ")
     await expect(student1Page.getByRole("radio", { name: "Disagree", exact: true }).nth(1))
@@ -69,6 +69,15 @@ test.describe("Students should be able to navigate and select peer review radiob
       .toMatchAriaSnapshot(`
       - radio "Agree" [checked]
     `)
+
+    const textAreaId = await student1Page
+      .getByRole("textbox", { name: "What are your thoughts on the" })
+      .getAttribute("id")
+    expect(textAreaId).not.toBeNull()
+    await expect(student1Page.getByText("What are your thoughts on the")).toHaveAttribute(
+      "for",
+      textAreaId as string,
+    )
 
     await accessibilityCheck(student1Page, "Peer review answering view")
 

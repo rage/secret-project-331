@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import { useTranslation } from "react-i18next"
 
 import { PeerOrSelfReviewQuestionProps } from "."
 
@@ -12,7 +11,6 @@ const EssayPeerOrSelfReviewQuestion: React.FC<
   setPeerOrSelfReviewQuestionAnswer,
   peerOrSelfReviewQuestionAnswer,
 }) => {
-  const { t } = useTranslation()
   return (
     <div>
       <div
@@ -20,13 +18,14 @@ const EssayPeerOrSelfReviewQuestion: React.FC<
           margin-bottom: 1rem;
         `}
       >
-        {peerOrSelfReviewQuestion.question}
-        {peerOrSelfReviewQuestion.answer_required && " *"}
+        <label htmlFor={"essay-" + peerOrSelfReviewQuestion.id}>
+          {peerOrSelfReviewQuestion.question} {peerOrSelfReviewQuestion.answer_required && " *"}
+        </label>
       </div>
       <TextArea
+        id={"essay-" + peerOrSelfReviewQuestion.id}
         rows={4}
         autoResize
-        placeholder={t("write-a-review")}
         onChangeByValue={(value) =>
           setPeerOrSelfReviewQuestionAnswer({
             text_data: value,

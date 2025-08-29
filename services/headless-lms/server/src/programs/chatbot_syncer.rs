@@ -309,6 +309,7 @@ async fn sync_pages_batch(
         }
 
         allowed_file_paths.push(blob_path.clone());
+        // metadata for the blob
         let mut metadata = HashMap::new();
         metadata.insert("url".to_string(), page_url.to_string().into());
         metadata.insert("title".to_string(), page.title.to_string().into());
@@ -400,6 +401,21 @@ async fn delete_old_files(
             blob_client.delete_file(&file).await?;
         }
     }
+
+    Ok(())
+}
+
+/// Deletes old files from the search index that are no longer in the blob storage.
+async fn delete_old_files_search_index(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    blob_client: &AzureBlobClient,
+) -> anyhow::Result<()> {
+    let mut courses_prefix = "courses/".to_string();
+    courses_prefix.push_str(&course_id.to_string());
+    let existing_files = blob_client.list_files_with_prefix(&courses_prefix).await?;
+    dbg!(existing_files);
+    // if a file is in index but is not in existing_files, delete it.
 
     Ok(())
 }

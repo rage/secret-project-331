@@ -72,10 +72,10 @@ pub async fn create_skillset(
                 "description": "Split skill to chunk documents",
                 "context": "/document",
                 "defaultLanguageCode": "en",
-                "textSplitMode": "pages",
-                "maximumPageLength": 2000,
-                "pageOverlapLength": 500,
-                "maximumPagesToTake": 1,
+                "textSplitMode": "pages", // pages means that the length is measured as tokens??
+                "maximumPageLength": 512,
+                "pageOverlapLength": 50,
+                "maximumPagesToTake": 0,
                 "inputs": [
                     {
                         "name": "text",

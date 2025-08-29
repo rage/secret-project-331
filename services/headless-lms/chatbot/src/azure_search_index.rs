@@ -286,7 +286,25 @@ pub async fn create_search_index(
         Field {
             name: "chunk_id".to_string(),
             field_type: "Edm.String".to_string(),
-            key: Some(true),
+            key: Some(false),
+            searchable: Some(true),
+            filterable: Some(true),
+            retrievable: Some(true),
+            stored: Some(true),
+            sortable: Some(true),
+            facetable: Some(true),
+            analyzer: Some("keyword".to_string()),
+            index_analyzer: None,
+            search_analyzer: None,
+            synonym_maps: Some(vec![]),
+            dimensions: None,
+            vector_search_profile: None,
+            vector_encoding: None,
+        },
+        Field {
+            name: "chunk_id".to_string(),
+            field_type: "Edm.String".to_string(),
+            key: Some(false),
             searchable: Some(true),
             filterable: Some(true),
             retrievable: Some(true),
@@ -630,3 +648,51 @@ where
         ))
     }
 }
+/*
+pub async fn delete_document_from_index<T>(
+    index_name: &str,
+    documents: Vec<T>,
+    app_config: &ApplicationConfiguration,
+) -> anyhow::Result<()>
+where
+    T: Serialize,
+{
+    let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
+        anyhow::anyhow!("Azure configuration is missing from the application configuration")
+    })?;
+
+    let search_config = azure_config.search_config.as_ref().ok_or_else(|| {
+        anyhow::anyhow!("Azure search configuration is missing from the Azure configuration")
+    })?;
+
+    let mut url = search_config.search_endpoint.clone();
+    // indexes/{}/docs/search
+    url.set_path(&format!("indexes('{}')/docs", index_name));
+    url.set_query(Some(&format!("api-version={}", API_VERSION)));
+    url.set_query(&format!("$filter={}", odataFilter));
+
+    let response = REQWEST_CLIENT
+        .post(url)
+        .header("Content-Type", "application/json")
+        .header("api-key", search_config.search_api_key.clone())
+        .body(batch_json)
+        .send()
+        .await?;
+
+    if response.status().is_success() {
+        println!(
+            "Document {} successfully deleted from index: {}",
+            "x", index_name
+        );
+        Ok(())
+    } else {
+        let status = response.status();
+        let error_text = response.text().await?;
+        Err(anyhow::anyhow!(
+            "Failed to delete document from index. Status: {}. Error: {}",
+            status,
+            error_text
+        ))
+    }
+}
+ */

@@ -8,7 +8,7 @@ use futures_util::future::LocalBoxFuture;
 use headless_lms_models::oauth_dpop_proofs::OAuthDpopProof;
 use headless_lms_models::oauth_shared_types::Digest as TokenDigest;
 use hmac::Hmac;
-use jsonwebtoken::{Algorithm, DecodingKey, Validation, decode};
+use jsonwebtoken::DecodingKey;
 use p256::PublicKey;
 use p256::pkcs8::EncodePublicKey;
 use serde::{Deserialize, Serialize};

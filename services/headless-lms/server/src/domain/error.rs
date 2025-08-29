@@ -2,8 +2,6 @@
 Contains error and result types for all the controllers.
 */
 
-use std::{error::Error, fmt::Write};
-
 use crate::domain::authorization::AuthorizedResponse;
 use actix_web::{
     HttpResponse, HttpResponseBuilder, error,
@@ -55,6 +53,10 @@ pub enum ControllerErrorType {
     /// HTTP status code 403. Is logged in but is not allowed to access the resource.
     #[display("Forbidden")]
     Forbidden,
+
+    /// HTTP satus code 200. OAuthError is returned as a error message on OK response.
+    #[display("OAuthError")]
+    OAuthError(Box<OAuthErrorData>),
 }
 
 /**
@@ -240,42 +242,73 @@ pub struct ErrorResponse {
 impl error::ResponseError for ControllerError {
     fn error_response(&self) -> HttpResponse {
         if let ControllerErrorType::InternalServerError = &self.error_type {
+            use std::fmt::Write as _;
             let mut err_string = String::new();
-            let mut source = Some(&self as &dyn Error);
+            let mut source = Some(self as &dyn std::error::Error);
             while let Some(err) = source {
-                let res = write!(err_string, "{}\n    ", err);
-                if let Err(e) = res {
-                    error!(
-                        "Error occured while trying to construct error source string: {}",
-                        e
-                    );
-                }
+                let _ = write!(err_string, "{}\n    ", err);
                 source = err.source();
             }
             error!("Internal server error: {}", err_string);
         }
+        if let ControllerErrorType::OAuthError(data) = &self.error_type {
+            if let Some(uri) = &data.redirect_uri {
+                let loc = format!(
+                    "{}?error={}&error_description={}&state={}",
+                    uri,
+                    data.error,
+                    data.error_description,
+                    data.state.clone().unwrap_or_default()
+                );
+                return HttpResponse::Found()
+                    .append_header(("Location", loc))
+                    .finish();
+            }
+
+            let status = match data.error.as_str() {
+                "invalid_client" => StatusCode::UNAUTHORIZED,  // 401
+                "invalid_token" => StatusCode::UNAUTHORIZED,   // 401
+                "insufficient_scope" => StatusCode::FORBIDDEN, // 403
+                _ => StatusCode::BAD_REQUEST,
+            };
+
+            let mut res = HttpResponse::build(status);
+            match data.error.as_str() {
+                "invalid_client" | "invalid_token" | "insufficient_scope" | "invalid_request" => {
+                    let hdr = format!(
+                        r#"Bearer error="{}", error_description="{}""#,
+                        data.error, data.error_description
+                    );
+                    res.append_header(("WWW-Authenticate", hdr));
+                }
+                _ => {}
+            }
+
+            return res.json(serde_json::json!({
+                "error": data.error,
+                "error_description": data.error_description
+            }));
+        }
 
         let status = self.status_code();
-        let error_data = if let ControllerErrorType::BadRequestWithData(data) = &self.error_type {
-            Some(data.clone())
-        } else {
-            None
+
+        let error_data = match &self.error_type {
+            ControllerErrorType::BadRequestWithData(data) => Some(data.clone()),
+            _ => None,
         };
 
-        let source_message = if let Some(anyhow_err) = &self.source {
+        let source_message = self.source.as_ref().map(|anyhow_err| {
             if let Some(controller_err) = anyhow_err.downcast_ref::<ControllerError>() {
-                Some(controller_err.message.clone())
+                controller_err.message.clone()
             } else {
-                Some(anyhow_err.to_string())
+                anyhow_err.to_string()
             }
-        } else {
-            None
-        };
+        });
 
         let error_response = ErrorResponse {
             title: status
                 .canonical_reason()
-                .map(|o| o.to_string())
+                .map(str::to_string)
                 .unwrap_or_else(|| status.to_string()),
             message: self.message.clone(),
             source: source_message,
@@ -284,7 +317,11 @@ impl error::ResponseError for ControllerError {
 
         HttpResponseBuilder::new(status)
             .append_header(ContentType::json())
-            .body(serde_json::to_string(&error_response).unwrap_or_else(|_| r#"{"title": "Internal server error", "message": "Error occured while formatting error message."}"#.to_string()))
+            .body(
+                serde_json::to_string(&error_response).unwrap_or_else(|_| {
+                    r#"{"title":"Internal Server Error","message":"Error occurred while formatting error message."}"#.to_string()
+                }),
+            )
     }
 
     fn status_code(&self) -> StatusCode {
@@ -295,6 +332,46 @@ impl error::ResponseError for ControllerError {
             ControllerErrorType::NotFound => StatusCode::NOT_FOUND,
             ControllerErrorType::Unauthorized => StatusCode::UNAUTHORIZED,
             ControllerErrorType::Forbidden => StatusCode::FORBIDDEN,
+            ControllerErrorType::OAuthError(_) => StatusCode::OK,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "snake_case")]
+pub struct OAuthErrorData {
+    pub error: String,
+    pub error_description: String,
+    pub redirect_uri: Option<String>,
+    pub state: Option<String>,
+}
+
+pub enum OAuthErrorCode {
+    InvalidGrant,
+    InvalidRequest,
+    InvalidClient,
+    InvalidToken,
+    InsufficientScope,
+    UnsupportedGrantType,
+    UnsupportedResponseType,
+    ServerError,
+    InvalidDopopProof,
+    UseDpopNonce,
+}
+
+impl OAuthErrorCode {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::InvalidGrant => "invalid_grant",
+            Self::InvalidRequest => "invalid_request",
+            Self::InvalidClient => "invalid_client",
+            Self::InvalidToken => "invalid_token",
+            Self::InsufficientScope => "insufficient_scope",
+            Self::UnsupportedGrantType => "unsupported_grant_type",
+            Self::UnsupportedResponseType => "unsupported_response_type",
+            Self::ServerError => "server_error",
+            Self::InvalidDopopProof => "invalid_dpop_proof",
+            Self::UseDpopNonce => "use_dpop_nonce",
         }
     }
 }
@@ -355,6 +432,16 @@ impl From<actix_web::Error> for ControllerError {
 
 impl From<actix_multipart::MultipartError> for ControllerError {
     fn from(err: actix_multipart::MultipartError) -> Self {
+        Self::new(
+            ControllerErrorType::InternalServerError,
+            err.to_string(),
+            None,
+        )
+    }
+}
+
+impl From<jsonwebtoken::errors::Error> for ControllerError {
+    fn from(err: jsonwebtoken::errors::Error) -> Self {
         Self::new(
             ControllerErrorType::InternalServerError,
             err.to_string(),
@@ -441,6 +528,46 @@ impl From<UtilError> for ControllerError {
             Some(err.into()),
             backtrace,
             span_trace,
+        )
+    }
+}
+
+impl From<serde_json::Error> for ControllerError {
+    fn from(err: serde_json::Error) -> Self {
+        Self::new(
+            ControllerErrorType::InternalServerError,
+            err.to_string(),
+            Some(err.into()),
+        )
+    }
+}
+
+impl From<base64::DecodeError> for ControllerError {
+    fn from(err: base64::DecodeError) -> Self {
+        Self::new(
+            ControllerErrorType::InternalServerError,
+            err.to_string(),
+            Some(err.into()),
+        )
+    }
+}
+
+impl From<std::string::FromUtf8Error> for ControllerError {
+    fn from(err: std::string::FromUtf8Error) -> Self {
+        Self::new(
+            ControllerErrorType::InternalServerError,
+            err.to_string(),
+            Some(err.into()),
+        )
+    }
+}
+
+impl From<pkcs8::spki::Error> for ControllerError {
+    fn from(err: pkcs8::spki::Error) -> Self {
+        Self::new(
+            ControllerErrorType::InternalServerError,
+            err.to_string(),
+            Some(err.into()),
         )
     }
 }

@@ -36,6 +36,12 @@ export function validateReturnToRouteOrDefault(
   // Parse the path we're about to return to double check we return only paths and not urls which could redirect to other sites.
   try {
     const parsedUrl = new URL(res, "https://example.com")
+
+    // If we are coming from oauth endpoint, keep query parameters. Still drop any origin to make sure we always return within our site.
+    if (parsedUrl.pathname === "/api/v0/main-frontend/oauth/authorize") {
+      return parsedUrl.pathname + parsedUrl.search
+    }
+
     // Pathname only. Also drops query parameters.
     return parsedUrl.pathname
   } catch (e) {

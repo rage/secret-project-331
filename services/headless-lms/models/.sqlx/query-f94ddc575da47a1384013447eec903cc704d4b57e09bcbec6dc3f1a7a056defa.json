@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            DELETE FROM oauth_dpop_proofs\n            WHERE seen_at < now() - ($1::bigint * interval '1 second')\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Int8"]
+    },
+    "nullable": []
+  },
+  "hash": "f94ddc575da47a1384013447eec903cc704d4b57e09bcbec6dc3f1a7a056defa"
+}

@@ -11,6 +11,11 @@ import { respondToOrLarger } from "../styles/respond"
 const PRIVACY_LINK_FI = "https://www.mooc.fi/faq/tietosuojaseloste/"
 const PRIVACY_LINK_EN = "https://www.mooc.fi/en/faq/tietosuojaseloste/"
 
+const ACCESSIBILITY_STATEMENT_LINK_FI =
+  "https://github.com/rage/accessibility-statements/blob/main/courses.mooc.fi-finnish.md"
+const ACCESSIBILITY_STATEMENT_LINK_EN =
+  "https://github.com/rage/accessibility-statements/blob/main/courses.mooc.fi-finnish.md"
+
 // To be link in the future
 // const CREATORS_LINK = "https://www.mooc.fi/en/"
 
@@ -149,6 +154,10 @@ const Footer: React.FC<React.PropsWithChildren<Props>> = ({ privacyLinks = null 
       ? privacyLinks
       : [{ linkTitle: t("privacy"), linkUrl: defaultLink }]
 
+  const accessibilityLink = useFinnishLinks
+    ? ACCESSIBILITY_STATEMENT_LINK_FI
+    : ACCESSIBILITY_STATEMENT_LINK_EN
+
   return (
     <footer
       role="contentinfo"
@@ -177,6 +186,7 @@ const Footer: React.FC<React.PropsWithChildren<Props>> = ({ privacyLinks = null 
                 {link.linkTitle}
               </StyledLink>
             ))}
+            <StyledLink href={accessibilityLink}>{t("accessibility-statement")}</StyledLink>
           </Links>
           <div
             className={css`

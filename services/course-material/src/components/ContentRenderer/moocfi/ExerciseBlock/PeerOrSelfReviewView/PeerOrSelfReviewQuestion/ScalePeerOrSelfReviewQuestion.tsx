@@ -2,14 +2,16 @@ import { PeerOrSelfReviewQuestionProps } from "."
 
 import LikertScale from "@/shared-module/common/components/PeerReview/LikertScale"
 
-const ScalePeerOrSelfReviewQuestion: React.FC<
-  React.PropsWithChildren<PeerOrSelfReviewQuestionProps>
-> = ({ question, setPeerOrSelfReviewQuestionAnswer, peerOrSelfReviewQuestionAnswer }) => {
+const ScalePeerOrSelfReviewQuestion: React.FC<PeerOrSelfReviewQuestionProps> = ({
+  peerOrSelfReviewQuestion,
+  setPeerOrSelfReviewQuestionAnswer,
+  peerOrSelfReviewQuestionAnswer,
+}) => {
   return (
     <div>
       <LikertScale
-        question={question.question}
-        answerRequired={question.answer_required}
+        question={peerOrSelfReviewQuestion.question}
+        answerRequired={peerOrSelfReviewQuestion.answer_required}
         selectedOption={peerOrSelfReviewQuestionAnswer?.number_data ?? null}
         setSelectedOption={(value) =>
           setPeerOrSelfReviewQuestionAnswer({
@@ -17,6 +19,7 @@ const ScalePeerOrSelfReviewQuestion: React.FC<
             number_data: value,
           })
         }
+        peerOrSelfReviewQuestionId={peerOrSelfReviewQuestion.id}
       />
     </div>
   )

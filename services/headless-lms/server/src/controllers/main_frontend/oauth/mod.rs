@@ -1,5 +1,6 @@
 use actix_web::web::{self, ServiceConfig};
 
+pub mod dpop;
 pub mod oauth_with_oicd;
 pub mod types;
 

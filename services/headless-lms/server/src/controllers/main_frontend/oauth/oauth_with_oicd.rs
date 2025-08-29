@@ -1,10 +1,12 @@
 //! Controllers for requests starting with '/api/v0/main-frontend/oauth'.
+use super::dpop::{oauth_invalid_dpop, verify_dpop_from_actix};
 use super::types::*;
 use crate::prelude::*;
 use actix_web::{Error, HttpResponse, web};
 use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
 use chrono::{DateTime, Duration, Utc};
 use domain::error::{OAuthErrorCode, OAuthErrorData};
+use dpop_verifier::DpopError;
 use headless_lms_utils::ApplicationConfiguration;
 use headless_lms_utils::prelude::*;
 use hmac::Mac;
@@ -322,12 +324,6 @@ async fn token(
     let mut jkt_at_issue: String = String::new();
 
     let mut conn = pool.acquire().await?;
-    if req.headers().get("DPoP").is_some() {
-        // No 'ath' at AS token endpoint
-        jkt_at_issue = verify_dpop_and_get_jkt(&mut conn, &req, "POST", None, None).await?;
-        token_type = "DPoP".to_string();
-    }
-
     let server_token = skip_authorize();
 
     let access_token_expire_time = Duration::hours(1);
@@ -370,6 +366,13 @@ async fn token(
 
     let (user_id, scope, nonce, expires_at, issue_id_token) = match &form.0.grant {
         Some(GrantType::AuthorizationCode { code, redirect_uri }) => {
+            if req.headers().get("DPoP").is_some() {
+                jkt_at_issue = verify_dpop_from_actix(&mut conn, &req, "POST", None)
+                    .await
+                    .map_err(oauth_invalid_dpop)?;
+                token_type = "DPoP".to_string();
+            }
+
             let code_digest = token_digest_hmac_sha256(code, &pepper);
             let auth_code = OAuthAuthCode::consume(&mut conn, code_digest).await?;
             if auth_code.client_id != client.id || &auth_code.redirect_uri != redirect_uri {
@@ -456,26 +459,18 @@ async fn token(
                 ));
             }
 
+            // If RT is bound, require proof & key match
             if !token.dpop_jkt.is_empty() {
-                // Stored RT is DPoP-bound: require proof and match jkt
-                let presented_jkt =
-                    verify_dpop_and_get_jkt(&mut conn, &req, "POST", None, None).await?;
+                let presented_jkt = verify_dpop_from_actix(&mut conn, &req, "POST", None)
+                    .await
+                    .map_err(oauth_invalid_dpop)?;
                 if presented_jkt != token.dpop_jkt {
-                    return Err(ControllerError::new(
-                        ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                            error: OAuthErrorCode::InvalidGrant.as_str().into(),
-                            error_description: "DPoP key mismatch".into(),
-                            redirect_uri: None,
-                            state: None,
-                        })),
-                        "DPoP key mismatch",
-                        None::<anyhow::Error>,
-                    ));
+                    return Err(oauth_invalid_dpop(dpop_verifier::DpopError::AthMismatch));
                 }
                 token_type = "DPoP".to_string();
                 jkt_at_issue = token.dpop_jkt.clone();
             } else {
-                // Stored RT is not bound: keep Bearer semantics
+                // Not bound → keep Bearer; ignore any DPoP header (don’t “upgrade”).
                 token_type = "Bearer".to_string();
                 jkt_at_issue.clear();
             }
@@ -649,19 +644,11 @@ async fn user_info(
             ));
         }
 
-        let presented_jkt =
-            verify_dpop_and_get_jkt(&mut conn, &req, "GET", Some(token), None).await?;
+        let presented_jkt = verify_dpop_from_actix(&mut conn, &req, "GET", Some(token))
+            .await
+            .map_err(oauth_invalid_dpop)?;
         if presented_jkt != access.dpop_jkt {
-            return Err(ControllerError::new(
-                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                    error: OAuthErrorCode::InvalidToken.as_str().into(),
-                    error_description: "DPoP key mismatch".into(),
-                    redirect_uri: None,
-                    state: None,
-                })),
-                "DPoP key mismatch",
-                None::<anyhow::Error>,
-            ));
+            return Err(oauth_invalid_dpop(DpopError::AthMismatch)); // or your own OAuth error mapping
         }
     }
 

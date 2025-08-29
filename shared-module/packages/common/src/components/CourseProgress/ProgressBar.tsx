@@ -20,6 +20,11 @@ const LinearProgress = styled.div<LinearProgressProps>`
     height: ${({ height }) => (height === "small" ? "16px" : "28px")};
     width: 100%;
   }
+
+  @media (max-width: 574px) {
+    width: 100%;
+    min-width: 0;
+  }
 `
 interface LinearProgressFillProps {
   percentage: number

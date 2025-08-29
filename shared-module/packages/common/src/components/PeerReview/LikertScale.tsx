@@ -20,6 +20,8 @@ const Question = styled.legend`
   margin-bottom: 1rem;
   display: block;
   color: #1a2333;
+  display: inline-block;
+  text-align: left;
 `
 const Likerts = styled.div`
   background: #f9f9f9;

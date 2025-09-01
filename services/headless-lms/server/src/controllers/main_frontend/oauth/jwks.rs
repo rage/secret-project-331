@@ -11,7 +11,7 @@ pub struct Jwk {
     pub e: String,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 pub struct Jwks {
     pub keys: Vec<Jwk>,
 }

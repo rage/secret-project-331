@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT * FROM organizations WHERE deleted_at IS NULL ORDER BY name;",
+  "query": "\n        SELECT *\n        FROM organizations\n        WHERE deleted_at IS NULL AND hidden = FALSE\n        ORDER BY name\n        ",
   "describe": {
     "columns": [
       {
@@ -42,6 +42,11 @@
         "ordinal": 7,
         "name": "description",
         "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "hidden",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
@@ -55,8 +60,9 @@
       true,
       false,
       true,
-      true
+      true,
+      false
     ]
   },
-  "hash": "4dd782cd803242c13bb09a513ce1b947433a940989d46a40391a4564e305dfa8"
+  "hash": "e2df6373dec3cba11183dc13fedbe2e887b67c95a5e1aa975fa17c3cf1bcd9a7"
 }

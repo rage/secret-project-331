@@ -42,6 +42,11 @@
         "ordinal": 7,
         "name": "description",
         "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "hidden",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
@@ -57,7 +62,8 @@
       true,
       false,
       true,
-      true
+      true,
+      false
     ]
   },
   "hash": "2e2e94fc2223f01242fa594ea0cb6183aeceab3dd62b9da489a26ffc94ea274d"

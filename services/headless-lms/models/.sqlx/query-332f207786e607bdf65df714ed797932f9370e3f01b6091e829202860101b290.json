@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  user_exercise_state_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  teacher_decision AS \"teacher_decision: _\",\n  justification,\n  hidden\nFROM teacher_grading_decisions\nWHERE user_exercise_state_id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND deleted_at IS NULL\n      ",
+  "query": "\nSELECT DISTINCT ON (user_exercise_state_id) id,\n  user_exercise_state_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  teacher_decision AS \"teacher_decision: _\",\n  justification,\n  hidden\nFROM teacher_grading_decisions\nWHERE user_exercise_state_id = ANY($1)\n  AND deleted_at IS NULL\nORDER BY user_exercise_state_id,\n  created_at DESC\n      ",
   "describe": {
     "columns": [
       {
@@ -78,5 +78,5 @@
       false
     ]
   },
-  "hash": "bb20c102c5a6481cdf1ad59df6f2037ca952fd12c1adfb2407e59fa1bc896b99"
+  "hash": "332f207786e607bdf65df714ed797932f9370e3f01b6091e829202860101b290"
 }

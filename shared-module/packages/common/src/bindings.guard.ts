@@ -70,7 +70,11 @@ export function isAction(obj: unknown): obj is Action {
             (typedObj !== null &&
                 typeof typedObj === "object" ||
                 typeof typedObj === "function") &&
-            typedObj["type"] === "view_stats")
+            typedObj["type"] === "view_stats" ||
+            (typedObj !== null &&
+                typeof typedObj === "object" ||
+                typeof typedObj === "function") &&
+            typedObj["type"] === "administrate")
     )
 }
 
@@ -2859,7 +2863,8 @@ export function isOrganization(obj: unknown): obj is Organization {
         (typedObj["organization_image_url"] === null ||
             typeof typedObj["organization_image_url"] === "string") &&
         (typedObj["deleted_at"] === null ||
-            typeof typedObj["deleted_at"] === "string")
+            typeof typedObj["deleted_at"] === "string") &&
+        typeof typedObj["hidden"] === "boolean"
     )
 }
 

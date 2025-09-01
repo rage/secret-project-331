@@ -1,9 +1,12 @@
 {
+  "are-you-sure": "هل أنت متأكد؟",
   "download-exercise": "تحميل التمرين",
   "download-submission-button": "تحميل",
   "file-upload-save-failure": "فشل في حفظ تحميل الملف",
   "file-upload-save-success": "تم حفظ تحميل الملف بنجاح.",
+  "no-exercise-files": "لم يتم العثور على ملفات التمرين. هذا خطأ في التمرين.",
   "no-file-saved-yet": "لم يتم حفظ أي ملف بعد.",
+  "no-student-files": "لم يتم العثور على ملفات الطالب. هذا خطأ في التمرين.",
   "reset": "إعادة تعيين",
   "reset-file": "إعادة تعيين الملف",
   "save-file-for-submission": "حفظ الملف للتقديم",
@@ -15,6 +18,7 @@
   "solve-in-editor-label": "حل في محرر خارجي",
   "submission-archive-download-label": "يمكن تحميل الأرشيف المقدم من الرابط التالي",
   "submit": "تقديم",
+  "test": "اختبار",
   "upload-solution-instructions": "رفع أرشيف الحل. أنواع الأرشيف المدعومة: .tar.zst",
   "waiting-for-content": "في انتظار المحتوى...",
   "waiting-for-port": "في انتظار المنفذ..."

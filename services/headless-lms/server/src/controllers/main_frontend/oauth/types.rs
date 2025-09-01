@@ -13,6 +13,8 @@ impl<T> ExtractFallback for T where T: Default + for<'de> Deserialize<'de> {}
 
 type AsyncPin<'a, O> = Pin<Box<dyn Future<Output = O> + 'a>>;
 
+pub type HmacSha256 = Hmac<Sha256>;
+
 #[derive(Debug)]
 pub struct SafeExtractor<T>(pub T);
 
@@ -121,7 +123,6 @@ impl OAuthValidate for AuthorizeQuery {
                 None::<anyhow::Error>,
             ));
         }
-        info!("rt={}", rt);
         if rt != "code" {
             return Err(ControllerError::new(
                 ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
@@ -538,7 +539,3 @@ mod tests {
         }
     }
 }
-
-// ---------- Token hashing / pepper helpers ----------
-
-pub type HmacSha256 = Hmac<Sha256>;

@@ -9,6 +9,7 @@ use actix_web::{
 };
 use backtrace::Backtrace;
 use derive_more::Display;
+use dpop_verifier::error::DpopError;
 use headless_lms_models::{ModelError, ModelErrorType};
 use headless_lms_utils::error::{
     backend_error::BackendError, backtrace_formatter::format_backtrace, util_error::UtilError,
@@ -266,9 +267,11 @@ impl error::ResponseError for ControllerError {
             }
 
             let status = match data.error.as_str() {
-                "invalid_client" => StatusCode::UNAUTHORIZED,  // 401
-                "invalid_token" => StatusCode::UNAUTHORIZED,   // 401
-                "insufficient_scope" => StatusCode::FORBIDDEN, // 403
+                "invalid_client" => StatusCode::UNAUTHORIZED,     // 401
+                "invalid_token" => StatusCode::UNAUTHORIZED,      // 401 (bearer)
+                "invalid_dpop_proof" => StatusCode::UNAUTHORIZED, // 401 (dpop)
+                "use_dpop_nonce" => StatusCode::UNAUTHORIZED,     // 401 (dpop)
+                "insufficient_scope" => StatusCode::FORBIDDEN,    // 403
                 _ => StatusCode::BAD_REQUEST,
             };
 
@@ -280,6 +283,27 @@ impl error::ResponseError for ControllerError {
                         data.error, data.error_description
                     );
                     res.append_header(("WWW-Authenticate", hdr));
+                }
+
+                // DPoP-auth related headers (RFC 9449 §12.2)
+                "invalid_dpop_proof" => {
+                    let hdr = format!(
+                        r#"DPoP error="{}", error_description="{}""#,
+                        data.error, data.error_description
+                    );
+                    res.append_header(("WWW-Authenticate", hdr));
+                }
+                "use_dpop_nonce" => {
+                    let hdr = format!(
+                        r#"DPoP error="{}", error_description="{}""#,
+                        data.error, data.error_description
+                    );
+                    res.append_header(("WWW-Authenticate", hdr));
+
+                    // Send the nonce in the DPoP-Nonce header
+                    if let Some(nonce) = &data.nonce {
+                        res.append_header(("DPoP-Nonce", nonce.clone()));
+                    }
                 }
                 _ => {}
             }
@@ -344,6 +368,7 @@ pub struct OAuthErrorData {
     pub error_description: String,
     pub redirect_uri: Option<String>,
     pub state: Option<String>,
+    pub nonce: Option<String>,
 }
 
 pub enum OAuthErrorCode {
@@ -566,6 +591,65 @@ impl From<pkcs8::spki::Error> for ControllerError {
     fn from(err: pkcs8::spki::Error) -> Self {
         Self::new(
             ControllerErrorType::InternalServerError,
+            err.to_string(),
+            Some(err.into()),
+        )
+    }
+}
+
+impl From<dpop_verifier::error::DpopError> for ControllerError {
+    fn from(err: DpopError) -> Self {
+        let oauth_error = match &err {
+            DpopError::MultipleDpopHeaders
+            | DpopError::InvalidDpopHeader
+            | DpopError::MissingDpopHeader
+            | DpopError::MissingHeader
+            | DpopError::MalformedJws
+            | DpopError::InvalidAlg(_)
+            | DpopError::UnsupportedAlg(_)
+            | DpopError::InvalidSignature
+            | DpopError::BadJwk(_)
+            | DpopError::MissingClaim(_)
+            | DpopError::InvalidMethod
+            | DpopError::HtmMismatch
+            | DpopError::MalformedHtu
+            | DpopError::HtuMismatch
+            | DpopError::AthMalformed
+            | DpopError::MissingAth
+            | DpopError::AthMismatch
+            | DpopError::FutureSkew
+            | DpopError::Stale
+            | DpopError::Replay
+            | DpopError::JtiTooLong
+            | DpopError::NonceMismatch
+            | DpopError::NonceStale
+            | DpopError::MissingNonce => OAuthErrorData {
+                error: OAuthErrorCode::InvalidToken.as_str().into(),
+                error_description: err.to_string(),
+                redirect_uri: None,
+                state: None,
+                nonce: None,
+            },
+
+            DpopError::Store(e) => OAuthErrorData {
+                error: OAuthErrorCode::ServerError.as_str().into(),
+                error_description: format!("DPoP storage error: {e}"),
+                redirect_uri: None,
+                state: None,
+                nonce: None,
+            },
+
+            DpopError::UseDpopNonce { nonce } => OAuthErrorData {
+                error: "use_dpop_nonce".into(), // per RFC 9449 §12.2
+                error_description: "Server requires DPoP nonce".into(),
+                redirect_uri: None,
+                state: None,
+                nonce: Some(nonce.clone()),
+            },
+        };
+
+        ControllerError::new(
+            ControllerErrorType::OAuthError(Box::new(oauth_error)),
             err.to_string(),
             Some(err.into()),
         )

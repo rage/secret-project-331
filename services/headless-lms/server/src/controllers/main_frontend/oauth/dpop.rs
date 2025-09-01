@@ -1,17 +1,14 @@
-use crate::prelude::*;
 use actix_web::HttpRequest;
 use async_trait::async_trait;
 use dpop_verifier::{
     DpopError, VerifyOptions,
-    actix_helpers::canonicalize_request_url,
+    actix_helpers::{dpop_header_str, expected_htu_from_actix},
     replay::{ReplayContext, ReplayStore},
     verify_proof,
 };
 use headless_lms_models::oauth_dpop_proofs::OAuthDpopProof;
 use headless_lms_models::oauth_shared_types::Digest as TokenDigest;
 use sqlx::PgConnection;
-
-// ---- Replay store backed by SQLx ----
 
 pub struct SqlxReplayStore<'c> {
     pub conn: &'c mut PgConnection,
@@ -36,53 +33,29 @@ impl<'c> ReplayStore for SqlxReplayStore<'c> {
             Some(ctx.iat), // iat: Option<i64>
         )
         .await
-        .map_err(|e| DpopError::Store(e.into()))?; // crate expects Box<dyn Error + Send + Sync>
+        .map_err(|e| DpopError::Store(e.into()))?;
 
         Ok(first_time)
     }
 }
 
-// ---------- Error mapping to your OAuth errors ----------
-pub fn oauth_invalid_dpop(e: DpopError) -> domain::error::ControllerError {
-    use domain::error::{ControllerError, ControllerErrorType, OAuthErrorData};
-    ControllerError::new(
-        ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-            error: "invalid_dpop_proof".into(),
-            error_description: e.to_string(),
-            redirect_uri: None,
-            state: None,
-        })),
-        "invalid DPoP proof",
-        None::<anyhow::Error>,
-    )
-}
-
-// ---------- Actix-friendly verifier usable in /token, /userinfo, etc. ----------
 pub async fn verify_dpop_from_actix(
     conn: &mut PgConnection,
     req: &HttpRequest,
     method: &str,               // "POST", "GET", ...
     access_token: Option<&str>, // Some(at) at resource endpoints; None at /token
 ) -> Result<String, DpopError> {
-    // Header (let missing header be your OAuth error elsewhere if you prefer)
-    let hdr = req
-        .headers()
-        .get("DPoP")
-        .and_then(|v| v.to_str().ok())
-        .ok_or(DpopError::MalformedJws)?; // reuse MalformedJws for "no/garbled header"
+    let hdr = dpop_header_str(req)?;
 
-    // Canonical HTU (scheme://host[:port?]/path), no query/fragment
-    let htu = canonicalize_request_url(req);
+    let htu = expected_htu_from_actix(req, true);
 
-    // Verify signature + claims (IMPORTANT: params order = store, jws, expected_htu, expected_htm, ...)
     let opts = VerifyOptions {
         max_age_secs: 300,
-        future_skew_secs: 120,
+        future_skew_secs: 10,
         ..Default::default()
     };
     let mut store = SqlxReplayStore { conn };
     let out = verify_proof(&mut store, hdr, &htu, method, access_token, opts).await?;
 
-    // We already stored the replay marker in the call above; return JKT to caller
     Ok(out.jkt)
 }

@@ -1,5 +1,5 @@
 //! Controllers for requests starting with '/api/v0/main-frontend/oauth'.
-use super::dpop::{oauth_invalid_dpop, verify_dpop_from_actix};
+use super::dpop::verify_dpop_from_actix;
 use super::types::*;
 use crate::prelude::*;
 use actix_web::{Error, HttpResponse, web};
@@ -77,6 +77,7 @@ async fn authorize(
                     error_description: "invalid client_id".into(),
                     redirect_uri: None,
                     state: Some(state.to_string()),
+                    nonce: None,
                 })),
                 "Invalid client_id",
                 None::<anyhow::Error>,
@@ -90,6 +91,7 @@ async fn authorize(
                 error_description: "redirect_uri does not match client".into(),
                 redirect_uri: Some(redirect_uri.to_string()),
                 state: Some(state.to_string()),
+                nonce: None,
             })),
             "Redirect URI mismatch",
             None::<anyhow::Error>,
@@ -341,6 +343,7 @@ async fn token(
                     error_description: "invalid client_id".into(),
                     redirect_uri: None,
                     state: None,
+                    nonce: None,
                 })),
                 "Invalid client_id",
                 None::<anyhow::Error>,
@@ -354,6 +357,7 @@ async fn token(
                 error_description: "invalid client secret".into(),
                 redirect_uri: None,
                 state: None,
+                nonce: None,
             })),
             "Invalid client secret",
             None::<anyhow::Error>,
@@ -367,9 +371,7 @@ async fn token(
     let (user_id, scope, nonce, expires_at, issue_id_token) = match &form.0.grant {
         Some(GrantType::AuthorizationCode { code, redirect_uri }) => {
             if req.headers().get("DPoP").is_some() {
-                jkt_at_issue = verify_dpop_from_actix(&mut conn, &req, "POST", None)
-                    .await
-                    .map_err(oauth_invalid_dpop)?;
+                jkt_at_issue = verify_dpop_from_actix(&mut conn, &req, "POST", None).await?;
                 token_type = "DPoP".to_string();
             }
 
@@ -382,6 +384,7 @@ async fn token(
                         error_description: "invalid authorization code or redirect_uri".into(),
                         redirect_uri: None,
                         state: None,
+                        nonce: None,
                     })),
                     "Invalid authorization code",
                     None::<anyhow::Error>,
@@ -453,6 +456,7 @@ async fn token(
                         error_description: "invalid refresh_token".into(),
                         redirect_uri: None,
                         state: None,
+                        nonce: None,
                     })),
                     "Invalid refresh token",
                     None::<anyhow::Error>,
@@ -461,11 +465,9 @@ async fn token(
 
             // If RT is bound, require proof & key match
             if !token.dpop_jkt.is_empty() {
-                let presented_jkt = verify_dpop_from_actix(&mut conn, &req, "POST", None)
-                    .await
-                    .map_err(oauth_invalid_dpop)?;
+                let presented_jkt = verify_dpop_from_actix(&mut conn, &req, "POST", None).await?;
                 if presented_jkt != token.dpop_jkt {
-                    return Err(oauth_invalid_dpop(dpop_verifier::DpopError::AthMismatch));
+                    return Err(dpop_verifier::DpopError::AthMismatch.into());
                 }
                 token_type = "DPoP".to_string();
                 jkt_at_issue = token.dpop_jkt.clone();
@@ -601,6 +603,7 @@ async fn user_info(
                     error_description: "missing Authorization header".into(),
                     redirect_uri: None,
                     state: None,
+                    nonce: None,
                 })),
                 "missing Authorization header",
                 None::<anyhow::Error>,
@@ -618,6 +621,7 @@ async fn user_info(
                 error_description: "unsupported auth scheme".into(),
                 redirect_uri: None,
                 state: None,
+                nonce: None,
             })),
             "unsupported auth scheme",
             None::<anyhow::Error>,
@@ -638,17 +642,16 @@ async fn user_info(
                     error_description: "DPoP-bound token must use DPoP scheme".into(),
                     redirect_uri: None,
                     state: None,
+                    nonce: None,
                 })),
                 "wrong auth scheme",
                 None::<anyhow::Error>,
             ));
         }
 
-        let presented_jkt = verify_dpop_from_actix(&mut conn, &req, "GET", Some(token))
-            .await
-            .map_err(oauth_invalid_dpop)?;
+        let presented_jkt = verify_dpop_from_actix(&mut conn, &req, "GET", Some(token)).await?;
         if presented_jkt != access.dpop_jkt {
-            return Err(oauth_invalid_dpop(DpopError::AthMismatch)); // or your own OAuth error mapping
+            return Err(DpopError::AthMismatch.into()); // or your own OAuth error mapping
         }
     }
 
@@ -662,6 +665,7 @@ async fn user_info(
                     error_description: "token has no associated user".into(),
                     redirect_uri: None,
                     state: None,
+                    nonce: None,
                 })),
                 "token has no associated user",
                 None::<anyhow::Error>,
@@ -863,6 +867,7 @@ fn generate_id_token(
                 error_description: "Failed to generate ID token".into(),
                 redirect_uri: None,
                 state: None,
+                nonce: None,
             })),
             "Failed to generate ID token",
             Some(e.into()),

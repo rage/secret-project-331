@@ -22,7 +22,6 @@ impl<'c> ReplayStore for SqlxReplayStore<'c> {
         ctx: ReplayContext<'_>,
     ) -> Result<bool, DpopError> {
         let digest = TokenDigest::from(jti_hash);
-
         let first_time = OAuthDpopProof::insert_once(
             self.conn,
             digest,

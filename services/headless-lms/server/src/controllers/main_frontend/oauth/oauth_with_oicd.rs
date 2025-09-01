@@ -1,6 +1,16 @@
 //! Controllers for requests starting with '/api/v0/main-frontend/oauth'.
+use super::authorize_query::AuthorizeQuery;
+use super::claims::Claims;
+use super::consent_deny_query::ConsentDenyQuery;
+use super::consent_query::ConsentQuery;
 use super::dpop::verify_dpop_from_actix;
-use super::types::*;
+use super::hmac_sha256::HmacSha256;
+use super::jwks::{Jwk, Jwks};
+use super::oauth_validate::OAuthValidate;
+use super::safe_exractor::SafeExtractor;
+use super::token_query::{GrantType, TokenQuery};
+use super::token_response::TokenResponse;
+use super::userinfo_response::UserInfoResponse;
 use crate::prelude::*;
 use actix_web::{Error, HttpResponse, web};
 use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};

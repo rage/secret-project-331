@@ -1,0 +1,12 @@
+DROP INDEX IF EXISTS user_course_settings_current_course_instance_id_idx;
+DROP INDEX IF EXISTS user_course_settings_user_id_idx;
+DROP INDEX IF EXISTS course_instances_course_id_idx;
+DROP INDEX IF EXISTS user_exercise_states_course_instance_id_idx;
+DROP INDEX IF EXISTS user_exercise_states_user_id_idx;
+DROP INDEX IF EXISTS user_exercise_states_deleted_at_idx;
+DROP INDEX IF EXISTS user_exercise_slide_states_deleted_at_idx;
+DROP INDEX IF EXISTS user_exercise_task_states_deleted_at_idx;
+DROP INDEX IF EXISTS offered_answers_to_peer_review_temporary_course_instance_id_idx;
+DROP INDEX IF EXISTS peer_or_self_review_submissions_course_instance_id_idx;
+DROP INDEX IF EXISTS peer_review_queue_entries_course_instance_id_idx;
+DROP INDEX IF EXISTS user_course_instance_exercise_service_variables_course_instance_id_idx;

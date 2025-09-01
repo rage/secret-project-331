@@ -1,0 +1,18 @@
+-- Indexes to optimize the make_points_not_course_instance_specific migration
+CREATE INDEX IF NOT EXISTS user_course_settings_current_course_instance_id_idx ON user_course_settings(current_course_instance_id);
+
+CREATE INDEX IF NOT EXISTS user_course_settings_user_id_idx ON user_course_settings(user_id);
+
+CREATE INDEX IF NOT EXISTS course_instances_course_id_idx ON course_instances(course_id);
+
+CREATE INDEX IF NOT EXISTS user_exercise_states_course_instance_id_idx ON user_exercise_states(course_instance_id);
+
+CREATE INDEX IF NOT EXISTS user_exercise_states_user_id_idx ON user_exercise_states(user_id);
+
+CREATE INDEX IF NOT EXISTS offered_answers_to_peer_review_temporary_course_instance_id_idx ON offered_answers_to_peer_review_temporary(course_instance_id);
+
+CREATE INDEX IF NOT EXISTS peer_or_self_review_submissions_course_instance_id_idx ON peer_or_self_review_submissions(course_instance_id);
+
+CREATE INDEX IF NOT EXISTS peer_review_queue_entries_course_instance_id_idx ON peer_review_queue_entries(course_instance_id);
+
+CREATE INDEX IF NOT EXISTS user_course_instance_exercise_service_variables_course_instance_id_idx ON user_course_instance_exercise_service_variables(course_instance_id);

@@ -5,6 +5,7 @@ pub mod claims;
 pub mod consent_deny_query;
 pub mod consent_query;
 pub mod dpop;
+pub mod helpers;
 pub mod hmac_sha256;
 pub mod jwks;
 pub mod oauth_validate;

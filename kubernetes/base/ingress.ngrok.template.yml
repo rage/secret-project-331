@@ -1,0 +1,93 @@
+# Note: This file is copied to the same folder when bin/dev or bin/test are started
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: project-331-ingress-ngrok
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.org/websocket-services: "ws"
+    nginx.ingress.kubernetes.io/limit-connections: "100"
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    nginx.ingress.kubernetes.io/limit-rpm: "2000"
+    nginx.ingress.kubernetes.io/proxy-body-size: 100m
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
+      grpc_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
+    nginx.ingress.kubernetes.io/server-snippet: |
+      location ^~ /oembed/1.0/proxy {
+        return 301 /api/v0/cms/gutenberg/oembed/preview?$args;
+      }
+      location ^~ /wp/v2/themes {
+        return 301 /api/v0/cms/gutenberg/themes?$args;
+      }
+
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  rules:
+    - host: put-your-ngrok-url-here # You can generate a stable ngrok url from the ngrok website
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: headless-lms
+                port:
+                  number: 3001
+          - path: /example-exercise
+            pathType: Prefix
+            backend:
+              service:
+                name: example-exercise
+                port:
+                  number: 3002
+          - path: /cms
+            pathType: Prefix
+            backend:
+              service:
+                name: cms
+                port:
+                  number: 3000
+          - path: /org
+            pathType: Prefix
+            backend:
+              service:
+                name: course-material
+                port:
+                  number: 3003
+          - path: /org/[^/]+/?$
+            pathType: Exact
+            backend:
+              service:
+                name: main-frontend
+                port:
+                  number: 3000
+          - path: /organizations
+            pathType: Exact
+            backend:
+              service:
+                name: main-frontend
+                port:
+                  number: 3000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: main-frontend
+                port:
+                  number: 3000
+          - path: /quizzes
+            pathType: Prefix
+            backend:
+              service:
+                name: quizzes
+                port:
+                  number: 3004
+          - path: /tmc
+            pathType: Prefix
+            backend:
+              service:
+                name: tmc
+                port:
+                  number: 3005

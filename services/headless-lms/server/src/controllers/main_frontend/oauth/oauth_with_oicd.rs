@@ -1,5 +1,5 @@
 //! Controllers for requests starting with '/api/v0/main-frontend/oauth'.
-use super::authorize_query::AuthorizeQuery;
+use super::authorize_query::AuthorizeParams;
 use super::consent_deny_query::ConsentDenyQuery;
 use super::consent_query::ConsentQuery;
 use super::dpop::verify_dpop_from_actix;
@@ -54,22 +54,13 @@ use sqlx::PgPool;
 
 async fn authorize(
     pool: web::Data<PgPool>,
-    query: SafeExtractor<AuthorizeQuery>,
+    query: AuthorizeParams,
     user: Option<AuthUser>,
 ) -> ControllerResult<HttpResponse> {
-    query.0.validate()?;
-
     let mut conn = pool.acquire().await?;
     let server_token = skip_authorize();
 
-    let client_id = query.0.client_id.as_deref().unwrap_or_default();
-    let redirect_uri = query.0.redirect_uri.as_deref().unwrap_or_default();
-    let scope = query.0.scope.as_deref().unwrap_or_default();
-    let state = query.0.state.as_deref().unwrap_or_default();
-    let nonce = query.0.nonce.as_deref().unwrap_or_default();
-    let response_type = query.0.response_type.as_deref().unwrap_or_default();
-
-    let client = OAuthClient::find_by_client_id(&mut conn, client_id)
+    let client = OAuthClient::find_by_client_id(&mut conn, &query.client_id)
         .await
         .map_err(|_| {
             ControllerError::new(
@@ -77,7 +68,7 @@ async fn authorize(
                     error: OAuthErrorCode::InvalidRequest.as_str().into(),
                     error_description: "invalid client_id".into(),
                     redirect_uri: None,
-                    state: Some(state.to_string()),
+                    state: query.state.clone(),
                     nonce: None,
                 })),
                 "Invalid client_id",
@@ -85,13 +76,13 @@ async fn authorize(
             )
         })?;
 
-    if !client.redirect_uris.contains(&redirect_uri.to_string()) {
+    if !client.redirect_uris.contains(&query.redirect_uri) {
         return Err(ControllerError::new(
             ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
                 error: OAuthErrorCode::InvalidRequest.as_str().into(),
                 error_description: "redirect_uri does not match client".into(),
-                redirect_uri: Some(redirect_uri.to_string()),
-                state: Some(state.to_string()),
+                redirect_uri: Some(query.redirect_uri),
+                state: query.state.clone(),
                 nonce: None,
             })),
             "Redirect URI mismatch",
@@ -99,7 +90,7 @@ async fn authorize(
         ));
     }
 
-    let requested_scopes: Vec<&str> = scope.split_whitespace().collect();
+    let requested_scopes: Vec<&str> = query.scope.split_whitespace().collect();
     let redirect_url = match user {
         Some(user) => {
             let granted_scopes =
@@ -113,13 +104,23 @@ async fn authorize(
             if !missing_scopes.is_empty() {
                 let return_to = format!(
                     "/api/v0/main-frontend/oauth/authorize?client_id={}&scope={}&redirect_uri={}&state={}&nonce={}",
-                    client_id, scope, redirect_uri, state, nonce
+                    &query.client_id,
+                    &query.scope,
+                    &query.redirect_uri,
+                    query.state.as_deref().unwrap_or_default(),
+                    query.nonce.as_deref().unwrap_or_default()
                 );
                 let encoded_return_to =
                     url::form_urlencoded::byte_serialize(return_to.as_bytes()).collect::<String>();
                 format!(
                     "/oauth_authorize_scopes?client_id={}&redirect_uri={}&scope={}&state={}&nonce={}&response_type={}&return_to={}",
-                    client_id, redirect_uri, scope, state, nonce, response_type, encoded_return_to
+                    &query.client_id,
+                    &query.redirect_uri,
+                    &query.scope,
+                    &query.state.unwrap_or_default(),
+                    &query.nonce.unwrap_or_default(),
+                    &query.response_type,
+                    encoded_return_to
                 )
             } else {
                 let code = generate_access_token();
@@ -133,16 +134,16 @@ async fn authorize(
                     pepper_id,
                     user.id,
                     client.id,
-                    redirect_uri,
-                    scope,
-                    nonce,
+                    &query.redirect_uri,
+                    &query.scope,
+                    &query.nonce.unwrap_or_default(),
                     expires_at,
                     serde_json::Map::new(),
                 )
                 .await?;
 
-                let mut redirect = format!("{}?code={}", redirect_uri, code);
-                if !state.is_empty() {
+                let mut redirect = format!("{}?code={}", &query.redirect_uri, code);
+                if let Some(state) = &query.state {
                     redirect.push_str(&format!("&state={}", state));
                 }
                 redirect
@@ -151,7 +152,11 @@ async fn authorize(
         None => {
             let return_to = format!(
                 "/api/v0/main-frontend/oauth/authorize?client_id={}&scope={}&redirect_uri={}&state={}&nonce={}",
-                client_id, scope, redirect_uri, state, nonce
+                &query.client_id,
+                &query.scope,
+                &query.redirect_uri,
+                &query.state.unwrap_or_default(),
+                &query.nonce.unwrap_or_default()
             );
             let encoded_return_to =
                 url::form_urlencoded::byte_serialize(return_to.as_bytes()).collect::<String>();

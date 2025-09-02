@@ -8,6 +8,7 @@ pub mod dpop;
 pub mod helpers;
 pub mod hmac_sha256;
 pub mod jwks;
+mod oauth_from_request;
 pub mod oauth_validate;
 pub mod oauth_with_oicd;
 pub mod safe_exractor;

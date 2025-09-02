@@ -1,4 +1,5 @@
 use super::oauth_validate::OAuthValidate;
+use crate::impl_oauth_from_request;
 use crate::prelude::*;
 use domain::error::{OAuthErrorCode, OAuthErrorData};
 use std::collections::HashMap;
@@ -18,10 +19,22 @@ pub struct AuthorizeQuery {
     pub _extra: HashMap<String, String>,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Default)]
+pub struct AuthorizeParams {
+    pub response_type: String,
+    pub client_id: String,
+    pub redirect_uri: String,
+    pub scope: String,
+    pub state: Option<String>,
+    pub nonce: Option<String>,
+}
+
 // We need to make sure we don't return errors directly, instead we need to return
 // error as success request with error parameters to comply with OAuth.
 impl OAuthValidate for AuthorizeQuery {
-    fn validate(&self) -> Result<(), ControllerError> {
+    type Output = AuthorizeParams;
+
+    fn validate(&self) -> Result<Self::Output, ControllerError> {
         let rt = self.response_type.as_deref().unwrap_or_default();
         let client_id = self.client_id.as_deref().unwrap_or_default();
         let redirect_uri = self.redirect_uri.as_deref().unwrap_or_default();
@@ -55,7 +68,14 @@ impl OAuthValidate for AuthorizeQuery {
             ));
         }
 
-        Ok(())
+        Ok(AuthorizeParams {
+            response_type: rt.to_string(),
+            client_id: client_id.to_string(),
+            redirect_uri: redirect_uri.to_string(),
+            scope: scope.to_string(),
+            state: self.state.clone(),
+            nonce: self.nonce.clone(),
+        })
     }
 }
 
@@ -66,7 +86,7 @@ mod tests {
     use serde_json::{Value, json};
 
     fn assert_oauth_error(
-        result: Result<(), ControllerError>,
+        result: Result<AuthorizeParams, ControllerError>,
         expected_error: OAuthErrorCode,
         expected_description: &str,
     ) {
@@ -78,7 +98,7 @@ mod tests {
                 }
                 other => panic!("Expected OAuthError, got {:?}", other),
             },
-            Ok(()) => panic!("Expected Err, got Ok(())"),
+            Ok(_) => panic!("Expected Err, got Ok(_)"),
         }
     }
 
@@ -152,3 +172,5 @@ mod tests {
         assert!(q.validate().is_ok());
     }
 }
+
+impl_oauth_from_request!(AuthorizeQuery => AuthorizeParams);

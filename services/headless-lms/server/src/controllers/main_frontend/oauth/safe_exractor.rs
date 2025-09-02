@@ -10,6 +10,8 @@ impl<T> ExtractFallback for T where T: Default + for<'de> Deserialize<'de> {}
 
 type AsyncPin<'a, O> = Pin<Box<dyn Future<Output = O> + 'a>>;
 
+use super::oauth_validate::OAuthValidate;
+
 #[derive(Debug)]
 pub struct SafeExtractor<T>(pub T);
 
@@ -35,7 +37,7 @@ where
     type Future = LocalBoxFuture<'static, Result<Self, Self::Error>>;
 
     fn from_request(req: &HttpRequest, payload: &mut Payload) -> Self::Future {
-        let mut payload = payload.take(); // take ownership of payload
+        let mut payload = payload.take();
         let req = req.clone();
 
         Box::pin(async move {

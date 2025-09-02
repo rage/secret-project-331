@@ -1,3 +1,4 @@
+use super::authorize_query::AuthorizeParams;
 use super::claims::Claims;
 use super::hmac_sha256::HmacSha256;
 use crate::domain::error::{OAuthErrorCode, OAuthErrorData};

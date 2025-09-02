@@ -15,6 +15,7 @@ use crate::{
 use actix_session::Session;
 use anyhow::Error;
 use anyhow::anyhow;
+use headless_lms_models::{user_passwords, users};
 use headless_lms_utils::tmc::{NewUserInfo, TmcClient};
 use secrecy::SecretString;
 use std::time::Duration;
@@ -514,6 +515,40 @@ pub async fn user_info(
     }
 }
 
+/**
+POST `/api/v0/auth/delete-user-account` If users password is correct, deletes the account
+**/
+#[instrument(skip(pool, payload, auth_user, session))]
+#[allow(clippy::async_yields_async)]
+pub async fn delete_user_account(
+    auth_user: Option<AuthUser>,
+    pool: web::Data<PgPool>,
+    payload: web::Json<Login>,
+    session: Session,
+) -> ControllerResult<web::Json<bool>> {
+    let token = skip_authorize();
+    if let Some(auth_user) = auth_user {
+        let mut conn = pool.acquire().await?;
+
+        let password_ok = user_passwords::verify_user_password(
+            &mut conn,
+            auth_user.id,
+            &SecretString::new(payload.password.clone().into()),
+        )
+        .await?;
+
+        if !password_ok {
+            return token.authorized_ok(web::Json(false));
+        }
+
+        users::delete_user(&mut conn, auth_user.id).await?;
+        authorization::forget(&session);
+        return token.authorized_ok(web::Json(true));
+    }
+
+    token.authorized_ok(web::Json(false))
+}
+
 /// Posts new user account to tmc.mooc.fi.
 ///
 /// Based on implementation from <https://github.com/rage/mooc.fi/blob/fb9a204f4dbf296b35ec82b2442e1e6ae0641fe9/frontend/lib/account.ts>
@@ -589,5 +624,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         "/authorize-multiple",
         web::post().to(authorize_multiple_actions_on_resources),
     )
-    .route("/user-info", web::get().to(user_info));
+    .route("/user-info", web::get().to(user_info))
+    .route("/delete-user-account", web::post().to(delete_user_account));
 }

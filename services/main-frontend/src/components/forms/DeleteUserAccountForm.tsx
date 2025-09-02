@@ -1,4 +1,6 @@
-import React, { useState } from "react"
+import { useQueryClient } from "@tanstack/react-query"
+import { useRouter } from "next/router"
+import React, { useContext, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -6,6 +8,7 @@ import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { deleteUserAccount } from "@/shared-module/common/services/backend/auth"
 
@@ -17,7 +20,6 @@ const DeleteUserAccountForm: React.FC<React.PropsWithChildren<DeleteUserAccountP
   email,
 }) => {
   const {
-    handleSubmit,
     formState: { isValid },
   } = useForm<DeleteUserAccountProps>({
     // eslint-disable-next-line i18next/no-literal-string
@@ -25,10 +27,14 @@ const DeleteUserAccountForm: React.FC<React.PropsWithChildren<DeleteUserAccountP
     defaultValues: { email },
   })
   const { t } = useTranslation()
+  const loginStateContext = useContext(LoginStateContext)
+
   const [password, setPassword] = useState("")
   const [credentialsError, setCredentialsError] = useState(false)
   const [error, setError] = useState<Error | null>(null)
   const [openDialog, setOpenDialog] = useState(false)
+  const queryClient = useQueryClient()
+  const router = useRouter()
 
   const deleteAccountMutation = useToastMutation(
     async () => {
@@ -37,31 +43,27 @@ const DeleteUserAccountForm: React.FC<React.PropsWithChildren<DeleteUserAccountP
       setCredentialsError(!success)
       return success
     },
-    { notify: false },
+    {
+      method: "POST",
+      notify: true,
+    },
+    {
+      onSuccess: () => {
+        setOpenDialog(false)
+        queryClient.removeQueries()
+        loginStateContext.refresh()
+        // eslint-disable-next-line i18next/no-literal-string
+        router.push("/login?return_to=%2F")
+      },
+    },
   )
-
-  const onSubmit = async () => {
-    try {
-      const success = await deleteAccountMutation.mutateAsync()
-      if (success) {
-        // Jos haluat refetchata queryjä -> käytä queryClient.invalidateQueries()
-        // Tällä hetkellä ei tarvita refresh-metodia
-      }
-    } catch (e) {
-      if (e instanceof Error) {
-        console.error("failed to delete account: ", e)
-        setError(e)
-      } else {
-        throw e
-      }
-    }
-  }
 
   return (
     <>
-      <Button variant={"secondary"} size={"small"} onClick={() => setOpenDialog(true)}>
+      <Button variant="secondary" size="small" onClick={() => setOpenDialog(true)}>
         {t("title-delete-account")}
       </Button>
+
       <StandardDialog
         open={openDialog}
         title={t("title-delete-account")}
@@ -73,7 +75,7 @@ const DeleteUserAccountForm: React.FC<React.PropsWithChildren<DeleteUserAccountP
             className: "primary-button",
             variant: "primary",
             children: t("confirm"),
-            onClick: handleSubmit(onSubmit),
+            onClick: () => deleteAccountMutation.mutateAsync(),
           },
           {
             type: "submit",
@@ -87,26 +89,19 @@ const DeleteUserAccountForm: React.FC<React.PropsWithChildren<DeleteUserAccountP
         ]}
       >
         <p>{t("delete-account-info")}</p>
-        <br />
 
         {error && <ErrorBanner error={error} />}
         {credentialsError && <ErrorBanner error={new Error("Invalid credentials")} />}
-        <form
-          onSubmit={(event) => {
-            event.preventDefault()
-            handleSubmit(onSubmit)()
+
+        <TextField
+          type="password"
+          label={t("label-password")}
+          onChange={(event) => {
+            setPassword(event.target.value)
+            setCredentialsError(false)
           }}
-        >
-          <TextField
-            type="password"
-            label={t("label-password")}
-            onChange={(event) => {
-              setPassword(event.target.value)
-              setCredentialsError(false)
-            }}
-            required
-          />
-        </form>
+          required
+        />
       </StandardDialog>
     </>
   )

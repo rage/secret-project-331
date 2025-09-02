@@ -110,8 +110,20 @@ pub async fn create_search_indexer(
                 "dataToExtract": "contentAndMetadata"
             }
         },
-        "fieldMappings": [],
-        "outputFieldMappings": [],
+        "fieldMappings": [
+        {
+        "sourceFieldName": "metadata_storage_path",
+        "targetFieldName": "chunk_id",
+        "mappingFunction": { "name": "base64Encode" }
+        },
+    /*                 {
+        "sourceFieldName": "metadata_storage_path",
+        "targetFieldName": "filepath"
+        } */
+        ],
+        "outputFieldMappings": [
+
+        ],
         "encryptionKey": null
     });
 

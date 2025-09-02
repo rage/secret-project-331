@@ -176,7 +176,7 @@ pub async fn create_skillset(
                             "source": "/document/chunk_context",
                             "sourceContext": null,
                             "inputs": []
-                        }
+                        },
                     ]
                 }
             ],

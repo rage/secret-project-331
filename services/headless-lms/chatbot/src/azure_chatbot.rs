@@ -492,8 +492,8 @@ pub async fn send_chat_request_and_parse_stream(
             })?;
 
             for choice in &response_chunk.choices {
+                println!("{:?}",choice);
                 if let Some(delta) = &choice.delta {
-                    println!("{:?}",delta);
                     if let Some(content) = &delta.content {
                         full_response_text.push(content.clone());
                         let response = ChatResponse { text: content.clone() };

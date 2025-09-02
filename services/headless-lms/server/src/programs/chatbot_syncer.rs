@@ -405,8 +405,8 @@ async fn delete_old_files(
     Ok(())
 }
 
-/// Deletes old files from the search index that are no longer in the blob storage.
-async fn delete_old_files_search_index(
+// Deletes old files from the search index that are no longer in the blob storage.
+/* async fn delete_old_files_search_index(
     conn: &mut PgConnection,
     course_id: Uuid,
     blob_client: &AzureBlobClient,
@@ -419,3 +419,4 @@ async fn delete_old_files_search_index(
 
     Ok(())
 }
+ */

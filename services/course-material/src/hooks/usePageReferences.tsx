@@ -33,7 +33,7 @@ const useReferences = (courseId: string) => {
     }
     let attempt = 0
     const callback = () => {
-      const refs = document.querySelectorAll<HTMLElement>("sup.reference")
+      const refs = document.querySelectorAll<HTMLElement>("[data-citation-id]")
       const numReferences = refs.length
       if (numReferences === 0 && attempt < 10) {
         attempt = attempt + 1
@@ -64,15 +64,15 @@ const useReferences = (courseId: string) => {
 
         setPageRefs(citations)
 
-        const citationsMap = new Map(citations.map((x) => [x.citationKey, x]))
-        Array.from(refs).forEach((r) => {
-          // eslint-disable-next-line i18next/no-literal-string
-          r.style.position = "relative"
-          // eslint-disable-next-line i18next/no-literal-string
-          r.innerHTML = `<span style="color: #46749B;"}>[${
-            citationsMap.get(r.dataset.citationId ?? "")?.citationNumber
-          }]</span>`
-        })
+        // const citationsMap = new Map(citations.map((x) => [x.citationKey, x]))
+        // Array.from(refs).forEach((r) => {
+        //   // eslint-disable-next-line i18next/no-literal-string
+        //   r.style.position = "relative"
+        //   // eslint-disable-next-line i18next/no-literal-string
+        //   r.innerHTML = `<span style="color: #46749B;"}>[${
+        //     citationsMap.get(r.dataset.citationId ?? "")?.citationNumber
+        //   }]</span>`
+        // })
       }
     }
     setTimeout(callback, 10)

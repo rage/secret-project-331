@@ -4,10 +4,10 @@ use super::consent_deny_query::ConsentDenyQuery;
 use super::consent_query::ConsentQuery;
 use super::dpop::verify_dpop_from_actix;
 use super::helpers::{
-    build_authorize_qs, build_consent_redirect, generate_access_token, generate_id_token,
-    json_obj_or_empty, oauth_invalid_client, oauth_invalid_grant, oauth_invalid_request,
-    ok_json_no_cache, pct_encode, read_token_pepper, redirect_with_code, rsa_n_e_and_kid_from_pem,
-    scope_has_openid, token_digest_hmac_sha256,
+    build_authorize_qs, build_consent_redirect, build_login_redirect, generate_access_token,
+    generate_id_token, json_obj_or_empty, oauth_invalid_client, oauth_invalid_grant,
+    oauth_invalid_request, ok_json_no_cache, read_token_pepper, redirect_with_code,
+    rsa_n_e_and_kid_from_pem, scope_has_openid, token_digest_hmac_sha256,
 };
 use super::jwks::{Jwk, Jwks};
 use super::token_query::{GrantType, TokenParams};
@@ -111,13 +111,7 @@ async fn authorize(
             }
         }
 
-        None => {
-            let return_to = format!(
-                "/api/v0/main-frontend/oauth/authorize?{}",
-                build_authorize_qs(&query)
-            );
-            format!("/login?return_to={}", pct_encode(&return_to))
-        }
+        None => build_login_redirect(&query),
     };
 
     server_token.authorized_ok(

@@ -5,13 +5,12 @@ use super::consent_query::ConsentQuery;
 use super::dpop::verify_dpop_from_actix;
 use super::helpers::{
     build_authorize_qs, build_consent_redirect, generate_access_token, generate_id_token,
-    oauth_invalid_request, pct_encode, read_token_pepper, redirect_with_code,
-    rsa_n_e_and_kid_from_pem, token_digest_hmac_sha256,
+    json_obj_or_empty, oauth_invalid_client, oauth_invalid_grant, oauth_invalid_request,
+    ok_json_no_cache, pct_encode, read_token_pepper, redirect_with_code, rsa_n_e_and_kid_from_pem,
+    scope_has_openid, token_digest_hmac_sha256,
 };
 use super::jwks::{Jwk, Jwks};
-use super::oauth_validate::OAuthValidate;
-use super::safe_exractor::SafeExtractor;
-use super::token_query::{GrantType, TokenQuery};
+use super::token_query::{GrantType, TokenParams};
 use super::token_response::TokenResponse;
 use super::userinfo_response::UserInfoResponse;
 use crate::prelude::*;
@@ -279,102 +278,66 @@ async fn deny_consent(query: web::Query<ConsentDenyQuery>) -> Result<HttpRespons
 #[instrument(skip(pool))]
 async fn token(
     pool: web::Data<PgPool>,
-    form: SafeExtractor<TokenQuery>,
+    form: TokenParams,
     req: actix_web::HttpRequest,
 ) -> ControllerResult<HttpResponse> {
-    form.0.validate()?;
     let (pepper, pepper_id) = read_token_pepper()?;
-    // decide token type & (maybe) jkt based on presence of DPoP at /token
-    let mut token_type = "Bearer".to_string();
-    let mut jkt_at_issue: String = String::new();
-
     let mut conn = pool.acquire().await?;
     let server_token = skip_authorize();
 
-    let access_token_expire_time = Duration::hours(1);
-    let refresh_token_expire_time = Duration::days(30);
+    let access_ttl = Duration::hours(1);
+    let refresh_ttl = Duration::days(30);
 
-    let client_id = form.0.client_id.as_deref().unwrap_or_default();
-    let client_secret = form.0.client_secret.as_deref().unwrap_or_default();
-
-    let client = OAuthClient::find_by_client_id(&mut conn, client_id)
+    let client = OAuthClient::find_by_client_id(&mut conn, &form.client_id)
         .await
-        .map_err(|_| {
-            ControllerError::new(
-                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                    error: OAuthErrorCode::InvalidClient.as_str().into(),
-                    error_description: "invalid client_id".into(),
-                    redirect_uri: None,
-                    state: None,
-                    nonce: None,
-                })),
-                "Invalid client_id",
-                None::<anyhow::Error>,
-            )
-        })?;
+        .map_err(|_| oauth_invalid_client("invalid client_id"))?;
 
-    if client.client_secret != token_digest_hmac_sha256(client_secret, &pepper) {
-        return Err(ControllerError::new(
-            ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                error: OAuthErrorCode::InvalidClient.as_str().into(),
-                error_description: "invalid client secret".into(),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            })),
-            "Invalid client secret",
-            None::<anyhow::Error>,
-        ));
+    if client.client_secret != token_digest_hmac_sha256(&form.client_secret, &pepper) {
+        return Err(oauth_invalid_client("invalid client secret"));
     }
 
     let access_token_plain = generate_access_token();
     let new_refresh_token_plain = generate_access_token();
-    let refresh_token_expires_at = Utc::now() + refresh_token_expire_time;
+    let refresh_token_expires_at = Utc::now() + refresh_ttl;
 
-    let (user_id, scope, nonce, expires_at, issue_id_token) = match &form.0.grant {
-        Some(GrantType::AuthorizationCode { code, redirect_uri }) => {
+    let (user_id, scope, nonce, expires_at, issue_id_token, token_type) = match &form.grant {
+        GrantType::AuthorizationCode { code, redirect_uri } => {
+            // DPoP at /token? -> bind issued tokens and set type
+            let mut token_type = "Bearer".to_string();
+            let mut jkt_at_issue = String::new();
             if req.headers().get("DPoP").is_some() {
                 jkt_at_issue = verify_dpop_from_actix(&mut conn, &req, "POST", None).await?;
                 token_type = "DPoP".to_string();
             }
 
+            // consume code (by digest), verify binding
             let code_digest = token_digest_hmac_sha256(code, &pepper);
             let auth_code = OAuthAuthCode::consume(&mut conn, code_digest).await?;
             if auth_code.client_id != client.id || &auth_code.redirect_uri != redirect_uri {
-                return Err(ControllerError::new(
-                    ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                        error: OAuthErrorCode::InvalidGrant.as_str().into(),
-                        error_description: "invalid authorization code or redirect_uri".into(),
-                        redirect_uri: None,
-                        state: None,
-                        nonce: None,
-                    })),
-                    "Invalid authorization code",
-                    None::<anyhow::Error>,
+                return Err(oauth_invalid_grant(
+                    "invalid authorization code or redirect_uri",
                 ));
             }
 
-            // issue new access + refresh (store DIGESTS)
             let scope = auth_code.scope.clone().unwrap_or_default();
-            let expires_at = Utc::now() + access_token_expire_time;
+            let expires_at = Utc::now() + access_ttl;
 
-            // access token digest
             let at_digest = token_digest_hmac_sha256(&access_token_plain, &pepper);
             OAuthAccessToken::insert(
                 &mut conn,
                 at_digest,
                 pepper_id,
-                Some(auth_code.user_id), // user_id is Option<Uuid> in model
+                Some(auth_code.user_id),
                 auth_code.client_id,
                 &scope,
-                "",                     // audience: &str
-                &jkt_at_issue,          // dpop_jkt: &str
+                "",                     // audience
+                &jkt_at_issue,          // dpop_jkt
                 serde_json::Map::new(), // metadata
                 expires_at,
             )
             .await?;
 
-            // revoke any existing RTs for this pair (defense in depth)
+            // revoke previous RTs for this user+client, then insert fresh RT
             OAuthRefreshTokens::revoke_all_by_user_client(
                 &mut conn,
                 auth_code.user_id,
@@ -382,7 +345,6 @@ async fn token(
             )
             .await?;
 
-            // refresh token digest
             let rt_digest = token_digest_hmac_sha256(&new_refresh_token_plain, &pepper);
             OAuthRefreshTokens::insert(
                 &mut conn,
@@ -391,11 +353,11 @@ async fn token(
                 auth_code.user_id,
                 auth_code.client_id,
                 &scope,
-                "", // audience: &str
+                "", // audience
                 refresh_token_expires_at,
                 None,                   // rotated_from
                 serde_json::Map::new(), // metadata
-                &jkt_at_issue,          // dpop_jkt
+                &jkt_at_issue,
             )
             .await?;
 
@@ -405,42 +367,30 @@ async fn token(
                 auth_code.nonce.clone(),
                 expires_at,
                 true,
+                token_type,
             )
         }
 
-        Some(GrantType::RefreshToken { refresh_token }) => {
-            // verify/consume presented RT by DIGEST
-            let presented_rt = token_digest_hmac_sha256(refresh_token, &pepper);
-            let token = OAuthRefreshTokens::consume(&mut conn, presented_rt).await?;
+        GrantType::RefreshToken { refresh_token } => {
+            // consume presented RT (by digest)
+            let presented = token_digest_hmac_sha256(refresh_token, &pepper);
+            let token = OAuthRefreshTokens::consume(&mut conn, presented).await?;
             if token.client_id != client.id {
-                return Err(ControllerError::new(
-                    ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                        error: OAuthErrorCode::InvalidGrant.as_str().into(),
-                        error_description: "invalid refresh_token".into(),
-                        redirect_uri: None,
-                        state: None,
-                        nonce: None,
-                    })),
-                    "Invalid refresh token",
-                    None::<anyhow::Error>,
-                ));
+                return Err(oauth_invalid_grant("invalid refresh_token"));
             }
 
-            // If RT is bound, require proof & key match
-            if !token.dpop_jkt.is_empty() {
+            // If original RT was DPoP-bound -> require matching proof now
+            let (token_type, jkt_at_issue) = if !token.dpop_jkt.is_empty() {
                 let presented_jkt = verify_dpop_from_actix(&mut conn, &req, "POST", None).await?;
                 if presented_jkt != token.dpop_jkt {
                     return Err(dpop_verifier::DpopError::AthMismatch.into());
                 }
-                token_type = "DPoP".to_string();
-                jkt_at_issue = token.dpop_jkt.clone();
+                ("DPoP".to_string(), token.dpop_jkt.clone())
             } else {
-                // Not bound → keep Bearer; ignore any DPoP header (don’t “upgrade”).
-                token_type = "Bearer".to_string();
-                jkt_at_issue.clear();
-            }
+                ("Bearer".to_string(), String::new())
+            };
 
-            // rotate RT (insert new digest, link rotated_from)
+            // rotate RT (revoke old; insert new linked to previous)
             OAuthRefreshTokens::revoke_all_by_user_client(
                 &mut conn,
                 token.user_id,
@@ -458,16 +408,14 @@ async fn token(
                 &token.scope,
                 token.audience.as_deref().unwrap_or(""),
                 refresh_token_expires_at,
-                Some(token.digest.clone()), // rotated_from
-                match token.metadata.as_object() {
-                    Some(map) => map.clone(),
-                    None => serde_json::Map::new(),
-                },
-                &jkt_at_issue, // dpop_jkt
+                Some(token.digest.clone()),
+                json_obj_or_empty(&token.metadata),
+                &jkt_at_issue,
             )
             .await?;
 
-            let expires_at = Utc::now() + access_token_expire_time;
+            // new AT for same scope/audience
+            let expires_at = Utc::now() + access_ttl;
             let at_digest = token_digest_hmac_sha256(&access_token_plain, &pepper);
             OAuthAccessToken::insert(
                 &mut conn,
@@ -478,21 +426,24 @@ async fn token(
                 &token.scope,
                 token.audience.as_deref().unwrap_or(""),
                 &jkt_at_issue,
-                match token.metadata.as_object() {
-                    Some(map) => map.clone(),
-                    None => serde_json::Map::new(),
-                },
+                json_obj_or_empty(&token.metadata),
                 expires_at,
             )
             .await?;
 
-            (token.user_id, token.scope.clone(), None, expires_at, false)
+            (
+                token.user_id,
+                token.scope.clone(),
+                None,
+                expires_at,
+                false,
+                token_type,
+            )
         }
-
-        None => unreachable!("validate() ensures grant is Some"),
     };
 
-    let id_token = if issue_id_token && scope.split_whitespace().any(|s| s == "openid") {
+    // Optional ID Token (if OIDC requested and we’re in code flow)
+    let id_token = if issue_id_token && scope_has_openid(&scope) {
         Some(generate_id_token(
             user_id,
             &client.client_id,
@@ -503,19 +454,16 @@ async fn token(
         None
     };
 
-    // Return PLAINTEXT tokens to the client
+    // Response (plaintext tokens)
     let response = TokenResponse {
         access_token: access_token_plain,
         refresh_token: Some(new_refresh_token_plain),
         id_token,
         token_type,
-        expires_in: access_token_expire_time.num_seconds() as u32,
+        expires_in: access_ttl.num_seconds() as u32,
     };
 
-    let mut resp = HttpResponse::Ok();
-    resp.insert_header(("Cache-Control", "no-store"));
-    resp.insert_header(("Pragma", "no-cache"));
-    server_token.authorized_ok(resp.json(response))
+    server_token.authorized_ok(ok_json_no_cache(response))
 }
 
 /// Handles `/userinfo` for returning user claims according to granted scopes.

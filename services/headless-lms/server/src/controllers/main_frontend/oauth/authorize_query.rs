@@ -79,6 +79,8 @@ impl OAuthValidate for AuthorizeQuery {
     }
 }
 
+impl_oauth_from_request!(AuthorizeQuery => AuthorizeParams);
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -172,5 +174,3 @@ mod tests {
         assert!(q.validate().is_ok());
     }
 }
-
-impl_oauth_from_request!(AuthorizeQuery => AuthorizeParams);

@@ -1,4 +1,5 @@
 use super::oauth_validate::OAuthValidate;
+use crate::impl_oauth_from_request;
 use crate::prelude::*;
 use domain::error::{OAuthErrorCode, OAuthErrorData};
 use serde::{Deserialize, Serialize};
@@ -16,8 +17,17 @@ pub struct TokenQuery {
     pub _extra: HashMap<String, String>,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct TokenParams {
+    pub client_id: String,
+    pub client_secret: String,
+    pub grant: GrantType,
+}
+
 impl OAuthValidate for TokenQuery {
-    fn validate(&self) -> Result<(), ControllerError> {
+    type Output = TokenParams;
+
+    fn validate(&self) -> Result<Self::Output, ControllerError> {
         let client_id = self.client_id.as_deref().unwrap_or_default();
         let client_secret = self.client_secret.as_deref().unwrap_or_default();
 
@@ -83,7 +93,11 @@ impl OAuthValidate for TokenQuery {
             }
         }
 
-        Ok(())
+        Ok(TokenParams {
+            client_id: client_id.to_string(),
+            client_secret: client_secret.to_string(),
+            grant: self.grant.clone().unwrap(), // safe to unwrap due to previous checks
+        })
     }
 }
 
@@ -96,6 +110,8 @@ pub enum GrantType {
     RefreshToken { refresh_token: String },
 }
 
+impl_oauth_from_request!(TokenQuery => TokenParams);
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -103,7 +119,7 @@ mod tests {
     use serde_json::{Value, json};
 
     fn assert_oauth_error(
-        result: Result<(), ControllerError>,
+        result: Result<TokenParams, ControllerError>,
         expected_error: OAuthErrorCode,
         expected_description: &str,
     ) {
@@ -115,7 +131,7 @@ mod tests {
                 }
                 other => panic!("Expected OAuthError, got {:?}", other),
             },
-            Ok(()) => panic!("Expected Err, got Ok(())"),
+            Ok(_) => panic!("Expected Err, got Ok(())"),
         }
     }
 

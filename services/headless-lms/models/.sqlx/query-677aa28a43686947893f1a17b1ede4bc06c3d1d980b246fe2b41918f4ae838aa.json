@@ -19,7 +19,7 @@
           "Custom": {
             "name": "history_change_reason",
             "kind": {
-              "Enum": ["page-saved", "history-restored"]
+              "Enum": ["page-saved", "history-restored", "page-deleted"]
             }
           }
         },

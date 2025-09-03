@@ -5,6 +5,7 @@ use headless_lms_utils::document_schema_processor::{
     GutenbergBlock, contains_blocks_not_allowed_in_top_level_pages,
 };
 use itertools::Itertools;
+use serde_json::json;
 use sqlx::{Postgres, QueryBuilder, Row};
 use url::Url;
 
@@ -2164,6 +2165,7 @@ RETURNING *;
 pub async fn delete_page_and_exercises(
     conn: &mut PgConnection,
     page_id: Uuid,
+    author: Uuid,
 ) -> ModelResult<Page> {
     let mut tx = conn.begin().await?;
     let page = sqlx::query_as!(
@@ -2235,6 +2237,26 @@ WHERE exercise_slide_id IN (
         page.id
     )
     .execute(&mut *tx)
+    .await?;
+
+    let history_content = PageHistoryContent {
+        content: json!(null),
+        exercises: Vec::new(),
+        exercise_slides: Vec::new(),
+        exercise_tasks: Vec::new(),
+        peer_or_self_review_configs: Vec::new(),
+        peer_or_self_review_questions: Vec::new(),
+    };
+    crate::page_history::insert(
+        &mut tx,
+        PKeyPolicy::Generate,
+        page.id,
+        &page.title,
+        &history_content,
+        HistoryChangeReason::PageDeleted,
+        author,
+        None,
+    )
     .await?;
 
     tx.commit().await?;
@@ -3367,6 +3389,37 @@ WHERE id = ANY($1)
     Ok(pages)
 }
 
+pub async fn get_by_ids_including_deleted(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+) -> ModelResult<Vec<Page>> {
+    let pages = sqlx::query_as!(
+        Page,
+        "
+SELECT id,
+    created_at,
+    updated_at,
+    course_id,
+    exam_id,
+    chapter_id,
+    url_path,
+    title,
+    deleted_at,
+    content,
+    order_number,
+    copied_from,
+    hidden,
+    page_language_group_id
+FROM pages
+WHERE id = ANY($1)
+    ",
+        ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(pages)
+}
+
 #[cfg(test)]
 mod test {
     use chrono::TimeZone;
@@ -3629,7 +3682,7 @@ mod test {
                 .await
                 .unwrap();
         for page in &existing_pages {
-            delete_page_and_exercises(tx.as_mut(), page.id)
+            delete_page_and_exercises(tx.as_mut(), page.id, user)
                 .await
                 .unwrap();
         }

@@ -190,7 +190,8 @@ async fn sync_pages(
         );
 
         let page_ids: Vec<Uuid> = outdated_statuses.iter().map(|s| s.page_id).collect();
-        let pages = headless_lms_models::pages::get_by_ids(conn, &page_ids).await?;
+        let pages =
+            headless_lms_models::pages::get_by_ids_including_deleted(conn, &page_ids).await?;
 
         sync_pages_batch(
             conn,
@@ -203,7 +204,6 @@ async fn sync_pages(
         .await?;
 
         delete_old_files(conn, *course_id, blob_client).await?;
-        // TODO: call delete old chunks from index
     }
 
     if any_changes {

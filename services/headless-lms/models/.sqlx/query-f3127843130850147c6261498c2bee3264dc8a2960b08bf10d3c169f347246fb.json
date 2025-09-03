@@ -1,0 +1,48 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT\n              jti_hash        AS \"jti_hash: _\",\n              seen_at         AS \"seen_at: _\",\n              client_id       AS \"client_id?\",\n              jkt             AS \"jkt?\",\n              htm             AS \"htm?\",\n              htu             AS \"htu?\",\n              iat             AS \"iat?\"\n            FROM oauth_dpop_proofs\n            WHERE jti_hash = $1\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "jti_hash: _",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 1,
+        "name": "seen_at: _",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "client_id?",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "jkt?",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "htm?",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "htu?",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "iat?",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": ["Bytea"]
+    },
+    "nullable": [false, false, true, true, true, true, true]
+  },
+  "hash": "f3127843130850147c6261498c2bee3264dc8a2960b08bf10d3c169f347246fb"
+}

@@ -1,0 +1,68 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT digest as \"digest: _\",pepper_id, user_id, client_id, redirect_uri, scope, jti, nonce, used, expires_at, metadata\n               FROM oauth_auth_codes WHERE digest = $1 AND used = false AND expires_at > now()",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "digest: _",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 1,
+        "name": "pepper_id",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 2,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "client_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "redirect_uri",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "scope",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "jti",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "nonce",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "used",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 9,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "metadata",
+        "type_info": "Jsonb"
+      }
+    ],
+    "parameters": {
+      "Left": ["Bytea"]
+    },
+    "nullable": [false, false, false, false, false, false, false, true, false, false, false]
+  },
+  "hash": "7f12c6e4feeccb866c00bc971c0a31ee4c18ac8561ebe99e7bec64fae45e4427"
+}

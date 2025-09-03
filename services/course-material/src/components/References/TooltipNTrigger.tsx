@@ -1,4 +1,4 @@
-import { TooltipTrigger } from "react-aria-components"
+import { Button, OverlayArrow, Tooltip, TooltipTrigger } from "react-aria-components"
 
 import { Reference } from "."
 
@@ -9,9 +9,12 @@ interface TooltipNTriggerProps {
 const TooltipNTrigger: React.FC<TooltipNTriggerProps> = ({ reference }) => {
   return (
     <TooltipTrigger>
-      <span>[1]</span>
-      <Tooltip>
-    </Tooltip>
+      <sup>
+        <a href="ajdfa;lksj">[1]</a>
+      </sup>
+
+      <Tooltip id={`tooltip-${reference.id}`}>{reference.text}</Tooltip>
+    </TooltipTrigger>
   )
 }
 

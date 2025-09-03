@@ -62,6 +62,9 @@ const CoursePermissions = dynamicImport<CourseManagementPagesProps>(
 const CourseStatsPage = dynamicImport<CourseManagementPagesProps>(
   () => import("@/components/page-specific/manage/courses/id/stats/CourseStatsPage"),
 )
+const CourseStudentsPage = dynamicImport<CourseManagementPagesProps>(
+  () => import("@/components/page-specific/manage/courses/id/students/CourseStudentsPage"),
+)
 
 const CourseManagementPageTabs: {
   [key: string]: TabPage
@@ -74,6 +77,7 @@ const CourseManagementPageTabs: {
   exercises: CourseExercises,
   "course-instances": CourseCourseInstances,
   "language-versions": CourseLanguageVersionsPage,
+  students: CourseStudentsPage,
   permissions: CoursePermissions,
   stats: CourseStatsPage,
 }
@@ -160,6 +164,9 @@ const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPag
         </TabLink>
         <TabLink url={"course-instances"} isActive={path === "course-instances"}>
           {t("link-course-instances")}
+        </TabLink>
+        <TabLink url={"students"} isActive={path === "students"}>
+          {t("Students")}
         </TabLink>
         <TabLink url={"language-versions"} isActive={path === "language-versions"}>
           {t("link-language-versions")}

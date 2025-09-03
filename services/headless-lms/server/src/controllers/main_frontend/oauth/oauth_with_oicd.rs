@@ -4,8 +4,9 @@ use super::consent_deny_query::ConsentDenyQuery;
 use super::consent_query::ConsentQuery;
 use super::dpop::verify_dpop_from_actix;
 use super::helpers::{
-    generate_access_token, generate_id_token, read_token_pepper, rsa_n_e_and_kid_from_pem,
-    token_digest_hmac_sha256,
+    build_authorize_qs, build_consent_redirect, generate_access_token, generate_id_token,
+    oauth_invalid_request, pct_encode, read_token_pepper, redirect_with_code,
+    rsa_n_e_and_kid_from_pem, token_digest_hmac_sha256,
 };
 use super::jwks::{Jwk, Jwks};
 use super::oauth_validate::OAuthValidate;
@@ -27,6 +28,7 @@ use models::{
 };
 use serde_json::json;
 use sqlx::PgPool;
+use std::collections::HashSet;
 
 /// Handles the `/authorize` endpoint for OAuth 2.0 / OpenID Connect.
 ///
@@ -51,7 +53,6 @@ use sqlx::PgPool;
 /// HTTP/1.1 302 Found
 /// Location: http://localhost?code=SplxlOBeZQQYbYS6WxSbIA&state=random123
 /// ```
-
 async fn authorize(
     pool: web::Data<PgPool>,
     query: AuthorizeParams,
@@ -62,66 +63,31 @@ async fn authorize(
 
     let client = OAuthClient::find_by_client_id(&mut conn, &query.client_id)
         .await
-        .map_err(|_| {
-            ControllerError::new(
-                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                    error: OAuthErrorCode::InvalidRequest.as_str().into(),
-                    error_description: "invalid client_id".into(),
-                    redirect_uri: None,
-                    state: query.state.clone(),
-                    nonce: None,
-                })),
-                "Invalid client_id",
-                None::<anyhow::Error>,
-            )
-        })?;
+        .map_err(|_| oauth_invalid_request("invalid client_id", None, query.state.as_deref()))?;
 
     if !client.redirect_uris.contains(&query.redirect_uri) {
-        return Err(ControllerError::new(
-            ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                error: OAuthErrorCode::InvalidRequest.as_str().into(),
-                error_description: "redirect_uri does not match client".into(),
-                redirect_uri: Some(query.redirect_uri),
-                state: query.state.clone(),
-                nonce: None,
-            })),
-            "Redirect URI mismatch",
-            None::<anyhow::Error>,
+        return Err(oauth_invalid_request(
+            "redirect_uri does not match client",
+            Some(&query.redirect_uri),
+            query.state.as_deref(),
         ));
     }
 
-    let requested_scopes: Vec<&str> = query.scope.split_whitespace().collect();
     let redirect_url = match user {
         Some(user) => {
-            let granted_scopes =
+            let granted_scopes: Vec<String> =
                 OAuthUserClientScopes::find_scopes(&mut conn, user.id, client.id).await?;
-            let missing_scopes: Vec<&str> = requested_scopes
-                .iter()
-                .filter(|s| !granted_scopes.contains(&s.to_string()))
-                .copied()
-                .collect();
 
-            if !missing_scopes.is_empty() {
+            let requested: HashSet<&str> = query.scope.split_whitespace().collect();
+            let granted: HashSet<&str> = granted_scopes.iter().map(|s| s.as_str()).collect();
+            let missing: Vec<&str> = requested.difference(&granted).copied().collect();
+
+            if !missing.is_empty() {
                 let return_to = format!(
-                    "/api/v0/main-frontend/oauth/authorize?client_id={}&scope={}&redirect_uri={}&state={}&nonce={}",
-                    &query.client_id,
-                    &query.scope,
-                    &query.redirect_uri,
-                    query.state.as_deref().unwrap_or_default(),
-                    query.nonce.as_deref().unwrap_or_default()
+                    "/api/v0/main-frontend/oauth/authorize?{}",
+                    build_authorize_qs(&query)
                 );
-                let encoded_return_to =
-                    url::form_urlencoded::byte_serialize(return_to.as_bytes()).collect::<String>();
-                format!(
-                    "/oauth_authorize_scopes?client_id={}&redirect_uri={}&scope={}&state={}&nonce={}&response_type={}&return_to={}",
-                    &query.client_id,
-                    &query.redirect_uri,
-                    &query.scope,
-                    &query.state.unwrap_or_default(),
-                    &query.nonce.unwrap_or_default(),
-                    &query.response_type,
-                    encoded_return_to
-                )
+                build_consent_redirect(&query, &return_to)
             } else {
                 let code = generate_access_token();
                 let expires_at = Utc::now() + Duration::minutes(10);
@@ -136,31 +102,22 @@ async fn authorize(
                     client.id,
                     &query.redirect_uri,
                     &query.scope,
-                    &query.nonce.unwrap_or_default(),
+                    query.nonce.as_deref().unwrap_or_default(),
                     expires_at,
                     serde_json::Map::new(),
                 )
                 .await?;
 
-                let mut redirect = format!("{}?code={}", &query.redirect_uri, code);
-                if let Some(state) = &query.state {
-                    redirect.push_str(&format!("&state={}", state));
-                }
-                redirect
+                redirect_with_code(&query.redirect_uri, &code, query.state.as_deref())
             }
         }
+
         None => {
             let return_to = format!(
-                "/api/v0/main-frontend/oauth/authorize?client_id={}&scope={}&redirect_uri={}&state={}&nonce={}",
-                &query.client_id,
-                &query.scope,
-                &query.redirect_uri,
-                &query.state.unwrap_or_default(),
-                &query.nonce.unwrap_or_default()
+                "/api/v0/main-frontend/oauth/authorize?{}",
+                build_authorize_qs(&query)
             );
-            let encoded_return_to =
-                url::form_urlencoded::byte_serialize(return_to.as_bytes()).collect::<String>();
-            format!("/login?return_to={}", encoded_return_to)
+            format!("/login?return_to={}", pct_encode(&return_to))
         }
     };
 

@@ -14,6 +14,7 @@ use rsa::RsaPublicKey;
 use rsa::pkcs1::DecodeRsaPublicKey;
 use rsa::traits::PublicKeyParts;
 use sha2::{Digest as ShaDigest, Sha256};
+use url::form_urlencoded;
 use uuid::Uuid;
 
 pub fn generate_access_token() -> String {
@@ -93,6 +94,74 @@ pub fn read_token_pepper() -> Result<(Vec<u8>, i16), ControllerError> {
         .oauth_server_configuration
         .oauth_token_pepper_id;
     Ok((pepper, pepper_id))
+}
+
+pub fn oauth_invalid_request(
+    desc: &'static str,
+    redirect: Option<&str>,
+    state: Option<&str>,
+) -> ControllerError {
+    ControllerError::new(
+        ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
+            error: OAuthErrorCode::InvalidRequest.as_str().into(),
+            error_description: desc.into(),
+            redirect_uri: redirect.map(str::to_string),
+            state: state.map(str::to_string),
+            nonce: None,
+        })),
+        desc,
+        None::<anyhow::Error>,
+    )
+}
+
+pub fn build_authorize_qs(q: &AuthorizeParams) -> String {
+    let mut s = form_urlencoded::Serializer::new(String::new());
+    s.append_pair("client_id", &q.client_id);
+    s.append_pair("scope", &q.scope);
+    s.append_pair("redirect_uri", &q.redirect_uri);
+    s.append_pair("response_type", &q.response_type);
+    if let Some(state) = q.state.as_deref() {
+        s.append_pair("state", state);
+    }
+    if let Some(nonce) = q.nonce.as_deref() {
+        s.append_pair("nonce", nonce);
+    }
+    s.finish()
+}
+
+pub fn pct_encode(s: &str) -> String {
+    form_urlencoded::byte_serialize(s.as_bytes()).collect()
+}
+
+pub fn build_login_redirect(q: &AuthorizeParams) -> String {
+    let return_to = format!(
+        "/api/v0/main-frontend/oauth/authorize?{}",
+        build_authorize_qs(q)
+    );
+    format!("/login?return_to={}", pct_encode(&return_to))
+}
+
+pub fn build_consent_redirect(q: &AuthorizeParams, return_to: &str) -> String {
+    // keep original request params visible on the consent page
+    format!(
+        "/oauth_authorize_scopes?{}&return_to={}",
+        build_authorize_qs(q),
+        pct_encode(return_to)
+    )
+}
+
+pub fn redirect_with_code(redirect_uri: &str, code: &str, state: Option<&str>) -> String {
+    let mut qs = form_urlencoded::Serializer::new(String::new());
+    qs.append_pair("code", code);
+    if let Some(s) = state {
+        qs.append_pair("state", s);
+    }
+    let qs = qs.finish();
+    if redirect_uri.contains('?') {
+        format!("{redirect_uri}&{qs}")
+    } else {
+        format!("{redirect_uri}?{qs}")
+    }
 }
 
 #[cfg(test)]

@@ -1,4 +1,3 @@
--- Add down migration script here
 CREATE TYPE history_change_reason_new AS ENUM('page-saved', 'history-restored');
 
 -- Delete from page_history such entries where history_change_reason='page-deleted',

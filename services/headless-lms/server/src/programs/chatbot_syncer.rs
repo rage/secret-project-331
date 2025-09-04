@@ -309,7 +309,6 @@ async fn sync_pages_batch(
         }
 
         allowed_file_paths.push(blob_path.clone());
-        // metadata for the blob
         let mut metadata = HashMap::new();
         metadata.insert("url".to_string(), page_url.to_string().into());
         metadata.insert("title".to_string(), page.title.to_string().into());

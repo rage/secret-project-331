@@ -160,7 +160,8 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
 
       return createPortal(
         <CitationButton
-          citN={citN.toString()}
+          citN={citedDocs[idx].toString()}
+          citNToShow={citN.toString()}
           idx={idx.toString()}
           citationButtonClicked={citationButtonClicked}
           hoverCitationProps={hoverCitationProps}

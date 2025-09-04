@@ -40,6 +40,7 @@ export const renumberFilterCitations = (
 
   let filteredCitations: ChatbotConversationMessageCitation[] = []
   let citationNumberingMap = new Map()
+  let citedPages = new Map()
 
   uniqueCitations.forEach((citN, idx) => {
     // renumbers the uniqueCitations to be ordered,
@@ -48,8 +49,16 @@ export const renumberFilterCitations = (
     // because of earlier checks we know that cit will be found
     let cit = citations.find((c) => c.citation_number === citN)
     citationNumberingMap.set(cit!.citation_number, idx)
+    if (citedPages.has(cit!.document_url)) {
+      // already cited, so set the citN as the same as the earlier of the same page
+      citationNumberingMap.set(cit!.citation_number, citedPages.get(cit!.document_url))
+    } else {
+      citedPages.set(cit!.document_url, idx)
+    }
     filteredCitations.push(cit!)
   })
+
+  // if the same page is cited multiple times, then use only one
 
   return { filteredCitations, citedDocs, citationNumberingMap }
 }

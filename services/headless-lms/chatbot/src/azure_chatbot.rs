@@ -23,7 +23,7 @@ use crate::llm_utils::{LLM_API_VERSION, build_llm_headers, estimate_tokens};
 use crate::prelude::*;
 use crate::search_filter::SearchFilter;
 
-const CONTENT_FIELD_SEPARATOR: &'static str = ",,";
+const CONTENT_FIELD_SEPARATOR: &str = ",,";
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ContentFilterResults {
@@ -492,7 +492,6 @@ pub async fn send_chat_request_and_parse_stream(
             })?;
 
             for choice in &response_chunk.choices {
-                println!("{:?}",choice);
                 if let Some(delta) = &choice.delta {
                     if let Some(content) = &delta.content {
                         full_response_text.push(content.clone());
@@ -502,7 +501,6 @@ pub async fn send_chat_request_and_parse_stream(
                         yield Bytes::from("\n");
                     }
                     if let Some(context) = &delta.context {
-
                         let citation_message_id = response_message.id;
                         let mut conn = pool.acquire().await?;
                         for (idx, cit) in context.citations.iter().enumerate() {

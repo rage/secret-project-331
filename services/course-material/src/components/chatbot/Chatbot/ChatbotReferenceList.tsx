@@ -13,6 +13,7 @@ import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindi
 import SpeechBalloonPopover from "@/shared-module/common/components/SpeechBalloonPopover"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { getRemarkable } from "@/utils/getRemarkable"
 import { sanitizeCourseMaterialHtml } from "@/utils/sanitizeCourseMaterialHtml"
 
@@ -108,6 +109,18 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
 
   let { hoverProps: hoverPopoverProps, isHovered: isPopoverHovered } = useHover({})
 
+  let citationSet = new Set()
+  let citationsToList = citations
+    .filter((cit) => {
+      if (citationSet.has(cit.document_url)) {
+        return false
+      } else {
+        citationSet.add(cit.document_url)
+        return true
+      }
+    })
+    .map((cit) => cit.id)
+
   return (
     <>
       <h2
@@ -120,50 +133,56 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
       <div className={referenceListStyle(citationsOpen, referenceListId)}>
         <div id={referenceListId}>
           {citations.map((cit) => {
-            let citationNumber = citationNumberingMap.get(cit.citation_number) ?? 0
+            let citationNumber = assertNotNullOrUndefined(
+              citationNumberingMap.get(cit.citation_number),
+            )
             return (
-              <div key={cit.id} className={referenceStyle}>
-                {citationsOpen ? (
-                  <Link href={cit.document_url}>
-                    <span
-                      className={css`
-                        flex: 7;
-                        color: #000000;
-                      `}
-                    >
-                      <b
-                        className={css`
-                          padding: 0 1em 0 0.25em;
-                        `}
-                      >
-                        {citationNumber}
-                      </b>
-                      <span className="link">
-                        {cit.course_material_chapter_number &&
-                          `${t("chapter-chapter-number", {
-                            number: cit.course_material_chapter_number,
-                          })}: `}
-                        {cit.title}
-                      </span>
-                    </span>
-                    <Library
-                      className={css`
-                        flex: 1;
-                        padding: 2px;
-                        margin-right: -1em;
-                        align-self: flex-end;
-                        color: #000000;
-                      `}
-                    />
-                  </Link>
-                ) : (
-                  <>
-                    <b>{citationNumber}</b>{" "}
-                    {cit.title.length <= citationTitleLen
-                      ? cit.title
-                      : // eslint-disable-next-line i18next/no-literal-string
-                        cit.title.slice(0, citationTitleLen - 3).concat("\u2026")}
-                  </>
+              <div key={cit.id}>
+                {citationsToList.includes(cit.id) && (
+                  <div className={referenceStyle}>
+                    {citationsOpen ? (
+                      <Link href={cit.document_url}>
+                        <span
+                          className={css`
+                            flex: 7;
+                            color: #000000;
+                          `}
+                        >
+                          <b
+                            className={css`
+                              padding: 0 1em 0 0.25em;
+                            `}
+                          >
+                            {citationNumber}
+                          </b>
+                          <span className="link">
+                            {cit.course_material_chapter_number &&
+                              `${t("chapter-chapter-number", {
+                                number: cit.course_material_chapter_number,
+                              })}: `}
+                            {cit.title}
+                          </span>
+                        </span>
+                        <Library
+                          className={css`
+                            flex: 1;
+                            padding: 2px;
+                            margin-right: -1em;
+                            align-self: flex-end;
+                            color: #000000;
+                          `}
+                        />
+                      </Link>
+                    ) : (
+                      <>
+                        <b>{citationNumber}</b>{" "}
+                        {cit.title.length <= citationTitleLen
+                          ? cit.title
+                          : // eslint-disable-next-line i18next/no-literal-string
+                            cit.title.slice(0, citationTitleLen - 3).concat("\u2026")}
+                      </>
+                    )}
+                  </div>
                 )}
                 <SpeechBalloonPopover
                   placement="top"
@@ -172,7 +191,7 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
                     triggerRef.current?.id.includes(
                       // the triggerRef's id will contain the citationId's first part
                       // if it's associated with this citation
-                      citationId(citationNumber.toString(), ""),
+                      citationId(cit.citation_number.toString(), ""),
                     ) &&
                     (isCitationHovered || isPopoverHovered || citationButtonClicked)
                   }
@@ -187,7 +206,7 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
                     className={css`
                       overflow-wrap: break-word;
                       height: fit-content;
-                      max-height: 6lh;
+                      max-height: 5lh;
                       margin-bottom: 0.5em;
                       mask-image: linear-gradient(0.5turn, black 66%, transparent);
                       h1 {

@@ -35,34 +35,49 @@
       },
       {
         "ordinal": 6,
-        "name": "course_instance_id",
-        "type_info": "Uuid"
-      },
-      {
-        "ordinal": 7,
         "name": "receiving_peer_reviews_exercise_slide_submission_id",
         "type_info": "Uuid"
       },
       {
-        "ordinal": 8,
+        "ordinal": 7,
         "name": "received_enough_peer_reviews",
         "type_info": "Bool"
       },
       {
-        "ordinal": 9,
+        "ordinal": 8,
         "name": "peer_review_priority",
         "type_info": "Int4"
       },
       {
-        "ordinal": 10,
+        "ordinal": 9,
         "name": "removed_from_queue_for_unusual_reason",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 10,
+        "name": "course_id",
+        "type_info": "Uuid"
       }
     ],
     "parameters": {
-      "Left": ["Uuid", "Timestamptz"]
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
     },
-    "nullable": [false, false, false, true, false, false, false, false, false, false, false]
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
   },
   "hash": "e3ec9d0aa135be4b608d62c47ca80a8076dcab3284c11d69e49eea12caadcb1c"
 }

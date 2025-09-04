@@ -90,7 +90,10 @@
       }
     ],
     "parameters": {
-      "Left": ["Varchar", "Uuid"]
+      "Left": [
+        "Varchar",
+        "Uuid"
+      ]
     },
     "nullable": [
       false,

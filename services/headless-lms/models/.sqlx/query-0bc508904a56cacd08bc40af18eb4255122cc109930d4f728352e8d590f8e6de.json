@@ -4,7 +4,12 @@
   "describe": {
     "columns": [],
     "parameters": {
-      "Left": ["Varchar", "Bool", "Varchar", "Uuid"]
+      "Left": [
+        "Varchar",
+        "Bool",
+        "Varchar",
+        "Uuid"
+      ]
     },
     "nullable": []
   },

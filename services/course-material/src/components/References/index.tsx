@@ -129,10 +129,8 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
       return null
     }
     const nodes = Array.from(document.querySelectorAll("[data-citation-id]"))
-    console.debug("[References] Found citation nodes:", nodes)
     return Array.from(document.querySelectorAll<HTMLElement>("[data-citation-id]")).map(
       (node, idx) => {
-        console.debug(`[References] Creating portal for node`, node, `at index`, idx)
         const reference = data.find((o) => {
           return o.id === node.dataset.citationId
         })

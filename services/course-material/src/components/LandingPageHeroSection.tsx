@@ -92,6 +92,9 @@ const StyledSVG = styled(DefaultSVG)`
 export interface LandingPageHeroSectionProps {
   title: string
   backgroundImage?: string
+  backgroundImageMedium?: string
+  backgroundImageLarge?: string
+  backgroundImageXLarge?: string
   backgroundColor?: string
   fontColor?: string
   backgroundRepeatX?: boolean
@@ -104,6 +107,9 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
   title,
   children,
   backgroundImage,
+  backgroundImageMedium,
+  backgroundImageLarge,
+  backgroundImageXLarge,
   backgroundColor,
   backgroundRepeatX,
   fontColor,
@@ -111,6 +117,23 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
   const { t } = useTranslation()
   const { terms } = useContext(GlossaryContext)
   const { containerRef, onPointerDown, flipClassName } = useCornerTapFlip()
+
+  // Helper function to get background image for different breakpoints
+  const getBackgroundImageUrl = (breakpoint: "mobile" | "medium" | "large" | "xlarge") => {
+    switch (breakpoint) {
+      case "medium":
+        return backgroundImageMedium || backgroundImage
+      case "large":
+        return backgroundImageLarge || backgroundImageMedium || backgroundImage
+      case "xlarge":
+        return (
+          backgroundImageXLarge || backgroundImageLarge || backgroundImageMedium || backgroundImage
+        )
+      default:
+        return backgroundImage
+    }
+  }
+
   return (
     <div
       ref={containerRef}
@@ -122,18 +145,34 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
         padding: 5em 1em;
         margin-top: -${COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM}rem;
         ${backgroundColor && `background-color: ${backgroundColor};`}
-        ${backgroundImage &&
-        `background-image: url(${backgroundImage});
+        ${getBackgroundImageUrl("mobile") &&
+        `background-image: url(${getBackgroundImageUrl("mobile")});
         background-repeat: ${backgroundRepeatX ? "repeat-x" : "no-repeat"};
         background-position: center center;`}
         background-size: cover;
         touch-action: manipulation;
+
+        ${respondToOrLarger.md} {
+          ${getBackgroundImageUrl("medium") &&
+          `background-image: url(${getBackgroundImageUrl("medium")});`}
+        }
+
+        ${respondToOrLarger.lg} {
+          ${getBackgroundImageUrl("large") &&
+          `background-image: url(${getBackgroundImageUrl("large")});`}
+        }
+
+        ${respondToOrLarger.xl} {
+          ${getBackgroundImageUrl("xlarge") &&
+          `background-image: url(${getBackgroundImageUrl("xlarge")});`}
+        }
+
         ${respondToOrLarger.xxxxl} {
           background-size: auto;
         }
       `}
     >
-      {backgroundImage === undefined && <StyledSVG />}
+      {getBackgroundImageUrl("mobile") === undefined && <StyledSVG />}
       <TextBox color={fontColor}>
         <h1
           className={flipClassName}

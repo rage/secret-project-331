@@ -57,16 +57,14 @@ test("User can add missing country information", async ({ page }) => {
 
     await expect(page.getByText("Success", { exact: true })).toBeVisible()
 
-    const answerResearchConsent = async () => {
-      await page.getByText("I want to participate in the").waitFor({ timeout: 10000 })
-      await page.getByText("I want to participate in the").click()
-      await page.getByRole("button", { name: "Save" }).click()
-      await page.getByRole("button", { name: "Done" }).click()
-      await page.getByText("Default", { exact: true }).click()
-    }
-    await Promise.all([
-      answerResearchConsent(),
-      selectCourseInstanceIfPrompted(page, undefined, 10000),
-    ])
+    const researchConsentDialog = page.getByTestId("research-consent-dialog")
+    await researchConsentDialog
+      .getByText("I want to participate in the")
+      .waitFor({ timeout: 10000 })
+    await researchConsentDialog.getByText("I want to participate in the").click()
+    await researchConsentDialog.getByRole("button", { name: "Save" }).click()
+
+    await page.getByText("Please confirm your email address.").waitFor()
+    await page.getByRole("button", { name: "Done" }).click()
   })
 })

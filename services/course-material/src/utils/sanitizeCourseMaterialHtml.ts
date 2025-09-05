@@ -70,6 +70,11 @@ export const escapeUrlForCss = (url: string | undefined): string => {
       } else {
         console.warn(`Using relative URL in server context: ${trimmedUrl}`)
         return encodeURI(trimmedUrl)
+          .replace(/'/g, "%27")
+          .replace(/"/g, "%22")
+          .replace(/\\/g, "%5C")
+          .replace(/\(/g, "%28")
+          .replace(/\)/g, "%29")
       }
     }
 

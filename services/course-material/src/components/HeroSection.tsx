@@ -5,6 +5,7 @@ import React, { useContext } from "react"
 import { GlossaryContext } from "../contexts/GlossaryContext"
 import { useCornerTapFlip } from "../hooks/useCornerTapFlip"
 import { COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM } from "../utils/constants"
+import { escapeUrlForCss } from "../utils/sanitizeCourseMaterialHtml"
 
 import { parseText } from "./ContentRenderer/util/textParsing"
 
@@ -72,6 +73,9 @@ export interface HeroSectionProps {
   title: string
   bg?: string
   backgroundImage?: string
+  backgroundImageMedium?: string
+  backgroundImageLarge?: string
+  backgroundImageXLarge?: string
   fontColor?: string
   alignCenter: boolean
   alignBottom?: boolean | undefined
@@ -89,6 +93,9 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
   title,
   subtitle,
   backgroundImage,
+  backgroundImageMedium,
+  backgroundImageLarge,
+  backgroundImageXLarge,
   fontColor,
   alignCenter,
   backgroundColor,
@@ -105,6 +112,23 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
   // eslint-disable-next-line i18next/no-literal-string
   const backgroundVerticalAlignment = alignBottom ? "bottom" : "center"
   const { containerRef, onPointerDown, flipClassName } = useCornerTapFlip()
+
+  // Helper function to get background image for different breakpoints
+  const getBackgroundImageUrl = (breakpoint: "mobile" | "medium" | "large" | "xlarge") => {
+    switch (breakpoint) {
+      case "medium":
+        return backgroundImageMedium || backgroundImage
+      case "large":
+        return backgroundImageLarge || backgroundImageMedium || backgroundImage
+      case "xlarge":
+        return (
+          backgroundImageXLarge || backgroundImageLarge || backgroundImageMedium || backgroundImage
+        )
+      default:
+        return backgroundImage
+    }
+  }
+
   return (
     <div
       id="hero-section"
@@ -128,23 +152,31 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
           height: 100%;
           content: "";
           opacity: 0.3;
-          background-image: url(${backgroundImage});
+          background-image: url("${escapeUrlForCss(getBackgroundImageUrl("mobile"))}");
           background-repeat: ${backgroundRepeatX ? "repeat-x" : "no-repeat"};
           background-position: center ${backgroundVerticalAlignment};
           position: absolute;
           top: 0px;
           left: 0px;
+
           ${respondToOrLarger.md} {
             opacity: ${partiallyTransparent ? "1" : "0.4"};
             background-position: ${direction} ${backgroundVerticalAlignment};
             background-size: ${direction == "center" ? "contain" : "22rem"};
             left: ${direction == "center" ? "0" : "30px"};
+            background-image: url("${escapeUrlForCss(getBackgroundImageUrl("medium"))}");
           }
+
           ${respondToOrLarger.lg} {
             opacity: ${partiallyTransparent ? "1" : "0.4"};
             background-position: ${direction} ${backgroundVerticalAlignment};
             background-size: ${direction == "center" ? "contain" : "26rem"};
             left: ${direction == "center" ? "0" : "40px"};
+            background-image: url("${escapeUrlForCss(getBackgroundImageUrl("large"))}");
+          }
+
+          ${respondToOrLarger.xl} {
+            background-image: url("${escapeUrlForCss(getBackgroundImageUrl("xlarge"))}");
           }
         }
       `}

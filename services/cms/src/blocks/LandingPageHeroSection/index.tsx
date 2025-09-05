@@ -11,6 +11,9 @@ export interface LandingPageHeroSectionAttributes {
   backgroundColor: string
   fontColor: string
   backgroundImage: string | undefined
+  backgroundImageMedium: string | undefined
+  backgroundImageLarge: string | undefined
+  backgroundImageXLarge: string | undefined
   backgroundRepeatX: boolean | undefined
 }
 
@@ -35,6 +38,18 @@ const LandingPageHeroSectionConfiguration: BlockConfiguration<LandingPageHeroSec
       default: "#000000",
     },
     backgroundImage: {
+      type: "string",
+      default: undefined,
+    },
+    backgroundImageMedium: {
+      type: "string",
+      default: undefined,
+    },
+    backgroundImageLarge: {
+      type: "string",
+      default: undefined,
+    },
+    backgroundImageXLarge: {
       type: "string",
       default: undefined,
     },

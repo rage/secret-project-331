@@ -57,10 +57,16 @@ test("User can add missing country information", async ({ page }) => {
 
     await expect(page.getByText("Success", { exact: true })).toBeVisible()
 
-    await page.getByText("I want to participate in the").click()
-    await page.getByRole("button", { name: "Save" }).click()
-    await page.getByRole("button", { name: "Done" }).click()
-    await page.getByText("Default", { exact: true }).click()
-    await selectCourseInstanceIfPrompted(page)
+    const answerResearchConsent = async () => {
+      await page.getByText("I want to participate in the").waitFor({ timeout: 10000 })
+      await page.getByText("I want to participate in the").click()
+      await page.getByRole("button", { name: "Save" }).click()
+      await page.getByRole("button", { name: "Done" }).click()
+      await page.getByText("Default", { exact: true }).click()
+    }
+    await Promise.all([
+      answerResearchConsent(),
+      selectCourseInstanceIfPrompted(page, undefined, 10000),
+    ])
   })
 })

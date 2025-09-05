@@ -1,5 +1,7 @@
+"use client"
+
 import { useQuery } from "@tanstack/react-query"
-import { useRouter } from "next/router"
+import { usePathname } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -23,7 +25,7 @@ export interface CompletionPageProps {
 const CompletionPage: React.FC<React.PropsWithChildren<CompletionPageProps>> = ({ query }) => {
   const { t } = useTranslation()
   const { courseModuleId } = query
-  const router = useRouter()
+  const pathname = usePathname()
   const userCompletionInformation = useQuery({
     queryKey: [`course-module-${courseModuleId}-completion-information`],
     queryFn: () => fetchUserCompletionInformation(courseModuleId),
@@ -49,7 +51,7 @@ const CompletionPage: React.FC<React.PropsWithChildren<CompletionPageProps>> = (
       {userCompletionInformation.isSuccess && (
         <RegisterCompletion
           data={userCompletionInformation.data}
-          registrationFormUrl={`${router.asPath.split("?")[0]}/${REDIRECT}`}
+          registrationFormUrl={`${pathname}/${REDIRECT}`}
         />
       )}
     </>

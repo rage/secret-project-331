@@ -1,6 +1,8 @@
+"use client"
+
 import { useQuery, UseQueryResult } from "@tanstack/react-query"
 import { TFunction } from "i18next"
-import { useRouter } from "next/router"
+import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -34,8 +36,9 @@ const ModuleCertificate: React.FC<React.PropsWithChildren<void>> = () => {
   const moduleId = useQueryParameter("module")
   const userInfo = useUserInfo()
   const [nameOnCertificate, setNameOnCertificate] = useState("")
+
   useEffect(() => {
-    if (!router || !router.isReady) {
+    if (!router) {
       return
     }
     fetchCertificate(certificateConfigurationId).then((certificate) => {
@@ -46,6 +49,7 @@ const ModuleCertificate: React.FC<React.PropsWithChildren<void>> = () => {
       }
     })
   }, [certificateConfigurationId, router])
+
   const courseAndModule = useQuery({
     queryKey: ["course-module", moduleId],
     queryFn: async () => {

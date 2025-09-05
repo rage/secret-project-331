@@ -31,23 +31,71 @@ const GRAY = baseTheme.colors.gray[700]
 
 const ALLOWED_MIMETYPES_FOR_UPLOAD = ["image/svg+xml"]
 
+/**
+ * Props interface defining the required block attributes for background and color customization.
+ */
 interface RequiredAttributes {
+  /** URL of the background image (SVG only) */
   backgroundImage: string | undefined
+  /** Hex color code for the background */
   backgroundColor: string | undefined
+  /** Hex color code for text/font color */
   fontColor?: string | undefined
+  /** Whether content should be center-aligned (default: true) */
   alignCenter?: boolean | undefined
+  /** Whether background image should align to bottom instead of center */
   alignBottom?: boolean | undefined
+  /** Whether background image should repeat horizontally */
   backgroundRepeatX: boolean | undefined
+  /** Whether to use default text for labels */
   useDefaultTextForLabel?: boolean | undefined
+  /** Whether background should have transparency applied */
   partiallyTransparent?: boolean | undefined
 }
 
+/**
+ * Props for the BackgroundAndColorCustomizer component.
+ */
 interface BackgroundAndColorCustomizerProps {
+  /** Block attributes containing styling properties */
   attributes: RequiredAttributes
+  /** Function to update block attributes */
   setAttributes: (attributes: Partial<RequiredAttributes>) => void
+  /** When true, hides alignment controls (alignCenter and alignBottom) */
   noAlign?: boolean
 }
 
+/**
+ * Gutenberg block editor control panel for customizing backgrounds, colors, and layout.
+ *
+ * Provides styling controls for:
+ * - Background image upload (SVG only)
+ * - Background and font color selection
+ * - Content alignment options
+ * - Image repeat and transparency settings
+ *
+ * ## Usage
+ *
+ * ```tsx
+ * <BackgroundAndColorCustomizer
+ *   attributes={attributes}
+ *   setAttributes={setAttributes}
+ * />
+ * ```
+ *
+ * ```tsx
+ * <BackgroundAndColorCustomizer
+ *   attributes={attributes}
+ *   setAttributes={setAttributes}
+ *   noAlign
+ * />
+ * ```
+ *
+ * Used in `<InspectorControls>` within Gutenberg block editors.
+ *
+ * @param props - Component properties
+ * @returns A Gutenberg PanelBody with styling controls
+ */
 const BackgroundAndColorCustomizer: React.FC<
   React.PropsWithChildren<BackgroundAndColorCustomizerProps>
 > = ({ attributes, setAttributes, noAlign }) => {

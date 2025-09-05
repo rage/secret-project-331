@@ -5,6 +5,7 @@ import React, { useContext } from "react"
 import { GlossaryContext } from "../contexts/GlossaryContext"
 import { useCornerTapFlip } from "../hooks/useCornerTapFlip"
 import { COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM } from "../utils/constants"
+import { escapeUrlForCss } from "../utils/sanitizeCourseMaterialHtml"
 
 import { parseText } from "./ContentRenderer/util/textParsing"
 
@@ -151,7 +152,7 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
           height: 100%;
           content: "";
           opacity: 0.3;
-          background-image: url(${getBackgroundImageUrl("mobile")});
+          background-image: url("${escapeUrlForCss(getBackgroundImageUrl("mobile"))}");
           background-repeat: ${backgroundRepeatX ? "repeat-x" : "no-repeat"};
           background-position: center ${backgroundVerticalAlignment};
           position: absolute;
@@ -163,7 +164,7 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
             background-position: ${direction} ${backgroundVerticalAlignment};
             background-size: ${direction == "center" ? "contain" : "22rem"};
             left: ${direction == "center" ? "0" : "30px"};
-            background-image: url(${getBackgroundImageUrl("medium")});
+            background-image: url("${escapeUrlForCss(getBackgroundImageUrl("medium"))}");
           }
 
           ${respondToOrLarger.lg} {
@@ -171,11 +172,11 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
             background-position: ${direction} ${backgroundVerticalAlignment};
             background-size: ${direction == "center" ? "contain" : "26rem"};
             left: ${direction == "center" ? "0" : "40px"};
-            background-image: url(${getBackgroundImageUrl("large")});
+            background-image: url("${escapeUrlForCss(getBackgroundImageUrl("large"))}");
           }
 
           ${respondToOrLarger.xl} {
-            background-image: url(${getBackgroundImageUrl("xlarge")});
+            background-image: url("${escapeUrlForCss(getBackgroundImageUrl("xlarge"))}");
           }
         }
       `}

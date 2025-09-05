@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import { GlossaryContext } from "../contexts/GlossaryContext"
 import { useCornerTapFlip } from "../hooks/useCornerTapFlip"
+import { escapeUrlForCss } from "../utils/sanitizeCourseMaterialHtml"
 
 import { parseText } from "./ContentRenderer/util/textParsing"
 
@@ -146,7 +147,7 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
         margin-top: -${COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM}rem;
         ${backgroundColor && `background-color: ${backgroundColor};`}
         ${getBackgroundImageUrl("mobile") &&
-        `background-image: url(${getBackgroundImageUrl("mobile")});
+        `background-image: url("${escapeUrlForCss(getBackgroundImageUrl("mobile"))}");
         background-repeat: ${backgroundRepeatX ? "repeat-x" : "no-repeat"};
         background-position: center center;`}
         background-size: cover;
@@ -154,17 +155,17 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
 
         ${respondToOrLarger.md} {
           ${getBackgroundImageUrl("medium") &&
-          `background-image: url(${getBackgroundImageUrl("medium")});`}
+          `background-image: url("${escapeUrlForCss(getBackgroundImageUrl("medium"))}");`}
         }
 
         ${respondToOrLarger.lg} {
           ${getBackgroundImageUrl("large") &&
-          `background-image: url(${getBackgroundImageUrl("large")});`}
+          `background-image: url("${escapeUrlForCss(getBackgroundImageUrl("large"))}");`}
         }
 
         ${respondToOrLarger.xl} {
           ${getBackgroundImageUrl("xlarge") &&
-          `background-image: url(${getBackgroundImageUrl("xlarge")});`}
+          `background-image: url("${escapeUrlForCss(getBackgroundImageUrl("xlarge"))}");`}
         }
 
         ${respondToOrLarger.xxxxl} {

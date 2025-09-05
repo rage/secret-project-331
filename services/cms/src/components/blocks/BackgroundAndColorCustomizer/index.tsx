@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { BlockIcon } from "@wordpress/block-editor"
-import { ColorPalette, PanelBody, Placeholder } from "@wordpress/components"
+import { ColorPalette, Notice, PanelBody, Placeholder } from "@wordpress/components"
 import { cover as icon } from "@wordpress/icons"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -89,8 +89,23 @@ const BackgroundAndColorCustomizer: React.FC<
   const partiallyTransparent =
     attributes.partiallyTransparent == undefined || attributes.partiallyTransparent
 
+  // Check if mobile background image is missing but other background images are set
+  const hasOtherBackgroundImages =
+    attributes.backgroundImageMedium ||
+    attributes.backgroundImageLarge ||
+    attributes.backgroundImageXLarge
+  const isMissingMobileBackground = !attributes.backgroundImage && hasOtherBackgroundImages
+
   return (
     <>
+      {/* Warning for missing mobile background image */}
+      {isMissingMobileBackground && (
+        // eslint-disable-next-line i18next/no-literal-string
+        <Notice status="warning" isDismissible={false}>
+          {t("warning-mobile-background-missing")}
+        </Notice>
+      )}
+
       {/* Background Images Section */}
       <PanelBody title={t("background-images")} initialOpen={false}>
         {/* Mobile Background Image (Default) */}

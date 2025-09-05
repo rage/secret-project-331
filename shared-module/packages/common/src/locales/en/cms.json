@@ -155,9 +155,11 @@
   "tries-per-slide": "Max tries per slide",
   "unsupported-block-placeholder": "Unsupported block placeholder",
   "unsupported-block-placeholder-explanation": "This block is used as placeholder for blocks that are unsupported.",
+  "upload-error-unknown": "An unknown error occurred while uploading the image. Please try again.",
   "upload-or-drag-and-drop-onto-this-block": "Upload or drag and drop onto this block",
   "use-course-default-peer-review-config": "Use course default peer review config",
   "use-default-text-for-label": "Use default text for label",
+  "warning-mobile-background-missing": "Warning: No mobile or larger background image is set, but other screen sizes have background images configured. The mobile background image serves as the default fallback for all screen sizes. If you want to use only one image that would be displayed on all screen sizes, upload it to the mobile background or larger image field.",
   "warning-points-are-all-or-nothing-disabled": "Warning: It is recommended to enable \"points are all or nothing\". The peer reviews given by students vary greatly in quality, which may lead to some students receiving unfair points from the exercise. Enabling this option reduces randomness in the received points, making the peer review process fairer for the students.",
   "welcome-message-for-course": "Welcome message for course...",
   "width-of-table": "Width of table"

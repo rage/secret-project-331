@@ -1,6 +1,6 @@
 CREATE TEMP TABLE migration_params (batch_size int) ON COMMIT DROP;
 INSERT INTO migration_params
-VALUES (10000);
+VALUES (100000);
 
 -- =================
 -- 0) Safety copies

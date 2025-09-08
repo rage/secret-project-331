@@ -2030,7 +2030,17 @@ pub async fn seed_switching_course_instances_course(
         .desc("Sample course.")
         .chatbot(can_add_chatbot)
         .course_id(course_id)
-        .additional_instance(CourseInstanceConfig {
+        .instance(CourseInstanceConfig {
+            name: None,
+            description: None,
+            support_email: None,
+            teacher_in_charge_name: "admin".to_string(),
+            teacher_in_charge_email: "admin@example.com".to_string(),
+            opening_time: None,
+            closing_time: None,
+            instance_id: Some(cx.v5(b"instance:default")),
+        })
+        .instance(CourseInstanceConfig {
             name: Some("Non-default instance".to_string()),
             description: Some("This is a non-default instance".to_string()),
             support_email: Some("contact@example.com".to_string()),
@@ -2097,41 +2107,41 @@ pub async fn seed_switching_course_instances_course(
                 .automatic_completion(Some(1), Some(1), false)
                 .ects(5.0)
                 .chapter(
-                    ChapterBuilder::new(5, "Another chapter")
-                        .fixed_ids(cx.v5(b"chapter:5"), cx.v5(b"chapter:5:instance"))
+                    ChapterBuilder::new(2, "Another chapter")
+                        .fixed_ids(cx.v5(b"chapter:2"), cx.v5(b"chapter:2:instance"))
                         .page(
-                            PageBuilder::new("/chapter-5/page-1", "Simple Page")
+                            PageBuilder::new("/chapter-2/page-1", "Simple Page")
                                 .block(paragraph(
                                     "This is another simple page with basic content.",
-                                    cx.v5(b"page:5:1:block:intro"),
+                                    cx.v5(b"page:2:1:block:intro"),
                                 ))
                                 .exercise(ExerciseBuilder::example_exercise(
                                     "Simple question",
                                     ExerciseIds {
-                                        exercise_id: cx.v5(b"exercise:5:1:e"),
-                                        slide_id: cx.v5(b"exercise:5:1:s"),
-                                        task_id: cx.v5(b"exercise:5:1:t"),
-                                        block_id: cx.v5(b"exercise:5:1:b"),
+                                        exercise_id: cx.v5(b"exercise:2:1:e"),
+                                        slide_id: cx.v5(b"exercise:2:1:s"),
+                                        task_id: cx.v5(b"exercise:2:1:t"),
+                                        block_id: cx.v5(b"exercise:2:1:b"),
                                     },
                                     vec![paragraph(
                                         "What color is the sky?",
-                                        cx.v5(b"exercise:5:1:prompt"),
+                                        cx.v5(b"exercise:2:1:prompt"),
                                     )],
                                     json!([
                                         {
                                             "name": "Red",
                                             "correct": false,
-                                            "id": cx.v5(b"exercise:5:1:option:1")
+                                            "id": cx.v5(b"exercise:2:1:option:1")
                                         },
                                         {
                                             "name": "Blue",
                                             "correct": true,
-                                            "id": cx.v5(b"exercise:5:1:option:2")
+                                            "id": cx.v5(b"exercise:2:1:option:2")
                                         },
                                         {
                                             "name": "Green",
                                             "correct": false,
-                                            "id": cx.v5(b"exercise:5:1:option:3")
+                                            "id": cx.v5(b"exercise:2:1:option:3")
                                         }
                                     ]),
                                 )),
@@ -2145,41 +2155,41 @@ pub async fn seed_switching_course_instances_course(
                 .register_to_open_university(true)
                 .automatic_completion(None, Some(1), false)
                 .chapter(
-                    ChapterBuilder::new(7, "Bonus chapter")
-                        .fixed_ids(cx.v5(b"chapter:7"), cx.v5(b"chapter:7:instance"))
+                    ChapterBuilder::new(3, "Bonus chapter")
+                        .fixed_ids(cx.v5(b"chapter:3"), cx.v5(b"chapter:3:instance"))
                         .page(
-                            PageBuilder::new("/chapter-7/page-1", "Bonus Page")
+                            PageBuilder::new("/chapter-3/page-1", "Bonus Page")
                                 .block(paragraph(
                                     "This is a bonus page with simple content.",
-                                    cx.v5(b"page:7:1:block:intro"),
+                                    cx.v5(b"page:3:1:block:intro"),
                                 ))
                                 .exercise(ExerciseBuilder::example_exercise(
                                     "Bonus question",
                                     ExerciseIds {
-                                        exercise_id: cx.v5(b"exercise:7:1:e"),
-                                        slide_id: cx.v5(b"exercise:7:1:s"),
-                                        task_id: cx.v5(b"exercise:7:1:t"),
-                                        block_id: cx.v5(b"exercise:7:1:b"),
+                                        exercise_id: cx.v5(b"exercise:3:1:e"),
+                                        slide_id: cx.v5(b"exercise:3:1:s"),
+                                        task_id: cx.v5(b"exercise:3:1:t"),
+                                        block_id: cx.v5(b"exercise:3:1:b"),
                                     },
                                     vec![paragraph(
                                         "What is the capital of France?",
-                                        cx.v5(b"exercise:7:1:assignment"),
+                                        cx.v5(b"exercise:3:1:assignment"),
                                     )],
                                     json!([
                                         {
                                             "name": "London",
                                             "correct": false,
-                                            "id": cx.v5(b"exercise:7:1:option:1")
+                                            "id": cx.v5(b"exercise:3:1:option:1")
                                         },
                                         {
                                             "name": "Paris",
                                             "correct": true,
-                                            "id": cx.v5(b"exercise:7:1:option:2")
+                                            "id": cx.v5(b"exercise:3:1:option:2")
                                         },
                                         {
                                             "name": "Berlin",
                                             "correct": false,
-                                            "id": cx.v5(b"exercise:7:1:option:3")
+                                            "id": cx.v5(b"exercise:3:1:option:3")
                                         }
                                     ]),
                                 )),

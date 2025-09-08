@@ -1,22 +1,20 @@
 use anyhow::{Context, Result};
+use sqlx::Connection;
 use uuid::Uuid;
 
 use headless_lms_models::{
     PKeyPolicy, certificate_configuration_to_requirements,
     certificate_configurations::{self, DatabaseCertificateConfiguration},
     course_instances::{self, CourseInstance, NewCourseInstance},
+    course_language_groups,
     course_modules::CourseModule,
-    courses::{Course, NewCourse},
-    file_uploads, glossary, library,
-    library::content_management::CreateNewCourseFixedIds,
+    courses::{self, Course, NewCourse},
+    file_uploads, glossary,
     pages::{self, NewCoursePage},
     roles::{self, RoleDomain, UserRole},
 };
 
-use crate::programs::seed::{
-    builder::{context::SeedContext, module::ModuleBuilder},
-    seed_helpers::get_seed_spec_fetcher,
-};
+use crate::programs::seed::builder::{context::SeedContext, module::ModuleBuilder};
 
 /// Additional course instance configuration
 #[derive(Debug, Clone)]
@@ -67,7 +65,7 @@ pub struct CourseBuilder {
     pub modules: Vec<ModuleBuilder>,
     pub extra_roles: Vec<(Uuid, UserRole)>,
     pub course_id: Option<Uuid>,
-    pub additional_instances: Vec<CourseInstanceConfig>,
+    pub instances: Vec<CourseInstanceConfig>,
     pub pages: Vec<PageConfig>,
     pub glossary_entries: Vec<GlossaryEntry>,
     pub certificate_config: Option<CertificateConfig>,
@@ -85,7 +83,7 @@ impl CourseBuilder {
             modules: vec![],
             extra_roles: vec![],
             course_id: None,
-            additional_instances: vec![],
+            instances: vec![],
             pages: vec![],
             glossary_entries: vec![],
             certificate_config: None,
@@ -121,8 +119,8 @@ impl CourseBuilder {
         self
     }
 
-    pub fn additional_instance(mut self, config: CourseInstanceConfig) -> Self {
-        self.additional_instances.push(config);
+    pub fn instance(mut self, config: CourseInstanceConfig) -> Self {
+        self.instances.push(config);
         self
     }
 
@@ -174,10 +172,7 @@ impl CourseBuilder {
         self,
         cx: &mut SeedContext<'_>,
     ) -> Result<(Course, CourseInstance, CourseModule)> {
-        let spec = get_seed_spec_fetcher();
-
         let course_id = self.course_id.unwrap_or(cx.base_course_ns);
-        let default_instance_id = Uuid::new_v5(&course_id, self.default_instance_name);
 
         let new_course = NewCourse {
             name: self.name.clone(),
@@ -198,23 +193,32 @@ impl CourseBuilder {
             can_add_chatbot: self.can_add_chatbot,
         };
 
-        let (course, _front, default_instance, mut last_module) =
-            library::content_management::create_new_course(
-                cx.conn,
-                headless_lms_models::PKeyPolicy::Fixed(CreateNewCourseFixedIds {
-                    course_id,
-                    default_course_instance_id: default_instance_id,
-                }),
-                new_course,
-                cx.teacher,
-                spec,
-                crate::domain::models_requests::fetch_service_info,
-            )
+        // Create course manually without default module
+        let mut tx = cx.conn.begin().await.context("starting transaction")?;
+
+        let course_language_group_id =
+            course_language_groups::insert(&mut tx, headless_lms_models::PKeyPolicy::Generate)
+                .await?;
+
+        let course_id = courses::insert(
+            &mut tx,
+            headless_lms_models::PKeyPolicy::Fixed(course_id),
+            course_language_group_id,
+            &new_course,
+        )
+        .await
+        .context("inserting course")?;
+
+        let course = courses::get_course(&mut tx, course_id)
             .await
-            .context("creating course with fixed IDs")?;
+            .context("getting course")?;
+
+        tx.commit().await.context("committing transaction")?;
+
+        let mut last_module = None;
 
         for (i, m) in self.modules.into_iter().enumerate() {
-            last_module = m.seed(cx, course.id, i as i32).await?;
+            last_module = Some(m.seed(cx, course.id, i as i32).await?);
         }
 
         for (user_id, role) in self.extra_roles {
@@ -223,10 +227,11 @@ impl CourseBuilder {
                 .context("inserting course role")?;
         }
 
-        // Create additional course instances
-        for instance_config in self.additional_instances {
+        // Create course instances
+        let mut default_instance = None;
+        for instance_config in self.instances {
             let instance_id = instance_config.instance_id.unwrap_or_else(Uuid::new_v4);
-            course_instances::insert(
+            let instance = course_instances::insert(
                 cx.conn,
                 PKeyPolicy::Fixed(instance_id),
                 NewCourseInstance {
@@ -241,8 +246,16 @@ impl CourseBuilder {
                 },
             )
             .await
-            .context("inserting additional course instance")?;
+            .context("inserting course instance")?;
+
+            // Use the first instance as the default instance for return value
+            if default_instance.is_none() {
+                default_instance = Some(instance);
+            }
         }
+
+        let default_instance =
+            default_instance.expect("At least one course instance must be provided");
 
         // Create top-level pages
         for page_config in self.pages {
@@ -282,7 +295,13 @@ impl CourseBuilder {
         if let Some(cert_config) = self.certificate_config {
             let background_svg_file_upload_id = file_uploads::insert(
                 cx.conn,
-                &format!("background-{}.svg", last_module.id),
+                &format!(
+                    "background-{}.svg",
+                    last_module
+                        .as_ref()
+                        .expect("At least one module must be provided")
+                        .id
+                ),
                 &cert_config.background_svg_path,
                 "image/svg+xml",
                 None,
@@ -330,14 +349,23 @@ impl CourseBuilder {
             certificate_configuration_to_requirements::insert(
                 cx.conn,
                 database_configuration.id,
-                Some(last_module.id),
+                Some(
+                    last_module
+                        .as_ref()
+                        .expect("At least one module must be provided")
+                        .id,
+                ),
                 Some(default_instance.id),
             )
             .await
             .context("linking certificate configuration to requirements")?;
         }
 
-        Ok((course, default_instance, last_module))
+        Ok((
+            course,
+            default_instance,
+            last_module.expect("At least one module must be provided"),
+        ))
     }
 }
 

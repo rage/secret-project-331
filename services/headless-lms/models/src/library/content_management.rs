@@ -305,6 +305,16 @@ RETURNING id,
         }
     };
 
+    sqlx::query!(
+        "UPDATE chapters SET front_page_id = $1 WHERE id = $2",
+        page.id,
+        chapter.id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    let updated_chapter = chapters::get_chapter(&mut tx, chapter.id).await?;
+
     tx.commit().await?;
-    Ok((chapter, page))
+    Ok((updated_chapter, page))
 }

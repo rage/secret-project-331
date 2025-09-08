@@ -10,7 +10,6 @@ resources:
   - tmc/deployment.yml
   - ingress.yml
   - ingress-other-domains.yml
-  - ingress.ngrok.yml
   - headless-lms/ended-exams-processor.yml
   - headless-lms/calculate-page-visit-stats.yml
   - headless-lms/open-university-registration-link-fetcher.yml

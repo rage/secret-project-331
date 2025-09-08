@@ -237,9 +237,4 @@ EOF
       echo "$file_contents" > "$file"
     fi
   done
-  ngrok_ingress="$(relativize_path "../kubernetes/base/ingress.ngrok.yml")"
-  ngrok_ingress_template="$(relativize_path "../kubernetes/base/ingress.ngrok.template.yml")"
-  if [ ! -f "$ngrok_ingress" ]; then
-      run_command cp "$ngrok_ingress_template" "$ngrok_ingress"
-  fi
 }

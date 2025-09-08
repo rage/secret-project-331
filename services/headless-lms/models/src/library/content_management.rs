@@ -180,14 +180,106 @@ pub async fn create_new_chapter(
         exercise_tasks: vec![],
         content_search_language: None,
     };
-    let page = pages::insert_page(
-        &mut tx,
-        chapter_frontpage,
-        user,
-        spec_fetcher,
-        fetch_service_info,
-    )
-    .await?;
+
+    let page = match pkey_policy {
+        PKeyPolicy::Fixed((_, front_page_id)) => {
+            // Create page with fixed ID
+            let page_language_group_id = if let Some(course_id) = chapter_frontpage.course_id {
+                let course = crate::courses::get_course(&mut tx, course_id).await?;
+                let new_language_group_id = crate::page_language_groups::insert(
+                    &mut tx,
+                    crate::PKeyPolicy::Generate,
+                    course.course_language_group_id,
+                )
+                .await?;
+                Some(new_language_group_id)
+            } else {
+                None
+            };
+
+            let content_search_language = chapter_frontpage
+                .content_search_language
+                .unwrap_or_else(|| "simple".to_string());
+
+            let page = sqlx::query_as!(
+                Page,
+                r#"
+INSERT INTO pages(
+    id,
+    course_id,
+    exam_id,
+    content,
+    url_path,
+    title,
+    order_number,
+    chapter_id,
+    content_search_language,
+    page_language_group_id
+  )
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+RETURNING id,
+  created_at,
+  updated_at,
+  course_id,
+  exam_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number,
+  copied_from,
+  hidden,
+  page_language_group_id
+"#,
+                front_page_id,
+                chapter_frontpage.course_id,
+                chapter_frontpage.exam_id,
+                chapter_frontpage.content,
+                chapter_frontpage.url_path.trim(),
+                chapter_frontpage.title.trim(),
+                0i32,
+                chapter_frontpage.chapter_id,
+                content_search_language as _,
+                page_language_group_id
+            )
+            .fetch_one(&mut *tx)
+            .await?;
+
+            // Create page history
+            let _history_id = crate::page_history::insert(
+                &mut tx,
+                PKeyPolicy::Generate,
+                page.id,
+                page.title.as_str(),
+                &crate::page_history::PageHistoryContent {
+                    content: page.content.clone(),
+                    exercises: chapter_frontpage.exercises,
+                    exercise_slides: chapter_frontpage.exercise_slides,
+                    exercise_tasks: chapter_frontpage.exercise_tasks,
+                    peer_or_self_review_configs: vec![],
+                    peer_or_self_review_questions: vec![],
+                },
+                crate::page_history::HistoryChangeReason::PageSaved,
+                user,
+                None,
+            )
+            .await?;
+
+            page
+        }
+        PKeyPolicy::Generate => {
+            pages::insert_page(
+                &mut tx,
+                chapter_frontpage,
+                user,
+                spec_fetcher,
+                fetch_service_info,
+            )
+            .await?
+        }
+    };
+
     tx.commit().await?;
     Ok((chapter, page))
 }

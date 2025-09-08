@@ -1,12 +1,20 @@
 use std::sync::Arc;
 
 use crate::domain::models_requests::{self, JwtKey};
+use crate::programs::seed::builder::chapter::ChapterBuilder;
+use crate::programs::seed::builder::context::SeedContext;
+use crate::programs::seed::builder::course::{CourseBuilder, CourseInstanceConfig};
+use crate::programs::seed::builder::exercise::{ExerciseBuilder, ExerciseIds};
+use crate::programs::seed::builder::module::ModuleBuilder;
+use crate::programs::seed::builder::page::PageBuilder;
 use crate::programs::seed::seed_helpers::{
     create_best_exercise, create_best_peer_review, create_page, example_exercise_flexible,
     paragraph, quizzes_exercise, submit_and_grade,
 };
 use anyhow::Result;
 use chrono::{TimeZone, Utc};
+
+use serde_json::json;
 
 use headless_lms_models::{
     PKeyPolicy, certificate_configuration_to_requirements, certificate_configurations, chapters,
@@ -1982,6 +1990,204 @@ pub async fn seed_sample_course(
         RoleDomain::Course(course.id),
     )
     .await?;
+
+    Ok(course.id)
+}
+
+pub async fn seed_switching_course_instances_course(
+    course_id: Uuid,
+    course_name: &str,
+    course_slug: &str,
+    common_course_data: CommonCourseData,
+    can_add_chatbot: bool,
+    seed_users_result: SeedUsersResult,
+) -> Result<Uuid> {
+    let CommonCourseData {
+        db_pool,
+        organization_id: org,
+        teacher_user_id,
+        student_user_id: _student,
+        langs_user_id: _langs_user_id,
+        example_normal_user_ids: _users,
+        jwt_key: _jwt_key,
+        base_url: _base_url,
+    } = common_course_data;
+
+    let mut conn = db_pool.acquire().await?;
+    let mut cx = SeedContext {
+        conn: &mut conn,
+        teacher: teacher_user_id,
+        org,
+        base_course_ns: course_id,
+    };
+
+    info!(
+        "Inserting switching course instances course {}",
+        course_name
+    );
+
+    let course = CourseBuilder::new(course_name, course_slug)
+        .desc("Sample course.")
+        .chatbot(can_add_chatbot)
+        .course_id(course_id)
+        .additional_instance(CourseInstanceConfig {
+            name: Some("Non-default instance".to_string()),
+            description: Some("This is a non-default instance".to_string()),
+            support_email: Some("contact@example.com".to_string()),
+            teacher_in_charge_name: "admin".to_string(),
+            teacher_in_charge_email: "admin@example.com".to_string(),
+            opening_time: None,
+            closing_time: None,
+            instance_id: Some(cx.v5(b"instance:non-default")),
+        })
+        .role(seed_users_result.teacher_user_id, UserRole::Teacher)
+        .module(
+            ModuleBuilder::new()
+                .order(0)
+                .register_to_open_university(false)
+                .automatic_completion(Some(1), Some(1), false)
+                .chapter(
+                    ChapterBuilder::new(1, "The Basics")
+                        .opens(Utc::now())
+                        .deadline(Utc.with_ymd_and_hms(2225, 1, 1, 23, 59, 59).unwrap())
+                        .fixed_ids(cx.v5(b"chapter:1"), cx.v5(b"chapter:1:instance"))
+                        .page(
+                            PageBuilder::new("/chapter-1/page-1", "Page One")
+                                .block(paragraph(
+                                    "This is a simple introduction to the basics.",
+                                    cx.v5(b"page:1:1:block:intro"),
+                                ))
+                                .exercise(ExerciseBuilder::example_exercise(
+                                    "Simple multiple choice",
+                                    ExerciseIds {
+                                        exercise_id: cx.v5(b"exercise:1:1:e"),
+                                        slide_id: cx.v5(b"exercise:1:1:s"),
+                                        task_id: cx.v5(b"exercise:1:1:t"),
+                                        block_id: cx.v5(b"exercise:1:1:b"),
+                                    },
+                                    vec![paragraph(
+                                        "What is 2 + 2?",
+                                        cx.v5(b"exercise:1:1:prompt"),
+                                    )],
+                                    json!([
+                                        {
+                                            "name": "3",
+                                            "correct": false,
+                                            "id": cx.v5(b"exercise:1:1:option:1")
+                                        },
+                                        {
+                                            "name": "4",
+                                            "correct": true,
+                                            "id": cx.v5(b"exercise:1:1:option:2")
+                                        },
+                                        {
+                                            "name": "5",
+                                            "correct": false,
+                                            "id": cx.v5(b"exercise:1:1:option:3")
+                                        }
+                                    ]),
+                                )),
+                        ),
+                ),
+        )
+        .module(
+            ModuleBuilder::new()
+                .order(1)
+                .name("Another module")
+                .automatic_completion(Some(1), Some(1), false)
+                .ects(5.0)
+                .chapter(
+                    ChapterBuilder::new(5, "Another chapter")
+                        .fixed_ids(cx.v5(b"chapter:5"), cx.v5(b"chapter:5:instance"))
+                        .page(
+                            PageBuilder::new("/chapter-5/page-1", "Simple Page")
+                                .block(paragraph(
+                                    "This is another simple page with basic content.",
+                                    cx.v5(b"page:5:1:block:intro"),
+                                ))
+                                .exercise(ExerciseBuilder::example_exercise(
+                                    "Simple question",
+                                    ExerciseIds {
+                                        exercise_id: cx.v5(b"exercise:5:1:e"),
+                                        slide_id: cx.v5(b"exercise:5:1:s"),
+                                        task_id: cx.v5(b"exercise:5:1:t"),
+                                        block_id: cx.v5(b"exercise:5:1:b"),
+                                    },
+                                    vec![paragraph(
+                                        "What color is the sky?",
+                                        cx.v5(b"exercise:5:1:prompt"),
+                                    )],
+                                    json!([
+                                        {
+                                            "name": "Red",
+                                            "correct": false,
+                                            "id": cx.v5(b"exercise:5:1:option:1")
+                                        },
+                                        {
+                                            "name": "Blue",
+                                            "correct": true,
+                                            "id": cx.v5(b"exercise:5:1:option:2")
+                                        },
+                                        {
+                                            "name": "Green",
+                                            "correct": false,
+                                            "id": cx.v5(b"exercise:5:1:option:3")
+                                        }
+                                    ]),
+                                )),
+                        ),
+                ),
+        )
+        .module(
+            ModuleBuilder::new()
+                .order(2)
+                .name("Bonus module")
+                .register_to_open_university(true)
+                .automatic_completion(None, Some(1), false)
+                .chapter(
+                    ChapterBuilder::new(7, "Bonus chapter")
+                        .fixed_ids(cx.v5(b"chapter:7"), cx.v5(b"chapter:7:instance"))
+                        .page(
+                            PageBuilder::new("/chapter-7/page-1", "Bonus Page")
+                                .block(paragraph(
+                                    "This is a bonus page with simple content.",
+                                    cx.v5(b"page:7:1:block:intro"),
+                                ))
+                                .exercise(ExerciseBuilder::example_exercise(
+                                    "Bonus question",
+                                    ExerciseIds {
+                                        exercise_id: cx.v5(b"exercise:7:1:e"),
+                                        slide_id: cx.v5(b"exercise:7:1:s"),
+                                        task_id: cx.v5(b"exercise:7:1:t"),
+                                        block_id: cx.v5(b"exercise:7:1:b"),
+                                    },
+                                    vec![paragraph(
+                                        "What is the capital of France?",
+                                        cx.v5(b"exercise:7:1:assignment"),
+                                    )],
+                                    json!([
+                                        {
+                                            "name": "London",
+                                            "correct": false,
+                                            "id": cx.v5(b"exercise:7:1:option:1")
+                                        },
+                                        {
+                                            "name": "Paris",
+                                            "correct": true,
+                                            "id": cx.v5(b"exercise:7:1:option:2")
+                                        },
+                                        {
+                                            "name": "Berlin",
+                                            "correct": false,
+                                            "id": cx.v5(b"exercise:7:1:option:3")
+                                        }
+                                    ]),
+                                )),
+                        ),
+                ),
+        );
+
+    let (course, _default_instance, _last_module) = course.seed(&mut cx).await?;
 
     Ok(course.id)
 }

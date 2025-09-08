@@ -67,7 +67,6 @@ export interface SpecRequest {
 export interface CertificateAllRequirements {
   certificate_configuration_id: string
   course_module_ids: Array<string>
-  course_instance_ids: Array<string>
 }
 
 export interface CertificateConfiguration {

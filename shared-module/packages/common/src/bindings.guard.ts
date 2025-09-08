@@ -226,10 +226,6 @@ export function isCertificateAllRequirements(obj: unknown): obj is CertificateAl
         Array.isArray(typedObj["course_module_ids"]) &&
         typedObj["course_module_ids"].every((e: any) =>
             typeof e === "string"
-        ) &&
-        Array.isArray(typedObj["course_instance_ids"]) &&
-        typedObj["course_instance_ids"].every((e: any) =>
-            typeof e === "string"
         )
     )
 }

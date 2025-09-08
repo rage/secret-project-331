@@ -792,9 +792,9 @@ WHERE user_id = $1
   AND certificate_configuration_id IN (
     SELECT certificate_configuration_id
     FROM certificate_configuration_to_requirements
-    WHERE course_instance_id IN (
+    WHERE course_module_id IN (
         SELECT id
-        FROM course_instances
+        FROM course_modules
         WHERE course_id = $2
       )
       AND deleted_at IS NULL

@@ -740,7 +740,6 @@ pub async fn get_user_module_completion_statuses_for_course(
 ) -> ModelResult<Vec<UserModuleCompletionStatus>> {
     let course = courses::get_course(conn, course_id).await?;
     let course_modules = course_modules::get_by_course_id(conn, course_id).await?;
-    let course_module_ids = course_modules.iter().map(|x| x.id).collect::<Vec<_>>();
 
     let course_module_completions_raw =
         course_module_completions::get_all_by_course_id_and_user_id(conn, course_id, user_id)
@@ -759,7 +758,6 @@ pub async fn get_user_module_completion_statuses_for_course(
             .collect();
 
     let all_default_certificate_configurations = crate::certificate_configurations::get_default_certificate_configurations_and_requirements_by_course(conn, course_id).await?;
-    let all_certifcate_configurations_requiring_only_one_module_and_no_course_instance = crate::certificate_configurations::get_all_certifcate_configurations_requiring_only_one_module_and_no_course_instance(conn, &course_module_ids).await?;
 
     let course_module_completion_statuses = course_modules
         .into_iter()
@@ -779,18 +777,6 @@ pub async fn get_user_module_completion_statuses_for_course(
                             .certificate_configuration
                             .id,
                     );
-                } else {
-                    // If instance-specific certificate configuration is not found, try to find a configuration that is not instance-specific.
-                    let matching_certificate_configuration = all_certifcate_configurations_requiring_only_one_module_and_no_course_instance
-                        .iter()
-                        .find(|x| x.requirements.course_module_ids.contains(&module.id));
-                    if let Some(matching_certificate_configuration) = matching_certificate_configuration {
-                        certificate_configuration_id = Some(
-                            matching_certificate_configuration
-                                .certificate_configuration
-                                .id,
-                        );
-                    }
                 }
             }
             UserModuleCompletionStatus {
@@ -807,8 +793,7 @@ pub async fn get_user_module_completion_statuses_for_course(
                     .enable_registering_completion_to_uh_open_university,
                 certification_enabled: module.certification_enabled,
                 certificate_configuration_id,
-                needs_to_be_reviewed: completion
-                    .is_some_and(|x| x.needs_to_be_reviewed)
+                needs_to_be_reviewed: completion.is_some_and(|x| x.needs_to_be_reviewed),
             }
         })
         .collect();

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO certificate_configuration_to_requirements (\n    certificate_configuration_id,\n    course_module_id,\n    course_instance_id\n  )\nVALUES ($1, $2, $3)\nRETURNING *\n        ",
+  "query": "\nINSERT INTO certificate_configuration_to_requirements (\n    certificate_configuration_id,\n    course_module_id\n  )\nVALUES ($1, $2)\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -30,18 +30,12 @@
       },
       {
         "ordinal": 5,
-        "name": "course_instance_id",
-        "type_info": "Uuid"
-      },
-      {
-        "ordinal": 6,
         "name": "course_module_id",
         "type_info": "Uuid"
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid",
         "Uuid",
         "Uuid"
       ]
@@ -52,9 +46,8 @@
       false,
       true,
       false,
-      true,
       true
     ]
   },
-  "hash": "f3d83c0b881802c2b1b5641aa2878ecdb4485daef47ed4de1725f684908b4441"
+  "hash": "b6d4d22381cf1615c657783421f3f6fc095b6206a66857707461dbffae3f0d3a"
 }

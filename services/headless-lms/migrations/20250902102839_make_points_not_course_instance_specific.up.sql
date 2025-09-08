@@ -561,3 +561,11 @@ ALTER TABLE user_course_exercise_service_variables DROP COLUMN course_instance_i
 ALTER TABLE user_course_exercise_service_variables
 ALTER COLUMN course_id
 SET NOT NULL;
+
+-- =====================================================================
+-- 8) Make certificate configurations not to require course instances
+-- =====================================================================
+ALTER TABLE certificate_configuration_to_requirements DROP COLUMN course_instance_id;
+-- If some requirement did only have course_instance_id and no course_module_id, we need to drop the requirement
+DELETE FROM certificate_configuration_to_requirements
+WHERE course_module_id IS NULL;

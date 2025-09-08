@@ -411,7 +411,6 @@ impl CourseBuilder {
                         .expect("At least one module must be provided")
                         .id,
                 ),
-                Some(default_instance.id),
             )
             .await
             .context("linking certificate configuration to requirements")?;

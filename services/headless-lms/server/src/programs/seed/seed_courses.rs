@@ -1978,7 +1978,6 @@ pub async fn seed_sample_course(
         &mut conn,
         database_configuration.id,
         Some(default_module.id),
-        Some(default_instance.id),
     )
     .await?;
 

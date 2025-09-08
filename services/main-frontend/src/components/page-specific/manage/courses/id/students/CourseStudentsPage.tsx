@@ -1,8 +1,33 @@
-/** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react"
-import React from "react"
+import React, { useState } from "react"
 
-// ----- HEADER STYLES -----
+const headerTopRowStyle = css`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+`
+const headerTitleWrapStyle = css`
+  flex: 1 1 auto;
+  min-width: 0;
+`
+const dropdownTopStyle = css`
+  background: #fff;
+  border: 1px solid #e4e5e8;
+  border-radius: 2px;
+  width: 170px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  font-size: 14px;
+  color: #1a2333;
+  cursor: pointer;
+  margin-left: 24px;
+  margin-top: 0;
+  white-space: nowrap;
+`
+
 const pageHeaderStyle = css`
   width: 1124px;
   margin: 32px auto 0 auto;
@@ -37,8 +62,14 @@ const dividerStyle = css`
 const controlsRowStyle = css`
   display: flex;
   align-items: center;
-  gap: 20px;
+  justify-content: space-between;
   margin-bottom: 18px;
+`
+
+const leftControlsStyle = css`
+  display: flex;
+  align-items: center;
+  gap: 20px;
 `
 
 const dropdownStyle = css`
@@ -98,12 +129,12 @@ const tabsWrapStyle = css`
   background: rgba(6, 88, 83, 0.05);
   border-radius: 2px;
   height: 36px;
-  width: 321px;
   border: 1px solid #dbdbdb;
   overflow: hidden;
+  min-width: 0;
 `
 
-const tabStyle = (active = false, color = "#1A2333") => css`
+const tabStyle = (active = false, color = "#1A2333", isLast = false) => css`
   padding: 0 20px;
   height: 36px;
   display: flex;
@@ -116,12 +147,9 @@ const tabStyle = (active = false, color = "#1A2333") => css`
   border: none;
   cursor: pointer;
   transition: background 0.15s;
-  &:not(:last-of-type) {
-    border-right: 1px solid #dbdbdb;
-  }
+  ${!isLast && "border-right: 1px solid #dbdbdb;"}
 `
 
-// ----- TABLE STYLES -----
 const containerStyle = css`
   width: 1124px;
   min-height: 657px;
@@ -230,67 +258,184 @@ const mockStudents: Student[] = [
   },
 ]
 
-// ---- COMPONENT ----
+// --- TAB CONTENTS ---
+
+const UserTabContent = () => (
+  <table css={tableStyle}>
+    <thead>
+      <tr css={headerRowStyle}>
+        <th css={thStyle}>First Name</th>
+        <th css={thStyle}>Last Name</th>
+        <th css={thStyle}>User ID</th>
+        <th css={thStyle}>Email</th>
+        <th css={thStyle}>Course Instance</th>
+      </tr>
+    </thead>
+    <tbody>
+      {mockStudents.map((student, i) => {
+        const isLast = i === mockStudents.length - 1
+        return (
+          <tr key={student.userId} css={rowStyle}>
+            <td css={[tdStyle, i === 0 && firstNameSpecialStyle, isLast && lastRowTdStyle]}>
+              {student.firstName}
+            </td>
+            <td css={[tdStyle, isLast && lastRowTdStyle]}>{student.lastName}</td>
+            <td css={[tdStyle, isLast && lastRowTdStyle]}>{student.userId}</td>
+            <td css={[tdStyle, isLast && lastRowTdStyle]}>{student.email}</td>
+            <td css={[tdStyle, isLast && lastRowTdStyle]}>{student.courseInstance}</td>
+          </tr>
+        )
+      })}
+    </tbody>
+  </table>
+)
+
+const CompletionsTabContent = () => (
+  <table css={tableStyle}>
+    <thead>
+      <tr css={headerRowStyle}>
+        <th css={thStyle}>Student</th>
+        <th css={thStyle}>Completed Assignments</th>
+        <th css={thStyle}>Completion %</th>
+      </tr>
+    </thead>
+    <tbody>
+      {mockStudents.map((student, i) => {
+        const isLast = i === mockStudents.length - 1
+        return (
+          <tr key={student.userId} css={rowStyle}>
+            <td css={[tdStyle, isLast && lastRowTdStyle]}>
+              {student.firstName} {student.lastName}
+            </td>
+            <td css={[tdStyle, isLast && lastRowTdStyle]}>{Math.floor(Math.random() * 20) + 10}</td>
+            <td css={[tdStyle, isLast && lastRowTdStyle]}>{Math.floor(Math.random() * 100)}%</td>
+          </tr>
+        )
+      })}
+    </tbody>
+  </table>
+)
+
+const PointsTabContent = () => (
+  <table css={tableStyle}>
+    <thead>
+      <tr css={headerRowStyle}>
+        <th css={thStyle}>Student</th>
+        <th css={thStyle}>Points</th>
+        <th css={thStyle}>Max Points</th>
+        <th css={thStyle}>Rank</th>
+      </tr>
+    </thead>
+    <tbody>
+      {mockStudents.map((student, i) => {
+        const isLast = i === mockStudents.length - 1
+        return (
+          <tr key={student.userId} css={rowStyle}>
+            <td css={[tdStyle, isLast && lastRowTdStyle]}>
+              {student.firstName} {student.lastName}
+            </td>
+            <td css={[tdStyle, isLast && lastRowTdStyle]}>{Math.floor(Math.random() * 100)}</td>
+            <td css={[tdStyle, isLast && lastRowTdStyle]}>100</td>
+            <td css={[tdStyle, isLast && lastRowTdStyle]}>{i + 1}</td>
+          </tr>
+        )
+      })}
+    </tbody>
+  </table>
+)
+
+const CertificatesTabContent = () => (
+  <table css={tableStyle}>
+    <thead>
+      <tr css={headerRowStyle}>
+        <th css={thStyle}>Student</th>
+        <th css={thStyle}>Certificate</th>
+        <th css={thStyle}>Date Issued</th>
+      </tr>
+    </thead>
+    <tbody>
+      {mockStudents.map((student, i) => {
+        const isLast = i === mockStudents.length - 1
+        return (
+          <tr key={student.userId} css={rowStyle}>
+            <td css={[tdStyle, isLast && lastRowTdStyle]}>
+              {student.firstName} {student.lastName}
+            </td>
+            <td css={[tdStyle, isLast && lastRowTdStyle]}>
+              {i % 2 === 0 ? "Course Certificate" : "No Certificate"}
+            </td>
+            <td css={[tdStyle, isLast && lastRowTdStyle]}>{i % 2 === 0 ? "2025-09-02" : "-"}</td>
+          </tr>
+        )
+      })}
+    </tbody>
+  </table>
+)
+
+// ---- MAIN PAGE ----
+
+const TAB_USER = "User"
+const TAB_COMPLETIONS = "Completions"
+const TAB_POINTS = "Points"
+const TAB_CERTIFICATES = "Certificates"
+
+const TAB_LIST = [TAB_USER, TAB_COMPLETIONS, TAB_POINTS, TAB_CERTIFICATES]
+
+const tabContentMap: { [k: string]: React.ReactNode } = {
+  [TAB_USER]: <UserTabContent />,
+  [TAB_COMPLETIONS]: <CompletionsTabContent />,
+  [TAB_POINTS]: <PointsTabContent />,
+  [TAB_CERTIFICATES]: <CertificatesTabContent />,
+}
+
 const StudentsPage: React.FC = () => {
+  const [activeTab, setActiveTab] = useState(TAB_USER)
+
   return (
     <div>
       {/* HEADER SECTION */}
       <div css={pageHeaderStyle}>
-        <div css={titleStyle}>Students</div>
-        <div css={chatbotInfoStyle}>
-          Enabling the chatbot will allow automated assistance for students, providing instant
-          responses to common questions and guidance throughout the course. You can disable it at
-          any time in the settings.
+        <div css={headerTopRowStyle}>
+          <div css={headerTitleWrapStyle}>
+            <div css={titleStyle}>Students</div>
+            <div css={chatbotInfoStyle}>
+              Enabling the chatbot will allow automated assistance for students, providing instant
+              responses to common questions and guidance throughout the course. You can disable it
+              at any time in the settings.
+            </div>
+          </div>
+          <div css={dropdownTopStyle}>
+            All instances
+            <span css={dropdownIconStyle}>▼</span>
+          </div>
         </div>
         <hr css={dividerStyle} />
 
         <div css={controlsRowStyle}>
-          <div css={dropdownStyle}>
-            All instances
-            <span css={dropdownIconStyle}>▼</span>
-          </div>
           <div css={searchBoxWrapStyle}>
             <input css={searchInputStyle} placeholder="Search student..." />
             <span css={searchIconStyle}>🔍</span>
           </div>
           <div css={tabsWrapStyle}>
-            <button css={tabStyle(true, "#065853")}>Completions</button>
-            <button css={tabStyle(false, "#1A2333")}>Points</button>
-            <button css={tabStyle(false, "#1A2333")}>Certificates</button>
+            {TAB_LIST.map((tab, i) => (
+              <button
+                key={tab}
+                css={tabStyle(
+                  activeTab === tab,
+                  tab === TAB_COMPLETIONS ? "#065853" : "#1A2333",
+                  i === TAB_LIST.length - 1,
+                )}
+                onClick={() => setActiveTab(tab)}
+              >
+                {tab}
+              </button>
+            ))}
           </div>
         </div>
       </div>
 
       {/* TABLE SECTION */}
-      <div css={containerStyle}>
-        <table css={tableStyle}>
-          <thead>
-            <tr css={headerRowStyle}>
-              <th css={thStyle}>First Name</th>
-              <th css={thStyle}>Last Name</th>
-              <th css={thStyle}>User ID</th>
-              <th css={thStyle}>Email</th>
-              <th css={thStyle}>Course Instance</th>
-            </tr>
-          </thead>
-          <tbody>
-            {mockStudents.map((student, i) => {
-              const isLast = i === mockStudents.length - 1
-              return (
-                <tr key={student.userId} css={rowStyle}>
-                  <td css={[tdStyle, i === 0 && firstNameSpecialStyle, isLast && lastRowTdStyle]}>
-                    {student.firstName}
-                  </td>
-                  <td css={[tdStyle, isLast && lastRowTdStyle]}>{student.lastName}</td>
-                  <td css={[tdStyle, isLast && lastRowTdStyle]}>{student.userId}</td>
-                  <td css={[tdStyle, isLast && lastRowTdStyle]}>{student.email}</td>
-                  <td css={[tdStyle, isLast && lastRowTdStyle]}>{student.courseInstance}</td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
+      <div css={containerStyle}>{tabContentMap[activeTab]}</div>
     </div>
   )
 }

@@ -7,6 +7,7 @@ use headless_lms_models::{
     chapters::{self, NewChapter},
     library,
 };
+use headless_lms_utils::document_schema_processor::GutenbergBlock;
 
 use crate::programs::seed::{
     builder::{context::SeedContext, page::PageBuilder},
@@ -23,6 +24,7 @@ pub struct ChapterBuilder {
     pub pages: Vec<PageBuilder>,
     pub chapter_id: Option<Uuid>,
     pub front_page_id: Option<Uuid>,
+    pub front_page_content: Option<Vec<GutenbergBlock>>,
 }
 
 impl ChapterBuilder {
@@ -35,6 +37,7 @@ impl ChapterBuilder {
             pages: vec![],
             chapter_id: None,
             front_page_id: None,
+            front_page_content: None,
         }
     }
     pub fn opens(mut self, t: DateTime<Utc>) -> Self {
@@ -67,6 +70,12 @@ impl ChapterBuilder {
         self
     }
 
+    /// Set custom content for the chapter front page. If not set, default content will be used.
+    pub fn front_page_content(mut self, content: Vec<GutenbergBlock>) -> Self {
+        self.front_page_content = Some(content);
+        self
+    }
+
     pub(crate) async fn seed(
         self,
         cx: &mut SeedContext<'_>,
@@ -91,23 +100,27 @@ impl ChapterBuilder {
         let spec = get_seed_spec_fetcher();
 
         let (chapter, _front) = match (self.chapter_id, self.front_page_id) {
-            (Some(ch_id), Some(fp_id)) => library::content_management::create_new_chapter(
-                cx.conn,
-                PKeyPolicy::Fixed((ch_id, fp_id)),
-                &new_chapter,
-                cx.teacher,
-                spec,
-                crate::domain::models_requests::fetch_service_info,
-            )
-            .await
-            .context("creating chapter with fixed IDs")?,
-            _ => library::content_management::create_new_chapter(
+            (Some(ch_id), Some(fp_id)) => {
+                library::content_management::create_new_chapter_with_content(
+                    cx.conn,
+                    PKeyPolicy::Fixed((ch_id, fp_id)),
+                    &new_chapter,
+                    cx.teacher,
+                    spec,
+                    crate::domain::models_requests::fetch_service_info,
+                    self.front_page_content,
+                )
+                .await
+                .context("creating chapter with fixed IDs")?
+            }
+            _ => library::content_management::create_new_chapter_with_content(
                 cx.conn,
                 PKeyPolicy::Generate,
                 &new_chapter,
                 cx.teacher,
                 spec,
                 crate::domain::models_requests::fetch_service_info,
+                self.front_page_content,
             )
             .await
             .context("creating chapter with generated IDs")?,
@@ -235,5 +248,25 @@ mod tests {
 
         assert_eq!(chapter1.name, "String literal");
         assert_eq!(chapter2.name, "Owned string");
+    }
+
+    #[test]
+    fn chapter_builder_front_page_content() {
+        let custom_content = vec![
+            GutenbergBlock::hero_section("Custom Chapter", "Custom description"),
+            GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string()),
+        ];
+
+        let chapter =
+            ChapterBuilder::new(1, "Test Chapter").front_page_content(custom_content.clone());
+
+        assert_eq!(chapter.front_page_content, Some(custom_content));
+    }
+
+    #[test]
+    fn chapter_builder_front_page_content_default() {
+        let chapter = ChapterBuilder::new(1, "Test Chapter");
+
+        assert_eq!(chapter.front_page_content, None);
     }
 }

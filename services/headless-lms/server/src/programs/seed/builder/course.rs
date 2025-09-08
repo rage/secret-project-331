@@ -10,11 +10,15 @@ use headless_lms_models::{
     course_modules::CourseModule,
     courses::{self, Course, NewCourse},
     file_uploads, glossary,
-    pages::{self, NewCoursePage},
+    pages::{self, NewCoursePage, NewPage},
     roles::{self, RoleDomain, UserRole},
 };
+use headless_lms_utils::document_schema_processor::GutenbergBlock;
 
-use crate::programs::seed::builder::{context::SeedContext, module::ModuleBuilder};
+use crate::programs::seed::{
+    builder::{context::SeedContext, module::ModuleBuilder},
+    seed_helpers::get_seed_spec_fetcher,
+};
 
 /// Additional course instance configuration
 #[derive(Debug, Clone)]
@@ -69,6 +73,7 @@ pub struct CourseBuilder {
     pub pages: Vec<PageConfig>,
     pub glossary_entries: Vec<GlossaryEntry>,
     pub certificate_config: Option<CertificateConfig>,
+    pub front_page_content: Option<Vec<GutenbergBlock>>,
 }
 
 impl CourseBuilder {
@@ -87,6 +92,7 @@ impl CourseBuilder {
             pages: vec![],
             glossary_entries: vec![],
             certificate_config: None,
+            front_page_content: None,
         }
     }
 
@@ -164,6 +170,12 @@ impl CourseBuilder {
             background_svg_path: background_svg_path.into(),
             certificate_id,
         });
+        self
+    }
+
+    /// Set custom content for the course front page. If not set, default content will be used.
+    pub fn front_page_content(mut self, content: Vec<GutenbergBlock>) -> Self {
+        self.front_page_content = Some(content);
         self
     }
 
@@ -256,6 +268,50 @@ impl CourseBuilder {
 
         let default_instance =
             default_instance.expect("At least one course instance must be provided");
+
+        // Create mandatory front page for the course
+        let default_front_page_content = vec![
+            GutenbergBlock::landing_page_hero_section("Welcome to...", "Subheading"),
+            GutenbergBlock::landing_page_copy_text(
+                "About this course",
+                "This course teaches you xxx.",
+            ),
+            GutenbergBlock::course_objective_section(),
+            GutenbergBlock::empty_block_from_name("moocfi/course-chapter-grid".to_string()),
+            GutenbergBlock::empty_block_from_name("moocfi/top-level-pages".to_string()),
+            GutenbergBlock::empty_block_from_name("moocfi/congratulations".to_string()),
+            GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string()),
+        ];
+
+        let front_page_blocks = self
+            .front_page_content
+            .unwrap_or(default_front_page_content);
+        let course_front_page_content =
+            serde_json::to_value(front_page_blocks).context("creating front page content")?;
+
+        let course_front_page = NewPage {
+            chapter_id: None,
+            content: course_front_page_content,
+            course_id: Some(course.id),
+            exam_id: None,
+            front_page_of_chapter_id: None,
+            title: course.name.clone(),
+            url_path: String::from("/"),
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
+            content_search_language: None,
+        };
+
+        pages::insert_page(
+            cx.conn,
+            course_front_page,
+            cx.teacher,
+            get_seed_spec_fetcher(),
+            crate::domain::models_requests::fetch_service_info,
+        )
+        .await
+        .context("inserting course front page")?;
 
         // Create top-level pages
         for page_config in self.pages {
@@ -553,6 +609,26 @@ mod tests {
         assert_eq!(course1.language_code, course2.language_code);
         assert_eq!(course1.description, "Description 1");
         assert_eq!(course2.description, "Description 2");
+    }
+
+    #[test]
+    fn course_builder_front_page_content() {
+        let custom_content = vec![
+            GutenbergBlock::landing_page_hero_section("Custom Welcome", "Custom Subheading"),
+            GutenbergBlock::course_objective_section(),
+        ];
+
+        let course = CourseBuilder::new("Test Course", "test-course")
+            .front_page_content(custom_content.clone());
+
+        assert_eq!(course.front_page_content, Some(custom_content));
+    }
+
+    #[test]
+    fn course_builder_front_page_content_default() {
+        let course = CourseBuilder::new("Test Course", "test-course");
+
+        assert_eq!(course.front_page_content, None);
     }
 
     #[test]

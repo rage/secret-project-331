@@ -158,15 +158,40 @@ pub async fn create_new_chapter(
     spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<(DatabaseChapter, Page)> {
+    create_new_chapter_with_content(
+        conn,
+        pkey_policy,
+        new_chapter,
+        user,
+        spec_fetcher,
+        fetch_service_info,
+        None,
+    )
+    .await
+}
+
+/// Creates a new chapter with a front page and optional custom content.
+pub async fn create_new_chapter_with_content(
+    conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<(Uuid, Uuid)>,
+    new_chapter: &NewChapter,
+    user: Uuid,
+    spec_fetcher: impl SpecFetcher,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+    custom_front_page_content: Option<Vec<GutenbergBlock>>,
+) -> ModelResult<(DatabaseChapter, Page)> {
     let mut tx = conn.begin().await?;
     let chapter_id = chapters::insert(&mut tx, pkey_policy.map_ref(|x| x.0), new_chapter).await?;
     let chapter = chapters::get_chapter(&mut tx, chapter_id).await?;
 
-    let chapter_frontpage_content = serde_json::to_value(vec![
+    let default_front_page_content = vec![
         GutenbergBlock::hero_section(&chapter.name, ""),
         GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string()),
         GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string()),
-    ])?;
+    ];
+
+    let front_page_blocks = custom_front_page_content.unwrap_or(default_front_page_content);
+    let chapter_frontpage_content = serde_json::to_value(front_page_blocks)?;
     let chapter_frontpage = NewPage {
         chapter_id: Some(chapter.id),
         content: chapter_frontpage_content,

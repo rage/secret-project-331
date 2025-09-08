@@ -255,40 +255,9 @@ ALTER TABLE user_exercise_states DROP COLUMN course_instance_id;
 -- =====================================================================
 -- 2) offered_answers_to_peer_review_temporary
 -- =====================================================================
+DELETE FROM offered_answers_to_peer_review_temporary;
 ALTER TABLE offered_answers_to_peer_review_temporary
-ADD COLUMN course_id uuid REFERENCES courses(id);
-
-DO $$
-DECLARE did_rows int;
-_b int;
-BEGIN
-SELECT batch_size INTO _b
-FROM migration_params;
-LOOP WITH todo AS (
-  SELECT t.ctid
-  FROM offered_answers_to_peer_review_temporary t
-  WHERE t.course_id IS NULL
-  ORDER BY t.ctid
-  LIMIT _b
-)
-UPDATE offered_answers_to_peer_review_temporary t
-SET course_id = ci.course_id
-FROM course_instances ci
-WHERE t.ctid IN (
-    SELECT ctid
-    FROM todo
-  )
-  AND t.course_instance_id = ci.id;
-
-    GET DIAGNOSTICS did_rows = ROW_COUNT;
-EXIT
-WHEN did_rows = 0;
-END LOOP;
-END $$;
-
-ALTER TABLE offered_answers_to_peer_review_temporary
-ALTER COLUMN course_id
-SET NOT NULL;
+ADD COLUMN course_id uuid REFERENCES courses(id) NOT NULL;
 ALTER TABLE offered_answers_to_peer_review_temporary DROP COLUMN course_instance_id;
 ALTER TABLE offered_answers_to_peer_review_temporary
 ADD CONSTRAINT offered_answers_to_peer_review_temporary_user_exercise_unique UNIQUE (user_id, exercise_id);

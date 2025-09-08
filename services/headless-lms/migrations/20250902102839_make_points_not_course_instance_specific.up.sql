@@ -569,3 +569,7 @@ ALTER TABLE certificate_configuration_to_requirements DROP COLUMN course_instanc
 -- If some requirement did only have course_instance_id and no course_module_id, we need to drop the requirement
 DELETE FROM certificate_configuration_to_requirements
 WHERE course_module_id IS NULL;
+-- Make sure course_module_id cannot be NULL anymore
+ALTER TABLE certificate_configuration_to_requirements
+ALTER COLUMN course_module_id
+SET NOT NULL;

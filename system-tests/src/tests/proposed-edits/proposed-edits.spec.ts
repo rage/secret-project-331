@@ -70,10 +70,8 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   )
 
   await page.getByText("Like this.").click()
-  await page.getByText("Like this.").click()
   await page.fill("text=Like this.", "Like this!")
 
-  await page.click("text=The abacus is one of the oldest known calculating tools")
   await page.click("text=The abacus is one of the oldest known calculating tools")
   await page.press("text=The abacus is one of the oldest known calculating tools", "Control+a")
   await page.fill(

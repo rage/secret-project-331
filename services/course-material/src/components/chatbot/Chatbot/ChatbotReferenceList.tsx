@@ -102,24 +102,25 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
 }) => {
   const referenceListId = useId()
   const { t } = useTranslation()
-
-  // 60 represents the n of chars in the collapsed reference list width, allocate it
-  // evenly for the citations by dividing by n of citations
-  const citationTitleLen = 60 / citations.length
+  console.log(citations)
 
   let { hoverProps: hoverPopoverProps, isHovered: isPopoverHovered } = useHover({})
 
-  let citationSet = new Set()
+  let citationFilteringSet = new Set()
   let citationsToList = citations
     .filter((cit) => {
-      if (citationSet.has(cit.document_url)) {
+      if (citationFilteringSet.has(cit.document_url)) {
         return false
       } else {
-        citationSet.add(cit.document_url)
+        citationFilteringSet.add(cit.document_url)
         return true
       }
     })
     .map((cit) => cit.id)
+
+  // 60 represents the n of chars in the collapsed reference list width, allocate it
+  // evenly for the citations by dividing by n of citations
+  const citationTitleLen = 60 / citationsToList.length
 
   return (
     <>
@@ -136,6 +137,13 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
             let citationNumber = assertNotNullOrUndefined(
               citationNumberingMap.get(cit.citation_number),
             )
+            let citationTitle = cit.course_material_chapter_number
+              ? `${t("chapter-chapter-number", {
+                  number: cit.course_material_chapter_number,
+                })}: `
+              : ""
+            citationTitle += cit.title
+
             return (
               <div key={cit.id}>
                 {citationsToList.includes(cit.id) && (
@@ -177,9 +185,9 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
                       <>
                         <b>{citationNumber}</b>{" "}
                         {cit.title.length <= citationTitleLen
-                          ? cit.title
+                          ? citationTitle
                           : // eslint-disable-next-line i18next/no-literal-string
-                            cit.title.slice(0, citationTitleLen - 3).concat("\u2026")}
+                            citationTitle.slice(0, citationTitleLen - 3).concat("\u2026")}
                       </>
                     )}
                   </div>

@@ -244,23 +244,27 @@ jobs:
           kustomize: "5.4.1"
           skaffold: "2.13.1"
 
-      - uses: google-github-actions/setup-gcloud@94337306dda8180d967a56932ceb4ddcf01edae7
+      - id: "auth"
+        uses: "google-github-actions/auth@v2"
         with:
-          service_account_key: ${{ secrets.GCLOUD_SERVICE_KEY_DEPLOY_TO_PRODUCTION }}
+          credentials_json: "${{ secrets.GCLOUD_SERVICE_KEY_DEPLOY_TO_PRODUCTION }}"
+
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v3"
+        with:
           project_id: ${{ secrets.GKE_PROJECT }}
 
-      - run: gcloud --quiet auth configure-docker
-
-      - uses: google-github-actions/get-gke-credentials@fb08709ba27618c31c09e014e1d8364b02e5042e
+      - uses: google-github-actions/get-gke-credentials@v2
         with:
           cluster_name: ${{ secrets.GKE_CLUSTER }}
           location: ${{ secrets.GKE_ZONE }}
-          credentials: ${{ secrets.GCLOUD_SERVICE_KEY_DEPLOY_TO_PRODUCTION }}
 
       - name: Masking
         run: |
           IPS=$(kubectl config view | grep server | tr -s ' ' | cut -d ' ' -f 3 | xargs echo)
           echo "::add-mask::$IPS"
+
+      - run: gcloud --quiet auth configure-docker
 
       - name: Make sure skaffold local env patch files exist
         run: bin/make-sure-skaffold-local-env-patch-files-exists

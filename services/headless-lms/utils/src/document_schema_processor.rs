@@ -1,4 +1,8 @@
-use std::collections::HashMap;
+use std::{
+    cell::RefCell,
+    collections::{HashMap, HashSet},
+    sync::Arc,
+};
 
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
@@ -271,4 +275,131 @@ pub fn remove_sensitive_attributes(input: Vec<GutenbergBlock>) -> Vec<GutenbergB
             block
         })
         .collect()
+}
+
+/// Replaces duplicate client IDs with new unique IDs in Gutenberg blocks.
+pub fn replace_duplicate_client_ids(input: Vec<GutenbergBlock>) -> Vec<GutenbergBlock> {
+    let seen_ids = Arc::new(RefCell::new(HashSet::new()));
+
+    replace_duplicate_client_ids_inner(input, seen_ids)
+}
+
+fn replace_duplicate_client_ids_inner(
+    mut input: Vec<GutenbergBlock>,
+    seen_ids: Arc<RefCell<HashSet<Uuid>>>,
+) -> Vec<GutenbergBlock> {
+    for block in input.iter_mut() {
+        let mut seen_ids_borrow = seen_ids.borrow_mut();
+        if seen_ids_borrow.contains(&block.client_id) {
+            block.client_id = Uuid::new_v4();
+        } else {
+            seen_ids_borrow.insert(block.client_id);
+        }
+        drop(seen_ids_borrow); // Release the borrow before recursive call
+
+        block.inner_blocks =
+            replace_duplicate_client_ids_inner(block.inner_blocks.clone(), seen_ids.clone());
+    }
+    input
+}
+
+/// Validates that all client IDs in the Gutenberg blocks are unique.
+/// Returns an error if duplicate client IDs are found.
+pub fn validate_unique_client_ids(input: Vec<GutenbergBlock>) -> UtilResult<Vec<GutenbergBlock>> {
+    let seen_ids = Arc::new(RefCell::new(HashSet::new()));
+
+    validate_unique_client_ids_inner(input, seen_ids)
+}
+
+fn validate_unique_client_ids_inner(
+    input: Vec<GutenbergBlock>,
+    seen_ids: Arc<RefCell<HashSet<Uuid>>>,
+) -> UtilResult<Vec<GutenbergBlock>> {
+    for block in input.iter() {
+        let mut seen_ids_borrow = seen_ids.borrow_mut();
+        if seen_ids_borrow.contains(&block.client_id) {
+            return Err(UtilError::new(
+                UtilErrorType::Other,
+                format!("Duplicate client ID found: {}", block.client_id),
+                None,
+            ));
+        } else {
+            seen_ids_borrow.insert(block.client_id);
+        }
+        drop(seen_ids_borrow); // Release the borrow before recursive call
+
+        validate_unique_client_ids_inner(block.inner_blocks.clone(), seen_ids.clone())?;
+    }
+    Ok(input)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn collect_ids(blocks: &Vec<GutenbergBlock>, ids: &mut Vec<Uuid>) {
+        for block in blocks {
+            ids.push(block.client_id);
+            collect_ids(&block.inner_blocks, ids);
+        }
+    }
+
+    #[test]
+    fn replace_duplicate_client_ids_makes_all_ids_unique_flat_and_nested() {
+        let dup_id = Uuid::new_v4();
+        let nested_dup_id = Uuid::new_v4();
+
+        let block_a = GutenbergBlock::empty_block_from_name("a".into()).with_id(dup_id);
+        let block_b_child_1 =
+            GutenbergBlock::empty_block_from_name("b1".into()).with_id(nested_dup_id);
+        let block_b_child_2 =
+            GutenbergBlock::empty_block_from_name("b2".into()).with_id(nested_dup_id);
+        let block_b = GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+            "b",
+            attributes! {},
+            vec![block_b_child_1, block_b_child_2],
+        )
+        .with_id(dup_id);
+
+        let input = vec![block_a, block_b];
+        let output = replace_duplicate_client_ids(input);
+
+        let mut ids: Vec<Uuid> = Vec::new();
+        collect_ids(&output, &mut ids);
+        let unique: HashSet<Uuid> = ids.iter().cloned().collect();
+        assert_eq!(
+            unique.len(),
+            ids.len(),
+            "all ids should be unique after replacement"
+        );
+    }
+
+    #[test]
+    fn validate_unique_client_ids_ok_on_unique() {
+        let a = GutenbergBlock::empty_block_from_name("a".into());
+        let b = GutenbergBlock::empty_block_from_name("b".into());
+        let c = GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+            "c",
+            attributes! {},
+            vec![GutenbergBlock::empty_block_from_name("c1".into())],
+        );
+        let input = vec![a, b, c];
+        let result = validate_unique_client_ids(input);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn validate_unique_client_ids_err_on_duplicate_nested() {
+        let dup_id = Uuid::new_v4();
+        let a = GutenbergBlock::empty_block_from_name("a".into()).with_id(dup_id);
+        let b_child = GutenbergBlock::empty_block_from_name("b1".into()).with_id(dup_id);
+        let b = GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+            "b",
+            attributes! {},
+            vec![b_child],
+        );
+        let input = vec![a, b];
+        let result = validate_unique_client_ids(input);
+        assert!(result.is_err());
+    }
 }

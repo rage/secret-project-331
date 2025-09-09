@@ -16,7 +16,10 @@ use headless_lms_models::{
     peer_or_self_review_questions::{self, CmsPeerOrSelfReviewQuestion},
     user_exercise_slide_states, user_exercise_states,
 };
-use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
+use headless_lms_utils::{
+    attributes,
+    document_schema_processor::{GutenbergBlock, validate_unique_client_ids},
+};
 use once_cell::sync::OnceCell;
 use serde_json::Value;
 use sqlx::PgConnection;
@@ -58,6 +61,7 @@ pub async fn create_page(
     chapter_id: Option<Uuid>,
     page_data: CmsPageUpdate,
 ) -> Result<Uuid> {
+    validate_unique_client_ids(page_data.content.clone())?;
     let new_page = NewPage {
         content: vec![],
         url_path: page_data.url_path.to_string(),

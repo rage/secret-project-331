@@ -2,7 +2,7 @@ use std::collections::{HashMap, hash_map};
 
 use futures::future::{BoxFuture, OptionFuture};
 use headless_lms_utils::document_schema_processor::{
-    GutenbergBlock, contains_blocks_not_allowed_in_top_level_pages,
+    GutenbergBlock, contains_blocks_not_allowed_in_top_level_pages, replace_duplicate_client_ids,
 };
 use itertools::Itertools;
 use sqlx::{Postgres, QueryBuilder, Row};
@@ -1097,7 +1097,7 @@ pub async fn update_page(
         }
     }
 
-    let content = cms_page_update.content.clone();
+    let content = replace_duplicate_client_ids(cms_page_update.content.clone());
 
     if !page_update.is_exam_page
         && cms_page_update.chapter_id.is_none()
@@ -2050,6 +2050,8 @@ pub async fn insert_page(
         .into();
     let course = course.await.transpose()?;
 
+    let content = replace_duplicate_client_ids(new_page.content.clone());
+
     let mut tx = conn.begin().await?;
 
     let content_search_language = course
@@ -2088,7 +2090,7 @@ RETURNING id,
           "#,
         new_page.course_id,
         new_page.exam_id,
-        serde_json::to_value(new_page.content)?,
+        serde_json::to_value(content)?,
         new_page.url_path.trim(),
         new_page.title.trim(),
         next_order_number,

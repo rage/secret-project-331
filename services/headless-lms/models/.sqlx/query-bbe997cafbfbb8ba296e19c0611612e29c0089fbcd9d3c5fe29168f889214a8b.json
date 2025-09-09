@@ -1,0 +1,63 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT digest as \"digest: _\", pepper_id, user_id, client_id, scope, audience, jti, dpop_jkt, metadata, expires_at\n               FROM oauth_access_tokens\n               WHERE digest = $1 AND expires_at > now()",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "digest: _",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 1,
+        "name": "pepper_id",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 2,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "client_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "scope",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "audience",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "jti",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "dpop_jkt",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "metadata",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 9,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": ["Bytea"]
+    },
+    "nullable": [false, false, true, false, true, true, false, false, false, false]
+  },
+  "hash": "bbe997cafbfbb8ba296e19c0611612e29c0089fbcd9d3c5fe29168f889214a8b"
+}

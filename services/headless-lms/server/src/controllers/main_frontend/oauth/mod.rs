@@ -1,6 +1,7 @@
 use actix_web::web::{self, ServiceConfig};
 
 mod authorize_query;
+mod authorized_client;
 mod claims;
 mod consent_deny_query;
 mod consent_query;

@@ -11,6 +11,7 @@ pub struct OAuthClient {
     pub grant_types: Vec<String>,
     pub scope: Option<String>,
     pub origin: String,
+    pub bearer_allowed: bool,
 }
 
 impl OAuthClient {
@@ -21,7 +22,7 @@ impl OAuthClient {
         let mut tx = conn.begin().await?;
         let client = sqlx::query_as!(
             OAuthClient,
-            r#"SELECT id, client_id, client_secret,pepper_id, redirect_uris, grant_types, scope, origin
+            r#"SELECT id, client_id, client_secret,pepper_id, redirect_uris, grant_types, scope, origin, bearer_allowed
                FROM oauth_clients WHERE client_id = $1"#,
             client_id
         )

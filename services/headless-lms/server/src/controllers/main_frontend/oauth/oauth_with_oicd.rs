@@ -23,6 +23,7 @@ use headless_lms_utils::prelude::*;
 use models::{
     oauth_access_token::OAuthAccessToken, oauth_auth_code::OAuthAuthCode,
     oauth_client::OAuthClient, oauth_refresh_tokens::OAuthRefreshTokens,
+    oauth_user_client_scopes::AuthorizedClientInfo,
     oauth_user_client_scopes::OAuthUserClientScopes, user_details,
 };
 use serde_json::json;
@@ -288,6 +289,11 @@ async fn token(
 
     if client.client_secret != token_digest_hmac_sha256(&form.client_secret, &pepper) {
         return Err(oauth_invalid_client("invalid client secret"));
+    }
+    if req.headers().get("dpop").is_none() && !client.bearer_allowed {
+        return Err(oauth_invalid_client(
+            "client not allowed to use other than dpop-bound tokens",
+        ));
     }
 
     let access_token_plain = generate_access_token();
@@ -707,6 +713,46 @@ async fn well_known_openid(
     Ok(HttpResponse::Ok().json(config))
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct AuthorizedClient {
+    pub client_id: Uuid,     // DB uuid (oauth_clients.id)
+    pub client_name: String, // human-readable name from oauth_clients.client_id
+    pub scopes: Vec<String>,
+}
+
+#[instrument(skip(pool, auth_user))]
+pub async fn get_authorized_clients(
+    pool: web::Data<PgPool>,
+    auth_user: AuthUser,
+) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+    let token =
+        crate::prelude::authorize(&mut conn, Act::View, Some(auth_user.id), Res::User).await?;
+
+    let rows: Vec<AuthorizedClientInfo> =
+        OAuthUserClientScopes::list_authorized_clients_for_user(&mut conn, auth_user.id).await?;
+
+    token.authorized_ok(HttpResponse::Ok().json(rows))
+}
+
+#[instrument(skip(pool, auth_user))]
+pub async fn delete_authorized_client(
+    pool: web::Data<PgPool>,
+    auth_user: AuthUser,
+    path: web::Path<Uuid>, // client_id (DB uuid)
+) -> ControllerResult<HttpResponse> {
+    let client_id = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token =
+        crate::prelude::authorize(&mut conn, Act::View, Some(auth_user.id), Res::User).await?;
+
+    OAuthUserClientScopes::revoke_user_client_everything(&mut conn, auth_user.id, client_id)
+        .await?;
+
+    token.authorized_ok(HttpResponse::NoContent().finish())
+}
+
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     cfg.route("/authorize", web::get().to(authorize))
         .route("/token", web::post().to(token))
@@ -717,5 +763,10 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
         )
         .route("/jwks.json", web::get().to(jwks))
         .route("/consent", web::get().to(approve_consent))
-        .route("/consent/deny", web::get().to(deny_consent));
+        .route("/consent/deny", web::get().to(deny_consent))
+        .route("/authorized-clients", web::get().to(get_authorized_clients))
+        .route(
+            "/authorized-clients/{client_id}",
+            web::delete().to(delete_authorized_client),
+        );
 }

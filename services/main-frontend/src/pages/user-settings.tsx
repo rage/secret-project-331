@@ -4,6 +4,7 @@ import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ResearchOnCoursesForm from "../components/forms/ResearchOnCoursesForm"
+import useAuthorizedClientsQuery from "../hooks/useAuthorizedClientsQuery"
 import useUserResearchConsentQuery from "../hooks/useUserResearchConsentQuery"
 import { getCourseBreadCrumbInfo } from "../services/backend/courses"
 import { getAllResearchConsentAnswersByUserId } from "../services/backend/users"
@@ -27,6 +28,7 @@ const UserSettings: React.FC<React.PropsWithChildren<Slug>> = () => {
 
   const [openResearchForm, setOpenResearchForm] = useState<boolean>(false)
   const getUserConsent = useUserResearchConsentQuery()
+  const { listQuery, revokeMutation } = useAuthorizedClientsQuery()
 
   const getUserDetails = useQuery({
     queryKey: [`user-details`],
@@ -174,6 +176,52 @@ const UserSettings: React.FC<React.PropsWithChildren<Slug>> = () => {
             </div>
           </div>
         )}
+        <h2
+          className={css`
+            padding-top: 1rem;
+          `}
+        >
+          {t("authorized-applications")}
+        </h2>
+
+        <div
+          className={css`
+            border-top: 1px solid ${baseTheme.colors.gray[100]};
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+          `}
+        >
+          {listQuery.isPending && <Spinner variant="medium" />}
+          {listQuery.isError && <ErrorBanner variant="readOnly" error={listQuery.error} />}
+          {listQuery.isSuccess && (
+            <div>
+              {listQuery.data.length === 0 && <p>{t("no-authorized-applications")}</p>}
+              {listQuery.data.map((client) => (
+                <div
+                  key={client.client_id}
+                  className={css`
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 0.5rem;
+                  `}
+                >
+                  <div>
+                    <strong>{client.client_name}</strong> <span>({client.scopes.join(", ")})</span>
+                  </div>
+                  <Button
+                    size="small"
+                    variant="secondary"
+                    onClick={() => revokeMutation.mutate(client.client_id)}
+                  >
+                    {t("revoke")}
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </>
   )

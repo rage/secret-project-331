@@ -7,6 +7,7 @@ CREATE TABLE oauth_clients (
     grant_types TEXT[] NOT NULL,
     scope TEXT,
     origin TEXT NOT NULL,
+    bearer_allowed BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     deleted_at TIMESTAMP WITH TIME ZONE
@@ -30,6 +31,8 @@ COMMENT ON COLUMN oauth_clients.scope IS
   'Default scope or scopes the client may request if none provided at runtime';
 COMMENT ON COLUMN oauth_clients.origin IS
   'Only allowed origin for request coming from this client';
+COMMENT ON COLUMN oauth_clients.bearer_allowed IS
+  'Whether this client is allowed to use bearer tokens (as opposed to DPoP). Default false, should be given only if really needed.';
 COMMENT ON COLUMN oauth_clients.created_at IS
   'Timestamp when this client record was created';
 

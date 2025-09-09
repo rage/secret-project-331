@@ -1397,6 +1397,12 @@ export interface Organization {
   deleted_at: string | null
 }
 
+export interface AuthorizedClientInfo {
+  client_id: string
+  client_name: string
+  scopes: Array<string>
+}
+
 export interface PageAudioFile {
   id: string
   page_id: string

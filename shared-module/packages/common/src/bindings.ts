@@ -1504,7 +1504,7 @@ export interface CmsPageExerciseTask {
 }
 
 export interface CmsPageUpdate {
-  content: unknown
+  content: Array<GutenbergBlock>
   exercises: Array<CmsPageExercise>
   exercise_slides: Array<CmsPageExerciseSlide>
   exercise_tasks: Array<CmsPageExerciseTask>
@@ -1557,7 +1557,7 @@ export interface NewPage {
   exercises: Array<CmsPageExercise>
   exercise_slides: Array<CmsPageExerciseSlide>
   exercise_tasks: Array<CmsPageExerciseTask>
-  content: unknown
+  content: Array<GutenbergBlock>
   url_path: string
   title: string
   course_id: string | null
@@ -2369,4 +2369,12 @@ export interface OEmbedResponse {
   provider_url: string
   title: string
   version: string
+}
+
+export interface GutenbergBlock {
+  clientId: string
+  name: string
+  isValid: boolean
+  attributes: Record<string, unknown>
+  innerBlocks: Array<GutenbergBlock>
 }

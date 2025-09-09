@@ -34,7 +34,7 @@ pub struct TmcUserInfo {
 
 #[derive(Deserialize)]
 pub struct TMCUserResponse {
-    pub id: i64,
+    pub id: i32,
 }
 
 const TMC_API_URL: &str = "https://tmc.mooc.fi/api/v8/users";
@@ -185,7 +185,7 @@ impl TmcClient {
         &self,
         user_info: NewUserInfo,
         app_conf: &ApplicationConfiguration,
-    ) -> Result<i64> {
+    ) -> Result<i32> {
         let payload = json!({
             "user": {
                 "email": user_info.email,

@@ -108,12 +108,13 @@ pub async fn signup(
         let upstream_id = post_new_user_to_tmc(&user_details, &tmc_client, &app_conf).await?;
         let password_secret = SecretString::new(user_details.password.into());
 
-        let user_id = models::users::insert(
+        let user = models::users::insert_with_upstream_id_and_moocfi_id(
             &mut conn,
-            PKeyPolicy::Generate,
             &user_details.email,
             Some(&user_details.first_name),
             Some(&user_details.last_name),
+            upstream_id,
+            PKeyPolicy::Generate.into_uuid(),
         )
         .await
         .map_err(|e| {
@@ -124,13 +125,11 @@ pub async fn signup(
             )
         })?;
 
-        let user = models::users::get_by_id(&mut conn, user_id).await?;
-
         let country = user_details.country.clone();
-        models::user_details::update_user_country(&mut conn, user_id, &country).await?;
+        models::user_details::update_user_country(&mut conn, user.id, &country).await?;
         models::user_details::update_user_email_communication_consent(
             &mut conn,
-            user_id,
+            user.id,
             user_details.email_communication_consent,
         )
         .await?;
@@ -139,7 +138,7 @@ pub async fn signup(
         let password_hash = models::user_passwords::hash_password(&password_secret)
             .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
 
-        models::user_passwords::upsert_user_password(&mut conn, user_id, password_hash)
+        models::user_passwords::upsert_user_password(&mut conn, user.id, password_hash)
             .await
             .map_err(|e| {
                 ControllerError::new(
@@ -556,7 +555,7 @@ pub async fn post_new_user_to_tmc(
     user_details: &CreateAccountDetails,
     tmc_client: &web::Data<TmcClient>,
     app_conf: &ApplicationConfiguration,
-) -> anyhow::Result<i64> {
+) -> anyhow::Result<i32> {
     let upstream_id = tmc_client
         .post_new_user_to_tmc(
             NewUserInfo {

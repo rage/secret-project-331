@@ -295,6 +295,8 @@ const config = [
               "set-state",
               "main-navigation-menu",
               "Component",
+              "use client",
+              "use server",
             ],
           },
           callees: {

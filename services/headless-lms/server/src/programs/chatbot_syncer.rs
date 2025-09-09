@@ -302,11 +302,17 @@ async fn sync_pages_batch(
         };
 
         let blob_path = generate_blob_path(page)?;
-        let mut chapter: Option<DatabaseChapter> = None;
-        if page.chapter_id.is_some() {
-            chapter =
-                Some(headless_lms_models::chapters::get_chapter_by_page_id(conn, page.id).await?);
-        }
+        let chapter: Option<DatabaseChapter> = if page.chapter_id.is_some() {
+            match headless_lms_models::chapters::get_chapter_by_page_id(conn, page.id).await {
+                Ok(c) => Some(c),
+                Err(e) => {
+                    debug!("Chapter lookup failed for page {}: {}", page.id, e);
+                    None
+                }
+            }
+        } else {
+            None
+        };
 
         allowed_file_paths.push(blob_path.clone());
         let mut metadata = HashMap::new();
@@ -403,19 +409,3 @@ async fn delete_old_files(
 
     Ok(())
 }
-
-// Deletes old files from the search index that are no longer in the blob storage.
-/* async fn delete_old_files_search_index(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-    blob_client: &AzureBlobClient,
-) -> anyhow::Result<()> {
-    let mut courses_prefix = "courses/".to_string();
-    courses_prefix.push_str(&course_id.to_string());
-    let existing_files = blob_client.list_files_with_prefix(&courses_prefix).await?;
-    dbg!(existing_files);
-    // if a file is in index but is not in existing_files, delete it.
-
-    Ok(())
-}
- */

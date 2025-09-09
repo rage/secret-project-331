@@ -108,6 +108,14 @@ async fn set_non_default_chatbot(
 
     let configuration =
         models::chatbot_configurations::get_by_id(&mut tx, chatbot_configuration_id).await?;
+
+    if course_id != configuration.course_id {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Chatbot course id doesn't match the course id provided.".to_string(),
+            None,
+        ));
+    }
     tx.commit().await?;
 
     token.authorized_ok(web::Json(configuration))

@@ -116,10 +116,6 @@ pub async fn create_search_indexer(
         "targetFieldName": "chunk_id",
         "mappingFunction": { "name": "base64Encode" }
         },
-    /*                 {
-        "sourceFieldName": "metadata_storage_path",
-        "targetFieldName": "filepath"
-        } */
         ],
         "outputFieldMappings": [
 

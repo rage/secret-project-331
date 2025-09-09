@@ -25,17 +25,16 @@ export const renumberFilterCitations = (
     return { filteredCitations: [], citedDocs: [], citationNumberingMap: new Map() }
   }
 
-  const citedDocs = Array.from(message.matchAll(MATCH_CITATIONS_REGEX), (arr, _) =>
-    parseInt(arr[1]),
-  )
-
-  // Set preserves the order of the unique items in the array
-  let citedDocsSet = new Set(citedDocs)
-  let uniqueCitations = [...citedDocsSet]
+  let citedDocs = Array.from(message.matchAll(MATCH_CITATIONS_REGEX), (arr, _) => parseInt(arr[1]))
 
   // there might be hallucinated citations in the message :(
   // remove the hallucinated citations
   const actualCitationNs: number[] = citations.map((c) => c.citation_number)
+  citedDocs = citedDocs.filter((v) => actualCitationNs.includes(v))
+  // Set preserves the order of the unique items in the array
+  let citedDocsSet = new Set(citedDocs)
+  let uniqueCitations = [...citedDocsSet]
+
   uniqueCitations = uniqueCitations.filter((v) => actualCitationNs.includes(v))
 
   let filteredCitations: ChatbotConversationMessageCitation[] = []
@@ -59,6 +58,7 @@ export const renumberFilterCitations = (
     filteredCitations.push(cit!)
   })
 
+  // none of these include hallucinated citations
   return { filteredCitations, citedDocs, citationNumberingMap }
 }
 

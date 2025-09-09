@@ -13,6 +13,7 @@ import { createPortal } from "react-dom"
 import CitationButton from "./CitationButton"
 
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
+import { nodeIsElement } from "@/shared-module/common/utils/dom"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { REMOVE_CITATIONS_REGEX } from "@/utils/chatbotCitationRegexes"
 import { getRemarkable } from "@/utils/getRemarkable"
@@ -151,7 +152,7 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
       return null
     }
     return Array.from(
-      thisNode.current?.querySelectorAll(PORTAL_PLACEHOLDER_QUERY_SELECTOR) ?? [],
+      thisNode.current?.querySelectorAll<Element>(PORTAL_PLACEHOLDER_QUERY_SELECTOR) ?? [],
     ).map((node, idx) => {
       // the citedDocs list contains the citation numbers in the order of appearance in the msg
       // the nodelist contains the citations in the order of appearance in the msg
@@ -165,10 +166,9 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
         // sibling node is also a citation button (not text), return null
         // because we don't want to cite the same doc multiple times in a row
         if (prevCitN === citN) {
-          let prev = node.previousSibling as Element
+          let prev = node.previousSibling
 
-          // nodeType 1 is Element
-          if (prev && prev.nodeType == 1) {
+          if (prev && nodeIsElement(prev)) {
             // double check if the previousSibling is actually a citationButton
             // and actually corresponds to the previous citation
             if (

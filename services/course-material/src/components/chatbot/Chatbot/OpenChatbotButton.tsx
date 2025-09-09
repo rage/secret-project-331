@@ -44,6 +44,8 @@ const OpenChatbotButton: React.FC<OpenChatbotButtonProps> = ({ setDialogOpen }) 
     <button className={buttonStyle} aria-label={t("open-chatbot")} onClick={handleClick}>
       <AIChat
         className={css`
+          position: relative;
+          bottom: -1px;
           width: 35px;
           height: 35px;
         `}

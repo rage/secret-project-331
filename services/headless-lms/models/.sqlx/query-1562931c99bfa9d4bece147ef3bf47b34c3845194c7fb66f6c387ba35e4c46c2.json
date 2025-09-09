@@ -30,7 +30,11 @@
           "Custom": {
             "name": "history_change_reason",
             "kind": {
-              "Enum": ["page-saved", "history-restored", "page-deleted"]
+              "Enum": [
+                "page-saved",
+                "history-restored",
+                "page-deleted"
+              ]
             }
           }
         }
@@ -52,9 +56,20 @@
       }
     ],
     "parameters": {
-      "Left": ["UuidArray"]
+      "Left": [
+        "UuidArray"
+      ]
     },
-    "nullable": [false, false, false, false, false, true, false, false]
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
   },
   "hash": "1562931c99bfa9d4bece147ef3bf47b34c3845194c7fb66f6c387ba35e4c46c2"
 }

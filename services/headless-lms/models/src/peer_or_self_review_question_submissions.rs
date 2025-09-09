@@ -233,7 +233,6 @@ pub async fn get_given_peer_reviews(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
-    course_instance_id: Uuid,
 ) -> ModelResult<Vec<PeerReviewWithQuestionsAndAnswers>> {
     let res = sqlx::query!(
         r#"
@@ -259,7 +258,6 @@ FROM peer_or_self_review_question_submissions answers
   )
 WHERE submissions.user_id = $1
   AND submissions.exercise_id = $2
-  AND submissions.course_instance_id = $3
   AND questions.deleted_at IS NULL
   AND answers.deleted_at IS NULL
   AND submissions.deleted_at IS NULL
@@ -267,7 +265,6 @@ WHERE submissions.user_id = $1
         "#,
         user_id,
         exercise_id,
-        course_instance_id,
     )
     .map(|x| PeerOrSelfReviewQuestionAndAnswer {
         peer_or_self_review_config_id: x.peer_or_self_review_config_id,

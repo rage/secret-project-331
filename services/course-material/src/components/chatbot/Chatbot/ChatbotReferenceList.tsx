@@ -102,7 +102,6 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
 }) => {
   const referenceListId = useId()
   const { t } = useTranslation()
-  console.log(citations)
 
   let { hoverProps: hoverPopoverProps, isHovered: isPopoverHovered } = useHover({})
 

@@ -2,6 +2,7 @@
 FROM eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest as chef
 RUN chown -R user /app
 USER user
+WORKDIR /app
 
 FROM chef AS planner
 

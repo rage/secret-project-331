@@ -352,7 +352,7 @@ mod test {
 
     #[tokio::test]
     async fn bulk_insert_works() {
-        insert_data!(:tx, :user, :org, :course, :instance, :course_module);
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
 
         let registrar_id = crate::study_registry_registrars::insert(
             tx.as_mut(),
@@ -370,7 +370,6 @@ mod test {
                 course_id: course,
                 course_module_id: course_module.id,
                 user_id: user,
-                course_instance_id: instance.id,
                 completion_date: Utc::now(),
                 completion_registration_attempt_date: None,
                 completion_language: "en-US".to_string(),
@@ -431,7 +430,7 @@ mod test {
 
     #[tokio::test]
     async fn insert_completions_works() {
-        insert_data!(:tx, :user, :org, :course, :instance, :course_module);
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
 
         let registrar_id = crate::study_registry_registrars::insert(
             tx.as_mut(),
@@ -449,7 +448,6 @@ mod test {
                 course_id: course,
                 course_module_id: course_module.id,
                 user_id: user,
-                course_instance_id: instance.id,
                 completion_date: Utc::now(),
                 completion_registration_attempt_date: None,
                 completion_language: "en-US".to_string(),
@@ -526,7 +524,7 @@ mod test {
 
     #[tokio::test]
     async fn delete_duplicate_registrations_works() {
-        insert_data!(:tx, :user, :org, :course, :instance, :course_module);
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
 
         let registrar_id = crate::study_registry_registrars::insert(
             tx.as_mut(),
@@ -544,7 +542,6 @@ mod test {
                 course_id: course,
                 course_module_id: course_module.id,
                 user_id: user,
-                course_instance_id: instance.id,
                 completion_date: Utc::now(),
                 completion_registration_attempt_date: None,
                 completion_language: "en-US".to_string(),
@@ -617,7 +614,7 @@ mod test {
 
     #[tokio::test]
     async fn delete_duplicate_registrations_with_no_duplicates() {
-        insert_data!(:tx, :user, :org, :course, :instance, :course_module);
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
 
         let registrar_id = crate::study_registry_registrars::insert(
             tx.as_mut(),
@@ -635,7 +632,6 @@ mod test {
                 course_id: course,
                 course_module_id: course_module.id,
                 user_id: user,
-                course_instance_id: instance.id,
                 completion_date: Utc::now(),
                 completion_registration_attempt_date: None,
                 completion_language: "en-US".to_string(),
@@ -656,7 +652,6 @@ mod test {
                 course_id: course,
                 course_module_id: course_module.id,
                 user_id: user,
-                course_instance_id: instance.id,
                 completion_date: Utc::now(),
                 completion_registration_attempt_date: None,
                 completion_language: "en-US".to_string(),
@@ -722,7 +717,7 @@ mod test {
 
     #[tokio::test]
     async fn delete_duplicate_registrations_filters_by_completion_id() {
-        insert_data!(:tx, :user, :org, :course, :instance, :course_module);
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
 
         let registrar_id = crate::study_registry_registrars::insert(
             tx.as_mut(),
@@ -741,7 +736,6 @@ mod test {
                 course_id: course,
                 course_module_id: course_module.id,
                 user_id: user,
-                course_instance_id: instance.id,
                 completion_date: Utc::now(),
                 completion_registration_attempt_date: None,
                 completion_language: "en-US".to_string(),
@@ -762,7 +756,6 @@ mod test {
                 course_id: course,
                 course_module_id: course_module.id,
                 user_id: user,
-                course_instance_id: instance.id,
                 completion_date: Utc::now(),
                 completion_registration_attempt_date: None,
                 completion_language: "en-US".to_string(),

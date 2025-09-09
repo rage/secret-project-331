@@ -4,7 +4,9 @@
   "describe": {
     "columns": [],
     "parameters": {
-      "Left": ["Date"]
+      "Left": [
+        "Date"
+      ]
     },
     "nullable": []
   },

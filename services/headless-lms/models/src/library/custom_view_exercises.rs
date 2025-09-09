@@ -1,6 +1,6 @@
 use crate::{
     exercises::Exercise, prelude::*,
-    user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
+    user_course_exercise_service_variables::UserCourseExerciseServiceVariable,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -39,7 +39,7 @@ pub struct CustomViewExerciseTaskSubmission {
 pub struct CustomViewExerciseSubmissions {
     pub exercise_tasks: CustomViewExerciseTasks,
     pub exercises: Vec<Exercise>,
-    pub user_variables: Vec<UserCourseInstanceExerciseServiceVariable>,
+    pub user_variables: Vec<UserCourseExerciseServiceVariable>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]

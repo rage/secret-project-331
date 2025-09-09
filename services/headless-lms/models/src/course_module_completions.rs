@@ -12,7 +12,6 @@ pub struct CourseModuleCompletion {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub course_id: Uuid,
-    pub course_instance_id: Uuid,
     pub course_module_id: Uuid,
     pub user_id: Uuid,
     pub completion_date: DateTime<Utc>,
@@ -31,7 +30,7 @@ pub struct CourseModuleCompletion {
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseModuleAverage {
     pub id: Uuid,
-    pub course_instance_id: Uuid,
+    pub course_id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
@@ -45,7 +44,7 @@ pub struct CourseModuleAverage {
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseModulePointsAverage {
-    pub course_instance_id: Uuid,
+    pub course_id: Uuid,
     pub average_points: Option<f32>,
     pub total_points: Option<i32>,
     pub total_student: Option<i32>,
@@ -70,7 +69,6 @@ impl CourseModuleCompletionGranter {
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewCourseModuleCompletion {
     pub course_id: Uuid,
-    pub course_instance_id: Uuid,
     pub course_module_id: Uuid,
     pub user_id: Uuid,
     pub completion_date: DateTime<Utc>,
@@ -94,7 +92,6 @@ pub async fn insert(
 INSERT INTO course_module_completions (
     id,
     course_id,
-    course_instance_id,
     course_module_id,
     user_id,
     completion_date,
@@ -118,14 +115,12 @@ VALUES (
     $9,
     $10,
     $11,
-    $12,
-    $13
+    $12
   )
 RETURNING *
         ",
         pkey_policy.into_uuid(),
         new_course_module_completion.course_id,
-        new_course_module_completion.course_instance_id,
         new_course_module_completion.course_module_id,
         new_course_module_completion.user_id,
         new_course_module_completion.completion_date,
@@ -189,25 +184,6 @@ pub async fn get_by_ids_as_map(
     Ok(res)
 }
 
-pub async fn get_all_by_course_instance_id(
-    conn: &mut PgConnection,
-    course_instance_id: Uuid,
-) -> ModelResult<Vec<CourseModuleCompletion>> {
-    let res = sqlx::query_as!(
-        CourseModuleCompletion,
-        "
-SELECT *
-FROM course_module_completions
-WHERE course_instance_id = $1
-  AND deleted_at IS NULL
-        ",
-        course_instance_id,
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseModuleCompletionWithRegistrationInfo {
@@ -235,6 +211,7 @@ pub struct CourseModuleCompletionWithRegistrationInfo {
 pub async fn get_all_with_registration_information_by_course_instance_id(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Vec<CourseModuleCompletionWithRegistrationInfo>> {
     let res = sqlx::query_as!(
         CourseModuleCompletionWithRegistrationInfo,
@@ -252,22 +229,29 @@ FROM course_module_completions completions
   LEFT JOIN course_module_completion_registered_to_study_registries registered ON (
     completions.id = registered.course_module_completion_id
   )
-WHERE completions.course_instance_id = $1
+  JOIN user_course_settings settings ON (
+    completions.user_id = settings.user_id
+    AND settings.current_course_id = completions.course_id
+  )
+WHERE settings.current_course_instance_id = $1
   AND completions.deleted_at IS NULL
   AND registered.deleted_at IS NULL
+  AND settings.deleted_at IS NULL
+  AND settings.current_course_id = $2
         "#,
         course_instance_id,
+        course_id
     )
     .fetch_all(conn)
     .await?;
     Ok(res)
 }
 
-/// Gets all module completions for the user on a single course instance. There can be multiple modules
+/// Gets all module completions for the user on a course. There can be multiple modules
 /// in a single course, so the result is a `Vec`.
-pub async fn get_all_by_course_instance_and_user_id(
+pub async fn get_all_by_course_id_and_user_id(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
+    course_id: Uuid,
     user_id: Uuid,
 ) -> ModelResult<Vec<CourseModuleCompletion>> {
     let res = sqlx::query_as!(
@@ -275,11 +259,11 @@ pub async fn get_all_by_course_instance_and_user_id(
         "
 SELECT *
 FROM course_module_completions
-WHERE course_instance_id = $1
+WHERE course_id = $1
   AND user_id = $2
   AND deleted_at IS NULL
         ",
-        course_instance_id,
+        course_id,
         user_id,
     )
     .fetch_all(conn)
@@ -328,10 +312,9 @@ WHERE user_id = $1
     Ok(res)
 }
 
-pub async fn get_all_by_course_module_instance_and_user_ids(
+pub async fn get_all_by_course_module_and_user_ids(
     conn: &mut PgConnection,
     course_module_id: Uuid,
-    course_instance_id: Uuid,
     user_id: Uuid,
 ) -> ModelResult<Vec<CourseModuleCompletion>> {
     let res = sqlx::query_as!(
@@ -340,12 +323,10 @@ pub async fn get_all_by_course_module_instance_and_user_ids(
 SELECT *
 FROM course_module_completions
 WHERE course_module_id = $1
-  AND course_instance_id = $2
-  AND user_id = $3
+  AND user_id = $2
   AND deleted_at IS NULL
         ",
         course_module_id,
-        course_instance_id,
         user_id,
     )
     .fetch_all(conn)
@@ -353,11 +334,10 @@ WHERE course_module_id = $1
     Ok(res)
 }
 
-/// Gets latest created completion for the given user on the specified course instance.
-pub async fn get_latest_by_course_module_instance_and_user_ids(
+/// Gets latest created completion for the given user on the specified course module.
+pub async fn get_latest_by_course_and_user_ids(
     conn: &mut PgConnection,
     course_module_id: Uuid,
-    course_instance_id: Uuid,
     user_id: Uuid,
 ) -> ModelResult<CourseModuleCompletion> {
     let res = sqlx::query_as!(
@@ -366,14 +346,12 @@ pub async fn get_latest_by_course_module_instance_and_user_ids(
 SELECT *
 FROM course_module_completions
 WHERE course_module_id = $1
-  AND course_instance_id = $2
-  AND user_id = $3
+  AND user_id = $2
   AND deleted_at IS NULL
 ORDER BY created_at DESC
 LIMIT 1
         ",
         course_module_id,
-        course_instance_id,
         user_id,
     )
     .fetch_one(conn)
@@ -478,13 +456,13 @@ WHERE course_id = $1
     Ok(res.count.unwrap_or(0))
 }
 
-/// Gets automatically granted course module completion for the given user on the specified course
-/// instance. This entry is quaranteed to be unique in database by the index
+/// Gets automatically granted course module completion for the given user on the specified course.
+/// This entry is quaranteed to be unique in database by the index
 /// `course_module_automatic_completion_uniqueness`.
-pub async fn get_automatic_completion_by_course_module_instance_and_user_ids(
+pub async fn get_automatic_completion_by_course_module_course_and_user_ids(
     conn: &mut PgConnection,
     course_module_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
     user_id: Uuid,
 ) -> ModelResult<CourseModuleCompletion> {
     let res = sqlx::query_as!(
@@ -493,13 +471,13 @@ pub async fn get_automatic_completion_by_course_module_instance_and_user_ids(
 SELECT *
 FROM course_module_completions
 WHERE course_module_id = $1
-  AND course_instance_id = $2
+  AND course_id = $2
   AND user_id = $3
   AND completion_granter_user_id IS NULL
   AND deleted_at IS NULL
         ",
         course_module_id,
-        course_instance_id,
+        course_id,
         user_id,
     )
     .fetch_one(conn)
@@ -586,20 +564,13 @@ WHERE id = $2 AND deleted_at IS NULL
 }
 
 /// Checks whether the user has any completions for the given course module on the specified
-/// course instance.
-pub async fn user_has_completed_course_module_on_instance(
+/// course module.
+pub async fn user_has_completed_course_module(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_module_id: Uuid,
-    course_instance_id: Uuid,
 ) -> ModelResult<bool> {
-    let res = get_all_by_course_module_instance_and_user_ids(
-        conn,
-        course_module_id,
-        course_instance_id,
-        user_id,
-    )
-    .await?;
+    let res = get_all_by_course_module_and_user_ids(conn, course_module_id, user_id).await?;
     Ok(!res.is_empty())
 }
 

@@ -411,7 +411,6 @@ pub async fn submit_and_grade(
         &exercise_slide_submissions::NewExerciseSlideSubmission {
             exercise_slide_id,
             course_id: Some(course_id),
-            course_instance_id: Some(course_instance_id),
             exam_id: None,
             exercise_id,
             user_id,
@@ -423,7 +422,7 @@ pub async fn submit_and_grade(
         conn,
         user_id,
         exercise_id,
-        Some(course_instance_id),
+        Some(course_id),
         None,
     )
     .await?;
@@ -432,7 +431,7 @@ pub async fn submit_and_grade(
         conn,
         user_id,
         exercise_id,
-        Some(course_instance_id),
+        Some(course_id),
         None,
         Some(exercise_slide_id),
     )

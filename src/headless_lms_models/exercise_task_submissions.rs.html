@@ -72,7 +72,7 @@
 <a href=#72 id=72 data-nosnippet>72</a>    <span class="kw">pub </span>id: Uuid,
 <a href=#73 id=73 data-nosnippet>73</a>    <span class="kw">pub </span>user_id: Uuid,
 <a href=#74 id=74 data-nosnippet>74</a>    <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
-<a href=#75 id=75 data-nosnippet>75</a>    <span class="kw">pub </span>course_instance_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+<a href=#75 id=75 data-nosnippet>75</a>    <span class="kw">pub </span>course_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
 <a href=#76 id=76 data-nosnippet>76</a>    <span class="kw">pub </span>exercise_id: Uuid,
 <a href=#77 id=77 data-nosnippet>77</a>    <span class="kw">pub </span>exercise_task_id: Uuid,
 <a href=#78 id=78 data-nosnippet>78</a>    <span class="kw">pub </span>score_given: <span class="prelude-ty">Option</span>&lt;f32&gt;,
@@ -238,7 +238,7 @@
 <a href=#238 id=238 data-nosnippet>238</a>    )
 <a href=#239 id=239 data-nosnippet>239</a>    .fetch_one(conn)
 <a href=#240 id=240 data-nosnippet>240</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#241 id=241 data-nosnippet>241</a>    CourseOrExamId::from(res.course_id, res.exam_id)
+<a href=#241 id=241 data-nosnippet>241</a>    CourseOrExamId::from_course_and_exam_ids(res.course_id, res.exam_id)
 <a href=#242 id=242 data-nosnippet>242</a>}
 <a href=#243 id=243 data-nosnippet>243</a>
 <a href=#244 id=244 data-nosnippet>244</a><span class="kw">pub async fn </span>get_peer_reviews_received(
@@ -359,7 +359,7 @@
 <a href=#359 id=359 data-nosnippet>359</a>  exercise_task_submissions.id,
 <a href=#360 id=360 data-nosnippet>360</a>  user_id,
 <a href=#361 id=361 data-nosnippet>361</a>  exercise_task_submissions.created_at,
-<a href=#362 id=362 data-nosnippet>362</a>  exercise_slide_submissions.course_instance_id,
+<a href=#362 id=362 data-nosnippet>362</a>  exercise_slide_submissions.course_id,
 <a href=#363 id=363 data-nosnippet>363</a>  exercise_slide_submissions.exercise_id,
 <a href=#364 id=364 data-nosnippet>364</a>  exercise_task_submissions.exercise_task_id,
 <a href=#365 id=365 data-nosnippet>365</a>  exercise_task_gradings.score_given,
@@ -489,7 +489,7 @@
 <a href=#489 id=489 data-nosnippet>489</a>    exercise_type: <span class="kw-2">&amp;</span>str,
 <a href=#490 id=490 data-nosnippet>490</a>    course_module_id: Uuid,
 <a href=#491 id=491 data-nosnippet>491</a>    user_id: Uuid,
-<a href=#492 id=492 data-nosnippet>492</a>    course_instance_id: Uuid,
+<a href=#492 id=492 data-nosnippet>492</a>    course_id: Uuid,
 <a href=#493 id=493 data-nosnippet>493</a>) -&gt; ModelResult&lt;CustomViewExerciseTasks&gt; {
 <a href=#494 id=494 data-nosnippet>494</a>    <span class="kw">let </span>task_submissions =
 <a href=#495 id=495 data-nosnippet>495</a>        <span class="kw">crate</span>::exercise_task_submissions::get_user_latest_exercise_task_submissions_by_course_module_and_exercise_type(
@@ -497,7 +497,7 @@
 <a href=#497 id=497 data-nosnippet>497</a>            user_id,
 <a href=#498 id=498 data-nosnippet>498</a>            exercise_type,
 <a href=#499 id=499 data-nosnippet>499</a>            course_module_id,
-<a href=#500 id=500 data-nosnippet>500</a>            course_instance_id,
+<a href=#500 id=500 data-nosnippet>500</a>            course_id,
 <a href=#501 id=501 data-nosnippet>501</a>        )
 <a href=#502 id=502 data-nosnippet>502</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
 <a href=#503 id=503 data-nosnippet>503</a>    <span class="kw">let </span>task_gradings =
@@ -506,7 +506,7 @@
 <a href=#506 id=506 data-nosnippet>506</a>            user_id,
 <a href=#507 id=507 data-nosnippet>507</a>            exercise_type,
 <a href=#508 id=508 data-nosnippet>508</a>            course_module_id,
-<a href=#509 id=509 data-nosnippet>509</a>            course_instance_id,
+<a href=#509 id=509 data-nosnippet>509</a>            course_id,
 <a href=#510 id=510 data-nosnippet>510</a>        )
 <a href=#511 id=511 data-nosnippet>511</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
 <a href=#512 id=512 data-nosnippet>512</a>
@@ -530,7 +530,7 @@
 <a href=#530 id=530 data-nosnippet>530</a>    user_id: Uuid,
 <a href=#531 id=531 data-nosnippet>531</a>    exercise_type: <span class="kw-2">&amp;</span>str,
 <a href=#532 id=532 data-nosnippet>532</a>    module_id: Uuid,
-<a href=#533 id=533 data-nosnippet>533</a>    course_instance_id: Uuid,
+<a href=#533 id=533 data-nosnippet>533</a>    course_id: Uuid,
 <a href=#534 id=534 data-nosnippet>534</a>) -&gt; ModelResult&lt;Vec&lt;CustomViewExerciseTaskSubmission&gt;&gt; {
 <a href=#535 id=535 data-nosnippet>535</a>    <span class="kw">let </span>res: Vec&lt;CustomViewExerciseTaskSubmission&gt; = <span class="macro">sqlx::query_as!</span>(
 <a href=#536 id=536 data-nosnippet>536</a>        CustomViewExerciseTaskSubmission,
@@ -549,7 +549,7 @@
 <a href=#549 id=549 data-nosnippet>549</a>        JOIN exercises e ON e.id = ess.exercise_id
 <a href=#550 id=550 data-nosnippet>550</a>        JOIN chapters c ON c.id = e.chapter_id
 <a href=#551 id=551 data-nosnippet>551</a>      WHERE ess.user_id = $1
-<a href=#552 id=552 data-nosnippet>552</a>      AND ess.course_instance_id = $2
+<a href=#552 id=552 data-nosnippet>552</a>      AND ess.course_id = $2
 <a href=#553 id=553 data-nosnippet>553</a>      AND et.exercise_type = $3
 <a href=#554 id=554 data-nosnippet>554</a>      AND c.course_module_id = $4
 <a href=#555 id=555 data-nosnippet>555</a>      AND g.deleted_at IS NULL
@@ -560,7 +560,7 @@
 <a href=#560 id=560 data-nosnippet>560</a>      ORDER BY g.exercise_task_id, g.created_at DESC
 <a href=#561 id=561 data-nosnippet>561</a>      "#</span>,
 <a href=#562 id=562 data-nosnippet>562</a>        user_id,
-<a href=#563 id=563 data-nosnippet>563</a>        course_instance_id,
+<a href=#563 id=563 data-nosnippet>563</a>        course_id,
 <a href=#564 id=564 data-nosnippet>564</a>        exercise_type,
 <a href=#565 id=565 data-nosnippet>565</a>        module_id
 <a href=#566 id=566 data-nosnippet>566</a>    )

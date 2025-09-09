@@ -415,7 +415,7 @@
 <a href=#415 id=415 data-nosnippet>415</a>        }
 <a href=#416 id=416 data-nosnippet>416</a>
 <a href=#417 id=417 data-nosnippet>417</a>        <span class="kw">async fn </span>create_test_data(tx: <span class="kw-2">&amp;mut </span>Tx&lt;<span class="lifetime">'_</span>&gt;) -&gt; ModelResult&lt;(Uuid, Uuid, Uuid, Uuid)&gt; {
-<a href=#418 id=418 data-nosnippet>418</a>            <span class="macro">insert_data!</span>(tx: tx; :user, :org, :course, :instance, :course_module);
+<a href=#418 id=418 data-nosnippet>418</a>            <span class="macro">insert_data!</span>(tx: tx; :user, :org, :course, instance: _instance, :course_module);
 <a href=#419 id=419 data-nosnippet>419</a>            <span class="kw">let </span>chapter_id = chapters::insert(
 <a href=#420 id=420 data-nosnippet>420</a>                tx.as_mut(),
 <a href=#421 id=421 data-nosnippet>421</a>                PKeyPolicy::Generate,
@@ -496,7 +496,7 @@
 <a href=#496 id=496 data-nosnippet>496</a>                tx.as_mut(),
 <a href=#497 id=497 data-nosnippet>497</a>                user,
 <a href=#498 id=498 data-nosnippet>498</a>                exercise_id,
-<a href=#499 id=499 data-nosnippet>499</a>                <span class="prelude-val">Some</span>(instance.id),
+<a href=#499 id=499 data-nosnippet>499</a>                <span class="prelude-val">Some</span>(course),
 <a href=#500 id=500 data-nosnippet>500</a>                <span class="prelude-val">None</span>,
 <a href=#501 id=501 data-nosnippet>501</a>            )
 <a href=#502 id=502 data-nosnippet>502</a>            .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -504,7 +504,7 @@
 <a href=#504 id=504 data-nosnippet>504</a>                tx.as_mut(),
 <a href=#505 id=505 data-nosnippet>505</a>                user,
 <a href=#506 id=506 data-nosnippet>506</a>                exercise_id,
-<a href=#507 id=507 data-nosnippet>507</a>                <span class="prelude-val">Some</span>(instance.id),
+<a href=#507 id=507 data-nosnippet>507</a>                <span class="prelude-val">Some</span>(course),
 <a href=#508 id=508 data-nosnippet>508</a>                <span class="prelude-val">None</span>,
 <a href=#509 id=509 data-nosnippet>509</a>                <span class="prelude-val">Some</span>(slide_id),
 <a href=#510 id=510 data-nosnippet>510</a>            )

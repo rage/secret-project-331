@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["CertificateConfig","CourseBuilder","CourseInstanceConfig","GlossaryEntry","PageConfig"]};

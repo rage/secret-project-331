@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["get_all_user_variables_for_user_and_course_and_exercise_type","get_all_variables_for_user_and_course_or_exam","insert_after_exercise_task_graded"],"struct":["UserCourseExerciseServiceVariable"]};

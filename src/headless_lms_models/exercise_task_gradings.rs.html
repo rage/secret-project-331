@@ -237,7 +237,7 @@
 <a href=#237 id=237 data-nosnippet>237</a>    )
 <a href=#238 id=238 data-nosnippet>238</a>    .fetch_one(conn)
 <a href=#239 id=239 data-nosnippet>239</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#240 id=240 data-nosnippet>240</a>    CourseOrExamId::from(res.course_id, res.exam_id)
+<a href=#240 id=240 data-nosnippet>240</a>    CourseOrExamId::from_course_and_exam_ids(res.course_id, res.exam_id)
 <a href=#241 id=241 data-nosnippet>241</a>}
 <a href=#242 id=242 data-nosnippet>242</a>
 <a href=#243 id=243 data-nosnippet>243</a><span class="kw">pub async fn </span>new_grading(
@@ -332,7 +332,7 @@
 <a href=#332 id=332 data-nosnippet>332</a>    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
 <a href=#333 id=333 data-nosnippet>333</a>    <span class="kw">let </span>updated_grading =
 <a href=#334 id=334 data-nosnippet>334</a>        update_grading(<span class="kw-2">&amp;mut </span>tx, grading, <span class="kw-2">&amp;</span>exercise_task_grading_result, exercise).<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#335 id=335 data-nosnippet>335</a>    <span class="kw">crate</span>::user_course_instance_exercise_service_variables::insert_after_exercise_task_graded(
+<a href=#335 id=335 data-nosnippet>335</a>    <span class="kw">crate</span>::user_course_exercise_service_variables::insert_after_exercise_task_graded(
 <a href=#336 id=336 data-nosnippet>336</a>        <span class="kw-2">&amp;mut </span>tx,
 <a href=#337 id=337 data-nosnippet>337</a>        <span class="kw-2">&amp;</span>exercise_task_grading_result.set_user_variables,
 <a href=#338 id=338 data-nosnippet>338</a>        exercise_task,
@@ -546,7 +546,7 @@
 <a href=#546 id=546 data-nosnippet>546</a>    user_id: Uuid,
 <a href=#547 id=547 data-nosnippet>547</a>    exercise_type: <span class="kw-2">&amp;</span>str,
 <a href=#548 id=548 data-nosnippet>548</a>    module_id: Uuid,
-<a href=#549 id=549 data-nosnippet>549</a>    course_instance_id: Uuid,
+<a href=#549 id=549 data-nosnippet>549</a>    course_id: Uuid,
 <a href=#550 id=550 data-nosnippet>550</a>) -&gt; ModelResult&lt;Vec&lt;CustomViewExerciseTaskGrading&gt;&gt; {
 <a href=#551 id=551 data-nosnippet>551</a>    <span class="kw">let </span>res: Vec&lt;CustomViewExerciseTaskGrading&gt; = <span class="macro">sqlx::query_as!</span>(
 <a href=#552 id=552 data-nosnippet>552</a>        CustomViewExerciseTaskGrading,
@@ -567,7 +567,7 @@
 <a href=#567 id=567 data-nosnippet>567</a>  AND et.deleted_at IS NULL
 <a href=#568 id=568 data-nosnippet>568</a>  AND et.exercise_type = $2
 <a href=#569 id=569 data-nosnippet>569</a>  AND ess.user_id = $1
-<a href=#570 id=570 data-nosnippet>570</a>  AND ess.course_instance_id = $4
+<a href=#570 id=570 data-nosnippet>570</a>  AND ess.course_id = $4
 <a href=#571 id=571 data-nosnippet>571</a>  AND ess.deleted_at IS NULL
 <a href=#572 id=572 data-nosnippet>572</a>  AND e.deleted_at IS NULL
 <a href=#573 id=573 data-nosnippet>573</a>  AND c.deleted_at IS NULL
@@ -576,7 +576,7 @@
 <a href=#576 id=576 data-nosnippet>576</a>        user_id,
 <a href=#577 id=577 data-nosnippet>577</a>        exercise_type,
 <a href=#578 id=578 data-nosnippet>578</a>        module_id,
-<a href=#579 id=579 data-nosnippet>579</a>        course_instance_id
+<a href=#579 id=579 data-nosnippet>579</a>        course_id
 <a href=#580 id=580 data-nosnippet>580</a>    )
 <a href=#581 id=581 data-nosnippet>581</a>    .fetch_all(conn)
 <a href=#582 id=582 data-nosnippet>582</a>    .<span class="kw">await</span><span class="question-mark">?</span>;

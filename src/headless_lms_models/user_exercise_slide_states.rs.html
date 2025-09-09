@@ -362,7 +362,7 @@
 <a href=#362 id=362 data-nosnippet>362</a>        }
 <a href=#363 id=363 data-nosnippet>363</a>
 <a href=#364 id=364 data-nosnippet>364</a>        <span class="kw">async fn </span>create_test_data(tx: <span class="kw-2">&amp;mut </span>Tx&lt;<span class="lifetime">'_</span>&gt;) -&gt; ModelResult&lt;(Uuid, Uuid, Uuid, Uuid)&gt; {
-<a href=#365 id=365 data-nosnippet>365</a>            <span class="macro">insert_data!</span>(tx: tx; :user, :org, :course, :instance, :course_module);
+<a href=#365 id=365 data-nosnippet>365</a>            <span class="macro">insert_data!</span>(tx: tx; :user, :org, :course, instance: _instance, :course_module);
 <a href=#366 id=366 data-nosnippet>366</a>            <span class="kw">let </span>chapter_id = chapters::insert(
 <a href=#367 id=367 data-nosnippet>367</a>                tx.as_mut(),
 <a href=#368 id=368 data-nosnippet>368</a>                PKeyPolicy::Generate,
@@ -405,7 +405,7 @@
 <a href=#405 id=405 data-nosnippet>405</a>                tx.as_mut(),
 <a href=#406 id=406 data-nosnippet>406</a>                user,
 <a href=#407 id=407 data-nosnippet>407</a>                exercise_id,
-<a href=#408 id=408 data-nosnippet>408</a>                <span class="prelude-val">Some</span>(instance.id),
+<a href=#408 id=408 data-nosnippet>408</a>                <span class="prelude-val">Some</span>(course),
 <a href=#409 id=409 data-nosnippet>409</a>                <span class="prelude-val">None</span>,
 <a href=#410 id=410 data-nosnippet>410</a>            )
 <a href=#411 id=411 data-nosnippet>411</a>            .<span class="kw">await</span><span class="question-mark">?</span>;

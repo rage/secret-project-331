@@ -233,91 +233,88 @@
 <a href=#233 id=233 data-nosnippet>233</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
 <a href=#234 id=234 data-nosnippet>234</a>    user_id: Uuid,
 <a href=#235 id=235 data-nosnippet>235</a>    exercise_id: Uuid,
-<a href=#236 id=236 data-nosnippet>236</a>    course_instance_id: Uuid,
-<a href=#237 id=237 data-nosnippet>237</a>) -&gt; ModelResult&lt;Vec&lt;PeerReviewWithQuestionsAndAnswers&gt;&gt; {
-<a href=#238 id=238 data-nosnippet>238</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-<a href=#239 id=239 data-nosnippet>239</a>        <span class="string">r#"
-<a href=#240 id=240 data-nosnippet>240</a>SELECT answers.id AS peer_review_question_submission_id,
-<a href=#241 id=241 data-nosnippet>241</a>  answers.text_data,
-<a href=#242 id=242 data-nosnippet>242</a>  answers.number_data,
-<a href=#243 id=243 data-nosnippet>243</a>  questions.peer_or_self_review_config_id,
-<a href=#244 id=244 data-nosnippet>244</a>  questions.id AS peer_or_self_review_question_id,
-<a href=#245 id=245 data-nosnippet>245</a>  questions.order_number,
-<a href=#246 id=246 data-nosnippet>246</a>  questions.question,
-<a href=#247 id=247 data-nosnippet>247</a>  questions.question_type AS "question_type: PeerOrSelfReviewQuestionType",
-<a href=#248 id=248 data-nosnippet>248</a>  questions.answer_required,
-<a href=#249 id=249 data-nosnippet>249</a>  submissions.id AS peer_or_self_review_submission_id
-<a href=#250 id=250 data-nosnippet>250</a>FROM peer_or_self_review_question_submissions answers
-<a href=#251 id=251 data-nosnippet>251</a>  JOIN peer_or_self_review_questions questions ON (
-<a href=#252 id=252 data-nosnippet>252</a>    answers.peer_or_self_review_question_id = questions.id
-<a href=#253 id=253 data-nosnippet>253</a>  )
-<a href=#254 id=254 data-nosnippet>254</a>  JOIN peer_or_self_review_submissions submissions ON (
-<a href=#255 id=255 data-nosnippet>255</a>    answers.peer_or_self_review_submission_id = submissions.id
-<a href=#256 id=256 data-nosnippet>256</a>  )
-<a href=#257 id=257 data-nosnippet>257</a>  JOIN exercise_slide_submissions ess ON (
-<a href=#258 id=258 data-nosnippet>258</a>    submissions.exercise_slide_submission_id = ess.id
-<a href=#259 id=259 data-nosnippet>259</a>  )
-<a href=#260 id=260 data-nosnippet>260</a>WHERE submissions.user_id = $1
-<a href=#261 id=261 data-nosnippet>261</a>  AND submissions.exercise_id = $2
-<a href=#262 id=262 data-nosnippet>262</a>  AND submissions.course_instance_id = $3
-<a href=#263 id=263 data-nosnippet>263</a>  AND questions.deleted_at IS NULL
-<a href=#264 id=264 data-nosnippet>264</a>  AND answers.deleted_at IS NULL
-<a href=#265 id=265 data-nosnippet>265</a>  AND submissions.deleted_at IS NULL
-<a href=#266 id=266 data-nosnippet>266</a>  AND ess.user_id != $1
-<a href=#267 id=267 data-nosnippet>267</a>        "#</span>,
-<a href=#268 id=268 data-nosnippet>268</a>        user_id,
-<a href=#269 id=269 data-nosnippet>269</a>        exercise_id,
-<a href=#270 id=270 data-nosnippet>270</a>        course_instance_id,
-<a href=#271 id=271 data-nosnippet>271</a>    )
-<a href=#272 id=272 data-nosnippet>272</a>    .map(|x| PeerOrSelfReviewQuestionAndAnswer {
-<a href=#273 id=273 data-nosnippet>273</a>        peer_or_self_review_config_id: x.peer_or_self_review_config_id,
-<a href=#274 id=274 data-nosnippet>274</a>        peer_or_self_review_question_id: x.peer_or_self_review_question_id,
-<a href=#275 id=275 data-nosnippet>275</a>        peer_review_question_submission_id: x.peer_review_question_submission_id,
-<a href=#276 id=276 data-nosnippet>276</a>        peer_or_self_review_submission_id: x.peer_or_self_review_submission_id,
-<a href=#277 id=277 data-nosnippet>277</a>        order_number: x.order_number,
-<a href=#278 id=278 data-nosnippet>278</a>        question: x.question,
-<a href=#279 id=279 data-nosnippet>279</a>        answer: PeerOrSelfReviewAnswer::new(x.question_type, x.text_data, x.number_data),
-<a href=#280 id=280 data-nosnippet>280</a>        answer_required: x.answer_required,
-<a href=#281 id=281 data-nosnippet>281</a>    })
-<a href=#282 id=282 data-nosnippet>282</a>    .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
-<a href=#283 id=283 data-nosnippet>283</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#284 id=284 data-nosnippet>284</a>    <span class="kw">let </span>peer_or_self_review_submission_ids = res
-<a href=#285 id=285 data-nosnippet>285</a>        .iter()
-<a href=#286 id=286 data-nosnippet>286</a>        .map(|x| x.peer_or_self_review_submission_id)
-<a href=#287 id=287 data-nosnippet>287</a>        .collect::&lt;Vec&lt;Uuid&gt;&gt;();
-<a href=#288 id=288 data-nosnippet>288</a>    <span class="kw">let </span>peer_review_submission_id_to_giver_user_id =
-<a href=#289 id=289 data-nosnippet>289</a>    <span class="kw">crate</span>::peer_or_self_review_submissions::get_mapping_from_peer_or_self_review_submission_ids_to_peer_review_giver_user_ids(
-<a href=#290 id=290 data-nosnippet>290</a>        <span class="kw-2">&amp;mut *</span>conn,
-<a href=#291 id=291 data-nosnippet>291</a>        <span class="kw-2">&amp;</span>peer_or_self_review_submission_ids,
-<a href=#292 id=292 data-nosnippet>292</a>    )
-<a href=#293 id=293 data-nosnippet>293</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#294 id=294 data-nosnippet>294</a>    <span class="prelude-val">Ok</span>(bundle_peer_or_self_review_questions_and_answers(
-<a href=#295 id=295 data-nosnippet>295</a>        res,
-<a href=#296 id=296 data-nosnippet>296</a>        peer_review_submission_id_to_giver_user_id,
-<a href=#297 id=297 data-nosnippet>297</a>    ))
-<a href=#298 id=298 data-nosnippet>298</a>}
-<a href=#299 id=299 data-nosnippet>299</a>
-<a href=#300 id=300 data-nosnippet>300</a><span class="doccomment">/// Groups answers to peer reviews by peer review ids.
-<a href=#301 id=301 data-nosnippet>301</a></span><span class="kw">fn </span>bundle_peer_or_self_review_questions_and_answers(
-<a href=#302 id=302 data-nosnippet>302</a>    questions_and_answers: Vec&lt;PeerOrSelfReviewQuestionAndAnswer&gt;,
-<a href=#303 id=303 data-nosnippet>303</a>    peer_review_submission_id_to_giver_user_id: HashMap&lt;Uuid, Uuid&gt;,
-<a href=#304 id=304 data-nosnippet>304</a>) -&gt; Vec&lt;PeerReviewWithQuestionsAndAnswers&gt; {
-<a href=#305 id=305 data-nosnippet>305</a>    <span class="kw">let </span><span class="kw-2">mut </span>mapped: HashMap&lt;Uuid, Vec&lt;PeerOrSelfReviewQuestionAndAnswer&gt;&gt; = HashMap::new();
-<a href=#306 id=306 data-nosnippet>306</a>    questions_and_answers.into_iter().for_each(|x| {
-<a href=#307 id=307 data-nosnippet>307</a>        mapped
-<a href=#308 id=308 data-nosnippet>308</a>            .entry(x.peer_or_self_review_submission_id)
-<a href=#309 id=309 data-nosnippet>309</a>            .or_default()
-<a href=#310 id=310 data-nosnippet>310</a>            .push(x)
-<a href=#311 id=311 data-nosnippet>311</a>    });
-<a href=#312 id=312 data-nosnippet>312</a>
-<a href=#313 id=313 data-nosnippet>313</a>    mapped
-<a href=#314 id=314 data-nosnippet>314</a>        .into_iter()
-<a href=#315 id=315 data-nosnippet>315</a>        .map(|(id, qa)| PeerReviewWithQuestionsAndAnswers {
-<a href=#316 id=316 data-nosnippet>316</a>            peer_or_self_review_submission_id: id,
-<a href=#317 id=317 data-nosnippet>317</a>            peer_review_giver_user_id: <span class="kw-2">*</span>(peer_review_submission_id_to_giver_user_id
-<a href=#318 id=318 data-nosnippet>318</a>                .get(<span class="kw-2">&amp;</span>id)
-<a href=#319 id=319 data-nosnippet>319</a>                .unwrap_or(<span class="kw-2">&amp;</span>Uuid::nil())),
-<a href=#320 id=320 data-nosnippet>320</a>            questions_and_answers: qa,
-<a href=#321 id=321 data-nosnippet>321</a>        })
-<a href=#322 id=322 data-nosnippet>322</a>        .collect()
-<a href=#323 id=323 data-nosnippet>323</a>}</code></pre></div></section></main></body></html>
+<a href=#236 id=236 data-nosnippet>236</a>) -&gt; ModelResult&lt;Vec&lt;PeerReviewWithQuestionsAndAnswers&gt;&gt; {
+<a href=#237 id=237 data-nosnippet>237</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
+<a href=#238 id=238 data-nosnippet>238</a>        <span class="string">r#"
+<a href=#239 id=239 data-nosnippet>239</a>SELECT answers.id AS peer_review_question_submission_id,
+<a href=#240 id=240 data-nosnippet>240</a>  answers.text_data,
+<a href=#241 id=241 data-nosnippet>241</a>  answers.number_data,
+<a href=#242 id=242 data-nosnippet>242</a>  questions.peer_or_self_review_config_id,
+<a href=#243 id=243 data-nosnippet>243</a>  questions.id AS peer_or_self_review_question_id,
+<a href=#244 id=244 data-nosnippet>244</a>  questions.order_number,
+<a href=#245 id=245 data-nosnippet>245</a>  questions.question,
+<a href=#246 id=246 data-nosnippet>246</a>  questions.question_type AS "question_type: PeerOrSelfReviewQuestionType",
+<a href=#247 id=247 data-nosnippet>247</a>  questions.answer_required,
+<a href=#248 id=248 data-nosnippet>248</a>  submissions.id AS peer_or_self_review_submission_id
+<a href=#249 id=249 data-nosnippet>249</a>FROM peer_or_self_review_question_submissions answers
+<a href=#250 id=250 data-nosnippet>250</a>  JOIN peer_or_self_review_questions questions ON (
+<a href=#251 id=251 data-nosnippet>251</a>    answers.peer_or_self_review_question_id = questions.id
+<a href=#252 id=252 data-nosnippet>252</a>  )
+<a href=#253 id=253 data-nosnippet>253</a>  JOIN peer_or_self_review_submissions submissions ON (
+<a href=#254 id=254 data-nosnippet>254</a>    answers.peer_or_self_review_submission_id = submissions.id
+<a href=#255 id=255 data-nosnippet>255</a>  )
+<a href=#256 id=256 data-nosnippet>256</a>  JOIN exercise_slide_submissions ess ON (
+<a href=#257 id=257 data-nosnippet>257</a>    submissions.exercise_slide_submission_id = ess.id
+<a href=#258 id=258 data-nosnippet>258</a>  )
+<a href=#259 id=259 data-nosnippet>259</a>WHERE submissions.user_id = $1
+<a href=#260 id=260 data-nosnippet>260</a>  AND submissions.exercise_id = $2
+<a href=#261 id=261 data-nosnippet>261</a>  AND questions.deleted_at IS NULL
+<a href=#262 id=262 data-nosnippet>262</a>  AND answers.deleted_at IS NULL
+<a href=#263 id=263 data-nosnippet>263</a>  AND submissions.deleted_at IS NULL
+<a href=#264 id=264 data-nosnippet>264</a>  AND ess.user_id != $1
+<a href=#265 id=265 data-nosnippet>265</a>        "#</span>,
+<a href=#266 id=266 data-nosnippet>266</a>        user_id,
+<a href=#267 id=267 data-nosnippet>267</a>        exercise_id,
+<a href=#268 id=268 data-nosnippet>268</a>    )
+<a href=#269 id=269 data-nosnippet>269</a>    .map(|x| PeerOrSelfReviewQuestionAndAnswer {
+<a href=#270 id=270 data-nosnippet>270</a>        peer_or_self_review_config_id: x.peer_or_self_review_config_id,
+<a href=#271 id=271 data-nosnippet>271</a>        peer_or_self_review_question_id: x.peer_or_self_review_question_id,
+<a href=#272 id=272 data-nosnippet>272</a>        peer_review_question_submission_id: x.peer_review_question_submission_id,
+<a href=#273 id=273 data-nosnippet>273</a>        peer_or_self_review_submission_id: x.peer_or_self_review_submission_id,
+<a href=#274 id=274 data-nosnippet>274</a>        order_number: x.order_number,
+<a href=#275 id=275 data-nosnippet>275</a>        question: x.question,
+<a href=#276 id=276 data-nosnippet>276</a>        answer: PeerOrSelfReviewAnswer::new(x.question_type, x.text_data, x.number_data),
+<a href=#277 id=277 data-nosnippet>277</a>        answer_required: x.answer_required,
+<a href=#278 id=278 data-nosnippet>278</a>    })
+<a href=#279 id=279 data-nosnippet>279</a>    .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
+<a href=#280 id=280 data-nosnippet>280</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#281 id=281 data-nosnippet>281</a>    <span class="kw">let </span>peer_or_self_review_submission_ids = res
+<a href=#282 id=282 data-nosnippet>282</a>        .iter()
+<a href=#283 id=283 data-nosnippet>283</a>        .map(|x| x.peer_or_self_review_submission_id)
+<a href=#284 id=284 data-nosnippet>284</a>        .collect::&lt;Vec&lt;Uuid&gt;&gt;();
+<a href=#285 id=285 data-nosnippet>285</a>    <span class="kw">let </span>peer_review_submission_id_to_giver_user_id =
+<a href=#286 id=286 data-nosnippet>286</a>    <span class="kw">crate</span>::peer_or_self_review_submissions::get_mapping_from_peer_or_self_review_submission_ids_to_peer_review_giver_user_ids(
+<a href=#287 id=287 data-nosnippet>287</a>        <span class="kw-2">&amp;mut *</span>conn,
+<a href=#288 id=288 data-nosnippet>288</a>        <span class="kw-2">&amp;</span>peer_or_self_review_submission_ids,
+<a href=#289 id=289 data-nosnippet>289</a>    )
+<a href=#290 id=290 data-nosnippet>290</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#291 id=291 data-nosnippet>291</a>    <span class="prelude-val">Ok</span>(bundle_peer_or_self_review_questions_and_answers(
+<a href=#292 id=292 data-nosnippet>292</a>        res,
+<a href=#293 id=293 data-nosnippet>293</a>        peer_review_submission_id_to_giver_user_id,
+<a href=#294 id=294 data-nosnippet>294</a>    ))
+<a href=#295 id=295 data-nosnippet>295</a>}
+<a href=#296 id=296 data-nosnippet>296</a>
+<a href=#297 id=297 data-nosnippet>297</a><span class="doccomment">/// Groups answers to peer reviews by peer review ids.
+<a href=#298 id=298 data-nosnippet>298</a></span><span class="kw">fn </span>bundle_peer_or_self_review_questions_and_answers(
+<a href=#299 id=299 data-nosnippet>299</a>    questions_and_answers: Vec&lt;PeerOrSelfReviewQuestionAndAnswer&gt;,
+<a href=#300 id=300 data-nosnippet>300</a>    peer_review_submission_id_to_giver_user_id: HashMap&lt;Uuid, Uuid&gt;,
+<a href=#301 id=301 data-nosnippet>301</a>) -&gt; Vec&lt;PeerReviewWithQuestionsAndAnswers&gt; {
+<a href=#302 id=302 data-nosnippet>302</a>    <span class="kw">let </span><span class="kw-2">mut </span>mapped: HashMap&lt;Uuid, Vec&lt;PeerOrSelfReviewQuestionAndAnswer&gt;&gt; = HashMap::new();
+<a href=#303 id=303 data-nosnippet>303</a>    questions_and_answers.into_iter().for_each(|x| {
+<a href=#304 id=304 data-nosnippet>304</a>        mapped
+<a href=#305 id=305 data-nosnippet>305</a>            .entry(x.peer_or_self_review_submission_id)
+<a href=#306 id=306 data-nosnippet>306</a>            .or_default()
+<a href=#307 id=307 data-nosnippet>307</a>            .push(x)
+<a href=#308 id=308 data-nosnippet>308</a>    });
+<a href=#309 id=309 data-nosnippet>309</a>
+<a href=#310 id=310 data-nosnippet>310</a>    mapped
+<a href=#311 id=311 data-nosnippet>311</a>        .into_iter()
+<a href=#312 id=312 data-nosnippet>312</a>        .map(|(id, qa)| PeerReviewWithQuestionsAndAnswers {
+<a href=#313 id=313 data-nosnippet>313</a>            peer_or_self_review_submission_id: id,
+<a href=#314 id=314 data-nosnippet>314</a>            peer_review_giver_user_id: <span class="kw-2">*</span>(peer_review_submission_id_to_giver_user_id
+<a href=#315 id=315 data-nosnippet>315</a>                .get(<span class="kw-2">&amp;</span>id)
+<a href=#316 id=316 data-nosnippet>316</a>                .unwrap_or(<span class="kw-2">&amp;</span>Uuid::nil())),
+<a href=#317 id=317 data-nosnippet>317</a>            questions_and_answers: qa,
+<a href=#318 id=318 data-nosnippet>318</a>        })
+<a href=#319 id=319 data-nosnippet>319</a>        .collect()
+<a href=#320 id=320 data-nosnippet>320</a>}</code></pre></div></section></main></body></html>

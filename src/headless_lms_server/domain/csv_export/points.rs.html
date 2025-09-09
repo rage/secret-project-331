@@ -70,7 +70,7 @@
 <a href=#70 id=70 data-nosnippet>70</a>    </span><span class="kw">let </span>headers = IntoIterator::into_iter([<span class="string">"user_id"</span>.to_string()])
 <a href=#71 id=71 data-nosnippet>71</a>        .chain(chapters.into_iter().map(|c| c.chapter_number.to_string()));
 <a href=#72 id=72 data-nosnippet>72</a>
-<a href=#73 id=73 data-nosnippet>73</a>    <span class="kw">let </span><span class="kw-2">mut </span>stream = user_exercise_states::stream_course_instance_points(conn, course_instance_id);
+<a href=#73 id=73 data-nosnippet>73</a>    <span class="kw">let </span><span class="kw-2">mut </span>stream = user_exercise_states::stream_course_points(conn, course_instance.course_id);
 <a href=#74 id=74 data-nosnippet>74</a>
 <a href=#75 id=75 data-nosnippet>75</a>    <span class="kw">let </span>writer = CsvWriter::new_with_initialized_headers(writer, headers).<span class="kw">await</span><span class="question-mark">?</span>;
 <a href=#76 id=76 data-nosnippet>76</a>    <span class="kw">while let </span><span class="prelude-val">Some</span>(next) = stream.try_next().<span class="kw">await</span><span class="question-mark">? </span>{

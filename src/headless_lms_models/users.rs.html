@@ -152,18 +152,18 @@
 <a href=#152 id=152 data-nosnippet>152</a>}
 <a href=#153 id=153 data-nosnippet>153</a>
 <a href=#154 id=154 data-nosnippet>154</a><span class="doccomment">/// Includes all users who have returned an exercise on a course course instance
-<a href=#155 id=155 data-nosnippet>155</a></span><span class="kw">pub async fn </span>get_all_user_ids_with_user_exercise_states_on_course_instance(
+<a href=#155 id=155 data-nosnippet>155</a></span><span class="kw">pub async fn </span>get_all_user_ids_with_user_exercise_states_on_course(
 <a href=#156 id=156 data-nosnippet>156</a>    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-<a href=#157 id=157 data-nosnippet>157</a>    course_instance_id: Uuid,
+<a href=#157 id=157 data-nosnippet>157</a>    course_id: Uuid,
 <a href=#158 id=158 data-nosnippet>158</a>) -&gt; ModelResult&lt;Vec&lt;Uuid&gt;&gt; {
 <a href=#159 id=159 data-nosnippet>159</a>    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
 <a href=#160 id=160 data-nosnippet>160</a>        <span class="string">"
 <a href=#161 id=161 data-nosnippet>161</a>SELECT DISTINCT user_id
 <a href=#162 id=162 data-nosnippet>162</a>FROM user_exercise_states
-<a href=#163 id=163 data-nosnippet>163</a>WHERE course_instance_id = $1
+<a href=#163 id=163 data-nosnippet>163</a>WHERE course_id = $1
 <a href=#164 id=164 data-nosnippet>164</a>  AND deleted_at IS NULL
 <a href=#165 id=165 data-nosnippet>165</a>        "</span>,
-<a href=#166 id=166 data-nosnippet>166</a>        course_instance_id
+<a href=#166 id=166 data-nosnippet>166</a>        course_id
 <a href=#167 id=167 data-nosnippet>167</a>    )
 <a href=#168 id=168 data-nosnippet>168</a>    .map(|x| x.user_id)
 <a href=#169 id=169 data-nosnippet>169</a>    .fetch_all(conn)

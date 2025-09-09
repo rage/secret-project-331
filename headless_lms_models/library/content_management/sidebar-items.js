@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["create_new_chapter","create_new_course"],"struct":["CreateNewCourseFixedIds"]};
+window.SIDEBAR_ITEMS = {"fn":["create_new_chapter","create_new_chapter_with_content","create_new_course"],"struct":["CreateNewCourseFixedIds"]};

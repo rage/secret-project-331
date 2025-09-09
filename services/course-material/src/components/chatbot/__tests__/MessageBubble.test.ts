@@ -16,6 +16,7 @@ describe("MessageBubble", () => {
     const exampleChatbotMessageNoCitations = `Certainly! The Chinese abacus, known as the "suanpan," dates back to the Han Dynasty, around the 2nd century BCE. It features a [dsdsg] bead-and-rod system, typically with two beads on the upper deck and five beads on the lower deck per rod, operating on a decimal system.`
 
     const exampleChatbotMessageCitations: ChatbotConversationMessageCitation[] = [
+      // cit 1 and 4 have the same url
       {
         id: "a",
         created_at: "",
@@ -25,7 +26,7 @@ describe("MessageBubble", () => {
         conversation_message_id: "",
         course_material_chapter_number: null,
         deleted_at: null,
-        document_url: "",
+        document_url: "url14",
         title: "",
         updated_at: "",
       },
@@ -38,7 +39,7 @@ describe("MessageBubble", () => {
         conversation_message_id: "",
         course_material_chapter_number: null,
         deleted_at: null,
-        document_url: "",
+        document_url: "url2",
         title: "",
         updated_at: "",
       },
@@ -51,7 +52,7 @@ describe("MessageBubble", () => {
         conversation_message_id: "",
         course_material_chapter_number: null,
         deleted_at: null,
-        document_url: "",
+        document_url: "url3",
         title: "",
         updated_at: "",
       },
@@ -64,7 +65,7 @@ describe("MessageBubble", () => {
         conversation_message_id: "",
         course_material_chapter_number: null,
         deleted_at: null,
-        document_url: "",
+        document_url: "url14",
         title: "",
         updated_at: "",
       },
@@ -77,7 +78,7 @@ describe("MessageBubble", () => {
         conversation_message_id: "",
         course_material_chapter_number: null,
         deleted_at: null,
-        document_url: "",
+        document_url: "url5",
         title: "",
         updated_at: "",
       },
@@ -90,7 +91,7 @@ describe("MessageBubble", () => {
         conversation_message_id: "",
         course_material_chapter_number: null,
         deleted_at: null,
-        document_url: "",
+        document_url: "url12",
         title: "",
         updated_at: "",
       },
@@ -112,7 +113,7 @@ describe("MessageBubble", () => {
           conversation_message_id: "",
           course_material_chapter_number: null,
           deleted_at: null,
-          document_url: "",
+          document_url: "url3",
           title: "",
           updated_at: "",
         },
@@ -125,7 +126,7 @@ describe("MessageBubble", () => {
           conversation_message_id: "",
           course_material_chapter_number: null,
           deleted_at: null,
-          document_url: "",
+          document_url: "url12",
           title: "",
           updated_at: "",
         },
@@ -138,7 +139,7 @@ describe("MessageBubble", () => {
           conversation_message_id: "",
           course_material_chapter_number: null,
           deleted_at: null,
-          document_url: "",
+          document_url: "url5",
           title: "",
           updated_at: "",
         },
@@ -169,7 +170,7 @@ describe("MessageBubble", () => {
           conversation_message_id: "",
           course_material_chapter_number: null,
           deleted_at: null,
-          document_url: "",
+          document_url: "url14",
           title: "",
           updated_at: "",
         },
@@ -182,7 +183,7 @@ describe("MessageBubble", () => {
           conversation_message_id: "",
           course_material_chapter_number: null,
           deleted_at: null,
-          document_url: "",
+          document_url: "url2",
           title: "",
           updated_at: "",
         },
@@ -195,7 +196,7 @@ describe("MessageBubble", () => {
           conversation_message_id: "",
           course_material_chapter_number: null,
           deleted_at: null,
-          document_url: "",
+          document_url: "url3",
           title: "",
           updated_at: "",
         },
@@ -208,7 +209,7 @@ describe("MessageBubble", () => {
           conversation_message_id: "",
           course_material_chapter_number: null,
           deleted_at: null,
-          document_url: "",
+          document_url: "url14",
           title: "",
           updated_at: "",
         },
@@ -219,7 +220,7 @@ describe("MessageBubble", () => {
       expect(citationNumberingMap.get(1)).toEqual(1)
       expect(citationNumberingMap.get(2)).toEqual(2)
       expect(citationNumberingMap.get(3)).toEqual(3)
-      expect(citationNumberingMap.get(4)).toEqual(4)
+      expect(citationNumberingMap.get(4)).toEqual(1)
     })
 
     it("works if the msg has no citations but is associated with cited docs", () => {

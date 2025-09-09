@@ -1,0 +1,15 @@
+<!-- Based on the Atlas Icons chat icon, MIT https://github.com/Vectopus/Atlas-icons-font -->
+<svg xmlns="http://www.w3.org/2000/svg" id="svg1" width="25.829" height="25.004" version="1.1" viewBox="0 0 6.834 6.616">
+  <defs id="defs1">
+    <style id="style1">
+      .cls-637642e7c3a86d32eae6f1cd-1{fill:currentColor}.cls-637642e7c3a86d32eae6f1cd-2{fill:none;stroke:currentColor;stroke-miterlimit:10}
+    </style>
+  </defs>
+  <g id="layer1" transform="translate(-120.65 -24.601)">
+    <g id="g11" transform="translate(.5 .484)">
+      <path id="path1-5" d="M120.782 25.744v2.524a1.01 1.01 0 0 0 1.011 1.01h.505v.758l1.527-.757h1.516a1.01 1.01 0 0 0 1.01-1.01v-2.525a1.01 1.01 0 0 0-1.01-1.01h-3.548a1.01 1.01 0 0 0-1.01 1.01z" style="stroke-width:.264583;fill:none;stroke:currentColor;stroke-miterlimit:10"/>
+      <path id="path11" d="M122.237 27.01c.568.153 1.178.763 1.33 1.33v-1.33zm1.33 1.33c.152-.567.762-1.177 1.33-1.33h-1.33zm1.33-1.33c-.568-.151-1.178-.761-1.33-1.329v1.33zm-1.33-1.329c-.152.568-.762 1.178-1.33 1.33h1.33z" style="fill:currentColor;stroke-width:.0235274;stroke-opacity:.987406"/>
+    </g>
+  </g>
+</svg>
+

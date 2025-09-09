@@ -1,7 +1,8 @@
 import { css } from "@emotion/css"
-import { Conversation } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
+
+import AIChat from "../../../img/ai-chat.svg"
 
 import { baseTheme } from "@/shared-module/common/styles"
 
@@ -41,7 +42,12 @@ const OpenChatbotButton: React.FC<OpenChatbotButtonProps> = ({ setDialogOpen }) 
 
   return (
     <button className={buttonStyle} aria-label={t("open-chatbot")} onClick={handleClick}>
-      <Conversation />
+      <AIChat
+        className={css`
+          width: 35px;
+          height: 35px;
+        `}
+      />
     </button>
   )
 }

@@ -2,6 +2,8 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
+#[cfg(feature = "ts_rs")]
+use ts_rs::TS;
 use uuid::Uuid;
 
 static DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES: &[&str] = &[
@@ -29,12 +31,14 @@ macro_rules! attributes {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct GutenbergBlock {
     #[serde(rename = "clientId")]
     pub client_id: Uuid,
     pub name: String,
     #[serde(rename = "isValid")]
     pub is_valid: bool,
+    #[cfg_attr(feature = "ts_rs", ts(type = "Record<string, unknown>"))]
     pub attributes: Map<String, Value>,
     #[serde(rename = "innerBlocks")]
     pub inner_blocks: Vec<GutenbergBlock>,

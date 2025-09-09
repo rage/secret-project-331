@@ -421,7 +421,7 @@ pub async fn seed_sample_course(
             exercises: vec![exercise_1],
             exercise_slides: vec![slide_1],
             exercise_tasks: vec![task_1],
-            content: serde_json::json!([
+            content: vec![
                 paragraph("Everything is a big topic.", block_id_1),
                 exercise_block_1,
                 paragraph("So big, that we need many paragraphs.", block_id_4),
@@ -433,7 +433,7 @@ pub async fn seed_sample_course(
                 paragraph("Modern interest in the abacus has grown as educators recognize its value in developing number sense and concentration in children. Competitions in mental abacus calculation demonstrate just how powerful this tool can be when mastered. While it may seem outdated, the abacus remains a symbol of timeless ingenuity and practical problem-solving.", block_id_6),
 
                 paragraph("In recent years, digital adaptations of the abacus have also emerged, blending traditional methods with modern interfaces. These tools not only preserve the historical legacy of the abacus but also make it more accessible to new generations of learners. Whether used physically or virtually, the abacus continues to bridge the gap between tactile learning and abstract thinking.", block_id_6),
-            ]),
+            ],
         },
 
     )
@@ -521,7 +521,7 @@ pub async fn seed_sample_course(
             exercises: vec![exercise_2, exercise_3, exercise_4],
             exercise_slides: vec![slide_2, slide_3, slide_4],
             exercise_tasks: vec![task_2, task_3, task_4_1],
-            content: serde_json::json!([
+            content: vec![
                 paragraph(
                     "First chapters second page.",
                     Uuid::new_v5(&course_id, b"9faf5a2d-f60d-4a70-af3d-0e7e3d6fe273"),
@@ -529,7 +529,7 @@ pub async fn seed_sample_course(
                 exercise_block_2,
                 exercise_block_3,
                 exercise_block_4,
-            ]),
+            ],
         },
     )
     .await?;
@@ -997,13 +997,13 @@ pub async fn seed_sample_course(
             exercises: vec![quizzes_exercise_1],
             exercise_slides: vec![quizzes_exercise_slide_1],
             exercise_tasks: vec![quizzes_exercise_task_1],
-            content: serde_json::json!([
+            content: vec![
                 paragraph(
                     "First chapters essay page.",
-                    Uuid::new_v5(&course_id, b"6e4ab83a-2ae8-4bd2-a6ea-0e0d1eeabe23")
+                    Uuid::new_v5(&course_id, b"6e4ab83a-2ae8-4bd2-a6ea-0e0d1eeabe23"),
                 ),
                 quizzes_exercise_block_1,
-            ]),
+            ],
         },
     )
     .await?;
@@ -1020,13 +1020,13 @@ pub async fn seed_sample_course(
             exercises: vec![quizzes_exercise_2],
             exercise_slides: vec![quizzes_exercise_slide_2],
             exercise_tasks: vec![quizzes_exercise_task_2],
-            content: serde_json::json!([
+            content: vec![
                 paragraph(
                     "First chapters open page.",
-                    Uuid::new_v5(&course_id, b"771b9c61-dbc9-4266-a980-dadc853455c9")
+                    Uuid::new_v5(&course_id, b"771b9c61-dbc9-4266-a980-dadc853455c9"),
                 ),
-                quizzes_exercise_block_2
-            ]),
+                quizzes_exercise_block_2,
+            ],
         },
     )
     .await?;
@@ -1043,13 +1043,13 @@ pub async fn seed_sample_course(
             exercises: vec![quizzes_exercise_3],
             exercise_slides: vec![quizzes_exercise_slide_3],
             exercise_tasks: vec![quizzes_exercise_task_3],
-            content: serde_json::json!([
+            content: vec![
                 paragraph(
                     "First chapters multiple-choice-dropdown page",
-                    Uuid::new_v5(&course_id, b"7af470e7-cc4f-411e-ad5d-c137e353f7c3")
+                    Uuid::new_v5(&course_id, b"7af470e7-cc4f-411e-ad5d-c137e353f7c3"),
                 ),
-                quizzes_exercise_block_3
-            ]),
+                quizzes_exercise_block_3,
+            ],
         },
     )
     .await?;
@@ -1066,13 +1066,13 @@ pub async fn seed_sample_course(
             exercises: vec![quizzes_exercise_4],
             exercise_slides: vec![quizzes_exercise_slide_4],
             exercise_tasks: vec![quizzes_exercise_task_4],
-            content: serde_json::json!([
+            content: vec![
                 paragraph(
                     "First chapters multiple-choice clickable page.",
-                    Uuid::new_v5(&course_id, b"6b7775c3-b46e-41e5-a730-0a2c2f0ba148")
+                    Uuid::new_v5(&course_id, b"6b7775c3-b46e-41e5-a730-0a2c2f0ba148"),
                 ),
-                quizzes_exercise_block_4
-            ]),
+                quizzes_exercise_block_4,
+            ],
         },
     )
     .await?;
@@ -1089,13 +1089,13 @@ pub async fn seed_sample_course(
             exercises: vec![quizzes_exercise_5],
             exercise_slides: vec![quizzes_exercise_slide_5],
             exercise_tasks: vec![quizzes_exercise_task_5],
-            content: serde_json::json!([
+            content: vec![
                 paragraph(
                     "Best page",
-                    Uuid::new_v5(&course.id, b"891de1ca-f3a9-506f-a268-3477ea4fdd27")
+                    Uuid::new_v5(&course.id, b"891de1ca-f3a9-506f-a268-3477ea4fdd27"),
                 ),
                 quizzes_exercise_block_5,
-            ]),
+            ],
         },
     )
     .await?;
@@ -1112,13 +1112,13 @@ pub async fn seed_sample_course(
             exercises: vec![quizzes_exercise_7],
             exercise_slides: vec![quizzes_exercise_slide_7],
             exercise_tasks: vec![quizzes_exercise_task_7],
-            content: serde_json::json!([
+            content: vec![
                 paragraph(
                     "The page for the scale execise.",
-                    Uuid::new_v5(&course_id, b"53f68082-c417-4d38-99ad-40b6a30b2da4")
+                    Uuid::new_v5(&course_id, b"53f68082-c417-4d38-99ad-40b6a30b2da4"),
                 ),
-                quizzes_exercise_block_7
-            ]),
+                quizzes_exercise_block_7,
+            ],
         },
     )
     .await?;
@@ -1135,13 +1135,13 @@ pub async fn seed_sample_course(
             exercises: vec![quizzes_exercise_6],
             exercise_slides: vec![quizzes_exercise_slide_6],
             exercise_tasks: vec![quizzes_exercise_task_6],
-            content: serde_json::json!([
+            content: vec![
                 paragraph(
                     "Something about rust and feedback.",
-                    Uuid::new_v5(&course_id, b"cbb87878-5af1-4c01-b343-97bf668b8034")
+                    Uuid::new_v5(&course_id, b"cbb87878-5af1-4c01-b343-97bf668b8034"),
                 ),
-                quizzes_exercise_block_6
-            ]),
+                quizzes_exercise_block_6,
+            ],
         },
     )
     .await?;
@@ -1158,13 +1158,13 @@ pub async fn seed_sample_course(
             exercises: vec![quizzes_exercise_8],
             exercise_slides: vec![quizzes_exercise_slide_8],
             exercise_tasks: vec![quizzes_exercise_task_8],
-            content: serde_json::json!([
+            content: vec![
                 paragraph(
                     "This page has a vector exercise composed of three close-ended questions.",
-                    Uuid::new_v5(&course_id, b"53f68082-c417-4d38-99ad-40b6a30b2da4")
+                    Uuid::new_v5(&course_id, b"53f68082-c417-4d38-99ad-40b6a30b2da4"),
                 ),
-                quizzes_exercise_block_8
-            ]),
+                quizzes_exercise_block_8,
+            ],
         },
     )
     .await?;
@@ -1261,13 +1261,13 @@ pub async fn seed_sample_course(
             exercises: vec![multi_exercise_1],
             exercise_slides: multi_exercise_1_slides,
             exercise_tasks: multi_exercise_1_tasks,
-            content: serde_json::json!([
+            content: vec![
                 paragraph(
                     "This page has a complicated exercise.",
-                    Uuid::new_v5(&course_id, b"86f1b595-ec82-43a6-954f-c1f8de3d53ac")
+                    Uuid::new_v5(&course_id, b"86f1b595-ec82-43a6-954f-c1f8de3d53ac"),
                 ),
-                multi_exercise_block_1
-            ]),
+                multi_exercise_block_1,
+            ],
         },
     )
     .await?;
@@ -1307,7 +1307,7 @@ pub async fn seed_sample_course(
             exercises: vec![exercise_5],
             exercise_slides: vec![exercise_slide_5],
             exercise_tasks: vec![exercise_task_5],
-            content: serde_json::json!([exercise_block_5]),
+            content: vec![exercise_block_5],
         },
     )
     .await?;
@@ -1567,13 +1567,13 @@ pub async fn seed_sample_course(
             exercises: vec![multi_exercise_2],
             exercise_slides: multi_exercise_2_slides,
             exercise_tasks: multi_exercise_2_tasks,
-            content: serde_json::json!([
+            content: vec![
                 paragraph(
                     "This page has a complicated quizzes exercise.",
-                    Uuid::new_v5(&course_id, b"ea0eaf34-3c92-4007-aae4-9abff7ad1e4c")
+                    Uuid::new_v5(&course_id, b"ea0eaf34-3c92-4007-aae4-9abff7ad1e4c"),
                 ),
-                multi_exercise_block_2
-            ]),
+                multi_exercise_block_2,
+            ],
         },
     )
     .await?;
@@ -1590,7 +1590,7 @@ pub async fn seed_sample_course(
             exercises: vec![],
             exercise_slides: vec![],
             exercise_tasks: vec![],
-            content: serde_json::json!([GutenbergBlock {
+            content: vec![GutenbergBlock {
                 name: "moocfi/author".to_string(),
                 is_valid: true,
                 client_id: Uuid::parse_str("eb27eddd-6fc7-46f8-b7aa-968b16f86f1f").unwrap(),
@@ -1649,7 +1649,7 @@ pub async fn seed_sample_course(
                         },
                     ],
                 }]
-            }])
+            }]
         },
 
     )
@@ -1667,13 +1667,13 @@ pub async fn seed_sample_course(
             exercises: vec![],
             exercise_slides: vec![],
             exercise_tasks: vec![],
-            content: serde_json::json!([GutenbergBlock {
+            content: vec![GutenbergBlock {
                 name: "moocfi/glossary".to_string(),
                 is_valid: true,
                 client_id: Uuid::parse_str("3a388f47-4aa7-409f-af14-a0290b916225").unwrap(),
                 attributes: attributes! {},
-                inner_blocks: vec![]
-            }]),
+                inner_blocks: vec![],
+            }],
         },
     )
     .await?;
@@ -2312,10 +2312,10 @@ pub async fn create_glossary_course(
             exercises: vec![],
             exercise_slides: vec![],
             exercise_tasks: vec![],
-            content: serde_json::json!([paragraph(
+            content: vec![paragraph(
                 "Use the KB to write sentences for your CS-courses.",
-                Uuid::new_v5(&course.id, b"6903cf16-4f79-4985-a354-4257be1193a2")
-            ),]),
+                Uuid::new_v5(&course.id, b"6903cf16-4f79-4985-a354-4257be1193a2"),
+            )],
         },
     )
     .await?;
@@ -2644,7 +2644,7 @@ pub async fn seed_cs_course_material(
                 title: "Introduction to Course Material".to_string(),
                 url_path: "/".to_string(),
                 chapter_id: None,
-                content: serde_json::to_value(&[
+                content: vec![
                     GutenbergBlock::landing_page_hero_section("Welcome to Introduction to Course Material", "In this course you'll learn the basics of UI/UX design. At the end of course you should be able to create your own design system.")
                     .with_id(Uuid::parse_str("6ad81525-0010-451f-85e5-4832e3e364a8")?),
                     GutenbergBlock::course_objective_section()
@@ -2653,8 +2653,7 @@ pub async fn seed_cs_course_material(
                         .with_id(Uuid::parse_str("bb51d61b-fd19-44a0-8417-7ffc6058b247")?),
                     GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string())
                         .with_id(Uuid::parse_str("1d7c28ca-86ab-4318-8b10-3e5b7cd6e465")?),
-                ])
-                .unwrap(),
+                ],
                 exercises: vec![],
                 exercise_slides: vec![],
                 exercise_tasks: vec![],
@@ -2710,15 +2709,14 @@ pub async fn seed_cs_course_material(
                 title: "User Interface".to_string(),
                 url_path: "/chapter-1".to_string(),
                 chapter_id: Some(chapter_1.id),
-                content: serde_json::to_value(&[
+                content: vec![
                     GutenbergBlock::hero_section("User Interface", "In the industrial design field of human–computer interaction, a user interface is the space where interactions between humans and machines occur.")
                     .with_id(Uuid::parse_str("848ac898-81c0-4ebc-881f-6f84e9eaf472")?),
                 GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string())
                     .with_id(Uuid::parse_str("c8b36f58-5366-4d6b-b4ec-9fc0bd65950e")?),
                 GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string())
                     .with_id(Uuid::parse_str("457431b0-55db-46ac-90ae-03965f48b27e")?),
-                ])
-                .unwrap(),
+                ],
                 exercises: vec![],
                 exercise_slides: vec![],
                 exercise_tasks: vec![],
@@ -2740,7 +2738,7 @@ pub async fn seed_cs_course_material(
         exercises: vec![],
         exercise_slides: vec![],
         exercise_tasks: vec![],
-        content: serde_json::json!([
+        content: vec![
             GutenbergBlock::hero_section("Design", "A design is a plan or specification for the construction of an object or system or for the implementation of an activity or process, or the result of that plan or specification in the form of a prototype, product or process.")
                 .with_id(Uuid::parse_str("98729704-9dd8-4309-aa08-402f9b2a6071")?),
             heading("First heading", Uuid::parse_str("731aa55f-238b-42f4-8c40-c093dd95ee7f")?, 2),
@@ -2786,7 +2784,7 @@ pub async fn seed_cs_course_material(
                 },
             )
             .with_id(Uuid::parse_str("0d47c02a-194e-42a4-927e-fb29a4fda39c")?),
-        ]),
+        ],
     };
     create_page(
         &mut conn,
@@ -2805,7 +2803,7 @@ pub async fn seed_cs_course_material(
         exercises: vec![],
         exercise_slides: vec![],
         exercise_tasks: vec![],
-        content: serde_json::json!([
+        content: vec![
             GutenbergBlock::hero_section("Human-machine interface", "In the industrial design field of human–computer interaction, a user interface is the space where interactions between humans and machines occur.")
                 .with_id(Uuid::parse_str("ae22ae64-c0e5-42e1-895a-4a49411a72e8")?),
             GutenbergBlock::block_with_name_and_attributes(
@@ -2832,7 +2830,7 @@ pub async fn seed_cs_course_material(
                 },
             )
             .with_id(Uuid::parse_str("c96f56d5-ea35-4aae-918a-72a36847a49c")?),
-        ]),
+        ],
     };
     create_page(
         &mut conn,
@@ -2877,15 +2875,14 @@ pub async fn seed_cs_course_material(
                 url_path: "/chapter-2".to_string(),
                 title: "User Experience".to_string(),
                 chapter_id: Some(chapter_2.id),
-                content: serde_json::to_value(&[
+                content: vec![
                     GutenbergBlock::hero_section("User Experience", "The user experience is how a user interacts with and experiences a product, system or service. It includes a person's perceptions of utility, ease of use, and efficiency.")
                         .with_id(Uuid::parse_str("c5c623f9-c7ca-4f8e-b04b-e91cecef217a")?),
                     GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string())
                         .with_id(Uuid::parse_str("37bbc4e9-2e96-45ea-a6f8-bbc7dc7f6be3")?),
                     GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string())
                         .with_id(Uuid::parse_str("1bf7e311-75e8-48ec-bd55-e8f1185d76d0")?),
-                ])
-                .unwrap(),
+                ],
                 exercises: vec![],
                 exercise_slides: vec![],
                 exercise_tasks: vec![],
@@ -2901,7 +2898,7 @@ pub async fn seed_cs_course_material(
     // /chapter-2/user-research
     let page_content = CmsPageUpdate {
         chapter_id: Some(chapter_2.id),
-        content: serde_json::json!([
+        content: vec![
             GutenbergBlock::hero_section("User research", "User research focuses on understanding user behaviors, needs, and motivations through observation techniques, task analysis, and other feedback methodologies.")
                 .with_id(Uuid::parse_str("a43f5460-b588-44ac-84a3-5fdcabd5d3f7")?),
             GutenbergBlock::block_with_name_and_attributes(
@@ -2928,7 +2925,7 @@ pub async fn seed_cs_course_material(
                 },
             )
             .with_id(Uuid::parse_str("cf11a0fb-f56e-4e0d-bc12-51d920dbc278")?),
-        ]),
+        ],
         exercises: vec![],
         exercise_slides: vec![],
         exercise_tasks: vec![],
@@ -2977,13 +2974,13 @@ pub async fn seed_cs_course_material(
             exercises: vec![quizzes_exercise_5],
             exercise_slides: vec![quizzes_exercise_slide_5],
             exercise_tasks: vec![quizzes_exercise_task_5],
-            content: serde_json::json!([
+            content: vec![
                 paragraph(
                     "Second chapters third page",
-                    Uuid::new_v5(&course.id, b"4ebd0208-8328-5d69-8c44-ec50939c0967")
+                    Uuid::new_v5(&course.id, b"4ebd0208-8328-5d69-8c44-ec50939c0967"),
                 ),
                 quizzes_exercise_block_5,
-            ]),
+            ],
         },
     )
     .await?;
@@ -3000,13 +2997,13 @@ pub async fn seed_cs_course_material(
             exercises: vec![quizzes_exercise_6],
             exercise_slides: vec![quizzes_exercise_slide_6],
             exercise_tasks: vec![quizzes_exercise_task_6],
-            content: serde_json::json!([
+            content: vec![
                 paragraph(
                     "Second chapters fourth page",
-                    Uuid::new_v5(&course.id, b"4841cabb-77a0-53cf-b539-39fbd060e73b")
+                    Uuid::new_v5(&course.id, b"4841cabb-77a0-53cf-b539-39fbd060e73b"),
                 ),
                 quizzes_exercise_block_6,
-            ]),
+            ],
         },
     )
     .await?;
@@ -3024,13 +3021,13 @@ pub async fn seed_cs_course_material(
             exercise_slides: vec![quizzes_exercise_slide_7],
             exercise_tasks: vec![quizzes_exercise_task_7],
 
-            content: serde_json::json!([
+            content: vec![
                 paragraph(
                     "Second chapters fifth page",
-                    Uuid::new_v5(&course.id, b"9a614406-e1b4-5920-8e0d-54d1a3ead5f3")
+                    Uuid::new_v5(&course.id, b"9a614406-e1b4-5920-8e0d-54d1a3ead5f3"),
                 ),
                 quizzes_exercise_block_7,
-            ]),
+            ],
         },
     )
     .await?;
@@ -3047,13 +3044,13 @@ pub async fn seed_cs_course_material(
             exercises: vec![quizzes_exercise_8],
             exercise_slides: vec![quizzes_exercise_slide_8],
             exercise_tasks: vec![quizzes_exercise_task_8],
-            content: serde_json::json!([
+            content: vec![
                 paragraph(
                     "Second chapters sixth page",
-                    Uuid::new_v5(&course.id, b"891de1ca-f3a9-506f-a268-3477ea4fdd27")
+                    Uuid::new_v5(&course.id, b"891de1ca-f3a9-506f-a268-3477ea4fdd27"),
                 ),
                 quizzes_exercise_block_8,
-            ]),
+            ],
         },
     )
     .await?;
@@ -3229,7 +3226,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercises: vec![exercise_1],
             exercise_slides: vec![slide_1],
             exercise_tasks: vec![task_1],
-            content: serde_json::json!([exercise_block_1,]),
+            content: vec![exercise_block_1],
         },
     )
     .await?;
@@ -3285,7 +3282,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercises: vec![exercise_2],
             exercise_slides: vec![slide_1],
             exercise_tasks: vec![task_1],
-            content: serde_json::json!([exercise_block_2]),
+            content: vec![exercise_block_2],
         },
     )
     .await?;
@@ -3341,7 +3338,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercises: vec![exercise_3],
             exercise_slides: vec![slide_1],
             exercise_tasks: vec![task_1],
-            content: serde_json::json!([exercise_block_3,]),
+            content: vec![exercise_block_3],
         },
     )
     .await?;
@@ -3397,7 +3394,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercises: vec![exercise_1],
             exercise_slides: vec![slide_1],
             exercise_tasks: vec![task_1],
-            content: serde_json::json!([exercise_block_1,]),
+            content: vec![exercise_block_1],
         },
     )
     .await?;
@@ -3453,7 +3450,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercises: vec![exercise_1],
             exercise_slides: vec![slide_1],
             exercise_tasks: vec![task_1],
-            content: serde_json::json!([exercise_block_1,]),
+            content: vec![exercise_block_1],
         },
     )
     .await?;

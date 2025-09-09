@@ -1,7 +1,7 @@
 use std::{
     cell::RefCell,
     collections::{HashMap, HashSet},
-    sync::Arc,
+    rc::Rc,
 };
 
 use serde::{Deserialize, Serialize};
@@ -279,14 +279,14 @@ pub fn remove_sensitive_attributes(input: Vec<GutenbergBlock>) -> Vec<GutenbergB
 
 /// Replaces duplicate client IDs with new unique IDs in Gutenberg blocks.
 pub fn replace_duplicate_client_ids(input: Vec<GutenbergBlock>) -> Vec<GutenbergBlock> {
-    let seen_ids = Arc::new(RefCell::new(HashSet::new()));
+    let seen_ids = Rc::new(RefCell::new(HashSet::new()));
 
     replace_duplicate_client_ids_inner(input, seen_ids)
 }
 
 fn replace_duplicate_client_ids_inner(
     mut input: Vec<GutenbergBlock>,
-    seen_ids: Arc<RefCell<HashSet<Uuid>>>,
+    seen_ids: Rc<RefCell<HashSet<Uuid>>>,
 ) -> Vec<GutenbergBlock> {
     for block in input.iter_mut() {
         let mut seen_ids_borrow = seen_ids.borrow_mut();
@@ -306,14 +306,14 @@ fn replace_duplicate_client_ids_inner(
 /// Validates that all client IDs in the Gutenberg blocks are unique.
 /// Returns an error if duplicate client IDs are found.
 pub fn validate_unique_client_ids(input: Vec<GutenbergBlock>) -> UtilResult<Vec<GutenbergBlock>> {
-    let seen_ids = Arc::new(RefCell::new(HashSet::new()));
+    let seen_ids = Rc::new(RefCell::new(HashSet::new()));
 
     validate_unique_client_ids_inner(input, seen_ids)
 }
 
 fn validate_unique_client_ids_inner(
     input: Vec<GutenbergBlock>,
-    seen_ids: Arc<RefCell<HashSet<Uuid>>>,
+    seen_ids: Rc<RefCell<HashSet<Uuid>>>,
 ) -> UtilResult<Vec<GutenbergBlock>> {
     for block in input.iter() {
         let mut seen_ids_borrow = seen_ids.borrow_mut();

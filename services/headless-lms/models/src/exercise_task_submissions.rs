@@ -72,7 +72,7 @@ pub struct ExportedCourseSubmission {
     pub id: Uuid,
     pub user_id: Uuid,
     pub created_at: DateTime<Utc>,
-    pub course_instance_id: Option<Uuid>,
+    pub course_id: Option<Uuid>,
     pub exercise_id: Uuid,
     pub exercise_task_id: Uuid,
     pub score_given: Option<f32>,
@@ -238,7 +238,7 @@ WHERE ets.id = $1
     )
     .fetch_one(conn)
     .await?;
-    CourseOrExamId::from(res.course_id, res.exam_id)
+    CourseOrExamId::from_course_and_exam_ids(res.course_id, res.exam_id)
 }
 
 pub async fn get_peer_reviews_received(
@@ -359,7 +359,7 @@ SELECT exercise_task_submissions.exercise_slide_submission_id,
   exercise_task_submissions.id,
   user_id,
   exercise_task_submissions.created_at,
-  exercise_slide_submissions.course_instance_id,
+  exercise_slide_submissions.course_id,
   exercise_slide_submissions.exercise_id,
   exercise_task_submissions.exercise_task_id,
   exercise_task_gradings.score_given,
@@ -489,7 +489,7 @@ pub async fn get_user_custom_view_exercise_tasks_by_module_and_exercise_type(
     exercise_type: &str,
     course_module_id: Uuid,
     user_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<CustomViewExerciseTasks> {
     let task_submissions =
         crate::exercise_task_submissions::get_user_latest_exercise_task_submissions_by_course_module_and_exercise_type(
@@ -497,7 +497,7 @@ pub async fn get_user_custom_view_exercise_tasks_by_module_and_exercise_type(
             user_id,
             exercise_type,
             course_module_id,
-            course_instance_id,
+            course_id,
         )
         .await?;
     let task_gradings =
@@ -506,7 +506,7 @@ pub async fn get_user_custom_view_exercise_tasks_by_module_and_exercise_type(
             user_id,
             exercise_type,
             course_module_id,
-            course_instance_id,
+            course_id,
         )
         .await?;
 
@@ -530,7 +530,7 @@ pub async fn get_user_latest_exercise_task_submissions_by_course_module_and_exer
     user_id: Uuid,
     exercise_type: &str,
     module_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Vec<CustomViewExerciseTaskSubmission>> {
     let res: Vec<CustomViewExerciseTaskSubmission> = sqlx::query_as!(
         CustomViewExerciseTaskSubmission,
@@ -549,7 +549,7 @@ pub async fn get_user_latest_exercise_task_submissions_by_course_module_and_exer
         JOIN exercises e ON e.id = ess.exercise_id
         JOIN chapters c ON c.id = e.chapter_id
       WHERE ess.user_id = $1
-      AND ess.course_instance_id = $2
+      AND ess.course_id = $2
       AND et.exercise_type = $3
       AND c.course_module_id = $4
       AND g.deleted_at IS NULL
@@ -560,7 +560,7 @@ pub async fn get_user_latest_exercise_task_submissions_by_course_module_and_exer
       ORDER BY g.exercise_task_id, g.created_at DESC
       "#,
         user_id,
-        course_instance_id,
+        course_id,
         exercise_type,
         module_id
     )

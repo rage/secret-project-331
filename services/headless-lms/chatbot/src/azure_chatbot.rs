@@ -200,7 +200,7 @@ impl ChatRequest {
                         deployment_name: search_config.vectorizer_deployment_id.clone(),
                     },
                     in_scope: false,
-                    top_n_documents: 5,
+                    top_n_documents: 15,
                     strictness: 3,
                     filter: Some(
                         SearchFilter::eq("course_id", configuration.course_id.to_string())

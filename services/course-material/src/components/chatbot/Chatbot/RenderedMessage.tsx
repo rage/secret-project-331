@@ -158,6 +158,29 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
       // the same idx can be used
       let citN = assertNotNullOrUndefined(citationNumberingMap.get(citedDocs[idx]))
 
+      if (idx !== 0) {
+        let prevCitN = assertNotNullOrUndefined(citationNumberingMap.get(citedDocs[idx - 1]))
+
+        // if the previous citation was the same as this, and the previous
+        // sibling node is also a citation button (not text), return null
+        // because we don't want to cite the same doc multiple times in a row
+        if (prevCitN === citN) {
+          let prev = node.previousSibling as Element
+
+          // nodeType 1 is Element
+          if (prev && prev.nodeType == 1) {
+            // double check if the previousSibling is actually a citationButton
+            // and actually corresponds to the previous citation
+            if (
+              parseInt(prev.attributes.getNamedItem("data-citation-n")?.value ?? "") ===
+              citedDocs[idx - 1]
+            ) {
+              return createPortal(null, node, idx)
+            }
+          }
+        }
+      }
+
       return createPortal(
         <CitationButton
           citN={citedDocs[idx].toString()}

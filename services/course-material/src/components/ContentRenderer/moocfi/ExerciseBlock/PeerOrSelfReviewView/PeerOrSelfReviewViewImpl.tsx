@@ -15,7 +15,7 @@ import {
 import ExerciseTaskIframe from "../ExerciseTaskIframe"
 
 import PeerOrSelfReviewQuestionComponent from "./PeerOrSelfReviewQuestion"
-import MarkAsSpamDialog from "./PeerRevireMarkingSpam/MarkAsSpamDialog"
+import MarkAsSpamDialog from "./PeerReviewMarkingSpam/MarkAsSpamDialog"
 
 import { getPeerReviewBeginningScrollingId, PeerOrSelfReviewViewProps } from "."
 

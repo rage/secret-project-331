@@ -46,8 +46,8 @@ export const renumberFilterCitations = (
   uniqueCitations.forEach((citN) => {
     // renumbers the uniqueCitations to be ordered,
     // saves the renumbering in a map and filters the citations
-    // because of earlier checks we know that cit will be found
     let cit = citations.find((c) => c.citation_number === citN)
+    // because of earlier checks we know that cit will be found
     if (citedPages.has(cit!.document_url)) {
       // already cited, so set the citN as the same as the earlier of the same page
       citationNumberingMap.set(cit!.citation_number, citedPages.get(cit!.document_url))

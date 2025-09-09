@@ -9,7 +9,11 @@ import { CardList, CardListItem } from "../../../../styles/styles"
 import CreateChatbotDialog from "./CreateChatbotDialog"
 
 import { CourseManagementPagesProps } from "@/pages/manage/courses/[id]/[...path]"
-import { getCourseChatbots, setAsDefaultChatbot } from "@/services/backend/courses/chatbots"
+import {
+  getCourseChatbots,
+  setAsDefaultChatbot,
+  setAsNonDefaultChatbot,
+} from "@/services/backend/courses/chatbots"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -45,6 +49,16 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   const setDefaultChatbotMutation = useToastMutation(
     async (chatbotConfigurationId: string) =>
       await setAsDefaultChatbot(assertNotNullOrUndefined(courseId), chatbotConfigurationId),
+    {
+      method: "POST",
+      notify: true,
+    },
+    { onSuccess: () => getChatbotsList.refetch() },
+  )
+
+  const unsetDefaultChatbotMutation = useToastMutation(
+    async (chatbotConfigurationId: string) =>
+      await setAsNonDefaultChatbot(assertNotNullOrUndefined(courseId), chatbotConfigurationId),
     {
       method: "POST",
       notify: true,
@@ -111,7 +125,7 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
               >
                 {t("edit")}
               </Button>
-              {!bot.default_chatbot && (
+              {!bot.default_chatbot ? (
                 <Button
                   size="medium"
                   variant="secondary"
@@ -120,6 +134,16 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
                   }}
                 >
                   {t("set-default-chatbot")}
+                </Button>
+              ) : (
+                <Button
+                  size="medium"
+                  variant="secondary"
+                  onClick={() => {
+                    unsetDefaultChatbotMutation.mutate(bot.id)
+                  }}
+                >
+                  {t("unset-default-chatbot")}
                 </Button>
               )}
             </CardListItem>

@@ -132,6 +132,7 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
                   onClick={() => {
                     setDefaultChatbotMutation.mutate(bot.id)
                   }}
+                  disabled={setDefaultChatbotMutation.isPending}
                 >
                   {t("set-default-chatbot")}
                 </Button>
@@ -142,6 +143,7 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
                   onClick={() => {
                     unsetDefaultChatbotMutation.mutate(bot.id)
                   }}
+                  disabled={unsetDefaultChatbotMutation.isPending}
                 >
                   {t("unset-default-chatbot")}
                 </Button>

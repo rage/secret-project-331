@@ -1,12 +1,11 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { Question } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import KeyValueCard, { InformationItem } from "../../components/KeyValueCard"
-import SubmissionIFrame from "../../components/page-specific/submissions/id/SubmissionIFrame"
+import KeyValueCard from "../../components/KeyValueCard"
+import MainFrontedViewSubmission from "../../components/MainFrontedViewSubmission"
 import { useUserDetails } from "../../hooks/useUserDetails"
 import { fetchSubmissionInfo } from "../../services/backend/submissions"
 
@@ -171,81 +170,10 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
               `}
             />
           )}
-
-          {
-            <div
-              className={css`
-                background-color: ${baseTheme.colors.green[600]};
-                color: ${baseTheme.colors.clear[100]};
-                padding: 1.5rem 2rem;
-                max-width: ${narrowContainerWidthRem}rem;
-                margin: 2rem auto;
-                display: flex;
-                align-items: center;
-              `}
-            >
-              <div
-                aria-hidden
-                className={css`
-                  background-color: ${baseTheme.colors.clear[100]};
-                  color: ${baseTheme.colors.green[600]};
-                  font-weight: bold;
-                  font-size: 42px;
-                  width: 58px;
-                  height: 58px;
-                  border-radius: 100%;
-                  display: flex;
-                  justify-content: center;
-                  align-items: center;
-                `}
-              >
-                <Question />
-              </div>
-              <div
-                className={css`
-                  flex: 1;
-                  margin-left: 1rem;
-                `}
-              >
-                <div>
-                  <HideTextInSystemTests
-                    text={t("answered-at", {
-                      time: dateToString(
-                        getSubmissionInfo.data.exercise_slide_submission.created_at,
-                      ),
-                    })}
-                    testPlaceholder={t("answered-at", {
-                      time: "XXXX-XX-XX XX:XX:XX UTC+00:00",
-                    })}
-                  />
-                </div>
-                <div>
-                  <HideTextInSystemTests
-                    text={t("sent-by", {
-                      user: getSubmissionInfo.data.exercise_slide_submission.user_id,
-                    })}
-                    testPlaceholder={t("sent-by", {
-                      user: "user",
-                    })}
-                  />
-                </div>
-              </div>
-              <div
-                className={css`
-                  font-weight: bold;
-                  font-size: 18px;
-                  text-transform: uppercase;
-                `}
-              >
-                {t("points")} {totalScoreGiven} / {getSubmissionInfo.data.exercise.score_maximum}
-              </div>
-            </div>
-          }
-          {getSubmissionInfo.data.tasks
-            .sort((a, b) => a.order_number - b.order_number)
-            .map((task) => (
-              <SubmissionIFrame key={task.id} coursematerialExerciseTask={task} />
-            ))}
+          <MainFrontedViewSubmission
+            submissionData={getSubmissionInfo.data}
+            totalScoreGiven={totalScoreGiven}
+          />
         </>
       )}
       <div

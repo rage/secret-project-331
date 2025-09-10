@@ -103,7 +103,7 @@ pub async fn send_message(email: Email, mailer: &SmtpTransport, pool: PgPool) ->
 }
 
 async fn apply_email_template_replacements(
-    mut conn: &mut PgConnection,
+    conn: &mut PgConnection,
     template_name: &str,
     user_id: Uuid,
     blocks: Vec<EmailGutenbergBlock>,
@@ -113,7 +113,7 @@ async fn apply_email_template_replacements(
     match template_name.to_lowercase().as_str() {
         "reset-password-email" => {
             if let Some(token_str) =
-                get_unused_reset_password_token_with_user_id(&mut conn, user_id).await?
+                get_unused_reset_password_token_with_user_id(conn, user_id).await?
             {
                 let base =
                     std::env::var("FRONTEND_BASE_URL").unwrap_or(FRONTEND_BASE_URL.to_string());
@@ -127,21 +127,21 @@ async fn apply_email_template_replacements(
                 replacements.insert("RESET_LINK".to_string(), reset_url);
             } else {
                 let err = anyhow::anyhow!("No reset token found for user {}", user_id);
-                save_err_to_email(user_id, err, &mut conn).await?;
+                save_err_to_email(user_id, err, conn).await?;
                 return Ok(blocks);
             }
         }
         "delete-user-email" => {
             if let Some(code) =
                 headless_lms_models::user_email_codes::get_unused_user_email_code_with_user_id(
-                    &mut conn, user_id,
+                    conn, user_id,
                 )
                 .await?
             {
                 replacements.insert("CODE".to_string(), code.code);
             } else {
                 let err = anyhow::anyhow!("No deletion code found for user {}", user_id);
-                save_err_to_email(user_id, err, &mut conn).await?;
+                save_err_to_email(user_id, err, conn).await?;
                 return Ok(blocks);
             }
         }

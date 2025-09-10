@@ -5,6 +5,7 @@ import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import KeyValueCard, { InformationItem } from "../../components/KeyValueCard"
 import SubmissionIFrame from "../../components/page-specific/submissions/id/SubmissionIFrame"
 import { useUserDetails } from "../../hooks/useUserDetails"
 import { fetchSubmissionInfo } from "../../services/backend/submissions"
@@ -65,87 +66,61 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
           </h1>
 
           {/* User Information Section */}
-          <div
-            className={css`
-              background-color: ${baseTheme.colors.clear[100]};
-              border: 1px solid ${baseTheme.colors.clear[200]};
-              border-radius: 8px;
-              padding: 1.5rem;
-              margin-bottom: 2rem;
-              max-width: ${narrowContainerWidthRem}rem;
-              margin-left: auto;
-              margin-right: auto;
-            `}
-          >
-            <h2
-              className={css`
-                margin: 0 0 1rem 0;
-                font-size: 1.2rem;
-                color: black;
-              `}
-            >
-              {t("user-information")}
-            </h2>
-            <div
-              className={css`
-                display: grid;
-                grid-template-columns: auto 1fr;
-                gap: 0.5rem 1rem;
-                align-items: center;
-              `}
-            >
-              <strong>{t("user-id")}:</strong>
-              <HideTextInSystemTests
-                text={getSubmissionInfo.data.exercise_slide_submission.user_id}
-                testPlaceholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-              />
-
-              {userDetails.data?.first_name && (
-                <>
-                  <strong>{t("first-name")}:</strong>
-                  <span>{userDetails.data.first_name}</span>
-                </>
-              )}
-
-              {userDetails.data?.last_name && (
-                <>
-                  <strong>{t("last-name")}:</strong>
-                  <span>{userDetails.data.last_name}</span>
-                </>
-              )}
-
-              {userDetails.data?.email && (
-                <>
-                  <strong>{t("email")}:</strong>
-                  <span>{userDetails.data.email}</span>
-                </>
-              )}
-
-              {userDetails.isPending && (
-                <>
-                  <strong>{t("status")}:</strong>
-                  <Spinner variant="small" />
-                </>
-              )}
-            </div>
-            <div
-              className={css`
-                margin-top: 1rem;
-                text-align: right;
-              `}
-            >
-              <Link
-                href={courseInstanceUserStatusSummaryRoute(
-                  "PLACEHOLDER_COURSE_INSTANCE_ID",
-                  getSubmissionInfo.data.exercise_slide_submission.user_id,
-                )}
-              >
-                <Button variant="tertiary" size="medium">
-                  {t("course-status-summary")}
-                </Button>
-              </Link>
-            </div>
-          </div>
+          {userDetails.isLoading && <Spinner variant="medium" />}
+          {userDetails.isSuccess && (
+            <KeyValueCard
+              sections={[
+                {
+                  title: t("user-information"),
+                  items: [
+                    {
+                      // eslint-disable-next-line i18next/no-literal-string
+                      key: "first-name",
+                      label: t("first-name"),
+                      value: userDetails.data.first_name ?? "",
+                    } as InformationItem,
+                    {
+                      // eslint-disable-next-line i18next/no-literal-string
+                      key: "last-name",
+                      label: t("last-name"),
+                      value: userDetails.data.last_name ?? "",
+                    } as InformationItem,
+                    {
+                      // eslint-disable-next-line i18next/no-literal-string
+                      key: "email",
+                      label: t("email"),
+                      value: userDetails.data.email ?? "",
+                    } as InformationItem,
+                    {
+                      // eslint-disable-next-line i18next/no-literal-string
+                      key: "user-id",
+                      label: t("user-id"),
+                      colSpan: 3,
+                      value: (
+                        <HideTextInSystemTests
+                          text={getSubmissionInfo.data.exercise_slide_submission.user_id}
+                          testPlaceholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                        />
+                      ),
+                    },
+                  ],
+                },
+              ]}
+              actionButtons={[
+                <Link
+                  key="course-status"
+                  href={courseInstanceUserStatusSummaryRoute(
+                    "PLACEHOLDER_COURSE_INSTANCE_ID",
+                    getSubmissionInfo.data.exercise_slide_submission.user_id,
+                  )}
+                >
+                  <Button variant="tertiary" size="medium">
+                    {t("course-status-summary")}
+                  </Button>
+                </Link>,
+              ]}
+            />
+          )}
 
           {/* User Details Error Banner */}
           {userDetails.isError && (

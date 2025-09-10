@@ -1,4 +1,5 @@
 import { css } from "@emotion/react"
+import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table"
 import React, { useState } from "react"
 
 const headerTopRowStyle = css`
@@ -66,27 +67,6 @@ const controlsRowStyle = css`
   margin-bottom: 18px;
 `
 
-const leftControlsStyle = css`
-  display: flex;
-  align-items: center;
-  gap: 20px;
-`
-
-const dropdownStyle = css`
-  background: #fff;
-  border: 1px solid #e4e5e8;
-  border-radius: 2px;
-  width: 170px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  padding: 0 14px;
-  font-size: 14px;
-  color: #1a2333;
-  cursor: pointer;
-  margin-right: 18px;
-`
-
 const dropdownIconStyle = css`
   margin-left: auto;
   color: #4e5562;
@@ -152,13 +132,15 @@ const tabStyle = (active = false, color = "#1A2333", isLast = false) => css`
 
 const containerStyle = css`
   width: 1124px;
-  min-height: 657px;
+  height: 400px; /* or whatever fixed height you want */
   margin: 0 auto 0 auto;
   background: #fff;
   border: 1px solid #ced1d7;
   border-radius: 8px 8px 0 0;
   font-family: "Inter", sans-serif;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 `
 
@@ -218,6 +200,20 @@ const lastRowTdStyle = css`
   border-bottom: none;
 `
 
+const thStickyStyle = css`
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f7f8f9;
+  ${thStyle};
+`
+
+const innerScrollStyle = css`
+  flex: 1 1 auto;
+  overflow-y: auto;
+  width: 100%;
+`
+
 // ---- MOCK DATA ----
 type Student = {
   firstName: string
@@ -227,7 +223,7 @@ type Student = {
   courseInstance: string
 }
 
-const mockStudents: Student[] = [
+const baseStudents: Student[] = [
   {
     firstName: "Henrik",
     lastName: "Williams",
@@ -258,119 +254,171 @@ const mockStudents: Student[] = [
   },
 ]
 
-// --- TAB CONTENTS ---
+// Repeat 5x for demo (will result in 20 rows)
+const mockStudents: Student[] = Array.from({ length: 5 }).flatMap((_, i) =>
+  baseStudents.map((s, j) => ({
+    ...s,
+    userId: `${s.userId}-${i + 1}`,
+    firstName: `${s.firstName} ${i + 1}`,
+  })),
+)
+
+// ---- TANSTACK TABLE DATA ----
+const completionsColumns = [
+  { header: "Student", accessorKey: "student" },
+  { header: "Default", accessorKey: "default" },
+  { header: "Another module", accessorKey: "anotherModule" },
+  { header: "Bonus module", accessorKey: "bonusModule" },
+]
+
+const completionsData = mockStudents.map((s) => ({
+  student: `${s.firstName} ${s.lastName}`,
+  default: "0/0",
+  anotherModule: "0/0",
+  bonusModule: "0/0",
+}))
+
+const pointsColumns = [
+  { header: "Student", accessorKey: "student" },
+  { header: "The Basics", accessorKey: "basics" },
+  { header: "The intermediaries", accessorKey: "intermediaries" },
+  { header: "Advanced studies", accessorKey: "advanced" },
+  { header: "Forbidden magicks", accessorKey: "forbidden" },
+  { header: "Another chapter", accessorKey: "another1" },
+  { header: "Another another chapter", accessorKey: "another2" },
+  { header: "Bonus chapter", accessorKey: "bonus1" },
+  { header: "Another bonus chapter", accessorKey: "bonus2" },
+]
+
+const pointsData = mockStudents.map((s) => ({
+  student: `${s.firstName} ${s.lastName}`,
+  basics: "0/0",
+  intermediaries: "0/0",
+  advanced: "0/0",
+  forbidden: "0/0",
+  another1: "0/0",
+  another2: "0/0",
+  bonus1: "0/0",
+  bonus2: "0/0",
+}))
 
 const UserTabContent = () => (
-  <table css={tableStyle}>
-    <thead>
-      <tr css={headerRowStyle}>
-        <th css={thStyle}>First Name</th>
-        <th css={thStyle}>Last Name</th>
-        <th css={thStyle}>User ID</th>
-        <th css={thStyle}>Email</th>
-        <th css={thStyle}>Course Instance</th>
-      </tr>
-    </thead>
-    <tbody>
-      {mockStudents.map((student, i) => {
-        const isLast = i === mockStudents.length - 1
-        return (
-          <tr key={student.userId} css={rowStyle}>
-            <td css={[tdStyle, i === 0 && firstNameSpecialStyle, isLast && lastRowTdStyle]}>
-              {student.firstName}
-            </td>
-            <td css={[tdStyle, isLast && lastRowTdStyle]}>{student.lastName}</td>
-            <td css={[tdStyle, isLast && lastRowTdStyle]}>{student.userId}</td>
-            <td css={[tdStyle, isLast && lastRowTdStyle]}>{student.email}</td>
-            <td css={[tdStyle, isLast && lastRowTdStyle]}>{student.courseInstance}</td>
-          </tr>
-        )
-      })}
-    </tbody>
-  </table>
-)
-
-const CompletionsTabContent = () => (
-  <table css={tableStyle}>
-    <thead>
-      <tr css={headerRowStyle}>
-        <th css={thStyle}>Student</th>
-        <th css={thStyle}>Completed Assignments</th>
-        <th css={thStyle}>Completion %</th>
-      </tr>
-    </thead>
-    <tbody>
-      {mockStudents.map((student, i) => {
-        const isLast = i === mockStudents.length - 1
-        return (
-          <tr key={student.userId} css={rowStyle}>
-            <td css={[tdStyle, isLast && lastRowTdStyle]}>
-              {student.firstName} {student.lastName}
-            </td>
-            <td css={[tdStyle, isLast && lastRowTdStyle]}>{Math.floor(Math.random() * 20) + 10}</td>
-            <td css={[tdStyle, isLast && lastRowTdStyle]}>{Math.floor(Math.random() * 100)}%</td>
-          </tr>
-        )
-      })}
-    </tbody>
-  </table>
-)
-
-const PointsTabContent = () => (
-  <table css={tableStyle}>
-    <thead>
-      <tr css={headerRowStyle}>
-        <th css={thStyle}>Student</th>
-        <th css={thStyle}>Points</th>
-        <th css={thStyle}>Max Points</th>
-        <th css={thStyle}>Rank</th>
-      </tr>
-    </thead>
-    <tbody>
-      {mockStudents.map((student, i) => {
-        const isLast = i === mockStudents.length - 1
-        return (
-          <tr key={student.userId} css={rowStyle}>
-            <td css={[tdStyle, isLast && lastRowTdStyle]}>
-              {student.firstName} {student.lastName}
-            </td>
-            <td css={[tdStyle, isLast && lastRowTdStyle]}>{Math.floor(Math.random() * 100)}</td>
-            <td css={[tdStyle, isLast && lastRowTdStyle]}>100</td>
-            <td css={[tdStyle, isLast && lastRowTdStyle]}>{i + 1}</td>
-          </tr>
-        )
-      })}
-    </tbody>
-  </table>
+  <div css={innerScrollStyle}>
+    <table css={tableStyle}>
+      <thead>
+        <tr css={headerRowStyle}>
+          <th css={thStickyStyle}>First Name</th>
+          <th css={thStickyStyle}>Last Name</th>
+          <th css={thStickyStyle}>User ID</th>
+          <th css={thStickyStyle}>Email</th>
+          <th css={thStickyStyle}>Course Instance</th>
+        </tr>
+      </thead>
+      <tbody>
+        {mockStudents.map((student, i) => {
+          const isLast = i === mockStudents.length - 1
+          return (
+            <tr key={student.userId} css={rowStyle}>
+              <td css={[tdStyle, i === 0 && firstNameSpecialStyle, isLast && lastRowTdStyle]}>
+                {student.firstName}
+              </td>
+              <td css={[tdStyle, isLast && lastRowTdStyle]}>{student.lastName}</td>
+              <td css={[tdStyle, isLast && lastRowTdStyle]}>{student.userId}</td>
+              <td css={[tdStyle, isLast && lastRowTdStyle]}>{student.email}</td>
+              <td css={[tdStyle, isLast && lastRowTdStyle]}>{student.courseInstance}</td>
+            </tr>
+          )
+        })}
+      </tbody>
+    </table>
+  </div>
 )
 
 const CertificatesTabContent = () => (
-  <table css={tableStyle}>
-    <thead>
-      <tr css={headerRowStyle}>
-        <th css={thStyle}>Student</th>
-        <th css={thStyle}>Certificate</th>
-        <th css={thStyle}>Date Issued</th>
-      </tr>
-    </thead>
-    <tbody>
-      {mockStudents.map((student, i) => {
-        const isLast = i === mockStudents.length - 1
-        return (
-          <tr key={student.userId} css={rowStyle}>
-            <td css={[tdStyle, isLast && lastRowTdStyle]}>
-              {student.firstName} {student.lastName}
-            </td>
-            <td css={[tdStyle, isLast && lastRowTdStyle]}>
-              {i % 2 === 0 ? "Course Certificate" : "No Certificate"}
-            </td>
-            <td css={[tdStyle, isLast && lastRowTdStyle]}>{i % 2 === 0 ? "2025-09-02" : "-"}</td>
-          </tr>
-        )
-      })}
-    </tbody>
-  </table>
+  <div css={innerScrollStyle}>
+    <table css={tableStyle}>
+      <thead>
+        <tr css={headerRowStyle}>
+          <th css={thStickyStyle}>Student</th>
+          <th css={thStickyStyle}>Certificate</th>
+          <th css={thStickyStyle}>Date Issued</th>
+        </tr>
+      </thead>
+      <tbody>
+        {mockStudents.map((student, i) => {
+          const isLast = i === mockStudents.length - 1
+          return (
+            <tr key={student.userId} css={rowStyle}>
+              <td css={[tdStyle, isLast && lastRowTdStyle]}>
+                {student.firstName} {student.lastName}
+              </td>
+              <td css={[tdStyle, isLast && lastRowTdStyle]}>
+                {i % 2 === 0 ? "Course Certificate" : "No Certificate"}
+              </td>
+              <td css={[tdStyle, isLast && lastRowTdStyle]}>{i % 2 === 0 ? "2025-09-02" : "-"}</td>
+            </tr>
+          )
+        })}
+      </tbody>
+    </table>
+  </div>
 )
+
+const TableContainer = (props: { children: React.ReactNode }) => (
+  <div css={innerScrollStyle}>{props.children}</div>
+)
+
+function TanStackTable<T>({ columns, data }: { columns: any[]; data: T[] }) {
+  const table = useReactTable({
+    columns,
+    data,
+    getCoreRowModel: getCoreRowModel(),
+  })
+  return (
+    <TableContainer>
+      <table css={tableStyle}>
+        <thead>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <tr key={headerGroup.id} css={headerRowStyle}>
+              {headerGroup.headers.map((header, i) => (
+                <th
+                  key={header.id}
+                  css={thStickyStyle}
+                  style={{
+                    left: undefined,
+                    minWidth: 150,
+                  }}
+                >
+                  {flexRender(header.column.columnDef.header, header.getContext())}
+                </th>
+              ))}
+            </tr>
+          ))}
+        </thead>
+        <tbody>
+          {table.getRowModel().rows.map((row) => (
+            <tr key={row.id} css={rowStyle}>
+              {row.getVisibleCells().map((cell, i) => {
+                const isLast = row.index === data.length - 1
+                return (
+                  <td key={cell.id} css={[tdStyle, isLast && lastRowTdStyle]}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                )
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </TableContainer>
+  )
+}
+
+const CompletionsTabContent = () => (
+  <TanStackTable columns={completionsColumns} data={completionsData} />
+)
+
+const PointsTabContent = () => <TanStackTable columns={pointsColumns} data={pointsData} />
 
 // ---- MAIN PAGE ----
 

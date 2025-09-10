@@ -6,11 +6,9 @@ import { useTranslation } from "react-i18next"
 import SubmissionIFrame from "./page-specific/submissions/id/SubmissionIFrame"
 
 import { ExerciseSlideSubmissionInfo } from "@/shared-module/common/bindings"
-import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
-import { baseTheme, headingFont, secondaryFont } from "@/shared-module/common/styles"
+import { headingFont, secondaryFont } from "@/shared-module/common/styles"
 import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { dateToString } from "@/shared-module/common/utils/time"
 
 interface MainFrontedViewSubmissionProps {
   submissionData: ExerciseSlideSubmissionInfo

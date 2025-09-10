@@ -58,35 +58,9 @@ pub async fn send_message(email: Email, mailer: &SmtpTransport, pool: PgPool) ->
     let mut email_block: Vec<EmailGutenbergBlock> =
         serde_json::from_value(email.body.context("No body")?)?;
 
-    // Checks if emails name is "reset-password-email" and inserts users unique reset -link into the email"
-    if email
-        .name
-        .as_deref()
-        .map(|n| n.eq_ignore_ascii_case("reset-password-email"))
-        .unwrap_or(false)
-    {
-        let token = get_unused_reset_password_token_with_user_id(&mut conn, email.user_id).await?;
-
-        let reset_url = match token {
-            Some(token_str) => {
-                let base =
-                    std::env::var("FRONTEND_BASE_URL").unwrap_or(FRONTEND_BASE_URL.to_string());
-
-                format!(
-                    "{}/reset-user-password/{}",
-                    base.trim_end_matches('/'),
-                    token_str.token
-                )
-            }
-            None => {
-                let err = anyhow::anyhow!("No reset token found for user {}", email.user_id);
-                save_err_to_email(email.id, err, &mut conn).await?;
-                return Ok(());
-            }
-        };
-        let mut replacements = HashMap::new();
-        replacements.insert("RESET_LINK".to_string(), reset_url.to_string());
-        email_block = insert_reset_password_link_placeholders(email_block, &replacements);
+    if let Some(name) = &email.name {
+        email_block =
+            apply_email_template_replacements(&mut conn, name, email.user_id, email_block).await?;
     }
 
     let msg_as_plaintext = email_processor::process_content_to_plaintext(&email_block);
@@ -128,7 +102,56 @@ pub async fn send_message(email: Email, mailer: &SmtpTransport, pool: PgPool) ->
     Ok(())
 }
 
-fn insert_reset_password_link_placeholders(
+async fn apply_email_template_replacements(
+    mut conn: &mut PgConnection,
+    template_name: &str,
+    user_id: Uuid,
+    blocks: Vec<EmailGutenbergBlock>,
+) -> anyhow::Result<Vec<EmailGutenbergBlock>> {
+    let mut replacements = HashMap::new();
+
+    match template_name.to_lowercase().as_str() {
+        "reset-password-email" => {
+            if let Some(token_str) =
+                get_unused_reset_password_token_with_user_id(&mut conn, user_id).await?
+            {
+                let base =
+                    std::env::var("FRONTEND_BASE_URL").unwrap_or(FRONTEND_BASE_URL.to_string());
+
+                let reset_url = format!(
+                    "{}/reset-user-password/{}",
+                    base.trim_end_matches('/'),
+                    token_str.token
+                );
+
+                replacements.insert("RESET_LINK".to_string(), reset_url);
+            } else {
+                let err = anyhow::anyhow!("No reset token found for user {}", user_id);
+                save_err_to_email(user_id, err, &mut conn).await?;
+                return Ok(blocks);
+            }
+        }
+        "delete-user-email" => {
+            if let Some(code) =
+                headless_lms_models::user_email_codes::get_unused_user_email_code_with_user_id(
+                    &mut conn, user_id,
+                )
+                .await?
+            {
+                replacements.insert("CODE".to_string(), code.code);
+            } else {
+                let err = anyhow::anyhow!("No deletion code found for user {}", user_id);
+                save_err_to_email(user_id, err, &mut conn).await?;
+                return Ok(blocks);
+            }
+        }
+        _ => {}
+    }
+
+    Ok(insert_placeholders(blocks, &replacements))
+}
+
+fn insert_placeholders(
     blocks: Vec<EmailGutenbergBlock>,
     replacements: &HashMap<String, String>,
 ) -> Vec<EmailGutenbergBlock> {

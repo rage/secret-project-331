@@ -727,8 +727,7 @@ pub async fn get_authorized_clients(
     auth_user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    let token =
-        crate::prelude::authorize(&mut conn, Act::View, Some(auth_user.id), Res::User).await?;
+    let token = skip_authorize();
 
     let rows: Vec<AuthorizedClientInfo> =
         OAuthUserClientScopes::list_authorized_clients_for_user(&mut conn, auth_user.id).await?;
@@ -744,8 +743,7 @@ pub async fn delete_authorized_client(
 ) -> ControllerResult<HttpResponse> {
     let client_id = path.into_inner();
     let mut conn = pool.acquire().await?;
-    let token =
-        crate::prelude::authorize(&mut conn, Act::View, Some(auth_user.id), Res::User).await?;
+    let token = skip_authorize();
 
     OAuthUserClientScopes::revoke_user_client_everything(&mut conn, auth_user.id, client_id)
         .await?;

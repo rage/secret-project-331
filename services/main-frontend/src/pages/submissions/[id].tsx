@@ -71,6 +71,44 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
             <KeyValueCard
               sections={[
                 {
+                  title: t("submission-details"),
+                  items: [
+                    {
+                      // eslint-disable-next-line i18next/no-literal-string
+                      key: "submission-id",
+                      label: t("submission-id"),
+                      colSpan: 3,
+                      value: (
+                        <HideTextInSystemTests
+                          text={getSubmissionInfo.data.exercise_slide_submission.id}
+                          testPlaceholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                        />
+                      ),
+                    },
+                    {
+                      // eslint-disable-next-line i18next/no-literal-string
+                      key: "submission-created",
+                      label: t("submission-created"),
+                      colSpan: 3,
+                      value: dateToString(
+                        getSubmissionInfo.data.exercise_slide_submission.created_at,
+                      ),
+                    },
+                    {
+                      // eslint-disable-next-line i18next/no-literal-string
+                      key: "points",
+                      label: t("points"),
+                      value: totalScoreGiven,
+                    },
+                    {
+                      // eslint-disable-next-line i18next/no-literal-string
+                      key: "max-points",
+                      label: t("max-points"),
+                      value: getSubmissionInfo.data.exercise.score_maximum,
+                    },
+                  ],
+                },
+                {
                   title: t("user-information"),
                   items: [
                     {
@@ -78,19 +116,19 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
                       key: "first-name",
                       label: t("first-name"),
                       value: userDetails.data.first_name ?? "",
-                    } as InformationItem,
+                    },
                     {
                       // eslint-disable-next-line i18next/no-literal-string
                       key: "last-name",
                       label: t("last-name"),
                       value: userDetails.data.last_name ?? "",
-                    } as InformationItem,
+                    },
                     {
                       // eslint-disable-next-line i18next/no-literal-string
                       key: "email",
                       label: t("email"),
                       value: userDetails.data.email ?? "",
-                    } as InformationItem,
+                    },
                     {
                       // eslint-disable-next-line i18next/no-literal-string
                       key: "user-id",

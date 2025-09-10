@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import KeyValueCard from "../../components/KeyValueCard"
 import MainFrontedViewSubmission from "../../components/MainFrontedViewSubmission"
+import { useExerciseSubmissionsForUser } from "../../hooks/useExerciseSubmissionsForUser"
 import { useUserDetails } from "../../hooks/useUserDetails"
 import { fetchSubmissionInfo } from "../../services/backend/submissions"
 
@@ -35,6 +36,11 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
   })
 
   const userDetails = useUserDetails(getSubmissionInfo.data?.exercise_slide_submission.user_id)
+
+  const exerciseSubmissions = useExerciseSubmissionsForUser(
+    getSubmissionInfo.data?.exercise.id,
+    getSubmissionInfo.data?.exercise_slide_submission.user_id,
+  )
 
   const totalScoreGiven = getSubmissionInfo.data?.tasks
     .map((task) => task.previous_submission_grading?.score_given)
@@ -174,6 +180,175 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
             submissionData={getSubmissionInfo.data}
             totalScoreGiven={totalScoreGiven}
           />
+
+          {/* All Submissions by User Section */}
+          <div
+            className={css`
+              max-width: ${narrowContainerWidthRem}rem;
+              margin: 3rem auto 2rem auto;
+            `}
+          >
+            <h2
+              className={css`
+                margin-bottom: 1.5rem;
+                font-size: 1.5rem;
+                font-weight: 600;
+                color: ${baseTheme.colors.gray[700]};
+              `}
+            >
+              {t("all-submissions-by-user")}
+            </h2>
+
+            {exerciseSubmissions.isLoading && <Spinner variant="medium" />}
+            {exerciseSubmissions.isError && (
+              <ErrorBanner variant="readOnly" error={exerciseSubmissions.error} />
+            )}
+            {exerciseSubmissions.isSuccess && exerciseSubmissions.data && (
+              <div
+                className={css`
+                  display: flex;
+                  flex-direction: column;
+                  gap: 0.75rem;
+                `}
+              >
+                {exerciseSubmissions.data
+                  .sort(
+                    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+                  )
+                  .map((submission, index) => {
+                    const isCurrentSubmission =
+                      submission.id === getSubmissionInfo.data.exercise_slide_submission.id
+                    const isLatestSubmission = index === 0
+
+                    return (
+                      <Link
+                        key={submission.id}
+                        href={`/submissions/${submission.id}`}
+                        className={css`
+                          text-decoration: none;
+                          display: block;
+                          transition: all 0.2s ease;
+
+                          &:hover {
+                            transform: translateY(-1px);
+                            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                          }
+                        `}
+                      >
+                        <div
+                          className={css`
+                            padding: 1rem 1.5rem;
+                            border-radius: 8px;
+                            border: 2px solid
+                              ${isCurrentSubmission
+                                ? baseTheme.colors.green[500]
+                                : baseTheme.colors.gray[200]};
+                            background-color: ${isCurrentSubmission
+                              ? baseTheme.colors.green[50]
+                              : baseTheme.colors.clear[100]};
+                            position: relative;
+
+                            &:hover {
+                              border-color: ${baseTheme.colors.blue[400]};
+                            }
+                          `}
+                        >
+                          {isLatestSubmission && (
+                            <div
+                              className={css`
+                                position: absolute;
+                                top: -8px;
+                                right: 12px;
+                                background-color: ${baseTheme.colors.blue[600]};
+                                color: white;
+                                padding: 0.25rem 0.75rem;
+                                border-radius: 12px;
+                                font-size: 0.75rem;
+                                font-weight: 600;
+                                text-transform: uppercase;
+                                letter-spacing: 0.5px;
+                              `}
+                            >
+                              {t("latest")}
+                            </div>
+                          )}
+
+                          {isCurrentSubmission && (
+                            <div
+                              className={css`
+                                position: absolute;
+                                top: -8px;
+                                left: 12px;
+                                background-color: ${baseTheme.colors.green[600]};
+                                color: white;
+                                padding: 0.25rem 0.75rem;
+                                border-radius: 12px;
+                                font-size: 0.75rem;
+                                font-weight: 600;
+                                text-transform: uppercase;
+                                letter-spacing: 0.5px;
+                              `}
+                            >
+                              {t("current")}
+                            </div>
+                          )}
+
+                          <div
+                            className={css`
+                              display: flex;
+                              justify-content: space-between;
+                              align-items: center;
+                              margin-top: ${isLatestSubmission || isCurrentSubmission
+                                ? "0.5rem"
+                                : "0"};
+                            `}
+                          >
+                            <div>
+                              <div
+                                className={css`
+                                  font-weight: 600;
+                                  color: ${baseTheme.colors.gray[800]};
+                                  margin-bottom: 0.25rem;
+                                `}
+                              >
+                                <HideTextInSystemTests
+                                  text={submission.id}
+                                  testPlaceholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                                />
+                              </div>
+                              <div
+                                className={css`
+                                  font-size: 0.875rem;
+                                  color: ${baseTheme.colors.gray[600]};
+                                `}
+                              >
+                                {dateToString(submission.created_at)}
+                              </div>
+                            </div>
+
+                            <div
+                              className={css`
+                                text-align: right;
+                              `}
+                            >
+                              <div
+                                className={css`
+                                  font-weight: 600;
+                                  color: ${baseTheme.colors.gray[700]};
+                                  font-size: 0.875rem;
+                                `}
+                              >
+                                {t("submission")} #{exerciseSubmissions.data.length - index}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    )
+                  })}
+              </div>
+            )}
+          </div>
         </>
       )}
       <div

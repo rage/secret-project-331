@@ -87,6 +87,42 @@ async fn get_exercise_submissions(
 }
 
 /**
+GET `/api/v0/main-frontend/exercises/:exercise_id/submissions/user/:user_id` - Returns an exercise's submissions for a user.
+ */
+#[instrument(skip(pool))]
+async fn get_exercise_submissions_for_user(
+    pool: web::Data<PgPool>,
+    exercise_id: web::Path<Uuid>,
+    user_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<Vec<ExerciseSlideSubmission>>> {
+    let mut conn = pool.acquire().await?;
+
+    let user = models::users::get_by_id(&mut conn, *user_id).await?;
+
+    let course_or_exam_id =
+        models::exercises::get_course_or_exam_id(&mut conn, *exercise_id).await?;
+
+    let token = match course_or_exam_id {
+        CourseOrExamId::Course(id) => {
+            authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(id)).await?
+        }
+        CourseOrExamId::Exam(id) => {
+            authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(id)).await?
+        }
+    };
+
+    let submissions =
+        models::exercise_slide_submissions::get_users_all_submissions_for_course_or_exam(
+            &mut conn,
+            user.id,
+            course_or_exam_id,
+        )
+        .await?;
+
+    token.authorized_ok(web::Json(submissions))
+}
+
+/**
 GET `/api/v0/main-frontend/exercises/:exercise_id/answers-requiring-attention` - Returns an exercise's answers requiring attention.
  */
 #[instrument(skip(pool))]
@@ -218,14 +254,18 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route(
         "/{course_id}/reset-exercises-for-selected-users",
         web::post().to(reset_exercises_for_selected_users),
+    )
+    .route("/{exercise_id}", web::get().to(get_exercise))
+    .route(
+        "/{exercise_id}/submissions",
+        web::get().to(get_exercise_submissions),
+    )
+    .route(
+        "/{exercise_id}/submissions/user/{user_id}",
+        web::get().to(get_exercise_submissions_for_user),
+    )
+    .route(
+        "/{exercise_id}/answers-requiring-attention",
+        web::get().to(get_exercise_answers_requiring_attention),
     );
-    cfg.route("/{exercise_id}", web::get().to(get_exercise))
-        .route(
-            "/{exercise_id}/submissions",
-            web::get().to(get_exercise_submissions),
-        )
-        .route(
-            "/{exercise_id}/answers-requiring-attention",
-            web::get().to(get_exercise_answers_requiring_attention),
-        );
 }

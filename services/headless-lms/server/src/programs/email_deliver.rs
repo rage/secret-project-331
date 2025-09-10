@@ -11,9 +11,10 @@ use lettre::{
     message::{MultiPart, SinglePart, header},
 };
 use once_cell::sync::Lazy;
+use sqlx::PgConnection;
 use sqlx::PgPool;
 use std::collections::HashMap;
-
+use uuid::Uuid;
 const BATCH_SIZE: usize = 100;
 
 const FRONTEND_BASE_URL: &str = "https://courses.mooc.fi";

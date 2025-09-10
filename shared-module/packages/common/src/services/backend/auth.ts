@@ -40,10 +40,22 @@ export const userInfo = async (): Promise<UserInfo | null> => {
   return validateResponse(response, isUnion(isUserInfo, isNull))
 }
 
-export const deleteUserAccount = async (email: string, password: string): Promise<boolean> => {
-  const response = await axios.post(`/api/v0/auth/delete-user-account`, {
+export const sendEmailCode = async (
+  email: string,
+  password: string,
+  language: string,
+): Promise<boolean> => {
+  const response = await axios.post(`/api/v0/auth/send-email-code`, {
     email,
     password,
+    language,
+  })
+  return validateResponse(response, isBoolean)
+}
+
+export const deleteUserAccount = async (code: string): Promise<boolean> => {
+  const response = await axios.post(`/api/v0/auth/delete-user-account`, {
+    code,
   })
   return validateResponse(response, isBoolean)
 }

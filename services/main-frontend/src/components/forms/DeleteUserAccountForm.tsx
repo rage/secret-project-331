@@ -1,59 +1,72 @@
 import { useQueryClient } from "@tanstack/react-query"
+import i18n from "i18next"
 import { useRouter } from "next/router"
 import React, { useContext, useState } from "react"
-import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
+
+import VerifyOneTimeCodeForm from "./VerifyOneTimeCodeFrom"
+import VerifyPasswordForm from "./VerifyPasswordForm"
 
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { deleteUserAccount } from "@/shared-module/common/services/backend/auth"
+import { deleteUserAccount, sendEmailCode } from "@/shared-module/common/services/backend/auth"
 
 interface DeleteUserAccountProps {
   email: string
 }
 
-const DeleteUserAccountForm: React.FC<React.PropsWithChildren<DeleteUserAccountProps>> = ({
-  email,
-}) => {
-  const {
-    formState: { isValid },
-  } = useForm<DeleteUserAccountProps>({
-    // eslint-disable-next-line i18next/no-literal-string
-    mode: "onChange",
-    defaultValues: { email },
-  })
+type Step = "password" | "verifyCode"
+
+const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
   const { t } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
+  const queryClient = useQueryClient()
+  const router = useRouter()
 
+  // eslint-disable-next-line i18next/no-literal-string
+  const [step, setStep] = useState<Step>("password")
   const [password, setPassword] = useState("")
   const [credentialsError, setCredentialsError] = useState(false)
   const [error, setError] = useState<Error | null>(null)
   const [openDialog, setOpenDialog] = useState(false)
-  const queryClient = useQueryClient()
-  const router = useRouter()
+
+  const sendEmailCodeMutation = useToastMutation(
+    async () => {
+      const result = await sendEmailCode(email, password, i18n.language)
+      setError(null)
+      setCredentialsError(!result)
+      return result
+    },
+    { notify: false },
+    {
+      onSuccess: (result) => {
+        if (result) {
+          // eslint-disable-next-line i18next/no-literal-string
+          setStep("verifyCode")
+        }
+      },
+    },
+  )
 
   const deleteAccountMutation = useToastMutation(
-    async () => {
-      const success = await deleteUserAccount(email, password)
+    async (code: string) => {
+      const result = await deleteUserAccount(code)
       setError(null)
-      setCredentialsError(!success)
-      return success
+      setCredentialsError(!result)
+      return result
     },
+    { notify: false },
     {
-      method: "POST",
-      notify: true,
-    },
-    {
-      onSuccess: () => {
-        setOpenDialog(false)
-        queryClient.removeQueries()
-        loginStateContext.refresh()
-        // eslint-disable-next-line i18next/no-literal-string
-        router.push("/login?return_to=%2F")
+      onSuccess: (result) => {
+        if (result) {
+          queryClient.removeQueries()
+          loginStateContext.refresh()
+          // eslint-disable-next-line i18next/no-literal-string
+          router.push("/login")
+        }
       },
     },
   )
@@ -67,41 +80,31 @@ const DeleteUserAccountForm: React.FC<React.PropsWithChildren<DeleteUserAccountP
       <StandardDialog
         open={openDialog}
         title={t("title-delete-account")}
-        buttons={[
-          {
-            type: "submit",
-            disabled: !isValid || deleteAccountMutation.isPending,
-            // eslint-disable-next-line i18next/no-literal-string
-            className: "primary-button",
-            variant: "primary",
-            children: t("confirm"),
-            onClick: () => deleteAccountMutation.mutateAsync(),
-          },
-          {
-            type: "submit",
-            disabled: !isValid || deleteAccountMutation.isPending,
-            // eslint-disable-next-line i18next/no-literal-string
-            className: "primary-button",
-            variant: "primary",
-            children: t("button-text-cancel"),
-            onClick: () => setOpenDialog(false),
-          },
-        ]}
+        showCloseButton
+        // eslint-disable-next-line i18next/no-literal-string
+        aria-modal="true"
+        onClose={() => setOpenDialog(false)}
       >
-        <p>{t("delete-account-info")}</p>
-
         {error && <ErrorBanner error={error} />}
-        {credentialsError && <ErrorBanner error={new Error("Invalid credentials")} />}
 
-        <TextField
-          type="password"
-          label={t("label-password")}
-          onChange={(event) => {
-            setPassword(event.target.value)
-            setCredentialsError(false)
-          }}
-          required
-        />
+        {step === "password" && (
+          <VerifyPasswordForm
+            onSubmit={(pwd) => {
+              setPassword(pwd)
+              sendEmailCodeMutation.mutateAsync()
+            }}
+            isPending={sendEmailCodeMutation.isPending}
+            credentialsError={credentialsError}
+          />
+        )}
+
+        {step === "verifyCode" && (
+          <VerifyOneTimeCodeForm
+            onSubmit={(c) => deleteAccountMutation.mutateAsync(c)}
+            onResend={() => sendEmailCodeMutation.mutateAsync()}
+            credentialsError={credentialsError}
+          />
+        )}
       </StandardDialog>
     </>
   )

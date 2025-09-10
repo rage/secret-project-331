@@ -15,8 +15,9 @@ use crate::{
 use actix_session::Session;
 use anyhow::Error;
 use anyhow::anyhow;
-use headless_lms_models::{user_passwords, users};
+use headless_lms_models::{user_email_codes, user_passwords, users};
 use headless_lms_utils::tmc::{NewUserInfo, TmcClient};
+use rand::Rng;
 use secrecy::SecretString;
 use std::time::Duration;
 use tracing_log::log;
@@ -515,18 +516,27 @@ pub async fn user_info(
     }
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct SendEmailCodeData {
+    pub email: String,
+    pub password: String,
+    pub language: String,
+}
+
 /**
-POST `/api/v0/auth/delete-user-account` If users password is correct, deletes the account
+POST `/api/v0/auth/send-email-code` If users password is correct, sends a code to users email for account deletion
 **/
-#[instrument(skip(pool, payload, auth_user, session))]
+#[instrument(skip(pool, payload, auth_user))]
 #[allow(clippy::async_yields_async)]
-pub async fn delete_user_account(
+pub async fn send_delete_user_email_code(
     auth_user: Option<AuthUser>,
     pool: web::Data<PgPool>,
-    payload: web::Json<Login>,
-    session: Session,
+    payload: web::Json<SendEmailCodeData>,
 ) -> ControllerResult<web::Json<bool>> {
     let token = skip_authorize();
+
+    // Check user credentials
     if let Some(auth_user) = auth_user {
         let mut conn = pool.acquire().await?;
 
@@ -538,15 +548,111 @@ pub async fn delete_user_account(
         .await?;
 
         if !password_ok {
+            info!(
+                "User {} attempted account deletion with incorrect password",
+                auth_user.id
+            );
+
             return token.authorized_ok(web::Json(false));
         }
 
-        users::delete_user(&mut conn, auth_user.id).await?;
-        authorization::forget(&session);
+        let language = &payload.language;
+
+        // Get user deletion email template
+        let delete_template =
+            match models::email_templates::get_generic_email_template_by_name_and_language(
+                &mut conn,
+                "delete-user-email",
+                language,
+            )
+            .await
+            {
+                Ok(t) => t,
+                Err(e) => {
+                    warn!("No delete-user-email-code template available: {:?}", e);
+                    return token.authorized_ok(web::Json(false));
+                }
+            };
+
+        let user = models::users::get_by_id(&mut conn, auth_user.id).await?;
+
+        let code = if let Some(existing) =
+            models::user_email_codes::get_unused_user_email_code_with_user_id(
+                &mut conn,
+                auth_user.id,
+            )
+            .await?
+        {
+            existing.code
+        } else {
+            let new_code: String = rand::rng().random_range(100_000..1_000_000).to_string();
+            models::user_email_codes::insert_user_email_code(
+                &mut conn,
+                auth_user.id,
+                new_code.clone(),
+            )
+            .await?;
+            new_code
+        };
+
+        models::user_email_codes::insert_user_email_code(&mut conn, auth_user.id, code.clone())
+            .await?;
+        let _ =
+            models::email_deliveries::insert_email_delivery(&mut conn, user.id, delete_template.id)
+                .await?;
+
         return token.authorized_ok(web::Json(true));
     }
-
     token.authorized_ok(web::Json(false))
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct EmailCode {
+    pub code: String,
+}
+
+/**
+POST `/api/v0/auth/delete-user-account` If users single-use code is correct then delete users account
+**/
+#[instrument(skip(pool, payload, auth_user, session))]
+#[allow(clippy::async_yields_async)]
+pub async fn delete_user_account(
+    auth_user: Option<AuthUser>,
+    pool: web::Data<PgPool>,
+    payload: web::Json<EmailCode>,
+    session: Session,
+) -> ControllerResult<web::Json<bool>> {
+    let token = skip_authorize();
+    // Check users code is valid
+    if let Some(auth_user) = auth_user {
+        let mut conn = pool.acquire().await?;
+
+        let code_ok = user_email_codes::is_reset_user_email_code_valid(
+            &mut conn,
+            auth_user.id,
+            &payload.code,
+        )
+        .await?;
+
+        if code_ok {
+            let _ = users::delete_user(&mut conn, auth_user.id).await;
+            let _ =
+                user_email_codes::mark_user_email_code_used(&mut conn, auth_user.id, &payload.code)
+                    .await;
+            authorization::forget(&session);
+            return token.authorized_ok(web::Json(true));
+        } else {
+            info!(
+                "User {} attempted account deletion with incorrect code",
+                auth_user.id
+            );
+
+            return token.authorized_ok(web::Json(false));
+        }
+    } else {
+        return token.authorized_ok(web::Json(false));
+    }
 }
 
 /// Posts new user account to tmc.mooc.fi.
@@ -625,5 +731,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         web::post().to(authorize_multiple_actions_on_resources),
     )
     .route("/user-info", web::get().to(user_info))
-    .route("/delete-user-account", web::post().to(delete_user_account));
+    .route("/delete-user-account", web::post().to(delete_user_account))
+    .route(
+        "/send-email-code",
+        web::post().to(send_delete_user_email_code),
+    );
 }

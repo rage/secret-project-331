@@ -23,7 +23,7 @@ use crate::llm_utils::{LLM_API_VERSION, build_llm_headers, estimate_tokens};
 use crate::prelude::*;
 use crate::search_filter::SearchFilter;
 
-const CONTENT_FIELD_SEPARATOR: &str = ",,";
+const CONTENT_FIELD_SEPARATOR: &str = ",|||,";
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ContentFilterResults {
@@ -505,10 +505,11 @@ pub async fn send_chat_request_and_parse_stream(
                         let mut conn = pool.acquire().await?;
                         for (idx, cit) in context.citations.iter().enumerate() {
                             let content = if cit.content.len() < 255 {cit.content.clone()} else {cit.content[0..255].to_string()};
-                            let mut split = content.split(CONTENT_FIELD_SEPARATOR);
-                            split.next();
-                            // join using the separator in case the separator appeared later in the content
-                            let cleaned_content: String = split.collect::<Vec<&str>>().join(CONTENT_FIELD_SEPARATOR);
+                            let split = content.split_once(CONTENT_FIELD_SEPARATOR);
+                            if split.is_none() {
+                                error!("Chatbot citation doesn't have any content or is missing 'chunk_context'. Something is wrong with Azure.");
+                            }
+                            let cleaned_content: String = split.unwrap_or(("","")).1.to_string();
 
                             let document_url = cit.url.clone();
                             let mut page_path = PathBuf::from(&cit.filepath);

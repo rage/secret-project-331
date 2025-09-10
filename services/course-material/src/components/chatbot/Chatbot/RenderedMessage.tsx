@@ -111,8 +111,8 @@ interface MessageWithPortalsComponentProps {
 }
 
 const MessageWithPortalsComponent: React.FC<MessageWithPortalsComponentProps> = memo(({ msg }) => {
-  /** memo the rendered message that has the portal targets so that it won't be
-   rerendered when the portals are created */
+  /* this span is the parent to the portal containers. memo it so that it won't be
+   re-rendered when the portals are created */
   return (
     <span
       className={messageStyle}

@@ -73,8 +73,8 @@ pub async fn create_skillset(
                 "context": "/document",
                 "defaultLanguageCode": "en",
                 "textSplitMode": "pages",
-                "maximumPageLength": 512,
-                "pageOverlapLength": 50,
+                "maximumPageLength": 2000,
+                "pageOverlapLength": 500,
                 "maximumPagesToTake": 0,
                 "inputs": [
                     {

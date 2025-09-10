@@ -46,16 +46,20 @@ export const renumberFilterCitations = (
     // renumbers the uniqueCitations to be ordered,
     // saves the renumbering in a map and filters the citations
     let cit = citations.find((c) => c.citation_number === citN)
-    // because of earlier checks we know that cit will be found
-    if (citedPages.has(cit!.document_url)) {
+    if (!cit) {
+      throw new Error(
+        "The citation should be found because uniqueCitations is created based on citations",
+      )
+    }
+    if (citedPages.has(cit.document_url)) {
       // already cited, so set the citN as the same as the earlier of the same page
-      citationNumberingMap.set(cit!.citation_number, citedPages.get(cit!.document_url))
+      citationNumberingMap.set(cit.citation_number, citedPages.get(cit.document_url))
     } else {
-      citationNumberingMap.set(cit!.citation_number, n)
-      citedPages.set(cit!.document_url, n)
+      citationNumberingMap.set(cit.citation_number, n)
+      citedPages.set(cit.document_url, n)
       n += 1
     }
-    filteredCitations.push(cit!)
+    filteredCitations.push(cit)
   })
 
   // none of these include hallucinated citations

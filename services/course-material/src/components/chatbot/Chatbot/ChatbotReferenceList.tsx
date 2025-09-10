@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import { Library } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
-import React, { useId } from "react"
+import React, { useId, useMemo } from "react"
 import { useHover } from "react-aria"
 import { useTranslation } from "react-i18next"
 
@@ -105,17 +105,19 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
 
   let { hoverProps: hoverPopoverProps, isHovered: isPopoverHovered } = useHover({})
 
-  let citationFilteringSet = new Set()
-  let citationsToList = citations
-    .filter((cit) => {
-      if (citationFilteringSet.has(cit.document_url)) {
-        return false
-      } else {
-        citationFilteringSet.add(cit.document_url)
-        return true
-      }
-    })
-    .map((cit) => cit.id)
+  let citationsToList = useMemo(() => {
+    let citationFilteringSet = new Set()
+    return citations
+      .filter((cit) => {
+        if (citationFilteringSet.has(cit.document_url)) {
+          return false
+        } else {
+          citationFilteringSet.add(cit.document_url)
+          return true
+        }
+      })
+      .map((cit) => cit.id)
+  }, [citations])
 
   // 60 represents the n of chars in the collapsed reference list width, allocate it
   // evenly for the citations by dividing by n of citations

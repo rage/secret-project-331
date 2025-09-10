@@ -213,11 +213,71 @@ jobs:
         if: ${{ github.ref == 'refs/heads/master' }}
       - name: Push images tagged with sha if master
         run: |
+          echo "=== Starting image push process ==="
+
           # Point Docker CLI to minikube's Docker daemon since images are built there
+          echo "> Setting up Docker environment for minikube..."
           eval "$(minikube -p minikube docker-env --shell bash)"
+          echo "> Docker environment configured"
+
+          echo "> Authenticating with Google Cloud Docker registry..."
           gcloud auth configure-docker -q
-          # shellcheck disable=SC2016
-          jq --raw-output '.builds[].tag' < skaffold-build-output.json | xargs -d $'\n' sh -c 'for arg do echo "> docker push $arg"; docker push "$arg"; done'
+          echo "> Authentication completed"
+
+          # Check if the skaffold output file exists and show its contents
+          echo "> Checking skaffold-build-output.json file..."
+          if [ ! -f "skaffold-build-output.json" ]; then
+            echo "ERROR: skaffold-build-output.json file not found!"
+            exit 1
+          fi
+
+          echo "> File size: $(wc -c < skaffold-build-output.json) bytes"
+          echo "> File contents (formatted):"
+          python -m json.tool skaffold-build-output.json
+          echo ""
+
+          # Extract and display all image tags
+          echo "> Extracting image tags from skaffold output..."
+          TAGS=$(jq --raw-output '.builds[].tag' < skaffold-build-output.json)
+          echo "> Found tags:"
+          echo "$TAGS"
+          echo ""
+
+          # Count the number of tags
+          TAG_COUNT=$(echo "$TAGS" | wc -l)
+          echo "> Total number of tags to push: $TAG_COUNT"
+
+          if [ "$TAG_COUNT" -eq 0 ]; then
+            echo "ERROR: No image tags found in skaffold output!"
+            exit 1
+          fi
+
+          # Push each image with detailed logging
+          echo "> Starting to push images..."
+          echo "$TAGS" | while IFS= read -r tag; do
+            if [ -n "$tag" ]; then
+              echo ""
+              echo "=== Pushing image: $tag ==="
+              echo "> Checking if image exists locally..."
+              if docker image inspect "$tag" >/dev/null 2>&1; then
+                echo "> Image found locally, pushing..."
+                if docker push "$tag"; then
+                  echo "> SUCCESS: Pushed $tag"
+                else
+                  echo "> ERROR: Failed to push $tag"
+                  exit 1
+                fi
+              else
+                echo "> ERROR: Image $tag not found locally!"
+                echo "> Available images:"
+                docker images
+                exit 1
+              fi
+            fi
+          done
+
+          echo ""
+          echo "=== Image push process completed successfully ==="
         if: ${{ github.ref == 'refs/heads/master' }}
 
   deploy:

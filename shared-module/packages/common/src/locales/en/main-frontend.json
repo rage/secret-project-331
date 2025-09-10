@@ -992,6 +992,7 @@
   "user-answer-explanation": "This is the data that gets sent to the server to be graded when user answers an exercise. You can fill this data from the answer-exercise view by submitting the exercise.",
   "user-id": "User id",
   "user-id-is-missing": "User id is missing.",
+  "user-information": "User Information",
   "users": "Users",
   "users-receiving-a-completion-for-the-first-time": "Users receiving a completion for the first time",
   "users-that-already-have-a-completion-and-are-about-to-get-a-duplicate-one": "Users that already have a completion and are about to receive a duplicate one",

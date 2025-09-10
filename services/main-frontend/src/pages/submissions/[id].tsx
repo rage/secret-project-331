@@ -1,12 +1,15 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { Question } from "@vectopus/atlas-icons-react"
+import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import SubmissionIFrame from "../../components/page-specific/submissions/id/SubmissionIFrame"
+import { useUserDetails } from "../../hooks/useUserDetails"
 import { fetchSubmissionInfo } from "../../services/backend/submissions"
 
+import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
@@ -17,6 +20,7 @@ import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import { courseInstanceUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
 
 interface SubmissionPageProps {
@@ -29,6 +33,8 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
     queryKey: [`submission-${query.id}`],
     queryFn: () => fetchSubmissionInfo(query.id),
   })
+
+  const userDetails = useUserDetails(getSubmissionInfo.data?.exercise_slide_submission.user_id)
 
   const totalScoreGiven = getSubmissionInfo.data?.tasks
     .map((task) => task.previous_submission_grading?.score_given)
@@ -57,6 +63,101 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
               })}
             />
           </h1>
+
+          {/* User Information Section */}
+          <div
+            className={css`
+              background-color: ${baseTheme.colors.clear[100]};
+              border: 1px solid ${baseTheme.colors.clear[200]};
+              border-radius: 8px;
+              padding: 1.5rem;
+              margin-bottom: 2rem;
+              max-width: ${narrowContainerWidthRem}rem;
+              margin-left: auto;
+              margin-right: auto;
+            `}
+          >
+            <h2
+              className={css`
+                margin: 0 0 1rem 0;
+                font-size: 1.2rem;
+                color: black;
+              `}
+            >
+              {t("user-information")}
+            </h2>
+            <div
+              className={css`
+                display: grid;
+                grid-template-columns: auto 1fr;
+                gap: 0.5rem 1rem;
+                align-items: center;
+              `}
+            >
+              <strong>{t("user-id")}:</strong>
+              <HideTextInSystemTests
+                text={getSubmissionInfo.data.exercise_slide_submission.user_id}
+                testPlaceholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+              />
+
+              {userDetails.data?.first_name && (
+                <>
+                  <strong>{t("first-name")}:</strong>
+                  <span>{userDetails.data.first_name}</span>
+                </>
+              )}
+
+              {userDetails.data?.last_name && (
+                <>
+                  <strong>{t("last-name")}:</strong>
+                  <span>{userDetails.data.last_name}</span>
+                </>
+              )}
+
+              {userDetails.data?.email && (
+                <>
+                  <strong>{t("email")}:</strong>
+                  <span>{userDetails.data.email}</span>
+                </>
+              )}
+
+              {userDetails.isPending && (
+                <>
+                  <strong>{t("status")}:</strong>
+                  <Spinner variant="small" />
+                </>
+              )}
+            </div>
+            <div
+              className={css`
+                margin-top: 1rem;
+                text-align: right;
+              `}
+            >
+              <Link
+                href={courseInstanceUserStatusSummaryRoute(
+                  "PLACEHOLDER_COURSE_INSTANCE_ID",
+                  getSubmissionInfo.data.exercise_slide_submission.user_id,
+                )}
+              >
+                <Button variant="tertiary" size="medium">
+                  {t("course-status-summary")}
+                </Button>
+              </Link>
+            </div>
+          </div>
+
+          {/* User Details Error Banner */}
+          {userDetails.isError && (
+            <ErrorBanner
+              variant="readOnly"
+              error={userDetails.error}
+              className={css`
+                max-width: ${narrowContainerWidthRem}rem;
+                margin: 0 auto 2rem auto;
+              `}
+            />
+          )}
 
           {
             <div

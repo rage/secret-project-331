@@ -117,8 +117,7 @@ async fn resolve_course_or_exam_id_and_verify_that_user_can_submit(
     slide_id: Uuid,
 ) -> Result<(CourseOrExamId, bool), ControllerError> {
     let mut last_try = false;
-    let course_instance_id_or_exam_id: CourseOrExamId = if let Some(course_id) = exercise.course_id
-    {
+    let course_id_or_exam_id: CourseOrExamId = if let Some(course_id) = exercise.course_id {
         // If submitting for a course, there should be existing course settings that dictate which
         // instance the user is on.
         let settings = models::user_course_settings::get_user_course_settings_by_course_id(
@@ -163,13 +162,23 @@ async fn resolve_course_or_exam_id_and_verify_that_user_can_submit(
                 models::exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user(
                     conn,
                     exercise.id,
-                    course_instance_id_or_exam_id,
+                    course_id_or_exam_id,
                     user_id,
                 )
                 .await?;
 
             let count = slide_id_to_submissions_count.get(&slide_id).unwrap_or(&0);
             if count >= &(max_tries_per_slide as i64) {
+                tracing::error!(
+                    user_id = %user_id,
+                    exercise_id = %exercise.id,
+                    slide_id = %slide_id,
+                    course_or_exam_id = ?course_id_or_exam_id,
+                    current_try_count = %count,
+                    max_tries_per_slide = %max_tries_per_slide,
+                    limit_number_of_tries = %exercise.limit_number_of_tries,
+                    "User has run out of tries for exercise slide submission"
+                );
                 return Err(ControllerError::new(
                     ControllerErrorType::BadRequest,
                     "You've ran out of tries.".to_string(),
@@ -181,5 +190,5 @@ async fn resolve_course_or_exam_id_and_verify_that_user_can_submit(
             }
         }
     }
-    Ok((course_instance_id_or_exam_id, last_try))
+    Ok((course_id_or_exam_id, last_try))
 }

@@ -40,7 +40,12 @@
           "Custom": {
             "name": "teacher_decision_type",
             "kind": {
-              "Enum": ["full-points", "zero-points", "custom-points", "suspected-plagiarism"]
+              "Enum": [
+                "full-points",
+                "zero-points",
+                "custom-points",
+                "suspected-plagiarism"
+              ]
             }
           }
         }
@@ -63,7 +68,12 @@
           "Custom": {
             "name": "teacher_decision_type",
             "kind": {
-              "Enum": ["full-points", "zero-points", "custom-points", "suspected-plagiarism"]
+              "Enum": [
+                "full-points",
+                "zero-points",
+                "custom-points",
+                "suspected-plagiarism"
+              ]
             }
           }
         },
@@ -73,7 +83,17 @@
         "Bool"
       ]
     },
-    "nullable": [false, false, false, false, true, false, false, true, false]
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      false
+    ]
   },
   "hash": "6e9ff76b570a35f0bebf23885d0f90b94820cf360c77736192fc3fb582f91dd4"
 }

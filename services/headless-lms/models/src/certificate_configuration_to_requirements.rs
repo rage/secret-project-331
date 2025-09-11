@@ -9,7 +9,6 @@ pub struct CertificateConfigurationToRequirement {
     pub deleted_at: Option<DateTime<Utc>>,
     pub certificate_configuration_id: Uuid,
     pub course_module_id: Option<Uuid>,
-    pub course_instance_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -17,17 +16,12 @@ pub struct CertificateConfigurationToRequirement {
 pub struct CertificateAllRequirements {
     pub certificate_configuration_id: Uuid,
     pub course_module_ids: Vec<Uuid>,
-    pub course_instance_ids: Vec<Uuid>,
 }
 
 impl CertificateAllRequirements {
-    /** A certificate configuration is a default configuration if the requirement is only for one course module and for one course instance. These types of configurations are regarded as the default because they are the most commonly used ones. */
+    /** A certificate configuration is a default configuration if the requirement is only for one course module. These types of configurations are regarded as the default because they are the most commonly used ones. */
     pub fn is_default_certificate_configuration(&self) -> bool {
-        self.course_module_ids.len() == 1 && self.course_instance_ids.len() == 1
-    }
-
-    pub fn requires_only_one_course_module_and_does_not_require_course_instance(&self) -> bool {
-        self.course_module_ids.len() == 1 && self.course_instance_ids.is_empty()
+        self.course_module_ids.len() == 1
     }
 
     /** Checks if the user has completed all requirements to be eligible for a certificate. */
@@ -38,42 +32,26 @@ impl CertificateAllRequirements {
     ) -> ModelResult<bool> {
         let all_users_completions =
             crate::course_module_completions::get_all_by_user_id(conn, user_id).await?;
-        let all_completed_course_instance_ids = all_users_completions
-            .iter()
-            .map(|o| o.course_instance_id)
-            .collect::<Vec<_>>();
+
         let all_completed_course_module_ids = all_users_completions
             .iter()
             .map(|o| o.course_module_id)
             .collect::<Vec<_>>();
         // Compare the vecs of completed stuff to the requirements
-        let all_required_course_instances_completed = self
-            .course_instance_ids
-            .iter()
-            .all(|id| all_completed_course_instance_ids.contains(id));
         let all_required_course_modules_completed = self
             .course_module_ids
             .iter()
             .all(|id| all_completed_course_module_ids.contains(id));
-        let result =
-            all_required_course_instances_completed && all_required_course_modules_completed;
+        let result = all_required_course_modules_completed;
         if !result {
-            let missing_course_instance_ids = self
-                .course_instance_ids
-                .iter()
-                .filter(|id| !all_completed_course_instance_ids.contains(id))
-                .collect::<Vec<_>>();
             let missing_course_module_ids = self
                 .course_module_ids
                 .iter()
                 .filter(|id| !all_completed_course_module_ids.contains(id))
                 .collect::<Vec<_>>();
             warn!(
-                "User {} has not completed all requirements for certificate configuration {}. Missing course instance ids: {:?}, missing course module ids: {:?}.",
-                user_id,
-                self.certificate_configuration_id,
-                missing_course_instance_ids,
-                missing_course_module_ids
+                "User {} has not completed all requirements for certificate configuration {}. Missing course module ids: {:?}.",
+                user_id, self.certificate_configuration_id, missing_course_module_ids
             )
         }
         Ok(result)
@@ -100,14 +78,10 @@ AND deleted_at IS NULL
         .iter()
         .filter_map(|r| r.course_module_id)
         .collect();
-    let course_instance_ids = requirements
-        .iter()
-        .filter_map(|r| r.course_instance_id)
-        .collect();
+
     Ok(CertificateAllRequirements {
         certificate_configuration_id,
         course_module_ids,
-        course_instance_ids,
     })
 }
 
@@ -115,22 +89,19 @@ pub async fn insert(
     conn: &mut PgConnection,
     certificate_configuration_id: Uuid,
     course_module_id: Option<Uuid>,
-    course_instance_id: Option<Uuid>,
 ) -> ModelResult<CertificateConfigurationToRequirement> {
     let row = sqlx::query_as!(
         CertificateConfigurationToRequirement,
         r#"
 INSERT INTO certificate_configuration_to_requirements (
     certificate_configuration_id,
-    course_module_id,
-    course_instance_id
+    course_module_id
   )
-VALUES ($1, $2, $3)
+VALUES ($1, $2)
 RETURNING *
         "#,
         certificate_configuration_id,
         course_module_id,
-        course_instance_id
     )
     .fetch_one(conn)
     .await?;

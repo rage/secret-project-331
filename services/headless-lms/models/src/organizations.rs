@@ -150,31 +150,6 @@ RETURNING *;",
     Ok(updated_organization)
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::test_helper::Conn;
-
-    #[tokio::test]
-    async fn gets_organizations() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
-        let orgs_before = all_organizations(tx.as_mut()).await.unwrap();
-        insert(
-            tx.as_mut(),
-            PKeyPolicy::Fixed(Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap()),
-            "org",
-            "slug",
-            Some("description"),
-            false,
-        )
-        .await
-        .unwrap();
-        let orgs_after = all_organizations(tx.as_mut()).await.unwrap();
-        assert_eq!(orgs_before.len() + 1, orgs_after.len());
-    }
-}
-
 pub async fn update_name_and_hidden(
     conn: &mut PgConnection,
     id: Uuid,
@@ -224,4 +199,29 @@ ORDER BY name
     .fetch_all(conn)
     .await?;
     Ok(organizations)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_helper::Conn;
+
+    #[tokio::test]
+    async fn gets_organizations() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let orgs_before = all_organizations(tx.as_mut()).await.unwrap();
+        insert(
+            tx.as_mut(),
+            PKeyPolicy::Fixed(Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap()),
+            "org",
+            "slug",
+            Some("description"),
+            false,
+        )
+        .await
+        .unwrap();
+        let orgs_after = all_organizations(tx.as_mut()).await.unwrap();
+        assert_eq!(orgs_before.len() + 1, orgs_after.len());
+    }
 }

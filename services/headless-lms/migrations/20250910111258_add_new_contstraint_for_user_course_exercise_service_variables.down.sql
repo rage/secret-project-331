@@ -1,0 +1,1 @@
+ALTER TABLE user_course_exercise_service_variables DROP CONSTRAINT no_duplicate_keys_course;

@@ -15,6 +15,9 @@ export interface HeroSectionAttributes {
   backgroundColor: string | undefined
   fontColor: string | undefined
   backgroundImage: string | undefined
+  backgroundImageMedium: string | undefined
+  backgroundImageLarge: string | undefined
+  backgroundImageXLarge: string | undefined
   backgroundRepeatX: boolean | undefined
   alignCenter?: boolean | undefined
   alignBottom?: boolean | undefined
@@ -54,6 +57,18 @@ const HeroSectionConfiguration: BlockConfiguration<HeroSectionAttributes> = {
       default: baseTheme.colors.gray[700],
     },
     backgroundImage: {
+      type: "string",
+      default: undefined,
+    },
+    backgroundImageMedium: {
+      type: "string",
+      default: undefined,
+    },
+    backgroundImageLarge: {
+      type: "string",
+      default: undefined,
+    },
+    backgroundImageXLarge: {
       type: "string",
       default: undefined,
     },

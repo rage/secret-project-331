@@ -4,103 +4,53 @@
 
 # How building works:
 
-# For each deployed service, we build two images: a build cache image and a slim image that is used for the deployment. The slim image depends on the cache image and will be built after the cache image. The cache image can be very big (many gigabytes) and  slim image should be much smaller (like a couple hunderd megabytes).
-# The two different images are built with Docker's multi-stage builds (https://docs.docker.com/develop/develop-images/multistage-build/) -- we just specify which target we want for each image. The latter build will use the Docker build cache from the previous build so we don't execute the build steps twice.
+# For each deployed service, we build a single multi-stage image that contains both the build and runtime stages. The build stage compiles the application and the runtime stage creates a slim production image.
 
 apiVersion: skaffold/v3
 kind: Config
 build:
   artifacts:
     # headless-lms
-    - image: eu.gcr.io/moocfi-public/secret-project-headless-lms-production-build-cache
-      context: services/headless-lms
-      docker:
-        dockerfile: Dockerfile.production.cache.dockerfile
     - image: eu.gcr.io/moocfi-public/secret-project-headless-lms-production-slim
       context: services/headless-lms
       docker:
         dockerfile: Dockerfile.production.slim.dockerfile
-      requires:
-        - image: eu.gcr.io/moocfi-public/secret-project-headless-lms-production-build-cache
-          alias: BUILD_CACHE
 
     # cms
-    - image: eu.gcr.io/moocfi-public/secret-project-cms-production-build-cache
-      context: services/cms
-      docker:
-        dockerfile: Dockerfile.production.cache.dockerfile
     - image: eu.gcr.io/moocfi-public/secret-project-cms-production-slim
       context: services/cms
       docker:
         dockerfile: Dockerfile.production.slim.dockerfile
-      requires:
-        - image: eu.gcr.io/moocfi-public/secret-project-cms-production-build-cache
-          alias: BUILD_CACHE
 
     # course-material
-    - image: eu.gcr.io/moocfi-public/secret-project-course-material-production-build-cache
-      context: services/course-material
-      docker:
-        dockerfile: Dockerfile.production.cache.dockerfile
     - image: eu.gcr.io/moocfi-public/secret-project-course-material-production-slim
       context: services/course-material
       docker:
         dockerfile: Dockerfile.production.slim.dockerfile
-      requires:
-        - image: eu.gcr.io/moocfi-public/secret-project-course-material-production-build-cache
-          alias: BUILD_CACHE
 
     # main-frontend
-    - image: eu.gcr.io/moocfi-public/secret-project-main-frontend-production-build-cache
-      context: services/main-frontend
-      docker:
-        dockerfile: Dockerfile.production.cache.dockerfile
     - image: eu.gcr.io/moocfi-public/secret-project-main-frontend-production-slim
       context: services/main-frontend
       docker:
         dockerfile: Dockerfile.production.slim.dockerfile
-      requires:
-        - image: eu.gcr.io/moocfi-public/secret-project-main-frontend-production-build-cache
-          alias: BUILD_CACHE
 
     # example-exercise
-    - image: eu.gcr.io/moocfi-public/secret-project-example-exercise-production-build-cache
-      context: services/example-exercise
-      docker:
-        dockerfile: Dockerfile.production.cache.dockerfile
     - image: eu.gcr.io/moocfi-public/secret-project-example-exercise-production-slim
       context: services/example-exercise
       docker:
         dockerfile: Dockerfile.production.slim.dockerfile
-      requires:
-        - image: eu.gcr.io/moocfi-public/secret-project-example-exercise-production-build-cache
-          alias: BUILD_CACHE
 
     # quizzes
-    - image: eu.gcr.io/moocfi-public/secret-project-quizzes-production-build-cache
-      context: services/quizzes
-      docker:
-        dockerfile: Dockerfile.production.cache.dockerfile
     - image: eu.gcr.io/moocfi-public/secret-project-quizzes-production-slim
       context: services/quizzes
       docker:
         dockerfile: Dockerfile.production.slim.dockerfile
-      requires:
-        - image: eu.gcr.io/moocfi-public/secret-project-quizzes-production-build-cache
-          alias: BUILD_CACHE
 
     # tmc
-    - image: eu.gcr.io/moocfi-public/secret-project-tmc-production-build-cache
-      context: services/tmc
-      docker:
-        dockerfile: Dockerfile.production.cache.dockerfile
     - image: eu.gcr.io/moocfi-public/secret-project-tmc-production-slim
       context: services/tmc
       docker:
         dockerfile: Dockerfile.production.slim.dockerfile
-      requires:
-        - image: eu.gcr.io/moocfi-public/secret-project-tmc-production-build-cache
-          alias: BUILD_CACHE
   tagPolicy:
     # Default tag policy
     gitCommit:

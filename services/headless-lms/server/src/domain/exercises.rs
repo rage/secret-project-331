@@ -11,7 +11,7 @@ use models::{
     library::grading::{
         GradingPolicy, StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult,
     },
-    user_exercise_states::{CourseInstanceOrExamId, ExerciseWithUserState},
+    user_exercise_states::ExerciseWithUserState,
 };
 
 pub async fn process_submission(
@@ -23,21 +23,20 @@ pub async fn process_submission(
 ) -> Result<StudentExerciseSlideSubmissionResult, ControllerError> {
     enforce_deadline(conn, &exercise).await?;
 
-    let (course_instance_or_exam_id, last_try) =
-        resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
-            conn,
-            user_id,
-            &exercise,
-            submission.exercise_slide_id,
-        )
-        .await?;
+    let (course_or_exam_id, last_try) = resolve_course_or_exam_id_and_verify_that_user_can_submit(
+        conn,
+        user_id,
+        &exercise,
+        submission.exercise_slide_id,
+    )
+    .await?;
 
     // TODO: Should this be an upsert?
     let user_exercise_state = models::user_exercise_states::get_user_exercise_state_if_exists(
         conn,
         user_id,
         exercise.id,
-        course_instance_or_exam_id,
+        course_or_exam_id,
     )
     .await?
     .ok_or_else(|| {
@@ -111,16 +110,14 @@ async fn enforce_deadline(
 
 /// Submissions for exams are posted from course instances or from exams. Make respective validations
 /// while figuring out which.
-async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
+async fn resolve_course_or_exam_id_and_verify_that_user_can_submit(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise: &Exercise,
     slide_id: Uuid,
-) -> Result<(CourseInstanceOrExamId, bool), ControllerError> {
+) -> Result<(CourseOrExamId, bool), ControllerError> {
     let mut last_try = false;
-    let course_instance_id_or_exam_id: CourseInstanceOrExamId = if let Some(course_id) =
-        exercise.course_id
-    {
+    let course_id_or_exam_id: CourseOrExamId = if let Some(course_id) = exercise.course_id {
         // If submitting for a course, there should be existing course settings that dictate which
         // instance the user is on.
         let settings = models::user_course_settings::get_user_course_settings_by_course_id(
@@ -129,9 +126,7 @@ async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
         .await?;
         if let Some(settings) = settings {
             let token = authorize(conn, Act::View, Some(user_id), Res::Course(course_id)).await?;
-            token.authorized_ok(CourseInstanceOrExamId::Instance(
-                settings.current_course_instance_id,
-            ))
+            token.authorized_ok(CourseOrExamId::Course(settings.current_course_id))
         } else {
             Err(ControllerError::new(
                 ControllerErrorType::Unauthorized,
@@ -143,7 +138,7 @@ async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
         // If submitting for an exam, make sure that user's time is not up.
         if models::exams::verify_exam_submission_can_be_made(conn, exam_id, user_id).await? {
             let token = authorize(conn, Act::View, Some(user_id), Res::Exam(exam_id)).await?;
-            token.authorized_ok(CourseInstanceOrExamId::Exam(exam_id))
+            token.authorized_ok(CourseOrExamId::Exam(exam_id))
         } else {
             Err(ControllerError::new(
                 ControllerErrorType::Unauthorized,
@@ -167,13 +162,23 @@ async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
                 models::exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user(
                     conn,
                     exercise.id,
-                    course_instance_id_or_exam_id,
+                    course_id_or_exam_id,
                     user_id,
                 )
                 .await?;
 
             let count = slide_id_to_submissions_count.get(&slide_id).unwrap_or(&0);
             if count >= &(max_tries_per_slide as i64) {
+                tracing::error!(
+                    user_id = %user_id,
+                    exercise_id = %exercise.id,
+                    slide_id = %slide_id,
+                    course_or_exam_id = ?course_id_or_exam_id,
+                    current_try_count = %count,
+                    max_tries_per_slide = %max_tries_per_slide,
+                    limit_number_of_tries = %exercise.limit_number_of_tries,
+                    "User has run out of tries for exercise slide submission"
+                );
                 return Err(ControllerError::new(
                     ControllerErrorType::BadRequest,
                     "You've ran out of tries.".to_string(),
@@ -185,5 +190,5 @@ async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
             }
         }
     }
-    Ok((course_instance_id_or_exam_id, last_try))
+    Ok((course_id_or_exam_id, last_try))
 }

@@ -8,7 +8,7 @@ pub async fn try_to_restore_previously_given_exercise_slide_submission(
     conn: &mut PgConnection,
     exercise_id: Uuid,
     user_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Option<ExerciseSlideSubmission>> {
     // Sometimes clean up the table to keep the table small and fast
     if rand::rng().random_range(0..10) == 0 {
@@ -21,12 +21,12 @@ SELECT exercise_slide_submission_id
 FROM offered_answers_to_peer_review_temporary
 WHERE exercise_id = $1
   AND user_id = $2
-  AND course_instance_id = $3
+  AND course_id = $3
   AND created_at > now() - '1 hour'::interval
   ",
         exercise_id,
         user_id,
-        course_instance_id,
+        course_id,
     )
     .fetch_optional(&mut *conn)
     .await?;
@@ -61,27 +61,25 @@ pub async fn save_given_exercise_slide_submission(
     exercise_slide_submission_id: Uuid,
     exercise_id: Uuid,
     user_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<()> {
     let _res = sqlx::query!(
         "
 INSERT INTO offered_answers_to_peer_review_temporary (
     exercise_slide_submission_id,
     user_id,
-    course_instance_id,
+    course_id,
     exercise_id
   )
-VALUES ($1, $2, $3, $4) ON CONFLICT ON CONSTRAINT offered_answers_to_peer_review_temporary_pkey DO
+VALUES ($1, $2, $3, $4) ON CONFLICT (user_id, exercise_id) DO
 UPDATE
 SET exercise_slide_submission_id = $1,
-  user_id = $2,
-  course_instance_id = $3,
-  exercise_id = $4,
-  created_at = now()
+    course_id = $3,
+    created_at = now()
 ",
         exercise_slide_submission_id,
         user_id,
-        course_instance_id,
+        course_id,
         exercise_id,
     )
     .execute(&mut *conn)

@@ -58,6 +58,7 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
         noPadding={true}
         closeable={false}
         aria-label={t("title-reseach-consent-form")}
+        data-testid="research-consent-dialog"
       >
         <div
           className={css`

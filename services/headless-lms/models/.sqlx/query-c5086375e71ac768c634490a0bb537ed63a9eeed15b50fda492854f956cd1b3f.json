@@ -4,7 +4,11 @@
   "describe": {
     "columns": [],
     "parameters": {
-      "Left": ["Uuid", "Uuid", "Bool"]
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Bool"
+      ]
     },
     "nullable": []
   },

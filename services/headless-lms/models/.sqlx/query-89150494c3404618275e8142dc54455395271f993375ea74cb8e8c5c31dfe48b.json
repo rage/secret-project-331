@@ -22,7 +22,9 @@
         "Bool"
       ]
     },
-    "nullable": [false]
+    "nullable": [
+      false
+    ]
   },
   "hash": "89150494c3404618275e8142dc54455395271f993375ea74cb8e8c5c31dfe48b"
 }

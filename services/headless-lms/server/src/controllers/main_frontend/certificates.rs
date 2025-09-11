@@ -193,10 +193,9 @@ async fn update_certificate_configuration_inner(
     }
 
     let existing_configuration =
-        models::certificate_configurations::get_default_configuration_by_course_module_and_course_instance(
+        models::certificate_configurations::get_default_configuration_by_course_module(
             &mut tx,
             metadata.course_module_id,
-            metadata.course_instance_id,
         )
         .await
         .optional()?;
@@ -302,7 +301,6 @@ async fn update_certificate_configuration_inner(
             &mut tx,
             inserted_configuration.id,
             Some(metadata.course_module_id),
-            metadata.course_instance_id,
         )
         .await?;
     }
@@ -468,28 +466,25 @@ pub async fn delete_certificate_configuration(
     user: AuthUser,
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
-    let related_course_instance_ids =
-        models::certificate_configurations::get_required_course_instance_ids(
-            &mut conn,
-            *configuration_id,
-        )
-        .await?;
+    let requirements = models::certificate_configuration_to_requirements::get_all_requirements_for_certificate_configuration(
+        &mut conn,
+        *configuration_id,
+    ).await?;
+
+    let course_module_ids = requirements.course_module_ids;
     let mut token = None;
-    if related_course_instance_ids.is_empty() {
+    if course_module_ids.is_empty() {
         token =
             Some(authorize(&mut conn, Act::Teach, Some(user.id), Res::GlobalPermissions).await?);
     }
-    for course_instance_id in related_course_instance_ids {
-        token = Some(
-            authorize(
-                &mut conn,
-                Act::Teach,
-                Some(user.id),
-                Res::CourseInstance(course_instance_id),
-            )
-            .await?,
-        );
+
+    for course_module_id in course_module_ids {
+        let course_module = models::course_modules::get_by_id(&mut conn, course_module_id).await?;
+        let course_id = course_module.course_id;
+        token =
+            Some(authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?);
     }
+
     models::certificate_configurations::delete(&mut conn, *configuration_id).await?;
     token
         .expect("Never None at this point")

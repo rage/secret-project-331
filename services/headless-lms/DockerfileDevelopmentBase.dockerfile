@@ -35,8 +35,7 @@ RUN cargo install icu4x-datagen
 # TODO: Remove this in the next release
 RUN icu4x-datagen \
   --markers all \
-  --locales fi \
-  --locales en \
+  --locales all \
   --format blob \
   --out /icu4x.postcard.2
 

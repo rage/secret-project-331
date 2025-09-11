@@ -95,24 +95,6 @@ pub struct CertificateConfiguration {
     pub certificate_grade_text_anchor: Option<CertificateTextAnchor>,
 }
 
-pub async fn get_required_course_instance_ids(
-    conn: &mut PgConnection,
-    certificate_configuration_id: Uuid,
-) -> ModelResult<Vec<Uuid>> {
-    let res = sqlx::query!(
-        r#"
-SELECT course_instance_id
-FROM certificate_configuration_to_requirements
-WHERE certificate_configuration_id = $1
-  AND deleted_at IS NULL
-    "#,
-        certificate_configuration_id,
-    )
-    .fetch_all(&mut *conn)
-    .await?;
-    Ok(res.iter().filter_map(|r| r.course_instance_id).collect())
-}
-
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<CertificateConfiguration> {
     let res = sqlx::query_as!(
         CertificateConfiguration,
@@ -158,10 +140,9 @@ WHERE id = $1
     Ok(res)
 }
 
-pub async fn get_default_configuration_by_course_module_and_course_instance(
+pub async fn get_default_configuration_by_course_module(
     conn: &mut PgConnection,
     course_module_id: Uuid,
-    course_instance_id: Option<Uuid>,
 ) -> ModelResult<CertificateConfiguration> {
     let all_certificate_configurations = sqlx::query_as!(
         CertificateConfiguration,
@@ -207,41 +188,27 @@ WHERE cctr.course_module_id = $1
     )
     .fetch_all(&mut *conn)
     .await?;
-    if let Some(course_instance_id) = course_instance_id {
-        // Try to return a course instance specific configuration
-        // The number of certificate configurations should be relatively small, so it should be fine to loop here
-        for certificate_configuration in &all_certificate_configurations {
-            let requirements = get_all_requirements_for_certificate_configuration(
-                conn,
-                certificate_configuration.id,
-            )
-            .await?;
-
-            if requirements.is_default_certificate_configuration()
-                && requirements.course_instance_ids.first() == Some(&course_instance_id)
-            {
-                return Ok(certificate_configuration.clone());
-            }
-        }
+    if all_certificate_configurations.len() > 1 {
+        warn!(
+            "Multiple certificate configurations found for the course module: {:?}",
+            course_module_id
+        );
+    }
+    if !all_certificate_configurations.is_empty() {
+        return Ok(all_certificate_configurations[0].clone());
     }
 
-    // Try to return any configuration that applies for the whole course module regardless of the course instance
-    // TODO: Is this needed?
-    // if let Some(config) = res.iter().find(|c| c.course_instance_id.is_none()) {
-    //     return Ok(config.clone());
-    // }
     Err(ModelError::new(
         ModelErrorType::RecordNotFound,
-        "No certificate configuration found for the course module or the course instance"
-            .to_string(),
+        "No certificate configuration found for the course module".to_string(),
         None,
     ))
 }
 
-/** A default certificate configuration requires only one course module. */
-pub async fn get_default_certificate_configurations_and_requirements_by_course_instance(
+/** Returns all default certificate configurations for a course, one per course module. A default certificate configuration requires only one course module. */
+pub async fn get_default_certificate_configurations_and_requirements_by_course(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Vec<CertificateConfigurationAndRequirements>> {
     let mut res = Vec::new();
     let all_certificate_configurations = sqlx::query_as!(
@@ -255,19 +222,19 @@ SELECT cc.id,
   cc.certificate_owner_name_x_pos,
   cc.certificate_owner_name_font_size,
   cc.certificate_owner_name_text_color,
-  cc.certificate_owner_name_text_anchor as "certificate_owner_name_text_anchor: _",
+  cc.certificate_owner_name_text_anchor AS "certificate_owner_name_text_anchor: _",
   cc.certificate_validate_url_y_pos,
   cc.certificate_validate_url_x_pos,
   cc.certificate_validate_url_font_size,
   cc.certificate_validate_url_text_color,
-  cc.certificate_validate_url_text_anchor as "certificate_validate_url_text_anchor: _",
+  cc.certificate_validate_url_text_anchor AS "certificate_validate_url_text_anchor: _",
   cc.certificate_date_y_pos,
   cc.certificate_date_x_pos,
   cc.certificate_date_font_size,
   cc.certificate_date_text_color,
-  cc.certificate_date_text_anchor as "certificate_date_text_anchor: _",
+  cc.certificate_date_text_anchor AS "certificate_date_text_anchor: _",
   cc.certificate_locale,
-  cc.paper_size as "paper_size: _",
+  cc.paper_size AS "paper_size: _",
   cc.background_svg_path,
   cc.background_svg_file_upload_id,
   cc.overlay_svg_path,
@@ -279,12 +246,17 @@ SELECT cc.id,
   cc.certificate_grade_text_color,
   cc.certificate_grade_text_anchor AS "certificate_grade_text_anchor: _"
 FROM certificate_configurations cc
-JOIN certificate_configuration_to_requirements cctr ON cc.id = cctr.certificate_configuration_id
-WHERE cctr.course_instance_id = $1
+  JOIN certificate_configuration_to_requirements cctr ON cc.id = cctr.certificate_configuration_id
+WHERE cctr.course_module_id IN (
+    SELECT id
+    FROM course_modules
+    WHERE course_id = $1
+      AND deleted_at IS NULL
+  )
   AND cc.deleted_at IS NULL
   AND cctr.deleted_at IS NULL
         "#,
-        course_instance_id,
+        course_id,
     )
     .fetch_all(&mut *conn)
     .await?;
@@ -294,71 +266,6 @@ WHERE cctr.course_instance_id = $1
             get_all_requirements_for_certificate_configuration(conn, certificate_configuration.id)
                 .await?;
         if requirements.is_default_certificate_configuration() {
-            res.push(CertificateConfigurationAndRequirements {
-                certificate_configuration: certificate_configuration.clone(),
-                requirements,
-            });
-        }
-    }
-    Ok(res)
-}
-
-/** Finds all configurations that applies to any instance of a course module and requires only one course module. **/
-pub async fn get_all_certifcate_configurations_requiring_only_one_module_and_no_course_instance(
-    conn: &mut PgConnection,
-    course_module_ids: &[Uuid],
-) -> ModelResult<Vec<CertificateConfigurationAndRequirements>> {
-    let mut res = Vec::new();
-    let cadidate_certificate_configurations = sqlx::query_as!(
-        CertificateConfiguration,
-        r#"
-SELECT cc.id,
-  cc.created_at,
-  cc.updated_at,
-  cc.deleted_at,
-  cc.certificate_owner_name_y_pos,
-  cc.certificate_owner_name_x_pos,
-  cc.certificate_owner_name_font_size,
-  cc.certificate_owner_name_text_color,
-  cc.certificate_owner_name_text_anchor as "certificate_owner_name_text_anchor: _",
-  cc.certificate_validate_url_y_pos,
-  cc.certificate_validate_url_x_pos,
-  cc.certificate_validate_url_font_size,
-  cc.certificate_validate_url_text_color,
-  cc.certificate_validate_url_text_anchor as "certificate_validate_url_text_anchor: _",
-  cc.certificate_date_y_pos,
-  cc.certificate_date_x_pos,
-  cc.certificate_date_font_size,
-  cc.certificate_date_text_color,
-  cc.certificate_date_text_anchor as "certificate_date_text_anchor: _",
-  cc.certificate_locale,
-  cc.paper_size as "paper_size: _",
-  cc.background_svg_path,
-  cc.background_svg_file_upload_id,
-  cc.overlay_svg_path,
-  cc.overlay_svg_file_upload_id,
-  cc.render_certificate_grade,
-  cc.certificate_grade_y_pos,
-  cc.certificate_grade_x_pos,
-  cc.certificate_grade_font_size,
-  cc.certificate_grade_text_color,
-  cc.certificate_grade_text_anchor as "certificate_grade_text_anchor: _"
-FROM certificate_configurations cc
-JOIN certificate_configuration_to_requirements cctr ON cc.id = cctr.certificate_configuration_id
-WHERE cctr.course_module_id = ANY($1)
-  AND cctr.course_instance_id IS NULL
-  AND cc.deleted_at IS NULL
-  AND cctr.deleted_at IS NULL
-        "#,
-        course_module_ids,
-    )
-    .fetch_all(&mut *conn)
-    .await?;
-    for certificate_configuration in &cadidate_certificate_configurations {
-        let requirements =
-            get_all_requirements_for_certificate_configuration(conn, certificate_configuration.id)
-                .await?;
-        if requirements.requires_only_one_course_module_and_does_not_require_course_instance() {
             res.push(CertificateConfigurationAndRequirements {
                 certificate_configuration: certificate_configuration.clone(),
                 requirements,

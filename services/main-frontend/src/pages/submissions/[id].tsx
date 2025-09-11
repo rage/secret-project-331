@@ -5,14 +5,13 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import AllSubmissionsList from "../../components/AllSubmissionsList"
+import ExerciseGradingCard from "../../components/ExerciseGradingCard"
 import KeyValueCard from "../../components/KeyValueCard"
 import MainFrontedViewSubmission from "../../components/MainFrontedViewSubmission"
-import CustomPointsPopup from "../../components/page-specific/manage/exercises/id/submissions/CustomPointsPopup"
 import { useExerciseSubmissionsForUser } from "../../hooks/useExerciseSubmissionsForUser"
 import { useUserCourseSettings } from "../../hooks/useUserCourseSettings"
 import { useUserDetails } from "../../hooks/useUserDetails"
 import { fetchSubmissionInfo } from "../../services/backend/submissions"
-import { createTeacherGradingDecision } from "../../services/backend/teacher-grading-decisions"
 
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -20,8 +19,6 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import Spinner from "@/shared-module/common/components/Spinner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { baseTheme } from "@/shared-module/common/styles"
 import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
@@ -52,6 +49,14 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
     getSubmissionInfo.data?.exercise_slide_submission.user_id,
   )
 
+  // Callback to refetch all queries when grading is submitted
+  const handleGradingSubmit = React.useCallback(() => {
+    getSubmissionInfo.refetch()
+    userDetails.refetch()
+    exerciseSubmissions.refetch()
+    userCourseSettings.refetch()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   let userExerciseStateId = getSubmissionInfo.data?.user_exercise_state?.id
 
   // Get user exercise state for custom points functionality
@@ -70,29 +75,6 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
     const latestSubmission = sortedSubmissions[0]
     return latestSubmission?.id === currentSubmissionId
   }, [exerciseSubmissions.data, getSubmissionInfo.data])
-
-  // Custom points mutation
-  const customPointsMutation = useToastMutation(
-    async (points: number) => {
-      if (!userExerciseStateId) {
-        throw new Error("User exercise state not found")
-      }
-      return createTeacherGradingDecision({
-        user_exercise_state_id: userExerciseStateId,
-        exercise_id: exerciseId,
-        // eslint-disable-next-line i18next/no-literal-string
-        action: "CustomPoints",
-        manual_points: points,
-        justification: null,
-        hidden: false,
-      })
-    },
-    {
-      notify: true,
-      method: "POST",
-    },
-  )
-
   const pointsFromWholeExercise = getSubmissionInfo.data?.user_exercise_state?.score_given
   const totalScoreGiven = getSubmissionInfo.data?.tasks
     .map((task) => task.previous_submission_grading?.score_given)
@@ -234,92 +216,6 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
             />
           )}
 
-          {/* Custom Points Section */}
-          {getSubmissionInfo.isSuccess && userExerciseStateId && (
-            <div
-              className={css`
-                max-width: ${narrowContainerWidthRem}rem;
-                margin: 0 auto 2rem auto;
-                padding: 1.5rem;
-                background-color: ${baseTheme.colors.clear[100]};
-                border-radius: 0.5rem;
-                border: 1px solid ${baseTheme.colors.clear[200]};
-              `}
-            >
-              <h3
-                className={css`
-                  margin: 0 0 1rem 0;
-                  color: ${baseTheme.colors.gray[700]};
-                  font-size: 1.125rem;
-                  font-weight: 600;
-                `}
-              >
-                {t("exercise-grading")}
-              </h3>
-
-              <p
-                className={css`
-                  margin: 0 0 1rem 0;
-                  color: ${baseTheme.colors.gray[600]};
-                  font-size: 0.875rem;
-                  line-height: 1.5;
-                `}
-              >
-                {t(
-                  "custom-points-description",
-                  "Give custom points for the entire exercise. This will override all previous grading for this exercise.",
-                )}
-              </p>
-
-              {/* Warning for non-current submission */}
-              {!isLatestSubmission && (
-                <div
-                  className={css`
-                    margin-bottom: 1rem;
-                    padding: 1rem;
-                    background-color: ${baseTheme.colors.yellow[100]};
-                    border: 1px solid ${baseTheme.colors.yellow[200]};
-                    border-radius: 0.25rem;
-                  `}
-                >
-                  <div
-                    className={css`
-                      display: flex;
-                      align-items: center;
-                      gap: 0.5rem;
-                    `}
-                  >
-                    <span
-                      className={css`
-                        font-weight: 600;
-                        color: ${baseTheme.colors.gray[700]};
-                      `}
-                    >
-                      {/* eslint-disable-next-line i18next/no-literal-string */}
-                      {"⚠️"}
-                    </span>
-                    <span
-                      className={css`
-                        color: ${baseTheme.colors.gray[700]};
-                      `}
-                    >
-                      {t(
-                        "warning-custom-points-non-current-submission",
-                        "Warning: This is not the latest submission. Custom points will be applied to the entire exercise, not just this submission.",
-                      )}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              <CustomPointsPopup
-                exerciseMaxPoints={getSubmissionInfo.data.exercise.score_maximum}
-                onSubmit={(points) => customPointsMutation.mutate(points)}
-                longButtonName
-              />
-            </div>
-          )}
-
           <MainFrontedViewSubmission
             submissionData={getSubmissionInfo.data}
             totalScoreGiven={totalScoreGiven}
@@ -335,10 +231,21 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
           />
         </>
       )}
+
+      {getSubmissionInfo.isSuccess && userExerciseStateId && (
+        <ExerciseGradingCard
+          userExerciseStateId={userExerciseStateId}
+          exerciseId={exerciseId}
+          exerciseMaxPoints={getSubmissionInfo.data.exercise.score_maximum}
+          isLatestSubmission={isLatestSubmission}
+          onGradingSubmit={handleGradingSubmit}
+        />
+      )}
+
       <div
         className={css`
-          background-color: ${baseTheme.colors.clear[100]};
-          color: ${baseTheme.colors.clear[100]};
+          background-color: #f8f9fa;
+          color: #f8f9fa;
           padding: 1.5rem 2rem;
           max-width: ${narrowContainerWidthRem}rem;
           margin: 2rem auto;

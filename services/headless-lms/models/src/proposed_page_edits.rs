@@ -366,9 +366,8 @@ WHERE id = $1
         }
     }
 
-    let updated_content = serde_json::to_value(&blocks)?;
     let cms_page_update = CmsPageUpdate {
-        content: updated_content,
+        content: blocks,
         exercises: page_with_exercises.exercises,
         exercise_slides: page_with_exercises.exercise_slides,
         exercise_tasks: page_with_exercises.exercise_tasks,
@@ -451,7 +450,7 @@ mod test {
             inner_blocks: vec![],
         }];
         let cms_page_update = CmsPageUpdate {
-            content: serde_json::to_value(&new_content).unwrap(),
+            content: new_content,
             url_path: "".to_string(),
             title: "".to_string(),
             chapter_id: Some(chapter),

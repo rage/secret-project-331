@@ -12,6 +12,7 @@ import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import { dateToString } from "@/shared-module/common/utils/time"
+import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
 
 interface ExportPageProps {
   // courseId
@@ -37,6 +38,9 @@ const ExportPage: React.FC<React.PropsWithChildren<ExportPageProps>> = ({ query 
           // Wait for a bit to avoid hitting rate limits
           await new Promise((r) => setTimeout(r, 100))
           const data = await fetchPageWithId(page.id)
+          if (!isGutenbergBlockArray(data.page.content)) {
+            throw new Error("Content is not a GutenbergBlock array")
+          }
           // denormalize content so that the json includes private specs of the exercises
           const denormalizedContent = denormalizeDocument({
             content: data.page.content,

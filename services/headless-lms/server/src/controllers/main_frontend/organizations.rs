@@ -526,7 +526,7 @@ async fn create_exam(
             course_id: None,
             exam_id: Some(new_exam_id),
             front_page_of_chapter_id: None,
-            content: serde_json::Value::Array(vec![]),
+            content: vec![],
             content_search_language: Some("simple".to_string()),
             exercise_slides: vec![],
             exercise_tasks: vec![],

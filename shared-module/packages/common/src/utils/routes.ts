@@ -87,3 +87,7 @@ export function navigateToCourseRoute(organizationSlug: string, courseSlug: stri
 export function courseInstanceUserStatusSummaryRoute(courseInstanceId: string, userId: string) {
   return `/manage/course-instances/${courseInstanceId}/course-status-summary-for-user/${userId}`
 }
+
+export function exerciseSubmissionsRoute(exerciseId: string) {
+  return `/manage/exercises/${exerciseId}/submissions`
+}

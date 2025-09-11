@@ -13,6 +13,7 @@ import { useUserCourseSettings } from "../../hooks/useUserCourseSettings"
 import { useUserDetails } from "../../hooks/useUserDetails"
 import { fetchSubmissionInfo } from "../../services/backend/submissions"
 
+import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -23,7 +24,10 @@ import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
-import { courseInstanceUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
+import {
+  courseInstanceUserStatusSummaryRoute,
+  exerciseSubmissionsRoute,
+} from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
 
 interface SubmissionPageProps {
@@ -37,7 +41,10 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
     queryFn: () => fetchSubmissionInfo(query.id),
   })
 
-  const userDetails = useUserDetails(getSubmissionInfo.data?.exercise_slide_submission.user_id)
+  const userDetails = useUserDetails(
+    getSubmissionInfo.data?.exercise.course_id,
+    getSubmissionInfo.data?.exercise_slide_submission.user_id,
+  )
 
   const exerciseSubmissions = useExerciseSubmissionsForUser(
     getSubmissionInfo.data?.exercise.id,
@@ -79,12 +86,35 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
   const totalScoreGiven = getSubmissionInfo.data?.tasks
     .map((task) => task.previous_submission_grading?.score_given)
     .reduce((a, b) => (a ?? 0) + (b ?? 0), 0)
+
+  // Construct breadcrumb pieces
+  const breadcrumbPieces = React.useMemo(() => {
+    if (!getSubmissionInfo.data) {
+      return []
+    }
+
+    return [
+      {
+        text: t("header-submissions"),
+        url: exerciseSubmissionsRoute(getSubmissionInfo.data.exercise.id),
+      },
+      {
+        text: t("title-submission-id", { id: query.id }),
+        // eslint-disable-next-line i18next/no-literal-string
+        url: `/submissions/${query.id}`,
+      },
+    ]
+  }, [getSubmissionInfo.data, query.id, t])
+
   return (
     <div>
       {getSubmissionInfo.isError && (
         <ErrorBanner variant={"readOnly"} error={getSubmissionInfo.error} />
       )}
       {getSubmissionInfo.isPending && <Spinner variant={"medium"} />}
+      {getSubmissionInfo.isSuccess && breadcrumbPieces.length > 0 && (
+        <Breadcrumbs pieces={breadcrumbPieces} />
+      )}
       {getSubmissionInfo.isSuccess && (
         <>
           {getSubmissionInfo.data.tasks.some((task) => task.deleted_at !== null) && (

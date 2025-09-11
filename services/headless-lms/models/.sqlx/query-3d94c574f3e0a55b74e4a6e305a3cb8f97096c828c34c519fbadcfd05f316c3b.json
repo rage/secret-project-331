@@ -1,0 +1,71 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT ud.*\nFROM user_details ud\nJOIN user_course_settings ucs ON ud.user_id = ucs.user_id\nWHERE ud.user_id = $1\n  AND ucs.current_course_id = $2\n  AND ucs.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "first_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "last_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "email",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "search_helper",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "country",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "email_communication_consent",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "3d94c574f3e0a55b74e4a6e305a3cb8f97096c828c34c519fbadcfd05f316c3b"
+}

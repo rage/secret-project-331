@@ -353,6 +353,39 @@ WHERE user_id = $1
     Ok(submissions)
 }
 
+pub async fn get_users_submissions_for_exercise(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+) -> ModelResult<Vec<ExerciseSlideSubmission>> {
+    let submissions = sqlx::query_as!(
+        ExerciseSlideSubmission,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  exercise_slide_id,
+  course_id,
+  exam_id,
+  exercise_id,
+  user_id,
+  user_points_update_strategy AS "user_points_update_strategy: _",
+  flag_count
+FROM exercise_slide_submissions
+WHERE user_id = $1
+  AND exercise_id = $2
+  AND deleted_at IS NULL
+ORDER BY created_at DESC
+        "#,
+        user_id,
+        exercise_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(submissions)
+}
+
 pub async fn get_users_latest_exercise_slide_submission(
     conn: &mut PgConnection,
     exercise_slide_id: Uuid,

@@ -41,6 +41,34 @@ async fn get_course_instances(
 }
 
 /**
+ * GET /api/v0/langs/course-instance/:id
+ *
+ * Returns the course instance with the given id.
+ */
+#[instrument(skip(pool))]
+async fn get_course_instance(
+    pool: web::Data<PgPool>,
+    user: AuthToken,
+    course_instance: web::Path<Uuid>,
+) -> ControllerResult<web::Json<api::CourseInstance>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::View,
+        Some(user.id),
+        Res::CourseInstance(*course_instance),
+    )
+    .await?;
+
+    let course_instance =
+        models::course_instances::get_course_instance_with_info(&mut conn, *course_instance)
+            .await?
+            .convert();
+
+    token.authorized_ok(web::Json(course_instance))
+}
+
+/**
  * GET /api/v0/langs/course-instances/:id/exercises
  *
  * Returns the user's exercise slides for the given course instance.
@@ -314,6 +342,7 @@ async fn get_submission_grading(
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/course-instances", web::get().to(get_course_instances))
+        .route("/course-instance/{id}", web::get().to(get_course_instance))
         .route(
             "/course-instances/{id}/exercises",
             web::get().to(get_course_instance_exercises),

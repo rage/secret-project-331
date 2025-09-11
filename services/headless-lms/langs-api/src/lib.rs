@@ -19,6 +19,7 @@ pub struct CourseInstance {
     pub course_description: Option<String>,
     pub instance_name: Option<String>,
     pub instance_description: Option<String>,
+    pub organization_name: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

@@ -10,41 +10,59 @@ import ThinkingIndicator from "./ThinkingIndicator"
 
 import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
 import { baseTheme } from "@/shared-module/common/styles"
-
-// captures citations
-export const MATCH_CITATIONS_REGEX = /\[[\w]*?([\d]+)\]/g
-// matches citations and a starting whitespace that should be removed
-export const REMOVE_CITATIONS_REGEX = /\s*?\[[\w]*?[\d]+\]/g
+import { MATCH_CITATIONS_REGEX } from "@/utils/chatbotCitationRegexes"
 
 export const renumberFilterCitations = (
   message: string,
   citations: ChatbotConversationMessageCitation[],
+  isFromChatbot: boolean,
 ) => {
   /** change the citation_number of the actually cited citations so that
   the first citation that appears in the msg is 1, the 2nd is 2, etc.
   and filter out citations that were not cited in the msg. */
 
-  // Set preserves the order of the unique items in the array
-  const citedDocs = Array.from(message.matchAll(MATCH_CITATIONS_REGEX), (arr, _) =>
-    parseInt(arr[1]),
-  )
+  if (!isFromChatbot) {
+    return { filteredCitations: [], citedDocs: [], citationNumberingMap: new Map() }
+  }
 
+  let citedDocs = Array.from(message.matchAll(MATCH_CITATIONS_REGEX), (arr, _) => parseInt(arr[1]))
+
+  // there might be hallucinated citations in the message :(
+  // remove the hallucinated citations
+  const actualCitationNs: number[] = citations.map((c) => c.citation_number)
+  citedDocs = citedDocs.filter((v) => actualCitationNs.includes(v))
+  // Set preserves the order of the unique items in the array
   let citedDocsSet = new Set(citedDocs)
   let uniqueCitations = [...citedDocsSet]
+
+  uniqueCitations = uniqueCitations.filter((v) => actualCitationNs.includes(v))
+
   let filteredCitations: ChatbotConversationMessageCitation[] = []
   let citationNumberingMap = new Map()
+  let citedPages = new Map()
+  let n = 1
 
-  uniqueCitations.forEach((citN, idx) => {
+  uniqueCitations.forEach((citN) => {
     // renumbers the uniqueCitations to be ordered,
     // saves the renumbering in a map and filters the citations
-    idx += 1
     let cit = citations.find((c) => c.citation_number === citN)
-    if (cit) {
-      citationNumberingMap.set(cit.citation_number, idx)
-      filteredCitations.push(cit)
+    if (!cit) {
+      throw new Error(
+        "The citation should be found because uniqueCitations is created based on citations",
+      )
     }
+    if (citedPages.has(cit.document_url)) {
+      // already cited, so set the citN as the same as the earlier of the same page
+      citationNumberingMap.set(cit.citation_number, citedPages.get(cit.document_url))
+    } else {
+      citationNumberingMap.set(cit.citation_number, n)
+      citedPages.set(cit.document_url, n)
+      n += 1
+    }
+    filteredCitations.push(cit)
   })
 
+  // none of these include hallucinated citations
   return { filteredCitations, citedDocs, citationNumberingMap }
 }
 
@@ -98,11 +116,12 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     },
   })
 
+  const renumberFilterCitationsResult = useMemo(() => {
+    return renumberFilterCitations(message, citations ?? [], isFromChatbot)
+  }, [message, citations, isFromChatbot])
+
   const [processedMessage, processedCitations, citationNumberingMap] = useMemo(() => {
-    const { filteredCitations, citedDocs, citationNumberingMap } = renumberFilterCitations(
-      message,
-      citations ?? [],
-    )
+    const { filteredCitations, citedDocs, citationNumberingMap } = renumberFilterCitationsResult
 
     let renderOption = !isFromChatbot
       ? MessageRenderType.User
@@ -127,7 +146,14 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     )
 
     return [renderedMessage, filteredCitations, citationNumberingMap]
-  }, [message, citations, isFromChatbot, citationsOpen, hoverCitationProps, citationButtonClicked])
+  }, [
+    message,
+    isFromChatbot,
+    citationsOpen,
+    hoverCitationProps,
+    citationButtonClicked,
+    renumberFilterCitationsResult,
+  ])
 
   return (
     <div className={bubbleStyle(isFromChatbot)}>

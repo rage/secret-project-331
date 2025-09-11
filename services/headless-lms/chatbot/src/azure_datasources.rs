@@ -74,6 +74,9 @@ pub async fn create_azure_datasource(
         "credentials": {
             "connectionString": connection_string,
         },
+        "dataDeletionDetectionPolicy": {
+            "@odata.type": "#Microsoft.Azure.Search.NativeBlobSoftDeleteDeletionDetectionPolicy",
+        }
     });
 
     let response = REQWEST_CLIENT

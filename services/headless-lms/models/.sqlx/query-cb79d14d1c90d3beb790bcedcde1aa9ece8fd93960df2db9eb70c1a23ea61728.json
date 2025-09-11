@@ -32,7 +32,8 @@
             "kind": {
               "Enum": [
                 "page-saved",
-                "history-restored"
+                "history-restored",
+                "page-deleted"
               ]
             }
           }

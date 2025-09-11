@@ -70,13 +70,12 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   )
 
   await page.getByText("Like this.").click()
-  await page.getByText("Like this.").click()
   await page.fill("text=Like this.", "Like this!")
-
   await page.click("text=The abacus is one of the oldest known calculating tools")
-  await page.click("text=The abacus is one of the oldest known calculating tools")
-  await page.press("text=The abacus is one of the oldest known calculating tools", "Control+a")
-  await page.fill("text=The abacus is one of the oldest known calculating tools", "redacted")
+  await page.fill(
+    "text=The abacus is one of the oldest known calculating tools",
+    "The abacus is the oldest known calculating tool, with origins tracing back to ancient Mesopotamia and China. Often consisting of a wooden frame with rows of beads, it has been used for centuries as a reliable aid in performing arithmetic operations. Its simplicity and effectiveness made it a cornerstone of commerce and education across many galaxies.",
+  )
 
   await page.getByText("So big,").click()
 

@@ -1404,7 +1404,7 @@ export interface PageAudioFile {
   mime_type: string
 }
 
-export type HistoryChangeReason = "PageSaved" | "HistoryRestored"
+export type HistoryChangeReason = "PageSaved" | "HistoryRestored" | "PageDeleted"
 
 export interface PageHistory {
   id: string

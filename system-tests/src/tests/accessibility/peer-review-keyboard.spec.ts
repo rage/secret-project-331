@@ -28,7 +28,7 @@ test.describe("Students should be able to navigate and select peer review radiob
     await context3.close()
   })
 
-  test("Students can give peer reviews using keyboard", async () => {
+  test.only("Students can give peer reviews using keyboard", async () => {
     test.slow()
     const [student1Page, student2Page, student3Page] = await Promise.all([
       context1.newPage(),
@@ -45,27 +45,22 @@ test.describe("Students should be able to navigate and select peer review radiob
     await Promise.all([context2.close(), context3.close()])
 
     await student1Page.getByRole("button", { name: "Start peer review" }).click()
+    // find out if we can wait until a certain element is focused in the browser
+    await student1Page.getByRole("radio", { name: "Strongly disagree" }).first().waitFor()
     await student1Page.getByPlaceholder("Write a review").press("Tab")
-    await student1Page.getByRole("radio", { name: "Strongly disagree" }).first().press("ArrowRight")
-    // after u press the key without the locator, wait for some locator that expects disagree to have focus, then press the next key
-    await student1Page.getByRole("radio", { name: "Disagree", exact: true }).nth(1).press(" ")
-    await expect(student1Page.getByRole("radio", { name: "Disagree", exact: true }).nth(1))
+    await student1Page.keyboard.press("ArrowRight")
+    await student1Page.keyboard.press(" ")
+    // Make the snapshot to be about the whole radio group
+    await expect(student1Page.getByRole("radio", { name: "Disagree", exact: true }).first())
       .toMatchAriaSnapshot(`
       - radio "Disagree" [checked]
     `)
 
-    await student1Page.getByRole("radio", { name: "Disagree", exact: true }).first().press("Tab")
-    await student1Page.getByRole("radio", { name: "Strongly disagree" }).nth(1).press("ArrowRight")
-    await student1Page
-      .getByRole("radio", { name: "Disagree", exact: true })
-      .nth(1)
-      .press("ArrowRight")
-    await student1Page.getByRole("radio", { name: "Disagree", exact: true }).nth(1).press(" ")
-    await student1Page
-      .getByRole("radio", { name: "Neither agree nor disagree" })
-      .nth(1)
-      .press("ArrowRight")
-    await student1Page.getByRole("radio", { name: "Agree", exact: true }).nth(1).press(" ")
+    await student1Page.keyboard.press("Tab")
+    await student1Page.keyboard.press("ArrowRight")
+    await student1Page.keyboard.press("ArrowRight")
+    await student1Page.keyboard.press("ArrowRight")
+    await student1Page.keyboard.press(" ")
     await expect(student1Page.getByRole("radio", { name: "Agree", exact: true }).nth(1))
       .toMatchAriaSnapshot(`
       - radio "Agree" [checked]

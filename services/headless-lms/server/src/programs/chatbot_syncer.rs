@@ -192,11 +192,10 @@ async fn sync_pages(
         let page_ids: Vec<Uuid> = outdated_statuses.iter().map(|s| s.page_id).collect();
         let mut pages = headless_lms_models::pages::get_by_ids(conn, &page_ids).await?;
 
-        if pages.len() > 0 {
+        if !pages.is_empty() {
             sync_pages_batch(
                 conn,
                 &pages,
-                &latest_histories,
                 blob_client,
                 &base_url,
                 &config.app_configuration,
@@ -207,7 +206,6 @@ async fn sync_pages(
         let deleted_pages = headless_lms_models::pages::get_by_ids_deleted(conn, &page_ids).await?;
         pages.extend(deleted_pages);
 
-        // update sync statuses after syncing
         update_sync_statuses(conn, &pages, &latest_histories).await?;
 
         delete_old_files(conn, *course_id, blob_client).await?;
@@ -247,7 +245,6 @@ async fn ensure_search_index_exists(
 async fn sync_pages_batch(
     conn: &mut PgConnection,
     pages: &[Page],
-    latest_histories: &HashMap<Uuid, PageHistory>,
     blob_client: &AzureBlobClient,
     base_url: &Url,
     app_config: &ApplicationConfiguration,
@@ -361,8 +358,6 @@ async fn sync_pages_batch(
             warn!("Failed to upload file {}: {:?}", blob_path, e);
         }
     }
-
-    //update_sync_statuses(conn, &pages, &latest_histories).await?;
 
     Ok(())
 }

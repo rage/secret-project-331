@@ -1,22 +1,31 @@
 import { css } from "@emotion/css"
-import { ApartmentBuilding } from "@vectopus/atlas-icons-react"
+import { ApartmentBuilding, Gear } from "@vectopus/atlas-icons-react"
+import Link from "next/link"
+import { useRouter } from "next/router"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import UnstyledA from "@/shared-module/common/components/UnstyledA"
+import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { organizationFrontPageRoute } from "@/shared-module/common/utils/routes"
+import {
+  manageOrganizationRoute,
+  organizationFrontPageRoute,
+} from "@/shared-module/common/utils/routes"
 
 type Props = {
   organization: {
     id: string
     name: string
     slug: string
+    hidden?: boolean
   }
 }
 
 const OrganizationBanner: React.FC<Props> = ({ organization }) => {
+  const { t } = useTranslation()
+  const router = useRouter()
+
   return (
     <div
       key={organization.id}
@@ -57,8 +66,79 @@ const OrganizationBanner: React.FC<Props> = ({ organization }) => {
         `}
       >
         <OrganizationIcon />
-        <OrganizationText name={organization.name} />
-        <OrganizationSelectButton slug={organization.slug} />
+        <OrganizationText name={organization.name} hidden={organization.hidden} />
+        <div
+          className={css`
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-left: auto;
+            margin-right: 1rem;
+          `}
+        >
+          <OnlyRenderIfPermissions
+            action={{ type: "create_courses_or_exams" }}
+            resource={{ type: "organization", id: organization.id }}
+          >
+            <Link
+              href={manageOrganizationRoute(organization.id)}
+              aria-label={t("label-manage-organization", {
+                name: organization.name,
+                defaultValue: `Manage organization ${organization.name}`,
+              })}
+              className={css`
+                width: 25px;
+                height: 25px;
+                border-radius: 50%;
+                background-color: rgba(237, 238, 240, 1);
+                border: none;
+                margin-right: 0.5rem;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-decoration: none;
+
+                &:hover {
+                  background-color: rgb(216, 216, 216);
+                }
+              `}
+            >
+              <Gear
+                className={css`
+                  width: 14px;
+                  height: 13px;
+                  color: rgba(26, 35, 51, 1);
+                `}
+              />
+            </Link>
+          </OnlyRenderIfPermissions>
+
+          <Link
+            href={organizationFrontPageRoute(organization.slug)}
+            className={css`
+              background-color: rgba(237, 238, 240, 1);
+              color: rgba(26, 35, 51, 1);
+              border: none;
+              border-radius: 0px;
+              padding: 0.4rem 0.8rem;
+              font-family: ${primaryFont};
+              font-size: 18px;
+              line-height: 100%;
+              letter-spacing: 0;
+              cursor: pointer;
+              text-decoration: none;
+              display: inline-block;
+
+              &:hover {
+                transition: background-color 0.3s;
+                background-color: rgb(216, 216, 216);
+              }
+            `}
+          >
+            {t("label-select")}
+          </Link>
+        </div>
       </div>
     </div>
   )
@@ -97,73 +177,37 @@ const OrganizationIcon: React.FC = () => (
   </div>
 )
 
-const OrganizationText: React.FC<{ name: string }> = ({ name }) => (
-  <div
-    className={css`
-      flex-grow: 1;
-      min-width: 0;
-      padding: 0.5rem 0.5rem;
-
-      ${respondToOrLarger.lg} {
-        padding: 0.5rem 1rem;
-      }
-    `}
-  >
-    <h2
-      className={css`
-        color: #333;
-        font-family: ${primaryFont};
-        font-size: 15px;
-        line-height: 1.1;
-        text-transform: capitalize;
-
-        ${respondToOrLarger.lg} {
-          font-size: 18px;
-          line-height: 1.3;
-        }
-      `}
-    >
-      {name}
-    </h2>
-  </div>
-)
-
-const OrganizationSelectButton: React.FC<{ slug: string }> = ({ slug }) => {
+const OrganizationText: React.FC<{ name: string; hidden?: boolean }> = ({ name, hidden }) => {
   const { t } = useTranslation()
 
   return (
     <div
       className={css`
-        margin: 0;
+        flex-grow: 1;
+        min-width: 0;
+        padding: 0.5rem 0.5rem;
+
         ${respondToOrLarger.lg} {
-          margin-left: auto;
-          margin-right: 1rem;
+          padding: 0.5rem 1rem;
         }
       `}
     >
-      <UnstyledA href={organizationFrontPageRoute(slug)}>
-        <button
-          className={css`
-            background-color: rgba(237, 238, 240, 1);
-            color: rgba(26, 35, 51, 1);
-            border: none;
-            border-radius: 0px;
-            padding: 0.4rem 0.8rem;
-            font-family: ${primaryFont};
-            font-size: 18px;
-            line-height: 100%;
-            letter-spacing: 0;
-            cursor: pointer;
+      <h2
+        className={css`
+          color: ${hidden ? "#666" : "#333"};
+          font-family: ${primaryFont};
+          font-size: 15px;
+          line-height: 1.1;
+          text-transform: capitalize;
 
-            &:hover {
-              transition: background-color 0.3s;
-              background-color: rgb(216, 216, 216);
-            }
-          `}
-        >
-          {t("label-select")}
-        </button>
-      </UnstyledA>
+          ${respondToOrLarger.lg} {
+            font-size: 18px;
+            line-height: 1.3;
+          }
+        `}
+      >
+        {name} {hidden && `(${t("label-hidden")})`}
+      </h2>
     </div>
   )
 }

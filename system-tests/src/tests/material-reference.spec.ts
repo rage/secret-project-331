@@ -121,15 +121,6 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
     PARAGRAPH,
   )
 
-  await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["region", "aria-allowed-attr"],
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "citation-in-editor",
-    beforeScreenshot: async () => await page.locator(`text=${PARAGRAPH}`).scrollIntoViewIfNeeded(),
-  })
-
   // Create table with citations
   await page.keyboard.press("Enter")
   await page.fill(

@@ -47,6 +47,7 @@ test.describe("Students should be able to navigate and select peer review radiob
     await student1Page.getByRole("button", { name: "Start peer review" }).click()
     await student1Page.getByPlaceholder("Write a review").press("Tab")
     await student1Page.getByRole("radio", { name: "Strongly disagree" }).first().press("ArrowRight")
+    // after u press the key without the locator, wait for some locator that expects disagree to have focus, then press the next key
     await student1Page.getByRole("radio", { name: "Disagree", exact: true }).nth(1).press(" ")
     await expect(student1Page.getByRole("radio", { name: "Disagree", exact: true }).nth(1))
       .toMatchAriaSnapshot(`

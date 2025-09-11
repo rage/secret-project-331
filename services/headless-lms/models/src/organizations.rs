@@ -14,6 +14,7 @@ pub struct DatabaseOrganization {
     pub description: Option<String>,
     pub organization_image_path: Option<String>,
     pub deleted_at: Option<DateTime<Utc>>,
+    pub hidden: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -27,6 +28,7 @@ pub struct Organization {
     pub description: Option<String>,
     pub organization_image_url: Option<String>,
     pub deleted_at: Option<DateTime<Utc>>,
+    pub hidden: bool,
 }
 
 impl Organization {
@@ -48,6 +50,7 @@ impl Organization {
             deleted_at: organization.deleted_at,
             organization_image_url,
             description: organization.description,
+            hidden: organization.hidden,
         }
     }
 }
@@ -57,18 +60,20 @@ pub async fn insert(
     pkey_policy: PKeyPolicy<Uuid>,
     name: &str,
     slug: &str,
-    description: &str,
+    description: Option<&str>,
+    hidden: bool,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO organizations (id, name, slug, description)
-VALUES ($1, $2, $3, $4)
-RETURNING id
-",
+        INSERT INTO organizations (id, name, slug, description, hidden)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING id
+        ",
         pkey_policy.into_uuid(),
         name,
         slug,
-        description
+        description,
+        hidden,
     )
     .fetch_one(conn)
     .await?;
@@ -78,7 +83,12 @@ RETURNING id
 pub async fn all_organizations(conn: &mut PgConnection) -> ModelResult<Vec<DatabaseOrganization>> {
     let organizations = sqlx::query_as!(
         DatabaseOrganization,
-        "SELECT * FROM organizations WHERE deleted_at IS NULL ORDER BY name;"
+        r#"
+        SELECT *
+        FROM organizations
+        WHERE deleted_at IS NULL AND hidden = FALSE
+        ORDER BY name
+        "#
     )
     .fetch_all(conn)
     .await?;
@@ -140,6 +150,57 @@ RETURNING *;",
     Ok(updated_organization)
 }
 
+pub async fn update_name_and_hidden(
+    conn: &mut PgConnection,
+    id: Uuid,
+    name: &str,
+    hidden: bool,
+    slug: &str,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+        UPDATE organizations
+        SET name = $1,
+            hidden = $2,
+            slug = $3
+        WHERE id = $4
+        "#,
+        name,
+        hidden,
+        slug,
+        id
+    )
+    .execute(conn)
+    .await?;
+
+    Ok(())
+}
+
+pub async fn soft_delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+    sqlx::query("UPDATE organizations SET deleted_at = now() WHERE id = $1")
+        .bind(id)
+        .execute(conn)
+        .await?;
+    Ok(())
+}
+
+pub async fn all_organizations_include_hidden(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<DatabaseOrganization>> {
+    let organizations = sqlx::query_as!(
+        DatabaseOrganization,
+        r#"
+SELECT *
+FROM organizations
+WHERE deleted_at IS NULL
+ORDER BY name
+    "#
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(organizations)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -155,7 +216,8 @@ mod tests {
             PKeyPolicy::Fixed(Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap()),
             "org",
             "slug",
-            "description",
+            Some("description"),
+            false,
         )
         .await
         .unwrap();

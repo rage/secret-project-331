@@ -7,6 +7,7 @@ import { courseMaterialBlockClass } from "../utils/constants"
 import { FEEDBACK_TOOLTIP_ID } from "./FeedbackTooltip"
 
 export const FEEDBACK_DIALOG_CONTENT_ID = "feedback-dialog-content"
+export const IGNORE_BLOCK_FEEDBACK_CLASS = "feedback-ignore-block"
 
 const useSelectionTracking = (): void => {
   const setSelection = useSetAtom(selectionAtom)
@@ -41,10 +42,18 @@ const useSelectionTracking = (): void => {
       } else {
         element = node.parentElement
       }
-      const dialogContent = element?.closest(
+      const isWithinIgnoredBlock = parentHasCssSelector(element, `.${IGNORE_BLOCK_FEEDBACK_CLASS}`)
+      const isWithinFeedback = parentHasCssSelector(
+        element,
+        // eslint-disable-next-line i18next/no-literal-string
         `#${FEEDBACK_DIALOG_CONTENT_ID}, #${FEEDBACK_TOOLTIP_ID}`,
       )
-      return dialogContent !== null && dialogContent !== undefined
+      return isWithinIgnoredBlock || isWithinFeedback
+    }
+
+    function parentHasCssSelector(el: Element | null, cssSelector: string): boolean {
+      const content = el?.closest(cssSelector)
+      return content !== null && content !== undefined
     }
 
     function selectedCourseBlocks(selection: Selection): boolean {

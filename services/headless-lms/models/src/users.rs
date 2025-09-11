@@ -152,18 +152,18 @@ pub async fn find_by_upstream_id(
 }
 
 /// Includes all users who have returned an exercise on a course course instance
-pub async fn get_all_user_ids_with_user_exercise_states_on_course_instance(
+pub async fn get_all_user_ids_with_user_exercise_states_on_course(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Vec<Uuid>> {
     let res = sqlx::query!(
         "
 SELECT DISTINCT user_id
 FROM user_exercise_states
-WHERE course_instance_id = $1
+WHERE course_id = $1
   AND deleted_at IS NULL
         ",
-        course_instance_id
+        course_id
     )
     .map(|x| x.user_id)
     .fetch_all(conn)

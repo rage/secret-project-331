@@ -84,7 +84,17 @@ pub async fn regrade(
             }
             Err(err) => {
                 tracing::error!("Regrading {} failed: {}", regrading_id, err);
-                models::regradings::set_error_message(conn, regrading_id, &err.to_string()).await?;
+                let backtrace: Option<&backtrace::Backtrace> = err.backtrace();
+                if let Some(bt) = backtrace {
+                    tracing::error!("Backtrace:\n{:?}", bt);
+                }
+
+                let error_message = if let Some(bt) = backtrace {
+                    format!("{}\n\nBacktrace:\n{:?}", err, bt)
+                } else {
+                    err.to_string()
+                };
+                models::regradings::set_error_message(conn, regrading_id, &error_message).await?;
                 models::regradings::set_total_grading_progress(
                     conn,
                     regrading_id,
@@ -338,7 +348,7 @@ mod test {
 
     #[tokio::test]
     async fn regrades_submission() {
-        insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide);
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, :chapter, :page, :exercise, :slide);
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
         let task = models::exercise_tasks::insert(
             tx.as_mut(),
@@ -367,7 +377,7 @@ mod test {
             tx.as_mut(),
             user,
             &exercise,
-            instance.id,
+            course,
             slide,
             StudentExerciseSlideSubmission {
                 exercise_slide_id: slide,
@@ -451,7 +461,7 @@ mod test {
 
     #[tokio::test]
     async fn regrades_complete() {
-        insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide);
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, :chapter, :page, :exercise, :slide);
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
         let task = models::exercise_tasks::insert(
             tx.as_mut(),
@@ -480,7 +490,7 @@ mod test {
             tx.as_mut(),
             user,
             &exercise,
-            instance.id,
+            course,
             slide,
             StudentExerciseSlideSubmission {
                 exercise_slide_id: slide,
@@ -559,7 +569,7 @@ mod test {
 
     #[tokio::test]
     async fn regrades_partial() {
-        insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, slide: slide_1);
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, :chapter, :page, :exercise, slide: slide_1);
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
         let grading_result = ExerciseTaskGradingResult {
             grading_progress: models::exercises::GradingProgress::FullyGraded,
@@ -589,7 +599,7 @@ mod test {
             tx.as_mut(),
             user,
             &exercise,
-            instance.id,
+            course,
             slide_1,
             StudentExerciseSlideSubmission {
                 exercise_slide_id: slide_1,
@@ -630,7 +640,7 @@ mod test {
             tx.as_mut(),
             user,
             &exercise,
-            instance.id,
+            course,
             slide_2,
             StudentExerciseSlideSubmission {
                 exercise_slide_id: slide_2,
@@ -647,7 +657,7 @@ mod test {
             tx.as_mut(),
             user,
             exercise.id,
-            Some(instance.id),
+            Some(course),
             None,
             Some(slide_2),
         )
@@ -733,7 +743,7 @@ mod test {
 
     #[tokio::test]
     async fn updates_exercise_state() {
-        insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide);
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, :chapter, :page, :exercise, :slide);
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
         let task = models::exercise_tasks::insert(
             tx.as_mut(),
@@ -754,7 +764,7 @@ mod test {
             tx.as_mut(),
             user,
             &exercise,
-            instance.id,
+            course,
             slide,
             StudentExerciseSlideSubmission {
                 exercise_slide_id: slide,
@@ -821,7 +831,7 @@ mod test {
             tx.as_mut(),
             user,
             exercise.id,
-            Some(instance.id),
+            Some(course),
             None,
         )
         .await
@@ -853,7 +863,7 @@ mod test {
             tx.as_mut(),
             user,
             exercise.id,
-            Some(instance.id),
+            Some(course),
             None,
         )
         .await
@@ -868,7 +878,7 @@ mod test {
 
     #[tokio::test]
     async fn fail_on_missing_service() {
-        insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide, :task);
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, :chapter, :page, :exercise, :slide, :task);
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
         let grading_result = ExerciseTaskGradingResult {
             grading_progress: models::exercises::GradingProgress::FullyGraded,
@@ -882,7 +892,7 @@ mod test {
             tx.as_mut(),
             user,
             &exercise,
-            instance.id,
+            course,
             slide,
             StudentExerciseSlideSubmission {
                 exercise_slide_id: slide,
@@ -931,7 +941,7 @@ mod test {
         conn: &mut PgConnection,
         user_id: Uuid,
         exercise: &Exercise,
-        instance_id: Uuid,
+        course_id: Uuid,
         exercise_slide_id: Uuid,
         submission: StudentExerciseSlideSubmission,
         mock_results: HashMap<Uuid, ExerciseTaskGradingResult>,
@@ -940,7 +950,7 @@ mod test {
             conn,
             user_id,
             exercise.id,
-            Some(instance_id),
+            Some(course_id),
             None,
             Some(exercise_slide_id),
         )
@@ -949,7 +959,7 @@ mod test {
             conn,
             user_id,
             exercise.id,
-            Some(instance_id),
+            Some(course_id),
             None,
         )
         .await?;

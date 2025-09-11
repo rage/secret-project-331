@@ -51,9 +51,9 @@ import {
   StudentExerciseSlideSubmissionResult,
   Term,
   TermUpdate,
-  UserCourseInstanceChapterExerciseProgress,
+  UserCourseChapterExerciseProgress,
   UserCourseInstanceChapterProgress,
-  UserCourseInstanceProgress,
+  UserCourseProgress,
   UserCourseSettings,
   UserDetail,
   UserMarketingConsent,
@@ -96,9 +96,9 @@ import {
   isStudentCountry,
   isStudentExerciseSlideSubmissionResult,
   isTerm,
-  isUserCourseInstanceChapterExerciseProgress,
+  isUserCourseChapterExerciseProgress,
   isUserCourseInstanceChapterProgress,
-  isUserCourseInstanceProgress,
+  isUserCourseProgress,
   isUserCourseSettings,
   isUserDetail,
   isUserMarketingConsent,
@@ -245,9 +245,9 @@ export const fetchAllCoursePages = async (courseId: string): Promise<Array<Page>
 
 export const fetchUserCourseProgress = async (
   courseInstanceId: string,
-): Promise<UserCourseInstanceProgress[]> => {
+): Promise<UserCourseProgress[]> => {
   const response = await courseMaterialClient.get(`/course-instances/${courseInstanceId}/progress`)
-  return validateResponse(response, isArray(isUserCourseInstanceProgress))
+  return validateResponse(response, isArray(isUserCourseProgress))
 }
 
 export const fetchUserModuleCompletionStatuses = async (
@@ -273,11 +273,11 @@ export const fetchUserChapterInstanceChapterProgress = async (
 export const fetchUserCourseInstanceChapterExercisesProgress = async (
   courseInstanceId: string,
   chapterId: string,
-): Promise<Array<UserCourseInstanceChapterExerciseProgress>> => {
+): Promise<Array<UserCourseChapterExerciseProgress>> => {
   const response = await courseMaterialClient.get(
     `/course-instances/${courseInstanceId}/chapters/${chapterId}/exercises/progress`,
   )
-  return validateResponse(response, isArray(isUserCourseInstanceChapterExerciseProgress))
+  return validateResponse(response, isArray(isUserCourseChapterExerciseProgress))
 }
 
 export const fetchExerciseById = async (id: string): Promise<CourseMaterialExercise> => {

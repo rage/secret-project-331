@@ -50,9 +50,21 @@
       }
     ],
     "parameters": {
-      "Left": ["Date"]
+      "Left": [
+        "Date"
+      ]
     },
-    "nullable": [false, false, false, true, true, true, true, false, false]
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false
+    ]
   },
   "hash": "d2ed8d3cbd332bddd8c4cf768ec8c063f53b9603d928bf715448e68eb265f464"
 }

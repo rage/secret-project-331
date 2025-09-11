@@ -15,6 +15,7 @@ use crate::{
 use actix_session::Session;
 use anyhow::Error;
 use anyhow::anyhow;
+use headless_lms_models::ModelResult;
 use headless_lms_models::{user_email_codes, user_passwords, users};
 use headless_lms_utils::tmc::{NewUserInfo, TmcClient};
 use rand::Rng;
@@ -697,6 +698,13 @@ pub async fn update_user_information_to_tmc(
             anyhow::anyhow!("TMC user update failed: {}", e)
         })?;
     Ok(())
+}
+
+pub async fn is_user_global_admin(conn: &mut PgConnection, user_id: Uuid) -> ModelResult<bool> {
+    let roles = models::roles::get_roles(conn, user_id).await?;
+    Ok(roles
+        .iter()
+        .any(|r| r.role == models::roles::UserRole::Admin && r.is_global))
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

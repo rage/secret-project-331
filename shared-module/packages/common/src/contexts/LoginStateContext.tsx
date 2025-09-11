@@ -62,7 +62,7 @@ export function withSignedIn<T>(
     }
 
     if (!loginStateContext.signedIn) {
-      const returnTo = encodeURIComponent(window.location.pathname)
+      const returnTo = encodeURIComponent(window.location.pathname + window.location.search)
       window.location.replace(`/login?return_to=${returnTo}`)
       return <div>{t("please-sign-in-to-view-this-page")}</div>
     }

@@ -75,18 +75,20 @@ const SubmissionsPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = 
       {(exerciseQuery.isPending || exerciseSubmissionsQuery.isPending) && (
         <Spinner variant={"medium"} />
       )}
-      {exerciseQuery.isSuccess && exerciseSubmissionsQuery.isSuccess && (
-        <>
-          <ExerciseSubmissionList
-            exerciseSubmissions={exerciseSubmissionsQuery.data.data}
-            courseId={exerciseQuery.data.course_id}
-          />
-          <Pagination
-            totalPages={exerciseSubmissionsQuery.data.total_pages}
-            paginationInfo={paginationInfo}
-          />
-        </>
-      )}
+      {exerciseQuery.isSuccess &&
+        exerciseSubmissionsQuery.isSuccess &&
+        exerciseQuery.data.course_id && (
+          <>
+            <ExerciseSubmissionList
+              exerciseSubmissions={exerciseSubmissionsQuery.data.data}
+              courseId={exerciseQuery.data.course_id}
+            />
+            <Pagination
+              totalPages={exerciseSubmissionsQuery.data.total_pages}
+              paginationInfo={paginationInfo}
+            />
+          </>
+        )}
     </div>
   )
 }

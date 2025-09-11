@@ -61,6 +61,7 @@ Git should already be installed on the VDI. Confirm this by running `git --versi
    ```
 
 3. Authenticate with GitHub CLI to cache credentials:
+
    ```bash
    gh auth login
    ```

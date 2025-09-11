@@ -528,6 +528,7 @@ pub struct CourseInstanceWithCourseInfo {
     pub course_instance_id: Uuid,
     pub course_instance_name: Option<String>,
     pub course_instance_description: Option<String>,
+    pub organization_name: String,
 }
 
 pub async fn get_enrolled_course_instances_for_user(
@@ -544,14 +545,17 @@ SELECT
     c.description AS course_description,
     ci.id AS course_instance_id,
     ci.name AS course_instance_name,
-    ci.description AS course_instance_description
+    ci.description AS course_instance_description,
+    o.name AS organization_name
 FROM course_instances AS ci
   JOIN course_instance_enrollments AS cie ON ci.id = cie.course_instance_id
   LEFT JOIN courses AS c ON ci.course_id = c.id
+  LEFT JOIN organizations AS o ON o.id = c.organization_id
 WHERE cie.user_id = $1
   AND ci.deleted_at IS NULL
   AND cie.deleted_at IS NULL
   AND c.deleted_at IS NULL
+  AND o.deleted_at IS NULL
 "#,
         user_id
     )
@@ -575,13 +579,15 @@ SELECT DISTINCT ON (ci.id)
     c.description AS course_description,
     ci.id AS course_instance_id,
     ci.name AS course_instance_name,
-    ci.description AS course_instance_description
+    ci.description AS course_instance_description,
+    o.name AS organization_name
 FROM course_instances AS ci
   JOIN course_instance_enrollments AS cie ON ci.id = cie.course_instance_id
   LEFT JOIN courses AS c ON ci.course_id = c.id
   LEFT JOIN exercises AS e ON e.course_id = c.id
   LEFT JOIN exercise_slides AS es ON es.exercise_id = e.id
   LEFT JOIN exercise_tasks AS et ON et.exercise_slide_id = es.id
+  LEFT JOIN organizations AS o ON o.id = c.organization_id
 WHERE cie.user_id = $1
   AND et.exercise_type = $2
   AND ci.deleted_at IS NULL

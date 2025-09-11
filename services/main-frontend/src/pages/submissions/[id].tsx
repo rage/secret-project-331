@@ -63,7 +63,11 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
       return false
     }
     const currentSubmissionId = getSubmissionInfo.data.exercise_slide_submission.id
-    const latestSubmission = exerciseSubmissions.data[0] // Submissions are ordered by created_at DESC
+    // Sort submissions by created_at DESC to get the latest one
+    const sortedSubmissions = [...exerciseSubmissions.data].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    )
+    const latestSubmission = sortedSubmissions[0]
     return latestSubmission?.id === currentSubmissionId
   }, [exerciseSubmissions.data, getSubmissionInfo.data])
 
@@ -253,6 +257,20 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
                 {t("exercise-grading")}
               </h3>
 
+              <p
+                className={css`
+                  margin: 0 0 1rem 0;
+                  color: ${baseTheme.colors.gray[600]};
+                  font-size: 0.875rem;
+                  line-height: 1.5;
+                `}
+              >
+                {t(
+                  "custom-points-description",
+                  "Give custom points for the entire exercise. This will override all previous grading for this exercise.",
+                )}
+              </p>
+
               {/* Warning for non-current submission */}
               {!isLatestSubmission && (
                 <div
@@ -293,20 +311,6 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
                   </div>
                 </div>
               )}
-
-              <p
-                className={css`
-                  margin: 0 0 1rem 0;
-                  color: ${baseTheme.colors.gray[600]};
-                  font-size: 0.875rem;
-                  line-height: 1.5;
-                `}
-              >
-                {t(
-                  "custom-points-description",
-                  "Give custom points for the entire exercise. This will override all previous grading for this exercise.",
-                )}
-              </p>
 
               <CustomPointsPopup
                 exerciseMaxPoints={getSubmissionInfo.data.exercise.score_maximum}

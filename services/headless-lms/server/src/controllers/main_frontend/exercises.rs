@@ -112,13 +112,12 @@ async fn get_exercise_submissions_for_user(
         }
     };
 
-    let submissions =
-        models::exercise_slide_submissions::get_users_all_submissions_for_course_or_exam(
-            &mut conn,
-            target_user.id,
-            course_or_exam_id,
-        )
-        .await?;
+    let submissions = models::exercise_slide_submissions::get_users_submissions_for_exercise(
+        &mut conn,
+        target_user.id,
+        exercise_id,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(submissions))
 }

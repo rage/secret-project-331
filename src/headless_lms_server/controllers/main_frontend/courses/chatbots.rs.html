@@ -91,11 +91,45 @@
 <a href=#91 id=91 data-nosnippet>91</a>    token.authorized_ok(web::Json(configuration))
 <a href=#92 id=92 data-nosnippet>92</a>}
 <a href=#93 id=93 data-nosnippet>93</a>
-<a href=#94 id=94 data-nosnippet>94</a><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>web::ServiceConfig) {
-<a href=#95 id=95 data-nosnippet>95</a>    cfg.route(<span class="string">""</span>, web::get().to(get_chatbots))
-<a href=#96 id=96 data-nosnippet>96</a>        .route(<span class="string">""</span>, web::post().to(create_chatbot))
-<a href=#97 id=97 data-nosnippet>97</a>        .route(
-<a href=#98 id=98 data-nosnippet>98</a>            <span class="string">"/{chatbot_configuration_id}/set-as-default"</span>,
-<a href=#99 id=99 data-nosnippet>99</a>            web::post().to(set_default_chatbot),
-<a href=#100 id=100 data-nosnippet>100</a>        );
-<a href=#101 id=101 data-nosnippet>101</a>}</code></pre></div></section></main></body></html>
+<a href=#94 id=94 data-nosnippet>94</a><span class="doccomment">/// POST `/api/v0/main-frontend/courses/{course_id}/chatbots/{chatbot_configuration_id}/set-as-non-default`
+<a href=#95 id=95 data-nosnippet>95</a></span><span class="attr">#[instrument(skip(pool))]
+<a href=#96 id=96 data-nosnippet>96</a></span><span class="kw">async fn </span>set_non_default_chatbot(
+<a href=#97 id=97 data-nosnippet>97</a>    ids: web::Path&lt;(Uuid, Uuid)&gt;,
+<a href=#98 id=98 data-nosnippet>98</a>    pool: web::Data&lt;PgPool&gt;,
+<a href=#99 id=99 data-nosnippet>99</a>    user: AuthUser,
+<a href=#100 id=100 data-nosnippet>100</a>) -&gt; ControllerResult&lt;web::Json&lt;ChatbotConfiguration&gt;&gt; {
+<a href=#101 id=101 data-nosnippet>101</a>    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#102 id=102 data-nosnippet>102</a>    <span class="kw">let </span>(course_id, chatbot_configuration_id) = <span class="kw-2">*</span>ids;
+<a href=#103 id=103 data-nosnippet>103</a>
+<a href=#104 id=104 data-nosnippet>104</a>    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Edit, <span class="prelude-val">Some</span>(user.id), Res::Course(course_id)).<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#105 id=105 data-nosnippet>105</a>    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#106 id=106 data-nosnippet>106</a>
+<a href=#107 id=107 data-nosnippet>107</a>    models::chatbot_configurations::remove_default_chatbot_from_course(<span class="kw-2">&amp;mut </span>tx, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#108 id=108 data-nosnippet>108</a>
+<a href=#109 id=109 data-nosnippet>109</a>    <span class="kw">let </span>configuration =
+<a href=#110 id=110 data-nosnippet>110</a>        models::chatbot_configurations::get_by_id(<span class="kw-2">&amp;mut </span>tx, chatbot_configuration_id).<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#111 id=111 data-nosnippet>111</a>
+<a href=#112 id=112 data-nosnippet>112</a>    <span class="kw">if </span>course_id != configuration.course_id {
+<a href=#113 id=113 data-nosnippet>113</a>        <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+<a href=#114 id=114 data-nosnippet>114</a>            ControllerErrorType::BadRequest,
+<a href=#115 id=115 data-nosnippet>115</a>            <span class="string">"Chatbot course id doesn't match the course id provided."</span>.to_string(),
+<a href=#116 id=116 data-nosnippet>116</a>            <span class="prelude-val">None</span>,
+<a href=#117 id=117 data-nosnippet>117</a>        ));
+<a href=#118 id=118 data-nosnippet>118</a>    }
+<a href=#119 id=119 data-nosnippet>119</a>    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#120 id=120 data-nosnippet>120</a>
+<a href=#121 id=121 data-nosnippet>121</a>    token.authorized_ok(web::Json(configuration))
+<a href=#122 id=122 data-nosnippet>122</a>}
+<a href=#123 id=123 data-nosnippet>123</a>
+<a href=#124 id=124 data-nosnippet>124</a><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>web::ServiceConfig) {
+<a href=#125 id=125 data-nosnippet>125</a>    cfg.route(<span class="string">""</span>, web::get().to(get_chatbots))
+<a href=#126 id=126 data-nosnippet>126</a>        .route(<span class="string">""</span>, web::post().to(create_chatbot))
+<a href=#127 id=127 data-nosnippet>127</a>        .route(
+<a href=#128 id=128 data-nosnippet>128</a>            <span class="string">"/{chatbot_configuration_id}/set-as-default"</span>,
+<a href=#129 id=129 data-nosnippet>129</a>            web::post().to(set_default_chatbot),
+<a href=#130 id=130 data-nosnippet>130</a>        )
+<a href=#131 id=131 data-nosnippet>131</a>        .route(
+<a href=#132 id=132 data-nosnippet>132</a>            <span class="string">"/{chatbot_configuration_id}/set-as-non-default"</span>,
+<a href=#133 id=133 data-nosnippet>133</a>            web::post().to(set_non_default_chatbot),
+<a href=#134 id=134 data-nosnippet>134</a>        );
+<a href=#135 id=135 data-nosnippet>135</a>}</code></pre></div></section></main></body></html>

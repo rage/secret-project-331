@@ -190,7 +190,12 @@ async fn sync_pages(
         );
 
         let page_ids: Vec<Uuid> = outdated_statuses.iter().map(|s| s.page_id).collect();
-        let mut pages = headless_lms_models::pages::get_by_ids(conn, &page_ids).await?;
+        let mut pages = headless_lms_models::pages::get_by_ids_and_visibility(
+            conn,
+            &page_ids,
+            PageVisibility::Public,
+        )
+        .await?;
 
         if !pages.is_empty() {
             sync_pages_batch(
@@ -203,7 +208,12 @@ async fn sync_pages(
             .await?;
         }
 
-        let deleted_pages = headless_lms_models::pages::get_by_ids_deleted(conn, &page_ids).await?;
+        let deleted_pages = headless_lms_models::pages::get_by_ids_deleted_and_visibility(
+            conn,
+            &page_ids,
+            PageVisibility::Public,
+        )
+        .await?;
         pages.extend(deleted_pages);
 
         update_sync_statuses(conn, &pages, &latest_histories).await?;

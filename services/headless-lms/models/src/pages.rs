@@ -3360,7 +3360,12 @@ WHERE id = $1
     Ok(())
 }
 
-pub async fn get_by_ids(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<Vec<Page>> {
+pub async fn get_by_ids_and_visibility(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+    page_visibility: PageVisibility,
+) -> ModelResult<Vec<Page>> {
+    let inverse_visibility_filter = page_visibility.get_inverse_visibility_filter();
     let pages = sqlx::query_as!(
         Page,
         "
@@ -3380,17 +3385,23 @@ SELECT id,
     page_language_group_id
 FROM pages
 WHERE id = ANY($1)
-    AND hidden = FALSE
+    AND hidden IS DISTINCT FROM $2
     AND deleted_at IS NULL
     ",
-        ids
+        ids,
+        inverse_visibility_filter
     )
     .fetch_all(conn)
     .await?;
     Ok(pages)
 }
 
-pub async fn get_by_ids_deleted(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<Vec<Page>> {
+pub async fn get_by_ids_deleted_and_visibility(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+    page_visibility: PageVisibility,
+) -> ModelResult<Vec<Page>> {
+    let inverse_visibility_filter = page_visibility.get_inverse_visibility_filter();
     let pages = sqlx::query_as!(
         Page,
         "
@@ -3410,10 +3421,11 @@ SELECT id,
     page_language_group_id
 FROM pages
 WHERE id = ANY($1)
-    AND hidden = FALSE
+    AND hidden IS DISTINCT FROM $2
     AND deleted_at IS NOT NULL
     ",
-        ids
+        ids,
+        inverse_visibility_filter
     )
     .fetch_all(conn)
     .await?;

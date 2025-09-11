@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n    created_at,\n    updated_at,\n    course_id,\n    exam_id,\n    chapter_id,\n    url_path,\n    title,\n    deleted_at,\n    content,\n    order_number,\n    copied_from,\n    hidden,\n    page_language_group_id\nFROM pages\nWHERE id = ANY($1)\n    AND hidden = FALSE\n    AND deleted_at IS NULL\n    ",
+  "query": "\nSELECT id,\n    created_at,\n    updated_at,\n    course_id,\n    exam_id,\n    chapter_id,\n    url_path,\n    title,\n    deleted_at,\n    content,\n    order_number,\n    copied_from,\n    hidden,\n    page_language_group_id\nFROM pages\nWHERE id = ANY($1)\n    AND hidden IS DISTINCT FROM $2\n    AND deleted_at IS NOT NULL\n    ",
   "describe": {
     "columns": [
       {
@@ -76,7 +76,8 @@
     ],
     "parameters": {
       "Left": [
-        "UuidArray"
+        "UuidArray",
+        "Bool"
       ]
     },
     "nullable": [
@@ -96,5 +97,5 @@
       true
     ]
   },
-  "hash": "a2fc8832b4269ada12e3a801abe731d0fcae82fc7c7c4d0dbd150c95f5fd5840"
+  "hash": "2a207e0c2dba290eccd9f9bf0d19157e11119418cee7f9a2dff00e05b1a08b07"
 }

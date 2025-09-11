@@ -14,8 +14,8 @@ import {
 } from "../../../../../services/backend"
 import ExerciseTaskIframe from "../ExerciseTaskIframe"
 
-import PeerOrSelfReviewQuestion from "./PeerOrSelfReviewQuestion"
-import MarkAsSpamDialog from "./PeerRevireMarkingSpam/MarkAsSpamDialog"
+import PeerOrSelfReviewQuestionComponent from "./PeerOrSelfReviewQuestion"
+import MarkAsSpamDialog from "./PeerReviewMarkingSpam/MarkAsSpamDialog"
 
 import { getPeerReviewBeginningScrollingId, PeerOrSelfReviewViewProps } from "."
 
@@ -306,11 +306,11 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
 
       {peerOrSelfReviewData.peer_or_self_review_questions
         .sort((a, b) => a.order_number - b.order_number)
-        .map((question) => (
-          <PeerOrSelfReviewQuestion
-            key={question.id}
-            question={question}
-            peerOrSelfReviewQuestionAnswer={answers.get(question.id) ?? null}
+        .map((peerOrSelfReviewQuestion) => (
+          <PeerOrSelfReviewQuestionComponent
+            key={peerOrSelfReviewQuestion.id}
+            peerOrSelfReviewQuestion={peerOrSelfReviewQuestion}
+            peerOrSelfReviewQuestionAnswer={answers.get(peerOrSelfReviewQuestion.id) ?? null}
             setPeerOrSelfReviewQuestionAnswer={(newAnswer) => {
               setAnswers((prev) => {
                 const answers = new Map(prev)
@@ -319,11 +319,11 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
                   (newAnswer.text_data === null || newAnswer.text_data.trim() === "")
                 ) {
                   // If everything in the answer is null, transform the answer to not answered
-                  answers.delete(question.id)
+                  answers.delete(peerOrSelfReviewQuestion.id)
                 } else {
-                  answers.set(question.id, {
+                  answers.set(peerOrSelfReviewQuestion.id, {
                     ...newAnswer,
-                    peer_or_self_review_question_id: question.id,
+                    peer_or_self_review_question_id: peerOrSelfReviewQuestion.id,
                   })
                 }
 

@@ -70,12 +70,7 @@ test.describe("An exercise that has self review but no peer review works", () =>
       await student1Page
         .getByPlaceholder("Write a review")
         .fill("This was such a good answer 100/100.")
-      await student1Page
-        .locator("div")
-        .filter({ hasText: /^Agree$/ })
-        .locator("ellipse")
-        .first()
-        .click()
+      await student1Page.getByRole("radio", { name: "Agree", exact: true }).first().click()
       await student1Page.getByRole("button", { name: "Submit" }).click()
       await student1Page.getByText("Operation successful!").waitFor()
       await student1Page.getByText("Waiting for course staff to review your answer").waitFor()

@@ -29,6 +29,7 @@ impl Convert<api::CourseInstance> for CourseInstanceWithCourseInfo {
             id: self.course_instance_id,
             instance_name: self.course_instance_name,
             instance_description: self.course_instance_description,
+            organization_name: self.organization_name,
         }
     }
 }

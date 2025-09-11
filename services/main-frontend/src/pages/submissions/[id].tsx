@@ -1,22 +1,33 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { Question } from "@vectopus/atlas-icons-react"
+import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import SubmissionIFrame from "../../components/page-specific/submissions/id/SubmissionIFrame"
+import AllSubmissionsList from "../../components/AllSubmissionsList"
+import ExerciseGradingCard from "../../components/ExerciseGradingCard"
+import KeyValueCard from "../../components/KeyValueCard"
+import MainFrontedViewSubmission from "../../components/MainFrontedViewSubmission"
+import { useExerciseSubmissionsForUser } from "../../hooks/useExerciseSubmissionsForUser"
+import { useUserCourseSettings } from "../../hooks/useUserCourseSettings"
+import { useUserDetails } from "../../hooks/useUserDetails"
 import { fetchSubmissionInfo } from "../../services/backend/submissions"
 
+import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
+import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import Spinner from "@/shared-module/common/components/Spinner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
-import { baseTheme } from "@/shared-module/common/styles"
 import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import {
+  courseInstanceUserStatusSummaryRoute,
+  exerciseSubmissionsRoute,
+} from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
 
 interface SubmissionPageProps {
@@ -30,15 +41,80 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
     queryFn: () => fetchSubmissionInfo(query.id),
   })
 
+  const userDetails = useUserDetails(
+    getSubmissionInfo.data?.exercise.course_id,
+    getSubmissionInfo.data?.exercise_slide_submission.user_id,
+  )
+
+  const exerciseSubmissions = useExerciseSubmissionsForUser(
+    getSubmissionInfo.data?.exercise.id,
+    getSubmissionInfo.data?.exercise_slide_submission.user_id,
+  )
+
+  const userCourseSettings = useUserCourseSettings(
+    getSubmissionInfo.data?.exercise.course_id,
+    getSubmissionInfo.data?.exercise_slide_submission.user_id,
+  )
+
+  // Callback to refetch all queries when grading is submitted
+  const handleGradingSubmit = React.useCallback(() => {
+    getSubmissionInfo.refetch()
+    userDetails.refetch()
+    exerciseSubmissions.refetch()
+    userCourseSettings.refetch()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  let userExerciseStateId = getSubmissionInfo.data?.user_exercise_state?.id
+
+  // Get user exercise state for custom points functionality
+  const exerciseId = getSubmissionInfo.data?.exercise.id ?? ""
+
+  // Check if current submission is the latest one
+  const isLatestSubmission = React.useMemo(() => {
+    if (!exerciseSubmissions.data || !getSubmissionInfo.data) {
+      return false
+    }
+    const currentSubmissionId = getSubmissionInfo.data.exercise_slide_submission.id
+    // Sort submissions by created_at DESC to get the latest one
+    const sortedSubmissions = [...exerciseSubmissions.data].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    )
+    const latestSubmission = sortedSubmissions[0]
+    return latestSubmission?.id === currentSubmissionId
+  }, [exerciseSubmissions.data, getSubmissionInfo.data])
+  const pointsFromWholeExercise = getSubmissionInfo.data?.user_exercise_state?.score_given
   const totalScoreGiven = getSubmissionInfo.data?.tasks
     .map((task) => task.previous_submission_grading?.score_given)
     .reduce((a, b) => (a ?? 0) + (b ?? 0), 0)
+
+  // Construct breadcrumb pieces
+  const breadcrumbPieces = React.useMemo(() => {
+    if (!getSubmissionInfo.data) {
+      return []
+    }
+
+    return [
+      {
+        text: t("header-submissions"),
+        url: exerciseSubmissionsRoute(getSubmissionInfo.data.exercise.id),
+      },
+      {
+        text: t("title-submission-id", { id: query.id }),
+        // eslint-disable-next-line i18next/no-literal-string
+        url: `/submissions/${query.id}`,
+      },
+    ]
+  }, [getSubmissionInfo.data, query.id, t])
+
   return (
     <div>
       {getSubmissionInfo.isError && (
         <ErrorBanner variant={"readOnly"} error={getSubmissionInfo.error} />
       )}
       {getSubmissionInfo.isPending && <Spinner variant={"medium"} />}
+      {getSubmissionInfo.isSuccess && breadcrumbPieces.length > 0 && (
+        <Breadcrumbs pieces={breadcrumbPieces} />
+      )}
       {getSubmissionInfo.isSuccess && (
         <>
           {getSubmissionInfo.data.tasks.some((task) => task.deleted_at !== null) && (
@@ -58,86 +134,148 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
             />
           </h1>
 
-          {
-            <div
-              className={css`
-                background-color: ${baseTheme.colors.green[600]};
-                color: ${baseTheme.colors.clear[100]};
-                padding: 1.5rem 2rem;
-                max-width: ${narrowContainerWidthRem}rem;
-                margin: 2rem auto;
-                display: flex;
-                align-items: center;
-              `}
-            >
-              <div
-                aria-hidden
-                className={css`
-                  background-color: ${baseTheme.colors.clear[100]};
-                  color: ${baseTheme.colors.green[600]};
-                  font-weight: bold;
-                  font-size: 42px;
-                  width: 58px;
-                  height: 58px;
-                  border-radius: 100%;
-                  display: flex;
-                  justify-content: center;
-                  align-items: center;
-                `}
-              >
-                <Question />
-              </div>
-              <div
-                className={css`
-                  flex: 1;
-                  margin-left: 1rem;
-                `}
-              >
-                <div>
-                  <HideTextInSystemTests
-                    text={t("answered-at", {
-                      time: dateToString(
+          {/* User Information Section */}
+          {userDetails.isLoading && <Spinner variant="medium" />}
+          {userDetails.isSuccess && (
+            <KeyValueCard
+              sections={[
+                {
+                  title: t("submission-details"),
+                  items: [
+                    {
+                      // eslint-disable-next-line i18next/no-literal-string
+                      key: "submission-id",
+                      label: t("submission-id"),
+                      colSpan: 3,
+                      value: (
+                        <HideTextInSystemTests
+                          text={getSubmissionInfo.data.exercise_slide_submission.id}
+                          testPlaceholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                        />
+                      ),
+                    },
+                    {
+                      // eslint-disable-next-line i18next/no-literal-string
+                      key: "submission-created",
+                      label: t("submission-created"),
+                      colSpan: 3,
+                      value: dateToString(
                         getSubmissionInfo.data.exercise_slide_submission.created_at,
                       ),
-                    })}
-                    testPlaceholder={t("answered-at", {
-                      time: "XXXX-XX-XX XX:XX:XX UTC+00:00",
-                    })}
-                  />
-                </div>
-                <div>
-                  <HideTextInSystemTests
-                    text={t("sent-by", {
-                      user: getSubmissionInfo.data.exercise_slide_submission.user_id,
-                    })}
-                    testPlaceholder={t("sent-by", {
-                      user: "user",
-                    })}
-                  />
-                </div>
-              </div>
-              <div
-                className={css`
-                  font-weight: bold;
-                  font-size: 18px;
-                  text-transform: uppercase;
-                `}
-              >
-                {t("points")} {totalScoreGiven} / {getSubmissionInfo.data.exercise.score_maximum}
-              </div>
-            </div>
-          }
-          {getSubmissionInfo.data.tasks
-            .sort((a, b) => a.order_number - b.order_number)
-            .map((task) => (
-              <SubmissionIFrame key={task.id} coursematerialExerciseTask={task} />
-            ))}
+                    },
+                    {
+                      // eslint-disable-next-line i18next/no-literal-string
+                      key: "points",
+                      label: t("points-from-whole-exercise"),
+                      value: pointsFromWholeExercise,
+                      colSpan: 2,
+                    },
+                    {
+                      // eslint-disable-next-line i18next/no-literal-string
+                      key: "max-points",
+                      label: t("max-points"),
+                      value: getSubmissionInfo.data.exercise.score_maximum,
+                    },
+                  ],
+                },
+                {
+                  title: t("user-information"),
+                  items: [
+                    {
+                      // eslint-disable-next-line i18next/no-literal-string
+                      key: "first-name",
+                      label: t("first-name"),
+                      value: userDetails.data.first_name ?? "",
+                    },
+                    {
+                      // eslint-disable-next-line i18next/no-literal-string
+                      key: "last-name",
+                      label: t("last-name"),
+                      value: userDetails.data.last_name ?? "",
+                    },
+                    {
+                      // eslint-disable-next-line i18next/no-literal-string
+                      key: "email",
+                      label: t("email"),
+                      value: userDetails.data.email ?? "",
+                    },
+                    {
+                      // eslint-disable-next-line i18next/no-literal-string
+                      key: "user-id",
+                      label: t("user-id"),
+                      colSpan: 3,
+                      value: (
+                        <HideTextInSystemTests
+                          text={getSubmissionInfo.data.exercise_slide_submission.user_id}
+                          testPlaceholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                        />
+                      ),
+                    },
+                  ],
+                },
+              ]}
+              actionButtons={
+                userCourseSettings.data?.current_course_instance_id
+                  ? [
+                      <Link
+                        key="course-status"
+                        href={courseInstanceUserStatusSummaryRoute(
+                          userCourseSettings.data.current_course_instance_id,
+                          getSubmissionInfo.data.exercise_slide_submission.user_id,
+                        )}
+                      >
+                        <Button variant="tertiary" size="medium">
+                          {t("course-status-summary")}
+                        </Button>
+                      </Link>,
+                    ]
+                  : []
+              }
+            />
+          )}
+
+          {/* User Details Error Banner */}
+          {userDetails.isError && (
+            <ErrorBanner
+              variant="readOnly"
+              error={userDetails.error}
+              className={css`
+                max-width: ${narrowContainerWidthRem}rem;
+                margin: 0 auto 2rem auto;
+              `}
+            />
+          )}
+
+          <MainFrontedViewSubmission
+            submissionData={getSubmissionInfo.data}
+            totalScoreGiven={totalScoreGiven}
+          />
+
+          {/* All Submissions by User Section */}
+          <AllSubmissionsList
+            submissions={exerciseSubmissions.data}
+            isLoading={exerciseSubmissions.isLoading}
+            isError={exerciseSubmissions.isError}
+            error={exerciseSubmissions.error}
+            currentSubmissionId={getSubmissionInfo.data.exercise_slide_submission.id}
+          />
         </>
       )}
+
+      {getSubmissionInfo.isSuccess && userExerciseStateId && (
+        <ExerciseGradingCard
+          userExerciseStateId={userExerciseStateId}
+          exerciseId={exerciseId}
+          exerciseMaxPoints={getSubmissionInfo.data.exercise.score_maximum}
+          isLatestSubmission={isLatestSubmission}
+          onGradingSubmit={handleGradingSubmit}
+        />
+      )}
+
       <div
         className={css`
-          background-color: ${baseTheme.colors.clear[100]};
-          color: ${baseTheme.colors.clear[100]};
+          background-color: #f8f9fa;
+          color: #f8f9fa;
           padding: 1.5rem 2rem;
           max-width: ${narrowContainerWidthRem}rem;
           margin: 2rem auto;

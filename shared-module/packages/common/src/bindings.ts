@@ -836,6 +836,7 @@ export interface ExerciseSlideSubmissionInfo {
   tasks: Array<CourseMaterialExerciseTask>
   exercise: Exercise
   exercise_slide_submission: ExerciseSlideSubmission
+  user_exercise_state: UserExerciseState | null
 }
 
 export interface CourseMaterialExerciseSlide {

@@ -130,6 +130,37 @@ WHERE id = $1
     Ok(course_instance)
 }
 
+pub async fn get_course_instance_with_info(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+) -> ModelResult<CourseInstanceWithCourseInfo> {
+    let course_instance = sqlx::query_as!(
+        CourseInstanceWithCourseInfo,
+        r#"
+SELECT
+    c.id AS course_id,
+    c.slug AS course_slug,
+    c.name AS course_name,
+    c.description AS course_description,
+    ci.id AS course_instance_id,
+    ci.name AS course_instance_name,
+    ci.description AS course_instance_description,
+    o.name AS organization_name
+FROM course_instances AS ci
+  LEFT JOIN courses AS c ON ci.course_id = c.id
+  LEFT JOIN organizations AS o ON o.id = c.organization_id
+WHERE ci.id = $1
+  AND ci.deleted_at IS NULL
+  AND c.deleted_at IS NULL
+  AND o.deleted_at IS NULL
+    "#,
+        course_instance_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(course_instance)
+}
+
 pub async fn get_default_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,

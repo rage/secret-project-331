@@ -12,12 +12,12 @@ pub mod auth;
 pub mod cms;
 pub mod course_material;
 pub mod exercise_services;
-pub mod fake_azure_endpoint;
 pub mod files;
 pub mod healthz;
 pub mod helpers;
 pub mod langs;
 pub mod main_frontend;
+pub mod mock_azure_endpoint;
 pub mod other_domain_redirects;
 pub mod study_registry;
 pub mod tmc_server;
@@ -54,7 +54,7 @@ pub fn configure_controllers(cfg: &mut ServiceConfig) {
         .service(web::scope("/healthz").configure(healthz::_add_routes))
         .service(web::scope("/langs").configure(langs::_add_routes))
         .service(web::scope("/tmc-server").configure(tmc_server::_add_routes))
-        .service(web::scope("/idk").configure(fake_azure_endpoint::_add_routes))
+        .service(web::scope("/mock-azure").configure(mock_azure_endpoint::_add_routes))
         .default_service(web::to(not_found));
 }
 

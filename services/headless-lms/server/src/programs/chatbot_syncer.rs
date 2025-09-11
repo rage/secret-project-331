@@ -37,7 +37,17 @@ const PRINT_STILL_RUNNING_MESSAGE_TICKS_THRESHOLD: u32 = 60;
 pub async fn main() -> anyhow::Result<()> {
     initialize_environment()?;
     let config = initialize_configuration().await?;
-    if config.app_configuration.azure_configuration.is_none() {
+    if let Some(a_config) = &config.app_configuration.azure_configuration {
+        if let Some(b_config) = &a_config.blob_storage_config {
+            if b_config.access_key == "" {
+                info!("Using mock azure configuration, this must be a test/dev environment.");
+                // Sleep indefinitely to prevent the program from exiting. This only happens in development.
+                loop {
+                    tokio::time::sleep(Duration::from_secs(u64::MAX)).await;
+                }
+            }
+        }
+    } else {
         warn!("Azure configuration not provided. Not running chatbot syncer.");
         // Sleep indefinitely to prevent the program from exiting. This only happens in development.
         loop {

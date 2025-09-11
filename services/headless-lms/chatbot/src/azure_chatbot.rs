@@ -442,10 +442,6 @@ pub async fn send_chat_request_and_parse_stream(
         .send();
 
     let response = request.await?;
-    println!(
-        "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\nresponse\n{:?}\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
-        response
-    );
 
     info!("Receiving chat response with {:?}", response.version());
 

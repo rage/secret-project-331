@@ -18,6 +18,7 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import InfoComponent from "@/shared-module/common/components/InfoComponent"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { PageMarginOffset } from "@/shared-module/common/components/layout/PageMarginOffset"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -34,7 +35,7 @@ interface SubmissionPageProps {
 
 const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ query }) => {
   const { t } = useTranslation()
-
+  const { confirm } = useDialog()
   const getExam = useQuery({
     queryKey: [`/exams/${query.id}/`, query.id],
     queryFn: () => fetchExam(query.id),
@@ -329,8 +330,8 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
               disabled={!getExam.data?.grade_manually}
               variant={"primary"}
               size={"small"}
-              onClick={() => {
-                const confirmation = confirm(
+              onClick={async () => {
+                const confirmation = await confirm(
                   t("message-do-you-want-to-publish-all-currently-graded-submissions"),
                 )
                 if (confirmation) {

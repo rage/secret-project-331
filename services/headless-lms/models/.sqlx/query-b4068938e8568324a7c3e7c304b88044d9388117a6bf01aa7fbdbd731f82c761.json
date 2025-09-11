@@ -35,7 +35,10 @@
           "Custom": {
             "name": "peer_review_question_type",
             "kind": {
-              "Enum": ["essay", "scale"]
+              "Enum": [
+                "essay",
+                "scale"
+              ]
             }
           }
         }
@@ -47,9 +50,19 @@
       }
     ],
     "parameters": {
-      "Left": ["UuidArray"]
+      "Left": [
+        "UuidArray"
+      ]
     },
-    "nullable": [false, false, false, false, false, false, false]
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
   },
   "hash": "b4068938e8568324a7c3e7c304b88044d9388117a6bf01aa7fbdbd731f82c761"
 }

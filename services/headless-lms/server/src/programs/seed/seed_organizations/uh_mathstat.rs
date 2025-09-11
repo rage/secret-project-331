@@ -17,7 +17,9 @@ use sqlx::{Pool, Postgres};
 use crate::{
     domain::models_requests::{self, JwtKey},
     programs::seed::{
-        seed_courses::{CommonCourseData, seed_sample_course},
+        seed_courses::{
+            CommonCourseData, seed_sample_course, seed_switching_course_instances_course,
+        },
         seed_file_storage::SeedFileStorageResult,
         seed_helpers::get_seed_spec_fetcher,
     },
@@ -65,7 +67,8 @@ pub async fn seed_organization_uh_mathstat(
         PKeyPolicy::Fixed(Uuid::parse_str("269d28b2-a517-4572-9955-3ed5cecc69bd")?),
         "University of Helsinki, Department of Mathematics and Statistics",
         "uh-mathstat",
-        "Organization for Mathematics and Statistics courses. This organization creates courses that do require prior experience in mathematics, such as integration and induction.",
+        Some("Organization for Mathematics and Statistics courses. This organization creates courses that do require prior experience in mathematics, such as integration and induction."),
+        false,
     )
     .await?;
 
@@ -374,6 +377,26 @@ pub async fn seed_organization_uh_mathstat(
         Uuid::parse_str("db5cd9c7-1658-4214-896e-8213678d3534")?,
         "Custom points",
         "custom-points",
+        uh_data.clone(),
+        false,
+        seed_users_result,
+    )
+    .await?;
+
+    let _closed_course_id = seed_sample_course(
+        Uuid::parse_str("7622eb8e-15a5-40c8-8136-0956d9f25b16")?,
+        "Closed course",
+        "closed-course",
+        uh_data.clone(),
+        false,
+        seed_users_result,
+    )
+    .await?;
+
+    let _changing_course_instance_id = seed_switching_course_instances_course(
+        Uuid::parse_str("813ce3c6-acbc-47a5-9d95-47ade9d09a74")?,
+        "Changing course instance",
+        "changing-course-instance",
         uh_data.clone(),
         false,
         seed_users_result,

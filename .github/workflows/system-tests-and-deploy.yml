@@ -77,6 +77,7 @@ jobs:
           github token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
+        id: build
         run: bin/skaffold-build-test-env-and-serialize-output
 
       - name: Store skaffold output json
@@ -132,6 +133,7 @@ jobs:
           done
 
       - name: Deploy to local minikube
+        id: deploy_local
         run: skaffold deploy --force --filename ./skaffold.production.yaml --build-artifacts=./skaffold-build-output.json
 
       - name: Configure ingress
@@ -151,19 +153,52 @@ jobs:
         working-directory: ./system-tests/
         if: ${{ github.ref != 'refs/heads/master' }}
 
-      - name: Headless lms logs
-        run: kubectl logs 'deployment/headless-lms'
-        if: failure()
+      # upload logs for all the services on failure
+      - name: Save service logs to disk
+        if: ${{ failure() && steps.deploy_local.conclusion == 'success' }}
+        run: |
+          mkdir ./logs
+          kubectl logs 'deployment/chatbot-syncer' > ./logs/chatbot-syncer.log
+          kubectl logs 'deployment/cms' > ./logs/cms.log
+          kubectl logs 'deployment/course-material' > ./logs/course-material.log
+          kubectl logs 'deployment/example-exercise' > ./logs/example-exercise.log
+          kubectl logs 'deployment/headless-lms' > ./logs/headless-lms.log
+          kubectl logs 'deployment/mailchimp-syncer' > ./logs/mailchimp-syncer.log
+          kubectl logs 'deployment/main-frontend' > ./logs/main-frontend.log
+          kubectl logs 'deployment/quizzes' > ./logs/quizzes.log
+      - name: Upload logs
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() && steps.deploy_local.conclusion == 'success' }}
+        with:
+          name: service-logs
+          path: ./logs/*
 
-      - uses: actions/upload-artifact@v4
-        if: failure()
+      - name: Print pods information
+        if: ${{ failure() && steps.deploy_local.conclusion == 'success' }}
+        run: |
+          echo "> kubectl get pods"
+          kubectl get pods
+          echo
+          echo "----------------------------------------------------------"
+          for POD in $(kubectl get pods -o custom-columns=NAME:.metadata.name --no-headers=true)
+          do
+              echo
+              echo "----------------------------------------------------------"
+              echo "> kubectl describe pod $POD"
+              kubectl describe pod "$POD"
+          done
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() && steps.deploy_local.conclusion == 'success' }}
         with:
           name: test-results
           path: ./system-tests/test-results/
           if-no-files-found: ignore
 
-      - uses: actions/upload-artifact@v4
-        if: failure()
+      - name: Upload playwright report
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() && steps.deploy_local.conclusion == 'success' }}
         with:
           name: playwright-html-report
           path: ./system-tests/playwright-report/index.html
@@ -178,11 +213,71 @@ jobs:
         if: ${{ github.ref == 'refs/heads/master' }}
       - name: Push images tagged with sha if master
         run: |
+          echo "=== Starting image push process ==="
+
           # Point Docker CLI to minikube's Docker daemon since images are built there
+          echo "> Setting up Docker environment for minikube..."
           eval "$(minikube -p minikube docker-env --shell bash)"
+          echo "> Docker environment configured"
+
+          echo "> Authenticating with Google Cloud Docker registry..."
           gcloud auth configure-docker -q
-          # shellcheck disable=SC2016
-          jq --raw-output '.builds[].tag' < skaffold-build-output.json | xargs -d $'\n' sh -c 'for arg do echo "> docker push $arg"; docker push "$arg"; done'
+          echo "> Authentication completed"
+
+          # Check if the skaffold output file exists and show its contents
+          echo "> Checking skaffold-build-output.json file..."
+          if [ ! -f "skaffold-build-output.json" ]; then
+            echo "ERROR: skaffold-build-output.json file not found!"
+            exit 1
+          fi
+
+          echo "> File size: $(wc -c < skaffold-build-output.json) bytes"
+          echo "> File contents (formatted):"
+          python -m json.tool skaffold-build-output.json
+          echo ""
+
+          # Extract and display all image tags
+          echo "> Extracting image tags from skaffold output..."
+          TAGS=$(jq --raw-output '.builds[].tag' < skaffold-build-output.json)
+          echo "> Found tags:"
+          echo "$TAGS"
+          echo ""
+
+          # Count the number of tags
+          TAG_COUNT=$(echo "$TAGS" | wc -l)
+          echo "> Total number of tags to push: $TAG_COUNT"
+
+          if [ "$TAG_COUNT" -eq 0 ]; then
+            echo "ERROR: No image tags found in skaffold output!"
+            exit 1
+          fi
+
+          # Push each image with detailed logging
+          echo "> Starting to push images..."
+          echo "$TAGS" | while IFS= read -r tag; do
+            if [ -n "$tag" ]; then
+              echo ""
+              echo "=== Pushing image: $tag ==="
+              echo "> Checking if image exists locally..."
+              if docker image inspect "$tag" >/dev/null 2>&1; then
+                echo "> Image found locally, pushing..."
+                if docker push "$tag"; then
+                  echo "> SUCCESS: Pushed $tag"
+                else
+                  echo "> ERROR: Failed to push $tag"
+                  exit 1
+                fi
+              else
+                echo "> ERROR: Image $tag not found locally!"
+                echo "> Available images:"
+                docker images
+                exit 1
+              fi
+            fi
+          done
+
+          echo ""
+          echo "=== Image push process completed successfully ==="
         if: ${{ github.ref == 'refs/heads/master' }}
 
   deploy:
@@ -209,23 +304,27 @@ jobs:
           kustomize: "5.4.1"
           skaffold: "2.13.1"
 
-      - uses: google-github-actions/setup-gcloud@94337306dda8180d967a56932ceb4ddcf01edae7
+      - id: "auth"
+        uses: "google-github-actions/auth@v2"
         with:
-          service_account_key: ${{ secrets.GCLOUD_SERVICE_KEY_DEPLOY_TO_PRODUCTION }}
+          credentials_json: "${{ secrets.GCLOUD_SERVICE_KEY_DEPLOY_TO_PRODUCTION }}"
+
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v3"
+        with:
           project_id: ${{ secrets.GKE_PROJECT }}
 
-      - run: gcloud --quiet auth configure-docker
-
-      - uses: google-github-actions/get-gke-credentials@fb08709ba27618c31c09e014e1d8364b02e5042e
+      - uses: google-github-actions/get-gke-credentials@v2
         with:
           cluster_name: ${{ secrets.GKE_CLUSTER }}
           location: ${{ secrets.GKE_ZONE }}
-          credentials: ${{ secrets.GCLOUD_SERVICE_KEY_DEPLOY_TO_PRODUCTION }}
 
       - name: Masking
         run: |
           IPS=$(kubectl config view | grep server | tr -s ' ' | cut -d ' ' -f 3 | xargs echo)
           echo "::add-mask::$IPS"
+
+      - run: gcloud --quiet auth configure-docker
 
       - name: Make sure skaffold local env patch files exist
         run: bin/make-sure-skaffold-local-env-patch-files-exists

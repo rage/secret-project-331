@@ -1,12 +1,20 @@
 use std::sync::Arc;
 
 use crate::domain::models_requests::{self, JwtKey};
+use crate::programs::seed::builder::chapter::ChapterBuilder;
+use crate::programs::seed::builder::context::SeedContext;
+use crate::programs::seed::builder::course::{CourseBuilder, CourseInstanceConfig};
+use crate::programs::seed::builder::exercise::{ExerciseBuilder, ExerciseIds};
+use crate::programs::seed::builder::module::ModuleBuilder;
+use crate::programs::seed::builder::page::PageBuilder;
 use crate::programs::seed::seed_helpers::{
     create_best_exercise, create_best_peer_review, create_page, example_exercise_flexible,
     paragraph, quizzes_exercise, submit_and_grade,
 };
 use anyhow::Result;
 use chrono::{TimeZone, Utc};
+
+use serde_json::json;
 
 use headless_lms_models::{
     PKeyPolicy, certificate_configuration_to_requirements, certificate_configurations, chapters,
@@ -418,7 +426,13 @@ pub async fn seed_sample_course(
                 exercise_block_1,
                 paragraph("So big, that we need many paragraphs.", block_id_4),
                 paragraph("Like this.", block_id_5),
-                paragraph(&"At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat. ".repeat(4), block_id_6),
+                paragraph("The abacus is one of the oldest known calculating tools, with origins tracing back to ancient Mesopotamia and China. Often consisting of a wooden frame with rows of beads, it has been used for centuries as a reliable aid in performing arithmetic operations. Its simplicity and effectiveness made it a cornerstone of commerce and education across many civilizations.", block_id_6),
+
+                paragraph("Throughout history, the abacus has taken on various forms, from the Roman hand abacus to the Chinese suanpan and the Japanese soroban. Each design introduced unique innovations, optimizing calculation methods for their respective regions. Despite the rise of digital calculators, the abacus continues to be used in some educational settings to teach arithmetic concepts and mental math techniques.", block_id_6),
+
+                paragraph("Modern interest in the abacus has grown as educators recognize its value in developing number sense and concentration in children. Competitions in mental abacus calculation demonstrate just how powerful this tool can be when mastered. While it may seem outdated, the abacus remains a symbol of timeless ingenuity and practical problem-solving.", block_id_6),
+
+                paragraph("In recent years, digital adaptations of the abacus have also emerged, blending traditional methods with modern interfaces. These tools not only preserve the historical legacy of the abacus but also make it more accessible to new generations of learners. Whether used physically or virtually, the abacus continues to bridge the gap between tactile learning and abstract thinking.", block_id_6),
             ]),
         },
 
@@ -1964,7 +1978,6 @@ pub async fn seed_sample_course(
         &mut conn,
         database_configuration.id,
         Some(default_module.id),
-        Some(default_instance.id),
     )
     .await?;
 
@@ -1976,6 +1989,214 @@ pub async fn seed_sample_course(
         RoleDomain::Course(course.id),
     )
     .await?;
+
+    Ok(course.id)
+}
+
+pub async fn seed_switching_course_instances_course(
+    course_id: Uuid,
+    course_name: &str,
+    course_slug: &str,
+    common_course_data: CommonCourseData,
+    can_add_chatbot: bool,
+    seed_users_result: SeedUsersResult,
+) -> Result<Uuid> {
+    let CommonCourseData {
+        db_pool,
+        organization_id: org,
+        teacher_user_id,
+        student_user_id: _student,
+        langs_user_id: _langs_user_id,
+        example_normal_user_ids: _users,
+        jwt_key: _jwt_key,
+        base_url: _base_url,
+    } = common_course_data;
+
+    let mut conn = db_pool.acquire().await?;
+    let mut cx = SeedContext {
+        conn: &mut conn,
+        teacher: teacher_user_id,
+        org,
+        base_course_ns: course_id,
+    };
+
+    info!(
+        "Inserting switching course instances course {}",
+        course_name
+    );
+
+    let course = CourseBuilder::new(course_name, course_slug)
+        .desc("Sample course.")
+        .chatbot(can_add_chatbot)
+        .course_id(course_id)
+        .instance(CourseInstanceConfig {
+            name: None,
+            description: None,
+            support_email: None,
+            teacher_in_charge_name: "admin".to_string(),
+            teacher_in_charge_email: "admin@example.com".to_string(),
+            opening_time: None,
+            closing_time: None,
+            instance_id: Some(cx.v5(b"instance:default")),
+        })
+        .instance(CourseInstanceConfig {
+            name: Some("Non-default instance".to_string()),
+            description: Some("This is a non-default instance".to_string()),
+            support_email: Some("contact@example.com".to_string()),
+            teacher_in_charge_name: "admin".to_string(),
+            teacher_in_charge_email: "admin@example.com".to_string(),
+            opening_time: None,
+            closing_time: None,
+            instance_id: Some(cx.v5(b"instance:non-default")),
+        })
+        .role(seed_users_result.teacher_user_id, UserRole::Teacher)
+        .module(
+            ModuleBuilder::new()
+                .order(0)
+                .register_to_open_university(false)
+                .automatic_completion(Some(1), Some(1), false)
+                .chapter(
+                    ChapterBuilder::new(1, "The Basics")
+                        .opens(Utc::now())
+                        .deadline(Utc.with_ymd_and_hms(2225, 1, 1, 23, 59, 59).unwrap())
+                        .fixed_ids(cx.v5(b"chapter:1"), cx.v5(b"chapter:1:instance"))
+                        .page(
+                            PageBuilder::new("/chapter-1/page-1", "Page One")
+                                .block(paragraph(
+                                    "This is a simple introduction to the basics.",
+                                    cx.v5(b"page:1:1:block:intro"),
+                                ))
+                                .exercise(ExerciseBuilder::example_exercise(
+                                    "Simple multiple choice",
+                                    ExerciseIds {
+                                        exercise_id: cx.v5(b"exercise:1:1:e"),
+                                        slide_id: cx.v5(b"exercise:1:1:s"),
+                                        task_id: cx.v5(b"exercise:1:1:t"),
+                                        block_id: cx.v5(b"exercise:1:1:b"),
+                                    },
+                                    vec![paragraph(
+                                        "What is 2 + 2?",
+                                        cx.v5(b"exercise:1:1:prompt"),
+                                    )],
+                                    json!([
+                                        {
+                                            "name": "3",
+                                            "correct": false,
+                                            "id": cx.v5(b"exercise:1:1:option:1")
+                                        },
+                                        {
+                                            "name": "4",
+                                            "correct": true,
+                                            "id": cx.v5(b"exercise:1:1:option:2")
+                                        },
+                                        {
+                                            "name": "5",
+                                            "correct": false,
+                                            "id": cx.v5(b"exercise:1:1:option:3")
+                                        }
+                                    ]),
+                                )),
+                        ),
+                ),
+        )
+        .module(
+            ModuleBuilder::new()
+                .order(1)
+                .name("Another module")
+                .automatic_completion(Some(1), Some(1), false)
+                .ects(5.0)
+                .chapter(
+                    ChapterBuilder::new(2, "Another chapter")
+                        .fixed_ids(cx.v5(b"chapter:2"), cx.v5(b"chapter:2:instance"))
+                        .page(
+                            PageBuilder::new("/chapter-2/page-1", "Simple Page")
+                                .block(paragraph(
+                                    "This is another simple page with basic content.",
+                                    cx.v5(b"page:2:1:block:intro"),
+                                ))
+                                .exercise(ExerciseBuilder::example_exercise(
+                                    "Simple question",
+                                    ExerciseIds {
+                                        exercise_id: cx.v5(b"exercise:2:1:e"),
+                                        slide_id: cx.v5(b"exercise:2:1:s"),
+                                        task_id: cx.v5(b"exercise:2:1:t"),
+                                        block_id: cx.v5(b"exercise:2:1:b"),
+                                    },
+                                    vec![paragraph(
+                                        "What color is the sky?",
+                                        cx.v5(b"exercise:2:1:prompt"),
+                                    )],
+                                    json!([
+                                        {
+                                            "name": "Red",
+                                            "correct": false,
+                                            "id": cx.v5(b"exercise:2:1:option:1")
+                                        },
+                                        {
+                                            "name": "Blue",
+                                            "correct": true,
+                                            "id": cx.v5(b"exercise:2:1:option:2")
+                                        },
+                                        {
+                                            "name": "Green",
+                                            "correct": false,
+                                            "id": cx.v5(b"exercise:2:1:option:3")
+                                        }
+                                    ]),
+                                )),
+                        ),
+                ),
+        )
+        .module(
+            ModuleBuilder::new()
+                .order(2)
+                .name("Bonus module")
+                .register_to_open_university(true)
+                .automatic_completion(None, Some(1), false)
+                .chapter(
+                    ChapterBuilder::new(3, "Bonus chapter")
+                        .fixed_ids(cx.v5(b"chapter:3"), cx.v5(b"chapter:3:instance"))
+                        .page(
+                            PageBuilder::new("/chapter-3/page-1", "Bonus Page")
+                                .block(paragraph(
+                                    "This is a bonus page with simple content.",
+                                    cx.v5(b"page:3:1:block:intro"),
+                                ))
+                                .exercise(ExerciseBuilder::example_exercise(
+                                    "Bonus question",
+                                    ExerciseIds {
+                                        exercise_id: cx.v5(b"exercise:3:1:e"),
+                                        slide_id: cx.v5(b"exercise:3:1:s"),
+                                        task_id: cx.v5(b"exercise:3:1:t"),
+                                        block_id: cx.v5(b"exercise:3:1:b"),
+                                    },
+                                    vec![paragraph(
+                                        "What is the capital of France?",
+                                        cx.v5(b"exercise:3:1:assignment"),
+                                    )],
+                                    json!([
+                                        {
+                                            "name": "London",
+                                            "correct": false,
+                                            "id": cx.v5(b"exercise:3:1:option:1")
+                                        },
+                                        {
+                                            "name": "Paris",
+                                            "correct": true,
+                                            "id": cx.v5(b"exercise:3:1:option:2")
+                                        },
+                                        {
+                                            "name": "Berlin",
+                                            "correct": false,
+                                            "id": cx.v5(b"exercise:3:1:option:3")
+                                        }
+                                    ]),
+                                )),
+                        ),
+                ),
+        );
+
+    let (course, _default_instance, _last_module) = course.seed(&mut cx).await?;
 
     Ok(course.id)
 }

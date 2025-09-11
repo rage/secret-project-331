@@ -13,23 +13,25 @@ import {
   fetchPageAudioFiles,
   fetchResearchFormAnswersWithUserId,
   fetchResearchFormWithCourseId,
-  getChatbotConfigurationForCourse,
+  getDefaultChatbotConfigurationForCourse,
 } from "../services/backend"
 import { inlineColorStyles } from "../styles/inlineColorStyles"
 
 import AudioSpeaker from "./../img/audio-player/audio-speaker.svg"
+import ClosedCourseWarningDialog from "./ClosedCourseWarningDialog"
 import ContentRenderer from "./ContentRenderer"
 import AudioPlayer from "./ContentRenderer/moocfi/AudioPlayer"
 import NavigationContainer from "./ContentRenderer/moocfi/NavigationContainer"
 import FeedbackHandler from "./FeedbackHandler"
 import HeadingsNavigation from "./HeadingsNavigation"
 import ReferenceList from "./ReferencesList"
-import Chatbot from "./chatbot"
+import Chatbot from "./chatbot/Chatbot"
 import SelectResearchConsentForm from "./forms/SelectResearchConsentForm"
 import SelectUserInformationForm from "./forms/SelectUserInformationForm"
 import CourseSettingsModal from "./modals/CourseSettingsModal"
 import UserOnWrongCourseNotification from "./notifications/UserOnWrongCourseNotification"
 
+import useHasCourseClosed from "@/hooks/useHasCourseClosed"
 import { useUserDetails } from "@/hooks/useUserDetails"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -83,6 +85,8 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
     pageContext.settings?.current_course_instance_id === null ||
     pageContext.settings?.current_course_instance_id === undefined
 
+  const hasCourseClosed = useHasCourseClosed()
+
   useEffect(() => {
     if (researchFormQueryParam) {
       setShowResearchConsentForm(true)
@@ -109,8 +113,8 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   })
 
   const chatbotConfiguration = useQuery({
-    queryKey: [`courses-${courseId}-chatbot-configuration`],
-    queryFn: () => getChatbotConfigurationForCourse(assertNotNullOrUndefined(courseId)),
+    queryKey: ["chatbot", "default-for-course", courseId],
+    queryFn: () => getDefaultChatbotConfigurationForCourse(assertNotNullOrUndefined(courseId)),
     enabled: loginContext.signedIn === true && Boolean(courseId),
   })
 
@@ -266,6 +270,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
         )}
 
         {isMaterialPage && <HeadingsNavigation />}
+        {hasCourseClosed && <ClosedCourseWarningDialog />}
         <div id="maincontent">
           {/* TODO: Better type for Page.content in bindings. */}
           <div id="content" className={inlineColorStyles}>

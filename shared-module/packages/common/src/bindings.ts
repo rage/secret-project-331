@@ -22,6 +22,7 @@ export type Action =
   | { type: "view_user_progress_or_details" }
   | { type: "view_internal_course_structure" }
   | { type: "view_stats" }
+  | { type: "administrate" }
 
 export interface ActionOnResource {
   action: Action
@@ -66,7 +67,6 @@ export interface SpecRequest {
 export interface CertificateAllRequirements {
   certificate_configuration_id: string
   course_module_ids: Array<string>
-  course_instance_ids: Array<string>
 }
 
 export interface CertificateConfiguration {
@@ -248,6 +248,20 @@ export interface ChatbotConversationMessage {
   order_number: number
 }
 
+export interface ChatbotConversationMessageCitation {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  conversation_message_id: string
+  conversation_id: string
+  course_material_chapter_number: number | null
+  title: string
+  content: string
+  document_url: string
+  citation_number: number
+}
+
 export interface ChatbotConversation {
   id: string
   created_at: string
@@ -261,6 +275,7 @@ export interface ChatbotConversation {
 export interface ChatbotConversationInfo {
   current_conversation: ChatbotConversation | null
   current_conversation_messages: Array<ChatbotConversationMessage> | null
+  current_conversation_message_citations: Array<ChatbotConversationMessageCitation> | null
   chatbot_name: string
   hide_citations: boolean
 }
@@ -419,7 +434,6 @@ export interface CourseModuleCompletion {
   updated_at: string
   deleted_at: string | null
   course_id: string
-  course_instance_id: string
   course_module_id: string
   user_id: string
   completion_date: string
@@ -536,6 +550,30 @@ export interface Course {
   join_code: string | null
   ask_marketing_consent: boolean
   flagged_answers_threshold: number | null
+  closed_at: string | null
+  closed_additional_message: string | null
+  closed_course_successor_id: string | null
+}
+
+export interface CourseMaterialCourse {
+  id: string
+  slug: string
+  name: string
+  description: string | null
+  organization_id: string
+  language_code: string
+  copied_from: string | null
+  content_search_language: string | null
+  course_language_group_id: string
+  is_draft: boolean
+  is_test_mode: boolean
+  is_unlisted: boolean
+  base_module_completion_requires_n_submodule_completions: number
+  is_joinable_by_code_only: boolean
+  ask_marketing_consent: boolean
+  closed_at: string | null
+  closed_additional_message: string | null
+  closed_course_successor_id: string | null
 }
 
 export interface CourseBreadcrumbInfo {
@@ -567,6 +605,9 @@ export interface CourseUpdate {
   is_joinable_by_code_only: boolean
   ask_marketing_consent: boolean
   flagged_answers_threshold: number
+  closed_at: string | null
+  closed_additional_message: string | null
+  closed_course_successor_id: string | null
 }
 
 export interface NewCourse {
@@ -732,7 +773,6 @@ export interface AnswerRequiringAttention {
   updated_at: string
   deleted_at: string | null
   data_json: unknown | null
-  course_instance_id: string | null
   grading_progress: GradingProgress
   score_given: number | null
   submission_id: string
@@ -755,7 +795,6 @@ export interface ExerciseSlideSubmission {
   deleted_at: string | null
   exercise_slide_id: string
   course_id: string | null
-  course_instance_id: string | null
   exam_id: string | null
   exercise_id: string
   user_id: string
@@ -906,7 +945,7 @@ export interface CourseMaterialExercise {
   exercise_slide_submission_counts: Record<string, number>
   peer_or_self_review_config: CourseMaterialPeerOrSelfReviewConfig | null
   previous_exercise_slide_submission: ExerciseSlideSubmission | null
-  user_course_instance_exercise_service_variables: Array<UserCourseInstanceExerciseServiceVariable>
+  user_course_instance_exercise_service_variables: Array<UserCourseExerciseServiceVariable>
 }
 
 export interface Exercise {
@@ -1084,7 +1123,7 @@ export interface CountResult {
 export interface CustomViewExerciseSubmissions {
   exercise_tasks: CustomViewExerciseTasks
   exercises: Array<Exercise>
-  user_variables: Array<UserCourseInstanceExerciseServiceVariable>
+  user_variables: Array<UserCourseExerciseServiceVariable>
 }
 
 export interface CustomViewExerciseTaskGrading {
@@ -1200,7 +1239,7 @@ export interface StudentExerciseSlideSubmission {
 export interface StudentExerciseSlideSubmissionResult {
   exercise_status: ExerciseStatus | null
   exercise_task_submission_results: Array<StudentExerciseTaskSubmissionResult>
-  user_course_instance_exercise_service_variables: Array<UserCourseInstanceExerciseServiceVariable>
+  user_course_instance_exercise_service_variables: Array<UserCourseExerciseServiceVariable>
 }
 
 export interface StudentExerciseTaskSubmission {
@@ -1353,6 +1392,7 @@ export interface Organization {
   description: string | null
   organization_image_url: string | null
   deleted_at: string | null
+  hidden: boolean
 }
 
 export interface PageAudioFile {
@@ -1487,6 +1527,7 @@ export interface CoursePageWithUserData {
   page: Page
   instance: CourseInstance | null
   settings: UserCourseSettings | null
+  course: Course | null
   was_redirected: boolean
   is_test_mode: boolean
 }
@@ -1739,7 +1780,7 @@ export interface PeerOrSelfReviewSubmission {
   deleted_at: string | null
   user_id: string
   exercise_id: string
-  course_instance_id: string
+  course_id: string
   peer_or_self_review_config_id: string
   exercise_slide_submission_id: string
 }
@@ -1751,7 +1792,7 @@ export interface PeerReviewQueueEntry {
   deleted_at: string | null
   user_id: string
   exercise_id: string
-  course_instance_id: string
+  course_id: string
   receiving_peer_reviews_exercise_slide_submission_id: string
   received_enough_peer_reviews: boolean
   peer_review_priority: number
@@ -2031,14 +2072,14 @@ export interface TeacherGradingDecision {
   hidden: boolean | null
 }
 
-export interface UserCourseInstanceExerciseServiceVariable {
+export interface UserCourseExerciseServiceVariable {
   id: string
   created_at: string
   updated_at: string
   deleted_at: string | null
   exercise_service_slug: string
   user_id: string
-  course_instance_id: string | null
+  course_id: string | null
   exam_id: string | null
   variable_key: string
   variable_value: unknown
@@ -2085,12 +2126,12 @@ export type ReviewingStage =
   | "WaitingForManualGrading"
   | "ReviewedAndLocked"
 
-export interface UserCourseInstanceChapterExerciseProgress {
+export interface UserCourseChapterExerciseProgress {
   exercise_id: string
   score_given: number
 }
 
-export interface UserCourseInstanceProgress {
+export interface UserCourseProgress {
   course_module_id: string
   course_module_name: string
   course_module_order_number: number
@@ -2106,7 +2147,7 @@ export interface UserExerciseState {
   id: string
   user_id: string
   exercise_id: string
-  course_instance_id: string | null
+  course_id: string | null
   exam_id: string | null
   created_at: string
   updated_at: string

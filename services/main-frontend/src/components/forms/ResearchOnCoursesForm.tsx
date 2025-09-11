@@ -6,8 +6,8 @@ import { useTranslation } from "react-i18next"
 import { postUserResearchConsent } from "../../services/backend/users"
 
 import Button from "@/shared-module/common/components/Button"
-import Dialog from "@/shared-module/common/components/Dialog"
 import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
+import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
@@ -58,6 +58,7 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
         noPadding={true}
         closeable={false}
         aria-label={t("title-reseach-consent-form")}
+        data-testid="research-consent-dialog"
       >
         <div
           className={css`

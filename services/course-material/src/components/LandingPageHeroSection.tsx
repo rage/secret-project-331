@@ -4,6 +4,8 @@ import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import { GlossaryContext } from "../contexts/GlossaryContext"
+import { useCornerTapFlip } from "../hooks/useCornerTapFlip"
+import { escapeUrlForCss } from "../utils/sanitizeCourseMaterialHtml"
 
 import { parseText } from "./ContentRenderer/util/textParsing"
 
@@ -36,10 +38,23 @@ const TextBox = styled.div<TextBoxProps>`
     margin-bottom: 0.8rem;
     color: ${({ color }) => (color ? color : baseTheme.colors.gray[700])};
     margin-top: 1.5rem;
-    font-size: clamp(2.4rem, 4vw, 60px);
+
     font-weight: bold;
     max-width: 100%;
     line-height: 1.1;
+
+    font-size: clamp(1.3rem, 4vw, 60px);
+    ${respondToOrLarger.xxxs} {
+      font-size: clamp(1.5rem, 4vw, 60px);
+    }
+
+    ${respondToOrLarger.xxs} {
+      font-size: clamp(2rem, 4vw, 60px);
+    }
+
+    ${respondToOrLarger.xs} {
+      font-size: clamp(2.4rem, 4vw, 60px);
+    }
 
     ${respondToOrLarger.md} {
       width: 50vw;
@@ -78,6 +93,9 @@ const StyledSVG = styled(DefaultSVG)`
 export interface LandingPageHeroSectionProps {
   title: string
   backgroundImage?: string
+  backgroundImageMedium?: string
+  backgroundImageLarge?: string
+  backgroundImageXLarge?: string
   backgroundColor?: string
   fontColor?: string
   backgroundRepeatX?: boolean
@@ -90,14 +108,37 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
   title,
   children,
   backgroundImage,
+  backgroundImageMedium,
+  backgroundImageLarge,
+  backgroundImageXLarge,
   backgroundColor,
   backgroundRepeatX,
   fontColor,
 }) => {
   const { t } = useTranslation()
   const { terms } = useContext(GlossaryContext)
+  const { containerRef, onPointerDown, flipClassName } = useCornerTapFlip()
+
+  // Helper function to get background image for different breakpoints
+  const getBackgroundImageUrl = (breakpoint: "mobile" | "medium" | "large" | "xlarge") => {
+    switch (breakpoint) {
+      case "medium":
+        return backgroundImageMedium || backgroundImage
+      case "large":
+        return backgroundImageLarge || backgroundImageMedium || backgroundImage
+      case "xlarge":
+        return (
+          backgroundImageXLarge || backgroundImageLarge || backgroundImageMedium || backgroundImage
+        )
+      default:
+        return backgroundImage
+    }
+  }
+
   return (
     <div
+      ref={containerRef}
+      onPointerDown={onPointerDown}
       className={css`
         width: 100%;
         border-radius: 1px;
@@ -105,19 +146,39 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
         padding: 5em 1em;
         margin-top: -${COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM}rem;
         ${backgroundColor && `background-color: ${backgroundColor};`}
-        ${backgroundImage &&
-        `background-image: url(${backgroundImage});
+        ${getBackgroundImageUrl("mobile") &&
+        `background-image: url("${escapeUrlForCss(getBackgroundImageUrl("mobile"))}");
         background-repeat: ${backgroundRepeatX ? "repeat-x" : "no-repeat"};
         background-position: center center;`}
         background-size: cover;
+        touch-action: manipulation;
+
+        ${respondToOrLarger.md} {
+          ${getBackgroundImageUrl("medium") &&
+          `background-image: url("${escapeUrlForCss(getBackgroundImageUrl("medium"))}");`}
+        }
+
+        ${respondToOrLarger.lg} {
+          ${getBackgroundImageUrl("large") &&
+          `background-image: url("${escapeUrlForCss(getBackgroundImageUrl("large"))}");`}
+        }
+
+        ${respondToOrLarger.xl} {
+          ${getBackgroundImageUrl("xlarge") &&
+          `background-image: url("${escapeUrlForCss(getBackgroundImageUrl("xlarge"))}");`}
+        }
+
         ${respondToOrLarger.xxxxl} {
           background-size: auto;
         }
       `}
     >
-      {backgroundImage === undefined && <StyledSVG />}
+      {getBackgroundImageUrl("mobile") === undefined && <StyledSVG />}
       <TextBox color={fontColor}>
-        <h1 dangerouslySetInnerHTML={{ __html: parseText(title, terms).parsedText }} />
+        <h1
+          className={flipClassName}
+          dangerouslySetInnerHTML={{ __html: parseText(title, terms).parsedText }}
+        />
         <div className="hero-subtitle">{children}</div>
         <Button
           variant="primary"

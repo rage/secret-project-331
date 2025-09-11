@@ -14,7 +14,7 @@ use crate::{
         self, Chapter, DatabaseChapter, course_chapters, get_chapter, get_chapter_by_page_id,
     },
     course_instances::{self, CourseInstance},
-    courses::{Course, CourseContextData},
+    courses::{self, Course, CourseContextData},
     exercise_service_info::{self, ExerciseServiceInfoApi},
     exercise_services::{get_internal_public_spec_url, get_model_solution_url},
     exercise_slides::ExerciseSlide,
@@ -83,6 +83,7 @@ pub struct CoursePageWithUserData {
     pub page: Page,
     pub instance: Option<CourseInstance>,
     pub settings: Option<UserCourseSettings>,
+    pub course: Option<Course>,
     /// If true, the frontend needs to update the url in the browser to match the path in the page object without reloading the page.
     pub was_redirected: bool,
     pub is_test_mode: bool,
@@ -411,7 +412,7 @@ WHERE id = $1
     )
     .fetch_one(conn)
     .await?;
-    CourseOrExamId::from(res.course_id, res.exam_id)
+    CourseOrExamId::from_course_and_exam_ids(res.course_id, res.exam_id)
 }
 
 pub enum PageVisibility {
@@ -756,10 +757,12 @@ pub async fn get_course_page_with_user_data_from_selected_page(
                 conn, user_id, course_id,
             )
             .await?;
+            let course = courses::get_course(conn, course_id).await?;
             return Ok(CoursePageWithUserData {
                 page,
                 instance,
                 settings,
+                course: Some(course),
                 was_redirected,
                 is_test_mode,
             });
@@ -769,6 +772,7 @@ pub async fn get_course_page_with_user_data_from_selected_page(
         page,
         instance: None,
         settings: None,
+        course: None,
         was_redirected,
         is_test_mode,
     })

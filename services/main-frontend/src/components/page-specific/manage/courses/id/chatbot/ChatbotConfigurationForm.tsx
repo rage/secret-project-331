@@ -11,6 +11,7 @@ import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
@@ -36,6 +37,7 @@ const textFieldCss = css`
 const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQueryRefetch }) => {
   const { t } = useTranslation()
   const router = useRouter()
+  const { confirm } = useDialog()
   const {
     register,
     handleSubmit,
@@ -329,9 +331,9 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
             size="medium"
             variant="tertiary"
             disabled={deleteChatbotMutation.isPending}
-            onClick={() => {
+            onClick={async () => {
               if (
-                window.confirm(
+                await confirm(
                   t("delete-chatbot-confirmation", { name: oldChatbotConf.chatbot_name }),
                 )
               ) {

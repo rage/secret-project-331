@@ -24,6 +24,10 @@ export function manageExerciseServicesRoute() {
   return "/manage/exercise-services"
 }
 
+export function manageOrganizationRoute(organizationId: string) {
+  return `/manage/organizations/${organizationId}`
+}
+
 export function searchUsersRoute() {
   return "/manage/search-users"
 }
@@ -70,4 +74,12 @@ export function manageChatbotRoute(chatbotId: string) {
 
 export function courseChatbotSettingsRoute(courseId: string) {
   return `/manage/courses/${courseId}/other/chatbot`
+}
+
+export function manageCourseByIdRoute(courseId: string) {
+  return `/manage/courses/${courseId}`
+}
+
+export function navigateToCourseRoute(organizationSlug: string, courseSlug: string) {
+  return `/org/${organizationSlug}/courses/${courseSlug}`
 }

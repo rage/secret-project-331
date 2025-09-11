@@ -12,6 +12,7 @@ import {
   CourseBackgroundQuestionsAndAnswers,
   CourseCustomPrivacyPolicyCheckboxText,
   CourseInstance,
+  CourseMaterialCourse,
   CourseMaterialExercise,
   CourseMaterialPeerOrSelfReviewDataWithToken,
   CourseMaterialPeerOrSelfReviewSubmission,
@@ -30,6 +31,7 @@ import {
   NewProposedPageEdits,
   NewResearchFormQuestionAnswer,
   OEmbedResponse,
+  Organization,
   Page,
   PageAudioFile,
   PageChapterAndCourseInformation,
@@ -49,9 +51,9 @@ import {
   StudentExerciseSlideSubmissionResult,
   Term,
   TermUpdate,
-  UserCourseInstanceChapterExerciseProgress,
+  UserCourseChapterExerciseProgress,
   UserCourseInstanceChapterProgress,
-  UserCourseInstanceProgress,
+  UserCourseProgress,
   UserCourseSettings,
   UserDetail,
   UserMarketingConsent,
@@ -66,6 +68,7 @@ import {
   isCourseBackgroundQuestionsAndAnswers,
   isCourseCustomPrivacyPolicyCheckboxText,
   isCourseInstance,
+  isCourseMaterialCourse,
   isCourseMaterialExercise,
   isCourseMaterialPeerOrSelfReviewDataWithToken,
   isCourseModuleCompletion,
@@ -77,6 +80,7 @@ import {
   isIsChapterFrontPage,
   isMaterialReference,
   isOEmbedResponse,
+  isOrganization,
   isPage,
   isPageAudioFile,
   isPageChapterAndCourseInformation,
@@ -92,9 +96,9 @@ import {
   isStudentCountry,
   isStudentExerciseSlideSubmissionResult,
   isTerm,
-  isUserCourseInstanceChapterExerciseProgress,
+  isUserCourseChapterExerciseProgress,
   isUserCourseInstanceChapterProgress,
-  isUserCourseInstanceProgress,
+  isUserCourseProgress,
   isUserCourseSettings,
   isUserDetail,
   isUserMarketingConsent,
@@ -111,9 +115,9 @@ import {
   validateResponse,
 } from "@/shared-module/common/utils/fetching"
 
-export const fetchCourseById = async (courseId: string): Promise<Course> => {
+export const fetchCourseById = async (courseId: string): Promise<CourseMaterialCourse> => {
   const response = await courseMaterialClient.get(`/courses/${courseId}`, { responseType: "json" })
-  return validateResponse(response, isCourse)
+  return validateResponse(response, isCourseMaterialCourse)
 }
 
 export const fetchCourses = async (): Promise<Array<Course>> => {
@@ -241,9 +245,9 @@ export const fetchAllCoursePages = async (courseId: string): Promise<Array<Page>
 
 export const fetchUserCourseProgress = async (
   courseInstanceId: string,
-): Promise<UserCourseInstanceProgress[]> => {
+): Promise<UserCourseProgress[]> => {
   const response = await courseMaterialClient.get(`/course-instances/${courseInstanceId}/progress`)
-  return validateResponse(response, isArray(isUserCourseInstanceProgress))
+  return validateResponse(response, isArray(isUserCourseProgress))
 }
 
 export const fetchUserModuleCompletionStatuses = async (
@@ -269,11 +273,11 @@ export const fetchUserChapterInstanceChapterProgress = async (
 export const fetchUserCourseInstanceChapterExercisesProgress = async (
   courseInstanceId: string,
   chapterId: string,
-): Promise<Array<UserCourseInstanceChapterExerciseProgress>> => {
+): Promise<Array<UserCourseChapterExerciseProgress>> => {
   const response = await courseMaterialClient.get(
     `/course-instances/${courseInstanceId}/chapters/${chapterId}/exercises/progress`,
   )
-  return validateResponse(response, isArray(isUserCourseInstanceChapterExerciseProgress))
+  return validateResponse(response, isArray(isUserCourseChapterExerciseProgress))
 }
 
 export const fetchExerciseById = async (id: string): Promise<CourseMaterialExercise> => {
@@ -537,11 +541,13 @@ export const fetchPageAudioFiles = async (pageId: string): Promise<PageAudioFile
   return validateResponse(response, isArray(isPageAudioFile))
 }
 
-export const fetchCourseLanguageVersions = async (courseId: string): Promise<Array<Course>> => {
+export const fetchCourseLanguageVersions = async (
+  courseId: string,
+): Promise<Array<CourseMaterialCourse>> => {
   const response = await courseMaterialClient.get(`/courses/${courseId}/language-versions`, {
     responseType: "json",
   })
-  return validateResponse(response, isArray(isCourse))
+  return validateResponse(response, isArray(isCourseMaterialCourse))
 }
 
 export const postStudentCountry = async (
@@ -623,10 +629,10 @@ export const fetchResearchFormAnswersWithUserId = async (
   return validateResponse(response, isArray(isResearchFormQuestionAnswer))
 }
 
-export const getChatbotConfigurationForCourse = async (
+export const getDefaultChatbotConfigurationForCourse = async (
   course_id: string,
 ): Promise<string | null> => {
-  const response = await courseMaterialClient.get(`/chatbot/for-course/${course_id}`, {
+  const response = await courseMaterialClient.get(`/chatbot/default-for-course/${course_id}`, {
     responseType: "json",
   })
   return validateResponse(response, isUnion(isString, isNull))
@@ -845,4 +851,9 @@ export const updateUserInfo = async (
 export const fetchCountryFromIP = async (): Promise<string> => {
   const response = await courseMaterialClient.get(`/user-details/users-ip-country`)
   return validateResponse(response, isString)
+}
+
+export const fetchOrganization = async (organizationId: string): Promise<Organization> => {
+  const response = await courseMaterialClient.get(`/organizations/${organizationId}`)
+  return validateResponse(response, isOrganization)
 }

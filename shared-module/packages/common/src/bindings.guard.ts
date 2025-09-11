@@ -1706,7 +1706,9 @@ export function isExerciseSlideSubmissionInfo(obj: unknown): obj is ExerciseSlid
             isCourseMaterialExerciseTask(e) as boolean
         ) &&
         isExercise(typedObj["exercise"]) as boolean &&
-        isExerciseSlideSubmission(typedObj["exercise_slide_submission"]) as boolean
+        isExerciseSlideSubmission(typedObj["exercise_slide_submission"]) as boolean &&
+        (typedObj["user_exercise_state"] === null ||
+            isUserExerciseState(typedObj["user_exercise_state"]) as boolean)
     )
 }
 
@@ -2884,7 +2886,8 @@ export function isHistoryChangeReason(obj: unknown): obj is HistoryChangeReason 
     const typedObj = obj as HistoryChangeReason
     return (
         (typedObj === "PageSaved" ||
-            typedObj === "HistoryRestored")
+            typedObj === "HistoryRestored" ||
+            typedObj === "PageDeleted")
     )
 }
 

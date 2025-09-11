@@ -384,7 +384,10 @@ pub async fn seed_sample_course(
     let block_id_3 = Uuid::new_v5(&course_id, b"46aad5a8-71bd-49cd-8d86-3368ee8bb7ac");
     let block_id_4 = Uuid::new_v5(&course_id, b"09b327a8-8e65-437e-9678-554fc4d98dd4");
     let block_id_5 = Uuid::new_v5(&course_id, b"834648cc-72d9-42d1-bed7-cc6a2e186ae6");
-    let block_id_6 = Uuid::new_v5(&course_id, b"223a4718-5287-49ff-853e-a67f4612c629");
+    let block_id_6 = Uuid::new_v5(&course_id, b"c7cb99a4-b2e8-45d8-b30a-2f32de3465c8");
+    let block_id_7 = Uuid::new_v5(&course_id, b"655dbafe-09ed-4f59-8184-159d0c2efd7c");
+    let block_id_8 = Uuid::new_v5(&course_id, b"3bce0ce2-5cfb-45a8-bc0e-af5f634d4d61");
+    let block_id_9 = Uuid::new_v5(&course_id, b"95cd9695-1406-446b-9412-3a1ee10a7927");
     let exercise_1_id = Uuid::new_v5(&course_id, b"cfb950a7-db4e-49e4-8ec4-d7a32b691b08");
     let exercise_1_slide_1_id = Uuid::new_v5(&course_id, b"182c4128-c4e4-40c9-bc5a-1265bfd3654c");
     let exercise_1_slide_1_task_1_id =
@@ -428,11 +431,11 @@ pub async fn seed_sample_course(
                 paragraph("Like this.", block_id_5),
                 paragraph("The abacus is one of the oldest known calculating tools, with origins tracing back to ancient Mesopotamia and China. Often consisting of a wooden frame with rows of beads, it has been used for centuries as a reliable aid in performing arithmetic operations. Its simplicity and effectiveness made it a cornerstone of commerce and education across many civilizations.", block_id_6),
 
-                paragraph("Throughout history, the abacus has taken on various forms, from the Roman hand abacus to the Chinese suanpan and the Japanese soroban. Each design introduced unique innovations, optimizing calculation methods for their respective regions. Despite the rise of digital calculators, the abacus continues to be used in some educational settings to teach arithmetic concepts and mental math techniques.", block_id_6),
+                paragraph("Throughout history, the abacus has taken on various forms, from the Roman hand abacus to the Chinese suanpan and the Japanese soroban. Each design introduced unique innovations, optimizing calculation methods for their respective regions. Despite the rise of digital calculators, the abacus continues to be used in some educational settings to teach arithmetic concepts and mental math techniques.", block_id_7),
 
-                paragraph("Modern interest in the abacus has grown as educators recognize its value in developing number sense and concentration in children. Competitions in mental abacus calculation demonstrate just how powerful this tool can be when mastered. While it may seem outdated, the abacus remains a symbol of timeless ingenuity and practical problem-solving.", block_id_6),
+                paragraph("Modern interest in the abacus has grown as educators recognize its value in developing number sense and concentration in children. Competitions in mental abacus calculation demonstrate just how powerful this tool can be when mastered. While it may seem outdated, the abacus remains a symbol of timeless ingenuity and practical problem-solving.", block_id_8),
 
-                paragraph("In recent years, digital adaptations of the abacus have also emerged, blending traditional methods with modern interfaces. These tools not only preserve the historical legacy of the abacus but also make it more accessible to new generations of learners. Whether used physically or virtually, the abacus continues to bridge the gap between tactile learning and abstract thinking.", block_id_6),
+                paragraph("In recent years, digital adaptations of the abacus have also emerged, blending traditional methods with modern interfaces. These tools not only preserve the historical legacy of the abacus but also make it more accessible to new generations of learners. Whether used physically or virtually, the abacus continues to bridge the gap between tactile learning and abstract thinking.", block_id_9),
             ],
         },
 

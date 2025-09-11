@@ -107,6 +107,7 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Chatbot
         r#"
 SELECT * FROM chatbot_configurations
 WHERE id = $1
+AND deleted_at IS NULL
         "#,
         id
     )

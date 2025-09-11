@@ -84,7 +84,17 @@ pub async fn regrade(
             }
             Err(err) => {
                 tracing::error!("Regrading {} failed: {}", regrading_id, err);
-                models::regradings::set_error_message(conn, regrading_id, &err.to_string()).await?;
+                let backtrace: Option<&backtrace::Backtrace> = err.backtrace();
+                if let Some(bt) = backtrace {
+                    tracing::error!("Backtrace:\n{:?}", bt);
+                }
+
+                let error_message = if let Some(bt) = backtrace {
+                    format!("{}\n\nBacktrace:\n{:?}", err, bt)
+                } else {
+                    err.to_string()
+                };
+                models::regradings::set_error_message(conn, regrading_id, &error_message).await?;
                 models::regradings::set_total_grading_progress(
                     conn,
                     regrading_id,

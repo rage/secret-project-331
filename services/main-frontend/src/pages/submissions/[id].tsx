@@ -8,6 +8,7 @@ import AllSubmissionsList from "../../components/AllSubmissionsList"
 import KeyValueCard from "../../components/KeyValueCard"
 import MainFrontedViewSubmission from "../../components/MainFrontedViewSubmission"
 import { useExerciseSubmissionsForUser } from "../../hooks/useExerciseSubmissionsForUser"
+import { useUserCourseSettings } from "../../hooks/useUserCourseSettings"
 import { useUserDetails } from "../../hooks/useUserDetails"
 import { fetchSubmissionInfo } from "../../services/backend/submissions"
 
@@ -40,6 +41,11 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
 
   const exerciseSubmissions = useExerciseSubmissionsForUser(
     getSubmissionInfo.data?.exercise.id,
+    getSubmissionInfo.data?.exercise_slide_submission.user_id,
+  )
+
+  const userCourseSettings = useUserCourseSettings(
+    getSubmissionInfo.data?.exercise.course_id,
     getSubmissionInfo.data?.exercise_slide_submission.user_id,
   )
 
@@ -150,19 +156,23 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
                   ],
                 },
               ]}
-              actionButtons={[
-                <Link
-                  key="course-status"
-                  href={courseInstanceUserStatusSummaryRoute(
-                    "PLACEHOLDER_COURSE_INSTANCE_ID",
-                    getSubmissionInfo.data.exercise_slide_submission.user_id,
-                  )}
-                >
-                  <Button variant="tertiary" size="medium">
-                    {t("course-status-summary")}
-                  </Button>
-                </Link>,
-              ]}
+              actionButtons={
+                userCourseSettings.data?.current_course_instance_id
+                  ? [
+                      <Link
+                        key="course-status"
+                        href={courseInstanceUserStatusSummaryRoute(
+                          userCourseSettings.data.current_course_instance_id,
+                          getSubmissionInfo.data.exercise_slide_submission.user_id,
+                        )}
+                      >
+                        <Button variant="tertiary" size="medium">
+                          {t("course-status-summary")}
+                        </Button>
+                      </Link>,
+                    ]
+                  : []
+              }
             />
           )}
 

@@ -166,7 +166,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
                     {
                       // eslint-disable-next-line i18next/no-literal-string
                       key: "points",
-                      label: t("points"),
+                      label: t("points-from-whole-exercise"),
                       value: pointsFromWholeExercise,
                       colSpan: 2,
                     },

@@ -92,15 +92,15 @@ GET `/api/v0/main-frontend/exercises/:exercise_id/submissions/user/:user_id` - R
 #[instrument(skip(pool))]
 async fn get_exercise_submissions_for_user(
     pool: web::Data<PgPool>,
-    exercise_id: web::Path<Uuid>,
-    user_id: web::Path<Uuid>,
+    ids: web::Path<(Uuid, Uuid)>,
 ) -> ControllerResult<web::Json<Vec<ExerciseSlideSubmission>>> {
+    let (exercise_id, user_id) = ids.into_inner();
     let mut conn = pool.acquire().await?;
 
-    let user = models::users::get_by_id(&mut conn, *user_id).await?;
+    let user = models::users::get_by_id(&mut conn, user_id).await?;
 
     let course_or_exam_id =
-        models::exercises::get_course_or_exam_id(&mut conn, *exercise_id).await?;
+        models::exercises::get_course_or_exam_id(&mut conn, exercise_id).await?;
 
     let token = match course_or_exam_id {
         CourseOrExamId::Course(id) => {

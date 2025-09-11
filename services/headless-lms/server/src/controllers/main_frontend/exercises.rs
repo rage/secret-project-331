@@ -89,15 +89,16 @@ async fn get_exercise_submissions(
 /**
 GET `/api/v0/main-frontend/exercises/:exercise_id/submissions/user/:user_id` - Returns an exercise's submissions for a user.
  */
-#[instrument(skip(pool))]
+#[instrument(skip(pool, user))]
 async fn get_exercise_submissions_for_user(
     pool: web::Data<PgPool>,
     ids: web::Path<(Uuid, Uuid)>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<ExerciseSlideSubmission>>> {
     let (exercise_id, user_id) = ids.into_inner();
     let mut conn = pool.acquire().await?;
 
-    let user = models::users::get_by_id(&mut conn, user_id).await?;
+    let target_user = models::users::get_by_id(&mut conn, user_id).await?;
 
     let course_or_exam_id =
         models::exercises::get_course_or_exam_id(&mut conn, exercise_id).await?;
@@ -114,7 +115,7 @@ async fn get_exercise_submissions_for_user(
     let submissions =
         models::exercise_slide_submissions::get_users_all_submissions_for_course_or_exam(
             &mut conn,
-            user.id,
+            target_user.id,
             course_or_exam_id,
         )
         .await?;
@@ -257,15 +258,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     )
     .route("/{exercise_id}", web::get().to(get_exercise))
     .route(
-        "/{exercise_id}/submissions",
-        web::get().to(get_exercise_submissions),
-    )
-    .route(
         "/{exercise_id}/submissions/user/{user_id}",
         web::get().to(get_exercise_submissions_for_user),
-    )
-    .route(
-        "/{exercise_id}/answers-requiring-attention",
-        web::get().to(get_exercise_answers_requiring_attention),
     );
 }

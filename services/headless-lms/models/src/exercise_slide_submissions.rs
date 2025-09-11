@@ -111,6 +111,7 @@ pub struct ExerciseSlideSubmissionInfo {
     pub tasks: Vec<CourseMaterialExerciseTask>,
     pub exercise: Exercise,
     pub exercise_slide_submission: ExerciseSlideSubmission,
+    pub user_exercise_state: Option<UserExerciseState>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -888,10 +889,22 @@ pub async fn get_exercise_slide_submission_info(
     let exercise =
         crate::exercises::get_by_id(&mut *conn, exercise_slide_submission.exercise_id).await?;
     let tasks = crate::exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(&mut *conn, exercise_slide_submission_id, user_id, fetch_service_info, include_deleted_tasks).await?;
+    let user_exercise_state = crate::user_exercise_states::get_user_exercise_state_if_exists(
+        &mut *conn,
+        user_id,
+        exercise_slide_submission.exercise_id,
+        CourseOrExamId::from_course_and_exam_ids(
+            exercise_slide_submission.course_id,
+            exercise_slide_submission.exam_id,
+        )?,
+    )
+    .await?;
+
     Ok(ExerciseSlideSubmissionInfo {
         exercise,
         tasks,
         exercise_slide_submission,
+        user_exercise_state,
     })
 }
 

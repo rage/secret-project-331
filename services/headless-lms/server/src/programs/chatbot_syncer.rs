@@ -190,18 +190,25 @@ async fn sync_pages(
         );
 
         let page_ids: Vec<Uuid> = outdated_statuses.iter().map(|s| s.page_id).collect();
-        let pages =
-            headless_lms_models::pages::get_by_ids_including_deleted(conn, &page_ids).await?;
+        let mut pages = headless_lms_models::pages::get_by_ids(conn, &page_ids).await?;
 
-        sync_pages_batch(
-            conn,
-            &pages,
-            &latest_histories,
-            blob_client,
-            &base_url,
-            &config.app_configuration,
-        )
-        .await?;
+        if pages.len() > 0 {
+            sync_pages_batch(
+                conn,
+                &pages,
+                &latest_histories,
+                blob_client,
+                &base_url,
+                &config.app_configuration,
+            )
+            .await?;
+        }
+
+        let deleted_pages = headless_lms_models::pages::get_by_ids_deleted(conn, &page_ids).await?;
+        pages.extend(deleted_pages);
+
+        // update sync statuses after syncing
+        update_sync_statuses(conn, &pages, &latest_histories).await?;
 
         delete_old_files(conn, *course_id, blob_client).await?;
     }
@@ -331,7 +338,7 @@ async fn sync_pages_batch(
             metadata.insert(
                 "chunk_context".to_string(),
                 format!(
-                    "This chunk is Page {} from the Chapter {}: {} of Course {}.",
+                    "This chunk is a snippet from page {} from chapter {}: {} of the course {}.",
                     page.title, c.chapter_number, c.name, course.name,
                 )
                 .into(),
@@ -340,7 +347,7 @@ async fn sync_pages_batch(
             metadata.insert(
                 "chunk_context".to_string(),
                 format!(
-                    "This chunk is Page {} from the Course {}.",
+                    "This chunk is a snippet from page {} of the course {}.",
                     page.title, course.name,
                 )
                 .into(),
@@ -355,6 +362,17 @@ async fn sync_pages_batch(
         }
     }
 
+    //update_sync_statuses(conn, &pages, &latest_histories).await?;
+
+    Ok(())
+}
+
+/// Update sync statuses for pages after syncing
+async fn update_sync_statuses(
+    conn: &mut PgConnection,
+    pages: &[Page],
+    latest_histories: &HashMap<Uuid, PageHistory>,
+) -> anyhow::Result<()> {
     let page_revision_map: HashMap<Uuid, Uuid> = pages
         .iter()
         .map(|page| (page.id, latest_histories[&page.id].id))

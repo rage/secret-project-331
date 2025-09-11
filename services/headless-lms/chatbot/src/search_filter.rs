@@ -1008,7 +1008,6 @@ mod tests {
             "HotelName",
             vec!["Sea View motel".into(), "Budget hotel".into()],
         );
-
         assert_eq!(
             filter.to_odata()?,
             "search.in(HotelName, 'Sea View motel,Budget hotel', ',')"

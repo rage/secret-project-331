@@ -3380,6 +3380,7 @@ SELECT id,
     page_language_group_id
 FROM pages
 WHERE id = ANY($1)
+    AND hidden = FALSE
     AND deleted_at IS NULL
     ",
         ids
@@ -3389,10 +3390,7 @@ WHERE id = ANY($1)
     Ok(pages)
 }
 
-pub async fn get_by_ids_including_deleted(
-    conn: &mut PgConnection,
-    ids: &[Uuid],
-) -> ModelResult<Vec<Page>> {
+pub async fn get_by_ids_deleted(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<Vec<Page>> {
     let pages = sqlx::query_as!(
         Page,
         "
@@ -3412,6 +3410,8 @@ SELECT id,
     page_language_group_id
 FROM pages
 WHERE id = ANY($1)
+    AND hidden = FALSE
+    AND deleted_at IS NOT NULL
     ",
         ids
     )

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n    created_at,\n    updated_at,\n    course_id,\n    exam_id,\n    chapter_id,\n    url_path,\n    title,\n    deleted_at,\n    content,\n    order_number,\n    copied_from,\n    hidden,\n    page_language_group_id\nFROM pages\nWHERE id = ANY($1)\n    AND deleted_at IS NULL\n    ",
+  "query": "\nSELECT id,\n    created_at,\n    updated_at,\n    course_id,\n    exam_id,\n    chapter_id,\n    url_path,\n    title,\n    deleted_at,\n    content,\n    order_number,\n    copied_from,\n    hidden,\n    page_language_group_id\nFROM pages\nWHERE id = ANY($1)\n    AND hidden = FALSE\n    AND deleted_at IS NOT NULL\n    ",
   "describe": {
     "columns": [
       {
@@ -96,5 +96,5 @@
       true
     ]
   },
-  "hash": "0e04fe28ad4d6a290a852e70cb6494cdb581f80ff50dd289793edb428d6512ec"
+  "hash": "51252c506b76226ad43d4b94f76f4c7ba527bc639765287f1c3fab014a580f10"
 }

@@ -23,6 +23,10 @@ interface StandardDialogProps {
   leftAlignTitle?: boolean
   closeable?: boolean
   "data-testid"?: string
+  /** Whether the dialog is closable by clicking outside of it */
+  isDismissable?: boolean
+  /** Whether the dialog should close when focus moves outside of the dialog */
+  shouldCloseOnBlur?: boolean
 }
 
 const CLOSE_SYMBOL = "×"
@@ -43,6 +47,8 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
   leftAlignTitle = false,
   closeable = true,
   "data-testid": dataTestId,
+  isDismissable = false,
+  shouldCloseOnBlur = false,
 }) => {
   const { t } = useTranslation()
   const titleId = useId()
@@ -67,6 +73,8 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
       disableContentScroll={disableContentScroll}
       closeable={closeable}
       data-testid={dataTestId}
+      isDismissable={isDismissable}
+      shouldCloseOnBlur={shouldCloseOnBlur}
     >
       <div
         ref={dialogRef}

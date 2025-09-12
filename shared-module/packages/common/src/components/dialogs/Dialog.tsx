@@ -18,6 +18,10 @@ interface DialogProps extends AriaDialogProps {
   children: React.ReactNode
   className?: string
   "data-testid"?: string
+  /** Whether the dialog is closable by clicking outside of it */
+  isDismissable?: boolean
+  /** Whether the dialog should close when focus moves outside of the dialog */
+  shouldCloseOnBlur?: boolean
 }
 
 const Dialog: React.FC<DialogProps> = ({
@@ -30,6 +34,8 @@ const Dialog: React.FC<DialogProps> = ({
   disableContentScroll = false,
   preventBackgroundScroll = false,
   "data-testid": dataTestId,
+  isDismissable = false,
+  shouldCloseOnBlur = false,
   ...props
 }) => {
   const ref = useRef(null)
@@ -38,8 +44,8 @@ const Dialog: React.FC<DialogProps> = ({
     {
       isOpen: open,
       onClose,
-      isDismissable: closeable,
-      shouldCloseOnBlur: closeable,
+      isDismissable: isDismissable,
+      shouldCloseOnBlur: shouldCloseOnBlur,
     },
     ref,
   )

@@ -1,29 +1,46 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { createRef, useState } from "react"
+import { UseMutationResult } from "@tanstack/react-query"
+import React, { createRef } from "react"
 import { useTranslation } from "react-i18next"
 
-import Button, { LabelButton } from "@/shared-module/common/components/Button"
+import { LabelButton } from "@/shared-module/common/components/Button"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
 `
 
 export interface UploadImageFormProps {
-  onSubmit: (data: File) => Promise<void>
+  mutation: UseMutationResult<unknown, unknown, File, unknown>
+  hasExistingImage?: boolean
 }
 
-const UploadImageForm: React.FC<React.PropsWithChildren<UploadImageFormProps>> = ({ onSubmit }) => {
+const UploadImageForm: React.FC<React.PropsWithChildren<UploadImageFormProps>> = ({
+  mutation,
+  hasExistingImage,
+}) => {
   const { t } = useTranslation()
+  const { confirm } = useDialog()
   const fileInput = createRef<HTMLInputElement>()
-  const [allowSubmit, setAllowSubmit] = useState(true)
-  const [showUploadButton, setShowUploadButton] = useState(false)
 
-  const uploadImage = () => {
+  const handleFileChange = async () => {
     const file = fileInput.current?.files?.[0]
     if (file) {
-      setAllowSubmit(false)
-      onSubmit(file).finally(() => setAllowSubmit(true))
+      if (hasExistingImage) {
+        const confirmed = await confirm(
+          t("confirm-replace-existing-image"),
+          t("confirm-replace-existing-image-title"),
+        )
+        if (!confirmed) {
+          // Reset the file input if user cancels
+          if (fileInput.current) {
+            fileInput.current.value = ""
+          }
+          return
+        }
+      }
+      await mutation.mutateAsync(file)
     }
   }
 
@@ -45,16 +62,10 @@ const UploadImageForm: React.FC<React.PropsWithChildren<UploadImageFormProps>> =
           accept="image"
           ref={fileInput}
           type="file"
-          onChange={() => setShowUploadButton(true)}
+          onChange={handleFileChange}
+          disabled={mutation.isPending}
         />
       </FieldContainer>
-      {showUploadButton && (
-        <div>
-          <Button size="medium" variant="primary" onClick={uploadImage} disabled={!allowSubmit}>
-            {t("button-text-upload-image")}
-          </Button>
-        </div>
-      )}
     </div>
   )
 }

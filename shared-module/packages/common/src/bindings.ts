@@ -839,6 +839,7 @@ export interface ExerciseSlideSubmissionInfo {
   tasks: Array<CourseMaterialExerciseTask>
   exercise: Exercise
   exercise_slide_submission: ExerciseSlideSubmission
+  user_exercise_state: UserExerciseState | null
 }
 
 export interface CourseMaterialExerciseSlide {
@@ -1407,7 +1408,7 @@ export interface PageAudioFile {
   mime_type: string
 }
 
-export type HistoryChangeReason = "PageSaved" | "HistoryRestored"
+export type HistoryChangeReason = "PageSaved" | "HistoryRestored" | "PageDeleted"
 
 export interface PageHistory {
   id: string

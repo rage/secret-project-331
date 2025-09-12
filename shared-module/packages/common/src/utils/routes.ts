@@ -83,3 +83,11 @@ export function manageCourseByIdRoute(courseId: string) {
 export function navigateToCourseRoute(organizationSlug: string, courseSlug: string) {
   return `/org/${organizationSlug}/courses/${courseSlug}`
 }
+
+export function courseInstanceUserStatusSummaryRoute(courseInstanceId: string, userId: string) {
+  return `/manage/course-instances/${courseInstanceId}/course-status-summary-for-user/${userId}`
+}
+
+export function exerciseSubmissionsRoute(exerciseId: string) {
+  return `/manage/exercises/${exerciseId}/submissions`
+}

@@ -266,7 +266,6 @@ WHERE id = $2;
     copy_exercise_repositories(&mut tx, copied_course.id, src_course_id).await?;
     copy_partners_blocks(&mut tx, copied_course.id, src_course_id).await?;
     copy_privacy_links(&mut tx, copied_course.id, src_course_id).await?;
-    copy_course_background_questions(&mut tx, copied_course.id, src_course_id).await?;
     copy_research_consent_forms_and_questions(&mut tx, copied_course.id, src_course_id).await?;
 
     tx.commit().await?;
@@ -1305,37 +1304,6 @@ SELECT uuid_generate_v5($1, id::text),
   url,
   title
 FROM privacy_links
-WHERE course_id = $2
-  AND deleted_at IS NULL;
-        ",
-        new_course_id,
-        old_course_id
-    )
-    .execute(&mut *tx)
-    .await?;
-    Ok(())
-}
-
-async fn copy_course_background_questions(
-    tx: &mut PgConnection,
-    new_course_id: Uuid,
-    old_course_id: Uuid,
-) -> ModelResult<()> {
-    sqlx::query!(
-        "
-INSERT INTO course_background_questions (
-    id,
-    course_id,
-    course_instance_id,
-    question_text,
-    question_type
-  )
-SELECT uuid_generate_v5($1, id::text),
-  $1,
-  uuid_generate_v5($1, course_instance_id::text),
-  question_text,
-  question_type
-FROM course_background_questions
 WHERE course_id = $2
   AND deleted_at IS NULL;
         ",

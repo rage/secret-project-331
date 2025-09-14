@@ -213,6 +213,7 @@ WHERE id = $2;
     copy_exercise_slides(&mut tx, copied_course.id, src_course_id).await?;
     copy_exercise_tasks(&mut tx, copied_course.id, src_course_id).await?;
 
+    // We don't copy course instances at the moment because they are not related to the course content, and someone might want to take the content without the instances. We could add an option to copy them in the future.
     course_instances::insert(
         &mut tx,
         PKeyPolicy::Generate,
@@ -234,6 +235,19 @@ WHERE id = $2;
     copy_material_references(&mut tx, copied_course.id, src_course_id).await?;
     copy_glossary_entries(&mut tx, copied_course.id, src_course_id).await?;
 
+    // Copy course configurations and optional content
+    copy_certificate_configurations_and_requirements(&mut tx, copied_course.id, src_course_id)
+        .await?;
+    copy_chatbot_configurations(&mut tx, copied_course.id, src_course_id).await?;
+    copy_cheater_thresholds(&mut tx, copied_course.id, src_course_id).await?;
+    copy_course_custom_privacy_policy_checkbox_texts(&mut tx, copied_course.id, src_course_id)
+        .await?;
+    copy_exercise_repositories(&mut tx, copied_course.id, src_course_id).await?;
+    copy_partners_blocks(&mut tx, copied_course.id, src_course_id).await?;
+    copy_privacy_links(&mut tx, copied_course.id, src_course_id).await?;
+    copy_course_background_questions(&mut tx, copied_course.id, src_course_id).await?;
+    copy_research_consent_forms_and_questions(&mut tx, copied_course.id, src_course_id).await?;
+
     tx.commit().await?;
 
     Ok(copied_course)
@@ -244,9 +258,19 @@ pub async fn copy_exam(
     parent_exam_id: &Uuid,
     new_exam: &NewExam,
 ) -> ModelResult<Exam> {
-    let parent_exam = exams::get(conn, *parent_exam_id).await?;
-
     let mut tx = conn.begin().await?;
+    let copied_exam = copy_exam_content(&mut tx, parent_exam_id, new_exam, None).await?;
+    tx.commit().await?;
+    Ok(copied_exam)
+}
+
+async fn copy_exam_content(
+    tx: &mut PgConnection,
+    parent_exam_id: &Uuid,
+    new_exam: &NewExam,
+    new_exam_id: Option<Uuid>,
+) -> ModelResult<Exam> {
+    let parent_exam = exams::get(tx, *parent_exam_id).await?;
 
     let parent_exam_fields = sqlx::query!(
         "
@@ -261,10 +285,13 @@ WHERE id = $1
     .fetch_one(&mut *tx)
     .await?;
 
+    let final_exam_id = new_exam_id.unwrap_or_else(Uuid::new_v4);
+
     // create new exam
     let copied_exam = sqlx::query!(
         "
 INSERT INTO exams(
+    id,
     name,
     organization_id,
     instructions,
@@ -275,9 +302,10 @@ INSERT INTO exams(
     minimum_points_treshold,
     grade_manually
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 RETURNING *
         ",
+        final_exam_id,
         new_exam.name,
         parent_exam_fields.organization_id,
         parent_exam.instructions,
@@ -292,11 +320,11 @@ RETURNING *
     .await?;
 
     let contents_iter =
-        copy_exam_pages_and_return_contents(&mut tx, copied_exam.id, parent_exam.id).await?;
+        copy_exam_pages_and_return_contents(&mut *tx, copied_exam.id, parent_exam.id).await?;
 
     // Copy exam exercises
     let old_to_new_exercise_ids =
-        map_old_exr_ids_to_new_exr_ids_for_exams(&mut tx, copied_exam.id, parent_exam.id).await?;
+        map_old_exr_ids_to_new_exr_ids_for_exams(&mut *tx, copied_exam.id, parent_exam.id).await?;
 
     // Replace exercise ids in page contents.
     for (page_id, content) in contents_iter {
@@ -333,17 +361,14 @@ WHERE id = $2;
         }
     }
 
-    copy_exercise_slides(&mut tx, copied_exam.id, parent_exam.id).await?;
-
-    copy_exercise_tasks(&mut tx, copied_exam.id, parent_exam.id).await?;
-
-    tx.commit().await?;
+    copy_exercise_slides(&mut *tx, copied_exam.id, parent_exam.id).await?;
+    copy_exercise_tasks(&mut *tx, copied_exam.id, parent_exam.id).await?;
 
     let get_page_id = sqlx::query!(
         "SELECT id AS page_id FROM pages WHERE exam_id = $1;",
         copied_exam.id
     )
-    .fetch_one(conn)
+    .fetch_one(&mut *tx)
     .await?;
 
     Ok(Exam {
@@ -934,6 +959,378 @@ WHERE course_id = $2
     )
     .execute(&mut *tx)
     .await?;
+    Ok(())
+}
+
+async fn copy_certificate_configurations_and_requirements(
+    tx: &mut PgConnection,
+    new_course_id: Uuid,
+    old_course_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+INSERT INTO certificate_configurations (
+    id,
+    background_svg_file_upload_id,
+    background_svg_path,
+    certificate_date_font_size,
+    certificate_date_text_anchor,
+    certificate_date_text_color,
+    certificate_date_x_pos,
+    certificate_date_y_pos,
+    certificate_grade_font_size,
+    certificate_grade_text_anchor,
+    certificate_grade_text_color,
+    certificate_grade_x_pos,
+    certificate_grade_y_pos,
+    certificate_locale,
+    certificate_owner_name_font_size,
+    certificate_owner_name_text_anchor,
+    certificate_owner_name_text_color,
+    certificate_owner_name_x_pos,
+    certificate_owner_name_y_pos,
+    certificate_validate_url_font_size,
+    certificate_validate_url_text_anchor,
+    certificate_validate_url_text_color,
+    certificate_validate_url_x_pos,
+    certificate_validate_url_y_pos,
+    overlay_svg_file_upload_id,
+    overlay_svg_path,
+    paper_size,
+    render_certificate_grade
+  )
+SELECT uuid_generate_v5($1, id::text),
+  background_svg_file_upload_id,
+  background_svg_path,
+  certificate_date_font_size,
+  certificate_date_text_anchor,
+  certificate_date_text_color,
+  certificate_date_x_pos,
+  certificate_date_y_pos,
+  certificate_grade_font_size,
+  certificate_grade_text_anchor,
+  certificate_grade_text_color,
+  certificate_grade_x_pos,
+  certificate_grade_y_pos,
+  certificate_locale,
+  certificate_owner_name_font_size,
+  certificate_owner_name_text_anchor,
+  certificate_owner_name_text_color,
+  certificate_owner_name_x_pos,
+  certificate_owner_name_y_pos,
+  certificate_validate_url_font_size,
+  certificate_validate_url_text_anchor,
+  certificate_validate_url_text_color,
+  certificate_validate_url_x_pos,
+  certificate_validate_url_y_pos,
+  overlay_svg_file_upload_id,
+  overlay_svg_path,
+  paper_size,
+  render_certificate_grade
+FROM certificate_configurations
+WHERE id IN (
+    SELECT certificate_configuration_id
+    FROM certificate_configuration_to_requirements cctr
+      JOIN course_modules cm ON cctr.course_module_id = cm.id
+    WHERE cm.course_id = $2
+      AND cctr.deleted_at IS NULL
+      AND cm.deleted_at IS NULL
+  )
+  AND deleted_at IS NULL;
+        ",
+        new_course_id,
+        old_course_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    sqlx::query!(
+        "
+INSERT INTO certificate_configuration_to_requirements (
+    id,
+    certificate_configuration_id,
+    course_module_id
+  )
+SELECT uuid_generate_v5($1, cctr.id::text),
+  uuid_generate_v5($1, cctr.certificate_configuration_id::text),
+  uuid_generate_v5($1, cctr.course_module_id::text)
+FROM certificate_configuration_to_requirements cctr
+  JOIN course_modules cm ON cctr.course_module_id = cm.id
+WHERE cm.course_id = $2
+  AND cctr.deleted_at IS NULL
+  AND cm.deleted_at IS NULL;
+        ",
+        new_course_id,
+        old_course_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    Ok(())
+}
+
+async fn copy_chatbot_configurations(
+    tx: &mut PgConnection,
+    new_course_id: Uuid,
+    old_course_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+INSERT INTO chatbot_configurations (
+    id,
+    course_id,
+    chatbot_name,
+    initial_message,
+    prompt,
+    use_azure_search,
+    maintain_azure_search_index,
+    use_semantic_reranking,
+    hide_citations,
+    temperature,
+    top_p,
+    presence_penalty,
+    frequency_penalty,
+    response_max_tokens,
+    daily_tokens_per_user,
+    weekly_tokens_per_user,
+    default_chatbot,
+    enabled_to_students
+  )
+SELECT
+  uuid_generate_v5($1, id::text),
+  $1,
+  chatbot_name,
+  initial_message,
+  prompt,
+  use_azure_search,
+  maintain_azure_search_index,
+  use_semantic_reranking,
+  hide_citations,
+  temperature,
+  top_p,
+  presence_penalty,
+  frequency_penalty,
+  response_max_tokens,
+  daily_tokens_per_user,
+  weekly_tokens_per_user,
+  default_chatbot,
+  enabled_to_students
+FROM chatbot_configurations
+WHERE course_id = $2
+  AND deleted_at IS NULL;
+        ",
+        new_course_id,
+        old_course_id
+    )
+    .execute(&mut *tx)
+    .await?;
+    Ok(())
+}
+
+async fn copy_cheater_thresholds(
+    tx: &mut PgConnection,
+    new_course_id: Uuid,
+    old_course_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+INSERT INTO cheater_thresholds (id, course_id, points, duration_seconds)
+SELECT
+  uuid_generate_v5($1, id::text),
+  $1,
+  points,
+  duration_seconds
+FROM cheater_thresholds
+WHERE course_id = $2;
+        ",
+        new_course_id,
+        old_course_id
+    )
+    .execute(&mut *tx)
+    .await?;
+    Ok(())
+}
+
+async fn copy_course_custom_privacy_policy_checkbox_texts(
+    tx: &mut PgConnection,
+    new_course_id: Uuid,
+    old_course_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+INSERT INTO course_custom_privacy_policy_checkbox_texts (id, course_id, text_slug, text_html)
+SELECT uuid_generate_v5($1, id::text),
+  $1,
+  text_slug,
+  text_html
+FROM course_custom_privacy_policy_checkbox_texts
+WHERE course_id = $2
+  AND deleted_at IS NULL;
+        ",
+        new_course_id,
+        old_course_id
+    )
+    .execute(&mut *tx)
+    .await?;
+    Ok(())
+}
+
+async fn copy_exercise_repositories(
+    tx: &mut PgConnection,
+    new_course_id: Uuid,
+    old_course_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+INSERT INTO exercise_repositories (
+    id,
+    course_id,
+    url,
+    deploy_key,
+    public_key,
+    STATUS,
+    error_message
+  )
+SELECT uuid_generate_v5($1, id::text),
+  $1,
+  url,
+  deploy_key,
+  public_key,
+  STATUS,
+  error_message
+FROM exercise_repositories
+WHERE course_id = $2
+  AND deleted_at IS NULL;
+        ",
+        new_course_id,
+        old_course_id
+    )
+    .execute(&mut *tx)
+    .await?;
+    Ok(())
+}
+
+async fn copy_partners_blocks(
+    tx: &mut PgConnection,
+    new_course_id: Uuid,
+    old_course_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+INSERT INTO partners_blocks (id, course_id, content)
+SELECT uuid_generate_v5($1, id::text),
+  $1,
+  content
+FROM partners_blocks
+WHERE course_id = $2
+  AND deleted_at IS NULL;
+        ",
+        new_course_id,
+        old_course_id
+    )
+    .execute(&mut *tx)
+    .await?;
+    Ok(())
+}
+
+async fn copy_privacy_links(
+    tx: &mut PgConnection,
+    new_course_id: Uuid,
+    old_course_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+INSERT INTO privacy_links (id, course_id, url, title)
+SELECT uuid_generate_v5($1, id::text),
+  $1,
+  url,
+  title
+FROM privacy_links
+WHERE course_id = $2
+  AND deleted_at IS NULL;
+        ",
+        new_course_id,
+        old_course_id
+    )
+    .execute(&mut *tx)
+    .await?;
+    Ok(())
+}
+
+async fn copy_course_background_questions(
+    tx: &mut PgConnection,
+    new_course_id: Uuid,
+    old_course_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+INSERT INTO course_background_questions (
+    id,
+    course_id,
+    course_instance_id,
+    question_text,
+    question_type
+  )
+SELECT uuid_generate_v5($1, id::text),
+  $1,
+  uuid_generate_v5($1, course_instance_id::text),
+  question_text,
+  question_type
+FROM course_background_questions
+WHERE course_id = $2
+  AND deleted_at IS NULL;
+        ",
+        new_course_id,
+        old_course_id
+    )
+    .execute(&mut *tx)
+    .await?;
+    Ok(())
+}
+
+async fn copy_research_consent_forms_and_questions(
+    tx: &mut PgConnection,
+    new_course_id: Uuid,
+    old_course_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+INSERT INTO course_specific_research_consent_forms (id, course_id, content)
+SELECT uuid_generate_v5($1, id::text),
+  $1,
+  content
+FROM course_specific_research_consent_forms
+WHERE course_id = $2
+  AND deleted_at IS NULL;
+        ",
+        new_course_id,
+        old_course_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    sqlx::query!(
+        "
+INSERT INTO course_specific_consent_form_questions (
+    id,
+    course_id,
+    research_consent_form_id,
+    question
+  )
+SELECT uuid_generate_v5($1, id::text),
+  $1,
+  uuid_generate_v5($1, research_consent_form_id::text),
+  question
+FROM course_specific_consent_form_questions
+WHERE course_id = $2
+  AND deleted_at IS NULL;
+        ",
+        new_course_id,
+        old_course_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
     Ok(())
 }
 

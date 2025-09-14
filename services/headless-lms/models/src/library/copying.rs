@@ -74,9 +74,28 @@ INSERT INTO courses (
     is_unlisted,
     is_joinable_by_code_only,
     join_code,
-    ask_marketing_consent
+    ask_marketing_consent,
+    description,
+    flagged_answers_threshold
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+VALUES (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14,
+    $15,
+    $16
+  )
 RETURNING id,
   name,
   created_at,
@@ -115,7 +134,9 @@ RETURNING id,
         new_course.is_unlisted,
         new_course.is_joinable_by_code_only,
         new_course.join_code,
-        new_course.ask_marketing_consent
+        new_course.ask_marketing_consent,
+        parent_course.description,
+        parent_course.flagged_answers_threshold
     )
     .fetch_one(&mut *tx)
     .await?;
@@ -381,7 +402,9 @@ WHERE id = $2;
         time_minutes: copied_exam.time_minutes,
         page_id: get_page_id.page_id,
         minimum_points_treshold: copied_exam.minimum_points_treshold,
-        language: copied_exam.language.unwrap_or("en-US".to_string()),
+        language: copied_exam
+            .language
+            .unwrap_or_else(|| parent_exam_fields.language.unwrap_or("en-US".to_string())),
         grade_manually: copied_exam.grade_manually,
     })
 }
@@ -394,33 +417,35 @@ async fn copy_course_pages_and_return_contents(
     // Copy course pages. At this point, exercise ids in content will point to old course's exercises.
     let contents = sqlx::query!(
         "
-    INSERT INTO pages (
-        id,
-        course_id,
-        content,
-        url_path,
-        title,
-        chapter_id,
-        order_number,
-        copied_from,
-        content_search_language,
-        page_language_group_id
-      )
-    SELECT uuid_generate_v5($1, id::text),
-      $1,
-      content,
-      url_path,
-      title,
-      uuid_generate_v5($1, chapter_id::text),
-      order_number,
-      id,
-      content_search_language,
-      page_language_group_id
-    FROM pages
-    WHERE (course_id = $2)
-    AND deleted_at IS NULL
-    RETURNING id,
-      content;
+INSERT INTO pages (
+    id,
+    course_id,
+    content,
+    url_path,
+    title,
+    chapter_id,
+    order_number,
+    copied_from,
+    content_search_language,
+    page_language_group_id,
+    hidden
+  )
+SELECT uuid_generate_v5($1, id::text),
+  $1,
+  content,
+  url_path,
+  title,
+  uuid_generate_v5($1, chapter_id::text),
+  order_number,
+  id,
+  content_search_language,
+  page_language_group_id,
+  hidden
+FROM pages
+WHERE (course_id = $2)
+  AND deleted_at IS NULL
+RETURNING id,
+  content;
         ",
         namespace_id,
         parent_course_id
@@ -441,31 +466,33 @@ async fn copy_exam_pages_and_return_contents(
 ) -> ModelResult<HashMap<Uuid, Value>> {
     let contents = sqlx::query!(
         "
-    INSERT INTO pages (
-        id,
-        exam_id,
-        content,
-        url_path,
-        title,
-        chapter_id,
-        order_number,
-        copied_from,
-        content_search_language
-      )
-    SELECT uuid_generate_v5($1, id::text),
-      $1,
-      content,
-      url_path,
-      title,
-      uuid_generate_v5($1, chapter_id::text),
-      order_number,
-      id,
-      content_search_language
-    FROM pages
-    WHERE (exam_id = $2)
-    AND deleted_at IS NULL
-    RETURNING id,
-      content;
+INSERT INTO pages (
+    id,
+    exam_id,
+    content,
+    url_path,
+    title,
+    chapter_id,
+    order_number,
+    copied_from,
+    content_search_language,
+    hidden
+  )
+SELECT uuid_generate_v5($1, id::text),
+  $1,
+  content,
+  url_path,
+  title,
+  NULL,
+  order_number,
+  id,
+  content_search_language,
+  hidden
+FROM pages
+WHERE (exam_id = $2)
+  AND deleted_at IS NULL
+RETURNING id,
+  content;
         ",
         namespace_id,
         parent_exam_id
@@ -483,10 +510,10 @@ async fn set_chapter_front_pages(tx: &mut PgConnection, namespace_id: Uuid) -> M
     // Update front_page_id of chapters now that new pages exist.
     sqlx::query!(
         "
-    UPDATE chapters
-    SET front_page_id = uuid_generate_v5(course_id, front_page_id::text)
-    WHERE course_id = $1
-        AND front_page_id IS NOT NULL;
+UPDATE chapters
+SET front_page_id = uuid_generate_v5(course_id, front_page_id::text)
+WHERE course_id = $1
+  AND front_page_id IS NOT NULL;
             ",
         namespace_id,
     )
@@ -508,13 +535,31 @@ INSERT INTO course_modules (
     course_id,
     name,
     order_number,
-    copied_from
+    copied_from,
+    automatic_completion,
+    automatic_completion_number_of_exercises_attempted_treshold,
+    automatic_completion_number_of_points_treshold,
+    automatic_completion_requires_exam,
+    certification_enabled,
+    completion_registration_link_override,
+    ects_credits,
+    enable_registering_completion_to_uh_open_university,
+    uh_course_code
   )
 SELECT uuid_generate_v5($1, id::text),
   $1,
   name,
   order_number,
-  id
+  id,
+  automatic_completion,
+  automatic_completion_number_of_exercises_attempted_treshold,
+  automatic_completion_number_of_points_treshold,
+  automatic_completion_requires_exam,
+  certification_enabled,
+  completion_registration_link_override,
+  ects_credits,
+  enable_registering_completion_to_uh_open_university,
+  uh_course_code
 FROM course_modules
 WHERE course_id = $2
   AND deleted_at IS NULL
@@ -544,7 +589,9 @@ INSERT INTO chapters (
     opens_at,
     chapter_image_path,
     copied_from,
-    course_module_id
+    course_module_id,
+    color,
+    deadline
   )
 SELECT uuid_generate_v5($1, id::text),
   name,
@@ -554,10 +601,12 @@ SELECT uuid_generate_v5($1, id::text),
   opens_at,
   chapter_image_path,
   id,
-  uuid_generate_v5($1, course_module_id::text)
+  uuid_generate_v5($1, course_module_id::text),
+  color,
+  deadline
 FROM chapters
 WHERE (course_id = $2)
-AND deleted_at IS NULL;
+  AND deleted_at IS NULL;
     ",
         namespace_id,
         parent_course_id
@@ -609,7 +658,8 @@ ins_exercises AS (
       max_tries_per_slide,
       limit_number_of_tries,
       needs_peer_review,
-      use_course_default_peer_or_self_review_config
+      use_course_default_peer_or_self_review_config,
+      needs_self_review
     )
   SELECT uuid_generate_v5($1, src.id::text),
     $1,
@@ -624,7 +674,8 @@ ins_exercises AS (
     src.max_tries_per_slide,
     src.limit_number_of_tries,
     src.needs_peer_review,
-    src.use_course_default_peer_or_self_review_config
+    src.use_course_default_peer_or_self_review_config,
+    src.needs_self_review
   FROM src
   RETURNING id,
     copied_from
@@ -667,7 +718,8 @@ INSERT INTO exercises (
     max_tries_per_slide,
     limit_number_of_tries,
     needs_peer_review,
-    use_course_default_peer_or_self_review_config
+    use_course_default_peer_or_self_review_config,
+    needs_self_review
   )
 SELECT uuid_generate_v5($1, id::text),
   $1,
@@ -676,12 +728,13 @@ SELECT uuid_generate_v5($1, id::text),
   uuid_generate_v5($1, page_id::text),
   score_maximum,
   order_number,
-  uuid_generate_v5($1, chapter_id::text),
+  NULL,
   id,
   max_tries_per_slide,
   limit_number_of_tries,
   needs_peer_review,
-  use_course_default_peer_or_self_review_config
+  use_course_default_peer_or_self_review_config,
+  needs_self_review
 FROM exercises
 WHERE exam_id = $2
   AND deleted_at IS NULL
@@ -836,7 +889,10 @@ INSERT INTO peer_or_self_review_configs (
     peer_reviews_to_give,
     peer_reviews_to_receive,
     processing_strategy,
-    accepting_threshold
+    accepting_threshold,
+    manual_review_cutoff_in_days,
+    points_are_all_or_nothing,
+    review_instructions
   )
 SELECT uuid_generate_v5($1, posrc.id::text),
   $1,
@@ -844,12 +900,15 @@ SELECT uuid_generate_v5($1, posrc.id::text),
   posrc.peer_reviews_to_give,
   posrc.peer_reviews_to_receive,
   posrc.processing_strategy,
-  posrc.accepting_threshold
+  posrc.accepting_threshold,
+  posrc.manual_review_cutoff_in_days,
+  posrc.points_are_all_or_nothing,
+  posrc.review_instructions
 FROM peer_or_self_review_configs posrc
-LEFT JOIN exercises e ON (e.id = posrc.exercise_id)
+  LEFT JOIN exercises e ON (e.id = posrc.exercise_id)
 WHERE posrc.course_id = $2
-AND posrc.deleted_at IS NULL
-AND e.deleted_at IS NULL;
+  AND posrc.deleted_at IS NULL
+  AND e.deleted_at IS NULL;
     ",
         namespace_id,
         parent_id,

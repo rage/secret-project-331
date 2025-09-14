@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO courses (\n    name,\n    organization_id,\n    slug,\n    content_search_language,\n    language_code,\n    copied_from,\n    course_language_group_id,\n    is_draft,\n    base_module_completion_requires_n_submodule_completions,\n    can_add_chatbot,\n    is_unlisted,\n    is_joinable_by_code_only,\n    join_code,\n    ask_marketing_consent\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot,\n  is_unlisted,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id\n        ",
+  "query": "\nINSERT INTO courses (\n    name,\n    organization_id,\n    slug,\n    content_search_language,\n    language_code,\n    copied_from,\n    course_language_group_id,\n    is_draft,\n    base_module_completion_requires_n_submodule_completions,\n    can_add_chatbot,\n    is_unlisted,\n    is_joinable_by_code_only,\n    join_code,\n    ask_marketing_consent,\n    description,\n    flagged_answers_threshold\n  )\nVALUES (\n    $1,\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7,\n    $8,\n    $9,\n    $10,\n    $11,\n    $12,\n    $13,\n    $14,\n    $15,\n    $16\n  )\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot,\n  is_unlisted,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id\n        ",
   "describe": {
     "columns": [
       {
@@ -139,7 +139,9 @@
         "Bool",
         "Bool",
         "Varchar",
-        "Bool"
+        "Bool",
+        "Text",
+        "Int4"
       ]
     },
     "nullable": [
@@ -169,5 +171,5 @@
       true
     ]
   },
-  "hash": "3ad4e1bbbe8f9ecb8ff91fc0fb09363a8acbeed36fffd1e23ce75d9e975b1c33"
+  "hash": "a0ba734cceb7b0de6ec2aa3a9f3daca19f221be5d46626815fc7c9d474fd2461"
 }

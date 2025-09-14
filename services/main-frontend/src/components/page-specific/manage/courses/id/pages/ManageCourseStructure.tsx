@@ -16,7 +16,7 @@ import {
 import BottomPanel from "../../../../../BottomPanel"
 
 import ChapterFormDialog from "./ChapterFormDialog"
-import ChapterImageWidget from "./ChapterImageWidget"
+import ChapterImageDialog from "./ChapterImageDialog"
 import FrontPage from "./PageList/FrontPage"
 import PageList from "./PageList/PageList"
 import {
@@ -32,7 +32,6 @@ import BreakFromCentered from "@/shared-module/common/components/Centering/Break
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import DropdownMenu from "@/shared-module/common/components/DropdownMenu"
-import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
@@ -300,32 +299,17 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
           newRecord={!chapterBeingEdited}
         />
 
-        <Dialog
-          open={!!showEditImageModal}
-          onClose={() => {
-            setChapterBeingEdited(null)
-          }}
-        >
-          <div
-            className={css`
-              margin: 1rem;
-            `}
-          >
-            <Button
-              variant="primary"
-              size="medium"
-              onClick={() => {
-                setChapterBeingEdited(null)
-                setShowEditImageModal(false)
-              }}
-            >
-              {t("button-text-close")}
-            </Button>
-            {chapterBeingEdited && (
-              <ChapterImageWidget chapter={chapterBeingEdited} onChapterUpdated={() => refetch()} />
-            )}
-          </div>
-        </Dialog>
+        {chapterBeingEdited && (
+          <ChapterImageDialog
+            open={showEditImageModal}
+            onClose={() => {
+              setChapterBeingEdited(null)
+              setShowEditImageModal(false)
+            }}
+            chapter={chapterBeingEdited}
+            onChapterUpdated={() => refetch()}
+          />
+        )}
       </div>
       <DebugModal data={courseStructure} />
 

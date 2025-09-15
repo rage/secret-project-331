@@ -622,12 +622,13 @@ pub async fn delete_user_account(
     pool: web::Data<PgPool>,
     payload: web::Json<EmailCode>,
     session: Session,
+    tmc_client: web::Data<TmcClient>,
 ) -> ControllerResult<web::Json<bool>> {
     let token = skip_authorize();
-    // Check users code is valid
     if let Some(auth_user) = auth_user {
         let mut conn = pool.acquire().await?;
 
+        // Check users code is valid
         let code_ok = user_email_codes::is_reset_user_email_code_valid(
             &mut conn,
             auth_user.id,
@@ -635,21 +636,39 @@ pub async fn delete_user_account(
         )
         .await?;
 
-        if code_ok {
-            let _ = users::delete_user(&mut conn, auth_user.id).await;
-            let _ =
-                user_email_codes::mark_user_email_code_used(&mut conn, auth_user.id, &payload.code)
-                    .await;
-            authorization::forget(&session);
-            return token.authorized_ok(web::Json(true));
-        } else {
+        if !code_ok {
             info!(
                 "User {} attempted account deletion with incorrect code",
                 auth_user.id
             );
-
             return token.authorized_ok(web::Json(false));
         }
+
+        let mut tx = conn.begin().await?;
+        let user = users::get_by_id(&mut tx, auth_user.id).await?;
+
+        // Delete user from TMC if they have upstream_id
+        if let Some(upstream_id) = user.upstream_id {
+            let upstream_id_str = upstream_id.to_string();
+            let tmc_success = tmc_client
+                .delete_user_from_tmc(upstream_id_str)
+                .await
+                .unwrap_or(false);
+
+            if !tmc_success {
+                info!("TMC deletion failed for user {}", auth_user.id);
+                return token.authorized_ok(web::Json(false));
+            }
+        }
+
+        // Delete user locally and mark email code as used
+        users::delete_user(&mut tx, auth_user.id).await?;
+        user_email_codes::mark_user_email_code_used(&mut tx, auth_user.id, &payload.code).await?;
+
+        tx.commit().await?;
+
+        authorization::forget(&session);
+        token.authorized_ok(web::Json(true))
     } else {
         return token.authorized_ok(web::Json(false));
     }

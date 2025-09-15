@@ -37,6 +37,11 @@ pub struct TMCUserResponse {
     pub id: i32,
 }
 
+#[derive(Deserialize)]
+struct TmcDeleteAccountResponse {
+    success: bool,
+}
+
 const TMC_API_URL: &str = "https://tmc.mooc.fi/api/v8/users";
 
 impl TmcClient {
@@ -245,6 +250,21 @@ impl TmcClient {
             .context("Failed to parse TMC user from JSON")?;
 
         Ok(user)
+    }
+
+    pub async fn delete_user_from_tmc(&self, user_upstream_id: String) -> Result<bool> {
+        let url = format!("{}/{}", TMC_API_URL, user_upstream_id);
+
+        let res = self
+            .request_with_headers(reqwest::Method::DELETE, &url, true, None)
+            .await?;
+
+        let body: TmcDeleteAccountResponse = res
+            .json()
+            .await
+            .context("Failed to parse delete response from TMC")?;
+
+        Ok(body.success)
     }
 
     pub fn mock_for_test() -> Self {

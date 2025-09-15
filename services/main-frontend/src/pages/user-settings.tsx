@@ -87,7 +87,9 @@ const UserSettings: React.FC<React.PropsWithChildren<Slug>> = () => {
               emailCommunicationConsent={getUserDetails.data?.email_communication_consent ?? false}
               email={getUserDetails.data?.email}
             />
-            <DeleteUserAccountForm email={getUserDetails.data?.email} />
+            {getUserDetails.data?.email && (
+              <DeleteUserAccountForm email={getUserDetails.data.email} />
+            )}
           </div>
         )}
       </div>

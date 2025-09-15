@@ -29,12 +29,13 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
   // eslint-disable-next-line i18next/no-literal-string
   const [step, setStep] = useState<Step>("password")
   const [password, setPassword] = useState("")
+
   const [credentialsError, setCredentialsError] = useState(false)
   const [error, setError] = useState<Error | null>(null)
   const [openDialog, setOpenDialog] = useState(false)
 
   const sendEmailCodeMutation = useToastMutation(
-    async () => {
+    async (password: string) => {
       const result = await sendEmailCode(email, password, i18n.language)
       setError(null)
       setCredentialsError(!result)
@@ -89,9 +90,9 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
 
         {step === "password" && (
           <VerifyPasswordForm
-            onSubmit={(pwd) => {
-              setPassword(pwd)
-              sendEmailCodeMutation.mutateAsync()
+            onSubmit={(password) => {
+              setPassword(password)
+              sendEmailCodeMutation.mutateAsync(password)
             }}
             isPending={sendEmailCodeMutation.isPending}
             credentialsError={credentialsError}
@@ -100,8 +101,8 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
 
         {step === "verifyCode" && (
           <VerifyOneTimeCodeForm
-            onSubmit={(c) => deleteAccountMutation.mutateAsync(c)}
-            onResend={() => sendEmailCodeMutation.mutateAsync()}
+            onSubmit={(code) => deleteAccountMutation.mutateAsync(code)}
+            onResend={() => sendEmailCodeMutation.mutateAsync(password)}
             credentialsError={credentialsError}
           />
         )}

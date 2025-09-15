@@ -59,8 +59,14 @@ pub async fn send_message(email: Email, mailer: &SmtpTransport, pool: PgPool) ->
         serde_json::from_value(email.body.context("No body")?)?;
 
     if let Some(name) = &email.name {
-        email_block =
-            apply_email_template_replacements(&mut conn, name, email.user_id, email_block).await?;
+        email_block = apply_email_template_replacements(
+            &mut conn,
+            name,
+            email.id,
+            email.user_id,
+            email_block,
+        )
+        .await?;
     }
 
     let msg_as_plaintext = email_processor::process_content_to_plaintext(&email_block);
@@ -105,6 +111,7 @@ pub async fn send_message(email: Email, mailer: &SmtpTransport, pool: PgPool) ->
 async fn apply_email_template_replacements(
     conn: &mut PgConnection,
     template_name: &str,
+    email_id: Uuid,
     user_id: Uuid,
     blocks: Vec<EmailGutenbergBlock>,
 ) -> anyhow::Result<Vec<EmailGutenbergBlock>> {
@@ -126,8 +133,8 @@ async fn apply_email_template_replacements(
 
                 replacements.insert("RESET_LINK".to_string(), reset_url);
             } else {
-                let err = anyhow::anyhow!("No reset token found for user {}", user_id);
-                save_err_to_email(user_id, err, conn).await?;
+                let msg = anyhow::anyhow!("No reset token found for user {}", user_id);
+                save_err_to_email(email_id, msg, conn).await?;
                 return Ok(blocks);
             }
         }
@@ -140,8 +147,8 @@ async fn apply_email_template_replacements(
             {
                 replacements.insert("CODE".to_string(), code.code);
             } else {
-                let err = anyhow::anyhow!("No deletion code found for user {}", user_id);
-                save_err_to_email(user_id, err, conn).await?;
+                let msg = anyhow::anyhow!("No deletion code found for user {}", user_id);
+                save_err_to_email(email_id, msg, conn).await?;
                 return Ok(blocks);
             }
         }

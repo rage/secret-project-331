@@ -391,7 +391,7 @@
   "incorrect-password": "Incorrect password.",
   "initial-message": "Initial message",
   "input-field-chapter-color": "Chapter color",
-  "insert-single-use-code-accoutnt-deletion": "A verification code has been sent to your email. Enter the code below and press “Verify” to confirm account deletion.",
+  "insert-single-use-code-account-deletion": "A verification code has been sent to your email. Enter the code below and press “Verify” to confirm account deletion.",
   "instance-ended-at-time": "Instance ended at: {{time}}",
   "instance-has-no-set-opening-time": "Instance has no set opening time",
   "instance-is-currently-open-and-has-no-set-ending-time": "Instance is currently open and has no set ending time",

@@ -386,7 +386,7 @@
   "incorrect-password": "Väärä salasana.",
   "initial-message": "Aloitusviesti",
   "input-field-chapter-color": "Luvun väri",
-  "insert-single-use-code-accoutnt-deletion": "Vahvistuskoodi on lähetetty sähköpostiisi. Syötä koodi alle ja paina ”Vahvista” poistaaksesi tilisi pysyvästi.",
+  "insert-single-use-code-account-deletion": "Vahvistuskoodi on lähetetty sähköpostiisi. Syötä koodi alle ja paina ”Vahvista” poistaaksesi tilisi pysyvästi.",
   "instance-ended-at-time": "Kurssiversio on päättynyt: {{time}}",
   "instance-has-no-set-opening-time": "Kurssille ei ole asetettu aloituspäivää",
   "instance-is-currently-open-and-has-no-set-ending-time": "Kurssiversio on auki eikä sille ole asetettu päättymispäivää",

@@ -40,7 +40,7 @@ const LoginControls: React.FC<React.PropsWithChildren<LoginControlsProps>> = ({
 
   return loginStateContext.signedIn ? (
     <>
-      <li>
+      <li className={cx(styles)}>
         <a href={"/user-settings"}>
           <Button size="medium" variant="primary">
             {t("user-settings")}

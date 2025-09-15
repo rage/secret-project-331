@@ -128,7 +128,7 @@ pub async fn seed_generic_emails(
             "isValid": true,
             "clientId": "22222222-2222-2222-2222-222222222222",
             "attributes": {
-                "content": "You can reset your with this {{CODE}}",
+                "content": "Use this verification code to delete your account: {{CODE}}",
                 "drop_cap": false
             },
             "innerBlocks": []

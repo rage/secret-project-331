@@ -15,6 +15,7 @@ import useCourseMaterialExerciseQuery, {
 import exerciseBlockPostThisStateToIFrameReducer from "../../../../reducers/exerciseBlockPostThisStateToIFrameReducer"
 import { postStartPeerOrSelfReview, postSubmission } from "../../../../services/backend"
 import YellowBox from "../../../YellowBox"
+import CompactUserOnWrongCourseNotification from "../../../notifications/CompactUserOnWrongCourseNotification"
 
 import ExerciseTask from "./ExerciseTask"
 import GradingState from "./GradingState"
@@ -703,6 +704,13 @@ const ExerciseBlock: React.FC<
                   {t("submit-button")}
                 </button>
               )}
+
+            {userOnWrongLanguageVersion && pageContext.instance && pageContext.settings && (
+              <CompactUserOnWrongCourseNotification
+                correctCourseId={pageContext.settings.current_course_instance_id}
+                organizationSlug={"TODO"}
+              />
+            )}
 
             {inSubmissionView &&
               (reviewingStage === "NotStarted" || reviewingStage === undefined) && (

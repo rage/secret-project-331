@@ -2,6 +2,7 @@ import {
   Course,
   CourseInstance,
   ExamData,
+  Organization,
   Page,
   UserCourseSettings,
 } from "@/shared-module/common/bindings"
@@ -9,30 +10,35 @@ import {
 interface PageStateLoading {
   state: "loading"
   pageData: null
+  organization: null
   settings: null
   instance: null
   exam: null
   course: null
   isTest: boolean
   error: null
+
   refetchPage?: () => Promise<void>
 }
 
 interface PageStateReady {
   state: "ready"
   pageData: Page
+  organization: Organization
   settings: UserCourseSettings | null
   instance: CourseInstance | null
   exam: ExamData | null
   course: Course | null
   isTest: boolean
   error: null
+
   refetchPage?: () => Promise<void>
 }
 
 interface PageStateError {
   state: "error"
   pageData: null
+  organization: null
   settings: null
   instance: null
   exam: null
@@ -80,13 +86,14 @@ export default function pageStateReducer(prev: PageState, action: PageStateActio
     case "rawSetState":
       return action.payload
     case "setData": {
-      const { instance, pageData, settings, exam, course, isTest } = action.payload
+      const { instance, pageData, settings, exam, course, isTest, organization } = action.payload
 
       return {
         ...prev,
         state: "ready",
         instance,
         pageData,
+        organization,
         settings,
         exam,
         course,
@@ -102,6 +109,7 @@ export default function pageStateReducer(prev: PageState, action: PageStateActio
         error: action.payload,
         instance: null,
         pageData: null,
+        organization: null,
         settings: null,
         exam: null,
         course: null,
@@ -115,6 +123,7 @@ export default function pageStateReducer(prev: PageState, action: PageStateActio
         error: null,
         instance: null,
         pageData: null,
+        organization: null,
         settings: null,
         exam: null,
         course: null,

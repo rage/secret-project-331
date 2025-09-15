@@ -3,9 +3,9 @@ pub mod seed_certificate_fonts;
 pub mod seed_courses;
 pub mod seed_exercise_services;
 pub mod seed_file_storage;
+pub mod seed_generic_emails;
 pub mod seed_helpers;
 pub mod seed_organizations;
-pub mod seed_password_reset_emails;
 pub mod seed_playground_examples;
 pub mod seed_roles;
 mod seed_user_research_consents;
@@ -80,7 +80,7 @@ pub async fn main() -> anyhow::Result<()> {
         run_parallelly(seed_certificate_fonts::seed_certificate_fonts(
             db_pool.clone()
         )),
-        run_parallelly(seed_password_reset_emails::seed_password_reset_emails(
+        run_parallelly(seed_generic_emails::seed_generic_emails(
             db_pool.clone(),
             seed_users_result
         ))

@@ -8,7 +8,7 @@ use uuid::Uuid;
 
 use super::seed_users::SeedUsersResult;
 
-pub async fn seed_password_reset_emails(
+pub async fn seed_generic_emails(
     db_pool: Pool<Postgres>,
     seed_users_result: SeedUsersResult,
 ) -> anyhow::Result<()> {
@@ -108,6 +108,50 @@ pub async fn seed_password_reset_emails(
         Uuid::parse_str("5a831370-6b7e-4ece-b962-6bc31c28fe53")?,
     )
     .await?;
+
+    info!("inserting delete account email");
+
+    let delete_subject = Some("Account deletion code");
+    let delete_body = json!([
+        {
+            "type": "core/paragraph",
+            "isValid": true,
+            "clientId": "11111111-1111-1111-1111-111111111111",
+            "attributes": {
+                "content": "Hello, it seems you requested a code for deleting your account",
+                "drop_cap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "type": "core/paragraph",
+            "isValid": true,
+            "clientId": "22222222-2222-2222-2222-222222222222",
+            "attributes": {
+                "content": "You can reset your with this {{CODE}}",
+                "drop_cap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "type": "core/paragraph",
+            "isValid": true,
+            "clientId": "33333333-3333-3333-3333-333333333333",
+            "attributes": {
+                "content": "If you did not request a code, please ignore this message.",
+                "drop_cap": false
+            },
+            "innerBlocks": []
+        }
+    ]);
+
+    let delete_template = EmailTemplateNew {
+        name: "delete-user-email".to_string(),
+        language: Some("en".to_string()),
+        content: Some(delete_body),
+    };
+
+    insert_email_template(&mut conn, None, delete_template, delete_subject).await?;
 
     Ok(())
 }

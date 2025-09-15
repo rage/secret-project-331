@@ -35,7 +35,6 @@ const VerifyPasswordForm: React.FC<VerifyPasswordFormProps> = ({
         `}
       >
         <p>{t("delete-account-info")}</p>
-        <p>{t("delete-account-info-2")}</p>
         <TextField
           type="password"
           label={t("label-password")}

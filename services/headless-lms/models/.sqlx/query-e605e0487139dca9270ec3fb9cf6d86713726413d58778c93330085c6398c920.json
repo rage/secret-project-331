@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO course_custom_privacy_policy_checkbox_texts (id, course_id, text_slug, text_html)\nSELECT uuid_generate_v5($1, id::text),\n  $1,\n  text_slug,\n  text_html\nFROM course_custom_privacy_policy_checkbox_texts\nWHERE course_id = $2\n  AND deleted_at IS NULL;\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e605e0487139dca9270ec3fb9cf6d86713726413d58778c93330085c6398c920"
+}

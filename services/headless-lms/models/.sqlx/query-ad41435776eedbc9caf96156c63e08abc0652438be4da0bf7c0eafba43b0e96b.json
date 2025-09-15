@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO certificate_configurations (\n    id,\n    background_svg_file_upload_id,\n    background_svg_path,\n    certificate_date_font_size,\n    certificate_date_text_anchor,\n    certificate_date_text_color,\n    certificate_date_x_pos,\n    certificate_date_y_pos,\n    certificate_grade_font_size,\n    certificate_grade_text_anchor,\n    certificate_grade_text_color,\n    certificate_grade_x_pos,\n    certificate_grade_y_pos,\n    certificate_locale,\n    certificate_owner_name_font_size,\n    certificate_owner_name_text_anchor,\n    certificate_owner_name_text_color,\n    certificate_owner_name_x_pos,\n    certificate_owner_name_y_pos,\n    certificate_validate_url_font_size,\n    certificate_validate_url_text_anchor,\n    certificate_validate_url_text_color,\n    certificate_validate_url_x_pos,\n    certificate_validate_url_y_pos,\n    overlay_svg_file_upload_id,\n    overlay_svg_path,\n    paper_size,\n    render_certificate_grade\n  )\nSELECT uuid_generate_v5($1, id::text),\n  background_svg_file_upload_id,\n  background_svg_path,\n  certificate_date_font_size,\n  certificate_date_text_anchor,\n  certificate_date_text_color,\n  certificate_date_x_pos,\n  certificate_date_y_pos,\n  certificate_grade_font_size,\n  certificate_grade_text_anchor,\n  certificate_grade_text_color,\n  certificate_grade_x_pos,\n  certificate_grade_y_pos,\n  certificate_locale,\n  certificate_owner_name_font_size,\n  certificate_owner_name_text_anchor,\n  certificate_owner_name_text_color,\n  certificate_owner_name_x_pos,\n  certificate_owner_name_y_pos,\n  certificate_validate_url_font_size,\n  certificate_validate_url_text_anchor,\n  certificate_validate_url_text_color,\n  certificate_validate_url_x_pos,\n  certificate_validate_url_y_pos,\n  overlay_svg_file_upload_id,\n  overlay_svg_path,\n  paper_size,\n  render_certificate_grade\nFROM certificate_configurations\nWHERE id IN (\n    SELECT certificate_configuration_id\n    FROM certificate_configuration_to_requirements cctr\n      JOIN course_modules cm ON cctr.course_module_id = cm.id\n    WHERE cm.course_id = $2\n      AND cctr.deleted_at IS NULL\n      AND cm.deleted_at IS NULL\n  )\n  AND deleted_at IS NULL;\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "ad41435776eedbc9caf96156c63e08abc0652438be4da0bf7c0eafba43b0e96b"
+}

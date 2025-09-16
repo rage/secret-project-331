@@ -72,7 +72,7 @@ impl PageBuilder {
                 url_path: self.url,
                 title: self.title,
                 chapter_id: Some(chapter_id),
-                content: serde_json::json!(blocks),
+                content: blocks,
                 exercises: cms_exercises,
                 exercise_slides: cms_slides,
                 exercise_tasks: cms_tasks,

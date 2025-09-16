@@ -2884,7 +2884,8 @@ export function isHistoryChangeReason(obj: unknown): obj is HistoryChangeReason 
     const typedObj = obj as HistoryChangeReason
     return (
         (typedObj === "PageSaved" ||
-            typedObj === "HistoryRestored")
+            typedObj === "HistoryRestored" ||
+            typedObj === "PageDeleted")
     )
 }
 

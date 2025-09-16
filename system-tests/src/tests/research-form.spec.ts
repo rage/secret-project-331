@@ -82,6 +82,6 @@ test("User can create and respond to research form in a course", async ({
 
     await page.getByText("I want to take part in research").click()
     await page.getByRole("button", { name: "Save" }).click()
-    await page.getByText("User settings").waitFor()
+    await page.getByRole("heading", { name: "User settings" }).waitFor()
   })
 })

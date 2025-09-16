@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT user_id\nFROM password_reset_tokens\nWHERE token = $1\n  AND deleted_at IS NULL\n  AND used_at IS NULL\n  AND expires_at > NOW()\nFOR UPDATE\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "ea4f848174b99038132f5b191f197cf475e694e259f9a406173d1782f48e6efe"
+}

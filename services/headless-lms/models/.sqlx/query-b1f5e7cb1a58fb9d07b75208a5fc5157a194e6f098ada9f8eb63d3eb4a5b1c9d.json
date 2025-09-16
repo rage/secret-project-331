@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n   UPDATE user_email_codes\nSET deleted_at = NOW()\nWHERE user_id = $1\n  AND deleted_at IS NULL\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "b1f5e7cb1a58fb9d07b75208a5fc5157a194e6f098ada9f8eb63d3eb4a5b1c9d"
+}

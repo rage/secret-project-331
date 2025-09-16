@@ -28,7 +28,7 @@ test.describe("Students should be able to navigate and select peer review radiob
     await context3.close()
   })
 
-  test.only("Students can give peer reviews using keyboard", async () => {
+  test("Students can give peer reviews using keyboard", async () => {
     test.slow()
     const [student1Page, student2Page, student3Page] = await Promise.all([
       context1.newPage(),
@@ -45,15 +45,24 @@ test.describe("Students should be able to navigate and select peer review radiob
     await Promise.all([context2.close(), context3.close()])
 
     await student1Page.getByRole("button", { name: "Start peer review" }).click()
-    // find out if we can wait until a certain element is focused in the browser
-    await student1Page.getByRole("radio", { name: "Strongly disagree" }).first().waitFor()
+    await expect(
+      student1Page.getByRole("radio", { name: "Strongly disagree" }).first(),
+    ).toBeEnabled()
     await student1Page.getByPlaceholder("Write a review").press("Tab")
     await student1Page.keyboard.press("ArrowRight")
     await student1Page.keyboard.press(" ")
-    // Make the snapshot to be about the whole radio group
-    await expect(student1Page.getByRole("radio", { name: "Disagree", exact: true }).first())
-      .toMatchAriaSnapshot(`
-      - radio "Disagree" [checked]
+    await expect(student1Page.getByRole("radiogroup").first()).toMatchAriaSnapshot(`
+    - radiogroup:
+      - radio "Strongly disagree":
+        - paragraph: Strongly disagree
+      - radio "Disagree" [checked]:
+        - paragraph: Disagree
+      - radio "Neither agree nor disagree":
+        - paragraph: Neither agree nor disagree
+      - radio "Agree":
+        - paragraph: Agree
+      - radio "Strongly agree":
+        - paragraph: Strongly agree
     `)
 
     await student1Page.keyboard.press("Tab")
@@ -61,9 +70,18 @@ test.describe("Students should be able to navigate and select peer review radiob
     await student1Page.keyboard.press("ArrowRight")
     await student1Page.keyboard.press("ArrowRight")
     await student1Page.keyboard.press(" ")
-    await expect(student1Page.getByRole("radio", { name: "Agree", exact: true }).nth(1))
-      .toMatchAriaSnapshot(`
-      - radio "Agree" [checked]
+    await expect(student1Page.getByRole("radiogroup").nth(1)).toMatchAriaSnapshot(`
+    - radiogroup:
+      - radio "Strongly disagree":
+        - paragraph: Strongly disagree
+      - radio "Disagree":
+        - paragraph: Disagree
+      - radio "Neither agree nor disagree":
+        - paragraph: Neither agree nor disagree
+      - radio "Agree" [checked]:
+        - paragraph: Agree
+      - radio "Strongly agree":
+        - paragraph: Strongly agree
     `)
 
     await accessibilityCheck(student1Page, "Peer review answering view")

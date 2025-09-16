@@ -21,6 +21,7 @@ use crate::{
     exercise_slides::ExerciseSlide,
     exercise_tasks::ExerciseTask,
     exercises::Exercise,
+    organizations::Organization,
     page_history::{self, HistoryChangeReason, PageHistoryContent},
     peer_or_self_review_configs::CmsPeerOrSelfReviewConfig,
     peer_or_self_review_questions::{
@@ -85,6 +86,7 @@ pub struct CoursePageWithUserData {
     pub instance: Option<CourseInstance>,
     pub settings: Option<UserCourseSettings>,
     pub course: Option<Course>,
+    pub organization: Option<Organization>,
     /// If true, the frontend needs to update the url in the browser to match the path in the page object without reloading the page.
     pub was_redirected: bool,
     pub is_test_mode: bool,
@@ -672,6 +674,8 @@ pub async fn get_page_with_user_data_by_path(
     user_id: Option<Uuid>,
     course_data: &CourseContextData,
     url_path: &str,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CoursePageWithUserData> {
     let page_option = get_page_by_path(conn, course_data.id, url_path).await?;
 
@@ -682,6 +686,8 @@ pub async fn get_page_with_user_data_by_path(
             page,
             false,
             course_data.is_test_mode,
+            file_store,
+            app_conf,
         )
         .await;
     } else {
@@ -694,6 +700,8 @@ pub async fn get_page_with_user_data_by_path(
                 redirected_page,
                 true,
                 course_data.is_test_mode,
+                file_store,
+                app_conf,
             )
             .await;
         }
@@ -749,6 +757,8 @@ pub async fn get_course_page_with_user_data_from_selected_page(
     page: Page,
     was_redirected: bool,
     is_test_mode: bool,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CoursePageWithUserData> {
     if let Some(course_id) = page.course_id {
         if let Some(user_id) = user_id {
@@ -759,6 +769,11 @@ pub async fn get_course_page_with_user_data_from_selected_page(
             )
             .await?;
             let course = courses::get_course(conn, course_id).await?;
+            let organization = Organization::from_database_organization(
+                crate::organizations::get_organization(conn, course.organization_id).await?,
+                file_store,
+                app_conf,
+            );
             return Ok(CoursePageWithUserData {
                 page,
                 instance,
@@ -766,6 +781,7 @@ pub async fn get_course_page_with_user_data_from_selected_page(
                 course: Some(course),
                 was_redirected,
                 is_test_mode,
+                organization: Some(organization),
             });
         }
     }
@@ -776,6 +792,7 @@ pub async fn get_course_page_with_user_data_from_selected_page(
         course: None,
         was_redirected,
         is_test_mode,
+        organization: None,
     })
 }
 

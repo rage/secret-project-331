@@ -67,13 +67,15 @@ If the page has moved and there's a redirection, this will still return the move
 GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//part-2/hello-world
 */
 
-#[instrument(skip(pool, ip_to_country_mapper, req))]
+#[instrument(skip(pool, ip_to_country_mapper, req, file_store, app_conf))]
 async fn get_course_page_by_path(
     params: web::Path<(String, String)>,
     pool: web::Data<PgPool>,
     user: Option<AuthUser>,
     ip_to_country_mapper: web::Data<IpToCountryMapper>,
     req: HttpRequest,
+    file_store: web::Data<dyn FileStore>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<CoursePageWithUserData>> {
     let mut conn = pool.acquire().await?;
 
@@ -85,9 +87,15 @@ async fn get_course_page_by_path(
     };
     let user_id = user.map(|u| u.id);
     let course_data = get_nondeleted_course_id_by_slug(&mut conn, &course_slug).await?;
-    let page_with_user_data =
-        models::pages::get_page_with_user_data_by_path(&mut conn, user_id, &course_data, &path)
-            .await?;
+    let page_with_user_data = models::pages::get_page_with_user_data_by_path(
+        &mut conn,
+        user_id,
+        &course_data,
+        &path,
+        file_store.as_ref(),
+        &app_conf,
+    )
+    .await?;
 
     // Chapters may be closed
     if !can_user_view_chapter(

@@ -116,6 +116,20 @@ pub fn paragraph(content: &str, block: Uuid) -> GutenbergBlock {
         inner_blocks: vec![],
     }
 }
+
+pub fn chatbot_block(block: Uuid, chatbot_conf_id: Uuid, course_id: Uuid) -> GutenbergBlock {
+    GutenbergBlock {
+        client_id: block,
+        name: "moocfi/chatbot".to_string(),
+        is_valid: true,
+        attributes: attributes! {
+            "chatbotConfigurationId": chatbot_conf_id,
+            "courseId": course_id,
+        },
+        inner_blocks: vec![],
+    }
+}
+
 pub fn heading(content: &str, client_id: Uuid, level: i32) -> GutenbergBlock {
     GutenbergBlock {
         name: "core/heading".to_string(),

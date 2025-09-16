@@ -157,7 +157,6 @@ const headerRowStyle = css`
 
 const thStyle = css`
   color: #1a2333;
-  opacity: 0.8;
   font-weight: 500;
   font-size: 14px;
   line-height: 140%;
@@ -208,10 +207,40 @@ const thStickyStyle = css`
   ${thStyle};
 `
 
+const thStickyUnified = css`
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: #f7f8f9;
+`
+
 const innerScrollStyle = css`
   flex: 1 1 auto;
   overflow-y: auto;
   width: 100%;
+`
+
+const altBgStyle = css`
+  background: #fafafaff;
+`
+
+const headerBlockStyle = css`
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  background: #f7f8f9;
+  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.04);
+  width: 100%;
+  display: table;
+  border-collapse: separate;
+  border-spacing: 0;
+`
+
+const fakeThStyle = css`
+  ${thStyle};
+  background: #f7f8f9 !important;
+  border-bottom: 1px solid #ced1d7;
 `
 
 // ---- MOCK DATA ----
@@ -279,27 +308,95 @@ const completionsData = mockStudents.map((s) => ({
 }))
 
 const pointsColumns = [
-  { header: "Student", accessorKey: "student" },
-  { header: "The Basics", accessorKey: "basics" },
-  { header: "The intermediaries", accessorKey: "intermediaries" },
-  { header: "Advanced studies", accessorKey: "advanced" },
-  { header: "Forbidden magicks", accessorKey: "forbidden" },
-  { header: "Another chapter", accessorKey: "another1" },
-  { header: "Another another chapter", accessorKey: "another2" },
-  { header: "Bonus chapter", accessorKey: "bonus1" },
-  { header: "Another bonus chapter", accessorKey: "bonus2" },
+  {
+    header: "Student",
+    columns: [{ header: "", accessorKey: "student" }],
+  },
+  {
+    header: "Total",
+    columns: [
+      { header: "Points / 80", accessorKey: "total_points" },
+      { header: "Attempted / 40", accessorKey: "total_attempted", meta: { altBg: true } },
+    ],
+  },
+  {
+    header: "The Basics",
+    columns: [
+      { header: "Points / 10", accessorKey: "basics_points" },
+      { header: "Attempted / 5", accessorKey: "basics_attempted", meta: { altBg: true } },
+    ],
+  },
+  {
+    header: "The intermediaries",
+    columns: [
+      { header: "Points / 10", accessorKey: "intermediaries_points" },
+      { header: "Attempted / 5", accessorKey: "intermediaries_attempted", meta: { altBg: true } },
+    ],
+  },
+  {
+    header: "Advanced studies",
+    columns: [
+      { header: "Points / 10", accessorKey: "advanced_points" },
+      { header: "Attempted / 5", accessorKey: "advanced_attempted", meta: { altBg: true } },
+    ],
+  },
+  {
+    header: "Forbidden magicks",
+    columns: [
+      { header: "Points / 10", accessorKey: "forbidden_points" },
+      { header: "Attempted / 5", accessorKey: "forbidden_attempted", meta: { altBg: true } },
+    ],
+  },
+  {
+    header: "Another chapter",
+    columns: [
+      { header: "Points / 10", accessorKey: "another1_points" },
+      { header: "Attempted / 5", accessorKey: "another1_attempted", meta: { altBg: true } },
+    ],
+  },
+  {
+    header: "Another another chapter",
+    columns: [
+      { header: "Points / 10", accessorKey: "another2_points" },
+      { header: "Attempted / 5", accessorKey: "another2_attempted", meta: { altBg: true } },
+    ],
+  },
+  {
+    header: "Bonus chapter",
+    columns: [
+      { header: "Points / 10", accessorKey: "bonus1_points" },
+      { header: "Attempted / 5", accessorKey: "bonus1_attempted", meta: { altBg: true } },
+    ],
+  },
+  {
+    header: "Another bonus chapter",
+    columns: [
+      { header: "Points / 10", accessorKey: "bonus2_points" },
+      { header: "Attempted / 5", accessorKey: "bonus2_attempted", meta: { altBg: true } },
+    ],
+  },
 ]
 
 const pointsData = mockStudents.map((s) => ({
   student: `${s.firstName} ${s.lastName}`,
-  basics: "0/0",
-  intermediaries: "0/0",
-  advanced: "0/0",
-  forbidden: "0/0",
-  another1: "0/0",
-  another2: "0/0",
-  bonus1: "0/0",
-  bonus2: "0/0",
+  total_points: "0",
+  total_attempted: "0",
+  basics_points: "0",
+  basics_attempted: "0",
+  intermediaries_points: "0",
+  intermediaries_attempted: "0",
+  advanced_points: "0",
+  advanced_attempted: "0",
+  forbidden_points: "0",
+  forbidden_attempted: "0",
+  another1_points: "0",
+  another1_attempted: "0",
+  another2_points: "0",
+  another2_attempted: "0",
+  bonus1_points: "0",
+  bonus1_attempted: "0",
+  bonus2_points: "0",
+  bonus2_attempted: "0",
 }))
 
 const UserTabContent = () => (
@@ -307,11 +404,11 @@ const UserTabContent = () => (
     <table css={tableStyle}>
       <thead>
         <tr css={headerRowStyle}>
-          <th css={thStickyStyle}>First Name</th>
-          <th css={thStickyStyle}>Last Name</th>
-          <th css={thStickyStyle}>User ID</th>
-          <th css={thStickyStyle}>Email</th>
-          <th css={thStickyStyle}>Course Instance</th>
+          <th css={thStyle}>First Name</th>
+          <th css={thStyle}>Last Name</th>
+          <th css={thStyle}>User ID</th>
+          <th css={thStyle}>Email</th>
+          <th css={thStyle}>Course Instance</th>
         </tr>
       </thead>
       <tbody>
@@ -365,7 +462,16 @@ const CertificatesTabContent = () => (
 )
 
 const TableContainer = (props: { children: React.ReactNode }) => (
-  <div css={innerScrollStyle}>{props.children}</div>
+  <div
+    css={css`
+      flex: 1 1 auto;
+      overflow-y: auto;
+      width: 100%;
+      height: 100%;
+    `}
+  >
+    {props.children}
+  </div>
 )
 
 function TanStackTable<T>({ columns, data }: { columns: any[]; data: T[] }) {
@@ -383,11 +489,12 @@ function TanStackTable<T>({ columns, data }: { columns: any[]; data: T[] }) {
               {headerGroup.headers.map((header, i) => (
                 <th
                   key={header.id}
-                  css={thStickyStyle}
+                  css={[thStickyStyle, header.column.columnDef.meta?.altBg && altBgStyle]}
                   style={{
-                    left: undefined,
-                    minWidth: 150,
+                    minWidth: 110,
                   }}
+                  rowSpan={header.depth === 0 && header.colSpan === 1 ? 2 : undefined}
+                  colSpan={header.colSpan > 1 ? header.colSpan : undefined}
                 >
                   {flexRender(header.column.columnDef.header, header.getContext())}
                 </th>
@@ -401,7 +508,14 @@ function TanStackTable<T>({ columns, data }: { columns: any[]; data: T[] }) {
               {row.getVisibleCells().map((cell, i) => {
                 const isLast = row.index === data.length - 1
                 return (
-                  <td key={cell.id} css={[tdStyle, isLast && lastRowTdStyle]}>
+                  <td
+                    key={cell.id}
+                    css={[
+                      tdStyle,
+                      cell.column.columnDef.meta?.altBg && altBgStyle,
+                      isLast && lastRowTdStyle,
+                    ]}
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 )
@@ -418,21 +532,109 @@ const CompletionsTabContent = () => (
   <TanStackTable columns={completionsColumns} data={completionsData} />
 )
 
-const PointsTabContent = () => <TanStackTable columns={pointsColumns} data={pointsData} />
+// ------- PointsTabContent -------
+function PointsTabContent() {
+  const table = useReactTable({
+    columns: pointsColumns,
+    data: pointsData,
+    getCoreRowModel: getCoreRowModel(),
+  })
+
+  // Build headers ONCE to use both for the "fake" sticky header and for the table
+  const headerGroups = table.getHeaderGroups()
+
+  return (
+    <div css={innerScrollStyle} style={{ position: "relative" }}>
+      {/* FAKE STICKY HEADER BLOCK */}
+      <div css={headerBlockStyle}>
+        {headerGroups.map((headerGroup, rowIdx) => (
+          <div
+            key={headerGroup.id}
+            style={{
+              display: "table-row",
+            }}
+          >
+            {headerGroup.headers.map((header, i) => (
+              <div
+                key={header.id}
+                css={[fakeThStyle, header.column.columnDef.meta?.altBg && altBgStyle]}
+                style={{
+                  display: "table-cell",
+                  minWidth: 110,
+                  fontWeight: 500,
+                  zIndex: 10,
+                }}
+                rowSpan={header.depth === 0 && header.colSpan === 1 ? 2 : undefined}
+                colSpan={header.colSpan > 1 ? header.colSpan : undefined}
+              >
+                {flexRender(header.column.columnDef.header, header.getContext())}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+
+      {/* REAL TABLE */}
+      <table css={tableStyle}>
+        <thead>
+          {/* render header as normal, but make it invisible (not display:none, to keep column width alignment) */}
+          {headerGroups.map((headerGroup) => (
+            <tr key={headerGroup.id} css={headerRowStyle} style={{ visibility: "collapse" }}>
+              {headerGroup.headers.map((header, i) => (
+                <th
+                  key={header.id}
+                  css={[thStyle, header.column.columnDef.meta?.altBg && altBgStyle]}
+                  style={{
+                    minWidth: 110,
+                  }}
+                  rowSpan={header.depth === 0 && header.colSpan === 1 ? 2 : undefined}
+                  colSpan={header.colSpan > 1 ? header.colSpan : undefined}
+                >
+                  {flexRender(header.column.columnDef.header, header.getContext())}
+                </th>
+              ))}
+            </tr>
+          ))}
+        </thead>
+        <tbody>
+          {table.getRowModel().rows.map((row) => (
+            <tr key={row.id} css={rowStyle}>
+              {row.getVisibleCells().map((cell, i) => {
+                const isLast = row.index === pointsData.length - 1
+                return (
+                  <td
+                    key={cell.id}
+                    css={[
+                      tdStyle,
+                      cell.column.columnDef.meta?.altBg && altBgStyle,
+                      isLast && lastRowTdStyle,
+                    ]}
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                )
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
 
 // ---- MAIN PAGE ----
 
 const TAB_USER = "User"
 const TAB_COMPLETIONS = "Completions"
-const TAB_POINTS = "Points"
+const TAB_PROGRESS = "Progress"
 const TAB_CERTIFICATES = "Certificates"
 
-const TAB_LIST = [TAB_USER, TAB_COMPLETIONS, TAB_POINTS, TAB_CERTIFICATES]
+const TAB_LIST = [TAB_USER, TAB_COMPLETIONS, TAB_PROGRESS, TAB_CERTIFICATES]
 
 const tabContentMap: { [k: string]: React.ReactNode } = {
   [TAB_USER]: <UserTabContent />,
   [TAB_COMPLETIONS]: <CompletionsTabContent />,
-  [TAB_POINTS]: <PointsTabContent />,
+  [TAB_PROGRESS]: <PointsTabContent />,
   [TAB_CERTIFICATES]: <CertificatesTabContent />,
 }
 

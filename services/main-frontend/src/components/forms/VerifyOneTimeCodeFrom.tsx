@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
-import React, { useState } from "react"
+import React from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import Button from "@/shared-module/common/components/Button"
@@ -14,15 +15,15 @@ interface Props {
 
 const VerifyOneTimeCodeForm: React.FC<Props> = ({ onSubmit, onResend, credentialsError }) => {
   const { t } = useTranslation()
-  const [code, setCode] = useState("")
+  const { handleSubmit, setValue, watch } = useForm<{ code: string }>({
+    defaultValues: { code: "" },
+  })
+  const code = watch("code")
   const [resendCooldown, startCooldown] = useCooldown()
 
   return (
     <form
-      onSubmit={(e) => {
-        e.preventDefault()
-        onSubmit(code)
-      }}
+      onSubmit={handleSubmit(({ code }) => onSubmit(code))}
       aria-describedby={credentialsError ? "code-error" : undefined}
     >
       <div
@@ -40,9 +41,11 @@ const VerifyOneTimeCodeForm: React.FC<Props> = ({ onSubmit, onResend, credential
           {t("insert-single-use-code-account-deletion")}
         </p>
 
-        <OneTimePassCodeField onChange={setCode} />
+        <OneTimePassCodeField onChange={(val) => setValue("code", val, { shouldValidate: true })} />
+
         {credentialsError && (
           <div
+            id="code-error"
             aria-live="assertive"
             className={css`
               padding: 10px;
@@ -54,16 +57,19 @@ const VerifyOneTimeCodeForm: React.FC<Props> = ({ onSubmit, onResend, credential
             {t("incorrect-code")}
           </div>
         )}
+
         <Button
           type="submit"
           variant="primary"
           size={"medium"}
+          disabled={(code?.length ?? 0) !== 6}
           className={css`
             padding-top: 10px;
           `}
         >
           {t("button-text-verify")}
         </Button>
+
         <div
           className={css`
             display: flex;
@@ -71,7 +77,7 @@ const VerifyOneTimeCodeForm: React.FC<Props> = ({ onSubmit, onResend, credential
             align-items: baseline;
           `}
         >
-          <p>{t("delete-account-did-not-recieve-email")}</p>
+          <p>{t("delete-account-did-not-receive-email")}</p>
           <Button
             variant="icon"
             size={"small"}

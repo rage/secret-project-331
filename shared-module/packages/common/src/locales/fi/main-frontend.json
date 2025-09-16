@@ -205,7 +205,7 @@
   "default-instance": "Oletusinstanssi",
   "default-module": "Oletusmoduuli",
   "delete": "Poista",
-  "delete-account-did-not-recieve-email": "Etkö saanut koodia?",
+  "delete-account-did-not-receive-email": "Etkö saanut koodia?",
   "delete-account-info": "Poistaaksesi tilisi, syötä salasanasi alle ja lähetämme vahvistuskoodin sähköpostiisi. Tilin poistaminen on pysyvää.",
   "delete-chatbot-confirmation": "Haluatko varmasti poistaa keskustelurobotin nimeltä \"{{name}}\"?",
   "delete-confirmation": "Oletko varma että haluat poistaa \"{{name}}\"?",

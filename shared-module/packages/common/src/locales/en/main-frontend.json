@@ -211,7 +211,7 @@
   "default-instance": "Default instance",
   "default-module": "Default module",
   "delete": "Delete",
-  "delete-account-did-not-recieve-email": "Didn't recieve code?",
+  "delete-account-did-not-receive-email": "Didn't recieve code?",
   "delete-account-info": "To delete your account, enter your password below and we will send a verification code to your email. Deleting your account is permanent.",
   "delete-chatbot-confirmation": "Are you sure you want to delete the chatbot \"{{name}}\"?",
   "delete-confirmation": "Are you sure you want to delete \"{{name}}\"?",

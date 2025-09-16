@@ -3133,6 +3133,8 @@ export function isCoursePageWithUserData(obj: unknown): obj is CoursePageWithUse
             isUserCourseSettings(typedObj["settings"]) as boolean) &&
         (typedObj["course"] === null ||
             isCourse(typedObj["course"]) as boolean) &&
+        (typedObj["organization"] === null ||
+            isOrganization(typedObj["organization"]) as boolean) &&
         typeof typedObj["was_redirected"] === "boolean" &&
         typeof typedObj["is_test_mode"] === "boolean"
     )

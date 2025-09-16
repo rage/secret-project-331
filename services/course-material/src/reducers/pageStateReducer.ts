@@ -24,7 +24,7 @@ interface PageStateLoading {
 interface PageStateReady {
   state: "ready"
   pageData: Page
-  organization: Organization
+  organization: Organization | null
   settings: UserCourseSettings | null
   instance: CourseInstance | null
   exam: ExamData | null
@@ -59,7 +59,7 @@ interface SetDataAction {
   type: "setData"
   payload: {
     pageData: Page
-    organization: Organization
+    organization: Organization | null
     instance: CourseInstance | null
     settings: UserCourseSettings | null
     exam: ExamData | null

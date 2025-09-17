@@ -6,6 +6,7 @@ echo -e "${BLUE}Checks code for common issues. This script should be used when y
 echo -e "${BLUE}It might be a good idea to also run ${BOLD}bin/git-merge-origin-master${RESET_EVERYTHING}"
 echo ""
 
+export SQLX_OFFLINE=1
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
 FOLDER_PATH="$BASEDIR/../"
 RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")

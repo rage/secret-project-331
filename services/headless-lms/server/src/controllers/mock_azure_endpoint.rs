@@ -1,9 +1,8 @@
 use crate::prelude::*;
 
-// GET /api/v0/idk/test
-// POST /api/v0/idk/test
+// GET /api/v0/mock_azure/test
+// POST /api/v0/mock_azure/test
 async fn mock_azure_endpoint() -> ControllerResult<String> {
-    //let mut conn = pool.acquire().await?;
     let a = r#"
 data: {"id":"mock_id","model":"gpt-4o","created":1757592280,"object":"extensions.chat.completion.chunk","choices":[{"index":0,"delta":{"role":"assistant","context":{"citations":[{"content": "This chunk is a snippet from page {} of the course {}. ,|||,Mock test page content\n This is test content blah.", "title": "Cited course page", "url": "http://project-331.local/org/uh-mathstat/courses/advanced-chatbot-course/chapter-1", "filepath": "null", "chunk_id": "0"}, {"content": "This chunk is a snippet from page {} of the course {}. ,|||,Mock test page content 2\n This is another test page.", "title": "Cited course page 2", "url": "http://project-331.local/org/uh-mathstat/courses/advanced-chatbot-course", "filepath": "null", "chunk_id": "0"},{"content": "This chunk is a snippet from page {} of the course {}. ,|||,More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long.", "title": "Cited course page", "url": "http://project-331.local/org/uh-mathstat/courses/advanced-chatbot-course/chapter-1", "filepath": "null", "chunk_id": "0"}],"intent":"[]"}},"end_turn":false,"finish_reason":null}]}
 

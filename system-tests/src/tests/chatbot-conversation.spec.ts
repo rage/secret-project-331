@@ -4,7 +4,7 @@ import accessibilityCheck from "@/utils/accessibilityCheck"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "@/utils/screenshot"
 
-test.describe.only("Test chatbot chat box", () => {
+test.describe("Test chatbot chat box", () => {
   test.use({
     storageState: "src/states/teacher@example.com.json",
   })
@@ -138,9 +138,11 @@ test.describe.only("Test chatbot chat box", () => {
     await expect(student1Page.getByText("Hello, pls help")).toHaveCount(0)
   })
 
-  test("Accessibility check", async ({}) => {
+  test("Accessibility check default chatbot", async ({}) => {
     const student2Page = await context2.newPage()
-    await student2Page.goto("http://project-331.local/org/uh-mathstat/courses/chatbot")
+    await student2Page.goto(
+      "http://project-331.local/org/uh-mathstat/courses/advanced-chatbot-course",
+    )
     await selectCourseInstanceIfPrompted(student2Page)
 
     await student2Page.getByRole("button", { name: "Open chatbot" }).click()
@@ -157,5 +159,27 @@ test.describe.only("Test chatbot chat box", () => {
 
     await student2Page.getByRole("button", { name: "Show references" }).click()
     await accessibilityCheck(student2Page, "Default Chatbot Conversation With Citations / View", [])
+  })
+
+  test("Accessibility check course material block chatbot", async ({}) => {
+    const student2Page = await context2.newPage()
+    await student2Page.goto(
+      "http://project-331.local/org/uh-mathstat/courses/advanced-chatbot-course/chapter-1/page-2",
+    )
+    await selectCourseInstanceIfPrompted(student2Page)
+
+    await accessibilityCheck(student2Page, "Block Chatbot Agree / View", [])
+
+    await student2Page.getByRole("button", { name: "Agree" }).click()
+
+    await accessibilityCheck(student2Page, "Block Chatbot New Conversation / View", [])
+
+    await student2Page.getByPlaceholder("Message").click()
+    await student2Page.getByPlaceholder("Message").fill("Hello, pls help me!")
+    await student2Page.getByRole("button", { name: "Send" }).click()
+    await accessibilityCheck(student2Page, "Block Chatbot Ongoing Conversation / View", [])
+
+    await student2Page.getByRole("button", { name: "Show references" }).click()
+    await accessibilityCheck(student2Page, "Block Chatbot Conversation With Citations / View", [])
   })
 })

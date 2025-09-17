@@ -300,7 +300,7 @@ test.describe("OIDC discovery and JWKS", () => {
     const k = jwks.keys[0]
     // Shape & values
     expect(k.kty).toBe("RSA")
-    expect(k.use || k.use_ || "sig").toBe("sig") // your struct uses `use_`, JSON likely serializes as `use`
+    expect(k.use || "sig").toBe("sig")
     expect(k.alg).toBe("RS256")
     expect(typeof k.kid).toBe("string")
     expect(k.kid.length).toBeGreaterThan(0)

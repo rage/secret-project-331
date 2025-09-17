@@ -12,6 +12,7 @@ use rand::distr::SampleString;
 use rand::rng;
 use rsa::RsaPublicKey;
 use rsa::pkcs1::DecodeRsaPublicKey;
+use rsa::pkcs8::{DecodePublicKey, EncodePublicKey};
 use rsa::traits::PublicKeyParts;
 use sha2::{Digest as ShaDigest, Sha256};
 use url::form_urlencoded;
@@ -24,13 +25,21 @@ pub fn generate_access_token() -> String {
 
 // Extract (n, e) in base64url and a stable kid
 pub fn rsa_n_e_and_kid_from_pem(public_pem: &str) -> anyhow::Result<(String, String, String)> {
-    let pubkey: RsaPublicKey = RsaPublicKey::from_pkcs1_pem(public_pem)?;
+    // 1) Try PKCS#1: -----BEGIN RSA PUBLIC KEY-----
+    // 2) Fallback to PKCS#8/SPKI: -----BEGIN PUBLIC KEY-----
+    let pubkey = match RsaPublicKey::from_pkcs1_pem(public_pem) {
+        Ok(k) => k,
+        Err(_) => RsaPublicKey::from_public_key_pem(public_pem)?,
+    };
+
+    // Base64url-encode modulus and exponent
     let n_b64 = URL_SAFE_NO_PAD.encode(pubkey.n().to_bytes_be());
     let e_b64 = URL_SAFE_NO_PAD.encode(pubkey.e().to_bytes_be());
 
-    // Simple & stable kid: b64url(SHA-256(public_pem))
+    // kid = b64url(sha256(SPKI DER)) — stable across PEM formatting/whitespace
+    let spki_der = pubkey.to_public_key_der()?; // requires EncodePublicKey
     let mut hasher = Sha256::new();
-    hasher.update(public_pem.as_bytes());
+    hasher.update(spki_der.as_bytes());
     let kid = URL_SAFE_NO_PAD.encode(hasher.finalize());
 
     Ok((n_b64, e_b64, kid))

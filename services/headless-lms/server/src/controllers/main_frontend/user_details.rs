@@ -4,25 +4,36 @@ use crate::{controllers, prelude::*};
 use headless_lms_utils::{ip_to_country::IpToCountryMapper, tmc::TmcClient};
 use std::net::IpAddr;
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct BulkUserDetailsRequest {
+    pub user_ids: Vec<Uuid>,
+    pub course_id: Uuid,
+}
+
 /**
-GET `/api/v0/main-frontend/user-details/[id]` - Find user details by user id
+GET `/api/v0/main-frontend/user-details/{course_id}/user/{user_id}` - Find user details by user id with course permission check
+Only returns user details if the user is enrolled in the specified course
 */
 #[instrument(skip(pool))]
 pub async fn get_user_details(
     user: AuthUser,
     pool: web::Data<PgPool>,
-    user_id: web::Path<Uuid>,
+    path: web::Path<(Uuid, Uuid)>,
 ) -> ControllerResult<web::Json<UserDetail>> {
+    let (course_id, user_id) = path.into_inner();
     let mut conn = pool.acquire().await?;
 
     let token = authorize(
         &mut conn,
         Act::ViewUserProgressOrDetails,
         Some(user.id),
-        Res::GlobalPermissions,
+        Res::Course(course_id),
     )
     .await?;
-    let res = models::user_details::get_user_details_by_user_id(&mut conn, *user_id).await?;
+    let res =
+        models::user_details::get_user_details_by_user_id_for_course(&mut conn, user_id, course_id)
+            .await?;
     token.authorized_ok(web::Json(res))
 }
 
@@ -114,6 +125,34 @@ pub async fn get_users_by_course_id(
     )
     .await?;
     let res = models::user_details::get_users_by_course_id(&mut conn, *course_id).await?;
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+POST `/api/v0/main-frontend/user-details/bulk-user-details` - Get user details for a list of user IDs with course permission check
+Only returns user details for users who are actually enrolled in the specified course
+*/
+#[instrument(skip(pool))]
+pub async fn get_bulk_user_details(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    payload: web::Json<BulkUserDetailsRequest>,
+) -> ControllerResult<web::Json<Vec<UserDetail>>> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize(
+        &mut conn,
+        Act::ViewUserProgressOrDetails,
+        Some(user.id),
+        Res::Course(payload.course_id),
+    )
+    .await?;
+    let res = models::user_details::get_user_details_by_user_ids_for_course(
+        &mut conn,
+        &payload.user_ids,
+        payload.course_id,
+    )
+    .await?;
     token.authorized_ok(web::Json(res))
 }
 
@@ -252,7 +291,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/search-fuzzy-match",
             web::post().to(search_users_fuzzy_match),
         )
-        .route("/user/{user_id}", web::get().to(get_user_details))
+        .route(
+            "/{course_id}/user/{user_id}",
+            web::get().to(get_user_details),
+        )
         .route("/users-ip-country", web::get().to(get_user_country_by_ip))
         .route(
             "/user-details-for-user",
@@ -262,5 +304,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/get-users-by-course-id",
             web::get().to(get_users_by_course_id),
-        );
+        )
+        .route("/bulk-user-details", web::post().to(get_bulk_user_details));
 }

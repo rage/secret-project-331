@@ -10,6 +10,7 @@ import UploadImageForm from "../../../forms/UploadImageForm"
 
 import { Organization } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 export interface OrganizationImageControlsProps {
   organization: Organization
@@ -23,15 +24,24 @@ const OrganizationImageWidget: React.FC<
   const [allowRemove, setAllowRemove] = useState(true)
   const [error, setError] = useState<unknown>()
 
-  const handleSubmit = async (imageFile: File) => {
-    try {
-      await setOrganizationImage(organization.id, imageFile)
-      onOrganizationUpdated()
-      setError(undefined)
-    } catch (e) {
-      setError(e)
-    }
-  }
+  const uploadImageMutation = useToastMutation(
+    (imageFile: File) => setOrganizationImage(organization.id, imageFile),
+    {
+      notify: true,
+      method: "POST",
+      successMessage: t("message-saved-successfully"),
+      errorMessage: t("message-saving-failed"),
+    },
+    {
+      onSuccess: () => {
+        onOrganizationUpdated()
+        setError(undefined)
+      },
+      onError: (e) => {
+        setError(e)
+      },
+    },
+  )
 
   const handleRemove = async () => {
     setAllowRemove(false)
@@ -64,7 +74,10 @@ const OrganizationImageWidget: React.FC<
           </Button>
         </>
       ) : null}
-      <UploadImageForm onSubmit={handleSubmit} />
+      <UploadImageForm
+        mutation={uploadImageMutation}
+        hasExistingImage={!!organization.organization_image_url}
+      />
     </div>
   )
 }

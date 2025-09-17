@@ -16,7 +16,10 @@ use headless_lms_models::{
     peer_or_self_review_questions::{self, CmsPeerOrSelfReviewQuestion},
     user_exercise_slide_states, user_exercise_states,
 };
-use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
+use headless_lms_utils::{
+    attributes,
+    document_schema_processor::{GutenbergBlock, validate_unique_client_ids},
+};
 use once_cell::sync::OnceCell;
 use serde_json::Value;
 use sqlx::PgConnection;
@@ -58,8 +61,9 @@ pub async fn create_page(
     chapter_id: Option<Uuid>,
     page_data: CmsPageUpdate,
 ) -> Result<Uuid> {
+    validate_unique_client_ids(page_data.content.clone())?;
     let new_page = NewPage {
-        content: Value::Array(vec![]),
+        content: vec![],
         url_path: page_data.url_path.to_string(),
         title: format!("{} WIP", page_data.title),
         course_id: Some(course_id),
@@ -567,11 +571,11 @@ pub async fn create_exam(
             exercises: vec![exam_exercise_1, exam_exercise_2],
             exercise_slides: vec![exam_exercise_slide_1, exam_exercise_slide_2],
             exercise_tasks: vec![exam_exercise_task_1, exam_exercise_task_2],
-            content: serde_json::json!([
+            content: vec![
                 heading(
                     "The exam",
                     Uuid::parse_str("d6cf16ce-fe78-4e57-8399-e8b63d7fddac").unwrap(),
-                    1
+                    1,
                 ),
                 paragraph(
                     "In this exam you're supposed to answer to two easy questions. Good luck!",
@@ -579,7 +583,7 @@ pub async fn create_exam(
                 ),
                 exam_exercise_block_1,
                 exam_exercise_block_2,
-            ]),
+            ],
             url_path: "".to_string(),
             title: "".to_string(),
             course_id: None,

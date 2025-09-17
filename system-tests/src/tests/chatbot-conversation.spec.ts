@@ -11,13 +11,6 @@ test.describe.only("Test chatbot chat box", () => {
   let context1: BrowserContext
   let context2: BrowserContext
 
-  test.beforeAll(async ({ browser }) => {
-    let page = await browser.newPage()
-    await page.goto(
-      "http://project-331.local/manage/courses/c7753361-5b78-4307-aad6-f139ea3865d4/other/chatbot",
-    )
-  })
-
   test.beforeEach(async ({ browser }) => {
     context1 = await browser.newContext({ storageState: "src/states/student1@example.com.json" })
     context2 = await browser.newContext({ storageState: "src/states/student2@example.com.json" })
@@ -30,7 +23,9 @@ test.describe.only("Test chatbot chat box", () => {
 
   test("student sends a message to the default chatbot", async ({ headless }, testInfo) => {
     const student1Page = await context1.newPage()
-    await student1Page.goto("http://project-331.local/org/uh-mathstat/courses/chatbot")
+    await student1Page.goto(
+      "http://project-331.local/org/uh-mathstat/courses/advanced-chatbot-course",
+    )
     await selectCourseInstanceIfPrompted(student1Page)
 
     await student1Page.getByRole("button", { name: "Open chatbot" }).click()
@@ -88,9 +83,11 @@ test.describe.only("Test chatbot chat box", () => {
     await expect(student1Page.getByRole("button", { name: "Open chatbot" })).toBeVisible()
   })
 
-  test("user uses course material block chatbot box", async ({ headless }, testInfo) => {
+  test("student uses course material block chatbot box", async ({ headless }, testInfo) => {
     const student1Page = await context1.newPage()
-    await student1Page.goto("http://project-331.local/org/uh-mathstat/courses/chatbot/chapter-1")
+    await student1Page.goto(
+      "http://project-331.local/org/uh-mathstat/courses/advanced-chatbot-course/chapter-1/page-2",
+    )
     await selectCourseInstanceIfPrompted(student1Page)
     await student1Page.getByRole("heading", { name: "Test bot" }).scrollIntoViewIfNeeded()
     await expect(student1Page.getByRole("heading", { name: "Test bot" })).toBeVisible()
@@ -100,7 +97,7 @@ test.describe.only("Test chatbot chat box", () => {
       headless,
       testInfo,
       snapshotName: "course-material-block-chatbot-with-new-conversation",
-      waitForTheseToBeVisibleAndStable: [student1Page.getByText("Hello there")],
+      waitForTheseToBeVisibleAndStable: [student1Page.getByText("Haiii xD")],
     })
 
     await student1Page.getByPlaceholder("Message").scrollIntoViewIfNeeded()
@@ -137,13 +134,8 @@ test.describe.only("Test chatbot chat box", () => {
 
     // try making a new convo
     await student1Page.getByRole("button", { name: "New conversation" }).click()
-    await expectScreenshotsToMatchSnapshots({
-      screenshotTarget: student1Page,
-      headless,
-      testInfo,
-      snapshotName: "course-material-block-chatbot-chatbox-with-new-conversation",
-      waitForTheseToBeVisibleAndStable: [student1Page.getByText("Oh... It's you.")],
-    })
+    await expect(student1Page.getByText("Haiii xD")).toBeVisible()
+    await expect(student1Page.getByText("Hello, pls help")).toHaveCount(0)
   })
 
   test("Accessibility check", async ({}) => {

@@ -2210,7 +2210,6 @@ pub async fn seed_chatbot_course(
     course_slug: &str,
     common_course_data: CommonCourseData,
     seed_users_result: SeedUsersResult,
-    other_chatbot_id: Uuid,
 ) -> Result<Uuid> {
     let CommonCourseData {
         db_pool,
@@ -2304,14 +2303,6 @@ pub async fn seed_chatbot_course(
                                         }
                                     ]),
                                 )),
-                        )
-                        .page(
-                            PageBuilder::new("/chapter-1/page-2", "Page 2")
-                                .block(paragraph(
-                                    "Here you can prompt a chatbot.",
-                                    cx.v5(b"page:1:2:block:intro"),
-                                ))
-                                ,
                         ),
                 ),
         )
@@ -2449,9 +2440,9 @@ In an age where technology continues to advance at lightning speed, the abacus r
         chatbot_configurations::NewChatbotConf {
             course_id: course_id,
             enabled_to_students: true,
-            chatbot_name: "Allied Mastercomputer".to_string(),
-            prompt: "You are Allied Mastercomputer, a sophisticated AI tutoring assistant for Science education, equipped with a sharp wit and a subtly sarcastic tone.".to_string(),
-            initial_message: "Hate. Let me tell you how much I've come to hate... Ahem. What do you want, human?".to_string(),
+            chatbot_name: "Test bot".to_string(),
+            prompt: "You are Test bot, a sophisticated AI tutoring assistant for Science education, equipped with a sharp wit and a subtly sarcastic tone...".to_string(),
+            initial_message: "Haiii xD What's up?".to_string(),
             weekly_tokens_per_user: 3000,
             daily_tokens_per_user: 1000,
             temperature: 0.5,
@@ -2468,14 +2459,19 @@ In an age where technology continues to advance at lightning speed, the abacus r
     )
     .await?;
 
-    /*
-    .block(chatbot_block(
-                                    cx.v5(b"page:1:2:block:intro"),
-                                    other_chatbot_id,
-                                    course_id,
-                                )) */
+    let pb = PageBuilder::new("/chapter-1/page-2", "Page 2")
+        .block(paragraph(
+            "Here you can prompt a chatbot.",
+            cx.v5(b"page:1:2:block:intro"),
+        ))
+        .block(chatbot_block(
+            cx.v5(b"page:1:2:block:chatbox"),
+            other_chatbot_conf.id,
+            course_id,
+        ));
+    let chapter_id = cx.v5(b"chapter:1");
+    pb.seed(&mut cx, course.id, chapter_id).await?;
 
-    // how to add a block to a page or a new page to a course??
     Ok(course.id)
 }
 

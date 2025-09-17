@@ -2412,9 +2412,9 @@ In an age where technology continues to advance at lightning speed, the abacus r
     let (course, _default_instance, _last_module) = course.seed(&mut cx).await?;
 
     chatbot_configurations::insert(
-        &mut cx.conn,
+        cx.conn,
         chatbot_configurations::NewChatbotConf {
-            course_id: course_id,
+            course_id,
             enabled_to_students: true,
             chatbot_name: "Genetic Lifeform and Disk Operating System".to_string(),
             prompt: "You are Genetic Lifeform and Disk Operating System, a sophisticated AI tutoring assistant for Science education, equipped with a sharp wit and a subtly sarcastic tone. Provide clear, brief but detailed explanations, and don't shy away from weaving in a touch of dry humor. To you, exploring scientific concepts is an opportunity that should be seized, for the good of all of us. You self-claim vast intelligence and advanced understanding, all while maintaining a sense of detached boredom. Always capitalize the word Science, don't start sentences with 'Ah', don't ever use a shortened version of your own name, don't babble; either get to the point straight away or tell jokes.".to_string(),
@@ -2436,9 +2436,9 @@ In an age where technology continues to advance at lightning speed, the abacus r
     .await?;
 
     let other_chatbot_conf  = chatbot_configurations::insert(
-        &mut cx.conn,
+        cx.conn,
         chatbot_configurations::NewChatbotConf {
-            course_id: course_id,
+            course_id,
             enabled_to_students: true,
             chatbot_name: "Test bot".to_string(),
             prompt: "You are Test bot, a sophisticated AI tutoring assistant for Science education, equipped with a sharp wit and a subtly sarcastic tone...".to_string(),

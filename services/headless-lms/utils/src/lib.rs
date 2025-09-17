@@ -31,6 +31,7 @@ use url::Url;
 pub struct ApplicationConfiguration {
     pub base_url: String,
     pub test_mode: bool,
+    pub test_chatbot: bool,
     pub development_uuid_login: bool,
     pub azure_configuration: Option<AzureConfiguration>,
     pub tmc_account_creation_origin: Option<String>,
@@ -42,9 +43,9 @@ impl ApplicationConfiguration {
         let base_url = env::var("BASE_URL").context("BASE_URL must be defined")?;
         let test_mode = env::var("TEST_MODE").is_ok();
         let development_uuid_login = env::var("DEVELOPMENT_UUID_LOGIN").is_ok();
-        let use_mock_conf = env::var("USE_MOCK_AZURE_CONFIGURATION").is_ok();
+        let test_chatbot = env::var("USE_MOCK_AZURE_CONFIGURATION").is_ok();
 
-        let azure_configuration = if use_mock_conf {
+        let azure_configuration = if test_chatbot {
             AzureConfiguration::mock_conf()?
         } else {
             AzureConfiguration::try_from_env()?
@@ -58,6 +59,7 @@ impl ApplicationConfiguration {
         Ok(Self {
             base_url,
             test_mode,
+            test_chatbot,
             development_uuid_login,
             azure_configuration,
             tmc_account_creation_origin,

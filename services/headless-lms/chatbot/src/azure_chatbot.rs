@@ -402,7 +402,7 @@ pub async fn send_chat_request_and_parse_stream(
         .ok_or_else(|| anyhow::anyhow!("Chatbot configuration not found"))?;
 
     let api_key = chatbot_config.api_key.clone();
-    let mut url: Url = chatbot_config.api_endpoint.clone();
+    let mut url = chatbot_config.api_endpoint.clone();
 
     // Always set the API version so that we actually use the API that the code is written for
     url.set_query(Some(&format!("api-version={}", LLM_API_VERSION)));

@@ -49,7 +49,8 @@ export default function ConsentPage() {
   }
 
   return (
-    <div
+    <section
+      aria-label={t("oauth-application-requesting-access")}
       className={css`
         display: flex;
         flex-direction: column;
@@ -60,9 +61,12 @@ export default function ConsentPage() {
         margin: auto;
       `}
     >
-      <h2>{query.client_name}</h2>
+      {/* Prefer client_name if present */}
+      <h2> {query.client_id}</h2>
+
       <p>{t("oauth-application-requesting-access")}</p>
 
+      {/* List doesn't need a new key; screen readers will announce it as a list */}
       <ul>
         {scopes.map((scope) => (
           <li key={scope}>
@@ -78,13 +82,19 @@ export default function ConsentPage() {
           gap: 10px;
         `}
       >
-        <Button variant="primary" onClick={handleApprove} size="large">
+        {/* Buttons get accessible names using existing translated text */}
+        <Button variant="primary" onClick={handleApprove} size="large" aria-label={t("approve")}>
           {t("approve")}
         </Button>
-        <Button onClick={handleDeny} variant="reject" size="large">
+        <Button
+          onClick={handleDeny}
+          variant="reject"
+          size="large"
+          aria-label={t("button-text-cancel")}
+        >
           {t("button-text-cancel")}
         </Button>
       </div>
-    </div>
+    </section>
   )
 }

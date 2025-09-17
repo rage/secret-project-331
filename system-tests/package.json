@@ -40,6 +40,7 @@
     "@axe-core/playwright": "^4.10.2",
     "@types/which": "^3.0.4",
     "axe-core": "^4.10.3",
+    "jose": "^6.1.0",
     "png-metadata": "^1.0.2",
     "tar-fs": "^3.1.0",
     "which": "^5.0.0"

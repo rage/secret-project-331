@@ -21,6 +21,7 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
         Vec::from(["user_info".to_string()]),
         "openid email profile",
         "http://localhost",
+        true,
     )
     .await?;
 

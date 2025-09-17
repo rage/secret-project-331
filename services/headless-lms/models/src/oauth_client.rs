@@ -41,6 +41,7 @@ impl OAuthClient {
         grant_types: Vec<String>,
         scope: &str,
         origin: &str,
+        bearer_allowed: bool,
     ) -> ModelResult<Uuid> {
         let mut tx = conn.begin().await?;
         let res = sqlx::query!(
@@ -52,9 +53,10 @@ impl OAuthClient {
                 redirect_uris,
                 grant_types,
                 scope,
-                origin
+                origin,
+                bearer_allowed
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING id
             "#,
             client_id,
@@ -63,7 +65,8 @@ impl OAuthClient {
             &redirect_uris,
             &grant_types,
             scope,
-            origin
+            origin,
+            bearer_allowed
         )
         .fetch_one(&mut *tx)
         .await?;

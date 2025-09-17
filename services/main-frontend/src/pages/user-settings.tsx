@@ -78,8 +78,8 @@ const UserSettings: React.FC<React.PropsWithChildren<Slug>> = () => {
         {getUserDetails.isError && (
           <ErrorBanner variant={"readOnly"} error={getUserDetails.error} />
         )}
-        {getUserDetails.isPending && <Spinner variant={"medium"} />}
-        {getUserDetails.isSuccess && getUserDetails.data !== null && (
+        {getUserDetails.isLoading && <Spinner variant={"medium"} />}
+        {!getUserDetails.isLoading && getUserDetails.isSuccess && getUserDetails.data !== null && (
           <EditUserInformationForm
             firstName={getUserDetails.data?.first_name ?? ""}
             lastName={getUserDetails.data?.last_name ?? ""}
@@ -192,9 +192,9 @@ const UserSettings: React.FC<React.PropsWithChildren<Slug>> = () => {
             padding: 1rem;
           `}
         >
-          {listQuery.isPending && <Spinner variant="medium" />}
+          {listQuery.isLoading && <Spinner variant="medium" />}
           {listQuery.isError && <ErrorBanner variant="readOnly" error={listQuery.error} />}
-          {listQuery.isSuccess && (
+          {!listQuery.isLoading && listQuery.isSuccess && (
             <div>
               {listQuery.data.length === 0 && <p>{t("no-authorized-applications")}</p>}
               {listQuery.data.map((client) => (

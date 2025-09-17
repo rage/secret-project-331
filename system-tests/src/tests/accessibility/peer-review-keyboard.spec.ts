@@ -45,11 +45,14 @@ test.describe("Students should be able to navigate and select peer review radiob
     await Promise.all([context2.close(), context3.close()])
 
     await student1Page.getByRole("button", { name: "Start peer review" }).click()
-    await expect(
-      student1Page.getByRole("radio", { name: "Strongly disagree" }).first(),
-    ).toBeEnabled()
+    const strDisBut = student1Page.getByRole("radio", { name: "Strongly disagree" }).first()
+    await expect(strDisBut).toBeVisible()
+    await expect(strDisBut).toBeEnabled()
     await student1Page.getByPlaceholder("Write a review").press("Tab")
     await student1Page.keyboard.press("ArrowRight")
+    await expect(
+      student1Page.getByRole("radio", { name: "Disagree", exact: true }).first(),
+    ).toBeFocused()
     await student1Page.keyboard.press(" ")
     await expect(student1Page.getByRole("radiogroup").first()).toMatchAriaSnapshot(`
     - radiogroup:
@@ -69,6 +72,9 @@ test.describe("Students should be able to navigate and select peer review radiob
     await student1Page.keyboard.press("ArrowRight")
     await student1Page.keyboard.press("ArrowRight")
     await student1Page.keyboard.press("ArrowRight")
+    await expect(
+      student1Page.getByRole("radio", { name: "Agree", exact: true }).nth(1),
+    ).toBeFocused()
     await student1Page.keyboard.press(" ")
     await expect(student1Page.getByRole("radiogroup").nth(1)).toMatchAriaSnapshot(`
     - radiogroup:

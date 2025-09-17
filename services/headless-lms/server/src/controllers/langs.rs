@@ -10,9 +10,9 @@ use actix_multipart::form::MultipartForm;
 use actix_multipart::form::json::Json as MultipartJson;
 use actix_multipart::form::tempfile::TempFile;
 use headless_lms_utils::file_store::file_utils;
+use models::CourseOrExamId;
 use models::chapters::DatabaseChapter;
 use models::library::grading::{StudentExerciseSlideSubmission, StudentExerciseTaskSubmission};
-use models::user_exercise_states::CourseInstanceOrExamId;
 use mooc_langs_api as api;
 use std::collections::HashSet;
 
@@ -38,6 +38,34 @@ async fn get_course_instances(
     // if the user is enrolled on the course, they should be able to view it regardless of permissions
     let token = skip_authorize();
     token.authorized_ok(web::Json(course_instances))
+}
+
+/**
+ * GET /api/v0/langs/course-instance/:id
+ *
+ * Returns the course instance with the given id.
+ */
+#[instrument(skip(pool))]
+async fn get_course_instance(
+    pool: web::Data<PgPool>,
+    user: AuthToken,
+    course_instance: web::Path<Uuid>,
+) -> ControllerResult<web::Json<api::CourseInstance>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::View,
+        Some(user.id),
+        Res::CourseInstance(*course_instance),
+    )
+    .await?;
+
+    let course_instance =
+        models::course_instances::get_course_instance_with_info(&mut conn, *course_instance)
+            .await?
+            .convert();
+
+    token.authorized_ok(web::Json(course_instance))
 }
 
 /**
@@ -71,8 +99,11 @@ async fn get_course_instance_exercises(
         .filter(DatabaseChapter::has_opened)
         .map(|c| c.id)
         .collect::<HashSet<_>>();
+
+    let course_instance =
+        models::course_instances::get_course_instance(&mut conn, *course_instance).await?;
     let open_chapter_exercises =
-        models::exercises::get_exercises_by_course_instance_id(&mut conn, *course_instance)
+        models::exercises::get_exercises_by_course_id(&mut conn, course_instance.course_id)
             .await?
             .into_iter()
             .filter(|e| {
@@ -147,7 +178,7 @@ async fn get_exercise(
     )
     .await?;
     match instance_or_exam_id {
-        Some(CourseInstanceOrExamId::Instance(_id)) => {}
+        Some(CourseOrExamId::Course(_id)) => {}
         _ => {
             return Err(ControllerError::new(
                 ControllerErrorType::BadRequest,
@@ -311,6 +342,7 @@ async fn get_submission_grading(
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/course-instances", web::get().to(get_course_instances))
+        .route("/course-instance/{id}", web::get().to(get_course_instance))
         .route(
             "/course-instances/{id}/exercises",
             web::get().to(get_course_instance_exercises),

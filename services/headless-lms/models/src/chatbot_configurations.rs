@@ -107,6 +107,7 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Chatbot
         r#"
 SELECT * FROM chatbot_configurations
 WHERE id = $1
+AND deleted_at IS NULL
         "#,
         id
     )
@@ -233,6 +234,27 @@ pub async fn get_for_course(
 SELECT * FROM
 chatbot_configurations
 WHERE course_id = $1
+AND deleted_at IS NULL
+"#,
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_enabled_nondefault_for_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<ChatbotConfiguration>> {
+    let res = sqlx::query_as!(
+        ChatbotConfiguration,
+        r#"
+SELECT * FROM
+chatbot_configurations
+WHERE course_id = $1
+AND default_chatbot IS false
+AND enabled_to_students IS true
 AND deleted_at IS NULL
 "#,
         course_id

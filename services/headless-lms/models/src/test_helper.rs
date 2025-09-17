@@ -150,7 +150,7 @@ macro_rules! insert_data {
             .map(char::from)
             .collect::<String>();
         let $org =
-            $crate::organizations::insert($tx.as_mut(), $crate::PKeyPolicy::Generate, "", &rs, "")
+            $crate::organizations::insert($tx.as_mut(), $crate::PKeyPolicy::Generate, "", &rs, None, false)
                 .await
                 .unwrap();
     };
@@ -236,7 +236,7 @@ macro_rules! insert_data {
                 exercises: vec![],
                 exercise_slides: vec![],
                 exercise_tasks: vec![],
-                content: ::serde_json::json!{[]},
+                content: vec![],
                 url_path: "/page".to_string(),
                 title: "t".to_string(),
                 course_id: Some($course),

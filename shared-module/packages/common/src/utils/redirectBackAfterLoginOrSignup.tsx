@@ -42,8 +42,8 @@ export function validateReturnToRouteOrDefault(
       return parsedUrl.pathname + parsedUrl.search
     }
 
-    // Pathname only. Also drops query parameters.
-    return parsedUrl.pathname
+    // Return pathname with search parameters and hash preserved
+    return parsedUrl.pathname + parsedUrl.search + parsedUrl.hash
   } catch (e) {
     console.error(`Could not parse return_to path: ${res}`, e)
   }

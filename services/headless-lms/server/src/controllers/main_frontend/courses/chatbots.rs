@@ -91,11 +91,45 @@ async fn set_default_chatbot(
     token.authorized_ok(web::Json(configuration))
 }
 
+/// POST `/api/v0/main-frontend/courses/{course_id}/chatbots/{chatbot_configuration_id}/set-as-non-default`
+#[instrument(skip(pool))]
+async fn set_non_default_chatbot(
+    ids: web::Path<(Uuid, Uuid)>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<ChatbotConfiguration>> {
+    let mut conn = pool.acquire().await?;
+    let (course_id, chatbot_configuration_id) = *ids;
+
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
+    let mut tx = conn.begin().await?;
+
+    models::chatbot_configurations::remove_default_chatbot_from_course(&mut tx, course_id).await?;
+
+    let configuration =
+        models::chatbot_configurations::get_by_id(&mut tx, chatbot_configuration_id).await?;
+
+    if course_id != configuration.course_id {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Chatbot course id doesn't match the course id provided.".to_string(),
+            None,
+        ));
+    }
+    tx.commit().await?;
+
+    token.authorized_ok(web::Json(configuration))
+}
+
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     cfg.route("", web::get().to(get_chatbots))
         .route("", web::post().to(create_chatbot))
         .route(
             "/{chatbot_configuration_id}/set-as-default",
             web::post().to(set_default_chatbot),
+        )
+        .route(
+            "/{chatbot_configuration_id}/set-as-non-default",
+            web::post().to(set_non_default_chatbot),
         );
 }

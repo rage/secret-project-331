@@ -4,7 +4,7 @@ import { UseMutationResult, useQuery } from "@tanstack/react-query"
 import { BlockInstance } from "@wordpress/blocks"
 import { isEqual } from "lodash"
 import { useRouter } from "next/router"
-import React, { useReducer, useState } from "react"
+import React, { useMemo, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -25,7 +25,12 @@ import { coursePageRoute } from "../../utils/routing"
 import SerializeGutenbergModal from "../SerializeGutenbergModal"
 import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 
-import { CmsPageUpdate, ContentManagementPage, Page } from "@/shared-module/common/bindings"
+import {
+  CmsPageUpdate,
+  ContentManagementPage,
+  GutenbergBlock,
+  Page,
+} from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -34,9 +39,11 @@ import Menu from "@/shared-module/common/components/Navigation/NavBar/Menu/Menu"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { pageRoute } from "@/shared-module/common/utils/routes"
+import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
 
 interface PageEditorProps {
   data: Page
+  courseCanAddChatbot: boolean
   saveMutation: UseMutationResult<ContentManagementPage, unknown, CmsPageUpdate, unknown>
   needToRunMigrationsAndValidations: boolean
   setNeedToRunMigrationsAndValidations: React.Dispatch<boolean>
@@ -58,8 +65,30 @@ const supportedBlocks = (chapter_id: string | null, exam_id: string | null): str
   return allSupportedBlocks
 }
 
+const customBlocks = (
+  chapterId: string | null,
+  examId: string | null,
+  urlPath: string,
+  canAddChatbot: boolean,
+) => {
+  if (chapterId !== null || examId !== null) {
+    if (canAddChatbot) {
+      return blockTypeMapForPages
+    } else {
+      return blockTypeMapForPages.filter((v) => v[0] !== "moocfi/chatbot")
+    }
+  } else {
+    if (urlPath === "/") {
+      return blockTypeMapForFrontPages
+    } else {
+      return blockTypeMapForTopLevelPages
+    }
+  }
+}
+
 const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   data,
+  courseCanAddChatbot,
   saveMutation,
   needToRunMigrationsAndValidations,
   setNeedToRunMigrationsAndValidations,
@@ -100,6 +129,9 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
     }
     saveMutation.mutate(dataToSave, {
       onSuccess: (data) => {
+        if (!isGutenbergBlockArray(data.page.content)) {
+          throw new Error("Content is not a GutenbergBlock array")
+        }
         contentDispatch({
           type: "setContent",
           payload: denormalizeDocument({
@@ -217,6 +249,10 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
       </div>
     </div>
   )
+  const memoizedCustomBlocks = useMemo(
+    () => customBlocks(data.chapter_id, data.exam_id, data.url_path, courseCanAddChatbot),
+    [data.chapter_id, data.exam_id, data.url_path, courseCanAddChatbot],
+  )
   return (
     <EditorContentDispatch.Provider value={contentDispatch}>
       <BreakFromCentered sidebar={false}>
@@ -232,13 +268,7 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
         <GutenbergEditor
           content={content}
           onContentChange={(value) => contentDispatch({ type: "setContent", payload: value })}
-          customBlocks={
-            data.chapter_id !== null || data.exam_id !== null
-              ? blockTypeMapForPages
-              : data.url_path === "/"
-                ? blockTypeMapForFrontPages
-                : blockTypeMapForTopLevelPages
-          }
+          customBlocks={memoizedCustomBlocks}
           allowedBlocks={supportedCoreBlocks}
           allowedBlockVariations={allowedBlockVariants}
           mediaUpload={mediaUpload}

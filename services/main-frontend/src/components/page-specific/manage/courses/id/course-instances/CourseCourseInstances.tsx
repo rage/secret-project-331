@@ -167,7 +167,7 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
 
                     <div className={buttonGroupStyles}>
                       <PointExportButton courseInstanceId={instance.id} courseInstanceName={name} />
-                      <ModuleCompletionReprocessButton courseInstanceId={instance.id} />
+                      <ModuleCompletionReprocessButton courseId={courseId} />
                     </div>
                   </div>
                 </div>

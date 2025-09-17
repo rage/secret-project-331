@@ -1,0 +1,47 @@
+import { css } from "@emotion/css"
+import React, { DOMAttributes } from "react"
+
+import { baseTheme } from "@/shared-module/common/styles"
+
+const buttonStyle = (clicked: boolean) => css`
+  ${clicked && `box-shadow: inset 0 0 0 2px ${baseTheme.colors.green[400]};`}
+`
+
+export const citationId = (cit_n: string, idx: string) => {
+  // cit_n = citation number, idx = makes this id unique
+  // eslint-disable-next-line i18next/no-literal-string
+  return `chatbot-citation-${cit_n}-${idx}`
+}
+
+interface CitationButtonProps {
+  citN: string
+  citNToShow: string
+  idx: string
+  citationButtonClicked: boolean
+  currentRefId: string | undefined
+  handleClick: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void
+  hoverCitationProps: DOMAttributes<HTMLButtonElement>
+}
+
+const CitationButton: React.FC<CitationButtonProps> = ({
+  citN,
+  citNToShow,
+  idx,
+  citationButtonClicked,
+  currentRefId,
+  handleClick,
+  hoverCitationProps,
+}) => {
+  return (
+    <button
+      className={buttonStyle(citationButtonClicked && currentRefId === citationId(citN, idx))}
+      id={citationId(citN, idx)}
+      onClick={(e) => handleClick(e)}
+      {...hoverCitationProps}
+    >
+      {citNToShow}
+    </button>
+  )
+}
+
+export default CitationButton

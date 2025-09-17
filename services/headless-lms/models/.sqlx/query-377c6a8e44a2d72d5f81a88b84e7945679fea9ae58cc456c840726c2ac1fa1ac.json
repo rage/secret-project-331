@@ -35,24 +35,36 @@
       },
       {
         "ordinal": 6,
-        "name": "course_instance_id",
-        "type_info": "Uuid"
-      },
-      {
-        "ordinal": 7,
         "name": "peer_or_self_review_config_id",
         "type_info": "Uuid"
       },
       {
-        "ordinal": 8,
+        "ordinal": 7,
         "name": "exercise_slide_submission_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "course_id",
         "type_info": "Uuid"
       }
     ],
     "parameters": {
-      "Left": ["UuidArray"]
+      "Left": [
+        "UuidArray"
+      ]
     },
-    "nullable": [false, false, false, true, false, false, false, false, false]
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
   },
   "hash": "377c6a8e44a2d72d5f81a88b84e7945679fea9ae58cc456c840726c2ac1fa1ac"
 }

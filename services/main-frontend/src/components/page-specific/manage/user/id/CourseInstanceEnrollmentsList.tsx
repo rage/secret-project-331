@@ -8,6 +8,7 @@ import { getCourseInstanceEnrollmentsInfo } from "../../../../../services/backen
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { courseInstanceUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
 
 export interface CourseInstanceEnrollmentsListProps {
@@ -43,7 +44,7 @@ const CourseInstanceEnrollmentsList: React.FC<CourseInstanceEnrollmentsListProps
         )
         const courseModuleCompletions =
           courseInstanceEnrollmentsQuery.data.course_module_completions.filter(
-            (cmc) => cmc.course_instance_id === enrollment.course_instance_id,
+            (cmc) => cmc.course_id === enrollment.course_id,
           )
         const numDistinctModules = new Set(
           courseModuleCompletions.map((cmc) => cmc.course_module_id),
@@ -110,7 +111,7 @@ const CourseInstanceEnrollmentsList: React.FC<CourseInstanceEnrollmentsListProps
               </p>
             </div>
             <Link
-              href={`/manage/course-instances/${enrollment.course_instance_id}/course-status-summary-for-user/${userId}`}
+              href={courseInstanceUserStatusSummaryRoute(enrollment.course_instance_id, userId)}
             >
               <Button variant="tertiary" size="medium">
                 {t("course-status-summary")}

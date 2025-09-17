@@ -45,9 +45,24 @@
       }
     ],
     "parameters": {
-      "Left": ["Varchar", "Varchar", "Int4", "Jsonb", "Uuid"]
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Int4",
+        "Jsonb",
+        "Uuid"
+      ]
     },
-    "nullable": [false, false, false, true, false, false, false, false]
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false
+    ]
   },
   "hash": "ffceb3f0780f56e249bcc6983105d897534b65d8fc362fc56ea275d45661e617"
 }

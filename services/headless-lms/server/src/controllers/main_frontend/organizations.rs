@@ -9,13 +9,16 @@ use models::{
     pages::{self, NewPage},
 };
 
+use crate::controllers::auth::is_user_global_admin;
+use crate::domain::authorization::{Action as Act, Resource as Res};
 use crate::{
     controllers::helpers::file_uploading::upload_image_for_organization,
     domain::authorization::{
-        Action, Resource, authorize_with_fetched_list_of_roles, skip_authorize,
+        Action, Resource, authorize, authorize_with_fetched_list_of_roles, skip_authorize,
     },
     prelude::*,
 };
+
 use actix_web::web::{self, Json};
 
 /**
@@ -27,10 +30,24 @@ async fn get_all_organizations(
     pool: web::Data<PgPool>,
     file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
+    user: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Vec<Organization>>> {
     let mut conn = pool.acquire().await?;
-    let organizations = models::organizations::all_organizations(&mut conn)
-        .await?
+
+    let is_admin = if let Some(user) = user {
+        is_user_global_admin(&mut conn, user.id).await?
+    } else {
+        false
+    };
+
+    // Choose query based on admin status
+    let raw_organizations = if is_admin {
+        models::organizations::all_organizations_include_hidden(&mut conn).await?
+    } else {
+        models::organizations::all_organizations(&mut conn).await?
+    };
+
+    let organizations = raw_organizations
         .into_iter()
         .map(|org| Organization::from_database_organization(org, file_store.as_ref(), &app_conf))
         .collect();
@@ -295,6 +312,143 @@ async fn get_organization(
     token.authorized_ok(web::Json(organization))
 }
 
+#[derive(Debug, Deserialize)]
+struct OrganizationUpdatePayload {
+    name: String,
+    hidden: bool,
+    slug: String,
+}
+
+/**
+PUT `/api/v0/main-frontend/organizations/{organization_id}`
+
+Updates an organization's name, hidden status, and slug.
+*/
+#[instrument(skip(pool))]
+async fn update_organization(
+    organization_id: web::Path<Uuid>,
+    payload: web::Json<OrganizationUpdatePayload>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let organization = models::organizations::get_organization(&mut conn, *organization_id).await?;
+
+    let token = authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::Organization(organization.id),
+    )
+    .await?;
+
+    models::organizations::update_name_and_hidden(
+        &mut conn,
+        *organization_id,
+        &payload.name,
+        payload.hidden,
+        &payload.slug,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(()))
+}
+
+#[derive(Debug, Deserialize)]
+struct OrganizationCreatePayload {
+    name: String,
+    slug: String,
+    hidden: bool,
+}
+
+/// POST `/api/v0/main-frontend/organizations`
+/// Creates a new organization with the given name, slug, and visibility status.
+///
+/// # Request body (JSON)
+/// {
+///     "name": "Example Organization",
+///     "slug": "example-org",
+///     "hidden": false
+/// }
+///
+/// # Response
+/// Returns the created organization.
+///
+/// # Permissions
+/// Only users with the `Admin` role can access this endpoint.
+#[instrument(skip(pool, file_store, app_conf))]
+async fn create_organization(
+    payload: web::Json<OrganizationCreatePayload>,
+    pool: web::Data<PgPool>,
+    file_store: web::Data<dyn FileStore>,
+    app_conf: web::Data<ApplicationConfiguration>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Organization>> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize(
+        &mut conn,
+        Action::Administrate,
+        Some(user.id),
+        Resource::GlobalPermissions,
+    )
+    .await?;
+
+    let mut tx = conn.begin().await?;
+
+    let org_id = match models::organizations::insert(
+        &mut tx,
+        PKeyPolicy::Generate,
+        &payload.name,
+        &payload.slug,
+        None,
+        payload.hidden,
+    )
+    .await
+    {
+        Ok(id) => id,
+        Err(err) => {
+            let err_str = err.to_string();
+            if err_str.contains("organizations_slug_key") {
+                return Err(ControllerError::new(
+                    ControllerErrorType::BadRequest,
+                    "An organization with this slug already exists.".to_string(),
+                    None,
+                ));
+            }
+            return Err(err.into());
+        }
+    };
+
+    tx.commit().await?;
+
+    let db_org = models::organizations::get_organization(&mut conn, org_id).await?;
+    let org =
+        Organization::from_database_organization(db_org, file_store.as_ref(), app_conf.as_ref());
+
+    token.authorized_ok(web::Json(org))
+}
+
+#[instrument(skip(pool))]
+async fn soft_delete_organization(
+    org_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize(
+        &mut conn,
+        Action::Administrate,
+        Some(user.id),
+        Resource::GlobalPermissions,
+    )
+    .await?;
+
+    models::organizations::soft_delete(&mut conn, *org_id).await?;
+    token.authorized_ok(web::Json(()))
+}
+
 /**
 GET `/api/v0/main-frontend/organizations/{organization_id}/course_exams` - Returns an organizations exams in CourseExam form.
 */
@@ -372,7 +526,7 @@ async fn create_exam(
             course_id: None,
             exam_id: Some(new_exam_id),
             front_page_of_chapter_id: None,
-            content: serde_json::Value::Array(vec![]),
+            content: vec![],
             content_search_language: Some("simple".to_string()),
             exercise_slides: vec![],
             exercise_tasks: vec![],
@@ -406,7 +560,13 @@ We add the routes by calling the route method instead of using the route annotat
 */
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("", web::get().to(get_all_organizations))
+        .route("", web::post().to(create_organization))
         .route("/{organization_id}", web::get().to(get_organization))
+        .route("/{organization_id}", web::put().to(update_organization))
+        .route(
+            "/{organization_id}",
+            web::patch().to(soft_delete_organization),
+        )
         .route(
             "/{organization_id}/courses",
             web::get().to(get_organization_courses),

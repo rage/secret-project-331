@@ -13,7 +13,7 @@ import {
   fetchPageAudioFiles,
   fetchResearchFormAnswersWithUserId,
   fetchResearchFormWithCourseId,
-  getChatbotConfigurationForCourse,
+  getDefaultChatbotConfigurationForCourse,
 } from "../services/backend"
 import { inlineColorStyles } from "../styles/inlineColorStyles"
 
@@ -25,7 +25,7 @@ import NavigationContainer from "./ContentRenderer/moocfi/NavigationContainer"
 import FeedbackHandler from "./FeedbackHandler"
 import HeadingsNavigation from "./HeadingsNavigation"
 import ReferenceList from "./ReferencesList"
-import Chatbot from "./chatbot"
+import Chatbot from "./chatbot/Chatbot"
 import SelectResearchConsentForm from "./forms/SelectResearchConsentForm"
 import SelectUserInformationForm from "./forms/SelectUserInformationForm"
 import CourseSettingsModal from "./modals/CourseSettingsModal"
@@ -113,8 +113,8 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   })
 
   const chatbotConfiguration = useQuery({
-    queryKey: [`courses-${courseId}-chatbot-configuration`],
-    queryFn: () => getChatbotConfigurationForCourse(assertNotNullOrUndefined(courseId)),
+    queryKey: ["chatbot", "default-for-course", courseId],
+    queryFn: () => getDefaultChatbotConfigurationForCourse(assertNotNullOrUndefined(courseId)),
     enabled: loginContext.signedIn === true && Boolean(courseId),
   })
 

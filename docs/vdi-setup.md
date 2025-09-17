@@ -61,6 +61,7 @@ Git should already be installed on the VDI. Confirm this by running `git --versi
    ```
 
 3. Authenticate with GitHub CLI to cache credentials:
+
    ```bash
    gh auth login
    ```
@@ -103,15 +104,17 @@ Git should already be installed on the VDI. Confirm this by running `git --versi
    newgrp docker
    ```
 
-6. Install required tools by running:
+6. Install Rust using rustup: https://rustup.rs/
+
+7. Install required tools by running:
 
    ```bash
    bin/download-applications-linux
    ```
 
-7. Restart your terminal to apply all changes.
+8. Restart your terminal to apply all changes.
 
-8. Delete the initially cloned repository if you no longer need it and use the one located in `/data`.
+9. Delete the initially cloned repository if you no longer need it and use the one located in `/data`.
 
 ### Running the Development Environment
 

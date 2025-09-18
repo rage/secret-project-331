@@ -355,5 +355,6 @@ fn utils(target: &mut File) {
 
         pagination::Pagination,
         url_to_oembed_endpoint::OEmbedResponse,
+        document_schema_processor::GutenbergBlock,
     };
 }

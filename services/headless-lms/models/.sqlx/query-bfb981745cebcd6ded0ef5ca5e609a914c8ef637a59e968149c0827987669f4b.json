@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT digest as \"digest: _\", pepper_id, user_id, client_id, scope, audience, jti, dpop_jkt, metadata, expires_at\n               FROM oauth_access_tokens\n               WHERE digest = $1 AND expires_at > now()",
+  "query": "\n            SELECT\n              digest as \"digest: _\",\n              pepper_id,\n              user_id,\n              client_id,\n              scope,\n              audience,\n              jti,\n              dpop_jkt,\n              metadata,\n              expires_at\n            FROM oauth_access_tokens\n            WHERE digest = $1 AND expires_at > now()\n            ",
   "describe": {
     "columns": [
       {
@@ -55,9 +55,22 @@
       }
     ],
     "parameters": {
-      "Left": ["Bytea"]
+      "Left": [
+        "Bytea"
+      ]
     },
-    "nullable": [false, false, true, false, true, true, false, false, false, false]
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false
+    ]
   },
-  "hash": "bbe997cafbfbb8ba296e19c0611612e29c0089fbcd9d3c5fe29168f889214a8b"
+  "hash": "bfb981745cebcd6ded0ef5ca5e609a914c8ef637a59e968149c0827987669f4b"
 }

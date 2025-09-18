@@ -1,7 +1,8 @@
 use crate::{oauth_shared_types::Digest, prelude::*};
+use sqlx::{FromRow, Postgres, Row, postgres::PgArguments, query::Query};
 use uuid::Uuid;
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromRow)]
 pub struct OAuthClient {
     pub id: Uuid,
     pub client_id: String,
@@ -14,6 +15,38 @@ pub struct OAuthClient {
     pub bearer_allowed: bool,
 }
 
+/* ------------ internal helper for INSERT ------------ */
+
+#[derive(Debug, Clone)]
+struct NewClientParams<'a> {
+    client_id: &'a str,
+    client_secret_bytes: &'a [u8],
+    pepper_id: i16,
+    redirect_uris: &'a [String],
+    grant_types: &'a [String],
+    scope: Option<&'a str>,
+    origin: &'a str,
+    bearer_allowed: bool,
+}
+
+fn bind_client<'q>(
+    mut q: Query<'q, Postgres, PgArguments>,
+    p: &NewClientParams<'q>,
+) -> Query<'q, Postgres, PgArguments> {
+    q = q
+        .bind(p.client_id)
+        .bind(p.client_secret_bytes)
+        .bind(p.pepper_id)
+        .bind(p.redirect_uris)
+        .bind(p.grant_types)
+        .bind(p.scope)
+        .bind(p.origin)
+        .bind(p.bearer_allowed);
+    q
+}
+
+/* ------------ impl ------------ */
+
 impl OAuthClient {
     pub async fn find_by_client_id(
         conn: &mut PgConnection,
@@ -22,8 +55,20 @@ impl OAuthClient {
         let mut tx = conn.begin().await?;
         let client = sqlx::query_as!(
             OAuthClient,
-            r#"SELECT id, client_id, client_secret,pepper_id, redirect_uris, grant_types, scope, origin, bearer_allowed
-               FROM oauth_clients WHERE client_id = $1"#,
+            r#"
+            SELECT
+              id,
+              client_id,
+              client_secret as "client_secret: _",
+              pepper_id,
+              redirect_uris,
+              grant_types,
+              scope,
+              origin,
+              bearer_allowed
+            FROM oauth_clients
+            WHERE client_id = $1
+            "#,
             client_id
         )
         .fetch_one(&mut *tx)
@@ -43,9 +88,18 @@ impl OAuthClient {
         origin: &str,
         bearer_allowed: bool,
     ) -> ModelResult<Uuid> {
-        let mut tx = conn.begin().await?;
-        let res = sqlx::query!(
-            r#"
+        let params = NewClientParams {
+            client_id,
+            client_secret_bytes: client_secret.as_slice(),
+            pepper_id,
+            redirect_uris: &redirect_uris,
+            grant_types: &grant_types,
+            scope: if scope.is_empty() { None } else { Some(scope) },
+            origin,
+            bearer_allowed,
+        };
+
+        let sql = r#"
             INSERT INTO oauth_clients (
                 client_id,
                 client_secret,
@@ -56,22 +110,19 @@ impl OAuthClient {
                 origin,
                 bearer_allowed
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
             RETURNING id
-            "#,
-            client_id,
-            client_secret.as_slice(),
-            pepper_id,
-            &redirect_uris,
-            &grant_types,
-            scope,
-            origin,
-            bearer_allowed
-        )
-        .fetch_one(&mut *tx)
-        .await?;
+        "#;
+
+        let mut tx = conn.begin().await?;
+        let row = bind_client(sqlx::query(sql), &params)
+            .fetch_one(&mut *tx)
+            .await?;
         tx.commit().await?;
 
-        Ok(res.id)
+        // `RETURNING id` is the first (and only) column in the row
+        // Use `try_get` if you prefer: `row.try_get::<Uuid, _>(0)?`
+        let id: Uuid = row.try_get(0)?;
+        Ok(id)
     }
 }

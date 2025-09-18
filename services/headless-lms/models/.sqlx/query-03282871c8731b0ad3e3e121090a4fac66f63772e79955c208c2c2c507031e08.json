@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT id, client_id, client_secret,pepper_id, redirect_uris, grant_types, scope, origin, bearer_allowed\n               FROM oauth_clients WHERE client_id = $1",
+  "query": "\n            SELECT\n              id,\n              client_id,\n              client_secret as \"client_secret: _\",\n              pepper_id,\n              redirect_uris,\n              grant_types,\n              scope,\n              origin,\n              bearer_allowed\n            FROM oauth_clients\n            WHERE client_id = $1\n            ",
   "describe": {
     "columns": [
       {
@@ -15,7 +15,7 @@
       },
       {
         "ordinal": 2,
-        "name": "client_secret",
+        "name": "client_secret: _",
         "type_info": "Bytea"
       },
       {
@@ -50,9 +50,21 @@
       }
     ],
     "parameters": {
-      "Left": ["Text"]
+      "Left": [
+        "Text"
+      ]
     },
-    "nullable": [false, false, false, false, false, false, true, false, false]
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
   },
-  "hash": "70a69393af217e63edf0a6b7edc27ff4d6e4b119523e914c8e953560a967bdaf"
+  "hash": "03282871c8731b0ad3e3e121090a4fac66f63772e79955c208c2c2c507031e08"
 }

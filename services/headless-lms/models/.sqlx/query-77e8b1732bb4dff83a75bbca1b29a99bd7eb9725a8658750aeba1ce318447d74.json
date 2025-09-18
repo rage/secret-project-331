@@ -4,7 +4,9 @@
   "describe": {
     "columns": [],
     "parameters": {
-      "Left": ["Bytea"]
+      "Left": [
+        "Bytea"
+      ]
     },
     "nullable": []
   },

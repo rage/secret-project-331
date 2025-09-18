@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT digest as \"digest: _\", user_id, client_id, scope, expires_at, jti, dpop_jkt, metadata, pepper_id, audience, revoked, rotated_from as \"rotated_from: _\"\n           FROM oauth_refresh_tokens WHERE digest = $1 AND revoked = false AND expires_at > now()",
+  "query": "\n            SELECT\n              digest as \"digest: _\",\n              user_id,\n              client_id,\n              scope,\n              expires_at,\n              jti,\n              dpop_jkt,\n              metadata,\n              pepper_id,\n              audience,\n              revoked,\n              rotated_from as \"rotated_from: _\"\n            FROM oauth_refresh_tokens\n            WHERE digest = $1\n              AND expires_at > now()\n              AND revoked = false\n            ",
   "describe": {
     "columns": [
       {
@@ -65,9 +65,24 @@
       }
     ],
     "parameters": {
-      "Left": ["Bytea"]
+      "Left": [
+        "Bytea"
+      ]
     },
-    "nullable": [false, false, false, false, false, false, false, false, false, true, false, true]
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true
+    ]
   },
-  "hash": "47e0b8bdaa361c018f3a96d878ba91eac1a3ac293dd5e94858fd441f0b1a3dd8"
+  "hash": "f6cb133ab6914a6443354b82455f779344da6a4ac004f8435d048736e41dea1a"
 }

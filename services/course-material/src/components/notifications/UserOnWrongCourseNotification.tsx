@@ -1,12 +1,10 @@
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import { InfoCircle } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
-import { env } from "process"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchCourseById } from "../../services/backend"
+import { useCourseData } from "../../hooks/useCourseData"
 
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -17,39 +15,126 @@ import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/iet
 import { navigateToCourseRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
+export interface CourseData {
+  name: string
+  language_code: string
+  slug: string
+}
+
+const formatCourseName = (courseData: CourseData): string => {
+  const languageHumanReadableName = ietfLanguageTagToHumanReadableName(courseData.language_code)
+  return `${courseData.name} (${languageHumanReadableName})`
+}
+
 export interface UserOnWrongCourseNotificationProps {
   correctCourseId: string
   organizationSlug: string
+  variant?: "compact" | "full"
 }
 
 const UserOnWrongCourseNotification: React.FC<
   React.PropsWithChildren<UserOnWrongCourseNotificationProps>
-> = ({ correctCourseId, organizationSlug }) => {
+> = ({ correctCourseId, organizationSlug, variant = "full" }) => {
   const { t } = useTranslation()
-  const getCourseById = useQuery({
-    queryKey: [`correct-course-${correctCourseId}`],
-    queryFn: () => fetchCourseById(correctCourseId),
-  })
+  const getCourseById = useCourseData({ courseId: correctCourseId })
 
   if (getCourseById.isError) {
     return <ErrorBanner variant={"readOnly"} error={getCourseById.error} />
   }
 
   if (getCourseById.isPending) {
-    return <Spinner variant={"medium"} />
+    return <Spinner variant={variant === "compact" ? "small" : "medium"} />
   }
 
-  const languageHumanReadableName = ietfLanguageTagToHumanReadableName(
-    getCourseById.data.language_code,
-  )
-  const name = `${getCourseById.data.name} (${languageHumanReadableName})`
-
-  // Account for base path that next/link adds
-  let courseUrl = navigateToCourseRoute(organizationSlug, getCourseById.data.slug).replace(
+  const courseUrl = navigateToCourseRoute(organizationSlug, getCourseById.data.slug).replace(
     // eslint-disable-next-line i18next/no-literal-string
     "/org",
     "",
   )
+
+  const courseData = getCourseById.data
+
+  if (variant === "compact") {
+    return (
+      <div
+        className={css`
+          display: flex;
+          align-items: center;
+          gap: 0.7rem;
+          background: ${baseTheme.colors.yellow[100]};
+          border: 1px solid ${baseTheme.colors.yellow[300]};
+          padding: 1rem 1.2rem;
+          border-radius: 1rem;
+          font-size: 1rem;
+          margin: 1rem 0;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        `}
+      >
+        <div
+          className={css`
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+          `}
+        >
+          <div
+            className={css`
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+              font-weight: 600;
+              color: ${baseTheme.colors.gray[700]};
+              font-size: 1rem;
+              line-height: 1.3;
+            `}
+          >
+            <InfoCircle
+              className={css`
+                width: 1.2rem;
+                height: 1.2rem;
+                color: ${baseTheme.colors.blue[600]};
+                flex-shrink: 0;
+              `}
+            />
+            {t("already-started-course-in-different-language-title")}
+          </div>
+          <div
+            className={css`
+              font-size: 0.9rem;
+              color: ${baseTheme.colors.gray[600]};
+              line-height: 1.4;
+              margin-bottom: 0.3rem;
+            `}
+          >
+            {t("already-started-course-in-different-language-description")}
+          </div>
+          <div
+            className={css`
+              display: flex;
+              flex-direction: column;
+              gap: 0.5rem;
+              align-items: flex-start;
+            `}
+          >
+            <Link href={courseUrl} hrefLang={courseData.language_code}>
+              <Button variant="primary" size="medium" transform="none">
+                {t("go-to-your-language-version", { name: formatCourseName(courseData) })}
+              </Button>
+            </Link>
+            <div
+              className={css`
+                font-size: 0.8rem;
+                color: ${baseTheme.colors.gray[500]};
+                line-height: 1.3;
+              `}
+            >
+              {t("or-switch-language-in-settings")}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <BreakFromCentered sidebar={false}>
@@ -110,9 +195,9 @@ const UserOnWrongCourseNotification: React.FC<
         >
           {t("already-started-course-in-different-language-description")}
         </div>
-        <Link href={courseUrl} hrefLang={getCourseById.data.language_code}>
+        <Link href={courseUrl} hrefLang={courseData.language_code}>
           <Button variant="primary" size="large" transform="none">
-            {t("go-to-your-language-version", { name })}
+            {t("go-to-your-language-version", { name: formatCourseName(courseData) })}
           </Button>
         </Link>
         <div

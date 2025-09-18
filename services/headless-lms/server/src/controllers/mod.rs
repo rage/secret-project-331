@@ -17,6 +17,7 @@ pub mod healthz;
 pub mod helpers;
 pub mod langs;
 pub mod main_frontend;
+pub mod mock_azure_endpoint;
 pub mod other_domain_redirects;
 pub mod study_registry;
 pub mod tmc_server;
@@ -54,6 +55,9 @@ pub fn configure_controllers(cfg: &mut ServiceConfig) {
         .service(web::scope("/langs").configure(langs::_add_routes))
         .service(web::scope("/tmc-server").configure(tmc_server::_add_routes))
         .default_service(web::to(not_found));
+    if std::env::var("USE_MOCK_AZURE_CONFIGURATION").is_ok_and(|v| v.as_str() != "false") {
+        cfg.service(web::scope("/mock-azure").configure(mock_azure_endpoint::_add_routes));
+    }
 }
 
 async fn not_found(req: HttpRequest) -> HttpResponse {

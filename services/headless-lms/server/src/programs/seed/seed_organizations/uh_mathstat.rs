@@ -18,7 +18,8 @@ use crate::{
     domain::models_requests::{self, JwtKey},
     programs::seed::{
         seed_courses::{
-            CommonCourseData, seed_sample_course, seed_switching_course_instances_course,
+            CommonCourseData, seed_chatbot_course, seed_sample_course,
+            seed_switching_course_instances_course,
         },
         seed_file_storage::SeedFileStorageResult,
         seed_helpers::get_seed_spec_fetcher,
@@ -399,6 +400,15 @@ pub async fn seed_organization_uh_mathstat(
         "changing-course-instance",
         uh_data.clone(),
         false,
+        seed_users_result,
+    )
+    .await?;
+
+    let _advanced_chatbot_id = seed_chatbot_course(
+        Uuid::parse_str("ced2f632-25ba-4e93-8e38-8df53ef7ab41")?,
+        "Advanced Chatbot course",
+        "advanced-chatbot-course",
+        uh_data.clone(),
         seed_users_result,
     )
     .await?;

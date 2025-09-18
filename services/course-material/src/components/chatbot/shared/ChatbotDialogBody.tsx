@@ -325,7 +325,11 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
       <VisuallyHidden aria-live="polite" role="status">
         {chatbotMessageAnnouncement}
       </VisuallyHidden>
-      {error && <ErrorDisplay error={error} />}
+      {error && (
+        <div>
+          <ErrorDisplay error={error} />
+        </div>
+      )}
       <div
         className={css`
           display: flex;
@@ -411,7 +415,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
         className={css`
           margin: 0.5rem;
           font-size: 0.8rem;
-          color: ${baseTheme.colors.gray[400]};
+          color: ${baseTheme.colors.gray[500]};
           text-align: center;
         `}
       >

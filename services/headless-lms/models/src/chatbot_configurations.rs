@@ -135,9 +135,10 @@ INSERT INTO chatbot_configurations (
     top_p,
     frequency_penalty,
     presence_penalty,
-    response_max_tokens
+    response_max_tokens,
+    default_chatbot
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 RETURNING *
         "#,
         input.course_id,
@@ -151,7 +152,8 @@ RETURNING *
         input.top_p,
         input.frequency_penalty,
         input.presence_penalty,
-        input.response_max_tokens
+        input.response_max_tokens,
+        input.default_chatbot
     )
     .fetch_one(conn)
     .await?;

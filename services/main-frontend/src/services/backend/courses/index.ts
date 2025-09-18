@@ -29,6 +29,7 @@ import {
   Term,
   TermUpdate,
   ThresholdData,
+  UserCourseSettings,
 } from "@/shared-module/common/bindings"
 import {
   isCourse,
@@ -47,8 +48,15 @@ import {
   isSuspectedCheaters,
   isTerm,
   isThresholdData,
+  isUserCourseSettings,
 } from "@/shared-module/common/bindings.guard"
-import { isArray, isString, validateResponse } from "@/shared-module/common/utils/fetching"
+import {
+  isArray,
+  isNull,
+  isString,
+  isUnion,
+  validateResponse,
+} from "@/shared-module/common/utils/fetching"
 
 export const getCourse = async (courseId: string): Promise<Course> => {
   const response = await mainFrontendClient.get(`/courses/${courseId}`)
@@ -331,4 +339,12 @@ export const createCourseCopy = async (
 export const createNewCourse = async (data: NewCourse): Promise<Course> => {
   const response = await mainFrontendClient.post("/courses", data)
   return validateResponse(response, isCourse)
+}
+
+export const getUserCourseSettingsForUser = async (
+  courseId: string,
+  userId: string,
+): Promise<UserCourseSettings | null> => {
+  const response = await mainFrontendClient.get(`/courses/${courseId}/user-settings/${userId}`)
+  return validateResponse(response, isUnion(isUserCourseSettings, isNull))
 }

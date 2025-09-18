@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nWITH ranked_history AS (\n  SELECT ph.*,\n    ROW_NUMBER() OVER (\n      PARTITION BY ph.page_id\n      ORDER BY ph.created_at DESC\n    ) AS rn\n  FROM page_history ph\n    JOIN pages p ON p.id = ph.page_id\n  WHERE p.course_id = ANY($1)\n    AND ph.deleted_at IS NULL\n    AND p.deleted_at IS NULL\n)\nSELECT id,\n  title,\n  content,\n  created_at,\n  history_change_reason AS \"history_change_reason: HistoryChangeReason\",\n  restored_from_id,\n  author_user_id,\n  page_id\nFROM ranked_history\nWHERE rn = 1\n",
+  "query": "\nWITH ranked_history AS (\n  SELECT ph.*,\n    ROW_NUMBER() OVER (\n      PARTITION BY ph.page_id\n      ORDER BY ph.created_at DESC\n    ) AS rn\n  FROM page_history ph\n    JOIN pages p ON p.id = ph.page_id\n  WHERE p.course_id = ANY($1)\n    AND ph.deleted_at IS NULL\n)\nSELECT id,\n  title,\n  content,\n  created_at,\n  history_change_reason AS \"history_change_reason: HistoryChangeReason\",\n  restored_from_id,\n  author_user_id,\n  page_id\nFROM ranked_history\nWHERE rn = 1\n",
   "describe": {
     "columns": [
       {
@@ -32,7 +32,8 @@
             "kind": {
               "Enum": [
                 "page-saved",
-                "history-restored"
+                "history-restored",
+                "page-deleted"
               ]
             }
           }
@@ -70,5 +71,5 @@
       false
     ]
   },
-  "hash": "4766ead99ce24a7d6a82e69e15cf661693903d6506ce805a969b6be581cab9d2"
+  "hash": "1562931c99bfa9d4bece147ef3bf47b34c3845194c7fb66f6c387ba35e4c46c2"
 }

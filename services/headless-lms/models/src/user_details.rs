@@ -195,6 +195,76 @@ WHERE e.course_id = $1
     Ok(res)
 }
 
+/// Retrieves user details for a list of user IDs
+pub async fn get_user_details_by_user_ids(
+    conn: &mut PgConnection,
+    user_ids: &[Uuid],
+) -> ModelResult<Vec<UserDetail>> {
+    let res = sqlx::query_as!(
+        UserDetail,
+        r#"
+SELECT *
+FROM user_details
+WHERE user_id = ANY($1::uuid[])
+        "#,
+        user_ids
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(res)
+}
+
+/// Retrieves user details for a list of user IDs, but only for users who are enrolled in the specified course
+pub async fn get_user_details_by_user_ids_for_course(
+    conn: &mut PgConnection,
+    user_ids: &[Uuid],
+    course_id: Uuid,
+) -> ModelResult<Vec<UserDetail>> {
+    let res = sqlx::query_as!(
+        UserDetail,
+        r#"
+SELECT ud.*
+FROM user_details ud
+JOIN user_course_settings ucs ON ud.user_id = ucs.user_id
+WHERE ud.user_id = ANY($1::uuid[])
+  AND ucs.current_course_id = $2
+  AND ucs.deleted_at IS NULL
+        "#,
+        user_ids,
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(res)
+}
+
+/// Retrieves user details for a single user ID, but only if the user is enrolled in the specified course
+pub async fn get_user_details_by_user_id_for_course(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<UserDetail> {
+    let res = sqlx::query_as!(
+        UserDetail,
+        r#"
+SELECT ud.*
+FROM user_details ud
+JOIN user_course_settings ucs ON ud.user_id = ucs.user_id
+WHERE ud.user_id = $1
+  AND ucs.current_course_id = $2
+  AND ucs.deleted_at IS NULL
+        "#,
+        user_id,
+        course_id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(res)
+}
+
 pub async fn update_user_country(
     conn: &mut PgConnection,
     user_id: Uuid,

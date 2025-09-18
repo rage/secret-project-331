@@ -34,6 +34,7 @@ use models::{
     pages::Page,
     peer_or_self_review_configs::PeerOrSelfReviewConfig,
     peer_or_self_review_questions::PeerOrSelfReviewQuestion,
+    user_course_settings::UserCourseSettings,
     user_exercise_states::ExerciseUserCounts,
 };
 
@@ -80,6 +81,27 @@ async fn get_course_breadcrumb_info(
     let token = authorize_access_to_course_material(&mut conn, user_id, *course_id).await?;
     let info = models::courses::get_course_breadcrumb_info(&mut conn, *course_id).await?;
     token.authorized_ok(web::Json(info))
+}
+
+/**
+GET `/api/v0/main-frontend/courses/:course_id/user-settings/:user_id` - Get current course settings for a specific user.
+*/
+#[instrument(skip(pool))]
+async fn get_user_course_settings(
+    path: web::Path<(Uuid, Uuid)>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Option<UserCourseSettings>>> {
+    let (course_id, target_user_id) = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+    let settings = models::user_course_settings::get_user_course_settings_by_course_id(
+        &mut conn,
+        target_user_id,
+        course_id,
+    )
+    .await?;
+    token.authorized_ok(web::Json(settings))
 }
 
 /**
@@ -1773,6 +1795,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/breadcrumb-info",
             web::get().to(get_course_breadcrumb_info),
+        )
+        .route(
+            "/{course_id}/user-settings/{user_id}",
+            web::get().to(get_user_course_settings),
         )
         .route(
             "/{course_id}/export-submissions",

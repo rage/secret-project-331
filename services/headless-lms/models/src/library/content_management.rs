@@ -45,7 +45,7 @@ pub async fn create_new_course(
     let course = courses::get_course(&mut tx, course_id).await?;
 
     // Create front page for course
-    let course_front_page_content = serde_json::to_value(vec![
+    let course_front_page_blocks = vec![
         GutenbergBlock::landing_page_hero_section("Welcome to...", "Subheading"),
         GutenbergBlock::landing_page_copy_text("About this course", "This course teaches you xxx."),
         GutenbergBlock::course_objective_section(),
@@ -53,11 +53,11 @@ pub async fn create_new_course(
         GutenbergBlock::empty_block_from_name("moocfi/top-level-pages".to_string()),
         GutenbergBlock::empty_block_from_name("moocfi/congratulations".to_string()),
         GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string()),
-    ])?;
+    ];
 
     let course_front_page = NewPage {
         chapter_id: None,
-        content: course_front_page_content,
+        content: course_front_page_blocks,
         course_id: Some(course.id),
         exam_id: None,
         front_page_of_chapter_id: None,
@@ -192,9 +192,10 @@ pub async fn create_new_chapter_with_content(
 
     let front_page_blocks = custom_front_page_content.unwrap_or(default_front_page_content);
     let chapter_frontpage_content = serde_json::to_value(front_page_blocks)?;
+    let frontpage_blocks: Vec<GutenbergBlock> = serde_json::from_value(chapter_frontpage_content)?;
     let chapter_frontpage = NewPage {
         chapter_id: Some(chapter.id),
-        content: chapter_frontpage_content,
+        content: frontpage_blocks,
         course_id: Some(chapter.course_id),
         exam_id: None,
         front_page_of_chapter_id: Some(chapter.id),
@@ -260,7 +261,7 @@ RETURNING id,
                 front_page_id,
                 chapter_frontpage.course_id,
                 chapter_frontpage.exam_id,
-                chapter_frontpage.content,
+                serde_json::to_value(chapter_frontpage.content)?,
                 chapter_frontpage.url_path.trim(),
                 chapter_frontpage.title.trim(),
                 0i32,

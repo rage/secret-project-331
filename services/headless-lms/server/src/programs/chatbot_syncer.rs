@@ -23,6 +23,7 @@ use headless_lms_chatbot::{
     content_cleaner::convert_material_blocks_to_markdown_with_llm,
 };
 use headless_lms_models::{
+    chapters::DatabaseChapter,
     page_history::PageHistory,
     pages::{Page, PageVisibility},
 };
@@ -189,17 +190,33 @@ async fn sync_pages(
         );
 
         let page_ids: Vec<Uuid> = outdated_statuses.iter().map(|s| s.page_id).collect();
-        let pages = headless_lms_models::pages::get_by_ids(conn, &page_ids).await?;
-
-        sync_pages_batch(
+        let mut pages = headless_lms_models::pages::get_by_ids_and_visibility(
             conn,
-            &pages,
-            &latest_histories,
-            blob_client,
-            &base_url,
-            &config.app_configuration,
+            &page_ids,
+            PageVisibility::Public,
         )
         .await?;
+
+        if !pages.is_empty() {
+            sync_pages_batch(
+                conn,
+                &pages,
+                blob_client,
+                &base_url,
+                &config.app_configuration,
+            )
+            .await?;
+        }
+
+        let deleted_pages = headless_lms_models::pages::get_by_ids_deleted_and_visibility(
+            conn,
+            &page_ids,
+            PageVisibility::Public,
+        )
+        .await?;
+        pages.extend(deleted_pages);
+
+        update_sync_statuses(conn, &pages, &latest_histories).await?;
 
         delete_old_files(conn, *course_id, blob_client).await?;
     }
@@ -238,7 +255,6 @@ async fn ensure_search_index_exists(
 async fn sync_pages_batch(
     conn: &mut PgConnection,
     pages: &[Page],
-    latest_histories: &HashMap<Uuid, PageHistory>,
     blob_client: &AzureBlobClient,
     base_url: &Url,
     app_config: &ApplicationConfiguration,
@@ -300,6 +316,17 @@ async fn sync_pages_batch(
         };
 
         let blob_path = generate_blob_path(page)?;
+        let chapter: Option<DatabaseChapter> = if page.chapter_id.is_some() {
+            match headless_lms_models::chapters::get_chapter_by_page_id(conn, page.id).await {
+                Ok(c) => Some(c),
+                Err(e) => {
+                    debug!("Chapter lookup failed for page {}: {}", page.id, e);
+                    None
+                }
+            }
+        } else {
+            None
+        };
 
         allowed_file_paths.push(blob_path.clone());
         let mut metadata = HashMap::new();
@@ -314,6 +341,25 @@ async fn sync_pages_batch(
             course.language_code.to_string().into(),
         );
         metadata.insert("filepath".to_string(), blob_path.clone().into());
+        if let Some(c) = chapter {
+            metadata.insert(
+                "chunk_context".to_string(),
+                format!(
+                    "This chunk is a snippet from page {} from chapter {}: {} of the course {}.",
+                    page.title, c.chapter_number, c.name, course.name,
+                )
+                .into(),
+            );
+        } else {
+            metadata.insert(
+                "chunk_context".to_string(),
+                format!(
+                    "This chunk is a snippet from page {} of the course {}.",
+                    page.title, course.name,
+                )
+                .into(),
+            );
+        }
 
         if let Err(e) = blob_client
             .upload_file(&blob_path, content_to_upload.as_bytes(), Some(metadata))
@@ -323,6 +369,15 @@ async fn sync_pages_batch(
         }
     }
 
+    Ok(())
+}
+
+/// Update sync statuses for pages after syncing
+async fn update_sync_statuses(
+    conn: &mut PgConnection,
+    pages: &[Page],
+    latest_histories: &HashMap<Uuid, PageHistory>,
+) -> anyhow::Result<()> {
     let page_revision_map: HashMap<Uuid, Uuid> = pages
         .iter()
         .map(|page| (page.id, latest_histories[&page.id].id))
@@ -352,9 +407,9 @@ async fn delete_old_files(
     course_id: Uuid,
     blob_client: &AzureBlobClient,
 ) -> anyhow::Result<()> {
-    let existing_files = blob_client
-        .list_files_with_prefix(&course_id.to_string())
-        .await?;
+    let mut courses_prefix = "courses/".to_string();
+    courses_prefix.push_str(&course_id.to_string());
+    let existing_files = blob_client.list_files_with_prefix(&courses_prefix).await?;
 
     let pages = headless_lms_models::pages::get_all_by_course_id_and_visibility(
         conn,

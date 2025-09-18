@@ -26,10 +26,16 @@ async fn get_submission_info(
     )
     .await?;
 
+    let submission_id_uuid = submission_id.into_inner();
+
+    // First get the submission to find the correct user_id
+    let submission =
+        models::exercise_slide_submissions::get_by_id(&mut conn, submission_id_uuid).await?;
+
     let res = models::exercise_slide_submissions::get_exercise_slide_submission_info(
         &mut conn,
-        submission_id.into_inner(),
-        user.id,
+        submission_id_uuid,
+        submission.user_id,
         models_requests::fetch_service_info,
         true,
     )

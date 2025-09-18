@@ -286,12 +286,10 @@ impl CourseBuilder {
         let front_page_blocks = self
             .front_page_content
             .unwrap_or(default_front_page_content);
-        let course_front_page_content =
-            serde_json::to_value(front_page_blocks).context("creating front page content")?;
 
         let course_front_page = NewPage {
             chapter_id: None,
-            content: course_front_page_content,
+            content: front_page_blocks,
             course_id: Some(course.id),
             exam_id: None,
             front_page_of_chapter_id: None,

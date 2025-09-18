@@ -111,6 +111,7 @@ pub struct ExerciseSlideSubmissionInfo {
     pub tasks: Vec<CourseMaterialExerciseTask>,
     pub exercise: Exercise,
     pub exercise_slide_submission: ExerciseSlideSubmission,
+    pub user_exercise_state: Option<UserExerciseState>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -346,6 +347,39 @@ WHERE user_id = $1
         user_id,
         course_id,
         exam_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(submissions)
+}
+
+pub async fn get_users_submissions_for_exercise(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+) -> ModelResult<Vec<ExerciseSlideSubmission>> {
+    let submissions = sqlx::query_as!(
+        ExerciseSlideSubmission,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  exercise_slide_id,
+  course_id,
+  exam_id,
+  exercise_id,
+  user_id,
+  user_points_update_strategy AS "user_points_update_strategy: _",
+  flag_count
+FROM exercise_slide_submissions
+WHERE user_id = $1
+  AND exercise_id = $2
+  AND deleted_at IS NULL
+ORDER BY created_at DESC
+        "#,
+        user_id,
+        exercise_id,
     )
     .fetch_all(conn)
     .await?;
@@ -888,10 +922,22 @@ pub async fn get_exercise_slide_submission_info(
     let exercise =
         crate::exercises::get_by_id(&mut *conn, exercise_slide_submission.exercise_id).await?;
     let tasks = crate::exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(&mut *conn, exercise_slide_submission_id, user_id, fetch_service_info, include_deleted_tasks).await?;
+    let user_exercise_state = crate::user_exercise_states::get_user_exercise_state_if_exists(
+        &mut *conn,
+        user_id,
+        exercise_slide_submission.exercise_id,
+        CourseOrExamId::from_course_and_exam_ids(
+            exercise_slide_submission.course_id,
+            exercise_slide_submission.exam_id,
+        )?,
+    )
+    .await?;
+
     Ok(ExerciseSlideSubmissionInfo {
         exercise,
         tasks,
         exercise_slide_submission,
+        user_exercise_state,
     })
 }
 

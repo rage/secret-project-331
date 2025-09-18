@@ -23,6 +23,8 @@ use crate::llm_utils::{LLM_API_VERSION, build_llm_headers, estimate_tokens};
 use crate::prelude::*;
 use crate::search_filter::SearchFilter;
 
+const CONTENT_FIELD_SEPARATOR: &str = ",|||,";
+
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ContentFilterResults {
     pub hate: Option<ContentFilter>,
@@ -198,15 +200,15 @@ impl ChatRequest {
                         deployment_name: search_config.vectorizer_deployment_id.clone(),
                     },
                     in_scope: false,
-                    top_n_documents: 5,
+                    top_n_documents: 15,
                     strictness: 3,
                     filter: Some(
                         SearchFilter::eq("course_id", configuration.course_id.to_string())
                             .to_odata()?,
                     ),
                     fields_mapping: FieldsMapping {
-                        content_fields_separator: ",".to_string(),
-                        content_fields: vec!["chunk".to_string()],
+                        content_fields_separator: CONTENT_FIELD_SEPARATOR.to_string(),
+                        content_fields: vec!["chunk_context".to_string(), "chunk".to_string()],
                         filepath_field: "filepath".to_string(),
                         title_field: "title".to_string(),
                         url_field: "url".to_string(),
@@ -503,6 +505,12 @@ pub async fn send_chat_request_and_parse_stream(
                         let mut conn = pool.acquire().await?;
                         for (idx, cit) in context.citations.iter().enumerate() {
                             let content = if cit.content.len() < 255 {cit.content.clone()} else {cit.content[0..255].to_string()};
+                            let split = content.split_once(CONTENT_FIELD_SEPARATOR);
+                            if split.is_none() {
+                                error!("Chatbot citation doesn't have any content or is missing 'chunk_context'. Something is wrong with Azure.");
+                            }
+                            let cleaned_content: String = split.unwrap_or(("","")).1.to_string();
+
                             let document_url = cit.url.clone();
                             let mut page_path = PathBuf::from(&cit.filepath);
                             page_path.set_extension("");
@@ -525,7 +533,7 @@ pub async fn send_chat_request_and_parse_stream(
                                     conversation_id,
                                     course_material_chapter_number,
                                     title: cit.title.clone(),
-                                    content,
+                                    content: cleaned_content,
                                     document_url,
                                     citation_number: (idx+1) as i32,
                                 }

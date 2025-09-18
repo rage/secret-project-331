@@ -75,7 +75,7 @@ pub async fn create_skillset(
                 "textSplitMode": "pages",
                 "maximumPageLength": 2000,
                 "pageOverlapLength": 500,
-                "maximumPagesToTake": 1,
+                "maximumPagesToTake": 0,
                 "inputs": [
                     {
                         "name": "text",
@@ -170,6 +170,12 @@ pub async fn create_skillset(
                           "source": "/document/filepath",
                           "sourceContext": null,
                           "inputs": []
+                        },
+                        {
+                            "name": "chunk_context",
+                            "source": "/document/chunk_context",
+                            "sourceContext": null,
+                            "inputs": []
                         },
                     ]
                 }

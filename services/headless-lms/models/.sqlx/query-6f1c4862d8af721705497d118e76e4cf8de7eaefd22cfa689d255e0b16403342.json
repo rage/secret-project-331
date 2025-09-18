@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO course_specific_research_consent_forms (id, course_id, content)\nSELECT uuid_generate_v5($1, id::text),\n  $1,\n  content\nFROM course_specific_research_consent_forms\nWHERE course_id = $2\n  AND deleted_at IS NULL;\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "6f1c4862d8af721705497d118e76e4cf8de7eaefd22cfa689d255e0b16403342"
+}

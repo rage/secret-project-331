@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO peer_or_self_review_configs (\n    id,\n    course_id,\n    exercise_id,\n    peer_reviews_to_give,\n    peer_reviews_to_receive,\n    processing_strategy,\n    accepting_threshold,\n    manual_review_cutoff_in_days,\n    points_are_all_or_nothing,\n    review_instructions\n  )\nSELECT uuid_generate_v5($1, posrc.id::text),\n  $1,\n  uuid_generate_v5($1, posrc.exercise_id::text),\n  posrc.peer_reviews_to_give,\n  posrc.peer_reviews_to_receive,\n  posrc.processing_strategy,\n  posrc.accepting_threshold,\n  posrc.manual_review_cutoff_in_days,\n  posrc.points_are_all_or_nothing,\n  posrc.review_instructions\nFROM peer_or_self_review_configs posrc\n  LEFT JOIN exercises e ON (e.id = posrc.exercise_id)\nWHERE posrc.course_id = $2\n  AND posrc.deleted_at IS NULL\n  AND e.deleted_at IS NULL;\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e21894786f593043a2fec8cfb442c320541ceb9ec29dac05e0a3b5e52646b331"
+}

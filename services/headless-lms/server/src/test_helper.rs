@@ -255,7 +255,7 @@ macro_rules! insert_data {
                 exercises: vec![],
                 exercise_slides: vec![],
                 exercise_tasks: vec![],
-                content: ::serde_json::json!{[]},
+                content: vec![],
                 url_path: "/page".to_string(),
                 title: "t".to_string(),
                 course_id: Some($course),

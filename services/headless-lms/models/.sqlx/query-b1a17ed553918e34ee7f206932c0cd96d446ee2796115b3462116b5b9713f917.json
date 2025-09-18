@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO exercise_repositories (\n    id,\n    course_id,\n    url,\n    deploy_key,\n    public_key,\n    STATUS,\n    error_message\n  )\nSELECT uuid_generate_v5($1, id::text),\n  $1,\n  url,\n  deploy_key,\n  public_key,\n  STATUS,\n  error_message\nFROM exercise_repositories\nWHERE course_id = $2\n  AND deleted_at IS NULL;\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "b1a17ed553918e34ee7f206932c0cd96d446ee2796115b3462116b5b9713f917"
+}

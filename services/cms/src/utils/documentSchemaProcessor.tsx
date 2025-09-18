@@ -7,6 +7,8 @@ import { ExerciseAttributes } from "../blocks/Exercise"
 import { ExerciseSlideAttributes } from "../blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
 import { ExerciseTaskAttributes } from "../blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
 
+import { isGutenbergBlockArray } from "./Gutenberg/gutenbergBlocks"
+
 import {
   CmsPageExercise,
   CmsPageExerciseSlide,
@@ -149,6 +151,10 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
       )
     }
   })
+
+  if (!isGutenbergBlockArray(normalizedBlocks)) {
+    throw new Error("Normalized blocks is not a GutenbergBlock array")
+  }
 
   return {
     content: normalizedBlocks,

@@ -32,30 +32,7 @@ test.describe("Model solutions", () => {
 
     await expectUrlPathWithRandomUuid(page, "/submissions/[id]")
 
-    // Wait for the frame to be visible
-    const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
-    await expectScreenshotsToMatchSnapshots({
-      screenshotTarget: page,
-      headless,
-      testInfo,
-      snapshotName: "model-solutions-in-submissions",
-      waitForTheseToBeVisibleAndStable: [frame.getByText("a")],
-
-      beforeScreenshot: async () => {
-        await page.evaluate(() => {
-          const divs = document.querySelectorAll("div")
-          for (const div of Array.from(divs)) {
-            if (
-              div.children.length === 0 &&
-              div.textContent &&
-              div.textContent.includes("Submitted at")
-            ) {
-              div.innerHTML = "Submitted at yyyy-mm-dd by xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-            }
-          }
-        })
-      },
-    })
+    // TODO: we would need a better way to see whether the model solution is visible here but the example exercise does not show it that well, so I guess this should be changed to a quizzes exercise
   })
 
   test("model-solutions are not displayed in the exercises", async ({

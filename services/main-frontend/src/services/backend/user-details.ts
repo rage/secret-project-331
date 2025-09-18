@@ -29,13 +29,24 @@ export const searchForUserDetailsFuzzyMatch = async (searchTerm: string): Promis
   return validateResponse(response, isArray(isUserDetail))
 }
 
-export const getUserDetails = async (userId: string): Promise<UserDetail> => {
-  const response = await mainFrontendClient.get(`/user-details/user/${userId}`)
+export const getUserDetails = async (courseId: string, userId: string): Promise<UserDetail> => {
+  const response = await mainFrontendClient.get(`/user-details/${courseId}/user/${userId}`)
   return validateResponse(response, isUserDetail)
 }
 
 export const getUsersByCourseId = async (courseId: string): Promise<UserDetail[]> => {
   const response = await mainFrontendClient.get(`/user-details/${courseId}/get-users-by-course-id`)
+  return validateResponse(response, isArray(isUserDetail))
+}
+
+export const getBulkUserDetails = async (
+  courseId: string,
+  userIds: string[],
+): Promise<UserDetail[]> => {
+  const response = await mainFrontendClient.post(`/user-details/bulk-user-details`, {
+    user_ids: userIds,
+    course_id: courseId,
+  })
   return validateResponse(response, isArray(isUserDetail))
 }
 

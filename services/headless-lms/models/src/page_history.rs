@@ -15,6 +15,7 @@ use crate::{
 pub enum HistoryChangeReason {
     PageSaved,
     HistoryRestored,
+    PageDeleted,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -173,7 +174,6 @@ WITH ranked_history AS (
     JOIN pages p ON p.id = ph.page_id
   WHERE p.course_id = ANY($1)
     AND ph.deleted_at IS NULL
-    AND p.deleted_at IS NULL
 )
 SELECT id,
   title,

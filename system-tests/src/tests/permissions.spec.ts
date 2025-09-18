@@ -39,6 +39,7 @@ test("Managing permissions works", async ({ page, headless }, testInfo) => {
   await page.selectOption("select", "Admin")
 
   await page.getByText("Add user").click()
+  await page.getByText("Operation successful!").waitFor()
 
   await page.click('[placeholder="Enter email"]')
 
@@ -49,6 +50,7 @@ test("Managing permissions works", async ({ page, headless }, testInfo) => {
   await page.selectOption("select", "Teacher")
 
   await page.getByText("Add user").click()
+  await page.getByText("Operation successful!").waitFor()
 
   await page.click('[aria-label="Sort by email"]')
   await expect(page).toHaveURL(

@@ -40,7 +40,7 @@ test.describe("Chatbot settings testing", () => {
     await page.getByRole("heading", { name: "Advanced settings" }).click()
     await page.getByRole("spinbutton", { name: "Frequency penalty" }).click()
     await page.getByRole("spinbutton", { name: "Frequency penalty" }).fill("0.2")
-    await page.getByText("Use Azure search").click()
+    await page.getByText("Use course material search and cite sources").click()
     await page.getByRole("button", { name: "Save" }).click()
     await expect(page.getByText("Operation successful!")).toBeVisible()
   })

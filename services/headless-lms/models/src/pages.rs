@@ -2,9 +2,10 @@ use std::collections::{HashMap, hash_map};
 
 use futures::future::{BoxFuture, OptionFuture};
 use headless_lms_utils::document_schema_processor::{
-    GutenbergBlock, contains_blocks_not_allowed_in_top_level_pages,
+    GutenbergBlock, contains_blocks_not_allowed_in_top_level_pages, replace_duplicate_client_ids,
 };
 use itertools::Itertools;
+use serde_json::json;
 use sqlx::{Postgres, QueryBuilder, Row};
 use url::Url;
 
@@ -104,8 +105,7 @@ pub struct NewPage {
     pub exercises: Vec<CmsPageExercise>,
     pub exercise_slides: Vec<CmsPageExerciseSlide>,
     pub exercise_tasks: Vec<CmsPageExerciseTask>,
-    // should always be a Vec<GutenbergBlock>, but is more convenient to keep as Value
-    pub content: serde_json::Value,
+    pub content: Vec<GutenbergBlock>,
     pub url_path: String,
     pub title: String,
     pub course_id: Option<Uuid>,
@@ -1005,7 +1005,7 @@ impl From<ExerciseTask> for CmsPageExerciseTask {
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CmsPageUpdate {
-    pub content: serde_json::Value,
+    pub content: Vec<GutenbergBlock>,
     pub exercises: Vec<CmsPageExercise>,
     pub exercise_slides: Vec<CmsPageExerciseSlide>,
     pub exercise_tasks: Vec<CmsPageExerciseTask>,
@@ -1098,10 +1098,11 @@ pub async fn update_page(
         }
     }
 
-    let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(cms_page_update.content)?;
+    let content = replace_duplicate_client_ids(cms_page_update.content.clone());
+
     if !page_update.is_exam_page
         && cms_page_update.chapter_id.is_none()
-        && contains_blocks_not_allowed_in_top_level_pages(&parsed_content)
+        && contains_blocks_not_allowed_in_top_level_pages(&content)
     {
         return Err(ModelError::new(
                ModelErrorType::Generic , "Top level non-exam pages cannot contain exercises, exercise tasks or list of exercises in the chapter".to_string(), None
@@ -1136,7 +1137,7 @@ RETURNING id,
   pages.page_language_group_id
         ",
         page_update.page_id,
-        serde_json::to_value(parsed_content)?,
+        serde_json::to_value(&content)?,
         cms_page_update.url_path.trim(),
         cms_page_update.title.trim(),
         cms_page_update.chapter_id
@@ -1988,10 +1989,7 @@ pub async fn insert_new_content_page(
 ) -> ModelResult<Page> {
     let mut tx = conn.begin().await?;
 
-    let course_material_content = serde_json::to_value(vec![GutenbergBlock::hero_section(
-        new_page.title.trim(),
-        "",
-    )])?;
+    let course_material_content = vec![GutenbergBlock::hero_section(new_page.title.trim(), "")];
 
     let content_page = NewPage {
         chapter_id: new_page.chapter_id,
@@ -2053,6 +2051,8 @@ pub async fn insert_page(
         .into();
     let course = course.await.transpose()?;
 
+    let content = replace_duplicate_client_ids(new_page.content.clone());
+
     let mut tx = conn.begin().await?;
 
     let content_search_language = course
@@ -2091,7 +2091,7 @@ RETURNING id,
           "#,
         new_page.course_id,
         new_page.exam_id,
-        new_page.content,
+        serde_json::to_value(content)?,
         new_page.url_path.trim(),
         new_page.title.trim(),
         next_order_number,
@@ -2102,13 +2102,15 @@ RETURNING id,
     .fetch_one(&mut *tx)
     .await?;
 
+    let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page.content)?;
+
     let cms_page = update_page(
         &mut tx,
         PageUpdateArgs {
             page_id: page.id,
             author,
             cms_page_update: CmsPageUpdate {
-                content: page.content,
+                content: parsed_content,
                 exercises: new_page.exercises,
                 exercise_slides: new_page.exercise_slides,
                 exercise_tasks: new_page.exercise_tasks,
@@ -2164,6 +2166,7 @@ RETURNING *;
 pub async fn delete_page_and_exercises(
     conn: &mut PgConnection,
     page_id: Uuid,
+    author: Uuid,
 ) -> ModelResult<Page> {
     let mut tx = conn.begin().await?;
     let page = sqlx::query_as!(
@@ -2235,6 +2238,26 @@ WHERE exercise_slide_id IN (
         page.id
     )
     .execute(&mut *tx)
+    .await?;
+
+    let history_content = PageHistoryContent {
+        content: json!(null),
+        exercises: Vec::new(),
+        exercise_slides: Vec::new(),
+        exercise_tasks: Vec::new(),
+        peer_or_self_review_configs: Vec::new(),
+        peer_or_self_review_questions: Vec::new(),
+    };
+    crate::page_history::insert(
+        &mut tx,
+        PKeyPolicy::Generate,
+        page.id,
+        &page.title,
+        &history_content,
+        HistoryChangeReason::PageDeleted,
+        author,
+        None,
+    )
     .await?;
 
     tx.commit().await?;
@@ -2902,13 +2925,15 @@ pub async fn restore(
     let page = get_page(conn, page_id).await?;
     let history_data = page_history::get_history_data(conn, history_id).await?;
 
+    let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(history_data.content.content)?;
+
     update_page(
         conn,
         PageUpdateArgs {
             page_id: page.id,
             author,
             cms_page_update: CmsPageUpdate {
-                content: history_data.content.content,
+                content: parsed_content,
                 exercises: history_data.content.exercises,
                 exercise_slides: history_data.content.exercise_slides,
                 exercise_tasks: history_data.content.exercise_tasks,
@@ -3338,7 +3363,12 @@ WHERE id = $1
     Ok(())
 }
 
-pub async fn get_by_ids(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<Vec<Page>> {
+pub async fn get_by_ids_and_visibility(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+    page_visibility: PageVisibility,
+) -> ModelResult<Vec<Page>> {
+    let inverse_visibility_filter = page_visibility.get_inverse_visibility_filter();
     let pages = sqlx::query_as!(
         Page,
         "
@@ -3358,9 +3388,47 @@ SELECT id,
     page_language_group_id
 FROM pages
 WHERE id = ANY($1)
+    AND hidden IS DISTINCT FROM $2
     AND deleted_at IS NULL
     ",
-        ids
+        ids,
+        inverse_visibility_filter
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(pages)
+}
+
+pub async fn get_by_ids_deleted_and_visibility(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+    page_visibility: PageVisibility,
+) -> ModelResult<Vec<Page>> {
+    let inverse_visibility_filter = page_visibility.get_inverse_visibility_filter();
+    let pages = sqlx::query_as!(
+        Page,
+        "
+SELECT id,
+    created_at,
+    updated_at,
+    course_id,
+    exam_id,
+    chapter_id,
+    url_path,
+    title,
+    deleted_at,
+    content,
+    order_number,
+    copied_from,
+    hidden,
+    page_language_group_id
+FROM pages
+WHERE id = ANY($1)
+    AND hidden IS DISTINCT FROM $2
+    AND deleted_at IS NOT NULL
+    ",
+        ids,
+        inverse_visibility_filter
     )
     .fetch_all(conn)
     .await?;
@@ -3402,7 +3470,7 @@ mod test {
                 exercises: vec![],
                 exercise_slides: vec![],
                 exercise_tasks: vec![],
-                content: serde_json::Value::Array(vec![]),
+                content: vec![],
                 url_path: "url".to_string(),
                 title: "title".to_string(),
                 course_id: None,
@@ -3490,7 +3558,7 @@ mod test {
         exercise_tasks: Vec<CmsPageExerciseTask>,
     ) -> CmsPageUpdate {
         CmsPageUpdate {
-            content: serde_json::json!([]),
+            content: vec![],
             exercises,
             exercise_slides,
             exercise_tasks,
@@ -3629,7 +3697,7 @@ mod test {
                 .await
                 .unwrap();
         for page in &existing_pages {
-            delete_page_and_exercises(tx.as_mut(), page.id)
+            delete_page_and_exercises(tx.as_mut(), page.id, user)
                 .await
                 .unwrap();
         }

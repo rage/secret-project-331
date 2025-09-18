@@ -15,6 +15,7 @@ export const citationId = (cit_n: string, idx: string) => {
 
 interface CitationButtonProps {
   citN: string
+  citNToShow: string
   idx: string
   citationButtonClicked: boolean
   currentRefId: string | undefined
@@ -24,6 +25,7 @@ interface CitationButtonProps {
 
 const CitationButton: React.FC<CitationButtonProps> = ({
   citN,
+  citNToShow,
   idx,
   citationButtonClicked,
   currentRefId,
@@ -37,7 +39,7 @@ const CitationButton: React.FC<CitationButtonProps> = ({
       onClick={(e) => handleClick(e)}
       {...hoverCitationProps}
     >
-      {citN}
+      {citNToShow}
     </button>
   )
 }

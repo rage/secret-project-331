@@ -141,6 +141,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
           `}
         >
           <CheckBox label={t("enabled-to-students")} {...register("enabled_to_students")} />
+          <CheckBox label={t("use-azure-search")} {...register("use_azure_search")} />
           <CheckBox label={t("hide-citations")} {...register("hide_citations")} />
         </div>
 
@@ -305,7 +306,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                       margin: 20px 20px;
                     `}
                   >
-                    <CheckBox label={t("use-azure-search")} {...register("use_azure_search")} />
                     <CheckBox
                       label={t("use-semantic-reranking")}
                       {...register("use_semantic_reranking")}

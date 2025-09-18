@@ -9,3 +9,7 @@ export function isElementFullyInViewport(element: HTMLElement): boolean {
     boundingClientRect.left >= 0
   )
 }
+
+export function nodeIsElement(obj: Node): obj is Element {
+  return obj.nodeType == 1
+}

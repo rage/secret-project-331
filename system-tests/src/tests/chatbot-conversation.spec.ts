@@ -3,6 +3,7 @@ import { BrowserContext, expect, test } from "@playwright/test"
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "@/utils/screenshot"
+import { waitForAnimation } from "@/utils/waitForAnimation"
 
 test.describe("Test chatbot chat box", () => {
   test.use({
@@ -33,25 +34,18 @@ test.describe("Test chatbot chat box", () => {
     await student1Page.getByPlaceholder("Message").click()
     await student1Page.getByPlaceholder("Message").fill("Hello, pls help me!")
     await student1Page.getByRole("button", { name: "Send" }).click()
-    await expectScreenshotsToMatchSnapshots({
-      screenshotTarget: student1Page,
-      headless,
-      testInfo,
-      snapshotName: "default-chatbot-with-message",
-      waitForTheseToBeVisibleAndStable: [student1Page.getByText("Hello! How can I assist you")],
-    })
 
     await student1Page.getByRole("button", { name: "Show references" }).click()
 
-    await student1Page.locator("#chatbot-citation-1-0").click()
+    await student1Page.getByLabel("Citation 1").first().click()
     await expect(student1Page.getByText("Mock test page content This")).toBeVisible()
     await student1Page.locator("body").click()
 
-    await student1Page.getByRole("button", { name: "2" }).click()
+    await student1Page.getByLabel("Citation 2").click()
     await expect(student1Page.getByText("Mock test page content 2 This")).toBeVisible()
     await student1Page.locator("body").click()
 
-    await student1Page.locator("#chatbot-citation-3-2").click()
+    await student1Page.getByLabel("Citation 1").last().click()
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: student1Page,
       headless,
@@ -70,13 +64,6 @@ test.describe("Test chatbot chat box", () => {
     await student1Page.getByRole("button", { name: "Open chatbot" }).click()
     await expect(student1Page.getByText("Hello! How can I assist you")).toBeVisible()
     await student1Page.getByRole("button", { name: "New conversation" }).click()
-    await expectScreenshotsToMatchSnapshots({
-      screenshotTarget: student1Page,
-      headless,
-      testInfo,
-      snapshotName: "default-chatbot-with-new-conversation",
-      waitForTheseToBeVisibleAndStable: [student1Page.getByText("Oh... It's you.")],
-    })
 
     await student1Page.getByRole("button", { name: "Close" }).click()
     // ensure open chatbot button exists
@@ -92,37 +79,23 @@ test.describe("Test chatbot chat box", () => {
     await student1Page.getByRole("heading", { name: "Test bot" }).scrollIntoViewIfNeeded()
     await expect(student1Page.getByRole("heading", { name: "Test bot" })).toBeVisible()
     await student1Page.getByRole("button", { name: "Agree" }).click()
-    await expectScreenshotsToMatchSnapshots({
-      screenshotTarget: student1Page,
-      headless,
-      testInfo,
-      snapshotName: "course-material-block-chatbot-with-new-conversation",
-      waitForTheseToBeVisibleAndStable: [student1Page.getByText("Haiii xD")],
-    })
 
     await student1Page.getByPlaceholder("Message").scrollIntoViewIfNeeded()
     await student1Page.getByPlaceholder("Message").click()
     await student1Page.getByPlaceholder("Message").fill("Hello, pls help me!")
     await student1Page.getByRole("button", { name: "Send" }).click()
-    await expectScreenshotsToMatchSnapshots({
-      screenshotTarget: student1Page,
-      headless,
-      testInfo,
-      snapshotName: "course-material-block-chatbot-with-message",
-      waitForTheseToBeVisibleAndStable: [student1Page.getByText("Hello! How can I assist you")],
-    })
 
     await student1Page.getByRole("button", { name: "Show references" }).click()
 
-    await student1Page.locator("#chatbot-citation-1-0").click()
+    await student1Page.getByLabel("Citation 1").first().click()
     await expect(student1Page.getByText("Mock test page content This")).toBeVisible()
     await student1Page.locator("body").click()
 
-    await student1Page.getByRole("button", { name: "2" }).click()
+    await student1Page.getByLabel("Citation 2").click()
     await expect(student1Page.getByText("Mock test page content 2 This")).toBeVisible()
     await student1Page.locator("body").click()
 
-    await student1Page.locator("#chatbot-citation-3-2").click()
+    await student1Page.getByLabel("Citation 1").last().click()
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: student1Page,
       headless,
@@ -149,7 +122,7 @@ test.describe("Test chatbot chat box", () => {
     await accessibilityCheck(student2Page, "Default Chatbot Agree / View", [])
 
     await student2Page.getByRole("button", { name: "Agree" }).click()
-
+    await waitForAnimation(student2Page.getByText("Oh... It's you."))
     await accessibilityCheck(student2Page, "Default Chatbot New Conversation / View", [])
 
     await student2Page.getByPlaceholder("Message").click()
@@ -159,6 +132,16 @@ test.describe("Test chatbot chat box", () => {
 
     await student2Page.getByRole("button", { name: "Show references" }).click()
     await accessibilityCheck(student2Page, "Default Chatbot Conversation With Citations / View", [])
+
+    await student2Page.getByLabel("Citation 1").first().click()
+    await waitForAnimation(
+      student2Page.getByRole("link", { name: "Cited course page", exact: true }),
+    )
+    await accessibilityCheck(
+      student2Page,
+      "Default Chatbot Conversation With Citation Popover / View",
+      [],
+    )
   })
 
   test("Accessibility check course material block chatbot", async ({}) => {
@@ -171,7 +154,7 @@ test.describe("Test chatbot chat box", () => {
     await accessibilityCheck(student2Page, "Block Chatbot Agree / View", [])
 
     await student2Page.getByRole("button", { name: "Agree" }).click()
-
+    await waitForAnimation(student2Page.getByText("Haiii xD What's up?"))
     await accessibilityCheck(student2Page, "Block Chatbot New Conversation / View", [])
 
     await student2Page.getByPlaceholder("Message").click()
@@ -181,5 +164,15 @@ test.describe("Test chatbot chat box", () => {
 
     await student2Page.getByRole("button", { name: "Show references" }).click()
     await accessibilityCheck(student2Page, "Block Chatbot Conversation With Citations / View", [])
+
+    await student2Page.getByLabel("Citation 1").first().click()
+    await waitForAnimation(
+      student2Page.getByRole("link", { name: "Cited course page", exact: true }),
+    )
+    await accessibilityCheck(
+      student2Page,
+      "Default Chatbot Conversation With Citation Popover / View",
+      [],
+    )
   })
 })

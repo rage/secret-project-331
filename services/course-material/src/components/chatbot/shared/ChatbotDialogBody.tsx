@@ -415,7 +415,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
         className={css`
           margin: 0.5rem;
           font-size: 0.8rem;
-          color: ${baseTheme.colors.gray[600]};
+          color: ${baseTheme.colors.gray[500]};
           text-align: center;
         `}
       >

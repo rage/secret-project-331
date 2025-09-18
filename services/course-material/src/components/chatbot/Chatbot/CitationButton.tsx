@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import React, { DOMAttributes } from "react"
+import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "@/shared-module/common/styles"
 
@@ -32,10 +33,12 @@ const CitationButton: React.FC<CitationButtonProps> = ({
   handleClick,
   hoverCitationProps,
 }) => {
+  let { t } = useTranslation()
   return (
     <button
       className={buttonStyle(citationButtonClicked && currentRefId === citationId(citN, idx))}
       id={citationId(citN, idx)}
+      aria-label={t("citation-n", { n: citNToShow })}
       onClick={(e) => handleClick(e)}
       {...hoverCitationProps}
     >

@@ -43,7 +43,9 @@ impl ApplicationConfiguration {
         let base_url = env::var("BASE_URL").context("BASE_URL must be defined")?;
         let test_mode = env::var("TEST_MODE").is_ok();
         let development_uuid_login = env::var("DEVELOPMENT_UUID_LOGIN").is_ok();
-        let test_chatbot = env::var("USE_MOCK_AZURE_CONFIGURATION").is_ok();
+        let test_chatbot = test_mode
+            && (env::var("USE_MOCK_AZURE_CONFIGURATION").is_ok_and(|v| v.as_str() != "false")
+                || env::var("AZURE_CHATBOT_API_KEY").is_err());
 
         let azure_configuration = if test_chatbot {
             AzureConfiguration::mock_conf()?
@@ -209,11 +211,10 @@ impl AzureConfiguration {
     }
 
     pub fn mock_conf() -> anyhow::Result<Option<Self>> {
-        let chat_endpoint = env::var("MOCK_AZURE_CHATBOT_API_ENDPOINT")
-            .context("MOCK_AZURE_CHATBOT_API_ENDPOINT must be defined")?;
+        let base_url = env::var("BASE_URL").context("BASE_URL must be defined")?;
         let chatbot_config = Some(AzureChatbotConfiguration {
             api_key: "".to_string(),
-            api_endpoint: Url::from_str(&chat_endpoint)?,
+            api_endpoint: Url::from_str(&base_url)?.join("/api/v0/mock-azure/test")?,
         });
         let search_config = Some(AzureSearchConfiguration {
             vectorizer_resource_uri: "".to_string(),

@@ -55,7 +55,7 @@ pub fn configure_controllers(cfg: &mut ServiceConfig) {
         .service(web::scope("/langs").configure(langs::_add_routes))
         .service(web::scope("/tmc-server").configure(tmc_server::_add_routes))
         .default_service(web::to(not_found));
-    if std::env::var("USE_MOCK_AZURE_CONFIGURATION").is_ok() {
+    if std::env::var("USE_MOCK_AZURE_CONFIGURATION").is_ok_and(|v| v.as_str() != "false") {
         cfg.service(web::scope("/mock-azure").configure(mock_azure_endpoint::_add_routes));
     }
 }

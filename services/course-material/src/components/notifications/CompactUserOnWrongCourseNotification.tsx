@@ -2,11 +2,13 @@ import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { InfoCircle } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
+import { env } from "process"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchCourseById } from "../../services/backend"
 
+import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles/theme"
@@ -40,7 +42,14 @@ const CompactUserOnWrongCourseNotification: React.FC<
     getCourseById.data.language_code,
   )
   const name = `${getCourseById.data.name} (${languageHumanReadableName})`
-  const courseUrl = navigateToCourseRoute(organizationSlug, getCourseById.data.slug)
+  let courseUrl = navigateToCourseRoute(organizationSlug, getCourseById.data.slug)
+
+  // Account for base path that next/link adds
+  courseUrl = courseUrl.replace(
+    // eslint-disable-next-line i18next/no-literal-string
+    "/org",
+    "",
+  )
 
   return (
     <div
@@ -49,49 +58,76 @@ const CompactUserOnWrongCourseNotification: React.FC<
         align-items: center;
         gap: 0.7rem;
         background: ${baseTheme.colors.yellow[100]};
-        border-left: 4px solid ${baseTheme.colors.crimson[400]};
-        padding: 0.7rem 1.1rem;
-        border-radius: 5px;
+        border: 1px solid ${baseTheme.colors.yellow[300]};
+        padding: 1rem 1.2rem;
+        border-radius: 1rem;
         font-size: 1rem;
-        margin: 0.5rem 0;
+        margin: 1rem 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       `}
     >
-      <span
+      <div
         className={css`
           display: flex;
-          align-items: center;
-          font-size: 1.3rem;
+          flex-direction: column;
+          gap: 0.6rem;
         `}
-        aria-hidden="true"
       >
-        <InfoCircle
+        <div
           className={css`
-            width: 1.5rem;
-            height: 1.5rem;
-            color: ${baseTheme.colors.green[600]};
-            flex-shrink: 0;
-          `}
-        />
-      </span>
-      <span>
-        {t("already-started-course-in-different-language-title")}
-        <Link
-          href={courseUrl}
-          className={css`
-            color: ${baseTheme.colors.green[700]};
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
             font-weight: 600;
-            text-decoration: underline;
-            margin-left: 0.2rem;
-            &:hover,
-            &:focus {
-              color: ${baseTheme.colors.green[700]};
-            }
+            color: ${baseTheme.colors.gray[700]};
+            font-size: 1rem;
+            line-height: 1.3;
           `}
-          hrefLang={getCourseById.data.language_code}
         >
-          {t("go-to-your-language-version", { name })}
-        </Link>
-      </span>
+          <InfoCircle
+            className={css`
+              width: 1.2rem;
+              height: 1.2rem;
+              color: ${baseTheme.colors.blue[600]};
+              flex-shrink: 0;
+            `}
+          />
+          {t("already-started-course-in-different-language-title")}
+        </div>
+        <div
+          className={css`
+            font-size: 0.9rem;
+            color: ${baseTheme.colors.gray[600]};
+            line-height: 1.4;
+            margin-bottom: 0.3rem;
+          `}
+        >
+          {t("already-started-course-in-different-language-description")}
+        </div>
+        <div
+          className={css`
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            align-items: flex-start;
+          `}
+        >
+          <Link href={courseUrl} hrefLang={getCourseById.data.language_code}>
+            <Button variant="primary" size="medium" transform="none">
+              {t("go-to-your-language-version", { name })}
+            </Button>
+          </Link>
+          <div
+            className={css`
+              font-size: 0.8rem;
+              color: ${baseTheme.colors.gray[500]};
+              line-height: 1.3;
+            `}
+          >
+            {t("or-switch-language-in-settings")}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

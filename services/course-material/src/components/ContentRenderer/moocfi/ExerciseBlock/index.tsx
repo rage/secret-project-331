@@ -705,10 +705,10 @@ const ExerciseBlock: React.FC<
                 </button>
               )}
 
-            {userOnWrongLanguageVersion && pageContext.instance && pageContext.settings && (
+            {userOnWrongLanguageVersion && pageContext.settings && pageContext.organization && (
               <CompactUserOnWrongCourseNotification
-                correctCourseId={pageContext.settings.current_course_instance_id}
-                organizationSlug={"TODO"}
+                correctCourseId={pageContext.settings.current_course_id}
+                organizationSlug={pageContext.organization?.slug}
               />
             )}
 

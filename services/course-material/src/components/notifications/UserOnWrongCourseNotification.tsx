@@ -2,11 +2,13 @@ import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { InfoCircle } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
+import { env } from "process"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchCourseById } from "../../services/backend"
 
+import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -41,7 +43,13 @@ const UserOnWrongCourseNotification: React.FC<
     getCourseById.data.language_code,
   )
   const name = `${getCourseById.data.name} (${languageHumanReadableName})`
-  const courseUrl = navigateToCourseRoute(organizationSlug, getCourseById.data.slug)
+
+  // Account for base path that next/link adds
+  let courseUrl = navigateToCourseRoute(organizationSlug, getCourseById.data.slug).replace(
+    // eslint-disable-next-line i18next/no-literal-string
+    "/org",
+    "",
+  )
 
   return (
     <BreakFromCentered sidebar={false}>
@@ -83,7 +91,7 @@ const UserOnWrongCourseNotification: React.FC<
               className={css`
                 width: 2.2rem;
                 height: 2.2rem;
-                color: ${baseTheme.colors.green[600]};
+                color: ${baseTheme.colors.gray[700]};
                 flex-shrink: 0;
               `}
             />
@@ -102,31 +110,10 @@ const UserOnWrongCourseNotification: React.FC<
         >
           {t("already-started-course-in-different-language-description")}
         </div>
-        <Link
-          href={courseUrl}
-          className={css`
-            display: inline-block;
-            background: ${baseTheme.colors.green[600]};
-            color: ${baseTheme.colors.primary[100]};
-            font-weight: 600;
-            font-size: 1.1rem;
-            padding: 0.85rem 2.2rem;
-            border-radius: 6px;
-            text-decoration: none;
-            box-shadow: 0 2px 8px rgba(31, 105, 100, 0.08);
-            transition:
-              background 0.2s,
-              box-shadow 0.2s;
-            margin-bottom: 0.5rem;
-            &:hover,
-            &:focus {
-              background: ${baseTheme.colors.green[700]};
-              box-shadow: 0 4px 16px rgba(31, 105, 100, 0.18);
-            }
-          `}
-          hrefLang={getCourseById.data.language_code}
-        >
-          {t("go-to-your-language-version", { name })}
+        <Link href={courseUrl} hrefLang={getCourseById.data.language_code}>
+          <Button variant="primary" size="large" transform="none">
+            {t("go-to-your-language-version", { name })}
+          </Button>
         </Link>
         <div
           className={css`

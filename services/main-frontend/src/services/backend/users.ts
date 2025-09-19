@@ -1,6 +1,7 @@
 import { mainFrontendClient } from "../mainFrontendClient"
 
 import {
+  AuthorizedClientInfo,
   Course,
   CourseInstanceEnrollmentsInfo,
   ExerciseResetLog,
@@ -8,6 +9,7 @@ import {
   UserResearchConsent,
 } from "@/shared-module/common/bindings"
 import {
+  isAuthorizedClientInfo,
   isCourse,
   isCourseInstanceEnrollmentsInfo,
   isExerciseResetLog,
@@ -50,4 +52,13 @@ export const getUserResetExerciseLogs = async (
 ): Promise<Array<ExerciseResetLog>> => {
   const response = await mainFrontendClient.get(`/users/${userId}/user-reset-exercise-logs`)
   return validateResponse(response, isArray(isExerciseResetLog))
+}
+
+export const getAuthorizedClientInfos = async (): Promise<AuthorizedClientInfo[]> => {
+  const response = await mainFrontendClient.get(`/oauth/authorized-clients`)
+  return validateResponse(response, isArray(isAuthorizedClientInfo))
+}
+
+export const revokeAuthorizedClient = async (clientId: string): Promise<void> => {
+  await mainFrontendClient.delete(`/oauth/authorized-clients/${clientId}`)
 }

@@ -192,6 +192,8 @@ fn models(target: &mut File) {
 
         organizations::Organization,
 
+        oauth_user_client_scopes::AuthorizedClientInfo,
+
         page_audio_files::PageAudioFile,
         page_history::HistoryChangeReason,
         page_history::PageHistory,

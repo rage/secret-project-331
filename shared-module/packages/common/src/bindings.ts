@@ -1396,6 +1396,12 @@ export interface Organization {
   hidden: boolean
 }
 
+export interface AuthorizedClientInfo {
+  client_id: string
+  client_name: string
+  scopes: Array<string>
+}
+
 export interface PageAudioFile {
   id: string
   page_id: string

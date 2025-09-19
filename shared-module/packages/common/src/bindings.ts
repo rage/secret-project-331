@@ -1529,6 +1529,7 @@ export interface CoursePageWithUserData {
   instance: CourseInstance | null
   settings: UserCourseSettings | null
   course: Course | null
+  organization: Organization | null
   was_redirected: boolean
   is_test_mode: boolean
 }

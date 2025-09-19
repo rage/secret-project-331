@@ -99,6 +99,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
         type: "setData",
         payload: {
           pageData: exam.data.enrollment_data.page,
+          organization: null,
           instance: null,
           settings: null,
           exam: exam.data,

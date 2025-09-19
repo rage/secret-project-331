@@ -163,6 +163,8 @@
   "label-message": "Message",
   "label-name": "Name",
   "language-language": "Language: {{language}}",
+  "language-redirection-failed": "Language redirection failed: {{error}}",
+  "language-switching-failed": "Language switching failed",
   "last-name": "Last name",
   "loading": "Loading",
   "map-disclaimer": "*On the map, you'll find the breakdown of students per country. Other students will only see the total student count for your country.",

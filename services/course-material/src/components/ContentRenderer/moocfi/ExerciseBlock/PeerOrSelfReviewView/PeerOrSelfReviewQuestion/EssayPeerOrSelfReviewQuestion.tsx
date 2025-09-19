@@ -7,7 +7,11 @@ import TextArea from "@/shared-module/common/components/InputFields/TextAreaFiel
 
 const EssayPeerOrSelfReviewQuestion: React.FC<
   React.PropsWithChildren<PeerOrSelfReviewQuestionProps>
-> = ({ question, setPeerOrSelfReviewQuestionAnswer, peerOrSelfReviewQuestionAnswer }) => {
+> = ({
+  peerOrSelfReviewQuestion,
+  setPeerOrSelfReviewQuestionAnswer,
+  peerOrSelfReviewQuestionAnswer,
+}) => {
   const { t } = useTranslation()
   return (
     <div>
@@ -16,8 +20,8 @@ const EssayPeerOrSelfReviewQuestion: React.FC<
           margin-bottom: 1rem;
         `}
       >
-        {question.question}
-        {question.answer_required && " *"}
+        {peerOrSelfReviewQuestion.question}
+        {peerOrSelfReviewQuestion.answer_required && " *"}
       </div>
       <TextArea
         rows={4}

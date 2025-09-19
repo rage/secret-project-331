@@ -18,7 +18,8 @@ use crate::{
     domain::models_requests::{self, JwtKey},
     programs::seed::{
         seed_courses::{
-            CommonCourseData, seed_sample_course, seed_switching_course_instances_course,
+            CommonCourseData, seed_peer_review_course_without_submissions, seed_sample_course,
+            seed_switching_course_instances_course,
         },
         seed_file_storage::SeedFileStorageResult,
         seed_helpers::get_seed_spec_fetcher,
@@ -390,6 +391,14 @@ pub async fn seed_organization_uh_mathstat(
         uh_data.clone(),
         false,
         seed_users_result,
+    )
+    .await?;
+
+    let _closed_course_id = seed_peer_review_course_without_submissions(
+        Uuid::parse_str("16159801-cf70-4f9c-9cba-2110c3bd4622")?,
+        "Accessibility course",
+        "accessibility-course",
+        uh_data.clone(),
     )
     .await?;
 

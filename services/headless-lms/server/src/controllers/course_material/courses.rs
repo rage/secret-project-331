@@ -688,7 +688,7 @@ async fn get_public_top_level_pages(
 }
 
 /**
-GET `/api/v0/course-material/courses/:id/language-versions/from-page/:page_id` - Returns all language versions of the same course. Since this is for course material, this does not include draft courses. To make developing new courses easier, we include draft courses if the course the request for is a draft course and the teacher has a permission to access it.
+GET `/api/v0/course-material/courses/:id/language-versions-navigation-info/from-page/:page_id` - Returns all language versions of the same course. Since this is for course material, this does not include draft courses. To make developing new courses easier, we include draft courses if the course the request for is a draft course and the teacher has a permission to access it.
 */
 #[instrument(skip(pool))]
 async fn get_all_course_language_versions_navigation_info_from_page(

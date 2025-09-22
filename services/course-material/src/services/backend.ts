@@ -548,7 +548,7 @@ export const fetchCourseLanguageVersionNavigationInfos = async (
   pageId: string,
 ): Promise<Array<CourseLanguageVersionNavigationInfo>> => {
   const response = await courseMaterialClient.get(
-    `/courses/${courseId}/language-versions/from-page/${pageId}`,
+    `/courses/${courseId}/language-versions-navigation-info/from-page/${pageId}`,
     {
       responseType: "json",
     },

@@ -71,10 +71,8 @@ const LanguageNavigationControls: React.FC<LanguageNavigationControlsProps> = ({
     )
   }
 
-  // If we don't have course-specific languages yet, show a simple language selector
-  // that will use the default behavior until course data loads
-  // TODO: FIX THIS
-  return <LanguageSelection placement={placement} handleLanguageChange={handleLanguageChange} />
+  // If the current language is the only language that is available, don't show the language selection
+  return null
 }
 
 export default LanguageNavigationControls

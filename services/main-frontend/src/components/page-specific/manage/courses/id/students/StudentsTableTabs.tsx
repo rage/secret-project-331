@@ -25,6 +25,21 @@ import {
   thStyle,
 } from "./studentsTableStyles"
 
+const tableOuterScroll = css`
+  width: 100%;
+  overflow-x: auto;
+  // Do NOT set border-radius or border here!
+`
+
+// style for the inner wrap (applies border and radius to content)
+const tableRoundedWrap = css`
+  min-width: 900px;
+  border-radius: 8px;
+  border: 1px solid #ced1d7;
+  background: #fff;
+  overflow: hidden; // keeps content inside rounded corners
+`
+
 // --- UNIVERSAL FLOATING HEADER TABLE ---
 const chapterHeaderStart = 2 // First chapter header (upper, uses only light color)
 const subHeaderStart = 3 // First subheader (lower, uses light/dark pair)
@@ -204,12 +219,14 @@ export function FloatingHeaderTable({ columns, data, colorHeaders = false }) {
   )
 
   return (
-    <div css={tableOuterWrap} ref={wrapRef} style={{ position: "relative" }}>
+    <div css={tableOuterScroll} ref={wrapRef} style={{ position: "relative" }}>
       {showSticky && renderStickyHeader()}
-      <table css={tableStyle} ref={tableRef}>
-        {renderTableHead()}
-        {renderTableBody()}
-      </table>
+      <div css={tableRoundedWrap}>
+        <table css={tableStyle} ref={tableRef}>
+          {renderTableHead()}
+          {renderTableBody()}
+        </table>
+      </div>
     </div>
   )
 }

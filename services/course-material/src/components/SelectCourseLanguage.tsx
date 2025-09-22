@@ -6,7 +6,7 @@ import PageContext from "../contexts/PageContext"
 
 import { GetLanguageFlag, getLanguageName } from "./modals/ChooseCourseLanguage"
 
-import useCourseLanguageVersions from "@/hooks/useCourseLanguageVersions"
+import useCourseLanguageVersionNavigationInfos from "@/hooks/useCourseLanguageVersionNavigationInfos"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import {
@@ -23,6 +23,7 @@ export interface CourseTranslationsListProps {
   setSelectedLangCourseId(setLanguage: string): void
   setDialogLanguage: React.Dispatch<React.SetStateAction<string>>
   dialogLanguage: string
+  currentPageId: string
 }
 
 const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsListProps>> = ({
@@ -30,24 +31,28 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
   setSelectedLangCourseId,
   setDialogLanguage,
   dialogLanguage,
+  currentPageId,
 }) => {
   const { t } = useTranslation("course-material", { lng: dialogLanguage })
   const pageState = useContext(PageContext)
   const currentCourseId = pageState.pageData?.course_id
-  const courseLanguageVersionsQuery = useCourseLanguageVersions(currentCourseId)
+  const courseLanguageVersionsQuery = useCourseLanguageVersionNavigationInfos(
+    currentCourseId,
+    currentPageId,
+  )
 
-  const courseVersionsList = courseLanguageVersionsQuery.data
-
-  const langCode = courseVersionsList?.find(
-    (course) => course.id === selectedLangCourseId,
+  const langCode = courseLanguageVersionsQuery.data?.find(
+    (courseLanguageVersionNavigationInfo) =>
+      courseLanguageVersionNavigationInfo.course_id === selectedLangCourseId,
   )?.language_code
 
   // Gets courseId and languageCode of the chosen language
   const onChange = useCallback(
     (event: { target: { value: string } }) => {
       const changedCourseId = event.target.value
-      const newLangCode = courseVersionsList?.find(
-        (course) => course.id === changedCourseId,
+      const newLangCode = courseLanguageVersionsQuery.data?.find(
+        (courseLanguageVersionNavigationInfo) =>
+          courseLanguageVersionNavigationInfo.course_id === changedCourseId,
       )?.language_code
 
       if (newLangCode) {
@@ -56,26 +61,29 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
 
       setSelectedLangCourseId(changedCourseId)
     },
-    [courseVersionsList, setDialogLanguage, setSelectedLangCourseId],
+    [courseLanguageVersionsQuery.data, setDialogLanguage, setSelectedLangCourseId],
   )
 
   //Puts the current course at the top of the list
-  if (courseVersionsList) {
-    const i = courseVersionsList.findIndex((course) => course.id === currentCourseId)
-    const item = courseVersionsList[i]
-    courseVersionsList.splice(i, 1)
-    courseVersionsList.unshift(item)
+  if (courseLanguageVersionsQuery.data) {
+    const i = courseLanguageVersionsQuery.data.findIndex(
+      (courseLanguageVersionNavigationInfo) =>
+        courseLanguageVersionNavigationInfo.course_id === currentCourseId,
+    )
+    const item = courseLanguageVersionsQuery.data[i]
+    courseLanguageVersionsQuery.data.splice(i, 1)
+    courseLanguageVersionsQuery.data.unshift(item)
   }
 
   useEffect(() => {
-    if (courseVersionsList && langCode === "") {
-      const firstLanguageVersion = courseVersionsList[0]
+    if (courseLanguageVersionsQuery.data && langCode === "") {
+      const firstLanguageVersion = courseLanguageVersionsQuery.data[0]
       if (!firstLanguageVersion) {
         return
       }
       setDialogLanguage(firstLanguageVersion.language_code)
     }
-  }, [currentCourseId, courseVersionsList, langCode, setDialogLanguage])
+  }, [currentCourseId, courseLanguageVersionsQuery.data, langCode, setDialogLanguage])
 
   if (courseLanguageVersionsQuery.isPending) {
     return <Spinner variant="medium" />
@@ -85,7 +93,7 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
     return <ErrorBanner variant="readOnly" error={courseLanguageVersionsQuery.error} />
   }
 
-  if (courseVersionsList && courseVersionsList.length < 2) {
+  if (courseLanguageVersionsQuery.data && courseLanguageVersionsQuery.data.length < 2) {
     // The course has only 1 language version, so no need to show the language selection
     return null
   }
@@ -130,9 +138,12 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
           onChange={onChange}
           defaultValue={selectedLangCourseId}
         >
-          {courseVersionsList?.map((course) => (
-            <option key={course.id} value={course.id}>
-              {getLanguageName(course.language_code)}
+          {courseLanguageVersionsQuery.data?.map((courseLanguageVersionNavigationInfo) => (
+            <option
+              key={courseLanguageVersionNavigationInfo.course_id}
+              value={courseLanguageVersionNavigationInfo.course_id}
+            >
+              {getLanguageName(courseLanguageVersionNavigationInfo.language_code)}
             </option>
           ))}
         </select>

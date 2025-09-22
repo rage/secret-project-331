@@ -4,7 +4,7 @@ import React, { useContext, useEffect, useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import PageContext from "../../contexts/PageContext"
-import useLanguageRedirection from "../../hooks/useLanguageRedirection"
+import useLanguageNavigation from "../../hooks/useLanguageNavigation"
 import {
   fetchCourseById,
   fetchCourseInstances,
@@ -92,9 +92,8 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedLangCourseId])
 
-  const { redirectToLanguage, availableLanguages } = useLanguageRedirection({
+  const { redirectToLanguage, availableLanguages } = useLanguageNavigation({
     currentCourseId: pageState.pageData?.course_id ?? null,
-    currentPageLanguageGroupId: pageState.pageData?.page_language_group_id ?? null,
   })
 
   // Find the language code for the selected course
@@ -185,12 +184,15 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
         >
           {t("title-course-settings")}
         </h1>
-        <SelectCourseLanguage
-          selectedLangCourseId={selectedLangCourseId}
-          setSelectedLangCourseId={setSelectedLangCourseId}
-          setDialogLanguage={setDialogLanguage}
-          dialogLanguage={dialogLanguage}
-        />
+        {pageState.pageData?.id && (
+          <SelectCourseLanguage
+            selectedLangCourseId={selectedLangCourseId}
+            setSelectedLangCourseId={setSelectedLangCourseId}
+            setDialogLanguage={setDialogLanguage}
+            dialogLanguage={dialogLanguage}
+            currentPageId={pageState.pageData.id}
+          />
+        )}
         {getCourseInstances.isError && (
           <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
         )}

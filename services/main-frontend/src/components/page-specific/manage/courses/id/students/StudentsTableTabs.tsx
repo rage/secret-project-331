@@ -15,7 +15,6 @@ import {
   pointsData,
 } from "./studentsTableData"
 import {
-  altBgStyle,
   headerRowStyle,
   lastRowTdStyle,
   rowStyle,
@@ -53,7 +52,7 @@ const tableRoundedWrap = css`
 const chapterHeaderStart = 2 // First chapter header (upper, uses only light color)
 const subHeaderStart = 3 // First subheader (lower, uses light/dark pair)
 
-export function FloatingHeaderTable({ columns, data, colorHeaders = false }) {
+export function FloatingHeaderTable({ columns, data, colorHeaders = false, colorColumns = false }) {
   const tableRef = useRef(null)
   const wrapRef = useRef(null)
   const [showSticky, setShowSticky] = useState(false)
@@ -89,7 +88,9 @@ export function FloatingHeaderTable({ columns, data, colorHeaders = false }) {
 
   useEffect(() => {
     const wrap = wrapRef.current
-    if (!wrap) return
+    if (!wrap) {
+      return
+    }
     const handleScroll = () => setScrollLeft(wrap.scrollLeft)
     wrap.addEventListener("scroll", handleScroll)
     return () => wrap.removeEventListener("scroll", handleScroll)
@@ -97,7 +98,9 @@ export function FloatingHeaderTable({ columns, data, colorHeaders = false }) {
 
   useEffect(() => {
     function onScroll() {
-      if (!tableRef.current) return
+      if (!tableRef.current) {
+        return
+      }
       const rect = tableRef.current.getBoundingClientRect()
       if (rect.top < 0 && rect.bottom > 48) {
         setShowSticky(true)
@@ -111,7 +114,9 @@ export function FloatingHeaderTable({ columns, data, colorHeaders = false }) {
   }, [])
 
   function getHeaderBg(headerRow, colIdx, header) {
-    if (!colorHeaders) return undefined
+    if (!colorHeaders) {
+      return undefined
+    }
     // UPPER HEADER ROW (chapter group headers)
     if (headerRow === 0 && colIdx >= chapterHeaderStart && header.colSpan === 2) {
       const chapterIdx = Math.floor((colIdx - chapterHeaderStart) / 1)
@@ -134,7 +139,7 @@ export function FloatingHeaderTable({ columns, data, colorHeaders = false }) {
           {headerGroup.headers.map((header, colIdx) => (
             <th
               key={header.id}
-              css={[thStyle, header.column.columnDef.meta?.altBg && altBgStyle]}
+              css={thStyle}
               style={{
                 minWidth: 110,
                 width: colWidths[colIdx],
@@ -161,8 +166,8 @@ export function FloatingHeaderTable({ columns, data, colorHeaders = false }) {
         width: wrapRect.width,
         zIndex: 100,
         pointerEvents: "none",
-        background: "#f7f8f9",
-        boxShadow: "0 2px 6px 0 rgba(0,0,0,0.04)",
+        background: "transparent",
+
         overflow: "hidden",
         margin: 0,
         padding: 0,
@@ -172,7 +177,7 @@ export function FloatingHeaderTable({ columns, data, colorHeaders = false }) {
       <div
         style={{
           minWidth: 900,
-          borderRadius: 8,
+          borderRadius: "8px 8px 0 0",
           border: "1px solid #ced1d7",
           background: "#fff",
           overflow: "hidden",
@@ -203,19 +208,16 @@ export function FloatingHeaderTable({ columns, data, colorHeaders = false }) {
           {row.getVisibleCells().map((cell, i) => {
             const isLast = rowIdx === data.length - 1
             let bg: string | undefined = undefined
-            if (colorHeaders && i >= subHeaderStart) {
+            if (colorColumns && i >= subHeaderStart) {
               const pairIdx = Math.floor((i - subHeaderStart) / 2)
               const subIdx = (i - subHeaderStart) % 2
               bg = colorPairs[pairIdx % colorPairs.length][subIdx]
             }
+
             return (
               <td
                 key={cell.id}
-                css={[
-                  tdStyle,
-                  cell.column.columnDef.meta?.altBg && altBgStyle,
-                  isLast && lastRowTdStyle,
-                ]}
+                css={[tdStyle, isLast && lastRowTdStyle]}
                 style={{
                   width: colWidths[i],
                   background: bg,
@@ -264,7 +266,6 @@ export function FloatingHeaderTable({ columns, data, colorHeaders = false }) {
   )
 }
 
-
 // -- EXPORT TABLE CONTENTS FOR TABS --
 export const UserTabContent = () => (
   <FloatingHeaderTable
@@ -296,5 +297,10 @@ export const CompletionsTabContent = () => (
   <FloatingHeaderTable columns={completionsColumns} data={completionsData} />
 )
 export const PointsTabContent = () => (
-  <FloatingHeaderTable columns={pointsColumns} data={pointsData} colorHeaders={true} />
+  <FloatingHeaderTable
+    columns={pointsColumns}
+    data={pointsData}
+    colorHeaders={true}
+    colorColumns={true}
+  />
 )

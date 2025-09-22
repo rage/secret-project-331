@@ -52,6 +52,3 @@ export const tdStyle = css`
 export const lastRowTdStyle = css`
   border-bottom: none;
 `
-export const altBgStyle = css`
-  background: #fafafaff;
-`

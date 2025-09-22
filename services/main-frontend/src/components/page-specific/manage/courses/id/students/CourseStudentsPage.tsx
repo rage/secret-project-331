@@ -8,6 +8,8 @@ import {
   UserTabContent,
 } from "./StudentsTableTabs"
 
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered" // or your relative import
+
 // --- Your Styles (unchanged except for thStyle) ---
 const headerTopRowStyle = css`
   display: flex;
@@ -197,7 +199,9 @@ const StudentsPage: React.FC = () => {
       </div>
 
       {/* TABLE SECTION */}
-      <div css={containerStyle}>{tabContentMap[activeTab]}</div>
+      <BreakFromCentered>
+        <div style={{ paddingLeft: "5vw", paddingRight: "5vw" }}>{tabContentMap[activeTab]}</div>
+      </BreakFromCentered>
     </div>
   )
 }

@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import { InfoCircle } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
 import React from "react"
-import { useTranslation } from "react-i18next"
+import { Trans, useTranslation } from "react-i18next"
 
 import { useCourseData } from "../../hooks/useCourseData"
 
@@ -118,7 +118,15 @@ const UserOnWrongCourseNotification: React.FC<
           >
             <Link href={courseUrl} hrefLang={courseData.language_code}>
               <Button variant="primary" size="medium" transform="none">
-                {t("go-to-your-language-version", { name: formatCourseName(courseData) })}
+                <Trans
+                  i18nKey="go-to-your-language-version"
+                  values={{
+                    name: formatCourseName(courseData),
+                  }}
+                  components={{
+                    courseName: <span lang={courseData.language_code} />,
+                  }}
+                />
               </Button>
             </Link>
             <div
@@ -197,7 +205,15 @@ const UserOnWrongCourseNotification: React.FC<
         </div>
         <Link href={courseUrl} hrefLang={courseData.language_code}>
           <Button variant="primary" size="large" transform="none">
-            {t("go-to-your-language-version", { name: formatCourseName(courseData) })}
+            <Trans
+              i18nKey="go-to-your-language-version"
+              values={{
+                name: formatCourseName(courseData),
+              }}
+              components={{
+                courseName: <span lang={courseData.language_code} />,
+              }}
+            />
           </Button>
         </Link>
         <div

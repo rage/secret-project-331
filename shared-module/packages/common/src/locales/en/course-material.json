@@ -132,7 +132,7 @@
   "give-feedback": "Give feedback",
   "give-written-feedback": "Give written feedback",
   "glossary": "Glossary",
-  "go-to-your-language-version": "Go to your language version: {{name}}",
+  "go-to-your-language-version": "Go to your language version: <courseName>{{name}}</courseName>",
   "grade": "Grade",
   "grading-failed": "Exercise grading failed",
   "grading-fully-graded": "Exercise fully graded",

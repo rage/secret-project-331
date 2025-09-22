@@ -49,7 +49,7 @@ pub async fn courses_moocfi_password_login(
 #[derive(Debug, Deserialize)]
 pub struct PasswordChangeRequest {
     user_id: Uuid,
-    old_password: SecretString,
+    old_password: Option<SecretString>,
     new_password: SecretString,
 }
 
@@ -76,12 +76,14 @@ pub async fn courses_moocfi_password_change(
         new_password,
     } = payload.into_inner();
 
-    let is_user_valid =
-        models::user_passwords::verify_user_password(&mut conn, user_id, &old_password)
+    // Verify old password if it is not None
+    if let Some(old) = old_password {
+        let is_user_valid = models::user_passwords::verify_user_password(&mut conn, user_id, &old)
             .await
             .unwrap_or(false);
-    if !is_user_valid {
-        return token.authorized_ok(web::Json(false));
+        if !is_user_valid {
+            return token.authorized_ok(web::Json(false));
+        }
     }
 
     let new_password_hash = match models::user_passwords::hash_password(&new_password) {

@@ -1,10 +1,12 @@
 import { css } from "@emotion/css"
 import { InfoCircle } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
-import React from "react"
+import React, { useContext, useMemo } from "react"
 import { Trans, useTranslation } from "react-i18next"
 
+import PageContext from "../../contexts/PageContext"
 import { useCourseData } from "../../hooks/useCourseData"
+import useLanguageNavigation from "../../hooks/useLanguageNavigation"
 
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -12,7 +14,6 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles/theme"
 import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
-import { navigateToCourseRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 export interface CourseData {
@@ -34,25 +35,49 @@ export interface UserOnWrongCourseNotificationProps {
 
 const UserOnWrongCourseNotification: React.FC<
   React.PropsWithChildren<UserOnWrongCourseNotificationProps>
-> = ({ correctCourseId, organizationSlug, variant = "full" }) => {
+> = ({ correctCourseId, organizationSlug: _organizationSlug, variant = "full" }) => {
   const { t } = useTranslation()
+  const pageState = useContext(PageContext)
+
   const getCourseById = useCourseData({ courseId: correctCourseId })
+
+  // Use the correct course ID for language navigation
+  const {
+    availableLanguages,
+    getLanguageUrl,
+    isLoading: languageNavLoading,
+    error: languageNavError,
+  } = useLanguageNavigation({
+    currentCourseId: correctCourseId,
+    currentPageId: pageState.pageData?.id ?? null,
+  })
+
+  // Generate the target URL for the Link component using getLanguageUrl
+  const targetUrl = useMemo(() => {
+    if (!getCourseById.data) {
+      return "#"
+    }
+    return getLanguageUrl(getCourseById.data.language_code) || "#"
+  }, [getCourseById.data, getLanguageUrl])
 
   if (getCourseById.isError) {
     return <ErrorBanner variant={"readOnly"} error={getCourseById.error} />
   }
 
-  if (getCourseById.isPending) {
+  if (languageNavError) {
+    return <ErrorBanner variant={"readOnly"} error={new Error(languageNavError)} />
+  }
+
+  if (getCourseById.isPending || languageNavLoading) {
     return <Spinner variant={variant === "compact" ? "small" : "medium"} />
   }
 
-  const courseUrl = navigateToCourseRoute(organizationSlug, getCourseById.data.slug).replace(
-    // eslint-disable-next-line i18next/no-literal-string
-    "/org",
-    "",
-  )
-
   const courseData = getCourseById.data
+
+  // Check if the target language is available for switching
+  const targetLanguageAvailable = availableLanguages.some(
+    (lang) => lang.code === courseData.language_code,
+  )
 
   if (variant === "compact") {
     return (
@@ -116,8 +141,22 @@ const UserOnWrongCourseNotification: React.FC<
               align-items: flex-start;
             `}
           >
-            <Link href={courseUrl} hrefLang={courseData.language_code}>
-              <Button variant="primary" size="medium" transform="none">
+            {targetLanguageAvailable ? (
+              <Link href={targetUrl} hrefLang={courseData.language_code}>
+                <Button variant="primary" size="medium" transform="none">
+                  <Trans
+                    i18nKey="go-to-your-language-version"
+                    values={{
+                      name: formatCourseName(courseData),
+                    }}
+                    components={{
+                      courseName: <span lang={courseData.language_code} />,
+                    }}
+                  />
+                </Button>
+              </Link>
+            ) : (
+              <Button variant="primary" size="medium" transform="none" disabled={true}>
                 <Trans
                   i18nKey="go-to-your-language-version"
                   values={{
@@ -128,7 +167,7 @@ const UserOnWrongCourseNotification: React.FC<
                   }}
                 />
               </Button>
-            </Link>
+            )}
             <div
               className={css`
                 font-size: 0.8rem;
@@ -203,8 +242,22 @@ const UserOnWrongCourseNotification: React.FC<
         >
           {t("already-started-course-in-different-language-description")}
         </div>
-        <Link href={courseUrl} hrefLang={courseData.language_code}>
-          <Button variant="primary" size="large" transform="none">
+        {targetLanguageAvailable ? (
+          <Link href={targetUrl} hrefLang={courseData.language_code}>
+            <Button variant="primary" size="large" transform="none">
+              <Trans
+                i18nKey="go-to-your-language-version"
+                values={{
+                  name: formatCourseName(courseData),
+                }}
+                components={{
+                  courseName: <span lang={courseData.language_code} />,
+                }}
+              />
+            </Button>
+          </Link>
+        ) : (
+          <Button variant="primary" size="large" transform="none" disabled={true}>
             <Trans
               i18nKey="go-to-your-language-version"
               values={{
@@ -215,7 +268,7 @@ const UserOnWrongCourseNotification: React.FC<
               }}
             />
           </Button>
-        </Link>
+        )}
         <div
           className={css`
             margin-top: 1.2rem;

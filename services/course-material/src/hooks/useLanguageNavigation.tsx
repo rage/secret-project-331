@@ -24,8 +24,37 @@ interface LanguageOption {
 interface LanguageNavigationResult {
   availableLanguages: LanguageOption[]
   redirectToLanguage: (languageCode: string) => Promise<void>
+  getLanguageUrl: (languageCode: string) => string | null
   isLoading: boolean
   error: string | null
+}
+
+/**
+ * Normalizes URLs for comparison by ensuring consistent trailing slash handling.
+ */
+function normalizeUrl(url: string): string {
+  return url.endsWith("/") ? url : `${url}/`
+}
+
+/**
+ * Builds a language-switched URL, handling /org/ prefix detection to avoid duplication.
+ */
+function buildLanguageSwitchedUrlWithPrefixHandling(
+  currentUrl: string,
+  courseSlug: string,
+  pagePath: string,
+): string {
+  // Always use buildLanguageSwitchedUrl - it should handle the /org/ prefix logic internally
+  const url = buildLanguageSwitchedUrl(currentUrl, courseSlug, pagePath)
+
+  // Check if the result has double /org/ prefix and remove one if needed
+  const hasorgPrefix = url.startsWith("/org")
+  if (hasorgPrefix) {
+    // eslint-disable-next-line i18next/no-literal-string
+    return url.replace("/org", "/org")
+  }
+
+  return url
 }
 
 /**
@@ -71,26 +100,42 @@ export function useLanguageNavigation({
     return map
   }, [availableLanguages])
 
-  const redirectToLanguage = useCallback(
-    async (languageCode: string) => {
+  const getLanguageUrl = useCallback(
+    (languageCode: string): string | null => {
       try {
         const languageData = languageDataMap.get(languageCode)
         if (!languageData) {
-          throw new Error(`Data not available for language: ${languageCode}`)
+          return null
         }
 
-        const newUrl = buildLanguageSwitchedUrl(
-          window.location.href,
+        const currentUrl = window.location.href
+        return buildLanguageSwitchedUrlWithPrefixHandling(
+          currentUrl,
           languageData.courseSlug,
           languageData.pagePath,
         )
+      } catch (err) {
+        console.error("Failed to generate language URL:", err)
+        return null
+      }
+    },
+    [languageDataMap],
+  )
 
+  const redirectToLanguage = useCallback(
+    async (languageCode: string) => {
+      try {
+        const newUrl = getLanguageUrl(languageCode)
+        if (!newUrl) {
+          throw new Error(`Data not available for language: ${languageCode}`)
+        }
+
+        const currentUrl = window.location.href
         // Only navigate if URLs are different (normalized comparison)
-        const normalizeUrl = (url: string) => (url.endsWith("/") ? url : `${url}/`)
-        const currentUrl = normalizeUrl(window.location.href)
-        const targetUrl = normalizeUrl(newUrl)
+        const normalizedCurrentUrl = normalizeUrl(currentUrl)
+        const normalizedTargetUrl = normalizeUrl(newUrl)
 
-        if (currentUrl !== targetUrl) {
+        if (normalizedCurrentUrl !== normalizedTargetUrl) {
           await router.push(newUrl)
         }
       } catch (err) {
@@ -99,12 +144,13 @@ export function useLanguageNavigation({
         throw new Error(errorMessage)
       }
     },
-    [languageDataMap, router, t],
+    [getLanguageUrl, router, t],
   )
 
   return {
     availableLanguages,
     redirectToLanguage,
+    getLanguageUrl,
     isLoading: languageVersionsQuery.isLoading,
     error: languageVersionsQuery.error?.message || null,
   }

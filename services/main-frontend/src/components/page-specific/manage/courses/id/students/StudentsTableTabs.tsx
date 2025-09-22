@@ -28,16 +28,25 @@ import {
 const tableOuterScroll = css`
   width: 100%;
   overflow-x: auto;
-  // Do NOT set border-radius or border here!
+  /* no flex! */
+  background: transparent;
+  /* preserves scroll bar */
 `
 
-// style for the inner wrap (applies border and radius to content)
-const tableRoundedWrap = css`
+const tableCenteredInner = css`
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
   min-width: 900px;
+  max-width: 90vw; // Optional: sets table max width to 90% of viewport
+`
+
+const tableRoundedWrap = css`
   border-radius: 8px;
   border: 1px solid #ced1d7;
   background: #fff;
-  overflow: hidden; // keeps content inside rounded corners
+  overflow: hidden;
+  box-sizing: border-box;
 `
 
 // --- UNIVERSAL FLOATING HEADER TABLE ---
@@ -53,7 +62,7 @@ export function FloatingHeaderTable({ columns, data, colorHeaders = false }) {
   const [wrapRect, setWrapRect] = useState({ left: 0, width: 0 })
   const table = useReactTable({ columns, data, getCoreRowModel: getCoreRowModel() })
 
-  // Update column widths
+  // --- Effects for sticky header, colWidths, etc (unchanged) ---
   useEffect(() => {
     if (tableRef.current) {
       const ths = tableRef.current.querySelectorAll("thead tr:first-of-type th")
@@ -61,18 +70,6 @@ export function FloatingHeaderTable({ columns, data, colorHeaders = false }) {
     }
   }, [data.length])
 
-  // Listen for scroll and update scrollLeft
-  useEffect(() => {
-    const wrap = wrapRef.current
-    if (!wrap) {
-      return
-    }
-    const handleScroll = () => setScrollLeft(wrap.scrollLeft)
-    wrap.addEventListener("scroll", handleScroll)
-    return () => wrap.removeEventListener("scroll", handleScroll)
-  }, [])
-
-  // Update wrapRect for left and width
   useEffect(() => {
     function updateRect() {
       if (!wrapRef.current) {
@@ -90,12 +87,17 @@ export function FloatingHeaderTable({ columns, data, colorHeaders = false }) {
     }
   }, [])
 
-  // Show sticky header when table header is scrolled out of view
+  useEffect(() => {
+    const wrap = wrapRef.current
+    if (!wrap) return
+    const handleScroll = () => setScrollLeft(wrap.scrollLeft)
+    wrap.addEventListener("scroll", handleScroll)
+    return () => wrap.removeEventListener("scroll", handleScroll)
+  }, [])
+
   useEffect(() => {
     function onScroll() {
-      if (!tableRef.current) {
-        return
-      }
+      if (!tableRef.current) return
       const rect = tableRef.current.getBoundingClientRect()
       if (rect.top < 0 && rect.bottom > 48) {
         setShowSticky(true)
@@ -108,28 +110,23 @@ export function FloatingHeaderTable({ columns, data, colorHeaders = false }) {
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
 
-  // Coloring logic for header cells
   function getHeaderBg(headerRow, colIdx, header) {
-    if (!colorHeaders) {
-      return undefined
-    }
-
-    // ---- UPPER HEADER ROW (chapter group headers) ----
+    if (!colorHeaders) return undefined
+    // UPPER HEADER ROW (chapter group headers)
     if (headerRow === 0 && colIdx >= chapterHeaderStart && header.colSpan === 2) {
       const chapterIdx = Math.floor((colIdx - chapterHeaderStart) / 1)
       return colorPairs[chapterIdx % colorPairs.length][0] // lighter color
     }
-    // ---- LOWER HEADER ROW (subcolumns: points/attempted) ----
+    // LOWER HEADER ROW (subcolumns: points/attempted)
     if (headerRow === 1 && colIdx >= subHeaderStart && header.colSpan === 1) {
-      // Each chapter has 2 columns, so pairIdx advances every 2
       const pairIdx = Math.floor((colIdx - subHeaderStart) / 2)
-      const subIdx = (colIdx - subHeaderStart) % 2 // 0=points (light), 1=attempted (dark)
+      const subIdx = (colIdx - subHeaderStart) % 2
       return colorPairs[pairIdx % colorPairs.length][subIdx]
     }
     return undefined
   }
 
-  // --- Table Head Rendering ---
+  // --- TABLE HEAD RENDER (uses explicit widths) ---
   const renderTableHead = () => (
     <thead>
       {table.getHeaderGroups().map((headerGroup, rowIdx) => (
@@ -154,7 +151,7 @@ export function FloatingHeaderTable({ columns, data, colorHeaders = false }) {
     </thead>
   )
 
-  // --- Sticky Header Rendering ---
+  // --- STICKY HEADER RENDER (EXACT SAME WIDTHS) ---
   const renderStickyHeader = () => (
     <div
       style={{
@@ -172,31 +169,43 @@ export function FloatingHeaderTable({ columns, data, colorHeaders = false }) {
         transition: "left 0.2s, width 0.2s",
       }}
     >
-      <table
-        css={tableStyle}
+      <div
         style={{
-          transform: `translateX(-${scrollLeft}px)`,
+          minWidth: 900,
+          borderRadius: 8,
+          border: "1px solid #ced1d7",
+          background: "#fff",
+          overflow: "hidden",
+          display: "inline-block",
           margin: 0,
-          pointerEvents: "none",
         }}
       >
-        {renderTableHead()}
-      </table>
+        <table
+          style={{
+            borderCollapse: "separate",
+            borderSpacing: 0,
+            margin: 0,
+            pointerEvents: "none",
+            transform: `translateX(-${scrollLeft}px)`,
+          }}
+        >
+          {renderTableHead()}
+        </table>
+      </div>
     </div>
   )
 
-  // --- Table Body Rendering (no colors in body cells for now) ---
+  // --- BODY ---
   const renderTableBody = () => (
     <tbody>
       {table.getRowModel().rows.map((row, rowIdx) => (
         <tr key={row.id} css={rowStyle}>
           {row.getVisibleCells().map((cell, i) => {
             const isLast = rowIdx === data.length - 1
-            // Column coloring logic for progress columns (starting from subHeaderStart)
             let bg: string | undefined = undefined
             if (colorHeaders && i >= subHeaderStart) {
               const pairIdx = Math.floor((i - subHeaderStart) / 2)
-              const subIdx = (i - subHeaderStart) % 2 // 0=points, 1=attempted
+              const subIdx = (i - subHeaderStart) % 2
               bg = colorPairs[pairIdx % colorPairs.length][subIdx]
             }
             return (
@@ -207,7 +216,10 @@ export function FloatingHeaderTable({ columns, data, colorHeaders = false }) {
                   cell.column.columnDef.meta?.altBg && altBgStyle,
                   isLast && lastRowTdStyle,
                 ]}
-                style={{ width: colWidths[i], background: bg }}
+                style={{
+                  width: colWidths[i],
+                  background: bg,
+                }}
               >
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </td>
@@ -218,18 +230,40 @@ export function FloatingHeaderTable({ columns, data, colorHeaders = false }) {
     </tbody>
   )
 
+  // --- SCROLL & ROUNDED WRAP (native scrollbar only) ---
   return (
-    <div css={tableOuterScroll} ref={wrapRef} style={{ position: "relative" }}>
+    <div css={tableOuterScroll} style={{ position: "relative" }}>
       {showSticky && renderStickyHeader()}
-      <div css={tableRoundedWrap}>
-        <table css={tableStyle} ref={tableRef}>
-          {renderTableHead()}
-          {renderTableBody()}
-        </table>
+      <div css={tableCenteredInner}>
+        <div css={tableRoundedWrap}>
+          <div
+            ref={wrapRef}
+            style={{
+              width: "100%",
+              overflowX: "auto",
+              overflowY: "hidden",
+              borderRadius: 8,
+              border: "none",
+              background: "none",
+            }}
+          >
+            <table
+              css={tableStyle}
+              ref={tableRef}
+              style={{
+                minWidth: 900,
+              }}
+            >
+              {renderTableHead()}
+              {renderTableBody()}
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   )
 }
+
 
 // -- EXPORT TABLE CONTENTS FOR TABS --
 export const UserTabContent = () => (

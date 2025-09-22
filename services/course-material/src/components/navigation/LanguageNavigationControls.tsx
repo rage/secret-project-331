@@ -32,6 +32,7 @@ const LanguageNavigationControls: React.FC<LanguageNavigationControlsProps> = ({
 
   const { availableLanguages, redirectToLanguage, isLoading, error } = useLanguageNavigation({
     currentCourseId,
+    currentPageId: pageState.pageData?.id ?? null,
   })
 
   const languageOptions: LanguageOption[] = availableLanguages.map((lang) => ({

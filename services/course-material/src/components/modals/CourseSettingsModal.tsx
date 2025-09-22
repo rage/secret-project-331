@@ -94,6 +94,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
 
   const { redirectToLanguage, availableLanguages } = useLanguageNavigation({
     currentCourseId: pageState.pageData?.course_id ?? null,
+    currentPageId: pageState.pageData?.id ?? null,
   })
 
   // Find the language code for the selected course

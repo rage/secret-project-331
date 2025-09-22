@@ -10,6 +10,7 @@ import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/iet
 
 interface LanguageNavigationParams {
   currentCourseId: string | null
+  currentPageId: string | null
 }
 
 interface LanguageOption {
@@ -33,11 +34,15 @@ interface LanguageNavigationResult {
  */
 export function useLanguageNavigation({
   currentCourseId,
+  currentPageId,
 }: LanguageNavigationParams): LanguageNavigationResult {
   const router = useRouter()
   const { t } = useTranslation()
 
-  const languageVersionsQuery = useCourseLanguageVersionNavigationInfos(currentCourseId)
+  const languageVersionsQuery = useCourseLanguageVersionNavigationInfos(
+    currentCourseId,
+    currentPageId,
+  )
 
   const availableLanguages = useMemo((): LanguageOption[] => {
     if (!languageVersionsQuery.data) {

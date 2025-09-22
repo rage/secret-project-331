@@ -114,6 +114,7 @@ pub struct CourseLanguageVersionNavigationInfo {
     pub language_code: String,
     pub course_slug: String,
     pub page_path: String,
+    pub is_draft: bool,
 }
 
 impl CourseLanguageVersionNavigationInfo {
@@ -128,6 +129,7 @@ impl CourseLanguageVersionNavigationInfo {
             language_code: course.language_code.clone(),
             course_slug: course.slug.clone(),
             page_path: page_info.page_path.clone(),
+            is_draft: course.is_draft,
         }
     }
 }

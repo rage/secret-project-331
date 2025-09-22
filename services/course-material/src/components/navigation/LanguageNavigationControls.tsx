@@ -71,8 +71,25 @@ const LanguageNavigationControls: React.FC<LanguageNavigationControlsProps> = ({
     )
   }
 
-  // If the current language is the only language that is available, don't show the language selection
-  return null
+  // Additional safety check: verify we're actually on the only offered version
+  const currentLanguageCode = pageState.course?.language_code
+  const isOnOnlyOfferedVersion =
+    languageOptions.length === 1 &&
+    currentLanguageCode &&
+    languageOptions[0]?.tag === currentLanguageCode
+
+  if (isOnOnlyOfferedVersion || languageOptions.length === 0) {
+    return null
+  }
+
+  console.warn("Available languages length is 1, but we're not on the only offered version")
+  return (
+    <LanguageSelection
+      placement={placement}
+      languages={languageOptions}
+      handleLanguageChange={handleLanguageChange}
+    />
+  )
 }
 
 export default LanguageNavigationControls

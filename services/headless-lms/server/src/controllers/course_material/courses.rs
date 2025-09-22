@@ -39,7 +39,8 @@ use models::{
 
 use crate::{
     domain::authorization::{
-        authorize_access_to_course_material, can_user_view_chapter, skip_authorize,
+        Action, Resource, authorize_access_to_course_material,
+        authorize_with_fetched_list_of_roles, can_user_view_chapter, skip_authorize,
     },
     prelude::*,
 };
@@ -688,7 +689,7 @@ async fn get_public_top_level_pages(
 }
 
 /**
-GET `/api/v0/course-material/courses/:id/language-versions-navigation-info/from-page/:page_id` - Returns all language versions of the same course. Since this is for course material, this does not include draft courses. To make developing new courses easier, we include draft courses if the course the request for is a draft course and the teacher has a permission to access it.
+GET `/api/v0/course-material/courses/:id/language-versions-navigation-info/from-page/:page_id` - Returns all language versions of the same course. Since this is for course material, this does not include draft courses. To make developing new courses easier, we include all draft courses that the user has access to.
 */
 #[instrument(skip(pool))]
 async fn get_all_course_language_versions_navigation_info_from_page(
@@ -704,52 +705,40 @@ async fn get_all_course_language_versions_navigation_info_from_page(
     let unfiltered_language_versions =
         models::courses::get_all_language_versions_of_course(&mut conn, &course).await?;
 
-    let language_versions = unfiltered_language_versions
-        .clone()
-        .into_iter()
-        .filter(|c| !c.is_draft)
-        .collect::<Vec<_>>();
-
     let all_pages_in_same_page_language_group =
         models::page_language_groups::get_all_pages_in_page_language_group_mapping(
             &mut conn, page_id,
         )
         .await?;
 
-    if !language_versions.iter().any(|c| c.id == course.id) {
-        // The course the language version was requested for is likely a draft course.
-        if let Some(user_id) = user.map(|u| u.id) {
-            let access_draft_course_token =
-                authorize_access_to_course_material(&mut conn, Some(user_id), course_id).await?;
-            info!(
-                "Course {} the language version was requested for is a draft course. Including all draft courses in the response.",
-                course.id,
-            );
-            return access_draft_course_token.authorized_ok(web::Json(
-                unfiltered_language_versions
-                    .into_iter()
-                    .filter_map(|c| {
-                        all_pages_in_same_page_language_group
-                            .get(&CourseOrExamId::Course(c.id))
-                            .map(|page_language_group_navigation_info| {
-                                CourseLanguageVersionNavigationInfo::from_course_and_page_info(
-                                    &c,
-                                    page_language_group_navigation_info,
-                                )
-                            })
-                    })
-                    .collect(),
-            ));
-        } else {
-            return Err(ControllerError::new(
-                ControllerErrorType::Unauthorized,
-                "Please log in".to_string(),
-                None,
-            ));
+    let mut accessible_courses = unfiltered_language_versions
+        .clone()
+        .into_iter()
+        .filter(|c| !c.is_draft)
+        .collect::<Vec<_>>();
+
+    // If user is logged in, check access if we need to add draft courses
+    if let Some(user_id) = user.map(|u| u.id) {
+        let user_roles = models::roles::get_roles(&mut conn, user_id).await?;
+
+        for course_version in unfiltered_language_versions.iter().filter(|c| c.is_draft) {
+            if authorize_with_fetched_list_of_roles(
+                &mut conn,
+                Action::ViewMaterial,
+                Some(user_id),
+                Resource::Course(course_version.id),
+                &user_roles,
+            )
+            .await
+            .is_ok()
+            {
+                accessible_courses.push(course_version.clone());
+            }
         }
     }
+
     token.authorized_ok(web::Json(
-        language_versions
+        accessible_courses
             .into_iter()
             .filter_map(|c| {
                 all_pages_in_same_page_language_group

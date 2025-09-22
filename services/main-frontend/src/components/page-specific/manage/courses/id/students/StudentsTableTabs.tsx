@@ -3,6 +3,8 @@ import { css } from "@emotion/react"
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table"
 import React, { useEffect, useRef, useState } from "react"
 
+import { colorPairs } from "./studentsTableColors"
+
 // StudentsTableTabs.tsx
 import {
   baseStudents,
@@ -24,9 +26,10 @@ import {
 } from "./studentsTableStyles"
 
 // --- UNIVERSAL FLOATING HEADER TABLE ---
-// StudentsTableTabs.tsx
+const chapterHeaderStart = 2 // First chapter header (upper, uses only light color)
+const subHeaderStart = 3 // First subheader (lower, uses light/dark pair)
 
-export function FloatingHeaderTable({ columns, data }) {
+export function FloatingHeaderTable({ columns, data, colorHeaders = false }) {
   const tableRef = useRef(null)
   const wrapRef = useRef(null)
   const [showSticky, setShowSticky] = useState(false)
@@ -90,96 +93,122 @@ export function FloatingHeaderTable({ columns, data }) {
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
 
+  // Coloring logic for header cells
+  function getHeaderBg(headerRow, colIdx, header) {
+    if (!colorHeaders) {
+      return undefined
+    }
+
+    // ---- UPPER HEADER ROW (chapter group headers) ----
+    if (headerRow === 0 && colIdx >= chapterHeaderStart && header.colSpan === 2) {
+      const chapterIdx = Math.floor((colIdx - chapterHeaderStart) / 1)
+      return colorPairs[chapterIdx % colorPairs.length][0] // lighter color
+    }
+    // ---- LOWER HEADER ROW (subcolumns: points/attempted) ----
+    if (headerRow === 1 && colIdx >= subHeaderStart && header.colSpan === 1) {
+      // Each chapter has 2 columns, so pairIdx advances every 2
+      const pairIdx = Math.floor((colIdx - subHeaderStart) / 2)
+      const subIdx = (colIdx - subHeaderStart) % 2 // 0=points (light), 1=attempted (dark)
+      return colorPairs[pairIdx % colorPairs.length][subIdx]
+    }
+    return undefined
+  }
+
+  // --- Table Head Rendering ---
+  const renderTableHead = () => (
+    <thead>
+      {table.getHeaderGroups().map((headerGroup, rowIdx) => (
+        <tr key={headerGroup.id} css={headerRowStyle}>
+          {headerGroup.headers.map((header, colIdx) => (
+            <th
+              key={header.id}
+              css={[thStyle, header.column.columnDef.meta?.altBg && altBgStyle]}
+              style={{
+                minWidth: 110,
+                width: colWidths[colIdx],
+                background: getHeaderBg(rowIdx, colIdx, header),
+              }}
+              rowSpan={header.depth === 0 && header.colSpan === 1 ? 2 : undefined}
+              colSpan={header.colSpan > 1 ? header.colSpan : undefined}
+            >
+              {flexRender(header.column.columnDef.header, header.getContext())}
+            </th>
+          ))}
+        </tr>
+      ))}
+    </thead>
+  )
+
+  // --- Sticky Header Rendering ---
+  const renderStickyHeader = () => (
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: wrapRect.left,
+        width: wrapRect.width,
+        zIndex: 100,
+        pointerEvents: "none",
+        background: "#f7f8f9",
+        boxShadow: "0 2px 6px 0 rgba(0,0,0,0.04)",
+        overflow: "hidden",
+        margin: 0,
+        padding: 0,
+        transition: "left 0.2s, width 0.2s",
+      }}
+    >
+      <table
+        css={tableStyle}
+        style={{
+          transform: `translateX(-${scrollLeft}px)`,
+          margin: 0,
+          pointerEvents: "none",
+        }}
+      >
+        {renderTableHead()}
+      </table>
+    </div>
+  )
+
+  // --- Table Body Rendering (no colors in body cells for now) ---
+  const renderTableBody = () => (
+    <tbody>
+      {table.getRowModel().rows.map((row, rowIdx) => (
+        <tr key={row.id} css={rowStyle}>
+          {row.getVisibleCells().map((cell, i) => {
+            const isLast = rowIdx === data.length - 1
+            // Column coloring logic for progress columns (starting from subHeaderStart)
+            let bg: string | undefined = undefined
+            if (colorHeaders && i >= subHeaderStart) {
+              const pairIdx = Math.floor((i - subHeaderStart) / 2)
+              const subIdx = (i - subHeaderStart) % 2 // 0=points, 1=attempted
+              bg = colorPairs[pairIdx % colorPairs.length][subIdx]
+            }
+            return (
+              <td
+                key={cell.id}
+                css={[
+                  tdStyle,
+                  cell.column.columnDef.meta?.altBg && altBgStyle,
+                  isLast && lastRowTdStyle,
+                ]}
+                style={{ width: colWidths[i], background: bg }}
+              >
+                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              </td>
+            )
+          })}
+        </tr>
+      ))}
+    </tbody>
+  )
+
   return (
     <div css={tableOuterWrap} ref={wrapRef} style={{ position: "relative" }}>
-      {/* Sticky header: fixed to top of window, horizontally synced to scrollable area */}
-      {showSticky && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: wrapRect.left,
-            width: wrapRect.width,
-            zIndex: 100,
-            pointerEvents: "none",
-            background: "#f7f8f9",
-            boxShadow: "0 2px 6px 0 rgba(0,0,0,0.04)",
-            overflow: "hidden",
-            margin: 0,
-            padding: 0,
-            transition: "left 0.2s, width 0.2s",
-          }}
-        >
-          <table
-            css={tableStyle}
-            style={{
-              transform: `translateX(-${scrollLeft}px)`,
-              margin: 0,
-              pointerEvents: "none", // Make sure it's not interactive
-            }}
-          >
-            <thead>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id} css={headerRowStyle}>
-                  {headerGroup.headers.map((header, i) => (
-                    <th
-                      key={header.id}
-                      css={[thStyle, header.column.columnDef.meta?.altBg && altBgStyle]}
-                      style={{ minWidth: 110, width: colWidths[i] }}
-                      rowSpan={header.depth === 0 && header.colSpan === 1 ? 2 : undefined}
-                      colSpan={header.colSpan > 1 ? header.colSpan : undefined}
-                    >
-                      {flexRender(header.column.columnDef.header, header.getContext())}
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-          </table>
-        </div>
-      )}
-      {/* Real table */}
+      {showSticky && renderStickyHeader()}
       <table css={tableStyle} ref={tableRef}>
-        {/* ... as before ... */}
-        <thead>
-          {table.getHeaderGroups().map((headerGroup, idx) => (
-            <tr key={headerGroup.id} css={headerRowStyle}>
-              {headerGroup.headers.map((header, i) => (
-                <th
-                  key={header.id}
-                  css={[thStyle, header.column.columnDef.meta?.altBg && altBgStyle]}
-                  style={{ minWidth: 110, width: colWidths[i] }}
-                  rowSpan={header.depth === 0 && header.colSpan === 1 ? 2 : undefined}
-                  colSpan={header.colSpan > 1 ? header.colSpan : undefined}
-                >
-                  {flexRender(header.column.columnDef.header, header.getContext())}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody>
-          {table.getRowModel().rows.map((row, idx) => (
-            <tr key={row.id} css={rowStyle}>
-              {row.getVisibleCells().map((cell, i) => {
-                const isLast = idx === data.length - 1
-                return (
-                  <td
-                    key={cell.id}
-                    css={[
-                      tdStyle,
-                      cell.column.columnDef.meta?.altBg && altBgStyle,
-                      isLast && lastRowTdStyle,
-                    ]}
-                    style={{ width: colWidths[i] }}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                )
-              })}
-            </tr>
-          ))}
-        </tbody>
+        {renderTableHead()}
+        {renderTableBody()}
       </table>
     </div>
   )
@@ -216,5 +245,5 @@ export const CompletionsTabContent = () => (
   <FloatingHeaderTable columns={completionsColumns} data={completionsData} />
 )
 export const PointsTabContent = () => (
-  <FloatingHeaderTable columns={pointsColumns} data={pointsData} />
+  <FloatingHeaderTable columns={pointsColumns} data={pointsData} colorHeaders={true} />
 )

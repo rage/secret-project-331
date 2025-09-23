@@ -222,7 +222,7 @@ impl AzureConfiguration {
             vectorizer_api_key: "".to_string(),
             vectorizer_model_name: "".to_string(),
             search_api_key: "".to_string(),
-            search_endpoint: Url::from_str("https://example.doesnotexist/")?,
+            search_endpoint: Url::from_str("https://example.com/does-not-exist/")?,
         });
         let blob_storage_config = Some(AzureBlobStorageConfiguration {
             storage_account: "".to_string(),

@@ -307,10 +307,11 @@ bin/detect-dev-env-problems
 
 You can find a lot of useful information in [Index](https://github.com/rage/secret-project-331/tree/master/docs#readme)
 
-### Troubleshoot:
+### Troubleshoot
 
-## bin/dev step
-
+```bash
+bin/dev step
+```
 If postgres pod does not enter ready state, which you can find out this by using the following command:
 
 ```bash
@@ -320,5 +321,5 @@ bin/pods
 In these cases it may help to run the command below, which sets up a new database:
 
 ```bash
-postgres-remove-data
+bin/postgres-remove-data
 ```

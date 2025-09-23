@@ -629,6 +629,15 @@ export interface NewCourse {
   can_add_chatbot: boolean
 }
 
+export interface CourseLanguageVersionNavigationInfo {
+  course_language_group_id: string
+  course_id: string
+  language_code: string
+  course_slug: string
+  page_path: string
+  is_draft: boolean
+}
+
 export interface EmailTemplate {
   id: string
   created_at: string
@@ -1535,6 +1544,7 @@ export interface CoursePageWithUserData {
   instance: CourseInstance | null
   settings: UserCourseSettings | null
   course: Course | null
+  organization: Organization | null
   was_redirected: boolean
   is_test_mode: boolean
 }

@@ -11,14 +11,11 @@ pub type Token =
     oauth2::StandardTokenResponse<oauth2::EmptyExtraTokenFields, oauth2::basic::BasicTokenType>;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct CourseInstance {
+pub struct Course {
     pub id: Uuid,
-    pub course_id: Uuid,
-    pub course_slug: String,
-    pub course_name: String,
-    pub course_description: Option<String>,
-    pub instance_name: Option<String>,
-    pub instance_description: Option<String>,
+    pub slug: String,
+    pub name: String,
+    pub description: Option<String>,
     pub organization_name: String,
 }
 

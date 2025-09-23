@@ -1,10 +1,10 @@
 import { css } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { useRouter } from "next/router"
 import React, { useContext, useEffect, useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import PageContext from "../../contexts/PageContext"
+import useLanguageNavigation from "../../hooks/useLanguageNavigation"
 import {
   fetchCourseById,
   fetchCourseInstances,
@@ -14,11 +14,7 @@ import {
 import SelectCourseLanguage from "../SelectCourseLanguage"
 import SelectCourseInstanceForm from "../forms/SelectCourseInstanceForm"
 
-import {
-  getLanguageName,
-  useFigureOutNewLangCode,
-  useFigureOutNewUrl,
-} from "./ChooseCourseLanguage"
+import { getLanguageName } from "./ChooseCourseLanguage"
 
 import { NewCourseBackgroundQuestionAnswer } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -47,7 +43,6 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
   const loginState = useContext(LoginStateContext)
   const pageState = useContext(PageContext)
   const dialogTitleId = useId()
-  const router = useRouter()
 
   // i18n.language changes automatically when the page is loaded, need to update dialogLanguage automatically so that we can accurately detect when the user has changed the language
   useEffect(() => {
@@ -60,9 +55,11 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
   }, [i18n.language])
 
   const savedOrDefaultLangCourseId =
-    pageState.settings?.current_course_id ?? pageState.pageData?.course_id ?? ""
+    pageState.settings?.current_course_id ?? pageState.pageData?.course_id ?? null
 
-  const [selectedLangCourseId, setSelectedLangCourseId] = React.useState(savedOrDefaultLangCourseId)
+  const [selectedLangCourseId, setSelectedLangCourseId] = useState<string | null>(
+    savedOrDefaultLangCourseId,
+  )
 
   const [submitError, setSubmitError] = useState<unknown>()
   const [open, setOpen] = useState(manualOpen)
@@ -72,21 +69,21 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
 
   const getCourseInstances = useQuery({
     queryKey: ["course-instances", selectedLangCourseId],
-    queryFn: () => fetchCourseInstances(selectedLangCourseId as NonNullable<string>),
+    queryFn: () => fetchCourseInstances(assertNotNullOrUndefined(selectedLangCourseId)),
     enabled: selectedLangCourseId !== null && open && pageState.state === "ready",
   })
   sortInstances()
 
   const askMarketingConsent = useQuery({
     queryKey: ["courses", selectedLangCourseId],
-    queryFn: () => fetchCourseById(selectedLangCourseId as NonNullable<string>),
+    queryFn: () => fetchCourseById(assertNotNullOrUndefined(selectedLangCourseId)),
     enabled: selectedLangCourseId !== null,
   }).data?.ask_marketing_consent
 
   const checkUserMarketingConsent = useQuery({
     queryKey: ["marketing-consent", selectedLangCourseId],
     queryFn: () => fetchUserMarketingConsent(assertNotNullOrUndefined(selectedLangCourseId)),
-    enabled: selectedLangCourseId !== undefined,
+    enabled: selectedLangCourseId !== null,
   }).data?.email_subscription_in_mailchimp
 
   useEffect(() => {
@@ -95,11 +92,15 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedLangCourseId])
 
-  const newUrl = useFigureOutNewUrl(
-    selectedLangCourseId,
-    pageState.pageData?.page_language_group_id ?? null,
-  )
-  const newLangcode = useFigureOutNewLangCode(selectedLangCourseId)
+  const { redirectToLanguage, availableLanguages } = useLanguageNavigation({
+    currentCourseId: pageState.pageData?.course_id ?? null,
+    currentPageId: pageState.pageData?.id ?? null,
+  })
+
+  // Find the language code for the selected course
+  const newLangcode = availableLanguages?.find(
+    (lang) => lang.courseId === selectedLangCourseId,
+  )?.code
 
   useEffect(() => {
     const signedIn = !!loginState.signedIn
@@ -132,8 +133,8 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
         })
 
         await queryClient.invalidateQueries()
-        if (languageChanged && newUrl) {
-          await router.push(newUrl)
+        if (languageChanged && newLangcode) {
+          await redirectToLanguage(newLangcode)
         }
 
         if (pageState.refetchPage) {
@@ -184,17 +185,20 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
         >
           {t("title-course-settings")}
         </h1>
-        <SelectCourseLanguage
-          selectedLangCourseId={selectedLangCourseId}
-          setSelectedLangCourseId={setSelectedLangCourseId}
-          setDialogLanguage={setDialogLanguage}
-          dialogLanguage={dialogLanguage}
-        />
+        {pageState.pageData?.id && selectedLangCourseId && (
+          <SelectCourseLanguage
+            selectedLangCourseId={selectedLangCourseId}
+            setSelectedLangCourseId={setSelectedLangCourseId}
+            setDialogLanguage={setDialogLanguage}
+            dialogLanguage={dialogLanguage}
+            currentPageId={pageState.pageData.id}
+          />
+        )}
         {getCourseInstances.isError && (
           <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
         )}
         {getCourseInstances.isPending && <Spinner variant={"medium"} />}
-        {getCourseInstances.isSuccess && (
+        {getCourseInstances.isSuccess && selectedLangCourseId && (
           <SelectCourseInstanceForm
             courseInstances={getCourseInstances.data}
             submitMutation={handleSubmitAndCloseMutation}

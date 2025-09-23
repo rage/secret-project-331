@@ -105,6 +105,35 @@ impl From<Course> for CourseMaterialCourse {
     }
 }
 
+/** All the necessary info that can be used to switch the user's browser to a different language version of the course. */
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CourseLanguageVersionNavigationInfo {
+    pub course_language_group_id: Uuid,
+    pub course_id: Uuid,
+    pub language_code: String,
+    pub course_slug: String,
+    pub page_path: String,
+    pub is_draft: bool,
+}
+
+impl CourseLanguageVersionNavigationInfo {
+    /// Creates a new `CourseLanguageVersionNavigationInfo` from a course and page language group navigation info.
+    pub fn from_course_and_page_info(
+        course: &Course,
+        page_info: &crate::page_language_groups::PageLanguageGroupNavigationInfo,
+    ) -> Self {
+        Self {
+            course_language_group_id: course.course_language_group_id,
+            course_id: course.id,
+            language_code: course.language_code.clone(),
+            course_slug: course.slug.clone(),
+            page_path: page_info.page_path.clone(),
+            is_draft: course.is_draft,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseBreadcrumbInfo {

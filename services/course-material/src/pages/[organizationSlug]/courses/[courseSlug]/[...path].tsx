@@ -78,6 +78,7 @@ const PagePage: React.FC = () => {
           course: getCoursePageByPath.data.course ?? null,
           exam: null,
           isTest: getCoursePageByPath.data.is_test_mode,
+          organization: getCoursePageByPath.data.organization ?? null,
         },
       })
     }

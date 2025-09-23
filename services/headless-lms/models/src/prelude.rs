@@ -2,7 +2,9 @@
 //! Intended to be glob-imported like `use crate::prelude::*;`.
 
 pub use chrono::{DateTime, Utc};
-pub use headless_lms_utils::pagination::Pagination;
+pub use headless_lms_utils::{
+    ApplicationConfiguration, file_store::FileStore, pagination::Pagination,
+};
 pub use serde::{Deserialize, Serialize};
 pub use sqlx::{Connection, FromRow, PgConnection, Type};
 #[cfg(feature = "ts_rs")]

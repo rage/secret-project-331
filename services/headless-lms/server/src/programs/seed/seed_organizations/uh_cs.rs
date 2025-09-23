@@ -21,7 +21,7 @@ use uuid::Uuid;
 use crate::{
     domain::models_requests::{self, JwtKey},
     programs::seed::{
-        seed_courses::seed_courses::{
+        seed_courses::{
             CommonCourseData, create_glossary_course, seed_cs_course_material,
             seed_peer_review_course_without_submissions, seed_sample_course,
         },

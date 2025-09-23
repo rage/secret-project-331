@@ -6,14 +6,12 @@
 interface CourseUrlParts {
   origin: string
   organizationSlug: string
-  courseType: string
   courseSlug: string
   pagePath: string
 }
 
 interface ParsedCourseUrl {
   organizationSlug: string | null
-  courseType: string | null
   courseSlug: string | null
   pagePath: string | null
 }
@@ -24,12 +22,11 @@ interface ParsedCourseUrl {
 export function buildCourseUrl({
   origin,
   organizationSlug,
-  courseType = "courses",
   courseSlug,
   pagePath,
 }: CourseUrlParts): string {
   const cleanPagePath = pagePath.startsWith("/") ? pagePath : `/${pagePath}`
-  return `${origin}/${organizationSlug}/${courseType}/${courseSlug}${cleanPagePath}`
+  return `${origin}/org/${organizationSlug}/courses/${courseSlug}${cleanPagePath}`
 }
 
 /**
@@ -41,16 +38,15 @@ export function parseCourseUrl(url: string): ParsedCourseUrl {
     const urlObj = new URL(url)
     const pathSegments = urlObj.pathname.split("/").filter(Boolean)
 
-    // Expected pattern: /{orgSlug}/{courseType}/{courseSlug}/{...pagePath}
-    if (pathSegments.length < 4) {
+    // Expected pattern: /org/{orgSlug}/courses/{courseSlug}/{...pagePath}
+    if (pathSegments.length < 4 || pathSegments[0] !== "org" || pathSegments[2] !== "courses") {
       throw new Error("Invalid course URL structure")
     }
 
-    const [organizationSlug, courseType, courseSlug, ...pagePathSegments] = pathSegments
+    const [, organizationSlug, , courseSlug, ...pagePathSegments] = pathSegments
 
     return {
       organizationSlug,
-      courseType,
       courseSlug,
       pagePath: pagePathSegments.length > 0 ? `/${pagePathSegments.join("/")}` : "/",
     }
@@ -58,7 +54,6 @@ export function parseCourseUrl(url: string): ParsedCourseUrl {
     console.error("Failed to parse course URL:", error)
     return {
       organizationSlug: null,
-      courseType: null,
       courseSlug: null,
       pagePath: null,
     }
@@ -70,7 +65,7 @@ export function parseCourseUrl(url: string): ParsedCourseUrl {
  */
 export function isValidCourseUrl(url: string): boolean {
   const parsed = parseCourseUrl(url)
-  return !!(parsed.organizationSlug && parsed.courseType && parsed.courseSlug)
+  return !!(parsed.organizationSlug && parsed.courseSlug)
 }
 
 /**
@@ -83,15 +78,14 @@ export function buildLanguageSwitchedUrl(
 ): string {
   const parsed = parseCourseUrl(currentUrl)
 
-  if (!parsed.organizationSlug || !parsed.courseType || !parsed.courseSlug) {
+  if (!parsed.organizationSlug || !parsed.courseSlug) {
     throw new Error("Invalid course URL structure")
   }
 
   return buildCourseUrl({
     origin: new URL(currentUrl).origin,
     organizationSlug: parsed.organizationSlug,
-    courseType: parsed.courseType, // Preserve original course type "uh-cs"
-    courseSlug: parsed.courseSlug, // Preserve original course slug "courses"
-    pagePath: `${newCourseSlug}${newPagePath}`, // Combine new course slug with page path
+    courseSlug: newCourseSlug,
+    pagePath: newPagePath,
   })
 }

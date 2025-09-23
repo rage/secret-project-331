@@ -76,6 +76,7 @@
   "delete": "Radera",
   "do-you-want-to-send-changes": "Du har gjort ändringar och bör se en förhandsvisning av dem i kursmaterialet. Klicka på skicka för att skicka dina ändringar till kurspersonalen för granskning, eller klicka på ett annat stycke för att göra fler ändringar.",
   "dont-know-how-to-render-this-assignment": "Vet inte hur man renderar denna uppgift.",
+  "draft": "Utkast",
   "email-communication-consent-checkbox-text": "Jag samtycker till att ta emot e-postkommunikation relaterad till MOOC.fi kurser och utvecklingen av lärmiljön. Sådan kommunikation kan inkludera, till exempel, meddelanden om nya kurser och tjänster, nyhetsbrev eller inbjudningar till användarundersökningar.",
   "ends-at-time": "Slutar: {{time}}",
   "enroll": "Registrera",

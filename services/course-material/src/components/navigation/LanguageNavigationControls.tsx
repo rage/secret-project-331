@@ -36,7 +36,7 @@ const LanguageNavigationControls: React.FC<LanguageNavigationControlsProps> = ({
 
   const languageOptions: LanguageOption[] = availableLanguages.map((lang) => ({
     tag: lang.code,
-    name: lang.name,
+    name: lang.isDraft ? `${lang.name} (${t("draft")})` : lang.name,
   }))
 
   const handleLanguageChange = useCallback(

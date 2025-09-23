@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import React, { useCallback, useContext, useEffect } from "react"
+import React, { useCallback, useContext, useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import PageContext from "../contexts/PageContext"
@@ -65,25 +65,35 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
   )
 
   //Puts the current course at the top of the list
-  if (courseLanguageVersionsQuery.data) {
+  const reorderedCourseLanguageVersions = useMemo(() => {
+    if (!courseLanguageVersionsQuery.data) {
+      return []
+    }
     const i = courseLanguageVersionsQuery.data.findIndex(
       (courseLanguageVersionNavigationInfo) =>
         courseLanguageVersionNavigationInfo.course_id === currentCourseId,
     )
+    if (i === -1) {
+      return courseLanguageVersionsQuery.data.slice()
+    }
     const item = courseLanguageVersionsQuery.data[i]
-    courseLanguageVersionsQuery.data.splice(i, 1)
-    courseLanguageVersionsQuery.data.unshift(item)
-  }
+    const reordered = [
+      item,
+      ...courseLanguageVersionsQuery.data.slice(0, i),
+      ...courseLanguageVersionsQuery.data.slice(i + 1),
+    ]
+    return reordered
+  }, [courseLanguageVersionsQuery.data, currentCourseId])
 
   useEffect(() => {
-    if (courseLanguageVersionsQuery.data && langCode === "") {
-      const firstLanguageVersion = courseLanguageVersionsQuery.data[0]
+    if (reorderedCourseLanguageVersions.length > 0 && langCode === "") {
+      const firstLanguageVersion = reorderedCourseLanguageVersions[0]
       if (!firstLanguageVersion) {
         return
       }
       setDialogLanguage(firstLanguageVersion.language_code)
     }
-  }, [currentCourseId, courseLanguageVersionsQuery.data, langCode, setDialogLanguage])
+  }, [currentCourseId, reorderedCourseLanguageVersions, langCode, setDialogLanguage])
 
   if (courseLanguageVersionsQuery.isPending) {
     return <Spinner variant="medium" />
@@ -93,7 +103,7 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
     return <ErrorBanner variant="readOnly" error={courseLanguageVersionsQuery.error} />
   }
 
-  if (courseLanguageVersionsQuery.data && courseLanguageVersionsQuery.data.length < 2) {
+  if (reorderedCourseLanguageVersions.length < 2) {
     // The course has only 1 language version, so no need to show the language selection
     return null
   }
@@ -138,7 +148,7 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
           onChange={onChange}
           defaultValue={selectedLangCourseId}
         >
-          {courseLanguageVersionsQuery.data?.map((courseLanguageVersionNavigationInfo) => (
+          {reorderedCourseLanguageVersions.map((courseLanguageVersionNavigationInfo) => (
             <option
               key={courseLanguageVersionNavigationInfo.course_id}
               value={courseLanguageVersionNavigationInfo.course_id}

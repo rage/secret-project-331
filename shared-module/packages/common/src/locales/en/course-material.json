@@ -76,6 +76,7 @@
   "delete": "Delete",
   "do-you-want-to-send-changes": "You have made changes and should see a preview of them in the course material. Click send to send your changes to course staff for review, or click another paragraph to make more changes.",
   "dont-know-how-to-render-this-assignment": "Don't know how to render this assignment.",
+  "draft": "Draft",
   "email-communication-consent-checkbox-text": "I consent to receiving email communication related to MOOC.fi courses and the development of the learning environment. Such communication may include, for example, notifications about new courses and services, newsletters, or invitations to user surveys.",
   "ends-at-time": "Ends: {{time}}",
   "enroll": "Enroll",

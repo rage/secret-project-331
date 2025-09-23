@@ -19,6 +19,7 @@ interface LanguageOption {
   courseId: string
   courseSlug: string
   pagePath: string
+  isDraft: boolean
 }
 
 interface LanguageNavigationResult {
@@ -84,6 +85,7 @@ export function useLanguageNavigation({
       courseId: version.course_id,
       courseSlug: version.course_slug,
       pagePath: version.page_path,
+      isDraft: version.is_draft,
     }))
   }, [languageVersionsQuery.data])
 

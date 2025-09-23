@@ -17,6 +17,7 @@ import dontRenderUntilQueryParametersReady, {
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
 
 interface PagesProps {
   query: SimplifiedUrlQuery<"id">
@@ -38,6 +39,9 @@ const Pages = ({ query }: PagesProps) => {
       return res
     },
     select: (data) => {
+      if (!isGutenbergBlockArray(data.page.content)) {
+        throw new Error("Content is not a GutenbergBlock array")
+      }
       const page: Page = {
         ...data.page,
         content: denormalizeDocument({

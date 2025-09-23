@@ -21,8 +21,9 @@ use dpop_verifier::DpopError;
 use headless_lms_utils::ApplicationConfiguration;
 use headless_lms_utils::prelude::*;
 use models::{
-    oauth_access_token::OAuthAccessToken, oauth_auth_code::OAuthAuthCode,
-    oauth_client::OAuthClient, oauth_refresh_tokens::OAuthRefreshTokens,
+    oauth_access_token::NewAccessTokenParams, oauth_access_token::OAuthAccessToken,
+    oauth_auth_code::OAuthAuthCode, oauth_client::OAuthClient,
+    oauth_refresh_tokens::NewRefreshTokenParams, oauth_refresh_tokens::OAuthRefreshTokens,
     oauth_user_client_scopes::AuthorizedClientInfo,
     oauth_user_client_scopes::OAuthUserClientScopes, user_details,
 };
@@ -94,20 +95,18 @@ async fn authorize(
                 let (pepper, pepper_id) = read_token_pepper()?;
                 let code_digest = token_digest_hmac_sha256(&code, &pepper);
 
-                OAuthAuthCode::insert(
-                    &mut conn,
-                    code_digest,
+                let new_auth_code_params = models::oauth_auth_code::NewAuthCodeParams {
+                    digest: &code_digest,
                     pepper_id,
-                    user.id,
-                    client.id,
-                    &query.redirect_uri,
-                    &query.scope,
-                    query.nonce.as_deref().unwrap_or_default(),
+                    user_id: user.id,
+                    client_id: client.id,
+                    redirect_uri: &query.redirect_uri,
+                    scope: Some(&query.scope),
+                    nonce: query.nonce.as_deref(),
                     expires_at,
-                    serde_json::Map::new(),
-                )
-                .await?;
-
+                    metadata: serde_json::Map::new(),
+                };
+                OAuthAuthCode::insert(&mut conn, new_auth_code_params).await?;
                 redirect_with_code(&query.redirect_uri, &code, query.state.as_deref())
             }
         }
@@ -323,19 +322,18 @@ async fn token(
             let expires_at = Utc::now() + access_ttl;
 
             let at_digest = token_digest_hmac_sha256(&access_token_plain, &pepper);
-            OAuthAccessToken::insert(
-                &mut conn,
-                at_digest,
+            let new_access_token_params = NewAccessTokenParams {
+                digest: &at_digest,
                 pepper_id,
-                Some(auth_code.user_id),
-                auth_code.client_id,
-                &scope,
-                "",                     // audience
-                &jkt_at_issue,          // dpop_jkt
-                serde_json::Map::new(), // metadata
+                user_id: Some(auth_code.user_id),
+                client_id: auth_code.client_id,
+                scope: Some(&scope),
+                audience: None,
+                dpop_jkt: &jkt_at_issue,
+                metadata: serde_json::Map::new(),
                 expires_at,
-            )
-            .await?;
+            };
+            OAuthAccessToken::insert(&mut conn, new_access_token_params).await?;
 
             // revoke previous RTs for this user+client, then insert fresh RT
             OAuthRefreshTokens::revoke_all_by_user_client(
@@ -346,20 +344,19 @@ async fn token(
             .await?;
 
             let rt_digest = token_digest_hmac_sha256(&new_refresh_token_plain, &pepper);
-            OAuthRefreshTokens::insert(
-                &mut conn,
-                rt_digest,
+            let new_refresh_token_params = NewRefreshTokenParams {
+                digest: &rt_digest,
+                user_id: auth_code.user_id,
+                client_id: auth_code.client_id,
+                scope: &scope,
+                audience: None,
                 pepper_id,
-                auth_code.user_id,
-                auth_code.client_id,
-                &scope,
-                "", // audience
-                refresh_token_expires_at,
-                None,                   // rotated_from
-                serde_json::Map::new(), // metadata
-                &jkt_at_issue,
-            )
-            .await?;
+                metadata: serde_json::Map::new(),
+                dpop_jkt: &jkt_at_issue,
+                expires_at: refresh_token_expires_at,
+                rotated_from: None,
+            };
+            OAuthRefreshTokens::insert(&mut conn, new_refresh_token_params).await?;
 
             (
                 auth_code.user_id,
@@ -399,37 +396,35 @@ async fn token(
             .await?;
 
             let rt_digest = token_digest_hmac_sha256(&new_refresh_token_plain, &pepper);
-            OAuthRefreshTokens::insert(
-                &mut conn,
-                rt_digest,
+            let new_refresh_token_params = NewRefreshTokenParams {
+                digest: &rt_digest,
+                user_id: token.user_id,
+                client_id: token.client_id,
+                scope: &token.scope,
+                audience: token.audience.as_deref(),
                 pepper_id,
-                token.user_id,
-                token.client_id,
-                &token.scope,
-                token.audience.as_deref().unwrap_or(""),
-                refresh_token_expires_at,
-                Some(token.digest.clone()),
-                json_obj_or_empty(&token.metadata),
-                &jkt_at_issue,
-            )
-            .await?;
+                metadata: serde_json::Map::new(),
+                dpop_jkt: &jkt_at_issue,
+                expires_at: refresh_token_expires_at,
+                rotated_from: Some(&token.digest),
+            };
+            OAuthRefreshTokens::insert(&mut conn, new_refresh_token_params).await?;
 
             // new AT for same scope/audience
             let expires_at = Utc::now() + access_ttl;
             let at_digest = token_digest_hmac_sha256(&access_token_plain, &pepper);
-            OAuthAccessToken::insert(
-                &mut conn,
-                at_digest,
+            let new_access_token_params = NewAccessTokenParams {
+                digest: &at_digest,
                 pepper_id,
-                Some(token.user_id),
-                token.client_id,
-                &token.scope,
-                token.audience.as_deref().unwrap_or(""),
-                &jkt_at_issue,
-                json_obj_or_empty(&token.metadata),
+                user_id: Some(token.user_id),
+                client_id: token.client_id,
+                scope: Some(&token.scope),
+                audience: token.audience.as_deref(),
+                dpop_jkt: &jkt_at_issue,
+                metadata: serde_json::Map::new(),
                 expires_at,
-            )
-            .await?;
+            };
+            OAuthAccessToken::insert(&mut conn, new_access_token_params).await?;
 
             (
                 token.user_id,

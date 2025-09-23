@@ -22,34 +22,38 @@ pub struct OAuthRefreshTokens {
 /* ------------ internal helper for INSERT ------------ */
 
 #[derive(Debug, Clone)]
-struct NewRefreshTokenParams<'a> {
-    digest_bytes: &'a [u8],
-    pepper_id: i16,
-    user_id: Uuid,
-    client_id: Uuid,
-    scope: &'a str,
-    audience: Option<&'a str>,
-    expires_at: DateTime<Utc>,
-    rotated_from_bytes: Option<&'a [u8]>,
-    metadata: &'a serde_json::Value,
-    dpop_jkt: &'a str,
+pub struct NewRefreshTokenParams<'a> {
+    pub digest: &'a Digest,
+    pub pepper_id: i16,
+    pub user_id: Uuid,
+    pub client_id: Uuid,
+    pub scope: &'a str,
+    pub audience: Option<&'a str>,
+    pub expires_at: DateTime<Utc>,
+    pub rotated_from: Option<&'a Digest>,
+    pub metadata: serde_json::Map<String, serde_json::Value>,
+    pub dpop_jkt: &'a str,
 }
 
 fn bind_refresh<'q>(
     mut q: Query<'q, Postgres, PgArguments>,
-    p: &NewRefreshTokenParams<'q>,
+    p: NewRefreshTokenParams<'q>,
 ) -> Query<'q, Postgres, PgArguments> {
     q = q
-        .bind(p.digest_bytes)
+        .bind(p.digest.as_bytes())
         .bind(p.user_id)
         .bind(p.client_id)
         .bind(p.scope)
         .bind(p.audience)
         .bind(p.pepper_id)
-        .bind(p.metadata)
+        .bind(serde_json::Value::Object(p.metadata))
         .bind(p.dpop_jkt)
         .bind(p.expires_at)
-        .bind(p.rotated_from_bytes);
+        .bind(if let Some(rf) = p.rotated_from {
+            Some(rf.as_bytes())
+        } else {
+            None
+        });
     q
 }
 
@@ -58,35 +62,8 @@ fn bind_refresh<'q>(
 impl OAuthRefreshTokens {
     pub async fn insert(
         conn: &mut PgConnection,
-        digest: Digest,
-        pepper_id: i16,
-        user_id: Uuid,
-        client_id: Uuid,
-        scope: &str,
-        audience: &str,
-        expires_at: DateTime<Utc>,
-        rotated_from: Option<Digest>,
-        metadata: serde_json::Map<String, serde_json::Value>,
-        dpop_jkt: &str,
+        params: NewRefreshTokenParams<'_>,
     ) -> ModelResult<()> {
-        let params = NewRefreshTokenParams {
-            digest_bytes: digest.as_bytes(),
-            pepper_id,
-            user_id,
-            client_id,
-            scope,
-            // empty -> NULL to match Option<String> in the schema
-            audience: if audience.is_empty() {
-                None
-            } else {
-                Some(audience)
-            },
-            expires_at,
-            rotated_from_bytes: rotated_from.as_ref().map(|d| d.as_slice()),
-            metadata: &serde_json::Value::Object(metadata),
-            dpop_jkt,
-        };
-
         let sql = r#"
             INSERT INTO oauth_refresh_tokens
               (digest, user_id, client_id, scope, audience, pepper_id, metadata, dpop_jkt, expires_at, rotated_from)
@@ -94,7 +71,7 @@ impl OAuthRefreshTokens {
         "#;
 
         let mut tx = conn.begin().await?;
-        bind_refresh(sqlx::query(sql), &params)
+        bind_refresh(sqlx::query(sql), params)
             .execute(&mut *tx)
             .await?;
         tx.commit().await?;

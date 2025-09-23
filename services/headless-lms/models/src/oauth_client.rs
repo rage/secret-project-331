@@ -18,15 +18,15 @@ pub struct OAuthClient {
 /* ------------ internal helper for INSERT ------------ */
 
 #[derive(Debug, Clone)]
-struct NewClientParams<'a> {
-    client_id: &'a str,
-    client_secret_bytes: &'a [u8],
-    pepper_id: i16,
-    redirect_uris: &'a [String],
-    grant_types: &'a [String],
-    scope: Option<&'a str>,
-    origin: &'a str,
-    bearer_allowed: bool,
+pub struct NewClientParams<'a> {
+    pub client_id: &'a str,
+    pub client_secret: &'a Digest,
+    pub pepper_id: i16,
+    pub redirect_uris: &'a [String],
+    pub grant_types: &'a [String],
+    pub scope: Option<&'a str>,
+    pub origin: &'a str,
+    pub bearer_allowed: bool,
 }
 
 fn bind_client<'q>(
@@ -35,7 +35,7 @@ fn bind_client<'q>(
 ) -> Query<'q, Postgres, PgArguments> {
     q = q
         .bind(p.client_id)
-        .bind(p.client_secret_bytes)
+        .bind(p.client_secret.as_bytes())
         .bind(p.pepper_id)
         .bind(p.redirect_uris)
         .bind(p.grant_types)
@@ -77,28 +77,7 @@ impl OAuthClient {
         Ok(client)
     }
 
-    pub async fn insert(
-        conn: &mut PgConnection,
-        client_id: &str,
-        client_secret: Digest,
-        pepper_id: i16,
-        redirect_uris: Vec<String>,
-        grant_types: Vec<String>,
-        scope: &str,
-        origin: &str,
-        bearer_allowed: bool,
-    ) -> ModelResult<Uuid> {
-        let params = NewClientParams {
-            client_id,
-            client_secret_bytes: client_secret.as_slice(),
-            pepper_id,
-            redirect_uris: &redirect_uris,
-            grant_types: &grant_types,
-            scope: if scope.is_empty() { None } else { Some(scope) },
-            origin,
-            bearer_allowed,
-        };
-
+    pub async fn insert(conn: &mut PgConnection, params: NewClientParams<'_>) -> ModelResult<Uuid> {
         let sql = r#"
             INSERT INTO oauth_clients (
                 client_id,

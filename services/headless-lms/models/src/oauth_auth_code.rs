@@ -22,25 +22,25 @@ pub struct OAuthAuthCode {
 /* ------------ internal helper types ------------ */
 
 #[derive(Debug, Clone)]
-struct NewAuthCodeParams<'a> {
-    digest_bytes: &'a [u8],
-    pepper_id: i16,
-    user_id: Uuid,
-    client_id: Uuid,
-    redirect_uri: &'a str,
-    scope: Option<&'a str>,
-    nonce: Option<&'a str>,
-    expires_at: DateTime<Utc>,
-    metadata: &'a serde_json::Value,
+pub struct NewAuthCodeParams<'a> {
+    pub digest: &'a Digest,
+    pub pepper_id: i16,
+    pub user_id: Uuid,
+    pub client_id: Uuid,
+    pub redirect_uri: &'a str,
+    pub scope: Option<&'a str>,
+    pub nonce: Option<&'a str>,
+    pub expires_at: DateTime<Utc>,
+    pub metadata: serde_json::Map<String, serde_json::Value>,
 }
 
 /// Centralized binder for INSERT
 fn bind_auth_code<'q>(
     mut q: Query<'q, Postgres, PgArguments>,
-    p: &NewAuthCodeParams<'q>,
+    p: NewAuthCodeParams<'q>,
 ) -> Query<'q, Postgres, PgArguments> {
     q = q
-        .bind(p.digest_bytes)
+        .bind(p.digest.as_bytes())
         .bind(p.pepper_id)
         .bind(p.user_id)
         .bind(p.client_id)
@@ -48,37 +48,13 @@ fn bind_auth_code<'q>(
         .bind(p.scope)
         .bind(p.nonce)
         .bind(p.expires_at)
-        .bind(p.metadata);
+        .bind(serde_json::Value::Object(p.metadata));
     q
 }
 
 impl OAuthAuthCode {
     #[allow(clippy::too_many_arguments)]
-    pub async fn insert(
-        conn: &mut PgConnection,
-        digest: Digest,
-        pepper_id: i16,
-        user_id: Uuid,
-        client_id: Uuid,
-        redirect_uri: &str,
-        scope: &str,
-        nonce: &str,
-        expires_at: DateTime<Utc>,
-        metadata: serde_json::Map<String, serde_json::Value>,
-    ) -> ModelResult<()> {
-        let params = NewAuthCodeParams {
-            digest_bytes: digest.as_bytes(),
-            pepper_id,
-            user_id,
-            client_id,
-            redirect_uri,
-            // map empty strings to NULL cleanly (struct fields are Option<String>)
-            scope: if scope.is_empty() { None } else { Some(scope) },
-            nonce: if nonce.is_empty() { None } else { Some(nonce) },
-            expires_at,
-            metadata: &serde_json::Value::Object(metadata),
-        };
-
+    pub async fn insert(conn: &mut PgConnection, params: NewAuthCodeParams<'_>) -> ModelResult<()> {
         let sql = r#"
             INSERT INTO oauth_auth_codes
                 (digest, pepper_id, user_id, client_id, redirect_uri, scope, nonce, expires_at, metadata)
@@ -86,7 +62,7 @@ impl OAuthAuthCode {
         "#;
 
         let mut tx = conn.begin().await?;
-        bind_auth_code(sqlx::query(sql), &params)
+        bind_auth_code(sqlx::query(sql), params)
             .execute(&mut *tx)
             .await?;
         tx.commit().await?;

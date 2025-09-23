@@ -19,7 +19,7 @@ env:
 
 jobs:
   build-and-system-tests:
-    runs-on: ubicloud-standard-30
+    runs-on: ubicloud-standard-30-ubuntu-2404
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4

@@ -12,6 +12,7 @@ import {
   CourseBackgroundQuestionsAndAnswers,
   CourseCustomPrivacyPolicyCheckboxText,
   CourseInstance,
+  CourseLanguageVersionNavigationInfo,
   CourseMaterialCourse,
   CourseMaterialExercise,
   CourseMaterialPeerOrSelfReviewDataWithToken,
@@ -68,6 +69,7 @@ import {
   isCourseBackgroundQuestionsAndAnswers,
   isCourseCustomPrivacyPolicyCheckboxText,
   isCourseInstance,
+  isCourseLanguageVersionNavigationInfo,
   isCourseMaterialCourse,
   isCourseMaterialExercise,
   isCourseMaterialPeerOrSelfReviewDataWithToken,
@@ -541,13 +543,17 @@ export const fetchPageAudioFiles = async (pageId: string): Promise<PageAudioFile
   return validateResponse(response, isArray(isPageAudioFile))
 }
 
-export const fetchCourseLanguageVersions = async (
+export const fetchCourseLanguageVersionNavigationInfos = async (
   courseId: string,
-): Promise<Array<CourseMaterialCourse>> => {
-  const response = await courseMaterialClient.get(`/courses/${courseId}/language-versions`, {
-    responseType: "json",
-  })
-  return validateResponse(response, isArray(isCourseMaterialCourse))
+  pageId: string,
+): Promise<Array<CourseLanguageVersionNavigationInfo>> => {
+  const response = await courseMaterialClient.get(
+    `/courses/${courseId}/language-versions-navigation-info/from-page/${pageId}`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isArray(isCourseLanguageVersionNavigationInfo))
 }
 
 export const postStudentCountry = async (

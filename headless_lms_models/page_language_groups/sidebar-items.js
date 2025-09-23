@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["insert"],"struct":["PageLanguageGroup"]};
+window.SIDEBAR_ITEMS = {"fn":["get_all_pages_in_page_language_group_mapping","insert"],"struct":["PageLanguageGroup","PageLanguageGroupNavigationInfo"]};

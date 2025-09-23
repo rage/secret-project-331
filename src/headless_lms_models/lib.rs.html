@@ -287,7 +287,7 @@
 <a href=#287 id=287 data-nosnippet>287</a>///
 <a href=#288 id=288 data-nosnippet>288</a>/// Exercises can either be part of courses or exams. Many user-related actions need to differentiate
 <a href=#289 id=289 data-nosnippet>289</a>/// between two, so `CourseOrExamId` helps when handling these separate scenarios.
-<a href=#290 id=290 data-nosnippet>290</a></span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
+<a href=#290 id=290 data-nosnippet>290</a></span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash)]
 <a href=#291 id=291 data-nosnippet>291</a></span><span class="kw">pub enum </span>CourseOrExamId {
 <a href=#292 id=292 data-nosnippet>292</a>    Course(Uuid),
 <a href=#293 id=293 data-nosnippet>293</a>    Exam(Uuid),

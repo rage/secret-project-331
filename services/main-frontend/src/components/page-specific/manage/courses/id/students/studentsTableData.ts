@@ -70,63 +70,63 @@ export const pointsColumns = [
     header: "Total",
     columns: [
       { header: "Points / 80", accessorKey: "total_points" },
-      { header: "Attempted / 40", accessorKey: "total_attempted", meta: { altBg: true } },
+      { header: "Attempts / 40", accessorKey: "total_attempted", meta: { altBg: true } },
     ],
   },
   {
     header: "The Basics",
     columns: [
       { header: "Points / 10", accessorKey: "basics_points" },
-      { header: "Attempted / 5", accessorKey: "basics_attempted", meta: { altBg: true } },
+      { header: "Attempts / 5", accessorKey: "basics_attempted", meta: { altBg: true } },
     ],
   },
   {
     header: "The intermediaries",
     columns: [
       { header: "Points / 10", accessorKey: "intermediaries_points" },
-      { header: "Attempted / 5", accessorKey: "intermediaries_attempted", meta: { altBg: true } },
+      { header: "Attempts / 5", accessorKey: "intermediaries_attempted", meta: { altBg: true } },
     ],
   },
   {
     header: "Advanced studies",
     columns: [
       { header: "Points / 10", accessorKey: "advanced_points" },
-      { header: "Attempted / 5", accessorKey: "advanced_attempted", meta: { altBg: true } },
+      { header: "Attempts / 5", accessorKey: "advanced_attempted", meta: { altBg: true } },
     ],
   },
   {
     header: "Forbidden magicks",
     columns: [
       { header: "Points / 10", accessorKey: "forbidden_points" },
-      { header: "Attempted / 5", accessorKey: "forbidden_attempted", meta: { altBg: true } },
+      { header: "Attempts / 5", accessorKey: "forbidden_attempted", meta: { altBg: true } },
     ],
   },
   {
     header: "Another chapter",
     columns: [
       { header: "Points / 10", accessorKey: "another1_points" },
-      { header: "Attempted / 5", accessorKey: "another1_attempted", meta: { altBg: true } },
+      { header: "Attempts / 5", accessorKey: "another1_attempted", meta: { altBg: true } },
     ],
   },
   {
     header: "Another another chapter",
     columns: [
       { header: "Points / 10", accessorKey: "another2_points" },
-      { header: "Attempted / 5", accessorKey: "another2_attempted", meta: { altBg: true } },
+      { header: "Attempts / 5", accessorKey: "another2_attempted", meta: { altBg: true } },
     ],
   },
   {
     header: "Bonus chapter",
     columns: [
       { header: "Points / 10", accessorKey: "bonus1_points" },
-      { header: "Attempted / 5", accessorKey: "bonus1_attempted", meta: { altBg: true } },
+      { header: "Attempts / 5", accessorKey: "bonus1_attempted", meta: { altBg: true } },
     ],
   },
   {
     header: "Another bonus chapter",
     columns: [
       { header: "Points / 10", accessorKey: "bonus2_points" },
-      { header: "Attempted / 5", accessorKey: "bonus2_attempted", meta: { altBg: true } },
+      { header: "Attempts / 5", accessorKey: "bonus2_attempted", meta: { altBg: true } },
     ],
   },
 ]

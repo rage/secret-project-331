@@ -17,7 +17,7 @@ use sqlx::{Pool, Postgres};
 use crate::{
     domain::models_requests::{self, JwtKey},
     programs::seed::{
-        seed_courses::{
+        seed_courses::seed_courses::{
             CommonCourseData, seed_chatbot_course, seed_sample_course,
             seed_switching_course_instances_course,
         },

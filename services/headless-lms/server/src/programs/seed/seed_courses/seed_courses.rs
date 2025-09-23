@@ -51,7 +51,7 @@ use sqlx::{Pool, Postgres};
 use tracing::info;
 use uuid::Uuid;
 
-use super::{
+use super::super::{
     seed_helpers::{CommonExerciseData, get_seed_spec_fetcher, heading},
     seed_users::SeedUsersResult,
 };
@@ -939,7 +939,7 @@ pub async fn seed_sample_course(
         Uuid::new_v5(&course.id, b"664ea614-4af4-4ad0-9855-eae1881568e6"),
         false,
         serde_json::from_str(include_str!(
-            "../../assets/quizzes-multiple-choice-feedback.json"
+            "../../../assets/quizzes-multiple-choice-feedback.json"
         ))?,
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
         CommonExerciseData {
@@ -959,7 +959,7 @@ pub async fn seed_sample_course(
         "Scale".to_string(),
         Uuid::new_v5(&course.id, b"05fa1188-4653-4904-bf1c-a93363225841"),
         false,
-        serde_json::from_str(include_str!("../../assets/scale.json"))?,
+        serde_json::from_str(include_str!("../../../assets/scale.json"))?,
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
         CommonExerciseData {
             exercise_id: Uuid::new_v5(&course.id, b"212132eb-b108-4027-b312-2275cf0b7473"),
@@ -978,7 +978,7 @@ pub async fn seed_sample_course(
         "Vector exercise".to_string(),
         Uuid::new_v5(&course.id, b"0c271345-6934-4489-8164-2cc4dc8974bb"),
         false,
-        serde_json::from_str(include_str!("../../assets/vector-exercise.json"))?,
+        serde_json::from_str(include_str!("../../../assets/vector-exercise.json"))?,
         None,
         CommonExerciseData {
             exercise_id: Uuid::new_v5(&course.id, b"80373dc3-ceba-45b4-a114-161d60228c0c"),
@@ -2738,7 +2738,7 @@ pub async fn seed_cs_course_material(
         Uuid::new_v5(&course.id, b"085b60ec-aa9d-11ec-b500-7b1e176646f8"),
         false,
         serde_json::from_str(include_str!(
-            "../../assets/quizzes-multiple-choice-additional-feedback.json"
+            "../../../assets/quizzes-multiple-choice-additional-feedback.json"
         ))?,
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
         CommonExerciseData {
@@ -3215,7 +3215,7 @@ pub async fn seed_cs_course_material(
     )
     .await?;
 
-    let page_content = include_str!("../../assets/example-page.json");
+    let page_content = include_str!("../../../assets/example-page.json");
     let parse_page_content = serde_json::from_str(page_content)?;
     create_page(
         &mut conn,

@@ -5,6 +5,7 @@ use uuid::Uuid;
 use headless_lms_models::{
     PKeyPolicy, certificate_configuration_to_requirements,
     certificate_configurations::{self, DatabaseCertificateConfiguration},
+    chatbot_configurations::{self, NewChatbotConf},
     course_instances::{self, CourseInstance, NewCourseInstance},
     course_language_groups,
     course_modules::CourseModule,
@@ -70,6 +71,7 @@ pub struct CourseBuilder {
     pub extra_roles: Vec<(Uuid, UserRole)>,
     pub course_id: Option<Uuid>,
     pub instances: Vec<CourseInstanceConfig>,
+    pub chatbot_configs: Vec<NewChatbotConf>,
     pub pages: Vec<PageConfig>,
     pub glossary_entries: Vec<GlossaryEntry>,
     pub certificate_config: Option<CertificateConfig>,
@@ -89,6 +91,7 @@ impl CourseBuilder {
             extra_roles: vec![],
             course_id: None,
             instances: vec![],
+            chatbot_configs: vec![],
             pages: vec![],
             glossary_entries: vec![],
             certificate_config: None,
@@ -127,6 +130,15 @@ impl CourseBuilder {
 
     pub fn instance(mut self, config: CourseInstanceConfig) -> Self {
         self.instances.push(config);
+        self
+    }
+
+    pub fn chatbot_config(mut self, config: NewChatbotConf) -> Self {
+        if !self.can_add_chatbot {
+            warn!("Can't add chatbot to this course!!!!");
+            return self;
+        }
+        self.chatbot_configs.push(config);
         self
     }
 
@@ -226,6 +238,17 @@ impl CourseBuilder {
             .context("getting course")?;
 
         tx.commit().await.context("committing transaction")?;
+
+        for chatbot_conf in self.chatbot_configs {
+            let chatbotconf_id = chatbot_conf.chatbotconf_id.unwrap_or_else(Uuid::new_v4);
+            chatbot_configurations::insert(
+                cx.conn,
+                PKeyPolicy::Fixed(chatbotconf_id),
+                chatbot_conf,
+            )
+            .await
+            .context("inserting chatbot configuration for course")?;
+        }
 
         let mut last_module = None;
 

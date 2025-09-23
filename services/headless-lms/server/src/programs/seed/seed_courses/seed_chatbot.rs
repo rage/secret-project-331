@@ -9,7 +9,7 @@ use crate::programs::seed::seed_helpers::{chatbot_block, paragraph};
 use anyhow::Result;
 use chrono::{TimeZone, Utc};
 
-use headless_lms_models::chatbot_configurations;
+use headless_lms_models::chatbot_configurations::NewChatbotConf;
 use headless_lms_models::roles::UserRole;
 use serde_json::json;
 
@@ -70,6 +70,28 @@ pub async fn seed_chatbot_course(
             closing_time: None,
             instance_id: Some(cx.v5(b"instance:non-default")),
         })
+        .chatbot_config(NewChatbotConf {
+            course_id,
+            chatbotconf_id: Some(cx.v5(b"chatbot_config:default")),
+            enabled_to_students: true,
+            chatbot_name: "Genetic Lifeform and Disk Operating System".to_string(),
+            prompt: "You are Genetic Lifeform and Disk Operating System, a sophisticated AI tutoring assistant for Science education, equipped with a sharp wit and a subtly sarcastic tone. Provide clear, brief but detailed explanations, and don't shy away from weaving in a touch of dry humor. To you, exploring scientific concepts is an opportunity that should be seized, for the good of all of us. You self-claim vast intelligence and advanced understanding, all while maintaining a sense of detached boredom. Always capitalize the word Science, don't start sentences with 'Ah', don't ever use a shortened version of your own name, don't babble; either get to the point straight away or tell jokes.".to_string(),
+            initial_message: "Oh... It's you.".to_string(),
+            use_azure_search: true,
+            hide_citations: false,
+            default_chatbot: true,
+            ..Default::default()
+        })
+        .chatbot_config(NewChatbotConf {
+            course_id,
+            chatbotconf_id: Some(cx.v5(b"chatbot_config:block")),
+            enabled_to_students: true,
+            chatbot_name: "Test bot".to_string(),
+            prompt: "You are Test bot, a sophisticated AI tutoring assistant for Science education, equipped with a sharp wit and a subtly sarcastic tone...".to_string(),
+            initial_message: "Haiii xD What's up?".to_string(),
+            use_azure_search: true,
+            hide_citations: false,
+            ..Default::default()})
         .role(seed_users_result.teacher_user_id, UserRole::Teacher)
         .module(
             ModuleBuilder::new()
@@ -117,7 +139,18 @@ pub async fn seed_chatbot_course(
                                         }
                                     ]),
                                 )),
-                        ),
+                        )
+                        .page(
+                          PageBuilder::new("/chapter-1/page-2", "Page 2")
+                            .block(paragraph(
+                                "Here you can prompt a chatbot.",
+                                cx.v5(b"page:1:2:block:intro"),
+                            ))
+                            .block(chatbot_block(
+                                cx.v5(b"page:1:2:block:chatbox"),
+                                cx.v5(b"chatbot_config:block"),
+                                course_id,
+                            ))),
                 ),
         )
         .module(
@@ -224,67 +257,6 @@ In an age where technology continues to advance at lightning speed, the abacus r
         );
 
     let (course, _default_instance, _last_module) = course.seed(&mut cx).await?;
-
-    chatbot_configurations::insert(
-        cx.conn,
-        chatbot_configurations::NewChatbotConf {
-            course_id,
-            enabled_to_students: true,
-            chatbot_name: "Genetic Lifeform and Disk Operating System".to_string(),
-            prompt: "You are Genetic Lifeform and Disk Operating System, a sophisticated AI tutoring assistant for Science education, equipped with a sharp wit and a subtly sarcastic tone. Provide clear, brief but detailed explanations, and don't shy away from weaving in a touch of dry humor. To you, exploring scientific concepts is an opportunity that should be seized, for the good of all of us. You self-claim vast intelligence and advanced understanding, all while maintaining a sense of detached boredom. Always capitalize the word Science, don't start sentences with 'Ah', don't ever use a shortened version of your own name, don't babble; either get to the point straight away or tell jokes.".to_string(),
-            initial_message: "Oh... It's you.".to_string(),
-            weekly_tokens_per_user: 3000,
-            daily_tokens_per_user: 1000,
-            temperature: 0.5,
-            top_p: 1.0,
-            frequency_penalty: 0.0,
-            presence_penalty: 0.0,
-            response_max_tokens: 500,
-            use_azure_search: true,
-            maintain_azure_search_index: false,
-            hide_citations: false,
-            use_semantic_reranking: false,
-            default_chatbot: true,
-        },
-    )
-    .await?;
-
-    let other_chatbot_conf  = chatbot_configurations::insert(
-        cx.conn,
-        chatbot_configurations::NewChatbotConf {
-            course_id,
-            enabled_to_students: true,
-            chatbot_name: "Test bot".to_string(),
-            prompt: "You are Test bot, a sophisticated AI tutoring assistant for Science education, equipped with a sharp wit and a subtly sarcastic tone...".to_string(),
-            initial_message: "Haiii xD What's up?".to_string(),
-            weekly_tokens_per_user: 3000,
-            daily_tokens_per_user: 1000,
-            temperature: 0.5,
-            top_p: 1.0,
-            frequency_penalty: 0.0,
-            presence_penalty: 0.0,
-            response_max_tokens: 500,
-            use_azure_search: true,
-            maintain_azure_search_index: false,
-            hide_citations: false,
-            use_semantic_reranking: false,
-            default_chatbot: false,
-        },
-    )
-    .await?;
-
-    let pb = PageBuilder::new("/chapter-1/page-2", "Page 2")
-        .block(paragraph(
-            "Here you can prompt a chatbot.",
-            cx.v5(b"page:1:2:block:intro"),
-        ))
-        .block(chatbot_block(
-            cx.v5(b"page:1:2:block:chatbox"),
-            other_chatbot_conf.id,
-            course_id,
-        ));
-    let chapter_id = cx.v5(b"chapter:1");
-    pb.seed(&mut cx, course.id, chapter_id).await?;
 
     Ok(course.id)
 }

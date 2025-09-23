@@ -54,7 +54,7 @@ impl Default for ChatbotConfiguration {
     }
 }
 
-#[derive(Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Deserialize, Serialize, Debug)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewChatbotConf {
     pub course_id: Uuid,
@@ -74,6 +74,7 @@ pub struct NewChatbotConf {
     pub hide_citations: bool,
     pub use_semantic_reranking: bool,
     pub default_chatbot: bool,
+    pub chatbotconf_id: Option<Uuid>,
 }
 
 impl Default for NewChatbotConf {
@@ -97,6 +98,7 @@ impl Default for NewChatbotConf {
             hide_citations: chatbot_conf.hide_citations,
             use_semantic_reranking: chatbot_conf.use_semantic_reranking,
             default_chatbot: chatbot_conf.default_chatbot,
+            chatbotconf_id: None,
         }
     }
 }
@@ -118,12 +120,14 @@ AND deleted_at IS NULL
 
 pub async fn insert(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     input: NewChatbotConf,
 ) -> ModelResult<ChatbotConfiguration> {
     let res = sqlx::query_as!(
         ChatbotConfiguration,
         r#"
 INSERT INTO chatbot_configurations (
+    id,
     course_id,
     enabled_to_students,
     chatbot_name,
@@ -138,9 +142,10 @@ INSERT INTO chatbot_configurations (
     response_max_tokens,
     default_chatbot
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
 RETURNING *
         "#,
+        pkey_policy.into_uuid(),
         input.course_id,
         input.enabled_to_students,
         input.chatbot_name,

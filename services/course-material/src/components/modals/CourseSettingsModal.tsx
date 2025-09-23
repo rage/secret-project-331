@@ -55,9 +55,9 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
   }, [i18n.language])
 
   const savedOrDefaultLangCourseId =
-    pageState.settings?.current_course_id ?? pageState.pageData?.course_id ?? ""
+    pageState.settings?.current_course_id ?? pageState.pageData?.course_id ?? null
 
-  const [selectedLangCourseId, setSelectedLangCourseId] = React.useState<string>(
+  const [selectedLangCourseId, setSelectedLangCourseId] = useState<string | null>(
     savedOrDefaultLangCourseId,
   )
 
@@ -69,21 +69,21 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
 
   const getCourseInstances = useQuery({
     queryKey: ["course-instances", selectedLangCourseId],
-    queryFn: () => fetchCourseInstances(selectedLangCourseId as NonNullable<string>),
-    enabled: selectedLangCourseId !== "" && open && pageState.state === "ready",
+    queryFn: () => fetchCourseInstances(assertNotNullOrUndefined(selectedLangCourseId)),
+    enabled: selectedLangCourseId !== null && open && pageState.state === "ready",
   })
   sortInstances()
 
   const askMarketingConsent = useQuery({
     queryKey: ["courses", selectedLangCourseId],
-    queryFn: () => fetchCourseById(selectedLangCourseId as NonNullable<string>),
-    enabled: selectedLangCourseId !== "",
+    queryFn: () => fetchCourseById(assertNotNullOrUndefined(selectedLangCourseId)),
+    enabled: selectedLangCourseId !== null,
   }).data?.ask_marketing_consent
 
   const checkUserMarketingConsent = useQuery({
     queryKey: ["marketing-consent", selectedLangCourseId],
     queryFn: () => fetchUserMarketingConsent(assertNotNullOrUndefined(selectedLangCourseId)),
-    enabled: selectedLangCourseId !== "",
+    enabled: selectedLangCourseId !== null,
   }).data?.email_subscription_in_mailchimp
 
   useEffect(() => {
@@ -185,7 +185,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
         >
           {t("title-course-settings")}
         </h1>
-        {pageState.pageData?.id && (
+        {pageState.pageData?.id && selectedLangCourseId && (
           <SelectCourseLanguage
             selectedLangCourseId={selectedLangCourseId}
             setSelectedLangCourseId={setSelectedLangCourseId}
@@ -198,7 +198,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
           <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
         )}
         {getCourseInstances.isPending && <Spinner variant={"medium"} />}
-        {getCourseInstances.isSuccess && (
+        {getCourseInstances.isSuccess && selectedLangCourseId && (
           <SelectCourseInstanceForm
             courseInstances={getCourseInstances.data}
             submitMutation={handleSubmitAndCloseMutation}

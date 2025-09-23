@@ -18,7 +18,6 @@ interface LanguageNavigationControlsProps {
 
 /**
  * Reusable component for language navigation in course contexts.
- * Simplified to use the unified useLanguageNavigation hook.
  */
 const LanguageNavigationControls: React.FC<LanguageNavigationControlsProps> = ({
   placement = "bottom-end",
@@ -28,7 +27,7 @@ const LanguageNavigationControls: React.FC<LanguageNavigationControlsProps> = ({
   const pageState = useContext(PageContext)
   const { t } = useTranslation()
 
-  const currentCourseId = layoutContext.courseId || pageState.course?.id || null
+  const currentCourseId = (layoutContext.courseId || pageState.course?.id) ?? null
 
   const { availableLanguages, redirectToLanguage, isLoading, error } = useLanguageNavigation({
     currentCourseId,

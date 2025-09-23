@@ -20,27 +20,16 @@ const Anchor = styled(Link)`
 `
 
 const TooltipBox = styled.div`
-  opacity: 1;
-  z-index: 2;
-  position: absolute;
-  top: 20px;
-  left: 50%;
   border-radius: 3px;
-  min-width: 400px;
-  transition:
-    visibility 0s linear 100ms,
-    opacity 100ms;
+  min-width: 200px;
+  max-width: 400px;
   box-shadow: rgba(0, 0, 0, 0.1) 0 2px 10px;
-`
-
-const TooltipText = styled.span`
-  color: #313947;
+  background: #f9f9f9;
   border: 1px solid #e2e4e6;
-  border-radius: 3px;
+  padding: 0 5px;
+  color: #313947;
   font-family: "Inter", sans-serif;
   font-size: 14px;
-  background: #f9f9f9;
-  padding: 0 5px;
 `
 
 const TooltipNTrigger: React.FC<TooltipNTriggerProps> = ({ reference }) => {
@@ -51,9 +40,7 @@ const TooltipNTrigger: React.FC<TooltipNTriggerProps> = ({ reference }) => {
           <Anchor href="#ref-1">[1]</Anchor>
         </sup>
         <Tooltip>
-          <TooltipBox>
-            <TooltipText>{reference.text}</TooltipText>
-          </TooltipBox>
+          <TooltipBox>{reference.text}</TooltipBox>
         </Tooltip>
       </TooltipTrigger>
     )

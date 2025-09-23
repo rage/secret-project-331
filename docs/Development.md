@@ -310,7 +310,7 @@ You can find a lot of useful information in [Index](https://github.com/rage/secr
 ### Troubleshoot
 
 ```bash
-bin/dev step
+bin/dev
 ```
 If postgres pod does not enter ready state, which you can find out this by using the following command:
 

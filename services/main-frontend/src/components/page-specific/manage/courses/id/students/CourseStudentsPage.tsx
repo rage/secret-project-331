@@ -21,6 +21,7 @@ const headerTitleWrapStyle = css`
   flex: 1 1 auto;
   min-width: 0;
 `
+
 const dropdownTopStyle = css`
   background: #fff;
   border: 1px solid #e4e5e8;
@@ -41,6 +42,18 @@ const pageHeaderStyle = css`
   width: 1124px;
   margin: 32px auto 0 auto;
 `
+
+const headerTopSectionStyle = css`
+  width: 1124px;
+  margin: 32px auto 0 auto;
+`
+const headerControlsSectionStyle = css`
+  max-width: 90vw;
+  min-width: 900px;
+  margin: 0 auto 0 auto;
+  /* no vertical margin so it touches table */
+`
+
 const titleStyle = css`
   font-family: "Inter", sans-serif;
   font-weight: 500;
@@ -156,53 +169,56 @@ const StudentsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState(TAB_USER)
 
   return (
-    <div>
+    <BreakFromCentered>
       {/* HEADER SECTION */}
-      <div css={pageHeaderStyle}>
-        <div css={headerTopRowStyle}>
-          <div css={headerTitleWrapStyle}>
-            <div css={titleStyle}>Students</div>
-            <div css={chatbotInfoStyle}>
-              Enabling the chatbot will allow automated assistance for students, providing instant
-              responses to common questions and guidance throughout the course. You can disable it
-              at any time in the settings.
+      <div>
+        <div css={headerTopSectionStyle}>
+          <div css={headerTopRowStyle}>
+            <div css={headerTitleWrapStyle}>
+              <div css={titleStyle}>Students</div>
+              <div css={chatbotInfoStyle}>
+                Enabling the chatbot will allow automated assistance for students, providing instant
+                responses to common questions and guidance throughout the course. You can disable it
+                at any time in the settings.
+              </div>
+            </div>
+            <div css={dropdownTopStyle}>
+              All instances
+              <span css={dropdownIconStyle}>▼</span>
             </div>
           </div>
-          <div css={dropdownTopStyle}>
-            All instances
-            <span css={dropdownIconStyle}>▼</span>
+          <hr css={dividerStyle} />
+        </div>
+
+        {/* Only THIS PART is wider */}
+        <div css={headerControlsSectionStyle}>
+          <div css={controlsRowStyle}>
+            <div css={searchBoxWrapStyle}>
+              <input css={searchInputStyle} placeholder="Search students..." />
+              <span css={searchIconStyle}>🔍</span>
+            </div>
+            <div css={tabsWrapStyle}>
+              {TAB_LIST.map((tab, i) => (
+                <button
+                  key={tab}
+                  css={tabStyle(
+                    activeTab === tab,
+                    tab === TAB_COMPLETIONS ? "#065853" : "#1A2333",
+                    i === TAB_LIST.length - 1,
+                  )}
+                  onClick={() => setActiveTab(tab)}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-        <hr css={dividerStyle} />
 
-        <div css={controlsRowStyle}>
-          <div css={searchBoxWrapStyle}>
-            <input css={searchInputStyle} placeholder="Search student..." />
-            <span css={searchIconStyle}>🔍</span>
-          </div>
-          <div css={tabsWrapStyle}>
-            {TAB_LIST.map((tab, i) => (
-              <button
-                key={tab}
-                css={tabStyle(
-                  activeTab === tab,
-                  tab === TAB_COMPLETIONS ? "#065853" : "#1A2333",
-                  i === TAB_LIST.length - 1,
-                )}
-                onClick={() => setActiveTab(tab)}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* TABLE SECTION */}
-      <BreakFromCentered>
+        {/* TABLE SECTION */}
         <div style={{ paddingLeft: "5vw", paddingRight: "5vw" }}>{tabContentMap[activeTab]}</div>
-      </BreakFromCentered>
-    </div>
+      </div>
+    </BreakFromCentered>
   )
 }
 

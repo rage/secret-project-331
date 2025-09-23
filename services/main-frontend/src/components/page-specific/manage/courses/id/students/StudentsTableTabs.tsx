@@ -52,7 +52,13 @@ const tableRoundedWrap = css`
 const chapterHeaderStart = 2 // First chapter header (upper, uses only light color)
 const subHeaderStart = 3 // First subheader (lower, uses light/dark pair)
 
-export function FloatingHeaderTable({ columns, data, colorHeaders = false, colorColumns = false }) {
+export function FloatingHeaderTable({
+  columns,
+  data,
+  colorHeaders = false,
+  colorColumns = false,
+  colorHeaderUnderline = false,
+}) {
   const tableRef = useRef(null)
   const wrapRef = useRef(null)
   const [showSticky, setShowSticky] = useState(false)
@@ -143,12 +149,37 @@ export function FloatingHeaderTable({ columns, data, colorHeaders = false, color
               style={{
                 minWidth: 110,
                 width: colWidths[colIdx],
-                background: getHeaderBg(rowIdx, colIdx, header),
+                background:
+                  colorHeaders && !colorHeaderUnderline
+                    ? getHeaderBg(rowIdx, colIdx, header)
+                    : undefined,
+                position: "relative", // needed for absolute underline
+                overflow: "visible", // just in case
               }}
               rowSpan={header.depth === 0 && header.colSpan === 1 ? 2 : undefined}
               colSpan={header.colSpan > 1 ? header.colSpan : undefined}
             >
               {flexRender(header.column.columnDef.header, header.getContext())}
+              {/* Only show underline for upper header, if enabled */}
+              {colorHeaderUnderline &&
+                rowIdx === 0 &&
+                colIdx >= chapterHeaderStart &&
+                header.colSpan === 2 && (
+                  <span
+                    style={{
+                      position: "absolute",
+                      left: 0,
+                      right: 0,
+                      width: "98%", // Width of the underline
+                      height: 4,
+                      background: getHeaderBg(rowIdx, colIdx, header),
+                      borderRadius: 2,
+                      bottom: "4px", // Moves the underline up
+                      zIndex: 2,
+                      pointerEvents: "none",
+                    }}
+                  />
+                )}
             </th>
           ))}
         </tr>
@@ -302,5 +333,6 @@ export const PointsTabContent = () => (
     data={pointsData}
     colorHeaders={true}
     colorColumns={true}
+    colorHeaderUnderline={true}
   />
 )

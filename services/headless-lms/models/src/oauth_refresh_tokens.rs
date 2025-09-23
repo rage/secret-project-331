@@ -49,11 +49,7 @@ fn bind_refresh<'q>(
         .bind(serde_json::Value::Object(p.metadata))
         .bind(p.dpop_jkt)
         .bind(p.expires_at)
-        .bind(if let Some(rf) = p.rotated_from {
-            Some(rf.as_bytes())
-        } else {
-            None
-        });
+        .bind(p.rotated_from.map(|d| d.as_bytes()));
     q
 }
 

@@ -205,10 +205,6 @@ pub fn scope_has_openid(scope: &str) -> bool {
     scope.split_whitespace().any(|s| s == "openid")
 }
 
-pub fn json_obj_or_empty(v: &serde_json::Value) -> serde_json::Map<String, serde_json::Value> {
-    v.as_object().cloned().unwrap_or_default()
-}
-
 pub fn ok_json_no_cache<T: Serialize>(value: T) -> HttpResponse {
     let mut resp = HttpResponse::Ok();
     resp.insert_header(("Cache-Control", "no-store"));

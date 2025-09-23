@@ -113,9 +113,9 @@ impl From<Vec<u8>> for Digest {
     }
 }
 
-impl Into<Vec<u8>> for Digest {
-    fn into(self) -> Vec<u8> {
-        self.0.to_vec()
+impl From<Digest> for Vec<u8> {
+    fn from(d: Digest) -> Self {
+        d.0.to_vec()
     }
 }
 

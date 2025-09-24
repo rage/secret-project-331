@@ -115,21 +115,25 @@ pub struct CourseLanguageVersionNavigationInfo {
     pub course_slug: String,
     pub page_path: String,
     pub is_draft: bool,
+    pub current_page_unavailable_in_this_language: bool,
 }
 
 impl CourseLanguageVersionNavigationInfo {
     /// Creates a new `CourseLanguageVersionNavigationInfo` from a course and page language group navigation info.
     pub fn from_course_and_page_info(
         course: &Course,
-        page_info: &crate::page_language_groups::PageLanguageGroupNavigationInfo,
+        page_info: Option<&crate::page_language_groups::PageLanguageGroupNavigationInfo>,
     ) -> Self {
         Self {
             course_language_group_id: course.course_language_group_id,
             course_id: course.id,
             language_code: course.language_code.clone(),
             course_slug: course.slug.clone(),
-            page_path: page_info.page_path.clone(),
+            page_path: page_info
+                .map(|p| p.page_path.clone())
+                .unwrap_or_else(|| "/".to_string()),
             is_draft: course.is_draft,
+            current_page_unavailable_in_this_language: page_info.is_none(),
         }
     }
 }

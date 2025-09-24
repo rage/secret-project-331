@@ -69,6 +69,7 @@
   "course-overview": "Kursöversikt",
   "course-progress": "Kursframsteg",
   "course-title": "Kurs: {{title}}",
+  "current-page-unavailable-in-the-new-language-taking-you-to-the-front-page": "Den aktuella sidan är inte tillgänglig på det språk du byter till. Du kommer att tas till kursens förstasida.",
   "custom-view-iframe-title": "Innehåll relaterat till övningarna",
   "deadline": "Deadline: ",
   "default-course-instance-name": "Standard",

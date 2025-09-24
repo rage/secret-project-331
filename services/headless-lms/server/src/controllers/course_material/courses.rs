@@ -740,15 +740,13 @@ async fn get_all_course_language_versions_navigation_info_from_page(
     token.authorized_ok(web::Json(
         accessible_courses
             .into_iter()
-            .filter_map(|c| {
-                all_pages_in_same_page_language_group
-                    .get(&CourseOrExamId::Course(c.id))
-                    .map(|page_language_group_navigation_info| {
-                        CourseLanguageVersionNavigationInfo::from_course_and_page_info(
-                            &c,
-                            page_language_group_navigation_info,
-                        )
-                    })
+            .map(|c| {
+                let page_language_group_navigation_info =
+                    all_pages_in_same_page_language_group.get(&CourseOrExamId::Course(c.id));
+                CourseLanguageVersionNavigationInfo::from_course_and_page_info(
+                    &c,
+                    page_language_group_navigation_info,
+                )
             })
             .collect(),
     ))

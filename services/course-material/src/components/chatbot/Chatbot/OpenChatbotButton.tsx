@@ -1,14 +1,11 @@
 import { css } from "@emotion/css"
 import React from "react"
+import { Button } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import AIChat from "../../../img/ai-chat.svg"
 
 import { baseTheme } from "@/shared-module/common/styles"
-
-interface OpenChatbotButtonProps {
-  setDialogOpen: (dialogOpen: boolean) => void
-}
 
 const buttonStyle = css`
   position: fixed;
@@ -33,15 +30,11 @@ const buttonStyle = css`
   }
 `
 
-const OpenChatbotButton: React.FC<OpenChatbotButtonProps> = ({ setDialogOpen }) => {
+const OpenChatbotButton = () => {
   const { t } = useTranslation()
 
-  const handleClick = () => {
-    setDialogOpen(true)
-  }
-
   return (
-    <button className={buttonStyle} aria-label={t("open-chatbot")} onClick={handleClick}>
+    <Button className={buttonStyle} aria-label={t("open-chatbot")}>
       <AIChat
         className={css`
           position: relative;
@@ -50,7 +43,7 @@ const OpenChatbotButton: React.FC<OpenChatbotButtonProps> = ({ setDialogOpen }) 
           height: 35px;
         `}
       />
-    </button>
+    </Button>
   )
 }
 

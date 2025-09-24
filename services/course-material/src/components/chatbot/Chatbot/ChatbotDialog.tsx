@@ -1,8 +1,11 @@
 import { css, keyframes } from "@emotion/css"
 import React, { useEffect, useState } from "react"
+import { OverlayTriggerStateContext } from "react-aria-components"
 
 import ChatbotDialogBody from "../shared/ChatbotDialogBody"
 import ChatbotDialogHeader from "../shared/ChatbotDialogHeader"
+
+import OpenChatbotButton from "./OpenChatbotButton"
 
 import { CHATBOX_HEIGHT_PX, CHATBOX_WIDTH_PX } from "."
 
@@ -10,8 +13,6 @@ import useNewConversationMutation from "@/hooks/chatbot/newConversationMutation"
 import useCurrentConversationInfo from "@/hooks/chatbot/useCurrentConversationInfo"
 
 interface ChatbotDialogProps {
-  dialogOpen: boolean
-  setDialogOpen: (dialogOpen: boolean) => void
   chatbotConfigurationId: string
   isCourseMaterialBlock: false
 }
@@ -46,8 +47,9 @@ const closeAnimation = keyframes`
 `
 
 const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
-  const { dialogOpen, chatbotConfigurationId } = props
-  const [shouldRender, setShouldRender] = useState(dialogOpen)
+  const { chatbotConfigurationId } = props
+  let dialogState = React.useContext(OverlayTriggerStateContext)
+  const [shouldRender, setShouldRender] = useState(dialogState?.isOpen)
 
   const [newMessage, setNewMessage] = React.useState("")
   const [error, setError] = useState<Error | null>(null)
@@ -61,19 +63,19 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
   )
 
   useEffect(() => {
-    if (dialogOpen) {
+    if (dialogState?.isOpen) {
       setShouldRender(true)
     }
-  }, [dialogOpen])
+  }, [dialogState?.isOpen])
 
   const handleAnimationEnd = () => {
-    if (!dialogOpen) {
+    if (!dialogState?.isOpen) {
       setShouldRender(false)
     }
   }
 
   if (!shouldRender) {
-    return null
+    return <OpenChatbotButton />
   }
 
   return (
@@ -90,12 +92,11 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
         border-radius: 10px;
         box-shadow: 0px 4px 10px rgba(177, 179, 184, 0.6);
         z-index: 1000;
-        animation: ${dialogOpen ? openAnimation : closeAnimation} 0.3s forwards;
+        animation: ${dialogState?.isOpen ? openAnimation : closeAnimation} 0.3s forwards;
 
         display: flex;
         flex-direction: column;
       `}
-      aria-hidden={!dialogOpen}
       onAnimationEnd={handleAnimationEnd}
     >
       <ChatbotDialogHeader

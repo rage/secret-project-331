@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { Account, AddMessage } from "@vectopus/atlas-icons-react"
 import React from "react"
+import { Button } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import { DiscrChatbotDialogProps } from "../Chatbot/ChatbotDialog"
@@ -93,7 +94,9 @@ const ChatbotDialogHeader: React.FC<ChatbotDialogHeaderProps> = (props) => {
       <div className={iconStyle}>
         <Account />
       </div>
-      <h1 className={titleStyle}>{currentConversationInfo.data?.chatbot_name}</h1>
+      <h1 slot="title" className={titleStyle}>
+        {currentConversationInfo.data?.chatbot_name}
+      </h1>
       <div className={buttonsWrapper}>
         <button
           onClick={() => newConversation.mutate()}
@@ -109,13 +112,14 @@ const ChatbotDialogHeader: React.FC<ChatbotDialogHeaderProps> = (props) => {
           />
         </button>
         {!isCourseMaterialBlock && (
-          <button
-            onClick={() => props.setDialogOpen(false)}
+          <Button
+            slot="close"
+            //onClick={() => props.setDialogOpen(false)}
             className={buttonStyle}
             aria-label={t("close")}
           >
             <DownIcon />
-          </button>
+          </Button>
         )}
       </div>
     </div>

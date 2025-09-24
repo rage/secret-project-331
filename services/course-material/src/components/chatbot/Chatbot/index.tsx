@@ -1,7 +1,7 @@
-import React, { useState } from "react"
+import React from "react"
+import { Dialog, DialogTrigger } from "react-aria-components"
 
 import ChatbotDialog from "./ChatbotDialog"
-import OpenChatbotButton from "./OpenChatbotButton"
 
 export const CHATBOX_WIDTH_PX = 500
 export const CHATBOX_HEIGHT_PX = 900
@@ -11,18 +11,15 @@ interface ChatbotProps {
 }
 
 const Chatbot: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
-  const [dialogOpen, setDialogOpen] = useState(false)
-
   return (
-    <>
-      {!dialogOpen && <OpenChatbotButton setDialogOpen={setDialogOpen} />}
-      <ChatbotDialog
-        chatbotConfigurationId={chatbotConfigurationId}
-        dialogOpen={dialogOpen}
-        setDialogOpen={setDialogOpen}
-        isCourseMaterialBlock={false}
-      />
-    </>
+    <DialogTrigger defaultOpen={false}>
+      <Dialog>
+        <ChatbotDialog
+          chatbotConfigurationId={chatbotConfigurationId}
+          isCourseMaterialBlock={false}
+        />
+      </Dialog>
+    </DialogTrigger>
   )
 }
 

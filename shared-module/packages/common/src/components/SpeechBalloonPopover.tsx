@@ -8,6 +8,7 @@ import { respondToOrLarger } from "../styles/respond"
 interface SpeechBalloonPopoverProps extends Omit<PopoverProps, "children"> {
   children: React.ReactNode
   popoverLabel: string
+  offset?: number
 }
 
 const COLORS = {
@@ -91,9 +92,14 @@ const speechBalloonStyle = css`
   }
 `
 
-const SpeechBalloonPopover = ({ children, popoverLabel, ...props }: SpeechBalloonPopoverProps) => {
+const SpeechBalloonPopover = ({
+  children,
+  popoverLabel,
+  offset = 0,
+  ...props
+}: SpeechBalloonPopoverProps) => {
   return (
-    <Popover offset={0} className={popoverStyle} {...props}>
+    <Popover offset={offset} className={popoverStyle} {...props}>
       <Dialog aria-label={popoverLabel} className={speechBalloonStyle}>
         {children}
         <OverlayArrow>

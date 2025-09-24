@@ -40,6 +40,28 @@ jobs:
           echo "Space after:"
           df -h
 
+      - name: Configure Docker to use tmpfs for better performance
+        run: |
+          echo "Configuring Docker to use tmpfs (RAM) for data storage..."
+
+          sudo systemctl stop docker
+
+          sudo mkdir -p /mnt/docker-tmpfs
+          sudo mount -t tmpfs -o size=50g tmpfs /mnt/docker-tmpfs
+          sudo mkdir -p /etc/docker
+
+          echo '{
+            "data-root": "/mnt/docker-tmpfs",
+            "storage-driver": "overlay2"
+          }' | sudo tee /etc/docker/daemon.json
+
+          sudo systemctl start docker
+
+          sudo systemctl status docker --no-pager
+          docker info | grep "Docker Root Dir"
+
+          echo "Docker configured to use tmpfs. All container operations will use RAM."
+
       # If glcoud cli is installed skaffold spams the output because we're not logged in and in some cases might even fail the build.
       - name: Hide gcloud cli from skaffold
         run: sudo mv /usr/bin/gcloud /tmp/gcloud

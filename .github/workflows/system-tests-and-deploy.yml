@@ -16,6 +16,9 @@ concurrency:
 
 env:
   CARGO_TERM_COLOR: always
+  # Build optimization to reduce peak memory usage and prevent OOM kills
+  CARGO_BUILD_JOBS: 1
+  NODE_OPTIONS: --max-old-space-size=4096
 
 jobs:
   build-and-system-tests:
@@ -47,6 +50,12 @@ jobs:
           cat /sys/fs/cgroup/memory.current 2>/dev/null || echo "no memory.current"
           cat /sys/fs/cgroup/cpu.max 2>/dev/null || echo "no cpu.max"
           cat /sys/fs/cgroup/pids.max 2>/dev/null || echo "no pids.max"
+          echo
+          echo "== Docker service memory limits =="
+          systemctl show docker -p MemoryMax 2>/dev/null || echo "no MemoryMax"
+          echo
+          echo "== Memory usage breakdown =="
+          cat /proc/meminfo | grep -E "(MemTotal|MemAvailable|MemFree|Buffers|Cached|Shmem)" || true
           echo
           echo "== PSI (pressure stall info) =="
           for f in cpu memory io; do echo "[$f]"; cat /proc/pressure/$f || true; echo; done
@@ -93,6 +102,15 @@ jobs:
             "storage-driver": "overlay2"
           }' | sudo tee /etc/docker/daemon.json
 
+          # Check Docker service memory limits
+          echo "Checking Docker service memory limits..."
+          echo "Current Docker service memory limit:"
+          MEMORY_LIMIT=$(systemctl show docker -p MemoryMax --value 2>/dev/null)
+          if [ -z "$MEMORY_LIMIT" ] || [ "$MEMORY_LIMIT" = "infinity" ] || [ "$MEMORY_LIMIT" = "0" ]; then
+            echo "  No memory limit set (unlimited)"
+          else
+            echo "  MemoryMax=$MEMORY_LIMIT"
+          fi
           sudo systemctl start docker
 
           sudo systemctl status docker --no-pager
@@ -132,7 +150,7 @@ jobs:
         with:
           minikube version: "v1.33.1"
           kubernetes version: "v1.30.0"
-          start args: "--addons ingress --memory 10g"
+          start args: "--addons ingress --memory 60g"
           driver: "docker"
           github token: ${{ secrets.GITHUB_TOKEN }}
 

@@ -16,9 +16,6 @@ concurrency:
 
 env:
   CARGO_TERM_COLOR: always
-  # Build optimization to reduce peak memory usage and prevent OOM kills
-  CARGO_BUILD_JOBS: 1
-  NODE_OPTIONS: --max-old-space-size=4096
 
 jobs:
   build-and-system-tests:
@@ -26,6 +23,104 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+
+      - name: 📊 System Information Report
+        run: |
+          set -euo pipefail
+
+          echo "╔══════════════════════════════════════════════════════════════════════════════════════╗"
+          echo "║                                🖥️  SYSTEM INFORMATION REPORT                          ║"
+          echo "╚══════════════════════════════════════════════════════════════════════════════════════╝"
+          echo
+
+          # CPU Information
+          echo "🔧 CPU INFORMATION"
+          echo "────────────────────────────────────────────────────────────────────────────────────────"
+          CPU_CORES=$(nproc)
+          CPU_THREADS=$(nproc --all)
+          CPU_MODEL=$(lscpu | grep 'Model name' | cut -d ':' -f2 | xargs)
+          CPU_ARCH=$(lscpu | grep 'Architecture' | cut -d ':' -f2 | xargs)
+          CPU_MHz=$(lscpu | grep 'CPU MHz' | cut -d ':' -f2 | xargs || echo "N/A")
+
+          printf "  %-20s %s\n" "CPU Cores:" "$CPU_CORES"
+          printf "  %-20s %s\n" "CPU Threads:" "$CPU_THREADS"
+          printf "  %-20s %s\n" "CPU Model:" "$CPU_MODEL"
+          printf "  %-20s %s\n" "Architecture:" "$CPU_ARCH"
+          printf "  %-20s %s MHz\n" "Current Speed:" "$CPU_MHz"
+          echo
+
+          # Memory Information
+          echo "💾 MEMORY INFORMATION"
+          echo "────────────────────────────────────────────────────────────────────────────────────────"
+          TOTAL_RAM=$(free -h | awk 'NR==2{print $2}')
+          USED_RAM=$(free -h | awk 'NR==2{print $3}')
+          FREE_RAM=$(free -h | awk 'NR==2{print $4}')
+          AVAILABLE_RAM=$(free -h | awk 'NR==2{print $7}')
+          TOTAL_RAM_KB=$(free | awk 'NR==2{print $2}')
+          USED_RAM_KB=$(free | awk 'NR==2{print $3}')
+          USAGE_PERCENT=$(awk "BEGIN {printf \"%.1f\", ($USED_RAM_KB/$TOTAL_RAM_KB)*100}")
+
+          printf "  %-20s %s\n" "Total RAM:" "$TOTAL_RAM"
+          printf "  %-20s %s (%s%%)\n" "Used RAM:" "$USED_RAM" "$USAGE_PERCENT"
+          printf "  %-20s %s\n" "Free RAM:" "$FREE_RAM"
+          printf "  %-20s %s\n" "Available RAM:" "$AVAILABLE_RAM"
+          echo
+
+          # Disk Information
+          echo "💿 DISK INFORMATION"
+          echo "────────────────────────────────────────────────────────────────────────────────────────"
+          df -h --output=source,size,used,avail,pcent,target | grep -E '^(/dev/|tmpfs)' | while read line; do
+            echo "  $line"
+          done
+          echo
+
+          ROOT_TOTAL=$(df -h / | awk 'NR==2{print $2}')
+          ROOT_USED=$(df -h / | awk 'NR==2{print $3}')
+          ROOT_AVAIL=$(df -h / | awk 'NR==2{print $4}')
+          ROOT_PERCENT=$(df -h / | awk 'NR==2{print $5}')
+
+          printf "  %-20s %s\n" "Root Total:" "$ROOT_TOTAL"
+          printf "  %-20s %s (%s)\n" "Root Used:" "$ROOT_USED" "$ROOT_PERCENT"
+          printf "  %-20s %s\n" "Root Available:" "$ROOT_AVAIL"
+          echo
+
+          # System Load and Uptime
+          echo "⚡ SYSTEM PERFORMANCE"
+          echo "────────────────────────────────────────────────────────────────────────────────────────"
+          LOAD_AVG=$(uptime | awk -F'load average:' '{print $2}' | xargs)
+          UPTIME_INFO=$(uptime -p)
+
+          printf "  %-20s %s\n" "Load Average:" "$LOAD_AVG"
+          printf "  %-20s %s\n" "Uptime:" "$UPTIME_INFO"
+          echo
+
+          # Additional System Info
+          echo "🔍 ADDITIONAL SYSTEM INFO"
+          echo "────────────────────────────────────────────────────────────────────────────────────────"
+          OS_NAME=$(lsb_release -d 2>/dev/null | cut -d ':' -f2 | xargs || cat /etc/os-release | grep PRETTY_NAME | cut -d '"' -f2)
+          KERNEL_VERSION=$(uname -r)
+          HOSTNAME=$(hostname)
+
+          printf "  %-20s %s\n" "OS:" "$OS_NAME"
+          printf "  %-20s %s\n" "Kernel:" "$KERNEL_VERSION"
+          printf "  %-20s %s\n" "Hostname:" "$HOSTNAME"
+          echo
+
+          # Process Information
+          echo "📈 TOP PROCESSES BY MEMORY"
+          echo "────────────────────────────────────────────────────────────────────────────────────────"
+          ps aux --sort=-%mem --no-headers | head -5 | awk '{printf "  %-15s %5s%% %8s %s\n", $1, $4, $6"K", $11}'
+          echo
+
+          # Network Information
+          echo "🌐 NETWORK INTERFACES"
+          echo "────────────────────────────────────────────────────────────────────────────────────────"
+          ip -4 addr show | grep inet | awk '{print "  " $NF ": " $2}' | grep -v 127.0.0.1
+          echo
+
+          echo "╔══════════════════════════════════════════════════════════════════════════════════════╗"
+          echo "║                            ✅ SYSTEM REPORT COMPLETE                                   ║"
+          echo "╚══════════════════════════════════════════════════════════════════════════════════════╝"
 
       - name: Worker fingerprint & fast sanity check
         run: |
@@ -247,9 +342,8 @@ jobs:
           echo "== Top memory processes ==" | tee ./_failure_debug/top-mem-procs.txt
           ps aux --sort=-%mem | head -n 30 | tee -a ./_failure_debug/top-mem-procs.txt || true
 
-          echo "== Env & limits ==" | tee ./_failure_debug/env.txt
-          printenv | sort | tee -a ./_failure_debug/env.txt || true
-          ulimit -a | tee ./_failure_debug/ulimit.txt || true
+          echo "== Limits ==" | tee ./_failure_debug/limits.txt
+          ulimit -a | tee -a ./_failure_debug/limits.txt || true
 
           echo "== CGroup limits ==" | tee ./_failure_debug/cgroup.txt
           {

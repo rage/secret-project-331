@@ -68,7 +68,7 @@ const buttonsWrapper = css`
 
 const ChatbotDialogHeader: React.FC<ChatbotDialogHeaderProps> = (props) => {
   const { t } = useTranslation()
-  const { currentConversationInfo, newConversation, isCourseMaterialBlock } = props
+  const { currentConversationInfo, newConversation, isCourseMaterialBlock, chatbotTitleId } = props
 
   if (currentConversationInfo.isLoading) {
     return <Spinner variant="medium" />
@@ -94,7 +94,7 @@ const ChatbotDialogHeader: React.FC<ChatbotDialogHeaderProps> = (props) => {
       <div className={iconStyle}>
         <Account />
       </div>
-      <h1 slot="title" className={titleStyle}>
+      <h1 id={chatbotTitleId} slot="title" className={titleStyle}>
         {currentConversationInfo.data?.chatbot_name}
       </h1>
       <div className={buttonsWrapper}>
@@ -112,12 +112,7 @@ const ChatbotDialogHeader: React.FC<ChatbotDialogHeaderProps> = (props) => {
           />
         </button>
         {!isCourseMaterialBlock && (
-          <Button
-            slot="close"
-            //onClick={() => props.setDialogOpen(false)}
-            className={buttonStyle}
-            aria-label={t("close")}
-          >
+          <Button slot="close" className={buttonStyle} aria-label={t("close")}>
             <DownIcon />
           </Button>
         )}

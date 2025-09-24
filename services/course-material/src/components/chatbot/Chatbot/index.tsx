@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useId } from "react"
 import { Dialog, DialogTrigger } from "react-aria-components"
 
 import ChatbotDialog from "./ChatbotDialog"
@@ -11,12 +11,15 @@ interface ChatbotProps {
 }
 
 const Chatbot: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
+  const chatbotTitleId = useId()
+
   return (
     <DialogTrigger defaultOpen={false}>
-      <Dialog>
+      <Dialog aria-labelledby={chatbotTitleId}>
         <ChatbotDialog
           chatbotConfigurationId={chatbotConfigurationId}
           isCourseMaterialBlock={false}
+          chatbotTitleId={chatbotTitleId}
         />
       </Dialog>
     </DialogTrigger>

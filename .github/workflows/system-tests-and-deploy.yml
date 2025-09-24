@@ -24,6 +24,44 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
+      - name: Worker fingerprint & fast sanity check
+        run: |
+          set -euo pipefail
+          echo "== Worker/Kernel =="
+          uname -a || true
+          echo
+          echo "== OS Release =="
+          cat /etc/os-release || true
+          echo
+          echo "== CPU detail =="
+          lscpu || true
+          echo
+          echo "== GLIBC =="
+          (ldd --version 2>&1 | head -1) || true
+          echo
+          echo "== Ulimits =="
+          ulimit -a || true
+          echo
+          echo "== CGroup limits =="
+          cat /sys/fs/cgroup/memory.max 2>/dev/null || echo "no memory.max"
+          cat /sys/fs/cgroup/memory.current 2>/dev/null || echo "no memory.current"
+          cat /sys/fs/cgroup/cpu.max 2>/dev/null || echo "no cpu.max"
+          cat /sys/fs/cgroup/pids.max 2>/dev/null || echo "no pids.max"
+          echo
+          echo "== PSI (pressure stall info) =="
+          for f in cpu memory io; do echo "[$f]"; cat /proc/pressure/$f || true; echo; done
+          echo
+          echo "== Free/DF =="
+          free -h || true
+          df -h || true
+          echo
+          echo "== Docker info (brief) =="
+          docker --version || true
+          (docker info 2>/dev/null | egrep 'Server Version|Cgroup Driver|Cgroup Version|Docker Root Dir|Kernel Version' || true)
+          echo
+          echo "== dmesg scan (early) =="
+          (dmesg -T 2>/dev/null | egrep -i 'mce|hardware error|memory error|ecc|segfault|general protection|oom' || true)
+
       - name: Make sure we have no focused system-tests
         run: |
           test "$(grep -r 'test.only' ./system-tests/src/ | wc -l)" -eq 0
@@ -176,6 +214,59 @@ jobs:
         if: ${{ github.ref != 'refs/heads/master' }}
 
       # upload logs for all the services on failure
+      - name: Dump kernel and system diagnostics (failure only)
+        if: ${{ failure() }}
+        run: |
+          set -euo pipefail
+          mkdir -p ./_failure_debug
+
+          echo "== dmesg (last 1000 lines) ==" | tee ./_failure_debug/dmesg.txt
+          (dmesg -T 2>/dev/null | tail -n 1000) | tee -a ./_failure_debug/dmesg.txt || true
+
+          echo "== journalctl -k (last 500 lines) ==" | tee ./_failure_debug/journalctl-kernel.txt
+          (journalctl -k -n 500 --no-pager 2>/dev/null) | tee -a ./_failure_debug/journalctl-kernel.txt || true
+
+          echo "== Top memory processes ==" | tee ./_failure_debug/top-mem-procs.txt
+          ps aux --sort=-%mem | head -n 30 | tee -a ./_failure_debug/top-mem-procs.txt || true
+
+          echo "== Env & limits ==" | tee ./_failure_debug/env.txt
+          printenv | sort | tee -a ./_failure_debug/env.txt || true
+          ulimit -a | tee ./_failure_debug/ulimit.txt || true
+
+          echo "== CGroup limits ==" | tee ./_failure_debug/cgroup.txt
+          {
+            echo "memory.max: $(cat /sys/fs/cgroup/memory.max 2>/dev/null || echo n/a)"
+            echo "memory.current: $(cat /sys/fs/cgroup/memory.current 2>/dev/null || echo n/a)"
+            echo "cpu.max: $(cat /sys/fs/cgroup/cpu.max 2>/dev/null || echo n/a)"
+            echo "pids.max: $(cat /sys/fs/cgroup/pids.max 2>/dev/null || echo n/a)"
+          } | tee -a ./_failure_debug/cgroup.txt
+
+          echo "== PSI (pressure stall info) ==" | tee ./_failure_debug/psi.txt
+          for f in cpu memory io; do
+            echo "[$f]" | tee -a ./_failure_debug/psi.txt
+            (cat /proc/pressure/$f 2>/dev/null || echo n/a) | tee -a ./_failure_debug/psi.txt
+            echo | tee -a ./_failure_debug/psi.txt
+          done
+
+          echo "== Filesystem usage ==" | tee ./_failure_debug/df.txt
+          df -h | tee -a ./_failure_debug/df.txt || true
+
+          echo "== OS/CPU detail ==" | tee ./_failure_debug/os-cpu.txt
+          { cat /etc/os-release; echo; lscpu; echo; head -n 50 /proc/cpuinfo; } \
+            | tee -a ./_failure_debug/os-cpu.txt || true
+
+          echo "== Docker info (brief) ==" | tee ./_failure_debug/docker-info.txt
+          (docker info 2>/dev/null | egrep 'Server Version|Cgroup|Docker Root Dir|Logging Driver|Kernel Version' || true) \
+            | tee -a ./_failure_debug/docker-info.txt
+
+      - name: Upload failure diagnostics
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: worker-failure-diagnostics
+          path: ./_failure_debug/*
+          if-no-files-found: ignore
+
       - name: Save service logs to disk
         if: ${{ failure() && steps.deploy_local.conclusion == 'success' }}
         run: |

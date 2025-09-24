@@ -1315,7 +1315,8 @@ export function isCourseLanguageVersionNavigationInfo(obj: unknown): obj is Cour
         typeof typedObj["language_code"] === "string" &&
         typeof typedObj["course_slug"] === "string" &&
         typeof typedObj["page_path"] === "string" &&
-        typeof typedObj["is_draft"] === "boolean"
+        typeof typedObj["is_draft"] === "boolean" &&
+        typeof typedObj["current_page_unavailable_in_this_language"] === "boolean"
     )
 }
 

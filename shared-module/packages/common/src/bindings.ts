@@ -636,6 +636,7 @@ export interface CourseLanguageVersionNavigationInfo {
   course_slug: string
   page_path: string
   is_draft: boolean
+  current_page_unavailable_in_this_language: boolean
 }
 
 export interface EmailTemplate {

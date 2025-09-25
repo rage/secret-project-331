@@ -47,20 +47,31 @@ export const mockStudents: Student[] = Array.from({ length: 5 }).flatMap((_, i) 
   })),
 )
 
-export const completionsColumns = [
-  { header: "Student", accessorKey: "student" },
-  { header: "Default", accessorKey: "default" },
-  { header: "Another module", accessorKey: "anotherModule" },
-  { header: "Bonus module", accessorKey: "bonusModule" },
+// --- RANDOMIZED CHAPTER MAX VALUES ---
+function randInt(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
+// Define chapter structure (titles)
+const chapterDefs = [
+  "The Basics",
+  "The intermediaries",
+  "Advanced studies",
+  "Forbidden magicks",
+  "Another chapter",
+  "Another another chapter",
+  "Bonus chapter",
+  "Another bonus chapter",
 ]
 
-export const completionsData = mockStudents.map((s) => ({
-  student: `${s.firstName} ${s.lastName}`,
-  default: "0/0",
-  anotherModule: "0/0",
-  bonusModule: "0/0",
-}))
+// Generate random max values for each chapter (points and attempts)
+const chapterMeta = chapterDefs.map((chapter) => {
+  const pointsMax = randInt(10, 250)
+  const attemptsMax = randInt(3, 15)
+  return { chapter, pointsMax, attemptsMax }
+})
 
+// --- BUILD COLUMNS ---
 export const pointsColumns = [
   {
     header: "Student",
@@ -69,86 +80,54 @@ export const pointsColumns = [
   {
     header: "Total",
     columns: [
-      { header: "Points / 80", accessorKey: "total_points" },
-      { header: "Attempts / 40", accessorKey: "total_attempted", meta: { altBg: true } },
+      {
+        header: `Points / ${chapterMeta.reduce((acc, m) => acc + m.pointsMax, 0)}`,
+        accessorKey: "total_points",
+      },
+      {
+        header: `Attempts / ${chapterMeta.reduce((acc, m) => acc + m.attemptsMax, 0)}`,
+        accessorKey: "total_attempted",
+        meta: { altBg: true },
+      },
     ],
   },
-  {
-    header: "The Basics",
+  ...chapterMeta.map((meta, idx) => ({
+    header: meta.chapter,
     columns: [
-      { header: "Points / 10", accessorKey: "basics_points" },
-      { header: "Attempts / 5", accessorKey: "basics_attempted", meta: { altBg: true } },
+      {
+        header: `Points / ${meta.pointsMax}`,
+        accessorKey: `${["basics", "intermediaries", "advanced", "forbidden", "another1", "another2", "bonus1", "bonus2"][idx]}_points`,
+      },
+      {
+        header: `Attempts / ${meta.attemptsMax}`,
+        accessorKey: `${["basics", "intermediaries", "advanced", "forbidden", "another1", "another2", "bonus1", "bonus2"][idx]}_attempted`,
+        meta: { altBg: true },
+      },
     ],
-  },
-  {
-    header: "The intermediaries",
-    columns: [
-      { header: "Points / 10", accessorKey: "intermediaries_points" },
-      { header: "Attempts / 5", accessorKey: "intermediaries_attempted", meta: { altBg: true } },
-    ],
-  },
-  {
-    header: "Advanced studies",
-    columns: [
-      { header: "Points / 10", accessorKey: "advanced_points" },
-      { header: "Attempts / 5", accessorKey: "advanced_attempted", meta: { altBg: true } },
-    ],
-  },
-  {
-    header: "Forbidden magicks",
-    columns: [
-      { header: "Points / 10", accessorKey: "forbidden_points" },
-      { header: "Attempts / 5", accessorKey: "forbidden_attempted", meta: { altBg: true } },
-    ],
-  },
-  {
-    header: "Another chapter",
-    columns: [
-      { header: "Points / 10", accessorKey: "another1_points" },
-      { header: "Attempts / 5", accessorKey: "another1_attempted", meta: { altBg: true } },
-    ],
-  },
-  {
-    header: "Another another chapter",
-    columns: [
-      { header: "Points / 10", accessorKey: "another2_points" },
-      { header: "Attempts / 5", accessorKey: "another2_attempted", meta: { altBg: true } },
-    ],
-  },
-  {
-    header: "Bonus chapter",
-    columns: [
-      { header: "Points / 10", accessorKey: "bonus1_points" },
-      { header: "Attempts / 5", accessorKey: "bonus1_attempted", meta: { altBg: true } },
-    ],
-  },
-  {
-    header: "Another bonus chapter",
-    columns: [
-      { header: "Points / 10", accessorKey: "bonus2_points" },
-      { header: "Attempts / 5", accessorKey: "bonus2_attempted", meta: { altBg: true } },
-    ],
-  },
+  })),
 ]
 
-export const pointsData = mockStudents.map((s) => ({
-  student: `${s.firstName} ${s.lastName}`,
-  total_points: "0",
-  total_attempted: "0",
-  basics_points: "0",
-  basics_attempted: "0",
-  intermediaries_points: "0",
-  intermediaries_attempted: "0",
-  advanced_points: "0",
-  advanced_attempted: "0",
-  forbidden_points: "0",
-  forbidden_attempted: "0",
-  another1_points: "0",
-  another1_attempted: "0",
-  another2_points: "0",
-  another2_attempted: "0",
-  bonus1_points: "0",
-  bonus1_attempted: "0",
-  bonus2_points: "0",
-  bonus2_attempted: "0",
-}))
+// --- BUILD STUDENT DATA ---
+export const pointsData = mockStudents.map((s) => {
+  // For each chapter, randomize points and attempts for the student
+  let totalPoints = 0
+  let totalAttempted = 0
+  const obj: any = {
+    student: `${s.firstName} ${s.lastName}`,
+  }
+
+  chapterMeta.forEach((meta, idx) => {
+    const pointsKey = `${["basics", "intermediaries", "advanced", "forbidden", "another1", "another2", "bonus1", "bonus2"][idx]}_points`
+    const attKey = `${["basics", "intermediaries", "advanced", "forbidden", "another1", "another2", "bonus1", "bonus2"][idx]}_attempted`
+    const points = randInt(0, meta.pointsMax)
+    const attempts = randInt(0, meta.attemptsMax)
+    obj[pointsKey] = points
+    obj[attKey] = attempts
+    totalPoints += points
+    totalAttempted += attempts
+  })
+
+  obj["total_points"] = totalPoints
+  obj["total_attempted"] = totalAttempted
+  return obj
+})

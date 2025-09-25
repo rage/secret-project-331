@@ -59,6 +59,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
         position: fixed;
         bottom: 70px;
         right: 1rem;
+        z-index: 1000;
       `}
       onAnimationEnd={handleAnimationEnd}
     >

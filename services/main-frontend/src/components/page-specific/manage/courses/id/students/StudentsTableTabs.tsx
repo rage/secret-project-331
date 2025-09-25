@@ -184,97 +184,99 @@ export function FloatingHeaderTable({
     </div>
   )
 
-  // These can be toggles at top-level or inline
-  const REMOVE_BORDER_TOTAL = progressMode
-  const REMOVE_BORDER_CHAPTERS = progressMode
-
   // --- TABLE HEAD RENDER (uses explicit widths) ---
   const renderTableHead = () => (
     <thead>
-      {table.getHeaderGroups().map((headerGroup, rowIdx) => (
-        <tr key={headerGroup.id} css={headerRowStyle}>
-          {headerGroup.headers.map((header, colIdx) => {
-            let removeRight = false
-            let removeLeft = false
+      {table.getHeaderGroups().map((headerGroup, rowIdx) => {
+        // Track chapter index for header row 0 only
+        let chapterCount = 0
+        return (
+          <tr key={headerGroup.id} css={headerRowStyle}>
+            {headerGroup.headers.map((header, colIdx) => {
+              let removeRight = false
+              let removeLeft = false
 
-            // --- Remove border between Total Points/Attempts
-            if (
-              REMOVE_BORDER_TOTAL &&
-              rowIdx === 1 && // subheader row
-              colIdx === 1 // "Total Points" (col 1)
-            ) {
-              removeRight = true
-            }
-            if (
-              REMOVE_BORDER_TOTAL &&
-              rowIdx === 1 &&
-              colIdx === 2 // "Total Attempts" (col 2)
-            ) {
-              removeLeft = true
-            }
+              // --- Remove border between Total Points/Attempts
+              if (progressMode && rowIdx === 1 && colIdx === 1) {
+                removeRight = true
+              }
+              if (progressMode && rowIdx === 1 && colIdx === 2) {
+                removeLeft = true
+              }
 
-            // --- Remove borders between chapter points/attempts (all other pairs)
-            // Chapters start at subHeaderStart === 3 (col 3+)
-            if (
-              REMOVE_BORDER_CHAPTERS &&
-              rowIdx === 1 &&
-              colIdx >= subHeaderStart &&
-              (colIdx - subHeaderStart) % 2 === 0
-            ) {
-              removeRight = true // points col in chapter
-            }
-            if (
-              REMOVE_BORDER_CHAPTERS &&
-              rowIdx === 1 &&
-              colIdx >= subHeaderStart &&
-              (colIdx - subHeaderStart) % 2 === 1
-            ) {
-              removeLeft = true // attempts col in chapter
-            }
+              // --- Remove borders between chapter points/attempts
+              if (
+                progressMode &&
+                rowIdx === 1 &&
+                colIdx >= subHeaderStart &&
+                (colIdx - subHeaderStart) % 2 === 0
+              ) {
+                removeRight = true
+              }
+              if (
+                progressMode &&
+                rowIdx === 1 &&
+                colIdx >= subHeaderStart &&
+                (colIdx - subHeaderStart) % 2 === 1
+              ) {
+                removeLeft = true
+              }
 
-            return (
-              <th
-                key={header.id}
-                css={[thStyle, removeRight && noRightBorder, removeLeft && noLeftBorder]}
-                style={{
-                  minWidth: 110,
-                  width: colWidths[colIdx],
-                  background:
-                    colorHeaders && !colorHeaderUnderline
-                      ? getHeaderBg(rowIdx, colIdx, header)
-                      : undefined,
-                  position: "relative",
-                  overflow: "visible",
-                }}
-                rowSpan={header.depth === 0 && header.colSpan === 1 ? 2 : undefined}
-                colSpan={header.colSpan > 1 ? header.colSpan : undefined}
-              >
-                {flexRender(header.column.columnDef.header, header.getContext())}
-                {/* Only show underline for upper header, if enabled */}
-                {colorHeaderUnderline &&
-                  rowIdx === 0 &&
-                  colIdx >= chapterHeaderStart &&
-                  header.colSpan === 2 && (
-                    <span
-                      style={{
-                        position: "absolute",
-                        left: 0,
-                        right: 0,
-                        width: "100%",
-                        height: 4,
-                        background: getHeaderBg(rowIdx, colIdx, header),
-                        borderRadius: 2,
-                        bottom: "4px",
-                        zIndex: 2,
-                        pointerEvents: "none",
-                      }}
-                    />
-                  )}
-              </th>
-            )
-          })}
-        </tr>
-      ))}
+              // Chapter indexing logic: only for upper header row, after "Total"
+              let headerLabel = flexRender(header.column.columnDef.header, header.getContext())
+              if (rowIdx === 0 && colIdx >= chapterHeaderStart && header.colSpan === 2) {
+                chapterCount += 1
+                headerLabel = (
+                  <span>
+                    {chapterCount}: {headerLabel}
+                  </span>
+                )
+              }
+
+              return (
+                <th
+                  key={header.id}
+                  css={[thStyle, removeRight && noRightBorder, removeLeft && noLeftBorder]}
+                  style={{
+                    minWidth: 110,
+                    width: colWidths[colIdx],
+                    background:
+                      colorHeaders && !colorHeaderUnderline
+                        ? getHeaderBg(rowIdx, colIdx, header)
+                        : undefined,
+                    position: "relative",
+                    overflow: "visible",
+                  }}
+                  rowSpan={header.depth === 0 && header.colSpan === 1 ? 2 : undefined}
+                  colSpan={header.colSpan > 1 ? header.colSpan : undefined}
+                >
+                  {headerLabel}
+                  {/* Only show underline for upper header, if enabled */}
+                  {colorHeaderUnderline &&
+                    rowIdx === 0 &&
+                    colIdx >= chapterHeaderStart &&
+                    header.colSpan === 2 && (
+                      <span
+                        style={{
+                          position: "absolute",
+                          left: 0,
+                          right: 0,
+                          width: "100%",
+                          height: 4,
+                          background: getHeaderBg(rowIdx, colIdx, header),
+                          borderRadius: 2,
+                          bottom: "4px",
+                          zIndex: 2,
+                          pointerEvents: "none",
+                        }}
+                      />
+                    )}
+                </th>
+              )
+            })}
+          </tr>
+        )
+      })}
     </thead>
   )
 
@@ -294,18 +296,18 @@ export function FloatingHeaderTable({
             let removeLeft = false
 
             // --- Remove border between Total Points/Attempts
-            if (REMOVE_BORDER_TOTAL && i === 1) {
+            if (progressMode && i === 1) {
               removeRight = true
             }
-            if (REMOVE_BORDER_TOTAL && i === 2) {
+            if (progressMode && i === 2) {
               removeLeft = true
             }
 
             // --- Remove borders between chapter points/attempts (all other pairs)
-            if (REMOVE_BORDER_CHAPTERS && i >= subHeaderStart && (i - subHeaderStart) % 2 === 0) {
+            if (progressMode && i >= subHeaderStart && (i - subHeaderStart) % 2 === 0) {
               removeRight = true
             }
-            if (REMOVE_BORDER_CHAPTERS && i >= subHeaderStart && (i - subHeaderStart) % 2 === 1) {
+            if (progressMode && i >= subHeaderStart && (i - subHeaderStart) % 2 === 1) {
               removeLeft = true
             }
 

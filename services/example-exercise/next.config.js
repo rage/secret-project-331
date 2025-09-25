@@ -48,6 +48,8 @@ const config = {
   devIndicators: false,
   // This program is used inside sandboxed iframes so the origin of request to the _next folder will be different from the origin of the page.
   allowedDevOrigins: ["*", "project-331.local"],
+  // This is open source, so no need to hide the code
+  productionBrowserSourceMaps: true,
 }
 
 if (process.env.NEXT_PUBLIC_BASE_PATH) {

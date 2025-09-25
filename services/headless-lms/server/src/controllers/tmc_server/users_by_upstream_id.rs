@@ -8,7 +8,8 @@ use std::env;
 
 use crate::{
     domain::authorization::{
-        authorize_access_to_tmc_server, get_user_from_moocfi_by_tmc_access_token_and_upstream_id,
+        authorize_access_from_tmc_server_to_course_mooc_fi,
+        get_user_from_moocfi_by_tmc_access_token_and_upstream_id,
     },
     prelude::*,
 };
@@ -26,7 +27,7 @@ pub async fn get_user_by_upstream_id(
     request: HttpRequest,
 ) -> ControllerResult<web::Json<User>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize_access_to_tmc_server(&request).await?;
+    let token = authorize_access_from_tmc_server_to_course_mooc_fi(&request).await?;
     let tmc_access_token = env::var("TMC_ACCESS_TOKEN").expect("TMC_ACCESS_TOKEN must be defined");
     let user = get_user_from_moocfi_by_tmc_access_token_and_upstream_id(
         &mut conn,

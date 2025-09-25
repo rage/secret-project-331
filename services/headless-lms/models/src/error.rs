@@ -186,6 +186,10 @@ pub enum ModelErrorType {
     Json,
     Util,
     Generic,
+    HttpRequest {
+        status_code: u16,
+        response_body: String,
+    },
 }
 
 impl From<sqlx::Error> for ModelError {

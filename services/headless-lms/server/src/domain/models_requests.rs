@@ -364,20 +364,24 @@ pub fn make_grading_request_sender(
             let res = req.send().await.map_err(reqwest_err)?;
             let status = res.status();
             if !status.is_success() {
-                let response_body = res.text().await;
+                let status_code = status.as_u16();
+                let response_body = res.text().await.unwrap_or_default();
                 error!(
                     ?response_body,
+                    status_code = %status_code,
                     "Grading request returned an unsuccesful status code"
                 );
-                let source_error = ModelError::new(
-                    ModelErrorType::Generic,
-                    format!("{:?}", response_body),
-                    None,
-                );
+
                 return Err(ModelError::new(
-                    ModelErrorType::Generic,
-                    "Grading failed".to_string(),
-                    Some(source_error.into()),
+                    ModelErrorType::HttpRequest {
+                        status_code,
+                        response_body: response_body.clone(),
+                    },
+                    format!(
+                        "Grading failed with status: {} response: {}",
+                        status_code, response_body
+                    ),
+                    None,
                 ));
             }
             let obj = res

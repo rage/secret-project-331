@@ -51,6 +51,8 @@ const config = {
     },
   },
   transpilePackages: ["@vectopus/atlas-icons-react"],
+  // This is open source, so no need to hide the code
+  productionBrowserSourceMaps: true,
 }
 
 if (process.env.NEXT_PUBLIC_BASE_PATH) {

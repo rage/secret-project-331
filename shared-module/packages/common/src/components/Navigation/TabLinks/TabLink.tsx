@@ -37,7 +37,7 @@ const TabLink: React.FC<React.PropsWithChildren<TabLinkProps>> = ({
           // eslint-disable-next-line i18next/no-literal-string
           pathname: path ? router.route : `${router.route}/[...path]`,
           // Support for subpaths with splitting to an array.
-          query: { ...router.query, path: url.split("/") },
+          query: { ...router.query, path: url ? url.split("/") : [] },
         }
       : url
   return (

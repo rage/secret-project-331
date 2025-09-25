@@ -36,7 +36,7 @@ export function buildCourseUrl({
 export function parseCourseUrl(url: string): ParsedCourseUrl {
   try {
     const urlObj = new URL(url)
-    const pathSegments = urlObj.pathname.split("/").filter(Boolean)
+    const pathSegments = urlObj.pathname ? urlObj.pathname.split("/").filter(Boolean) : []
 
     // Expected pattern: /org/{orgSlug}/courses/{courseSlug}/{...pagePath}
     if (pathSegments.length < 4 || pathSegments[0] !== "org" || pathSegments[2] !== "courses") {

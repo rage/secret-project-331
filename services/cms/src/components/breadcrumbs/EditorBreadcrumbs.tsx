@@ -12,8 +12,9 @@ import Spinner from "@/shared-module/common/components/Spinner"
 const EditorBreadcrumbs: React.FC<React.PropsWithChildren<unknown>> = () => {
   const router = useRouter()
 
-  const pageId = router.asPath.split("/")[2]
-  const prefix = router.asPath.split("/")[1]
+  const pathParts = router.asPath ? router.asPath.split("/") : []
+  const pageId = pathParts.length > 2 ? pathParts[2] : ""
+  const prefix = pathParts.length > 1 ? pathParts[1] : ""
 
   const data = usePageInfo(pageId, prefix)
 

@@ -15,12 +15,17 @@ const colorPairsPastel200 = [
   ["#CBC1E2", "#CBC1E2"], // purple 200
 ]
 
-
 const colorPairsOriginal = [
   ["#DAE3EB", "#DAE3EB"], // [lighter, darker]
   ["#F0E1DD", "#F0E1DD"], // [lighter, darker]
   ["#DAE6E5", "#DAE6E5"], // [lighter, darker]
 ]
 
+const colorPairsTest = [
+  ["#DAE3EB", "#DAE3EB"], // green 100
+  ["#bbc9e0ff", "#bbc9e0ff"], // green 100
+  ["#bac4c9ff", "#bac4c9ff"], // green 100
+]
+
 // --- SWAP YOUR THEME HERE ---
-export const colorPairs = colorPairsPastel200
+export const colorPairs = colorPairsPastel

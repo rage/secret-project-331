@@ -27,6 +27,7 @@ export const thStyle = css`
   background: #f7f8f9;
   border-bottom: 1px solid #ced1d7;
   vertical-align: middle;
+  border-right: 1px solid #ced1d7;
   &:first-of-type {
     border-radius: 7px 0 0 0;
   }
@@ -48,7 +49,12 @@ export const tdStyle = css`
   vertical-align: middle;
   background: #fff;
   border-bottom: 1px solid #ced1d7;
+  border-right: 1px solid #ced1d7;
 `
 export const lastRowTdStyle = css`
   border-bottom: none;
+`
+
+export const noRightBorder = css`
+  border-right: none !important;
 `

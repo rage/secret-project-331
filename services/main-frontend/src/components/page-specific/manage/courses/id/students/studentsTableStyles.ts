@@ -58,3 +58,7 @@ export const lastRowTdStyle = css`
 export const noRightBorder = css`
   border-right: none !important;
 `
+
+export const noLeftBorder = css`
+  border-left: none !important;
+`

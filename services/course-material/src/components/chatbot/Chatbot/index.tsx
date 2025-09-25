@@ -1,5 +1,6 @@
 import { css, keyframes } from "@emotion/css"
 import React, { useContext, useEffect, useId, useState } from "react"
+import { FocusScope } from "react-aria"
 import { Dialog, DialogTrigger, OverlayTriggerStateContext } from "react-aria-components"
 
 import ChatbotDialog from "./ChatbotDialog"
@@ -33,7 +34,7 @@ const closeAnimation = keyframes`
 const Chatbot: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
   const chatbotTitleId = useId()
   let state = useContext(OverlayTriggerStateContext)
-  const [shouldRender, setShouldRender] = useState(state?.isOpen)
+  const [shouldRender, setShouldRender] = useState(false)
 
   useEffect(() => {
     if (state?.isOpen) {
@@ -47,28 +48,32 @@ const Chatbot: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
     }
   }
 
-  if (!shouldRender) {
-    return <OpenChatbotButton />
-  }
-
   return (
-    <Dialog
-      aria-labelledby={chatbotTitleId}
-      className={css`
-        animation: ${state?.isOpen ? openAnimation : closeAnimation} 0.3s forwards;
-        position: fixed;
-        bottom: 70px;
-        right: 1rem;
-        z-index: 1000;
-      `}
-      onAnimationEnd={handleAnimationEnd}
-    >
-      <ChatbotDialog
-        chatbotConfigurationId={chatbotConfigurationId}
-        isCourseMaterialBlock={false}
-        chatbotTitleId={chatbotTitleId}
-      />
-    </Dialog>
+    <>
+      <OpenChatbotButton hide={shouldRender} />
+      {shouldRender && (
+        // eslint-disable-next-line jsx-a11y/no-autofocus
+        <FocusScope restoreFocus autoFocus>
+          <Dialog
+            aria-labelledby={chatbotTitleId}
+            className={css`
+              animation: ${state?.isOpen ? openAnimation : closeAnimation} 0.3s forwards;
+              position: fixed;
+              bottom: 70px;
+              right: 1rem;
+              z-index: 1000;
+            `}
+            onAnimationEnd={handleAnimationEnd}
+          >
+            <ChatbotDialog
+              chatbotConfigurationId={chatbotConfigurationId}
+              isCourseMaterialBlock={false}
+              chatbotTitleId={chatbotTitleId}
+            />
+          </Dialog>
+        </FocusScope>
+      )}
+    </>
   )
 }
 

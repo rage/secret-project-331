@@ -7,7 +7,7 @@ import AIChat from "../../../img/ai-chat.svg"
 
 import { baseTheme } from "@/shared-module/common/styles"
 
-const buttonStyle = css`
+const buttonStyle = (hide: boolean) => css`
   position: fixed;
   bottom: 62px;
   right: 14px;
@@ -24,17 +24,21 @@ const buttonStyle = css`
   justify-content: center;
   transition: background-color 0.2s;
   background-color: ${baseTheme.colors.green[300]};
-
   &:hover {
     background-color: ${baseTheme.colors.green[400]};
   }
+  ${hide && `visibility: hidden;`}
 `
 
-const OpenChatbotButton = () => {
+interface OpenChatbotButtonProps {
+  hide: boolean
+}
+
+const OpenChatbotButton: React.FC<OpenChatbotButtonProps> = ({ hide }) => {
   const { t } = useTranslation()
 
   return (
-    <Button className={buttonStyle} aria-label={t("open-chatbot")}>
+    <Button className={buttonStyle(hide)} aria-label={t("open-chatbot")}>
       <AIChat
         className={css`
           position: relative;

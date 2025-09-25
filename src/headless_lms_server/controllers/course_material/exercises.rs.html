@@ -221,214 +221,190 @@
 <a href=#221 id=221 data-nosnippet>221</a>        <span class="kw-2">&amp;</span>submission,
 <a href=#222 id=222 data-nosnippet>222</a>        jwt_key.into_inner(),
 <a href=#223 id=223 data-nosnippet>223</a>    )
-<a href=#224 id=224 data-nosnippet>224</a>    .<span class="kw">await</span>;
-<a href=#225 id=225 data-nosnippet>225</a>    <span class="kw">return match </span>result {
-<a href=#226 id=226 data-nosnippet>226</a>        <span class="prelude-val">Ok</span>(res) =&gt; token.authorized_ok(web::Json(res)),
-<a href=#227 id=227 data-nosnippet>227</a>        <span class="prelude-val">Err</span>(err) =&gt; {
-<a href=#228 id=228 data-nosnippet>228</a>            <span class="kw">match </span>models::rejected_exercise_slide_submissions::insert_rejected_exercise_slide_submission(
-<a href=#229 id=229 data-nosnippet>229</a>                <span class="kw-2">&amp;mut </span>conn,
-<a href=#230 id=230 data-nosnippet>230</a>                <span class="kw-2">&amp;</span>submission,
-<a href=#231 id=231 data-nosnippet>231</a>                user.id,
-<a href=#232 id=232 data-nosnippet>232</a>            )
-<a href=#233 id=233 data-nosnippet>233</a>            .<span class="kw">await </span>{
-<a href=#234 id=234 data-nosnippet>234</a>                <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
-<a href=#235 id=235 data-nosnippet>235</a>                    <span class="macro">warn!</span>(
-<a href=#236 id=236 data-nosnippet>236</a>                        <span class="string">"Submission was rejected but it was saved for debugging purposes. User id: {}, Exercise id: {}"</span>,
-<a href=#237 id=237 data-nosnippet>237</a>                        user.id, exercise.id
-<a href=#238 id=238 data-nosnippet>238</a>                    );
-<a href=#239 id=239 data-nosnippet>239</a>                },
-<a href=#240 id=240 data-nosnippet>240</a>                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
-<a href=#241 id=241 data-nosnippet>241</a>                    <span class="macro">error!</span>(
-<a href=#242 id=242 data-nosnippet>242</a>                        <span class="string">"Submission was rejected and saving it for debugging purposes failed. User id: {}, Exercise id: {}"</span>,
-<a href=#243 id=243 data-nosnippet>243</a>                        user.id, exercise.id
-<a href=#244 id=244 data-nosnippet>244</a>                    );
-<a href=#245 id=245 data-nosnippet>245</a>                },
-<a href=#246 id=246 data-nosnippet>246</a>            }
-<a href=#247 id=247 data-nosnippet>247</a>            <span class="prelude-val">Err</span>(err)
-<a href=#248 id=248 data-nosnippet>248</a>        }
-<a href=#249 id=249 data-nosnippet>249</a>    };
-<a href=#250 id=250 data-nosnippet>250</a>}
-<a href=#251 id=251 data-nosnippet>251</a>
-<a href=#252 id=252 data-nosnippet>252</a><span class="doccomment">/**
-<a href=#253 id=253 data-nosnippet>253</a> * POST `/api/v0/course-material/exercises/:exercise_id/peer-or-self-reviews/start` - Post a signal indicating that
-<a href=#254 id=254 data-nosnippet>254</a> * the user will start the peer or self reviewing process.
-<a href=#255 id=255 data-nosnippet>255</a> *
-<a href=#256 id=256 data-nosnippet>256</a> * This operation is only valid for exercises marked for peer reviews. No further submissions will be
-<a href=#257 id=257 data-nosnippet>257</a> * accepted after posting to this endpoint.
-<a href=#258 id=258 data-nosnippet>258</a> */
-<a href=#259 id=259 data-nosnippet>259</a></span><span class="attr">#[instrument(skip(pool))]
-<a href=#260 id=260 data-nosnippet>260</a></span><span class="kw">async fn </span>start_peer_or_self_review(
-<a href=#261 id=261 data-nosnippet>261</a>    pool: web::Data&lt;PgPool&gt;,
-<a href=#262 id=262 data-nosnippet>262</a>    exercise_id: web::Path&lt;Uuid&gt;,
-<a href=#263 id=263 data-nosnippet>263</a>    user: AuthUser,
-<a href=#264 id=264 data-nosnippet>264</a>) -&gt; ControllerResult&lt;web::Json&lt;bool&gt;&gt; {
-<a href=#265 id=265 data-nosnippet>265</a>    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#266 id=266 data-nosnippet>266</a>
-<a href=#267 id=267 data-nosnippet>267</a>    <span class="kw">let </span>exercise = models::exercises::get_by_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#268 id=268 data-nosnippet>268</a>    <span class="kw">let </span>user_exercise_state =
-<a href=#269 id=269 data-nosnippet>269</a>        user_exercise_states::get_users_current_by_exercise(<span class="kw-2">&amp;mut </span>conn, user.id, <span class="kw-2">&amp;</span>exercise).<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#270 id=270 data-nosnippet>270</a>    <span class="kw">let </span>token = authorize(
-<a href=#271 id=271 data-nosnippet>271</a>        <span class="kw-2">&amp;mut </span>conn,
-<a href=#272 id=272 data-nosnippet>272</a>        Act::View,
-<a href=#273 id=273 data-nosnippet>273</a>        <span class="prelude-val">Some</span>(user.id),
-<a href=#274 id=274 data-nosnippet>274</a>        Res::Exercise(<span class="kw-2">*</span>exercise_id),
-<a href=#275 id=275 data-nosnippet>275</a>    )
-<a href=#276 id=276 data-nosnippet>276</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#277 id=277 data-nosnippet>277</a>    models::library::peer_or_self_reviewing::start_peer_or_self_review_for_user(
-<a href=#278 id=278 data-nosnippet>278</a>        <span class="kw-2">&amp;mut </span>conn,
-<a href=#279 id=279 data-nosnippet>279</a>        user_exercise_state,
-<a href=#280 id=280 data-nosnippet>280</a>        <span class="kw-2">&amp;</span>exercise,
-<a href=#281 id=281 data-nosnippet>281</a>    )
-<a href=#282 id=282 data-nosnippet>282</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#283 id=283 data-nosnippet>283</a>
-<a href=#284 id=284 data-nosnippet>284</a>    token.authorized_ok(web::Json(<span class="bool-val">true</span>))
-<a href=#285 id=285 data-nosnippet>285</a>}
-<a href=#286 id=286 data-nosnippet>286</a>
-<a href=#287 id=287 data-nosnippet>287</a><span class="doccomment">/**
-<a href=#288 id=288 data-nosnippet>288</a> * POST `/api/v0/course-material/exercises/:exercise_id/peer-or-self-reviews - Post a peer review or a self review for an
-<a href=#289 id=289 data-nosnippet>289</a> * exercise submission.
-<a href=#290 id=290 data-nosnippet>290</a> */
-<a href=#291 id=291 data-nosnippet>291</a></span><span class="attr">#[instrument(skip(pool))]
-<a href=#292 id=292 data-nosnippet>292</a></span><span class="kw">async fn </span>submit_peer_or_self_review(
-<a href=#293 id=293 data-nosnippet>293</a>    pool: web::Data&lt;PgPool&gt;,
-<a href=#294 id=294 data-nosnippet>294</a>    exercise_id: web::Path&lt;Uuid&gt;,
-<a href=#295 id=295 data-nosnippet>295</a>    payload: web::Json&lt;CourseMaterialPeerOrSelfReviewSubmission&gt;,
-<a href=#296 id=296 data-nosnippet>296</a>    user: AuthUser,
-<a href=#297 id=297 data-nosnippet>297</a>    jwt_key: web::Data&lt;JwtKey&gt;,
-<a href=#298 id=298 data-nosnippet>298</a>) -&gt; ControllerResult&lt;web::Json&lt;bool&gt;&gt; {
-<a href=#299 id=299 data-nosnippet>299</a>    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#300 id=300 data-nosnippet>300</a>    <span class="kw">let </span>exercise = models::exercises::get_by_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#301 id=301 data-nosnippet>301</a>    <span class="comment">// If the claim in the token validates, we can be sure that the user submitting this peer review got the peer review candidate from the backend.
-<a href=#302 id=302 data-nosnippet>302</a>    // The validation prevents users from chaging which answer they peer review.
-<a href=#303 id=303 data-nosnippet>303</a>    </span><span class="kw">let </span>claim = GivePeerReviewClaim::validate(<span class="kw-2">&amp;</span>payload.token, <span class="kw-2">&amp;</span>jwt_key)<span class="question-mark">?</span>;
-<a href=#304 id=304 data-nosnippet>304</a>    <span class="kw">if </span>claim.exercise_slide_submission_id != payload.exercise_slide_submission_id
-<a href=#305 id=305 data-nosnippet>305</a>        || claim.peer_or_self_review_config_id != payload.peer_or_self_review_config_id
-<a href=#306 id=306 data-nosnippet>306</a>    {
-<a href=#307 id=307 data-nosnippet>307</a>        <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
-<a href=#308 id=308 data-nosnippet>308</a>            ControllerErrorType::BadRequest,
-<a href=#309 id=309 data-nosnippet>309</a>            <span class="string">"You are not allowed to review this answer."</span>.to_string(),
-<a href=#310 id=310 data-nosnippet>310</a>            <span class="prelude-val">None</span>,
-<a href=#311 id=311 data-nosnippet>311</a>        ));
-<a href=#312 id=312 data-nosnippet>312</a>    }
-<a href=#313 id=313 data-nosnippet>313</a>
-<a href=#314 id=314 data-nosnippet>314</a>    <span class="kw">let </span>giver_user_exercise_state =
-<a href=#315 id=315 data-nosnippet>315</a>        user_exercise_states::get_users_current_by_exercise(<span class="kw-2">&amp;mut </span>conn, user.id, <span class="kw-2">&amp;</span>exercise).<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#316 id=316 data-nosnippet>316</a>    <span class="kw">let </span>exercise_slide_submission: models::exercise_slide_submissions::ExerciseSlideSubmission =
-<a href=#317 id=317 data-nosnippet>317</a>        models::exercise_slide_submissions::get_by_id(
-<a href=#318 id=318 data-nosnippet>318</a>            <span class="kw-2">&amp;mut </span>conn,
-<a href=#319 id=319 data-nosnippet>319</a>            payload.exercise_slide_submission_id,
-<a href=#320 id=320 data-nosnippet>320</a>        )
-<a href=#321 id=321 data-nosnippet>321</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#322 id=322 data-nosnippet>322</a>
-<a href=#323 id=323 data-nosnippet>323</a>    <span class="kw">if let </span><span class="prelude-val">Some</span>(receiver_course_id) = exercise_slide_submission.course_id {
-<a href=#324 id=324 data-nosnippet>324</a>        <span class="kw">let </span>receiver_user_exercise_state = user_exercise_states::get_user_exercise_state_if_exists(
-<a href=#325 id=325 data-nosnippet>325</a>            <span class="kw-2">&amp;mut </span>conn,
-<a href=#326 id=326 data-nosnippet>326</a>            exercise_slide_submission.user_id,
-<a href=#327 id=327 data-nosnippet>327</a>            exercise.id,
-<a href=#328 id=328 data-nosnippet>328</a>            CourseOrExamId::Course(receiver_course_id),
-<a href=#329 id=329 data-nosnippet>329</a>        )
-<a href=#330 id=330 data-nosnippet>330</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#331 id=331 data-nosnippet>331</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(receiver_user_exercise_state) = receiver_user_exercise_state {
-<a href=#332 id=332 data-nosnippet>332</a>            models::library::peer_or_self_reviewing::create_peer_or_self_review_submission_for_user(
-<a href=#333 id=333 data-nosnippet>333</a>            <span class="kw-2">&amp;mut </span>conn,
-<a href=#334 id=334 data-nosnippet>334</a>            <span class="kw-2">&amp;</span>exercise,
-<a href=#335 id=335 data-nosnippet>335</a>            giver_user_exercise_state,
-<a href=#336 id=336 data-nosnippet>336</a>            receiver_user_exercise_state,
-<a href=#337 id=337 data-nosnippet>337</a>            payload.<span class="number">0</span>,
-<a href=#338 id=338 data-nosnippet>338</a>        )
-<a href=#339 id=339 data-nosnippet>339</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#340 id=340 data-nosnippet>340</a>        } <span class="kw">else </span>{
-<a href=#341 id=341 data-nosnippet>341</a>            <span class="macro">warn!</span>(
-<a href=#342 id=342 data-nosnippet>342</a>                <span class="string">"No user exercise state found for receiver's exercise slide submission id: {}"</span>,
-<a href=#343 id=343 data-nosnippet>343</a>                exercise_slide_submission.id
-<a href=#344 id=344 data-nosnippet>344</a>            );
-<a href=#345 id=345 data-nosnippet>345</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
-<a href=#346 id=346 data-nosnippet>346</a>                ControllerErrorType::BadRequest,
-<a href=#347 id=347 data-nosnippet>347</a>                <span class="string">"No user exercise state found for receiver's exercise slide submission."
-<a href=#348 id=348 data-nosnippet>348</a>                    </span>.to_string(),
-<a href=#349 id=349 data-nosnippet>349</a>                <span class="prelude-val">None</span>,
-<a href=#350 id=350 data-nosnippet>350</a>            ));
-<a href=#351 id=351 data-nosnippet>351</a>        }
-<a href=#352 id=352 data-nosnippet>352</a>    } <span class="kw">else </span>{
-<a href=#353 id=353 data-nosnippet>353</a>        <span class="macro">warn!</span>(
-<a href=#354 id=354 data-nosnippet>354</a>            <span class="string">"No course instance id found for receiver's exercise slide submission id: {}"</span>,
-<a href=#355 id=355 data-nosnippet>355</a>            exercise_slide_submission.id
-<a href=#356 id=356 data-nosnippet>356</a>        );
-<a href=#357 id=357 data-nosnippet>357</a>        <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
-<a href=#358 id=358 data-nosnippet>358</a>            ControllerErrorType::BadRequest,
-<a href=#359 id=359 data-nosnippet>359</a>            <span class="string">"No course instance id found for receiver's exercise slide submission."</span>.to_string(),
-<a href=#360 id=360 data-nosnippet>360</a>            <span class="prelude-val">None</span>,
-<a href=#361 id=361 data-nosnippet>361</a>        ));
-<a href=#362 id=362 data-nosnippet>362</a>    }
-<a href=#363 id=363 data-nosnippet>363</a>    <span class="kw">let </span>token = skip_authorize();
-<a href=#364 id=364 data-nosnippet>364</a>    token.authorized_ok(web::Json(<span class="bool-val">true</span>))
-<a href=#365 id=365 data-nosnippet>365</a>}
-<a href=#366 id=366 data-nosnippet>366</a>
-<a href=#367 id=367 data-nosnippet>367</a><span class="doccomment">/**
-<a href=#368 id=368 data-nosnippet>368</a> * POST `/api/v0/course-material/exercises/:exercise_id/flag-peer-review-answer - Post a report of an answer in peer review made by a student
-<a href=#369 id=369 data-nosnippet>369</a> */
-<a href=#370 id=370 data-nosnippet>370</a></span><span class="attr">#[instrument(skip(pool))]
-<a href=#371 id=371 data-nosnippet>371</a></span><span class="kw">async fn </span>post_flag_answer_in_peer_review(
-<a href=#372 id=372 data-nosnippet>372</a>    pool: web::Data&lt;PgPool&gt;,
-<a href=#373 id=373 data-nosnippet>373</a>    payload: web::Json&lt;NewFlaggedAnswerWithToken&gt;,
-<a href=#374 id=374 data-nosnippet>374</a>    user: AuthUser,
-<a href=#375 id=375 data-nosnippet>375</a>    jwt_key: web::Data&lt;JwtKey&gt;,
-<a href=#376 id=376 data-nosnippet>376</a>) -&gt; ControllerResult&lt;web::Json&lt;FlaggedAnswer&gt;&gt; {
-<a href=#377 id=377 data-nosnippet>377</a>    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#378 id=378 data-nosnippet>378</a>
-<a href=#379 id=379 data-nosnippet>379</a>    <span class="kw">let </span>claim = GivePeerReviewClaim::validate(<span class="kw-2">&amp;</span>payload.token, <span class="kw-2">&amp;</span>jwt_key)<span class="question-mark">?</span>;
-<a href=#380 id=380 data-nosnippet>380</a>    <span class="kw">if </span>claim.exercise_slide_submission_id != payload.submission_id
-<a href=#381 id=381 data-nosnippet>381</a>        || claim.peer_or_self_review_config_id != payload.peer_or_self_review_config_id
-<a href=#382 id=382 data-nosnippet>382</a>    {
-<a href=#383 id=383 data-nosnippet>383</a>        <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
-<a href=#384 id=384 data-nosnippet>384</a>            ControllerErrorType::BadRequest,
-<a href=#385 id=385 data-nosnippet>385</a>            <span class="string">"You are not allowed to report this answer."</span>.to_string(),
-<a href=#386 id=386 data-nosnippet>386</a>            <span class="prelude-val">None</span>,
-<a href=#387 id=387 data-nosnippet>387</a>        ));
-<a href=#388 id=388 data-nosnippet>388</a>    }
-<a href=#389 id=389 data-nosnippet>389</a>
-<a href=#390 id=390 data-nosnippet>390</a>    <span class="kw">let </span>insert_result =
-<a href=#391 id=391 data-nosnippet>391</a>        models::flagged_answers::insert_flagged_answer_and_move_to_manual_review_if_needed(
-<a href=#392 id=392 data-nosnippet>392</a>            <span class="kw-2">&amp;mut </span>conn,
-<a href=#393 id=393 data-nosnippet>393</a>            payload.into_inner(),
-<a href=#394 id=394 data-nosnippet>394</a>            user.id,
-<a href=#395 id=395 data-nosnippet>395</a>        )
-<a href=#396 id=396 data-nosnippet>396</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#397 id=397 data-nosnippet>397</a>
-<a href=#398 id=398 data-nosnippet>398</a>    <span class="kw">let </span>token = skip_authorize();
-<a href=#399 id=399 data-nosnippet>399</a>    token.authorized_ok(web::Json(insert_result))
-<a href=#400 id=400 data-nosnippet>400</a>}
-<a href=#401 id=401 data-nosnippet>401</a>
-<a href=#402 id=402 data-nosnippet>402</a><span class="doccomment">/**
-<a href=#403 id=403 data-nosnippet>403</a>Add a route for each controller in this module.
-<a href=#404 id=404 data-nosnippet>404</a>
-<a href=#405 id=405 data-nosnippet>405</a>The name starts with an underline in order to appear before other functions in the module documentation.
-<a href=#406 id=406 data-nosnippet>406</a>
-<a href=#407 id=407 data-nosnippet>407</a>We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
-<a href=#408 id=408 data-nosnippet>408</a>*/
-<a href=#409 id=409 data-nosnippet>409</a></span><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
-<a href=#410 id=410 data-nosnippet>410</a>    cfg.route(<span class="string">"/{exercise_id}"</span>, web::get().to(get_exercise))
-<a href=#411 id=411 data-nosnippet>411</a>        .route(
-<a href=#412 id=412 data-nosnippet>412</a>            <span class="string">"/{exercise_id}/peer-or-self-reviews"</span>,
-<a href=#413 id=413 data-nosnippet>413</a>            web::post().to(submit_peer_or_self_review),
-<a href=#414 id=414 data-nosnippet>414</a>        )
-<a href=#415 id=415 data-nosnippet>415</a>        .route(
-<a href=#416 id=416 data-nosnippet>416</a>            <span class="string">"/{exercise_id}/peer-or-self-reviews/start"</span>,
-<a href=#417 id=417 data-nosnippet>417</a>            web::post().to(start_peer_or_self_review),
-<a href=#418 id=418 data-nosnippet>418</a>        )
-<a href=#419 id=419 data-nosnippet>419</a>        .route(
-<a href=#420 id=420 data-nosnippet>420</a>            <span class="string">"/{exercise_id}/peer-review"</span>,
-<a href=#421 id=421 data-nosnippet>421</a>            web::get().to(get_peer_review_for_exercise),
-<a href=#422 id=422 data-nosnippet>422</a>        )
-<a href=#423 id=423 data-nosnippet>423</a>        .route(
-<a href=#424 id=424 data-nosnippet>424</a>            <span class="string">"/{exercise_id}/exercise-slide-submission/{exercise_slide_submission_id}/peer-or-self-reviews-received"</span>,
-<a href=#425 id=425 data-nosnippet>425</a>            web::get().to(get_peer_reviews_received),
-<a href=#426 id=426 data-nosnippet>426</a>        )
-<a href=#427 id=427 data-nosnippet>427</a>        .route(
-<a href=#428 id=428 data-nosnippet>428</a>            <span class="string">"/{exercise_id}/submissions"</span>,
-<a href=#429 id=429 data-nosnippet>429</a>            web::post().to(post_submission),
-<a href=#430 id=430 data-nosnippet>430</a>        ).route(
-<a href=#431 id=431 data-nosnippet>431</a>            <span class="string">"/{exercise_id}/flag-peer-review-answer"</span>,
-<a href=#432 id=432 data-nosnippet>432</a>            web::post().to(post_flag_answer_in_peer_review),
-<a href=#433 id=433 data-nosnippet>433</a>        );
-<a href=#434 id=434 data-nosnippet>434</a>}</code></pre></div></section></main></body></html>
+<a href=#224 id=224 data-nosnippet>224</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#225 id=225 data-nosnippet>225</a>    token.authorized_ok(web::Json(result))
+<a href=#226 id=226 data-nosnippet>226</a>}
+<a href=#227 id=227 data-nosnippet>227</a>
+<a href=#228 id=228 data-nosnippet>228</a><span class="doccomment">/**
+<a href=#229 id=229 data-nosnippet>229</a> * POST `/api/v0/course-material/exercises/:exercise_id/peer-or-self-reviews/start` - Post a signal indicating that
+<a href=#230 id=230 data-nosnippet>230</a> * the user will start the peer or self reviewing process.
+<a href=#231 id=231 data-nosnippet>231</a> *
+<a href=#232 id=232 data-nosnippet>232</a> * This operation is only valid for exercises marked for peer reviews. No further submissions will be
+<a href=#233 id=233 data-nosnippet>233</a> * accepted after posting to this endpoint.
+<a href=#234 id=234 data-nosnippet>234</a> */
+<a href=#235 id=235 data-nosnippet>235</a></span><span class="attr">#[instrument(skip(pool))]
+<a href=#236 id=236 data-nosnippet>236</a></span><span class="kw">async fn </span>start_peer_or_self_review(
+<a href=#237 id=237 data-nosnippet>237</a>    pool: web::Data&lt;PgPool&gt;,
+<a href=#238 id=238 data-nosnippet>238</a>    exercise_id: web::Path&lt;Uuid&gt;,
+<a href=#239 id=239 data-nosnippet>239</a>    user: AuthUser,
+<a href=#240 id=240 data-nosnippet>240</a>) -&gt; ControllerResult&lt;web::Json&lt;bool&gt;&gt; {
+<a href=#241 id=241 data-nosnippet>241</a>    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#242 id=242 data-nosnippet>242</a>
+<a href=#243 id=243 data-nosnippet>243</a>    <span class="kw">let </span>exercise = models::exercises::get_by_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#244 id=244 data-nosnippet>244</a>    <span class="kw">let </span>user_exercise_state =
+<a href=#245 id=245 data-nosnippet>245</a>        user_exercise_states::get_users_current_by_exercise(<span class="kw-2">&amp;mut </span>conn, user.id, <span class="kw-2">&amp;</span>exercise).<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#246 id=246 data-nosnippet>246</a>    <span class="kw">let </span>token = authorize(
+<a href=#247 id=247 data-nosnippet>247</a>        <span class="kw-2">&amp;mut </span>conn,
+<a href=#248 id=248 data-nosnippet>248</a>        Act::View,
+<a href=#249 id=249 data-nosnippet>249</a>        <span class="prelude-val">Some</span>(user.id),
+<a href=#250 id=250 data-nosnippet>250</a>        Res::Exercise(<span class="kw-2">*</span>exercise_id),
+<a href=#251 id=251 data-nosnippet>251</a>    )
+<a href=#252 id=252 data-nosnippet>252</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#253 id=253 data-nosnippet>253</a>    models::library::peer_or_self_reviewing::start_peer_or_self_review_for_user(
+<a href=#254 id=254 data-nosnippet>254</a>        <span class="kw-2">&amp;mut </span>conn,
+<a href=#255 id=255 data-nosnippet>255</a>        user_exercise_state,
+<a href=#256 id=256 data-nosnippet>256</a>        <span class="kw-2">&amp;</span>exercise,
+<a href=#257 id=257 data-nosnippet>257</a>    )
+<a href=#258 id=258 data-nosnippet>258</a>    .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#259 id=259 data-nosnippet>259</a>
+<a href=#260 id=260 data-nosnippet>260</a>    token.authorized_ok(web::Json(<span class="bool-val">true</span>))
+<a href=#261 id=261 data-nosnippet>261</a>}
+<a href=#262 id=262 data-nosnippet>262</a>
+<a href=#263 id=263 data-nosnippet>263</a><span class="doccomment">/**
+<a href=#264 id=264 data-nosnippet>264</a> * POST `/api/v0/course-material/exercises/:exercise_id/peer-or-self-reviews - Post a peer review or a self review for an
+<a href=#265 id=265 data-nosnippet>265</a> * exercise submission.
+<a href=#266 id=266 data-nosnippet>266</a> */
+<a href=#267 id=267 data-nosnippet>267</a></span><span class="attr">#[instrument(skip(pool))]
+<a href=#268 id=268 data-nosnippet>268</a></span><span class="kw">async fn </span>submit_peer_or_self_review(
+<a href=#269 id=269 data-nosnippet>269</a>    pool: web::Data&lt;PgPool&gt;,
+<a href=#270 id=270 data-nosnippet>270</a>    exercise_id: web::Path&lt;Uuid&gt;,
+<a href=#271 id=271 data-nosnippet>271</a>    payload: web::Json&lt;CourseMaterialPeerOrSelfReviewSubmission&gt;,
+<a href=#272 id=272 data-nosnippet>272</a>    user: AuthUser,
+<a href=#273 id=273 data-nosnippet>273</a>    jwt_key: web::Data&lt;JwtKey&gt;,
+<a href=#274 id=274 data-nosnippet>274</a>) -&gt; ControllerResult&lt;web::Json&lt;bool&gt;&gt; {
+<a href=#275 id=275 data-nosnippet>275</a>    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#276 id=276 data-nosnippet>276</a>    <span class="kw">let </span>exercise = models::exercises::get_by_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#277 id=277 data-nosnippet>277</a>    <span class="comment">// If the claim in the token validates, we can be sure that the user submitting this peer review got the peer review candidate from the backend.
+<a href=#278 id=278 data-nosnippet>278</a>    // The validation prevents users from chaging which answer they peer review.
+<a href=#279 id=279 data-nosnippet>279</a>    </span><span class="kw">let </span>claim = GivePeerReviewClaim::validate(<span class="kw-2">&amp;</span>payload.token, <span class="kw-2">&amp;</span>jwt_key)<span class="question-mark">?</span>;
+<a href=#280 id=280 data-nosnippet>280</a>    <span class="kw">if </span>claim.exercise_slide_submission_id != payload.exercise_slide_submission_id
+<a href=#281 id=281 data-nosnippet>281</a>        || claim.peer_or_self_review_config_id != payload.peer_or_self_review_config_id
+<a href=#282 id=282 data-nosnippet>282</a>    {
+<a href=#283 id=283 data-nosnippet>283</a>        <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+<a href=#284 id=284 data-nosnippet>284</a>            ControllerErrorType::BadRequest,
+<a href=#285 id=285 data-nosnippet>285</a>            <span class="string">"You are not allowed to review this answer."</span>.to_string(),
+<a href=#286 id=286 data-nosnippet>286</a>            <span class="prelude-val">None</span>,
+<a href=#287 id=287 data-nosnippet>287</a>        ));
+<a href=#288 id=288 data-nosnippet>288</a>    }
+<a href=#289 id=289 data-nosnippet>289</a>
+<a href=#290 id=290 data-nosnippet>290</a>    <span class="kw">let </span>giver_user_exercise_state =
+<a href=#291 id=291 data-nosnippet>291</a>        user_exercise_states::get_users_current_by_exercise(<span class="kw-2">&amp;mut </span>conn, user.id, <span class="kw-2">&amp;</span>exercise).<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#292 id=292 data-nosnippet>292</a>    <span class="kw">let </span>exercise_slide_submission: models::exercise_slide_submissions::ExerciseSlideSubmission =
+<a href=#293 id=293 data-nosnippet>293</a>        models::exercise_slide_submissions::get_by_id(
+<a href=#294 id=294 data-nosnippet>294</a>            <span class="kw-2">&amp;mut </span>conn,
+<a href=#295 id=295 data-nosnippet>295</a>            payload.exercise_slide_submission_id,
+<a href=#296 id=296 data-nosnippet>296</a>        )
+<a href=#297 id=297 data-nosnippet>297</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#298 id=298 data-nosnippet>298</a>
+<a href=#299 id=299 data-nosnippet>299</a>    <span class="kw">if let </span><span class="prelude-val">Some</span>(receiver_course_id) = exercise_slide_submission.course_id {
+<a href=#300 id=300 data-nosnippet>300</a>        <span class="kw">let </span>receiver_user_exercise_state = user_exercise_states::get_user_exercise_state_if_exists(
+<a href=#301 id=301 data-nosnippet>301</a>            <span class="kw-2">&amp;mut </span>conn,
+<a href=#302 id=302 data-nosnippet>302</a>            exercise_slide_submission.user_id,
+<a href=#303 id=303 data-nosnippet>303</a>            exercise.id,
+<a href=#304 id=304 data-nosnippet>304</a>            CourseOrExamId::Course(receiver_course_id),
+<a href=#305 id=305 data-nosnippet>305</a>        )
+<a href=#306 id=306 data-nosnippet>306</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#307 id=307 data-nosnippet>307</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(receiver_user_exercise_state) = receiver_user_exercise_state {
+<a href=#308 id=308 data-nosnippet>308</a>            models::library::peer_or_self_reviewing::create_peer_or_self_review_submission_for_user(
+<a href=#309 id=309 data-nosnippet>309</a>            <span class="kw-2">&amp;mut </span>conn,
+<a href=#310 id=310 data-nosnippet>310</a>            <span class="kw-2">&amp;</span>exercise,
+<a href=#311 id=311 data-nosnippet>311</a>            giver_user_exercise_state,
+<a href=#312 id=312 data-nosnippet>312</a>            receiver_user_exercise_state,
+<a href=#313 id=313 data-nosnippet>313</a>            payload.<span class="number">0</span>,
+<a href=#314 id=314 data-nosnippet>314</a>        )
+<a href=#315 id=315 data-nosnippet>315</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#316 id=316 data-nosnippet>316</a>        } <span class="kw">else </span>{
+<a href=#317 id=317 data-nosnippet>317</a>            <span class="macro">warn!</span>(
+<a href=#318 id=318 data-nosnippet>318</a>                <span class="string">"No user exercise state found for receiver's exercise slide submission id: {}"</span>,
+<a href=#319 id=319 data-nosnippet>319</a>                exercise_slide_submission.id
+<a href=#320 id=320 data-nosnippet>320</a>            );
+<a href=#321 id=321 data-nosnippet>321</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+<a href=#322 id=322 data-nosnippet>322</a>                ControllerErrorType::BadRequest,
+<a href=#323 id=323 data-nosnippet>323</a>                <span class="string">"No user exercise state found for receiver's exercise slide submission."
+<a href=#324 id=324 data-nosnippet>324</a>                    </span>.to_string(),
+<a href=#325 id=325 data-nosnippet>325</a>                <span class="prelude-val">None</span>,
+<a href=#326 id=326 data-nosnippet>326</a>            ));
+<a href=#327 id=327 data-nosnippet>327</a>        }
+<a href=#328 id=328 data-nosnippet>328</a>    } <span class="kw">else </span>{
+<a href=#329 id=329 data-nosnippet>329</a>        <span class="macro">warn!</span>(
+<a href=#330 id=330 data-nosnippet>330</a>            <span class="string">"No course instance id found for receiver's exercise slide submission id: {}"</span>,
+<a href=#331 id=331 data-nosnippet>331</a>            exercise_slide_submission.id
+<a href=#332 id=332 data-nosnippet>332</a>        );
+<a href=#333 id=333 data-nosnippet>333</a>        <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+<a href=#334 id=334 data-nosnippet>334</a>            ControllerErrorType::BadRequest,
+<a href=#335 id=335 data-nosnippet>335</a>            <span class="string">"No course instance id found for receiver's exercise slide submission."</span>.to_string(),
+<a href=#336 id=336 data-nosnippet>336</a>            <span class="prelude-val">None</span>,
+<a href=#337 id=337 data-nosnippet>337</a>        ));
+<a href=#338 id=338 data-nosnippet>338</a>    }
+<a href=#339 id=339 data-nosnippet>339</a>    <span class="kw">let </span>token = skip_authorize();
+<a href=#340 id=340 data-nosnippet>340</a>    token.authorized_ok(web::Json(<span class="bool-val">true</span>))
+<a href=#341 id=341 data-nosnippet>341</a>}
+<a href=#342 id=342 data-nosnippet>342</a>
+<a href=#343 id=343 data-nosnippet>343</a><span class="doccomment">/**
+<a href=#344 id=344 data-nosnippet>344</a> * POST `/api/v0/course-material/exercises/:exercise_id/flag-peer-review-answer - Post a report of an answer in peer review made by a student
+<a href=#345 id=345 data-nosnippet>345</a> */
+<a href=#346 id=346 data-nosnippet>346</a></span><span class="attr">#[instrument(skip(pool))]
+<a href=#347 id=347 data-nosnippet>347</a></span><span class="kw">async fn </span>post_flag_answer_in_peer_review(
+<a href=#348 id=348 data-nosnippet>348</a>    pool: web::Data&lt;PgPool&gt;,
+<a href=#349 id=349 data-nosnippet>349</a>    payload: web::Json&lt;NewFlaggedAnswerWithToken&gt;,
+<a href=#350 id=350 data-nosnippet>350</a>    user: AuthUser,
+<a href=#351 id=351 data-nosnippet>351</a>    jwt_key: web::Data&lt;JwtKey&gt;,
+<a href=#352 id=352 data-nosnippet>352</a>) -&gt; ControllerResult&lt;web::Json&lt;FlaggedAnswer&gt;&gt; {
+<a href=#353 id=353 data-nosnippet>353</a>    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#354 id=354 data-nosnippet>354</a>
+<a href=#355 id=355 data-nosnippet>355</a>    <span class="kw">let </span>claim = GivePeerReviewClaim::validate(<span class="kw-2">&amp;</span>payload.token, <span class="kw-2">&amp;</span>jwt_key)<span class="question-mark">?</span>;
+<a href=#356 id=356 data-nosnippet>356</a>    <span class="kw">if </span>claim.exercise_slide_submission_id != payload.submission_id
+<a href=#357 id=357 data-nosnippet>357</a>        || claim.peer_or_self_review_config_id != payload.peer_or_self_review_config_id
+<a href=#358 id=358 data-nosnippet>358</a>    {
+<a href=#359 id=359 data-nosnippet>359</a>        <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+<a href=#360 id=360 data-nosnippet>360</a>            ControllerErrorType::BadRequest,
+<a href=#361 id=361 data-nosnippet>361</a>            <span class="string">"You are not allowed to report this answer."</span>.to_string(),
+<a href=#362 id=362 data-nosnippet>362</a>            <span class="prelude-val">None</span>,
+<a href=#363 id=363 data-nosnippet>363</a>        ));
+<a href=#364 id=364 data-nosnippet>364</a>    }
+<a href=#365 id=365 data-nosnippet>365</a>
+<a href=#366 id=366 data-nosnippet>366</a>    <span class="kw">let </span>insert_result =
+<a href=#367 id=367 data-nosnippet>367</a>        models::flagged_answers::insert_flagged_answer_and_move_to_manual_review_if_needed(
+<a href=#368 id=368 data-nosnippet>368</a>            <span class="kw-2">&amp;mut </span>conn,
+<a href=#369 id=369 data-nosnippet>369</a>            payload.into_inner(),
+<a href=#370 id=370 data-nosnippet>370</a>            user.id,
+<a href=#371 id=371 data-nosnippet>371</a>        )
+<a href=#372 id=372 data-nosnippet>372</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#373 id=373 data-nosnippet>373</a>
+<a href=#374 id=374 data-nosnippet>374</a>    <span class="kw">let </span>token = skip_authorize();
+<a href=#375 id=375 data-nosnippet>375</a>    token.authorized_ok(web::Json(insert_result))
+<a href=#376 id=376 data-nosnippet>376</a>}
+<a href=#377 id=377 data-nosnippet>377</a>
+<a href=#378 id=378 data-nosnippet>378</a><span class="doccomment">/**
+<a href=#379 id=379 data-nosnippet>379</a>Add a route for each controller in this module.
+<a href=#380 id=380 data-nosnippet>380</a>
+<a href=#381 id=381 data-nosnippet>381</a>The name starts with an underline in order to appear before other functions in the module documentation.
+<a href=#382 id=382 data-nosnippet>382</a>
+<a href=#383 id=383 data-nosnippet>383</a>We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
+<a href=#384 id=384 data-nosnippet>384</a>*/
+<a href=#385 id=385 data-nosnippet>385</a></span><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
+<a href=#386 id=386 data-nosnippet>386</a>    cfg.route(<span class="string">"/{exercise_id}"</span>, web::get().to(get_exercise))
+<a href=#387 id=387 data-nosnippet>387</a>        .route(
+<a href=#388 id=388 data-nosnippet>388</a>            <span class="string">"/{exercise_id}/peer-or-self-reviews"</span>,
+<a href=#389 id=389 data-nosnippet>389</a>            web::post().to(submit_peer_or_self_review),
+<a href=#390 id=390 data-nosnippet>390</a>        )
+<a href=#391 id=391 data-nosnippet>391</a>        .route(
+<a href=#392 id=392 data-nosnippet>392</a>            <span class="string">"/{exercise_id}/peer-or-self-reviews/start"</span>,
+<a href=#393 id=393 data-nosnippet>393</a>            web::post().to(start_peer_or_self_review),
+<a href=#394 id=394 data-nosnippet>394</a>        )
+<a href=#395 id=395 data-nosnippet>395</a>        .route(
+<a href=#396 id=396 data-nosnippet>396</a>            <span class="string">"/{exercise_id}/peer-review"</span>,
+<a href=#397 id=397 data-nosnippet>397</a>            web::get().to(get_peer_review_for_exercise),
+<a href=#398 id=398 data-nosnippet>398</a>        )
+<a href=#399 id=399 data-nosnippet>399</a>        .route(
+<a href=#400 id=400 data-nosnippet>400</a>            <span class="string">"/{exercise_id}/exercise-slide-submission/{exercise_slide_submission_id}/peer-or-self-reviews-received"</span>,
+<a href=#401 id=401 data-nosnippet>401</a>            web::get().to(get_peer_reviews_received),
+<a href=#402 id=402 data-nosnippet>402</a>        )
+<a href=#403 id=403 data-nosnippet>403</a>        .route(
+<a href=#404 id=404 data-nosnippet>404</a>            <span class="string">"/{exercise_id}/submissions"</span>,
+<a href=#405 id=405 data-nosnippet>405</a>            web::post().to(post_submission),
+<a href=#406 id=406 data-nosnippet>406</a>        ).route(
+<a href=#407 id=407 data-nosnippet>407</a>            <span class="string">"/{exercise_id}/flag-peer-review-answer"</span>,
+<a href=#408 id=408 data-nosnippet>408</a>            web::post().to(post_flag_answer_in_peer_review),
+<a href=#409 id=409 data-nosnippet>409</a>        );
+<a href=#410 id=410 data-nosnippet>410</a>}</code></pre></div></section></main></body></html>

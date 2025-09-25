@@ -239,6 +239,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
           display: flex;
           flex-direction: column;
           padding: 20px;
+          overflow: hidden;
 
           h2 {
             font-size: 24px;
@@ -262,6 +263,9 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
         <div
           className={css`
             flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: scroll;
           `}
         >
           <h2>{t("about-the-chatbot")}</h2>
@@ -280,6 +284,9 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
           </ul>
         </div>
         <Button
+          className={css`
+            margin-top: 6px;
+          `}
           size="medium"
           variant="secondary"
           onClick={() => {

@@ -83,7 +83,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
   const checkUserMarketingConsent = useQuery({
     queryKey: ["marketing-consent", selectedLangCourseId],
     queryFn: () => fetchUserMarketingConsent(assertNotNullOrUndefined(selectedLangCourseId)),
-    enabled: selectedLangCourseId !== null,
+    enabled: selectedLangCourseId !== null && loginState.signedIn === true,
   }).data?.email_subscription_in_mailchimp
 
   useEffect(() => {

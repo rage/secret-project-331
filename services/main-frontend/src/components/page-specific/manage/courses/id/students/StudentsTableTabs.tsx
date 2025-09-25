@@ -17,6 +17,7 @@ import {
 import {
   headerRowStyle,
   lastRowTdStyle,
+  noRightBorder,
   rowStyle,
   tableOuterWrap,
   tableStyle,
@@ -137,56 +138,6 @@ export function FloatingHeaderTable({
     return undefined
   }
 
-  // --- TABLE HEAD RENDER (uses explicit widths) ---
-  const renderTableHead = () => (
-    <thead>
-      {table.getHeaderGroups().map((headerGroup, rowIdx) => (
-        <tr key={headerGroup.id} css={headerRowStyle}>
-          {headerGroup.headers.map((header, colIdx) => (
-            <th
-              key={header.id}
-              css={thStyle}
-              style={{
-                minWidth: 110,
-                width: colWidths[colIdx],
-                background:
-                  colorHeaders && !colorHeaderUnderline
-                    ? getHeaderBg(rowIdx, colIdx, header)
-                    : undefined,
-                position: "relative", // needed for absolute underline
-                overflow: "visible", // just in case
-              }}
-              rowSpan={header.depth === 0 && header.colSpan === 1 ? 2 : undefined}
-              colSpan={header.colSpan > 1 ? header.colSpan : undefined}
-            >
-              {flexRender(header.column.columnDef.header, header.getContext())}
-              {/* Only show underline for upper header, if enabled */}
-              {colorHeaderUnderline &&
-                rowIdx === 0 &&
-                colIdx >= chapterHeaderStart &&
-                header.colSpan === 2 && (
-                  <span
-                    style={{
-                      position: "absolute",
-                      left: 0,
-                      right: 0,
-                      width: "98%", // Width of the underline
-                      height: 4,
-                      background: getHeaderBg(rowIdx, colIdx, header),
-                      borderRadius: 2,
-                      bottom: "4px", // Moves the underline up
-                      zIndex: 2,
-                      pointerEvents: "none",
-                    }}
-                  />
-                )}
-            </th>
-          ))}
-        </tr>
-      ))}
-    </thead>
-  )
-
   // --- STICKY HEADER RENDER (EXACT SAME WIDTHS) ---
   const renderStickyHeader = () => (
     <div
@@ -231,7 +182,68 @@ export function FloatingHeaderTable({
     </div>
   )
 
-  // --- BODY ---
+  // --- TABLE HEAD RENDER (uses explicit widths) ---
+  const renderTableHead = () => (
+    <thead>
+      {table.getHeaderGroups().map((headerGroup, rowIdx) => (
+        <tr key={headerGroup.id} css={headerRowStyle}>
+          {headerGroup.headers.map((header, colIdx) => {
+            // Remove border-right ONLY between points/attempts (in the subheader row)
+            let noBorder = false
+            if (
+              rowIdx === 1 && // Only for subheader row (lower header)
+              colIdx >= subHeaderStart &&
+              (colIdx - subHeaderStart) % 2 === 0 // Only on "points" columns
+            ) {
+              noBorder = true
+            }
+            return (
+              <th
+                key={header.id}
+                css={[thStyle, noBorder && noRightBorder]}
+                style={{
+                  minWidth: 110,
+                  width: colWidths[colIdx],
+                  background:
+                    colorHeaders && !colorHeaderUnderline
+                      ? getHeaderBg(rowIdx, colIdx, header)
+                      : undefined,
+                  position: "relative",
+                  overflow: "visible",
+                }}
+                rowSpan={header.depth === 0 && header.colSpan === 1 ? 2 : undefined}
+                colSpan={header.colSpan > 1 ? header.colSpan : undefined}
+              >
+                {flexRender(header.column.columnDef.header, header.getContext())}
+                {/* Only show underline for upper header, if enabled */}
+                {colorHeaderUnderline &&
+                  rowIdx === 0 &&
+                  colIdx >= chapterHeaderStart &&
+                  header.colSpan === 2 && (
+                    <span
+                      style={{
+                        position: "absolute",
+                        left: 0,
+                        right: 0,
+                        width: "100%",
+                        height: 4,
+                        background: getHeaderBg(rowIdx, colIdx, header),
+                        borderRadius: 2,
+                        bottom: "4px",
+                        zIndex: 2,
+                        pointerEvents: "none",
+                      }}
+                    />
+                  )}
+              </th>
+            )
+          })}
+        </tr>
+      ))}
+    </thead>
+  )
+
+  // --- TABLE BODY RENDER ---
   const renderTableBody = () => (
     <tbody>
       {table.getRowModel().rows.map((row, rowIdx) => (
@@ -244,11 +256,18 @@ export function FloatingHeaderTable({
               const subIdx = (i - subHeaderStart) % 2
               bg = colorPairs[pairIdx % colorPairs.length][subIdx]
             }
-
+            // Remove border-right ONLY between points/attempts columns:
+            let noBorder = false
+            if (
+              i >= subHeaderStart &&
+              (i - subHeaderStart) % 2 === 0 // Only on "points" columns
+            ) {
+              noBorder = true
+            }
             return (
               <td
                 key={cell.id}
-                css={[tdStyle, isLast && lastRowTdStyle]}
+                css={[tdStyle, isLast && lastRowTdStyle, noBorder && noRightBorder]}
                 style={{
                   width: colWidths[i],
                   background: bg,

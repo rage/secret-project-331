@@ -280,6 +280,11 @@ pub async fn grade_user_submission(
                             _ => (None, Some(err.to_string())),
                         };
 
+                        // We want to save the rejected submission to the database
+                        // But don't want to keep the rest of the stuff we have inserted into the database
+                        tx.rollback().await?;
+                        let mut tx = conn.begin().await?;
+
                         let _ = crate::rejected_exercise_slide_submissions::insert_rejected_exercise_slide_submission(
                             &mut tx,
                             user_exercise_slide_submission,
@@ -287,6 +292,8 @@ pub async fn grade_user_submission(
                             http_status_code,
                             error_message,
                         ).await;
+
+                        tx.commit().await?;
 
                         return Err(err);
                     }

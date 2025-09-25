@@ -11,22 +11,33 @@ pub struct RejectedExerciseSlideSubmission {
     pub deleted_at: Option<DateTime<Utc>>,
     pub user_id: Uuid,
     pub exercise_slide_id: Uuid,
+    pub http_status_code: Option<i32>,
+    pub error_message: Option<String>,
 }
 
 pub async fn insert_rejected_exercise_slide_submission(
     conn: &mut PgConnection,
     rejected_submission: &StudentExerciseSlideSubmission,
     user_id: Uuid,
+    http_status_code: Option<i32>,
+    error_message: Option<String>,
 ) -> ModelResult<Uuid> {
     let mut tx = conn.begin().await?;
     let res = sqlx::query!(
         "
-INSERT INTO rejected_exercise_slide_submissions (user_id, exercise_slide_id)
-VALUES ($1, $2)
+INSERT INTO rejected_exercise_slide_submissions (
+    user_id,
+    exercise_slide_id,
+    http_status_code,
+    error_message
+  )
+VALUES ($1, $2, $3, $4)
 RETURNING id
         ",
         user_id,
         rejected_submission.exercise_slide_id,
+        http_status_code,
+        error_message,
     )
     .fetch_one(&mut *tx)
     .await?;

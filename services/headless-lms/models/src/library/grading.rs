@@ -267,8 +267,37 @@ pub async fn grade_user_submission(
                     &fetch_service_info,
                     &send_grading_request,
                 )
-                .await?;
-                results.push(submission);
+                .await;
+                match submission {
+                    Ok(submission) => results.push(submission),
+                    Err(err) => {
+                        // Store rejected submission when HTTP call fails
+                        let (http_status_code, error_message) = match err.error_type() {
+                            crate::error::ModelErrorType::HttpRequest {
+                                status_code,
+                                response_body,
+                            } => (Some(*status_code as i32), Some(response_body.clone())),
+                            _ => (None, Some(err.to_string())),
+                        };
+
+                        // We want to save the rejected submission to the database
+                        // But don't want to keep the rest of the stuff we have inserted into the database
+                        tx.rollback().await?;
+                        let mut tx = conn.begin().await?;
+
+                        let _ = crate::rejected_exercise_slide_submissions::insert_rejected_exercise_slide_submission(
+                            &mut tx,
+                            user_exercise_slide_submission,
+                            user_exercise_state.user_id,
+                            http_status_code,
+                            error_message,
+                        ).await;
+
+                        tx.commit().await?;
+
+                        return Err(err);
+                    }
+                }
             }
             results
         }

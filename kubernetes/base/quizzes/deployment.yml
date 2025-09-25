@@ -20,7 +20,7 @@ metadata:
     app: quizzes
     deploymentType: without-init-container
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: quizzes

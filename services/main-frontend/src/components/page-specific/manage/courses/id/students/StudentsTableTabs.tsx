@@ -17,6 +17,7 @@ import {
 import {
   headerRowStyle,
   lastRowTdStyle,
+  noLeftBorder,
   noRightBorder,
   rowStyle,
   tableOuterWrap,
@@ -59,6 +60,7 @@ export function FloatingHeaderTable({
   colorHeaders = false,
   colorColumns = false,
   colorHeaderUnderline = false,
+  progressMode = false,
 }) {
   const tableRef = useRef(null)
   const wrapRef = useRef(null)
@@ -182,25 +184,58 @@ export function FloatingHeaderTable({
     </div>
   )
 
+  // These can be toggles at top-level or inline
+  const REMOVE_BORDER_TOTAL = progressMode
+  const REMOVE_BORDER_CHAPTERS = progressMode
+
   // --- TABLE HEAD RENDER (uses explicit widths) ---
   const renderTableHead = () => (
     <thead>
       {table.getHeaderGroups().map((headerGroup, rowIdx) => (
         <tr key={headerGroup.id} css={headerRowStyle}>
           {headerGroup.headers.map((header, colIdx) => {
-            // Remove border-right ONLY between points/attempts (in the subheader row)
-            let noBorder = false
+            let removeRight = false
+            let removeLeft = false
+
+            // --- Remove border between Total Points/Attempts
             if (
-              rowIdx === 1 && // Only for subheader row (lower header)
-              colIdx >= subHeaderStart &&
-              (colIdx - subHeaderStart) % 2 === 0 // Only on "points" columns
+              REMOVE_BORDER_TOTAL &&
+              rowIdx === 1 && // subheader row
+              colIdx === 1 // "Total Points" (col 1)
             ) {
-              noBorder = true
+              removeRight = true
             }
+            if (
+              REMOVE_BORDER_TOTAL &&
+              rowIdx === 1 &&
+              colIdx === 2 // "Total Attempts" (col 2)
+            ) {
+              removeLeft = true
+            }
+
+            // --- Remove borders between chapter points/attempts (all other pairs)
+            // Chapters start at subHeaderStart === 3 (col 3+)
+            if (
+              REMOVE_BORDER_CHAPTERS &&
+              rowIdx === 1 &&
+              colIdx >= subHeaderStart &&
+              (colIdx - subHeaderStart) % 2 === 0
+            ) {
+              removeRight = true // points col in chapter
+            }
+            if (
+              REMOVE_BORDER_CHAPTERS &&
+              rowIdx === 1 &&
+              colIdx >= subHeaderStart &&
+              (colIdx - subHeaderStart) % 2 === 1
+            ) {
+              removeLeft = true // attempts col in chapter
+            }
+
             return (
               <th
                 key={header.id}
-                css={[thStyle, noBorder && noRightBorder]}
+                css={[thStyle, removeRight && noRightBorder, removeLeft && noLeftBorder]}
                 style={{
                   minWidth: 110,
                   width: colWidths[colIdx],
@@ -243,7 +278,6 @@ export function FloatingHeaderTable({
     </thead>
   )
 
-  // --- TABLE BODY RENDER ---
   const renderTableBody = () => (
     <tbody>
       {table.getRowModel().rows.map((row, rowIdx) => (
@@ -256,18 +290,34 @@ export function FloatingHeaderTable({
               const subIdx = (i - subHeaderStart) % 2
               bg = colorPairs[pairIdx % colorPairs.length][subIdx]
             }
-            // Remove border-right ONLY between points/attempts columns:
-            let noBorder = false
-            if (
-              i >= subHeaderStart &&
-              (i - subHeaderStart) % 2 === 0 // Only on "points" columns
-            ) {
-              noBorder = true
+            let removeRight = false
+            let removeLeft = false
+
+            // --- Remove border between Total Points/Attempts
+            if (REMOVE_BORDER_TOTAL && i === 1) {
+              removeRight = true
             }
+            if (REMOVE_BORDER_TOTAL && i === 2) {
+              removeLeft = true
+            }
+
+            // --- Remove borders between chapter points/attempts (all other pairs)
+            if (REMOVE_BORDER_CHAPTERS && i >= subHeaderStart && (i - subHeaderStart) % 2 === 0) {
+              removeRight = true
+            }
+            if (REMOVE_BORDER_CHAPTERS && i >= subHeaderStart && (i - subHeaderStart) % 2 === 1) {
+              removeLeft = true
+            }
+
             return (
               <td
                 key={cell.id}
-                css={[tdStyle, isLast && lastRowTdStyle, noBorder && noRightBorder]}
+                css={[
+                  tdStyle,
+                  isLast && lastRowTdStyle,
+                  removeRight && noRightBorder,
+                  removeLeft && noLeftBorder,
+                ]}
                 style={{
                   width: colWidths[i],
                   background: bg,
@@ -353,5 +403,6 @@ export const PointsTabContent = () => (
     colorHeaders={true}
     colorColumns={true}
     colorHeaderUnderline={true}
+    progressMode={true}
   />
 )

@@ -997,16 +997,18 @@ async fn fetch_user_marketing_consent(
 }
 
 /**
-GET /courses/:course_id/partners_blocks - Gets a partners block related to a course
+GET /courses/:course_id/partners-block - Gets a partners block related to a course
 */
 #[instrument(skip(pool))]
 async fn get_partners_block(
     path: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<PartnersBlock>> {
+) -> ControllerResult<web::Json<Option<PartnersBlock>>> {
     let course_id = path.into_inner();
     let mut conn = pool.acquire().await?;
-    let partner_block = models::partner_block::get_partner_block(&mut conn, course_id).await?;
+    let partner_block = models::partner_block::get_partner_block(&mut conn, course_id)
+        .await
+        .optional()?;
     let token = skip_authorize();
     token.authorized_ok(web::Json(partner_block))
 }

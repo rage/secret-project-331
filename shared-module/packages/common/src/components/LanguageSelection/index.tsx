@@ -102,19 +102,27 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
                 padding: 0;
               `}
             >
-              {(languages ?? DEFAULT_LANGUAGES).map((x) => (
-                <LanguageOptionComponent
-                  key={x.tag}
-                  label={x.name}
-                  onClick={() => {
-                    if (handleLanguageChange) {
-                      handleLanguageChange(x.tag)
-                    } else {
-                      defaultHandleLanguageChange(x.tag)
-                    }
-                  }}
-                />
-              ))}
+              {(languages ?? DEFAULT_LANGUAGES).map((x) => {
+                // Check if this language is currently active
+                // i18n.language can be in format "en-US" or just "en", so we need to handle both
+                const currentLang = i18n.language
+                const isActive =
+                  currentLang === x.tag || currentLang.split("-")[0] === x.tag.split("-")[0]
+                return (
+                  <LanguageOptionComponent
+                    key={x.tag}
+                    label={x.name}
+                    isActive={isActive}
+                    onClick={() => {
+                      if (handleLanguageChange) {
+                        handleLanguageChange(x.tag)
+                      } else {
+                        defaultHandleLanguageChange(x.tag)
+                      }
+                    }}
+                  />
+                )
+              })}
             </ul>
           </LanguageMenu>
           {/* eslint-disable-next-line react/forbid-dom-props */}

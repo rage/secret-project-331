@@ -2,7 +2,7 @@
   "name": "course-material",
   "version": "1.0.0",
   "scripts": {
-    "dev": "next dev --turbopack --port 3003",
+    "dev": "next dev --port 3003",
     "build": "NODE_ENV=production next build",
     "export": "next export",
     "start": "NODE_ENV=production PORT=3003 node server.js",

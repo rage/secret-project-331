@@ -9,12 +9,13 @@ use futures::{
     future::{BoxFuture, Ready, ready},
 };
 use headless_lms_models::{
-    ModelError, ModelErrorType, ModelResult,
+    HttpErrorType, ModelError, ModelErrorType, ModelResult,
     exercise_service_info::ExerciseServiceInfoApi,
     exercise_task_gradings::{ExerciseTaskGradingRequest, ExerciseTaskGradingResult},
     exercise_task_submissions::ExerciseTaskSubmission,
     exercise_tasks::ExerciseTask,
 };
+
 use headless_lms_utils::error::backend_error::BackendError;
 use hmac::{Hmac, Mac};
 use jwt::{SignWithKey, VerifyWithKey};
@@ -218,14 +219,6 @@ impl FromRequest for GradingUpdateClaim {
     }
 }
 
-fn reqwest_err(err: reqwest::Error) -> ModelError {
-    ModelError::new(
-        ModelErrorType::Generic,
-        format!("Error during request: {err}"),
-        None,
-    )
-}
-
 /// Accepted by the public-spec and model-solution endpoints of exercise services.
 #[derive(Debug, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -261,7 +254,7 @@ pub fn make_spec_fetcher(
             })
             .send();
         async move {
-            let res = req.await.map_err(reqwest_err)?;
+            let res = req.await.map_err(ModelError::from)?;
             let status_code = res.status();
             if !status_code.is_success() {
                 let error_text = res.text().await;
@@ -275,14 +268,17 @@ pub fn make_spec_fetcher(
                     error
                 );
                 return Err(ModelError::new(
-                    ModelErrorType::Generic,
+                    ModelErrorType::HttpRequest {
+                        status_code: status_code.as_u16(),
+                        response_body: error.to_string(),
+                    },
                     format!(
                         "Failed to generate spec for exercise for {exercise_service_slug}: {error}."
                     ),
                     None,
                 ));
             }
-            let json = res.json().await.map_err(reqwest_err)?;
+            let json = parse_response_json(res).await?;
             Ok(json)
         }
         .boxed()
@@ -312,22 +308,22 @@ fn fetch_service_info_with_timeout(
             .timeout(std::time::Duration::from_millis(timeout_ms))
             .send()
             .await
-            .map_err(reqwest_err)?;
+            .map_err(ModelError::from)?;
         let status = res.status();
         if !status.is_success() {
             let response_url = res.url().to_string();
-            let body = res.text().await.map_err(reqwest_err)?;
+            let body = res.text().await.map_err(ModelError::from)?;
             warn!(url=?response_url, status=?status, body=?body, "Could not fetch service info.");
             return Err(ModelError::new(
-                ModelErrorType::Generic,
+                ModelErrorType::HttpRequest {
+                    status_code: status.as_u16(),
+                    response_body: body,
+                },
                 "Could not fetch service info.".to_string(),
                 None,
             ));
         }
-        let res = res
-            .json::<ExerciseServiceInfoApi>()
-            .await
-            .map_err(reqwest_err)?;
+        let res = parse_response_json(res).await?;
         Ok(res)
     }
     .boxed()
@@ -361,7 +357,7 @@ pub fn make_grading_request_sender(
                 submission_data: &submission.data_json,
             });
         async move {
-            let res = req.send().await.map_err(reqwest_err)?;
+            let res = req.send().await.map_err(ModelError::from)?;
             let status = res.status();
             if !status.is_success() {
                 let status_code = status.as_u16();
@@ -384,10 +380,7 @@ pub fn make_grading_request_sender(
                     None,
                 ));
             }
-            let obj = res
-                .json::<ExerciseTaskGradingResult>()
-                .await
-                .map_err(reqwest_err)?;
+            let obj = parse_response_json(res).await?;
             info!("Received a grading result: {:#?}", &obj);
             Ok(obj)
         }
@@ -484,4 +477,26 @@ pub fn make_seed_spec_fetcher_with_cache(
         }
         .boxed()
     }
+}
+
+/// Safely parses a response body as JSON, capturing the actual response body in error cases
+async fn parse_response_json<T>(response: reqwest::Response) -> ModelResult<T>
+where
+    T: serde::de::DeserializeOwned,
+{
+    let status = response.status();
+    let response_text = response.text().await.map_err(ModelError::from)?;
+
+    serde_json::from_str(&response_text).map_err(|err| {
+        ModelError::new(
+            ModelErrorType::HttpError {
+                error_type: HttpErrorType::ResponseDecodeFailed,
+                reason: err.to_string(),
+                status_code: Some(status.as_u16()),
+                response_body: Some(response_text),
+            },
+            format!("Failed to decode JSON response: {}", err),
+            None,
+        )
+    })
 }

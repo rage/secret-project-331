@@ -13,6 +13,7 @@ pub struct RejectedExerciseSlideSubmission {
     pub exercise_slide_id: Uuid,
     pub http_status_code: Option<i32>,
     pub error_message: Option<String>,
+    pub response_body: Option<String>,
 }
 
 pub async fn insert_rejected_exercise_slide_submission(
@@ -21,6 +22,7 @@ pub async fn insert_rejected_exercise_slide_submission(
     user_id: Uuid,
     http_status_code: Option<i32>,
     error_message: Option<String>,
+    response_body: Option<String>,
 ) -> ModelResult<Uuid> {
     let mut tx = conn.begin().await?;
     let res = sqlx::query!(
@@ -29,15 +31,17 @@ INSERT INTO rejected_exercise_slide_submissions (
     user_id,
     exercise_slide_id,
     http_status_code,
-    error_message
+    error_message,
+    response_body
   )
-VALUES ($1, $2, $3, $4)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING id
         ",
         user_id,
         rejected_submission.exercise_slide_id,
         http_status_code,
         error_message,
+        response_body,
     )
     .fetch_one(&mut *tx)
     .await?;

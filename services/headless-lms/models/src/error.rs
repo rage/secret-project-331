@@ -304,6 +304,46 @@ impl From<url::ParseError> for ModelError {
     }
 }
 
+impl From<reqwest::Error> for ModelError {
+    fn from(err: reqwest::Error) -> Self {
+        let error_type = if err.is_decode() {
+            HttpErrorType::ResponseDecodeFailed
+        } else if err.is_timeout() {
+            HttpErrorType::Timeout
+        } else if err.is_connect() {
+            HttpErrorType::ConnectionFailed
+        } else if err.is_redirect() {
+            HttpErrorType::RedirectFailed
+        } else if err.is_builder() {
+            HttpErrorType::RequestBuildFailed
+        } else if err.is_body() {
+            HttpErrorType::BodyFailed
+        } else if err.is_status() {
+            HttpErrorType::StatusError
+        } else {
+            HttpErrorType::Unknown
+        };
+
+        let status_code = err.status().map(|s| s.as_u16());
+        let response_body = if err.is_decode() {
+            Some("Failed to decode JSON response".to_string())
+        } else {
+            None
+        };
+
+        ModelError::new(
+            ModelErrorType::HttpError {
+                error_type,
+                reason: err.to_string(),
+                status_code,
+                response_body,
+            },
+            format!("HTTP request failed: {}", err),
+            None,
+        )
+    }
+}
+
 #[cfg(test)]
 mod test {
     use uuid::Uuid;
@@ -356,45 +396,5 @@ mod test {
                 panic!("wrong error variant")
             }
         }
-    }
-}
-
-impl From<reqwest::Error> for ModelError {
-    fn from(err: reqwest::Error) -> Self {
-        let error_type = if err.is_decode() {
-            HttpErrorType::ResponseDecodeFailed
-        } else if err.is_timeout() {
-            HttpErrorType::Timeout
-        } else if err.is_connect() {
-            HttpErrorType::ConnectionFailed
-        } else if err.is_redirect() {
-            HttpErrorType::RedirectFailed
-        } else if err.is_builder() {
-            HttpErrorType::RequestBuildFailed
-        } else if err.is_body() {
-            HttpErrorType::BodyFailed
-        } else if err.is_status() {
-            HttpErrorType::StatusError
-        } else {
-            HttpErrorType::Unknown
-        };
-
-        let status_code = err.status().map(|s| s.as_u16());
-        let response_body = if err.is_decode() {
-            Some("Failed to decode JSON response".to_string())
-        } else {
-            None
-        };
-
-        ModelError::new(
-            ModelErrorType::HttpError {
-                error_type,
-                reason: err.to_string(),
-                status_code,
-                response_body,
-            },
-            format!("HTTP request failed: {}", err),
-            None,
-        )
     }
 }

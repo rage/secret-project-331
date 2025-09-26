@@ -254,7 +254,7 @@ pub fn make_spec_fetcher(
             })
             .send();
         async move {
-            let res = req.await.map_err(|err| ModelError::from(err))?;
+            let res = req.await.map_err(ModelError::from)?;
             let status_code = res.status();
             if !status_code.is_success() {
                 let error_text = res.text().await;
@@ -308,11 +308,11 @@ fn fetch_service_info_with_timeout(
             .timeout(std::time::Duration::from_millis(timeout_ms))
             .send()
             .await
-            .map_err(|err| ModelError::from(err))?;
+            .map_err(ModelError::from)?;
         let status = res.status();
         if !status.is_success() {
             let response_url = res.url().to_string();
-            let body = res.text().await.map_err(|err| ModelError::from(err))?;
+            let body = res.text().await.map_err(ModelError::from)?;
             warn!(url=?response_url, status=?status, body=?body, "Could not fetch service info.");
             return Err(ModelError::new(
                 ModelErrorType::HttpRequest {
@@ -357,7 +357,7 @@ pub fn make_grading_request_sender(
                 submission_data: &submission.data_json,
             });
         async move {
-            let res = req.send().await.map_err(|err| ModelError::from(err))?;
+            let res = req.send().await.map_err(ModelError::from)?;
             let status = res.status();
             if !status.is_success() {
                 let status_code = status.as_u16();
@@ -485,7 +485,7 @@ where
     T: serde::de::DeserializeOwned,
 {
     let status = response.status();
-    let response_text = response.text().await.map_err(|err| ModelError::from(err))?;
+    let response_text = response.text().await.map_err(ModelError::from)?;
 
     serde_json::from_str(&response_text).map_err(|err| {
         ModelError::new(

@@ -63,6 +63,7 @@ assert<Equals<rolesInTheForm, UserRole>>()
 
 interface EditingRole {
   userId: string
+  currentRole: UserRole
   newRole: UserRole
 }
 
@@ -336,7 +337,7 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
               >
                 <td>{ur.first_name ? `${ur.first_name} ${ur.last_name}` : ur.last_name}</td>
                 <td>{ur.email}</td>
-                {editingRole?.userId !== ur.user_id && (
+                {!(editingRole?.userId === ur.user_id && editingRole?.currentRole === ur.role) && (
                   <>
                     <td>{ur.role}</td>
                     <td>
@@ -349,7 +350,13 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                           height: 100%;
                           margin-right: 8px;
                         `}
-                        onClick={() => setEditingRole({ userId: ur.user_id, newRole: ur.role })}
+                        onClick={() =>
+                          setEditingRole({
+                            userId: ur.user_id,
+                            currentRole: ur.role,
+                            newRole: ur.role,
+                          })
+                        }
                       >
                         <Pencil size={20} color={"#1A2333"} />
                       </button>
@@ -368,13 +375,17 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                     </td>
                   </>
                 )}
-                {editingRole?.userId === ur.user_id && (
+                {editingRole?.userId === ur.user_id && editingRole?.currentRole === ur.role && (
                   <>
                     <td>
                       <SelectField
                         id={"editing-role"}
                         onChangeByValue={(role) => {
-                          setEditingRole({ userId: ur.user_id, newRole: role as UserRole })
+                          setEditingRole({
+                            userId: ur.user_id,
+                            currentRole: ur.role,
+                            newRole: role as UserRole,
+                          })
                         }}
                         options={options(t)}
                         defaultValue={ur.role}
@@ -393,7 +404,7 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                         onClick={() => {
                           editMutation.mutate({
                             email: ur.email,
-                            oldRole: ur.role,
+                            oldRole: editingRole.currentRole,
                             newRole: editingRole.newRole,
                           })
                           setEditingRole(null)

@@ -41,6 +41,7 @@ const config = {
             loader: "@svgr/webpack",
             options: {
               svgoConfig: svgoConfig,
+              svgProps: { role: "presentation" },
             },
           },
         ],

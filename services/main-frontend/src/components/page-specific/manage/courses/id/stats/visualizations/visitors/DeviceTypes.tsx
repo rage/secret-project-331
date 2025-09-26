@@ -111,7 +111,7 @@ const DeviceTypes: React.FC<React.PropsWithChildren<DeviceTypesProps>> = ({ cour
       />
       <InstructionBox>{t("stats-instruction-device-analytics")}</InstructionBox>
       <div className={containerStyles}>
-        {query.isPending ? (
+        {query.isLoading ? (
           <Spinner variant="medium" />
         ) : query.isError ? (
           <ErrorBanner variant="readOnly" error={query.error} />

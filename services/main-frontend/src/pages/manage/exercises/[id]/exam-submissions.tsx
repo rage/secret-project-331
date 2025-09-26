@@ -57,7 +57,7 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
         </PageMarginOffset>
       </BreakFromCentered>
       {getSubmissions.isError && <ErrorBanner variant={"readOnly"} error={getSubmissions.error} />}
-      {getSubmissions.isPending && <Spinner variant={"medium"} />}
+      {getSubmissions.isLoading && <Spinner variant={"medium"} />}
       {getSubmissions.isSuccess && getExam.isSuccess && (
         <>
           <h3

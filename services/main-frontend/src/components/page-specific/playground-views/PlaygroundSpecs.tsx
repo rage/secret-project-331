@@ -107,10 +107,10 @@ const PlaygroundSpecs: React.FC<PlaygroundSpecsProps> = ({
           {publicSpecQuery.isError && (
             <ErrorBanner variant={"readOnly"} error={publicSpecQuery.error} />
           )}
-          {publicSpecQuery.isPending && publicSpecQuery.isFetching && (
+          {publicSpecQuery.isLoading && publicSpecQuery.isFetching && (
             <Spinner variant={"medium"} />
           )}
-          {publicSpecQuery.isPending && !publicSpecQuery.isFetching && (
+          {publicSpecQuery.isLoading && !publicSpecQuery.isFetching && (
             <p>{t("error-cannot-load-with-the-given-inputs")}</p>
           )}
 
@@ -134,10 +134,10 @@ const PlaygroundSpecs: React.FC<PlaygroundSpecsProps> = ({
           {modelSolutionSpecQuery.isError && (
             <ErrorBanner variant={"readOnly"} error={modelSolutionSpecQuery.error} />
           )}
-          {modelSolutionSpecQuery.isPending && modelSolutionSpecQuery.isFetching && (
+          {modelSolutionSpecQuery.isLoading && modelSolutionSpecQuery.isFetching && (
             <Spinner variant={"medium"} />
           )}
-          {modelSolutionSpecQuery.isPending && !modelSolutionSpecQuery.isFetching && (
+          {modelSolutionSpecQuery.isLoading && !modelSolutionSpecQuery.isFetching && (
             <p>{t("error-cannot-load-with-the-given-inputs")}</p>
           )}
 

@@ -43,7 +43,7 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
         {t("manage-glossary")}
       </h1>
       {glossary.isError && <ErrorBanner variant={"readOnly"} error={glossary.error} />}
-      {glossary.isPending && <Spinner variant={"medium"} />}
+      {glossary.isLoading && <Spinner variant={"medium"} />}
       <CreateTermForm refetch={glossary.refetch} courseId={courseId} />
       {glossary.isSuccess &&
         glossary.data

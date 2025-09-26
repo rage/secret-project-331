@@ -2013,7 +2013,7 @@ export interface RoleInfo {
 }
 
 export interface RoleUser {
-  id: string
+  user_id: string
   first_name: string | null
   last_name: string | null
   email: string
@@ -2366,6 +2366,24 @@ export interface RoleQuery {
   course_id?: string
   course_instance_id?: string
   exam_id?: string
+}
+
+export interface BulkUserDetailsRequest {
+  user_ids: Array<string>
+  course_id: string
+}
+
+export interface UserDetailsRequest {
+  user_id: string
+  course_ids: Array<string>
+}
+
+export interface UserInfoPayload {
+  email: string
+  first_name: string
+  last_name: string
+  country: string
+  email_communication_consent: boolean
 }
 
 export interface Pagination {

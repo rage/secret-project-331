@@ -30,29 +30,31 @@ const Area = styled.div`
 const UserPage: React.FC<React.PropsWithChildren<UserPageProps>> = ({ query }) => {
   const { t } = useTranslation()
 
-  // Get course enrollments to find a course context for user details
+  // Get course enrollments to find course contexts for user details
   const courseInstanceEnrollmentsQuery = useQuery({
     queryKey: ["course-instance-enrollments", query.id],
     queryFn: () => getCourseInstanceEnrollmentsInfo(query.id),
   })
 
-  // Get the first course ID from enrollments to use for user details
-  const firstCourseId =
-    courseInstanceEnrollmentsQuery.data?.course_instance_enrollments[0]?.course_id
+  // Get all course IDs from enrollments to use for user details
+  const courseIds =
+    courseInstanceEnrollmentsQuery.data?.course_instance_enrollments.map(
+      (enrollment) => enrollment.course_id,
+    ) ?? []
 
-  const userDetailsQuery = useUserDetails(firstCourseId, query.id)
+  const userDetailsQuery = useUserDetails(courseIds, query.id)
 
   if (courseInstanceEnrollmentsQuery.isError) {
     return <ErrorBanner error={courseInstanceEnrollmentsQuery.error} variant="readOnly" />
   }
-  if (courseInstanceEnrollmentsQuery.isPending) {
+  if (courseInstanceEnrollmentsQuery.isLoading) {
     return <Spinner variant="medium" />
   }
 
   if (userDetailsQuery.isError) {
     return <ErrorBanner error={userDetailsQuery.error} variant="readOnly" />
   }
-  if (userDetailsQuery.isPending) {
+  if (userDetailsQuery.isLoading || !userDetailsQuery.data) {
     return <Spinner variant="medium" />
   }
 

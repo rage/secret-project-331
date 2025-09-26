@@ -33,6 +33,22 @@ const config = {
 
     return config
   },
+  turbopack: {
+    rules: {
+      "*.svg": {
+        loaders: [
+          {
+            loader: "@svgr/webpack",
+            options: {
+              svgoConfig: svgoConfig,
+              svgProps: { role: "presentation" },
+            },
+          },
+        ],
+        as: "*.js",
+      },
+    },
+  },
   compiler: {
     emotion: {
       autoLabel: "always",

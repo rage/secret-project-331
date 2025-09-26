@@ -1,11 +1,11 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT users.id,\n  user_details.first_name,\n  user_details.last_name,\n  user_details.email,\n  role AS \"role: UserRole\"\nFROM users\n  JOIN roles ON users.id = roles.user_id\n  JOIN user_details ON users.id = user_details.user_id\nWHERE roles.course_instance_id = $1\nAND roles.deleted_at IS NULL\n",
+  "query": "\nSELECT users.id AS \"user_id!\",\n  user_details.first_name,\n  user_details.last_name,\n  user_details.email,\n  role AS \"role!: UserRole\"\nFROM users\n  JOIN roles ON users.id = roles.user_id\n  JOIN user_details ON users.id = user_details.user_id\nWHERE is_global = TRUE\nAND roles.deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "id",
+        "name": "user_id!",
         "type_info": "Uuid"
       },
       {
@@ -25,7 +25,7 @@
       },
       {
         "ordinal": 4,
-        "name": "role: UserRole",
+        "name": "role!: UserRole",
         "type_info": {
           "Custom": {
             "name": "user_role",
@@ -46,9 +46,7 @@
       }
     ],
     "parameters": {
-      "Left": [
-        "Uuid"
-      ]
+      "Left": []
     },
     "nullable": [
       false,
@@ -58,5 +56,5 @@
       false
     ]
   },
-  "hash": "9da508da43833f61d11dc169c22d68f7d9c390ba693363576b49778bad4ada4c"
+  "hash": "46f990eec969be76b25862311e32093852d7929ba09aa025c8693eeeee35dcce"
 }

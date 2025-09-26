@@ -263,7 +263,7 @@ const ExerciseBlock: React.FC<
   if (getCourseMaterialExercise.isError) {
     return <ErrorBanner variant={"readOnly"} error={getCourseMaterialExercise.error} />
   }
-  if (getCourseMaterialExercise.isPending) {
+  if (getCourseMaterialExercise.isLoading || !getCourseMaterialExercise.data) {
     return <Spinner variant={"medium"} />
   }
 
@@ -519,7 +519,7 @@ const ExerciseBlock: React.FC<
           </div>
         </div>
 
-        {!loginState.isPending && !loginState.signedIn && (
+        {!loginState.isLoading && !loginState.signedIn && (
           <div
             className={css`
               padding: 0 1rem;
@@ -542,7 +542,7 @@ const ExerciseBlock: React.FC<
         <div
           className={css`
             padding: 0 1rem;
-            ${!loginState.isPending &&
+            ${!loginState.isLoading &&
             !loginState.signedIn &&
             `
               pointer-events: none !important;
@@ -551,7 +551,7 @@ const ExerciseBlock: React.FC<
               opacity: 0.9;
               `}
           `}
-          {...{ inert: !loginState.isPending && !loginState.signedIn }}
+          {...{ inert: !loginState.isLoading && !loginState.signedIn }}
         >
           {exerciseDeadline &&
             (Date.now() < exerciseDeadline.getTime() ? (

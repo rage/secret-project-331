@@ -33,7 +33,7 @@ const ExamPermissions: React.FC<React.PropsWithChildren<Props>> = ({ query }) =>
         }
       `}
     >
-      {exam.isPending && <Spinner variant="large" />}
+      {exam.isLoading && <Spinner variant="large" />}
       {exam.isError && <ErrorBanner variant="readOnly" error={exam.error} />}
       {exam.isSuccess && (
         <>

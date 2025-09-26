@@ -84,7 +84,7 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
       >
         {archive ? t("deleted-cheaters-list") : t("cheaters-list")}
       </h5>
-      {suspectedCheaters.isPending && (
+      {suspectedCheaters.isLoading && (
         <ErrorBanner variant={"readOnly"} error={suspectedCheaters.error} />
       )}
       {suspectedCheaters.isError && <Spinner variant={"medium"} />}

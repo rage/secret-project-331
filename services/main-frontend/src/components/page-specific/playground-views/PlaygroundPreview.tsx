@@ -262,7 +262,7 @@ const PlaygroundPreview: React.FC<PlaygroundPreviewProps> = ({
                       variant={"primary"}
                       size={"medium"}
                       disabled={
-                        currentStateReceivedFromIframe === null || submitAnswerMutation.isPending
+                        currentStateReceivedFromIframe === null || submitAnswerMutation.isLoading
                       }
                       onClick={() => {
                         if (!currentStateReceivedFromIframe) {

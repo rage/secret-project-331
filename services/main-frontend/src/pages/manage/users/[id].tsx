@@ -45,14 +45,14 @@ const UserPage: React.FC<React.PropsWithChildren<UserPageProps>> = ({ query }) =
   if (courseInstanceEnrollmentsQuery.isError) {
     return <ErrorBanner error={courseInstanceEnrollmentsQuery.error} variant="readOnly" />
   }
-  if (courseInstanceEnrollmentsQuery.isPending) {
+  if (courseInstanceEnrollmentsQuery.isLoading) {
     return <Spinner variant="medium" />
   }
 
   if (userDetailsQuery.isError) {
     return <ErrorBanner error={userDetailsQuery.error} variant="readOnly" />
   }
-  if (userDetailsQuery.isPending) {
+  if (userDetailsQuery.isLoading) {
     return <Spinner variant="medium" />
   }
 

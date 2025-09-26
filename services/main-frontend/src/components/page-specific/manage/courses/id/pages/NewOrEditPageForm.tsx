@@ -95,7 +95,7 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
       title={isUpdate ? t("heading-edit-page") : t("heading-new-page")}
       buttons={[
         {
-          disabled: saveMutation.isPending,
+          disabled: saveMutation.isLoading,
 
           variant: "primary",
           onClick: handleSubmit,

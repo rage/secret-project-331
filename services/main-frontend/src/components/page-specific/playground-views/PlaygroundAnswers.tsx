@@ -83,7 +83,7 @@ const PlaygroudAnswers: React.FC<PlaygroundAnswersProps> = ({
           {t("grading-explanation")}
         </p>
 
-        {submitAnswerMutation.isSuccess && !submitAnswerMutation.isPending ? (
+        {submitAnswerMutation.isSuccess && !submitAnswerMutation.isLoading ? (
           <StyledPre>{JSON.stringify(submitAnswerMutation.data, undefined, 2)}</StyledPre>
         ) : (
           <div>{t("error-no-grading-long")}</div>

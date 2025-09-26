@@ -31,7 +31,7 @@ const ClaimCode: React.FC<ClaimCodeProps> = ({ codeGiveawayId, onClaimed }) => {
         }}
         variant="primary"
         size="medium"
-        disabled={claimCodeMutation.isPending}
+        disabled={claimCodeMutation.isLoading}
       >
         {t("claim-code")}
       </Button>

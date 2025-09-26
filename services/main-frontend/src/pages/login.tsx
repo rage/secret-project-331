@@ -154,7 +154,7 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
           size={"medium"}
           id={"login-button"}
           disabled={
-            !email || !password || email === "" || password === "" || loginMutation.isPending
+            !email || !password || email === "" || password === "" || loginMutation.isLoading
           }
         >
           {t("login")}

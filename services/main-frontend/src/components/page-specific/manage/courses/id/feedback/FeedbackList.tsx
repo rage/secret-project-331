@@ -28,7 +28,7 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
     return <ErrorBanner variant={"readOnly"} error={getFeedbackCount.error} />
   }
 
-  if (getFeedbackCount.isPending) {
+  if (getFeedbackCount.isLoading) {
     return <Spinner variant={"medium"} />
   }
 

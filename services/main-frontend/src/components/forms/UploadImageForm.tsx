@@ -63,7 +63,7 @@ const UploadImageForm: React.FC<React.PropsWithChildren<UploadImageFormProps>> =
           ref={fileInput}
           type="file"
           onChange={handleFileChange}
-          disabled={mutation.isPending}
+          disabled={mutation.isLoading}
         />
       </FieldContainer>
     </div>

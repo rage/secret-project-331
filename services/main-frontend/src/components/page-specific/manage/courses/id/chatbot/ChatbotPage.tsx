@@ -78,7 +78,7 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
     return <ErrorBanner variant={"readOnly"} error={getChatbotsList.error} />
   }
 
-  if (getChatbotsList.isPending) {
+  if (getChatbotsList.isLoading) {
     return <Spinner variant={"medium"} />
   }
   // use memo for sorting to sort once
@@ -132,7 +132,7 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
                   onClick={() => {
                     setDefaultChatbotMutation.mutate(bot.id)
                   }}
-                  disabled={setDefaultChatbotMutation.isPending}
+                  disabled={setDefaultChatbotMutation.isLoading}
                 >
                   {t("set-default-chatbot")}
                 </Button>
@@ -143,7 +143,7 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
                   onClick={() => {
                     unsetDefaultChatbotMutation.mutate(bot.id)
                   }}
-                  disabled={unsetDefaultChatbotMutation.isPending}
+                  disabled={unsetDefaultChatbotMutation.isLoading}
                 >
                   {t("unset-default-chatbot")}
                 </Button>

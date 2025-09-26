@@ -167,7 +167,7 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({
     userInfo.data?.user_id,
   ])
 
-  if (peerOrSelfReviewsReceivedQuery.isPending) {
+  if (peerOrSelfReviewsReceivedQuery.isLoading) {
     return <Spinner variant={"medium"} />
   }
 

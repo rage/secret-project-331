@@ -26,7 +26,7 @@ const CourseInstanceEnrollmentsList: React.FC<CourseInstanceEnrollmentsListProps
   if (courseInstanceEnrollmentsQuery.isError) {
     return <ErrorBanner variant="readOnly" error={courseInstanceEnrollmentsQuery.error} />
   }
-  if (courseInstanceEnrollmentsQuery.isPending) {
+  if (courseInstanceEnrollmentsQuery.isLoading) {
     return <Spinner variant="medium" />
   }
 

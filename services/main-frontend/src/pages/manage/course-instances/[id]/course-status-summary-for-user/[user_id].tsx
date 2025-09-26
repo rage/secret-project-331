@@ -35,7 +35,7 @@ const CourseInstanceExerciseStatusList: React.FC<
     return <ErrorBanner variant={"readOnly"} error={exerciseStatusSummariesQuery.error} />
   }
 
-  if (exerciseStatusSummariesQuery.isPending || !exerciseStatusSummariesQuery.data || !courseId) {
+  if (exerciseStatusSummariesQuery.isLoading || !exerciseStatusSummariesQuery.data || !courseId) {
     return <Spinner variant="medium" />
   }
 

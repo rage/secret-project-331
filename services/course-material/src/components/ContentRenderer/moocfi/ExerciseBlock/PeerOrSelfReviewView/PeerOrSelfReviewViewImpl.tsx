@@ -188,7 +188,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
         <button
           className={cx(exerciseButtonStyles)}
           onClick={() => query.refetch()}
-          disabled={query.isPending}
+          disabled={query.isLoading}
         >
           {t("button-text-refresh")}
         </button>
@@ -340,7 +340,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
           `,
           exerciseButtonStyles,
         )}
-        disabled={!isValid || !peerOrSelfReviewData || submitPeerOrSelfReviewMutation.isPending}
+        disabled={!isValid || !peerOrSelfReviewData || submitPeerOrSelfReviewMutation.isLoading}
         onClick={() => submitPeerOrSelfReviewMutation.mutate()}
       >
         {t("submit-button")}

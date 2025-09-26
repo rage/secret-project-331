@@ -519,7 +519,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
 
   if (courseStructureQuery.isError) {
     return <ErrorBanner variant={"link"} error={courseStructureQuery.error} />
-  } else if (courseStructureQuery.isPending) {
+  } else if (courseStructureQuery.isLoading) {
     return <Spinner variant={"medium"} />
   }
   return (
@@ -602,12 +602,12 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         leftButtonText={t("save-changes")}
         leftButtonDisabled={
           (moduleList?.error !== null && moduleList?.error !== undefined) ||
-          moduleUpdatesMutation.isPending
+          moduleUpdatesMutation.isLoading
         }
         onClickLeft={handleSubmit}
         rightButtonText={t("button-reset")}
         onClickRight={handleReset}
-        rightButtonDisabled={moduleUpdatesMutation.isPending}
+        rightButtonDisabled={moduleUpdatesMutation.isLoading}
       />
       <NewCourseModuleForm
         chapters={courseStructureQuery.data.chapterNumbers}

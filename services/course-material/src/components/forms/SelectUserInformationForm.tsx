@@ -115,7 +115,7 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
         buttons={[
           {
             type: "submit",
-            disabled: postUserCountryMutation.isPending || !isValid,
+            disabled: postUserCountryMutation.isLoading || !isValid,
             // eslint-disable-next-line i18next/no-literal-string
             className: "primary-button",
 

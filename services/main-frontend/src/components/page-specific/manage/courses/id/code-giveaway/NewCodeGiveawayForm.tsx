@@ -66,7 +66,7 @@ const NewCodeGiveawayForm: React.FC<NewCodeGiveawayFormProps> = ({
         {
           variant: "primary",
           onClick: () => createCodeGiveawayMutation.mutate(),
-          disabled: !valid || createCodeGiveawayMutation.isPending,
+          disabled: !valid || createCodeGiveawayMutation.isLoading,
           children: t("button-text-create"),
         },
       ]}

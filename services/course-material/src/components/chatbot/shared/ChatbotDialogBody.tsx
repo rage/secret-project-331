@@ -205,8 +205,8 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
   }, [scrollToBottom, messages])
 
   const canSubmit = useMemo(
-    () => Boolean(newMessage && newMessage.trim().length > 0 && !newMessageMutation.isPending),
-    [newMessage, newMessageMutation.isPending],
+    () => Boolean(newMessage && newMessage.trim().length > 0 && !newMessageMutation.isLoading),
+    [newMessage, newMessageMutation.isLoading],
   )
 
   if (currentConversationInfo.isLoading) {
@@ -318,7 +318,7 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
             message={message.message ?? ""}
             citations={citations.get(message.id)}
             isFromChatbot={message.is_from_chatbot}
-            isPending={!message.message_is_complete && newMessageMutation.isPending}
+            isPending={!message.message_is_complete && newMessageMutation.isLoading}
           />
         ))}
       </div>

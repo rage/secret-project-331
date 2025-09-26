@@ -22,7 +22,7 @@ const ExerciseCustomViewEditor: React.FC<
     return <ErrorBanner variant={"readOnly"} error={exerciseServicesQuery.error} />
   }
 
-  if (exerciseServicesQuery.isPending) {
+  if (exerciseServicesQuery.isLoading) {
     return <Spinner variant={"medium"} />
   }
 

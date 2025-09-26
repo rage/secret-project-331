@@ -33,11 +33,11 @@ export const LoginStateContextProvider: React.FC<React.PropsWithChildren<unknown
   useEffect(() => {
     setLoginState((prev) => ({
       ...prev,
-      isPending: isLoggedIn.isPending,
+      isPending: isLoggedIn.isLoading,
       refresh: isLoggedIn.refetch,
       signedIn: isLoggedIn.data,
     }))
-  }, [isLoggedIn.data, isLoggedIn.isPending, isLoggedIn.refetch])
+  }, [isLoggedIn.data, isLoggedIn.isLoading, isLoggedIn.refetch])
 
   if (isLoggedIn.isError) {
     return <ErrorBanner variant={"readOnly"} error={isLoggedIn.error} />
@@ -57,7 +57,7 @@ export function withSignedIn<T>(
     const { t } = useTranslation()
     const loginStateContext = useContext(LoginStateContext)
 
-    if (loginStateContext.isPending || loginStateContext.signedIn === null) {
+    if (loginStateContext.isLoading || loginStateContext.signedIn === null) {
       return <Spinner variant="medium" />
     }
 

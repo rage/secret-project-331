@@ -28,9 +28,9 @@ const CourseInstanceUserInfoBox: React.FC<CourseInstanceUserInfoBoxProps> = ({
   }
 
   if (
-    courseQuery.isPending ||
-    courseInstancesQuery.isPending ||
-    userDetailsQuery.isPending ||
+    courseQuery.isLoading ||
+    courseInstancesQuery.isLoading ||
+    userDetailsQuery.isLoading ||
     !courseQuery.data ||
     !courseInstancesQuery.data ||
     !userDetailsQuery.data

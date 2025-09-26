@@ -144,7 +144,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     showAnswersMutation.mutate(!showExamAnswers)
   }, [showAnswersMutation, showExamAnswers])
 
-  if (exam.isPending) {
+  if (exam.isLoading) {
     return <Spinner variant="medium" />
   }
 

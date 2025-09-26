@@ -61,7 +61,7 @@ const EmailTemplateEdit: React.FC<React.PropsWithChildren<EmailTemplateEditProps
     return <Spinner variant={"medium"} />
   }
 
-  if (instanceQuery.isPending) {
+  if (instanceQuery.isLoading) {
     return <Spinner variant={"medium"} />
   }
 

@@ -106,7 +106,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     },
   )
 
-  if (exam.isPending) {
+  if (exam.isLoading) {
     return <Spinner variant="medium" />
   }
 

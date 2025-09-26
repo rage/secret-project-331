@@ -263,7 +263,7 @@ const ExerciseBlock: React.FC<
   if (getCourseMaterialExercise.isError) {
     return <ErrorBanner variant={"readOnly"} error={getCourseMaterialExercise.error} />
   }
-  if (getCourseMaterialExercise.isPending) {
+  if (getCourseMaterialExercise.isLoading) {
     return <Spinner variant={"medium"} />
   }
 
@@ -519,7 +519,7 @@ const ExerciseBlock: React.FC<
           </div>
         </div>
 
-        {!loginState.isPending && !loginState.signedIn && (
+        {!loginState.isLoading && !loginState.signedIn && (
           <div
             className={css`
               padding: 0 1rem;
@@ -542,7 +542,7 @@ const ExerciseBlock: React.FC<
         <div
           className={css`
             padding: 0 1rem;
-            ${!loginState.isPending &&
+            ${!loginState.isLoading &&
             !loginState.signedIn &&
             `
               pointer-events: none !important;
@@ -551,7 +551,7 @@ const ExerciseBlock: React.FC<
               opacity: 0.9;
               `}
           `}
-          {...{ inert: !loginState.isPending && !loginState.signedIn }}
+          {...{ inert: !loginState.isLoading && !loginState.signedIn }}
         >
           {exerciseDeadline &&
             (Date.now() < exerciseDeadline.getTime() ? (
@@ -643,7 +643,7 @@ const ExerciseBlock: React.FC<
               !inSubmissionView && (
                 <button
                   disabled={
-                    postSubmissionMutation.isPending ||
+                    postSubmissionMutation.isLoading ||
                     answers.size < (postThisStateToIFrame?.length ?? 0) ||
                     Array.from(answers.values()).some((x) => !x.valid)
                   }
@@ -757,7 +757,7 @@ const ExerciseBlock: React.FC<
                         disabled={
                           getCourseMaterialExercise.isRefetching ||
                           !getCourseMaterialExercise.data.can_post_submission ||
-                          tryAgainMutation.isPending
+                          tryAgainMutation.isLoading
                         }
                       >
                         {t("try-again")}
@@ -766,7 +766,7 @@ const ExerciseBlock: React.FC<
                     {needsPeerReview && (
                       <button
                         className={cx(exerciseButtonStyles)}
-                        disabled={startPeerOrSelfReviewMutation.isPending}
+                        disabled={startPeerOrSelfReviewMutation.isLoading}
                         onClick={() => startPeerOrSelfReviewMutation.mutate()}
                       >
                         {t("start-peer-review")}
@@ -775,7 +775,7 @@ const ExerciseBlock: React.FC<
                     {!needsPeerReview && needsSelfReview && (
                       <button
                         className={cx(exerciseButtonStyles)}
-                        disabled={startPeerOrSelfReviewMutation.isPending}
+                        disabled={startPeerOrSelfReviewMutation.isLoading}
                         onClick={() => startPeerOrSelfReviewMutation.mutate()}
                       >
                         {t("start-self-review")}

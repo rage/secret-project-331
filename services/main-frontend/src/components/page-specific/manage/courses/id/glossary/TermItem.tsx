@@ -125,7 +125,7 @@ const TermItem: React.FC<TermItemProps> = ({ term, isEditing, onEdit, onCancel, 
             variant="tertiary"
             size="medium"
             onClick={() => deleteMutation.mutate()}
-            disabled={deleteMutation.isPending}
+            disabled={deleteMutation.isLoading}
           >
             {t("button-text-delete")}
           </Button>

@@ -2,7 +2,7 @@
   "name": "course-material",
   "version": "1.0.0",
   "scripts": {
-    "dev": "next dev --port 3003",
+    "dev": "next dev --port 3003 --turbopack",
     "build": "NODE_ENV=production next build",
     "export": "next export",
     "start": "NODE_ENV=production PORT=3003 node server.js",
@@ -40,10 +40,10 @@
     "katex": "^0.16.22",
     "lodash": "^4.17.21",
     "monaco-editor": "^0.52.2",
-    "next": "^15.4.5",
-    "react": "^19.1.0",
+    "next": "^15.5.4",
+    "react": "19.1.1",
     "react-aria-components": "^1.11.0",
-    "react-dom": "^19.1.0",
+    "react-dom": "19.1.1",
     "react-hook-form": "^7.61.1",
     "react-hot-toast": "^2.5.2",
     "react-i18next": "^15.6.1",
@@ -69,8 +69,8 @@
     "@types/jest": "^30.0.0",
     "@types/lodash": "^4.17.20",
     "@types/node": "^24.1.0",
-    "@types/react": "^19.1.6",
-    "@types/react-dom": "^19.1.5",
+    "@types/react": "19.1.13",
+    "@types/react-dom": "19.1.9",
     "@types/remarkable": "^2.0.8",
     "@types/sanitize-html": "^2.16.0",
     "@types/uuid": "^10.0.0",
@@ -83,9 +83,9 @@
     "typescript": "^5.9.2"
   },
   "overrides": {
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "@types/react": "^19.1.6",
-    "@types/react-dom": "^19.1.5"
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "@types/react": "19.1.13",
+    "@types/react-dom": "19.1.9"
   }
 }

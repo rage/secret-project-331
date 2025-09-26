@@ -188,7 +188,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
         <button
           className={cx(exerciseButtonStyles)}
           onClick={() => query.refetch()}
-          disabled={query.isPending}
+          disabled={query.isLoading}
         >
           {t("button-text-refresh")}
         </button>

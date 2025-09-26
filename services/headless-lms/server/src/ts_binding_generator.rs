@@ -344,6 +344,9 @@ fn controllers(target: &mut File) {
             playground_views::PlaygroundViewsMessage,
             proposed_edits::GetEditProposalsQuery,
             roles::RoleQuery,
+            user_details::BulkUserDetailsRequest,
+            user_details::UserDetailsRequest,
+            user_details::UserInfoPayload,
         };
     }
 }

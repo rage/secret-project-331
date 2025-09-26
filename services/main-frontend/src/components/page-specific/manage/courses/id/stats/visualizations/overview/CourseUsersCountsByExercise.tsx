@@ -32,7 +32,7 @@ const CourseUsersCountsByExercise: React.FC<
     return <ErrorBanner variant="readOnly" error={query.error} />
   }
 
-  if (query.isPending || !query.data) {
+  if (query.isLoading || !query.data) {
     return <Spinner variant="medium" />
   }
 

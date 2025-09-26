@@ -161,8 +161,8 @@ In the root directory, install the project dependencies:
 ```bash
 nvm install
 nvm use
-npm ci
-bin/npm-ci-all
+pnpm install
+bin/pnpm-ci-all
 ```
 
 Make sure `TMC-Langs` is downloaded:

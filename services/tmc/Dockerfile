@@ -7,9 +7,10 @@ USER node
 WORKDIR /app
 
 COPY --chown=node package.json /app/
-COPY --chown=node package-lock.json /app/
+COPY --chown=node pnpm-lock.yaml /app/
+COPY --chown=node .npmrc /app/
 
-RUN npm ci
+RUN pnpm install --frozen-lockfile
 
 COPY --chown=node ./bin/tmc-langs-cli-* /tmc/
 USER root
@@ -20,4 +21,4 @@ COPY --chown=node . /app
 
 EXPOSE 3005
 
-CMD [ "npm", "run", "dev" ]
+CMD [ "pnpm", "run", "dev" ]

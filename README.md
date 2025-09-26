@@ -33,11 +33,11 @@ In this project, code style is enforced with automatic tools. To ensure your con
 
 ### Setting Up Pre-Commit Hooks
 
-Run `npm ci` in the repository root to install the necessary tools:
+Run `pnpm install` in the repository root to install the necessary tools:
 
 ```bash
 $ cd Code/secret-project-331/
-$ npm ci
+$ pnpm install
 ```
 
 This will install `lint-staged`, which ensures that your code passes some basic code style checks before committing.

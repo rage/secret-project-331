@@ -7,14 +7,15 @@ USER node
 WORKDIR /app
 
 COPY --chown=node package.json /app/
-COPY --chown=node package-lock.json /app/
+COPY --chown=node pnpm-lock.yaml /app/
+COPY --chown=node .npmrc /app/
 
-RUN npm ci
+RUN pnpm install --frozen-lockfile
 
 COPY --chown=node . /app
 
-RUN npm run postinstall
+RUN pnpm run postinstall
 
 EXPOSE 3000
 
-CMD [ "npm", "run", "dev" ]
+CMD [ "pnpm", "run", "dev" ]

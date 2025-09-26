@@ -11,7 +11,7 @@
     "test": "jest",
     "postinstall:clean-wp": "ts-node -O \"{\\\"module\\\":\\\"commonjs\\\"}\" scripts/cleanWordpressModules.ts",
     "postinstall:remove-gutenberg-eslint-deps-that-breaks-our-eslint": "find node_modules -maxdepth 1 -type d -name '*eslint*' -exec rm -r {} +",
-    "postinstall": "npm run postinstall:clean-wp && npm run postinstall:remove-gutenberg-eslint-deps-that-breaks-our-eslint"
+    "postinstall": "pnpm run postinstall:clean-wp && pnpm run postinstall:remove-gutenberg-eslint-deps-that-breaks-our-eslint"
   },
   "dependencies": {
     "@bytedance/tar-wasm": "^0.1.7",

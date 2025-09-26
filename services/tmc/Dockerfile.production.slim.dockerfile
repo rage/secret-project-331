@@ -8,9 +8,10 @@ USER node
 WORKDIR /app
 
 COPY --chown=node package.json /app/
-COPY --chown=node package-lock.json /app/
+COPY --chown=node pnpm-lock.yaml /app/
+COPY --chown=node .npmrc /app/
 
-RUN npm ci
+RUN pnpm install --frozen-lockfile
 
 COPY --chown=node ./bin/tmc-langs-cli-* /tmc/
 USER root
@@ -21,7 +22,7 @@ COPY --chown=node . /app
 
 ENV NEXT_PUBLIC_BASE_PATH="/tmc"
 
-RUN npm run build
+RUN pnpm run build
 
 FROM eu.gcr.io/moocfi-public/project-331-node-base:latest as runtime
 
@@ -34,4 +35,4 @@ WORKDIR /app
 
 EXPOSE 3005
 
-CMD [ "npm", "run", "start" ]
+CMD [ "pnpm", "run", "start" ]

@@ -17,13 +17,13 @@ Check if we are using the current node LTS version from by comparing a `.nvmcrc`
 
 When updating dependencies, you need to pay special attention to the cms service. It includes the gutenberg dependency, you **must"** always read the changelog for it so that you can determine if it breaks backwards compatibility in some way. Tests won't catch all backwards incompatible changes.
 
-Before you start: Run this: `npm ci && bin/npm-ci-all`
+Before you start: Run this: `pnpm install && bin/pnpm-ci-all`
 
-One by one cd to a service and run `npx npm-check --update`. Read the changelogs for breaking dependencies if necessary and select all updates. After update is done, run `npx tsc --noEmit` to catch new type errors and then commit the results. Finally, you can run `npm audit fix`.
+One by one cd to a service and run `pnpm exec npm-check --update`. Read the changelogs for breaking dependencies if necessary and select all updates. After update is done, run `pnpm exec tsc --noEmit` to catch new type errors and then commit the results. Finally, you can run `pnpm audit --fix`.
 
 You can get a list of targets that need updating by running: `find -name 'package.json' | grep --invert-match 'node_modules\|.next'`.
 
-Start by upgrading the dependencies in the root of the repo and run `npm run eslint` to catch new changes to ESLint rules / prettier formatting. You can also use `npm run eslint:open:vscode` if you want to open all the files with ESLint problems.
+Start by upgrading the dependencies in the root of the repo and run `pnpm run eslint` to catch new changes to ESLint rules / prettier formatting. You can also use `pnpm run eslint:open:vscode` if you want to open all the files with ESLint problems.
 
 ## Update rust dependencies
 

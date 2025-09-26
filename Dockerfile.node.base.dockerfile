@@ -5,6 +5,9 @@ RUN apt-get update \
   && apt-get install -yy build-essential \
   && rm -rf /var/lib/apt/lists/*
 
+# Install pnpm globally
+RUN npm install -g pnpm@latest
+
 # Please read these two docs for the following options before changing them -- they work a bit differently than you'd expect:
 # https://docs.npmjs.com/cli/v8/using-npm/config
 # https://github.com/tim-kos/node-retry#retrytimeoutsoptions
@@ -16,3 +19,9 @@ RUN npm config set --location=global fetch-retry-maxtimeout=900000 && \
   # https://github.com/npm/cli/issues/4652
   npm config set --location=global maxsockets=1 && \
   npm config set --location=global noproxy=registry.npmjs.org
+
+# Configure pnpm
+RUN pnpm config set use-node-version 22 && \
+  pnpm config set update-notifier false && \
+  pnpm config set shared-workspace-lockfile false && \
+  pnpm config set engine-strict true

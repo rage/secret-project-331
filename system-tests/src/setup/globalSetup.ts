@@ -8,7 +8,7 @@ import systemTestsPackageLockJson from "../../package-lock.json"
 
 async function globalSetup(config: FullConfig): Promise<void> {
   await makeSureNecessaryProgramsAreInstalled(config)
-  await makeSureNpmCiHasBeenRan()
+  await makeSurePnpmInstallHasBeenRan()
   await downloadTmcLangsCli()
   await setupSystemTestDb()
   // After this global.setup.spec.ts is ran
@@ -24,15 +24,15 @@ async function makeSureNecessaryProgramsAreInstalled(config: FullConfig) {
   }
 }
 
-async function makeSureNpmCiHasBeenRan() {
-  // Make sure the user has ran npm ci after Playwright has been updated.
+async function makeSurePnpmInstallHasBeenRan() {
+  // Make sure the user has ran pnpm install after Playwright has been updated.
   // Using an older vesion might not work or might generate sligtly wrong screenshots.
   const requiredPlaywrightVersion =
     systemTestsPackageLockJson.packages["node_modules/playwright"].version
   const installedPlaywrightVersion = playWrightPackageJson.version
   if (installedPlaywrightVersion !== requiredPlaywrightVersion) {
     throw new Error(
-      `The installed Playwright version ${installedPlaywrightVersion} is not the same as the required version ${requiredPlaywrightVersion}. Please run npm ci in the system-tests folder.`,
+      `The installed Playwright version ${installedPlaywrightVersion} is not the same as the required version ${requiredPlaywrightVersion}. Please run pnpm install in the system-tests folder.`,
     )
   }
 }

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "build": "NODE_ENV=production next build",
-    "dev": "next dev --port 3005",
+    "dev": "next dev --port 3005 --turbopack",
     "export": "next export",
     "start": "NODE_ENV=production PORT=3005 node server.js",
     "test": "jest"

@@ -4112,7 +4112,7 @@ export function isRoleUser(obj: unknown): obj is RoleUser {
         (typedObj !== null &&
             typeof typedObj === "object" ||
             typeof typedObj === "function") &&
-        typeof typedObj["id"] === "string" &&
+        typeof typedObj["user_id"] === "string" &&
         (typedObj["first_name"] === null ||
             typeof typedObj["first_name"] === "string") &&
         (typedObj["last_name"] === null ||

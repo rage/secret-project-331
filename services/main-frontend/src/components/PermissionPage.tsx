@@ -332,11 +332,11 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                     border-bottom-right-radius: 4px;
                   }
                 `}
-                key={ur.id}
+                key={ur.user_id + ur.role}
               >
                 <td>{ur.first_name ? `${ur.first_name} ${ur.last_name}` : ur.last_name}</td>
                 <td>{ur.email}</td>
-                {editingRole?.userId !== ur.id && (
+                {editingRole?.userId !== ur.user_id && (
                   <>
                     <td>{ur.role}</td>
                     <td>
@@ -349,7 +349,7 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                           height: 100%;
                           margin-right: 8px;
                         `}
-                        onClick={() => setEditingRole({ userId: ur.id, newRole: ur.role })}
+                        onClick={() => setEditingRole({ userId: ur.user_id, newRole: ur.role })}
                       >
                         <Pencil size={20} color={"#1A2333"} />
                       </button>
@@ -368,13 +368,13 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                     </td>
                   </>
                 )}
-                {editingRole?.userId === ur.id && (
+                {editingRole?.userId === ur.user_id && (
                   <>
                     <td>
                       <SelectField
                         id={"editing-role"}
                         onChangeByValue={(role) => {
-                          setEditingRole({ userId: ur.id, newRole: role as UserRole })
+                          setEditingRole({ userId: ur.user_id, newRole: role as UserRole })
                         }}
                         options={options(t)}
                         defaultValue={ur.role}

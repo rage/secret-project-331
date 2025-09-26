@@ -1,5 +1,6 @@
 import { css, keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
+import { sortBy } from "lodash"
 import React, { ReactPortal, useLayoutEffect, useMemo, useState } from "react"
 import { createPortal } from "react-dom"
 import { useTranslation } from "react-i18next"
@@ -110,6 +111,8 @@ export interface ReferenceProps {
   data: Reference[]
 }
 
+const citeOrder: string[] = []
+
 const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
   const { t } = useTranslation()
   const [active] = useState<string>()
@@ -127,17 +130,31 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
         const reference = data.find((o) => {
           return o.id === node.dataset.citationId
         })
-        return createPortal(<TooltipNTrigger reference={reference} />, node, idx)
+        let citeNumber: number = 0
+        if (reference && !citeOrder.includes(reference.id)) {
+          citeOrder.push(reference.id)
+          citeNumber = citeOrder.length
+        } else if (reference && citeOrder.includes(reference.id)) {
+          citeNumber = citeOrder.indexOf(reference.id) + 1
+        }
+        return createPortal(
+          <TooltipNTrigger reference={reference} citeNumber={citeNumber} />,
+          node,
+          idx,
+        )
       },
     )
   }, [data, readyForPortal])
 
+  let sortedReferenceList = sortBy(data, (item) => {
+    return citeOrder.indexOf(item.id)
+  })
   return (
     <TextWrapper>
       <details id="reference">
         <summary>{t("title-references")}</summary>
         <ul>
-          {data.map(({ id, text }, index) => {
+          {sortedReferenceList.map(({ id, text }, index) => {
             return (
               <li
                 key={id}

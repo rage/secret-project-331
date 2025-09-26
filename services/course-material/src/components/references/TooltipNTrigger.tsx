@@ -5,6 +5,7 @@ import { Reference } from "."
 
 interface TooltipNTriggerProps {
   reference: Reference | undefined
+  citeNumber: number
 }
 
 const Anchor = styled(Link)`
@@ -13,7 +14,7 @@ const Anchor = styled(Link)`
   &:focus {
     text-decoration: underline;
   }
-  ,
+
   &:hover {
     text-decoration: underline;
   }
@@ -32,12 +33,12 @@ const TooltipBox = styled.div`
   font-size: 14px;
 `
 
-const TooltipNTrigger: React.FC<TooltipNTriggerProps> = ({ reference }) => {
+const TooltipNTrigger: React.FC<TooltipNTriggerProps> = ({ reference, citeNumber }) => {
   if (reference) {
     return (
       <TooltipTrigger delay={200} closeDelay={200}>
         <sup>
-          <Anchor href="#ref-1">[1]</Anchor>
+          <Anchor href={"#ref-" + citeNumber}>[{citeNumber}]</Anchor>
         </sup>
         <Tooltip>
           <TooltipBox>{reference.text}</TooltipBox>

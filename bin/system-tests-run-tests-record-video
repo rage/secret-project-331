@@ -8,7 +8,7 @@ RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 
 run_command cd "$RELATIVE_PATH" || exit
 
-run_command npm run test-video "$@"
+run_command pnpm run test-video "$@"
 
 echo ""
 echo -e "${GREEN}✅ All tests passed and you should now have recorded videos of the test run.${RESET_EVERYTHING}"

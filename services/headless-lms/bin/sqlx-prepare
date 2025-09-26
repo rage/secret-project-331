@@ -9,7 +9,7 @@ echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 eval "$COMMAND" "${ARGUMENTS[@]}"
 
 # Formatting the result file so that diffs are pretty
-COMMAND2="cd models && npx"
+COMMAND2="cd models && pnpm exec"
 ARGUMENTS2=(prettier --write models/sqlx-data.json)
 
 echo "> $COMMAND2" "$(printf "%q " "${ARGUMENTS2[@]}")"

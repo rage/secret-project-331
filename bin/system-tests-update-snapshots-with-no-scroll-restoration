@@ -10,4 +10,4 @@ RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 
 run_command cd "$RELATIVE_PATH" || exit
 
-run_command env UPDATE_SCREENSHOTS_WITHOUT_SCROLL_RESTORATION=1 npm run update-snapshots "$@"
+run_command env UPDATE_SCREENSHOTS_WITHOUT_SCROLL_RESTORATION=1 pnpm run update-snapshots "$@"

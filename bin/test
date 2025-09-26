@@ -15,7 +15,7 @@ check_minikube_version
 ensure_common_programs_in_path
 ensure_tmc_langs_cli_downloaded
 
-run_command npm run postinstall
+run_command pnpm run postinstall
 
 make_sure_skaffold_local_env_patch_files_exists
 

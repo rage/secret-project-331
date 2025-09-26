@@ -19,7 +19,7 @@ run_command env SQLX_OFFLINE=1 cargo run --features ts_rs -- doc-file-generator
 run_command find server/generated-docs/ -name '*.json' -exec jq --sort-keys . -M {} \;
 
 # Fix formatting
-run_command npm run eslint:format-generated-docs
+run_command pnpm run eslint:format-generated-docs
 
 echo ""
 echo -e "${GREEN}✅ New examples have been generated for the backend documentation.${RESET_EVERYTHING}"

@@ -42,7 +42,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
   })
 
   const userDetails = useUserDetails(
-    getSubmissionInfo.data?.exercise.course_id,
+    getSubmissionInfo.data?.exercise.course_id ? [getSubmissionInfo.data.exercise.course_id] : null,
     getSubmissionInfo.data?.exercise_slide_submission.user_id,
   )
 

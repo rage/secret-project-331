@@ -21,7 +21,7 @@ const CourseInstanceUserInfoBox: React.FC<CourseInstanceUserInfoBoxProps> = ({
   const { t } = useTranslation()
   const courseQuery = useCourseQuery(courseId)
   const courseInstancesQuery = useCourseInstancesQuery(courseId)
-  const userDetailsQuery = useUserDetails(courseId, userId)
+  const userDetailsQuery = useUserDetails([courseId], userId)
 
   if (courseQuery.isError || courseInstancesQuery.isError || userDetailsQuery.isError) {
     return null

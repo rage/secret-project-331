@@ -2368,6 +2368,24 @@ export interface RoleQuery {
   exam_id?: string
 }
 
+export interface BulkUserDetailsRequest {
+  user_ids: Array<string>
+  course_id: string
+}
+
+export interface UserDetailsRequest {
+  user_id: string
+  course_ids: Array<string>
+}
+
+export interface UserInfoPayload {
+  email: string
+  first_name: string
+  last_name: string
+  country: string
+  email_communication_consent: boolean
+}
+
 export interface Pagination {
   page: number | undefined
   limit: number | undefined

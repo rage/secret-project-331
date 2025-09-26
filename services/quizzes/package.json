@@ -2,7 +2,7 @@
   "name": "quizzes-dashboard",
   "version": "0.1.0",
   "scripts": {
-    "dev": "next dev --port 3004",
+    "dev": "next dev --turbopack --port 3004",
     "build": "NODE_ENV=production next build",
     "export": "next export",
     "start": "NODE_ENV=production PORT=3004 node server.js",
@@ -22,7 +22,7 @@
     "@fontsource/space-mono": "^5.2.8",
     "@json2csv/plainjs": "^7.0.6",
     "@monaco-editor/react": "^4.7.0",
-    "@next/bundle-analyzer": "^15.4.5",
+    "@next/bundle-analyzer": "15.5.4",
     "@popperjs/core": "^2.11.8",
     "@react-aria/dialog": "^3.5.28",
     "@tanstack/react-query": "^5.84.0",
@@ -40,11 +40,11 @@
     "katex": "^0.16.22",
     "lodash": "^4.17.21",
     "monaco-editor": "^0.52.2",
-    "next": "^15.4.5",
+    "next": "15.5.4",
     "postcss": "^8.5.6",
-    "react": "^19.1.0",
+    "react": "19.1.1",
     "react-aria-components": "^1.11.0",
-    "react-dom": "^19.1.0",
+    "react-dom": "19.1.1",
     "react-hook-form": "^7.61.1",
     "react-hot-toast": "^2.5.2",
     "react-i18next": "^15.6.1",
@@ -61,8 +61,8 @@
     "@types/katex": "^0.16.7",
     "@types/lodash": "^4.17.20",
     "@types/luxon": "^3.7.1",
-    "@types/react": "^19.1.6",
-    "@types/react-dom": "^19.1.5",
+    "@types/react": "19.1.13",
+    "@types/react-dom": "19.1.9",
     "@types/supertest": "^6.0.3",
     "@types/uuid": "^10.0.0",
     "jest": "^30.0.5",
@@ -75,9 +75,9 @@
     "typescript": "^5.9.2"
   },
   "overrides": {
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "@types/react": "^19.1.6",
-    "@types/react-dom": "^19.1.5"
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "@types/react": "19.1.13",
+    "@types/react-dom": "19.1.9"
   }
 }

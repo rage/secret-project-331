@@ -2,7 +2,7 @@
   "name": "example-exercise",
   "version": "1.0.1",
   "scripts": {
-    "dev": "next dev --port 3002",
+    "dev": "next dev --turbopack --port 3002",
     "build": "NODE_ENV=production next build",
     "export": "next export",
     "start": "NODE_ENV=production PORT=3002 node server.js"
@@ -32,14 +32,14 @@
     "immer": "^10.1.1",
     "lodash": "^4.17.21",
     "monaco-editor": "^0.52.2",
-    "next": "^15.4.5",
-    "react": "^19.1.0",
+    "next": "15.5.4",
+    "react": "19.1.1",
     "react-aria-components": "^1.11.0",
-    "react-dom": "^19.1.0",
+    "react-dom": "19.1.1",
     "react-hook-form": "^7.61.1",
     "react-hot-toast": "^2.5.2",
     "react-i18next": "^15.6.1",
-    "react-is": "^19.1.1",
+    "react-is": "19.1.1",
     "react-popper": "^2.3.0",
     "react-spring": "^10.0.1",
     "svgo": "^4.0.0",
@@ -51,8 +51,8 @@
     "@svgr/webpack": "^8.1.0",
     "@types/lodash": "^4.17.20",
     "@types/node": "^24.1.0",
-    "@types/react": "^19.1.6",
-    "@types/react-dom": "^19.1.5",
+    "@types/react": "19.1.13",
+    "@types/react-dom": "19.1.9",
     "@types/uuid": "^10.0.0",
     "axios": "^1.11.0",
     "postcss-styled-syntax": "^0.7.1",
@@ -61,9 +61,9 @@
     "typescript": "^5.9.2"
   },
   "overrides": {
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "@types/react": "^19.1.6",
-    "@types/react-dom": "^19.1.5"
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "@types/react": "19.1.13",
+    "@types/react-dom": "19.1.9"
   }
 }

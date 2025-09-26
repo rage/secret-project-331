@@ -339,7 +339,7 @@ impl From<reqwest::Error> for ModelError {
                 response_body,
             },
             format!("HTTP request failed: {}", err),
-            None,
+            Some(err.into()),
         )
     }
 }

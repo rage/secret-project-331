@@ -322,7 +322,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
             type="submit"
             size="medium"
             variant="primary"
-            disabled={configureChatbotMutation.isLoading}
+            disabled={configureChatbotMutation.isPending}
           >
             {t("save")}
           </Button>
@@ -330,7 +330,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
             type="button"
             size="medium"
             variant="tertiary"
-            disabled={deleteChatbotMutation.isLoading}
+            disabled={deleteChatbotMutation.isPending}
             onClick={async () => {
               if (
                 await confirm(

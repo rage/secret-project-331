@@ -77,7 +77,7 @@ const ChapterImageWidget: React.FC<React.PropsWithChildren<ChapterImageControlsP
             size="medium"
             variant="secondary"
             onClick={handleRemoveImage}
-            disabled={removeImageMutation.isLoading}
+            disabled={removeImageMutation.isPending}
           >
             {t("button-text-remove")}
           </Button>

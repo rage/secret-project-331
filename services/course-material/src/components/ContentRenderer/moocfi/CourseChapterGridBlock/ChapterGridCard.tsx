@@ -104,7 +104,7 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
   }
   const open = chapter.status === OPEN
   const url =
-    open || previewable
+    (open || previewable) && getChapterPageUrl.data
       ? coursePageRoute(organizationSlug, courseSlug, getChapterPageUrl.data)
       : undefined
   return (

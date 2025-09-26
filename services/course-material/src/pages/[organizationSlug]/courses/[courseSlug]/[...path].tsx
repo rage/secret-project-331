@@ -68,7 +68,7 @@ const PagePage: React.FC = () => {
       pageStateDispatch({ type: "setError", payload: getCoursePageByPath.error })
     } else if (getCoursePageByPath.isLoading) {
       pageStateDispatch({ type: "setLoading" })
-    } else {
+    } else if (getCoursePageByPath.data) {
       pageStateDispatch({
         type: "setData",
         payload: {
@@ -128,7 +128,7 @@ const PagePage: React.FC = () => {
     return <ErrorBanner variant={"readOnly"} error={getCoursePageByPath.error} />
   }
 
-  if (getCoursePageByPath.isLoading) {
+  if (getCoursePageByPath.isLoading || !getCoursePageByPath.data) {
     return <Spinner variant={"small"} />
   }
 

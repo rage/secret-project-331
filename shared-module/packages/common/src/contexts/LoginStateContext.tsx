@@ -7,13 +7,13 @@ import Spinner from "../components/Spinner"
 import { loggedIn } from "../services/backend/auth"
 
 export interface LoginState {
-  isPending: boolean
+  isLoading: boolean
   refresh(): Promise<unknown>
   signedIn: boolean | null | undefined
 }
 
 const defaultLoginState: LoginState = {
-  isPending: false,
+  isLoading: false,
   refresh: async () => {
     /* No op */
   },
@@ -33,7 +33,7 @@ export const LoginStateContextProvider: React.FC<React.PropsWithChildren<unknown
   useEffect(() => {
     setLoginState((prev) => ({
       ...prev,
-      isPending: isLoggedIn.isLoading,
+      isLoading: isLoggedIn.isLoading,
       refresh: isLoggedIn.refetch,
       signedIn: isLoggedIn.data,
     }))

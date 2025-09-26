@@ -168,7 +168,7 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
           className="threshold-btn"
           variant="primary"
           size="medium"
-          disabled={(!points && !duration) || postThresholdMutation.isLoading}
+          disabled={(!points && !duration) || postThresholdMutation.isPending}
           onClick={handleCreateNewThreshold}
         >
           {t("set-threshold")}

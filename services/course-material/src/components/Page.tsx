@@ -171,7 +171,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   if (glossary.isError) {
     return <ErrorBanner variant={"readOnly"} error={glossary.error} />
   }
-  const glossaryState: GlossaryState = { terms: glossary.data }
+  const glossaryState: GlossaryState = { terms: glossary.data ?? [] }
 
   if (getPageAudioFiles.isLoading) {
     return <Spinner variant={"small"} />

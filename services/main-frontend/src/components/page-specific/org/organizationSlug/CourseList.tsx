@@ -53,7 +53,12 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
     return <ErrorBanner variant={"readOnly"} error={getOrgCourseCount.error} />
   }
 
-  if (organizationCoursesQuery.isLoading || getOrgCourseCount.isLoading) {
+  if (
+    organizationCoursesQuery.isLoading ||
+    getOrgCourseCount.isLoading ||
+    !getOrgCourseCount.data ||
+    !organizationCoursesQuery.data
+  ) {
     return <Spinner variant={"medium"} />
   }
 

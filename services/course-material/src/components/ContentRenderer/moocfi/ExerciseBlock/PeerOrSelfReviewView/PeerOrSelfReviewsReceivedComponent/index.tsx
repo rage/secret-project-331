@@ -167,12 +167,12 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({
     userInfo.data?.user_id,
   ])
 
-  if (peerOrSelfReviewsReceivedQuery.isLoading) {
-    return <Spinner variant={"medium"} />
-  }
-
   if (peerOrSelfReviewsReceivedQuery.isError) {
     return <ErrorBanner variant={"readOnly"} error={peerOrSelfReviewsReceivedQuery.error} />
+  }
+
+  if (peerOrSelfReviewsReceivedQuery.isLoading || !peerOrSelfReviewsReceivedQuery.data) {
+    return <Spinner variant={"medium"} />
   }
 
   const numReceivedReviews = (data["peer"]?.length ?? 0) + (data["self"]?.length ?? 0)

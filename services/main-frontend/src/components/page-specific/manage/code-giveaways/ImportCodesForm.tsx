@@ -71,7 +71,7 @@ const ImportCodesForm: React.FC<ImportCodesFormProps> = ({
           onClick={() => {
             importCodesMutation.mutate()
           }}
-          disabled={!valid || importCodesMutation.isLoading}
+          disabled={!valid || importCodesMutation.isPending}
         >
           {t("button-text-create")}
         </Button>

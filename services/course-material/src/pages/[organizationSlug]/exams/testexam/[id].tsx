@@ -144,12 +144,12 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     showAnswersMutation.mutate(!showExamAnswers)
   }, [showAnswersMutation, showExamAnswers])
 
-  if (exam.isLoading) {
-    return <Spinner variant="medium" />
-  }
-
   if (exam.isError) {
     return <ErrorBanner variant={"readOnly"} error={exam.error} />
+  }
+
+  if (exam.isLoading || !exam.data) {
+    return <Spinner variant="medium" />
   }
 
   const examInfo = (

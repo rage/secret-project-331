@@ -77,7 +77,7 @@ const CourseVisitorsByDay: React.FC<React.PropsWithChildren<CourseVisitorsByDayP
           <Spinner variant="medium" />
         ) : query.isError ? (
           <ErrorBanner variant="readOnly" error={query.error} />
-        ) : !data || query.data.length === 0 ? (
+        ) : !data || !query.data || query.data.length === 0 ? (
           <div>{t("no-data")}</div>
         ) : (
           <Echarts

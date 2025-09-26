@@ -68,7 +68,7 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
           type="submit"
           size="medium"
           variant="primary"
-          disabled={createChatbotMutation.isLoading}
+          disabled={createChatbotMutation.isPending}
         >
           {t("save")}
         </Button>

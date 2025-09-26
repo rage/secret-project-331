@@ -53,7 +53,7 @@ const PlaygroundViewSubmissionIframe: React.FC<
   if (modelSolutionSpecQuery.isLoading || modelSolutionSpecQuery.isError) {
     return <>{t("error-no-model-solution-spec")}</>
   }
-  if (gradingQuery.isLoading || gradingQuery.isError) {
+  if (gradingQuery.isPending || gradingQuery.isError) {
     return <>{t("error-no-grading")}</>
   }
   const iframeState: ExerciseIframeState = {

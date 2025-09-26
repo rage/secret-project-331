@@ -20,7 +20,7 @@ const ExerciseServiceList: React.FC<React.PropsWithChildren<Props>> = ({ onChoos
     return <ErrorBanner variant={"readOnly"} error={exerciseServicesQuery.error} />
   }
 
-  if (exerciseServicesQuery.isLoading) {
+  if (exerciseServicesQuery.isLoading || !exerciseServicesQuery.data) {
     return <Spinner variant="medium" />
   }
 

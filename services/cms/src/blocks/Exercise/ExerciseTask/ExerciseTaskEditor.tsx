@@ -110,7 +110,7 @@ const ExerciseTaskEditor: React.FC<
     return <ErrorBanner variant={"readOnly"} error={exerciseServicesQuery.error} />
   }
 
-  if (exerciseServicesQuery.isLoading) {
+  if (exerciseServicesQuery.isLoading || !exerciseServicesQuery.data) {
     return <Spinner variant="medium" />
   }
 

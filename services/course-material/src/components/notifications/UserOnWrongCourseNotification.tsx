@@ -68,7 +68,7 @@ const UserOnWrongCourseNotification: React.FC<
     return <ErrorBanner variant={"readOnly"} error={new Error(languageNavError)} />
   }
 
-  if (getCourseById.isLoading || languageNavLoading) {
+  if (getCourseById.isLoading || languageNavLoading || !getCourseById.data) {
     return <Spinner variant={variant === "compact" ? "small" : "medium"} />
   }
 

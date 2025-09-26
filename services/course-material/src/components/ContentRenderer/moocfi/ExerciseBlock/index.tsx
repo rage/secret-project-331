@@ -263,7 +263,7 @@ const ExerciseBlock: React.FC<
   if (getCourseMaterialExercise.isError) {
     return <ErrorBanner variant={"readOnly"} error={getCourseMaterialExercise.error} />
   }
-  if (getCourseMaterialExercise.isLoading) {
+  if (getCourseMaterialExercise.isLoading || !getCourseMaterialExercise.data) {
     return <Spinner variant={"medium"} />
   }
 
@@ -643,7 +643,7 @@ const ExerciseBlock: React.FC<
               !inSubmissionView && (
                 <button
                   disabled={
-                    postSubmissionMutation.isLoading ||
+                    postSubmissionMutation.isPending ||
                     answers.size < (postThisStateToIFrame?.length ?? 0) ||
                     Array.from(answers.values()).some((x) => !x.valid)
                   }
@@ -757,7 +757,7 @@ const ExerciseBlock: React.FC<
                         disabled={
                           getCourseMaterialExercise.isRefetching ||
                           !getCourseMaterialExercise.data.can_post_submission ||
-                          tryAgainMutation.isLoading
+                          tryAgainMutation.isPending
                         }
                       >
                         {t("try-again")}
@@ -766,7 +766,7 @@ const ExerciseBlock: React.FC<
                     {needsPeerReview && (
                       <button
                         className={cx(exerciseButtonStyles)}
-                        disabled={startPeerOrSelfReviewMutation.isLoading}
+                        disabled={startPeerOrSelfReviewMutation.isPending}
                         onClick={() => startPeerOrSelfReviewMutation.mutate()}
                       >
                         {t("start-peer-review")}
@@ -775,7 +775,7 @@ const ExerciseBlock: React.FC<
                     {!needsPeerReview && needsSelfReview && (
                       <button
                         className={cx(exerciseButtonStyles)}
-                        disabled={startPeerOrSelfReviewMutation.isLoading}
+                        disabled={startPeerOrSelfReviewMutation.isPending}
                         onClick={() => startPeerOrSelfReviewMutation.mutate()}
                       >
                         {t("start-self-review")}

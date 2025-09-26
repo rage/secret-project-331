@@ -137,7 +137,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
           type="submit"
           variant="primary"
           size="medium"
-          disabled={createCourseMutation.isLoading}
+          disabled={createCourseMutation.isPending}
           fullWidth
         >
           {t("button-text-create")}

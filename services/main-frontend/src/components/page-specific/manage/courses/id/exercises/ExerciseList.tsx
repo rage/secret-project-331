@@ -22,11 +22,18 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
     return <ErrorBanner variant={"readOnly"} error={getCourseExercises.error} />
   }
 
-  if (courseStructure.isError) {
-    return <ErrorBanner variant={"readOnly"} error={courseStructure.error} />
+  if (courseStructure.isError || getCourseExercises.isError) {
+    return (
+      <ErrorBanner variant={"readOnly"} error={courseStructure.error || getCourseExercises.error} />
+    )
   }
 
-  if (getCourseExercises.isLoading || courseStructure.isLoading) {
+  if (
+    getCourseExercises.isLoading ||
+    courseStructure.isLoading ||
+    !courseStructure.data ||
+    !getCourseExercises.data
+  ) {
     return <Spinner variant={"medium"} />
   }
 

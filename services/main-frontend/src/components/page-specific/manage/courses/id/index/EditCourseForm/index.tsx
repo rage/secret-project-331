@@ -113,7 +113,7 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
             onClick: onSubmit,
             children: t("button-text-update"),
             variant: "primary",
-            disabled: updateCourseMutation.isLoading,
+            disabled: updateCourseMutation.isPending,
           },
         ]}
       >

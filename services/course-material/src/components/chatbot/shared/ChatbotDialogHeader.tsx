@@ -97,7 +97,7 @@ const ChatbotDialogHeader: React.FC<ChatbotDialogHeaderProps> = (props) => {
       <div className={buttonsWrapper}>
         <button
           onClick={() => newConversation.mutate()}
-          disabled={newConversation.isLoading}
+          disabled={newConversation.isPending}
           className={buttonStyle}
           aria-label={t("new-conversation")}
         >

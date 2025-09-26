@@ -495,7 +495,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                 {t("grading-explanation")}
               </p>
 
-              {submitAnswerMutation.isSuccess && !submitAnswerMutation.isLoading ? (
+              {submitAnswerMutation.isSuccess && !submitAnswerMutation.isPending ? (
                 <StyledPre fullWidth={false}>
                   {JSON.stringify(submitAnswerMutation.data, undefined, 2)}
                 </StyledPre>
@@ -725,7 +725,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                     variant={"primary"}
                     size={"medium"}
                     disabled={
-                      currentStateReceivedFromIframe === null || submitAnswerMutation.isLoading
+                      currentStateReceivedFromIframe === null || submitAnswerMutation.isPending
                     }
                     onClick={() => {
                       if (!currentStateReceivedFromIframe) {

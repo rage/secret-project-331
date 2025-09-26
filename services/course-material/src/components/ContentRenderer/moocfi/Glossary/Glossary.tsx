@@ -21,12 +21,12 @@ const Glossary: React.FC<React.PropsWithChildren<Props>> = ({ courseId }) => {
     queryFn: () => fetchGlossary(courseId),
   })
 
-  if (glossary.isLoading) {
-    return <Spinner variant={"small"} />
-  }
-
   if (glossary.isError) {
     return <ErrorBanner variant={"readOnly"} error={glossary.error} />
+  }
+
+  if (glossary.isLoading || !glossary.data) {
+    return <Spinner variant={"small"} />
   }
 
   return (

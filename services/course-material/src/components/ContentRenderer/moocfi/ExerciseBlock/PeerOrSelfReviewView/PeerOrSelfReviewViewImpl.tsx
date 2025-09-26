@@ -340,7 +340,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
           `,
           exerciseButtonStyles,
         )}
-        disabled={!isValid || !peerOrSelfReviewData || submitPeerOrSelfReviewMutation.isLoading}
+        disabled={!isValid || !peerOrSelfReviewData || submitPeerOrSelfReviewMutation.isPending}
         onClick={() => submitPeerOrSelfReviewMutation.mutate()}
       >
         {t("submit-button")}

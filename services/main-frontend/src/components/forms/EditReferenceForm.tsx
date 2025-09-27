@@ -8,13 +8,14 @@ import { useTranslation } from "react-i18next"
 
 import {
   areCitationsValid,
+  detectCitationLabelsThatWillChange,
   safeParseReferences,
-  useCitataionLabelsThatWillChange,
 } from "./NewReferenceForm"
 
 import { MaterialReference, NewMaterialReference } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const REFERENCE = "Reference"
 
@@ -46,12 +47,24 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
     register,
     handleSubmit,
     formState: { errors },
+    setError,
     watch,
   } = useForm<EditReferenceFields>({ defaultValues: { reference: reference.reference } })
 
   const watchedReference = watch("reference")
 
-  const citationLabelsThatWillChange = useCitataionLabelsThatWillChange(watchedReference)
+  let citationLabelsThatWillChange = null
+  try {
+    citationLabelsThatWillChange = detectCitationLabelsThatWillChange(watchedReference)
+  } catch (e) {
+    if (!errors.root) {
+      if (e instanceof Error) {
+        setError("root", { message: e.message })
+      } else {
+        setError("root", { message: t("error-title") })
+      }
+    }
+  }
 
   const isValidReference = React.useMemo(() => {
     return areCitationsValid(watchedReference)
@@ -93,11 +106,12 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
       />
       <br />
       {!isValidReference && <ErrorText> {t("reference-parsing-error")} </ErrorText>}
-      {citationLabelsThatWillChange.map((c) => (
-        <ErrorText key={c.original}>
-          {t("reference-parsing-error-label-change", { original: c.original, safe: c.safe })}
-        </ErrorText>
-      ))}
+      {citationLabelsThatWillChange &&
+        citationLabelsThatWillChange.map((c) => (
+          <ErrorText key={c.original}>
+            {t("reference-parsing-error-label-change", { original: c.original, safe: c.safe })}
+          </ErrorText>
+        ))}
       <Button variant="primary" size="medium" type="submit">
         {t("save")}
       </Button>
@@ -113,4 +127,4 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
   )
 }
 
-export default EditReferenceForm
+export default withErrorBoundary(EditReferenceForm)

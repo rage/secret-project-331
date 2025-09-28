@@ -2,7 +2,7 @@
     value: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.reference.html">&amp;'b T</a>,
     buf: &amp;'a mut [<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.u8.html">u8</a>],
 ) -&gt; <a class="type" href="type.Result.html" title="type postcard::Result">Result</a>&lt;&amp;'a mut [<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.u8.html">u8</a>]&gt;<div class="where">where
-    T: <a class="trait" href="../serde/ser/trait.Serialize.html" title="trait serde::ser::Serialize">Serialize</a> + ?<a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>,</div></code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Serialize a <code>T</code> to the given slice, with the resulting slice containing
+    T: <a class="trait" href="../serde_core/ser/trait.Serialize.html" title="trait serde_core::ser::Serialize">Serialize</a> + ?<a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>,</div></code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Serialize a <code>T</code> to the given slice, with the resulting slice containing
 data in a serialized then COBS encoded format. The terminating sentinel
 <code>0x00</code> byte is included in the output buffer.</p>
 <p>When successful, this function returns the slice containing the

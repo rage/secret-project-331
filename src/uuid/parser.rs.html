@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/uuid-1.17.0/src/parser.rs`."><title>parser.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="uuid" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="../../static.files/src-script-63605ae7.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">uuid/</div>parser.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2013-2014 The Rust Project Developers.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/uuid-1.18.1/src/parser.rs`."><title>parser.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="uuid" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="../../static.files/src-script-63605ae7.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">uuid/</div>parser.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2013-2014 The Rust Project Developers.
 <a href=#2 id=2 data-nosnippet>2</a>// Copyright 2018 The Uuid Project Developers.
 <a href=#3 id=3 data-nosnippet>3</a>//
 <a href=#4 id=4 data-nosnippet>4</a>// See the COPYRIGHT file at the top-level directory of this distribution.
@@ -139,12 +139,12 @@
 <a href=#139 id=139 data-nosnippet>139</a>            <span class="prelude-val">Ok</span>(bytes) =&gt; <span class="prelude-val">Ok</span>(Uuid::from_bytes(bytes)),
 <a href=#140 id=140 data-nosnippet>140</a>            <span class="comment">// If parsing fails then we don't know exactly what went wrong
 <a href=#141 id=141 data-nosnippet>141</a>            // In this case, we just return a generic error
-<a href=#142 id=142 data-nosnippet>142</a>            </span><span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(Error(ErrorKind::Other)),
+<a href=#142 id=142 data-nosnippet>142</a>            </span><span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(Error(ErrorKind::ParseOther)),
 <a href=#143 id=143 data-nosnippet>143</a>        }
 <a href=#144 id=144 data-nosnippet>144</a>    }
 <a href=#145 id=145 data-nosnippet>145</a>}
 <a href=#146 id=146 data-nosnippet>146</a>
-<a href=#147 id=147 data-nosnippet>147</a><span class="kw">const fn </span>try_parse(input: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;[u8; <span class="number">16</span>], InvalidUuid&gt; {
+<a href=#147 id=147 data-nosnippet>147</a><span class="kw">const fn </span>try_parse(input: <span class="kw-2">&amp;</span><span class="lifetime">'_ </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;[u8; <span class="number">16</span>], InvalidUuid&lt;<span class="lifetime">'_</span>&gt;&gt; {
 <a href=#148 id=148 data-nosnippet>148</a>    <span class="kw">match </span>(input.len(), input) {
 <a href=#149 id=149 data-nosnippet>149</a>        <span class="comment">// Inputs of 32 bytes must be a non-hyphenated UUID
 <a href=#150 id=150 data-nosnippet>150</a>        </span>(<span class="number">32</span>, s) =&gt; parse_simple(s),
@@ -164,7 +164,7 @@
 <a href=#164 id=164 data-nosnippet>164</a>
 <a href=#165 id=165 data-nosnippet>165</a><span class="attr">#[inline]
 <a href=#166 id=166 data-nosnippet>166</a>#[allow(dead_code)]
-<a href=#167 id=167 data-nosnippet>167</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>parse_braced(input: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;[u8; <span class="number">16</span>], InvalidUuid&gt; {
+<a href=#167 id=167 data-nosnippet>167</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>parse_braced(input: <span class="kw-2">&amp;</span><span class="lifetime">'_ </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;[u8; <span class="number">16</span>], InvalidUuid&lt;<span class="lifetime">'_</span>&gt;&gt; {
 <a href=#168 id=168 data-nosnippet>168</a>    <span class="kw">if let </span>(<span class="number">38</span>, [<span class="string">b'{'</span>, s @ .., <span class="string">b'}'</span>]) = (input.len(), input) {
 <a href=#169 id=169 data-nosnippet>169</a>        parse_hyphenated(s)
 <a href=#170 id=170 data-nosnippet>170</a>    } <span class="kw">else </span>{
@@ -174,7 +174,7 @@
 <a href=#174 id=174 data-nosnippet>174</a>
 <a href=#175 id=175 data-nosnippet>175</a><span class="attr">#[inline]
 <a href=#176 id=176 data-nosnippet>176</a>#[allow(dead_code)]
-<a href=#177 id=177 data-nosnippet>177</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>parse_urn(input: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;[u8; <span class="number">16</span>], InvalidUuid&gt; {
+<a href=#177 id=177 data-nosnippet>177</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>parse_urn(input: <span class="kw-2">&amp;</span><span class="lifetime">'_ </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;[u8; <span class="number">16</span>], InvalidUuid&lt;<span class="lifetime">'_</span>&gt;&gt; {
 <a href=#178 id=178 data-nosnippet>178</a>    <span class="kw">if let </span>(<span class="number">45</span>, [<span class="string">b'u'</span>, <span class="string">b'r'</span>, <span class="string">b'n'</span>, <span class="string">b':'</span>, <span class="string">b'u'</span>, <span class="string">b'u'</span>, <span class="string">b'i'</span>, <span class="string">b'd'</span>, <span class="string">b':'</span>, s @ ..]) =
 <a href=#179 id=179 data-nosnippet>179</a>        (input.len(), input)
 <a href=#180 id=180 data-nosnippet>180</a>    {
@@ -185,7 +185,7 @@
 <a href=#185 id=185 data-nosnippet>185</a>}
 <a href=#186 id=186 data-nosnippet>186</a>
 <a href=#187 id=187 data-nosnippet>187</a><span class="attr">#[inline]
-<a href=#188 id=188 data-nosnippet>188</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>parse_simple(s: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;[u8; <span class="number">16</span>], InvalidUuid&gt; {
+<a href=#188 id=188 data-nosnippet>188</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>parse_simple(s: <span class="kw-2">&amp;</span><span class="lifetime">'_ </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;[u8; <span class="number">16</span>], InvalidUuid&lt;<span class="lifetime">'_</span>&gt;&gt; {
 <a href=#189 id=189 data-nosnippet>189</a>    <span class="comment">// This length check here removes all other bounds
 <a href=#190 id=190 data-nosnippet>190</a>    // checks in this function
 <a href=#191 id=191 data-nosnippet>191</a>    </span><span class="kw">if </span>s.len() != <span class="number">32 </span>{
@@ -217,7 +217,7 @@
 <a href=#217 id=217 data-nosnippet>217</a>}
 <a href=#218 id=218 data-nosnippet>218</a>
 <a href=#219 id=219 data-nosnippet>219</a><span class="attr">#[inline]
-<a href=#220 id=220 data-nosnippet>220</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>parse_hyphenated(s: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;[u8; <span class="number">16</span>], InvalidUuid&gt; {
+<a href=#220 id=220 data-nosnippet>220</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>parse_hyphenated(s: <span class="kw-2">&amp;</span><span class="lifetime">'_ </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;[u8; <span class="number">16</span>], InvalidUuid&lt;<span class="lifetime">'_</span>&gt;&gt; {
 <a href=#221 id=221 data-nosnippet>221</a>    <span class="comment">// This length check here removes all other bounds
 <a href=#222 id=222 data-nosnippet>222</a>    // checks in this function
 <a href=#223 id=223 data-nosnippet>223</a>    </span><span class="kw">if </span>s.len() != <span class="number">36 </span>{
@@ -341,12 +341,12 @@
 <a href=#341 id=341 data-nosnippet>341</a>        <span class="comment">// Invalid
 <a href=#342 id=342 data-nosnippet>342</a>        </span><span class="macro">assert_eq!</span>(
 <a href=#343 id=343 data-nosnippet>343</a>            Uuid::parse_str(<span class="string">""</span>),
-<a href=#344 id=344 data-nosnippet>344</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::SimpleLength { len: <span class="number">0 </span>}))
+<a href=#344 id=344 data-nosnippet>344</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::ParseSimpleLength { len: <span class="number">0 </span>}))
 <a href=#345 id=345 data-nosnippet>345</a>        );
 <a href=#346 id=346 data-nosnippet>346</a>
 <a href=#347 id=347 data-nosnippet>347</a>        <span class="macro">assert_eq!</span>(
 <a href=#348 id=348 data-nosnippet>348</a>            Uuid::parse_str(<span class="string">"!"</span>),
-<a href=#349 id=349 data-nosnippet>349</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::Char {
+<a href=#349 id=349 data-nosnippet>349</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::ParseChar {
 <a href=#350 id=350 data-nosnippet>350</a>                character: <span class="string">'!'</span>,
 <a href=#351 id=351 data-nosnippet>351</a>                index: <span class="number">1</span>,
 <a href=#352 id=352 data-nosnippet>352</a>            }))
@@ -354,7 +354,7 @@
 <a href=#354 id=354 data-nosnippet>354</a>
 <a href=#355 id=355 data-nosnippet>355</a>        <span class="macro">assert_eq!</span>(
 <a href=#356 id=356 data-nosnippet>356</a>            Uuid::parse_str(<span class="string">"F9168C5E-CEB2-4faa-B6BF-329BF39FA1E45"</span>),
-<a href=#357 id=357 data-nosnippet>357</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::GroupLength {
+<a href=#357 id=357 data-nosnippet>357</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::ParseGroupLength {
 <a href=#358 id=358 data-nosnippet>358</a>                group: <span class="number">4</span>,
 <a href=#359 id=359 data-nosnippet>359</a>                len: <span class="number">13</span>,
 <a href=#360 id=360 data-nosnippet>360</a>                index: <span class="number">25</span>,
@@ -363,7 +363,7 @@
 <a href=#363 id=363 data-nosnippet>363</a>
 <a href=#364 id=364 data-nosnippet>364</a>        <span class="macro">assert_eq!</span>(
 <a href=#365 id=365 data-nosnippet>365</a>            Uuid::parse_str(<span class="string">"F9168C5E-CEB2-4faa-BBF-329BF39FA1E4"</span>),
-<a href=#366 id=366 data-nosnippet>366</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::GroupLength {
+<a href=#366 id=366 data-nosnippet>366</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::ParseGroupLength {
 <a href=#367 id=367 data-nosnippet>367</a>                group: <span class="number">3</span>,
 <a href=#368 id=368 data-nosnippet>368</a>                len: <span class="number">3</span>,
 <a href=#369 id=369 data-nosnippet>369</a>                index: <span class="number">20</span>,
@@ -372,7 +372,7 @@
 <a href=#372 id=372 data-nosnippet>372</a>
 <a href=#373 id=373 data-nosnippet>373</a>        <span class="macro">assert_eq!</span>(
 <a href=#374 id=374 data-nosnippet>374</a>            Uuid::parse_str(<span class="string">"F9168C5E-CEB2-4faa-BGBF-329BF39FA1E4"</span>),
-<a href=#375 id=375 data-nosnippet>375</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::Char {
+<a href=#375 id=375 data-nosnippet>375</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::ParseChar {
 <a href=#376 id=376 data-nosnippet>376</a>                character: <span class="string">'G'</span>,
 <a href=#377 id=377 data-nosnippet>377</a>                index: <span class="number">21</span>,
 <a href=#378 id=378 data-nosnippet>378</a>            }))
@@ -380,27 +380,27 @@
 <a href=#380 id=380 data-nosnippet>380</a>
 <a href=#381 id=381 data-nosnippet>381</a>        <span class="macro">assert_eq!</span>(
 <a href=#382 id=382 data-nosnippet>382</a>            Uuid::parse_str(<span class="string">"F9168C5E-CEB2F4faaFB6BFF329BF39FA1E4"</span>),
-<a href=#383 id=383 data-nosnippet>383</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::GroupCount { count: <span class="number">2 </span>}))
+<a href=#383 id=383 data-nosnippet>383</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::ParseGroupCount { count: <span class="number">2 </span>}))
 <a href=#384 id=384 data-nosnippet>384</a>        );
 <a href=#385 id=385 data-nosnippet>385</a>
 <a href=#386 id=386 data-nosnippet>386</a>        <span class="macro">assert_eq!</span>(
 <a href=#387 id=387 data-nosnippet>387</a>            Uuid::parse_str(<span class="string">"F9168C5E-CEB2-4faaFB6BFF329BF39FA1E4"</span>),
-<a href=#388 id=388 data-nosnippet>388</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::GroupCount { count: <span class="number">3 </span>}))
+<a href=#388 id=388 data-nosnippet>388</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::ParseGroupCount { count: <span class="number">3 </span>}))
 <a href=#389 id=389 data-nosnippet>389</a>        );
 <a href=#390 id=390 data-nosnippet>390</a>
 <a href=#391 id=391 data-nosnippet>391</a>        <span class="macro">assert_eq!</span>(
 <a href=#392 id=392 data-nosnippet>392</a>            Uuid::parse_str(<span class="string">"F9168C5E-CEB2-4faa-B6BFF329BF39FA1E4"</span>),
-<a href=#393 id=393 data-nosnippet>393</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::GroupCount { count: <span class="number">4 </span>}))
+<a href=#393 id=393 data-nosnippet>393</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::ParseGroupCount { count: <span class="number">4 </span>}))
 <a href=#394 id=394 data-nosnippet>394</a>        );
 <a href=#395 id=395 data-nosnippet>395</a>
 <a href=#396 id=396 data-nosnippet>396</a>        <span class="macro">assert_eq!</span>(
 <a href=#397 id=397 data-nosnippet>397</a>            Uuid::parse_str(<span class="string">"F9168C5E-CEB2-4faa"</span>),
-<a href=#398 id=398 data-nosnippet>398</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::GroupCount { count: <span class="number">3 </span>}))
+<a href=#398 id=398 data-nosnippet>398</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::ParseGroupCount { count: <span class="number">3 </span>}))
 <a href=#399 id=399 data-nosnippet>399</a>        );
 <a href=#400 id=400 data-nosnippet>400</a>
 <a href=#401 id=401 data-nosnippet>401</a>        <span class="macro">assert_eq!</span>(
 <a href=#402 id=402 data-nosnippet>402</a>            Uuid::parse_str(<span class="string">"F9168C5E-CEB2-4faaXB6BFF329BF39FA1E4"</span>),
-<a href=#403 id=403 data-nosnippet>403</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::Char {
+<a href=#403 id=403 data-nosnippet>403</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::ParseChar {
 <a href=#404 id=404 data-nosnippet>404</a>                character: <span class="string">'X'</span>,
 <a href=#405 id=405 data-nosnippet>405</a>                index: <span class="number">19</span>,
 <a href=#406 id=406 data-nosnippet>406</a>            }))
@@ -408,7 +408,7 @@
 <a href=#408 id=408 data-nosnippet>408</a>
 <a href=#409 id=409 data-nosnippet>409</a>        <span class="macro">assert_eq!</span>(
 <a href=#410 id=410 data-nosnippet>410</a>            Uuid::parse_str(<span class="string">"{F9168C5E-CEB2-4faa9B6BFF329BF39FA1E41"</span>),
-<a href=#411 id=411 data-nosnippet>411</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::Char {
+<a href=#411 id=411 data-nosnippet>411</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::ParseChar {
 <a href=#412 id=412 data-nosnippet>412</a>                character: <span class="string">'{'</span>,
 <a href=#413 id=413 data-nosnippet>413</a>                index: <span class="number">1</span>,
 <a href=#414 id=414 data-nosnippet>414</a>            }))
@@ -416,12 +416,12 @@
 <a href=#416 id=416 data-nosnippet>416</a>
 <a href=#417 id=417 data-nosnippet>417</a>        <span class="macro">assert_eq!</span>(
 <a href=#418 id=418 data-nosnippet>418</a>            Uuid::parse_str(<span class="string">"{F9168C5E-CEB2-4faa9B6BFF329BF39FA1E41}"</span>),
-<a href=#419 id=419 data-nosnippet>419</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::GroupCount { count: <span class="number">3 </span>}))
+<a href=#419 id=419 data-nosnippet>419</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::ParseGroupCount { count: <span class="number">3 </span>}))
 <a href=#420 id=420 data-nosnippet>420</a>        );
 <a href=#421 id=421 data-nosnippet>421</a>
 <a href=#422 id=422 data-nosnippet>422</a>        <span class="macro">assert_eq!</span>(
 <a href=#423 id=423 data-nosnippet>423</a>            Uuid::parse_str(<span class="string">"F9168C5E-CEB-24fa-eB6BFF32-BF39FA1E4"</span>),
-<a href=#424 id=424 data-nosnippet>424</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::GroupLength {
+<a href=#424 id=424 data-nosnippet>424</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::ParseGroupLength {
 <a href=#425 id=425 data-nosnippet>425</a>                group: <span class="number">1</span>,
 <a href=#426 id=426 data-nosnippet>426</a>                len: <span class="number">3</span>,
 <a href=#427 id=427 data-nosnippet>427</a>                index: <span class="number">10</span>,
@@ -432,7 +432,7 @@
 <a href=#432 id=432 data-nosnippet>432</a>        // //
 <a href=#433 id=433 data-nosnippet>433</a>        </span><span class="macro">assert_eq!</span>(
 <a href=#434 id=434 data-nosnippet>434</a>            Uuid::parse_str(<span class="string">"01020304-1112-2122-3132-41424344"</span>),
-<a href=#435 id=435 data-nosnippet>435</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::GroupLength {
+<a href=#435 id=435 data-nosnippet>435</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::ParseGroupLength {
 <a href=#436 id=436 data-nosnippet>436</a>                group: <span class="number">4</span>,
 <a href=#437 id=437 data-nosnippet>437</a>                len: <span class="number">8</span>,
 <a href=#438 id=438 data-nosnippet>438</a>                index: <span class="number">25</span>,
@@ -441,17 +441,17 @@
 <a href=#441 id=441 data-nosnippet>441</a>
 <a href=#442 id=442 data-nosnippet>442</a>        <span class="macro">assert_eq!</span>(
 <a href=#443 id=443 data-nosnippet>443</a>            Uuid::parse_str(<span class="string">"67e5504410b1426f9247bb680e5fe0c"</span>),
-<a href=#444 id=444 data-nosnippet>444</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::SimpleLength { len: <span class="number">31 </span>}))
+<a href=#444 id=444 data-nosnippet>444</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::ParseSimpleLength { len: <span class="number">31 </span>}))
 <a href=#445 id=445 data-nosnippet>445</a>        );
 <a href=#446 id=446 data-nosnippet>446</a>
 <a href=#447 id=447 data-nosnippet>447</a>        <span class="macro">assert_eq!</span>(
 <a href=#448 id=448 data-nosnippet>448</a>            Uuid::parse_str(<span class="string">"67e5504410b1426f9247bb680e5fe0c88"</span>),
-<a href=#449 id=449 data-nosnippet>449</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::SimpleLength { len: <span class="number">33 </span>}))
+<a href=#449 id=449 data-nosnippet>449</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::ParseSimpleLength { len: <span class="number">33 </span>}))
 <a href=#450 id=450 data-nosnippet>450</a>        );
 <a href=#451 id=451 data-nosnippet>451</a>
 <a href=#452 id=452 data-nosnippet>452</a>        <span class="macro">assert_eq!</span>(
 <a href=#453 id=453 data-nosnippet>453</a>            Uuid::parse_str(<span class="string">"67e5504410b1426f9247bb680e5fe0cg8"</span>),
-<a href=#454 id=454 data-nosnippet>454</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::Char {
+<a href=#454 id=454 data-nosnippet>454</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::ParseChar {
 <a href=#455 id=455 data-nosnippet>455</a>                character: <span class="string">'g'</span>,
 <a href=#456 id=456 data-nosnippet>456</a>                index: <span class="number">32</span>,
 <a href=#457 id=457 data-nosnippet>457</a>            }))
@@ -459,7 +459,7 @@
 <a href=#459 id=459 data-nosnippet>459</a>
 <a href=#460 id=460 data-nosnippet>460</a>        <span class="macro">assert_eq!</span>(
 <a href=#461 id=461 data-nosnippet>461</a>            Uuid::parse_str(<span class="string">"67e5504410b1426%9247bb680e5fe0c8"</span>),
-<a href=#462 id=462 data-nosnippet>462</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::Char {
+<a href=#462 id=462 data-nosnippet>462</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::ParseChar {
 <a href=#463 id=463 data-nosnippet>463</a>                character: <span class="string">'%'</span>,
 <a href=#464 id=464 data-nosnippet>464</a>                index: <span class="number">16</span>,
 <a href=#465 id=465 data-nosnippet>465</a>            }))
@@ -467,22 +467,22 @@
 <a href=#467 id=467 data-nosnippet>467</a>
 <a href=#468 id=468 data-nosnippet>468</a>        <span class="macro">assert_eq!</span>(
 <a href=#469 id=469 data-nosnippet>469</a>            Uuid::parse_str(<span class="string">"231231212212423424324323477343246663"</span>),
-<a href=#470 id=470 data-nosnippet>470</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::SimpleLength { len: <span class="number">36 </span>}))
+<a href=#470 id=470 data-nosnippet>470</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::ParseSimpleLength { len: <span class="number">36 </span>}))
 <a href=#471 id=471 data-nosnippet>471</a>        );
 <a href=#472 id=472 data-nosnippet>472</a>
 <a href=#473 id=473 data-nosnippet>473</a>        <span class="macro">assert_eq!</span>(
 <a href=#474 id=474 data-nosnippet>474</a>            Uuid::parse_str(<span class="string">"{00000000000000000000000000000000}"</span>),
-<a href=#475 id=475 data-nosnippet>475</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::GroupCount { count: <span class="number">1 </span>}))
+<a href=#475 id=475 data-nosnippet>475</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::ParseGroupCount { count: <span class="number">1 </span>}))
 <a href=#476 id=476 data-nosnippet>476</a>        );
 <a href=#477 id=477 data-nosnippet>477</a>
 <a href=#478 id=478 data-nosnippet>478</a>        <span class="macro">assert_eq!</span>(
 <a href=#479 id=479 data-nosnippet>479</a>            Uuid::parse_str(<span class="string">"67e5504410b1426f9247bb680e5fe0c"</span>),
-<a href=#480 id=480 data-nosnippet>480</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::SimpleLength { len: <span class="number">31 </span>}))
+<a href=#480 id=480 data-nosnippet>480</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::ParseSimpleLength { len: <span class="number">31 </span>}))
 <a href=#481 id=481 data-nosnippet>481</a>        );
 <a href=#482 id=482 data-nosnippet>482</a>
 <a href=#483 id=483 data-nosnippet>483</a>        <span class="macro">assert_eq!</span>(
 <a href=#484 id=484 data-nosnippet>484</a>            Uuid::parse_str(<span class="string">"67e550X410b1426f9247bb680e5fe0cd"</span>),
-<a href=#485 id=485 data-nosnippet>485</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::Char {
+<a href=#485 id=485 data-nosnippet>485</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::ParseChar {
 <a href=#486 id=486 data-nosnippet>486</a>                character: <span class="string">'X'</span>,
 <a href=#487 id=487 data-nosnippet>487</a>                index: <span class="number">7</span>,
 <a href=#488 id=488 data-nosnippet>488</a>            }))
@@ -490,12 +490,12 @@
 <a href=#490 id=490 data-nosnippet>490</a>
 <a href=#491 id=491 data-nosnippet>491</a>        <span class="macro">assert_eq!</span>(
 <a href=#492 id=492 data-nosnippet>492</a>            Uuid::parse_str(<span class="string">"67e550-4105b1426f9247bb680e5fe0c"</span>),
-<a href=#493 id=493 data-nosnippet>493</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::GroupCount { count: <span class="number">2 </span>}))
+<a href=#493 id=493 data-nosnippet>493</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::ParseGroupCount { count: <span class="number">2 </span>}))
 <a href=#494 id=494 data-nosnippet>494</a>        );
 <a href=#495 id=495 data-nosnippet>495</a>
 <a href=#496 id=496 data-nosnippet>496</a>        <span class="macro">assert_eq!</span>(
 <a href=#497 id=497 data-nosnippet>497</a>            Uuid::parse_str(<span class="string">"F9168C5E-CEB2-4faa-B6BF1-02BF39FA1E4"</span>),
-<a href=#498 id=498 data-nosnippet>498</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::GroupLength {
+<a href=#498 id=498 data-nosnippet>498</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::ParseGroupLength {
 <a href=#499 id=499 data-nosnippet>499</a>                group: <span class="number">3</span>,
 <a href=#500 id=500 data-nosnippet>500</a>                len: <span class="number">5</span>,
 <a href=#501 id=501 data-nosnippet>501</a>                index: <span class="number">20</span>,
@@ -504,7 +504,7 @@
 <a href=#504 id=504 data-nosnippet>504</a>
 <a href=#505 id=505 data-nosnippet>505</a>        <span class="macro">assert_eq!</span>(
 <a href=#506 id=506 data-nosnippet>506</a>            Uuid::parse_str(<span class="string">"\u{bcf3c}"</span>),
-<a href=#507 id=507 data-nosnippet>507</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::Char {
+<a href=#507 id=507 data-nosnippet>507</a>            <span class="prelude-val">Err</span>(Error(ErrorKind::ParseChar {
 <a href=#508 id=508 data-nosnippet>508</a>                character: <span class="string">'\u{bcf3c}'</span>,
 <a href=#509 id=509 data-nosnippet>509</a>                index: <span class="number">1
 <a href=#510 id=510 data-nosnippet>510</a>            </span>}))

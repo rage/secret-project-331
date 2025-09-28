@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/regex-lite-0.1.6/src/string.rs`."><title>string.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="regex_lite" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="../../static.files/src-script-63605ae7.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">regex_lite/</div>string.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>alloc::{
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/regex-lite-0.1.7/src/string.rs`."><title>string.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="regex_lite" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="../../static.files/src-script-63605ae7.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">regex_lite/</div>string.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>alloc::{
 <a href=#2 id=2 data-nosnippet>2</a>    borrow::Cow, boxed::Box, string::String, string::ToString, sync::Arc, vec,
 <a href=#3 id=3 data-nosnippet>3</a>    vec::Vec,
 <a href=#4 id=4 data-nosnippet>4</a>};
@@ -329,7 +329,7 @@
 <a href=#329 id=329 data-nosnippet>329</a>    /// The `0`th capture group is always unnamed, so it must always be
 <a href=#330 id=330 data-nosnippet>330</a>    /// accessed with `get(0)` or `[0]`.
 <a href=#331 id=331 data-nosnippet>331</a>    ///
-<a href=#332 id=332 data-nosnippet>332</a>    /// Finally, one other way to to get the matched substrings is with the
+<a href=#332 id=332 data-nosnippet>332</a>    /// Finally, one other way to get the matched substrings is with the
 <a href=#333 id=333 data-nosnippet>333</a>    /// [`Captures::extract`] API:
 <a href=#334 id=334 data-nosnippet>334</a>    ///
 <a href=#335 id=335 data-nosnippet>335</a>    /// ```
@@ -948,7 +948,7 @@
 <a href=#948 id=948 data-nosnippet>948</a>    <span class="doccomment">/// Returns the end byte offset of the first match in the haystack given.
 <a href=#949 id=949 data-nosnippet>949</a>    ///
 <a href=#950 id=950 data-nosnippet>950</a>    /// This method may have the same performance characteristics as
-<a href=#951 id=951 data-nosnippet>951</a>    /// `is_match`. Behaviorlly, it doesn't just report whether it match
+<a href=#951 id=951 data-nosnippet>951</a>    /// `is_match`. Behaviorally, it doesn't just report whether it match
 <a href=#952 id=952 data-nosnippet>952</a>    /// occurs, but also the end offset for a match. In particular, the offset
 <a href=#953 id=953 data-nosnippet>953</a>    /// returned *may be shorter* than the proper end of the leftmost-first
 <a href=#954 id=954 data-nosnippet>954</a>    /// match that you would find via [`Regex::find`].
@@ -1744,7 +1744,7 @@
 <a href=#1744 id=1744 data-nosnippet>1744</a>    /// use regex_lite::Regex;
 <a href=#1745 id=1745 data-nosnippet>1745</a>    ///
 <a href=#1746 id=1746 data-nosnippet>1746</a>    /// let re = Regex::new(r"([0-9]{4})-([0-9]{2})-([0-9]{2})").unwrap();
-<a href=#1747 id=1747 data-nosnippet>1747</a>    /// let hay = "On 2010-03-14, I became a Tenneessee lamb.";
+<a href=#1747 id=1747 data-nosnippet>1747</a>    /// let hay = "On 2010-03-14, I became a Tennessee lamb.";
 <a href=#1748 id=1748 data-nosnippet>1748</a>    /// let Some((full, [year, month, day])) =
 <a href=#1749 id=1749 data-nosnippet>1749</a>    ///     re.captures(hay).map(|caps| caps.extract()) else { return };
 <a href=#1750 id=1750 data-nosnippet>1750</a>    /// assert_eq!("2010-03-14", full);
@@ -1852,7 +1852,7 @@
 <a href=#1852 id=1852 data-nosnippet>1852</a>    /// let re = Regex::new(
 <a href=#1853 id=1853 data-nosnippet>1853</a>    ///     r"(?&lt;day&gt;[0-9]{2})-(?&lt;month&gt;[0-9]{2})-(?&lt;year&gt;[0-9]{4})",
 <a href=#1854 id=1854 data-nosnippet>1854</a>    /// ).unwrap();
-<a href=#1855 id=1855 data-nosnippet>1855</a>    /// let hay = "On 14-03-2010, I became a Tenneessee lamb.";
+<a href=#1855 id=1855 data-nosnippet>1855</a>    /// let hay = "On 14-03-2010, I became a Tennessee lamb.";
 <a href=#1856 id=1856 data-nosnippet>1856</a>    /// let caps = re.captures(hay).unwrap();
 <a href=#1857 id=1857 data-nosnippet>1857</a>    ///
 <a href=#1858 id=1858 data-nosnippet>1858</a>    /// let mut dst = String::new();
@@ -2609,7 +2609,7 @@
 <a href=#2609 id=2609 data-nosnippet>2609</a>/// no `$` anywhere, then interpolation definitely does not need to be done. In
 <a href=#2610 id=2610 data-nosnippet>2610</a>/// that case, the given string is returned as a borrowed `Cow`.
 <a href=#2611 id=2611 data-nosnippet>2611</a>///
-<a href=#2612 id=2612 data-nosnippet>2612</a>/// This is meant to be used to implement the `Replacer::no_expandsion` method
+<a href=#2612 id=2612 data-nosnippet>2612</a>/// This is meant to be used to implement the `Replacer::no_expansion` method
 <a href=#2613 id=2613 data-nosnippet>2613</a>/// in its various trait impls.
 <a href=#2614 id=2614 data-nosnippet>2614</a></span><span class="kw">fn </span>no_expansion&lt;T: AsRef&lt;str&gt;&gt;(t: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">'_</span>, str&gt;&gt; {
 <a href=#2615 id=2615 data-nosnippet>2615</a>    <span class="kw">let </span>s = t.as_ref();
@@ -2839,7 +2839,7 @@
 <a href=#2839 id=2839 data-nosnippet>2839</a>
 <a href=#2840 id=2840 data-nosnippet>2840</a>    <span class="doccomment">/// This configures verbose mode for the entire pattern.
 <a href=#2841 id=2841 data-nosnippet>2841</a>    ///
-<a href=#2842 id=2842 data-nosnippet>2842</a>    /// When enabled, whitespace will treated as insignifcant in the pattern
+<a href=#2842 id=2842 data-nosnippet>2842</a>    /// When enabled, whitespace will treated as insignificant in the pattern
 <a href=#2843 id=2843 data-nosnippet>2843</a>    /// and `#` can be used to start a comment until the next new line.
 <a href=#2844 id=2844 data-nosnippet>2844</a>    ///
 <a href=#2845 id=2845 data-nosnippet>2845</a>    /// Normally, in most places in a pattern, whitespace is treated literally.

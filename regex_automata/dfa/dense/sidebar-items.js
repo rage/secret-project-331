@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["DFA"]};
+window.SIDEBAR_ITEMS = {"struct":["BuildError","Builder","Config","DFA"]};

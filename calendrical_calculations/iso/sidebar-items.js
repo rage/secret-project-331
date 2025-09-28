@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["const_fixed_from_iso","fixed_from_iso","is_leap_year","iso_from_fixed"]};
+window.SIDEBAR_ITEMS = {"fn":["const_fixed_from_iso","day_before_year","days_before_month","easter","fixed_from_iso","is_leap_year","iso_from_fixed","iso_year_from_fixed","year_day"]};

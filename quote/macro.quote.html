@@ -2,7 +2,7 @@
     ($($tt:tt)*) =&gt; { ... };
 }</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>The whole point.</p>
 <p>Performs variable interpolation against the input and produces it as
-<a href="https://docs.rs/proc-macro2/1.0.95/proc_macro2/struct.TokenStream.html" title="struct proc_macro2::TokenStream"><code>proc_macro2::TokenStream</code></a>.</p>
+<a href="https://docs.rs/proc-macro2/1.0.101/proc_macro2/struct.TokenStream.html" title="struct proc_macro2::TokenStream"><code>proc_macro2::TokenStream</code></a>.</p>
 <p>Note: for returning tokens to the compiler in a procedural macro, use
 <code>.into()</code> on the result to convert to <a href="https://doc.rust-lang.org/1.87.0/proc_macro/struct.TokenStream.html" title="struct proc_macro::TokenStream"><code>proc_macro::TokenStream</code></a>.</p>
 <br>
@@ -28,7 +28,7 @@ for each one. The variables in an interpolation may be a <code>Vec</code>, slice
 <h2 id="hygiene"><a class="doc-anchor" href="#hygiene">§</a>Hygiene</h2>
 <p>Any interpolated tokens preserve the <code>Span</code> information provided by their
 <code>ToTokens</code> implementation. Tokens that originate within the <code>quote!</code>
-invocation are spanned with <a href="https://docs.rs/proc-macro2/1.0.95/proc_macro2/struct.Span.html#method.call_site" title="associated function proc_macro2::Span::call_site"><code>Span::call_site()</code></a>.</p>
+invocation are spanned with <a href="https://docs.rs/proc-macro2/1.0.101/proc_macro2/struct.Span.html#method.call_site" title="associated function proc_macro2::Span::call_site"><code>Span::call_site()</code></a>.</p>
 <p>A different span can be provided through the <a href="macro.quote_spanned.html" title="macro quote::quote_spanned"><code>quote_spanned!</code></a> macro.</p>
 <br>
 <h2 id="return-type"><a class="doc-anchor" href="#return-type">§</a>Return type</h2>

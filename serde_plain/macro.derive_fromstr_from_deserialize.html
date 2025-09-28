@@ -2,7 +2,7 @@
     ($type:ty) =&gt; { ... };
     ($type:ty, |$var:ident| -&gt; $err_type:ty { $err_conv:expr }) =&gt; { ... };
     ($type:ty, $err_type:ty) =&gt; { ... };
-}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Implements <a href="https://doc.rust-lang.org/1.87.0/core/str/traits/trait.FromStr.html" title="trait core::str::traits::FromStr"><code>FromStr</code></a> for a type that forwards to <a href="../serde/de/trait.Deserialize.html" title="trait serde::de::Deserialize"><code>Deserialize</code></a>.</p>
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Implements <a href="https://doc.rust-lang.org/1.87.0/core/str/traits/trait.FromStr.html" title="trait core::str::traits::FromStr"><code>FromStr</code></a> for a type that forwards to <a href="../serde_core/de/trait.Deserialize.html" title="trait serde_core::de::Deserialize"><code>Deserialize</code></a>.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>serde::Deserialize;
 <span class="kw">use </span>serde_plain::derive_fromstr_from_deserialize;

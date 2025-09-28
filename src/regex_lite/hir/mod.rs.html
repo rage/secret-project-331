@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/regex-lite-0.1.6/src/hir/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="regex_lite" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../static.files/storage-82c7156e.js"></script><script defer src="../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">regex_lite/hir/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>alloc::{boxed::Box, string::String, vec, vec::Vec};
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/regex-lite-0.1.7/src/hir/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="regex_lite" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../static.files/storage-82c7156e.js"></script><script defer src="../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">regex_lite/hir/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>alloc::{boxed::Box, string::String, vec, vec::Vec};
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a><span class="kw">use crate</span>::{error::Error, utf8};
 <a href=#4 id=4 data-nosnippet>4</a>
@@ -31,11 +31,11 @@
 <a href=#31 id=31 data-nosnippet>31</a>/// classes.
 <a href=#32 id=32 data-nosnippet>32</a>///
 <a href=#33 id=33 data-nosnippet>33</a>/// In order to determine whether a character may be escaped at all, the
-<a href=#34 id=34 data-nosnippet>34</a>/// [`is_escapeable_character`] routine should be used. The difference between
-<a href=#35 id=35 data-nosnippet>35</a>/// `is_meta_character` and `is_escapeable_character` is that the latter will
+<a href=#34 id=34 data-nosnippet>34</a>/// [`is_escapable_character`] routine should be used. The difference between
+<a href=#35 id=35 data-nosnippet>35</a>/// `is_meta_character` and `is_escapable_character` is that the latter will
 <a href=#36 id=36 data-nosnippet>36</a>/// return true for some characters that are _not_ meta characters. For
 <a href=#37 id=37 data-nosnippet>37</a>/// example, `%` and `\%` both match a literal `%` in all contexts. In other
-<a href=#38 id=38 data-nosnippet>38</a>/// words, `is_escapeable_character` includes "superfluous" escapes.
+<a href=#38 id=38 data-nosnippet>38</a>/// words, `is_escapable_character` includes "superfluous" escapes.
 <a href=#39 id=39 data-nosnippet>39</a>///
 <a href=#40 id=40 data-nosnippet>40</a>/// Note that the set of characters for which this function returns `true` or
 <a href=#41 id=41 data-nosnippet>41</a>/// `false` is fixed and won't change in a semver compatible release. (In this
@@ -54,7 +54,7 @@
 <a href=#54 id=54 data-nosnippet>54</a>///
 <a href=#55 id=55 data-nosnippet>55</a>/// This returns true in all cases that `is_meta_character` returns true, but
 <a href=#56 id=56 data-nosnippet>56</a>/// also returns true in some cases where `is_meta_character` returns false.
-<a href=#57 id=57 data-nosnippet>57</a>/// For example, `%` is not a meta character, but it is escapeable. That is,
+<a href=#57 id=57 data-nosnippet>57</a>/// For example, `%` is not a meta character, but it is escapable. That is,
 <a href=#58 id=58 data-nosnippet>58</a>/// `%` and `\%` both match a literal `%` in all contexts.
 <a href=#59 id=59 data-nosnippet>59</a>///
 <a href=#60 id=60 data-nosnippet>60</a>/// The purpose of this routine is to provide knowledge about what characters
@@ -63,31 +63,31 @@
 <a href=#63 id=63 data-nosnippet>63</a>/// though there is no actual _need_ to do so.
 <a href=#64 id=64 data-nosnippet>64</a>///
 <a href=#65 id=65 data-nosnippet>65</a>/// This will return false for some characters. For example, `e` is not
-<a href=#66 id=66 data-nosnippet>66</a>/// escapeable. Therefore, `\e` will either result in a parse error (which is
+<a href=#66 id=66 data-nosnippet>66</a>/// escapable. Therefore, `\e` will either result in a parse error (which is
 <a href=#67 id=67 data-nosnippet>67</a>/// true today), or it could backwards compatibly evolve into a new construct
 <a href=#68 id=68 data-nosnippet>68</a>/// with its own meaning. Indeed, that is the purpose of banning _some_
 <a href=#69 id=69 data-nosnippet>69</a>/// superfluous escapes: it provides a way to evolve the syntax in a compatible
 <a href=#70 id=70 data-nosnippet>70</a>/// manner.
-<a href=#71 id=71 data-nosnippet>71</a></span><span class="kw">fn </span>is_escapeable_character(c: char) -&gt; bool {
-<a href=#72 id=72 data-nosnippet>72</a>    <span class="comment">// Certainly escapeable if it's a meta character.
+<a href=#71 id=71 data-nosnippet>71</a></span><span class="kw">fn </span>is_escapable_character(c: char) -&gt; bool {
+<a href=#72 id=72 data-nosnippet>72</a>    <span class="comment">// Certainly escapable if it's a meta character.
 <a href=#73 id=73 data-nosnippet>73</a>    </span><span class="kw">if </span>is_meta_character(c) {
 <a href=#74 id=74 data-nosnippet>74</a>        <span class="kw">return </span><span class="bool-val">true</span>;
 <a href=#75 id=75 data-nosnippet>75</a>    }
-<a href=#76 id=76 data-nosnippet>76</a>    <span class="comment">// Any character that isn't ASCII is definitely not escapeable. There's
+<a href=#76 id=76 data-nosnippet>76</a>    <span class="comment">// Any character that isn't ASCII is definitely not escapable. There's
 <a href=#77 id=77 data-nosnippet>77</a>    // no real need to allow things like \☃ right?
 <a href=#78 id=78 data-nosnippet>78</a>    </span><span class="kw">if </span>!c.is_ascii() {
 <a href=#79 id=79 data-nosnippet>79</a>        <span class="kw">return </span><span class="bool-val">false</span>;
 <a href=#80 id=80 data-nosnippet>80</a>    }
-<a href=#81 id=81 data-nosnippet>81</a>    <span class="comment">// Otherwise, we basically say that everything is escapeable unless it's a
+<a href=#81 id=81 data-nosnippet>81</a>    <span class="comment">// Otherwise, we basically say that everything is escapable unless it's a
 <a href=#82 id=82 data-nosnippet>82</a>    // letter or digit. Things like \3 are either octal (when enabled) or an
 <a href=#83 id=83 data-nosnippet>83</a>    // error, and we should keep it that way. Otherwise, letters are reserved
 <a href=#84 id=84 data-nosnippet>84</a>    // for adding new syntax in a backwards compatible way.
 <a href=#85 id=85 data-nosnippet>85</a>    </span><span class="kw">match </span>c {
 <a href=#86 id=86 data-nosnippet>86</a>        <span class="string">'0'</span>..=<span class="string">'9' </span>| <span class="string">'A'</span>..=<span class="string">'Z' </span>| <span class="string">'a'</span>..=<span class="string">'z' </span>=&gt; <span class="bool-val">false</span>,
-<a href=#87 id=87 data-nosnippet>87</a>        <span class="comment">// While not currently supported, we keep these as not escapeable to
+<a href=#87 id=87 data-nosnippet>87</a>        <span class="comment">// While not currently supported, we keep these as not escapable to
 <a href=#88 id=88 data-nosnippet>88</a>        // give us some flexibility with respect to supporting the \&lt; and
 <a href=#89 id=89 data-nosnippet>89</a>        // \&gt; word boundary assertions in the future. By rejecting them as
-<a href=#90 id=90 data-nosnippet>90</a>        // escapeable, \&lt; and \&gt; will result in a parse error. Thus, we can
+<a href=#90 id=90 data-nosnippet>90</a>        // escapable, \&lt; and \&gt; will result in a parse error. Thus, we can
 <a href=#91 id=91 data-nosnippet>91</a>        // turn them into something else in the future without it being a
 <a href=#92 id=92 data-nosnippet>92</a>        // backwards incompatible change.
 <a href=#93 id=93 data-nosnippet>93</a>        </span><span class="string">'&lt;' </span>| <span class="string">'&gt;' </span>=&gt; <span class="bool-val">false</span>,
@@ -120,7 +120,7 @@
 <a href=#120 id=120 data-nosnippet>120</a>///
 <a href=#121 id=121 data-nosnippet>121</a>/// These can be set via explicit configuration in code, or change dynamically
 <a href=#122 id=122 data-nosnippet>122</a>/// during parsing via inline flags. For example, `foo(?i:bar)baz` will match
-<a href=#123 id=123 data-nosnippet>123</a>/// `foo` and `baz` case sensitiviely and `bar` case insensitively (assuming a
+<a href=#123 id=123 data-nosnippet>123</a>/// `foo` and `baz` case sensitively and `bar` case insensitively (assuming a
 <a href=#124 id=124 data-nosnippet>124</a>/// default configuration).
 <a href=#125 id=125 data-nosnippet>125</a></span><span class="attr">#[derive(Clone, Copy, Debug, Default)]
 <a href=#126 id=126 data-nosnippet>126</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Flags {

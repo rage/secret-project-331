@@ -31,7 +31,7 @@ convenient, which is provided by an impl on the <code>From</code> trait.</p>
 <p><code>buffer</code> refers to the capacity of the buffer used to store the
 actual row contents. <code>fields</code> refers to the number of fields one
 might expect to store.</p>
-</div></details><details class="toggle method-toggle" open><summary><section id="method.deserialize" class="method"><a class="src rightside" href="../src/csv/byte_record.rs.html#232-237">Source</a><h4 class="code-header">pub fn <a href="#method.deserialize" class="fn">deserialize</a>&lt;'de, D: <a class="trait" href="../serde/de/trait.Deserialize.html" title="trait serde::de::Deserialize">Deserialize</a>&lt;'de&gt;&gt;(
+</div></details><details class="toggle method-toggle" open><summary><section id="method.deserialize" class="method"><a class="src rightside" href="../src/csv/byte_record.rs.html#232-237">Source</a><h4 class="code-header">pub fn <a href="#method.deserialize" class="fn">deserialize</a>&lt;'de, D: <a class="trait" href="../serde_core/de/trait.Deserialize.html" title="trait serde_core::de::Deserialize">Deserialize</a>&lt;'de&gt;&gt;(
     &amp;'de self,
     headers: <a class="enum" href="https://doc.rust-lang.org/1.87.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;'de <a class="struct" href="struct.ByteRecord.html" title="struct csv::ByteRecord">ByteRecord</a>&gt;,
 ) -&gt; <a class="type" href="type.Result.html" title="type csv::Result">Result</a>&lt;D&gt;</h4></section></summary><div class="docblock"><p>Deserialize this record.</p>

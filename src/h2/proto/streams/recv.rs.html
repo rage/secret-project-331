@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/h2-0.4.11/src/proto/streams/recv.rs`."><title>recv.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="h2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../../static.files/storage-82c7156e.js"></script><script defer src="../../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">h2/proto/streams/</div>recv.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use super</span>::<span class="kw-2">*</span>;
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/h2-0.4.12/src/proto/streams/recv.rs`."><title>recv.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="h2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../../static.files/storage-82c7156e.js"></script><script defer src="../../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">h2/proto/streams/</div>recv.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use super</span>::<span class="kw-2">*</span>;
 <a href=#2 id=2 data-nosnippet>2</a><span class="kw">use </span><span class="kw">crate</span>::codec::UserError;
 <a href=#3 id=3 data-nosnippet>3</a><span class="kw">use </span><span class="kw">crate</span>::frame::{PushPromiseHeaderError, Reason, DEFAULT_INITIAL_WINDOW_SIZE};
 <a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span><span class="kw">crate</span>::proto;
@@ -912,271 +912,275 @@
 <a href=#912 id=912 data-nosnippet>912</a>            <span class="kw">return</span>;
 <a href=#913 id=913 data-nosnippet>913</a>        }
 <a href=#914 id=914 data-nosnippet>914</a>
-<a href=#915 id=915 data-nosnippet>915</a>        <span class="macro">tracing::trace!</span>(<span class="string">"enqueue_reset_expiration; {:?}"</span>, stream.id);
-<a href=#916 id=916 data-nosnippet>916</a>
-<a href=#917 id=917 data-nosnippet>917</a>        <span class="kw">if </span>counts.can_inc_num_reset_streams() {
-<a href=#918 id=918 data-nosnippet>918</a>            counts.inc_num_reset_streams();
-<a href=#919 id=919 data-nosnippet>919</a>            <span class="self">self</span>.pending_reset_expired.push(stream);
-<a href=#920 id=920 data-nosnippet>920</a>        }
-<a href=#921 id=921 data-nosnippet>921</a>    }
-<a href=#922 id=922 data-nosnippet>922</a>
-<a href=#923 id=923 data-nosnippet>923</a>    <span class="doccomment">/// Send any pending refusals.
-<a href=#924 id=924 data-nosnippet>924</a>    </span><span class="kw">pub fn </span>send_pending_refusal&lt;T, B&gt;(
-<a href=#925 id=925 data-nosnippet>925</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#926 id=926 data-nosnippet>926</a>        cx: <span class="kw-2">&amp;mut </span>Context,
-<a href=#927 id=927 data-nosnippet>927</a>        dst: <span class="kw-2">&amp;mut </span>Codec&lt;T, Prioritized&lt;B&gt;&gt;,
-<a href=#928 id=928 data-nosnippet>928</a>    ) -&gt; Poll&lt;io::Result&lt;()&gt;&gt;
-<a href=#929 id=929 data-nosnippet>929</a>    <span class="kw">where
-<a href=#930 id=930 data-nosnippet>930</a>        </span>T: AsyncWrite + Unpin,
-<a href=#931 id=931 data-nosnippet>931</a>        B: Buf,
-<a href=#932 id=932 data-nosnippet>932</a>    {
-<a href=#933 id=933 data-nosnippet>933</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(stream_id) = <span class="self">self</span>.refused {
-<a href=#934 id=934 data-nosnippet>934</a>            <span class="macro">ready!</span>(dst.poll_ready(cx))<span class="question-mark">?</span>;
-<a href=#935 id=935 data-nosnippet>935</a>
-<a href=#936 id=936 data-nosnippet>936</a>            <span class="comment">// Create the RST_STREAM frame
-<a href=#937 id=937 data-nosnippet>937</a>            </span><span class="kw">let </span>frame = frame::Reset::new(stream_id, Reason::REFUSED_STREAM);
-<a href=#938 id=938 data-nosnippet>938</a>
-<a href=#939 id=939 data-nosnippet>939</a>            <span class="comment">// Buffer the frame
-<a href=#940 id=940 data-nosnippet>940</a>            </span>dst.buffer(frame.into()).expect(<span class="string">"invalid RST_STREAM frame"</span>);
-<a href=#941 id=941 data-nosnippet>941</a>        }
+<a href=#915 id=915 data-nosnippet>915</a>        <span class="kw">if </span>counts.can_inc_num_reset_streams() {
+<a href=#916 id=916 data-nosnippet>916</a>            counts.inc_num_reset_streams();
+<a href=#917 id=917 data-nosnippet>917</a>            <span class="macro">tracing::trace!</span>(<span class="string">"enqueue_reset_expiration; added {:?}"</span>, stream.id);
+<a href=#918 id=918 data-nosnippet>918</a>            <span class="self">self</span>.pending_reset_expired.push(stream);
+<a href=#919 id=919 data-nosnippet>919</a>        } <span class="kw">else </span>{
+<a href=#920 id=920 data-nosnippet>920</a>            <span class="macro">tracing::trace!</span>(
+<a href=#921 id=921 data-nosnippet>921</a>                <span class="string">"enqueue_reset_expiration; dropped {:?}, over max_concurrent_reset_streams"</span>,
+<a href=#922 id=922 data-nosnippet>922</a>                stream.id
+<a href=#923 id=923 data-nosnippet>923</a>            );
+<a href=#924 id=924 data-nosnippet>924</a>        }
+<a href=#925 id=925 data-nosnippet>925</a>    }
+<a href=#926 id=926 data-nosnippet>926</a>
+<a href=#927 id=927 data-nosnippet>927</a>    <span class="doccomment">/// Send any pending refusals.
+<a href=#928 id=928 data-nosnippet>928</a>    </span><span class="kw">pub fn </span>send_pending_refusal&lt;T, B&gt;(
+<a href=#929 id=929 data-nosnippet>929</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#930 id=930 data-nosnippet>930</a>        cx: <span class="kw-2">&amp;mut </span>Context,
+<a href=#931 id=931 data-nosnippet>931</a>        dst: <span class="kw-2">&amp;mut </span>Codec&lt;T, Prioritized&lt;B&gt;&gt;,
+<a href=#932 id=932 data-nosnippet>932</a>    ) -&gt; Poll&lt;io::Result&lt;()&gt;&gt;
+<a href=#933 id=933 data-nosnippet>933</a>    <span class="kw">where
+<a href=#934 id=934 data-nosnippet>934</a>        </span>T: AsyncWrite + Unpin,
+<a href=#935 id=935 data-nosnippet>935</a>        B: Buf,
+<a href=#936 id=936 data-nosnippet>936</a>    {
+<a href=#937 id=937 data-nosnippet>937</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(stream_id) = <span class="self">self</span>.refused {
+<a href=#938 id=938 data-nosnippet>938</a>            <span class="macro">ready!</span>(dst.poll_ready(cx))<span class="question-mark">?</span>;
+<a href=#939 id=939 data-nosnippet>939</a>
+<a href=#940 id=940 data-nosnippet>940</a>            <span class="comment">// Create the RST_STREAM frame
+<a href=#941 id=941 data-nosnippet>941</a>            </span><span class="kw">let </span>frame = frame::Reset::new(stream_id, Reason::REFUSED_STREAM);
 <a href=#942 id=942 data-nosnippet>942</a>
-<a href=#943 id=943 data-nosnippet>943</a>        <span class="self">self</span>.refused = <span class="prelude-val">None</span>;
-<a href=#944 id=944 data-nosnippet>944</a>
-<a href=#945 id=945 data-nosnippet>945</a>        Poll::Ready(<span class="prelude-val">Ok</span>(()))
-<a href=#946 id=946 data-nosnippet>946</a>    }
-<a href=#947 id=947 data-nosnippet>947</a>
-<a href=#948 id=948 data-nosnippet>948</a>    <span class="kw">pub fn </span>clear_expired_reset_streams(<span class="kw-2">&amp;mut </span><span class="self">self</span>, store: <span class="kw-2">&amp;mut </span>Store, counts: <span class="kw-2">&amp;mut </span>Counts) {
-<a href=#949 id=949 data-nosnippet>949</a>        <span class="kw">if </span>!<span class="self">self</span>.pending_reset_expired.is_empty() {
-<a href=#950 id=950 data-nosnippet>950</a>            <span class="kw">let </span>now = Instant::now();
-<a href=#951 id=951 data-nosnippet>951</a>            <span class="kw">let </span>reset_duration = <span class="self">self</span>.reset_duration;
-<a href=#952 id=952 data-nosnippet>952</a>            <span class="kw">while let </span><span class="prelude-val">Some</span>(stream) = <span class="self">self</span>.pending_reset_expired.pop_if(store, |stream| {
-<a href=#953 id=953 data-nosnippet>953</a>                <span class="kw">let </span>reset_at = stream.reset_at.expect(<span class="string">"reset_at must be set if in queue"</span>);
-<a href=#954 id=954 data-nosnippet>954</a>                <span class="comment">// rust-lang/rust#86470 tracks a bug in the standard library where `Instant`
-<a href=#955 id=955 data-nosnippet>955</a>                // subtraction can panic (because, on some platforms, `Instant` isn't actually
-<a href=#956 id=956 data-nosnippet>956</a>                // monotonic). We use a saturating operation to avoid this panic here.
-<a href=#957 id=957 data-nosnippet>957</a>                </span>now.saturating_duration_since(reset_at) &gt; reset_duration
-<a href=#958 id=958 data-nosnippet>958</a>            }) {
-<a href=#959 id=959 data-nosnippet>959</a>                counts.transition_after(stream, <span class="bool-val">true</span>);
-<a href=#960 id=960 data-nosnippet>960</a>            }
-<a href=#961 id=961 data-nosnippet>961</a>        }
-<a href=#962 id=962 data-nosnippet>962</a>    }
-<a href=#963 id=963 data-nosnippet>963</a>
-<a href=#964 id=964 data-nosnippet>964</a>    <span class="kw">pub fn </span>clear_queues(
-<a href=#965 id=965 data-nosnippet>965</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#966 id=966 data-nosnippet>966</a>        clear_pending_accept: bool,
-<a href=#967 id=967 data-nosnippet>967</a>        store: <span class="kw-2">&amp;mut </span>Store,
-<a href=#968 id=968 data-nosnippet>968</a>        counts: <span class="kw-2">&amp;mut </span>Counts,
-<a href=#969 id=969 data-nosnippet>969</a>    ) {
-<a href=#970 id=970 data-nosnippet>970</a>        <span class="self">self</span>.clear_stream_window_update_queue(store, counts);
-<a href=#971 id=971 data-nosnippet>971</a>        <span class="self">self</span>.clear_all_reset_streams(store, counts);
-<a href=#972 id=972 data-nosnippet>972</a>
-<a href=#973 id=973 data-nosnippet>973</a>        <span class="kw">if </span>clear_pending_accept {
-<a href=#974 id=974 data-nosnippet>974</a>            <span class="self">self</span>.clear_all_pending_accept(store, counts);
-<a href=#975 id=975 data-nosnippet>975</a>        }
-<a href=#976 id=976 data-nosnippet>976</a>    }
-<a href=#977 id=977 data-nosnippet>977</a>
-<a href=#978 id=978 data-nosnippet>978</a>    <span class="kw">fn </span>clear_stream_window_update_queue(<span class="kw-2">&amp;mut </span><span class="self">self</span>, store: <span class="kw-2">&amp;mut </span>Store, counts: <span class="kw-2">&amp;mut </span>Counts) {
-<a href=#979 id=979 data-nosnippet>979</a>        <span class="kw">while let </span><span class="prelude-val">Some</span>(stream) = <span class="self">self</span>.pending_window_updates.pop(store) {
-<a href=#980 id=980 data-nosnippet>980</a>            counts.transition(stream, |<span class="kw">_</span>, stream| {
-<a href=#981 id=981 data-nosnippet>981</a>                <span class="macro">tracing::trace!</span>(<span class="string">"clear_stream_window_update_queue; stream={:?}"</span>, stream.id);
-<a href=#982 id=982 data-nosnippet>982</a>            })
-<a href=#983 id=983 data-nosnippet>983</a>        }
-<a href=#984 id=984 data-nosnippet>984</a>    }
-<a href=#985 id=985 data-nosnippet>985</a>
-<a href=#986 id=986 data-nosnippet>986</a>    <span class="doccomment">/// Called on EOF
-<a href=#987 id=987 data-nosnippet>987</a>    </span><span class="kw">fn </span>clear_all_reset_streams(<span class="kw-2">&amp;mut </span><span class="self">self</span>, store: <span class="kw-2">&amp;mut </span>Store, counts: <span class="kw-2">&amp;mut </span>Counts) {
-<a href=#988 id=988 data-nosnippet>988</a>        <span class="kw">while let </span><span class="prelude-val">Some</span>(stream) = <span class="self">self</span>.pending_reset_expired.pop(store) {
-<a href=#989 id=989 data-nosnippet>989</a>            counts.transition_after(stream, <span class="bool-val">true</span>);
-<a href=#990 id=990 data-nosnippet>990</a>        }
-<a href=#991 id=991 data-nosnippet>991</a>    }
-<a href=#992 id=992 data-nosnippet>992</a>
-<a href=#993 id=993 data-nosnippet>993</a>    <span class="kw">fn </span>clear_all_pending_accept(<span class="kw-2">&amp;mut </span><span class="self">self</span>, store: <span class="kw-2">&amp;mut </span>Store, counts: <span class="kw-2">&amp;mut </span>Counts) {
-<a href=#994 id=994 data-nosnippet>994</a>        <span class="kw">while let </span><span class="prelude-val">Some</span>(stream) = <span class="self">self</span>.pending_accept.pop(store) {
-<a href=#995 id=995 data-nosnippet>995</a>            counts.transition_after(stream, <span class="bool-val">false</span>);
-<a href=#996 id=996 data-nosnippet>996</a>        }
-<a href=#997 id=997 data-nosnippet>997</a>    }
-<a href=#998 id=998 data-nosnippet>998</a>
-<a href=#999 id=999 data-nosnippet>999</a>    <span class="kw">pub fn </span>poll_complete&lt;T, B&gt;(
-<a href=#1000 id=1000 data-nosnippet>1000</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#1001 id=1001 data-nosnippet>1001</a>        cx: <span class="kw-2">&amp;mut </span>Context,
-<a href=#1002 id=1002 data-nosnippet>1002</a>        store: <span class="kw-2">&amp;mut </span>Store,
-<a href=#1003 id=1003 data-nosnippet>1003</a>        counts: <span class="kw-2">&amp;mut </span>Counts,
-<a href=#1004 id=1004 data-nosnippet>1004</a>        dst: <span class="kw-2">&amp;mut </span>Codec&lt;T, Prioritized&lt;B&gt;&gt;,
-<a href=#1005 id=1005 data-nosnippet>1005</a>    ) -&gt; Poll&lt;io::Result&lt;()&gt;&gt;
-<a href=#1006 id=1006 data-nosnippet>1006</a>    <span class="kw">where
-<a href=#1007 id=1007 data-nosnippet>1007</a>        </span>T: AsyncWrite + Unpin,
-<a href=#1008 id=1008 data-nosnippet>1008</a>        B: Buf,
-<a href=#1009 id=1009 data-nosnippet>1009</a>    {
-<a href=#1010 id=1010 data-nosnippet>1010</a>        <span class="comment">// Send any pending connection level window updates
-<a href=#1011 id=1011 data-nosnippet>1011</a>        </span><span class="macro">ready!</span>(<span class="self">self</span>.send_connection_window_update(cx, dst))<span class="question-mark">?</span>;
-<a href=#1012 id=1012 data-nosnippet>1012</a>
-<a href=#1013 id=1013 data-nosnippet>1013</a>        <span class="comment">// Send any pending stream level window updates
-<a href=#1014 id=1014 data-nosnippet>1014</a>        </span><span class="macro">ready!</span>(<span class="self">self</span>.send_stream_window_updates(cx, store, counts, dst))<span class="question-mark">?</span>;
-<a href=#1015 id=1015 data-nosnippet>1015</a>
-<a href=#1016 id=1016 data-nosnippet>1016</a>        Poll::Ready(<span class="prelude-val">Ok</span>(()))
-<a href=#1017 id=1017 data-nosnippet>1017</a>    }
-<a href=#1018 id=1018 data-nosnippet>1018</a>
-<a href=#1019 id=1019 data-nosnippet>1019</a>    <span class="doccomment">/// Send connection level window update
-<a href=#1020 id=1020 data-nosnippet>1020</a>    </span><span class="kw">fn </span>send_connection_window_update&lt;T, B&gt;(
-<a href=#1021 id=1021 data-nosnippet>1021</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#1022 id=1022 data-nosnippet>1022</a>        cx: <span class="kw-2">&amp;mut </span>Context,
-<a href=#1023 id=1023 data-nosnippet>1023</a>        dst: <span class="kw-2">&amp;mut </span>Codec&lt;T, Prioritized&lt;B&gt;&gt;,
-<a href=#1024 id=1024 data-nosnippet>1024</a>    ) -&gt; Poll&lt;io::Result&lt;()&gt;&gt;
-<a href=#1025 id=1025 data-nosnippet>1025</a>    <span class="kw">where
-<a href=#1026 id=1026 data-nosnippet>1026</a>        </span>T: AsyncWrite + Unpin,
-<a href=#1027 id=1027 data-nosnippet>1027</a>        B: Buf,
-<a href=#1028 id=1028 data-nosnippet>1028</a>    {
-<a href=#1029 id=1029 data-nosnippet>1029</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(incr) = <span class="self">self</span>.flow.unclaimed_capacity() {
-<a href=#1030 id=1030 data-nosnippet>1030</a>            <span class="kw">let </span>frame = frame::WindowUpdate::new(StreamId::zero(), incr);
-<a href=#1031 id=1031 data-nosnippet>1031</a>
-<a href=#1032 id=1032 data-nosnippet>1032</a>            <span class="comment">// Ensure the codec has capacity
-<a href=#1033 id=1033 data-nosnippet>1033</a>            </span><span class="macro">ready!</span>(dst.poll_ready(cx))<span class="question-mark">?</span>;
-<a href=#1034 id=1034 data-nosnippet>1034</a>
-<a href=#1035 id=1035 data-nosnippet>1035</a>            <span class="comment">// Buffer the WINDOW_UPDATE frame
-<a href=#1036 id=1036 data-nosnippet>1036</a>            </span>dst.buffer(frame.into())
-<a href=#1037 id=1037 data-nosnippet>1037</a>                .expect(<span class="string">"invalid WINDOW_UPDATE frame"</span>);
+<a href=#943 id=943 data-nosnippet>943</a>            <span class="comment">// Buffer the frame
+<a href=#944 id=944 data-nosnippet>944</a>            </span>dst.buffer(frame.into()).expect(<span class="string">"invalid RST_STREAM frame"</span>);
+<a href=#945 id=945 data-nosnippet>945</a>        }
+<a href=#946 id=946 data-nosnippet>946</a>
+<a href=#947 id=947 data-nosnippet>947</a>        <span class="self">self</span>.refused = <span class="prelude-val">None</span>;
+<a href=#948 id=948 data-nosnippet>948</a>
+<a href=#949 id=949 data-nosnippet>949</a>        Poll::Ready(<span class="prelude-val">Ok</span>(()))
+<a href=#950 id=950 data-nosnippet>950</a>    }
+<a href=#951 id=951 data-nosnippet>951</a>
+<a href=#952 id=952 data-nosnippet>952</a>    <span class="kw">pub fn </span>clear_expired_reset_streams(<span class="kw-2">&amp;mut </span><span class="self">self</span>, store: <span class="kw-2">&amp;mut </span>Store, counts: <span class="kw-2">&amp;mut </span>Counts) {
+<a href=#953 id=953 data-nosnippet>953</a>        <span class="kw">if </span>!<span class="self">self</span>.pending_reset_expired.is_empty() {
+<a href=#954 id=954 data-nosnippet>954</a>            <span class="kw">let </span>now = Instant::now();
+<a href=#955 id=955 data-nosnippet>955</a>            <span class="kw">let </span>reset_duration = <span class="self">self</span>.reset_duration;
+<a href=#956 id=956 data-nosnippet>956</a>            <span class="kw">while let </span><span class="prelude-val">Some</span>(stream) = <span class="self">self</span>.pending_reset_expired.pop_if(store, |stream| {
+<a href=#957 id=957 data-nosnippet>957</a>                <span class="kw">let </span>reset_at = stream.reset_at.expect(<span class="string">"reset_at must be set if in queue"</span>);
+<a href=#958 id=958 data-nosnippet>958</a>                <span class="comment">// rust-lang/rust#86470 tracks a bug in the standard library where `Instant`
+<a href=#959 id=959 data-nosnippet>959</a>                // subtraction can panic (because, on some platforms, `Instant` isn't actually
+<a href=#960 id=960 data-nosnippet>960</a>                // monotonic). We use a saturating operation to avoid this panic here.
+<a href=#961 id=961 data-nosnippet>961</a>                </span>now.saturating_duration_since(reset_at) &gt; reset_duration
+<a href=#962 id=962 data-nosnippet>962</a>            }) {
+<a href=#963 id=963 data-nosnippet>963</a>                counts.transition_after(stream, <span class="bool-val">true</span>);
+<a href=#964 id=964 data-nosnippet>964</a>            }
+<a href=#965 id=965 data-nosnippet>965</a>        }
+<a href=#966 id=966 data-nosnippet>966</a>    }
+<a href=#967 id=967 data-nosnippet>967</a>
+<a href=#968 id=968 data-nosnippet>968</a>    <span class="kw">pub fn </span>clear_queues(
+<a href=#969 id=969 data-nosnippet>969</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#970 id=970 data-nosnippet>970</a>        clear_pending_accept: bool,
+<a href=#971 id=971 data-nosnippet>971</a>        store: <span class="kw-2">&amp;mut </span>Store,
+<a href=#972 id=972 data-nosnippet>972</a>        counts: <span class="kw-2">&amp;mut </span>Counts,
+<a href=#973 id=973 data-nosnippet>973</a>    ) {
+<a href=#974 id=974 data-nosnippet>974</a>        <span class="self">self</span>.clear_stream_window_update_queue(store, counts);
+<a href=#975 id=975 data-nosnippet>975</a>        <span class="self">self</span>.clear_all_reset_streams(store, counts);
+<a href=#976 id=976 data-nosnippet>976</a>
+<a href=#977 id=977 data-nosnippet>977</a>        <span class="kw">if </span>clear_pending_accept {
+<a href=#978 id=978 data-nosnippet>978</a>            <span class="self">self</span>.clear_all_pending_accept(store, counts);
+<a href=#979 id=979 data-nosnippet>979</a>        }
+<a href=#980 id=980 data-nosnippet>980</a>    }
+<a href=#981 id=981 data-nosnippet>981</a>
+<a href=#982 id=982 data-nosnippet>982</a>    <span class="kw">fn </span>clear_stream_window_update_queue(<span class="kw-2">&amp;mut </span><span class="self">self</span>, store: <span class="kw-2">&amp;mut </span>Store, counts: <span class="kw-2">&amp;mut </span>Counts) {
+<a href=#983 id=983 data-nosnippet>983</a>        <span class="kw">while let </span><span class="prelude-val">Some</span>(stream) = <span class="self">self</span>.pending_window_updates.pop(store) {
+<a href=#984 id=984 data-nosnippet>984</a>            counts.transition(stream, |<span class="kw">_</span>, stream| {
+<a href=#985 id=985 data-nosnippet>985</a>                <span class="macro">tracing::trace!</span>(<span class="string">"clear_stream_window_update_queue; stream={:?}"</span>, stream.id);
+<a href=#986 id=986 data-nosnippet>986</a>            })
+<a href=#987 id=987 data-nosnippet>987</a>        }
+<a href=#988 id=988 data-nosnippet>988</a>    }
+<a href=#989 id=989 data-nosnippet>989</a>
+<a href=#990 id=990 data-nosnippet>990</a>    <span class="doccomment">/// Called on EOF
+<a href=#991 id=991 data-nosnippet>991</a>    </span><span class="kw">fn </span>clear_all_reset_streams(<span class="kw-2">&amp;mut </span><span class="self">self</span>, store: <span class="kw-2">&amp;mut </span>Store, counts: <span class="kw-2">&amp;mut </span>Counts) {
+<a href=#992 id=992 data-nosnippet>992</a>        <span class="kw">while let </span><span class="prelude-val">Some</span>(stream) = <span class="self">self</span>.pending_reset_expired.pop(store) {
+<a href=#993 id=993 data-nosnippet>993</a>            counts.transition_after(stream, <span class="bool-val">true</span>);
+<a href=#994 id=994 data-nosnippet>994</a>        }
+<a href=#995 id=995 data-nosnippet>995</a>    }
+<a href=#996 id=996 data-nosnippet>996</a>
+<a href=#997 id=997 data-nosnippet>997</a>    <span class="kw">fn </span>clear_all_pending_accept(<span class="kw-2">&amp;mut </span><span class="self">self</span>, store: <span class="kw-2">&amp;mut </span>Store, counts: <span class="kw-2">&amp;mut </span>Counts) {
+<a href=#998 id=998 data-nosnippet>998</a>        <span class="kw">while let </span><span class="prelude-val">Some</span>(stream) = <span class="self">self</span>.pending_accept.pop(store) {
+<a href=#999 id=999 data-nosnippet>999</a>            counts.transition_after(stream, <span class="bool-val">false</span>);
+<a href=#1000 id=1000 data-nosnippet>1000</a>        }
+<a href=#1001 id=1001 data-nosnippet>1001</a>    }
+<a href=#1002 id=1002 data-nosnippet>1002</a>
+<a href=#1003 id=1003 data-nosnippet>1003</a>    <span class="kw">pub fn </span>poll_complete&lt;T, B&gt;(
+<a href=#1004 id=1004 data-nosnippet>1004</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#1005 id=1005 data-nosnippet>1005</a>        cx: <span class="kw-2">&amp;mut </span>Context,
+<a href=#1006 id=1006 data-nosnippet>1006</a>        store: <span class="kw-2">&amp;mut </span>Store,
+<a href=#1007 id=1007 data-nosnippet>1007</a>        counts: <span class="kw-2">&amp;mut </span>Counts,
+<a href=#1008 id=1008 data-nosnippet>1008</a>        dst: <span class="kw-2">&amp;mut </span>Codec&lt;T, Prioritized&lt;B&gt;&gt;,
+<a href=#1009 id=1009 data-nosnippet>1009</a>    ) -&gt; Poll&lt;io::Result&lt;()&gt;&gt;
+<a href=#1010 id=1010 data-nosnippet>1010</a>    <span class="kw">where
+<a href=#1011 id=1011 data-nosnippet>1011</a>        </span>T: AsyncWrite + Unpin,
+<a href=#1012 id=1012 data-nosnippet>1012</a>        B: Buf,
+<a href=#1013 id=1013 data-nosnippet>1013</a>    {
+<a href=#1014 id=1014 data-nosnippet>1014</a>        <span class="comment">// Send any pending connection level window updates
+<a href=#1015 id=1015 data-nosnippet>1015</a>        </span><span class="macro">ready!</span>(<span class="self">self</span>.send_connection_window_update(cx, dst))<span class="question-mark">?</span>;
+<a href=#1016 id=1016 data-nosnippet>1016</a>
+<a href=#1017 id=1017 data-nosnippet>1017</a>        <span class="comment">// Send any pending stream level window updates
+<a href=#1018 id=1018 data-nosnippet>1018</a>        </span><span class="macro">ready!</span>(<span class="self">self</span>.send_stream_window_updates(cx, store, counts, dst))<span class="question-mark">?</span>;
+<a href=#1019 id=1019 data-nosnippet>1019</a>
+<a href=#1020 id=1020 data-nosnippet>1020</a>        Poll::Ready(<span class="prelude-val">Ok</span>(()))
+<a href=#1021 id=1021 data-nosnippet>1021</a>    }
+<a href=#1022 id=1022 data-nosnippet>1022</a>
+<a href=#1023 id=1023 data-nosnippet>1023</a>    <span class="doccomment">/// Send connection level window update
+<a href=#1024 id=1024 data-nosnippet>1024</a>    </span><span class="kw">fn </span>send_connection_window_update&lt;T, B&gt;(
+<a href=#1025 id=1025 data-nosnippet>1025</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#1026 id=1026 data-nosnippet>1026</a>        cx: <span class="kw-2">&amp;mut </span>Context,
+<a href=#1027 id=1027 data-nosnippet>1027</a>        dst: <span class="kw-2">&amp;mut </span>Codec&lt;T, Prioritized&lt;B&gt;&gt;,
+<a href=#1028 id=1028 data-nosnippet>1028</a>    ) -&gt; Poll&lt;io::Result&lt;()&gt;&gt;
+<a href=#1029 id=1029 data-nosnippet>1029</a>    <span class="kw">where
+<a href=#1030 id=1030 data-nosnippet>1030</a>        </span>T: AsyncWrite + Unpin,
+<a href=#1031 id=1031 data-nosnippet>1031</a>        B: Buf,
+<a href=#1032 id=1032 data-nosnippet>1032</a>    {
+<a href=#1033 id=1033 data-nosnippet>1033</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(incr) = <span class="self">self</span>.flow.unclaimed_capacity() {
+<a href=#1034 id=1034 data-nosnippet>1034</a>            <span class="kw">let </span>frame = frame::WindowUpdate::new(StreamId::zero(), incr);
+<a href=#1035 id=1035 data-nosnippet>1035</a>
+<a href=#1036 id=1036 data-nosnippet>1036</a>            <span class="comment">// Ensure the codec has capacity
+<a href=#1037 id=1037 data-nosnippet>1037</a>            </span><span class="macro">ready!</span>(dst.poll_ready(cx))<span class="question-mark">?</span>;
 <a href=#1038 id=1038 data-nosnippet>1038</a>
-<a href=#1039 id=1039 data-nosnippet>1039</a>            <span class="comment">// Update flow control
-<a href=#1040 id=1040 data-nosnippet>1040</a>            </span><span class="self">self</span>.flow
-<a href=#1041 id=1041 data-nosnippet>1041</a>                .inc_window(incr)
-<a href=#1042 id=1042 data-nosnippet>1042</a>                .expect(<span class="string">"unexpected flow control state"</span>);
-<a href=#1043 id=1043 data-nosnippet>1043</a>        }
-<a href=#1044 id=1044 data-nosnippet>1044</a>
-<a href=#1045 id=1045 data-nosnippet>1045</a>        Poll::Ready(<span class="prelude-val">Ok</span>(()))
-<a href=#1046 id=1046 data-nosnippet>1046</a>    }
-<a href=#1047 id=1047 data-nosnippet>1047</a>
-<a href=#1048 id=1048 data-nosnippet>1048</a>    <span class="doccomment">/// Send stream level window update
-<a href=#1049 id=1049 data-nosnippet>1049</a>    </span><span class="kw">pub fn </span>send_stream_window_updates&lt;T, B&gt;(
-<a href=#1050 id=1050 data-nosnippet>1050</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#1051 id=1051 data-nosnippet>1051</a>        cx: <span class="kw-2">&amp;mut </span>Context,
-<a href=#1052 id=1052 data-nosnippet>1052</a>        store: <span class="kw-2">&amp;mut </span>Store,
-<a href=#1053 id=1053 data-nosnippet>1053</a>        counts: <span class="kw-2">&amp;mut </span>Counts,
-<a href=#1054 id=1054 data-nosnippet>1054</a>        dst: <span class="kw-2">&amp;mut </span>Codec&lt;T, Prioritized&lt;B&gt;&gt;,
-<a href=#1055 id=1055 data-nosnippet>1055</a>    ) -&gt; Poll&lt;io::Result&lt;()&gt;&gt;
-<a href=#1056 id=1056 data-nosnippet>1056</a>    <span class="kw">where
-<a href=#1057 id=1057 data-nosnippet>1057</a>        </span>T: AsyncWrite + Unpin,
-<a href=#1058 id=1058 data-nosnippet>1058</a>        B: Buf,
-<a href=#1059 id=1059 data-nosnippet>1059</a>    {
-<a href=#1060 id=1060 data-nosnippet>1060</a>        <span class="kw">loop </span>{
-<a href=#1061 id=1061 data-nosnippet>1061</a>            <span class="comment">// Ensure the codec has capacity
-<a href=#1062 id=1062 data-nosnippet>1062</a>            </span><span class="macro">ready!</span>(dst.poll_ready(cx))<span class="question-mark">?</span>;
-<a href=#1063 id=1063 data-nosnippet>1063</a>
-<a href=#1064 id=1064 data-nosnippet>1064</a>            <span class="comment">// Get the next stream
-<a href=#1065 id=1065 data-nosnippet>1065</a>            </span><span class="kw">let </span>stream = <span class="kw">match </span><span class="self">self</span>.pending_window_updates.pop(store) {
-<a href=#1066 id=1066 data-nosnippet>1066</a>                <span class="prelude-val">Some</span>(stream) =&gt; stream,
-<a href=#1067 id=1067 data-nosnippet>1067</a>                <span class="prelude-val">None </span>=&gt; <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Ok</span>(())),
-<a href=#1068 id=1068 data-nosnippet>1068</a>            };
-<a href=#1069 id=1069 data-nosnippet>1069</a>
-<a href=#1070 id=1070 data-nosnippet>1070</a>            counts.transition(stream, |<span class="kw">_</span>, stream| {
-<a href=#1071 id=1071 data-nosnippet>1071</a>                <span class="macro">tracing::trace!</span>(<span class="string">"pending_window_updates -- pop; stream={:?}"</span>, stream.id);
-<a href=#1072 id=1072 data-nosnippet>1072</a>                <span class="macro">debug_assert!</span>(!stream.is_pending_window_update);
+<a href=#1039 id=1039 data-nosnippet>1039</a>            <span class="comment">// Buffer the WINDOW_UPDATE frame
+<a href=#1040 id=1040 data-nosnippet>1040</a>            </span>dst.buffer(frame.into())
+<a href=#1041 id=1041 data-nosnippet>1041</a>                .expect(<span class="string">"invalid WINDOW_UPDATE frame"</span>);
+<a href=#1042 id=1042 data-nosnippet>1042</a>
+<a href=#1043 id=1043 data-nosnippet>1043</a>            <span class="comment">// Update flow control
+<a href=#1044 id=1044 data-nosnippet>1044</a>            </span><span class="self">self</span>.flow
+<a href=#1045 id=1045 data-nosnippet>1045</a>                .inc_window(incr)
+<a href=#1046 id=1046 data-nosnippet>1046</a>                .expect(<span class="string">"unexpected flow control state"</span>);
+<a href=#1047 id=1047 data-nosnippet>1047</a>        }
+<a href=#1048 id=1048 data-nosnippet>1048</a>
+<a href=#1049 id=1049 data-nosnippet>1049</a>        Poll::Ready(<span class="prelude-val">Ok</span>(()))
+<a href=#1050 id=1050 data-nosnippet>1050</a>    }
+<a href=#1051 id=1051 data-nosnippet>1051</a>
+<a href=#1052 id=1052 data-nosnippet>1052</a>    <span class="doccomment">/// Send stream level window update
+<a href=#1053 id=1053 data-nosnippet>1053</a>    </span><span class="kw">pub fn </span>send_stream_window_updates&lt;T, B&gt;(
+<a href=#1054 id=1054 data-nosnippet>1054</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#1055 id=1055 data-nosnippet>1055</a>        cx: <span class="kw-2">&amp;mut </span>Context,
+<a href=#1056 id=1056 data-nosnippet>1056</a>        store: <span class="kw-2">&amp;mut </span>Store,
+<a href=#1057 id=1057 data-nosnippet>1057</a>        counts: <span class="kw-2">&amp;mut </span>Counts,
+<a href=#1058 id=1058 data-nosnippet>1058</a>        dst: <span class="kw-2">&amp;mut </span>Codec&lt;T, Prioritized&lt;B&gt;&gt;,
+<a href=#1059 id=1059 data-nosnippet>1059</a>    ) -&gt; Poll&lt;io::Result&lt;()&gt;&gt;
+<a href=#1060 id=1060 data-nosnippet>1060</a>    <span class="kw">where
+<a href=#1061 id=1061 data-nosnippet>1061</a>        </span>T: AsyncWrite + Unpin,
+<a href=#1062 id=1062 data-nosnippet>1062</a>        B: Buf,
+<a href=#1063 id=1063 data-nosnippet>1063</a>    {
+<a href=#1064 id=1064 data-nosnippet>1064</a>        <span class="kw">loop </span>{
+<a href=#1065 id=1065 data-nosnippet>1065</a>            <span class="comment">// Ensure the codec has capacity
+<a href=#1066 id=1066 data-nosnippet>1066</a>            </span><span class="macro">ready!</span>(dst.poll_ready(cx))<span class="question-mark">?</span>;
+<a href=#1067 id=1067 data-nosnippet>1067</a>
+<a href=#1068 id=1068 data-nosnippet>1068</a>            <span class="comment">// Get the next stream
+<a href=#1069 id=1069 data-nosnippet>1069</a>            </span><span class="kw">let </span>stream = <span class="kw">match </span><span class="self">self</span>.pending_window_updates.pop(store) {
+<a href=#1070 id=1070 data-nosnippet>1070</a>                <span class="prelude-val">Some</span>(stream) =&gt; stream,
+<a href=#1071 id=1071 data-nosnippet>1071</a>                <span class="prelude-val">None </span>=&gt; <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Ok</span>(())),
+<a href=#1072 id=1072 data-nosnippet>1072</a>            };
 <a href=#1073 id=1073 data-nosnippet>1073</a>
-<a href=#1074 id=1074 data-nosnippet>1074</a>                <span class="kw">if </span>!stream.state.is_recv_streaming() {
-<a href=#1075 id=1075 data-nosnippet>1075</a>                    <span class="comment">// No need to send window updates on the stream if the stream is
-<a href=#1076 id=1076 data-nosnippet>1076</a>                    // no longer receiving data.
-<a href=#1077 id=1077 data-nosnippet>1077</a>                    //
-<a href=#1078 id=1078 data-nosnippet>1078</a>                    // TODO: is this correct? We could possibly send a window
-<a href=#1079 id=1079 data-nosnippet>1079</a>                    // update on a ReservedRemote stream if we already know
-<a href=#1080 id=1080 data-nosnippet>1080</a>                    // we want to stream the data faster...
-<a href=#1081 id=1081 data-nosnippet>1081</a>                    </span><span class="kw">return</span>;
-<a href=#1082 id=1082 data-nosnippet>1082</a>                }
-<a href=#1083 id=1083 data-nosnippet>1083</a>
-<a href=#1084 id=1084 data-nosnippet>1084</a>                <span class="comment">// TODO: de-dup
-<a href=#1085 id=1085 data-nosnippet>1085</a>                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(incr) = stream.recv_flow.unclaimed_capacity() {
-<a href=#1086 id=1086 data-nosnippet>1086</a>                    <span class="comment">// Create the WINDOW_UPDATE frame
-<a href=#1087 id=1087 data-nosnippet>1087</a>                    </span><span class="kw">let </span>frame = frame::WindowUpdate::new(stream.id, incr);
-<a href=#1088 id=1088 data-nosnippet>1088</a>
-<a href=#1089 id=1089 data-nosnippet>1089</a>                    <span class="comment">// Buffer it
-<a href=#1090 id=1090 data-nosnippet>1090</a>                    </span>dst.buffer(frame.into())
-<a href=#1091 id=1091 data-nosnippet>1091</a>                        .expect(<span class="string">"invalid WINDOW_UPDATE frame"</span>);
+<a href=#1074 id=1074 data-nosnippet>1074</a>            counts.transition(stream, |<span class="kw">_</span>, stream| {
+<a href=#1075 id=1075 data-nosnippet>1075</a>                <span class="macro">tracing::trace!</span>(<span class="string">"pending_window_updates -- pop; stream={:?}"</span>, stream.id);
+<a href=#1076 id=1076 data-nosnippet>1076</a>                <span class="macro">debug_assert!</span>(!stream.is_pending_window_update);
+<a href=#1077 id=1077 data-nosnippet>1077</a>
+<a href=#1078 id=1078 data-nosnippet>1078</a>                <span class="kw">if </span>!stream.state.is_recv_streaming() {
+<a href=#1079 id=1079 data-nosnippet>1079</a>                    <span class="comment">// No need to send window updates on the stream if the stream is
+<a href=#1080 id=1080 data-nosnippet>1080</a>                    // no longer receiving data.
+<a href=#1081 id=1081 data-nosnippet>1081</a>                    //
+<a href=#1082 id=1082 data-nosnippet>1082</a>                    // TODO: is this correct? We could possibly send a window
+<a href=#1083 id=1083 data-nosnippet>1083</a>                    // update on a ReservedRemote stream if we already know
+<a href=#1084 id=1084 data-nosnippet>1084</a>                    // we want to stream the data faster...
+<a href=#1085 id=1085 data-nosnippet>1085</a>                    </span><span class="kw">return</span>;
+<a href=#1086 id=1086 data-nosnippet>1086</a>                }
+<a href=#1087 id=1087 data-nosnippet>1087</a>
+<a href=#1088 id=1088 data-nosnippet>1088</a>                <span class="comment">// TODO: de-dup
+<a href=#1089 id=1089 data-nosnippet>1089</a>                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(incr) = stream.recv_flow.unclaimed_capacity() {
+<a href=#1090 id=1090 data-nosnippet>1090</a>                    <span class="comment">// Create the WINDOW_UPDATE frame
+<a href=#1091 id=1091 data-nosnippet>1091</a>                    </span><span class="kw">let </span>frame = frame::WindowUpdate::new(stream.id, incr);
 <a href=#1092 id=1092 data-nosnippet>1092</a>
-<a href=#1093 id=1093 data-nosnippet>1093</a>                    <span class="comment">// Update flow control
-<a href=#1094 id=1094 data-nosnippet>1094</a>                    </span>stream
-<a href=#1095 id=1095 data-nosnippet>1095</a>                        .recv_flow
-<a href=#1096 id=1096 data-nosnippet>1096</a>                        .inc_window(incr)
-<a href=#1097 id=1097 data-nosnippet>1097</a>                        .expect(<span class="string">"unexpected flow control state"</span>);
-<a href=#1098 id=1098 data-nosnippet>1098</a>                }
-<a href=#1099 id=1099 data-nosnippet>1099</a>            })
-<a href=#1100 id=1100 data-nosnippet>1100</a>        }
-<a href=#1101 id=1101 data-nosnippet>1101</a>    }
-<a href=#1102 id=1102 data-nosnippet>1102</a>
-<a href=#1103 id=1103 data-nosnippet>1103</a>    <span class="kw">pub fn </span>next_incoming(<span class="kw-2">&amp;mut </span><span class="self">self</span>, store: <span class="kw-2">&amp;mut </span>Store) -&gt; <span class="prelude-ty">Option</span>&lt;store::Key&gt; {
-<a href=#1104 id=1104 data-nosnippet>1104</a>        <span class="self">self</span>.pending_accept.pop(store).map(|ptr| ptr.key())
+<a href=#1093 id=1093 data-nosnippet>1093</a>                    <span class="comment">// Buffer it
+<a href=#1094 id=1094 data-nosnippet>1094</a>                    </span>dst.buffer(frame.into())
+<a href=#1095 id=1095 data-nosnippet>1095</a>                        .expect(<span class="string">"invalid WINDOW_UPDATE frame"</span>);
+<a href=#1096 id=1096 data-nosnippet>1096</a>
+<a href=#1097 id=1097 data-nosnippet>1097</a>                    <span class="comment">// Update flow control
+<a href=#1098 id=1098 data-nosnippet>1098</a>                    </span>stream
+<a href=#1099 id=1099 data-nosnippet>1099</a>                        .recv_flow
+<a href=#1100 id=1100 data-nosnippet>1100</a>                        .inc_window(incr)
+<a href=#1101 id=1101 data-nosnippet>1101</a>                        .expect(<span class="string">"unexpected flow control state"</span>);
+<a href=#1102 id=1102 data-nosnippet>1102</a>                }
+<a href=#1103 id=1103 data-nosnippet>1103</a>            })
+<a href=#1104 id=1104 data-nosnippet>1104</a>        }
 <a href=#1105 id=1105 data-nosnippet>1105</a>    }
 <a href=#1106 id=1106 data-nosnippet>1106</a>
-<a href=#1107 id=1107 data-nosnippet>1107</a>    <span class="kw">pub fn </span>poll_data(
-<a href=#1108 id=1108 data-nosnippet>1108</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#1109 id=1109 data-nosnippet>1109</a>        cx: <span class="kw-2">&amp;</span>Context,
-<a href=#1110 id=1110 data-nosnippet>1110</a>        stream: <span class="kw-2">&amp;mut </span>Stream,
-<a href=#1111 id=1111 data-nosnippet>1111</a>    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Bytes, proto::Error&gt;&gt;&gt; {
-<a href=#1112 id=1112 data-nosnippet>1112</a>        <span class="kw">match </span>stream.pending_recv.pop_front(<span class="kw-2">&amp;mut </span><span class="self">self</span>.buffer) {
-<a href=#1113 id=1113 data-nosnippet>1113</a>            <span class="prelude-val">Some</span>(Event::Data(payload)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(payload))),
-<a href=#1114 id=1114 data-nosnippet>1114</a>            <span class="prelude-val">Some</span>(event) =&gt; {
-<a href=#1115 id=1115 data-nosnippet>1115</a>                <span class="comment">// Frame is trailer
-<a href=#1116 id=1116 data-nosnippet>1116</a>                </span>stream.pending_recv.push_front(<span class="kw-2">&amp;mut </span><span class="self">self</span>.buffer, event);
-<a href=#1117 id=1117 data-nosnippet>1117</a>
-<a href=#1118 id=1118 data-nosnippet>1118</a>                <span class="comment">// Notify the recv task. This is done just in case
-<a href=#1119 id=1119 data-nosnippet>1119</a>                // `poll_trailers` was called.
-<a href=#1120 id=1120 data-nosnippet>1120</a>                //
-<a href=#1121 id=1121 data-nosnippet>1121</a>                // It is very likely that `notify_recv` will just be a no-op (as
-<a href=#1122 id=1122 data-nosnippet>1122</a>                // the task will be None), so this isn't really much of a
-<a href=#1123 id=1123 data-nosnippet>1123</a>                // performance concern. It also means we don't have to track
-<a href=#1124 id=1124 data-nosnippet>1124</a>                // state to see if `poll_trailers` was called before `poll_data`
-<a href=#1125 id=1125 data-nosnippet>1125</a>                // returned `None`.
-<a href=#1126 id=1126 data-nosnippet>1126</a>                </span>stream.notify_recv();
-<a href=#1127 id=1127 data-nosnippet>1127</a>
-<a href=#1128 id=1128 data-nosnippet>1128</a>                <span class="comment">// No more data frames
-<a href=#1129 id=1129 data-nosnippet>1129</a>                </span>Poll::Ready(<span class="prelude-val">None</span>)
-<a href=#1130 id=1130 data-nosnippet>1130</a>            }
-<a href=#1131 id=1131 data-nosnippet>1131</a>            <span class="prelude-val">None </span>=&gt; <span class="self">self</span>.schedule_recv(cx, stream),
-<a href=#1132 id=1132 data-nosnippet>1132</a>        }
-<a href=#1133 id=1133 data-nosnippet>1133</a>    }
-<a href=#1134 id=1134 data-nosnippet>1134</a>
-<a href=#1135 id=1135 data-nosnippet>1135</a>    <span class="kw">pub fn </span>poll_trailers(
-<a href=#1136 id=1136 data-nosnippet>1136</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#1137 id=1137 data-nosnippet>1137</a>        cx: <span class="kw-2">&amp;</span>Context,
-<a href=#1138 id=1138 data-nosnippet>1138</a>        stream: <span class="kw-2">&amp;mut </span>Stream,
-<a href=#1139 id=1139 data-nosnippet>1139</a>    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;HeaderMap, proto::Error&gt;&gt;&gt; {
-<a href=#1140 id=1140 data-nosnippet>1140</a>        <span class="kw">match </span>stream.pending_recv.pop_front(<span class="kw-2">&amp;mut </span><span class="self">self</span>.buffer) {
-<a href=#1141 id=1141 data-nosnippet>1141</a>            <span class="prelude-val">Some</span>(Event::Trailers(trailers)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(trailers))),
-<a href=#1142 id=1142 data-nosnippet>1142</a>            <span class="prelude-val">Some</span>(event) =&gt; {
-<a href=#1143 id=1143 data-nosnippet>1143</a>                <span class="comment">// Frame is not trailers.. not ready to poll trailers yet.
-<a href=#1144 id=1144 data-nosnippet>1144</a>                </span>stream.pending_recv.push_front(<span class="kw-2">&amp;mut </span><span class="self">self</span>.buffer, event);
-<a href=#1145 id=1145 data-nosnippet>1145</a>
-<a href=#1146 id=1146 data-nosnippet>1146</a>                Poll::Pending
-<a href=#1147 id=1147 data-nosnippet>1147</a>            }
-<a href=#1148 id=1148 data-nosnippet>1148</a>            <span class="prelude-val">None </span>=&gt; <span class="self">self</span>.schedule_recv(cx, stream),
-<a href=#1149 id=1149 data-nosnippet>1149</a>        }
-<a href=#1150 id=1150 data-nosnippet>1150</a>    }
-<a href=#1151 id=1151 data-nosnippet>1151</a>
-<a href=#1152 id=1152 data-nosnippet>1152</a>    <span class="kw">fn </span>schedule_recv&lt;T&gt;(
-<a href=#1153 id=1153 data-nosnippet>1153</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#1154 id=1154 data-nosnippet>1154</a>        cx: <span class="kw-2">&amp;</span>Context,
-<a href=#1155 id=1155 data-nosnippet>1155</a>        stream: <span class="kw-2">&amp;mut </span>Stream,
-<a href=#1156 id=1156 data-nosnippet>1156</a>    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;T, proto::Error&gt;&gt;&gt; {
-<a href=#1157 id=1157 data-nosnippet>1157</a>        <span class="kw">if </span>stream.state.ensure_recv_open()<span class="question-mark">? </span>{
-<a href=#1158 id=1158 data-nosnippet>1158</a>            <span class="comment">// Request to get notified once more frames arrive
-<a href=#1159 id=1159 data-nosnippet>1159</a>            </span>stream.recv_task = <span class="prelude-val">Some</span>(cx.waker().clone());
-<a href=#1160 id=1160 data-nosnippet>1160</a>            Poll::Pending
-<a href=#1161 id=1161 data-nosnippet>1161</a>        } <span class="kw">else </span>{
-<a href=#1162 id=1162 data-nosnippet>1162</a>            <span class="comment">// No more frames will be received
-<a href=#1163 id=1163 data-nosnippet>1163</a>            </span>Poll::Ready(<span class="prelude-val">None</span>)
-<a href=#1164 id=1164 data-nosnippet>1164</a>        }
-<a href=#1165 id=1165 data-nosnippet>1165</a>    }
-<a href=#1166 id=1166 data-nosnippet>1166</a>}
-<a href=#1167 id=1167 data-nosnippet>1167</a>
-<a href=#1168 id=1168 data-nosnippet>1168</a><span class="comment">// ===== impl Open =====
-<a href=#1169 id=1169 data-nosnippet>1169</a>
-<a href=#1170 id=1170 data-nosnippet>1170</a></span><span class="kw">impl </span>Open {
-<a href=#1171 id=1171 data-nosnippet>1171</a>    <span class="kw">pub fn </span>is_push_promise(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-<a href=#1172 id=1172 data-nosnippet>1172</a>        <span class="macro">matches!</span>(<span class="kw-2">*</span><span class="self">self</span>, <span class="self">Self</span>::PushPromise)
-<a href=#1173 id=1173 data-nosnippet>1173</a>    }
-<a href=#1174 id=1174 data-nosnippet>1174</a>}
-<a href=#1175 id=1175 data-nosnippet>1175</a>
-<a href=#1176 id=1176 data-nosnippet>1176</a><span class="comment">// ===== impl RecvHeaderBlockError =====
-<a href=#1177 id=1177 data-nosnippet>1177</a>
-<a href=#1178 id=1178 data-nosnippet>1178</a></span><span class="kw">impl</span>&lt;T&gt; From&lt;Error&gt; <span class="kw">for </span>RecvHeaderBlockError&lt;T&gt; {
-<a href=#1179 id=1179 data-nosnippet>1179</a>    <span class="kw">fn </span>from(err: Error) -&gt; <span class="self">Self </span>{
-<a href=#1180 id=1180 data-nosnippet>1180</a>        RecvHeaderBlockError::State(err)
-<a href=#1181 id=1181 data-nosnippet>1181</a>    }
-<a href=#1182 id=1182 data-nosnippet>1182</a>}</code></pre></div></section></main></body></html>
+<a href=#1107 id=1107 data-nosnippet>1107</a>    <span class="kw">pub fn </span>next_incoming(<span class="kw-2">&amp;mut </span><span class="self">self</span>, store: <span class="kw-2">&amp;mut </span>Store) -&gt; <span class="prelude-ty">Option</span>&lt;store::Key&gt; {
+<a href=#1108 id=1108 data-nosnippet>1108</a>        <span class="self">self</span>.pending_accept.pop(store).map(|ptr| ptr.key())
+<a href=#1109 id=1109 data-nosnippet>1109</a>    }
+<a href=#1110 id=1110 data-nosnippet>1110</a>
+<a href=#1111 id=1111 data-nosnippet>1111</a>    <span class="kw">pub fn </span>poll_data(
+<a href=#1112 id=1112 data-nosnippet>1112</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#1113 id=1113 data-nosnippet>1113</a>        cx: <span class="kw-2">&amp;</span>Context,
+<a href=#1114 id=1114 data-nosnippet>1114</a>        stream: <span class="kw-2">&amp;mut </span>Stream,
+<a href=#1115 id=1115 data-nosnippet>1115</a>    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Bytes, proto::Error&gt;&gt;&gt; {
+<a href=#1116 id=1116 data-nosnippet>1116</a>        <span class="kw">match </span>stream.pending_recv.pop_front(<span class="kw-2">&amp;mut </span><span class="self">self</span>.buffer) {
+<a href=#1117 id=1117 data-nosnippet>1117</a>            <span class="prelude-val">Some</span>(Event::Data(payload)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(payload))),
+<a href=#1118 id=1118 data-nosnippet>1118</a>            <span class="prelude-val">Some</span>(event) =&gt; {
+<a href=#1119 id=1119 data-nosnippet>1119</a>                <span class="comment">// Frame is trailer
+<a href=#1120 id=1120 data-nosnippet>1120</a>                </span>stream.pending_recv.push_front(<span class="kw-2">&amp;mut </span><span class="self">self</span>.buffer, event);
+<a href=#1121 id=1121 data-nosnippet>1121</a>
+<a href=#1122 id=1122 data-nosnippet>1122</a>                <span class="comment">// Notify the recv task. This is done just in case
+<a href=#1123 id=1123 data-nosnippet>1123</a>                // `poll_trailers` was called.
+<a href=#1124 id=1124 data-nosnippet>1124</a>                //
+<a href=#1125 id=1125 data-nosnippet>1125</a>                // It is very likely that `notify_recv` will just be a no-op (as
+<a href=#1126 id=1126 data-nosnippet>1126</a>                // the task will be None), so this isn't really much of a
+<a href=#1127 id=1127 data-nosnippet>1127</a>                // performance concern. It also means we don't have to track
+<a href=#1128 id=1128 data-nosnippet>1128</a>                // state to see if `poll_trailers` was called before `poll_data`
+<a href=#1129 id=1129 data-nosnippet>1129</a>                // returned `None`.
+<a href=#1130 id=1130 data-nosnippet>1130</a>                </span>stream.notify_recv();
+<a href=#1131 id=1131 data-nosnippet>1131</a>
+<a href=#1132 id=1132 data-nosnippet>1132</a>                <span class="comment">// No more data frames
+<a href=#1133 id=1133 data-nosnippet>1133</a>                </span>Poll::Ready(<span class="prelude-val">None</span>)
+<a href=#1134 id=1134 data-nosnippet>1134</a>            }
+<a href=#1135 id=1135 data-nosnippet>1135</a>            <span class="prelude-val">None </span>=&gt; <span class="self">self</span>.schedule_recv(cx, stream),
+<a href=#1136 id=1136 data-nosnippet>1136</a>        }
+<a href=#1137 id=1137 data-nosnippet>1137</a>    }
+<a href=#1138 id=1138 data-nosnippet>1138</a>
+<a href=#1139 id=1139 data-nosnippet>1139</a>    <span class="kw">pub fn </span>poll_trailers(
+<a href=#1140 id=1140 data-nosnippet>1140</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#1141 id=1141 data-nosnippet>1141</a>        cx: <span class="kw-2">&amp;</span>Context,
+<a href=#1142 id=1142 data-nosnippet>1142</a>        stream: <span class="kw-2">&amp;mut </span>Stream,
+<a href=#1143 id=1143 data-nosnippet>1143</a>    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;HeaderMap, proto::Error&gt;&gt;&gt; {
+<a href=#1144 id=1144 data-nosnippet>1144</a>        <span class="kw">match </span>stream.pending_recv.pop_front(<span class="kw-2">&amp;mut </span><span class="self">self</span>.buffer) {
+<a href=#1145 id=1145 data-nosnippet>1145</a>            <span class="prelude-val">Some</span>(Event::Trailers(trailers)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(trailers))),
+<a href=#1146 id=1146 data-nosnippet>1146</a>            <span class="prelude-val">Some</span>(event) =&gt; {
+<a href=#1147 id=1147 data-nosnippet>1147</a>                <span class="comment">// Frame is not trailers.. not ready to poll trailers yet.
+<a href=#1148 id=1148 data-nosnippet>1148</a>                </span>stream.pending_recv.push_front(<span class="kw-2">&amp;mut </span><span class="self">self</span>.buffer, event);
+<a href=#1149 id=1149 data-nosnippet>1149</a>
+<a href=#1150 id=1150 data-nosnippet>1150</a>                Poll::Pending
+<a href=#1151 id=1151 data-nosnippet>1151</a>            }
+<a href=#1152 id=1152 data-nosnippet>1152</a>            <span class="prelude-val">None </span>=&gt; <span class="self">self</span>.schedule_recv(cx, stream),
+<a href=#1153 id=1153 data-nosnippet>1153</a>        }
+<a href=#1154 id=1154 data-nosnippet>1154</a>    }
+<a href=#1155 id=1155 data-nosnippet>1155</a>
+<a href=#1156 id=1156 data-nosnippet>1156</a>    <span class="kw">fn </span>schedule_recv&lt;T&gt;(
+<a href=#1157 id=1157 data-nosnippet>1157</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#1158 id=1158 data-nosnippet>1158</a>        cx: <span class="kw-2">&amp;</span>Context,
+<a href=#1159 id=1159 data-nosnippet>1159</a>        stream: <span class="kw-2">&amp;mut </span>Stream,
+<a href=#1160 id=1160 data-nosnippet>1160</a>    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;T, proto::Error&gt;&gt;&gt; {
+<a href=#1161 id=1161 data-nosnippet>1161</a>        <span class="kw">if </span>stream.state.ensure_recv_open()<span class="question-mark">? </span>{
+<a href=#1162 id=1162 data-nosnippet>1162</a>            <span class="comment">// Request to get notified once more frames arrive
+<a href=#1163 id=1163 data-nosnippet>1163</a>            </span>stream.recv_task = <span class="prelude-val">Some</span>(cx.waker().clone());
+<a href=#1164 id=1164 data-nosnippet>1164</a>            Poll::Pending
+<a href=#1165 id=1165 data-nosnippet>1165</a>        } <span class="kw">else </span>{
+<a href=#1166 id=1166 data-nosnippet>1166</a>            <span class="comment">// No more frames will be received
+<a href=#1167 id=1167 data-nosnippet>1167</a>            </span>Poll::Ready(<span class="prelude-val">None</span>)
+<a href=#1168 id=1168 data-nosnippet>1168</a>        }
+<a href=#1169 id=1169 data-nosnippet>1169</a>    }
+<a href=#1170 id=1170 data-nosnippet>1170</a>}
+<a href=#1171 id=1171 data-nosnippet>1171</a>
+<a href=#1172 id=1172 data-nosnippet>1172</a><span class="comment">// ===== impl Open =====
+<a href=#1173 id=1173 data-nosnippet>1173</a>
+<a href=#1174 id=1174 data-nosnippet>1174</a></span><span class="kw">impl </span>Open {
+<a href=#1175 id=1175 data-nosnippet>1175</a>    <span class="kw">pub fn </span>is_push_promise(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+<a href=#1176 id=1176 data-nosnippet>1176</a>        <span class="macro">matches!</span>(<span class="kw-2">*</span><span class="self">self</span>, <span class="self">Self</span>::PushPromise)
+<a href=#1177 id=1177 data-nosnippet>1177</a>    }
+<a href=#1178 id=1178 data-nosnippet>1178</a>}
+<a href=#1179 id=1179 data-nosnippet>1179</a>
+<a href=#1180 id=1180 data-nosnippet>1180</a><span class="comment">// ===== impl RecvHeaderBlockError =====
+<a href=#1181 id=1181 data-nosnippet>1181</a>
+<a href=#1182 id=1182 data-nosnippet>1182</a></span><span class="kw">impl</span>&lt;T&gt; From&lt;Error&gt; <span class="kw">for </span>RecvHeaderBlockError&lt;T&gt; {
+<a href=#1183 id=1183 data-nosnippet>1183</a>    <span class="kw">fn </span>from(err: Error) -&gt; <span class="self">Self </span>{
+<a href=#1184 id=1184 data-nosnippet>1184</a>        RecvHeaderBlockError::State(err)
+<a href=#1185 id=1185 data-nosnippet>1185</a>    }
+<a href=#1186 id=1186 data-nosnippet>1186</a>}</code></pre></div></section></main></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/actix-http-3.11.0/src/h1/dispatcher.rs`."><title>dispatcher.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_http" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../static.files/storage-82c7156e.js"></script><script defer src="../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">actix_http/h1/</div>dispatcher.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>std::{
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/actix-http-3.11.1/src/h1/dispatcher.rs`."><title>dispatcher.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_http" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../static.files/storage-82c7156e.js"></script><script defer src="../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">actix_http/h1/</div>dispatcher.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>std::{
 <a href=#2 id=2 data-nosnippet>2</a>    collections::VecDeque,
 <a href=#3 id=3 data-nosnippet>3</a>    fmt,
 <a href=#4 id=4 data-nosnippet>4</a>    future::Future,
@@ -1182,7 +1182,7 @@
 <a href=#1182 id=1182 data-nosnippet>1182</a>                    <span class="kw">let </span>state_is_none = inner_p.state.is_none();
 <a href=#1183 id=1183 data-nosnippet>1183</a>
 <a href=#1184 id=1184 data-nosnippet>1184</a>                    <span class="comment">// read half is closed; we do not process any responses
-<a href=#1185 id=1185 data-nosnippet>1185</a>                    </span><span class="kw">if </span>inner_p.flags.contains(Flags::READ_DISCONNECT) &amp;&amp; state_is_none {
+<a href=#1185 id=1185 data-nosnippet>1185</a>                    </span><span class="kw">if </span>inner_p.flags.contains(Flags::READ_DISCONNECT) {
 <a href=#1186 id=1186 data-nosnippet>1186</a>                        <span class="macro">trace!</span>(<span class="string">"read half closed; start shutdown"</span>);
 <a href=#1187 id=1187 data-nosnippet>1187</a>                        inner_p.flags.insert(Flags::SHUTDOWN);
 <a href=#1188 id=1188 data-nosnippet>1188</a>                    }
@@ -1216,35 +1216,38 @@
 <a href=#1216 id=1216 data-nosnippet>1216</a>                        inner_p.shutdown_timer,
 <a href=#1217 id=1217 data-nosnippet>1217</a>                    );
 <a href=#1218 id=1218 data-nosnippet>1218</a>
-<a href=#1219 id=1219 data-nosnippet>1219</a>                    Poll::Pending
-<a href=#1220 id=1220 data-nosnippet>1220</a>                };
-<a href=#1221 id=1221 data-nosnippet>1221</a>
-<a href=#1222 id=1222 data-nosnippet>1222</a>                <span class="macro">trace!</span>(<span class="string">"end flags: {:?}"</span>, <span class="kw-2">&amp;</span>inner.flags);
-<a href=#1223 id=1223 data-nosnippet>1223</a>
-<a href=#1224 id=1224 data-nosnippet>1224</a>                poll
-<a href=#1225 id=1225 data-nosnippet>1225</a>            }
-<a href=#1226 id=1226 data-nosnippet>1226</a>        }
-<a href=#1227 id=1227 data-nosnippet>1227</a>    }
-<a href=#1228 id=1228 data-nosnippet>1228</a>}
-<a href=#1229 id=1229 data-nosnippet>1229</a>
-<a href=#1230 id=1230 data-nosnippet>1230</a><span class="attr">#[allow(dead_code)]
-<a href=#1231 id=1231 data-nosnippet>1231</a></span><span class="kw">fn </span>trace_timer_states(
-<a href=#1232 id=1232 data-nosnippet>1232</a>    label: <span class="kw-2">&amp;</span>str,
-<a href=#1233 id=1233 data-nosnippet>1233</a>    head_timer: <span class="kw-2">&amp;</span>TimerState,
-<a href=#1234 id=1234 data-nosnippet>1234</a>    ka_timer: <span class="kw-2">&amp;</span>TimerState,
-<a href=#1235 id=1235 data-nosnippet>1235</a>    shutdown_timer: <span class="kw-2">&amp;</span>TimerState,
-<a href=#1236 id=1236 data-nosnippet>1236</a>) {
-<a href=#1237 id=1237 data-nosnippet>1237</a>    <span class="macro">trace!</span>(<span class="string">"{} timers:"</span>, label);
-<a href=#1238 id=1238 data-nosnippet>1238</a>
-<a href=#1239 id=1239 data-nosnippet>1239</a>    <span class="kw">if </span>head_timer.is_enabled() {
-<a href=#1240 id=1240 data-nosnippet>1240</a>        <span class="macro">trace!</span>(<span class="string">"  head {}"</span>, <span class="kw-2">&amp;</span>head_timer);
-<a href=#1241 id=1241 data-nosnippet>1241</a>    }
-<a href=#1242 id=1242 data-nosnippet>1242</a>
-<a href=#1243 id=1243 data-nosnippet>1243</a>    <span class="kw">if </span>ka_timer.is_enabled() {
-<a href=#1244 id=1244 data-nosnippet>1244</a>        <span class="macro">trace!</span>(<span class="string">"  keep-alive {}"</span>, <span class="kw-2">&amp;</span>ka_timer);
-<a href=#1245 id=1245 data-nosnippet>1245</a>    }
-<a href=#1246 id=1246 data-nosnippet>1246</a>
-<a href=#1247 id=1247 data-nosnippet>1247</a>    <span class="kw">if </span>shutdown_timer.is_enabled() {
-<a href=#1248 id=1248 data-nosnippet>1248</a>        <span class="macro">trace!</span>(<span class="string">"  shutdown {}"</span>, <span class="kw-2">&amp;</span>shutdown_timer);
-<a href=#1249 id=1249 data-nosnippet>1249</a>    }
-<a href=#1250 id=1250 data-nosnippet>1250</a>}</code></pre></div></section></main></body></html>
+<a href=#1219 id=1219 data-nosnippet>1219</a>                    <span class="kw">if </span>inner_p.flags.contains(Flags::SHUTDOWN) {
+<a href=#1220 id=1220 data-nosnippet>1220</a>                        cx.waker().wake_by_ref();
+<a href=#1221 id=1221 data-nosnippet>1221</a>                    }
+<a href=#1222 id=1222 data-nosnippet>1222</a>                    Poll::Pending
+<a href=#1223 id=1223 data-nosnippet>1223</a>                };
+<a href=#1224 id=1224 data-nosnippet>1224</a>
+<a href=#1225 id=1225 data-nosnippet>1225</a>                <span class="macro">trace!</span>(<span class="string">"end flags: {:?}"</span>, <span class="kw-2">&amp;</span>inner.flags);
+<a href=#1226 id=1226 data-nosnippet>1226</a>
+<a href=#1227 id=1227 data-nosnippet>1227</a>                poll
+<a href=#1228 id=1228 data-nosnippet>1228</a>            }
+<a href=#1229 id=1229 data-nosnippet>1229</a>        }
+<a href=#1230 id=1230 data-nosnippet>1230</a>    }
+<a href=#1231 id=1231 data-nosnippet>1231</a>}
+<a href=#1232 id=1232 data-nosnippet>1232</a>
+<a href=#1233 id=1233 data-nosnippet>1233</a><span class="attr">#[allow(dead_code)]
+<a href=#1234 id=1234 data-nosnippet>1234</a></span><span class="kw">fn </span>trace_timer_states(
+<a href=#1235 id=1235 data-nosnippet>1235</a>    label: <span class="kw-2">&amp;</span>str,
+<a href=#1236 id=1236 data-nosnippet>1236</a>    head_timer: <span class="kw-2">&amp;</span>TimerState,
+<a href=#1237 id=1237 data-nosnippet>1237</a>    ka_timer: <span class="kw-2">&amp;</span>TimerState,
+<a href=#1238 id=1238 data-nosnippet>1238</a>    shutdown_timer: <span class="kw-2">&amp;</span>TimerState,
+<a href=#1239 id=1239 data-nosnippet>1239</a>) {
+<a href=#1240 id=1240 data-nosnippet>1240</a>    <span class="macro">trace!</span>(<span class="string">"{} timers:"</span>, label);
+<a href=#1241 id=1241 data-nosnippet>1241</a>
+<a href=#1242 id=1242 data-nosnippet>1242</a>    <span class="kw">if </span>head_timer.is_enabled() {
+<a href=#1243 id=1243 data-nosnippet>1243</a>        <span class="macro">trace!</span>(<span class="string">"  head {}"</span>, <span class="kw-2">&amp;</span>head_timer);
+<a href=#1244 id=1244 data-nosnippet>1244</a>    }
+<a href=#1245 id=1245 data-nosnippet>1245</a>
+<a href=#1246 id=1246 data-nosnippet>1246</a>    <span class="kw">if </span>ka_timer.is_enabled() {
+<a href=#1247 id=1247 data-nosnippet>1247</a>        <span class="macro">trace!</span>(<span class="string">"  keep-alive {}"</span>, <span class="kw-2">&amp;</span>ka_timer);
+<a href=#1248 id=1248 data-nosnippet>1248</a>    }
+<a href=#1249 id=1249 data-nosnippet>1249</a>
+<a href=#1250 id=1250 data-nosnippet>1250</a>    <span class="kw">if </span>shutdown_timer.is_enabled() {
+<a href=#1251 id=1251 data-nosnippet>1251</a>        <span class="macro">trace!</span>(<span class="string">"  shutdown {}"</span>, <span class="kw-2">&amp;</span>shutdown_timer);
+<a href=#1252 id=1252 data-nosnippet>1252</a>    }
+<a href=#1253 id=1253 data-nosnippet>1253</a>}</code></pre></div></section></main></body></html>

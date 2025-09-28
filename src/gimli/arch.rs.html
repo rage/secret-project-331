@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gimli-0.31.1/src/arch.rs`."><title>arch.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="../../static.files/src-script-63605ae7.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">gimli/</div>arch.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span><span class="kw">crate</span>::common::Register;
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gimli-0.32.3/src/arch.rs`."><title>arch.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="../../static.files/src-script-63605ae7.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">gimli/</div>arch.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span><span class="kw">crate</span>::common::Register;
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a><span class="macro">macro_rules!</span> registers {
 <a href=#4 id=4 data-nosnippet>4</a>    (<span class="macro-nonterminal">$struct_name</span>:ident, { $(<span class="macro-nonterminal">$name</span>:ident = (<span class="macro-nonterminal">$val</span>:expr, <span class="macro-nonterminal">$disp</span>:expr)),+ $(,)<span class="question-mark">? </span>}
@@ -765,7 +765,7 @@
 <a href=#765 id=765 data-nosnippet>765</a>
 <a href=#766 id=766 data-nosnippet>766</a><span class="doccomment">/// Intel i386 architecture specific definitions.
 <a href=#767 id=767 data-nosnippet>767</a>///
-<a href=#768 id=768 data-nosnippet>768</a>/// See Intel386 psABi version 1.1 at the [X86 psABI wiki](https://github.com/hjl-tools/x86-psABI/wiki/X86-psABI).
+<a href=#768 id=768 data-nosnippet>768</a>/// See section 2.4.2 of the [i386 psABI](https://gitlab.com/x86-psABIs/i386-ABI).
 <a href=#769 id=769 data-nosnippet>769</a></span><span class="attr">#[derive(Debug, Clone, Copy)]
 <a href=#770 id=770 data-nosnippet>770</a></span><span class="kw">pub struct </span>X86;
 <a href=#771 id=771 data-nosnippet>771</a>
@@ -827,7 +827,7 @@
 <a href=#827 id=827 data-nosnippet>827</a>
 <a href=#828 id=828 data-nosnippet>828</a><span class="doccomment">/// AMD64 architecture specific definitions.
 <a href=#829 id=829 data-nosnippet>829</a>///
-<a href=#830 id=830 data-nosnippet>830</a>/// See x86-64 psABI version 1.0 at the [X86 psABI wiki](https://github.com/hjl-tools/x86-psABI/wiki/X86-psABI).
+<a href=#830 id=830 data-nosnippet>830</a>/// See section 3.6.2 of the [x86-64 psABI](https://gitlab.com/x86-psABIs/x86-64-ABI).
 <a href=#831 id=831 data-nosnippet>831</a></span><span class="attr">#[derive(Debug, Clone, Copy)]
 <a href=#832 id=832 data-nosnippet>832</a></span><span class="kw">pub struct </span>X86_64;
 <a href=#833 id=833 data-nosnippet>833</a>
@@ -931,161 +931,188 @@
 <a href=#931 id=931 data-nosnippet>931</a>    K5 = (<span class="number">123</span>, <span class="string">"k5"</span>),
 <a href=#932 id=932 data-nosnippet>932</a>    K6 = (<span class="number">124</span>, <span class="string">"k6"</span>),
 <a href=#933 id=933 data-nosnippet>933</a>    K7 = (<span class="number">125</span>, <span class="string">"k7"</span>),
-<a href=#934 id=934 data-nosnippet>934</a>});
-<a href=#935 id=935 data-nosnippet>935</a>
-<a href=#936 id=936 data-nosnippet>936</a><span class="doccomment">/// PowerPC 64bit
-<a href=#937 id=937 data-nosnippet>937</a>///
-<a href=#938 id=938 data-nosnippet>938</a>/// See [64-bit ELF ABI Specification for OpenPOWER Architecture](https://openpowerfoundation.org/specifications/64bitelfabi/).
-<a href=#939 id=939 data-nosnippet>939</a></span><span class="attr">#[derive(Debug, Clone, Copy)]
-<a href=#940 id=940 data-nosnippet>940</a></span><span class="kw">pub struct </span>PowerPc64;
-<a href=#941 id=941 data-nosnippet>941</a>
-<a href=#942 id=942 data-nosnippet>942</a><span class="macro">registers!</span>(PowerPc64, {
-<a href=#943 id=943 data-nosnippet>943</a>    R0 = (<span class="number">0</span>, <span class="string">"r0"</span>),
-<a href=#944 id=944 data-nosnippet>944</a>    R1 = (<span class="number">1</span>, <span class="string">"r1"</span>),
-<a href=#945 id=945 data-nosnippet>945</a>    R2 = (<span class="number">2</span>, <span class="string">"r2"</span>),
-<a href=#946 id=946 data-nosnippet>946</a>    R3 = (<span class="number">3</span>, <span class="string">"r3"</span>),
-<a href=#947 id=947 data-nosnippet>947</a>    R4 = (<span class="number">4</span>, <span class="string">"r4"</span>),
-<a href=#948 id=948 data-nosnippet>948</a>    R5 = (<span class="number">5</span>, <span class="string">"r5"</span>),
-<a href=#949 id=949 data-nosnippet>949</a>    R6 = (<span class="number">6</span>, <span class="string">"r6"</span>),
-<a href=#950 id=950 data-nosnippet>950</a>    R7 = (<span class="number">7</span>, <span class="string">"r7"</span>),
-<a href=#951 id=951 data-nosnippet>951</a>    R8 = (<span class="number">8</span>, <span class="string">"r8"</span>),
-<a href=#952 id=952 data-nosnippet>952</a>    R9 = (<span class="number">9</span>, <span class="string">"r9"</span>),
-<a href=#953 id=953 data-nosnippet>953</a>    R10 = (<span class="number">10</span>, <span class="string">"r10"</span>),
-<a href=#954 id=954 data-nosnippet>954</a>    R11 = (<span class="number">11</span>, <span class="string">"r11"</span>),
-<a href=#955 id=955 data-nosnippet>955</a>    R12 = (<span class="number">12</span>, <span class="string">"r12"</span>),
-<a href=#956 id=956 data-nosnippet>956</a>    R13 = (<span class="number">13</span>, <span class="string">"r13"</span>),
-<a href=#957 id=957 data-nosnippet>957</a>    R14 = (<span class="number">14</span>, <span class="string">"r14"</span>),
-<a href=#958 id=958 data-nosnippet>958</a>    R15 = (<span class="number">15</span>, <span class="string">"r15"</span>),
-<a href=#959 id=959 data-nosnippet>959</a>    R16 = (<span class="number">16</span>, <span class="string">"r16"</span>),
-<a href=#960 id=960 data-nosnippet>960</a>    R17 = (<span class="number">17</span>, <span class="string">"r17"</span>),
-<a href=#961 id=961 data-nosnippet>961</a>    R18 = (<span class="number">18</span>, <span class="string">"r18"</span>),
-<a href=#962 id=962 data-nosnippet>962</a>    R19 = (<span class="number">19</span>, <span class="string">"r19"</span>),
-<a href=#963 id=963 data-nosnippet>963</a>    R20 = (<span class="number">20</span>, <span class="string">"r20"</span>),
-<a href=#964 id=964 data-nosnippet>964</a>    R21 = (<span class="number">21</span>, <span class="string">"r21"</span>),
-<a href=#965 id=965 data-nosnippet>965</a>    R22 = (<span class="number">22</span>, <span class="string">"r22"</span>),
-<a href=#966 id=966 data-nosnippet>966</a>    R23 = (<span class="number">23</span>, <span class="string">"r23"</span>),
-<a href=#967 id=967 data-nosnippet>967</a>    R24 = (<span class="number">24</span>, <span class="string">"r24"</span>),
-<a href=#968 id=968 data-nosnippet>968</a>    R25 = (<span class="number">25</span>, <span class="string">"r25"</span>),
-<a href=#969 id=969 data-nosnippet>969</a>    R26 = (<span class="number">26</span>, <span class="string">"r26"</span>),
-<a href=#970 id=970 data-nosnippet>970</a>    R27 = (<span class="number">27</span>, <span class="string">"r27"</span>),
-<a href=#971 id=971 data-nosnippet>971</a>    R28 = (<span class="number">28</span>, <span class="string">"r28"</span>),
-<a href=#972 id=972 data-nosnippet>972</a>    R29 = (<span class="number">29</span>, <span class="string">"r29"</span>),
-<a href=#973 id=973 data-nosnippet>973</a>    R30 = (<span class="number">30</span>, <span class="string">"r30"</span>),
-<a href=#974 id=974 data-nosnippet>974</a>    R31 = (<span class="number">31</span>, <span class="string">"r31"</span>),
-<a href=#975 id=975 data-nosnippet>975</a>
-<a href=#976 id=976 data-nosnippet>976</a>    F0 = (<span class="number">32</span>, <span class="string">"f0"</span>),
-<a href=#977 id=977 data-nosnippet>977</a>    F1 = (<span class="number">33</span>, <span class="string">"f1"</span>),
-<a href=#978 id=978 data-nosnippet>978</a>    F2 = (<span class="number">34</span>, <span class="string">"f2"</span>),
-<a href=#979 id=979 data-nosnippet>979</a>    F3 = (<span class="number">35</span>, <span class="string">"f3"</span>),
-<a href=#980 id=980 data-nosnippet>980</a>    F4 = (<span class="number">36</span>, <span class="string">"f4"</span>),
-<a href=#981 id=981 data-nosnippet>981</a>    F5 = (<span class="number">37</span>, <span class="string">"f5"</span>),
-<a href=#982 id=982 data-nosnippet>982</a>    F6 = (<span class="number">38</span>, <span class="string">"f6"</span>),
-<a href=#983 id=983 data-nosnippet>983</a>    F7 = (<span class="number">39</span>, <span class="string">"f7"</span>),
-<a href=#984 id=984 data-nosnippet>984</a>    F8 = (<span class="number">40</span>, <span class="string">"f8"</span>),
-<a href=#985 id=985 data-nosnippet>985</a>    F9 = (<span class="number">41</span>, <span class="string">"f9"</span>),
-<a href=#986 id=986 data-nosnippet>986</a>    F10 = (<span class="number">42</span>, <span class="string">"f10"</span>),
-<a href=#987 id=987 data-nosnippet>987</a>    F11 = (<span class="number">43</span>, <span class="string">"f11"</span>),
-<a href=#988 id=988 data-nosnippet>988</a>    F12 = (<span class="number">44</span>, <span class="string">"f12"</span>),
-<a href=#989 id=989 data-nosnippet>989</a>    F13 = (<span class="number">45</span>, <span class="string">"f13"</span>),
-<a href=#990 id=990 data-nosnippet>990</a>    F14 = (<span class="number">46</span>, <span class="string">"f14"</span>),
-<a href=#991 id=991 data-nosnippet>991</a>    F15 = (<span class="number">47</span>, <span class="string">"f15"</span>),
-<a href=#992 id=992 data-nosnippet>992</a>    F16 = (<span class="number">48</span>, <span class="string">"f16"</span>),
-<a href=#993 id=993 data-nosnippet>993</a>    F17 = (<span class="number">49</span>, <span class="string">"f17"</span>),
-<a href=#994 id=994 data-nosnippet>994</a>    F18 = (<span class="number">50</span>, <span class="string">"f18"</span>),
-<a href=#995 id=995 data-nosnippet>995</a>    F19 = (<span class="number">51</span>, <span class="string">"f19"</span>),
-<a href=#996 id=996 data-nosnippet>996</a>    F20 = (<span class="number">52</span>, <span class="string">"f20"</span>),
-<a href=#997 id=997 data-nosnippet>997</a>    F21 = (<span class="number">53</span>, <span class="string">"f21"</span>),
-<a href=#998 id=998 data-nosnippet>998</a>    F22 = (<span class="number">54</span>, <span class="string">"f22"</span>),
-<a href=#999 id=999 data-nosnippet>999</a>    F23 = (<span class="number">55</span>, <span class="string">"f23"</span>),
-<a href=#1000 id=1000 data-nosnippet>1000</a>    F24 = (<span class="number">56</span>, <span class="string">"f24"</span>),
-<a href=#1001 id=1001 data-nosnippet>1001</a>    F25 = (<span class="number">57</span>, <span class="string">"f25"</span>),
-<a href=#1002 id=1002 data-nosnippet>1002</a>    F26 = (<span class="number">58</span>, <span class="string">"f26"</span>),
-<a href=#1003 id=1003 data-nosnippet>1003</a>    F27 = (<span class="number">59</span>, <span class="string">"f27"</span>),
-<a href=#1004 id=1004 data-nosnippet>1004</a>    F28 = (<span class="number">60</span>, <span class="string">"f28"</span>),
-<a href=#1005 id=1005 data-nosnippet>1005</a>    F29 = (<span class="number">61</span>, <span class="string">"f29"</span>),
-<a href=#1006 id=1006 data-nosnippet>1006</a>    F30 = (<span class="number">62</span>, <span class="string">"f30"</span>),
-<a href=#1007 id=1007 data-nosnippet>1007</a>    F31 = (<span class="number">63</span>, <span class="string">"f31"</span>),
-<a href=#1008 id=1008 data-nosnippet>1008</a>
-<a href=#1009 id=1009 data-nosnippet>1009</a>    LR = (<span class="number">65</span>, <span class="string">"lr"</span>),
-<a href=#1010 id=1010 data-nosnippet>1010</a>    CTR = (<span class="number">66</span>, <span class="string">"ctr"</span>),
-<a href=#1011 id=1011 data-nosnippet>1011</a>
-<a href=#1012 id=1012 data-nosnippet>1012</a>    CR0 = (<span class="number">68</span>, <span class="string">"cr0"</span>),
-<a href=#1013 id=1013 data-nosnippet>1013</a>    CR1 = (<span class="number">69</span>, <span class="string">"cr1"</span>),
-<a href=#1014 id=1014 data-nosnippet>1014</a>    CR2 = (<span class="number">70</span>, <span class="string">"cr2"</span>),
-<a href=#1015 id=1015 data-nosnippet>1015</a>    CR3 = (<span class="number">71</span>, <span class="string">"cr3"</span>),
-<a href=#1016 id=1016 data-nosnippet>1016</a>    CR4 = (<span class="number">72</span>, <span class="string">"cr4"</span>),
-<a href=#1017 id=1017 data-nosnippet>1017</a>    CR5 = (<span class="number">73</span>, <span class="string">"cr5"</span>),
-<a href=#1018 id=1018 data-nosnippet>1018</a>    CR6 = (<span class="number">74</span>, <span class="string">"cr6"</span>),
-<a href=#1019 id=1019 data-nosnippet>1019</a>    CR7 = (<span class="number">75</span>, <span class="string">"cr7"</span>),
-<a href=#1020 id=1020 data-nosnippet>1020</a>    XER = (<span class="number">76</span>, <span class="string">"xer"</span>),
-<a href=#1021 id=1021 data-nosnippet>1021</a>
-<a href=#1022 id=1022 data-nosnippet>1022</a>    VR0 = (<span class="number">77</span>, <span class="string">"vr0"</span>),
-<a href=#1023 id=1023 data-nosnippet>1023</a>    VR1 = (<span class="number">78</span>, <span class="string">"vr1"</span>),
-<a href=#1024 id=1024 data-nosnippet>1024</a>    VR2 = (<span class="number">79</span>, <span class="string">"vr2"</span>),
-<a href=#1025 id=1025 data-nosnippet>1025</a>    VR3 = (<span class="number">80</span>, <span class="string">"vr3"</span>),
-<a href=#1026 id=1026 data-nosnippet>1026</a>    VR4 = (<span class="number">81</span>, <span class="string">"vr4"</span>),
-<a href=#1027 id=1027 data-nosnippet>1027</a>    VR5 = (<span class="number">82</span>, <span class="string">"vr5"</span>),
-<a href=#1028 id=1028 data-nosnippet>1028</a>    VR6 = (<span class="number">83</span>, <span class="string">"vr6"</span>),
-<a href=#1029 id=1029 data-nosnippet>1029</a>    VR7 = (<span class="number">84</span>, <span class="string">"vr7"</span>),
-<a href=#1030 id=1030 data-nosnippet>1030</a>    VR8 = (<span class="number">85</span>, <span class="string">"vr8"</span>),
-<a href=#1031 id=1031 data-nosnippet>1031</a>    VR9 = (<span class="number">86</span>, <span class="string">"vr9"</span>),
-<a href=#1032 id=1032 data-nosnippet>1032</a>    VR10 = (<span class="number">87</span>, <span class="string">"vr10"</span>),
-<a href=#1033 id=1033 data-nosnippet>1033</a>    VR11 = (<span class="number">88</span>, <span class="string">"vr11"</span>),
-<a href=#1034 id=1034 data-nosnippet>1034</a>    VR12 = (<span class="number">89</span>, <span class="string">"vr12"</span>),
-<a href=#1035 id=1035 data-nosnippet>1035</a>    VR13 = (<span class="number">90</span>, <span class="string">"vr13"</span>),
-<a href=#1036 id=1036 data-nosnippet>1036</a>    VR14 = (<span class="number">91</span>, <span class="string">"vr14"</span>),
-<a href=#1037 id=1037 data-nosnippet>1037</a>    VR15 = (<span class="number">92</span>, <span class="string">"vr15"</span>),
-<a href=#1038 id=1038 data-nosnippet>1038</a>    VR16 = (<span class="number">93</span>, <span class="string">"vr16"</span>),
-<a href=#1039 id=1039 data-nosnippet>1039</a>    VR17 = (<span class="number">94</span>, <span class="string">"vr17"</span>),
-<a href=#1040 id=1040 data-nosnippet>1040</a>    VR18 = (<span class="number">95</span>, <span class="string">"vr18"</span>),
-<a href=#1041 id=1041 data-nosnippet>1041</a>    VR19 = (<span class="number">96</span>, <span class="string">"vr19"</span>),
-<a href=#1042 id=1042 data-nosnippet>1042</a>    VR20 = (<span class="number">97</span>, <span class="string">"vr20"</span>),
-<a href=#1043 id=1043 data-nosnippet>1043</a>    VR21 = (<span class="number">98</span>, <span class="string">"vr21"</span>),
-<a href=#1044 id=1044 data-nosnippet>1044</a>    VR22 = (<span class="number">99</span>, <span class="string">"vr22"</span>),
-<a href=#1045 id=1045 data-nosnippet>1045</a>    VR23 = (<span class="number">100</span>, <span class="string">"vr23"</span>),
-<a href=#1046 id=1046 data-nosnippet>1046</a>    VR24 = (<span class="number">101</span>, <span class="string">"vr24"</span>),
-<a href=#1047 id=1047 data-nosnippet>1047</a>    VR25 = (<span class="number">102</span>, <span class="string">"vr25"</span>),
-<a href=#1048 id=1048 data-nosnippet>1048</a>    VR26 = (<span class="number">103</span>, <span class="string">"vr26"</span>),
-<a href=#1049 id=1049 data-nosnippet>1049</a>    VR27 = (<span class="number">104</span>, <span class="string">"vr27"</span>),
-<a href=#1050 id=1050 data-nosnippet>1050</a>    VR28 = (<span class="number">105</span>, <span class="string">"vr28"</span>),
-<a href=#1051 id=1051 data-nosnippet>1051</a>    VR29 = (<span class="number">106</span>, <span class="string">"vr29"</span>),
-<a href=#1052 id=1052 data-nosnippet>1052</a>    VR30 = (<span class="number">107</span>, <span class="string">"vr30"</span>),
-<a href=#1053 id=1053 data-nosnippet>1053</a>    VR31 = (<span class="number">108</span>, <span class="string">"vr31"</span>),
-<a href=#1054 id=1054 data-nosnippet>1054</a>
-<a href=#1055 id=1055 data-nosnippet>1055</a>    VSCR = (<span class="number">110</span>, <span class="string">"vscr"</span>),
-<a href=#1056 id=1056 data-nosnippet>1056</a>    TFHAR = (<span class="number">114</span>, <span class="string">"tfhar"</span>),
-<a href=#1057 id=1057 data-nosnippet>1057</a>    TFIAR = (<span class="number">115</span>, <span class="string">"tfiar"</span>),
-<a href=#1058 id=1058 data-nosnippet>1058</a>    TEXASR = (<span class="number">116</span>, <span class="string">"texasr"</span>),
-<a href=#1059 id=1059 data-nosnippet>1059</a>});
-<a href=#1060 id=1060 data-nosnippet>1060</a>
-<a href=#1061 id=1061 data-nosnippet>1061</a><span class="attr">#[cfg(test)]
-<a href=#1062 id=1062 data-nosnippet>1062</a></span><span class="kw">mod </span>tests {
-<a href=#1063 id=1063 data-nosnippet>1063</a>
-<a href=#1064 id=1064 data-nosnippet>1064</a>    <span class="attr">#[test]
-<a href=#1065 id=1065 data-nosnippet>1065</a>    #[cfg(feature = <span class="string">"std"</span>)]
-<a href=#1066 id=1066 data-nosnippet>1066</a>    </span><span class="kw">fn </span>test_aarch64_registers() {
-<a href=#1067 id=1067 data-nosnippet>1067</a>        <span class="kw">use super</span>::<span class="kw-2">*</span>;
-<a href=#1068 id=1068 data-nosnippet>1068</a>        <span class="kw">use </span>std::collections::HashSet;
-<a href=#1069 id=1069 data-nosnippet>1069</a>
-<a href=#1070 id=1070 data-nosnippet>1070</a>        <span class="kw">let </span><span class="kw-2">mut </span>names = HashSet::new();
-<a href=#1071 id=1071 data-nosnippet>1071</a>        <span class="kw">for </span>n <span class="kw">in </span>(<span class="number">0</span>..=<span class="number">39</span>).chain(<span class="number">46</span>..=<span class="number">127</span>) {
-<a href=#1072 id=1072 data-nosnippet>1072</a>            <span class="kw">let </span>name = AArch64::register_name(Register(n))
-<a href=#1073 id=1073 data-nosnippet>1073</a>                .unwrap_or_else(|| <span class="macro">panic!</span>(<span class="string">"Register {} should have a name."</span>, n));
-<a href=#1074 id=1074 data-nosnippet>1074</a>            <span class="macro">assert!</span>(names.insert(name));
-<a href=#1075 id=1075 data-nosnippet>1075</a>        }
-<a href=#1076 id=1076 data-nosnippet>1076</a>    }
-<a href=#1077 id=1077 data-nosnippet>1077</a>
-<a href=#1078 id=1078 data-nosnippet>1078</a>    <span class="attr">#[test]
-<a href=#1079 id=1079 data-nosnippet>1079</a>    #[cfg(feature = <span class="string">"std"</span>)]
-<a href=#1080 id=1080 data-nosnippet>1080</a>    </span><span class="kw">fn </span>test_power64_registers() {
-<a href=#1081 id=1081 data-nosnippet>1081</a>        <span class="kw">use super</span>::<span class="kw-2">*</span>;
-<a href=#1082 id=1082 data-nosnippet>1082</a>        <span class="kw">use </span>std::collections::HashSet;
-<a href=#1083 id=1083 data-nosnippet>1083</a>
-<a href=#1084 id=1084 data-nosnippet>1084</a>        <span class="kw">let </span><span class="kw-2">mut </span>names = HashSet::new();
-<a href=#1085 id=1085 data-nosnippet>1085</a>        <span class="kw">for </span>n <span class="kw">in </span>(<span class="number">0</span>..=<span class="number">63</span>).chain(<span class="number">68</span>..=<span class="number">75</span>).chain(<span class="number">77</span>..=<span class="number">108</span>) {
-<a href=#1086 id=1086 data-nosnippet>1086</a>            <span class="kw">let </span>name = PowerPc64::register_name(Register(n))
-<a href=#1087 id=1087 data-nosnippet>1087</a>                .unwrap_or_else(|| <span class="macro">panic!</span>(<span class="string">"Register {} should have a name."</span>, n));
-<a href=#1088 id=1088 data-nosnippet>1088</a>            <span class="macro">assert!</span>(names.insert(name));
-<a href=#1089 id=1089 data-nosnippet>1089</a>        }
-<a href=#1090 id=1090 data-nosnippet>1090</a>    }
-<a href=#1091 id=1091 data-nosnippet>1091</a>}</code></pre></div></section></main></body></html>
+<a href=#934 id=934 data-nosnippet>934</a>
+<a href=#935 id=935 data-nosnippet>935</a>    R16 = (<span class="number">130</span>, <span class="string">"r16"</span>),
+<a href=#936 id=936 data-nosnippet>936</a>    R17 = (<span class="number">131</span>, <span class="string">"r17"</span>),
+<a href=#937 id=937 data-nosnippet>937</a>    R18 = (<span class="number">132</span>, <span class="string">"r18"</span>),
+<a href=#938 id=938 data-nosnippet>938</a>    R19 = (<span class="number">133</span>, <span class="string">"r19"</span>),
+<a href=#939 id=939 data-nosnippet>939</a>    R20 = (<span class="number">134</span>, <span class="string">"r20"</span>),
+<a href=#940 id=940 data-nosnippet>940</a>    R21 = (<span class="number">135</span>, <span class="string">"r21"</span>),
+<a href=#941 id=941 data-nosnippet>941</a>    R22 = (<span class="number">136</span>, <span class="string">"r22"</span>),
+<a href=#942 id=942 data-nosnippet>942</a>    R23 = (<span class="number">137</span>, <span class="string">"r23"</span>),
+<a href=#943 id=943 data-nosnippet>943</a>    R24 = (<span class="number">138</span>, <span class="string">"r24"</span>),
+<a href=#944 id=944 data-nosnippet>944</a>    R25 = (<span class="number">139</span>, <span class="string">"r25"</span>),
+<a href=#945 id=945 data-nosnippet>945</a>    R26 = (<span class="number">140</span>, <span class="string">"r26"</span>),
+<a href=#946 id=946 data-nosnippet>946</a>    R27 = (<span class="number">141</span>, <span class="string">"r27"</span>),
+<a href=#947 id=947 data-nosnippet>947</a>    R28 = (<span class="number">142</span>, <span class="string">"r28"</span>),
+<a href=#948 id=948 data-nosnippet>948</a>    R29 = (<span class="number">143</span>, <span class="string">"r29"</span>),
+<a href=#949 id=949 data-nosnippet>949</a>    R30 = (<span class="number">144</span>, <span class="string">"r30"</span>),
+<a href=#950 id=950 data-nosnippet>950</a>    R31 = (<span class="number">145</span>, <span class="string">"r31"</span>),
+<a href=#951 id=951 data-nosnippet>951</a>
+<a href=#952 id=952 data-nosnippet>952</a>    TMM0 = (<span class="number">146</span>, <span class="string">"tmm0"</span>),
+<a href=#953 id=953 data-nosnippet>953</a>    TMM1 = (<span class="number">147</span>, <span class="string">"tmm1"</span>),
+<a href=#954 id=954 data-nosnippet>954</a>    TMM2 = (<span class="number">148</span>, <span class="string">"tmm2"</span>),
+<a href=#955 id=955 data-nosnippet>955</a>    TMM3 = (<span class="number">149</span>, <span class="string">"tmm3"</span>),
+<a href=#956 id=956 data-nosnippet>956</a>    TMM4 = (<span class="number">150</span>, <span class="string">"tmm4"</span>),
+<a href=#957 id=957 data-nosnippet>957</a>    TMM5 = (<span class="number">151</span>, <span class="string">"tmm5"</span>),
+<a href=#958 id=958 data-nosnippet>958</a>    TMM6 = (<span class="number">152</span>, <span class="string">"tmm6"</span>),
+<a href=#959 id=959 data-nosnippet>959</a>    TMM7 = (<span class="number">153</span>, <span class="string">"tmm7"</span>),
+<a href=#960 id=960 data-nosnippet>960</a>    TILECFG = (<span class="number">154</span>, <span class="string">"tilecfg"</span>),
+<a href=#961 id=961 data-nosnippet>961</a>});
+<a href=#962 id=962 data-nosnippet>962</a>
+<a href=#963 id=963 data-nosnippet>963</a><span class="doccomment">/// PowerPC 64bit
+<a href=#964 id=964 data-nosnippet>964</a>///
+<a href=#965 id=965 data-nosnippet>965</a>/// See [64-bit ELF ABI Specification for OpenPOWER Architecture](https://openpowerfoundation.org/specifications/64bitelfabi/).
+<a href=#966 id=966 data-nosnippet>966</a></span><span class="attr">#[derive(Debug, Clone, Copy)]
+<a href=#967 id=967 data-nosnippet>967</a></span><span class="kw">pub struct </span>PowerPc64;
+<a href=#968 id=968 data-nosnippet>968</a>
+<a href=#969 id=969 data-nosnippet>969</a><span class="macro">registers!</span>(PowerPc64, {
+<a href=#970 id=970 data-nosnippet>970</a>    R0 = (<span class="number">0</span>, <span class="string">"r0"</span>),
+<a href=#971 id=971 data-nosnippet>971</a>    R1 = (<span class="number">1</span>, <span class="string">"r1"</span>),
+<a href=#972 id=972 data-nosnippet>972</a>    R2 = (<span class="number">2</span>, <span class="string">"r2"</span>),
+<a href=#973 id=973 data-nosnippet>973</a>    R3 = (<span class="number">3</span>, <span class="string">"r3"</span>),
+<a href=#974 id=974 data-nosnippet>974</a>    R4 = (<span class="number">4</span>, <span class="string">"r4"</span>),
+<a href=#975 id=975 data-nosnippet>975</a>    R5 = (<span class="number">5</span>, <span class="string">"r5"</span>),
+<a href=#976 id=976 data-nosnippet>976</a>    R6 = (<span class="number">6</span>, <span class="string">"r6"</span>),
+<a href=#977 id=977 data-nosnippet>977</a>    R7 = (<span class="number">7</span>, <span class="string">"r7"</span>),
+<a href=#978 id=978 data-nosnippet>978</a>    R8 = (<span class="number">8</span>, <span class="string">"r8"</span>),
+<a href=#979 id=979 data-nosnippet>979</a>    R9 = (<span class="number">9</span>, <span class="string">"r9"</span>),
+<a href=#980 id=980 data-nosnippet>980</a>    R10 = (<span class="number">10</span>, <span class="string">"r10"</span>),
+<a href=#981 id=981 data-nosnippet>981</a>    R11 = (<span class="number">11</span>, <span class="string">"r11"</span>),
+<a href=#982 id=982 data-nosnippet>982</a>    R12 = (<span class="number">12</span>, <span class="string">"r12"</span>),
+<a href=#983 id=983 data-nosnippet>983</a>    R13 = (<span class="number">13</span>, <span class="string">"r13"</span>),
+<a href=#984 id=984 data-nosnippet>984</a>    R14 = (<span class="number">14</span>, <span class="string">"r14"</span>),
+<a href=#985 id=985 data-nosnippet>985</a>    R15 = (<span class="number">15</span>, <span class="string">"r15"</span>),
+<a href=#986 id=986 data-nosnippet>986</a>    R16 = (<span class="number">16</span>, <span class="string">"r16"</span>),
+<a href=#987 id=987 data-nosnippet>987</a>    R17 = (<span class="number">17</span>, <span class="string">"r17"</span>),
+<a href=#988 id=988 data-nosnippet>988</a>    R18 = (<span class="number">18</span>, <span class="string">"r18"</span>),
+<a href=#989 id=989 data-nosnippet>989</a>    R19 = (<span class="number">19</span>, <span class="string">"r19"</span>),
+<a href=#990 id=990 data-nosnippet>990</a>    R20 = (<span class="number">20</span>, <span class="string">"r20"</span>),
+<a href=#991 id=991 data-nosnippet>991</a>    R21 = (<span class="number">21</span>, <span class="string">"r21"</span>),
+<a href=#992 id=992 data-nosnippet>992</a>    R22 = (<span class="number">22</span>, <span class="string">"r22"</span>),
+<a href=#993 id=993 data-nosnippet>993</a>    R23 = (<span class="number">23</span>, <span class="string">"r23"</span>),
+<a href=#994 id=994 data-nosnippet>994</a>    R24 = (<span class="number">24</span>, <span class="string">"r24"</span>),
+<a href=#995 id=995 data-nosnippet>995</a>    R25 = (<span class="number">25</span>, <span class="string">"r25"</span>),
+<a href=#996 id=996 data-nosnippet>996</a>    R26 = (<span class="number">26</span>, <span class="string">"r26"</span>),
+<a href=#997 id=997 data-nosnippet>997</a>    R27 = (<span class="number">27</span>, <span class="string">"r27"</span>),
+<a href=#998 id=998 data-nosnippet>998</a>    R28 = (<span class="number">28</span>, <span class="string">"r28"</span>),
+<a href=#999 id=999 data-nosnippet>999</a>    R29 = (<span class="number">29</span>, <span class="string">"r29"</span>),
+<a href=#1000 id=1000 data-nosnippet>1000</a>    R30 = (<span class="number">30</span>, <span class="string">"r30"</span>),
+<a href=#1001 id=1001 data-nosnippet>1001</a>    R31 = (<span class="number">31</span>, <span class="string">"r31"</span>),
+<a href=#1002 id=1002 data-nosnippet>1002</a>
+<a href=#1003 id=1003 data-nosnippet>1003</a>    F0 = (<span class="number">32</span>, <span class="string">"f0"</span>),
+<a href=#1004 id=1004 data-nosnippet>1004</a>    F1 = (<span class="number">33</span>, <span class="string">"f1"</span>),
+<a href=#1005 id=1005 data-nosnippet>1005</a>    F2 = (<span class="number">34</span>, <span class="string">"f2"</span>),
+<a href=#1006 id=1006 data-nosnippet>1006</a>    F3 = (<span class="number">35</span>, <span class="string">"f3"</span>),
+<a href=#1007 id=1007 data-nosnippet>1007</a>    F4 = (<span class="number">36</span>, <span class="string">"f4"</span>),
+<a href=#1008 id=1008 data-nosnippet>1008</a>    F5 = (<span class="number">37</span>, <span class="string">"f5"</span>),
+<a href=#1009 id=1009 data-nosnippet>1009</a>    F6 = (<span class="number">38</span>, <span class="string">"f6"</span>),
+<a href=#1010 id=1010 data-nosnippet>1010</a>    F7 = (<span class="number">39</span>, <span class="string">"f7"</span>),
+<a href=#1011 id=1011 data-nosnippet>1011</a>    F8 = (<span class="number">40</span>, <span class="string">"f8"</span>),
+<a href=#1012 id=1012 data-nosnippet>1012</a>    F9 = (<span class="number">41</span>, <span class="string">"f9"</span>),
+<a href=#1013 id=1013 data-nosnippet>1013</a>    F10 = (<span class="number">42</span>, <span class="string">"f10"</span>),
+<a href=#1014 id=1014 data-nosnippet>1014</a>    F11 = (<span class="number">43</span>, <span class="string">"f11"</span>),
+<a href=#1015 id=1015 data-nosnippet>1015</a>    F12 = (<span class="number">44</span>, <span class="string">"f12"</span>),
+<a href=#1016 id=1016 data-nosnippet>1016</a>    F13 = (<span class="number">45</span>, <span class="string">"f13"</span>),
+<a href=#1017 id=1017 data-nosnippet>1017</a>    F14 = (<span class="number">46</span>, <span class="string">"f14"</span>),
+<a href=#1018 id=1018 data-nosnippet>1018</a>    F15 = (<span class="number">47</span>, <span class="string">"f15"</span>),
+<a href=#1019 id=1019 data-nosnippet>1019</a>    F16 = (<span class="number">48</span>, <span class="string">"f16"</span>),
+<a href=#1020 id=1020 data-nosnippet>1020</a>    F17 = (<span class="number">49</span>, <span class="string">"f17"</span>),
+<a href=#1021 id=1021 data-nosnippet>1021</a>    F18 = (<span class="number">50</span>, <span class="string">"f18"</span>),
+<a href=#1022 id=1022 data-nosnippet>1022</a>    F19 = (<span class="number">51</span>, <span class="string">"f19"</span>),
+<a href=#1023 id=1023 data-nosnippet>1023</a>    F20 = (<span class="number">52</span>, <span class="string">"f20"</span>),
+<a href=#1024 id=1024 data-nosnippet>1024</a>    F21 = (<span class="number">53</span>, <span class="string">"f21"</span>),
+<a href=#1025 id=1025 data-nosnippet>1025</a>    F22 = (<span class="number">54</span>, <span class="string">"f22"</span>),
+<a href=#1026 id=1026 data-nosnippet>1026</a>    F23 = (<span class="number">55</span>, <span class="string">"f23"</span>),
+<a href=#1027 id=1027 data-nosnippet>1027</a>    F24 = (<span class="number">56</span>, <span class="string">"f24"</span>),
+<a href=#1028 id=1028 data-nosnippet>1028</a>    F25 = (<span class="number">57</span>, <span class="string">"f25"</span>),
+<a href=#1029 id=1029 data-nosnippet>1029</a>    F26 = (<span class="number">58</span>, <span class="string">"f26"</span>),
+<a href=#1030 id=1030 data-nosnippet>1030</a>    F27 = (<span class="number">59</span>, <span class="string">"f27"</span>),
+<a href=#1031 id=1031 data-nosnippet>1031</a>    F28 = (<span class="number">60</span>, <span class="string">"f28"</span>),
+<a href=#1032 id=1032 data-nosnippet>1032</a>    F29 = (<span class="number">61</span>, <span class="string">"f29"</span>),
+<a href=#1033 id=1033 data-nosnippet>1033</a>    F30 = (<span class="number">62</span>, <span class="string">"f30"</span>),
+<a href=#1034 id=1034 data-nosnippet>1034</a>    F31 = (<span class="number">63</span>, <span class="string">"f31"</span>),
+<a href=#1035 id=1035 data-nosnippet>1035</a>
+<a href=#1036 id=1036 data-nosnippet>1036</a>    LR = (<span class="number">65</span>, <span class="string">"lr"</span>),
+<a href=#1037 id=1037 data-nosnippet>1037</a>    CTR = (<span class="number">66</span>, <span class="string">"ctr"</span>),
+<a href=#1038 id=1038 data-nosnippet>1038</a>
+<a href=#1039 id=1039 data-nosnippet>1039</a>    CR0 = (<span class="number">68</span>, <span class="string">"cr0"</span>),
+<a href=#1040 id=1040 data-nosnippet>1040</a>    CR1 = (<span class="number">69</span>, <span class="string">"cr1"</span>),
+<a href=#1041 id=1041 data-nosnippet>1041</a>    CR2 = (<span class="number">70</span>, <span class="string">"cr2"</span>),
+<a href=#1042 id=1042 data-nosnippet>1042</a>    CR3 = (<span class="number">71</span>, <span class="string">"cr3"</span>),
+<a href=#1043 id=1043 data-nosnippet>1043</a>    CR4 = (<span class="number">72</span>, <span class="string">"cr4"</span>),
+<a href=#1044 id=1044 data-nosnippet>1044</a>    CR5 = (<span class="number">73</span>, <span class="string">"cr5"</span>),
+<a href=#1045 id=1045 data-nosnippet>1045</a>    CR6 = (<span class="number">74</span>, <span class="string">"cr6"</span>),
+<a href=#1046 id=1046 data-nosnippet>1046</a>    CR7 = (<span class="number">75</span>, <span class="string">"cr7"</span>),
+<a href=#1047 id=1047 data-nosnippet>1047</a>    XER = (<span class="number">76</span>, <span class="string">"xer"</span>),
+<a href=#1048 id=1048 data-nosnippet>1048</a>
+<a href=#1049 id=1049 data-nosnippet>1049</a>    VR0 = (<span class="number">77</span>, <span class="string">"vr0"</span>),
+<a href=#1050 id=1050 data-nosnippet>1050</a>    VR1 = (<span class="number">78</span>, <span class="string">"vr1"</span>),
+<a href=#1051 id=1051 data-nosnippet>1051</a>    VR2 = (<span class="number">79</span>, <span class="string">"vr2"</span>),
+<a href=#1052 id=1052 data-nosnippet>1052</a>    VR3 = (<span class="number">80</span>, <span class="string">"vr3"</span>),
+<a href=#1053 id=1053 data-nosnippet>1053</a>    VR4 = (<span class="number">81</span>, <span class="string">"vr4"</span>),
+<a href=#1054 id=1054 data-nosnippet>1054</a>    VR5 = (<span class="number">82</span>, <span class="string">"vr5"</span>),
+<a href=#1055 id=1055 data-nosnippet>1055</a>    VR6 = (<span class="number">83</span>, <span class="string">"vr6"</span>),
+<a href=#1056 id=1056 data-nosnippet>1056</a>    VR7 = (<span class="number">84</span>, <span class="string">"vr7"</span>),
+<a href=#1057 id=1057 data-nosnippet>1057</a>    VR8 = (<span class="number">85</span>, <span class="string">"vr8"</span>),
+<a href=#1058 id=1058 data-nosnippet>1058</a>    VR9 = (<span class="number">86</span>, <span class="string">"vr9"</span>),
+<a href=#1059 id=1059 data-nosnippet>1059</a>    VR10 = (<span class="number">87</span>, <span class="string">"vr10"</span>),
+<a href=#1060 id=1060 data-nosnippet>1060</a>    VR11 = (<span class="number">88</span>, <span class="string">"vr11"</span>),
+<a href=#1061 id=1061 data-nosnippet>1061</a>    VR12 = (<span class="number">89</span>, <span class="string">"vr12"</span>),
+<a href=#1062 id=1062 data-nosnippet>1062</a>    VR13 = (<span class="number">90</span>, <span class="string">"vr13"</span>),
+<a href=#1063 id=1063 data-nosnippet>1063</a>    VR14 = (<span class="number">91</span>, <span class="string">"vr14"</span>),
+<a href=#1064 id=1064 data-nosnippet>1064</a>    VR15 = (<span class="number">92</span>, <span class="string">"vr15"</span>),
+<a href=#1065 id=1065 data-nosnippet>1065</a>    VR16 = (<span class="number">93</span>, <span class="string">"vr16"</span>),
+<a href=#1066 id=1066 data-nosnippet>1066</a>    VR17 = (<span class="number">94</span>, <span class="string">"vr17"</span>),
+<a href=#1067 id=1067 data-nosnippet>1067</a>    VR18 = (<span class="number">95</span>, <span class="string">"vr18"</span>),
+<a href=#1068 id=1068 data-nosnippet>1068</a>    VR19 = (<span class="number">96</span>, <span class="string">"vr19"</span>),
+<a href=#1069 id=1069 data-nosnippet>1069</a>    VR20 = (<span class="number">97</span>, <span class="string">"vr20"</span>),
+<a href=#1070 id=1070 data-nosnippet>1070</a>    VR21 = (<span class="number">98</span>, <span class="string">"vr21"</span>),
+<a href=#1071 id=1071 data-nosnippet>1071</a>    VR22 = (<span class="number">99</span>, <span class="string">"vr22"</span>),
+<a href=#1072 id=1072 data-nosnippet>1072</a>    VR23 = (<span class="number">100</span>, <span class="string">"vr23"</span>),
+<a href=#1073 id=1073 data-nosnippet>1073</a>    VR24 = (<span class="number">101</span>, <span class="string">"vr24"</span>),
+<a href=#1074 id=1074 data-nosnippet>1074</a>    VR25 = (<span class="number">102</span>, <span class="string">"vr25"</span>),
+<a href=#1075 id=1075 data-nosnippet>1075</a>    VR26 = (<span class="number">103</span>, <span class="string">"vr26"</span>),
+<a href=#1076 id=1076 data-nosnippet>1076</a>    VR27 = (<span class="number">104</span>, <span class="string">"vr27"</span>),
+<a href=#1077 id=1077 data-nosnippet>1077</a>    VR28 = (<span class="number">105</span>, <span class="string">"vr28"</span>),
+<a href=#1078 id=1078 data-nosnippet>1078</a>    VR29 = (<span class="number">106</span>, <span class="string">"vr29"</span>),
+<a href=#1079 id=1079 data-nosnippet>1079</a>    VR30 = (<span class="number">107</span>, <span class="string">"vr30"</span>),
+<a href=#1080 id=1080 data-nosnippet>1080</a>    VR31 = (<span class="number">108</span>, <span class="string">"vr31"</span>),
+<a href=#1081 id=1081 data-nosnippet>1081</a>
+<a href=#1082 id=1082 data-nosnippet>1082</a>    VSCR = (<span class="number">110</span>, <span class="string">"vscr"</span>),
+<a href=#1083 id=1083 data-nosnippet>1083</a>    TFHAR = (<span class="number">114</span>, <span class="string">"tfhar"</span>),
+<a href=#1084 id=1084 data-nosnippet>1084</a>    TFIAR = (<span class="number">115</span>, <span class="string">"tfiar"</span>),
+<a href=#1085 id=1085 data-nosnippet>1085</a>    TEXASR = (<span class="number">116</span>, <span class="string">"texasr"</span>),
+<a href=#1086 id=1086 data-nosnippet>1086</a>});
+<a href=#1087 id=1087 data-nosnippet>1087</a>
+<a href=#1088 id=1088 data-nosnippet>1088</a><span class="attr">#[cfg(test)]
+<a href=#1089 id=1089 data-nosnippet>1089</a></span><span class="kw">mod </span>tests {
+<a href=#1090 id=1090 data-nosnippet>1090</a>
+<a href=#1091 id=1091 data-nosnippet>1091</a>    <span class="attr">#[test]
+<a href=#1092 id=1092 data-nosnippet>1092</a>    #[cfg(feature = <span class="string">"std"</span>)]
+<a href=#1093 id=1093 data-nosnippet>1093</a>    </span><span class="kw">fn </span>test_aarch64_registers() {
+<a href=#1094 id=1094 data-nosnippet>1094</a>        <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<a href=#1095 id=1095 data-nosnippet>1095</a>        <span class="kw">use </span>std::collections::HashSet;
+<a href=#1096 id=1096 data-nosnippet>1096</a>
+<a href=#1097 id=1097 data-nosnippet>1097</a>        <span class="kw">let </span><span class="kw-2">mut </span>names = HashSet::new();
+<a href=#1098 id=1098 data-nosnippet>1098</a>        <span class="kw">for </span>n <span class="kw">in </span>(<span class="number">0</span>..=<span class="number">39</span>).chain(<span class="number">46</span>..=<span class="number">127</span>) {
+<a href=#1099 id=1099 data-nosnippet>1099</a>            <span class="kw">let </span>name = AArch64::register_name(Register(n))
+<a href=#1100 id=1100 data-nosnippet>1100</a>                .unwrap_or_else(|| <span class="macro">panic!</span>(<span class="string">"Register {} should have a name."</span>, n));
+<a href=#1101 id=1101 data-nosnippet>1101</a>            <span class="macro">assert!</span>(names.insert(name));
+<a href=#1102 id=1102 data-nosnippet>1102</a>        }
+<a href=#1103 id=1103 data-nosnippet>1103</a>    }
+<a href=#1104 id=1104 data-nosnippet>1104</a>
+<a href=#1105 id=1105 data-nosnippet>1105</a>    <span class="attr">#[test]
+<a href=#1106 id=1106 data-nosnippet>1106</a>    #[cfg(feature = <span class="string">"std"</span>)]
+<a href=#1107 id=1107 data-nosnippet>1107</a>    </span><span class="kw">fn </span>test_power64_registers() {
+<a href=#1108 id=1108 data-nosnippet>1108</a>        <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<a href=#1109 id=1109 data-nosnippet>1109</a>        <span class="kw">use </span>std::collections::HashSet;
+<a href=#1110 id=1110 data-nosnippet>1110</a>
+<a href=#1111 id=1111 data-nosnippet>1111</a>        <span class="kw">let </span><span class="kw-2">mut </span>names = HashSet::new();
+<a href=#1112 id=1112 data-nosnippet>1112</a>        <span class="kw">for </span>n <span class="kw">in </span>(<span class="number">0</span>..=<span class="number">63</span>).chain(<span class="number">68</span>..=<span class="number">75</span>).chain(<span class="number">77</span>..=<span class="number">108</span>) {
+<a href=#1113 id=1113 data-nosnippet>1113</a>            <span class="kw">let </span>name = PowerPc64::register_name(Register(n))
+<a href=#1114 id=1114 data-nosnippet>1114</a>                .unwrap_or_else(|| <span class="macro">panic!</span>(<span class="string">"Register {} should have a name."</span>, n));
+<a href=#1115 id=1115 data-nosnippet>1115</a>            <span class="macro">assert!</span>(names.insert(name));
+<a href=#1116 id=1116 data-nosnippet>1116</a>        }
+<a href=#1117 id=1117 data-nosnippet>1117</a>    }
+<a href=#1118 id=1118 data-nosnippet>1118</a>}</code></pre></div></section></main></body></html>

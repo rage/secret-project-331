@@ -1,1 +1,0 @@
-searchState.loadedDescShard("overload", 0, "Provides a macro to simplify operator overloading.\nOverloads an operator. See the module level documentation …")

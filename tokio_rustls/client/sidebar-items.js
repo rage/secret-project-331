@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["TlsStream"]};
+window.SIDEBAR_ITEMS = {"struct":["Connect","FallibleConnect","TlsConnector","TlsConnectorWithAlpn","TlsStream"]};

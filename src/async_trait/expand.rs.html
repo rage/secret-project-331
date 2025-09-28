@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/async-trait-0.1.88/src/expand.rs`."><title>expand.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="async_trait" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="../../static.files/src-script-63605ae7.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">async_trait/</div>expand.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span><span class="kw">crate</span>::bound::{has_bound, InferredBound, Supertraits};
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/async-trait-0.1.89/src/expand.rs`."><title>expand.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="async_trait" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="../../static.files/src-script-63605ae7.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">async_trait/</div>expand.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span><span class="kw">crate</span>::bound::{has_bound, InferredBound, Supertraits};
 <a href=#2 id=2 data-nosnippet>2</a><span class="kw">use </span><span class="kw">crate</span>::lifetime::{AddLifetimeToImplTrait, CollectLifetimes};
 <a href=#3 id=3 data-nosnippet>3</a><span class="kw">use </span><span class="kw">crate</span>::parse::Item;
 <a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span><span class="kw">crate</span>::receiver::{has_self_in_block, has_self_in_sig, mut_pat, ReplaceSelf};
@@ -404,18 +404,18 @@
 <a href=#404 id=404 data-nosnippet>404</a>        ReplaceSelf.visit_block_mut(block);
 <a href=#405 id=405 data-nosnippet>405</a>    }
 <a href=#406 id=406 data-nosnippet>406</a>
-<a href=#407 id=407 data-nosnippet>407</a>    <span class="kw">let </span>stmts = <span class="kw-2">&amp;</span>block.stmts;
-<a href=#408 id=408 data-nosnippet>408</a>    <span class="kw">let </span>let_ret = <span class="kw">match </span><span class="kw-2">&amp;mut </span>sig.output {
-<a href=#409 id=409 data-nosnippet>409</a>        ReturnType::Default =&gt; <span class="macro">quote_spanned!</span> {block.brace_token.span=&gt;
-<a href=#410 id=410 data-nosnippet>410</a>            #(#decls)*
-<a href=#411 id=411 data-nosnippet>411</a>            <span class="kw">let </span>() = { #(#stmts)* };
-<a href=#412 id=412 data-nosnippet>412</a>        },
-<a href=#413 id=413 data-nosnippet>413</a>        ReturnType::Type(<span class="kw">_</span>, ret) =&gt; {
-<a href=#414 id=414 data-nosnippet>414</a>            <span class="kw">if </span>contains_associated_type_impl_trait(context, ret) {
-<a href=#415 id=415 data-nosnippet>415</a>                <span class="kw">if </span>decls.is_empty() {
+<a href=#407 id=407 data-nosnippet>407</a>    <span class="kw">let </span>let_ret = <span class="kw">match </span><span class="kw-2">&amp;mut </span>sig.output {
+<a href=#408 id=408 data-nosnippet>408</a>        ReturnType::Default =&gt; <span class="macro">quote!</span> {
+<a href=#409 id=409 data-nosnippet>409</a>            #(#decls)*
+<a href=#410 id=410 data-nosnippet>410</a>            <span class="kw">let _</span>: () = #block;
+<a href=#411 id=411 data-nosnippet>411</a>        },
+<a href=#412 id=412 data-nosnippet>412</a>        ReturnType::Type(<span class="kw">_</span>, ret) =&gt; {
+<a href=#413 id=413 data-nosnippet>413</a>            <span class="kw">if </span>contains_associated_type_impl_trait(context, ret) {
+<a href=#414 id=414 data-nosnippet>414</a>                <span class="kw">if </span>decls.is_empty() {
+<a href=#415 id=415 data-nosnippet>415</a>                    <span class="kw">let </span>stmts = <span class="kw-2">&amp;</span>block.stmts;
 <a href=#416 id=416 data-nosnippet>416</a>                    <span class="macro">quote!</span>(#(#stmts)<span class="kw-2">*</span>)
 <a href=#417 id=417 data-nosnippet>417</a>                } <span class="kw">else </span>{
-<a href=#418 id=418 data-nosnippet>418</a>                    <span class="macro">quote!</span>(#(#decls)* { #(#stmts)* })
+<a href=#418 id=418 data-nosnippet>418</a>                    <span class="macro">quote!</span>(#(#decls)* #block)
 <a href=#419 id=419 data-nosnippet>419</a>                }
 <a href=#420 id=420 data-nosnippet>420</a>            } <span class="kw">else </span>{
 <a href=#421 id=421 data-nosnippet>421</a>                <span class="kw">let </span><span class="kw-2">mut </span>ret = ret.clone();
@@ -426,14 +426,14 @@
 <a href=#426 id=426 data-nosnippet>426</a>                        </span><span class="kw">return </span>__ret;
 <a href=#427 id=427 data-nosnippet>427</a>                    }
 <a href=#428 id=428 data-nosnippet>428</a>                    #(#decls)*
-<a href=#429 id=429 data-nosnippet>429</a>                    <span class="kw">let </span>__ret: #ret = { #(#stmts)* };
+<a href=#429 id=429 data-nosnippet>429</a>                    <span class="kw">let </span>__ret: #ret = #block;
 <a href=#430 id=430 data-nosnippet>430</a>                    <span class="attr">#[allow(unreachable_code)]
 <a href=#431 id=431 data-nosnippet>431</a>                    </span>__ret
 <a href=#432 id=432 data-nosnippet>432</a>                }
 <a href=#433 id=433 data-nosnippet>433</a>            }
 <a href=#434 id=434 data-nosnippet>434</a>        }
 <a href=#435 id=435 data-nosnippet>435</a>    };
-<a href=#436 id=436 data-nosnippet>436</a>    <span class="kw">let </span>box_pin = <span class="macro">quote_spanned!</span>(block.brace_token.span=&gt;
+<a href=#436 id=436 data-nosnippet>436</a>    <span class="kw">let </span>box_pin = <span class="macro">quote_spanned!</span>(sig.asyncness.unwrap().span=&gt;
 <a href=#437 id=437 data-nosnippet>437</a>        Box::pin(<span class="kw">async move </span>{ #let_ret })
 <a href=#438 id=438 data-nosnippet>438</a>    );
 <a href=#439 id=439 data-nosnippet>439</a>    block.stmts = <span class="macro">parse_quote!</span>(#box_pin);

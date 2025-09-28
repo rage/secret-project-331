@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/uuid-1.17.0/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="uuid" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="../../static.files/src-script-63605ae7.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">uuid/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2013-2014 The Rust Project Developers.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/uuid-1.18.1/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="uuid" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="../../static.files/src-script-63605ae7.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">uuid/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright 2013-2014 The Rust Project Developers.
 <a href=#2 id=2 data-nosnippet>2</a>// Copyright 2018 The Uuid Project Developers.
 <a href=#3 id=3 data-nosnippet>3</a>//
 <a href=#4 id=4 data-nosnippet>4</a>// See the COPYRIGHT file at the top-level directory of this distribution.
@@ -38,7 +38,7 @@
 <a href=#38 id=38 data-nosnippet>38</a>//!
 <a href=#39 id=39 data-nosnippet>39</a>//! ```toml
 <a href=#40 id=40 data-nosnippet>40</a>//! [dependencies.uuid]
-<a href=#41 id=41 data-nosnippet>41</a>//! version = "1.17.0"
+<a href=#41 id=41 data-nosnippet>41</a>//! version = "1.18.1"
 <a href=#42 id=42 data-nosnippet>42</a>//! # Lets you generate random UUIDs
 <a href=#43 id=43 data-nosnippet>43</a>//! features = [
 <a href=#44 id=44 data-nosnippet>44</a>//!     "v4",
@@ -139,7 +139,7 @@
 <a href=#139 id=139 data-nosnippet>139</a>//!
 <a href=#140 id=140 data-nosnippet>140</a>//! ```toml
 <a href=#141 id=141 data-nosnippet>141</a>//! [dependencies.uuid]
-<a href=#142 id=142 data-nosnippet>142</a>//! version = "1.17.0"
+<a href=#142 id=142 data-nosnippet>142</a>//! version = "1.18.1"
 <a href=#143 id=143 data-nosnippet>143</a>//! features = [
 <a href=#144 id=144 data-nosnippet>144</a>//!     "v4",
 <a href=#145 id=145 data-nosnippet>145</a>//!     "v7",
@@ -154,7 +154,7 @@
 <a href=#154 id=154 data-nosnippet>154</a>//!
 <a href=#155 id=155 data-nosnippet>155</a>//! ```toml
 <a href=#156 id=156 data-nosnippet>156</a>//! [dependencies.uuid]
-<a href=#157 id=157 data-nosnippet>157</a>//! version = "1.17.0"
+<a href=#157 id=157 data-nosnippet>157</a>//! version = "1.18.1"
 <a href=#158 id=158 data-nosnippet>158</a>//! default-features = false
 <a href=#159 id=159 data-nosnippet>159</a>//! ```
 <a href=#160 id=160 data-nosnippet>160</a>//!
@@ -212,7 +212,7 @@
 <a href=#212 id=212 data-nosnippet>212</a>#![doc(
 <a href=#213 id=213 data-nosnippet>213</a>    html_logo_url = <span class="string">"https://www.rust-lang.org/logos/rust-logo-128x128-blk-v2.png"</span>,
 <a href=#214 id=214 data-nosnippet>214</a>    html_favicon_url = <span class="string">"https://www.rust-lang.org/favicon.ico"</span>,
-<a href=#215 id=215 data-nosnippet>215</a>    html_root_url = <span class="string">"https://docs.rs/uuid/1.17.0"
+<a href=#215 id=215 data-nosnippet>215</a>    html_root_url = <span class="string">"https://docs.rs/uuid/1.18.1"
 <a href=#216 id=216 data-nosnippet>216</a></span>)]
 <a href=#217 id=217 data-nosnippet>217</a>
 <a href=#218 id=218 data-nosnippet>218</a>#[cfg(any(feature = <span class="string">"std"</span>, test))]
@@ -223,52 +223,52 @@
 <a href=#223 id=223 data-nosnippet>223</a>#[macro_use]
 <a href=#224 id=224 data-nosnippet>224</a></span><span class="kw">extern crate </span>core <span class="kw">as </span>std;
 <a href=#225 id=225 data-nosnippet>225</a>
-<a href=#226 id=226 data-nosnippet>226</a><span class="kw">mod </span>builder;
-<a href=#227 id=227 data-nosnippet>227</a><span class="kw">mod </span>error;
-<a href=#228 id=228 data-nosnippet>228</a><span class="kw">mod </span>non_nil;
-<a href=#229 id=229 data-nosnippet>229</a><span class="kw">mod </span>parser;
-<a href=#230 id=230 data-nosnippet>230</a>
-<a href=#231 id=231 data-nosnippet>231</a><span class="kw">pub mod </span>fmt;
-<a href=#232 id=232 data-nosnippet>232</a><span class="kw">pub mod </span>timestamp;
+<a href=#226 id=226 data-nosnippet>226</a><span class="attr">#[macro_use]
+<a href=#227 id=227 data-nosnippet>227</a></span><span class="kw">mod </span>macros;
+<a href=#228 id=228 data-nosnippet>228</a>
+<a href=#229 id=229 data-nosnippet>229</a><span class="kw">mod </span>builder;
+<a href=#230 id=230 data-nosnippet>230</a><span class="kw">mod </span>error;
+<a href=#231 id=231 data-nosnippet>231</a><span class="kw">mod </span>non_nil;
+<a href=#232 id=232 data-nosnippet>232</a><span class="kw">mod </span>parser;
 <a href=#233 id=233 data-nosnippet>233</a>
-<a href=#234 id=234 data-nosnippet>234</a><span class="kw">use </span>core::hash::{Hash, Hasher};
-<a href=#235 id=235 data-nosnippet>235</a><span class="kw">pub use </span>timestamp::{context::NoContext, ClockSequence, Timestamp};
+<a href=#234 id=234 data-nosnippet>234</a><span class="kw">pub mod </span>fmt;
+<a href=#235 id=235 data-nosnippet>235</a><span class="kw">pub mod </span>timestamp;
 <a href=#236 id=236 data-nosnippet>236</a>
-<a href=#237 id=237 data-nosnippet>237</a><span class="attr">#[cfg(any(feature = <span class="string">"v1"</span>, feature = <span class="string">"v6"</span>))]
-<a href=#238 id=238 data-nosnippet>238</a></span><span class="kw">pub use </span>timestamp::context::Context;
+<a href=#237 id=237 data-nosnippet>237</a><span class="kw">use </span>core::hash::{Hash, Hasher};
+<a href=#238 id=238 data-nosnippet>238</a><span class="kw">pub use </span>timestamp::{context::NoContext, ClockSequence, Timestamp};
 <a href=#239 id=239 data-nosnippet>239</a>
-<a href=#240 id=240 data-nosnippet>240</a><span class="attr">#[cfg(feature = <span class="string">"v7"</span>)]
-<a href=#241 id=241 data-nosnippet>241</a></span><span class="kw">pub use </span>timestamp::context::ContextV7;
+<a href=#240 id=240 data-nosnippet>240</a><span class="attr">#[cfg(any(feature = <span class="string">"v1"</span>, feature = <span class="string">"v6"</span>))]
+<a href=#241 id=241 data-nosnippet>241</a></span><span class="kw">pub use </span>timestamp::context::Context;
 <a href=#242 id=242 data-nosnippet>242</a>
-<a href=#243 id=243 data-nosnippet>243</a><span class="attr">#[cfg(feature = <span class="string">"v1"</span>)]
-<a href=#244 id=244 data-nosnippet>244</a>#[doc(hidden)]
-<a href=#245 id=245 data-nosnippet>245</a></span><span class="comment">// Soft-deprecated (Rust doesn't support deprecating re-exports)
-<a href=#246 id=246 data-nosnippet>246</a>// Use `Context` from the crate root instead
-<a href=#247 id=247 data-nosnippet>247</a></span><span class="kw">pub mod </span>v1;
-<a href=#248 id=248 data-nosnippet>248</a><span class="attr">#[cfg(feature = <span class="string">"v3"</span>)]
-<a href=#249 id=249 data-nosnippet>249</a></span><span class="kw">mod </span>v3;
-<a href=#250 id=250 data-nosnippet>250</a><span class="attr">#[cfg(feature = <span class="string">"v4"</span>)]
-<a href=#251 id=251 data-nosnippet>251</a></span><span class="kw">mod </span>v4;
-<a href=#252 id=252 data-nosnippet>252</a><span class="attr">#[cfg(feature = <span class="string">"v5"</span>)]
-<a href=#253 id=253 data-nosnippet>253</a></span><span class="kw">mod </span>v5;
-<a href=#254 id=254 data-nosnippet>254</a><span class="attr">#[cfg(feature = <span class="string">"v6"</span>)]
-<a href=#255 id=255 data-nosnippet>255</a></span><span class="kw">mod </span>v6;
-<a href=#256 id=256 data-nosnippet>256</a><span class="attr">#[cfg(feature = <span class="string">"v7"</span>)]
-<a href=#257 id=257 data-nosnippet>257</a></span><span class="kw">mod </span>v7;
-<a href=#258 id=258 data-nosnippet>258</a><span class="attr">#[cfg(feature = <span class="string">"v8"</span>)]
-<a href=#259 id=259 data-nosnippet>259</a></span><span class="kw">mod </span>v8;
-<a href=#260 id=260 data-nosnippet>260</a>
-<a href=#261 id=261 data-nosnippet>261</a><span class="attr">#[cfg(feature = <span class="string">"md5"</span>)]
-<a href=#262 id=262 data-nosnippet>262</a></span><span class="kw">mod </span>md5;
-<a href=#263 id=263 data-nosnippet>263</a><span class="attr">#[cfg(feature = <span class="string">"rng"</span>)]
-<a href=#264 id=264 data-nosnippet>264</a></span><span class="kw">mod </span>rng;
-<a href=#265 id=265 data-nosnippet>265</a><span class="attr">#[cfg(feature = <span class="string">"sha1"</span>)]
-<a href=#266 id=266 data-nosnippet>266</a></span><span class="kw">mod </span>sha1;
-<a href=#267 id=267 data-nosnippet>267</a>
-<a href=#268 id=268 data-nosnippet>268</a><span class="kw">mod </span>external;
-<a href=#269 id=269 data-nosnippet>269</a>
-<a href=#270 id=270 data-nosnippet>270</a><span class="attr">#[macro_use]
-<a href=#271 id=271 data-nosnippet>271</a></span><span class="kw">mod </span>macros;
+<a href=#243 id=243 data-nosnippet>243</a><span class="attr">#[cfg(feature = <span class="string">"v7"</span>)]
+<a href=#244 id=244 data-nosnippet>244</a></span><span class="kw">pub use </span>timestamp::context::ContextV7;
+<a href=#245 id=245 data-nosnippet>245</a>
+<a href=#246 id=246 data-nosnippet>246</a><span class="attr">#[cfg(feature = <span class="string">"v1"</span>)]
+<a href=#247 id=247 data-nosnippet>247</a>#[doc(hidden)]
+<a href=#248 id=248 data-nosnippet>248</a></span><span class="comment">// Soft-deprecated (Rust doesn't support deprecating re-exports)
+<a href=#249 id=249 data-nosnippet>249</a>// Use `Context` from the crate root instead
+<a href=#250 id=250 data-nosnippet>250</a></span><span class="kw">pub mod </span>v1;
+<a href=#251 id=251 data-nosnippet>251</a><span class="attr">#[cfg(feature = <span class="string">"v3"</span>)]
+<a href=#252 id=252 data-nosnippet>252</a></span><span class="kw">mod </span>v3;
+<a href=#253 id=253 data-nosnippet>253</a><span class="attr">#[cfg(feature = <span class="string">"v4"</span>)]
+<a href=#254 id=254 data-nosnippet>254</a></span><span class="kw">mod </span>v4;
+<a href=#255 id=255 data-nosnippet>255</a><span class="attr">#[cfg(feature = <span class="string">"v5"</span>)]
+<a href=#256 id=256 data-nosnippet>256</a></span><span class="kw">mod </span>v5;
+<a href=#257 id=257 data-nosnippet>257</a><span class="attr">#[cfg(feature = <span class="string">"v6"</span>)]
+<a href=#258 id=258 data-nosnippet>258</a></span><span class="kw">mod </span>v6;
+<a href=#259 id=259 data-nosnippet>259</a><span class="attr">#[cfg(feature = <span class="string">"v7"</span>)]
+<a href=#260 id=260 data-nosnippet>260</a></span><span class="kw">mod </span>v7;
+<a href=#261 id=261 data-nosnippet>261</a><span class="attr">#[cfg(feature = <span class="string">"v8"</span>)]
+<a href=#262 id=262 data-nosnippet>262</a></span><span class="kw">mod </span>v8;
+<a href=#263 id=263 data-nosnippet>263</a>
+<a href=#264 id=264 data-nosnippet>264</a><span class="attr">#[cfg(feature = <span class="string">"md5"</span>)]
+<a href=#265 id=265 data-nosnippet>265</a></span><span class="kw">mod </span>md5;
+<a href=#266 id=266 data-nosnippet>266</a><span class="attr">#[cfg(feature = <span class="string">"rng"</span>)]
+<a href=#267 id=267 data-nosnippet>267</a></span><span class="kw">mod </span>rng;
+<a href=#268 id=268 data-nosnippet>268</a><span class="attr">#[cfg(feature = <span class="string">"sha1"</span>)]
+<a href=#269 id=269 data-nosnippet>269</a></span><span class="kw">mod </span>sha1;
+<a href=#270 id=270 data-nosnippet>270</a>
+<a href=#271 id=271 data-nosnippet>271</a><span class="kw">mod </span>external;
 <a href=#272 id=272 data-nosnippet>272</a>
 <a href=#273 id=273 data-nosnippet>273</a><span class="attr">#[doc(hidden)]
 <a href=#274 id=274 data-nosnippet>274</a>#[cfg(feature = <span class="string">"macro-diagnostics"</span>)]
@@ -439,22 +439,22 @@
 <a href=#439 id=439 data-nosnippet>439</a>#[repr(transparent)]
 <a href=#440 id=440 data-nosnippet>440</a></span><span class="comment">// NOTE: Also check `NonNilUuid` when ading new derives here
 <a href=#441 id=441 data-nosnippet>441</a></span><span class="attr">#[cfg_attr(
-<a href=#442 id=442 data-nosnippet>442</a>    all(uuid_unstable, feature = <span class="string">"zerocopy"</span>),
-<a href=#443 id=443 data-nosnippet>443</a>    derive(
-<a href=#444 id=444 data-nosnippet>444</a>        zerocopy::IntoBytes,
-<a href=#445 id=445 data-nosnippet>445</a>        zerocopy::FromBytes,
-<a href=#446 id=446 data-nosnippet>446</a>        zerocopy::KnownLayout,
-<a href=#447 id=447 data-nosnippet>447</a>        zerocopy::Immutable,
-<a href=#448 id=448 data-nosnippet>448</a>        zerocopy::Unaligned
-<a href=#449 id=449 data-nosnippet>449</a>    )
-<a href=#450 id=450 data-nosnippet>450</a>)]
-<a href=#451 id=451 data-nosnippet>451</a>#[cfg_attr(
-<a href=#452 id=452 data-nosnippet>452</a>    feature = <span class="string">"borsh"</span>,
-<a href=#453 id=453 data-nosnippet>453</a>    derive(borsh_derive::BorshDeserialize, borsh_derive::BorshSerialize)
-<a href=#454 id=454 data-nosnippet>454</a>)]
-<a href=#455 id=455 data-nosnippet>455</a>#[cfg_attr(
-<a href=#456 id=456 data-nosnippet>456</a>    feature = <span class="string">"bytemuck"</span>,
-<a href=#457 id=457 data-nosnippet>457</a>    derive(bytemuck::Zeroable, bytemuck::Pod, bytemuck::TransparentWrapper)
+<a href=#442 id=442 data-nosnippet>442</a>    feature = <span class="string">"borsh"</span>,
+<a href=#443 id=443 data-nosnippet>443</a>    derive(borsh_derive::BorshDeserialize, borsh_derive::BorshSerialize)
+<a href=#444 id=444 data-nosnippet>444</a>)]
+<a href=#445 id=445 data-nosnippet>445</a>#[cfg_attr(
+<a href=#446 id=446 data-nosnippet>446</a>    feature = <span class="string">"bytemuck"</span>,
+<a href=#447 id=447 data-nosnippet>447</a>    derive(bytemuck::Zeroable, bytemuck::Pod, bytemuck::TransparentWrapper)
+<a href=#448 id=448 data-nosnippet>448</a>)]
+<a href=#449 id=449 data-nosnippet>449</a>#[cfg_attr(
+<a href=#450 id=450 data-nosnippet>450</a>    all(uuid_unstable, feature = <span class="string">"zerocopy"</span>),
+<a href=#451 id=451 data-nosnippet>451</a>    derive(
+<a href=#452 id=452 data-nosnippet>452</a>        zerocopy::IntoBytes,
+<a href=#453 id=453 data-nosnippet>453</a>        zerocopy::FromBytes,
+<a href=#454 id=454 data-nosnippet>454</a>        zerocopy::KnownLayout,
+<a href=#455 id=455 data-nosnippet>455</a>        zerocopy::Immutable,
+<a href=#456 id=456 data-nosnippet>456</a>        zerocopy::Unaligned
+<a href=#457 id=457 data-nosnippet>457</a>    )
 <a href=#458 id=458 data-nosnippet>458</a>)]
 <a href=#459 id=459 data-nosnippet>459</a></span><span class="kw">pub struct </span>Uuid(Bytes);
 <a href=#460 id=460 data-nosnippet>460</a>

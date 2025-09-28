@@ -15,7 +15,7 @@ be extremely unlikely.</p>
 <h2 id="getting-started"><a class="doc-anchor" href="#getting-started">§</a>Getting started</h2>
 <p>Add the following to your <code>Cargo.toml</code>:</p>
 <div class="example-wrap"><pre class="language-toml"><code>[dependencies.uuid]
-version = &quot;1.17.0&quot;
+version = &quot;1.18.1&quot;
 # Lets you generate random UUIDs
 features = [
     &quot;v4&quot;,
@@ -84,7 +84,7 @@ to unstable <code>uuid</code> features:</p>
 <div class="example-wrap"><pre class="language-text"><code>RUSTFLAGS=&quot;--cfg uuid_unstable&quot;</code></pre></div><h2 id="building-for-other-targets"><a class="doc-anchor" href="#building-for-other-targets">§</a>Building for other targets</h2><h3 id="webassembly"><a class="doc-anchor" href="#webassembly">§</a>WebAssembly</h3>
 <p>For WebAssembly, enable the <code>js</code> feature:</p>
 <div class="example-wrap"><pre class="language-toml"><code>[dependencies.uuid]
-version = &quot;1.17.0&quot;
+version = &quot;1.18.1&quot;
 features = [
     &quot;v4&quot;,
     &quot;v7&quot;,
@@ -93,7 +93,7 @@ features = [
 <p>For embedded targets without the standard library, you’ll need to
 disable default features when building <code>uuid</code>:</p>
 <div class="example-wrap"><pre class="language-toml"><code>[dependencies.uuid]
-version = &quot;1.17.0&quot;
+version = &quot;1.18.1&quot;
 default-features = false</code></pre></div>
 <p>Some additional features are supported in no-std environments:</p>
 <ul>

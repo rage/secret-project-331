@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["TlsStream"]};
+window.SIDEBAR_ITEMS = {"struct":["Accept","FallibleAccept","LazyConfigAcceptor","StartHandshake","TlsAcceptor","TlsStream"]};

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/indexmap-2.10.0/src/map/core/raw_entry_v1.rs`."><title>raw_entry_v1.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="indexmap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../../static.files/storage-82c7156e.js"></script><script defer src="../../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">indexmap/map/core/</div>raw_entry_v1.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Opt-in access to the experimental raw entry API.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/indexmap-2.11.4/src/map/core/raw_entry_v1.rs`."><title>raw_entry_v1.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="indexmap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../../static.files/storage-82c7156e.js"></script><script defer src="../../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">indexmap/map/core/</div>raw_entry_v1.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Opt-in access to the experimental raw entry API.
 <a href=#2 id=2 data-nosnippet>2</a>//!
 <a href=#3 id=3 data-nosnippet>3</a>//! This module is designed to mimic the raw entry API of [`HashMap`][std::collections::hash_map],
 <a href=#4 id=4 data-nosnippet>4</a>//! matching its unstable state as of Rust 1.75. See the tracking issue
@@ -498,8 +498,8 @@
 <a href=#498 id=498 data-nosnippet>498</a>
 <a href=#499 id=499 data-nosnippet>499</a>    <span class="doccomment">/// Remove the key, value pair stored in the map for this entry, and return the value.
 <a href=#500 id=500 data-nosnippet>500</a>    ///
-<a href=#501 id=501 data-nosnippet>501</a>    /// Like [`Vec::swap_remove`][crate::Vec::swap_remove], the pair is removed by swapping it with
-<a href=#502 id=502 data-nosnippet>502</a>    /// the last element of the map and popping it off.
+<a href=#501 id=501 data-nosnippet>501</a>    /// Like [`Vec::swap_remove`][alloc::vec::Vec::swap_remove], the pair is removed by swapping it
+<a href=#502 id=502 data-nosnippet>502</a>    /// with the last element of the map and popping it off.
 <a href=#503 id=503 data-nosnippet>503</a>    /// **This perturbs the position of what used to be the last element!**
 <a href=#504 id=504 data-nosnippet>504</a>    ///
 <a href=#505 id=505 data-nosnippet>505</a>    /// Computes in **O(1)** time (average).
@@ -509,7 +509,7 @@
 <a href=#509 id=509 data-nosnippet>509</a>
 <a href=#510 id=510 data-nosnippet>510</a>    <span class="doccomment">/// Remove the key, value pair stored in the map for this entry, and return the value.
 <a href=#511 id=511 data-nosnippet>511</a>    ///
-<a href=#512 id=512 data-nosnippet>512</a>    /// Like [`Vec::remove`][crate::Vec::remove], the pair is removed by shifting all of the
+<a href=#512 id=512 data-nosnippet>512</a>    /// Like [`Vec::remove`][alloc::vec::Vec::remove], the pair is removed by shifting all of the
 <a href=#513 id=513 data-nosnippet>513</a>    /// elements that follow it, preserving their relative order.
 <a href=#514 id=514 data-nosnippet>514</a>    /// **This perturbs the index of all of those elements!**
 <a href=#515 id=515 data-nosnippet>515</a>    ///
@@ -532,8 +532,8 @@
 <a href=#532 id=532 data-nosnippet>532</a>
 <a href=#533 id=533 data-nosnippet>533</a>    <span class="doccomment">/// Remove and return the key, value pair stored in the map for this entry
 <a href=#534 id=534 data-nosnippet>534</a>    ///
-<a href=#535 id=535 data-nosnippet>535</a>    /// Like [`Vec::swap_remove`][crate::Vec::swap_remove], the pair is removed by swapping it with
-<a href=#536 id=536 data-nosnippet>536</a>    /// the last element of the map and popping it off.
+<a href=#535 id=535 data-nosnippet>535</a>    /// Like [`Vec::swap_remove`][alloc::vec::Vec::swap_remove], the pair is removed by swapping it
+<a href=#536 id=536 data-nosnippet>536</a>    /// with the last element of the map and popping it off.
 <a href=#537 id=537 data-nosnippet>537</a>    /// **This perturbs the position of what used to be the last element!**
 <a href=#538 id=538 data-nosnippet>538</a>    ///
 <a href=#539 id=539 data-nosnippet>539</a>    /// Computes in **O(1)** time (average).
@@ -544,7 +544,7 @@
 <a href=#544 id=544 data-nosnippet>544</a>
 <a href=#545 id=545 data-nosnippet>545</a>    <span class="doccomment">/// Remove and return the key, value pair stored in the map for this entry
 <a href=#546 id=546 data-nosnippet>546</a>    ///
-<a href=#547 id=547 data-nosnippet>547</a>    /// Like [`Vec::remove`][crate::Vec::remove], the pair is removed by shifting all of the
+<a href=#547 id=547 data-nosnippet>547</a>    /// Like [`Vec::remove`][alloc::vec::Vec::remove], the pair is removed by shifting all of the
 <a href=#548 id=548 data-nosnippet>548</a>    /// elements that follow it, preserving their relative order.
 <a href=#549 id=549 data-nosnippet>549</a>    /// **This perturbs the index of all of those elements!**
 <a href=#550 id=550 data-nosnippet>550</a>    ///

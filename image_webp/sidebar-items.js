@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["ColorType","DecodingError","EncodingError","LoopCount"],"mod":["vp8"],"struct":["EncoderParams","WebPDecoder","WebPEncoder"]};
+window.SIDEBAR_ITEMS = {"enum":["ColorType","DecodingError","EncodingError","LoopCount","UpsamplingMethod"],"mod":["vp8"],"struct":["EncoderParams","WebPDecodeOptions","WebPDecoder","WebPEncoder"]};

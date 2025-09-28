@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/calendrical_calculations-0.2.0/src/astronomy.rs`."><title>astronomy.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="calendrical_calculations" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="../../static.files/src-script-63605ae7.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">calendrical_calculations/</div>astronomy.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// This file is part of ICU4X.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/calendrical_calculations-0.2.2/src/astronomy.rs`."><title>astronomy.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="calendrical_calculations" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="../../static.files/src-script-63605ae7.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">calendrical_calculations/</div>astronomy.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// This file is part of ICU4X.
 <a href=#2 id=2 data-nosnippet>2</a>//
 <a href=#3 id=3 data-nosnippet>3</a>// The contents of this file implement algorithms from Calendrical Calculations
 <a href=#4 id=4 data-nosnippet>4</a>// by Reingold &amp; Dershowitz, Cambridge University Press, 4th edition (2018),
@@ -2375,258 +2375,257 @@
 <a href=#2375 id=2375 data-nosnippet>2375</a>            <span class="kw">let </span>moment: Moment = Moment::new(<span class="kw-2">*</span>rd);
 <a href=#2376 id=2376 data-nosnippet>2376</a>            <span class="kw">let </span>moonset_val = Astronomical::moonset(moment, <span class="kw">crate</span>::islamic::MECCA);
 <a href=#2377 id=2377 data-nosnippet>2377</a>            <span class="kw">let </span>expected_moonset_val = <span class="kw-2">*</span>expected_val;
-<a href=#2378 id=2378 data-nosnippet>2378</a>            <span class="attr">#[allow(clippy::unnecessary_unwrap)]
-<a href=#2379 id=2379 data-nosnippet>2379</a>            </span><span class="kw">if </span>moonset_val.is_none() {
-<a href=#2380 id=2380 data-nosnippet>2380</a>                <span class="macro">assert_eq!</span>(expected_moonset_val, <span class="number">0.0</span>);
-<a href=#2381 id=2381 data-nosnippet>2381</a>            } <span class="kw">else </span>{
-<a href=#2382 id=2382 data-nosnippet>2382</a>                <span class="macro">assert_eq_f64!</span>(expected_moonset_val, moonset_val.unwrap().inner(), moment);
-<a href=#2383 id=2383 data-nosnippet>2383</a>            }
-<a href=#2384 id=2384 data-nosnippet>2384</a>        }
-<a href=#2385 id=2385 data-nosnippet>2385</a>    }
-<a href=#2386 id=2386 data-nosnippet>2386</a>
-<a href=#2387 id=2387 data-nosnippet>2387</a>    <span class="attr">#[test]
-<a href=#2388 id=2388 data-nosnippet>2388</a>    </span><span class="kw">fn </span>check_sunset() {
-<a href=#2389 id=2389 data-nosnippet>2389</a>        <span class="kw">let </span>rd_vals = [
-<a href=#2390 id=2390 data-nosnippet>2390</a>            -<span class="number">214193.0</span>, -<span class="number">61387.0</span>, <span class="number">25469.0</span>, <span class="number">49217.0</span>, <span class="number">171307.0</span>, <span class="number">210155.0</span>, <span class="number">253427.0</span>, <span class="number">369740.0</span>,
-<a href=#2391 id=2391 data-nosnippet>2391</a>            <span class="number">400085.0</span>, <span class="number">434355.0</span>, <span class="number">452605.0</span>, <span class="number">470160.0</span>, <span class="number">473837.0</span>, <span class="number">507850.0</span>, <span class="number">524156.0</span>, <span class="number">544676.0</span>,
-<a href=#2392 id=2392 data-nosnippet>2392</a>            <span class="number">567118.0</span>, <span class="number">569477.0</span>, <span class="number">601716.0</span>, <span class="number">613424.0</span>, <span class="number">626596.0</span>, <span class="number">645554.0</span>, <span class="number">664224.0</span>, <span class="number">671401.0</span>,
-<a href=#2393 id=2393 data-nosnippet>2393</a>            <span class="number">694799.0</span>, <span class="number">704424.0</span>, <span class="number">708842.0</span>, <span class="number">709409.0</span>, <span class="number">709580.0</span>, <span class="number">727274.0</span>, <span class="number">728714.0</span>, <span class="number">744313.0</span>,
-<a href=#2394 id=2394 data-nosnippet>2394</a>            <span class="number">764652.0</span>,
-<a href=#2395 id=2395 data-nosnippet>2395</a>        ];
-<a href=#2396 id=2396 data-nosnippet>2396</a>
-<a href=#2397 id=2397 data-nosnippet>2397</a>        <span class="kw">let </span>expected_values = [
-<a href=#2398 id=2398 data-nosnippet>2398</a>            -<span class="number">214192.2194436165</span>,
-<a href=#2399 id=2399 data-nosnippet>2399</a>            -<span class="number">61386.30267524347</span>,
-<a href=#2400 id=2400 data-nosnippet>2400</a>            <span class="number">25469.734889564967</span>,
-<a href=#2401 id=2401 data-nosnippet>2401</a>            <span class="number">49217.72851448112</span>,
-<a href=#2402 id=2402 data-nosnippet>2402</a>            <span class="number">171307.70878832813</span>,
-<a href=#2403 id=2403 data-nosnippet>2403</a>            <span class="number">210155.77420199668</span>,
-<a href=#2404 id=2404 data-nosnippet>2404</a>            <span class="number">253427.70087725233</span>,
-<a href=#2405 id=2405 data-nosnippet>2405</a>            <span class="number">369740.7627365203</span>,
-<a href=#2406 id=2406 data-nosnippet>2406</a>            <span class="number">400085.77677703864</span>,
-<a href=#2407 id=2407 data-nosnippet>2407</a>            <span class="number">434355.74808897293</span>,
-<a href=#2408 id=2408 data-nosnippet>2408</a>            <span class="number">452605.7425360138</span>,
-<a href=#2409 id=2409 data-nosnippet>2409</a>            <span class="number">470160.75310216413</span>,
-<a href=#2410 id=2410 data-nosnippet>2410</a>            <span class="number">473837.76440251875</span>,
-<a href=#2411 id=2411 data-nosnippet>2411</a>            <span class="number">507850.7840412511</span>,
-<a href=#2412 id=2412 data-nosnippet>2412</a>            <span class="number">524156.7225351998</span>,
-<a href=#2413 id=2413 data-nosnippet>2413</a>            <span class="number">544676.7561346035</span>,
-<a href=#2414 id=2414 data-nosnippet>2414</a>            <span class="number">567118.7396585084</span>,
-<a href=#2415 id=2415 data-nosnippet>2415</a>            <span class="number">569477.7396636717</span>,
-<a href=#2416 id=2416 data-nosnippet>2416</a>            <span class="number">601716.784057734</span>,
-<a href=#2417 id=2417 data-nosnippet>2417</a>            <span class="number">613424.7870863203</span>,
-<a href=#2418 id=2418 data-nosnippet>2418</a>            <span class="number">626596.781969136</span>,
-<a href=#2419 id=2419 data-nosnippet>2419</a>            <span class="number">645554.7863087669</span>,
-<a href=#2420 id=2420 data-nosnippet>2420</a>            <span class="number">664224.778132625</span>,
-<a href=#2421 id=2421 data-nosnippet>2421</a>            <span class="number">671401.7496876866</span>,
-<a href=#2422 id=2422 data-nosnippet>2422</a>            <span class="number">694799.7602310368</span>,
-<a href=#2423 id=2423 data-nosnippet>2423</a>            <span class="number">704424.7619096127</span>,
-<a href=#2424 id=2424 data-nosnippet>2424</a>            <span class="number">708842.730647343</span>,
-<a href=#2425 id=2425 data-nosnippet>2425</a>            <span class="number">709409.7603906896</span>,
-<a href=#2426 id=2426 data-nosnippet>2426</a>            <span class="number">709580.7240122546</span>,
-<a href=#2427 id=2427 data-nosnippet>2427</a>            <span class="number">727274.745361792</span>,
-<a href=#2428 id=2428 data-nosnippet>2428</a>            <span class="number">728714.734750938</span>,
-<a href=#2429 id=2429 data-nosnippet>2429</a>            <span class="number">744313.699821144</span>,
-<a href=#2430 id=2430 data-nosnippet>2430</a>            <span class="number">764652.7844809336</span>,
-<a href=#2431 id=2431 data-nosnippet>2431</a>        ];
-<a href=#2432 id=2432 data-nosnippet>2432</a>
-<a href=#2433 id=2433 data-nosnippet>2433</a>        <span class="kw">let </span>jerusalem = Location {
-<a href=#2434 id=2434 data-nosnippet>2434</a>            latitude: <span class="number">31.78</span>,
-<a href=#2435 id=2435 data-nosnippet>2435</a>            longitude: <span class="number">35.24</span>,
-<a href=#2436 id=2436 data-nosnippet>2436</a>            elevation: <span class="number">740.0</span>,
-<a href=#2437 id=2437 data-nosnippet>2437</a>            utc_offset: (<span class="number">1_f64 </span>/ <span class="number">12_f64</span>),
-<a href=#2438 id=2438 data-nosnippet>2438</a>        };
-<a href=#2439 id=2439 data-nosnippet>2439</a>
-<a href=#2440 id=2440 data-nosnippet>2440</a>        <span class="kw">for </span>(rd, expected_sunset_value) <span class="kw">in </span>rd_vals.iter().zip(expected_values.iter()) {
-<a href=#2441 id=2441 data-nosnippet>2441</a>            <span class="kw">let </span>moment = Moment::new(<span class="kw-2">*</span>rd);
-<a href=#2442 id=2442 data-nosnippet>2442</a>            <span class="kw">let </span>sunset_value = Astronomical::sunset(moment, jerusalem).unwrap();
-<a href=#2443 id=2443 data-nosnippet>2443</a>            <span class="kw">let </span>expected_sunset_val = <span class="kw-2">*</span>expected_sunset_value;
-<a href=#2444 id=2444 data-nosnippet>2444</a>            <span class="macro">assert_eq_f64!</span>(expected_sunset_val, sunset_value.inner(), moment)
-<a href=#2445 id=2445 data-nosnippet>2445</a>        }
-<a href=#2446 id=2446 data-nosnippet>2446</a>    }
-<a href=#2447 id=2447 data-nosnippet>2447</a>
-<a href=#2448 id=2448 data-nosnippet>2448</a>    <span class="attr">#[test]
-<a href=#2449 id=2449 data-nosnippet>2449</a>    </span><span class="comment">// Checks that next_new_moon gives the same values as the lisp reference code for the given RD test cases
-<a href=#2450 id=2450 data-nosnippet>2450</a>    // (See function definition for lisp reference)
-<a href=#2451 id=2451 data-nosnippet>2451</a>    </span><span class="kw">fn </span>check_next_new_moon() {
-<a href=#2452 id=2452 data-nosnippet>2452</a>        <span class="kw">let </span>rd_vals = [
-<a href=#2453 id=2453 data-nosnippet>2453</a>            -<span class="number">214193</span>, -<span class="number">61387</span>, <span class="number">25469</span>, <span class="number">49217</span>, <span class="number">171307</span>, <span class="number">210155</span>, <span class="number">253427</span>, <span class="number">369740</span>, <span class="number">400085</span>, <span class="number">434355</span>, <span class="number">452605</span>,
-<a href=#2454 id=2454 data-nosnippet>2454</a>            <span class="number">470160</span>, <span class="number">473837</span>, <span class="number">507850</span>, <span class="number">524156</span>, <span class="number">544676</span>, <span class="number">567118</span>, <span class="number">569477</span>, <span class="number">601716</span>, <span class="number">613424</span>, <span class="number">626596</span>, <span class="number">645554</span>,
-<a href=#2455 id=2455 data-nosnippet>2455</a>            <span class="number">664224</span>, <span class="number">671401</span>, <span class="number">694799</span>, <span class="number">704424</span>, <span class="number">708842</span>, <span class="number">709409</span>, <span class="number">709580</span>, <span class="number">727274</span>, <span class="number">728714</span>, <span class="number">744313</span>, <span class="number">764652</span>,
-<a href=#2456 id=2456 data-nosnippet>2456</a>        ];
-<a href=#2457 id=2457 data-nosnippet>2457</a>        <span class="kw">let </span>expected_next_new_moon = [
-<a href=#2458 id=2458 data-nosnippet>2458</a>            -<span class="number">214174.60582868298</span>,
-<a href=#2459 id=2459 data-nosnippet>2459</a>            -<span class="number">61382.99532831192</span>,
-<a href=#2460 id=2460 data-nosnippet>2460</a>            <span class="number">25495.80977675628</span>,
-<a href=#2461 id=2461 data-nosnippet>2461</a>            <span class="number">49238.50244808781</span>,
-<a href=#2462 id=2462 data-nosnippet>2462</a>            <span class="number">171318.43531326813</span>,
-<a href=#2463 id=2463 data-nosnippet>2463</a>            <span class="number">210180.69184966758</span>,
-<a href=#2464 id=2464 data-nosnippet>2464</a>            <span class="number">253442.85936730343</span>,
-<a href=#2465 id=2465 data-nosnippet>2465</a>            <span class="number">369763.74641362444</span>,
-<a href=#2466 id=2466 data-nosnippet>2466</a>            <span class="number">400091.5783431683</span>,
-<a href=#2467 id=2467 data-nosnippet>2467</a>            <span class="number">434376.5781067696</span>,
-<a href=#2468 id=2468 data-nosnippet>2468</a>            <span class="number">452627.1919724953</span>,
-<a href=#2469 id=2469 data-nosnippet>2469</a>            <span class="number">470167.57836052414</span>,
-<a href=#2470 id=2470 data-nosnippet>2470</a>            <span class="number">473858.8532764285</span>,
-<a href=#2471 id=2471 data-nosnippet>2471</a>            <span class="number">507878.6668429224</span>,
-<a href=#2472 id=2472 data-nosnippet>2472</a>            <span class="number">524179.2470620894</span>,
-<a href=#2473 id=2473 data-nosnippet>2473</a>            <span class="number">544702.7538732041</span>,
-<a href=#2474 id=2474 data-nosnippet>2474</a>            <span class="number">567146.5131819838</span>,
-<a href=#2475 id=2475 data-nosnippet>2475</a>            <span class="number">569479.2032589674</span>,
-<a href=#2476 id=2476 data-nosnippet>2476</a>            <span class="number">601727.0335578924</span>,
-<a href=#2477 id=2477 data-nosnippet>2477</a>            <span class="number">613449.7621296605</span>,
-<a href=#2478 id=2478 data-nosnippet>2478</a>            <span class="number">626620.3698017383</span>,
-<a href=#2479 id=2479 data-nosnippet>2479</a>            <span class="number">645579.0767485882</span>,
-<a href=#2480 id=2480 data-nosnippet>2480</a>            <span class="number">664242.8867184789</span>,
-<a href=#2481 id=2481 data-nosnippet>2481</a>            <span class="number">671418.970538101</span>,
-<a href=#2482 id=2482 data-nosnippet>2482</a>            <span class="number">694807.5633711396</span>,
-<a href=#2483 id=2483 data-nosnippet>2483</a>            <span class="number">704433.4911827276</span>,
-<a href=#2484 id=2484 data-nosnippet>2484</a>            <span class="number">708863.5970001582</span>,
-<a href=#2485 id=2485 data-nosnippet>2485</a>            <span class="number">709424.4049294397</span>,
-<a href=#2486 id=2486 data-nosnippet>2486</a>            <span class="number">709602.0826867367</span>,
-<a href=#2487 id=2487 data-nosnippet>2487</a>            <span class="number">727291.2094001573</span>,
-<a href=#2488 id=2488 data-nosnippet>2488</a>            <span class="number">728737.4476913146</span>,
-<a href=#2489 id=2489 data-nosnippet>2489</a>            <span class="number">744329.5739998783</span>,
-<a href=#2490 id=2490 data-nosnippet>2490</a>            <span class="number">764676.1912733881</span>,
-<a href=#2491 id=2491 data-nosnippet>2491</a>        ];
-<a href=#2492 id=2492 data-nosnippet>2492</a>        <span class="kw">for </span>(rd, expected_next_new_moon) <span class="kw">in </span>rd_vals.iter().zip(expected_next_new_moon.iter()) {
-<a href=#2493 id=2493 data-nosnippet>2493</a>            <span class="kw">let </span>moment: Moment = Moment::new(<span class="kw-2">*</span>rd <span class="kw">as </span>f64);
-<a href=#2494 id=2494 data-nosnippet>2494</a>            <span class="kw">let </span>next_new_moon = Astronomical::new_moon_at_or_after(moment);
-<a href=#2495 id=2495 data-nosnippet>2495</a>            <span class="kw">let </span>expected_next_new_moon_moment = Moment::new(<span class="kw-2">*</span>expected_next_new_moon);
-<a href=#2496 id=2496 data-nosnippet>2496</a>            <span class="kw">if </span><span class="kw-2">*</span>expected_next_new_moon &gt; <span class="number">0.0 </span>{
-<a href=#2497 id=2497 data-nosnippet>2497</a>                <span class="macro">assert!</span>(expected_next_new_moon_moment.inner() &gt; next_new_moon.inner() * TEST_LOWER_BOUND_FACTOR, <span class="string">"New moon calculation failed for the test case:\n\n\tMoment: {moment:?} with expected: {expected_next_new_moon_moment:?} and calculated: {next_new_moon:?}\n\n"</span>);
-<a href=#2498 id=2498 data-nosnippet>2498</a>                <span class="macro">assert!</span>(expected_next_new_moon_moment.inner() &lt; next_new_moon.inner() * TEST_UPPER_BOUND_FACTOR, <span class="string">"New moon calculation failed for the test case:\n\n\tMoment: {moment:?} with expected: {expected_next_new_moon_moment:?} and calculated: {next_new_moon:?}\n\n"</span>);
-<a href=#2499 id=2499 data-nosnippet>2499</a>            } <span class="kw">else </span>{
-<a href=#2500 id=2500 data-nosnippet>2500</a>                <span class="macro">assert!</span>(expected_next_new_moon_moment.inner() &gt; next_new_moon.inner() * TEST_UPPER_BOUND_FACTOR, <span class="string">"New moon calculation failed for the test case:\n\n\tMoment: {moment:?} with expected: {expected_next_new_moon_moment:?} and calculated: {next_new_moon:?}\n\n"</span>);
-<a href=#2501 id=2501 data-nosnippet>2501</a>                <span class="macro">assert!</span>(expected_next_new_moon_moment.inner() &lt; next_new_moon.inner() * TEST_LOWER_BOUND_FACTOR, <span class="string">"New moon calculation failed for the test case:\n\n\tMoment: {moment:?} with expected: {expected_next_new_moon_moment:?} and calculated: {next_new_moon:?}\n\n"</span>);
-<a href=#2502 id=2502 data-nosnippet>2502</a>            }
-<a href=#2503 id=2503 data-nosnippet>2503</a>        }
-<a href=#2504 id=2504 data-nosnippet>2504</a>    }
-<a href=#2505 id=2505 data-nosnippet>2505</a>
-<a href=#2506 id=2506 data-nosnippet>2506</a>    <span class="attr">#[test]
-<a href=#2507 id=2507 data-nosnippet>2507</a>    </span><span class="kw">fn </span>check_astronomy_0th_new_moon() {
-<a href=#2508 id=2508 data-nosnippet>2508</a>        <span class="comment">// Checks the accuracy of the 0th new moon to be on January 11th
-<a href=#2509 id=2509 data-nosnippet>2509</a>        </span><span class="kw">let </span>zeroth_new_moon = Astronomical::nth_new_moon(<span class="number">0</span>);
-<a href=#2510 id=2510 data-nosnippet>2510</a>        <span class="macro">assert_eq!</span>(
-<a href=#2511 id=2511 data-nosnippet>2511</a>            zeroth_new_moon.inner() <span class="kw">as </span>i32,
-<a href=#2512 id=2512 data-nosnippet>2512</a>            <span class="number">11</span>,
-<a href=#2513 id=2513 data-nosnippet>2513</a>            <span class="string">"0th new moon check failed with nth_new_moon(0) = {zeroth_new_moon:?}"
-<a href=#2514 id=2514 data-nosnippet>2514</a>        </span>);
-<a href=#2515 id=2515 data-nosnippet>2515</a>    }
-<a href=#2516 id=2516 data-nosnippet>2516</a>
-<a href=#2517 id=2517 data-nosnippet>2517</a>    <span class="attr">#[test]
-<a href=#2518 id=2518 data-nosnippet>2518</a>    </span><span class="kw">fn </span>check_num_of_new_moon_0() {
-<a href=#2519 id=2519 data-nosnippet>2519</a>        <span class="comment">// Tests the function num_of_new_moon_at_or_after() returns 0 for moment 0
-<a href=#2520 id=2520 data-nosnippet>2520</a>        </span><span class="macro">assert_eq!</span>(
-<a href=#2521 id=2521 data-nosnippet>2521</a>            Astronomical::num_of_new_moon_at_or_after(Moment::new(<span class="number">0.0</span>)),
-<a href=#2522 id=2522 data-nosnippet>2522</a>            <span class="number">0
-<a href=#2523 id=2523 data-nosnippet>2523</a>        </span>);
-<a href=#2524 id=2524 data-nosnippet>2524</a>    }
-<a href=#2525 id=2525 data-nosnippet>2525</a>
-<a href=#2526 id=2526 data-nosnippet>2526</a>    <span class="attr">#[test]
-<a href=#2527 id=2527 data-nosnippet>2527</a>    </span><span class="kw">fn </span>check_new_moon_directionality() {
-<a href=#2528 id=2528 data-nosnippet>2528</a>        <span class="comment">// Checks that new_moon_before is less than new_moon_at_or_after for a large number of Moments
-<a href=#2529 id=2529 data-nosnippet>2529</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>moment: Moment = Moment::new(-<span class="number">15500.0</span>);
-<a href=#2530 id=2530 data-nosnippet>2530</a>        <span class="kw">let </span>max_moment = Moment::new(<span class="number">15501.0</span>);
-<a href=#2531 id=2531 data-nosnippet>2531</a>        <span class="kw">let </span><span class="kw-2">mut </span>iters: i32 = <span class="number">0</span>;
-<a href=#2532 id=2532 data-nosnippet>2532</a>        <span class="kw">let </span>max_iters = <span class="number">10000</span>;
-<a href=#2533 id=2533 data-nosnippet>2533</a>        <span class="kw">while </span>iters &lt; max_iters &amp;&amp; moment &lt; max_moment {
-<a href=#2534 id=2534 data-nosnippet>2534</a>            <span class="kw">let </span>before = Astronomical::new_moon_before(moment);
-<a href=#2535 id=2535 data-nosnippet>2535</a>            <span class="kw">let </span>at_or_after = Astronomical::new_moon_at_or_after(moment);
-<a href=#2536 id=2536 data-nosnippet>2536</a>            <span class="macro">assert!</span>(before &lt; at_or_after, <span class="string">"Directionality of fns new_moon_before and new_moon_at_or_after failed for Moment: {moment:?}"</span>);
-<a href=#2537 id=2537 data-nosnippet>2537</a>            iters += <span class="number">1</span>;
-<a href=#2538 id=2538 data-nosnippet>2538</a>            moment += <span class="number">31.0</span>;
-<a href=#2539 id=2539 data-nosnippet>2539</a>        }
-<a href=#2540 id=2540 data-nosnippet>2540</a>        <span class="macro">assert!</span>(
-<a href=#2541 id=2541 data-nosnippet>2541</a>            iters &gt; <span class="number">500</span>,
-<a href=#2542 id=2542 data-nosnippet>2542</a>            <span class="string">"Testing failed: less than the expected number of testing iterations"
-<a href=#2543 id=2543 data-nosnippet>2543</a>        </span>);
-<a href=#2544 id=2544 data-nosnippet>2544</a>        <span class="macro">assert!</span>(
-<a href=#2545 id=2545 data-nosnippet>2545</a>            iters &lt; max_iters,
-<a href=#2546 id=2546 data-nosnippet>2546</a>            <span class="string">"Testing failed: more than the expected number of testing iterations"
-<a href=#2547 id=2547 data-nosnippet>2547</a>        </span>);
-<a href=#2548 id=2548 data-nosnippet>2548</a>    }
-<a href=#2549 id=2549 data-nosnippet>2549</a>
-<a href=#2550 id=2550 data-nosnippet>2550</a>    <span class="attr">#[test]
-<a href=#2551 id=2551 data-nosnippet>2551</a>    </span><span class="kw">fn </span>check_location_valid_case() {
-<a href=#2552 id=2552 data-nosnippet>2552</a>        <span class="comment">// Checks that location construction and functions work for various valid lats and longs
-<a href=#2553 id=2553 data-nosnippet>2553</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>long = -<span class="number">180.0</span>;
-<a href=#2554 id=2554 data-nosnippet>2554</a>        <span class="kw">let </span><span class="kw-2">mut </span>lat = -<span class="number">90.0</span>;
-<a href=#2555 id=2555 data-nosnippet>2555</a>        <span class="kw">let </span>zone = <span class="number">0.0</span>;
-<a href=#2556 id=2556 data-nosnippet>2556</a>        <span class="kw">while </span>long &lt;= <span class="number">180.0 </span>{
-<a href=#2557 id=2557 data-nosnippet>2557</a>            <span class="kw">while </span>lat &lt;= <span class="number">90.0 </span>{
-<a href=#2558 id=2558 data-nosnippet>2558</a>                <span class="kw">let </span>location: Location = Location::try_new(lat, long, <span class="number">1000.0</span>, zone).unwrap();
-<a href=#2559 id=2559 data-nosnippet>2559</a>                <span class="macro">assert_eq!</span>(lat, location.latitude());
-<a href=#2560 id=2560 data-nosnippet>2560</a>                <span class="macro">assert_eq!</span>(long, location.longitude());
-<a href=#2561 id=2561 data-nosnippet>2561</a>
-<a href=#2562 id=2562 data-nosnippet>2562</a>                lat += <span class="number">1.0</span>;
-<a href=#2563 id=2563 data-nosnippet>2563</a>            }
-<a href=#2564 id=2564 data-nosnippet>2564</a>            long += <span class="number">1.0</span>;
-<a href=#2565 id=2565 data-nosnippet>2565</a>        }
-<a href=#2566 id=2566 data-nosnippet>2566</a>    }
-<a href=#2567 id=2567 data-nosnippet>2567</a>
-<a href=#2568 id=2568 data-nosnippet>2568</a>    <span class="attr">#[test]
-<a href=#2569 id=2569 data-nosnippet>2569</a>    </span><span class="kw">fn </span>check_location_errors() {
-<a href=#2570 id=2570 data-nosnippet>2570</a>        <span class="kw">let </span>lat_too_small = Location::try_new(-<span class="number">90.1</span>, <span class="number">15.0</span>, <span class="number">1000.0</span>, <span class="number">0.0</span>).unwrap_err();
-<a href=#2571 id=2571 data-nosnippet>2571</a>        <span class="macro">assert_eq!</span>(lat_too_small, LocationOutOfBoundsError::Latitude(-<span class="number">90.1</span>));
-<a href=#2572 id=2572 data-nosnippet>2572</a>        <span class="kw">let </span>lat_too_large = Location::try_new(<span class="number">90.1</span>, -<span class="number">15.0</span>, <span class="number">1000.0</span>, <span class="number">0.0</span>).unwrap_err();
-<a href=#2573 id=2573 data-nosnippet>2573</a>        <span class="macro">assert_eq!</span>(lat_too_large, LocationOutOfBoundsError::Latitude(<span class="number">90.1</span>));
-<a href=#2574 id=2574 data-nosnippet>2574</a>        <span class="kw">let </span>long_too_small = Location::try_new(<span class="number">15.0</span>, <span class="number">180.1</span>, <span class="number">1000.0</span>, <span class="number">0.0</span>).unwrap_err();
-<a href=#2575 id=2575 data-nosnippet>2575</a>        <span class="macro">assert_eq!</span>(long_too_small, LocationOutOfBoundsError::Longitude(<span class="number">180.1</span>));
-<a href=#2576 id=2576 data-nosnippet>2576</a>        <span class="kw">let </span>long_too_large = Location::try_new(-<span class="number">15.0</span>, -<span class="number">180.1</span>, <span class="number">1000.0</span>, <span class="number">0.0</span>).unwrap_err();
-<a href=#2577 id=2577 data-nosnippet>2577</a>        <span class="macro">assert_eq!</span>(long_too_large, LocationOutOfBoundsError::Longitude(-<span class="number">180.1</span>));
-<a href=#2578 id=2578 data-nosnippet>2578</a>    }
-<a href=#2579 id=2579 data-nosnippet>2579</a>
-<a href=#2580 id=2580 data-nosnippet>2580</a>    <span class="attr">#[test]
-<a href=#2581 id=2581 data-nosnippet>2581</a>    </span><span class="kw">fn </span>check_obliquity() {
-<a href=#2582 id=2582 data-nosnippet>2582</a>        <span class="kw">let </span>rd_vals = [
-<a href=#2583 id=2583 data-nosnippet>2583</a>            -<span class="number">214193</span>, -<span class="number">61387</span>, <span class="number">25469</span>, <span class="number">49217</span>, <span class="number">171307</span>, <span class="number">210155</span>, <span class="number">253427</span>, <span class="number">369740</span>, <span class="number">400085</span>, <span class="number">434355</span>, <span class="number">452605</span>,
-<a href=#2584 id=2584 data-nosnippet>2584</a>            <span class="number">470160</span>, <span class="number">473837</span>, <span class="number">507850</span>, <span class="number">524156</span>, <span class="number">544676</span>, <span class="number">567118</span>, <span class="number">569477</span>, <span class="number">601716</span>, <span class="number">613424</span>, <span class="number">626596</span>, <span class="number">645554</span>,
-<a href=#2585 id=2585 data-nosnippet>2585</a>            <span class="number">664224</span>, <span class="number">671401</span>, <span class="number">694799</span>, <span class="number">704424</span>, <span class="number">708842</span>, <span class="number">709409</span>, <span class="number">709580</span>, <span class="number">727274</span>, <span class="number">728714</span>, <span class="number">744313</span>, <span class="number">764652</span>,
-<a href=#2586 id=2586 data-nosnippet>2586</a>        ];
-<a href=#2587 id=2587 data-nosnippet>2587</a>
-<a href=#2588 id=2588 data-nosnippet>2588</a>        <span class="kw">let </span>expected_obliquity_val = [
-<a href=#2589 id=2589 data-nosnippet>2589</a>            <span class="number">23.766686762858193</span>,
-<a href=#2590 id=2590 data-nosnippet>2590</a>            <span class="number">23.715893268155952</span>,
-<a href=#2591 id=2591 data-nosnippet>2591</a>            <span class="number">23.68649428364133</span>,
-<a href=#2592 id=2592 data-nosnippet>2592</a>            <span class="number">23.678396646319815</span>,
-<a href=#2593 id=2593 data-nosnippet>2593</a>            <span class="number">23.636406172247575</span>,
-<a href=#2594 id=2594 data-nosnippet>2594</a>            <span class="number">23.622930685681105</span>,
-<a href=#2595 id=2595 data-nosnippet>2595</a>            <span class="number">23.607863050353394</span>,
-<a href=#2596 id=2596 data-nosnippet>2596</a>            <span class="number">23.567099369895143</span>,
-<a href=#2597 id=2597 data-nosnippet>2597</a>            <span class="number">23.556410268115442</span>,
-<a href=#2598 id=2598 data-nosnippet>2598</a>            <span class="number">23.544315732982724</span>,
-<a href=#2599 id=2599 data-nosnippet>2599</a>            <span class="number">23.5378658942414</span>,
-<a href=#2600 id=2600 data-nosnippet>2600</a>            <span class="number">23.531656189162007</span>,
-<a href=#2601 id=2601 data-nosnippet>2601</a>            <span class="number">23.53035487913322</span>,
-<a href=#2602 id=2602 data-nosnippet>2602</a>            <span class="number">23.518307553466993</span>,
-<a href=#2603 id=2603 data-nosnippet>2603</a>            <span class="number">23.512526100422757</span>,
-<a href=#2604 id=2604 data-nosnippet>2604</a>            <span class="number">23.50524564635773</span>,
-<a href=#2605 id=2605 data-nosnippet>2605</a>            <span class="number">23.49727762748816</span>,
-<a href=#2606 id=2606 data-nosnippet>2606</a>            <span class="number">23.49643975090472</span>,
-<a href=#2607 id=2607 data-nosnippet>2607</a>            <span class="number">23.48498365949255</span>,
-<a href=#2608 id=2608 data-nosnippet>2608</a>            <span class="number">23.48082101433542</span>,
-<a href=#2609 id=2609 data-nosnippet>2609</a>            <span class="number">23.476136639530452</span>,
-<a href=#2610 id=2610 data-nosnippet>2610</a>            <span class="number">23.469392588649566</span>,
-<a href=#2611 id=2611 data-nosnippet>2611</a>            <span class="number">23.46274905945532</span>,
-<a href=#2612 id=2612 data-nosnippet>2612</a>            <span class="number">23.460194773340504</span>,
-<a href=#2613 id=2613 data-nosnippet>2613</a>            <span class="number">23.451866181318085</span>,
-<a href=#2614 id=2614 data-nosnippet>2614</a>            <span class="number">23.44843969966849</span>,
-<a href=#2615 id=2615 data-nosnippet>2615</a>            <span class="number">23.44686683973517</span>,
-<a href=#2616 id=2616 data-nosnippet>2616</a>            <span class="number">23.446664978744177</span>,
-<a href=#2617 id=2617 data-nosnippet>2617</a>            <span class="number">23.44660409993624</span>,
-<a href=#2618 id=2618 data-nosnippet>2618</a>            <span class="number">23.440304562352033</span>,
-<a href=#2619 id=2619 data-nosnippet>2619</a>            <span class="number">23.43979187336218</span>,
-<a href=#2620 id=2620 data-nosnippet>2620</a>            <span class="number">23.434238093381342</span>,
-<a href=#2621 id=2621 data-nosnippet>2621</a>            <span class="number">23.426996977623215</span>,
-<a href=#2622 id=2622 data-nosnippet>2622</a>        ];
-<a href=#2623 id=2623 data-nosnippet>2623</a>
-<a href=#2624 id=2624 data-nosnippet>2624</a>        <span class="kw">for </span>(rd, expected_obl_val) <span class="kw">in </span>rd_vals.iter().zip(expected_obliquity_val.iter()) {
-<a href=#2625 id=2625 data-nosnippet>2625</a>            <span class="kw">let </span>moment = Moment::new(<span class="kw-2">*</span>rd <span class="kw">as </span>f64);
-<a href=#2626 id=2626 data-nosnippet>2626</a>            <span class="kw">let </span>obl_val = Astronomical::obliquity(moment);
-<a href=#2627 id=2627 data-nosnippet>2627</a>            <span class="kw">let </span>expected_val = <span class="kw-2">*</span>expected_obl_val;
-<a href=#2628 id=2628 data-nosnippet>2628</a>
-<a href=#2629 id=2629 data-nosnippet>2629</a>            <span class="macro">assert_eq_f64!</span>(expected_val, obl_val, moment)
-<a href=#2630 id=2630 data-nosnippet>2630</a>        }
-<a href=#2631 id=2631 data-nosnippet>2631</a>    }
-<a href=#2632 id=2632 data-nosnippet>2632</a>}</code></pre></div></section></main></body></html>
+<a href=#2378 id=2378 data-nosnippet>2378</a>            <span class="kw">if let </span><span class="prelude-val">Some</span>(moonset_val) = moonset_val {
+<a href=#2379 id=2379 data-nosnippet>2379</a>                <span class="macro">assert_eq_f64!</span>(expected_moonset_val, moonset_val.inner(), moment);
+<a href=#2380 id=2380 data-nosnippet>2380</a>            } <span class="kw">else </span>{
+<a href=#2381 id=2381 data-nosnippet>2381</a>                <span class="macro">assert_eq!</span>(expected_moonset_val, <span class="number">0.0</span>);
+<a href=#2382 id=2382 data-nosnippet>2382</a>            }
+<a href=#2383 id=2383 data-nosnippet>2383</a>        }
+<a href=#2384 id=2384 data-nosnippet>2384</a>    }
+<a href=#2385 id=2385 data-nosnippet>2385</a>
+<a href=#2386 id=2386 data-nosnippet>2386</a>    <span class="attr">#[test]
+<a href=#2387 id=2387 data-nosnippet>2387</a>    </span><span class="kw">fn </span>check_sunset() {
+<a href=#2388 id=2388 data-nosnippet>2388</a>        <span class="kw">let </span>rd_vals = [
+<a href=#2389 id=2389 data-nosnippet>2389</a>            -<span class="number">214193.0</span>, -<span class="number">61387.0</span>, <span class="number">25469.0</span>, <span class="number">49217.0</span>, <span class="number">171307.0</span>, <span class="number">210155.0</span>, <span class="number">253427.0</span>, <span class="number">369740.0</span>,
+<a href=#2390 id=2390 data-nosnippet>2390</a>            <span class="number">400085.0</span>, <span class="number">434355.0</span>, <span class="number">452605.0</span>, <span class="number">470160.0</span>, <span class="number">473837.0</span>, <span class="number">507850.0</span>, <span class="number">524156.0</span>, <span class="number">544676.0</span>,
+<a href=#2391 id=2391 data-nosnippet>2391</a>            <span class="number">567118.0</span>, <span class="number">569477.0</span>, <span class="number">601716.0</span>, <span class="number">613424.0</span>, <span class="number">626596.0</span>, <span class="number">645554.0</span>, <span class="number">664224.0</span>, <span class="number">671401.0</span>,
+<a href=#2392 id=2392 data-nosnippet>2392</a>            <span class="number">694799.0</span>, <span class="number">704424.0</span>, <span class="number">708842.0</span>, <span class="number">709409.0</span>, <span class="number">709580.0</span>, <span class="number">727274.0</span>, <span class="number">728714.0</span>, <span class="number">744313.0</span>,
+<a href=#2393 id=2393 data-nosnippet>2393</a>            <span class="number">764652.0</span>,
+<a href=#2394 id=2394 data-nosnippet>2394</a>        ];
+<a href=#2395 id=2395 data-nosnippet>2395</a>
+<a href=#2396 id=2396 data-nosnippet>2396</a>        <span class="kw">let </span>expected_values = [
+<a href=#2397 id=2397 data-nosnippet>2397</a>            -<span class="number">214192.2194436165</span>,
+<a href=#2398 id=2398 data-nosnippet>2398</a>            -<span class="number">61386.30267524347</span>,
+<a href=#2399 id=2399 data-nosnippet>2399</a>            <span class="number">25469.734889564967</span>,
+<a href=#2400 id=2400 data-nosnippet>2400</a>            <span class="number">49217.72851448112</span>,
+<a href=#2401 id=2401 data-nosnippet>2401</a>            <span class="number">171307.70878832813</span>,
+<a href=#2402 id=2402 data-nosnippet>2402</a>            <span class="number">210155.77420199668</span>,
+<a href=#2403 id=2403 data-nosnippet>2403</a>            <span class="number">253427.70087725233</span>,
+<a href=#2404 id=2404 data-nosnippet>2404</a>            <span class="number">369740.7627365203</span>,
+<a href=#2405 id=2405 data-nosnippet>2405</a>            <span class="number">400085.77677703864</span>,
+<a href=#2406 id=2406 data-nosnippet>2406</a>            <span class="number">434355.74808897293</span>,
+<a href=#2407 id=2407 data-nosnippet>2407</a>            <span class="number">452605.7425360138</span>,
+<a href=#2408 id=2408 data-nosnippet>2408</a>            <span class="number">470160.75310216413</span>,
+<a href=#2409 id=2409 data-nosnippet>2409</a>            <span class="number">473837.76440251875</span>,
+<a href=#2410 id=2410 data-nosnippet>2410</a>            <span class="number">507850.7840412511</span>,
+<a href=#2411 id=2411 data-nosnippet>2411</a>            <span class="number">524156.7225351998</span>,
+<a href=#2412 id=2412 data-nosnippet>2412</a>            <span class="number">544676.7561346035</span>,
+<a href=#2413 id=2413 data-nosnippet>2413</a>            <span class="number">567118.7396585084</span>,
+<a href=#2414 id=2414 data-nosnippet>2414</a>            <span class="number">569477.7396636717</span>,
+<a href=#2415 id=2415 data-nosnippet>2415</a>            <span class="number">601716.784057734</span>,
+<a href=#2416 id=2416 data-nosnippet>2416</a>            <span class="number">613424.7870863203</span>,
+<a href=#2417 id=2417 data-nosnippet>2417</a>            <span class="number">626596.781969136</span>,
+<a href=#2418 id=2418 data-nosnippet>2418</a>            <span class="number">645554.7863087669</span>,
+<a href=#2419 id=2419 data-nosnippet>2419</a>            <span class="number">664224.778132625</span>,
+<a href=#2420 id=2420 data-nosnippet>2420</a>            <span class="number">671401.7496876866</span>,
+<a href=#2421 id=2421 data-nosnippet>2421</a>            <span class="number">694799.7602310368</span>,
+<a href=#2422 id=2422 data-nosnippet>2422</a>            <span class="number">704424.7619096127</span>,
+<a href=#2423 id=2423 data-nosnippet>2423</a>            <span class="number">708842.730647343</span>,
+<a href=#2424 id=2424 data-nosnippet>2424</a>            <span class="number">709409.7603906896</span>,
+<a href=#2425 id=2425 data-nosnippet>2425</a>            <span class="number">709580.7240122546</span>,
+<a href=#2426 id=2426 data-nosnippet>2426</a>            <span class="number">727274.745361792</span>,
+<a href=#2427 id=2427 data-nosnippet>2427</a>            <span class="number">728714.734750938</span>,
+<a href=#2428 id=2428 data-nosnippet>2428</a>            <span class="number">744313.699821144</span>,
+<a href=#2429 id=2429 data-nosnippet>2429</a>            <span class="number">764652.7844809336</span>,
+<a href=#2430 id=2430 data-nosnippet>2430</a>        ];
+<a href=#2431 id=2431 data-nosnippet>2431</a>
+<a href=#2432 id=2432 data-nosnippet>2432</a>        <span class="kw">let </span>jerusalem = Location {
+<a href=#2433 id=2433 data-nosnippet>2433</a>            latitude: <span class="number">31.78</span>,
+<a href=#2434 id=2434 data-nosnippet>2434</a>            longitude: <span class="number">35.24</span>,
+<a href=#2435 id=2435 data-nosnippet>2435</a>            elevation: <span class="number">740.0</span>,
+<a href=#2436 id=2436 data-nosnippet>2436</a>            utc_offset: (<span class="number">1_f64 </span>/ <span class="number">12_f64</span>),
+<a href=#2437 id=2437 data-nosnippet>2437</a>        };
+<a href=#2438 id=2438 data-nosnippet>2438</a>
+<a href=#2439 id=2439 data-nosnippet>2439</a>        <span class="kw">for </span>(rd, expected_sunset_value) <span class="kw">in </span>rd_vals.iter().zip(expected_values.iter()) {
+<a href=#2440 id=2440 data-nosnippet>2440</a>            <span class="kw">let </span>moment = Moment::new(<span class="kw-2">*</span>rd);
+<a href=#2441 id=2441 data-nosnippet>2441</a>            <span class="kw">let </span>sunset_value = Astronomical::sunset(moment, jerusalem).unwrap();
+<a href=#2442 id=2442 data-nosnippet>2442</a>            <span class="kw">let </span>expected_sunset_val = <span class="kw-2">*</span>expected_sunset_value;
+<a href=#2443 id=2443 data-nosnippet>2443</a>            <span class="macro">assert_eq_f64!</span>(expected_sunset_val, sunset_value.inner(), moment)
+<a href=#2444 id=2444 data-nosnippet>2444</a>        }
+<a href=#2445 id=2445 data-nosnippet>2445</a>    }
+<a href=#2446 id=2446 data-nosnippet>2446</a>
+<a href=#2447 id=2447 data-nosnippet>2447</a>    <span class="attr">#[test]
+<a href=#2448 id=2448 data-nosnippet>2448</a>    </span><span class="comment">// Checks that next_new_moon gives the same values as the lisp reference code for the given RD test cases
+<a href=#2449 id=2449 data-nosnippet>2449</a>    // (See function definition for lisp reference)
+<a href=#2450 id=2450 data-nosnippet>2450</a>    </span><span class="kw">fn </span>check_next_new_moon() {
+<a href=#2451 id=2451 data-nosnippet>2451</a>        <span class="kw">let </span>rd_vals = [
+<a href=#2452 id=2452 data-nosnippet>2452</a>            -<span class="number">214193</span>, -<span class="number">61387</span>, <span class="number">25469</span>, <span class="number">49217</span>, <span class="number">171307</span>, <span class="number">210155</span>, <span class="number">253427</span>, <span class="number">369740</span>, <span class="number">400085</span>, <span class="number">434355</span>, <span class="number">452605</span>,
+<a href=#2453 id=2453 data-nosnippet>2453</a>            <span class="number">470160</span>, <span class="number">473837</span>, <span class="number">507850</span>, <span class="number">524156</span>, <span class="number">544676</span>, <span class="number">567118</span>, <span class="number">569477</span>, <span class="number">601716</span>, <span class="number">613424</span>, <span class="number">626596</span>, <span class="number">645554</span>,
+<a href=#2454 id=2454 data-nosnippet>2454</a>            <span class="number">664224</span>, <span class="number">671401</span>, <span class="number">694799</span>, <span class="number">704424</span>, <span class="number">708842</span>, <span class="number">709409</span>, <span class="number">709580</span>, <span class="number">727274</span>, <span class="number">728714</span>, <span class="number">744313</span>, <span class="number">764652</span>,
+<a href=#2455 id=2455 data-nosnippet>2455</a>        ];
+<a href=#2456 id=2456 data-nosnippet>2456</a>        <span class="kw">let </span>expected_next_new_moon = [
+<a href=#2457 id=2457 data-nosnippet>2457</a>            -<span class="number">214174.60582868298</span>,
+<a href=#2458 id=2458 data-nosnippet>2458</a>            -<span class="number">61382.99532831192</span>,
+<a href=#2459 id=2459 data-nosnippet>2459</a>            <span class="number">25495.80977675628</span>,
+<a href=#2460 id=2460 data-nosnippet>2460</a>            <span class="number">49238.50244808781</span>,
+<a href=#2461 id=2461 data-nosnippet>2461</a>            <span class="number">171318.43531326813</span>,
+<a href=#2462 id=2462 data-nosnippet>2462</a>            <span class="number">210180.69184966758</span>,
+<a href=#2463 id=2463 data-nosnippet>2463</a>            <span class="number">253442.85936730343</span>,
+<a href=#2464 id=2464 data-nosnippet>2464</a>            <span class="number">369763.74641362444</span>,
+<a href=#2465 id=2465 data-nosnippet>2465</a>            <span class="number">400091.5783431683</span>,
+<a href=#2466 id=2466 data-nosnippet>2466</a>            <span class="number">434376.5781067696</span>,
+<a href=#2467 id=2467 data-nosnippet>2467</a>            <span class="number">452627.1919724953</span>,
+<a href=#2468 id=2468 data-nosnippet>2468</a>            <span class="number">470167.57836052414</span>,
+<a href=#2469 id=2469 data-nosnippet>2469</a>            <span class="number">473858.8532764285</span>,
+<a href=#2470 id=2470 data-nosnippet>2470</a>            <span class="number">507878.6668429224</span>,
+<a href=#2471 id=2471 data-nosnippet>2471</a>            <span class="number">524179.2470620894</span>,
+<a href=#2472 id=2472 data-nosnippet>2472</a>            <span class="number">544702.7538732041</span>,
+<a href=#2473 id=2473 data-nosnippet>2473</a>            <span class="number">567146.5131819838</span>,
+<a href=#2474 id=2474 data-nosnippet>2474</a>            <span class="number">569479.2032589674</span>,
+<a href=#2475 id=2475 data-nosnippet>2475</a>            <span class="number">601727.0335578924</span>,
+<a href=#2476 id=2476 data-nosnippet>2476</a>            <span class="number">613449.7621296605</span>,
+<a href=#2477 id=2477 data-nosnippet>2477</a>            <span class="number">626620.3698017383</span>,
+<a href=#2478 id=2478 data-nosnippet>2478</a>            <span class="number">645579.0767485882</span>,
+<a href=#2479 id=2479 data-nosnippet>2479</a>            <span class="number">664242.8867184789</span>,
+<a href=#2480 id=2480 data-nosnippet>2480</a>            <span class="number">671418.970538101</span>,
+<a href=#2481 id=2481 data-nosnippet>2481</a>            <span class="number">694807.5633711396</span>,
+<a href=#2482 id=2482 data-nosnippet>2482</a>            <span class="number">704433.4911827276</span>,
+<a href=#2483 id=2483 data-nosnippet>2483</a>            <span class="number">708863.5970001582</span>,
+<a href=#2484 id=2484 data-nosnippet>2484</a>            <span class="number">709424.4049294397</span>,
+<a href=#2485 id=2485 data-nosnippet>2485</a>            <span class="number">709602.0826867367</span>,
+<a href=#2486 id=2486 data-nosnippet>2486</a>            <span class="number">727291.2094001573</span>,
+<a href=#2487 id=2487 data-nosnippet>2487</a>            <span class="number">728737.4476913146</span>,
+<a href=#2488 id=2488 data-nosnippet>2488</a>            <span class="number">744329.5739998783</span>,
+<a href=#2489 id=2489 data-nosnippet>2489</a>            <span class="number">764676.1912733881</span>,
+<a href=#2490 id=2490 data-nosnippet>2490</a>        ];
+<a href=#2491 id=2491 data-nosnippet>2491</a>        <span class="kw">for </span>(rd, expected_next_new_moon) <span class="kw">in </span>rd_vals.iter().zip(expected_next_new_moon.iter()) {
+<a href=#2492 id=2492 data-nosnippet>2492</a>            <span class="kw">let </span>moment: Moment = Moment::new(<span class="kw-2">*</span>rd <span class="kw">as </span>f64);
+<a href=#2493 id=2493 data-nosnippet>2493</a>            <span class="kw">let </span>next_new_moon = Astronomical::new_moon_at_or_after(moment);
+<a href=#2494 id=2494 data-nosnippet>2494</a>            <span class="kw">let </span>expected_next_new_moon_moment = Moment::new(<span class="kw-2">*</span>expected_next_new_moon);
+<a href=#2495 id=2495 data-nosnippet>2495</a>            <span class="kw">if </span><span class="kw-2">*</span>expected_next_new_moon &gt; <span class="number">0.0 </span>{
+<a href=#2496 id=2496 data-nosnippet>2496</a>                <span class="macro">assert!</span>(expected_next_new_moon_moment.inner() &gt; next_new_moon.inner() * TEST_LOWER_BOUND_FACTOR, <span class="string">"New moon calculation failed for the test case:\n\n\tMoment: {moment:?} with expected: {expected_next_new_moon_moment:?} and calculated: {next_new_moon:?}\n\n"</span>);
+<a href=#2497 id=2497 data-nosnippet>2497</a>                <span class="macro">assert!</span>(expected_next_new_moon_moment.inner() &lt; next_new_moon.inner() * TEST_UPPER_BOUND_FACTOR, <span class="string">"New moon calculation failed for the test case:\n\n\tMoment: {moment:?} with expected: {expected_next_new_moon_moment:?} and calculated: {next_new_moon:?}\n\n"</span>);
+<a href=#2498 id=2498 data-nosnippet>2498</a>            } <span class="kw">else </span>{
+<a href=#2499 id=2499 data-nosnippet>2499</a>                <span class="macro">assert!</span>(expected_next_new_moon_moment.inner() &gt; next_new_moon.inner() * TEST_UPPER_BOUND_FACTOR, <span class="string">"New moon calculation failed for the test case:\n\n\tMoment: {moment:?} with expected: {expected_next_new_moon_moment:?} and calculated: {next_new_moon:?}\n\n"</span>);
+<a href=#2500 id=2500 data-nosnippet>2500</a>                <span class="macro">assert!</span>(expected_next_new_moon_moment.inner() &lt; next_new_moon.inner() * TEST_LOWER_BOUND_FACTOR, <span class="string">"New moon calculation failed for the test case:\n\n\tMoment: {moment:?} with expected: {expected_next_new_moon_moment:?} and calculated: {next_new_moon:?}\n\n"</span>);
+<a href=#2501 id=2501 data-nosnippet>2501</a>            }
+<a href=#2502 id=2502 data-nosnippet>2502</a>        }
+<a href=#2503 id=2503 data-nosnippet>2503</a>    }
+<a href=#2504 id=2504 data-nosnippet>2504</a>
+<a href=#2505 id=2505 data-nosnippet>2505</a>    <span class="attr">#[test]
+<a href=#2506 id=2506 data-nosnippet>2506</a>    </span><span class="kw">fn </span>check_astronomy_0th_new_moon() {
+<a href=#2507 id=2507 data-nosnippet>2507</a>        <span class="comment">// Checks the accuracy of the 0th new moon to be on January 11th
+<a href=#2508 id=2508 data-nosnippet>2508</a>        </span><span class="kw">let </span>zeroth_new_moon = Astronomical::nth_new_moon(<span class="number">0</span>);
+<a href=#2509 id=2509 data-nosnippet>2509</a>        <span class="macro">assert_eq!</span>(
+<a href=#2510 id=2510 data-nosnippet>2510</a>            zeroth_new_moon.inner() <span class="kw">as </span>i32,
+<a href=#2511 id=2511 data-nosnippet>2511</a>            <span class="number">11</span>,
+<a href=#2512 id=2512 data-nosnippet>2512</a>            <span class="string">"0th new moon check failed with nth_new_moon(0) = {zeroth_new_moon:?}"
+<a href=#2513 id=2513 data-nosnippet>2513</a>        </span>);
+<a href=#2514 id=2514 data-nosnippet>2514</a>    }
+<a href=#2515 id=2515 data-nosnippet>2515</a>
+<a href=#2516 id=2516 data-nosnippet>2516</a>    <span class="attr">#[test]
+<a href=#2517 id=2517 data-nosnippet>2517</a>    </span><span class="kw">fn </span>check_num_of_new_moon_0() {
+<a href=#2518 id=2518 data-nosnippet>2518</a>        <span class="comment">// Tests the function num_of_new_moon_at_or_after() returns 0 for moment 0
+<a href=#2519 id=2519 data-nosnippet>2519</a>        </span><span class="macro">assert_eq!</span>(
+<a href=#2520 id=2520 data-nosnippet>2520</a>            Astronomical::num_of_new_moon_at_or_after(Moment::new(<span class="number">0.0</span>)),
+<a href=#2521 id=2521 data-nosnippet>2521</a>            <span class="number">0
+<a href=#2522 id=2522 data-nosnippet>2522</a>        </span>);
+<a href=#2523 id=2523 data-nosnippet>2523</a>    }
+<a href=#2524 id=2524 data-nosnippet>2524</a>
+<a href=#2525 id=2525 data-nosnippet>2525</a>    <span class="attr">#[test]
+<a href=#2526 id=2526 data-nosnippet>2526</a>    </span><span class="kw">fn </span>check_new_moon_directionality() {
+<a href=#2527 id=2527 data-nosnippet>2527</a>        <span class="comment">// Checks that new_moon_before is less than new_moon_at_or_after for a large number of Moments
+<a href=#2528 id=2528 data-nosnippet>2528</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>moment: Moment = Moment::new(-<span class="number">15500.0</span>);
+<a href=#2529 id=2529 data-nosnippet>2529</a>        <span class="kw">let </span>max_moment = Moment::new(<span class="number">15501.0</span>);
+<a href=#2530 id=2530 data-nosnippet>2530</a>        <span class="kw">let </span><span class="kw-2">mut </span>iters: i32 = <span class="number">0</span>;
+<a href=#2531 id=2531 data-nosnippet>2531</a>        <span class="kw">let </span>max_iters = <span class="number">10000</span>;
+<a href=#2532 id=2532 data-nosnippet>2532</a>        <span class="kw">while </span>iters &lt; max_iters &amp;&amp; moment &lt; max_moment {
+<a href=#2533 id=2533 data-nosnippet>2533</a>            <span class="kw">let </span>before = Astronomical::new_moon_before(moment);
+<a href=#2534 id=2534 data-nosnippet>2534</a>            <span class="kw">let </span>at_or_after = Astronomical::new_moon_at_or_after(moment);
+<a href=#2535 id=2535 data-nosnippet>2535</a>            <span class="macro">assert!</span>(before &lt; at_or_after, <span class="string">"Directionality of fns new_moon_before and new_moon_at_or_after failed for Moment: {moment:?}"</span>);
+<a href=#2536 id=2536 data-nosnippet>2536</a>            iters += <span class="number">1</span>;
+<a href=#2537 id=2537 data-nosnippet>2537</a>            moment += <span class="number">31.0</span>;
+<a href=#2538 id=2538 data-nosnippet>2538</a>        }
+<a href=#2539 id=2539 data-nosnippet>2539</a>        <span class="macro">assert!</span>(
+<a href=#2540 id=2540 data-nosnippet>2540</a>            iters &gt; <span class="number">500</span>,
+<a href=#2541 id=2541 data-nosnippet>2541</a>            <span class="string">"Testing failed: less than the expected number of testing iterations"
+<a href=#2542 id=2542 data-nosnippet>2542</a>        </span>);
+<a href=#2543 id=2543 data-nosnippet>2543</a>        <span class="macro">assert!</span>(
+<a href=#2544 id=2544 data-nosnippet>2544</a>            iters &lt; max_iters,
+<a href=#2545 id=2545 data-nosnippet>2545</a>            <span class="string">"Testing failed: more than the expected number of testing iterations"
+<a href=#2546 id=2546 data-nosnippet>2546</a>        </span>);
+<a href=#2547 id=2547 data-nosnippet>2547</a>    }
+<a href=#2548 id=2548 data-nosnippet>2548</a>
+<a href=#2549 id=2549 data-nosnippet>2549</a>    <span class="attr">#[test]
+<a href=#2550 id=2550 data-nosnippet>2550</a>    </span><span class="kw">fn </span>check_location_valid_case() {
+<a href=#2551 id=2551 data-nosnippet>2551</a>        <span class="comment">// Checks that location construction and functions work for various valid lats and longs
+<a href=#2552 id=2552 data-nosnippet>2552</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>long = -<span class="number">180.0</span>;
+<a href=#2553 id=2553 data-nosnippet>2553</a>        <span class="kw">let </span><span class="kw-2">mut </span>lat = -<span class="number">90.0</span>;
+<a href=#2554 id=2554 data-nosnippet>2554</a>        <span class="kw">let </span>zone = <span class="number">0.0</span>;
+<a href=#2555 id=2555 data-nosnippet>2555</a>        <span class="kw">while </span>long &lt;= <span class="number">180.0 </span>{
+<a href=#2556 id=2556 data-nosnippet>2556</a>            <span class="kw">while </span>lat &lt;= <span class="number">90.0 </span>{
+<a href=#2557 id=2557 data-nosnippet>2557</a>                <span class="kw">let </span>location: Location = Location::try_new(lat, long, <span class="number">1000.0</span>, zone).unwrap();
+<a href=#2558 id=2558 data-nosnippet>2558</a>                <span class="macro">assert_eq!</span>(lat, location.latitude());
+<a href=#2559 id=2559 data-nosnippet>2559</a>                <span class="macro">assert_eq!</span>(long, location.longitude());
+<a href=#2560 id=2560 data-nosnippet>2560</a>
+<a href=#2561 id=2561 data-nosnippet>2561</a>                lat += <span class="number">1.0</span>;
+<a href=#2562 id=2562 data-nosnippet>2562</a>            }
+<a href=#2563 id=2563 data-nosnippet>2563</a>            long += <span class="number">1.0</span>;
+<a href=#2564 id=2564 data-nosnippet>2564</a>        }
+<a href=#2565 id=2565 data-nosnippet>2565</a>    }
+<a href=#2566 id=2566 data-nosnippet>2566</a>
+<a href=#2567 id=2567 data-nosnippet>2567</a>    <span class="attr">#[test]
+<a href=#2568 id=2568 data-nosnippet>2568</a>    </span><span class="kw">fn </span>check_location_errors() {
+<a href=#2569 id=2569 data-nosnippet>2569</a>        <span class="kw">let </span>lat_too_small = Location::try_new(-<span class="number">90.1</span>, <span class="number">15.0</span>, <span class="number">1000.0</span>, <span class="number">0.0</span>).unwrap_err();
+<a href=#2570 id=2570 data-nosnippet>2570</a>        <span class="macro">assert_eq!</span>(lat_too_small, LocationOutOfBoundsError::Latitude(-<span class="number">90.1</span>));
+<a href=#2571 id=2571 data-nosnippet>2571</a>        <span class="kw">let </span>lat_too_large = Location::try_new(<span class="number">90.1</span>, -<span class="number">15.0</span>, <span class="number">1000.0</span>, <span class="number">0.0</span>).unwrap_err();
+<a href=#2572 id=2572 data-nosnippet>2572</a>        <span class="macro">assert_eq!</span>(lat_too_large, LocationOutOfBoundsError::Latitude(<span class="number">90.1</span>));
+<a href=#2573 id=2573 data-nosnippet>2573</a>        <span class="kw">let </span>long_too_small = Location::try_new(<span class="number">15.0</span>, <span class="number">180.1</span>, <span class="number">1000.0</span>, <span class="number">0.0</span>).unwrap_err();
+<a href=#2574 id=2574 data-nosnippet>2574</a>        <span class="macro">assert_eq!</span>(long_too_small, LocationOutOfBoundsError::Longitude(<span class="number">180.1</span>));
+<a href=#2575 id=2575 data-nosnippet>2575</a>        <span class="kw">let </span>long_too_large = Location::try_new(-<span class="number">15.0</span>, -<span class="number">180.1</span>, <span class="number">1000.0</span>, <span class="number">0.0</span>).unwrap_err();
+<a href=#2576 id=2576 data-nosnippet>2576</a>        <span class="macro">assert_eq!</span>(long_too_large, LocationOutOfBoundsError::Longitude(-<span class="number">180.1</span>));
+<a href=#2577 id=2577 data-nosnippet>2577</a>    }
+<a href=#2578 id=2578 data-nosnippet>2578</a>
+<a href=#2579 id=2579 data-nosnippet>2579</a>    <span class="attr">#[test]
+<a href=#2580 id=2580 data-nosnippet>2580</a>    </span><span class="kw">fn </span>check_obliquity() {
+<a href=#2581 id=2581 data-nosnippet>2581</a>        <span class="kw">let </span>rd_vals = [
+<a href=#2582 id=2582 data-nosnippet>2582</a>            -<span class="number">214193</span>, -<span class="number">61387</span>, <span class="number">25469</span>, <span class="number">49217</span>, <span class="number">171307</span>, <span class="number">210155</span>, <span class="number">253427</span>, <span class="number">369740</span>, <span class="number">400085</span>, <span class="number">434355</span>, <span class="number">452605</span>,
+<a href=#2583 id=2583 data-nosnippet>2583</a>            <span class="number">470160</span>, <span class="number">473837</span>, <span class="number">507850</span>, <span class="number">524156</span>, <span class="number">544676</span>, <span class="number">567118</span>, <span class="number">569477</span>, <span class="number">601716</span>, <span class="number">613424</span>, <span class="number">626596</span>, <span class="number">645554</span>,
+<a href=#2584 id=2584 data-nosnippet>2584</a>            <span class="number">664224</span>, <span class="number">671401</span>, <span class="number">694799</span>, <span class="number">704424</span>, <span class="number">708842</span>, <span class="number">709409</span>, <span class="number">709580</span>, <span class="number">727274</span>, <span class="number">728714</span>, <span class="number">744313</span>, <span class="number">764652</span>,
+<a href=#2585 id=2585 data-nosnippet>2585</a>        ];
+<a href=#2586 id=2586 data-nosnippet>2586</a>
+<a href=#2587 id=2587 data-nosnippet>2587</a>        <span class="kw">let </span>expected_obliquity_val = [
+<a href=#2588 id=2588 data-nosnippet>2588</a>            <span class="number">23.766686762858193</span>,
+<a href=#2589 id=2589 data-nosnippet>2589</a>            <span class="number">23.715893268155952</span>,
+<a href=#2590 id=2590 data-nosnippet>2590</a>            <span class="number">23.68649428364133</span>,
+<a href=#2591 id=2591 data-nosnippet>2591</a>            <span class="number">23.678396646319815</span>,
+<a href=#2592 id=2592 data-nosnippet>2592</a>            <span class="number">23.636406172247575</span>,
+<a href=#2593 id=2593 data-nosnippet>2593</a>            <span class="number">23.622930685681105</span>,
+<a href=#2594 id=2594 data-nosnippet>2594</a>            <span class="number">23.607863050353394</span>,
+<a href=#2595 id=2595 data-nosnippet>2595</a>            <span class="number">23.567099369895143</span>,
+<a href=#2596 id=2596 data-nosnippet>2596</a>            <span class="number">23.556410268115442</span>,
+<a href=#2597 id=2597 data-nosnippet>2597</a>            <span class="number">23.544315732982724</span>,
+<a href=#2598 id=2598 data-nosnippet>2598</a>            <span class="number">23.5378658942414</span>,
+<a href=#2599 id=2599 data-nosnippet>2599</a>            <span class="number">23.531656189162007</span>,
+<a href=#2600 id=2600 data-nosnippet>2600</a>            <span class="number">23.53035487913322</span>,
+<a href=#2601 id=2601 data-nosnippet>2601</a>            <span class="number">23.518307553466993</span>,
+<a href=#2602 id=2602 data-nosnippet>2602</a>            <span class="number">23.512526100422757</span>,
+<a href=#2603 id=2603 data-nosnippet>2603</a>            <span class="number">23.50524564635773</span>,
+<a href=#2604 id=2604 data-nosnippet>2604</a>            <span class="number">23.49727762748816</span>,
+<a href=#2605 id=2605 data-nosnippet>2605</a>            <span class="number">23.49643975090472</span>,
+<a href=#2606 id=2606 data-nosnippet>2606</a>            <span class="number">23.48498365949255</span>,
+<a href=#2607 id=2607 data-nosnippet>2607</a>            <span class="number">23.48082101433542</span>,
+<a href=#2608 id=2608 data-nosnippet>2608</a>            <span class="number">23.476136639530452</span>,
+<a href=#2609 id=2609 data-nosnippet>2609</a>            <span class="number">23.469392588649566</span>,
+<a href=#2610 id=2610 data-nosnippet>2610</a>            <span class="number">23.46274905945532</span>,
+<a href=#2611 id=2611 data-nosnippet>2611</a>            <span class="number">23.460194773340504</span>,
+<a href=#2612 id=2612 data-nosnippet>2612</a>            <span class="number">23.451866181318085</span>,
+<a href=#2613 id=2613 data-nosnippet>2613</a>            <span class="number">23.44843969966849</span>,
+<a href=#2614 id=2614 data-nosnippet>2614</a>            <span class="number">23.44686683973517</span>,
+<a href=#2615 id=2615 data-nosnippet>2615</a>            <span class="number">23.446664978744177</span>,
+<a href=#2616 id=2616 data-nosnippet>2616</a>            <span class="number">23.44660409993624</span>,
+<a href=#2617 id=2617 data-nosnippet>2617</a>            <span class="number">23.440304562352033</span>,
+<a href=#2618 id=2618 data-nosnippet>2618</a>            <span class="number">23.43979187336218</span>,
+<a href=#2619 id=2619 data-nosnippet>2619</a>            <span class="number">23.434238093381342</span>,
+<a href=#2620 id=2620 data-nosnippet>2620</a>            <span class="number">23.426996977623215</span>,
+<a href=#2621 id=2621 data-nosnippet>2621</a>        ];
+<a href=#2622 id=2622 data-nosnippet>2622</a>
+<a href=#2623 id=2623 data-nosnippet>2623</a>        <span class="kw">for </span>(rd, expected_obl_val) <span class="kw">in </span>rd_vals.iter().zip(expected_obliquity_val.iter()) {
+<a href=#2624 id=2624 data-nosnippet>2624</a>            <span class="kw">let </span>moment = Moment::new(<span class="kw-2">*</span>rd <span class="kw">as </span>f64);
+<a href=#2625 id=2625 data-nosnippet>2625</a>            <span class="kw">let </span>obl_val = Astronomical::obliquity(moment);
+<a href=#2626 id=2626 data-nosnippet>2626</a>            <span class="kw">let </span>expected_val = <span class="kw-2">*</span>expected_obl_val;
+<a href=#2627 id=2627 data-nosnippet>2627</a>
+<a href=#2628 id=2628 data-nosnippet>2628</a>            <span class="macro">assert_eq_f64!</span>(expected_val, obl_val, moment)
+<a href=#2629 id=2629 data-nosnippet>2629</a>        }
+<a href=#2630 id=2630 data-nosnippet>2630</a>    }
+<a href=#2631 id=2631 data-nosnippet>2631</a>}</code></pre></div></section></main></body></html>

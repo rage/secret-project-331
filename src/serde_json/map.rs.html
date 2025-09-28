@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.142/src/map.rs`."><title>map.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="serde_json" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="../../static.files/src-script-63605ae7.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">serde_json/</div>map.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! A map of String to serde_json::Value.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.145/src/map.rs`."><title>map.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="serde_json" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="../../static.files/src-script-63605ae7.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">serde_json/</div>map.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-4"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! A map of String to serde_json::Value.
 <a href=#2 id=2 data-nosnippet>2</a>//!
 <a href=#3 id=3 data-nosnippet>3</a>//! By default the map is backed by a [`BTreeMap`]. Enable the `preserve_order`
 <a href=#4 id=4 data-nosnippet>4</a>//! feature of serde_json to use [`IndexMap`] instead.
@@ -1056,119 +1056,126 @@
 <a href=#1056 id=1056 data-nosnippet>1056</a>}
 <a href=#1057 id=1057 data-nosnippet>1057</a>
 <a href=#1058 id=1058 data-nosnippet>1058</a><span class="doccomment">/// An iterator over a serde_json::Map's entries.
-<a href=#1059 id=1059 data-nosnippet>1059</a></span><span class="kw">pub struct </span>Iter&lt;<span class="lifetime">'a</span>&gt; {
-<a href=#1060 id=1060 data-nosnippet>1060</a>    iter: IterImpl&lt;<span class="lifetime">'a</span>&gt;,
-<a href=#1061 id=1061 data-nosnippet>1061</a>}
-<a href=#1062 id=1062 data-nosnippet>1062</a>
-<a href=#1063 id=1063 data-nosnippet>1063</a><span class="attr">#[cfg(not(feature = <span class="string">"preserve_order"</span>))]
-<a href=#1064 id=1064 data-nosnippet>1064</a></span><span class="kw">type </span>IterImpl&lt;<span class="lifetime">'a</span>&gt; = btree_map::Iter&lt;<span class="lifetime">'a</span>, String, Value&gt;;
-<a href=#1065 id=1065 data-nosnippet>1065</a><span class="attr">#[cfg(feature = <span class="string">"preserve_order"</span>)]
-<a href=#1066 id=1066 data-nosnippet>1066</a></span><span class="kw">type </span>IterImpl&lt;<span class="lifetime">'a</span>&gt; = indexmap::map::Iter&lt;<span class="lifetime">'a</span>, String, Value&gt;;
-<a href=#1067 id=1067 data-nosnippet>1067</a>
-<a href=#1068 id=1068 data-nosnippet>1068</a><span class="macro">delegate_iterator!</span>((Iter&lt;<span class="lifetime">'a</span>&gt;) =&gt; (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>String, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Value));
-<a href=#1069 id=1069 data-nosnippet>1069</a>
-<a href=#1070 id=1070 data-nosnippet>1070</a><span class="comment">//////////////////////////////////////////////////////////////////////////////
-<a href=#1071 id=1071 data-nosnippet>1071</a>
-<a href=#1072 id=1072 data-nosnippet>1072</a></span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Map&lt;String, Value&gt; {
-<a href=#1073 id=1073 data-nosnippet>1073</a>    <span class="kw">type </span>Item = (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>String, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Value);
-<a href=#1074 id=1074 data-nosnippet>1074</a>    <span class="kw">type </span>IntoIter = IterMut&lt;<span class="lifetime">'a</span>&gt;;
-<a href=#1075 id=1075 data-nosnippet>1075</a>    <span class="attr">#[inline]
-<a href=#1076 id=1076 data-nosnippet>1076</a>    </span><span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
-<a href=#1077 id=1077 data-nosnippet>1077</a>        IterMut {
-<a href=#1078 id=1078 data-nosnippet>1078</a>            iter: <span class="self">self</span>.map.iter_mut(),
-<a href=#1079 id=1079 data-nosnippet>1079</a>        }
-<a href=#1080 id=1080 data-nosnippet>1080</a>    }
-<a href=#1081 id=1081 data-nosnippet>1081</a>}
-<a href=#1082 id=1082 data-nosnippet>1082</a>
-<a href=#1083 id=1083 data-nosnippet>1083</a><span class="doccomment">/// A mutable iterator over a serde_json::Map's entries.
-<a href=#1084 id=1084 data-nosnippet>1084</a></span><span class="kw">pub struct </span>IterMut&lt;<span class="lifetime">'a</span>&gt; {
-<a href=#1085 id=1085 data-nosnippet>1085</a>    iter: IterMutImpl&lt;<span class="lifetime">'a</span>&gt;,
-<a href=#1086 id=1086 data-nosnippet>1086</a>}
-<a href=#1087 id=1087 data-nosnippet>1087</a>
-<a href=#1088 id=1088 data-nosnippet>1088</a><span class="attr">#[cfg(not(feature = <span class="string">"preserve_order"</span>))]
-<a href=#1089 id=1089 data-nosnippet>1089</a></span><span class="kw">type </span>IterMutImpl&lt;<span class="lifetime">'a</span>&gt; = btree_map::IterMut&lt;<span class="lifetime">'a</span>, String, Value&gt;;
-<a href=#1090 id=1090 data-nosnippet>1090</a><span class="attr">#[cfg(feature = <span class="string">"preserve_order"</span>)]
-<a href=#1091 id=1091 data-nosnippet>1091</a></span><span class="kw">type </span>IterMutImpl&lt;<span class="lifetime">'a</span>&gt; = indexmap::map::IterMut&lt;<span class="lifetime">'a</span>, String, Value&gt;;
-<a href=#1092 id=1092 data-nosnippet>1092</a>
-<a href=#1093 id=1093 data-nosnippet>1093</a><span class="macro">delegate_iterator!</span>((IterMut&lt;<span class="lifetime">'a</span>&gt;) =&gt; (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>String, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Value));
+<a href=#1059 id=1059 data-nosnippet>1059</a></span><span class="attr">#[derive(Clone, Debug)]
+<a href=#1060 id=1060 data-nosnippet>1060</a></span><span class="kw">pub struct </span>Iter&lt;<span class="lifetime">'a</span>&gt; {
+<a href=#1061 id=1061 data-nosnippet>1061</a>    iter: IterImpl&lt;<span class="lifetime">'a</span>&gt;,
+<a href=#1062 id=1062 data-nosnippet>1062</a>}
+<a href=#1063 id=1063 data-nosnippet>1063</a>
+<a href=#1064 id=1064 data-nosnippet>1064</a><span class="attr">#[cfg(not(feature = <span class="string">"preserve_order"</span>))]
+<a href=#1065 id=1065 data-nosnippet>1065</a></span><span class="kw">type </span>IterImpl&lt;<span class="lifetime">'a</span>&gt; = btree_map::Iter&lt;<span class="lifetime">'a</span>, String, Value&gt;;
+<a href=#1066 id=1066 data-nosnippet>1066</a><span class="attr">#[cfg(feature = <span class="string">"preserve_order"</span>)]
+<a href=#1067 id=1067 data-nosnippet>1067</a></span><span class="kw">type </span>IterImpl&lt;<span class="lifetime">'a</span>&gt; = indexmap::map::Iter&lt;<span class="lifetime">'a</span>, String, Value&gt;;
+<a href=#1068 id=1068 data-nosnippet>1068</a>
+<a href=#1069 id=1069 data-nosnippet>1069</a><span class="macro">delegate_iterator!</span>((Iter&lt;<span class="lifetime">'a</span>&gt;) =&gt; (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>String, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Value));
+<a href=#1070 id=1070 data-nosnippet>1070</a>
+<a href=#1071 id=1071 data-nosnippet>1071</a><span class="comment">//////////////////////////////////////////////////////////////////////////////
+<a href=#1072 id=1072 data-nosnippet>1072</a>
+<a href=#1073 id=1073 data-nosnippet>1073</a></span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Map&lt;String, Value&gt; {
+<a href=#1074 id=1074 data-nosnippet>1074</a>    <span class="kw">type </span>Item = (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>String, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Value);
+<a href=#1075 id=1075 data-nosnippet>1075</a>    <span class="kw">type </span>IntoIter = IterMut&lt;<span class="lifetime">'a</span>&gt;;
+<a href=#1076 id=1076 data-nosnippet>1076</a>    <span class="attr">#[inline]
+<a href=#1077 id=1077 data-nosnippet>1077</a>    </span><span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
+<a href=#1078 id=1078 data-nosnippet>1078</a>        IterMut {
+<a href=#1079 id=1079 data-nosnippet>1079</a>            iter: <span class="self">self</span>.map.iter_mut(),
+<a href=#1080 id=1080 data-nosnippet>1080</a>        }
+<a href=#1081 id=1081 data-nosnippet>1081</a>    }
+<a href=#1082 id=1082 data-nosnippet>1082</a>}
+<a href=#1083 id=1083 data-nosnippet>1083</a>
+<a href=#1084 id=1084 data-nosnippet>1084</a><span class="doccomment">/// A mutable iterator over a serde_json::Map's entries.
+<a href=#1085 id=1085 data-nosnippet>1085</a></span><span class="attr">#[derive(Debug)]
+<a href=#1086 id=1086 data-nosnippet>1086</a></span><span class="kw">pub struct </span>IterMut&lt;<span class="lifetime">'a</span>&gt; {
+<a href=#1087 id=1087 data-nosnippet>1087</a>    iter: IterMutImpl&lt;<span class="lifetime">'a</span>&gt;,
+<a href=#1088 id=1088 data-nosnippet>1088</a>}
+<a href=#1089 id=1089 data-nosnippet>1089</a>
+<a href=#1090 id=1090 data-nosnippet>1090</a><span class="attr">#[cfg(not(feature = <span class="string">"preserve_order"</span>))]
+<a href=#1091 id=1091 data-nosnippet>1091</a></span><span class="kw">type </span>IterMutImpl&lt;<span class="lifetime">'a</span>&gt; = btree_map::IterMut&lt;<span class="lifetime">'a</span>, String, Value&gt;;
+<a href=#1092 id=1092 data-nosnippet>1092</a><span class="attr">#[cfg(feature = <span class="string">"preserve_order"</span>)]
+<a href=#1093 id=1093 data-nosnippet>1093</a></span><span class="kw">type </span>IterMutImpl&lt;<span class="lifetime">'a</span>&gt; = indexmap::map::IterMut&lt;<span class="lifetime">'a</span>, String, Value&gt;;
 <a href=#1094 id=1094 data-nosnippet>1094</a>
-<a href=#1095 id=1095 data-nosnippet>1095</a><span class="comment">//////////////////////////////////////////////////////////////////////////////
+<a href=#1095 id=1095 data-nosnippet>1095</a><span class="macro">delegate_iterator!</span>((IterMut&lt;<span class="lifetime">'a</span>&gt;) =&gt; (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>String, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Value));
 <a href=#1096 id=1096 data-nosnippet>1096</a>
-<a href=#1097 id=1097 data-nosnippet>1097</a></span><span class="kw">impl </span>IntoIterator <span class="kw">for </span>Map&lt;String, Value&gt; {
-<a href=#1098 id=1098 data-nosnippet>1098</a>    <span class="kw">type </span>Item = (String, Value);
-<a href=#1099 id=1099 data-nosnippet>1099</a>    <span class="kw">type </span>IntoIter = IntoIter;
-<a href=#1100 id=1100 data-nosnippet>1100</a>    <span class="attr">#[inline]
-<a href=#1101 id=1101 data-nosnippet>1101</a>    </span><span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
-<a href=#1102 id=1102 data-nosnippet>1102</a>        IntoIter {
-<a href=#1103 id=1103 data-nosnippet>1103</a>            iter: <span class="self">self</span>.map.into_iter(),
-<a href=#1104 id=1104 data-nosnippet>1104</a>        }
-<a href=#1105 id=1105 data-nosnippet>1105</a>    }
-<a href=#1106 id=1106 data-nosnippet>1106</a>}
-<a href=#1107 id=1107 data-nosnippet>1107</a>
-<a href=#1108 id=1108 data-nosnippet>1108</a><span class="doccomment">/// An owning iterator over a serde_json::Map's entries.
-<a href=#1109 id=1109 data-nosnippet>1109</a></span><span class="kw">pub struct </span>IntoIter {
-<a href=#1110 id=1110 data-nosnippet>1110</a>    iter: IntoIterImpl,
-<a href=#1111 id=1111 data-nosnippet>1111</a>}
-<a href=#1112 id=1112 data-nosnippet>1112</a>
-<a href=#1113 id=1113 data-nosnippet>1113</a><span class="attr">#[cfg(not(feature = <span class="string">"preserve_order"</span>))]
-<a href=#1114 id=1114 data-nosnippet>1114</a></span><span class="kw">type </span>IntoIterImpl = btree_map::IntoIter&lt;String, Value&gt;;
-<a href=#1115 id=1115 data-nosnippet>1115</a><span class="attr">#[cfg(feature = <span class="string">"preserve_order"</span>)]
-<a href=#1116 id=1116 data-nosnippet>1116</a></span><span class="kw">type </span>IntoIterImpl = indexmap::map::IntoIter&lt;String, Value&gt;;
-<a href=#1117 id=1117 data-nosnippet>1117</a>
-<a href=#1118 id=1118 data-nosnippet>1118</a><span class="macro">delegate_iterator!</span>((IntoIter) =&gt; (String, Value));
-<a href=#1119 id=1119 data-nosnippet>1119</a>
-<a href=#1120 id=1120 data-nosnippet>1120</a><span class="comment">//////////////////////////////////////////////////////////////////////////////
-<a href=#1121 id=1121 data-nosnippet>1121</a>
-<a href=#1122 id=1122 data-nosnippet>1122</a></span><span class="doccomment">/// An iterator over a serde_json::Map's keys.
-<a href=#1123 id=1123 data-nosnippet>1123</a></span><span class="kw">pub struct </span>Keys&lt;<span class="lifetime">'a</span>&gt; {
-<a href=#1124 id=1124 data-nosnippet>1124</a>    iter: KeysImpl&lt;<span class="lifetime">'a</span>&gt;,
-<a href=#1125 id=1125 data-nosnippet>1125</a>}
-<a href=#1126 id=1126 data-nosnippet>1126</a>
-<a href=#1127 id=1127 data-nosnippet>1127</a><span class="attr">#[cfg(not(feature = <span class="string">"preserve_order"</span>))]
-<a href=#1128 id=1128 data-nosnippet>1128</a></span><span class="kw">type </span>KeysImpl&lt;<span class="lifetime">'a</span>&gt; = btree_map::Keys&lt;<span class="lifetime">'a</span>, String, Value&gt;;
-<a href=#1129 id=1129 data-nosnippet>1129</a><span class="attr">#[cfg(feature = <span class="string">"preserve_order"</span>)]
-<a href=#1130 id=1130 data-nosnippet>1130</a></span><span class="kw">type </span>KeysImpl&lt;<span class="lifetime">'a</span>&gt; = indexmap::map::Keys&lt;<span class="lifetime">'a</span>, String, Value&gt;;
-<a href=#1131 id=1131 data-nosnippet>1131</a>
-<a href=#1132 id=1132 data-nosnippet>1132</a><span class="macro">delegate_iterator!</span>((Keys&lt;<span class="lifetime">'a</span>&gt;) =&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>String);
-<a href=#1133 id=1133 data-nosnippet>1133</a>
-<a href=#1134 id=1134 data-nosnippet>1134</a><span class="comment">//////////////////////////////////////////////////////////////////////////////
+<a href=#1097 id=1097 data-nosnippet>1097</a><span class="comment">//////////////////////////////////////////////////////////////////////////////
+<a href=#1098 id=1098 data-nosnippet>1098</a>
+<a href=#1099 id=1099 data-nosnippet>1099</a></span><span class="kw">impl </span>IntoIterator <span class="kw">for </span>Map&lt;String, Value&gt; {
+<a href=#1100 id=1100 data-nosnippet>1100</a>    <span class="kw">type </span>Item = (String, Value);
+<a href=#1101 id=1101 data-nosnippet>1101</a>    <span class="kw">type </span>IntoIter = IntoIter;
+<a href=#1102 id=1102 data-nosnippet>1102</a>    <span class="attr">#[inline]
+<a href=#1103 id=1103 data-nosnippet>1103</a>    </span><span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
+<a href=#1104 id=1104 data-nosnippet>1104</a>        IntoIter {
+<a href=#1105 id=1105 data-nosnippet>1105</a>            iter: <span class="self">self</span>.map.into_iter(),
+<a href=#1106 id=1106 data-nosnippet>1106</a>        }
+<a href=#1107 id=1107 data-nosnippet>1107</a>    }
+<a href=#1108 id=1108 data-nosnippet>1108</a>}
+<a href=#1109 id=1109 data-nosnippet>1109</a>
+<a href=#1110 id=1110 data-nosnippet>1110</a><span class="doccomment">/// An owning iterator over a serde_json::Map's entries.
+<a href=#1111 id=1111 data-nosnippet>1111</a></span><span class="attr">#[derive(Debug)]
+<a href=#1112 id=1112 data-nosnippet>1112</a></span><span class="kw">pub struct </span>IntoIter {
+<a href=#1113 id=1113 data-nosnippet>1113</a>    iter: IntoIterImpl,
+<a href=#1114 id=1114 data-nosnippet>1114</a>}
+<a href=#1115 id=1115 data-nosnippet>1115</a>
+<a href=#1116 id=1116 data-nosnippet>1116</a><span class="attr">#[cfg(not(feature = <span class="string">"preserve_order"</span>))]
+<a href=#1117 id=1117 data-nosnippet>1117</a></span><span class="kw">type </span>IntoIterImpl = btree_map::IntoIter&lt;String, Value&gt;;
+<a href=#1118 id=1118 data-nosnippet>1118</a><span class="attr">#[cfg(feature = <span class="string">"preserve_order"</span>)]
+<a href=#1119 id=1119 data-nosnippet>1119</a></span><span class="kw">type </span>IntoIterImpl = indexmap::map::IntoIter&lt;String, Value&gt;;
+<a href=#1120 id=1120 data-nosnippet>1120</a>
+<a href=#1121 id=1121 data-nosnippet>1121</a><span class="macro">delegate_iterator!</span>((IntoIter) =&gt; (String, Value));
+<a href=#1122 id=1122 data-nosnippet>1122</a>
+<a href=#1123 id=1123 data-nosnippet>1123</a><span class="comment">//////////////////////////////////////////////////////////////////////////////
+<a href=#1124 id=1124 data-nosnippet>1124</a>
+<a href=#1125 id=1125 data-nosnippet>1125</a></span><span class="doccomment">/// An iterator over a serde_json::Map's keys.
+<a href=#1126 id=1126 data-nosnippet>1126</a></span><span class="attr">#[derive(Clone, Debug)]
+<a href=#1127 id=1127 data-nosnippet>1127</a></span><span class="kw">pub struct </span>Keys&lt;<span class="lifetime">'a</span>&gt; {
+<a href=#1128 id=1128 data-nosnippet>1128</a>    iter: KeysImpl&lt;<span class="lifetime">'a</span>&gt;,
+<a href=#1129 id=1129 data-nosnippet>1129</a>}
+<a href=#1130 id=1130 data-nosnippet>1130</a>
+<a href=#1131 id=1131 data-nosnippet>1131</a><span class="attr">#[cfg(not(feature = <span class="string">"preserve_order"</span>))]
+<a href=#1132 id=1132 data-nosnippet>1132</a></span><span class="kw">type </span>KeysImpl&lt;<span class="lifetime">'a</span>&gt; = btree_map::Keys&lt;<span class="lifetime">'a</span>, String, Value&gt;;
+<a href=#1133 id=1133 data-nosnippet>1133</a><span class="attr">#[cfg(feature = <span class="string">"preserve_order"</span>)]
+<a href=#1134 id=1134 data-nosnippet>1134</a></span><span class="kw">type </span>KeysImpl&lt;<span class="lifetime">'a</span>&gt; = indexmap::map::Keys&lt;<span class="lifetime">'a</span>, String, Value&gt;;
 <a href=#1135 id=1135 data-nosnippet>1135</a>
-<a href=#1136 id=1136 data-nosnippet>1136</a></span><span class="doccomment">/// An iterator over a serde_json::Map's values.
-<a href=#1137 id=1137 data-nosnippet>1137</a></span><span class="kw">pub struct </span>Values&lt;<span class="lifetime">'a</span>&gt; {
-<a href=#1138 id=1138 data-nosnippet>1138</a>    iter: ValuesImpl&lt;<span class="lifetime">'a</span>&gt;,
-<a href=#1139 id=1139 data-nosnippet>1139</a>}
-<a href=#1140 id=1140 data-nosnippet>1140</a>
-<a href=#1141 id=1141 data-nosnippet>1141</a><span class="attr">#[cfg(not(feature = <span class="string">"preserve_order"</span>))]
-<a href=#1142 id=1142 data-nosnippet>1142</a></span><span class="kw">type </span>ValuesImpl&lt;<span class="lifetime">'a</span>&gt; = btree_map::Values&lt;<span class="lifetime">'a</span>, String, Value&gt;;
-<a href=#1143 id=1143 data-nosnippet>1143</a><span class="attr">#[cfg(feature = <span class="string">"preserve_order"</span>)]
-<a href=#1144 id=1144 data-nosnippet>1144</a></span><span class="kw">type </span>ValuesImpl&lt;<span class="lifetime">'a</span>&gt; = indexmap::map::Values&lt;<span class="lifetime">'a</span>, String, Value&gt;;
+<a href=#1136 id=1136 data-nosnippet>1136</a><span class="macro">delegate_iterator!</span>((Keys&lt;<span class="lifetime">'a</span>&gt;) =&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>String);
+<a href=#1137 id=1137 data-nosnippet>1137</a>
+<a href=#1138 id=1138 data-nosnippet>1138</a><span class="comment">//////////////////////////////////////////////////////////////////////////////
+<a href=#1139 id=1139 data-nosnippet>1139</a>
+<a href=#1140 id=1140 data-nosnippet>1140</a></span><span class="doccomment">/// An iterator over a serde_json::Map's values.
+<a href=#1141 id=1141 data-nosnippet>1141</a></span><span class="attr">#[derive(Clone, Debug)]
+<a href=#1142 id=1142 data-nosnippet>1142</a></span><span class="kw">pub struct </span>Values&lt;<span class="lifetime">'a</span>&gt; {
+<a href=#1143 id=1143 data-nosnippet>1143</a>    iter: ValuesImpl&lt;<span class="lifetime">'a</span>&gt;,
+<a href=#1144 id=1144 data-nosnippet>1144</a>}
 <a href=#1145 id=1145 data-nosnippet>1145</a>
-<a href=#1146 id=1146 data-nosnippet>1146</a><span class="macro">delegate_iterator!</span>((Values&lt;<span class="lifetime">'a</span>&gt;) =&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Value);
-<a href=#1147 id=1147 data-nosnippet>1147</a>
-<a href=#1148 id=1148 data-nosnippet>1148</a><span class="comment">//////////////////////////////////////////////////////////////////////////////
-<a href=#1149 id=1149 data-nosnippet>1149</a>
-<a href=#1150 id=1150 data-nosnippet>1150</a></span><span class="doccomment">/// A mutable iterator over a serde_json::Map's values.
-<a href=#1151 id=1151 data-nosnippet>1151</a></span><span class="kw">pub struct </span>ValuesMut&lt;<span class="lifetime">'a</span>&gt; {
-<a href=#1152 id=1152 data-nosnippet>1152</a>    iter: ValuesMutImpl&lt;<span class="lifetime">'a</span>&gt;,
-<a href=#1153 id=1153 data-nosnippet>1153</a>}
+<a href=#1146 id=1146 data-nosnippet>1146</a><span class="attr">#[cfg(not(feature = <span class="string">"preserve_order"</span>))]
+<a href=#1147 id=1147 data-nosnippet>1147</a></span><span class="kw">type </span>ValuesImpl&lt;<span class="lifetime">'a</span>&gt; = btree_map::Values&lt;<span class="lifetime">'a</span>, String, Value&gt;;
+<a href=#1148 id=1148 data-nosnippet>1148</a><span class="attr">#[cfg(feature = <span class="string">"preserve_order"</span>)]
+<a href=#1149 id=1149 data-nosnippet>1149</a></span><span class="kw">type </span>ValuesImpl&lt;<span class="lifetime">'a</span>&gt; = indexmap::map::Values&lt;<span class="lifetime">'a</span>, String, Value&gt;;
+<a href=#1150 id=1150 data-nosnippet>1150</a>
+<a href=#1151 id=1151 data-nosnippet>1151</a><span class="macro">delegate_iterator!</span>((Values&lt;<span class="lifetime">'a</span>&gt;) =&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Value);
+<a href=#1152 id=1152 data-nosnippet>1152</a>
+<a href=#1153 id=1153 data-nosnippet>1153</a><span class="comment">//////////////////////////////////////////////////////////////////////////////
 <a href=#1154 id=1154 data-nosnippet>1154</a>
-<a href=#1155 id=1155 data-nosnippet>1155</a><span class="attr">#[cfg(not(feature = <span class="string">"preserve_order"</span>))]
-<a href=#1156 id=1156 data-nosnippet>1156</a></span><span class="kw">type </span>ValuesMutImpl&lt;<span class="lifetime">'a</span>&gt; = btree_map::ValuesMut&lt;<span class="lifetime">'a</span>, String, Value&gt;;
-<a href=#1157 id=1157 data-nosnippet>1157</a><span class="attr">#[cfg(feature = <span class="string">"preserve_order"</span>)]
-<a href=#1158 id=1158 data-nosnippet>1158</a></span><span class="kw">type </span>ValuesMutImpl&lt;<span class="lifetime">'a</span>&gt; = indexmap::map::ValuesMut&lt;<span class="lifetime">'a</span>, String, Value&gt;;
-<a href=#1159 id=1159 data-nosnippet>1159</a>
-<a href=#1160 id=1160 data-nosnippet>1160</a><span class="macro">delegate_iterator!</span>((ValuesMut&lt;<span class="lifetime">'a</span>&gt;) =&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Value);
-<a href=#1161 id=1161 data-nosnippet>1161</a>
-<a href=#1162 id=1162 data-nosnippet>1162</a><span class="comment">//////////////////////////////////////////////////////////////////////////////
-<a href=#1163 id=1163 data-nosnippet>1163</a>
-<a href=#1164 id=1164 data-nosnippet>1164</a></span><span class="doccomment">/// An owning iterator over a serde_json::Map's values.
-<a href=#1165 id=1165 data-nosnippet>1165</a></span><span class="kw">pub struct </span>IntoValues {
-<a href=#1166 id=1166 data-nosnippet>1166</a>    iter: IntoValuesImpl,
-<a href=#1167 id=1167 data-nosnippet>1167</a>}
-<a href=#1168 id=1168 data-nosnippet>1168</a>
-<a href=#1169 id=1169 data-nosnippet>1169</a><span class="attr">#[cfg(not(feature = <span class="string">"preserve_order"</span>))]
-<a href=#1170 id=1170 data-nosnippet>1170</a></span><span class="kw">type </span>IntoValuesImpl = btree_map::IntoValues&lt;String, Value&gt;;
-<a href=#1171 id=1171 data-nosnippet>1171</a><span class="attr">#[cfg(feature = <span class="string">"preserve_order"</span>)]
-<a href=#1172 id=1172 data-nosnippet>1172</a></span><span class="kw">type </span>IntoValuesImpl = indexmap::map::IntoValues&lt;String, Value&gt;;
-<a href=#1173 id=1173 data-nosnippet>1173</a>
-<a href=#1174 id=1174 data-nosnippet>1174</a><span class="macro">delegate_iterator!</span>((IntoValues) =&gt; Value);</code></pre></div></section></main></body></html>
+<a href=#1155 id=1155 data-nosnippet>1155</a></span><span class="doccomment">/// A mutable iterator over a serde_json::Map's values.
+<a href=#1156 id=1156 data-nosnippet>1156</a></span><span class="attr">#[derive(Debug)]
+<a href=#1157 id=1157 data-nosnippet>1157</a></span><span class="kw">pub struct </span>ValuesMut&lt;<span class="lifetime">'a</span>&gt; {
+<a href=#1158 id=1158 data-nosnippet>1158</a>    iter: ValuesMutImpl&lt;<span class="lifetime">'a</span>&gt;,
+<a href=#1159 id=1159 data-nosnippet>1159</a>}
+<a href=#1160 id=1160 data-nosnippet>1160</a>
+<a href=#1161 id=1161 data-nosnippet>1161</a><span class="attr">#[cfg(not(feature = <span class="string">"preserve_order"</span>))]
+<a href=#1162 id=1162 data-nosnippet>1162</a></span><span class="kw">type </span>ValuesMutImpl&lt;<span class="lifetime">'a</span>&gt; = btree_map::ValuesMut&lt;<span class="lifetime">'a</span>, String, Value&gt;;
+<a href=#1163 id=1163 data-nosnippet>1163</a><span class="attr">#[cfg(feature = <span class="string">"preserve_order"</span>)]
+<a href=#1164 id=1164 data-nosnippet>1164</a></span><span class="kw">type </span>ValuesMutImpl&lt;<span class="lifetime">'a</span>&gt; = indexmap::map::ValuesMut&lt;<span class="lifetime">'a</span>, String, Value&gt;;
+<a href=#1165 id=1165 data-nosnippet>1165</a>
+<a href=#1166 id=1166 data-nosnippet>1166</a><span class="macro">delegate_iterator!</span>((ValuesMut&lt;<span class="lifetime">'a</span>&gt;) =&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Value);
+<a href=#1167 id=1167 data-nosnippet>1167</a>
+<a href=#1168 id=1168 data-nosnippet>1168</a><span class="comment">//////////////////////////////////////////////////////////////////////////////
+<a href=#1169 id=1169 data-nosnippet>1169</a>
+<a href=#1170 id=1170 data-nosnippet>1170</a></span><span class="doccomment">/// An owning iterator over a serde_json::Map's values.
+<a href=#1171 id=1171 data-nosnippet>1171</a></span><span class="attr">#[derive(Debug)]
+<a href=#1172 id=1172 data-nosnippet>1172</a></span><span class="kw">pub struct </span>IntoValues {
+<a href=#1173 id=1173 data-nosnippet>1173</a>    iter: IntoValuesImpl,
+<a href=#1174 id=1174 data-nosnippet>1174</a>}
+<a href=#1175 id=1175 data-nosnippet>1175</a>
+<a href=#1176 id=1176 data-nosnippet>1176</a><span class="attr">#[cfg(not(feature = <span class="string">"preserve_order"</span>))]
+<a href=#1177 id=1177 data-nosnippet>1177</a></span><span class="kw">type </span>IntoValuesImpl = btree_map::IntoValues&lt;String, Value&gt;;
+<a href=#1178 id=1178 data-nosnippet>1178</a><span class="attr">#[cfg(feature = <span class="string">"preserve_order"</span>)]
+<a href=#1179 id=1179 data-nosnippet>1179</a></span><span class="kw">type </span>IntoValuesImpl = indexmap::map::IntoValues&lt;String, Value&gt;;
+<a href=#1180 id=1180 data-nosnippet>1180</a>
+<a href=#1181 id=1181 data-nosnippet>1181</a><span class="macro">delegate_iterator!</span>((IntoValues) =&gt; Value);</code></pre></div></section></main></body></html>

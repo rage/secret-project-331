@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["ModelErrorType"],"struct":["ModelError"],"trait":["TryToOptional"],"type":["ModelResult"]};
+window.SIDEBAR_ITEMS = {"enum":["HttpErrorType","ModelErrorType"],"struct":["ModelError"],"trait":["TryToOptional"],"type":["ModelResult"]};

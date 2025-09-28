@@ -272,13 +272,28 @@ pub async fn grade_user_submission(
                     Ok(submission) => results.push(submission),
                     Err(err) => {
                         // Store rejected submission when HTTP call fails
-                        let (http_status_code, error_message) = match err.error_type() {
-                            crate::error::ModelErrorType::HttpRequest {
-                                status_code,
-                                response_body,
-                            } => (Some(*status_code as i32), Some(response_body.clone())),
-                            _ => (None, Some(err.to_string())),
-                        };
+                        let (http_status_code, error_message, response_body) =
+                            match err.error_type() {
+                                crate::error::ModelErrorType::HttpRequest {
+                                    status_code,
+                                    response_body,
+                                } => (
+                                    Some(*status_code as i32),
+                                    Some(response_body.clone()),
+                                    Some(response_body.clone()),
+                                ),
+                                crate::error::ModelErrorType::HttpError {
+                                    error_type: crate::error::HttpErrorType::ResponseDecodeFailed,
+                                    response_body,
+                                    status_code,
+                                    ..
+                                } => (
+                                    status_code.map(|s| s as i32),
+                                    Some(err.to_string()),
+                                    response_body.clone(),
+                                ),
+                                _ => (None, Some(err.to_string()), None),
+                            };
 
                         // We want to save the rejected submission to the database
                         // But don't want to keep the rest of the stuff we have inserted into the database
@@ -291,6 +306,7 @@ pub async fn grade_user_submission(
                             user_exercise_state.user_id,
                             http_status_code,
                             error_message,
+                            response_body,
                         ).await;
 
                         tx.commit().await?;

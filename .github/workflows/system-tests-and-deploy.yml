@@ -153,7 +153,7 @@ jobs:
           systemctl show docker -p MemoryMax 2>/dev/null || echo "no MemoryMax"
           echo
           echo "== Memory usage breakdown =="
-          cat /proc/meminfo | grep -E "(MemTotal|MemAvailable|MemFree|Buffers|Cached|Shmem)" || true
+          grep -E "(MemTotal|MemAvailable|MemFree|Buffers|Cached|Shmem)" /proc/meminfo || true
           echo
           echo "== PSI (pressure stall info) =="
           for f in cpu memory io; do echo "[$f]"; cat /proc/pressure/$f || true; echo; done

@@ -11,12 +11,24 @@ importers:
       '@emotion/css':
         specifier: ^11.13.5
         version: 11.13.5
+      '@emotion/react':
+        specifier: ^11.14.0
+        version: 11.14.0(@types/react@19.1.15)(react@19.1.1)
       '@emotion/styled':
         specifier: ^11.14.0
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.1.15)(react@19.1.1))(@types/react@19.1.15)(react@19.1.1)
       '@react-aria/dialog':
         specifier: ^3.5.25
         version: 3.5.30(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@react-aria/focus':
+        specifier: ^3.15.0
+        version: 3.21.1(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@react-aria/overlays':
+        specifier: ^3.15.0
+        version: 3.29.1(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@react-types/dialog':
+        specifier: ^3.5.0
+        version: 3.5.21(react@19.1.1)
       '@vectopus/atlas-icons-react':
         specifier: github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b
         version: https://codeload.github.com/rage/Atlas-icons-react/tar.gz/d310057c60f4f011306c35ae9caf025c5a09e41b
@@ -32,6 +44,9 @@ importers:
       react-i18next:
         specifier: ^15.4.0
         version: 15.7.4(i18next@24.2.3(typescript@5.9.2))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(typescript@5.9.2)
+      uuid:
+        specifier: ^11.1.0
+        version: 11.1.0
     devDependencies:
       '@chromatic-com/storybook':
         specifier: ^3.2.3
@@ -1712,6 +1727,10 @@ packages:
 
   util@0.12.5:
     resolution: {integrity: sha512-kZf/K6hEIrWHI6XqOFUiiMa+79wE/D8Q+NCNAWclkyg3b4d2k7s0QGepNjiABc+aR3N1PAyHL7p6UcLY6LmrnA==}
+
+  uuid@11.1.0:
+    resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
+    hasBin: true
 
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
@@ -3486,6 +3505,8 @@ snapshots:
       is-generator-function: 1.1.0
       is-typed-array: 1.1.15
       which-typed-array: 1.1.19
+
+  uuid@11.1.0: {}
 
   uuid@9.0.1: {}
 

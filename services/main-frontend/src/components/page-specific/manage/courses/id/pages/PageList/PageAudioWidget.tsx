@@ -117,7 +117,7 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
           font-family: ${primaryFont};
         `}
       >
-        {getPageAudioFiles.isPending && (
+        {getPageAudioFiles.isLoading && (
           <div
             className={css`
               margin-top: 40px;

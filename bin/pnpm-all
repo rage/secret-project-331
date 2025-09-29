@@ -12,7 +12,7 @@ COMMAND=$*
 
 run_command pnpm exec concurrently \
   -n "cms,course-material,main-frontend,example-exercise,shared-module/common,quizzes,tmc" \
-  -c "green.bold,red.bold,blue.bold,yellow.bold,purple.bold,magenta.bold,cyan.bold" \
+  -c "green,red,blue,yellow,magenta,cyan,white" \
   "bash -c 'cd services/cms/ && pnpm ${COMMAND}'" \
   "bash -c 'cd services/course-material/ && pnpm ${COMMAND}'" \
   "bash -c 'cd services/main-frontend && pnpm ${COMMAND}'" \

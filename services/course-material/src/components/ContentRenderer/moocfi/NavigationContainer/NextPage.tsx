@@ -160,7 +160,7 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
   if (getPageRoutingData.isError) {
     return <ErrorBanner variant={"readOnly"} error={getPageRoutingData.error} />
   }
-  if (getPageRoutingData.isPending || !nextPageProps) {
+  if (getPageRoutingData.isLoading || !nextPageProps || !getPageRoutingData.data) {
     return <Spinner variant={"medium"} />
   }
 

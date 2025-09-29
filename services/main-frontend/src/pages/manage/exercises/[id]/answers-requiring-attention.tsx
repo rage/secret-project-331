@@ -76,7 +76,7 @@ const SubmissionsPage: React.FC<SubmissionPageProps> = ({ query }) => {
       fetchAnswersRequiringAttention(query.id, paginationInfo.page, paginationInfo.limit),
   })
 
-  if (courseStructure.isPending) {
+  if (courseStructure.isLoading) {
     return <Spinner variant="medium" />
   }
 
@@ -125,7 +125,7 @@ const SubmissionsPage: React.FC<SubmissionPageProps> = ({ query }) => {
 
       {answersQuery.isError && <ErrorBanner variant="readOnly" error={answersQuery.error} />}
 
-      {answersQuery.isPending && <Spinner variant="medium" />}
+      {answersQuery.isLoading && <Spinner variant="medium" />}
 
       {answersQuery.isSuccess && (
         // AccordionProvider here allows us to collapse/expand all accordions in this subtree

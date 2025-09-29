@@ -17,8 +17,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Install npm dependencies
-        run: npm ci
+      - name: Install pnpm dependencies
+        run: pnpm install --frozen-lockfile
       - name: Eslint
         run: npm run eslint:ci
       - name: Stylelint

@@ -27,8 +27,8 @@ jobs:
       - name: Update rust to get edition 2021 support
         run: rustup update stable
 
-      - name: Run npm ci
-        run: npm ci && git config --unset core.hooksPath
+      - name: Run pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile && git config --unset core.hooksPath
 
       - name: Generate doc files
         run: |

@@ -36,11 +36,11 @@ jobs:
           GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes"
         if: ${{ github.ref == 'refs/heads/master' }}
 
-      - name: npm ci for the repo root
-        run: npm ci
+      - name: pnpm install --frozen-lockfile for the repo root
+        run: pnpm install --frozen-lockfile
 
-      - name: npm ci for the storybook
-        run: npm ci
+      - name: pnpm install --frozen-lockfile for the storybook
+        run: pnpm install --frozen-lockfile
         working-directory: ./storybook
 
       - name: npm run build-storybook

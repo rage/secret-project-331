@@ -100,10 +100,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-cms-
 
-      - name: npm ci for the root of the repo
-        run: npm ci
-      - name: npm ci
-        run: npm ci
+      - name: pnpm install --frozen-lockfile for the root of the repo
+        run: pnpm install --frozen-lockfile
+      - name: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
         working-directory: ./services/cms
       - name: Run tests
         run: npm run test
@@ -123,10 +123,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-shared-common-
 
-      - name: npm ci for the root of the repo
-        run: npm ci
-      - name: npm ci
-        run: npm ci
+      - name: pnpm install --frozen-lockfile for the root of the repo
+        run: pnpm install --frozen-lockfile
+      - name: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
         working-directory: ./shared-module/packages/common
       - name: Run tests
         run: npm run test
@@ -146,10 +146,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-quizzes-
 
-      - name: npm ci for the root of the repo
-        run: npm ci
-      - name: npm ci
-        run: npm ci
+      - name: pnpm install --frozen-lockfile for the root of the repo
+        run: pnpm install --frozen-lockfile
+      - name: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
         working-directory: ./services/quizzes
       - name: Run tests
         run: npm run test
@@ -169,10 +169,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-course-material-
 
-      - name: npm ci for the root of the repo
-        run: npm ci
-      - name: npm ci
-        run: npm ci
+      - name: pnpm install --frozen-lockfile for the root of the repo
+        run: pnpm install --frozen-lockfile
+      - name: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
         working-directory: ./services/course-material
       - name: Run tests
         run: npm run test
@@ -192,10 +192,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-main-frontend-
 
-      - name: npm ci for the root of the repo
-        run: npm ci
-      - name: npm ci
-        run: npm ci
+      - name: pnpm install --frozen-lockfile for the root of the repo
+        run: pnpm install --frozen-lockfile
+      - name: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
         working-directory: ./services/main-frontend
       - name: Run tests
         run: npm run test

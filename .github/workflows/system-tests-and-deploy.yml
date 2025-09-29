@@ -219,8 +219,8 @@ jobs:
           kustomize: "5.4.1"
           skaffold: "2.13.1"
 
-      - name: Run npm ci so that shared module gets copied
-        run: npm ci
+      - name: Run pnpm install --frozen-lockfile so that shared module gets copied
+        run: pnpm install --frozen-lockfile
 
       - name: Download tmc-langs
         run: bin/tmc-langs-setup
@@ -308,7 +308,7 @@ jobs:
         run: echo "$(minikube ip) project-331.local" | sudo tee --append /etc/hosts
 
       - name: Setup system test environment
-        run: npm ci
+        run: pnpm install --frozen-lockfile
         working-directory: ./system-tests/
 
       - name: Run system tests
@@ -558,11 +558,11 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      - name: Run npm ci in repo root
-        run: npm ci
+      - name: Run pnpm install --frozen-lockfile in repo root
+        run: pnpm install --frozen-lockfile
 
-      - name: Run npm ci system-tests
-        run: npm ci
+      - name: Run pnpm install --frozen-lockfile system-tests
+        run: pnpm install --frozen-lockfile
         working-directory: ./system-tests/
 
       - name: Run tsc

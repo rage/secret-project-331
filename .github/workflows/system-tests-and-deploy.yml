@@ -32,7 +32,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      - name: 📊 System Information Report
+      - name: System Information Report
         run: |
           set -euo pipefail
 

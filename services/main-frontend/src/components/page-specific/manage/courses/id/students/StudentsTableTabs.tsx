@@ -50,6 +50,43 @@ const tableRoundedWrap = css`
   box-sizing: border-box;
 `
 
+const topScrollbarWrap = css`
+  height: 7px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  pointer-events: auto;
+  background: transparent;
+  border: none;
+
+  /* Pull up to reduce gap under header */
+  margin-top: -11px; /* adjust until it visually hugs */
+
+  /* WebKit */
+  &::-webkit-scrollbar {
+    height: 20px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #000;
+    border-radius: 8px;
+    border-left: 2px solid transparent;
+    border-right: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: #000 transparent;
+`
+
+const topScrollbarInner = css`
+  /* Keep height equal to scrollbar so it doesn’t add extra spacing */
+  height: 0px; /* no need for vertical size here */
+  width: 100%;
+`
+
 // --- UNIVERSAL FLOATING HEADER TABLE ---
 const chapterHeaderStart = 2 // First chapter header (upper, uses only light color)
 const subHeaderStart = 3 // First subheader (lower, uses light/dark pair)
@@ -198,22 +235,8 @@ export function FloatingHeaderTable({
   }
 
   const renderTopScrollbar = () => (
-    <div
-      ref={topScrollRef}
-      style={{
-        pointerEvents: "auto",
-        overflowX: "auto",
-        overflowY: "hidden",
-        height: 14, // small track; adjust to taste
-        borderLeft: "1px solid #ced1d7",
-        borderRight: "1px solid #ced1d7",
-        borderBottom: "1px solid #ced1d7",
-        borderTop: "none",
-        background: "#fff",
-      }}
-    >
-      {/* The inner spacer defines the scrollable width */}
-      <div style={{ width: Math.max(contentWidth, wrapRect.width), height: 1 }} />
+    <div ref={topScrollRef} css={topScrollbarWrap}>
+      <div css={topScrollbarInner} style={{ width: Math.max(contentWidth, wrapRect.width) }} />
     </div>
   )
 

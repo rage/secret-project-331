@@ -105,7 +105,11 @@ jobs:
           # Additional System Info
           echo "🔍 ADDITIONAL SYSTEM INFO"
           echo "────────────────────────────────────────────────────────────────────────────────────────"
-          OS_NAME=$(lsb_release -d 2>/dev/null | cut -d ':' -f2 | xargs || < /etc/os-release grep PRETTY_NAME | cut -d '"' -f2)
+          if command -v lsb_release >/dev/null 2>&1; then
+            OS_NAME="$(lsb_release -d | cut -d: -f2 | xargs)"
+          else
+            OS_NAME="$(grep '^PRETTY_NAME=' /etc/os-release | cut -d'=' -f2- | tr -d '\"')"
+          fi
           KERNEL_VERSION=$(uname -r)
           HOSTNAME=$(hostname)
 

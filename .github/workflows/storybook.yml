@@ -36,6 +36,7 @@ jobs:
           GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes"
         if: ${{ github.ref == 'refs/heads/master' }}
 
+      - uses: ./.github/actions/setup-node-pnpm
       - name: pnpm install --frozen-lockfile for the repo root
         run: pnpm install --frozen-lockfile
 

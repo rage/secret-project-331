@@ -14,11 +14,15 @@ env:
 jobs:
   code-style:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node-pnpm
       - name: Install pnpm dependencies
         run: pnpm install --frozen-lockfile
+      - name: Run actionlint
+        uses: docker://rhysd/actionlint:latest
+        with:
+          args: -color
       - name: Eslint
         run: npm run eslint:ci
       - name: Stylelint

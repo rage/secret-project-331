@@ -100,6 +100,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-cms-
 
+      - uses: ./.github/actions/setup-node-pnpm
       - name: pnpm install --frozen-lockfile for the root of the repo
         run: pnpm install --frozen-lockfile
       - name: pnpm install --frozen-lockfile
@@ -123,6 +124,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-shared-common-
 
+      - uses: ./.github/actions/setup-node-pnpm
       - name: pnpm install --frozen-lockfile for the root of the repo
         run: pnpm install --frozen-lockfile
       - name: pnpm install --frozen-lockfile
@@ -146,6 +148,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-quizzes-
 
+      - uses: ./.github/actions/setup-node-pnpm
       - name: pnpm install --frozen-lockfile for the root of the repo
         run: pnpm install --frozen-lockfile
       - name: pnpm install --frozen-lockfile
@@ -169,6 +172,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-course-material-
 
+      - uses: ./.github/actions/setup-node-pnpm
       - name: pnpm install --frozen-lockfile for the root of the repo
         run: pnpm install --frozen-lockfile
       - name: pnpm install --frozen-lockfile
@@ -192,6 +196,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-main-frontend-
 
+      - uses: ./.github/actions/setup-node-pnpm
       - name: pnpm install --frozen-lockfile for the root of the repo
         run: pnpm install --frozen-lockfile
       - name: pnpm install --frozen-lockfile

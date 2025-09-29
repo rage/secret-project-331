@@ -69,7 +69,7 @@ jobs:
           # Disk Information
           echo "💿 DISK INFORMATION"
           echo "────────────────────────────────────────────────────────────────────────────────────────"
-          df -h --output=source,size,used,avail,pcent,target | grep -E '^(/dev/|tmpfs)' | while read line; do
+          df -h --output=source,size,used,avail,pcent,target | grep -E '^(/dev/|tmpfs)' | while read -r line; do
             echo "  $line"
           done
           echo
@@ -156,10 +156,10 @@ jobs:
           echo
           echo "== Docker info (brief) =="
           docker --version || true
-          (docker info 2>/dev/null | egrep 'Server Version|Cgroup Driver|Cgroup Version|Docker Root Dir|Kernel Version' || true)
+          (docker info 2>/dev/null | grep -E 'Server Version|Cgroup Driver|Cgroup Version|Docker Root Dir|Kernel Version' || true)
           echo
           echo "== dmesg scan (early) =="
-          (dmesg -T 2>/dev/null | egrep -i 'mce|hardware error|memory error|ecc|segfault|general protection|oom' || true)
+          (dmesg -T 2>/dev/null | grep -iE 'mce|hardware error|memory error|ecc|segfault|general protection|oom' || true)
 
       - name: Make sure we have no focused system-tests
         run: |
@@ -219,6 +219,7 @@ jobs:
           kustomize: "5.4.1"
           skaffold: "2.13.1"
 
+      - uses: ./.github/actions/setup-node-pnpm
       - name: Run pnpm install --frozen-lockfile so that shared module gets copied
         run: pnpm install --frozen-lockfile
 
@@ -363,7 +364,7 @@ jobs:
             | tee -a ./_failure_debug/os-cpu.txt || true
 
           echo "== Docker info (brief) ==" | tee ./_failure_debug/docker-info.txt
-          (docker info 2>/dev/null | egrep 'Server Version|Cgroup|Docker Root Dir|Logging Driver|Kernel Version' || true) \
+          (docker info 2>/dev/null | grep -E 'Server Version|Cgroup|Docker Root Dir|Logging Driver|Kernel Version' || true) \
             | tee -a ./_failure_debug/docker-info.txt
 
       - name: Upload failure diagnostics
@@ -558,6 +559,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
+      - uses: ./.github/actions/setup-node-pnpm
       - name: Run pnpm install --frozen-lockfile in repo root
         run: pnpm install --frozen-lockfile
 

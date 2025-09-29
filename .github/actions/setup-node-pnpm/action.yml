@@ -1,0 +1,23 @@
+name: Setup Node & pnpm
+description: Install Node and pnpm via corepack
+inputs:
+  node-version:
+    description: "Node.js version to use"
+    required: false
+    default: "22"
+  pnpm-version:
+    description: "pnpm version to use"
+    required: false
+    default: "10.17.1"
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+    - shell: bash
+      run: |
+        corepack enable
+        corepack prepare pnpm@${{ inputs.pnpm-version }} --activate
+        echo "Node version: $(node -v)"
+        echo "pnpm version: $(pnpm -v)"

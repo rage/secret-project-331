@@ -1,17 +1,25 @@
 name: System tests and deploy
 
+permissions: read-all
+
 on:
   push:
     branches:
       - master
       - canary
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
   pull_request:
     branches:
       - master
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
 
 concurrency:
   # New commits cancel previous builds only on pull requests. This is because `github.head_ref`` is only set on pull requests and `github.sha` is unique for each commit.
-  group: system-tests-${{ github.head_ref || github.sha }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -19,6 +27,8 @@ env:
 
 jobs:
   build-and-system-tests:
+    permissions:
+      contents: read
     runs-on: ubicloud-standard-30-ubuntu-2404
     steps:
       - name: Check out repository code
@@ -179,6 +189,7 @@ jobs:
 
       - name: Configure Docker to use tmpfs for better performance
         run: |
+          set -euo pipefail
           echo "Configuring Docker to use tmpfs (RAM) for data storage..."
 
           sudo systemctl stop docker
@@ -207,6 +218,22 @@ jobs:
           docker info | grep "Docker Root Dir"
 
           echo "Docker configured to use tmpfs. All container operations will use RAM."
+
+          # Create cleanup script
+          cat <<'EOS' | sudo tee /usr/local/bin/_cleanup_docker_tmpfs
+          #!/usr/bin/env bash
+          set -e
+          sudo systemctl stop docker || true
+          sudo rm -f /etc/docker/daemon.json || true
+          sudo systemctl start docker || true
+          sudo umount /mnt/docker-tmpfs || true
+          sudo rmdir /mnt/docker-tmpfs || true
+          EOS
+          sudo chmod +x /usr/local/bin/_cleanup_docker_tmpfs
+        shell: bash
+      - name: Cleanup docker tmpfs
+        if: always()
+        run: sudo /usr/local/bin/_cleanup_docker_tmpfs
 
       # If glcoud cli is installed skaffold spams the output because we're not logged in and in some cases might even fail the build.
       - name: Hide gcloud cli from skaffold
@@ -254,6 +281,7 @@ jobs:
         with:
           name: skaffold-build-output
           path: ./skaffold-build-output.json
+          retention-days: 7
 
       # If glcoud cli is installed skaffold spams the output because we're not logged in and in some cases might even fail the build.
       - name: Unhide gcloud cli if master
@@ -315,6 +343,13 @@ jobs:
       - name: Run system tests
         run: npm run test
         working-directory: ./system-tests/
+      - name: System Test Summary
+        if: always()
+        run: |
+          echo "## 🧪 System Tests" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: Minikube with Docker tmpfs" >> $GITHUB_STEP_SUMMARY
+          echo "- **Memory**: 60GB allocated" >> $GITHUB_STEP_SUMMARY
 
       # To prevent accidentally introducing flaky tests in a pr. Skipped on master in order to not slow down deploys.
       - name: Run system tests again to make sure they're stable (if not master)
@@ -374,6 +409,7 @@ jobs:
           name: worker-failure-diagnostics
           path: ./_failure_debug/*
           if-no-files-found: ignore
+          retention-days: 7
 
       - name: Save service logs to disk
         if: ${{ failure() && steps.deploy_local.conclusion == 'success' }}
@@ -393,6 +429,7 @@ jobs:
         with:
           name: service-logs
           path: ./logs/*
+          retention-days: 7
 
       - name: Print pods information
         if: ${{ failure() && steps.deploy_local.conclusion == 'success' }}
@@ -416,6 +453,7 @@ jobs:
           name: test-results
           path: ./system-tests/test-results/
           if-no-files-found: ignore
+          retention-days: 7
 
       - name: Upload playwright report
         uses: actions/upload-artifact@v4
@@ -424,6 +462,7 @@ jobs:
           name: playwright-html-report
           path: ./system-tests/playwright-report/index.html
           if-no-files-found: ignore
+          retention-days: 7
 
       # These images are used for deployments and caching
       - name: Push images if master
@@ -504,7 +543,9 @@ jobs:
   deploy:
     needs: build-and-system-tests
     if: ${{ github.ref == 'refs/heads/master' }}
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
     environment:
       name: production
       url: https://courses.mooc.fi
@@ -554,7 +595,9 @@ jobs:
         run: skaffold deploy --force --filename ./skaffold.production.yaml -p production --build-artifacts=./skaffold-build-output/skaffold-build-output.json --namespace courses-moocfi
 
   typecheck:
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4

@@ -1,5 +1,7 @@
 name: Storybook
 
+permissions: read-all
+
 on:
   push:
     branches:
@@ -10,12 +12,14 @@ on:
 
 concurrency:
   # New commits cancel previous builds only on pull requests. This is because `github.head_ref`` is only set on pull requests and `github.sha`` is unique for each commit.
-  group: storybook-${{ github.head_ref || github.sha }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   generate-storybook:
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -25,8 +29,6 @@ jobs:
           mkdir -p ~/.ssh
           echo "$STORYBOOK_DEPLOY_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          md5sum ~/.ssh/id_ed25519
-          ls -la ~/.ssh
         env:
           STORYBOOK_DEPLOY_KEY: ${{ secrets.STORYBOOK_DEPLOY_KEY }}
         if: ${{ github.ref == 'refs/heads/master' }}

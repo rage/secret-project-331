@@ -1,19 +1,30 @@
 name: Code Style
+
+permissions: read-all
+
 on:
   push:
     branches:
       - master
       - canary
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
   pull_request:
     branches:
       - master
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
   code-style:
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-node-pnpm

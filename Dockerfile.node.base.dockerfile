@@ -26,8 +26,13 @@ RUN mkdir -p /tmp/test-project && \
   cp /root/.npmrc . && \
   echo '{"name": "temp", "version": "1.0.0", "packageManager": "pnpm@10.17.1"}' > package.json && \
   npm install -g --no-update-notifier corepack@latest && \
-  corepack install && \
+  chown -R node:node /tmp/test-project && \
+  # Setup corepack as the node user so that the build process can find it later on.
+  su node -c "corepack install && \
   corepack enable pnpm && \
-  echo "pnpm version $(pnpm --version)" && \
-  pnpm install --ignore-scripts && \
+  echo 'pnpm version $(pnpm --version)' && \
+  pnpm install --ignore-scripts" && \
   rm -rf /tmp/test-project
+
+# Make sure corepack doesn't try to download anything anymore. If we accidentally start downloading new package managers later on the build process, it would have an unfortunate effect on the performance of the build process.
+ENV COREPACK_ENABLE_NETWORK=0

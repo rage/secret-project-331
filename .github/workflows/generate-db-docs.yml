@@ -6,6 +6,16 @@ on:
   push:
     branches:
       - master
+    paths-ignore:
+      - "docs/**"
+      - "services/cms/**"
+      - "services/course-material/**"
+      - "services/example-exercise/**"
+      - "services/main-frontend/**"
+      - "services/quizzes/**"
+      - "services/tmc/**"
+      - "storybook/**"
+      - "system-tests/**"
 
 jobs:
   generate-db-docs:

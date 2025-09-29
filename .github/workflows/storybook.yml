@@ -6,9 +6,17 @@ on:
   push:
     branches:
       - master
+    paths-ignore:
+      - "docs/**"
+      - "services/headless-lms/**"
+      - "system-tests/**"
   pull_request:
     branches:
       - master
+    paths-ignore:
+      - "docs/**"
+      - "services/headless-lms/**"
+      - "system-tests/**"
 
 concurrency:
   # New commits cancel previous builds only on pull requests. This is because `github.head_ref`` is only set on pull requests and `github.sha`` is unique for each commit.

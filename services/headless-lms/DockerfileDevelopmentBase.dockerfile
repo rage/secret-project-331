@@ -1,7 +1,7 @@
 # This dockerfile contains the base dependencies that we need for developing the headless-lms service. We build this manually to in order to effectively cache these build steps.
 # You can rebuild this image by running bin/build-dockerfile-development-base in the repo root
 # If you want to deploy the new image, you must push it to the image repository with docker push <image-name>
-FROM rust:bookworm as dep-builder
+FROM rust:bookworm AS dep-builder
 
 RUN apt-get update \
   && apt-get install -yy build-essential git clang cmake libssl-dev zlib1g-dev gcc g++ file sudo \
@@ -26,7 +26,7 @@ RUN location update \
   && location export --directory /ips-to-country \
   && gzip /ips-to-country/*
 
-FROM rust:bookworm as icu4x-builder
+FROM rust:bookworm AS icu4x-builder
 
 RUN cargo install icu4x-datagen
 
@@ -39,7 +39,7 @@ RUN icu4x-datagen \
   --format blob \
   --out /icu4x.postcard.2
 
-FROM rust:bookworm
+FROM rust:bookworm AS rust-base
 
 COPY --from=dep-builder /mold/build /usr/local/bin/
 
@@ -77,3 +77,31 @@ RUN useradd -ms /usr/sbin/nologin user
 
 ENV CARGO_HOME=/home/user/.cargo \
   PATH=/home/user/.cargo/bin:$PATH
+
+# Cache Rust dependencies using cargo chef
+FROM rust-base AS chef-planner
+
+COPY . /app/
+RUN chown -R user:user /app
+
+USER user
+
+WORKDIR /app
+RUN cargo chef prepare --recipe-path recipe.json
+
+FROM rust-base AS chef-builder
+
+USER user
+
+COPY --from=chef-planner --chown=user:user /app/recipe.json recipe.json
+# Cache both debug and release dependencies
+RUN cargo chef cook --recipe-path recipe.json
+RUN cargo chef cook --release --recipe-path recipe.json
+
+# Create final stage with cached dependencies
+FROM rust-base
+
+# Copy the cached dependencies
+COPY --from=chef-builder --chown=user:user /app/target /app/target
+
+USER user

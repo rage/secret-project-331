@@ -56,6 +56,15 @@ importers:
       '@react-aria/dialog':
         specifier: ^3.5.28
         version: 3.5.30(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@react-aria/focus':
+        specifier: ^3.21.1
+        version: 3.21.1(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@react-aria/overlays':
+        specifier: ^3.29.1
+        version: 3.29.1(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@react-types/dialog':
+        specifier: ^3.5.21
+        version: 3.5.21(react@19.1.1)
       '@tanstack/react-query':
         specifier: ^5.84.0
         version: 5.90.2(react@19.1.1)

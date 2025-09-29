@@ -38,8 +38,10 @@
   },
   "dependencies": {
     "@axe-core/playwright": "^4.10.2",
+    "@types/js-yaml": "^4.0.9",
     "@types/which": "^3.0.4",
     "axe-core": "^4.10.3",
+    "js-yaml": "^4.1.0",
     "png-metadata": "^1.0.2",
     "tar-fs": "^3.1.0",
     "which": "^5.0.0"

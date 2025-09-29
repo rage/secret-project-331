@@ -1,10 +1,10 @@
 import { FullConfig } from "@playwright/test"
 import { spawnSync } from "child_process"
+import fs from "fs"
+import { load as yamlLoad } from "js-yaml"
 import path from "path"
 import playWrightPackageJson from "playwright/package.json"
 import which from "which"
-
-import systemTestsPackageLockJson from "../../package-lock.json"
 
 async function globalSetup(config: FullConfig): Promise<void> {
   await makeSureNecessaryProgramsAreInstalled(config)
@@ -27,8 +27,11 @@ async function makeSureNecessaryProgramsAreInstalled(config: FullConfig) {
 async function makeSurePnpmInstallHasBeenRan() {
   // Make sure the user has ran pnpm install after Playwright has been updated.
   // Using an older vesion might not work or might generate sligtly wrong screenshots.
-  const requiredPlaywrightVersion =
-    systemTestsPackageLockJson.packages["node_modules/playwright"].version
+  const pnpmLockPath = path.join(__dirname, "../../pnpm-lock.yaml")
+  const pnpmLockContent = fs.readFileSync(pnpmLockPath, "utf8")
+  const pnpmLock = yamlLoad(pnpmLockContent) as { packages: Record<string, { version: string }> }
+
+  const requiredPlaywrightVersion = pnpmLock.packages["playwright@1.55.1"].version
   const installedPlaywrightVersion = playWrightPackageJson.version
   if (installedPlaywrightVersion !== requiredPlaywrightVersion) {
     throw new Error(

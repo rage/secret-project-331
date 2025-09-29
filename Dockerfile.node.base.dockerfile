@@ -5,8 +5,8 @@ RUN apt-get update \
   && apt-get install -yy build-essential \
   && rm -rf /var/lib/apt/lists/*
 
-# Install pnpm globally
-RUN npm install -g pnpm@latest
+ARG PNPM_VERSION=10.17.1
+RUN corepack enable && corepack prepare "pnpm@${PNPM_VERSION}" --activate
 
 # Please read these two docs for the following options before changing them -- they work a bit differently than you'd expect:
 # https://docs.npmjs.com/cli/v8/using-npm/config

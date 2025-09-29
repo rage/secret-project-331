@@ -1,4 +1,4 @@
-FROM node:22-bookworm-slim
+FROM node:22-bookworm-slim AS node-base
 
 RUN apt-get update \
   && apt-get upgrade -yy \
@@ -34,5 +34,29 @@ RUN mkdir -p /tmp/test-project && \
   pnpm install --ignore-scripts" && \
   rm -rf /tmp/test-project
 
-# Make sure corepack doesn't try to download anything anymore. If we accidentally start downloading new package managers later on the build process, it would have an unfortunate effect on the performance of the build process.
-ENV COREPACK_ENABLE_NETWORK=0
+# Cache pnpm store in a consistent location
+ENV PNPM_HOME="/pnpm"
+RUN mkdir -p $PNPM_HOME && chown -R node:node $PNPM_HOME
+
+# Cache all dependendencies in the project to the pnpm store
+FROM node-base AS cache-dependencies
+
+COPY . /tmp/cache-build/
+RUN chown -R node:node /tmp/cache-build
+
+USER node
+
+RUN cd /tmp/cache-build && pnpm fetch \
+  && cd /tmp/cache-build/services/cms && pnpm fetch \
+  && cd /tmp/cache-build/services/course-material && pnpm fetch \
+  && cd /tmp/cache-build/services/example-exercise && pnpm fetch \
+  && cd /tmp/cache-build/services/main-frontend && pnpm fetch \
+  && cd /tmp/cache-build/services/quizzes && pnpm fetch \
+  && cd /tmp/cache-build/services/tmc && pnpm fetch
+
+# Create final stage with cached dependencies
+FROM node-base
+
+# Copy the cached dependencies
+COPY --from=cache-dependencies --chown=node:node $PNPM_HOME $PNPM_HOME
+

@@ -70,7 +70,64 @@ export function FloatingHeaderTable({
   const [wrapRect, setWrapRect] = useState({ left: 0, width: 0 })
   const table = useReactTable({ columns, data, getCoreRowModel: getCoreRowModel() })
 
+  const topScrollRef = useRef<HTMLDivElement | null>(null)
+  const [contentWidth, setContentWidth] = useState(0)
+  const syncingRef = useRef<null | "wrap" | "top">(null)
+
   // --- Effects for sticky header, colWidths, etc (unchanged) ---
+  useEffect(() => {
+    const updateWidth = () => {
+      if (!wrapRef.current) {
+        return
+      }
+      // full scrollable width of the table content
+      setContentWidth(wrapRef.current.scrollWidth)
+    }
+    updateWidth()
+    window.addEventListener("resize", updateWidth)
+    const id = setInterval(updateWidth, 200) // catches font/layout async changes
+    return () => {
+      window.removeEventListener("resize", updateWidth)
+      clearInterval(id)
+    }
+  }, [data.length, colWidths.join(",")])
+
+  useEffect(() => {
+    const wrap = wrapRef.current
+    const top = topScrollRef.current
+    if (!wrap || !top) {
+      return
+    }
+
+    const onWrapScroll = () => {
+      setScrollLeft(wrap.scrollLeft)
+      if (syncingRef.current === "top") {
+        return
+      }
+      syncingRef.current = "wrap"
+      top.scrollLeft = wrap.scrollLeft
+      syncingRef.current = null
+    }
+    const onTopScroll = () => {
+      if (syncingRef.current === "wrap") {
+        return
+      }
+      syncingRef.current = "top"
+      wrap.scrollLeft = top.scrollLeft
+      syncingRef.current = null
+    }
+
+    wrap.addEventListener("scroll", onWrapScroll, { passive: true })
+    top.addEventListener("scroll", onTopScroll, { passive: true })
+    // initialize alignment
+    top.scrollLeft = wrap.scrollLeft
+
+    return () => {
+      wrap.removeEventListener("scroll", onWrapScroll)
+      top.removeEventListener("scroll", onTopScroll)
+    }
+  }, [showSticky])
+
   useEffect(() => {
     if (tableRef.current) {
       const ths = tableRef.current.querySelectorAll("thead tr:first-of-type th")
@@ -140,6 +197,26 @@ export function FloatingHeaderTable({
     return undefined
   }
 
+  const renderTopScrollbar = () => (
+    <div
+      ref={topScrollRef}
+      style={{
+        pointerEvents: "auto",
+        overflowX: "auto",
+        overflowY: "hidden",
+        height: 14, // small track; adjust to taste
+        borderLeft: "1px solid #ced1d7",
+        borderRight: "1px solid #ced1d7",
+        borderBottom: "1px solid #ced1d7",
+        borderTop: "none",
+        background: "#fff",
+      }}
+    >
+      {/* The inner spacer defines the scrollable width */}
+      <div style={{ width: Math.max(contentWidth, wrapRect.width), height: 1 }} />
+    </div>
+  )
+
   // --- STICKY HEADER RENDER (EXACT SAME WIDTHS) ---
   const renderStickyHeader = () => (
     <div
@@ -151,7 +228,6 @@ export function FloatingHeaderTable({
         zIndex: 100,
         pointerEvents: "none",
         background: "transparent",
-
         overflow: "hidden",
         margin: 0,
         padding: 0,
@@ -181,6 +257,9 @@ export function FloatingHeaderTable({
           {renderTableHead()}
         </table>
       </div>
+
+      {/* attach scrollbar under the sticky head */}
+      {renderTopScrollbar()}
     </div>
   )
 

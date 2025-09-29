@@ -2,6 +2,7 @@
   "name": "main-frontend",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.17.1",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "NODE_ENV=production next build",

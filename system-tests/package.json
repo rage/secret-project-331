@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "packageManager": "pnpm@10.17.1",
   "scripts": {
     "test": "env HTML=1 LANGUAGE=en_US pnpm run test-nohtml",
     "test-ui": "pnpm run test-nohtml -- --ui",

@@ -1,6 +1,7 @@
 {
   "name": "tmc",
   "version": "1.0.0",
+  "packageManager": "pnpm@10.17.1",
   "scripts": {
     "build": "NODE_ENV=production next build",
     "dev": "next dev --port 3005 --turbopack",

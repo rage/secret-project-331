@@ -96,10 +96,12 @@ jobs:
       - name: Test Summary
         if: always()
         run: |
-          echo "## 🧪 Headless LMS Tests" >> $GITHUB_STEP_SUMMARY
-          echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Database**: PostgreSQL 16.4" >> $GITHUB_STEP_SUMMARY
-          echo "- **Cache**: Redis 7.2" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## 🧪 Headless LMS Tests"
+            echo "- **Status**: ${{ job.status }}"
+            echo "- **Database**: PostgreSQL 16.4"
+            echo "- **Cache**: Redis 7.2"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   cms:
     permissions:
@@ -120,9 +122,11 @@ jobs:
       - name: Test Summary
         if: always()
         run: |
-          echo "## 📝 CMS Tests" >> $GITHUB_STEP_SUMMARY
-          echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Service**: CMS" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## 📝 CMS Tests"
+            echo "- **Status**: ${{ job.status }}"
+            echo "- **Service**: CMS"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   shared-module-common:
     permissions:
@@ -143,9 +147,11 @@ jobs:
       - name: Test Summary
         if: always()
         run: |
-          echo "## 🔧 Shared Module Common Tests" >> $GITHUB_STEP_SUMMARY
-          echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Service**: Shared Module Common" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## 🔧 Shared Module Common Tests"
+            echo "- **Status**: ${{ job.status }}"
+            echo "- **Service**: Shared Module Common"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   quizzes:
     permissions:
@@ -166,9 +172,11 @@ jobs:
       - name: Test Summary
         if: always()
         run: |
-          echo "## ❓ Quizzes Tests" >> $GITHUB_STEP_SUMMARY
-          echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Service**: Quizzes" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## ❓ Quizzes Tests"
+            echo "- **Status**: ${{ job.status }}"
+            echo "- **Service**: Quizzes"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   course-material:
     permissions:
@@ -189,9 +197,11 @@ jobs:
       - name: Test Summary
         if: always()
         run: |
-          echo "## 📚 Course Material Tests" >> $GITHUB_STEP_SUMMARY
-          echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Service**: Course Material" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## 📚 Course Material Tests"
+            echo "- **Status**: ${{ job.status }}"
+            echo "- **Service**: Course Material"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   main-frontend:
     permissions:
@@ -212,6 +222,8 @@ jobs:
       - name: Test Summary
         if: always()
         run: |
-          echo "## 🎨 Main Frontend Tests" >> $GITHUB_STEP_SUMMARY
-          echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Service**: Main Frontend" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## 🎨 Main Frontend Tests"
+            echo "- **Status**: ${{ job.status }}"
+            echo "- **Service**: Main Frontend"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -344,10 +344,12 @@ jobs:
       - name: System Test Summary
         if: always()
         run: |
-          echo "## 🧪 System Tests" >> $GITHUB_STEP_SUMMARY
-          echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Environment**: Minikube with Docker tmpfs" >> $GITHUB_STEP_SUMMARY
-          echo "- **Memory**: 60GB allocated" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## 🧪 System Tests"
+            echo "- **Status**: ${{ job.status }}"
+            echo "- **Environment**: Minikube with Docker tmpfs"
+            echo "- **Memory**: 60GB allocated"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       # To prevent accidentally introducing flaky tests in a pr. Skipped on master in order to not slow down deploys.
       - name: Run system tests again to make sure they're stable (if not master)

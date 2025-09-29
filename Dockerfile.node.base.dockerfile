@@ -20,8 +20,13 @@ RUN npm config set --location=global fetch-retry-maxtimeout=900000 && \
   npm config set --location=global maxsockets=1 && \
   npm config set --location=global noproxy=registry.npmjs.org
 
-# Configure pnpm
-RUN pnpm config set use-node-version 22 && \
-  pnpm config set update-notifier false && \
-  pnpm config set shared-workspace-lockfile false && \
-  pnpm config set engine-strict true
+# Configure pnpm using the root .npmrc
+COPY .npmrc /root/.npmrc
+
+# Install the node version specified in .npmrc
+RUN mkdir -p /tmp/test-project && \
+  cd /tmp/test-project && \
+  cp /root/.npmrc . && \
+  echo '{"name": "download-node", "version": "1.0.0"}' > package.json && \
+  pnpm install --ignore-scripts && \
+  rm -rf /tmp/test-project

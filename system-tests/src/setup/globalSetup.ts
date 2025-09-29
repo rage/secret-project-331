@@ -25,13 +25,39 @@ async function makeSureNecessaryProgramsAreInstalled(config: FullConfig) {
 }
 
 async function makeSurePnpmInstallHasBeenRan() {
-  // Make sure the user has ran pnpm install after Playwright has been updated.
-  // Using an older vesion might not work or might generate sligtly wrong screenshots.
+  // Ensure pnpm install has been run after Playwright version changes.
   const pnpmLockPath = path.join(__dirname, "../../pnpm-lock.yaml")
   const pnpmLockContent = fs.readFileSync(pnpmLockPath, "utf8")
-  const pnpmLock = yamlLoad(pnpmLockContent) as { packages: Record<string, { version: string }> }
+  const pnpmLock = yamlLoad(pnpmLockContent) as {
+    importers?: Record<
+      string,
+      {
+        devDependencies?: Record<string, string | { version: string; specifier: string }>
+        dependencies?: Record<string, string | { version: string; specifier: string }>
+      }
+    >
+  }
 
-  const requiredPlaywrightVersion = pnpmLock.packages["playwright@1.55.1"].version
+  // Find the importer for the system-tests workspace (fallback to root if needed).
+  const importer = pnpmLock?.importers?.["system-tests"] ?? pnpmLock?.importers?.["."] ?? null
+  if (!importer) {
+    console.warn(
+      "pnpm-lock.yaml: no importer for system-tests or root; skipping Playwright version check",
+    )
+    return
+  }
+
+  // Lockfile stores resolved versions under devDependencies/dependencies.
+  const playwrightEntry = importer.devDependencies?.playwright ?? importer.dependencies?.playwright
+
+  if (!playwrightEntry) {
+    console.warn("pnpm-lock.yaml: Playwright not found in importer; skipping version check")
+    return
+  }
+
+  const requiredPlaywrightVersion =
+    typeof playwrightEntry === "string" ? playwrightEntry : playwrightEntry.version
+
   const installedPlaywrightVersion = playWrightPackageJson.version
   if (installedPlaywrightVersion !== requiredPlaywrightVersion) {
     throw new Error(

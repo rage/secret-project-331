@@ -91,9 +91,11 @@ RUN cargo chef prepare --recipe-path recipe.json
 
 FROM rust-base AS chef-builder
 
+COPY --from=chef-planner --chown=user:user /app/recipe.json recipe.json
+RUN chown -R user:user /app
+
 USER user
 
-COPY --from=chef-planner --chown=user:user /app/recipe.json recipe.json
 # Cache both debug and release dependencies
 RUN cargo chef cook --recipe-path recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json

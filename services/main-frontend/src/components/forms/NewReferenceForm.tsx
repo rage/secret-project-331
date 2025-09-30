@@ -63,18 +63,31 @@ const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>>
     }
   })
 
-  let citationLabelsThatWillChange = null
-  try {
-    citationLabelsThatWillChange = detectCitationLabelsThatWillChange(references)
-  } catch (e) {
-    if (errorMessage === "") {
-      if (e instanceof Error) {
-        setErrorMessage(e.message)
-      } else {
-        setErrorMessage(t("error-title"))
-      }
+  const detection = React.useMemo(() => {
+    if (!references?.trim()) {
+      return { items: [], error: null as null | Error }
     }
-  }
+    try {
+      return { items: detectCitationLabelsThatWillChange(references), error: null }
+    } catch (e) {
+      return { items: [], error: e instanceof Error ? e : new Error(t("error-title")) }
+    }
+  }, [references, t])
+
+  React.useEffect(() => {
+    if (detection.error && errorMessage === "") {
+      setErrorMessage(detection.error.message)
+    } else if (
+      !detection.error &&
+      errorMessage !== "" &&
+      errorMessage !== t("reference-parsing-error")
+    ) {
+      // Clear detection errors when they're resolved, but keep submit errors
+      setErrorMessage("")
+    }
+  }, [detection.error, errorMessage, setErrorMessage, t])
+
+  const citationLabelsThatWillChange = detection.items
 
   return (
     <form

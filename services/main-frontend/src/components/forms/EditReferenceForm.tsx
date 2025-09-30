@@ -53,18 +53,26 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
 
   const watchedReference = watch("reference")
 
-  let citationLabelsThatWillChange = null
-  try {
-    citationLabelsThatWillChange = detectCitationLabelsThatWillChange(watchedReference)
-  } catch (e) {
-    if (!errors.root) {
-      if (e instanceof Error) {
-        setError("root", { message: e.message })
-      } else {
-        setError("root", { message: t("error-title") })
-      }
+  const detection = React.useMemo(() => {
+    if (!watchedReference) {
+      return { items: [], error: null as null | Error }
     }
-  }
+    try {
+      return { items: detectCitationLabelsThatWillChange(watchedReference), error: null }
+    } catch (e) {
+      return { items: [], error: e instanceof Error ? e : new Error(t("error-title")) }
+    }
+  }, [watchedReference, t])
+
+  React.useEffect(() => {
+    if (detection.error && !errors.root) {
+      setError("root", { message: detection.error.message })
+    } else if (!detection.error && errors.root) {
+      setError("root", { message: undefined })
+    }
+  }, [detection.error, errors.root, setError])
+
+  const citationLabelsThatWillChange = detection.items
 
   const isValidReference = React.useMemo(() => {
     return areCitationsValid(watchedReference)

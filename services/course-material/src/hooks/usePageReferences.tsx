@@ -40,8 +40,7 @@ const useReferences = (courseId: string) => {
         setTimeout(callback, 100)
       }
       if (getCourseReferences.isError) {
-        // eslint-disable-next-line i18next/no-literal-string
-        throw "Error while loading course references"
+        throw new Error("Error while loading course references")
       }
       if (getCourseReferences.data) {
         const textCitations = new Set(compact(Array.from(refs).map((x) => x.dataset.citationId)))

@@ -22,7 +22,7 @@ const TextWrapper = styled.div`
   padding: 0;
   margin: 0;
   margin-top: 4rem;
-  background: rgb(242, 245, 247);
+  background: ${baseTheme.colors.clear[100]};
 
   details[open] summary ~ * {
     animation: ${openAnimation} 0.3s ease-in-out;
@@ -30,7 +30,7 @@ const TextWrapper = styled.div`
   }
 
   details {
-    border-left: 4px solid #90abc3;
+    border-left: 4px solid ${baseTheme.colors.blue[300]};
   }
 
   details[open] > div {
@@ -58,12 +58,12 @@ const TextWrapper = styled.div`
   }
 
   details[open] > summary {
-    color: #1c1c1c;
+    color: ${baseTheme.colors.gray[700]};
   }
 
   details summary:after {
     content: "+";
-    color: #6b8faf;
+    color: ${baseTheme.colors.blue[400]};
     position: absolute;
     font-size: 3rem;
     line-height: 0.3;
@@ -127,9 +127,8 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
     }
     return Array.from(document.querySelectorAll<HTMLElement>("[data-citation-id]")).map(
       (node, idx) => {
-        const reference = data.find((o) => {
-          return o.id === node.dataset.citationId
-        })
+        const reference = data.find((o) => o.id === node.dataset.citationId)
+
         let citeNumber: number = 0
         if (reference && !citeOrder.includes(reference.id)) {
           citeOrder.push(reference.id)
@@ -160,7 +159,7 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
                 key={id}
                 id={`ref-${index + 1}`}
                 className={css`
-                  ${active === `ref-${index + 1}` && `background: #DAE3EB;`}
+                  ${active === `ref-${index + 1}` && `background: ${baseTheme.colors.blue[100]};`}
                 `}
               >
                 {text}

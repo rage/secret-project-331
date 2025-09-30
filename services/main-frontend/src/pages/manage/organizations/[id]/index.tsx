@@ -204,7 +204,7 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
   }, [organization.data])
 
   let contents
-  if (organization.isPending) {
+  if (organization.isLoading) {
     contents = <Spinner variant={"medium"} />
   } else if (organization.isError) {
     contents = <ErrorBanner variant={"readOnly"} error={organization.error} />

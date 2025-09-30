@@ -71,7 +71,7 @@ const TopUTMSources: React.FC<React.PropsWithChildren<TopUTMSourcesProps>> = ({ 
       <StatsHeader heading={t("header-utm-sources")} debugData={aggregatedData} />
       <InstructionBox>{t("stats-instruction-utm-sources")}</InstructionBox>
       <div className={containerStyles}>
-        {query.isPending ? (
+        {query.isLoading ? (
           <Spinner variant="medium" />
         ) : query.isError ? (
           <ErrorBanner variant="readOnly" error={query.error} />

@@ -57,6 +57,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
         type: "setData",
         payload: {
           pageData: exam.data.enrollment_data.page,
+          organization: null,
           instance: null,
           settings: null,
           exam: exam.data,
@@ -105,12 +106,12 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     },
   )
 
-  if (exam.isPending) {
-    return <Spinner variant="medium" />
-  }
-
   if (exam.isError) {
     return <ErrorBanner variant={"readOnly"} error={exam.error} />
+  }
+
+  if (exam.isLoading || !exam.data) {
+    return <Spinner variant="medium" />
   }
 
   const examInfo = (

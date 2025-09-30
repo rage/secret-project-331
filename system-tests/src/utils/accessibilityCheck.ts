@@ -9,7 +9,7 @@ import { Writable } from "stream"
 export default async function accessibilityCheck(
   page: Page,
   contextName: string,
-  axeSkip: string[] | undefined,
+  axeSkip?: string[],
 ): Promise<void> {
   await test.step(`Accessibility checks (${contextName})`, async () => {
     // collect console.logs with all the console.group groupings

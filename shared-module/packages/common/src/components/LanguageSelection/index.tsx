@@ -49,6 +49,10 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
   const defaultHandleLanguageChange = (newLanguage: string) => {
     i18n.changeLanguage(newLanguage)
     setVisible(false)
+    if (!newLanguage) {
+      console.error("No language to change to")
+      return
+    }
     const selectedLanguage = newLanguage.split("-")
     // eslint-disable-next-line i18next/no-literal-string
     document.cookie = `${LANGUAGE_COOKIE_KEY}=${selectedLanguage[0]}; path=/; SameSite=Strict; max-age=31536000;`
@@ -102,19 +106,31 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
                 padding: 0;
               `}
             >
-              {(languages ?? DEFAULT_LANGUAGES).map((x) => (
-                <LanguageOptionComponent
-                  key={x.tag}
-                  label={x.name}
-                  onClick={() => {
-                    if (handleLanguageChange) {
-                      handleLanguageChange(x.tag)
-                    } else {
-                      defaultHandleLanguageChange(x.tag)
-                    }
-                  }}
-                />
-              ))}
+              {(languages ?? DEFAULT_LANGUAGES).map((x) => {
+                // Check if this language is currently active
+                // i18n.language can be in format "en-US" or just "en", so we need to handle both
+                const currentLang = i18n.language
+                const currentLangParts = currentLang ? currentLang.split("-") : []
+                const tagParts = x.tag ? x.tag.split("-") : []
+                const isActive = Boolean(
+                  currentLang === x.tag ||
+                    (currentLangParts[0] && tagParts[0] && currentLangParts[0] === tagParts[0]),
+                )
+                return (
+                  <LanguageOptionComponent
+                    key={x.tag}
+                    label={x.name}
+                    isActive={isActive}
+                    onClick={() => {
+                      if (handleLanguageChange) {
+                        handleLanguageChange(x.tag)
+                      } else {
+                        defaultHandleLanguageChange(x.tag)
+                      }
+                    }}
+                  />
+                )
+              })}
             </ul>
           </LanguageMenu>
           {/* eslint-disable-next-line react/forbid-dom-props */}

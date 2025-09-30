@@ -1,4 +1,4 @@
-import { diffChars } from "diff"
+import { diffWords } from "diff"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -59,7 +59,7 @@ const PreviewableParagraph: React.FC<PreviewableParagraphProps> = ({
     if (content === actualEditedContent) {
       return []
     }
-    return diffChars(content ?? "", actualEditedContent ?? "")
+    return diffWords(content ?? "", actualEditedContent ?? "")
   }, [content, actualEditedContent])
 
   return (

@@ -6,9 +6,9 @@ First, run the development server:
 
 ```bash
 pnpm run dev
-# or
-yarn dev
 ```
+
+> **Note**: This project uses **pnpm** as the package manager. Please use `pnpm` instead of `npm` or `yarn`.
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 

@@ -4,20 +4,21 @@ Do these steps in order and commit between steps:
 
 ## Node version update
 
-Check if we are using the current node LTS version from by comparing a `.nvmcrc` and https://nodejs.org/en/. If a newer LTS version is available do the following steps:
+Check if we are using the current node LTS version by comparing with https://nodejs.org/en/. If a newer LTS version is available do the following steps:
 
-1. Open all `.nvmrc` files by running command: `find -name '.nvmrc' | grep --invert-match node_modules | xargs code`
-2. Update all files to contain the new version number
-3. Go to the root of the project and install the new version of node by running command `nvm install`
-4. Open all Dockerfiles with command: `find -iname '*dockerfile' | grep --invert-match node_modules | xargs code`
-5. Replace node version in the FROM statements
-6. Update the pull command in `bin/build-dockerfile-node-base`
+1. Open all Dockerfiles with command: `find -iname '*dockerfile' | grep --invert-match node_modules | xargs code`
+2. Replace node version in the FROM statements
+3. Update the pull command in `bin/build-dockerfile-node-base`
+
+> **Note**: Since this project uses pnpm, Node.js version management is handled automatically by pnpm. No `.nvmrc` files are needed.
 
 ## Updating node dependencies
 
 When updating dependencies, you need to pay special attention to the cms service. It includes the gutenberg dependency, you **must"** always read the changelog for it so that you can determine if it breaks backwards compatibility in some way. Tests won't catch all backwards incompatible changes.
 
 Before you start: Run this: `pnpm install && bin/pnpm-ci-all`
+
+> **Important**: This project uses **pnpm** as the package manager. Do not use `npm` or `yarn` for dependency management.
 
 One by one cd to a service and run `pnpm exec npm-check --update`. Read the changelogs for breaking dependencies if necessary and select all updates. After update is done, run `pnpm exec tsc --noEmit` to catch new type errors and then commit the results. Finally, you can run `pnpm audit --fix`.
 

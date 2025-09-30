@@ -27,6 +27,10 @@ Secret Project 331 is a Learning Management System (LMS) developed by the MOOC C
 
 To begin development on Secret Project 331, set up your local environment by following the instructions in [Development.md](./docs/Development.md), which covers setup on Windows, Linux, and macOS.
 
+### Package Manager
+
+This project uses **pnpm** as the package manager. Please install pnpm before setting up the development environment by following the [pnpm installation guide](https://pnpm.io/installation).
+
 ## Code Style
 
 In this project, code style is enforced with automatic tools. To ensure your contributions follow the project's code style, you need to set up pre-commit hooks and configure your editor.

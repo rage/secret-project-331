@@ -412,7 +412,7 @@ describe("grade", () => {
   })
 
   it("returns zero points when choose-n quiz has no correct options", async () => {
-    const data = generateChooseNGradingRequest(4, 0, ["option-1"], 2, true)
+    const data = generateChooseNGradingRequest(4, 0, ["option-1"], 2)
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
     expect(isExerciseTaskGradingResult(result))
@@ -422,7 +422,7 @@ describe("grade", () => {
   })
 
   it("returns zero points when timeline has no items", async () => {
-    const data = generateTimelineGradingRequest([], [], true)
+    const data = generateTimelineGradingRequest([], [])
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
     expect(isExerciseTaskGradingResult(result))
@@ -442,7 +442,7 @@ describe("grade", () => {
 
   describe("choose-n grading", () => {
     it("returns full points when all n correct options are selected", async () => {
-      const data = generateChooseNGradingRequest(6, 4, ["option-1", "option-2"], 2, true)
+      const data = generateChooseNGradingRequest(6, 4, ["option-1", "option-2"], 2)
       const response = await client.post("/api/grade").send(data)
       const result = JSON.parse(response.text)
       expect(isExerciseTaskGradingResult(result))
@@ -452,7 +452,7 @@ describe("grade", () => {
     })
 
     it("returns partial points when some correct options are selected", async () => {
-      const data = generateChooseNGradingRequest(6, 4, ["option-1"], 2, true)
+      const data = generateChooseNGradingRequest(6, 4, ["option-1"], 2)
       const response = await client.post("/api/grade").send(data)
       const result = JSON.parse(response.text)
       expect(isExerciseTaskGradingResult(result))
@@ -462,7 +462,7 @@ describe("grade", () => {
     })
 
     it("returns zero points when no correct options are selected", async () => {
-      const data = generateChooseNGradingRequest(6, 2, ["option-3", "option-4"], 2, true)
+      const data = generateChooseNGradingRequest(6, 2, ["option-3", "option-4"], 2)
       const response = await client.post("/api/grade").send(data)
       const result = JSON.parse(response.text)
       expect(isExerciseTaskGradingResult(result))
@@ -472,7 +472,7 @@ describe("grade", () => {
     })
 
     it("returns zero points when n is zero", async () => {
-      const data = generateChooseNGradingRequest(4, 2, ["option-1"], 0, true)
+      const data = generateChooseNGradingRequest(4, 2, ["option-1"], 0)
       const response = await client.post("/api/grade").send(data)
       const result = JSON.parse(response.text)
       expect(isExerciseTaskGradingResult(result))
@@ -482,7 +482,7 @@ describe("grade", () => {
     })
 
     it("handles case where n is larger than total correct options", async () => {
-      const data = generateChooseNGradingRequest(6, 2, ["option-1", "option-2"], 5, true)
+      const data = generateChooseNGradingRequest(6, 2, ["option-1", "option-2"], 5)
       const response = await client.post("/api/grade").send(data)
       const result = JSON.parse(response.text)
       expect(isExerciseTaskGradingResult(result))
@@ -503,7 +503,6 @@ describe("grade", () => {
           { timelineItemId: "1", chosenEventId: "event-1" },
           { timelineItemId: "2", chosenEventId: "event-2" },
         ],
-        true,
       )
       const response = await client.post("/api/grade").send(data)
       const result = JSON.parse(response.text)
@@ -527,7 +526,6 @@ describe("grade", () => {
           { timelineItemId: "3", chosenEventId: "event-3" },
           { timelineItemId: "4", chosenEventId: "event-wrong" },
         ],
-        true,
       )
       const response = await client.post("/api/grade").send(data)
       const result = JSON.parse(response.text)
@@ -547,7 +545,6 @@ describe("grade", () => {
           { timelineItemId: "1", chosenEventId: "event-wrong" },
           { timelineItemId: "2", chosenEventId: "event-wrong" },
         ],
-        true,
       )
       const response = await client.post("/api/grade").send(data)
       const result = JSON.parse(response.text)
@@ -561,7 +558,6 @@ describe("grade", () => {
       const data = generateTimelineGradingRequest(
         [{ id: "1", year: "2000", correctEventName: "Event 1", correctEventId: "event-1" }],
         [{ timelineItemId: "1", chosenEventId: "event-1" }],
-        true,
       )
       const response = await client.post("/api/grade").send(data)
       const result = JSON.parse(response.text)

@@ -363,7 +363,6 @@ export function generateChooseNGradingRequest(
   correctOptions: number,
   selectedOptions: string[],
   n: number,
-  useNewFormat: boolean,
 ) {
   const options: QuizItemOption[] = []
   for (let i = 1; i <= totalOptions; i++) {
@@ -407,6 +406,7 @@ export function generateChooseNGradingRequest(
     type: "choose-n" as const,
     quizItemId: "choose-n-item",
     selectedOptionIds: selectedOptions,
+    valid: true,
   }
 
   const userAnswer: UserAnswer = {
@@ -429,7 +429,6 @@ export function generateTimelineGradingRequest(
     correctEventId: string
   }>,
   timelineChoices: Array<{ timelineItemId: string; chosenEventId: string }>,
-  useNewFormat: boolean,
 ) {
   const privateSpecQuiz: PrivateSpecQuiz = {
     version: "2",
@@ -442,7 +441,6 @@ export function generateTimelineGradingRequest(
         order: 0,
         timelineItems,
         title: "Timeline Test",
-        body: null,
         successMessage: SUCCESS_MESSAGE_CANARY_FOR_TESTS,
         failureMessage: FAILURE_MESSAGE_CANARY_FOR_TESTS,
         messageOnModelSolution: MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
@@ -458,6 +456,7 @@ export function generateTimelineGradingRequest(
     type: "timeline" as const,
     quizItemId: "timeline-item",
     timelineChoices,
+    valid: true,
   }
 
   const userAnswer: UserAnswer = {

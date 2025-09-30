@@ -74,6 +74,25 @@ const assessMultipleChoice = (
 
   const correctnessCoefficient = getMultipleChoicePointsByGradingPolicy(quizItemAnswer, quizItem)
 
+  // Safety check to ensure we never return invalid values
+  if (
+    correctnessCoefficient == null ||
+    isNaN(correctnessCoefficient) ||
+    !Number.isFinite(correctnessCoefficient)
+  ) {
+    console.error(
+      "Invalid correctnessCoefficient calculated:",
+      correctnessCoefficient,
+      "for item:",
+      quizItem.id,
+      "Returning 0 instead",
+    )
+    return {
+      quizItemId: quizItem.id,
+      correctnessCoefficient: 0,
+    }
+  }
+
   return {
     quizItemId: quizItem.id,
     correctnessCoefficient,

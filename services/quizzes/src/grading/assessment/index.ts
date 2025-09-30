@@ -65,6 +65,10 @@ const assessAnswers = (quizAnswer: UserAnswer, quiz: PrivateSpecQuiz): QuizItemA
           quizItemId: itemAnswer.quizItemId,
           correctnessCoefficient: 1,
         } satisfies QuizItemAnswerGrading
+      default:
+        throw new Error(
+          `Unknown item answer type: ${itemAnswer.type} for item ${itemAnswer.quizItemId}`,
+        )
     }
   })
 }

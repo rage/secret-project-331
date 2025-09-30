@@ -8,7 +8,7 @@ const gradeAnswers = (assessedAnswer: QuizItemAnswerGrading[], quiz: PrivateSpec
     return maxPoints
   }
   // Calculate the score
-  return quiz.items
+  const score = quiz.items
     .map((item) => {
       const answer = assessedAnswer.find((ia) => ia.quizItemId === item.id)
       if (!answer) {
@@ -28,6 +28,14 @@ const gradeAnswers = (assessedAnswer: QuizItemAnswerGrading[], quiz: PrivateSpec
       return correctnessCoefficient
     })
     .reduce((a, b) => a + b, 0)
+
+  // Final safety check to ensure we never return NaN, Infinity, or invalid values
+  if (!Number.isFinite(score) || score < 0) {
+    console.error("Invalid score calculated:", score, "Returning 0 instead")
+    return 0
+  }
+
+  return score
 }
 
 export { gradeAnswers }

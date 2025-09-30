@@ -31,7 +31,7 @@ const GradeExamAnswerForm: React.FC<React.PropsWithChildren<GradeExamAnswerProps
   const { t } = useTranslation()
   const router = useRouter()
 
-  const { register, getValues } = useForm<NewTeacherGradingDecision>()
+  const { register, handleSubmit } = useForm<NewTeacherGradingDecision>()
   const [nextSubmissionId, setNextSubmissionId] = useState("")
   const paginationInfo = usePaginationInfo()
 
@@ -93,8 +93,10 @@ const GradeExamAnswerForm: React.FC<React.PropsWithChildren<GradeExamAnswerProps
     },
   )
 
-  const handleGradeSubmission = async (navigateToNext: boolean) => {
-    const data = getValues()
+  const handleGradeSubmission = async (
+    data: NewTeacherGradingDecision,
+    navigateToNext: boolean,
+  ) => {
     const newGrading: NewTeacherGradingDecision = {
       user_exercise_state_id: getCurrentGradingInfo.data?.id ?? "",
       justification: data.justification,
@@ -111,6 +113,9 @@ const GradeExamAnswerForm: React.FC<React.PropsWithChildren<GradeExamAnswerProps
       router.push(submissionGradingRoute(nextSubmissionId))
     }
   }
+
+  const handleSubmitForm = (data: NewTeacherGradingDecision) => handleGradeSubmission(data, false)
+  const handleSubmitAndNext = (data: NewTeacherGradingDecision) => handleGradeSubmission(data, true)
 
   return (
     <form
@@ -174,7 +179,8 @@ const GradeExamAnswerForm: React.FC<React.PropsWithChildren<GradeExamAnswerProps
             variant={"primary"}
             size={"medium"}
             transform="none"
-            onClick={() => handleGradeSubmission(false)}
+            type="button"
+            onClick={handleSubmit(handleSubmitForm)}
           >
             {t("button-text-submit")}
           </Button>
@@ -184,8 +190,9 @@ const GradeExamAnswerForm: React.FC<React.PropsWithChildren<GradeExamAnswerProps
             variant={"blue"}
             size={"medium"}
             transform="none"
+            type="button"
             disabled={nextSubmissionId === "lastAnswer"}
-            onClick={() => handleGradeSubmission(true)}
+            onClick={handleSubmit(handleSubmitAndNext)}
           >
             {t("button-text-save-and-next")}
           </Button>

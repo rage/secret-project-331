@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import React from "react"
+import React, { Ref } from "react"
 import { Dialog, OverlayArrow, Popover, PopoverProps } from "react-aria-components"
 
 import { baseTheme } from "../styles"
@@ -9,6 +9,7 @@ interface SpeechBalloonPopoverProps extends Omit<PopoverProps, "children"> {
   children: React.ReactNode
   popoverLabel: string
   offset?: number
+  popoverRef?: Ref<HTMLElement>
 }
 
 const COLORS = {
@@ -96,11 +97,12 @@ const SpeechBalloonPopover = ({
   children,
   popoverLabel,
   offset = 0,
+  popoverRef,
   ...props
 }: SpeechBalloonPopoverProps) => {
   return (
     <Popover offset={offset} className={popoverStyle} {...props}>
-      <Dialog aria-label={popoverLabel} className={speechBalloonStyle}>
+      <Dialog ref={popoverRef} aria-label={popoverLabel} className={speechBalloonStyle}>
         {children}
         <OverlayArrow>
           <svg width={19} height={19} viewBox="2 1 19 19">

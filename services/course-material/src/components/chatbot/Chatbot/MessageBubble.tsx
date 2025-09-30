@@ -103,6 +103,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   // the ref is updated manually because there are multiple trigger elements for the popover
   // that need to be able to be set as the ref conditionally
   let triggerRef = useRef<HTMLButtonElement>(null)
+  let [triggerRefId, setTriggerRefId] = useState("")
 
   const [citationsOpen, setCitationsOpen] = useState(false)
   const [citationButtonClicked, setCitationButtonClicked] = useState(false)
@@ -113,6 +114,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         throw new Error("This hover is meant to be used on buttons only.")
       }
       triggerRef.current = e.target
+      setTriggerRefId(e.target.id)
     },
   })
 
@@ -133,13 +135,14 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       <RenderedMessage
         renderOption={renderOption}
         citationButtonClicked={citationButtonClicked}
-        currentRefId={triggerRef.current?.id}
+        currentRefId={triggerRefId}
         message={message}
         citedDocs={citedDocs}
         citationNumberingMap={citationNumberingMap}
         handleClick={(e) => {
           setCitationButtonClicked(true)
           triggerRef.current = e.currentTarget
+          setTriggerRefId(e.currentTarget.id)
         }}
         hoverCitationProps={hoverCitationProps}
       />
@@ -153,6 +156,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     hoverCitationProps,
     citationButtonClicked,
     renumberFilterCitationsResult,
+    triggerRefId,
   ])
 
   return (
@@ -174,6 +178,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             citations={processedCitations}
             citationNumberingMap={citationNumberingMap}
             triggerRef={triggerRef}
+            triggerRefId={triggerRefId}
+            setTriggerRefId={setTriggerRefId}
             citationsOpen={citationsOpen}
             citationButtonClicked={citationButtonClicked}
             isCitationHovered={isCitationHovered}

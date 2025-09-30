@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import { Library } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
-import React, { useId, useMemo } from "react"
+import React, { useEffect, useId, useMemo, useRef, useState } from "react"
 import { useHover } from "react-aria"
 import { OverlayTriggerStateContext } from "react-aria-components"
 import { useTranslation } from "react-i18next"
@@ -84,6 +84,8 @@ interface ChatbotReferenceListProps {
   citations: ChatbotConversationMessageCitation[]
   citationNumberingMap: Map<number, number>
   triggerRef: React.RefObject<HTMLButtonElement | null>
+  triggerRefId: string
+  setTriggerRefId: (value: React.SetStateAction<string>) => void
   citationsOpen: boolean
   citationButtonClicked: boolean
   isCitationHovered: boolean
@@ -95,6 +97,8 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
   citations,
   citationNumberingMap,
   triggerRef,
+  triggerRefId,
+  setTriggerRefId,
   citationsOpen,
   citationButtonClicked,
   isCitationHovered,
@@ -102,9 +106,11 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
   setCitationsOpen,
 }) => {
   const referenceListId = useId()
+  const popoverRef = useRef<HTMLElement>(null)
   const { t } = useTranslation()
 
   let { hoverProps: hoverPopoverProps, isHovered: isPopoverHovered } = useHover({})
+  let [isPopoverOpen, setIsPopoverOpen] = useState(false)
 
   let citationsToList = useMemo(() => {
     let citationFilteringSet = new Set()
@@ -119,6 +125,39 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
       })
       .map((cit) => cit.id)
   }, [citations])
+
+  useEffect(() => {
+    let open = isCitationHovered || isPopoverHovered || citationButtonClicked
+    setIsPopoverOpen(open)
+  }, [citationButtonClicked, isCitationHovered, isPopoverHovered, triggerRefId])
+
+  useEffect(() => {
+    const removeListenersAbortController = new AbortController()
+    const currentRef = popoverRef.current
+    currentRef?.addEventListener(
+      "keydown",
+      (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+          setIsPopoverOpen(false)
+          setCitationButtonClicked(false)
+          triggerRef.current = null
+          setTriggerRefId("")
+        }
+      },
+      { signal: removeListenersAbortController.signal },
+    )
+
+    return () => {
+      removeListenersAbortController.abort()
+    }
+  }, [
+    popoverRef,
+    isPopoverOpen,
+    citationButtonClicked,
+    triggerRef,
+    setTriggerRefId,
+    setCitationButtonClicked,
+  ])
 
   // 60 represents the n of chars in the collapsed reference list width, allocate it
   // evenly for the citations by dividing by n of citations
@@ -214,19 +253,20 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
                   }}
                 >
                   <SpeechBalloonPopover
+                    popoverRef={popoverRef}
                     placement="top"
                     triggerRef={triggerRef}
-                    isOpen={
-                      triggerRef.current?.id.includes(
+                    isOpen={Boolean(
+                      triggerRefId.includes(
                         // the triggerRef's id will contain the citationId's first part
                         // if it's associated with this citation
                         citationId(cit.citation_number.toString(), ""),
-                      ) &&
-                      (isCitationHovered || isPopoverHovered || citationButtonClicked)
-                    }
+                      ) && isPopoverOpen,
+                    )}
                     isNonModal={!citationButtonClicked}
                     onOpenChange={() => {
                       setCitationButtonClicked(false)
+                      setTriggerRefId("")
                     }}
                     popoverLabel={`${t("citation")} ${citationNumber}`}
                     {...hoverPopoverProps}
@@ -274,7 +314,6 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
                         href={cit.document_url}
                         className={css`
                           color: ${baseTheme.colors.blue[700]};
-
                           &::after {
                             content: "";
                             position: absolute;
@@ -283,9 +322,8 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
                             width: 100%;
                             height: 100%;
                           }
-
                           &:focus {
-                            outline: 5px dotted rebeccapurple;
+                            outline: 2px solid ${baseTheme.colors.green[400]};
                           }
                         `}
                       >

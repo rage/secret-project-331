@@ -363,6 +363,22 @@ describe("grade", () => {
     expect(gradingResult.score_given).toBe(0)
   })
 
+  it("returns zero points when student selects only incorrect options (points-off-unselected-options)", async () => {
+    const data = generateMultipleChoiceGradingRequest(
+      4,
+      2,
+      ["option-3", "option-4"],
+      "points-off-unselected-options",
+      true,
+    )
+    const response = await client.post("/api/grade").send(data)
+    const result = JSON.parse(response.text)
+    expect(isExerciseTaskGradingResult(result))
+
+    const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+    expect(gradingResult.score_given).toBe(0)
+  })
+
   it("returns zero points when student selects only incorrect options (some-correct-none-incorrect)", async () => {
     const data = generateMultipleChoiceGradingRequest(
       4,

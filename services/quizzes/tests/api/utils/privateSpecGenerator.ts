@@ -357,3 +357,177 @@ export function generateMultipleChoiceGradingRequest(
     submission_data: userAnswer,
   }
 }
+
+export function generateChooseNGradingRequest(
+  totalOptions: number,
+  correctOptions: number,
+  selectedOptions: string[],
+  n: number,
+  useNewFormat: boolean,
+) {
+  const options: QuizItemOption[] = []
+  for (let i = 1; i <= totalOptions; i++) {
+    options.push({
+      id: `option-${i}`,
+      order: i - 1,
+      correct: i <= correctOptions,
+      title: `Option ${i}`,
+      body: null,
+      messageAfterSubmissionWhenSelected: MESSAGE_AFTER_SUBMISSION_CANARY_FOR_TESTS,
+      additionalCorrectnessExplanationOnModelSolution:
+        ADDITIONAL_CORRECTNESS_EXPLANATION_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
+    })
+  }
+
+  const privateSpecQuiz: PrivateSpecQuiz = {
+    version: "2",
+    awardPointsEvenIfWrong: false,
+    grantPointsPolicy: "grant_whenever_possible",
+    items: [
+      {
+        type: "choose-n",
+        id: "choose-n-item",
+        order: 0,
+        n,
+        options,
+        title: "Choose N Test",
+        body: null,
+        successMessage: SUCCESS_MESSAGE_CANARY_FOR_TESTS,
+        failureMessage: FAILURE_MESSAGE_CANARY_FOR_TESTS,
+        messageOnModelSolution: MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
+      },
+    ],
+    title: "Choose N Quiz",
+    body: null,
+    quizItemDisplayDirection: "vertical",
+    submitMessage: "Submit message",
+  }
+
+  const userItemAnswer = {
+    type: "choose-n" as const,
+    quizItemId: "choose-n-item",
+    selectedOptionIds: selectedOptions,
+  }
+
+  const userAnswer: UserAnswer = {
+    version: "2",
+    itemAnswers: [userItemAnswer],
+  }
+
+  return {
+    grading_update_url: "example",
+    exercise_spec: privateSpecQuiz,
+    submission_data: userAnswer,
+  }
+}
+
+export function generateTimelineGradingRequest(
+  timelineItems: Array<{
+    id: string
+    year: string
+    correctEventName: string
+    correctEventId: string
+  }>,
+  timelineChoices: Array<{ timelineItemId: string; chosenEventId: string }>,
+  useNewFormat: boolean,
+) {
+  const privateSpecQuiz: PrivateSpecQuiz = {
+    version: "2",
+    awardPointsEvenIfWrong: false,
+    grantPointsPolicy: "grant_whenever_possible",
+    items: [
+      {
+        type: "timeline",
+        id: "timeline-item",
+        order: 0,
+        timelineItems,
+        title: "Timeline Test",
+        body: null,
+        successMessage: SUCCESS_MESSAGE_CANARY_FOR_TESTS,
+        failureMessage: FAILURE_MESSAGE_CANARY_FOR_TESTS,
+        messageOnModelSolution: MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
+      },
+    ],
+    title: "Timeline Quiz",
+    body: null,
+    quizItemDisplayDirection: "vertical",
+    submitMessage: "Submit message",
+  }
+
+  const userItemAnswer = {
+    type: "timeline" as const,
+    quizItemId: "timeline-item",
+    timelineChoices,
+  }
+
+  const userAnswer: UserAnswer = {
+    version: "2",
+    itemAnswers: [userItemAnswer],
+  }
+
+  return {
+    grading_update_url: "example",
+    exercise_spec: privateSpecQuiz,
+    submission_data: userAnswer,
+  }
+}
+
+export function generateUnknownItemTypeGradingRequest() {
+  const privateSpecQuiz: PrivateSpecQuiz = {
+    version: "2",
+    awardPointsEvenIfWrong: false,
+    grantPointsPolicy: "grant_whenever_possible",
+    items: [
+      {
+        type: "multiple-choice",
+        id: "test-item",
+        order: 0,
+        shuffleOptions: false,
+        allowSelectingMultipleOptions: false,
+        options: [
+          {
+            id: "option-1",
+            order: 0,
+            correct: true,
+            title: "Correct Option",
+            body: null,
+            messageAfterSubmissionWhenSelected: MESSAGE_AFTER_SUBMISSION_CANARY_FOR_TESTS,
+            additionalCorrectnessExplanationOnModelSolution:
+              ADDITIONAL_CORRECTNESS_EXPLANATION_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
+          },
+        ],
+        title: "Test Item",
+        body: null,
+        successMessage: SUCCESS_MESSAGE_CANARY_FOR_TESTS,
+        failureMessage: FAILURE_MESSAGE_CANARY_FOR_TESTS,
+        messageOnModelSolution: MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
+        sharedOptionFeedbackMessage: SHARED_OPTION_FEEDBACK_MESSAGE_CANARY_FOR_TESTS,
+        optionDisplayDirection: "vertical",
+        multipleChoiceMultipleOptionsGradingPolicy: "default",
+        fogOfWar: false,
+      },
+    ],
+    title: "Test Quiz",
+    body: null,
+    quizItemDisplayDirection: "vertical",
+    submitMessage: "Submit message",
+  }
+
+  // Create a user answer with an unknown type to test error handling
+  const userItemAnswer = {
+    type: "unknown-type",
+    quizItemId: "test-item",
+    selectedOptionIds: ["option-1"],
+  }
+
+  const userAnswer = {
+    version: "2",
+    itemAnswers: [userItemAnswer],
+  } as UserAnswer
+
+  return {
+    grading_update_url: "example",
+    exercise_spec: privateSpecQuiz,
+    submission_data: userAnswer,
+  }
+}

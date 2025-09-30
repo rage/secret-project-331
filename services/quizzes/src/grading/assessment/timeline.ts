@@ -14,8 +14,9 @@ const assessTimeline = (
     return item?.correctEventId == choice.chosenEventId
   })
 
+  const totalItems = quizItem.timelineItems.length
   const correctnessCoefficient =
-    result.filter((item) => item == true).length / quizItem.timelineItems.length
+    totalItems === 0 ? 0 : result.filter((item) => item == true).length / totalItems
 
   return {
     quizItemId: quizItem.id,

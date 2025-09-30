@@ -15,6 +15,10 @@ const gradeAnswers = (assessedAnswer: QuizItemAnswerGrading[], quiz: PrivateSpec
         return 0
       }
       const correctnessCoefficient = answer.correctnessCoefficient
+      // Handle null, undefined, or NaN values
+      if (correctnessCoefficient == null || isNaN(correctnessCoefficient)) {
+        return 0
+      }
       if (correctnessCoefficient > 1) {
         return 1
       }
@@ -23,7 +27,7 @@ const gradeAnswers = (assessedAnswer: QuizItemAnswerGrading[], quiz: PrivateSpec
       }
       return correctnessCoefficient
     })
-    .reduce((a, b) => a + b)
+    .reduce((a, b) => a + b, 0)
 }
 
 export { gradeAnswers }

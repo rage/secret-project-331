@@ -18,9 +18,11 @@ const assessChooseN = (
     }
   })
 
+  const denominator = Math.min(quizItem.n, totalCorrectOptions)
+
   return {
     quizItemId: quizItem.id,
-    correctnessCoefficient: correctOptions / Math.min(quizItem.n, totalCorrectOptions),
+    correctnessCoefficient: denominator === 0 ? 0 : correctOptions / denominator,
   }
 }
 

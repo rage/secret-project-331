@@ -1,6 +1,7 @@
 import handler from "../../src/pages/api/grade"
 
 import { oldGenerateMultipleChoiceRequest } from "./utils/oldQuizGenerator"
+import { generateMultipleChoiceGradingRequest } from "./utils/privateSpecGenerator"
 import testClient from "./utils/testClient"
 
 import { ExerciseTaskGradingResult } from "@/shared-module/common/bindings"
@@ -268,5 +269,124 @@ describe("grade", () => {
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(0)
+  })
+
+  // Test edge case: quiz item with zero correct options defined (division by zero bug fix)
+  it("returns zero points when quiz item defines no correct options (default policy)", async () => {
+    const data = generateMultipleChoiceGradingRequest(4, 0, ["option-1"], "default", true)
+    const response = await client.post("/api/grade").send(data)
+    const result = JSON.parse(response.text)
+    expect(isExerciseTaskGradingResult(result))
+
+    const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+    expect(gradingResult.score_given).toBe(0)
+  })
+
+  it("returns zero points when quiz item defines no correct options (points-off-incorrect-options)", async () => {
+    const data = generateMultipleChoiceGradingRequest(
+      4,
+      0,
+      ["option-1"],
+      "points-off-incorrect-options",
+      true,
+    )
+    const response = await client.post("/api/grade").send(data)
+    const result = JSON.parse(response.text)
+    expect(isExerciseTaskGradingResult(result))
+
+    const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+    expect(gradingResult.score_given).toBe(0)
+  })
+
+  it("returns zero points when quiz item defines no correct options (points-off-unselected-options)", async () => {
+    const data = generateMultipleChoiceGradingRequest(
+      4,
+      0,
+      ["option-1"],
+      "points-off-unselected-options",
+      true,
+    )
+    const response = await client.post("/api/grade").send(data)
+    const result = JSON.parse(response.text)
+    expect(isExerciseTaskGradingResult(result))
+
+    const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+    expect(gradingResult.score_given).toBe(0)
+  })
+
+  it("returns zero points when quiz item defines no correct options (some-correct-none-incorrect)", async () => {
+    const data = generateMultipleChoiceGradingRequest(
+      4,
+      0,
+      ["option-1"],
+      "some-correct-none-incorrect",
+      true,
+    )
+    const response = await client.post("/api/grade").send(data)
+    const result = JSON.parse(response.text)
+    expect(isExerciseTaskGradingResult(result))
+
+    const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+    expect(gradingResult.score_given).toBe(0)
+  })
+
+  // Test edge case: correct options exist but student selected only wrong options
+  it("returns zero points when student selects only incorrect options (default policy)", async () => {
+    const data = generateMultipleChoiceGradingRequest(
+      4,
+      2,
+      ["option-3", "option-4"],
+      "default",
+      true,
+    )
+    const response = await client.post("/api/grade").send(data)
+    const result = JSON.parse(response.text)
+    expect(isExerciseTaskGradingResult(result))
+
+    const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+    expect(gradingResult.score_given).toBe(0)
+  })
+
+  it("returns zero points when student selects only incorrect options (points-off-incorrect-options)", async () => {
+    const data = generateMultipleChoiceGradingRequest(
+      4,
+      2,
+      ["option-3", "option-4"],
+      "points-off-incorrect-options",
+      true,
+    )
+    const response = await client.post("/api/grade").send(data)
+    const result = JSON.parse(response.text)
+    expect(isExerciseTaskGradingResult(result))
+
+    const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+    expect(gradingResult.score_given).toBe(0)
+  })
+
+  it("returns zero points when student selects only incorrect options (some-correct-none-incorrect)", async () => {
+    const data = generateMultipleChoiceGradingRequest(
+      4,
+      2,
+      ["option-3", "option-4"],
+      "some-correct-none-incorrect",
+      true,
+    )
+    const response = await client.post("/api/grade").send(data)
+    const result = JSON.parse(response.text)
+    expect(isExerciseTaskGradingResult(result))
+
+    const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+    expect(gradingResult.score_given).toBe(0)
+  })
+
+  // Test edge case: student selects no options at all
+  it("returns error when student selects no options", async () => {
+    const data = generateMultipleChoiceGradingRequest(4, 2, [], "default", true)
+    const response = await client.post("/api/grade").send(data)
+
+    // Empty selections should return an error (not crash with null score)
+    expect(response.status).toBe(500)
+    const result = JSON.parse(response.text)
+    expect(result.error_message).toContain("No option answers")
   })
 })

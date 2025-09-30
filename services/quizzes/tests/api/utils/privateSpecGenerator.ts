@@ -1,3 +1,4 @@
+import { UserAnswer, UserItemAnswerMultiplechoice } from "../../../types/quizTypes/answer"
 import {
   PrivateSpecQuiz,
   PrivateSpecQuizItemCheckbox,
@@ -9,7 +10,10 @@ import {
   PrivateSpecQuizItemMultiplechoiceDropdown,
   PrivateSpecQuizItemScale,
   PrivateSpecQuizItemTimeline,
+  QuizItemOption,
 } from "../../../types/quizTypes/privateSpec"
+
+import { GradingRequest } from "@/shared-module/common/exercise-service-protocol-types-2"
 
 export const MESSAGE_AFTER_SUBMISSION_CANARY_FOR_TESTS = "You should see this after a submission"
 export const ADDITIONAL_CORRECTNESS_EXPLANATION_ON_MODEL_SOLUTION_CANARY_FOR_TESTS =
@@ -266,4 +270,90 @@ export function generatePrivateSpecWithOneMultipleChoiceDropdownQuizItem(): Priv
   }
 
   return { ...emptyQuiz, items: [closedEndedQuestionQuizItem] }
+}
+
+/**
+ * Generates a grading request with a multiple-choice quiz item.
+ * First few options are correct and all the rest are incorrect.
+ * Each item has an id of 'option-<order-number>'
+ *
+ * @param numberOfOptions Total number of options
+ * @param numberOfCorrectOptions Number of correct options (from the start)
+ * @param selectedOptionIds List of selected option IDs. E.g. ['option-1', 'option-3']
+ * @param multipleChoiceMultipleOptionsGradingPolicy Grading policy for multiple selections
+ * @param allowSelectingMultipleOptions If true, multiple options can be selected
+ * @returns GradingRequest with PrivateSpecQuiz and UserAnswer
+ */
+export function generateMultipleChoiceGradingRequest(
+  numberOfOptions: number,
+  numberOfCorrectOptions: number,
+  selectedOptionIds: string[],
+  multipleChoiceMultipleOptionsGradingPolicy:
+    | "default"
+    | "points-off-incorrect-options"
+    | "points-off-unselected-options"
+    | "some-correct-none-incorrect",
+  allowSelectingMultipleOptions = true,
+): GradingRequest<PrivateSpecQuiz, UserAnswer> {
+  const quizItemId = "multiple-choice-test-id"
+
+  const quizOptions: QuizItemOption[] = []
+  for (let i = 0; i < numberOfOptions; i++) {
+    quizOptions.push({
+      id: `option-${i + 1}`,
+      order: i,
+      correct: i < numberOfCorrectOptions,
+      title: `Option ${i + 1}`,
+      body: null,
+      messageAfterSubmissionWhenSelected: null,
+      additionalCorrectnessExplanationOnModelSolution: null,
+    })
+  }
+
+  const multipleChoiceItem: PrivateSpecQuizItemMultiplechoice = {
+    type: "multiple-choice",
+    id: quizItemId,
+    order: 0,
+    allowSelectingMultipleOptions,
+    shuffleOptions: false,
+    options: quizOptions,
+    title: "Test Multiple Choice",
+    body: null,
+    successMessage: null,
+    failureMessage: null,
+    messageOnModelSolution: null,
+    sharedOptionFeedbackMessage: null,
+    optionDisplayDirection: "vertical",
+    multipleChoiceMultipleOptionsGradingPolicy,
+    fogOfWar: false,
+  }
+
+  const privateSpecQuiz: PrivateSpecQuiz = {
+    version: "2",
+    awardPointsEvenIfWrong: false,
+    grantPointsPolicy: "grant_whenever_possible",
+    items: [multipleChoiceItem],
+    title: "Generated Multiple Choice Test",
+    body: null,
+    quizItemDisplayDirection: "vertical",
+    submitMessage: null,
+  }
+
+  const userItemAnswer: UserItemAnswerMultiplechoice = {
+    type: "multiple-choice",
+    valid: true,
+    quizItemId,
+    selectedOptionIds,
+  }
+
+  const userAnswer: UserAnswer = {
+    version: "2",
+    itemAnswers: [userItemAnswer],
+  }
+
+  return {
+    grading_update_url: "example",
+    exercise_spec: privateSpecQuiz,
+    submission_data: userAnswer,
+  }
 }

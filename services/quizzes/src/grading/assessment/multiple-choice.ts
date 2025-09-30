@@ -52,6 +52,11 @@ const getMultipleChoicePointsByGradingPolicy = (
       break
   }
 
+  // Handle case where there are no correct answers
+  if (totalCorrectAnswers === 0) {
+    return 0
+  }
+
   return totalScore / totalCorrectAnswers
 }
 

@@ -812,9 +812,9 @@ export const fetchUserMarketingConsent = async (
   return validateResponse(res, isUnion(isUserMarketingConsent, isNull))
 }
 
-export const fetchPartnersBlock = async (courseId: string): Promise<PartnersBlock> => {
+export const fetchPartnersBlock = async (courseId: string): Promise<PartnersBlock | null> => {
   const response = await courseMaterialClient.get(`/courses/${courseId}/partners-block`)
-  return validateResponse(response, isPartnersBlock)
+  return validateResponse(response, isUnion(isPartnersBlock, isNull))
 }
 
 export const fetchPrivacyLink = async (courseId: string): Promise<PrivacyLink[]> => {

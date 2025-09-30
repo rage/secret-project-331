@@ -17,6 +17,9 @@ const useFigureOutNewLangCode = (selectedLangCourseId: string) => {
 }
 
 const getLanguageName = (languageCode: string): string => {
+  if (!languageCode) {
+    throw new Error("Language code is required")
+  }
   const langCode = languageCode.split("-")[0]
   const languageObject = Object.entries(languageCodesToNamesList).find(([k, _]) => {
     return k === langCode

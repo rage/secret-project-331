@@ -25,7 +25,7 @@ const ExercisesInChapter: React.FC<
       {getChaptersPagesWithExercises.isError && (
         <ErrorBanner variant={"readOnly"} error={getChaptersPagesWithExercises.error} />
       )}
-      {getChaptersPagesWithExercises.isPending && <Spinner variant={"medium"} />}
+      {getChaptersPagesWithExercises.isLoading && <Spinner variant={"medium"} />}
       {getChaptersPagesWithExercises.isSuccess && (
         <>
           {getChaptersPagesWithExercises.data.map((page) => (

@@ -9,7 +9,7 @@ WORKDIR /app
 
 COPY --chown=node package.json /app/
 COPY --chown=node pnpm-lock.yaml /app/
-COPY --chown=node .npmrc /app/
+COPY --chown=node pnpm-workspace.yaml /app/
 
 RUN pnpm install --frozen-lockfile
 

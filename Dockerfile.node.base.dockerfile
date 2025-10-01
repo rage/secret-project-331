@@ -2,6 +2,7 @@
 FROM node:22-bookworm-slim AS dummy-project-builder
 
 RUN mkdir -p /tmp/dummy-project
+WORKDIR /tmp/dummy-project
 COPY pnpm-workspace.yaml /tmp/dummy-project/pnpm-workspace.yaml
 COPY package.json /tmp/dummy-project/real-package.json
 RUN PNPM_VERSION=$(grep -o '"packageManager": "pnpm@[^"]*"' real-package.json | sed 's/.*pnpm@\([^"]*\).*/\1/') && \
@@ -67,3 +68,4 @@ FROM node-base
 # Copy the cached dependencies
 COPY --from=cache-dependencies --chown=node:node $PNPM_HOME $PNPM_HOME
 
+USER root

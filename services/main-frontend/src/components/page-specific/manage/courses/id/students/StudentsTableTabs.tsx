@@ -58,8 +58,8 @@ const topScrollbarWrap = css`
   background: transparent;
   border: none;
 
-  /* Pull up to reduce gap under header */
-  margin-top: -11px; /* adjust until it visually hugs */
+  /* was -11px when under header; not needed for trailer */
+  margin-top: 0;
 
   /* WebKit */
   &::-webkit-scrollbar {
@@ -110,6 +110,8 @@ export function FloatingHeaderTable({
   const topScrollRef = useRef<HTMLDivElement | null>(null)
   const [contentWidth, setContentWidth] = useState(0)
   const syncingRef = useRef<null | "wrap" | "top">(null)
+  const trailerRef = useRef<HTMLDivElement | null>(null)
+  const [showTrailer, setShowTrailer] = useState(false)
 
   // --- Effects for sticky header, colWidths, etc (unchanged) ---
   useEffect(() => {
@@ -131,8 +133,8 @@ export function FloatingHeaderTable({
 
   useEffect(() => {
     const wrap = wrapRef.current
-    const top = topScrollRef.current
-    if (!wrap || !top) {
+    const trailer = trailerRef.current
+    if (!wrap || !trailer) {
       return
     }
 
@@ -142,28 +144,29 @@ export function FloatingHeaderTable({
         return
       }
       syncingRef.current = "wrap"
-      top.scrollLeft = wrap.scrollLeft
+      trailer.scrollLeft = wrap.scrollLeft
       syncingRef.current = null
     }
-    const onTopScroll = () => {
+
+    const onTrailerScroll = () => {
       if (syncingRef.current === "wrap") {
         return
       }
       syncingRef.current = "top"
-      wrap.scrollLeft = top.scrollLeft
+      wrap.scrollLeft = trailer.scrollLeft
       syncingRef.current = null
     }
 
     wrap.addEventListener("scroll", onWrapScroll, { passive: true })
-    top.addEventListener("scroll", onTopScroll, { passive: true })
-    // initialize alignment
-    top.scrollLeft = wrap.scrollLeft
+    trailer.addEventListener("scroll", onTrailerScroll, { passive: true })
+
+    trailer.scrollLeft = wrap.scrollLeft
 
     return () => {
       wrap.removeEventListener("scroll", onWrapScroll)
-      top.removeEventListener("scroll", onTopScroll)
+      trailer.removeEventListener("scroll", onTrailerScroll)
     }
-  }, [showSticky])
+  }, [showTrailer])
 
   useEffect(() => {
     if (tableRef.current) {
@@ -205,12 +208,22 @@ export function FloatingHeaderTable({
         return
       }
       const rect = tableRef.current.getBoundingClientRect()
-      if (rect.top < 0 && rect.bottom > 48) {
-        setShowSticky(true)
-      } else {
-        setShowSticky(false)
-      }
+      const vh = window.innerHeight || document.documentElement.clientHeight
+
+      // Your existing sticky header logic
+      setShowSticky(rect.top < 0 && rect.bottom > 48)
+
+      // Trailer logic:
+      // - table is on screen
+      // - bottom of table is NOT visible yet
+      // - we’re past the header area a bit (avoid showing too early)
+      const tableOnScreen = rect.bottom > 0 && rect.top < vh
+      const bottomVisible = rect.bottom <= vh
+      const pastTop = rect.top < vh - 48
+
+      setShowTrailer(tableOnScreen && !bottomVisible && pastTop)
     }
+
     window.addEventListener("scroll", onScroll, { passive: true })
     onScroll()
     return () => window.removeEventListener("scroll", onScroll)
@@ -237,6 +250,34 @@ export function FloatingHeaderTable({
   const renderTopScrollbar = () => (
     <div ref={topScrollRef} css={topScrollbarWrap}>
       <div css={topScrollbarInner} style={{ width: Math.max(contentWidth, wrapRect.width) }} />
+    </div>
+  )
+
+  const renderTrailer = () => (
+    <div
+      style={{
+        position: "fixed",
+        left: wrapRect.left,
+        bottom: 0,
+        width: wrapRect.width,
+        zIndex: 100,
+        pointerEvents: "none",
+        // keep clear of notches / iOS home bar if applicable
+        paddingBottom: "env(safe-area-inset-bottom)",
+      }}
+    >
+      <div
+        ref={trailerRef}
+        css={topScrollbarWrap}
+        style={{
+          pointerEvents: "auto",
+          // small inward padding so the thumb doesn't touch edges hard
+          paddingLeft: 2,
+          paddingRight: 2,
+        }}
+      >
+        <div css={topScrollbarInner} style={{ width: Math.max(contentWidth, wrapRect.width) }} />
+      </div>
     </div>
   )
 
@@ -440,6 +481,7 @@ export function FloatingHeaderTable({
   return (
     <div css={tableOuterScroll} style={{ position: "relative" }}>
       {showSticky && renderStickyHeader()}
+      {showTrailer && renderTrailer()}
       <div css={tableCenteredInner}>
         <div css={tableRoundedWrap}>
           <div

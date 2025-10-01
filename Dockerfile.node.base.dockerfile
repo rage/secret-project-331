@@ -1,3 +1,12 @@
+# Create a dummy project for installing the right pnpm and node versions
+FROM node:22-bookworm-slim AS dummy-project-builder
+
+RUN mkdir -p /tmp/dummy-project
+COPY pnpm-workspace.yaml /tmp/dummy-project/pnpm-workspace.yaml
+COPY package.json /tmp/dummy-project/real-package.json
+RUN PNPM_VERSION=$(grep -o '"packageManager": "pnpm@[^"]*"' real-package.json | sed 's/.*pnpm@\([^"]*\).*/\1/') && \
+  echo "{\"name\": \"temp\", \"version\": \"1.0.0\", \"packageManager\": \"pnpm@$PNPM_VERSION\"}" > package.json
+
 FROM node:22-bookworm-slim AS node-base
 
 RUN apt-get update \
@@ -20,19 +29,21 @@ RUN npm config set --location=global fetch-retry-maxtimeout=900000 && \
 # Configure pnpm using the root .npmrc
 COPY .npmrc /root/.npmrc
 
+# Copy dummy project
+COPY --from=dummy-project-builder /tmp/dummy-project /tmp/dummy-project
+
 # Install pnpm and the node version specified in .npmrc
-RUN mkdir -p /tmp/test-project && \
-  cd /tmp/test-project && \
+RUN mkdir -p /tmp/dummy-project && \
+  cd /tmp/dummy-project && \
   cp /root/.npmrc . && \
-  echo '{"name": "temp", "version": "1.0.0", "packageManager": "pnpm@10.17.1"}' > package.json && \
   npm install -g --no-update-notifier corepack@latest && \
-  chown -R node:node /tmp/test-project && \
+  chown -R node:node /tmp/dummy-project && \
   # Setup corepack as the node user so that the build process can find it later on.
   su node -c "corepack install && \
   corepack enable pnpm && \
   echo 'pnpm version $(pnpm --version)' && \
   pnpm install --ignore-scripts" && \
-  rm -rf /tmp/test-project
+  rm -rf /tmp/dummy-project
 
 # Cache pnpm store in a consistent location
 ENV PNPM_HOME="/pnpm"

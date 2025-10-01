@@ -26,9 +26,6 @@ RUN npm config set --location=global fetch-retry-maxtimeout=900000 && \
   npm config set --location=global maxsockets=1 && \
   npm config set --location=global noproxy=registry.npmjs.org
 
-# Configure pnpm using the root .npmrc
-COPY .npmrc /root/.npmrc
-
 # Copy dummy project
 COPY --from=dummy-project-builder /tmp/dummy-project /tmp/dummy-project
 

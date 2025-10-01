@@ -118,3 +118,6 @@ target/
 
 # Secret files
 *.secret.yml
+
+# Kubernetes
+kubernetes/

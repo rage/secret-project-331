@@ -14,7 +14,7 @@ Check if we are using the current node LTS version by comparing with https://nod
 
 ## Updating node dependencies
 
-When updating dependencies, you need to pay special attention to the cms service. It includes the gutenberg dependency, you **must"** always read the changelog for it so that you can determine if it breaks backwards compatibility in some way. Tests won't catch all backwards incompatible changes.
+When updating dependencies, you need to pay special attention to the cms service. It includes the gutenberg dependency, you **must** always read the changelog for it so that you can determine if it breaks backwards compatibility in some way. Tests won't catch all backwards incompatible changes.
 
 Before you start: Run this: `pnpm install && bin/pnpm-ci-all`
 

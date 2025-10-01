@@ -6,7 +6,7 @@ import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import { CHATBOX_HEIGHT_PX } from "../Chatbot"
+import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
 import ErrorDisplay from "../Chatbot/ErrorDisplay"
 import MessageBubble from "../Chatbot/MessageBubble"
 

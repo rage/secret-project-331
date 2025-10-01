@@ -5,7 +5,7 @@ import React from "react"
 import { Button, Heading } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
-import { DiscrChatbotDialogProps } from "../Chatbot/ChatbotDialog"
+import { DiscrChatbotDialogProps } from "../Chatbot/ChatbotChat"
 
 import { ChatbotConversation, ChatbotConversationInfo } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"

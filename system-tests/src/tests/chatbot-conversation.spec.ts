@@ -36,7 +36,7 @@ test.describe("Test chatbot chat box", () => {
       const chatbotDialog = student1Page
         .getByRole("dialog")
         .filter({ has: student1Page.getByRole("heading", { name: "Genetic Lifeform" }) })
-      expect(chatbotDialog).toBeDefined()
+      await expect(chatbotDialog).toBeVisible()
 
       return { chatbotDialog, student1Page }
     })
@@ -200,4 +200,3 @@ test.describe("Test chatbot chat box", () => {
     })
   })
 })
-// todo fix agree to terms mobile

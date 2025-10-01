@@ -1,20 +1,33 @@
 import { css } from "@emotion/css"
-import React, { useId, useState } from "react"
+import React, { useState } from "react"
 
-import ChatbotChatBody from "@/components/chatbot/shared/ChatbotChatBody"
-import ChatbotChatHeader from "@/components/chatbot/shared/ChatbotChatHeader"
+import ChatbotChatBody from "../shared/ChatbotChatBody"
+import ChatbotChatHeader from "../shared/ChatbotChatHeader"
+
+import { CHATBOX_HEIGHT_PX, CHATBOX_WIDTH_PX } from "./ChatbotDialog"
+
 import useNewConversationMutation from "@/hooks/chatbot/newConversationMutation"
 import useCurrentConversationInfo from "@/hooks/chatbot/useCurrentConversationInfo"
-import { baseTheme } from "@/shared-module/common/styles"
 
-export interface ChatbotChatBoxProps {
+interface ChatbotDialogProps {
   chatbotConfigurationId: string
+  chatbotTitleId: string
+  isCourseMaterialBlock: false
 }
 
-const ChatbotChatBox: React.FC<ChatbotChatBoxProps> = ({ chatbotConfigurationId }) => {
+interface ChatbotNoDialogProps {
+  chatbotConfigurationId: string
+  chatbotTitleId: string
+  isCourseMaterialBlock: true
+}
+
+export type DiscrChatbotDialogProps = ChatbotDialogProps | ChatbotNoDialogProps
+
+const ChatbotChat: React.FC<ChatbotDialogProps> = (props) => {
+  const { chatbotConfigurationId } = props
+
   const [newMessage, setNewMessage] = React.useState("")
   const [error, setError] = useState<Error | null>(null)
-  const chatbotTitleId = useId()
 
   const currentConversationInfoQuery = useCurrentConversationInfo(chatbotConfigurationId)
   const newConversationMutation = useNewConversationMutation(
@@ -23,27 +36,32 @@ const ChatbotChatBox: React.FC<ChatbotChatBoxProps> = ({ chatbotConfigurationId 
     setNewMessage,
     setError,
   )
+
   return (
     <div
       className={css`
-        display: flex;
-        flex-direction: column;
-        height: inherit;
-        width: inherit;
-        box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
+        width: ${CHATBOX_WIDTH_PX}px;
+        max-width: 90vw;
+        height: ${CHATBOX_HEIGHT_PX}px;
+        max-height: 90vh;
+        bottom: 70px;
+        right: 1rem;
         background: white;
         border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(177, 179, 184, 0.6);
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
       `}
     >
       <ChatbotChatHeader
-        chatbotConfigurationId={chatbotConfigurationId}
+        {...props}
         currentConversationInfo={currentConversationInfoQuery}
         newConversation={newConversationMutation}
-        isCourseMaterialBlock={true}
-        chatbotTitleId={chatbotTitleId}
+        isCourseMaterialBlock={false}
       />
       <ChatbotChatBody
-        chatbotConfigurationId={chatbotConfigurationId}
+        {...props}
         currentConversationInfo={currentConversationInfoQuery}
         newConversation={newConversationMutation}
         newMessage={newMessage}
@@ -55,4 +73,4 @@ const ChatbotChatBox: React.FC<ChatbotChatBoxProps> = ({ chatbotConfigurationId 
   )
 }
 
-export default ChatbotChatBox
+export default ChatbotChat

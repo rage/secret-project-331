@@ -1,76 +1,103 @@
-import { css } from "@emotion/css"
-import React, { useState } from "react"
+import { css, keyframes } from "@emotion/css"
+import React, { useContext, useEffect, useId, useRef, useState } from "react"
+import { FocusScope } from "react-aria"
+import { Dialog, OverlayTriggerStateContext } from "react-aria-components"
 
-import ChatbotDialogBody from "../shared/ChatbotDialogBody"
-import ChatbotDialogHeader from "../shared/ChatbotDialogHeader"
+import ChatbotChat from "./ChatbotChat"
+import OpenChatbotButton from "./OpenChatbotButton"
 
-import { CHATBOX_HEIGHT_PX, CHATBOX_WIDTH_PX } from "."
+import { ChatbotProps } from "."
 
-import useNewConversationMutation from "@/hooks/chatbot/newConversationMutation"
-import useCurrentConversationInfo from "@/hooks/chatbot/useCurrentConversationInfo"
+export const CHATBOX_WIDTH_PX = 500
+export const CHATBOX_HEIGHT_PX = 900
 
-interface ChatbotDialogProps {
-  chatbotConfigurationId: string
-  chatbotTitleId: string
-  isCourseMaterialBlock: false
-}
+const openAnimation = keyframes`
+  from {
+    transform: translateY(150%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+`
 
-interface ChatbotNoDialogProps {
-  chatbotConfigurationId: string
-  chatbotTitleId: string
-  isCourseMaterialBlock: true
-}
+const closeAnimation = keyframes`
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(150%);
+    opacity: 0;
+  }
+`
 
-export type DiscrChatbotDialogProps = ChatbotDialogProps | ChatbotNoDialogProps
+const ChatbotDialog: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
+  const chatbotTitleId = useId()
+  const dialogRef = useRef<HTMLDivElement>(null)
+  let state = useContext(OverlayTriggerStateContext)
+  const [shouldRender, setShouldRender] = useState(false)
 
-const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
-  const { chatbotConfigurationId } = props
+  useEffect(() => {
+    if (state?.isOpen) {
+      setShouldRender(true)
+    }
+  }, [state?.isOpen])
 
-  const [newMessage, setNewMessage] = React.useState("")
-  const [error, setError] = useState<Error | null>(null)
+  const handleAnimationEnd = () => {
+    if (!state?.isOpen) {
+      setShouldRender(false)
+    }
+  }
 
-  const currentConversationInfoQuery = useCurrentConversationInfo(chatbotConfigurationId)
-  const newConversationMutation = useNewConversationMutation(
-    chatbotConfigurationId,
-    currentConversationInfoQuery,
-    setNewMessage,
-    setError,
-  )
+  useEffect(() => {
+    const removeListenersAbortController = new AbortController()
+    const currentRef = dialogRef.current
+    currentRef?.addEventListener(
+      "keydown",
+      (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+          state?.close()
+        }
+      },
+      { signal: removeListenersAbortController.signal },
+    )
+
+    return () => {
+      removeListenersAbortController.abort()
+    }
+  }, [state])
 
   return (
-    <div
-      className={css`
-        width: ${CHATBOX_WIDTH_PX}px;
-        max-width: 90vw;
-        height: ${CHATBOX_HEIGHT_PX}px;
-        max-height: 90vh;
-        bottom: 70px;
-        right: 1rem;
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0px 4px 10px rgba(177, 179, 184, 0.6);
-        z-index: 1000;
-        display: flex;
-        flex-direction: column;
-      `}
-    >
-      <ChatbotDialogHeader
-        {...props}
-        currentConversationInfo={currentConversationInfoQuery}
-        newConversation={newConversationMutation}
-        isCourseMaterialBlock={false}
-      />
-      <ChatbotDialogBody
-        {...props}
-        currentConversationInfo={currentConversationInfoQuery}
-        newConversation={newConversationMutation}
-        newMessage={newMessage}
-        setNewMessage={setNewMessage}
-        error={error}
-        setError={setError}
-      />
-    </div>
+    <>
+      <OpenChatbotButton hide={shouldRender} />
+      <div ref={dialogRef}>
+        {shouldRender && (
+          // eslint-disable-next-line jsx-a11y/no-autofocus
+          <FocusScope restoreFocus autoFocus>
+            <Dialog
+              aria-labelledby={chatbotTitleId}
+              className={css`
+                animation: ${state?.isOpen ? openAnimation : closeAnimation} 0.3s forwards;
+                position: fixed;
+                bottom: 70px;
+                right: 1rem;
+                z-index: 1000;
+              `}
+              onAnimationEnd={handleAnimationEnd}
+            >
+              <ChatbotChat
+                chatbotConfigurationId={chatbotConfigurationId}
+                isCourseMaterialBlock={false}
+                chatbotTitleId={chatbotTitleId}
+              />
+            </Dialog>
+          </FocusScope>
+        )}
+      </div>
+    </>
   )
 }
 
-export default ChatbotDialog
+export default React.memo(ChatbotDialog)

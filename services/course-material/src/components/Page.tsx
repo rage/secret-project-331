@@ -25,7 +25,7 @@ import NavigationContainer from "./ContentRenderer/moocfi/NavigationContainer"
 import FeedbackHandler from "./FeedbackHandler"
 import HeadingsNavigation from "./HeadingsNavigation"
 import ReferenceList from "./ReferencesList"
-import ChatbotTrigger from "./chatbot/Chatbot"
+import Chatbot from "./chatbot/Chatbot"
 import SelectResearchConsentForm from "./forms/SelectResearchConsentForm"
 import SelectUserInformationForm from "./forms/SelectUserInformationForm"
 import CourseSettingsModal from "./modals/CourseSettingsModal"
@@ -295,7 +295,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
         {courseId && pageId && (
           <>
             {chatbotConfiguration.data && (
-              <ChatbotTrigger chatbotConfigurationId={chatbotConfiguration.data} />
+              <Chatbot chatbotConfigurationId={chatbotConfiguration.data} />
             )}
             <FeedbackHandler courseId={courseId} pageId={pageId} />
           </>

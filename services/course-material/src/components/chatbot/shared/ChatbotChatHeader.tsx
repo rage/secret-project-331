@@ -13,7 +13,7 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 
-type ChatbotDialogHeaderProps = {
+type ChatbotChatHeaderProps = {
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
   newConversation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
   isCourseMaterialBlock: boolean
@@ -66,7 +66,7 @@ const buttonsWrapper = css`
   align-items: flex-start;
 `
 
-const ChatbotDialogHeader: React.FC<ChatbotDialogHeaderProps> = (props) => {
+const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
   const { t } = useTranslation()
   const { currentConversationInfo, newConversation, isCourseMaterialBlock, chatbotTitleId } = props
 
@@ -121,4 +121,4 @@ const ChatbotDialogHeader: React.FC<ChatbotDialogHeaderProps> = (props) => {
   )
 }
 
-export default React.memo(ChatbotDialogHeader)
+export default React.memo(ChatbotChatHeader)

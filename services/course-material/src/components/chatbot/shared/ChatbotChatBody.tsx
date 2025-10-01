@@ -23,7 +23,7 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
 
-interface ChatbotDialogBodyProps {
+interface ChatbotChatBodyProps {
   chatbotConfigurationId: string
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
   newConversation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
@@ -56,7 +56,7 @@ const messageReducer = (state: MessageState, action: MessageAction): MessageStat
   }
 }
 
-const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
+const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
   currentConversationInfo,
   newConversation,
   chatbotConfigurationId,
@@ -432,4 +432,4 @@ const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
   )
 }
 
-export default React.memo(ChatbotDialogBody)
+export default React.memo(ChatbotChatBody)

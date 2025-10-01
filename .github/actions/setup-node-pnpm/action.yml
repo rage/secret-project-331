@@ -1,5 +1,5 @@
 name: Setup Node & pnpm
-description: Install pnpm and let it handle Node version from .npmrc
+description: Install pnpm and let it handle Node version from pnpm-workspace.yaml
 inputs:
   pnpm-version:
     description: "pnpm version to use"
@@ -22,7 +22,7 @@ runs:
         corepack enable
         corepack prepare pnpm@${{ inputs.pnpm-version }} --activate
 
-        # pnpm will automatically install the Node version specified in .npmrc
+        # pnpm will automatically install the Node version specified in pnpm-workspace.yaml
         # when running any pnpm command in the repo root
         cd $GITHUB_WORKSPACE
         pnpm --version

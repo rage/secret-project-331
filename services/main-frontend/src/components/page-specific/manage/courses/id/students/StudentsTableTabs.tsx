@@ -43,6 +43,7 @@ const tableCenteredInner = css`
 `
 
 const tableRoundedWrap = css`
+  position: relative;
   border-radius: 8px;
   border: 1px solid #ced1d7;
   background: #fff;
@@ -117,6 +118,11 @@ export function FloatingHeaderTable({
   const rafRef = useRef<number | null>(null)
   const latestScrollLeftRef = useRef(0)
 
+  const [bottomVisible, setBottomVisible] = useState(false)
+  // optional derived booleans for clarity in render:
+  const showFixedTrailer = showTrailer && !bottomVisible
+  const showDockedTrailer = showTrailer && bottomVisible
+
   // --- Effects for sticky header, colWidths, etc (unchanged) ---
   useEffect(() => {
     const updateWidth = () => {
@@ -147,12 +153,10 @@ export function FloatingHeaderTable({
       }
       latestScrollLeftRef.current = x
       if (stickyTableRef.current) {
-        // immediate transform keeps header perfectly in lockstep
         stickyTableRef.current.style.transform = `translateX(-${x}px)`
       }
     }
 
-    // rAF only for non-user scroll sources (e.g., some coalesced cases)
     const scheduleApply = () => {
       if (rafRef.current != null) {
         return
@@ -163,20 +167,20 @@ export function FloatingHeaderTable({
       })
     }
 
-    // MAIN SCROLLER (bottom native scrollbar + wheel/touch)
+    // always keep sticky header in sync with the main scroller
     const onWrapScroll = () => {
-      // 1) mirror to trailer if visible
       const trailer = trailerRef.current
       if (trailer && syncingRef.current !== "top") {
         syncingRef.current = "wrap"
         trailer.scrollLeft = wrap.scrollLeft
         syncingRef.current = null
       }
-      // 2) immediate header update (no rAF) → zero perceived lag
-      apply(wrap.scrollLeft)
+      apply(wrap.scrollLeft) // immediate for zero lag
     }
 
-    // TRAILER SCROLLER
+    // (re)attach listeners
+    wrap.addEventListener("scroll", onWrapScroll, { passive: true })
+
     const trailer = trailerRef.current
     const onTrailerScroll = () => {
       if (syncingRef.current !== "wrap") {
@@ -184,20 +188,15 @@ export function FloatingHeaderTable({
         wrap.scrollLeft = trailer!.scrollLeft
         syncingRef.current = null
       }
-      // use rAF here; trailer scrolls are already smooth, this coalesces writes
       scheduleApply()
     }
-
-    // init positions
     if (trailer) {
       trailer.scrollLeft = wrap.scrollLeft
-    }
-    apply(wrap.scrollLeft)
-
-    wrap.addEventListener("scroll", onWrapScroll, { passive: true })
-    if (trailer) {
       trailer.addEventListener("scroll", onTrailerScroll, { passive: true })
     }
+
+    // initialize sticky header position (covers mount + trailer swap)
+    apply(wrap.scrollLeft)
 
     return () => {
       wrap.removeEventListener("scroll", onWrapScroll)
@@ -208,7 +207,16 @@ export function FloatingHeaderTable({
         cancelAnimationFrame(rafRef.current)
       }
     }
-  }, [showTrailer])
+  }, [
+    showTrailer, // trailer visible or not
+    bottomVisible, // switches fixed ↔ docked (new element)
+  ]) // ← key change
+
+  useEffect(() => {
+    if (showSticky && stickyTableRef.current && wrapRef.current) {
+      stickyTableRef.current.style.transform = `translateX(-${wrapRef.current.scrollLeft}px)`
+    }
+  }, [showSticky])
 
   useEffect(() => {
     if (tableRef.current) {
@@ -242,18 +250,17 @@ export function FloatingHeaderTable({
       const rect = tableRef.current.getBoundingClientRect()
       const vh = window.innerHeight || document.documentElement.clientHeight
 
-      // Your existing sticky header logic
+      // sticky header
       setShowSticky(rect.top < 0 && rect.bottom > 48)
 
-      // Trailer logic:
-      // - table is on screen
-      // - bottom of table is NOT visible yet
-      // - we’re past the header area a bit (avoid showing too early)
+      // visibility
       const tableOnScreen = rect.bottom > 0 && rect.top < vh
-      const bottomVisible = rect.bottom <= vh
       const pastTop = rect.top < vh - 48
+      const isBottomVisible = rect.bottom <= vh
 
-      setShowTrailer(tableOnScreen && !bottomVisible && pastTop)
+      // trailer exists whenever table is on screen and we've moved past the top a bit
+      setShowTrailer(tableOnScreen && pastTop)
+      setBottomVisible(isBottomVisible)
     }
 
     window.addEventListener("scroll", onScroll, { passive: true })
@@ -279,9 +286,28 @@ export function FloatingHeaderTable({
     return undefined
   }
 
-  const renderTopScrollbar = () => (
-    <div ref={topScrollRef} css={topScrollbarWrap}>
-      <div css={topScrollbarInner} style={{ width: Math.max(contentWidth, wrapRect.width) }} />
+  const renderDockedTrailer = () => (
+    <div
+      style={{
+        position: "absolute", // docked inside the table container
+        left: 0,
+        bottom: 0,
+        width: "100%",
+        zIndex: 60,
+        pointerEvents: "none",
+      }}
+    >
+      <div
+        ref={trailerRef}
+        css={topScrollbarWrap}
+        style={{
+          pointerEvents: "auto",
+          paddingLeft: 2,
+          paddingRight: 2,
+        }}
+      >
+        <div css={topScrollbarInner} style={{ width: Math.max(contentWidth, wrapRect.width) }} />
+      </div>
     </div>
   )
 
@@ -514,14 +540,16 @@ export function FloatingHeaderTable({
   return (
     <div css={tableOuterScroll} style={{ position: "relative" }}>
       {showSticky && renderStickyHeader()}
-      {showTrailer && renderTrailer()}
+      {showTrailer && !bottomVisible && renderTrailer()}
+      {showTrailer && bottomVisible && renderDockedTrailer()}
+
       <div css={tableCenteredInner}>
         <div css={tableRoundedWrap}>
           <div
             ref={wrapRef}
             style={{
               width: "100%",
-              overflowX: "auto",
+              overflowX: bottomVisible ? "hidden" : "auto", // <-- hide native when bottom visible
               overflowY: "hidden",
               borderRadius: 8,
               border: "none",

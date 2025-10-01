@@ -27,9 +27,14 @@ const colorPairsTest = [
 ]
 
 const colorPairsTest2 = [
-  ["#DDDEE0", "#DDDEE0"], // grey 100
-  ["#ffffffff", "#ffffffff"], // grey 100
+  ["#eaebeeff", "#eaebeeff"],
+  ["#ffffffff", "#ffffffff"],
+]
+
+const colorPairsTest3 = [
+  ["#dde2f0ff", "#dde2f0ff"],
+  ["#ffffffff", "#ffffffff"],
 ]
 
 // --- SWAP YOUR THEME HERE ---
-export const colorPairs = colorPairsTest2
+export const colorPairs = colorPairsTest3

@@ -113,6 +113,10 @@ export function FloatingHeaderTable({
   const trailerRef = useRef<HTMLDivElement | null>(null)
   const [showTrailer, setShowTrailer] = useState(false)
 
+  const stickyTableRef = useRef<HTMLTableElement | null>(null)
+  const rafRef = useRef<number | null>(null)
+  const latestScrollLeftRef = useRef(0)
+
   // --- Effects for sticky header, colWidths, etc (unchanged) ---
   useEffect(() => {
     const updateWidth = () => {
@@ -133,38 +137,76 @@ export function FloatingHeaderTable({
 
   useEffect(() => {
     const wrap = wrapRef.current
-    const trailer = trailerRef.current
-    if (!wrap || !trailer) {
+    if (!wrap) {
       return
     }
 
-    const onWrapScroll = () => {
-      setScrollLeft(wrap.scrollLeft)
-      if (syncingRef.current === "top") {
+    const apply = (x: number) => {
+      if (x === latestScrollLeftRef.current) {
         return
       }
-      syncingRef.current = "wrap"
-      trailer.scrollLeft = wrap.scrollLeft
-      syncingRef.current = null
+      latestScrollLeftRef.current = x
+      if (stickyTableRef.current) {
+        // immediate transform keeps header perfectly in lockstep
+        stickyTableRef.current.style.transform = `translateX(-${x}px)`
+      }
     }
 
-    const onTrailerScroll = () => {
-      if (syncingRef.current === "wrap") {
+    // rAF only for non-user scroll sources (e.g., some coalesced cases)
+    const scheduleApply = () => {
+      if (rafRef.current != null) {
         return
       }
-      syncingRef.current = "top"
-      wrap.scrollLeft = trailer.scrollLeft
-      syncingRef.current = null
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = null
+        apply(wrap.scrollLeft)
+      })
     }
+
+    // MAIN SCROLLER (bottom native scrollbar + wheel/touch)
+    const onWrapScroll = () => {
+      // 1) mirror to trailer if visible
+      const trailer = trailerRef.current
+      if (trailer && syncingRef.current !== "top") {
+        syncingRef.current = "wrap"
+        trailer.scrollLeft = wrap.scrollLeft
+        syncingRef.current = null
+      }
+      // 2) immediate header update (no rAF) → zero perceived lag
+      apply(wrap.scrollLeft)
+    }
+
+    // TRAILER SCROLLER
+    const trailer = trailerRef.current
+    const onTrailerScroll = () => {
+      if (syncingRef.current !== "wrap") {
+        syncingRef.current = "top"
+        wrap.scrollLeft = trailer!.scrollLeft
+        syncingRef.current = null
+      }
+      // use rAF here; trailer scrolls are already smooth, this coalesces writes
+      scheduleApply()
+    }
+
+    // init positions
+    if (trailer) {
+      trailer.scrollLeft = wrap.scrollLeft
+    }
+    apply(wrap.scrollLeft)
 
     wrap.addEventListener("scroll", onWrapScroll, { passive: true })
-    trailer.addEventListener("scroll", onTrailerScroll, { passive: true })
-
-    trailer.scrollLeft = wrap.scrollLeft
+    if (trailer) {
+      trailer.addEventListener("scroll", onTrailerScroll, { passive: true })
+    }
 
     return () => {
       wrap.removeEventListener("scroll", onWrapScroll)
-      trailer.removeEventListener("scroll", onTrailerScroll)
+      if (trailer) {
+        trailer.removeEventListener("scroll", onTrailerScroll)
+      }
+      if (rafRef.current != null) {
+        cancelAnimationFrame(rafRef.current)
+      }
     }
   }, [showTrailer])
 
@@ -190,16 +232,6 @@ export function FloatingHeaderTable({
       window.removeEventListener("scroll", updateRect)
       window.removeEventListener("resize", updateRect)
     }
-  }, [])
-
-  useEffect(() => {
-    const wrap = wrapRef.current
-    if (!wrap) {
-      return
-    }
-    const handleScroll = () => setScrollLeft(wrap.scrollLeft)
-    wrap.addEventListener("scroll", handleScroll)
-    return () => wrap.removeEventListener("scroll", handleScroll)
   }, [])
 
   useEffect(() => {
@@ -310,20 +342,21 @@ export function FloatingHeaderTable({
         }}
       >
         <table
+          ref={stickyTableRef}
           style={{
             borderCollapse: "separate",
             borderSpacing: 0,
             margin: 0,
             pointerEvents: "none",
-            transform: `translateX(-${scrollLeft}px)`,
+            transform: "translate3d(0,0,0)", // prime compositing
+            willChange: "transform",
+            contain: "paint",
+            backfaceVisibility: "hidden",
           }}
         >
           {renderTableHead()}
         </table>
       </div>
-
-      {/* attach scrollbar under the sticky head */}
-      {renderTopScrollbar()}
     </div>
   )
 

@@ -1,5 +1,6 @@
 use anyhow::{Context, Result};
 use sqlx::Connection;
+use tracing::log::warn;
 use uuid::Uuid;
 
 use headless_lms_models::{

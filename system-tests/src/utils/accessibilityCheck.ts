@@ -67,7 +67,7 @@ export default async function accessibilityCheck(
           }
           if (node.none.length > 0) {
             customConsole.group("None of these can pass:")
-            displayChecksForNodes(node.all, customConsole)
+            displayChecksForNodes(node.none, customConsole)
             customConsole.groupEnd()
           }
           customConsole.error()

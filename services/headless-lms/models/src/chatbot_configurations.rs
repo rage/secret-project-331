@@ -137,12 +137,15 @@ INSERT INTO chatbot_configurations (
     daily_tokens_per_user,
     temperature,
     top_p,
+    hide_citations,
     frequency_penalty,
     presence_penalty,
     response_max_tokens,
+    use_azure_search,
+    maintain_azure_search_index,
     default_chatbot
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $15, $16)
 RETURNING *
         "#,
         pkey_policy.into_uuid(),
@@ -155,9 +158,11 @@ RETURNING *
         input.daily_tokens_per_user,
         input.temperature,
         input.top_p,
+        input.hide_citations,
         input.frequency_penalty,
         input.presence_penalty,
         input.response_max_tokens,
+        input.use_azure_search,
         input.default_chatbot
     )
     .fetch_one(conn)

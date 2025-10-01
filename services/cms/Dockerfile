@@ -1,4 +1,4 @@
-FROM eu.gcr.io/moocfi-public/project-331-node-base:latest
+FROM eu.gcr.io/moocfi-public/project-331-node-cache:latest
 
 RUN mkdir -p /app && chown -R node /app
 

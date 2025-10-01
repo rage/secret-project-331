@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO chatbot_configurations (\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    response_max_tokens\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)\nRETURNING *\n        ",
+  "query": "\nINSERT INTO chatbot_configurations (\n    id,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    hide_citations,\n    frequency_penalty,\n    presence_penalty,\n    response_max_tokens,\n    use_azure_search,\n    maintain_azure_search_index,\n    default_chatbot\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $15, $16)\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -112,6 +112,7 @@
     "parameters": {
       "Left": [
         "Uuid",
+        "Uuid",
         "Bool",
         "Varchar",
         "Varchar",
@@ -120,9 +121,12 @@
         "Int4",
         "Float4",
         "Float4",
+        "Bool",
         "Float4",
         "Float4",
-        "Int4"
+        "Int4",
+        "Bool",
+        "Bool"
       ]
     },
     "nullable": [
@@ -149,5 +153,5 @@
       false
     ]
   },
-  "hash": "5c4cfe506f694ba4f331c19c04ee0544bb9bb77706c6ae88d37007435fa52415"
+  "hash": "7bbf5c2f71021fe20ce72c284efd7527ef36ccd45dcf672a8721c51acbf72131"
 }

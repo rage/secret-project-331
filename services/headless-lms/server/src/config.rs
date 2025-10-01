@@ -155,13 +155,13 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         .app_data(icu4x_blob)
         .app_data(ip_to_country_mapper)
         .app_data(file_store)
-        .app_data(app_conf)
+        .app_data(app_conf.clone())
         .app_data(jwt_key)
         .app_data(cache)
         .app_data(tmc_client)
         .service(
             web::scope("/api/v0")
                 .wrap(RequestSpan)
-                .configure(crate::controllers::configure_controllers),
+                .configure(|c| crate::controllers::configure_controllers(c, app_conf)),
         );
 }

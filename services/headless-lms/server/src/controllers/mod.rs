@@ -17,6 +17,7 @@ pub mod healthz;
 pub mod helpers;
 pub mod langs;
 pub mod main_frontend;
+pub mod mock_azure;
 pub mod other_domain_redirects;
 pub mod study_registry;
 pub mod tmc_server;
@@ -26,7 +27,7 @@ use actix_web::{
     HttpRequest, HttpResponse, ResponseError,
     web::{self, ServiceConfig},
 };
-use headless_lms_utils::prelude::*;
+use headless_lms_utils::{ApplicationConfiguration, prelude::*};
 use serde::{Deserialize, Serialize};
 #[cfg(feature = "ts_rs")]
 use ts_rs::TS;
@@ -39,7 +40,10 @@ pub struct UploadResult {
 }
 
 /// Add controllers from all the submodules.
-pub fn configure_controllers(cfg: &mut ServiceConfig) {
+pub fn configure_controllers(
+    cfg: &mut ServiceConfig,
+    app_conf: web::Data<ApplicationConfiguration>,
+) {
     cfg.service(web::scope("/course-material").configure(course_material::_add_routes))
         .service(web::scope("/cms").configure(cms::_add_routes))
         .service(web::scope("/files").configure(files::_add_routes))
@@ -54,6 +58,9 @@ pub fn configure_controllers(cfg: &mut ServiceConfig) {
         .service(web::scope("/langs").configure(langs::_add_routes))
         .service(web::scope("/tmc-server").configure(tmc_server::_add_routes))
         .default_service(web::to(not_found));
+    if app_conf.test_chatbot && app_conf.test_mode {
+        cfg.service(web::scope("/mock-azure").configure(mock_azure::_add_routes));
+    }
 }
 
 async fn not_found(req: HttpRequest) -> HttpResponse {

@@ -29,10 +29,9 @@ RUN npm config set --location=global fetch-retry-maxtimeout=900000 && \
 # Copy dummy project
 COPY --from=dummy-project-builder /tmp/dummy-project /tmp/dummy-project
 
-# Install pnpm and the node version specified in .npmrc
+# Install pnpm and the node version specified in the dummy project
 RUN mkdir -p /tmp/dummy-project && \
   cd /tmp/dummy-project && \
-  cp /root/.npmrc . && \
   npm install -g --no-update-notifier corepack@latest && \
   chown -R node:node /tmp/dummy-project && \
   # Setup corepack as the node user so that the build process can find it later on.

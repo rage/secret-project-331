@@ -22,10 +22,14 @@ const colorPairsOriginal = [
 ]
 
 const colorPairsTest = [
-  ["#DAE3EB", "#DAE3EB"], // green 100
-  ["#bbc9e0ff", "#bbc9e0ff"], // green 100
-  ["#bac4c9ff", "#bac4c9ff"], // green 100
+  ["#DAE3EB", "#DAE3EB"], // blue 100
+  ["#ffffffff", "#ffffffff"], // grey 100
+]
+
+const colorPairsTest2 = [
+  ["#DDDEE0", "#DDDEE0"], // grey 100
+  ["#ffffffff", "#ffffffff"], // grey 100
 ]
 
 // --- SWAP YOUR THEME HERE ---
-export const colorPairs = colorPairsPastel
+export const colorPairs = colorPairsTest2

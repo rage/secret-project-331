@@ -48,6 +48,7 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
     handleSubmit,
     formState: { errors },
     setError,
+    clearErrors,
     watch,
   } = useForm<EditReferenceFields>({ defaultValues: { reference: reference.reference } })
 
@@ -68,9 +69,9 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
     if (detection.error && !errors.root) {
       setError("root", { message: detection.error.message })
     } else if (!detection.error && errors.root) {
-      setError("root", { message: undefined })
+      clearErrors("root")
     }
-  }, [detection.error, errors.root, setError])
+  }, [detection.error, errors.root, setError, clearErrors])
 
   const citationLabelsThatWillChange = detection.items
 

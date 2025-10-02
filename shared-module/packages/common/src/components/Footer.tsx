@@ -14,7 +14,10 @@ const PRIVACY_LINK_EN = "https://www.mooc.fi/en/faq/tietosuojaseloste/"
 const ACCESSIBILITY_STATEMENT_LINK_FI =
   "https://github.com/rage/accessibility-statements/blob/main/courses.mooc.fi-finnish.md"
 const ACCESSIBILITY_STATEMENT_LINK_EN =
-  "https://github.com/rage/accessibility-statements/blob/main/courses.mooc.fi-finnish.md"
+  "https://github.com/rage/accessibility-statements/blob/main/courses.mooc.en-english.md"
+
+const ACCESSIBILITY_STATEMENT_LINK_SV =
+  "https://github.com/rage/accessibility-statements/blob/main/courses.mooc.sv-swedish.md"
 
 // To be link in the future
 // const CREATORS_LINK = "https://www.mooc.fi/en/"
@@ -154,9 +157,12 @@ const Footer: React.FC<React.PropsWithChildren<Props>> = ({ privacyLinks = null 
       ? privacyLinks
       : [{ linkTitle: t("privacy"), linkUrl: defaultLink }]
 
-  const accessibilityLink = useFinnishLinks
+  const accessibilityLink = /^fi(?:-|$)/.test(i18n.language)
     ? ACCESSIBILITY_STATEMENT_LINK_FI
-    : ACCESSIBILITY_STATEMENT_LINK_EN
+    : /^sv(?:-|$)/.test(i18n.language)
+      ? ACCESSIBILITY_STATEMENT_LINK_SV
+      : ACCESSIBILITY_STATEMENT_LINK_EN
+  console.log(i18n.language)
 
   return (
     <footer

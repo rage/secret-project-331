@@ -111,8 +111,6 @@ export interface ReferenceProps {
   data: Reference[]
 }
 
-const citeOrder: string[] = []
-
 const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
   const { t } = useTranslation()
   const [active] = useState<string>()
@@ -121,11 +119,12 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
     setReadyForPortal(true)
   }, [])
 
-  let portals: ReactPortal[] | null = useMemo(() => {
+  let [portals, citeOrder]: [ReactPortal[] | null, string[] | null] = useMemo(() => {
     if (!readyForPortal) {
-      return null
+      return [null, null]
     }
-    return Array.from(document.querySelectorAll<HTMLElement>("[data-citation-id]")).map(
+    const citeOrder: string[] = []
+    const portals = Array.from(document.querySelectorAll<HTMLElement>("[data-citation-id]")).map(
       (node, idx) => {
         const reference = data.find((o) => o.id === node.dataset.citationId)
 
@@ -143,10 +142,13 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
         )
       },
     )
+    return [portals, citeOrder]
   }, [data, readyForPortal])
 
   let sortedReferenceList = sortBy(data, (item) => {
-    return citeOrder.indexOf(item.id)
+    if (citeOrder) {
+      return citeOrder.indexOf(item.id)
+    }
   })
   return (
     <TextWrapper>

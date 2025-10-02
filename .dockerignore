@@ -112,8 +112,8 @@ skaffold-build-output.json
 skaffold-images
 
 # Rust/Cargo
-debug/
-target/
+**/debug/
+**/target/
 **/*.rs.bk
 
 # Secret files
@@ -121,3 +121,6 @@ target/
 
 # Kubernetes
 kubernetes/
+
+# Git
+.git

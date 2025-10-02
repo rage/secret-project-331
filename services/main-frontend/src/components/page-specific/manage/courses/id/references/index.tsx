@@ -18,6 +18,7 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const TYPE = "string"
 const STYLE = "vancouver"
@@ -157,4 +158,4 @@ const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> 
   )
 }
 
-export default References
+export default withErrorBoundary(References)

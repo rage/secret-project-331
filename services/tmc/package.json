@@ -1,6 +1,7 @@
 {
   "name": "tmc",
   "version": "1.0.0",
+  "packageManager": "pnpm@10.17.1",
   "scripts": {
     "build": "NODE_ENV=production next build",
     "dev": "next dev --port 3005 --turbopack",
@@ -24,7 +25,9 @@
     "@monaco-editor/react": "^4.7.0",
     "@popperjs/core": "^2.11.8",
     "@react-aria/dialog": "^3.5.28",
+    "@react-aria/overlays": "^3.29.1",
     "@tanstack/react-query": "^5.84.0",
+    "@types/node": "^24.5.2",
     "@types/ws": "^8.5.14",
     "@vectopus/atlas-icons-react": "github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b",
     "axios": "^1.11.0",

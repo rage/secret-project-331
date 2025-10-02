@@ -1,0 +1,24 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+if [ -z ${1+x} ]; then
+  echo -e "${RED}Error: Please give the pnpm command to run"
+  echo -e "${RESET_EVERYTHING}Example:${BOLD} bin/pnpm-all install --save-dev @types/react @types/node ${RESET_EVERYTHING}"
+  exit 1
+fi
+
+COMMAND=$*
+
+run_command pnpm exec concurrently \
+  -n "cms,course-material,main-frontend,example-exercise,shared-module/common,quizzes,tmc" \
+  -c "green,red,blue,yellow,magenta,cyan,white" \
+  "bash -c 'cd services/cms/ && pnpm ${COMMAND}'" \
+  "bash -c 'cd services/course-material/ && pnpm ${COMMAND}'" \
+  "bash -c 'cd services/main-frontend && pnpm ${COMMAND}'" \
+  "bash -c 'cd services/example-exercise && pnpm ${COMMAND}'" \
+  "bash -c 'cd shared-module/packages/common && pnpm ${COMMAND}'" \
+  "bash -c 'cd services/quizzes/ && pnpm ${COMMAND}'" \
+  "bash -c 'cd services/tmc/ && pnpm ${COMMAND}'"
+
+echo "finished"

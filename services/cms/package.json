@@ -5,7 +5,9 @@
   "packageManager": "pnpm@10.17.1",
   "pnpm": {
     "overrides": {
-      "@tanstack/react-query": "^5.90.2"
+      "@tanstack/react-query": "^5.90.2",
+      "@babel/runtime@<7.26.10": ">=7.26.10",
+      "webpack-dev-server@<=5.2.0": ">=5.2.1"
     }
   },
   "scripts": {

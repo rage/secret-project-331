@@ -83,9 +83,9 @@ const expandButtonStyle = css`
 interface ChatbotReferenceListProps {
   citations: ChatbotConversationMessageCitation[]
   citationNumberingMap: Map<number, number>
-  triggerRef: React.RefObject<HTMLButtonElement | null>
-  triggerRefId: string
-  setTriggerRefId: (value: React.SetStateAction<string>) => void
+  triggerElement: React.RefObject<HTMLButtonElement | null>
+  triggerElementId: string
+  setTriggerElementId: (value: React.SetStateAction<string>) => void
   citationsOpen: boolean
   citationButtonClicked: boolean
   isCitationHovered: boolean
@@ -96,9 +96,9 @@ interface ChatbotReferenceListProps {
 const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
   citations,
   citationNumberingMap,
-  triggerRef,
-  triggerRefId,
-  setTriggerRefId,
+  triggerElement,
+  triggerElementId,
+  setTriggerElementId,
   citationsOpen,
   citationButtonClicked,
   isCitationHovered,
@@ -129,7 +129,7 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
   useEffect(() => {
     let open = isCitationHovered || isPopoverHovered || citationButtonClicked
     setIsPopoverOpen(open)
-  }, [citationButtonClicked, isCitationHovered, isPopoverHovered, triggerRefId])
+  }, [citationButtonClicked, isCitationHovered, isPopoverHovered, triggerElementId])
 
   useEffect(() => {
     const removeListenersAbortController = new AbortController()
@@ -140,8 +140,8 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
         if (e.key === "Escape") {
           setIsPopoverOpen(false)
           setCitationButtonClicked(false)
-          triggerRef.current = null
-          setTriggerRefId("")
+          triggerElement.current = null
+          setTriggerElementId("")
         }
       },
       { signal: removeListenersAbortController.signal },
@@ -154,8 +154,8 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
     popoverRef,
     isPopoverOpen,
     citationButtonClicked,
-    triggerRef,
-    setTriggerRefId,
+    triggerElement,
+    setTriggerElementId,
     setCitationButtonClicked,
   ])
 
@@ -255,10 +255,10 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
                   <SpeechBalloonPopover
                     popoverRef={popoverRef}
                     placement="top"
-                    triggerRef={triggerRef}
+                    triggerRef={triggerElement}
                     isOpen={Boolean(
-                      triggerRefId.includes(
-                        // the triggerRef's id will contain the citationId's first part
+                      triggerElementId.includes(
+                        // the triggerElement's id will contain the citationId's first part
                         // if it's associated with this citation
                         citationId(cit.citation_number.toString(), ""),
                       ) && isPopoverOpen,
@@ -266,9 +266,9 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
                     isNonModal={!citationButtonClicked}
                     onOpenChange={() => {
                       setCitationButtonClicked(false)
-                      setTriggerRefId("")
+                      setTriggerElementId("")
                     }}
-                    popoverLabel={`${t("citation")} ${citationNumber}`}
+                    popoverLabel={t("citation-n", { n: citationNumber })}
                     {...hoverPopoverProps}
                   >
                     <span

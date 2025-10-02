@@ -19,7 +19,7 @@ interface CitationButtonProps {
   citNToShow: string
   idx: string
   citationButtonClicked: boolean
-  currentRefId: string | undefined
+  currentTriggerId: string | undefined
   handleClick: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void
   hoverCitationProps: DOMAttributes<HTMLButtonElement>
 }
@@ -29,14 +29,14 @@ const CitationButton: React.FC<CitationButtonProps> = ({
   citNToShow,
   idx,
   citationButtonClicked,
-  currentRefId,
+  currentTriggerId,
   handleClick,
   hoverCitationProps,
 }) => {
   let { t } = useTranslation()
   return (
     <button
-      className={buttonStyle(citationButtonClicked && currentRefId === citationId(citN, idx))}
+      className={buttonStyle(citationButtonClicked && currentTriggerId === citationId(citN, idx))}
       id={citationId(citN, idx)}
       aria-label={t("citation-n", { n: citNToShow })}
       onClick={(e) => handleClick(e)}

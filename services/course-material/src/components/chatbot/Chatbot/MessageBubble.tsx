@@ -102,8 +102,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 }) => {
   // the ref is updated manually because there are multiple trigger elements for the popover
   // that need to be able to be set as the ref conditionally
-  let triggerRef = useRef<HTMLButtonElement>(null)
-  let [triggerRefId, setTriggerRefId] = useState("")
+  let triggerElement = useRef<HTMLButtonElement>(null)
+  let [triggerElementId, setTriggerElementId] = useState("")
 
   const [citationsOpen, setCitationsOpen] = useState(false)
   const [citationButtonClicked, setCitationButtonClicked] = useState(false)
@@ -113,8 +113,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       if (!(e.target instanceof HTMLButtonElement)) {
         throw new Error("This hover is meant to be used on buttons only.")
       }
-      triggerRef.current = e.target
-      setTriggerRefId(e.target.id)
+      triggerElement.current = e.target
+      setTriggerElementId(e.target.id)
     },
   })
 
@@ -135,14 +135,14 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       <RenderedMessage
         renderOption={renderOption}
         citationButtonClicked={citationButtonClicked}
-        currentRefId={triggerRefId}
+        currentTriggerId={triggerElementId}
         message={message}
         citedDocs={citedDocs}
         citationNumberingMap={citationNumberingMap}
         handleClick={(e) => {
           setCitationButtonClicked(true)
-          triggerRef.current = e.currentTarget
-          setTriggerRefId(e.currentTarget.id)
+          triggerElement.current = e.currentTarget
+          setTriggerElementId(e.currentTarget.id)
         }}
         hoverCitationProps={hoverCitationProps}
       />
@@ -156,7 +156,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     hoverCitationProps,
     citationButtonClicked,
     renumberFilterCitationsResult,
-    triggerRefId,
+    triggerElementId,
   ])
 
   return (
@@ -177,9 +177,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           <ChatbotReferenceList
             citations={processedCitations}
             citationNumberingMap={citationNumberingMap}
-            triggerRef={triggerRef}
-            triggerRefId={triggerRefId}
-            setTriggerRefId={setTriggerRefId}
+            triggerElement={triggerElement}
+            triggerElementId={triggerElementId}
+            setTriggerElementId={setTriggerElementId}
             citationsOpen={citationsOpen}
             citationButtonClicked={citationButtonClicked}
             isCitationHovered={isCitationHovered}

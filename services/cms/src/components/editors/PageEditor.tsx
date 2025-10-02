@@ -25,7 +25,12 @@ import { coursePageRoute } from "../../utils/routing"
 import SerializeGutenbergModal from "../SerializeGutenbergModal"
 import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 
-import { CmsPageUpdate, ContentManagementPage, Page } from "@/shared-module/common/bindings"
+import {
+  CmsPageUpdate,
+  ContentManagementPage,
+  GutenbergBlock,
+  Page,
+} from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -34,6 +39,7 @@ import Menu from "@/shared-module/common/components/Navigation/NavBar/Menu/Menu"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { pageRoute } from "@/shared-module/common/utils/routes"
+import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
 
 interface PageEditorProps {
   data: Page
@@ -90,7 +96,7 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   const { confirm } = useDialog()
   const { t } = useTranslation()
   const router = useRouter()
-  const prefix = router.asPath.split("/")[1]
+  const prefix = router.asPath ? router.asPath.split("/")[1] : ""
   const pageInfo = usePageInfo(data.id, prefix)
   const [title, setTitle] = useState(data.title)
   const savedTitle = data.title
@@ -123,6 +129,9 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
     }
     saveMutation.mutate(dataToSave, {
       onSuccess: (data) => {
+        if (!isGutenbergBlockArray(data.page.content)) {
+          throw new Error("Content is not a GutenbergBlock array")
+        }
         contentDispatch({
           type: "setContent",
           payload: denormalizeDocument({

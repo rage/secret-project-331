@@ -130,6 +130,37 @@ WHERE id = $1
     Ok(course_instance)
 }
 
+pub async fn get_course_instance_with_info(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+) -> ModelResult<CourseInstanceWithCourseInfo> {
+    let course_instance = sqlx::query_as!(
+        CourseInstanceWithCourseInfo,
+        r#"
+SELECT
+    c.id AS course_id,
+    c.slug AS course_slug,
+    c.name AS course_name,
+    c.description AS course_description,
+    ci.id AS course_instance_id,
+    ci.name AS course_instance_name,
+    ci.description AS course_instance_description,
+    o.name AS organization_name
+FROM course_instances AS ci
+  LEFT JOIN courses AS c ON ci.course_id = c.id
+  LEFT JOIN organizations AS o ON o.id = c.organization_id
+WHERE ci.id = $1
+  AND ci.deleted_at IS NULL
+  AND c.deleted_at IS NULL
+  AND o.deleted_at IS NULL
+    "#,
+        course_instance_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(course_instance)
+}
+
 pub async fn get_default_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -341,7 +372,9 @@ pub async fn get_points(
 ) -> ModelResult<Points> {
     let mut chapter_point_totals = HashMap::<Uuid, i32>::new();
     let mut exercise_to_chapter_id = HashMap::new();
-    let exercises = exercises::get_exercises_by_course_instance_id(&mut *conn, instance_id).await?;
+    let course_instance = crate::course_instances::get_course_instance(conn, instance_id).await?;
+    let exercises =
+        exercises::get_exercises_by_course_id(&mut *conn, course_instance.course_id).await?;
     for exercise in exercises {
         if let Some(chapter_id) = exercise.chapter_id {
             // exercises without chapter ids (i.e. exams) are not counted
@@ -364,11 +397,11 @@ SELECT user_id,
   exercise_id,
   score_given
 FROM user_exercise_states
-WHERE course_instance_id = $1
-AND deleted_at IS NULL
+WHERE course_id = $1
+  AND deleted_at IS NULL
 ORDER BY user_id ASC
 ",
-        instance_id,
+        course_instance.course_id,
     )
     .fetch_all(&mut *conn)
     .await?;
@@ -528,6 +561,7 @@ pub struct CourseInstanceWithCourseInfo {
     pub course_instance_id: Uuid,
     pub course_instance_name: Option<String>,
     pub course_instance_description: Option<String>,
+    pub organization_name: String,
 }
 
 pub async fn get_enrolled_course_instances_for_user(
@@ -544,14 +578,17 @@ SELECT
     c.description AS course_description,
     ci.id AS course_instance_id,
     ci.name AS course_instance_name,
-    ci.description AS course_instance_description
+    ci.description AS course_instance_description,
+    o.name AS organization_name
 FROM course_instances AS ci
   JOIN course_instance_enrollments AS cie ON ci.id = cie.course_instance_id
   LEFT JOIN courses AS c ON ci.course_id = c.id
+  LEFT JOIN organizations AS o ON o.id = c.organization_id
 WHERE cie.user_id = $1
   AND ci.deleted_at IS NULL
   AND cie.deleted_at IS NULL
   AND c.deleted_at IS NULL
+  AND o.deleted_at IS NULL
 "#,
         user_id
     )
@@ -575,13 +612,15 @@ SELECT DISTINCT ON (ci.id)
     c.description AS course_description,
     ci.id AS course_instance_id,
     ci.name AS course_instance_name,
-    ci.description AS course_instance_description
+    ci.description AS course_instance_description,
+    o.name AS organization_name
 FROM course_instances AS ci
   JOIN course_instance_enrollments AS cie ON ci.id = cie.course_instance_id
   LEFT JOIN courses AS c ON ci.course_id = c.id
   LEFT JOIN exercises AS e ON e.course_id = c.id
   LEFT JOIN exercise_slides AS es ON es.exercise_id = e.id
   LEFT JOIN exercise_tasks AS et ON et.exercise_slide_id = es.id
+  LEFT JOIN organizations AS o ON o.id = c.organization_id
 WHERE cie.user_id = $1
   AND et.exercise_type = $2
   AND ci.deleted_at IS NULL
@@ -603,7 +642,7 @@ WHERE cie.user_id = $1
 pub async fn reset_progress_on_course_instance_for_user(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<()> {
     let mut tx = conn.begin().await?;
     sqlx::query!(
@@ -611,11 +650,11 @@ pub async fn reset_progress_on_course_instance_for_user(
 UPDATE exercise_slide_submissions
 SET deleted_at = now()
 WHERE user_id = $1
-  AND course_instance_id = $2
+  AND course_id = $2
   AND deleted_at IS NULL
   ",
         user_id,
-        course_instance_id
+        course_id
     )
     .execute(&mut *tx)
     .await?;
@@ -627,12 +666,12 @@ WHERE exercise_slide_submission_id IN (
     SELECT id
     FROM exercise_slide_submissions
     WHERE user_id = $1
-      AND course_instance_id = $2
+      AND course_id = $2
   )
   AND deleted_at IS NULL
 ",
         user_id,
-        course_instance_id
+        course_id
     )
     .execute(&mut *tx)
     .await?;
@@ -641,11 +680,11 @@ WHERE exercise_slide_submission_id IN (
 UPDATE peer_review_queue_entries
 SET deleted_at = now()
 WHERE user_id = $1
-  AND course_instance_id = $2
+  AND course_id = $2
   AND deleted_at IS NULL
 ",
         user_id,
-        course_instance_id
+        course_id
     )
     .execute(&mut *tx)
     .await?;
@@ -654,11 +693,11 @@ WHERE user_id = $1
 UPDATE peer_or_self_review_submissions
 SET deleted_at = now()
 WHERE user_id = $1
-  AND course_instance_id = $2
+  AND course_id = $2
   AND deleted_at IS NULL
 ",
         user_id,
-        course_instance_id
+        course_id
     )
     .execute(&mut *tx)
     .await?;
@@ -670,12 +709,12 @@ WHERE peer_or_self_review_submission_id IN (
     SELECT id
     FROM peer_or_self_review_submissions
     WHERE user_id = $1
-      AND course_instance_id = $2
+      AND course_id = $2
   )
   AND deleted_at IS NULL
 ",
         user_id,
-        course_instance_id
+        course_id
     )
     .execute(&mut *tx)
     .await?;
@@ -690,13 +729,13 @@ WHERE exercise_task_submission_id IN (
         SELECT id
         FROM exercise_slide_submissions
         WHERE user_id = $1
-          AND course_instance_id = $2
+          AND course_id = $2
       )
   )
   AND deleted_at IS NULL
 ",
         user_id,
-        course_instance_id
+        course_id
     )
     .execute(&mut *tx)
     .await?;
@@ -706,11 +745,11 @@ WHERE exercise_task_submission_id IN (
 UPDATE user_exercise_states
 SET deleted_at = now()
 WHERE user_id = $1
-  AND course_instance_id = $2
+  AND course_id = $2
   AND deleted_at IS NULL
 ",
         user_id,
-        course_instance_id
+        course_id
     )
     .execute(&mut *tx)
     .await?;
@@ -725,13 +764,13 @@ WHERE user_exercise_slide_state_id IN (
         SELECT id
         FROM user_exercise_states
         WHERE user_id = $1
-          AND course_instance_id = $2
+          AND course_id = $2
       )
   )
   AND deleted_at IS NULL
 ",
         user_id,
-        course_instance_id
+        course_id
     )
     .execute(&mut *tx)
     .await?;
@@ -743,12 +782,12 @@ WHERE user_exercise_state_id IN (
     SELECT id
     FROM user_exercise_states
     WHERE user_id = $1
-      AND course_instance_id = $2
+      AND course_id = $2
   )
   AND deleted_at IS NULL
 ",
         user_id,
-        course_instance_id
+        course_id
     )
     .execute(&mut *tx)
     .await?;
@@ -760,12 +799,12 @@ WHERE user_exercise_state_id IN (
     SELECT id
     FROM user_exercise_states
     WHERE user_id = $1
-      AND course_instance_id = $2
+      AND course_id = $2
   )
   AND deleted_at IS NULL
 ",
         user_id,
-        course_instance_id
+        course_id
     )
     .execute(&mut *tx)
     .await?;
@@ -774,28 +813,33 @@ WHERE user_exercise_state_id IN (
 UPDATE course_module_completions
 SET deleted_at = now()
 WHERE user_id = $1
-AND course_instance_id = $2
+AND course_id = $2
 AND deleted_at IS NULL
 ",
         user_id,
-        course_instance_id
+        course_id
     )
     .execute(&mut *tx)
     .await?;
     sqlx::query!(
         "
 UPDATE generated_certificates
-SET deleted_at = now()
+SET deleted_at = NOW()
 WHERE user_id = $1
   AND certificate_configuration_id IN (
     SELECT certificate_configuration_id
     FROM certificate_configuration_to_requirements
-    WHERE course_instance_id = $2
+    WHERE course_module_id IN (
+        SELECT id
+        FROM course_modules
+        WHERE course_id = $2
+      )
       AND deleted_at IS NULL
   )
-  AND deleted_at IS NULL ",
+  AND deleted_at IS NULL
+",
         user_id,
-        course_instance_id
+        course_id
     )
     .execute(&mut *tx)
     .await?;
@@ -806,19 +850,26 @@ WHERE user_id = $1
 
 pub async fn get_course_average_duration(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Option<i64>> {
     let res = sqlx::query!(
         "
-SELECT
-    AVG(EXTRACT(EPOCH FROM cmc.completion_date - ce.created_at))::int8 AS average_duration_seconds
+SELECT AVG(
+    EXTRACT(
+      EPOCH
+      FROM cmc.completion_date - ce.created_at
+    )
+  )::int8 AS average_duration_seconds
 FROM course_instance_enrollments ce
-JOIN course_module_completions cmc ON cmc.course_instance_id = ce.course_instance_id
-WHERE ce.course_instance_id = $1
-    AND ce.deleted_at IS NULL
-    AND cmc.deleted_at IS NULL;
+  JOIN course_module_completions cmc ON (
+    cmc.course_id = ce.course_id
+    AND cmc.user_id = ce.user_id
+  )
+WHERE ce.course_id = $1
+  AND ce.deleted_at IS NULL
+  AND cmc.deleted_at IS NULL;
         ",
-        course_instance_id
+        course_id
     )
     .fetch_optional(conn)
     .await?;
@@ -829,21 +880,28 @@ WHERE ce.course_instance_id = $1
 pub async fn get_student_duration(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Option<i64>> {
     let res = sqlx::query!(
         "
-SELECT
-    COALESCE(EXTRACT(EPOCH FROM cmc.completion_date - ce.created_at)::int8, 0) AS student_duration_seconds
+SELECT COALESCE(
+    EXTRACT(
+      EPOCH
+      FROM cmc.completion_date - ce.created_at
+    )::int8,
+    0
+  ) AS student_duration_seconds
 FROM course_instance_enrollments ce
-JOIN course_module_completions cmc ON cmc.course_instance_id = ce.course_instance_id
-AND cmc.user_id = ce.user_id
-WHERE ce.course_instance_id = $1
-    AND ce.user_id = $2
-    AND ce.deleted_at IS NULL
-    AND cmc.deleted_at IS NULL;
+  JOIN course_module_completions cmc ON (
+    cmc.course_id = ce.course_id
+    AND cmc.user_id = ce.user_id
+  )
+WHERE ce.course_id = $1
+  AND ce.user_id = $2
+  AND ce.deleted_at IS NULL
+  AND cmc.deleted_at IS NULL;
         ",
-        course_instance_id,
+        course_id,
         user_id
     )
     .fetch_optional(conn)
@@ -943,8 +1001,8 @@ mod test {
 
     #[tokio::test]
     async fn gets_course_average_duration_with_empty_database() {
-        insert_data!(:tx, :user, :org, :course, :instance);
-        let duration = get_course_average_duration(tx.as_mut(), instance.id)
+        insert_data!(:tx, :user, :org, :course);
+        let duration = get_course_average_duration(tx.as_mut(), course)
             .await
             .unwrap();
         assert!(duration.is_none())

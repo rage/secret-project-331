@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { parseISO } from "date-fns"
-import { diffChars } from "diff"
+import { diffWords } from "diff"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -91,7 +91,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
   const pendingBlock = (block: BlockProposal) => {
     let diffChanges = null
     if (isEditedBlockStillExistsData(block)) {
-      diffChanges = diffChars(block.current_text, block.accept_preview ?? "")
+      diffChanges = diffWords(block.current_text, block.accept_preview ?? "")
     }
     return (
       <div>
@@ -233,7 +233,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
   const acceptedBlock = (block: BlockProposal) => {
     let diffChanges = null
     if (block.type == "edited-block-still-exists") {
-      diffChanges = diffChars(block.original_text, block.changed_text ?? "")
+      diffChanges = diffWords(block.original_text, block.changed_text ?? "")
     }
     return (
       <>

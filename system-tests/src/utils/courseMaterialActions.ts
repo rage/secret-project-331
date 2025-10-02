@@ -14,6 +14,7 @@ const isCourseSettingsModalOpen = async (page: Page) => {
 export async function selectCourseInstanceIfPrompted(
   page: Page,
   courseVariantName?: string | undefined,
+  timeout?: number,
 ) {
   await test.step(
     "Select course instance if prompted",
@@ -22,9 +23,18 @@ export async function selectCourseInstanceIfPrompted(
       await page.locator(`.course-material-block`).first().waitFor({ state: "attached" })
       // Give a moment for the dialog to appear
       if (!(await isCourseSettingsModalOpen(page))) {
-        await page.waitForTimeout(100)
-        if (!(await isCourseSettingsModalOpen(page))) {
+        if (timeout !== undefined) {
+          // If timeout is specified, retry until timeout
+          const startTime = Date.now()
+          while (!(await isCourseSettingsModalOpen(page)) && Date.now() - startTime < timeout) {
+            await page.waitForTimeout(100)
+          }
+        } else {
+          // If no timeout specified, do wait a moment
           await page.waitForTimeout(100)
+          if (!(await isCourseSettingsModalOpen(page))) {
+            await page.waitForTimeout(100)
+          }
         }
       }
 

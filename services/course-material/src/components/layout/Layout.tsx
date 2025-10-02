@@ -7,10 +7,9 @@ import { useTranslation } from "react-i18next"
 
 import LayoutContext from "../../contexts/LayoutContext"
 import PageContext, { getDefaultPageState } from "../../contexts/PageContext"
-import useCourseLanguageVersions from "../../hooks/useCourseLanguageVersions"
 import { PageState } from "../../reducers/pageStateReducer"
 import SearchDialog from "../SearchDialog"
-import { useFigureOutNewUrl } from "../modals/ChooseCourseLanguage"
+import LanguageNavigationControls from "../navigation/LanguageNavigationControls"
 import UserNavigationControls from "../navigation/UserNavigationControls"
 
 import PartnersSectionBlock from "./PartnersSection"
@@ -19,9 +18,6 @@ import ScrollIndicator from "./ScrollIndicator"
 import { fetchPrivacyLink } from "@/services/backend"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import Footer from "@/shared-module/common/components/Footer"
-import LanguageSelection, {
-  LanguageOption,
-} from "@/shared-module/common/components/LanguageSelection"
 import {
   NavBar,
   NavContainer,
@@ -30,10 +26,7 @@ import {
 } from "@/shared-module/common/components/Navigation/NavBar"
 import { getDir } from "@/shared-module/common/hooks/useLanguage"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
-import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
-
-const LANGUAGE_SELECTION_PLACEMENTPLACEMENT = "bottom-end"
 
 interface LayoutProps {
   children: ReactNode
@@ -55,10 +48,6 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
   const [courseId, setCourseId] = useState<string | null>(null)
   const [hideFromSearchEngines, setHideFromSearchEngines] = useState<boolean>(false)
   const [pageState, setPageState] = useState<PageState>(getDefaultPageState())
-  // When set, this will trigger a redirect to the same page in the selected language
-  const [changeLanguageToThisCourseId, setChangeLanguageToThisCourseId] = useState<string | null>(
-    null,
-  )
   const getPrivacyLink = useQuery({
     queryKey: ["privacy-link", courseId],
     queryFn: () => fetchPrivacyLink(courseId as NonNullable<string>),
@@ -73,33 +62,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
         }))
       : []
 
-  const languageVersions = useCourseLanguageVersions(courseId)
-  const languages: LanguageOption[] = (languageVersions?.data ?? []).map((languageVersion) => ({
-    tag: languageVersion.language_code,
-    name: ietfLanguageTagToHumanReadableName(languageVersion.language_code),
-  }))
-  const currentLanguageVersion = languageVersions.data?.find(
-    (languageVersionCourse) => languageVersionCourse.id === courseId,
-  )
-  const currentLanguageCode = currentLanguageVersion?.language_code
-
-  const changedLanguageUrl = useFigureOutNewUrl(
-    changeLanguageToThisCourseId,
-    pageState.pageData?.page_language_group_id ?? null,
-  )
-
-  useEffect(() => {
-    const hrefWithSlash = `${document.location.href}/`
-    if (
-      changedLanguageUrl !== null &&
-      document.location.href !== changedLanguageUrl &&
-      hrefWithSlash !== changedLanguageUrl
-    ) {
-      console.info(`Redirecting to ${changedLanguageUrl} from ${document.location.href}`)
-      setChangeLanguageToThisCourseId(null)
-      router.push(changedLanguageUrl)
-    }
-  }, [changedLanguageUrl, router])
+  const currentLanguageCode = pageState.course?.language_code
 
   useEffect(() => {
     if (!currentLanguageCode) {
@@ -159,25 +122,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
                   </NavItem>
                 )}
                 <NavItem>
-                  <LanguageSelection
-                    placement={LANGUAGE_SELECTION_PLACEMENTPLACEMENT}
-                    languages={languages}
-                    handleLanguageChange={(newLanguage) => {
-                      console.info("Language changing to", newLanguage)
-                      if (!languageVersions.data) {
-                        console.error("No language versions found")
-                        return
-                      }
-                      const newLanguageVersion = languageVersions.data.find(
-                        (languageVersion) => languageVersion.language_code === newLanguage,
-                      )
-                      if (!newLanguageVersion) {
-                        console.error("No language version found for", newLanguage)
-                        return
-                      }
-                      setChangeLanguageToThisCourseId(newLanguageVersion.id)
-                    }}
-                  />
+                  <LanguageNavigationControls placement="bottom-end" />
                 </NavItem>
               </NavItems>
             </NavContainer>

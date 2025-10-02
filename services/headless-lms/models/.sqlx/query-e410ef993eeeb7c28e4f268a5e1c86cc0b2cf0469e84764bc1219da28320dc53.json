@@ -84,7 +84,17 @@
         "Jsonb"
       ]
     },
-    "nullable": [false, false, true, false, false, false, false, false, true]
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
   },
   "hash": "e410ef993eeeb7c28e4f268a5e1c86cc0b2cf0469e84764bc1219da28320dc53"
 }

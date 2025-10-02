@@ -18,6 +18,7 @@ import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import { roundDown } from "@/shared-module/common/utils/numbers"
+import { courseInstanceUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 export interface CourseInstancePointsListProps {
@@ -94,7 +95,7 @@ const CourseInstancePointsList: React.FC<
         {t("point-summary")}: {courseInstanceId}
       </h2>
       {getPointsList.isError && <ErrorBanner variant={"readOnly"} error={getPointsList.error} />}
-      {getPointsList.isPending && <Spinner variant={"medium"} />}
+      {getPointsList.isLoading && <Spinner variant={"medium"} />}
       {getPointsList.isSuccess && (
         <>
           <ChapterPointsDashboard
@@ -192,11 +193,10 @@ const CourseInstancePointsList: React.FC<
                     <FullWidthTableRow key={user.user_id}>
                       <td>
                         <Link
-                          href={{
-                            pathname:
-                              "/manage/course-instances/[courseInstanceId]/course-status-summary-for-user/[userId]",
-                            query: { courseInstanceId: courseInstanceId, userId: user.user_id },
-                          }}
+                          href={courseInstanceUserStatusSummaryRoute(
+                            courseInstanceId,
+                            user.user_id,
+                          )}
                         >
                           {user.user_id}
                         </Link>

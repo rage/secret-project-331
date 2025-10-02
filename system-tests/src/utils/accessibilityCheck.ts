@@ -7,7 +7,7 @@ import { Writable } from "stream"
 export default async function accessibilityCheck(
   page: Page,
   contextName: string,
-  axeSkip: string[] | undefined,
+  axeSkip?: string[],
 ): Promise<void> {
   // collect console.logs with all the console.group groupings
   const outputStream = new StoringStream()

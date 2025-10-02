@@ -21,11 +21,9 @@ use crate::{
     },
     prelude::*,
     regradings,
-    user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
+    user_course_exercise_service_variables::UserCourseExerciseServiceVariable,
     user_exercise_slide_states::{self, UserExerciseSlideState},
-    user_exercise_states::{
-        self, CourseInstanceOrExamId, ExerciseWithUserState, UserExerciseState,
-    },
+    user_exercise_states::{self, ExerciseWithUserState, UserExerciseState},
     user_exercise_task_states,
 };
 
@@ -44,8 +42,7 @@ pub struct StudentExerciseSlideSubmission {
 pub struct StudentExerciseSlideSubmissionResult {
     pub exercise_status: Option<ExerciseStatus>,
     pub exercise_task_submission_results: Vec<StudentExerciseTaskSubmissionResult>,
-    pub user_course_instance_exercise_service_variables:
-        Vec<UserCourseInstanceExerciseServiceVariable>,
+    pub user_course_instance_exercise_service_variables: Vec<UserCourseExerciseServiceVariable>,
 }
 
 impl StudentExerciseSlideSubmissionResult {
@@ -134,9 +131,6 @@ pub async fn create_user_exercise_slide_submission(
         NewExerciseSlideSubmission {
             exercise_slide_id: selected_exercise_slide_id,
             course_id: exercise_with_user_state.exercise().course_id,
-            course_instance_id: exercise_with_user_state
-                .user_exercise_state()
-                .course_instance_id,
             exam_id: exercise_with_user_state.exercise().exam_id,
             exercise_id: exercise_with_user_state.exercise().id,
             user_id: exercise_with_user_state.user_exercise_state().user_id,
@@ -200,7 +194,7 @@ pub async fn update_grading_with_single_regrading_result(
         conn,
         slide_submission.user_id,
         exercise.id,
-        slide_submission.course_instance_id,
+        slide_submission.course_id,
         slide_submission.exam_id,
     )
     .await?;
@@ -273,8 +267,53 @@ pub async fn grade_user_submission(
                     &fetch_service_info,
                     &send_grading_request,
                 )
-                .await?;
-                results.push(submission);
+                .await;
+                match submission {
+                    Ok(submission) => results.push(submission),
+                    Err(err) => {
+                        // Store rejected submission when HTTP call fails
+                        let (http_status_code, error_message, response_body) =
+                            match err.error_type() {
+                                crate::error::ModelErrorType::HttpRequest {
+                                    status_code,
+                                    response_body,
+                                } => (
+                                    Some(*status_code as i32),
+                                    Some(response_body.clone()),
+                                    Some(response_body.clone()),
+                                ),
+                                crate::error::ModelErrorType::HttpError {
+                                    error_type: crate::error::HttpErrorType::ResponseDecodeFailed,
+                                    response_body,
+                                    status_code,
+                                    ..
+                                } => (
+                                    status_code.map(|s| s as i32),
+                                    Some(err.to_string()),
+                                    response_body.clone(),
+                                ),
+                                _ => (None, Some(err.to_string()), None),
+                            };
+
+                        // We want to save the rejected submission to the database
+                        // But don't want to keep the rest of the stuff we have inserted into the database
+                        tx.rollback().await?;
+                        let mut tx = conn.begin().await?;
+
+                        let _ = crate::rejected_exercise_slide_submissions::insert_rejected_exercise_slide_submission(
+                            &mut tx,
+                            user_exercise_slide_submission,
+                            user_exercise_state.user_id,
+                            http_status_code,
+                            error_message,
+                            response_body,
+                        ).await;
+
+                        tx.commit().await?;
+
+                        return Err(err);
+                    }
+                }
             }
             results
         }
@@ -311,12 +350,12 @@ pub async fn grade_user_submission(
     )
     .await?;
 
-    let course_instance_or_exam_id = CourseInstanceOrExamId::from_instance_and_exam_ids(
-        user_exercise_state.course_instance_id,
+    let course_or_exam_id = CourseOrExamId::from_course_and_exam_ids(
+        user_exercise_state.course_id,
         user_exercise_state.exam_id,
     )?;
 
-    let user_course_instance_exercise_service_variables  = crate::user_course_instance_exercise_service_variables::get_all_variables_for_user_and_course_instance_or_exam(&mut tx, user_exercise_state.user_id, course_instance_or_exam_id).await?;
+    let user_course_instance_exercise_service_variables  = crate::user_course_exercise_service_variables::get_all_variables_for_user_and_course_or_exam(&mut tx, user_exercise_state.user_id, course_or_exam_id).await?;
 
     let result = StudentExerciseSlideSubmissionResult {
         exercise_status: Some(ExerciseStatus {
@@ -557,17 +596,13 @@ pub async fn get_paginated_answers_requiring_attention_for_exercise(
             false,
         )
         .await?;
-        let given_peer_reviews = if let Some(course_instance_id) = answer.course_instance_id {
-            peer_or_self_review_question_submissions::get_given_peer_reviews(
-                conn,
-                answer.user_id,
-                answer.exercise_id,
-                course_instance_id,
-            )
-            .await?
-        } else {
-            vec![]
-        };
+        let given_peer_reviews = peer_or_self_review_question_submissions::get_given_peer_reviews(
+            conn,
+            answer.user_id,
+            answer.exercise_id,
+        )
+        .await?;
+
         let received_peer_or_self_reviews =
             peer_or_self_review_question_submissions::get_questions_and_answers_by_submission_id(
                 conn,

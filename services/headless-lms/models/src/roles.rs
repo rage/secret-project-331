@@ -90,7 +90,7 @@ pub struct RoleInfo {
 #[derive(Debug, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct RoleUser {
-    pub id: Uuid,
+    pub user_id: Uuid,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
     pub email: String,
@@ -103,7 +103,7 @@ pub async fn get(conn: &mut PgConnection, domain: RoleDomain) -> ModelResult<Vec
             sqlx::query_as!(
                 RoleUser,
                 r#"
-SELECT users.id AS "id!",
+SELECT users.id AS "user_id!",
   user_details.first_name,
   user_details.last_name,
   user_details.email,
@@ -122,7 +122,7 @@ AND roles.deleted_at IS NULL
             sqlx::query_as!(
                 RoleUser,
                 r#"
-SELECT users.id,
+SELECT users.id AS "user_id!",
   user_details.first_name,
   user_details.last_name,
   user_details.email,
@@ -142,7 +142,7 @@ AND roles.deleted_at IS NULL
             sqlx::query_as!(
                 RoleUser,
                 r#"
-SELECT users.id,
+SELECT users.id AS "user_id!",
   user_details.first_name,
   user_details.last_name,
   user_details.email,
@@ -162,7 +162,7 @@ AND roles.deleted_at IS NULL
             sqlx::query_as!(
                 RoleUser,
                 r#"
-SELECT users.id,
+SELECT users.id AS "user_id!",
   user_details.first_name,
   user_details.last_name,
   user_details.email,
@@ -182,7 +182,7 @@ AND roles.deleted_at IS NULL
             sqlx::query_as!(
                 RoleUser,
                 r#"
-SELECT users.id,
+SELECT users.id AS "user_id!",
   user_details.first_name,
   user_details.last_name,
   user_details.email,

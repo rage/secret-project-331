@@ -1,13 +1,27 @@
 name: Generate db docs
 
+permissions: read-all
+
 on:
   push:
     branches:
       - master
+    paths-ignore:
+      - "docs/**"
+      - "services/cms/**"
+      - "services/course-material/**"
+      - "services/example-exercise/**"
+      - "services/main-frontend/**"
+      - "services/quizzes/**"
+      - "services/tmc/**"
+      - "storybook/**"
+      - "system-tests/**"
 
 jobs:
   generate-db-docs:
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
     container: eu.gcr.io/moocfi-public/db-docs
 
     services:
@@ -30,14 +44,12 @@ jobs:
           mkdir -p ~/.ssh
           echo "$DB_DOCS_DEPLOY_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          md5sum ~/.ssh/id_ed25519
-          ls -la ~/.ssh
         env:
           DB_DOCS_DEPLOY_KEY: ${{ secrets.DB_DOCS_DEPLOY_KEY }}
       - name: Check out docs repo
         run: git clone git@github.com:rage/secret-project-331-db-docs.git db-docs
         env:
-          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes"
+          GIT_SSH_COMMAND: "ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes"
 
       - name: Setup database
         run: sqlx database setup

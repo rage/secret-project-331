@@ -67,7 +67,7 @@ const CourseVisitorsLineChart: React.FC<React.PropsWithChildren<CourseVisitorsLi
   return (
     <LineChart
       data={processedData}
-      isLoading={query.isPending}
+      isLoading={query.isLoading}
       error={query.error}
       period={period}
       setPeriod={setPeriod}

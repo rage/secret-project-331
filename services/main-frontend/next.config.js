@@ -33,6 +33,22 @@ const config = {
 
     return config
   },
+  turbopack: {
+    rules: {
+      "*.svg": {
+        loaders: [
+          {
+            loader: "@svgr/webpack",
+            options: {
+              svgoConfig: svgoConfig,
+              svgProps: { role: "presentation" },
+            },
+          },
+        ],
+        as: "*.js",
+      },
+    },
+  },
   compiler: {
     emotion: {
       autoLabel: "always",
@@ -50,6 +66,8 @@ const config = {
     publicAddress: process.env.PUBLIC_ADDRESS,
   },
   transpilePackages: ["@vectopus/atlas-icons-react"],
+  // This is open source, so no need to hide the code
+  productionBrowserSourceMaps: true,
 }
 
 if (process.env.NEXT_PUBLIC_BASE_PATH) {

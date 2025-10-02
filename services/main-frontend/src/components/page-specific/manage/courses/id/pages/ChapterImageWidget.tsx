@@ -6,6 +6,8 @@ import UploadImageForm from "../../../../../forms/UploadImageForm"
 
 import { Chapter } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 export interface ChapterImageControlsProps {
   chapter: Chapter
@@ -17,53 +19,73 @@ const ChapterImageWidget: React.FC<React.PropsWithChildren<ChapterImageControlsP
   onChapterUpdated,
 }) => {
   const { t } = useTranslation()
-  const [allowRemove, setAllowRemove] = useState(true)
-  const [error, setError] = useState<unknown>()
+  const { confirm } = useDialog()
   const [chapterImageUrl, setChapterImageUrl] = useState(chapter.chapter_image_url)
 
-  const handleSubmit = async (imageFile: File) => {
-    try {
-      const res = await setChapterImage(chapter.id, imageFile)
-      if (onChapterUpdated) {
-        onChapterUpdated()
-      }
-      setChapterImageUrl(res.chapter_image_url)
-      setError(undefined)
-    } catch (e) {
-      setError(e)
-    }
-  }
+  const uploadImageMutation = useToastMutation(
+    (imageFile: File) => setChapterImage(chapter.id, imageFile),
+    {
+      notify: true,
+      method: "POST",
+      successMessage: t("message-saved-successfully"),
+      errorMessage: t("message-saving-failed"),
+    },
+    {
+      onSuccess: (res) => {
+        if (onChapterUpdated) {
+          onChapterUpdated()
+        }
+        setChapterImageUrl(res.chapter_image_url)
+      },
+    },
+  )
 
-  const handleRemove = async () => {
-    setAllowRemove(false)
-    try {
-      await removeChapterImage(chapter.id)
-      if (onChapterUpdated) {
-        onChapterUpdated()
-      }
-      setChapterImageUrl(null)
-      setError(undefined)
-    } catch (e) {
-      setError(e)
-    } finally {
-      setAllowRemove(true)
+  const removeImageMutation = useToastMutation(
+    () => removeChapterImage(chapter.id),
+    {
+      notify: true,
+      method: "DELETE",
+      successMessage: t("message-deleting-succesful"),
+      errorMessage: t("message-deleting-failed"),
+    },
+    {
+      onSuccess: () => {
+        if (onChapterUpdated) {
+          onChapterUpdated()
+        }
+        setChapterImageUrl(null)
+      },
+    },
+  )
+
+  const handleRemoveImage = async () => {
+    const confirmed = await confirm(
+      t("confirm-remove-chapter-image"),
+      t("confirm-remove-chapter-image-title"),
+    )
+    if (confirmed) {
+      removeImageMutation.mutate()
     }
   }
 
   return (
     <div>
-      {!!error && <pre>{JSON.stringify(`${error}`, undefined, 2)}</pre>}
       {chapterImageUrl ? (
         <>
           <img src={chapterImageUrl} alt={t("image-alt-what-to-display-on-chapter")} />
-          <Button size="medium" variant="secondary" onClick={handleRemove} disabled={!allowRemove}>
+          <Button
+            size="medium"
+            variant="secondary"
+            onClick={handleRemoveImage}
+            disabled={removeImageMutation.isPending}
+          >
             {t("button-text-remove")}
           </Button>
         </>
       ) : (
         <div>{t("no-chapter-image")}</div>
       )}
-      <UploadImageForm onSubmit={handleSubmit} />
+      <UploadImageForm mutation={uploadImageMutation} hasExistingImage={!!chapterImageUrl} />
     </div>
   )
 }

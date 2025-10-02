@@ -29,7 +29,7 @@ const ExerciseResetLogList: React.FC<ExerciseResetLogListProps> = ({ userId }) =
   if (userResetExerciseLogs.isError) {
     return <ErrorBanner variant="readOnly" error={userResetExerciseLogs.error} />
   }
-  if (userResetExerciseLogs.isPending) {
+  if (userResetExerciseLogs.isLoading) {
     return <Spinner variant="medium" />
   }
 

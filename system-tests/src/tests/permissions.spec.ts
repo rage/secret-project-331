@@ -31,24 +31,16 @@ test("Managing permissions works", async ({ page, headless }, testInfo) => {
   })
 
   await page.click('[placeholder="Enter email"]')
-
-  // Fill [placeholder="Enter email"]
   await page.fill('[placeholder="Enter email"]', "teacher@example.com")
-
-  // Select Admin
   await page.selectOption("select", "Admin")
-
   await page.getByText("Add user").click()
+  await page.getByText("Operation successful!").waitFor()
 
   await page.click('[placeholder="Enter email"]')
-
-  // Fill [placeholder="Enter email"]
   await page.fill('[placeholder="Enter email"]', "admin@example.com")
-
-  // Select Admin
   await page.selectOption("select", "Teacher")
-
   await page.getByText("Add user").click()
+  await page.getByText("Operation successful!").waitFor()
 
   await page.click('[aria-label="Sort by email"]')
   await expect(page).toHaveURL(
@@ -75,7 +67,12 @@ test("Managing permissions works", async ({ page, headless }, testInfo) => {
     snapshotName: "sorted-by-role",
   })
 
-  await page.click('[aria-label="Edit role"]')
+  const teacherRowWithAdminRole = page
+    .locator("tr")
+    .filter({ hasText: "teacher@example.com" })
+    .filter({ hasText: "Teacher Example" })
+    .filter({ has: page.getByText("Admin", { exact: true }) })
+  await teacherRowWithAdminRole.locator('[aria-label="Edit role"]').click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -85,11 +82,7 @@ test("Managing permissions works", async ({ page, headless }, testInfo) => {
     waitForTheseToBeVisibleAndStable: [page.getByText("teacher@example.com").first()],
   })
 
-  // Select Reviewer
-  await page.selectOption(
-    "text=teacher@example.comAdminAssistantReviewerTeacher >> select",
-    "Reviewer",
-  )
+  await teacherRowWithAdminRole.locator("select").selectOption("Reviewer")
 
   await showNextToastsInfinitely(page)
   await page.click('[aria-label="Save edited role"]')
@@ -104,7 +97,11 @@ test("Managing permissions works", async ({ page, headless }, testInfo) => {
   })
 
   await hideToasts(page)
-  await page.click('[aria-label="Remove role"]')
+  const teacherRowToRemove = page
+    .locator("tr")
+    .filter({ hasText: "teacher@example.com" })
+    .filter({ hasText: "Reviewer" })
+  await teacherRowToRemove.locator('[aria-label="Remove role"]').click()
   await page.getByText("Success").first().waitFor()
 
   await expectScreenshotsToMatchSnapshots({

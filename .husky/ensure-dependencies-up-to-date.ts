@@ -12,18 +12,18 @@ const savedCommitHashesPath = `${projectRoot}/.husky/_/saved-hashes`
 
 async function main(): Promise<void> {
   await mkdir(savedCommitHashesPath, { recursive: true })
-  await detectChange("package-lock.json", "package-lock", async () => {
-    console.log("Running npm ci to install latest dependencies.")
-    console.log(`> npm ci`)
-    await runCommandWithVisibleOutput("npm", ["ci"])
+  await detectChange("pnpm-lock.yaml", "pnpm-lock", async () => {
+    console.log("Running pnpm install --frozen-lockfile to install latest dependencies.")
+    console.log(`> pnpm install --frozen-lockfile`)
+    await runCommandWithVisibleOutput("pnpm", ["install", "--frozen-lockfile"])
   })
   await detectChange(
     "shared-module/packages/common/src/locales",
     "shared-module-common-locales",
     async () => {
       console.log("Installing the shared module again.")
-      console.log(`> npm run postinstall`)
-      await runCommandWithVisibleOutput("npm", ["run", "postinstall"])
+      console.log(`> pnpm run postinstall`)
+      await runCommandWithVisibleOutput("pnpm", ["run", "postinstall"])
     },
   )
 }

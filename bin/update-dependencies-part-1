@@ -13,8 +13,8 @@ if [[ $(git status --porcelain) ]]; then
   exit 1
 fi
 
-run_command npm ci
-run_command bin/npm-ci-all
+run_command pnpm install
+run_command bin/pnpm-install-all
 
 function update_node_deps() {
   folder=$1
@@ -22,7 +22,7 @@ function update_node_deps() {
   run_command command cd  "$folder"
 
   set +e
-  if ! run_command npx npm-check --update; then
+  if ! run_command pnpm exec npm-check --update; then
     echo "Updating dependencies for $target_name failed. Please do the dependency update manually."
     echo "Press enter when you're ready. The script will then commit your changes."
     read -r
@@ -31,17 +31,17 @@ function update_node_deps() {
 
   # check if there are any uncommitted changes
   if [[ $(git status --porcelain) ]]; then
-    git add package.json package-lock.json
+    git add package.json pnpm-lock.yaml
     git commit -m "Update dependencies for $target_name " --no-verify
   fi
   set +e
-  run_command npm audit fix
-  run_command npm audit fix
-  run_command npm audit fix
+  run_command pnpm audit --fix
+  run_command pnpm audit --fix
+  run_command pnpm audit --fix
   set -e
   if [[ $(git status --porcelain) ]]; then
-    git add package-lock.json
-    git commit -am "npm audit for $target_name" --no-verify
+    git add pnpm-lock.yaml
+    git commit -am "pnpm audit for $target_name" --no-verify
   fi
   cd -
 }

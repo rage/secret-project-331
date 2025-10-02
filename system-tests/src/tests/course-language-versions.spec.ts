@@ -67,12 +67,14 @@ test("Creating a new language version works", async ({ page, headless }, testInf
     testInfo,
     snapshotName: "wrong-course-banner",
     waitForTheseToBeVisibleAndStable: [
-      page.getByText("You're already on a different language version of this course"),
+      page.getByText("You have previously started this course in a different language").first(),
     ],
   })
 
   await page.getByText("Johdatus lokalisointiin").click()
-  await expect(page).toHaveURL("http://project-331.local/org/uh-cs/courses/johdatus-lokalisointiin")
+  await expect(page).toHaveURL(
+    "http://project-331.local/org/uh-cs/courses/johdatus-lokalisointiin/chapter-1",
+  )
 })
 
 test("creator of the language version has permissions to the new version", async ({ page }) => {

@@ -2,6 +2,7 @@
   "name": "common",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "pnpm@10.17.1",
   "keywords": [],
   "author": "Henrik Nygren <nygrenh@gmail.com>",
   "license": "Apache-2.0",

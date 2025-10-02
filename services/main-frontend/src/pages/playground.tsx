@@ -177,7 +177,7 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
         {getPlaygroundExamples.isError && (
           <ErrorBanner variant={"readOnly"} error={getPlaygroundExamples.error} />
         )}
-        {getPlaygroundExamples.isPending && <Spinner variant={"medium"} />}
+        {getPlaygroundExamples.isLoading && <Spinner variant={"medium"} />}
         {getPlaygroundExamples.isSuccess && getPlaygroundExamples.data.length > 0 && (
           <div>
             <h3>{t("title-list-of-examples")}</h3>

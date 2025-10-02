@@ -1,0 +1,1 @@
+ALTER TABLE rejected_exercise_slide_submissions DROP COLUMN response_body;

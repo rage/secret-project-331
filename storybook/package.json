@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "packageManager": "pnpm@10.17.1",
   "keywords": [],
   "author": "Henrik Nygren <nygrenh@gmail.com>",
   "license": "Apache-2.0",
@@ -29,13 +30,18 @@
   },
   "dependencies": {
     "@emotion/css": "^11.13.5",
+    "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@react-aria/dialog": "^3.5.25",
+    "@react-aria/focus": "^3.15.0",
+    "@react-aria/overlays": "^3.15.0",
+    "@react-types/dialog": "^3.5.0",
     "@vectopus/atlas-icons-react": "github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "i18next": "^24.2.1",
-    "react-i18next": "^15.4.0"
+    "react-i18next": "^15.4.0",
+    "uuid": "^11.1.0"
   },
   "overrides": {
     "react": "^19.0.0",

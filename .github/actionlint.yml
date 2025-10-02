@@ -1,3 +1,4 @@
 self-hosted-runner:
   labels:
-    - ubicloud-standard-16
+    - ubicloud-standard-30-ubuntu-2404
+    - ubuntu-24.04

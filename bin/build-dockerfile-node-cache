@@ -1,0 +1,22 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FOLDER_PATH="$BASEDIR/.."
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+
+run_command cd "$RELATIVE_PATH" || exit
+
+# Build the base image first if it doesn't exist or if --force-base is passed
+if [[ "$*" == *"--force-base"* ]] || ! docker image inspect eu.gcr.io/moocfi-public/project-331-node-base:latest >/dev/null 2>&1; then
+    echo -e "${BLUE}Building base image first...${RESET_EVERYTHING}"
+    run_command docker pull node:22-bookworm-slim
+    run_command docker build . --file Dockerfile.node.base.dockerfile -t eu.gcr.io/moocfi-public/project-331-node-base
+else
+    echo -e "${GREEN}Base image already exists, skipping base build${RESET_EVERYTHING}"
+fi
+
+# Build the cache image
+echo -e "${BLUE}Building cache image...${RESET_EVERYTHING}"
+run_command docker build . --file Dockerfile.node.cache.dockerfile -t eu.gcr.io/moocfi-public/project-331-node-cache "$@"

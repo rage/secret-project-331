@@ -50,7 +50,7 @@ const ChapterExerciseListGroupedByPage: React.FC<
   }
 
   if (
-    getUserCourseInstanceChapterExercisesProgress.isPending &&
+    getUserCourseInstanceChapterExercisesProgress.isLoading &&
     getUserCourseInstanceChapterExercisesProgress.fetchStatus !== "idle"
   ) {
     // No spinner when idle because this component still works when we are logged out and the query is not enabled

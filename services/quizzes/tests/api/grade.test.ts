@@ -1,6 +1,12 @@
 import handler from "../../src/pages/api/grade"
 
 import { oldGenerateMultipleChoiceRequest } from "./utils/oldQuizGenerator"
+import {
+  generateChooseNGradingRequest,
+  generateMultipleChoiceGradingRequest,
+  generateTimelineGradingRequest,
+  generateUnknownItemTypeGradingRequest,
+} from "./utils/privateSpecGenerator"
 import testClient from "./utils/testClient"
 
 import { ExerciseTaskGradingResult } from "@/shared-module/common/bindings"
@@ -268,5 +274,297 @@ describe("grade", () => {
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(0)
+  })
+
+  // Test edge case: quiz item with zero correct options defined (division by zero bug fix)
+  it("returns zero points when quiz item defines no correct options (default policy)", async () => {
+    const data = generateMultipleChoiceGradingRequest(4, 0, ["option-1"], "default", true)
+    const response = await client.post("/api/grade").send(data)
+    const result = JSON.parse(response.text)
+    expect(isExerciseTaskGradingResult(result))
+
+    const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+    expect(gradingResult.score_given).toBe(0)
+  })
+
+  it("returns zero points when quiz item defines no correct options (points-off-incorrect-options)", async () => {
+    const data = generateMultipleChoiceGradingRequest(
+      4,
+      0,
+      ["option-1"],
+      "points-off-incorrect-options",
+      true,
+    )
+    const response = await client.post("/api/grade").send(data)
+    const result = JSON.parse(response.text)
+    expect(isExerciseTaskGradingResult(result))
+
+    const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+    expect(gradingResult.score_given).toBe(0)
+  })
+
+  it("returns zero points when quiz item defines no correct options (points-off-unselected-options)", async () => {
+    const data = generateMultipleChoiceGradingRequest(
+      4,
+      0,
+      ["option-1"],
+      "points-off-unselected-options",
+      true,
+    )
+    const response = await client.post("/api/grade").send(data)
+    const result = JSON.parse(response.text)
+    expect(isExerciseTaskGradingResult(result))
+
+    const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+    expect(gradingResult.score_given).toBe(0)
+  })
+
+  it("returns zero points when quiz item defines no correct options (some-correct-none-incorrect)", async () => {
+    const data = generateMultipleChoiceGradingRequest(
+      4,
+      0,
+      ["option-1"],
+      "some-correct-none-incorrect",
+      true,
+    )
+    const response = await client.post("/api/grade").send(data)
+    const result = JSON.parse(response.text)
+    expect(isExerciseTaskGradingResult(result))
+
+    const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+    expect(gradingResult.score_given).toBe(0)
+  })
+
+  // Test edge case: correct options exist but student selected only wrong options
+  it("returns zero points when student selects only incorrect options (default policy)", async () => {
+    const data = generateMultipleChoiceGradingRequest(
+      4,
+      2,
+      ["option-3", "option-4"],
+      "default",
+      true,
+    )
+    const response = await client.post("/api/grade").send(data)
+    const result = JSON.parse(response.text)
+    expect(isExerciseTaskGradingResult(result))
+
+    const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+    expect(gradingResult.score_given).toBe(0)
+  })
+
+  it("returns zero points when student selects only incorrect options (points-off-incorrect-options)", async () => {
+    const data = generateMultipleChoiceGradingRequest(
+      4,
+      2,
+      ["option-3", "option-4"],
+      "points-off-incorrect-options",
+      true,
+    )
+    const response = await client.post("/api/grade").send(data)
+    const result = JSON.parse(response.text)
+    expect(isExerciseTaskGradingResult(result))
+
+    const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+    expect(gradingResult.score_given).toBe(0)
+  })
+
+  it("returns zero points when student selects only incorrect options (points-off-unselected-options)", async () => {
+    const data = generateMultipleChoiceGradingRequest(
+      4,
+      2,
+      ["option-3", "option-4"],
+      "points-off-unselected-options",
+      true,
+    )
+    const response = await client.post("/api/grade").send(data)
+    const result = JSON.parse(response.text)
+    expect(isExerciseTaskGradingResult(result))
+
+    const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+    expect(gradingResult.score_given).toBe(0)
+  })
+
+  it("returns zero points when student selects only incorrect options (some-correct-none-incorrect)", async () => {
+    const data = generateMultipleChoiceGradingRequest(
+      4,
+      2,
+      ["option-3", "option-4"],
+      "some-correct-none-incorrect",
+      true,
+    )
+    const response = await client.post("/api/grade").send(data)
+    const result = JSON.parse(response.text)
+    expect(isExerciseTaskGradingResult(result))
+
+    const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+    expect(gradingResult.score_given).toBe(0)
+  })
+
+  // Test edge case: student selects no options at all
+  it("returns error when student selects no options", async () => {
+    const data = generateMultipleChoiceGradingRequest(4, 2, [], "default", true)
+    const response = await client.post("/api/grade").send(data)
+
+    // Empty selections should return an error (not crash with null score)
+    expect(response.status).toBe(500)
+    const result = JSON.parse(response.text)
+    expect(result.error_message).toContain("No option answers")
+  })
+
+  it("returns zero points when choose-n quiz has no correct options", async () => {
+    const data = generateChooseNGradingRequest(4, 0, ["option-1"], 2)
+    const response = await client.post("/api/grade").send(data)
+    const result = JSON.parse(response.text)
+    expect(isExerciseTaskGradingResult(result))
+
+    const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+    expect(gradingResult.score_given).toBe(0)
+  })
+
+  it("returns zero points when timeline has no items", async () => {
+    const data = generateTimelineGradingRequest([], [])
+    const response = await client.post("/api/grade").send(data)
+    const result = JSON.parse(response.text)
+    expect(isExerciseTaskGradingResult(result))
+
+    const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+    expect(gradingResult.score_given).toBe(0)
+  })
+
+  it("returns error for unknown item answer type", async () => {
+    const data = generateUnknownItemTypeGradingRequest()
+    const response = await client.post("/api/grade").send(data)
+
+    expect(response.status).toBe(500)
+    const result = JSON.parse(response.text)
+    expect(result.error_message).toContain("Unexpected item answer type")
+  })
+
+  describe("choose-n grading", () => {
+    it("returns full points when all n correct options are selected", async () => {
+      const data = generateChooseNGradingRequest(6, 4, ["option-1", "option-2"], 2)
+      const response = await client.post("/api/grade").send(data)
+      const result = JSON.parse(response.text)
+      expect(isExerciseTaskGradingResult(result))
+
+      const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+      expect(gradingResult.score_given).toBe(1)
+    })
+
+    it("returns partial points when some correct options are selected", async () => {
+      const data = generateChooseNGradingRequest(6, 4, ["option-1"], 2)
+      const response = await client.post("/api/grade").send(data)
+      const result = JSON.parse(response.text)
+      expect(isExerciseTaskGradingResult(result))
+
+      const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+      expect(gradingResult.score_given).toBe(0.5)
+    })
+
+    it("returns zero points when no correct options are selected", async () => {
+      const data = generateChooseNGradingRequest(6, 2, ["option-3", "option-4"], 2)
+      const response = await client.post("/api/grade").send(data)
+      const result = JSON.parse(response.text)
+      expect(isExerciseTaskGradingResult(result))
+
+      const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+      expect(gradingResult.score_given).toBe(0)
+    })
+
+    it("returns zero points when n is zero", async () => {
+      const data = generateChooseNGradingRequest(4, 2, ["option-1"], 0)
+      const response = await client.post("/api/grade").send(data)
+      const result = JSON.parse(response.text)
+      expect(isExerciseTaskGradingResult(result))
+
+      const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+      expect(gradingResult.score_given).toBe(0)
+    })
+
+    it("handles case where n is larger than total correct options", async () => {
+      const data = generateChooseNGradingRequest(6, 2, ["option-1", "option-2"], 5)
+      const response = await client.post("/api/grade").send(data)
+      const result = JSON.parse(response.text)
+      expect(isExerciseTaskGradingResult(result))
+
+      const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+      expect(gradingResult.score_given).toBe(1)
+    })
+  })
+
+  describe("timeline grading", () => {
+    it("returns full points when all timeline choices are correct", async () => {
+      const data = generateTimelineGradingRequest(
+        [
+          { id: "1", year: "2000", correctEventName: "Event 1", correctEventId: "event-1" },
+          { id: "2", year: "2001", correctEventName: "Event 2", correctEventId: "event-2" },
+        ],
+        [
+          { timelineItemId: "1", chosenEventId: "event-1" },
+          { timelineItemId: "2", chosenEventId: "event-2" },
+        ],
+      )
+      const response = await client.post("/api/grade").send(data)
+      const result = JSON.parse(response.text)
+      expect(isExerciseTaskGradingResult(result))
+
+      const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+      expect(gradingResult.score_given).toBe(1)
+    })
+
+    it("returns partial points when some timeline choices are correct", async () => {
+      const data = generateTimelineGradingRequest(
+        [
+          { id: "1", year: "2000", correctEventName: "Event 1", correctEventId: "event-1" },
+          { id: "2", year: "2001", correctEventName: "Event 2", correctEventId: "event-2" },
+          { id: "3", year: "2002", correctEventName: "Event 3", correctEventId: "event-3" },
+          { id: "4", year: "2003", correctEventName: "Event 4", correctEventId: "event-4" },
+        ],
+        [
+          { timelineItemId: "1", chosenEventId: "event-1" },
+          { timelineItemId: "2", chosenEventId: "event-wrong" },
+          { timelineItemId: "3", chosenEventId: "event-3" },
+          { timelineItemId: "4", chosenEventId: "event-wrong" },
+        ],
+      )
+      const response = await client.post("/api/grade").send(data)
+      const result = JSON.parse(response.text)
+      expect(isExerciseTaskGradingResult(result))
+
+      const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+      expect(gradingResult.score_given).toBe(0.5)
+    })
+
+    it("returns zero points when all timeline choices are incorrect", async () => {
+      const data = generateTimelineGradingRequest(
+        [
+          { id: "1", year: "2000", correctEventName: "Event 1", correctEventId: "event-1" },
+          { id: "2", year: "2001", correctEventName: "Event 2", correctEventId: "event-2" },
+        ],
+        [
+          { timelineItemId: "1", chosenEventId: "event-wrong" },
+          { timelineItemId: "2", chosenEventId: "event-wrong" },
+        ],
+      )
+      const response = await client.post("/api/grade").send(data)
+      const result = JSON.parse(response.text)
+      expect(isExerciseTaskGradingResult(result))
+
+      const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+      expect(gradingResult.score_given).toBe(0)
+    })
+
+    it("returns one point for single correct timeline choice", async () => {
+      const data = generateTimelineGradingRequest(
+        [{ id: "1", year: "2000", correctEventName: "Event 1", correctEventId: "event-1" }],
+        [{ timelineItemId: "1", chosenEventId: "event-1" }],
+      )
+      const response = await client.post("/api/grade").send(data)
+      const result = JSON.parse(response.text)
+      expect(isExerciseTaskGradingResult(result))
+
+      const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+      expect(gradingResult.score_given).toBe(1)
+    })
   })
 })

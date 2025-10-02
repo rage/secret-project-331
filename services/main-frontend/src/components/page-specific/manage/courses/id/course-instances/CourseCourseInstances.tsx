@@ -118,7 +118,7 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
       {getCourseInstances.isError && (
         <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
       )}
-      {getCourseInstances.isPending && <Spinner variant={"medium"} />}
+      {getCourseInstances.isLoading && <Spinner variant={"medium"} />}
       {getCourseInstances.isSuccess && (
         <div className={cardContainerStyles}>
           {getCourseInstances.data
@@ -167,7 +167,7 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
 
                     <div className={buttonGroupStyles}>
                       <PointExportButton courseInstanceId={instance.id} courseInstanceName={name} />
-                      <ModuleCompletionReprocessButton courseInstanceId={instance.id} />
+                      <ModuleCompletionReprocessButton courseId={courseId} />
                     </div>
                   </div>
                 </div>

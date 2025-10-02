@@ -29,6 +29,22 @@ const config = {
 
     return config
   },
+  turbopack: {
+    rules: {
+      "*.svg": {
+        loaders: [
+          {
+            loader: "@svgr/webpack",
+            options: {
+              svgoConfig: svgoConfig,
+              svgProps: { role: "presentation" },
+            },
+          },
+        ],
+        as: "*.js",
+      },
+    },
+  },
   compiler: {
     emotion: {
       autoLabel: "always",
@@ -47,6 +63,8 @@ const config = {
   devIndicators: false,
   // This program is used inside sandboxed iframes so the origin of requests to the _next folder will be null.
   allowedDevOrigins: ["*", "project-331.local"],
+  // This is open source, so no need to hide the code
+  productionBrowserSourceMaps: true,
 }
 
 if (process.env.NEXT_PUBLIC_BASE_PATH) {

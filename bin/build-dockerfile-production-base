@@ -10,4 +10,4 @@ run_command cd "$RELATIVE_PATH" || exit
 
 run_command docker pull debian:bookworm-slim
 
-run_command docker build . --file DockerfileProductionBase.dockerfile -t eu.gcr.io/moocfi-public/project-331-headless-lms-production-base
+run_command docker build . --file DockerfileProductionBase.dockerfile -t eu.gcr.io/moocfi-public/project-331-headless-lms-production-base "$@"

@@ -94,6 +94,7 @@ fn models(target: &mut File) {
         courses::CourseStructure,
         courses::CourseUpdate,
         courses::NewCourse,
+        courses::CourseLanguageVersionNavigationInfo,
 
         email_templates::EmailTemplate,
         email_templates::EmailTemplateNew,
@@ -275,13 +276,13 @@ fn models(target: &mut File) {
         teacher_grading_decisions::TeacherDecisionType,
         teacher_grading_decisions::TeacherGradingDecision,
 
-        user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
+        user_course_exercise_service_variables::UserCourseExerciseServiceVariable,
         user_course_settings::UserCourseSettings,
         user_details::UserDetail,
         user_exercise_states::ExerciseUserCounts,
         user_exercise_states::ReviewingStage,
-        user_exercise_states::UserCourseInstanceChapterExerciseProgress,
-        user_exercise_states::UserCourseInstanceProgress,
+        user_exercise_states::UserCourseChapterExerciseProgress,
+        user_exercise_states::UserCourseProgress,
         user_exercise_states::UserExerciseState,
         user_research_consents::UserResearchConsent,
         users::User,
@@ -343,6 +344,9 @@ fn controllers(target: &mut File) {
             playground_views::PlaygroundViewsMessage,
             proposed_edits::GetEditProposalsQuery,
             roles::RoleQuery,
+            user_details::BulkUserDetailsRequest,
+            user_details::UserDetailsRequest,
+            user_details::UserInfoPayload,
         };
     }
 }
@@ -355,5 +359,6 @@ fn utils(target: &mut File) {
 
         pagination::Pagination,
         url_to_oembed_endpoint::OEmbedResponse,
+        document_schema_processor::GutenbergBlock,
     };
 }

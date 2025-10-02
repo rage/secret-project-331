@@ -25,7 +25,7 @@ const LoginControls: React.FC<React.PropsWithChildren<LoginControlsProps>> = ({
   const returnTo = useCurrentPagePathForReturnTo(currentPagePath)
   const queryClient = useQueryClient()
 
-  if (loginStateContext.isPending) {
+  if (loginStateContext.isLoading) {
     return <Spinner variant="large" />
   }
 

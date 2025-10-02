@@ -36,7 +36,7 @@ const OrganizationPermissions: React.FC<React.PropsWithChildren<Props>> = ({ que
         }
       `}
     >
-      {organization.isPending && <Spinner variant="large" />}
+      {organization.isLoading && <Spinner variant="large" />}
       {organization.isError && <ErrorBanner variant="readOnly" error={organization.error} />}
       {organization.isSuccess && (
         <>

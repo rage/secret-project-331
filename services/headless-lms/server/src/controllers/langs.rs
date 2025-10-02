@@ -3,76 +3,108 @@ Handlers for HTTP requests to `/api/v0/langs`. Contains endpoints for the use of
 
 */
 use crate::controllers::helpers::file_uploading;
-use crate::domain::langs::{convert::Convert, token::AuthToken};
+use crate::domain::langs::token::AuthToken;
 use crate::domain::models_requests::{self, JwtKey};
 use crate::prelude::*;
 use actix_multipart::form::MultipartForm;
 use actix_multipart::form::json::Json as MultipartJson;
 use actix_multipart::form::tempfile::TempFile;
+use headless_lms_models::exercises::GradingProgress;
 use headless_lms_utils::file_store::file_utils;
+use models::CourseOrExamId;
 use models::chapters::DatabaseChapter;
 use models::library::grading::{StudentExerciseSlideSubmission, StudentExerciseTaskSubmission};
-use models::user_exercise_states::CourseInstanceOrExamId;
 use mooc_langs_api as api;
 use std::collections::HashSet;
 
 /**
- * GET /api/v0/langs/course-instances
+ * GET /api/v0/langs/courses
  *
- * Returns the course instances that the user is currently enrolled on that contain TMC exercises.
+ * Returns the courses that the user is currently enrolled on that contain TMC exercises.
  */
 #[instrument(skip(pool))]
-async fn get_course_instances(
+async fn get_courses(
     pool: web::Data<PgPool>,
     user: AuthToken,
-) -> ControllerResult<web::Json<Vec<api::CourseInstance>>> {
+) -> ControllerResult<web::Json<Vec<api::Course>>> {
     let mut conn = pool.acquire().await?;
 
-    let course_instances =
+    let courses =
         models::course_instances::get_enrolled_course_instances_for_user_with_exercise_type(
             &mut conn, user.id, "tmc",
         )
         .await?
-        .convert();
+        .into_iter()
+        .map(|ci| api::Course {
+            id: ci.course_id,
+            slug: ci.course_slug,
+            name: ci.course_name,
+            description: ci.course_description,
+            organization_name: ci.organization_name,
+        })
+        .collect();
 
     // if the user is enrolled on the course, they should be able to view it regardless of permissions
     let token = skip_authorize();
-    token.authorized_ok(web::Json(course_instances))
+    token.authorized_ok(web::Json(courses))
 }
 
 /**
- * GET /api/v0/langs/course-instances/:id/exercises
+ * GET /api/v0/langs/courses/:id
  *
- * Returns the user's exercise slides for the given course instance.
+ * Returns the course with the given id.
+ */
+#[instrument(skip(pool))]
+async fn get_course(
+    pool: web::Data<PgPool>,
+    user: AuthToken,
+    course: web::Path<Uuid>,
+) -> ControllerResult<web::Json<api::Course>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course)).await?;
+
+    let course = models::courses::get_course(&mut conn, *course).await?;
+    let org = models::organizations::get_organization(&mut conn, course.organization_id).await?;
+    let course = api::Course {
+        id: course.id,
+        slug: course.slug,
+        name: course.name,
+        description: course.description,
+        organization_name: org.name,
+    };
+
+    token.authorized_ok(web::Json(course))
+}
+
+/**
+ * GET /api/v0/langs/courses/:id/exercises
+ *
+ * Returns the user's exercise slides for the given course.
  * Does not return anything for chapters which are not open yet.
  * Selects slides for exercises with no slide selected yet.
  * Only returns slides which have tasks that are compatible with langs.
  */
 #[instrument(skip(pool))]
-async fn get_course_instance_exercises(
+async fn get_course_exercises(
     pool: web::Data<PgPool>,
     user: AuthToken,
-    course_instance: web::Path<Uuid>,
+    course: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<Vec<api::ExerciseSlide>>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::View,
-        Some(user.id),
-        Res::CourseInstance(*course_instance),
-    )
-    .await?;
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course)).await?;
 
     let mut slides = Vec::new();
     // process only exercises of open chapters
-    let open_chapter_ids = models::chapters::course_instance_chapters(&mut conn, *course_instance)
+    let open_chapter_ids = models::chapters::course_chapters(&mut conn, *course)
         .await?
         .into_iter()
         .filter(DatabaseChapter::has_opened)
         .map(|c| c.id)
         .collect::<HashSet<_>>();
+
+    let course = models::courses::get_course(&mut conn, *course).await?;
     let open_chapter_exercises =
-        models::exercises::get_exercises_by_course_instance_id(&mut conn, *course_instance)
+        models::exercises::get_exercises_by_course_id(&mut conn, course.id)
             .await?
             .into_iter()
             .filter(|e| {
@@ -98,7 +130,14 @@ async fn get_course_instance_exercises(
                 et.model_solution_spec = None;
                 et
             })
-            .map(Convert::convert)
+            .map(|et| api::ExerciseTask {
+                task_id: et.id,
+                order_number: et.order_number,
+                assignment: et.assignment,
+                public_spec: et.public_spec,
+                model_solution_spec: et.model_solution_spec,
+                exercise_service_slug: et.exercise_service_slug,
+            })
             .collect();
         // do not include slides with no tmc tasks
         if !tasks.is_empty() {
@@ -139,15 +178,15 @@ async fn get_exercise(
     .await?;
 
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
-    let (exercise_slide, instance_or_exam_id) = models::exercises::get_or_select_exercise_slide(
+    let (exercise_slide, course_or_exam_id) = models::exercises::get_or_select_exercise_slide(
         &mut conn,
         Some(user.id),
         &exercise,
         models_requests::fetch_service_info,
     )
     .await?;
-    match instance_or_exam_id {
-        Some(CourseInstanceOrExamId::Instance(_id)) => {}
+    match course_or_exam_id {
+        Some(CourseOrExamId::Course(_id)) => {}
         _ => {
             return Err(ControllerError::new(
                 ControllerErrorType::BadRequest,
@@ -166,7 +205,14 @@ async fn get_exercise(
         tasks: exercise_slide
             .exercise_tasks
             .into_iter()
-            .map(Convert::convert)
+            .map(|et| api::ExerciseTask {
+                task_id: et.id,
+                order_number: et.order_number,
+                assignment: et.assignment,
+                public_spec: et.public_spec,
+                model_solution_spec: et.model_solution_spec,
+                exercise_service_slug: et.exercise_service_slug,
+            })
             .collect(),
     }))
 }
@@ -297,7 +343,13 @@ async fn get_submission_grading(
     .await?;
     let status = match grading {
         Some(grading) => api::ExerciseTaskSubmissionStatus::Grading {
-            grading_progress: grading.grading_progress.convert(),
+            grading_progress: match grading.grading_progress {
+                GradingProgress::Failed => api::GradingProgress::Failed,
+                GradingProgress::NotReady => api::GradingProgress::NotReady,
+                GradingProgress::PendingManual => api::GradingProgress::PendingManual,
+                GradingProgress::Pending => api::GradingProgress::Pending,
+                GradingProgress::FullyGraded => api::GradingProgress::FullyGraded,
+            },
             score_given: grading.score_given,
             grading_started_at: grading.grading_started_at,
             grading_completed_at: grading.grading_completed_at,
@@ -310,10 +362,11 @@ async fn get_submission_grading(
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/course-instances", web::get().to(get_course_instances))
+    cfg.route("/courses", web::get().to(get_courses))
+        .route("/courses/{id}", web::get().to(get_course))
         .route(
-            "/course-instances/{id}/exercises",
-            web::get().to(get_course_instance_exercises),
+            "/courses/{id}/exercises",
+            web::get().to(get_course_exercises),
         )
         .route("/exercises/{id}", web::get().to(get_exercise))
         .route("/exercises/{id}/submit", web::post().to(submit_exercise))

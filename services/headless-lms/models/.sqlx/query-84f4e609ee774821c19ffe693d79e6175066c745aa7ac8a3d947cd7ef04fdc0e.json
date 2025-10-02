@@ -24,7 +24,9 @@
         }
       ]
     },
-    "nullable": [false]
+    "nullable": [
+      false
+    ]
   },
   "hash": "84f4e609ee774821c19ffe693d79e6175066c745aa7ac8a3d947cd7ef04fdc0e"
 }

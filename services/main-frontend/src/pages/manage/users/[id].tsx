@@ -1,10 +1,12 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import CourseInstanceEnrollmentsList from "../../../components/page-specific/manage/user/id/CourseInstanceEnrollmentsList"
 import { useUserDetails } from "../../../hooks/useUserDetails"
+import { getCourseInstanceEnrollmentsInfo } from "../../../services/backend/users"
 
 import ExerciseResetLogList from "@/components/page-specific/manage/user/id/ExerciseResetLogList"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -27,12 +29,32 @@ const Area = styled.div`
 
 const UserPage: React.FC<React.PropsWithChildren<UserPageProps>> = ({ query }) => {
   const { t } = useTranslation()
-  const userDetailsQuery = useUserDetails(query.id)
+
+  // Get course enrollments to find course contexts for user details
+  const courseInstanceEnrollmentsQuery = useQuery({
+    queryKey: ["course-instance-enrollments", query.id],
+    queryFn: () => getCourseInstanceEnrollmentsInfo(query.id),
+  })
+
+  // Get all course IDs from enrollments to use for user details
+  const courseIds =
+    courseInstanceEnrollmentsQuery.data?.course_instance_enrollments.map(
+      (enrollment) => enrollment.course_id,
+    ) ?? []
+
+  const userDetailsQuery = useUserDetails(courseIds, query.id)
+
+  if (courseInstanceEnrollmentsQuery.isError) {
+    return <ErrorBanner error={courseInstanceEnrollmentsQuery.error} variant="readOnly" />
+  }
+  if (courseInstanceEnrollmentsQuery.isLoading) {
+    return <Spinner variant="medium" />
+  }
 
   if (userDetailsQuery.isError) {
     return <ErrorBanner error={userDetailsQuery.error} variant="readOnly" />
   }
-  if (userDetailsQuery.isPending) {
+  if (userDetailsQuery.isLoading || !userDetailsQuery.data) {
     return <Spinner variant="medium" />
   }
 

@@ -2,8 +2,16 @@ import { isNumber } from "lodash"
 
 import { mainFrontendClient } from "../mainFrontendClient"
 
-import { Exercise, ExerciseSubmissions } from "@/shared-module/common/bindings"
-import { isExercise, isExerciseSubmissions } from "@/shared-module/common/bindings.guard"
+import {
+  Exercise,
+  ExerciseSlideSubmission,
+  ExerciseSubmissions,
+} from "@/shared-module/common/bindings"
+import {
+  isExercise,
+  isExerciseSlideSubmission,
+  isExerciseSubmissions,
+} from "@/shared-module/common/bindings.guard"
 import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
 
 export const fetchExerciseSubmissions = async (
@@ -33,6 +41,16 @@ export interface Block<T> {
 export const fetchExercisesByCourseId = async (courseId: string): Promise<Exercise[]> => {
   const response = await mainFrontendClient.get(`/exercises/${courseId}/exercises-by-course-id`)
   return validateResponse(response, isArray(isExercise))
+}
+
+export const fetchExerciseSubmissionsForUser = async (
+  exerciseId: string,
+  userId: string,
+): Promise<ExerciseSlideSubmission[]> => {
+  const response = await mainFrontendClient.get(
+    `/exercises/${exerciseId}/submissions/user/${userId}`,
+  )
+  return validateResponse(response, isArray(isExerciseSlideSubmission))
 }
 
 export const resetExercisesForUsers = async (

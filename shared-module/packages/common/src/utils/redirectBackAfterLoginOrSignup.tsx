@@ -36,8 +36,8 @@ export function validateReturnToRouteOrDefault(
   // Parse the path we're about to return to double check we return only paths and not urls which could redirect to other sites.
   try {
     const parsedUrl = new URL(res, "https://example.com")
-    // Pathname only. Also drops query parameters.
-    return parsedUrl.pathname
+    // Return pathname with search parameters and hash preserved
+    return parsedUrl.pathname + parsedUrl.search + parsedUrl.hash
   } catch (e) {
     console.error(`Could not parse return_to path: ${res}`, e)
   }

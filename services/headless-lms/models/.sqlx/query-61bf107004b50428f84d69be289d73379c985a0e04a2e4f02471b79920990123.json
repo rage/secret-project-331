@@ -90,7 +90,10 @@
       }
     ],
     "parameters": {
-      "Left": ["Bool", "Uuid"]
+      "Left": [
+        "Bool",
+        "Uuid"
+      ]
     },
     "nullable": [
       false,

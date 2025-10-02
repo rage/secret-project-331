@@ -237,7 +237,7 @@ where id = $1
     )
     .fetch_one(conn)
     .await?;
-    CourseOrExamId::from(res.course_id, res.exam_id)
+    CourseOrExamId::from_course_and_exam_ids(res.course_id, res.exam_id)
 }
 
 pub async fn new_grading(
@@ -332,7 +332,7 @@ pub async fn grade_submission(
     let mut tx = conn.begin().await?;
     let updated_grading =
         update_grading(&mut tx, grading, &exercise_task_grading_result, exercise).await?;
-    crate::user_course_instance_exercise_service_variables::insert_after_exercise_task_graded(
+    crate::user_course_exercise_service_variables::insert_after_exercise_task_graded(
         &mut tx,
         &exercise_task_grading_result.set_user_variables,
         exercise_task,
@@ -546,7 +546,7 @@ pub async fn get_user_exercise_task_gradings_by_module_and_exercise_type(
     user_id: Uuid,
     exercise_type: &str,
     module_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Vec<CustomViewExerciseTaskGrading>> {
     let res: Vec<CustomViewExerciseTaskGrading> = sqlx::query_as!(
         CustomViewExerciseTaskGrading,
@@ -567,7 +567,7 @@ WHERE etg.deleted_at IS NULL
   AND et.deleted_at IS NULL
   AND et.exercise_type = $2
   AND ess.user_id = $1
-  AND ess.course_instance_id = $4
+  AND ess.course_id = $4
   AND ess.deleted_at IS NULL
   AND e.deleted_at IS NULL
   AND c.deleted_at IS NULL
@@ -576,7 +576,7 @@ WHERE etg.deleted_at IS NULL
         user_id,
         exercise_type,
         module_id,
-        course_instance_id
+        course_id
     )
     .fetch_all(conn)
     .await?;

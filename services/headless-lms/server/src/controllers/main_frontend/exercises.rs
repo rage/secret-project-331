@@ -4,7 +4,7 @@ use futures::future;
 
 use headless_lms_models::exercises::Exercise;
 use models::{
-    CourseOrExamId, exercise_slide_submissions::ExerciseSlideSubmission,
+    exercise_slide_submissions::ExerciseSlideSubmission,
     library::grading::AnswersRequiringAttention,
 };
 
@@ -84,6 +84,42 @@ async fn get_exercise_submissions(
         data: submissions,
         total_pages,
     }))
+}
+
+/**
+GET `/api/v0/main-frontend/exercises/:exercise_id/submissions/user/:user_id` - Returns an exercise's submissions for a user.
+ */
+#[instrument(skip(pool, user))]
+async fn get_exercise_submissions_for_user(
+    pool: web::Data<PgPool>,
+    ids: web::Path<(Uuid, Uuid)>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<ExerciseSlideSubmission>>> {
+    let (exercise_id, user_id) = ids.into_inner();
+    let mut conn = pool.acquire().await?;
+
+    let target_user = models::users::get_by_id(&mut conn, user_id).await?;
+
+    let course_or_exam_id =
+        models::exercises::get_course_or_exam_id(&mut conn, exercise_id).await?;
+
+    let token = match course_or_exam_id {
+        CourseOrExamId::Course(id) => {
+            authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(id)).await?
+        }
+        CourseOrExamId::Exam(id) => {
+            authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(id)).await?
+        }
+    };
+
+    let submissions = models::exercise_slide_submissions::get_users_submissions_for_exercise(
+        &mut conn,
+        target_user.id,
+        exercise_id,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(submissions))
 }
 
 /**
@@ -218,14 +254,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route(
         "/{course_id}/reset-exercises-for-selected-users",
         web::post().to(reset_exercises_for_selected_users),
+    )
+    .route("/{exercise_id}", web::get().to(get_exercise))
+    .route(
+        "/{exercise_id}/submissions/user/{user_id}",
+        web::get().to(get_exercise_submissions_for_user),
     );
-    cfg.route("/{exercise_id}", web::get().to(get_exercise))
-        .route(
-            "/{exercise_id}/submissions",
-            web::get().to(get_exercise_submissions),
-        )
-        .route(
-            "/{exercise_id}/answers-requiring-attention",
-            web::get().to(get_exercise_answers_requiring_attention),
-        );
 }

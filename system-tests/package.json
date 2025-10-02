@@ -23,7 +23,7 @@
     "create-login-states": "env LANGUAGE=en_US  pnpm exec playwright test --project setup",
     "test-debug-logs": "env DEBUG=pw:api pnpm run test",
     "open": "pnpm exec playwright open project-331.local",
-    "update-snapshots": "pnpm run test-nohtml -- --update-snapshots",
+    "update-snapshots": "pnpm run test-nohtml --update-snapshots",
     "reset-db": "../bin/setup-system-test-db",
     "view-trace": "pnpm exec playwright show-trace",
     "show-report": "pnpm exec playwright show-report"

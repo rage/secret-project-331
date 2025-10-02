@@ -35,8 +35,7 @@ function update_node_deps() {
   fi
   set +e
   run_command pnpm audit --fix
-  run_command pnpm audit --fix
-  run_command pnpm audit --fix
+  run_command pnpm install
   set -e
   if [[ $(git status --porcelain) ]]; then
     git add pnpm-lock.yaml

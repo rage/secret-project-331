@@ -238,18 +238,17 @@ impl CourseBuilder {
             .await
             .context("getting course")?;
 
-        tx.commit().await.context("committing transaction")?;
-
         for chatbot_conf in self.chatbot_configs {
             let chatbotconf_id = chatbot_conf.chatbotconf_id.unwrap_or_else(Uuid::new_v4);
             chatbot_configurations::insert(
-                cx.conn,
+                &mut tx,
                 PKeyPolicy::Fixed(chatbotconf_id),
                 chatbot_conf,
             )
             .await
             .context("inserting chatbot configuration for course")?;
         }
+        tx.commit().await.context("committing transaction")?;
 
         let mut last_module = None;
 

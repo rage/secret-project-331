@@ -23,8 +23,8 @@ use headless_lms_utils::{
 use once_cell::sync::OnceCell;
 use serde_json::Value;
 use sqlx::PgConnection;
-use std::collections::HashMap;
 use std::sync::Arc;
+use std::{collections::HashMap, vec};
 use uuid::Uuid;
 
 use crate::domain::models_requests::{self, JwtKey};
@@ -142,6 +142,30 @@ pub fn heading(content: &str, client_id: Uuid, level: i32) -> GutenbergBlock {
         attributes: attributes! {
             "content": content,
             "level": level,
+        },
+        inner_blocks: vec![],
+    }
+}
+
+pub fn list(block: Uuid, ordered: bool, inner_blocks: Vec<GutenbergBlock>) -> GutenbergBlock {
+    GutenbergBlock {
+        name: "core/list".to_string(),
+        client_id: block,
+        is_valid: true,
+        attributes: attributes! {
+            "ordered": ordered,
+        },
+        inner_blocks,
+    }
+}
+
+pub fn list_item(block: Uuid, content: &str) -> GutenbergBlock {
+    GutenbergBlock {
+        name: "core/list-item".to_string(),
+        client_id: block,
+        is_valid: true,
+        attributes: attributes! {
+            "content": content,
         },
         inner_blocks: vec![],
     }

@@ -37,8 +37,7 @@ pub async fn seed_chatbot_course(
     } = common_course_data;
 
     let mut conn = db_pool.acquire().await?;
-    let mut cx = SeedContext {
-        conn: &mut conn,
+    let cx = SeedContext {
         teacher: teacher_user_id,
         org,
         base_course_ns: course_id,
@@ -282,7 +281,7 @@ pub async fn seed_chatbot_course(
                 ),
         );
 
-    let (course, _default_instance, _last_module) = course.seed(&mut cx).await?;
+    let (course, _default_instance, _last_module) = course.seed(&mut conn, &cx).await?;
 
     Ok(course.id)
 }

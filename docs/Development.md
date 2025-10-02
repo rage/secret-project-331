@@ -170,7 +170,7 @@ In the root directory, install the project dependencies:
 
 ```bash
 pnpm install
-bin/pnpm-ci-all
+bin/pnpm-install-all
 ```
 
 Make sure `TMC-Langs` is downloaded:

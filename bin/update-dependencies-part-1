@@ -14,7 +14,7 @@ if [[ $(git status --porcelain) ]]; then
 fi
 
 run_command pnpm install
-run_command bin/pnpm-ci-all
+run_command bin/pnpm-install-all
 
 function update_node_deps() {
   folder=$1

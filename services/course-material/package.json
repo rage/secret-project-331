@@ -1,6 +1,7 @@
 {
   "name": "course-material",
   "version": "1.0.0",
+  "packageManager": "pnpm@10.17.1",
   "scripts": {
     "dev": "next dev --port 3003 --turbopack",
     "build": "NODE_ENV=production next build",
@@ -23,6 +24,9 @@
     "@monaco-editor/react": "^4.7.0",
     "@popperjs/core": "^2.11.8",
     "@react-aria/dialog": "^3.5.28",
+    "@react-aria/focus": "^3.21.1",
+    "@react-aria/overlays": "^3.29.1",
+    "@react-types/dialog": "^3.5.21",
     "@tanstack/react-query": "^5.84.0",
     "@vectopus/atlas-icons-react": "github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b",
     "axios": "^1.11.0",
@@ -42,6 +46,7 @@
     "monaco-editor": "^0.52.2",
     "next": "^15.5.4",
     "react": "19.1.1",
+    "react-aria": "^3.43.2",
     "react-aria-components": "^1.11.0",
     "react-dom": "19.1.1",
     "react-hook-form": "^7.61.1",

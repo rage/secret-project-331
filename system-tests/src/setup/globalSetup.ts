@@ -1,14 +1,14 @@
 import { FullConfig } from "@playwright/test"
 import { spawnSync } from "child_process"
+import fs from "fs"
+import { load as yamlLoad } from "js-yaml"
 import path from "path"
 import playWrightPackageJson from "playwright/package.json"
 import which from "which"
 
-import systemTestsPackageLockJson from "../../package-lock.json"
-
 async function globalSetup(config: FullConfig): Promise<void> {
   await makeSureNecessaryProgramsAreInstalled(config)
-  await makeSureNpmCiHasBeenRan()
+  await makeSurePnpmInstallHasBeenRan()
   await downloadTmcLangsCli()
   await setupSystemTestDb()
   // After this global.setup.spec.ts is ran
@@ -24,15 +24,44 @@ async function makeSureNecessaryProgramsAreInstalled(config: FullConfig) {
   }
 }
 
-async function makeSureNpmCiHasBeenRan() {
-  // Make sure the user has ran npm ci after Playwright has been updated.
-  // Using an older vesion might not work or might generate sligtly wrong screenshots.
+async function makeSurePnpmInstallHasBeenRan() {
+  // Ensure pnpm install has been run after Playwright version changes.
+  const pnpmLockPath = path.join(__dirname, "../../pnpm-lock.yaml")
+  const pnpmLockContent = fs.readFileSync(pnpmLockPath, "utf8")
+  const pnpmLock = yamlLoad(pnpmLockContent) as {
+    importers?: Record<
+      string,
+      {
+        devDependencies?: Record<string, string | { version: string; specifier: string }>
+        dependencies?: Record<string, string | { version: string; specifier: string }>
+      }
+    >
+  }
+
+  // Find the importer for the system-tests workspace (fallback to root if needed).
+  const importer = pnpmLock?.importers?.["system-tests"] ?? pnpmLock?.importers?.["."] ?? null
+  if (!importer) {
+    console.warn(
+      "pnpm-lock.yaml: no importer for system-tests or root; skipping Playwright version check",
+    )
+    return
+  }
+
+  // Lockfile stores resolved versions under devDependencies/dependencies.
+  const playwrightEntry = importer.devDependencies?.playwright ?? importer.dependencies?.playwright
+
+  if (!playwrightEntry) {
+    console.warn("pnpm-lock.yaml: Playwright not found in importer; skipping version check")
+    return
+  }
+
   const requiredPlaywrightVersion =
-    systemTestsPackageLockJson.packages["node_modules/playwright"].version
+    typeof playwrightEntry === "string" ? playwrightEntry : playwrightEntry.version
+
   const installedPlaywrightVersion = playWrightPackageJson.version
   if (installedPlaywrightVersion !== requiredPlaywrightVersion) {
     throw new Error(
-      `The installed Playwright version ${installedPlaywrightVersion} is not the same as the required version ${requiredPlaywrightVersion}. Please run npm ci in the system-tests folder.`,
+      `The installed Playwright version ${installedPlaywrightVersion} is not the same as the required version ${requiredPlaywrightVersion}. Please run pnpm install in the system-tests folder.`,
     )
   }
 }

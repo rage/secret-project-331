@@ -294,12 +294,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
           />
         </div>
       </div>
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={handleCloseDeleteDialog}
-        noPadding
-        id={`${id}"alert-dialog-title"`}
-      >
+      <Dialog open={deleteDialogOpen} onClose={handleCloseDeleteDialog} noPadding>
         <div
           className={css`
             display: flex;

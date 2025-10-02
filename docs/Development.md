@@ -38,7 +38,7 @@ Install these packages on your Linux system:
 1. [Docker](https://docs.docker.com/engine/install/)
 2. [PostgreSQL](http://postgresguide.com/setup/install.html)
 3. [Actionlint](https://github.com/rhysd/actionlint#quick-start)
-4. [Node Version Manager (NVM)](https://github.com/nvm-sh/nvm#installing-and-updating)
+4. [pnpm](https://pnpm.io/installation) - Package manager (can install and manage Node.js)
 
 Optional utilities:
 
@@ -78,6 +78,11 @@ sudo pacman -Syu bc find jq rsync moreutils
    ```bash
    choco install kubernetes-cli minikube postgresql kustomize skaffold stern kubectx
    ```
+
+#### Node.js and pnpm
+
+1. Install [pnpm](https://pnpm.io/installation)
+2. pnpm will automatically manage Node.js versions as needed
 
 #### Rust Development Tools
 
@@ -131,6 +136,11 @@ Install [Homebrew](https://brew.sh/) if not already installed, then use it to in
 brew install skaffold kubernetes-cli@1.22 minikube kustomize docker postgresql actionlint
 ```
 
+#### Node.js and pnpm
+
+1. Install [pnpm](https://pnpm.io/installation)
+2. pnpm will automatically manage Node.js versions as needed
+
 Additional utilities:
 
 ```bash
@@ -159,10 +169,8 @@ brew install bc jq rsync sponge coreutils kubectx stern
 In the root directory, install the project dependencies:
 
 ```bash
-nvm install
-nvm use
-npm ci
-bin/npm-ci-all
+pnpm install
+bin/pnpm-install-all
 ```
 
 Make sure `TMC-Langs` is downloaded:
@@ -312,6 +320,7 @@ You can find a lot of useful information in [Index](https://github.com/rage/secr
 ```bash
 bin/dev
 ```
+
 If postgres pod does not enter ready state, which you can find out this by using the following command:
 
 ```bash

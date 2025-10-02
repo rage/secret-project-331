@@ -7,3 +7,5 @@ echo -e "$RESET_EVERYTHING"
 run_command minikube ssh "$@" -- docker pull eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base
 run_command minikube ssh "$@" -- docker pull eu.gcr.io/moocfi-public/project-331-node-base
 run_command minikube ssh "$@" -- docker pull eu.gcr.io/moocfi-public/project-331-headless-lms-production-base
+run_command minikube ssh "$@" -- docker pull eu.gcr.io/moocfi-public/project-331-node-cache
+

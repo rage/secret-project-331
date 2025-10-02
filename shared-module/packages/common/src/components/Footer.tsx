@@ -162,7 +162,6 @@ const Footer: React.FC<React.PropsWithChildren<Props>> = ({ privacyLinks = null 
     : /^sv(?:-|$)/.test(i18n.language)
       ? ACCESSIBILITY_STATEMENT_LINK_SV
       : ACCESSIBILITY_STATEMENT_LINK_EN
-  console.log(i18n.language)
 
   return (
     <footer

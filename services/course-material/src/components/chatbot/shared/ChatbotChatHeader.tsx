@@ -16,7 +16,6 @@ import { baseTheme } from "@/shared-module/common/styles"
 type ChatbotChatHeaderProps = {
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
   newConversation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
-  isCourseMaterialBlock: boolean
 } & DiscrChatbotDialogProps
 
 const headerContainerStyle = css`
@@ -68,7 +67,7 @@ const buttonsWrapper = css`
 
 const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
   const { t } = useTranslation()
-  const { currentConversationInfo, newConversation, isCourseMaterialBlock, chatbotTitleId } = props
+  const { currentConversationInfo, newConversation, isCourseMaterialBlock } = props
 
   if (currentConversationInfo.isLoading) {
     return <Spinner variant="medium" />
@@ -94,7 +93,11 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
       <div className={iconStyle}>
         <Account />
       </div>
-      <Heading id={chatbotTitleId} slot="title" className={titleStyle}>
+      <Heading
+        id={isCourseMaterialBlock ? undefined : props.chatbotTitleId}
+        slot="title"
+        className={titleStyle}
+      >
         {currentConversationInfo.data?.chatbot_name}
       </Heading>
       <div className={buttonsWrapper}>

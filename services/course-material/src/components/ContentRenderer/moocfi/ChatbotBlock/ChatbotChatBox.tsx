@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import React, { useId, useState } from "react"
+import React, { useState } from "react"
 
 import ChatbotChatBody from "@/components/chatbot/shared/ChatbotChatBody"
 import ChatbotChatHeader from "@/components/chatbot/shared/ChatbotChatHeader"
@@ -14,7 +14,6 @@ export interface ChatbotChatBoxProps {
 const ChatbotChatBox: React.FC<ChatbotChatBoxProps> = ({ chatbotConfigurationId }) => {
   const [newMessage, setNewMessage] = React.useState("")
   const [error, setError] = useState<Error | null>(null)
-  const chatbotTitleId = useId()
 
   const currentConversationInfoQuery = useCurrentConversationInfo(chatbotConfigurationId)
   const newConversationMutation = useNewConversationMutation(
@@ -40,7 +39,6 @@ const ChatbotChatBox: React.FC<ChatbotChatBoxProps> = ({ chatbotConfigurationId 
         currentConversationInfo={currentConversationInfoQuery}
         newConversation={newConversationMutation}
         isCourseMaterialBlock={true}
-        chatbotTitleId={chatbotTitleId}
       />
       <ChatbotChatBody
         chatbotConfigurationId={chatbotConfigurationId}

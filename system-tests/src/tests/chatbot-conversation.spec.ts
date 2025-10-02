@@ -3,7 +3,7 @@ import { BrowserContext, expect, test } from "@playwright/test"
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "@/utils/screenshot"
-import { waitForAnimation } from "@/utils/waitForAnimation"
+import { waitForAnimationsToEnd } from "@/utils/waitForAnimationsToEnd"
 
 test.describe("Test chatbot chat box", () => {
   test.use({
@@ -31,7 +31,7 @@ test.describe("Test chatbot chat box", () => {
       await selectCourseInstanceIfPrompted(student1Page)
 
       await student1Page.getByRole("button", { name: "Open chatbot" }).click()
-      await waitForAnimation(student1Page.getByText("About the chatbot"))
+      await waitForAnimationsToEnd(student1Page.getByText("About the chatbot"))
 
       const chatbotDialog = student1Page
         .getByRole("dialog")
@@ -45,7 +45,7 @@ test.describe("Test chatbot chat box", () => {
       await expect(chatbotDialog.getByText("About the chatbot")).toBeVisible()
       await accessibilityCheck(student1Page, "Default Chatbot Agree / View", [])
       await chatbotDialog.getByRole("button", { name: "Agree" }).click()
-      await waitForAnimation(chatbotDialog.getByText("Oh... It's you."))
+      await waitForAnimationsToEnd(chatbotDialog.getByText("Oh... It's you."))
       await accessibilityCheck(student1Page, "Default Chatbot New Conversation / View", [])
       await expect(chatbotDialog.getByText("Chatbots can make mistakes.")).toBeVisible()
     })
@@ -67,7 +67,7 @@ test.describe("Test chatbot chat box", () => {
       )
 
       await chatbotDialog.getByLabel("Citation 1").first().click()
-      await waitForAnimation(
+      await waitForAnimationsToEnd(
         student1Page.getByRole("link", { name: "Cited course page", exact: true }),
       )
       await accessibilityCheck(
@@ -131,7 +131,7 @@ test.describe("Test chatbot chat box", () => {
       await expect(student1Page.getByText("About the chatbot")).toBeVisible()
       await accessibilityCheck(student1Page, "Block Chatbot Agree / View", [])
       await student1Page.getByRole("button", { name: "Agree" }).click()
-      await waitForAnimation(student1Page.getByText("Haiii xD"))
+      await waitForAnimationsToEnd(student1Page.getByText("Haiii xD"))
       await accessibilityCheck(student1Page, "Block Chatbot New Conversation / View", [])
       await expect(student1Page.getByText("Chatbots can make mistakes.")).toBeVisible()
     })
@@ -153,7 +153,7 @@ test.describe("Test chatbot chat box", () => {
       )
 
       await student1Page.getByLabel("Citation 1").first().click()
-      await waitForAnimation(
+      await waitForAnimationsToEnd(
         student1Page.getByRole("link", { name: "Cited course page", exact: true }),
       )
       await accessibilityCheck(

@@ -7,8 +7,9 @@ import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
 import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
-import ErrorDisplay from "../Chatbot/ErrorDisplay"
-import MessageBubble from "../Chatbot/MessageBubble"
+
+import ErrorDisplay from "./ErrorDisplay"
+import MessageBubble from "./MessageBubble"
 
 import { sendChatbotMessage } from "@/services/backend"
 import {

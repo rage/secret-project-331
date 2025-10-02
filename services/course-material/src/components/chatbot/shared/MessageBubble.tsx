@@ -2,11 +2,10 @@ import { css } from "@emotion/css"
 import React, { useMemo, useRef, useState } from "react"
 import { useHover } from "react-aria"
 
-import { LIGHT_GREEN } from "../shared/styles"
-
 import ChatbotReferenceList from "./ChatbotReferenceList"
 import RenderedMessage, { MessageRenderType } from "./RenderedMessage"
 import ThinkingIndicator from "./ThinkingIndicator"
+import { LIGHT_GREEN } from "./styles"
 
 import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
 import { baseTheme } from "@/shared-module/common/styles"

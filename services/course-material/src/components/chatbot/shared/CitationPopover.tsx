@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { Library } from "@vectopus/atlas-icons-react"
-import { RefObject, SetStateAction, useEffect, useRef, useState } from "react"
+import { RefObject, SetStateAction, useEffect, useMemo, useRef, useState } from "react"
 import { useHover } from "react-aria"
 import { OverlayTriggerStateContext } from "react-aria-components"
 import { useTranslation } from "react-i18next"
@@ -75,6 +75,10 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
     setCitationButtonClicked,
   ])
 
+  const citationContent: string = useMemo(() => {
+    return md.render(citation.content)
+  }, [citation.content])
+
   return (
     <OverlayTriggerStateContext.Provider
       // this provider prevents the DialogTrigger higher in the DOM from
@@ -141,7 +145,7 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
             }
           `}
           dangerouslySetInnerHTML={{
-            __html: sanitizeCourseMaterialHtml(md.render(citation.content)),
+            __html: sanitizeCourseMaterialHtml(citationContent),
           }}
         ></span>
         <p

@@ -1,10 +1,9 @@
 import { css } from "@emotion/css"
 import { Library } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
-import React, { RefObject, useId, useMemo } from "react"
+import React, { useId, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import CitationPopover from "./CitationPopover"
 import { LIGHT_GREEN } from "./styles"
 
 import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
@@ -75,26 +74,14 @@ const expandButtonStyle = css`
 interface ChatbotReferenceListProps {
   citations: ChatbotConversationMessageCitation[]
   citationNumberingMap: Map<number, number>
-  triggerElement: RefObject<HTMLButtonElement | null>
-  triggerElementId: string
-  setTriggerElementId: (value: React.SetStateAction<string>) => void
   citationsOpen: boolean
-  citationButtonClicked: boolean
-  isCitationHovered: boolean
-  setCitationButtonClicked: (value: React.SetStateAction<boolean>) => void
   setCitationsOpen: (value: React.SetStateAction<boolean>) => void
 }
 
 const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
   citations,
   citationNumberingMap,
-  triggerElement, //
-  triggerElementId,
-  setTriggerElementId, //
   citationsOpen,
-  citationButtonClicked, //
-  isCitationHovered, //
-  setCitationButtonClicked, //
   setCitationsOpen,
 }) => {
   const referenceListId = useId()
@@ -188,16 +175,6 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
                     )}
                   </div>
                 )}
-                <CitationPopover
-                  citation={cit}
-                  citationNumber={citationNumber}
-                  triggerElement={triggerElement}
-                  triggerElementId={triggerElementId}
-                  setTriggerElementId={setTriggerElementId}
-                  citationButtonClicked={citationButtonClicked}
-                  setCitationButtonClicked={setCitationButtonClicked}
-                  isCitationHovered={isCitationHovered}
-                />
               </div>
             )
           })}

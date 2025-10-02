@@ -3,6 +3,7 @@ import React, { useMemo, useRef, useState } from "react"
 import { useHover } from "react-aria"
 
 import ChatbotReferenceList from "./ChatbotReferenceList"
+import CitationPopovers from "./CitationPopovers"
 import RenderedMessage, { MessageRenderType } from "./RenderedMessage"
 import ThinkingIndicator from "./ThinkingIndicator"
 import { LIGHT_GREEN } from "./styles"
@@ -176,14 +177,18 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           <ChatbotReferenceList
             citations={processedCitations}
             citationNumberingMap={citationNumberingMap}
+            citationsOpen={citationsOpen}
+            setCitationsOpen={setCitationsOpen}
+          />
+          <CitationPopovers
+            citations={processedCitations}
+            citationNumberingMap={citationNumberingMap}
             triggerElement={triggerElement}
             triggerElementId={triggerElementId}
             setTriggerElementId={setTriggerElementId}
-            citationsOpen={citationsOpen}
             citationButtonClicked={citationButtonClicked}
-            isCitationHovered={isCitationHovered}
             setCitationButtonClicked={setCitationButtonClicked}
-            setCitationsOpen={setCitationsOpen}
+            isCitationHovered={isCitationHovered}
           />
         </div>
       )}

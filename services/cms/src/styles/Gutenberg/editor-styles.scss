@@ -160,3 +160,10 @@
     outline-color: #bec3c7;
   }
 }
+
+// Fix up and down arrows in the current blocks list
+.block-editor-list-view-tree {
+  .block-editor-block-mover-button {
+    padding: 0;
+  }
+}

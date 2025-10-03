@@ -74,7 +74,6 @@ def pushd(path: Path):
 
 def update_node_deps(folder: Path, target_name: str) -> None:
     with pushd(folder):
-        # Try interactive update; allow it to fail and let user do it manually.
         try:
             run(["pnpm", "update", "--latest", "--interactive"], check=True)
         except subprocess.CalledProcessError:
@@ -86,9 +85,7 @@ def update_node_deps(folder: Path, target_name: str) -> None:
                 "Press Enter when you're ready. The script will then commit your changes..."
             )
 
-        # Commit package.json/pnpm-lock.yaml changes if any
         if git_has_changes():
-            # Add common files if present
             to_add = [p for p in ["package.json", "pnpm-lock.yaml"] if Path(p).exists()]
             if to_add:
                 run(["git", "add", *to_add])
@@ -102,14 +99,12 @@ def update_node_deps(folder: Path, target_name: str) -> None:
                 ]
             )
 
-        # audit + install (non-fatal)
         try:
             run(["pnpm", "audit", "--fix"], check=False)
             run(["pnpm", "install"], check=False)
         finally:
             pass
 
-        # Commit lockfile-only changes (if any)
         if git_has_changes():
             if Path("pnpm-lock.yaml").exists():
                 run(["git", "add", "pnpm-lock.yaml"])
@@ -157,7 +152,6 @@ def main() -> int:
     headless_lms = repo_root / "services" / "headless-lms"
     if headless_lms.exists():
         with pushd(headless_lms):
-            # cargo upgrade (commit if changes)
             run(
                 [
                     "cargo",
@@ -175,7 +169,6 @@ def main() -> int:
                 run(["git", "add", "."])
                 run(["git", "commit", "-m", "Cargo upgrade", "--no-verify"])
 
-            # cargo update (commit if changes)
             run(["cargo", "update", "--recursive"])
             if git_has_changes():
                 run(["git", "add", "."])

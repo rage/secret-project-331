@@ -63,6 +63,13 @@ def git_has_changes(cwd: Path | None = None) -> bool:
     return cp.stdout.strip() != ""
 
 
+def write_package_json(data: dict, path: Path) -> None:
+    """Write package.json data to file with proper formatting and newline at end."""
+    with open(path, "w") as f:
+        json.dump(data, f, indent=2)
+        f.write("\n")
+
+
 def sort_dict_recursively(obj):
     """Recursively sort dictionary keys alphabetically."""
     if isinstance(obj, dict):
@@ -118,8 +125,7 @@ def sort_package_json(folder: Path) -> bool:
                 f"{BLUE}Sorted package.json fields alphabetically in {folder.name}/package.json{RESET}"
             )
 
-            with open(package_json_path, "w") as f:
-                json.dump(sorted_data, f, indent=2)
+            write_package_json(sorted_data, package_json_path)
 
             return True
         return False
@@ -150,8 +156,7 @@ def remove_pnpm_overrides(folder: Path) -> bool:
                 del data["pnpm"]
 
             # Write back the modified package.json
-            with open(package_json_path, "w") as f:
-                json.dump(data, f, indent=2)
+            write_package_json(data, package_json_path)
 
             return True
         return False

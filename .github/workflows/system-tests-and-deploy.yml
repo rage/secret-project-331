@@ -343,7 +343,7 @@ jobs:
         working-directory: ./system-tests/
 
       - name: Run system tests
-        run: npm run test
+        run: pnpm run test
         working-directory: ./system-tests/
       - name: System Test Summary
         if: always()
@@ -357,7 +357,7 @@ jobs:
 
       # To prevent accidentally introducing flaky tests in a pr. Skipped on master in order to not slow down deploys.
       - name: Run system tests again to make sure they're stable (if not master)
-        run: npm run test
+        run: pnpm run test
         working-directory: ./system-tests/
         if: ${{ github.ref != 'refs/heads/master' }}
 

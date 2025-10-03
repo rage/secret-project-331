@@ -7,7 +7,7 @@
     "dev": "next dev --port 3004 --turbopack",
     "export": "next export",
     "start": "NODE_ENV=production PORT=3004 node server.js",
-    "test": "jest",
+    "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest",
     "test-silent": "jest --silent"
   },
   "dependencies": {

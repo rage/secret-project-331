@@ -79,11 +79,5 @@
     "stylelint-config-recommended": "^17.0.0",
     "ts-jest": "^29.4.4",
     "typescript": "^5.9.3"
-  },
-  "overrides": {
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "@types/react": "^19.1.6",
-    "@types/react-dom": "^19.1.5"
   }
 }

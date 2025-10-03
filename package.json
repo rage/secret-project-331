@@ -20,7 +20,7 @@
     "eslint:format-generated-docs": "prettier --write services/headless-lms/server/generated-docs/",
     "eslint:open:vscode": "eslint . --format json | jq '(.[] | select((.errorCount > 0) or (.warningCount > 0))).filePath' | xargs code",
     "lint:css": "stylelint '**/*.tsx'",
-    "postinstall": "cd shared-module && pnpm run sync-once",
+    "postinstall": "cd shared-module && pnpm install && pnpm run sync-once",
     "prepare": "husky"
   },
   "dependencies": {

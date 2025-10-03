@@ -1,70 +1,195 @@
-#!/bin/bash
-set -euo pipefail
-source "$(dirname "$0")/.common"
+#!/usr/bin/env python3
+"""
+Python port of bin/update-dependencies-part-1
 
-BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
-FOLDER_PATH="$BASEDIR/../"
-RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+Notes:
+- Requires: git, pnpm, cargo, cargo-edit (for `cargo upgrade`)
+- Behavior matches the Bash version, including:
+  * Stops if there are uncommitted changes at start
+  * Echoes each command before running it
+  * Tries `pnpm update --latest --interactive`, and if it fails, prompts you
+    to do manual updates and press Enter to continue so the script can commit
+  * Runs `pnpm audit --fix` and `pnpm install` non-fatally, then commits lockfile changes if present
+  * Updates Rust deps in services/headless-lms (upgrade + update), committing each step if changes exist
+"""
 
-run_command cd "$RELATIVE_PATH"
+from __future__ import annotations
 
-if [[ $(git status --porcelain) ]]; then
-  echo "You have uncommitted changes. Please commit them before running this script."
-  exit 1
-fi
+import os
+import shlex
+import subprocess
+import sys
+from contextlib import contextmanager
+from pathlib import Path
 
-run_command pnpm install
-run_command bin/pnpm-install-all
+BLUE = "\033[0;34m"
+RED = "\033[0;31m"
+GREEN = "\033[0;32m"
+BOLD = "\033[1m"
+CURSIVE = "\033[3m"
+RESET = "\033[0m"
 
-function update_node_deps() {
-  folder=$1
-  target_name=$2
-  run_command command cd  "$folder"
 
-  set +e
-  if ! run_command pnpm update --latest --interactive; then
-    echo "Updating dependencies for $target_name failed. Please do the dependency update manually."
-    echo "Press enter when you're ready. The script will then commit your changes."
-    read -r
-  fi
-  set -e
+def echo_command(cmd: list[str] | str) -> None:
+    if isinstance(cmd, list):
+        pretty = " ".join(shlex.quote(c) for c in cmd)
+    else:
+        pretty = cmd
+    print(f"{CURSIVE}> {pretty}{RESET}")
 
-  # check if there are any uncommitted changes
-  if [[ $(git status --porcelain) ]]; then
-    git add package.json pnpm-lock.yaml
-    git commit -m "Update dependencies for $target_name " --no-verify
-  fi
-  set +e
-  run_command pnpm audit --fix
-  run_command pnpm install
-  set -e
-  if [[ $(git status --porcelain) ]]; then
-    git add pnpm-lock.yaml
-    git commit -am "pnpm audit for $target_name" --no-verify
-  fi
-  cd -
-}
 
-update_node_deps "$RELATIVE_PATH" "repo root"
-update_node_deps "$RELATIVE_PATH/system-tests" "system-tests"
-update_node_deps "$RELATIVE_PATH/services/cms" "cms"
-update_node_deps "$RELATIVE_PATH/services/course-material" "course-material"
-update_node_deps "$RELATIVE_PATH/services/example-exercise" "example-exercise"
-update_node_deps "$RELATIVE_PATH/services/main-frontend" "main-frontend"
-update_node_deps "$RELATIVE_PATH/services/quizzes" "quizzes"
-update_node_deps "$RELATIVE_PATH/services/tmc" "tmc"
-update_node_deps "$RELATIVE_PATH/shared-module" "shared-module"
-update_node_deps "$RELATIVE_PATH/shared-module/packages/common" "shared-module/common"
+def run(
+    cmd: list[str] | str, check: bool = True, cwd: Path | None = None
+) -> subprocess.CompletedProcess:
+    echo_command(cmd if isinstance(cmd, list) else cmd)
+    return subprocess.run(
+        cmd,
+        shell=isinstance(cmd, str),
+        cwd=str(cwd) if cwd else None,
+        check=check,
+    )
 
-# Update rust deps
-run_command cd services/headless-lms
-run_command cargo upgrade --incompatible allow --pinned allow --recursive true --ignore-rust-version
-if [[ $(git status --porcelain) ]]; then
-  git add .
-  git commit -m "Cargo upgrade" --no-verify
-fi
-run_command cargo update --recursive
-if [[ $(git status --porcelain) ]]; then
-  git add .
-  git commit -m "Cargo update" --no-verify
-fi
+
+def git_has_changes(cwd: Path | None = None) -> bool:
+    cp = subprocess.run(
+        ["git", "status", "--porcelain"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        cwd=str(cwd) if cwd else None,
+        text=True,
+        check=True,
+    )
+    return cp.stdout.strip() != ""
+
+
+@contextmanager
+def pushd(path: Path):
+    old = Path.cwd()
+    os.chdir(path)
+    try:
+        yield
+    finally:
+        os.chdir(old)
+
+
+def update_node_deps(folder: Path, target_name: str) -> None:
+    with pushd(folder):
+        # Try interactive update; allow it to fail and let user do it manually.
+        try:
+            run(["pnpm", "update", "--latest", "--interactive"], check=True)
+        except subprocess.CalledProcessError:
+            print(
+                f"{RED}Updating dependencies for {target_name} failed."
+                f" Please do the dependency update manually in {folder}{RESET}"
+            )
+            input(
+                "Press Enter when you're ready. The script will then commit your changes..."
+            )
+
+        # Commit package.json/pnpm-lock.yaml changes if any
+        if git_has_changes():
+            # Add common files if present
+            to_add = [p for p in ["package.json", "pnpm-lock.yaml"] if Path(p).exists()]
+            if to_add:
+                run(["git", "add", *to_add])
+            run(
+                [
+                    "git",
+                    "commit",
+                    "-m",
+                    f"Update dependencies for {target_name} ",
+                    "--no-verify",
+                ]
+            )
+
+        # audit + install (non-fatal)
+        try:
+            run(["pnpm", "audit", "--fix"], check=False)
+            run(["pnpm", "install"], check=False)
+        finally:
+            pass
+
+        # Commit lockfile-only changes (if any)
+        if git_has_changes():
+            if Path("pnpm-lock.yaml").exists():
+                run(["git", "add", "pnpm-lock.yaml"])
+            run(
+                ["git", "commit", "-am", f"pnpm audit for {target_name}", "--no-verify"]
+            )
+
+
+def main() -> int:
+    script_dir = Path(__file__).resolve().parent
+    repo_root = (script_dir / "..").resolve()
+
+    run(["pwd"], check=False)
+    run(["bash", "-lc", f"cd {shlex.quote(str(repo_root))} && pwd"], check=False)
+    os.chdir(repo_root)
+
+    if git_has_changes(repo_root):
+        print(
+            "You have uncommitted changes. Please commit them before running this script."
+        )
+        return 1
+
+    run(["pnpm", "install"])
+    run([str(repo_root / "bin" / "pnpm-install-all")])
+
+    node_targets = [
+        (repo_root, "repo root"),
+        (repo_root / "system-tests", "system-tests"),
+        (repo_root / "services" / "cms", "cms"),
+        (repo_root / "services" / "course-material", "course-material"),
+        (repo_root / "services" / "example-exercise", "example-exercise"),
+        (repo_root / "services" / "main-frontend", "main-frontend"),
+        (repo_root / "services" / "quizzes", "quizzes"),
+        (repo_root / "services" / "tmc", "tmc"),
+        (repo_root / "shared-module", "shared-module"),
+        (repo_root / "shared-module" / "packages" / "common", "shared-module/common"),
+    ]
+
+    for folder, name in node_targets:
+        if folder.exists():
+            update_node_deps(folder, name)
+        else:
+            print(f"{BLUE}Skipping {name} (missing at {folder}){RESET}")
+
+    headless_lms = repo_root / "services" / "headless-lms"
+    if headless_lms.exists():
+        with pushd(headless_lms):
+            # cargo upgrade (commit if changes)
+            run(
+                [
+                    "cargo",
+                    "upgrade",
+                    "--incompatible",
+                    "allow",
+                    "--pinned",
+                    "allow",
+                    "--recursive",
+                    "true",
+                    "--ignore-rust-version",
+                ]
+            )
+            if git_has_changes():
+                run(["git", "add", "."])
+                run(["git", "commit", "-m", "Cargo upgrade", "--no-verify"])
+
+            # cargo update (commit if changes)
+            run(["cargo", "update", "--recursive"])
+            if git_has_changes():
+                run(["git", "add", "."])
+                run(["git", "commit", "-m", "Cargo update", "--no-verify"])
+    else:
+        print(f"{BLUE}Skipping Rust update (missing at {headless_lms}){RESET}")
+
+    print(f"{GREEN}{BOLD}All done!{RESET}")
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        print("\nInterrupted.")
+        sys.exit(130)

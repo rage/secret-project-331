@@ -98,18 +98,10 @@ def sort_package_json(folder: Path) -> bool:
 
         sorted_data = {}
 
-        # Sort top-level keys alphabetically, but keep some common keys at the top
-        priority_keys = [
-            "name",
-            "version",
-            "description",
-            "main",
-            "type",
-            "packageManager",
-            "scripts",
-        ]
-        other_keys = sorted([k for k in data.keys() if k not in priority_keys])
-        all_keys = [k for k in priority_keys if k in data] + other_keys
+        # Sort top-level keys alphabetically, but put dependencies and devDependencies at the end (because they are long lists and affect readability of the file)
+        dependency_keys = ["dependencies", "devDependencies"]
+        other_keys = sorted([k for k in data.keys() if k not in dependency_keys])
+        all_keys = other_keys + [k for k in dependency_keys if k in data]
 
         for key in all_keys:
             if key in data:

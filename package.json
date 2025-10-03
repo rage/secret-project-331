@@ -13,7 +13,7 @@
     "eslint:ci": "eslint .",
     "prepare": "husky",
     "lint:css": "stylelint '**/*.tsx'",
-    "postinstall": "cd shared-module && pnpm install && pnpm run sync-once"
+    "postinstall": "cd shared-module && pnpm run sync-once"
   },
   "repository": {
     "type": "git",

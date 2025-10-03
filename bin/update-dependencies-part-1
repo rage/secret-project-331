@@ -71,23 +71,35 @@ def write_package_json(data: dict, path: Path) -> None:
 
 
 def sort_dict_recursively(obj):
-    """Recursively sort dictionary keys alphabetically."""
+    """Recursively sort dictionary keys with non-object values first, then object values, all alphabetically."""
     if isinstance(obj, dict):
-        # Sort the keys and recursively sort values
+        string_keys = []
+        non_object_keys = []
+
+        for key in obj.keys():
+            value = obj[key]
+            if isinstance(value, str) or not isinstance(value, dict):
+                string_keys.append(key)
+            elif isinstance(value, dict):
+                non_object_keys.append(key)
+
+        string_keys.sort()
+        non_object_keys.sort()
+
+        all_keys = string_keys + non_object_keys
+
         sorted_dict = {}
-        for key in sorted(obj.keys()):
+        for key in all_keys:
             sorted_dict[key] = sort_dict_recursively(obj[key])
         return sorted_dict
     elif isinstance(obj, list):
-        # Sort list items if they are dictionaries
         return [sort_dict_recursively(item) for item in obj]
     else:
-        # Return primitive values as-is
         return obj
 
 
 def sort_package_json(folder: Path) -> bool:
-    """Sort package.json fields alphabetically (recursively). Returns True if changes were made."""
+    """Sort package.json (mostly) alphabetically. Returns True if changes were made."""
     package_json_path = folder / "package.json"
     if not package_json_path.exists():
         return False
@@ -98,17 +110,46 @@ def sort_package_json(folder: Path) -> bool:
 
         sorted_data = {}
 
-        # Sort top-level keys alphabetically, but put dependencies and devDependencies at the end (because they are long lists and affect readability of the file)
+        # Sort keys with specific ordering:
+        # 1. name, version, description (always first)
+        # 2. String values (alphabetical)
+        # 3. Object values (alphabetical)
+        # 4. dependencies
+        # 5. devDependencies
+
+        first_keys = ["name", "version", "description"]
+
         dependency_keys = ["dependencies", "devDependencies"]
-        other_keys = sorted([k for k in data.keys() if k not in dependency_keys])
-        all_keys = other_keys + [k for k in dependency_keys if k in data]
+
+        non_object_keys = []
+        object_keys = []
+
+        for key in data.keys():
+            if key in first_keys or key in dependency_keys:
+                continue
+
+            value = data[key]
+            if isinstance(value, str):
+                non_object_keys.append(key)
+            elif isinstance(value, dict):
+                object_keys.append(key)
+            else:
+                non_object_keys.append(key)
+
+        non_object_keys.sort()
+        object_keys.sort()
+
+        all_keys = (
+            [k for k in first_keys if k in data]
+            + non_object_keys
+            + object_keys
+            + [k for k in dependency_keys if k in data]
+        )
 
         for key in all_keys:
             if key in data:
-                # Recursively sort the value if it's a dictionary
                 sorted_data[key] = sort_dict_recursively(data[key])
 
-        # Check if the data has changed by comparing the JSON strings
         original_json = json.dumps(data, sort_keys=False, indent=2)
         sorted_json = json.dumps(sorted_data, sort_keys=False, indent=2)
 

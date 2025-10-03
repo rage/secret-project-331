@@ -21,27 +21,27 @@ dotenv = "0.15.0"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
 sqlx.workspace = true
 # A library to generate and parse UUIDs.
-uuid = { version = "1.17.0", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.18.1", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
-serde = { version = "1.0.219", features = ["derive"] }
+serde = { version = "1.0.228", features = ["derive"] }
 # Date and time library for Rust
-chrono = { version = "0.4.41", features = ["serde"] }
+chrono = { version = "0.4.42", features = ["serde"] }
 # A JSON serialization file format
-serde_json = "1.0.142"
+serde_json = "1.0.145"
 # Adds #[derive(x)] macros for more traits
 derive_more = { version = "2.0.1", features = ["full"] }
 # Extra iterator adaptors, iterator methods, free functions, and macros.
 itertools = "0.14.0"
 # URL library for Rust, based on the WHATWG URL Standard
-url = "2.5.4"
+url = "2.5.7"
 # Application-level tracing for Rust.
 tracing = "0.1.41"
 # Utilities for enriching errors with `tracing`.
 tracing-error = "0.2.1"
 #  A library to acquire a stack trace (backtrace) at runtime in a Rust program. Should be removed after Rust 1.65.
-backtrace = "0.3.75"
+backtrace = "0.3.76"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
-thiserror = "2.0.12"
+thiserror = "2.0.17"
 # generate typescript bindings from rust types
 ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "94bf3c040ece6627b69f0d7095c0a5e2984adc86", features = [
   "bytes-impl",
@@ -55,9 +55,9 @@ lettre = "0.11.18"
 # Random number generators and other randomness functionality.
 rand = "0.9.2"
 # Flexible concrete Error type built on std::error::Error
-anyhow = "1.0.98"
+anyhow = "1.0.100"
 # HTTP client for Rust
-reqwest = { version = "0.12.22", features = ["json"] }
+reqwest = { version = "0.12.23", features = ["json"] }
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.
@@ -67,7 +67,7 @@ tracing-log = "0.2.0"
 # Utilities for enriching errors with `tracing`.
 tracing-error = "0.2.1"
 # Utilities for implementing and composing `tracing` subscribers.
-tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3.20", features = ["env-filter"] }
 # HTTP mocking for Rust.
 mockito = "1.7.0"
 

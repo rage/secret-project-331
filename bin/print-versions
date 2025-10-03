@@ -69,7 +69,7 @@ if [ "$(echo "$PATH" | grep -c nvm)" -ne 1 ]; then
   echo -e "${RED}Warning: cannot find nvm${RESET_EVERYTHING}"
 fi
 print_version "Node" node --version
-print_version "Npm" npm --version
+print_version "Pnpm" pnpm --version
 
 echo -e "\n-----[ Kubernetes ]-----"
 print_version "Docker" docker --version

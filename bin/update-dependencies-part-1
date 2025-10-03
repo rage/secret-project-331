@@ -15,6 +15,7 @@ Notes:
 
 from __future__ import annotations
 
+import json
 import os
 import shlex
 import subprocess
@@ -62,6 +63,38 @@ def git_has_changes(cwd: Path | None = None) -> bool:
     return cp.stdout.strip() != ""
 
 
+def remove_pnpm_overrides(folder: Path) -> bool:
+    """Remove pnpm.overrides from package.json if it exists. Returns True if changes were made."""
+    package_json_path = folder / "package.json"
+    if not package_json_path.exists():
+        return False
+
+    try:
+        with open(package_json_path, "r") as f:
+            data = json.load(f)
+
+        # Check if pnpm.overrides exists
+        if "pnpm" in data and "overrides" in data["pnpm"]:
+            print(
+                f"{BLUE}Removing pnpm.overrides from {folder.name}/package.json{RESET}"
+            )
+            del data["pnpm"]["overrides"]
+
+            # If pnpm section is now empty, remove it entirely
+            if not data["pnpm"]:
+                del data["pnpm"]
+
+            # Write back the modified package.json
+            with open(package_json_path, "w") as f:
+                json.dump(data, f, indent=2)
+
+            return True
+        return False
+    except (json.JSONDecodeError, KeyError, OSError) as e:
+        print(f"{RED}Error processing {package_json_path}: {e}{RESET}")
+        return False
+
+
 @contextmanager
 def pushd(path: Path):
     old = Path.cwd()
@@ -74,6 +107,20 @@ def pushd(path: Path):
 
 def update_node_deps(folder: Path, target_name: str) -> None:
     with pushd(folder):
+        # Remove pnpm.overrides before updating dependencies
+        if remove_pnpm_overrides(folder):
+            if git_has_changes():
+                run(["git", "add", "package.json"])
+                run(
+                    [
+                        "git",
+                        "commit",
+                        "-m",
+                        f"Remove pnpm.overrides from {target_name}",
+                        "--no-verify",
+                    ]
+                )
+
         try:
             run(["pnpm", "update", "--latest", "--interactive"], check=True)
         except subprocess.CalledProcessError:

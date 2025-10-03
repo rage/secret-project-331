@@ -84,7 +84,6 @@
     "@types/node": "^24.6.2",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
-    "@types/uuid": "^11.0.0",
     "@types/wordpress__block-editor": "^11.5.17",
     "@types/wordpress__block-library": "^2.6.3",
     "@types/wordpress__blocks": "^12.5.18",

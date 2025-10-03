@@ -55,7 +55,6 @@
     "@types/node": "^24.6.2",
     "@types/react": "19.2.0",
     "@types/react-dom": "19.2.0",
-    "@types/uuid": "^11.0.0",
     "axios": "^1.12.2",
     "postcss-styled-syntax": "^0.7.1",
     "stylelint": "^16.24.0",

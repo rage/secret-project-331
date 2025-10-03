@@ -15,8 +15,6 @@ const customJestConfig = {
   moduleNameMapper: {
     "^until-async$": "<rootDir>/tests/mocks/until-async.js",
   },
-  transform: {},
-  extensionsToTreatAsEsm: [".ts", ".tsx"],
 }
 
 // createJestConfig is exported in this way to ensure that next/jest can load the Next.js configuration, which is async

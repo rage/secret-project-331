@@ -177,18 +177,15 @@ def remove_pnpm_overrides(folder: Path) -> bool:
         with open(package_json_path, "r") as f:
             data = json.load(f)
 
-        # Check if pnpm.overrides exists
         if "pnpm" in data and "overrides" in data["pnpm"]:
             print(
                 f"{BLUE}Removing pnpm.overrides from {folder.name}/package.json{RESET}"
             )
             del data["pnpm"]["overrides"]
 
-            # If pnpm section is now empty, remove it entirely
             if not data["pnpm"]:
                 del data["pnpm"]
 
-            # Write back the modified package.json
             write_package_json(data, package_json_path)
 
             return True

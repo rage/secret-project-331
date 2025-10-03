@@ -3,13 +3,6 @@
   "version": "0.1.0",
   "packageManager": "pnpm@10.17.1",
   "private": true,
-  "pnpm": {
-    "overrides": {
-      "@babel/runtime@<7.26.10": ">=7.26.10",
-      "@tanstack/react-query": "^5.90.2",
-      "webpack-dev-server@<=5.2.0": ">=5.2.1"
-    }
-  },
   "scripts": {
     "build": "NODE_ENV=production next build",
     "dev": "next dev --turbopack",

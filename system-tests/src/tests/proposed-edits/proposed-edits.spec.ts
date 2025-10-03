@@ -70,6 +70,8 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   )
 
   await page.getByText("Like this.").click()
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(100)
   await page.fill("text=Like this.", "Like this!")
   await page.click("text=The abacus is one of the oldest known calculating tools")
   await page.fill(

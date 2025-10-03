@@ -1,11 +1,11 @@
 {
   "name": "common",
   "version": "1.0.0",
-  "private": true,
-  "packageManager": "pnpm@10.17.1",
-  "keywords": [],
   "author": "Henrik Nygren <nygrenh@gmail.com>",
+  "keywords": [],
   "license": "Apache-2.0",
+  "packageManager": "pnpm@10.17.1",
+  "private": true,
   "scripts": {
     "test": "jest"
   },

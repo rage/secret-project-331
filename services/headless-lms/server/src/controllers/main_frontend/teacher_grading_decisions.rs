@@ -39,6 +39,45 @@ async fn create_teacher_grading_decision(
         points_given = manual_points.unwrap_or(0.0);
     } else if *action == TeacherDecisionType::SuspectedPlagiarism {
         points_given = 0.0;
+    } else if *action == TeacherDecisionType::RejectAndReset {
+        points_given = 0.0;
+
+        let mut tx = conn.begin().await?;
+
+        let _res = models::teacher_grading_decisions::add_teacher_grading_decision(
+            &mut tx,
+            user_exercise_state_id,
+            *action,
+            points_given,
+            Some(user.id),
+            justification.clone(),
+            hidden,
+        )
+        .await?;
+
+        let student_state =
+            models::user_exercise_states::get_by_id(&mut tx, user_exercise_state_id).await?;
+        let users_and_exercises = vec![(student_state.user_id, vec![exercise_id])];
+
+        let course_id = student_state.course_id.ok_or_else(|| {
+            ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "RejectAndReset requires course_id".to_string(),
+                None,
+            )
+        })?;
+
+        let _reset = models::exercises::reset_exercises_for_selected_users(
+            &mut tx,
+            &users_and_exercises,
+            user.id,
+            course_id,
+        )
+        .await?;
+
+        tx.commit().await?;
+
+        return token.authorized_ok(web::Json(student_state));
     } else {
         return Err(ControllerError::new(
             ControllerErrorType::BadRequest,

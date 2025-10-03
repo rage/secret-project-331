@@ -1,25 +1,25 @@
 {
   "name": "material-editor",
   "version": "0.1.0",
-  "private": true,
   "packageManager": "pnpm@10.17.1",
+  "private": true,
   "pnpm": {
     "overrides": {
-      "@tanstack/react-query": "^5.90.2",
       "@babel/runtime@<7.26.10": ">=7.26.10",
+      "@tanstack/react-query": "^5.90.2",
       "webpack-dev-server@<=5.2.0": ">=5.2.1"
     }
   },
   "scripts": {
-    "dev": "next dev --turbopack",
     "build": "NODE_ENV=production next build",
+    "dev": "next dev --turbopack",
     "export": "next export",
-    "start": "NODE_ENV=production PORT=3000 node server.js",
     "list-gutenberg-block-names": "ts-node -O \"{\\\"module\\\":\\\"commonjs\\\"}\" scripts/listGutenbergBlockNames.ts",
-    "test": "jest",
+    "postinstall": "pnpm run -F '**' postinstall:clean-wp && pnpm run -F '**' postinstall:remove-gutenberg-eslint-deps-that-breaks-our-eslint",
     "postinstall:clean-wp": "ts-node -O \"{\\\"module\\\":\\\"commonjs\\\"}\" scripts/cleanWordpressModules.ts",
     "postinstall:remove-gutenberg-eslint-deps-that-breaks-our-eslint": "find node_modules -maxdepth 1 -type d -name '*eslint*' -exec rm -r {} +",
-    "postinstall": "pnpm run -F '**' postinstall:clean-wp && pnpm run -F '**' postinstall:remove-gutenberg-eslint-deps-that-breaks-our-eslint"
+    "start": "NODE_ENV=production PORT=3000 node server.js",
+    "test": "jest"
   },
   "dependencies": {
     "@bytedance/tar-wasm": "^0.1.7",

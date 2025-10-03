@@ -41,7 +41,7 @@
     "@playwright/browser-chromium": "^1.54.2",
     "@playwright/test": "^1.54.2",
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^24.6.1",
+    "@types/node": "^24.6.2",
     "@types/tar-fs": "^2.0.4",
     "@types/which": "^3.0.4",
     "playwright": "^1.54.2",

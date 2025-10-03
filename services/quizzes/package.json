@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "packageManager": "pnpm@10.17.1",
   "scripts": {
-    "dev": "next dev --port 3004 --turbopack",
     "build": "NODE_ENV=production next build",
+    "dev": "next dev --port 3004 --turbopack",
     "export": "next export",
     "start": "NODE_ENV=production PORT=3004 node server.js",
     "test": "jest",

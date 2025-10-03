@@ -2071,6 +2071,7 @@ export type TeacherDecisionType =
   | "ZeroPoints"
   | "CustomPoints"
   | "SuspectedPlagiarism"
+  | "RejectAndReset"
 
 export interface TeacherGradingDecision {
   id: string

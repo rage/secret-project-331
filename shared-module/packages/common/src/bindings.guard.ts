@@ -1993,7 +1993,8 @@ export function isExerciseGradingStatus(obj: unknown): obj is ExerciseGradingSta
             typedObj["teacher_decision"] === "FullPoints" ||
             typedObj["teacher_decision"] === "ZeroPoints" ||
             typedObj["teacher_decision"] === "CustomPoints" ||
-            typedObj["teacher_decision"] === "SuspectedPlagiarism") &&
+            typedObj["teacher_decision"] === "SuspectedPlagiarism" ||
+            typedObj["teacher_decision"] === "RejectAndReset") &&
         typeof typedObj["submission_id"] === "string" &&
         typeof typedObj["updated_at"] === "string"
     )
@@ -4211,7 +4212,8 @@ export function isTeacherDecisionType(obj: unknown): obj is TeacherDecisionType 
         (typedObj === "FullPoints" ||
             typedObj === "ZeroPoints" ||
             typedObj === "CustomPoints" ||
-            typedObj === "SuspectedPlagiarism")
+            typedObj === "SuspectedPlagiarism" ||
+            typedObj === "RejectAndReset")
     )
 }
 

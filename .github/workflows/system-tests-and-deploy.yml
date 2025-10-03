@@ -615,5 +615,5 @@ jobs:
         working-directory: ./system-tests/
 
       - name: Run tsc
-        run: npx tsc --noEmit
+        run: pnpm exec tsc --noEmit
         working-directory: ./system-tests/

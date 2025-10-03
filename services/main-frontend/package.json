@@ -1,14 +1,14 @@
 {
   "name": "main-frontend",
   "version": "0.1.0",
-  "private": true,
   "packageManager": "pnpm@10.17.1",
+  "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
     "build": "NODE_ENV=production next build",
+    "dev": "next dev --turbopack",
     "export": "next export",
-    "start": "NODE_ENV=production PORT=3000 node server.js",
     "postinstall": "mkdir -p public && cp -r ./node_modules/monaco-editor/min ./public/monaco-editor",
+    "start": "NODE_ENV=production PORT=3000 node server.js",
     "test": "jest"
   },
   "dependencies": {

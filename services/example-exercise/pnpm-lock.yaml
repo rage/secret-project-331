@@ -43,7 +43,7 @@ importers:
         version: 7.0.6
       '@monaco-editor/react':
         specifier: ^4.7.0
-        version: 4.7.0(monaco-editor@0.53.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        version: 4.7.0(monaco-editor@0.52.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@popperjs/core':
         specifier: ^2.11.8
         version: 2.11.8
@@ -81,8 +81,8 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
       monaco-editor:
-        specifier: ^0.53.0
-        version: 0.53.0
+        specifier: ^0.52.2
+        version: 0.52.2
       next:
         specifier: 15.5.4
         version: 15.5.4(@babel/core@7.28.4)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -787,14 +787,14 @@ packages:
     resolution: {integrity: sha512-bkFqkLhh3pMBUQQkpVgWDWq/lqzc2678eUyDlTBhRqhCHFguYYGM0Efga7tYk4TogG/3x0EEl66/OQ+WGbWB/Q==}
     engines: {node: '>=6.9.0'}
 
-  '@cacheable/memoize@2.0.2':
-    resolution: {integrity: sha512-wPrr7FUiq3Qt4yQyda2/NcOLTJCFcQSU3Am2adP+WLy+sz93/fKTokVTHmtz+rjp4PD7ee0AEOeRVNN6IvIfsg==}
+  '@cacheable/memoize@2.0.3':
+    resolution: {integrity: sha512-hl9wfQgpiydhQEIv7fkjEzTGE+tcosCXLKFDO707wYJ/78FVOlowb36djex5GdbSyeHnG62pomYLMuV/OT8Pbw==}
 
-  '@cacheable/memory@2.0.2':
-    resolution: {integrity: sha512-sJTITLfeCI1rg7P3ssaGmQryq235EGT8dXGcx6oZwX5NRnKq9IE6lddlllcOl+oXW+yaeTRddCjo0xrfU6ZySA==}
+  '@cacheable/memory@2.0.3':
+    resolution: {integrity: sha512-R3UKy/CKOyb1LZG/VRCTMcpiMDyLH7SH3JrraRdK6kf3GweWCOU3sgvE13W3TiDRbxnDKylzKJvhUAvWl9LQOA==}
 
-  '@cacheable/utils@2.0.2':
-    resolution: {integrity: sha512-JTFM3raFhVv8LH95T7YnZbf2YoE9wEtkPPStuRF9a6ExZ103hFvs+QyCuYJ6r0hA9wRtbzgZtwUCoDWxssZd4Q==}
+  '@cacheable/utils@2.0.3':
+    resolution: {integrity: sha512-m7Rce68cMHlAUjvWBy9Ru1Nmw5gU0SjGGtQDdhpe6E0xnbcvrIY0Epy//JU1VYYBUTzrG9jvgmTauULGKzOkWA==}
 
   '@csstools/css-parser-algorithms@3.0.5':
     resolution: {integrity: sha512-DaDeUkXZKjdGhgYaHNJTV9pV7Y9B3b644jCLs9Upc3VeNGg6LWARAT6O+Q+/COo+2gg/bM5rhpMAtf70WqfBdQ==}
@@ -2101,9 +2101,6 @@ packages:
   '@types/stack-utils@2.0.3':
     resolution: {integrity: sha512-9aEbYZ3TbYMznPdcdr3SmIrLXwC/AKZXQeCf9Pgao5CKb8CyHuEX5jzWPTkvregvhRJHcpRO6BFoGW9ycaOkYw==}
 
-  '@types/trusted-types@1.0.6':
-    resolution: {integrity: sha512-230RC8sFeHoT6sSUlRO6a8cAnclO06eeiq1QDfiv2FGCLWFvvERWgwIQD4FWqD9A69BN7Lzee4OXwoMVnnsWDw==}
-
   '@types/webxr@0.5.24':
     resolution: {integrity: sha512-h8fgEd/DpoS9CBrjEQXR+dIDraopAEfu4wYVNY2tEPwk60stPWhvZMf4Foo5FakuQ7HFZoa8WceaWFervK2Ovg==}
 
@@ -2242,8 +2239,8 @@ packages:
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
-  baseline-browser-mapping@2.8.7:
-    resolution: {integrity: sha512-bxxN2M3a4d1CRoQC//IqsR5XrLh0IJ8TCv2x6Y9N0nckNz/rTjZB3//GGscZziZOxmjP55rzxg/ze7usFI9FqQ==}
+  baseline-browser-mapping@2.8.10:
+    resolution: {integrity: sha512-uLfgBi+7IBNay8ECBO2mVMGZAc1VgZWEChxm4lv+TobGdG82LnXMjuNGo/BSSZZL4UmkWhxEHP2f5ziLNwGWMA==}
     hasBin: true
 
   body-parser@2.2.0:
@@ -2260,8 +2257,8 @@ packages:
     resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==}
     engines: {node: '>=8'}
 
-  browserslist@4.26.2:
-    resolution: {integrity: sha512-ECFzp6uFOSB+dcZ5BK/IBaGWssbSYBHvuMeMt3MMFyhI0Z8SqGgEkBLARgpRH3hutIgPVsALcMwbDrJqPxQ65A==}
+  browserslist@4.26.3:
+    resolution: {integrity: sha512-lAUU+02RFBuCKQPj/P6NgjlbCnLBMp4UtgTx7vNHd3XSIJF87s9a5rA3aH2yw3GS9DqZAUbOtZdCCiZeVRqt0w==}
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
 
@@ -2278,8 +2275,8 @@ packages:
     resolution: {integrity: sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg==}
     engines: {node: '>= 0.8'}
 
-  cacheable@2.0.2:
-    resolution: {integrity: sha512-dWjhLx8RWnPsAWVKwW/wI6OJpQ/hSVb1qS0NUif8TR9vRiSwci7Gey8x04kRU9iAF+Rnbtex5Kjjfg/aB5w8Pg==}
+  cacheable@2.0.3:
+    resolution: {integrity: sha512-nZF80J3d8RMrroMSYm1E9pBllVDXWPuECZgEZxH+vusCY4MAXAJVrY0jutcHSgh3xYX3G2EUNnmtWGZVVjWCXw==}
 
   call-bind-apply-helpers@1.0.2:
     resolution: {integrity: sha512-Sp1ablJ0ivDkSzjcaJdxEunN5/XvksFJ2sMBFfq6x0ryhQV/2b/KwFe21cMpmHtPOSij8K99/wSfoEuTObmuMQ==}
@@ -2301,8 +2298,8 @@ packages:
     resolution: {integrity: sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==}
     engines: {node: '>=10'}
 
-  caniuse-lite@1.0.30001745:
-    resolution: {integrity: sha512-ywt6i8FzvdgrrrGbr1jZVObnVv6adj+0if2/omv9cmR2oiZs30zL4DIyaptKcbOrBdOIc74QTMoJvSE2QHh5UQ==}
+  caniuse-lite@1.0.30001746:
+    resolution: {integrity: sha512-eA7Ys/DGw+pnkWWSE/id29f2IcPHVoE8wxtvE5JdvD2V28VTDPy1yEeo11Guz0sJ4ZeGRcm3uaTcAqK1LXaphA==}
 
   chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
@@ -2527,8 +2524,8 @@ packages:
   ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
 
-  electron-to-chromium@1.5.224:
-    resolution: {integrity: sha512-kWAoUu/bwzvnhpdZSIc6KUyvkI1rbRXMT0Eq8pKReyOyaPZcctMli+EgvcN1PAvwVc7Tdo4Fxi2PsLNDU05mdg==}
+  electron-to-chromium@1.5.228:
+    resolution: {integrity: sha512-nxkiyuqAn4MJ1QbobwqJILiDtu/jk14hEAWaMiJmNPh1Z+jqoFlBFZjdXwLWGeVSeu9hGLg6+2G9yJaW8rBIFA==}
 
   emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -2658,8 +2655,8 @@ packages:
     resolution: {integrity: sha512-PpOwAdQ/YlXQ2vj8a3h8IipDuYRi3wceVQQGYWxNINccq40Anw7BlsEXCMbt1Zt+OLA6Fq9suIpIWD0OsnISlw==}
     engines: {node: '>=8'}
 
-  flat-cache@6.1.14:
-    resolution: {integrity: sha512-ExZSCSV9e7v/Zt7RzCbX57lY2dnPdxzU/h3UE6WJ6NtEMfwBd8jmi1n4otDEUfz+T/R+zxrFDpICFdjhD3H/zw==}
+  flat-cache@6.1.17:
+    resolution: {integrity: sha512-Jzse4YoiUJBVYTwz5Bwl4h/2VQM7e2KK3MVAMlXzX9uamIHAH/TXUlRKU1AQGQOryQhN0EsmufiiF40G057YXA==}
 
   flatted@3.3.3:
     resolution: {integrity: sha512-GX+ysw4PBCz0PzosHDepZGANEuFCMLrnRTiEy9McGjmkCQYwRq4A/X786G/fjM/+OjsWSU1ZrY5qyARZmO/uwg==}
@@ -2999,8 +2996,8 @@ packages:
     engines: {node: '>=6'}
     hasBin: true
 
-  keyv@5.5.2:
-    resolution: {integrity: sha512-TXcFHbmm/z7MGd1u9ASiCSfTS+ei6Z8B3a5JHzx3oPa/o7QzWVtPRpc4KGER5RR469IC+/nfg4U5YLIuDUua2g==}
+  keyv@5.5.3:
+    resolution: {integrity: sha512-h0Un1ieD+HUrzBH6dJXhod3ifSghk5Hw/2Y4/KHBziPlZecrFyE9YOTPU6eOs0V9pYl8gOs86fkr/KN8lUX39A==}
 
   kind-of@6.0.3:
     resolution: {integrity: sha512-dcS1ul+9tmeD95T+x28/ehLgd9mENa3LsvDTtzm3vyBEO7RPptvAD+t44WVXaUjTBRcrpFeFlC8WCruUR456hw==}
@@ -3183,8 +3180,8 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  monaco-editor@0.53.0:
-    resolution: {integrity: sha512-0WNThgC6CMWNXXBxTbaYYcunj08iB5rnx4/G56UOPeL9UVIUGGHA1GR0EWIh9Ebabj7NpCRawQ5b0hfN1jQmYQ==}
+  monaco-editor@0.52.2:
+    resolution: {integrity: sha512-GEQWEZmfkOGLdd3XK8ryrfWz3AIP8YymVXiPHEdewrUq7mh0qrKrfHLNCXcbB6sTnMLnOZ3ztSiKcciFUkIJwQ==}
 
   ms@2.0.0:
     resolution: {integrity: sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==}
@@ -4055,7 +4052,7 @@ snapshots:
     dependencies:
       '@babel/compat-data': 7.28.4
       '@babel/helper-validator-option': 7.27.1
-      browserslist: 4.26.2
+      browserslist: 4.26.3
       lru-cache: 5.1.1
       semver: 6.3.1
 
@@ -4813,19 +4810,19 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.27.1
 
-  '@cacheable/memoize@2.0.2':
+  '@cacheable/memoize@2.0.3':
     dependencies:
-      '@cacheable/utils': 2.0.2
+      '@cacheable/utils': 2.0.3
 
-  '@cacheable/memory@2.0.2':
+  '@cacheable/memory@2.0.3':
     dependencies:
-      '@cacheable/memoize': 2.0.2
-      '@cacheable/utils': 2.0.2
+      '@cacheable/memoize': 2.0.3
+      '@cacheable/utils': 2.0.3
       '@keyv/bigmap': 1.0.2
       hookified: 1.12.1
-      keyv: 5.5.2
+      keyv: 5.5.3
 
-  '@cacheable/utils@2.0.2': {}
+  '@cacheable/utils@2.0.3': {}
 
   '@csstools/css-parser-algorithms@3.0.5(@csstools/css-tokenizer@3.0.4)':
     dependencies:
@@ -5194,10 +5191,10 @@ snapshots:
     dependencies:
       state-local: 1.0.7
 
-  '@monaco-editor/react@4.7.0(monaco-editor@0.53.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
+  '@monaco-editor/react@4.7.0(monaco-editor@0.52.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
     dependencies:
       '@monaco-editor/loader': 1.5.0
-      monaco-editor: 0.53.0
+      monaco-editor: 0.52.2
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
 
@@ -6626,8 +6623,6 @@ snapshots:
 
   '@types/stack-utils@2.0.3': {}
 
-  '@types/trusted-types@1.0.6': {}
-
   '@types/webxr@0.5.24': {}
 
   '@types/yargs-parser@21.0.3': {}
@@ -6797,7 +6792,7 @@ snapshots:
 
   base64-js@1.5.1: {}
 
-  baseline-browser-mapping@2.8.7: {}
+  baseline-browser-mapping@2.8.10: {}
 
   body-parser@2.2.0:
     dependencies:
@@ -6824,13 +6819,13 @@ snapshots:
     dependencies:
       fill-range: 7.1.1
 
-  browserslist@4.26.2:
+  browserslist@4.26.3:
     dependencies:
-      baseline-browser-mapping: 2.8.7
-      caniuse-lite: 1.0.30001745
-      electron-to-chromium: 1.5.224
+      baseline-browser-mapping: 2.8.10
+      caniuse-lite: 1.0.30001746
+      electron-to-chromium: 1.5.228
       node-releases: 2.0.21
-      update-browserslist-db: 1.1.3(browserslist@4.26.2)
+      update-browserslist-db: 1.1.3(browserslist@4.26.3)
 
   bser@2.1.1:
     dependencies:
@@ -6845,13 +6840,13 @@ snapshots:
 
   bytes@3.1.2: {}
 
-  cacheable@2.0.2:
+  cacheable@2.0.3:
     dependencies:
-      '@cacheable/memoize': 2.0.2
-      '@cacheable/memory': 2.0.2
-      '@cacheable/utils': 2.0.2
+      '@cacheable/memoize': 2.0.3
+      '@cacheable/memory': 2.0.3
+      '@cacheable/utils': 2.0.3
       hookified: 1.12.1
-      keyv: 5.5.2
+      keyv: 5.5.3
 
   call-bind-apply-helpers@1.0.2:
     dependencies:
@@ -6869,7 +6864,7 @@ snapshots:
 
   camelcase@6.3.0: {}
 
-  caniuse-lite@1.0.30001745: {}
+  caniuse-lite@1.0.30001746: {}
 
   chalk@4.1.2:
     dependencies:
@@ -6957,7 +6952,7 @@ snapshots:
 
   core-js-compat@3.45.1:
     dependencies:
-      browserslist: 4.26.2
+      browserslist: 4.26.3
 
   cosmiconfig@7.1.0:
     dependencies:
@@ -7082,7 +7077,7 @@ snapshots:
 
   ee-first@1.1.1: {}
 
-  electron-to-chromium@1.5.224: {}
+  electron-to-chromium@1.5.228: {}
 
   emoji-regex@8.0.0: {}
 
@@ -7195,7 +7190,7 @@ snapshots:
 
   file-entry-cache@10.1.4:
     dependencies:
-      flat-cache: 6.1.14
+      flat-cache: 6.1.17
 
   fill-range@7.1.1:
     dependencies:
@@ -7231,9 +7226,9 @@ snapshots:
       locate-path: 5.0.0
       path-exists: 4.0.0
 
-  flat-cache@6.1.14:
+  flat-cache@6.1.17:
     dependencies:
-      cacheable: 2.0.2
+      cacheable: 2.0.3
       flatted: 3.3.3
       hookified: 1.12.1
 
@@ -7597,7 +7592,7 @@ snapshots:
 
   json5@2.2.3: {}
 
-  keyv@5.5.2:
+  keyv@5.5.3:
     dependencies:
       '@keyv/serialize': 1.1.1
 
@@ -7870,9 +7865,7 @@ snapshots:
 
   mkdirp@1.0.4: {}
 
-  monaco-editor@0.53.0:
-    dependencies:
-      '@types/trusted-types': 1.0.6
+  monaco-editor@0.52.2: {}
 
   ms@2.0.0: {}
 
@@ -7888,7 +7881,7 @@ snapshots:
     dependencies:
       '@next/env': 15.5.4
       '@swc/helpers': 0.5.15
-      caniuse-lite: 1.0.30001745
+      caniuse-lite: 1.0.30001746
       postcss: 8.4.31
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
@@ -8745,9 +8738,9 @@ snapshots:
 
   unpipe@1.0.0: {}
 
-  update-browserslist-db@1.1.3(browserslist@4.26.2):
+  update-browserslist-db@1.1.3(browserslist@4.26.3):
     dependencies:
-      browserslist: 4.26.2
+      browserslist: 4.26.3
       escalade: 3.2.0
       picocolors: 1.1.1
 

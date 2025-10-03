@@ -63,6 +63,71 @@ def git_has_changes(cwd: Path | None = None) -> bool:
     return cp.stdout.strip() != ""
 
 
+def sort_dict_recursively(obj):
+    """Recursively sort dictionary keys alphabetically."""
+    if isinstance(obj, dict):
+        # Sort the keys and recursively sort values
+        sorted_dict = {}
+        for key in sorted(obj.keys()):
+            sorted_dict[key] = sort_dict_recursively(obj[key])
+        return sorted_dict
+    elif isinstance(obj, list):
+        # Sort list items if they are dictionaries
+        return [sort_dict_recursively(item) for item in obj]
+    else:
+        # Return primitive values as-is
+        return obj
+
+
+def sort_package_json(folder: Path) -> bool:
+    """Sort package.json fields alphabetically (recursively). Returns True if changes were made."""
+    package_json_path = folder / "package.json"
+    if not package_json_path.exists():
+        return False
+
+    try:
+        with open(package_json_path, "r") as f:
+            data = json.load(f)
+
+        sorted_data = {}
+
+        # Sort top-level keys alphabetically, but keep some common keys at the top
+        priority_keys = [
+            "name",
+            "version",
+            "description",
+            "main",
+            "type",
+            "packageManager",
+            "scripts",
+        ]
+        other_keys = sorted([k for k in data.keys() if k not in priority_keys])
+        all_keys = [k for k in priority_keys if k in data] + other_keys
+
+        for key in all_keys:
+            if key in data:
+                # Recursively sort the value if it's a dictionary
+                sorted_data[key] = sort_dict_recursively(data[key])
+
+        # Check if the data has changed by comparing the JSON strings
+        original_json = json.dumps(data, sort_keys=False, indent=2)
+        sorted_json = json.dumps(sorted_data, sort_keys=False, indent=2)
+
+        if original_json != sorted_json:
+            print(
+                f"{BLUE}Sorted package.json fields alphabetically in {folder.name}/package.json{RESET}"
+            )
+
+            with open(package_json_path, "w") as f:
+                json.dump(sorted_data, f, indent=2)
+
+            return True
+        return False
+    except (json.JSONDecodeError, KeyError, OSError) as e:
+        print(f"{RED}Error processing {package_json_path}: {e}{RESET}")
+        return False
+
+
 def remove_pnpm_overrides(folder: Path) -> bool:
     """Remove pnpm.overrides from package.json if it exists. Returns True if changes were made."""
     package_json_path = folder / "package.json"
@@ -107,6 +172,20 @@ def pushd(path: Path):
 
 def update_node_deps(folder: Path, target_name: str) -> None:
     with pushd(folder):
+        # Sort package.json fields (mostly) alphabetically as the first step
+        if sort_package_json(folder):
+            if git_has_changes():
+                run(["git", "add", "package.json"])
+                run(
+                    [
+                        "git",
+                        "commit",
+                        "-m",
+                        f"Sort package.json fields in {target_name}",
+                        "--no-verify",
+                    ]
+                )
+
         # Remove pnpm.overrides before updating dependencies
         if remove_pnpm_overrides(folder):
             if git_has_changes():

@@ -12,7 +12,7 @@ use sqlx::{Decode, Encode, Postgres, error::BoxDynError};
 
 // --- Secure Digest (zeroizes on drop) --------------------------------------
 
-#[derive(Clone, Hash, Zeroize)]
+#[derive(Clone, Hash, Zeroize, PartialEq, Eq)]
 #[zeroize(drop)]
 pub struct Digest([u8; 32]);
 
@@ -58,12 +58,6 @@ impl Digest {
         unsafe { String::from_utf8_unchecked(out) }
     }
 }
-impl PartialEq for Digest {
-    fn eq(&self, other: &Self) -> bool {
-        self.0.ct_eq(&other.0).into()
-    }
-}
-impl Eq for Digest {}
 
 #[derive(Debug)]
 pub enum DigestError {

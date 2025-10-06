@@ -13,7 +13,6 @@ import {
 } from "@/shared-module/common/bindings"
 import {
   isAuthorizedClientInfo,
-  isConsentDenyQuery,
   isConsentResponse,
   isCourse,
   isCourseInstanceEnrollmentsInfo,
@@ -75,5 +74,5 @@ export const postOAuthConsent = async (consentQuery: ConsentQuery): Promise<Cons
 
 export const postOAuthDeny = async (denyQuery: ConsentDenyQuery): Promise<ConsentResponse> => {
   const response = await mainFrontendClient.post(`/oauth/deny`, denyQuery)
-  return validateResponse(response, isConsentDenyQuery)
+  return validateResponse(response, isConsentResponse)
 }

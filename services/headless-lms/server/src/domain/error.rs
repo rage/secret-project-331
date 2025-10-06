@@ -55,7 +55,7 @@ pub enum ControllerErrorType {
     #[display("Forbidden")]
     Forbidden,
 
-    /// HTTP status code 200. OAuthError is returned as a error message on OK response.
+    /// Varied response based on error
     #[display("OAuthError")]
     OAuthError(Box<OAuthErrorData>),
 }
@@ -637,7 +637,7 @@ impl From<dpop_verifier::error::DpopError> for ControllerError {
             | DpopError::NonceMismatch
             | DpopError::NonceStale
             | DpopError::MissingNonce => OAuthErrorData {
-                error: OAuthErrorCode::InvalidToken.as_str().into(),
+                error: OAuthErrorCode::InvalidDopopProof.as_str().into(),
                 error_description: err.to_string(),
                 redirect_uri: None,
                 state: None,
@@ -653,7 +653,7 @@ impl From<dpop_verifier::error::DpopError> for ControllerError {
             },
 
             DpopError::UseDpopNonce { nonce } => OAuthErrorData {
-                error: "use_dpop_nonce".into(), // per RFC 9449 §12.2
+                error: OAuthErrorCode::UseDpopNonce.as_str().into(), // per RFC 9449 §12.2
                 error_description: "Server requires DPoP nonce".into(),
                 redirect_uri: None,
                 state: None,
